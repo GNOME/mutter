@@ -141,9 +141,10 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
-void
-meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
-                                       MetaKmsPlane  *plane)
+static gboolean
+drop_plane_assignment (MetaKmsUpdate          *update,
+                       MetaKmsPlane           *plane,
+                       MetaKmsAssignPlaneFlag *out_flags)
 {
   GList *l;
 
@@ -155,10 +156,21 @@ meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
         {
           update->plane_assignments =
             g_list_delete_link (update->plane_assignments, l);
+          if (out_flags)
+            *out_flags = plane_assignment->flags;
           meta_kms_plane_assignment_free (plane_assignment);
-          return;
+          return TRUE;
         }
     }
+
+  return FALSE;
+}
+
+void
+meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
+                                       MetaKmsPlane  *plane)
+{
+  drop_plane_assignment (update, plane, NULL);
 }
 
 MetaKmsPlaneAssignment *
@@ -171,6 +183,7 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                               MetaKmsAssignPlaneFlag  flags)
 {
   MetaKmsPlaneAssignment *plane_assignment;
+  MetaKmsAssignPlaneFlag old_flags;
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
@@ -178,6 +191,12 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   g_assert (meta_kms_plane_get_plane_type (plane) !=
             META_KMS_PLANE_TYPE_PRIMARY ||
             !(flags & META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL));
+
+  if (drop_plane_assignment (update, plane, &old_flags))
+    {
+      if (!(old_flags & META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED))
+        flags &= ~META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
+    }
 
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {
