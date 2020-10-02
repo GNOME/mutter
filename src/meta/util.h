@@ -76,6 +76,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_SHAPES: shapes
  * @META_DEBUG_EDGE_RESISTANCE: edge resistance
  * @META_DEBUG_WAYLAND: Wayland
+ * @META_DEBUG_KMS: kernel mode setting
  */
 typedef enum
 {
@@ -101,6 +102,7 @@ typedef enum
   META_DEBUG_DBUS            = 1 << 18,
   META_DEBUG_INPUT           = 1 << 19,
   META_DEBUG_WAYLAND         = 1 << 20,
+  META_DEBUG_KMS             = 1 << 21,
 } MetaDebugTopic;
 
 /**

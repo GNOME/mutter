@@ -118,6 +118,13 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
 
   if (connector_update->dpms.has_update)
     {
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting DPMS on connector %u (%s) to %"
+                  G_GUINT64_FORMAT,
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device),
+                  connector_update->dpms.state);
+
       if (!set_connector_property (impl_device,
                                    connector,
                                    META_KMS_CONNECTOR_PROP_DPMS,
@@ -129,6 +136,14 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
   if (connector_update->underscanning.has_update &&
       connector_update->underscanning.is_active)
     {
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting underscanning on connector %u (%s) to "
+                  "%" G_GUINT64_FORMAT "x%" G_GUINT64_FORMAT,
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device),
+                  connector_update->underscanning.hborder,
+                  connector_update->underscanning.vborder);
+
       if (!set_connector_property (impl_device,
                                    connector,
                                    META_KMS_CONNECTOR_PROP_UNDERSCAN,
@@ -150,6 +165,11 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
     }
   else if (connector_update->underscanning.has_update)
     {
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Unsetting underscanning on connector %u (%s)",
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
       if (!set_connector_property (impl_device,
                                    connector,
                                    META_KMS_CONNECTOR_PROP_UNDERSCAN,
@@ -217,6 +237,13 @@ set_plane_rotation (MetaKmsImplDevice  *impl_device,
 
   rotation_prop_id = meta_kms_plane_get_prop_id (plane,
                                                  META_KMS_PLANE_PROP_ROTATION);
+
+  meta_topic (META_DEBUG_KMS,
+              "[simple] Setting plane %u (%s) rotation to %" G_GUINT64_FORMAT,
+              meta_kms_plane_get_id (plane),
+              meta_kms_impl_device_get_path (impl_device),
+              rotation);
+
   ret = drmModeObjectSetProperty (fd,
                                   meta_kms_plane_get_id (plane),
                                   DRM_MODE_OBJECT_PLANE,
@@ -293,6 +320,12 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
 
       buffer = plane_assignment->buffer;
       fb_id = meta_drm_buffer_get_fb_id (buffer);
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting mode of CRTC %u (%s) to %s",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device),
+                  drm_mode->name);
     }
   else
     {
@@ -301,6 +334,11 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
       n_connectors = 0;
       connectors = NULL;
       fb_id = 0;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Unsetting mode of CRTC %u (%s)",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device));
     }
 
   fd = meta_kms_impl_device_get_fd (impl_device);
@@ -345,6 +383,12 @@ process_crtc_gamma (MetaKmsImplDevice  *impl_device,
   MetaKmsCrtc *crtc = gamma->crtc;
   int fd;
   int ret;
+
+  meta_topic (META_DEBUG_KMS,
+              "[simple] Setting CRTC %u (%s) gamma, size: %d",
+              meta_kms_crtc_get_id (crtc),
+              meta_kms_impl_device_get_path (impl_device),
+              gamma->size);
 
   fd = meta_kms_impl_device_get_fd (impl_device);
   ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
@@ -447,11 +491,21 @@ retry_page_flips (gpointer user_data)
       custom_page_flip_func = retry_page_flip_data->custom_page_flip_func;
       if (custom_page_flip_func)
         {
+          meta_topic (META_DEBUG_KMS,
+                      "[simple] Retrying custom page flip on CRTC %u (%s)",
+                      meta_kms_crtc_get_id (crtc),
+                      meta_kms_impl_device_get_path (impl_device));
           ret = custom_page_flip_func (retry_page_flip_data->custom_page_flip_user_data,
                                        retry_page_flip_data->page_flip_data);
         }
       else
         {
+          meta_topic (META_DEBUG_KMS,
+                      "[simple] Retrying page flip on CRTC %u (%s) with %u",
+                      meta_kms_crtc_get_id (crtc),
+                      meta_kms_impl_device_get_path (impl_device),
+                      retry_page_flip_data->fb_id);
+
           fd = meta_kms_impl_device_get_fd (impl_device);
           ret = drmModePageFlip (fd,
                                  meta_kms_crtc_get_id (crtc),
@@ -463,6 +517,11 @@ retry_page_flips (gpointer user_data)
       if (ret == -EBUSY)
         {
           float refresh_rate;
+
+          meta_topic (META_DEBUG_KMS,
+                      "[simple] Rescheduling page flip retry on CRTC %u (%s)",
+                      meta_kms_crtc_get_id (crtc),
+                      meta_kms_impl_device_get_path (impl_device));
 
           refresh_rate =
             get_cached_crtc_refresh_rate (impl_device_simple, crtc);
@@ -727,6 +786,10 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                                              &custom_page_flip_user_data);
   if (custom_page_flip_func)
     {
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Invoking custom page flip on CRTC %u (%s)",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device));
       ret = custom_page_flip_func (custom_page_flip_user_data,
                                    meta_kms_page_flip_data_ref (page_flip_data));
     }
@@ -735,6 +798,14 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
       uint32_t fb_id;
 
       fb_id = meta_drm_buffer_get_fb_id (plane_assignment->buffer);
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Page flipping CRTC %u (%s) with %u, data: %p",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device),
+                  fb_id,
+                  page_flip_data);
+
       ret = drmModePageFlip (fd,
                              meta_kms_crtc_get_id (crtc),
                              fb_id,
@@ -748,6 +819,11 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
   if (ret == -EBUSY)
     {
       CachedModeSet *cached_mode_set;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Scheduling page flip retry on CRTC %u (%s)",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device));
 
       cached_mode_set = get_cached_mode_set (impl_device_simple, crtc);
       if (cached_mode_set)
@@ -781,6 +857,11 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
     }
   else if (ret == -EINVAL)
     {
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Falling back to mode set on CRTC %u (%s)",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device));
+
       if (!mode_set_fallback (impl_device_simple,
                               update,
                               plane_assignment,
@@ -952,6 +1033,16 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
           handle_u32 = 0;
         }
 
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting HW cursor of CRTC %u (%s) to %u "
+                  "(size: %dx%d, hot: (%d, %d))",
+                  crtc_id,
+                  meta_kms_impl_device_get_path (impl_device),
+                  handle_u32,
+                  width, height,
+                  plane_assignment->cursor_hotspot.x,
+                  plane_assignment->cursor_hotspot.y);
+
       if (plane_assignment->cursor_hotspot.is_valid)
         {
           ret = drmModeSetCursor2 (fd,
@@ -976,6 +1067,13 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
           return FALSE;
         }
     }
+
+  meta_topic (META_DEBUG_KMS,
+              "[simple] Moving HW cursor of CRTC %u (%s) to (%d, %d)",
+              crtc_id,
+              meta_kms_impl_device_get_path (impl_device),
+              plane_assignment->dst_rect.x,
+              plane_assignment->dst_rect.y);
 
   drmModeMoveCursor (fd,
                      crtc_id,
@@ -1081,11 +1179,20 @@ page_flip_handler (int           fd,
 {
   MetaKmsPageFlipData *page_flip_data = user_data;
   MetaKmsImplDevice *impl_device;
+  MetaKmsCrtc *crtc;
 
   meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
                                                sequence, tv_sec, tv_usec);
 
   impl_device = meta_kms_page_flip_data_get_impl_device (page_flip_data);
+  crtc = meta_kms_page_flip_data_get_crtc (page_flip_data);
+
+  meta_topic (META_DEBUG_KMS,
+              "[simple] Handling page flip callback from %s, data: %p, CRTC: %u",
+              meta_kms_impl_device_get_path (impl_device),
+              page_flip_data,
+              meta_kms_crtc_get_id (crtc));
+
   meta_kms_impl_device_handle_page_flip_callback (impl_device, page_flip_data);
 }
 
@@ -1103,6 +1210,10 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 {
   GError *error = NULL;
   GList *failed_planes = NULL;
+
+  meta_topic (META_DEBUG_KMS,
+              "[simple] Processing update %" G_GUINT64_FORMAT,
+              meta_kms_update_get_sequence_number (update));
 
   if (!process_entries (impl_device,
                         update,
@@ -1186,6 +1297,14 @@ meta_kms_impl_device_simple_discard_pending_page_flips (MetaKmsImplDevice *impl_
       MetaKmsPageFlipData *page_flip_data;
 
       page_flip_data = g_steal_pointer (&retry_page_flip_data->page_flip_data);
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Discarding page flip retry for CRTC %u (%s)",
+                  meta_kms_crtc_get_id (
+                    meta_kms_page_flip_data_get_crtc (page_flip_data)),
+                  meta_kms_impl_device_get_path (
+                    meta_kms_page_flip_data_get_impl_device (page_flip_data)));
+
       meta_kms_page_flip_data_discard_in_impl (page_flip_data, NULL);
       retry_page_flip_data_free (retry_page_flip_data);
     }
@@ -1243,6 +1362,11 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
       plane = meta_kms_device_get_cursor_plane_for (device, crtc);
       if (plane)
         continue;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Adding fake cursor plane for CRTC %u (%s)",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device));
 
       meta_kms_device_add_fake_plane_in_impl (device,
                                               META_KMS_PLANE_TYPE_CURSOR,

@@ -116,6 +116,8 @@ void meta_kms_update_unlock (MetaKmsUpdate *update);
 
 gboolean meta_kms_update_is_locked (MetaKmsUpdate *update);
 
+uint64_t meta_kms_update_get_sequence_number (MetaKmsUpdate *update);
+
 MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
 
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,

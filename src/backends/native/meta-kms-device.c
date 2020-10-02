@@ -285,6 +285,9 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
       driver_description = g_strdup ("Unknown");
     }
 
+  g_message ("Adding device '%s' (%s) using non-atomic mode setting.",
+             path, driver_name);
+
   return g_initable_new (META_TYPE_KMS_IMPL_DEVICE_SIMPLE, NULL, error,
                          "device", device,
                          "impl", impl,

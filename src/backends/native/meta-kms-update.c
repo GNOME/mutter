@@ -33,6 +33,7 @@ struct _MetaKmsUpdate
   MetaKmsDevice *device;
 
   gboolean is_locked;
+  uint64_t sequence_number;
 
   MetaPowerSave power_save;
   GList *mode_sets;
@@ -535,13 +536,21 @@ meta_kms_update_get_custom_page_flip_func (MetaKmsUpdate             *update,
   *custom_page_flip_user_data = update->custom_page_flip_user_data;
 }
 
+uint64_t
+meta_kms_update_get_sequence_number (MetaKmsUpdate *update)
+{
+  return update->sequence_number;
+}
+
 MetaKmsUpdate *
 meta_kms_update_new (MetaKmsDevice *device)
 {
   MetaKmsUpdate *update;
+  static uint64_t sequence_number = 0;
 
   update = g_new0 (MetaKmsUpdate, 1);
   update->device = device;
+  update->sequence_number = sequence_number++;
 
   return update;
 }

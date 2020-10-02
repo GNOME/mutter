@@ -1870,6 +1870,8 @@ unset_disabled_crtcs (MetaBackend *backend,
 {
   GList *l;
 
+  meta_topic (META_DEBUG_KMS, "Disabling all disabled CRTCs");
+
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpu *gpu = l->data;
@@ -2011,6 +2013,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                     "Onscreen (post pending update)");
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+  meta_topic (META_DEBUG_KMS,
+              "Posting primary plane composite update for CRTC %u (%s)",
+              meta_kms_crtc_get_id (kms_crtc),
+              meta_kms_device_get_path (kms_device));
 
   flags = META_KMS_UPDATE_FLAG_NONE;
   kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
@@ -2207,6 +2214,11 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+  meta_topic (META_DEBUG_KMS,
+              "Posting direct scanout update for CRTC %u (%s)",
+              meta_kms_crtc_get_id (kms_crtc),
+              meta_kms_device_get_path (kms_device));
 
   flags = META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR;
   kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
@@ -2684,6 +2696,8 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 
       onscreen_native->pending_set_crtc = TRUE;
     }
+
+  meta_topic (META_DEBUG_KMS, "Queue mode set");
 
   renderer_native->pending_unset_disabled_crtcs = TRUE;
 }
