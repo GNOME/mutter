@@ -255,7 +255,7 @@ bind_to_unix_socket (int display)
   unlink (addr.sun_path);
   if (bind (fd, (struct sockaddr *) &addr, size) < 0)
     {
-      g_warning ("failed to bind to %s: %m\n", addr.sun_path);
+      g_warning ("failed to bind to %s: %m", addr.sun_path);
       close (fd);
       return -1;
     }
@@ -501,7 +501,7 @@ on_init_x11_cb (MetaDisplay  *display,
   g_autoptr (GError) error = NULL;
 
   if (!meta_display_init_x11_finish (display, result, &error))
-    g_warning ("Failed to initialize X11 display: %s\n", error->message);
+    g_warning ("Failed to initialize X11 display: %s", error->message);
 }
 
 static gboolean

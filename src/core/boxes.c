@@ -435,7 +435,7 @@ merge_spanning_rects_in_region (GList *region)
   if (region == NULL)
     {
       g_warning ("Region to merge was empty!  Either you have a some "
-                 "pathological STRUT list or there's a bug somewhere!\n");
+                 "pathological STRUT list or there's a bug somewhere!");
       return NULL;
     }
 
@@ -955,7 +955,7 @@ meta_rectangle_clamp_to_fit_into_region (const GList         *spanning_rects,
   /* Clamp rect appropriately */
   if (best_rect == NULL)
     {
-      g_warning ("No rect whose size to clamp to found!\n");
+      g_warning ("No rect whose size to clamp to found!");
 
       /* If it doesn't fit, at least make it no bigger than it has to be */
       if (!(fixed_directions & FIXED_DIRECTION_X))
@@ -1019,7 +1019,7 @@ meta_rectangle_clip_to_region (const GList         *spanning_rects,
   /* Clip rect appropriately */
   if (best_rect == NULL)
     {
-      g_warning ("No rect to clip to found!\n");
+      g_warning ("No rect to clip to found!");
     }
   else
     {
@@ -1117,7 +1117,7 @@ meta_rectangle_shove_into_region (const GList         *spanning_rects,
   /* Shove rect appropriately */
   if (best_rect == NULL)
     {
-      g_warning ("No rect to shove into found!\n");
+      g_warning ("No rect to shove into found!");
     }
   else
     {
@@ -1439,7 +1439,7 @@ meta_rectangle_edge_cmp_ignore_type (gconstpointer a, gconstpointer b)
         }
     }
   else
-    g_assert ("Some idiot wanted to sort sides of different types.\n");
+    g_assert ("Some idiot wanted to sort sides of different types.");
 
   return a_compare - b_compare; /* positive value denotes a > b ... */
 }

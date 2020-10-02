@@ -816,7 +816,7 @@ meta_activate_session (void)
 
   if (!meta_launcher_activate_session (native->launcher, &error))
     {
-      g_warning ("Could not activate session: %s\n", error->message);
+      g_warning ("Could not activate session: %s", error->message);
       g_error_free (error);
       return FALSE;
     }

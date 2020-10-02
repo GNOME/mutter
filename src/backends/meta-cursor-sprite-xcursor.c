@@ -199,7 +199,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
                                            &error);
   if (!texture)
     {
-      g_warning ("Failed to allocate cursor texture: %s\n", error->message);
+      g_warning ("Failed to allocate cursor texture: %s", error->message);
       g_error_free (error);
     }
 

@@ -199,7 +199,7 @@ meta_x11_display_init_group_prop_hooks (MetaX11Display *x11_display)
 
   if (i != N_HOOKS)
     {
-      g_error ("Initialized %d group hooks should have been %d\n", i, N_HOOKS);
+      g_error ("Initialized %d group hooks should have been %d", i, N_HOOKS);
     }
 }
 

@@ -156,7 +156,7 @@ write_mimetypes_cb (GOutputStream *stream,
 
   if (error)
     {
-      g_warning ("Could not fetch selection mimetypes: %s\n", error->message);
+      g_warning ("Could not fetch selection mimetypes: %s", error->message);
       g_error_free (error);
     }
 }

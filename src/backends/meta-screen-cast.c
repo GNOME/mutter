@@ -280,7 +280,7 @@ on_bus_acquired (GDBusConnection *connection,
                                          connection,
                                          META_SCREEN_CAST_DBUS_PATH,
                                          &error))
-    g_warning ("Failed to export remote desktop object: %s\n", error->message);
+    g_warning ("Failed to export remote desktop object: %s", error->message);
 }
 
 static void
@@ -288,7 +288,7 @@ on_name_acquired (GDBusConnection *connection,
                   const char      *name,
                   gpointer         user_data)
 {
-  g_info ("Acquired name %s\n", name);
+  g_info ("Acquired name %s", name);
 }
 
 static void
@@ -296,7 +296,7 @@ on_name_lost (GDBusConnection *connection,
               const char      *name,
               gpointer         user_data)
 {
-  g_warning ("Lost or failed to acquire name %s\n", name);
+  g_warning ("Lost or failed to acquire name %s", name);
 }
 
 static void

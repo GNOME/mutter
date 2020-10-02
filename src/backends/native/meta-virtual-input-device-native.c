@@ -276,7 +276,7 @@ meta_virtual_input_device_native_notify_key (ClutterVirtualInputDevice *virtual_
 
   if (get_button_type (key) != EVDEV_BUTTON_TYPE_KEY)
     {
-      g_warning ("Unknown/invalid virtual device key 0x%x pressed\n", key);
+      g_warning ("Unknown/invalid virtual device key 0x%x pressed", key);
       return;
     }
 
@@ -373,7 +373,7 @@ apply_level_modifiers (ClutterVirtualInputDevice *virtual_device,
     }
   else
     {
-      g_warning ("Unhandled level: %d\n", level);
+      g_warning ("Unhandled level: %d", level);
       return;
     }
 
@@ -425,7 +425,7 @@ meta_virtual_input_device_native_notify_keyval (ClutterVirtualInputDevice *virtu
 
   if (get_button_type (evcode) != EVDEV_BUTTON_TYPE_KEY)
     {
-      g_warning ("Unknown/invalid virtual device key 0x%x pressed\n", evcode);
+      g_warning ("Unknown/invalid virtual device key 0x%x pressed", evcode);
       return;
     }
 

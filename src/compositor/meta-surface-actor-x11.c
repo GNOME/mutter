@@ -132,7 +132,7 @@ set_pixmap (MetaSurfaceActorX11 *self,
       g_error_free (error);
     }
   else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
-    g_warning ("NOTE: Not using GLX TFP!\n");
+    g_warning ("NOTE: Not using GLX TFP!");
 
   self->texture = texture;
   meta_shaped_texture_set_texture (stex, texture);

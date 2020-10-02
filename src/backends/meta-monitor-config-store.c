@@ -1333,7 +1333,7 @@ saved_cb (GObject      *object,
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
-          g_warning ("Saving monitor configuration failed: %s\n", error->message);
+          g_warning ("Saving monitor configuration failed: %s", error->message);
           g_clear_object (&data->config_store->save_cancellable);
         }
 
@@ -1372,7 +1372,7 @@ meta_monitor_config_store_save_sync (MetaMonitorConfigStore *config_store)
                                 NULL,
                                 &error))
     {
-      g_warning ("Saving monitor configuration failed: %s\n",
+      g_warning ("Saving monitor configuration failed: %s",
                  error->message);
       g_error_free (error);
     }

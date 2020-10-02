@@ -145,7 +145,7 @@ on_bus_acquired_cb (GObject      *source,
   if (error)
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_warning ("Failed to get session bus: %s\n", error->message);
+        g_warning ("Failed to get session bus: %s", error->message);
       return;
     }
 
@@ -157,7 +157,7 @@ on_bus_acquired_cb (GObject      *source,
                                          META_SYSPROF_PROFILER_DBUS_PATH,
                                          &error))
     {
-      g_warning ("Failed to export profiler object: %s\n", error->message);
+      g_warning ("Failed to export profiler object: %s", error->message);
       return;
     }
 

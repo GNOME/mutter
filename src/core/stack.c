@@ -97,7 +97,7 @@ on_stack_changed (MetaStack *stack)
       if (w->unmanaging)
         continue;
 
-      meta_topic (META_DEBUG_STACK, "%u:%d - %s ",
+      meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
 		  w->layer, w->stack_position, w->desc);
 
       if (w->frame)

@@ -191,7 +191,7 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
     }
 
   if ((values[0] && !available[0]) || (values[1] && !available[1]))
-    g_warning ("Device '%s' does not support sendevents mode %d\n",
+    g_warning ("Device '%s' does not support sendevents mode %d",
                clutter_input_device_get_device_name (device), mode);
   else
     change_property (device, "libinput Send Events Mode Enabled",
@@ -419,7 +419,7 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
   }
 
   if ((values[0] && !available[0]) || (values[1] && !available[1]))
-    g_warning ("Device '%s' does not support click method %d\n",
+    g_warning ("Device '%s' does not support click method %d",
                clutter_input_device_get_device_name (device), mode);
   else
     change_property (device, "libinput Click Method Enabled",

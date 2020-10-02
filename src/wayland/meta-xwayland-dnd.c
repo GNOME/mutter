@@ -362,7 +362,7 @@ transfer_cb (MetaSelection *selection,
 
   if (!meta_selection_transfer_finish (selection, res, &error))
     {
-      g_warning ("Could not transfer DnD selection: %s\n", error->message);
+      g_warning ("Could not transfer DnD selection: %s", error->message);
       g_error_free (error);
     }
 
