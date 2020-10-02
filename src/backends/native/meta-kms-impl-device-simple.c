@@ -950,11 +950,12 @@ process_plane_assignment (MetaKmsImplDevice       *impl_device,
   g_assert_not_reached ();
 }
 
-static GList *
-process_plane_assignments (MetaKmsImplDevice *impl_device,
-                           MetaKmsUpdate     *update)
+static gboolean
+process_plane_assignments (MetaKmsImplDevice  *impl_device,
+                           MetaKmsUpdate      *update,
+                           GList             **failed_planes,
+                           GError            **error)
 {
-  GList *failed_planes = NULL;
   GList *l;
 
   for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
@@ -964,46 +965,31 @@ process_plane_assignments (MetaKmsImplDevice *impl_device,
 
       if (!process_plane_assignment (impl_device, update, plane_assignment,
                                      &plane_feedback))
-        failed_planes = g_list_prepend (failed_planes, plane_feedback);
-    }
-
-  return failed_planes;
-}
-
-static GList *
-generate_all_failed_feedbacks (MetaKmsUpdate *update)
-{
-  GList *failed_planes = NULL;
-  GList *l;
-
-  for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
-    {
-      MetaKmsPlaneAssignment *plane_assignment = l->data;
-      MetaKmsPlane *plane;
-      MetaKmsPlaneType plane_type;
-      MetaKmsPlaneFeedback *plane_feedback;
-
-      plane = plane_assignment->plane;
-      plane_type = meta_kms_plane_get_plane_type (plane);
-      switch (plane_type)
         {
-        case META_KMS_PLANE_TYPE_PRIMARY:
-          continue;
-        case META_KMS_PLANE_TYPE_CURSOR:
-        case META_KMS_PLANE_TYPE_OVERLAY:
-          break;
-        }
+          if (g_error_matches (plane_feedback->error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_PERMISSION_DENIED))
+            {
+              g_propagate_error (error,
+                                 g_steal_pointer (&plane_feedback->error));
+              meta_kms_plane_feedback_free (plane_feedback);
+              return FALSE;
+            }
 
-      plane_feedback =
-        meta_kms_plane_feedback_new_take_error (plane_assignment->plane,
-                                                plane_assignment->crtc,
-                                                g_error_new (G_IO_ERROR,
-                                                             G_IO_ERROR_FAILED,
-                                                             "Discarded"));
-      failed_planes = g_list_prepend (failed_planes, plane_feedback);
+          *failed_planes = g_list_prepend (*failed_planes, plane_feedback);
+          if (plane_assignment->flags & META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL)
+            {
+              continue;
+            }
+          else
+            {
+              g_propagate_error (error, g_error_copy (plane_feedback->error));
+              return FALSE;
+            }
+        }
     }
 
-  return failed_planes;
+  return TRUE;
 }
 
 static MetaKmsFeedback *
@@ -1011,50 +997,42 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
                                             MetaKmsUpdate     *update)
 {
   GError *error = NULL;
-  GList *failed_planes;
+  GList *failed_planes = NULL;
 
   if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_connector_updates (update),
                         process_connector_update,
                         &error))
-    goto err_planes_not_assigned;
+    goto err;
 
   if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_mode_sets (update),
                         process_mode_set,
                         &error))
-    goto err_planes_not_assigned;
+    goto err;
 
   if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_crtc_gammas (update),
                         process_crtc_gamma,
                         &error))
-    goto err_planes_not_assigned;
+    goto err;
 
-  failed_planes = process_plane_assignments (impl_device, update);
-  if (failed_planes)
-    {
-      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to assign one or more planes");
-      goto err_planes_assigned;
-    }
+  if (!process_plane_assignments (impl_device, update, &failed_planes, &error))
+    goto err;
 
   if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_page_flips (update),
                         process_page_flip,
                         &error))
-    goto err_planes_assigned;
+    goto err;
 
-  return meta_kms_feedback_new_passed ();
+  return meta_kms_feedback_new_passed (failed_planes);
 
-err_planes_not_assigned:
-  failed_planes = generate_all_failed_feedbacks (update);
-
-err_planes_assigned:
+err:
   return meta_kms_feedback_new_failed (failed_planes, error);
 }
 

@@ -40,6 +40,7 @@ typedef enum _MetaKmsAssignPlaneFlag
 {
   META_KMS_ASSIGN_PLANE_FLAG_NONE = 0,
   META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED = 1 << 0,
+  META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL = 1 << 1,
 } MetaKmsAssignPlaneFlag;
 
 struct _MetaKmsPageFlipFeedback

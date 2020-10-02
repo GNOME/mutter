@@ -70,13 +70,14 @@ meta_kms_plane_feedback_new_take_error (MetaKmsPlane *plane,
 }
 
 MetaKmsFeedback *
-meta_kms_feedback_new_passed (void)
+meta_kms_feedback_new_passed (GList *failed_planes)
 {
   MetaKmsFeedback *feedback;
 
   feedback = g_new0 (MetaKmsFeedback, 1);
   *feedback = (MetaKmsFeedback) {
     .result = META_KMS_FEEDBACK_PASSED,
+    .failed_planes = failed_planes,
   };
 
   return feedback;
@@ -152,6 +153,9 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
+  g_assert (meta_kms_plane_get_plane_type (plane) !=
+            META_KMS_PLANE_TYPE_PRIMARY ||
+            !(flags & META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL));
 
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {

@@ -306,7 +306,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
     .height = cursor_height,
   };
 
-  flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
+  flags = META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL;
   crtc_buffer = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
   if (!priv->hw_state_invalidated && buffer == crtc_buffer)
     flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
@@ -593,31 +593,29 @@ update_hw_cursor (MetaCursorRendererNative *native,
       MetaKmsDevice *kms_device = l->data;
       MetaKmsUpdate *kms_update;
       g_autoptr (MetaKmsFeedback) feedback = NULL;
+      GList *l_feedback;
 
       kms_update = meta_kms_get_pending_update (kms, kms_device);
       if (!kms_update)
         continue;
 
       feedback = meta_kms_post_pending_update_sync (kms, kms_device);
-      if (meta_kms_feedback_get_result (feedback) != META_KMS_FEEDBACK_PASSED)
+      for (l_feedback = meta_kms_feedback_get_failed_planes (feedback);
+           l_feedback;
+           l_feedback = l_feedback->next)
         {
-          GList *k;
+          MetaKmsPlaneFeedback *plane_feedback = l_feedback->data;
 
-          for (k = meta_kms_feedback_get_failed_planes (feedback); k; k = k->next)
+          if (!g_error_matches (plane_feedback->error,
+                                G_IO_ERROR,
+                                G_IO_ERROR_PERMISSION_DENIED))
             {
-              MetaKmsPlaneFeedback *plane_feedback = k->data;
-
-              if (!g_error_matches (plane_feedback->error,
-                                    G_IO_ERROR,
-                                    G_IO_ERROR_PERMISSION_DENIED))
-                {
-                  disable_hw_cursor_for_crtc (plane_feedback->crtc,
-                                              plane_feedback->error);
-                }
+              disable_hw_cursor_for_crtc (plane_feedback->crtc,
+                                          plane_feedback->error);
             }
-
-          priv->has_hw_cursor = FALSE;
         }
+
+      priv->has_hw_cursor = FALSE;
     }
 
   priv->hw_state_invalidated = FALSE;
