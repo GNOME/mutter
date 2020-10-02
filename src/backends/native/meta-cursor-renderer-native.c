@@ -41,6 +41,7 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
@@ -536,8 +537,6 @@ update_hw_cursor (MetaCursorRendererNative *native,
     meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorRenderer *renderer = META_CURSOR_RENDERER (native);
   MetaBackend *backend = priv->backend;
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
-  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors;
@@ -586,36 +585,6 @@ update_hw_cursor (MetaCursorRendererNative *native,
         }
 
       painted = painted || data.out_painted;
-    }
-
-  for (l = meta_kms_get_devices (kms); l; l = l->next)
-    {
-      MetaKmsDevice *kms_device = l->data;
-      MetaKmsUpdate *kms_update;
-      g_autoptr (MetaKmsFeedback) feedback = NULL;
-      GList *l_feedback;
-
-      kms_update = meta_kms_get_pending_update (kms, kms_device);
-      if (!kms_update)
-        continue;
-
-      feedback = meta_kms_post_pending_update_sync (kms, kms_device);
-      for (l_feedback = meta_kms_feedback_get_failed_planes (feedback);
-           l_feedback;
-           l_feedback = l_feedback->next)
-        {
-          MetaKmsPlaneFeedback *plane_feedback = l_feedback->data;
-
-          if (!g_error_matches (plane_feedback->error,
-                                G_IO_ERROR,
-                                G_IO_ERROR_PERMISSION_DENIED))
-            {
-              disable_hw_cursor_for_crtc (plane_feedback->crtc,
-                                          plane_feedback->error);
-            }
-        }
-
-      priv->has_hw_cursor = FALSE;
     }
 
   priv->hw_state_invalidated = FALSE;
@@ -1041,6 +1010,43 @@ calculate_cursor_sprite_gpus (MetaCursorRenderer *renderer,
   return gpus;
 }
 
+static void
+on_kms_update_result (const MetaKmsFeedback *kms_feedback,
+                      gpointer               user_data)
+{
+  MetaCursorRendererNative *cursor_renderer_native = user_data;
+  MetaCursorRenderer *cursor_renderer =
+    META_CURSOR_RENDERER (cursor_renderer_native);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  gboolean has_hw_cursor_failure = FALSE;
+  GList *l;
+
+  for (l = meta_kms_feedback_get_failed_planes (kms_feedback); l; l = l->next)
+    {
+      MetaKmsPlaneFeedback *plane_feedback = l->data;
+
+      switch (meta_kms_plane_get_plane_type (plane_feedback->plane))
+        {
+        case META_KMS_PLANE_TYPE_CURSOR:
+          break;
+        case META_KMS_PLANE_TYPE_PRIMARY:
+        case META_KMS_PLANE_TYPE_OVERLAY:
+          continue;
+        }
+
+      disable_hw_cursor_for_crtc (plane_feedback->crtc,
+                                  plane_feedback->error);
+      has_hw_cursor_failure = TRUE;
+    }
+
+  if (has_hw_cursor_failure)
+    {
+      priv->has_hw_cursor = FALSE;
+      meta_cursor_renderer_force_update (cursor_renderer);
+    }
+}
+
 static gboolean
 meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
                                            MetaCursorSprite   *cursor_sprite)
@@ -1048,6 +1054,10 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
+  MetaRendererNative *renderer_native =
+    META_RENDERER_NATIVE (meta_backend_get_renderer (priv->backend));
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   g_autoptr (GList) gpus = NULL;
 
   if (cursor_sprite)
@@ -1061,6 +1071,38 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
 
   priv->has_hw_cursor = should_have_hw_cursor (renderer, cursor_sprite, gpus);
   update_hw_cursor (native, cursor_sprite);
+
+  if (!meta_renderer_native_is_mode_set_pending (renderer_native))
+    {
+      GList *l;
+
+      for (l = meta_kms_get_devices (kms); l; l = l->next)
+        {
+          MetaKmsDevice *kms_device = l->data;
+          g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+
+          kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+          on_kms_update_result (kms_feedback, renderer);
+        }
+    }
+  else
+    {
+      GList *l;
+
+      for (l = meta_kms_get_devices (kms); l; l = l->next)
+        {
+          MetaKmsDevice *kms_device = l->data;
+          MetaKmsUpdate *kms_update;
+
+          kms_update = meta_kms_get_pending_update (kms, kms_device);
+          if (!kms_update)
+            continue;
+
+          meta_kms_update_add_result_listener (kms_update,
+                                               on_kms_update_result,
+                                               renderer);
+        }
+    }
 
   return (priv->has_hw_cursor ||
           !cursor_sprite ||
