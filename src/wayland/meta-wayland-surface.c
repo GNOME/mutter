@@ -1085,7 +1085,7 @@ wl_surface_set_buffer_transform (struct wl_client   *client,
     {
       wl_resource_post_error (resource,
                               WL_SURFACE_ERROR_INVALID_TRANSFORM,
-                              "Trying to set invalid buffer_transform of %d\n",
+                              "Trying to set invalid buffer_transform of %d",
                               transform);
       return;
     }
@@ -1106,7 +1106,7 @@ wl_surface_set_buffer_scale (struct wl_client *client,
     {
       wl_resource_post_error (resource,
                               WL_SURFACE_ERROR_INVALID_SCALE,
-                              "Trying to set invalid buffer_scale of %d\n",
+                              "Trying to set invalid buffer_scale of %d",
                               scale);
       return;
     }
