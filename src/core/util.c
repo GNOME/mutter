@@ -285,6 +285,18 @@ topic_name (MetaDebugTopic topic)
 
 static int sync_count = 0;
 
+gboolean
+meta_is_topic_enabled (MetaDebugTopic topic)
+{
+  if (verbose_topics == 0)
+    return FALSE;
+
+  if (topic == META_DEBUG_VERBOSE && verbose_topics != META_DEBUG_VERBOSE)
+    return FALSE;
+
+  return !!(verbose_topics & topic);
+}
+
 static void
 meta_topic_real_valist (MetaDebugTopic topic,
                         const char    *format,
@@ -295,9 +307,7 @@ meta_topic_real_valist (MetaDebugTopic topic,
 
   g_return_if_fail (format != NULL);
 
-  if (verbose_topics == 0
-      || (topic == META_DEBUG_VERBOSE && verbose_topics != META_DEBUG_VERBOSE)
-      || (!(verbose_topics & topic)))
+  if (!meta_is_topic_enabled (topic))
     return;
 
   str = g_strdup_vprintf (format, args);

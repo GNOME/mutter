@@ -113,6 +113,9 @@ typedef enum
 } MetaDebugPaintFlag;
 
 META_EXPORT
+gboolean meta_is_topic_enabled (MetaDebugTopic topic);
+
+META_EXPORT
 void meta_topic_real      (MetaDebugTopic topic,
                            const char    *format,
                            ...) G_GNUC_PRINTF (2, 3);
@@ -162,8 +165,21 @@ GPid meta_show_dialog (const char *type,
 /* To disable verbose mode, we make these functions into no-ops */
 #ifdef WITH_VERBOSE_MODE
 
-#define meta_verbose    meta_verbose_real
-#define meta_topic      meta_topic_real
+#define meta_verbose(...) \
+  G_STMT_START \
+    { \
+      if (meta_is_topic_enabled (META_DEBUG_VERBOSE)) \
+        meta_verbose_real (__VA_ARGS__); \
+    } \
+  G_STMT_END
+
+#define meta_topic(debug_topic,...) \
+  G_STMT_START \
+    { \
+      if (meta_is_topic_enabled (debug_topic)) \
+        meta_topic_real (debug_topic, __VA_ARGS__); \
+    } \
+  G_STMT_END
 
 #else
 
