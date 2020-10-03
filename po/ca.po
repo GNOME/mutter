@@ -563,7 +563,7 @@ msgid ""
 msgstr ""
 "Llista els noms o classes dels recursos de les finestres X11 que estiguin "
 "permesos o denegades per emetre captures de teclat X11 sota Xwayland. El nom "
-"o la classe dels recursos  d'una finestra X11 donada es pot obtenir amb "
+"o la classe dels recursos d'una finestra X11 donada es pot obtenir amb "
 "l'ordre «xprop WM_CLASS». Es poden utilitzar comodins «*» o «?» als valors. "
 "Els valors que comencin amb «!» es deneguen i tenen precedència per sobre de "
 "la llista dels valors permesos, així es permet la denegació d'aplicacions "
@@ -586,8 +586,8 @@ msgid ""
 msgstr ""
 "Aquesta opció inhabilita les extensions de X seleccionades a Xwayland si "
 "aquest es va construir permetent l'ús d'aquestes extensions. Aquesta opció "
-"no té cap efecte si l'Xwayland no es va construir permetent l'ús de les "
-"extensions seleccionades. S'ha de reiniciar l'Xwayland perquè es tingui en "
+"no té cap efecte si Xwayland no es va construir permetent l'ús de les "
+"extensions seleccionades. S'ha de reiniciar Xwayland perquè es tingui en "
 "compte aquesta llista."
 
 #. TRANSLATORS: This string refers to a button that switches between
@@ -677,7 +677,7 @@ msgstr "Inicialitza la sessió des del fitxer desat"
 
 #: src/core/main.c:219
 msgid "Make X calls synchronous"
-msgstr "Fes que les crides a l'X siguin síncrones"
+msgstr "Fes que les crides a X siguin síncrones"
 
 #: src/core/main.c:226
 msgid "Run as a wayland compositor"
