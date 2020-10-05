@@ -65,9 +65,6 @@ void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            
 
 void clutter_stage_view_schedule_update (ClutterStageView *view);
 
-CLUTTER_EXPORT
-float clutter_stage_view_get_refresh_rate (ClutterStageView *view);
-
 void clutter_stage_view_notify_presented (ClutterStageView *view,
                                           ClutterFrameInfo *frame_info);
 
