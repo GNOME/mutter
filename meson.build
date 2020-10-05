@@ -1,5 +1,5 @@
 project('mutter', 'c',
-  version: '3.38.1',
+  version: '40.alpha',
   meson_version: '>= 0.51.0',
   license: 'GPLv2+'
 )
@@ -8,7 +8,7 @@ split_version = meson.project_version().split('.')
 
 # Automatically increase API version each development cycle,
 # starting with 0 in 3.23.x
-api_version = (split_version[1].to_int() - 23) / 2
+api_version = split_version[0].to_int() - 32
 libmutter_api_version = '@0@'.format(api_version)
 
 # generic version requirements
