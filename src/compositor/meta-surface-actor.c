@@ -469,6 +469,74 @@ meta_surface_actor_is_obscured (MetaSurfaceActor *self)
     return FALSE;
 }
 
+gboolean
+meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
+                                              ClutterStageView *stage_view,
+                                              float            *unobscurred_fraction)
+{
+  cairo_region_t *unobscured_region;
+
+  unobscured_region = effective_unobscured_region (self);
+
+  if (unobscured_region)
+    {
+      MetaSurfaceActorPrivate *priv =
+        meta_surface_actor_get_instance_private (self);
+      cairo_region_t *intersection_region;
+      cairo_rectangle_int_t stage_rect;
+      float x, y;
+      float bounds_width, bounds_height;
+      float bounds_size;
+      int intersection_size = 0;
+      int n_rects, i;
+
+      if (cairo_region_is_empty (unobscured_region))
+        return TRUE;
+
+      intersection_region = cairo_region_copy (unobscured_region);
+      clutter_actor_get_transformed_position (CLUTTER_ACTOR (self), &x, &y);
+      cairo_region_translate (intersection_region, x, y);
+
+      clutter_stage_view_get_layout (stage_view, &stage_rect);
+      cairo_region_intersect_rectangle (intersection_region,
+                                        &stage_rect);
+
+      if (cairo_region_is_empty (intersection_region))
+        {
+          cairo_region_destroy (intersection_region);
+          return TRUE;
+        }
+      else if (!unobscurred_fraction)
+        {
+          cairo_region_destroy (intersection_region);
+          return FALSE;
+        }
+
+      clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
+                                          &bounds_width,
+                                          &bounds_height);
+      bounds_size = bounds_width * bounds_height;
+
+      n_rects = cairo_region_num_rectangles (intersection_region);
+      for (i = 0; i < n_rects; i++)
+        {
+          cairo_rectangle_int_t rect;
+
+          cairo_region_get_rectangle (intersection_region, i, &rect);
+          intersection_size += (rect.width - rect.x) * (rect.height - rect.x);
+        }
+      cairo_region_destroy (intersection_region);
+
+      g_return_val_if_fail (bounds_size > 0, FALSE);
+
+      *unobscurred_fraction = CLAMP (intersection_size / bounds_size, 0, 1);
+      return FALSE;
+    }
+
+  return !clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (self),
+                                                      stage_view);
+}
+
 void
 meta_surface_actor_set_input_region (MetaSurfaceActor *self,
                                      cairo_region_t   *region)
