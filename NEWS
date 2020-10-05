@@ -1,3 +1,29 @@
+3.38.1
+======
+* Fix Night Light updates after DPMS [Jonas, Benjamin; #1392]
+* Fix button scrolling on X11 [Peter; !1431]
+* Always use correct font-dpi setting on X11 [Marco; !1444]
+* Improve handling of scanout failures [Jonas; #1410]
+* Fix middle/right button mixup in scroll button assignment [Peter; !1433]
+* Fix resizing of attached modal dialogs on wayland [Jonas; !1446]
+* Enable KMS modifiers on devices that need them [Karol; !1443]
+* Fix IM handling on X11 [Carlos; #1413]
+* Fix glitches in "undefined" screencast areas [Jonas; !1459]
+* Fix visual glitches on background with fractional scaling [Daniel; !1464]
+* Fix using correct refresh rate [Jonas; #1430]
+* Misc. bug fixes and cleanups [Daniel, Carlos, Robert, Simon, Sergio; !1362,
+  !1448, !1452, !1273, !1454, !1429, !1460, !1458, !1463, !1462]
+* Plugged memory leaks [Ray; !1449, !1451]
+
+Contributors:
+  Marco Trevisan (Treviño), Benjamin Berg, Sergio Costas, Carlos Garnacho,
+  Karol Herbst, Peter Hutterer, Robert Mader, Simon McVittie, Ray Strode,
+  Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Juliano de Souza Camargo [pt], Rafael Fontenelle [pt_BR],
+  Yosef Or Boczko [he], Jordi Mas [ca]
+
 3.38.0
 ======
 * screencast: Only use DMA buffers for i915 [Jonas; !1442]
