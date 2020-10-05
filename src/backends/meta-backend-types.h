@@ -59,4 +59,8 @@ typedef struct _MetaScreenCastStream MetaScreenCastStream;
 
 typedef struct _MetaWaylandCompositor MetaWaylandCompositor;
 
+#ifdef HAVE_REMOTE_DESKTOP
+typedef struct _MetaRemoteDesktop MetaRemoteDesktop;
+#endif
+
 #endif /* META_BACKEND_TYPE_H */

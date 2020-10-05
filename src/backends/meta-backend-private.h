@@ -42,10 +42,6 @@
 #include "backends/meta-settings-private.h"
 #include "core/util-private.h"
 
-#ifdef HAVE_REMOTE_DESKTOP
-#include "backends/meta-remote-desktop.h"
-#endif
-
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"
 
