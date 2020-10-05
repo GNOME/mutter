@@ -79,4 +79,7 @@ ClutterFrameClock * clutter_stage_view_get_frame_clock (ClutterStageView *view);
 CLUTTER_EXPORT
 CoglScanout * clutter_stage_view_peek_scanout (ClutterStageView *view);
 
+CLUTTER_EXPORT
+float clutter_stage_view_get_refresh_rate (ClutterStageView *view);
+
 #endif /* __CLUTTER_STAGE_VIEW_H__ */
