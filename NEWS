@@ -1,3 +1,20 @@
+3.36.7
+======
+* Fix Night Light updates after DPMS [Jonas, Benjamin; #1392]
+* Fix IM handling on X11 [Carlos; #1413]
+* Fix resizing of attached modal dialogs on wayland [Jonas; !1446]
+* Fix jumps when resizing windows using discrete steps [Jonas; #1447]
+* Fixed crashes [Marco; !1371, #1345]
+* Plugged Memory leaks [Ray; !1449, !1451]
+* Misc. bug fixes and cleanups [Jonas, Carlos, Robert; !1218, !1460, !1463]
+
+Contributors:
+  Marco Trevisan (Treviño), Benjamin Berg, Carlos Garnacho, Robert Mader,
+  Ray Strode, Jonas Ådahl
+
+Translators:
+  Juliano de Souza Camargo [pt]
+
 3.36.6
 ======
 * Fix stale cursor positions in remote desktop sessions [Georges; !1417]
