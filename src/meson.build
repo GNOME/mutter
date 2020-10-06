@@ -849,6 +849,7 @@ if have_wayland
     ['linux-dmabuf', 'unstable', 'v1', ],
     ['pointer-constraints', 'unstable', 'v1', ],
     ['pointer-gestures', 'unstable', 'v1', ],
+    ['presentation-time', 'stable', ],
     ['primary-selection', 'unstable', 'v1', ],
     ['relative-pointer', 'unstable', 'v1', ],
     ['tablet', 'unstable', 'v2', ],
