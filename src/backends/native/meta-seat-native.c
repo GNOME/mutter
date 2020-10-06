@@ -1485,31 +1485,42 @@ process_base_event (MetaSeatNative        *seat,
                     struct libinput_event *event)
 {
   ClutterInputDevice *device = NULL;
-  ClutterEvent *device_event;
+  ClutterEvent *device_event = NULL;
   struct libinput_device *libinput_device;
+  ClutterStage *stage;
+
+  stage = meta_seat_native_get_stage (seat);
 
   switch (libinput_event_get_type (event))
     {
     case LIBINPUT_EVENT_DEVICE_ADDED:
       libinput_device = libinput_event_get_device (event);
-
       device = evdev_add_device (seat, libinput_device);
-      device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
-      clutter_event_set_device (device_event, device);
+
+      if (stage)
+        {
+          device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
+          clutter_event_set_device (device_event, device);
+        }
       break;
 
     case LIBINPUT_EVENT_DEVICE_REMOVED:
       libinput_device = libinput_event_get_device (event);
 
       device = libinput_device_get_user_data (libinput_device);
-      device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
-      clutter_event_set_device (device_event, device);
+
+      if (stage)
+        {
+          device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
+          clutter_event_set_device (device_event, device);
+        }
+
       evdev_remove_device (seat,
                            META_INPUT_DEVICE_NATIVE (device));
       break;
 
     default:
-      device_event = NULL;
+      break;
     }
 
   if (device_event)
@@ -2859,6 +2870,16 @@ meta_seat_native_set_stage (MetaSeatNative *seat,
       ClutterInputDevice *device = l->data;
 
       _clutter_input_device_set_stage (device, stage);
+
+      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_PHYSICAL)
+        {
+          ClutterEvent *device_event;
+
+          device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
+          clutter_event_set_device (device_event, device);
+          device_event->device.stage = stage;
+          queue_event (device_event);
+        }
     }
 }
 
