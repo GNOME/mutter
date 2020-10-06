@@ -932,7 +932,6 @@ mutter_built_sources += wayland_protocol_sources
 subdir('meta')
 
 mutter_built_sources += mutter_enum_types
-mutter_built_sources += mutter_version
 
 libmutter = shared_library(libmutter_name,
   mutter_sources,
@@ -999,7 +998,6 @@ if have_introspection
 
   libmutter_gir = gnome.generate_gir(libmutter,
     sources: [
-      mutter_version,
       mutter_enum_types[1],
       mutter_introspected_sources,
       mutter_public_header_files

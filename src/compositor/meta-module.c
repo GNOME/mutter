@@ -26,7 +26,6 @@
 #include <gmodule.h>
 
 #include "meta/meta-plugin.h"
-#include "meta/meta-version.h"
 
 enum
 {
@@ -47,7 +46,6 @@ static gboolean
 meta_module_load (GTypeModule *gmodule)
 {
   MetaModulePrivate  *priv = META_MODULE (gmodule)->priv;
-  MetaPluginVersion  *info = NULL;
   GType                (*register_type) (GTypeModule *) = NULL;
 
   if (priv->lib && priv->plugin_type)
@@ -63,31 +61,24 @@ meta_module_load (GTypeModule *gmodule)
       return FALSE;
     }
 
-  if (g_module_symbol (priv->lib, "meta_plugin_version",
-                       (gpointer *)(void *)&info) &&
-      g_module_symbol (priv->lib, "meta_plugin_register_type",
+  if (g_module_symbol (priv->lib, "meta_plugin_register_type",
 		       (gpointer *)(void *)&register_type) &&
-      info && register_type)
+      register_type)
     {
-      if (info->version_api != META_PLUGIN_API_VERSION)
-	g_warning ("Plugin API mismatch for [%s]", priv->path);
+      GType plugin_type;
+
+      if (!(plugin_type = register_type (gmodule)))
+        {
+          g_warning ("Could not register type for plugin %s",
+                     priv->path);
+          return FALSE;
+        }
       else
         {
-          GType plugin_type;
-
-          if (!(plugin_type = register_type (gmodule)))
-            {
-              g_warning ("Could not register type for plugin %s",
-                         priv->path);
-              return FALSE;
-            }
-          else
-            {
-              priv->plugin_type =  plugin_type;
-            }
-
-          return TRUE;
+          priv->plugin_type =  plugin_type;
         }
+
+      return TRUE;
     }
   else
     g_warning ("Broken plugin module [%s]", priv->path);

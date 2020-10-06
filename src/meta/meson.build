@@ -71,26 +71,3 @@ mutter_enum_types = gnome.mkenums('meta-enum-types',
   install_dir: mutter_includedir,
   install_header: true,
 )
-
-mutter_version_array = meson.project_version().split('.')
-mutter_version_major = mutter_version_array[0]
-mutter_version_minor = mutter_version_array[1]
-mutter_version_micro = mutter_version_array[2]
-
-mutter_version_cdata = configuration_data()
-mutter_version_cdata.set('MUTTER_MAJOR_VERSION',
-                         '@0@'.format(mutter_version_major))
-mutter_version_cdata.set('MUTTER_MINOR_VERSION',
-                         '@0@'.format(mutter_version_minor))
-mutter_version_cdata.set('MUTTER_MICRO_VERSION',
-                         '@0@'.format(mutter_version_micro))
-mutter_version_cdata.set('MUTTER_PLUGIN_API_VERSION',
-                         '@0@'.format(mutter_plugin_api_version))
-
-mutter_version = configure_file(
-  input: 'meta-version.h.in',
-  output: 'meta-version.h',
-  configuration: mutter_version_cdata,
-  install_dir: mutter_includedir,
-  install: true,
-)

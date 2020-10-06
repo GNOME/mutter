@@ -4,8 +4,6 @@ project('mutter', 'c',
   license: 'GPLv2+'
 )
 
-mutter_plugin_api_version = '3'
-
 split_version = meson.project_version().split('.')
 
 # Automatically increase API version each development cycle,

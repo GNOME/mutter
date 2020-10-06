@@ -30,7 +30,6 @@
 #include "meta/compositor.h"
 #include "meta/meta-close-dialog.h"
 #include "meta/meta-inhibit-shortcuts-dialog.h"
-#include "meta/meta-version.h"
 #include "meta/types.h"
 
 #define META_TYPE_PLUGIN (meta_plugin_get_type ())
@@ -38,7 +37,6 @@
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
 
-typedef struct _MetaPluginVersion MetaPluginVersion;
 typedef struct _MetaPluginInfo    MetaPluginInfo;
 
 /**
@@ -271,44 +269,10 @@ struct _MetaPluginInfo
 META_EXPORT
 const MetaPluginInfo * meta_plugin_get_info (MetaPlugin *plugin);
 
-/**
- * MetaPluginVersion:
- * @version_major: major component of the version number of Meta with which the plugin was compiled
- * @version_minor: minor component of the version number of Meta with which the plugin was compiled
- * @version_micro: micro component of the version number of Meta with which the plugin was compiled
- * @version_api: version of the plugin API
- */
-struct _MetaPluginVersion
-{
-  /*
-   * Version information; the first three numbers match the Meta version
-   * with which the plugin was compiled (see clutter-plugins/simple.c for sample
-   * code).
-   */
-  guint version_major;
-  guint version_minor;
-  guint version_micro;
-
-  /*
-   * Version of the plugin API; this is unrelated to the matacity version
-   * per se. The API version is checked by the plugin manager and must match
-   * the one used by it (see clutter-plugins/default.c for sample code).
-   */
-  guint version_api;
-};
-
 /*
  * Convenience macro to set up the plugin type. Based on GEdit.
  */
 #define META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, CODE)    \
-  G_MODULE_EXPORT MetaPluginVersion meta_plugin_version =               \
-    {                                                                   \
-      META_MAJOR_VERSION,                                               \
-      META_MINOR_VERSION,                                               \
-      META_MICRO_VERSION,                                               \
-      META_PLUGIN_API_VERSION                                           \
-    };                                                                  \
-                                                                        \
   /* Prototypes */                                                      \
   G_MODULE_EXPORT GType                                                 \
   object_name##_get_type (void);                                        \
