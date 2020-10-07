@@ -562,6 +562,8 @@ if have_wayland
     'wayland/meta-wayland-pointer.h',
     'wayland/meta-wayland-popup.c',
     'wayland/meta-wayland-popup.h',
+    'wayland/meta-wayland-presentation-time.c',
+    'wayland/meta-wayland-presentation-time-private.h',
     'wayland/meta-wayland-private.h',
     'wayland/meta-wayland-region.c',
     'wayland/meta-wayland-region.h',

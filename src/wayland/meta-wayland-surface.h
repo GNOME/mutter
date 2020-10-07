@@ -120,6 +120,9 @@ struct _MetaWaylandSurfaceState
   gboolean has_new_viewport_dst_size;
   int viewport_dst_width;
   int viewport_dst_height;
+
+  /* presentation-time */
+  struct wl_list presentation_feedback_list;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -227,6 +230,11 @@ struct _MetaWaylandSurface
 
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;
+
+  /* presentation-time */
+  struct {
+    struct wl_list feedback_list;
+  } presentation_time;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);

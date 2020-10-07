@@ -46,6 +46,7 @@
 #include "wayland/meta-wayland-legacy-xdg-shell.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-region.h"
 #include "wayland/meta-wayland-seat.h"
@@ -466,6 +467,20 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
   state->has_new_buffer_transform = FALSE;
   state->has_new_viewport_src_rect = FALSE;
   state->has_new_viewport_dst_size = FALSE;
+
+  wl_list_init (&state->presentation_feedback_list);
+}
+
+static void
+meta_wayland_surface_state_discard_presentation_feedback (MetaWaylandSurfaceState *state)
+{
+  while (!wl_list_empty (&state->presentation_feedback_list))
+    {
+      MetaWaylandPresentationFeedback *feedback =
+        wl_container_of (state->presentation_feedback_list.next, feedback, link);
+
+      meta_wayland_presentation_feedback_discard (feedback);
+    }
 }
 
 static void
@@ -483,6 +498,8 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
 
   wl_list_for_each_safe (cb, next, &state->frame_callback_list, link)
     wl_resource_destroy (cb->resource);
+
+  meta_wayland_surface_state_discard_presentation_feedback (state);
 }
 
 static void
@@ -592,6 +609,10 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
                           to);
     }
 
+  wl_list_insert_list (&to->presentation_feedback_list,
+                       &from->presentation_feedback_list);
+  wl_list_init (&from->presentation_feedback_list);
+
   meta_wayland_surface_state_reset (from);
 }
 
@@ -625,6 +646,19 @@ meta_wayland_surface_state_class_init (MetaWaylandSurfaceStateClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+}
+
+static void
+meta_wayland_surface_discard_presentation_feedback (MetaWaylandSurface *surface)
+{
+  while (!wl_list_empty (&surface->presentation_time.feedback_list))
+    {
+      MetaWaylandPresentationFeedback *feedback =
+        wl_container_of (surface->presentation_time.feedback_list.next,
+                         feedback, link);
+
+      meta_wayland_presentation_feedback_discard (feedback);
+    }
 }
 
 static void
@@ -755,6 +789,16 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
         surface->input_region = NULL;
     }
 
+  /*
+   * A new commit indicates a new content update, so any previous
+   * content update did not go on screen and needs to be discarded.
+   */
+  meta_wayland_surface_discard_presentation_feedback (surface);
+
+  wl_list_insert_list (&surface->presentation_time.feedback_list,
+                       &state->presentation_feedback_list);
+  wl_list_init (&state->presentation_feedback_list);
+
   if (surface->role)
     {
       meta_wayland_surface_role_apply_state (surface->role, state);
@@ -870,6 +914,13 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
       MetaWaylandSurfaceState *cached_state;
 
       cached_state = meta_wayland_surface_ensure_cached_state (surface);
+
+      /*
+       * A new commit indicates a new content update, so any previous
+       * cached content update did not go on screen and needs to be discarded.
+       */
+      meta_wayland_surface_state_discard_presentation_feedback (cached_state);
+
       meta_wayland_surface_state_merge_into (pending, cached_state);
     }
   else
@@ -1350,6 +1401,8 @@ wl_surface_destructor (struct wl_resource *resource)
                          link)
     wl_resource_destroy (cb->resource);
 
+  meta_wayland_surface_discard_presentation_feedback (surface);
+
   if (surface->resource)
     wl_resource_set_user_data (surface->resource, NULL);
 
@@ -1396,6 +1449,8 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
 
   surface->outputs = g_hash_table_new (NULL, NULL);
   surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
+
+  wl_list_init (&surface->presentation_time.feedback_list);
 
   meta_wayland_compositor_notify_surface_id (compositor, id, surface);
 
