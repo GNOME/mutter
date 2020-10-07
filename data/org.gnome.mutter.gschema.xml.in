@@ -125,7 +125,7 @@
                                         or user must have CAP_SYS_NICE.
                                         Requires a restart.
         • “autostart-xwayland”        — initializes Xwayland lazily if there are
-                                        X11 clients. Requires restart.
+                                        X11 clients. Requires a restart.
       </description>
     </key>
 
