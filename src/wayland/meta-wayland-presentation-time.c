@@ -28,6 +28,7 @@
 
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-versions.h"
 
 #include "presentation-time-server-protocol.h"
@@ -125,5 +126,129 @@ void
 meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback *feedback)
 {
   wp_presentation_feedback_send_discarded (feedback->resource);
+  wl_resource_destroy (feedback->resource);
+}
+
+static void
+maybe_update_presentation_sequence (MetaWaylandSurface *surface,
+                                    ClutterFrameInfo   *frame_info,
+                                    MetaWaylandOutput  *output)
+{
+  unsigned int sequence_delta;
+
+  if (!surface->presentation_time.needs_sequence_update)
+    return;
+
+  surface->presentation_time.needs_sequence_update = FALSE;
+
+  if (!(frame_info->flags & CLUTTER_FRAME_INFO_FLAG_VSYNC))
+    goto invalid_sequence;
+
+  /* Getting sequence = 0 after sequence = UINT_MAX is likely valid (32-bit
+   * overflow, on a 144 Hz display that's ~173 days of operation). Getting it
+   * otherwise is usually a driver bug.
+   */
+  if (frame_info->sequence == 0 &&
+      !(surface->presentation_time.is_last_output_sequence_valid &&
+        surface->presentation_time.last_output_sequence == UINT_MAX))
+    {
+      g_warning_once ("Invalid sequence for VSYNC frame info");
+      goto invalid_sequence;
+    }
+
+  if (surface->presentation_time.is_last_output_sequence_valid &&
+      surface->presentation_time.last_output == output)
+    {
+      sequence_delta =
+        frame_info->sequence - surface->presentation_time.last_output_sequence;
+    }
+  else
+    {
+      /* Sequence generally has different base between different outputs, but we
+       * want to keep it monotonic and without sudden jumps when the surface is
+       * moved between outputs. This matches the Xorg behavior with regards to
+       * the GLX_OML_sync_control implementation.
+       */
+      sequence_delta = 1;
+    }
+
+  surface->presentation_time.sequence += sequence_delta;
+  surface->presentation_time.last_output = output;
+  surface->presentation_time.last_output_sequence = frame_info->sequence;
+  surface->presentation_time.is_last_output_sequence_valid = TRUE;
+
+  return;
+
+invalid_sequence:
+  surface->presentation_time.sequence += 1;
+  surface->presentation_time.last_output = output;
+  surface->presentation_time.is_last_output_sequence_valid = FALSE;
+}
+
+void
+meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *feedback,
+                                            ClutterFrameInfo                *frame_info,
+                                            MetaWaylandOutput               *output)
+{
+  MetaWaylandSurface *surface = feedback->surface;
+  int64_t time_us = frame_info->presentation_time;
+  uint64_t time_s;
+  uint32_t tv_sec_hi, tv_sec_lo, tv_nsec;
+  uint32_t refresh_interval_ns;
+  uint32_t seq_hi, seq_lo;
+  uint32_t flags;
+  GList *l;
+
+  if (output == NULL)
+    {
+      g_warning ("Output is NULL while sending presentation feedback");
+      meta_wayland_presentation_feedback_discard (feedback);
+      return;
+    }
+
+  time_s = us2s (time_us);
+
+  tv_sec_hi = time_s >> 32;
+  tv_sec_lo = time_s;
+  tv_nsec = (uint32_t) us2ns (time_us - s2us (time_s));
+
+  refresh_interval_ns = (uint32_t) (0.5 + s2ns (1) / frame_info->refresh_rate);
+
+  maybe_update_presentation_sequence (surface, frame_info, output);
+
+  seq_hi = surface->presentation_time.sequence >> 32;
+  seq_lo = surface->presentation_time.sequence;
+
+  flags = WP_PRESENTATION_FEEDBACK_KIND_HW_COMPLETION;
+
+  if (frame_info->flags & CLUTTER_FRAME_INFO_FLAG_HW_CLOCK)
+    flags |= WP_PRESENTATION_FEEDBACK_KIND_HW_CLOCK;
+
+  if (frame_info->flags & CLUTTER_FRAME_INFO_FLAG_ZERO_COPY)
+    flags |= WP_PRESENTATION_FEEDBACK_KIND_ZERO_COPY;
+
+  if (frame_info->flags & CLUTTER_FRAME_INFO_FLAG_VSYNC)
+    flags |= WP_PRESENTATION_FEEDBACK_KIND_VSYNC;
+
+  for (l = output->resources; l; l = l->next)
+    {
+      struct wl_resource *output_resource = l->data;
+
+      if (feedback->resource->client == output_resource->client)
+        {
+          wp_presentation_feedback_send_sync_output (feedback->resource,
+                                                     output_resource);
+        }
+    }
+
+  wp_presentation_feedback_send_presented (feedback->resource,
+                                           tv_sec_hi,
+                                           tv_sec_lo,
+                                           tv_nsec,
+                                           refresh_interval_ns,
+                                           seq_hi,
+                                           seq_lo,
+                                           flags);
+
   wl_resource_destroy (feedback->resource);
 }

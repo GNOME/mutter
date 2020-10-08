@@ -25,6 +25,7 @@
 
 #include <wayland-server.h>
 
+#include "clutter/clutter.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandPresentationFeedback
@@ -38,5 +39,9 @@ typedef struct _MetaWaylandPresentationFeedback
 void meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor);
 
 void meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback *feedback);
+
+void meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *feedback,
+                                                 ClutterFrameInfo                *frame_info,
+                                                 MetaWaylandOutput               *output);
 
 #endif /* META_WAYLAND_PRESENTATION_TIME_PRIVATE_H */

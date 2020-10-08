@@ -309,7 +309,19 @@ ns2us (int64_t ns)
 static inline int64_t
 s2us (int64_t s)
 {
-  return ms2us (s * 1000);
+  return s * G_USEC_PER_SEC;
+}
+
+static inline int64_t
+us2s (int64_t us)
+{
+  return us / G_USEC_PER_SEC;
+}
+
+static inline int64_t
+s2ns (int64_t s)
+{
+  return us2ns (s2us (s));
 }
 
 static inline int64_t

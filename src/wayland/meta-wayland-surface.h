@@ -234,6 +234,17 @@ struct _MetaWaylandSurface
   /* presentation-time */
   struct {
     struct wl_list feedback_list;
+    MetaWaylandOutput *last_output;
+    unsigned int last_output_sequence;
+    gboolean is_last_output_sequence_valid;
+    gboolean needs_sequence_update;
+
+    /*
+     * Sequence has an undefined base, but is guaranteed to monotonically
+     * increase. DRM only gives us a 32-bit sequence, so we compute our own
+     * delta to update our own 64-bit sequence.
+     */
+    uint64_t sequence;
   } presentation_time;
 };
 
