@@ -120,15 +120,15 @@
                                         framebuffers instead of window content,
                                         to manage HiDPI monitors. Does not
                                         require a restart.
-                                        \n
+
         • “rt-scheduler”              — makes mutter request a low priority
                                         real-time scheduling. The executable
                                         or user must have CAP_SYS_NICE.
                                         Requires a restart.
-                                        \n
+
         • “autostart-xwayland”        — initializes Xwayland lazily if there are
                                         X11 clients. Requires a restart.
-                                        \n
+
         • “dma-buf-screen-sharing"    — enables DMA buffered screen sharing. This
                                         is already enabled by default when using
                                         the i915 driver, but disabled for 
