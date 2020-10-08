@@ -226,8 +226,9 @@ logical_monitor_from_layout (MetaMonitorManager *monitor_manager,
 }
 
 static void
-check_logical_monitor (MetaMonitorManager            *monitor_manager,
-                       MonitorTestCaseLogicalMonitor *test_logical_monitor)
+check_logical_monitor (MetaMonitorManager             *monitor_manager,
+                       MonitorTestCaseLogicalMonitor  *test_logical_monitor,
+                       GList                         **all_crtcs)
 {
   MetaLogicalMonitor *logical_monitor;
   MetaOutput *primary_output;
@@ -295,8 +296,19 @@ check_logical_monitor (MetaMonitorManager            *monitor_manager,
             }
 
           crtc = meta_output_get_assigned_crtc (output);
-          g_assert (!crtc ||
-                    meta_monitor_get_logical_monitor (monitor) == logical_monitor);
+          if (crtc)
+            {
+              g_assert (meta_monitor_get_logical_monitor (monitor) ==
+                        logical_monitor);
+              g_assert (g_list_find ((GList *) meta_crtc_get_outputs (crtc),
+                                     output));
+              *all_crtcs = g_list_remove (*all_crtcs, crtc);
+            }
+          else
+            {
+              g_assert_null (crtc);
+            }
+
           g_assert_cmpint (logical_monitor->is_presentation,
                            ==,
                            meta_output_is_presentation (output));
@@ -320,6 +332,7 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
   GList *monitors;
   GList *crtcs;
   int n_logical_monitors;
+  GList *all_crtcs;
   GList *l;
   int i;
 
@@ -488,14 +501,31 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
       g_assert (logical_monitor == monitor_manager->primary_logical_monitor);
     }
 
+  all_crtcs = NULL;
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+
+      all_crtcs = g_list_concat (all_crtcs,
+                                 g_list_copy (meta_gpu_get_crtcs (gpu)));
+    }
+
   for (i = 0; i < expect->n_logical_monitors; i++)
     {
       MonitorTestCaseLogicalMonitor *test_logical_monitor =
         &expect->logical_monitors[i];
 
-      check_logical_monitor (monitor_manager, test_logical_monitor);
+      check_logical_monitor (monitor_manager, test_logical_monitor, &all_crtcs);
     }
   g_assert_cmpint (n_logical_monitors, ==, i);
+
+  for (l = all_crtcs; l; l = l->next)
+    {
+      MetaCrtc *crtc = l->data;
+
+      g_assert_null (meta_crtc_get_outputs (crtc));
+    }
+  g_list_free (all_crtcs);
 
   crtcs = meta_gpu_get_crtcs (gpu);
   for (l = crtcs, i = 0; l; l = l->next, i++)
@@ -505,11 +535,23 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
 
       if (expect->crtcs[i].current_mode == -1)
         {
+          g_assert_null (meta_crtc_get_outputs (crtc));
           g_assert_null (crtc_config);
         }
       else
         {
           MetaCrtcMode *expected_current_mode;
+          const GList *l_output;
+
+          for (l_output = meta_crtc_get_outputs (crtc);
+               l_output;
+               l_output = l_output->next)
+            {
+              MetaOutput *output = l_output->data;
+
+              g_assert (meta_output_get_assigned_crtc (output) == crtc);
+              g_assert_null (g_list_find (l_output->next, output));
+            }
 
           g_assert_nonnull (crtc_config);
 

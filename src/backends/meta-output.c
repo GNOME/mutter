@@ -22,6 +22,8 @@
 #include "backends/edid.h"
 #include "backends/meta-output.h"
 
+#include "backends/meta-crtc.h"
+
 enum
 {
   PROP_0,
@@ -191,7 +193,11 @@ meta_output_assign_crtc (MetaOutput                 *output,
 
   g_assert (crtc);
 
+  meta_output_unassign_crtc (output);
+
   g_set_object (&priv->crtc, crtc);
+
+  meta_crtc_assign_output (crtc, output);
 
   priv->is_primary = output_assignment->is_primary;
   priv->is_presentation = output_assignment->is_presentation;
@@ -203,7 +209,11 @@ meta_output_unassign_crtc (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  g_clear_object (&priv->crtc);
+  if (priv->crtc)
+    {
+      meta_crtc_unassign_output (priv->crtc, output);
+      g_clear_object (&priv->crtc);
+    }
 
   priv->is_primary = FALSE;
   priv->is_presentation = FALSE;
