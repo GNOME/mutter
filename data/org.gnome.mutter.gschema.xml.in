@@ -126,6 +126,10 @@
                                         Requires a restart.
         • “autostart-xwayland”        — initializes Xwayland lazily if there are
                                         X11 clients. Requires a restart.
+        • “dma-buf-screen-sharing"    — enables DMA buffered screen sharing. This
+                                        is already enabled by default when using
+                                        the i915 driver, but disabled for 
+                                        everything else. Requires a restart.
       </description>
     </key>
 
