@@ -289,6 +289,8 @@ check_logical_monitor (MetaMonitorManager             *monitor_manager,
           MetaOutput *output = l_output->data;
           MetaCrtc *crtc;
 
+          g_assert (meta_output_get_monitor (output) == monitor);
+
           if (meta_output_is_primary (output))
             {
               g_assert_null (primary_output);

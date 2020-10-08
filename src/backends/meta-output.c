@@ -45,6 +45,8 @@ typedef struct _MetaOutputPrivate
 
   MetaOutputInfo *info;
 
+  MetaMonitor *monitor;
+
   /* The CRTC driving this output, NULL if the output is not enabled */
   MetaCrtc *crtc;
 
@@ -110,6 +112,27 @@ meta_output_get_gpu (MetaOutput *output)
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   return priv->gpu;
+}
+
+MetaMonitor *
+meta_output_get_monitor (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  g_warn_if_fail (priv->monitor);
+
+  return priv->monitor;
+}
+
+void
+meta_output_set_monitor (MetaOutput  *output,
+                         MetaMonitor *monitor)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  g_warn_if_fail (!priv->monitor);
+
+  priv->monitor = monitor;
 }
 
 const char *
