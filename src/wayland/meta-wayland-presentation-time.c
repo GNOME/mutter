@@ -26,6 +26,7 @@
 
 #include <glib.h>
 
+#include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -112,10 +113,8 @@ wp_presentation_bind (struct wl_client *client,
 }
 
 static void
-destroy_feedback_list (gpointer data)
+discard_feedbacks (struct wl_list *feedbacks)
 {
-  struct wl_list *feedbacks = data;
-
   while (!wl_list_empty (feedbacks))
     {
       MetaWaylandPresentationFeedback *feedback =
@@ -123,7 +122,67 @@ destroy_feedback_list (gpointer data)
 
       meta_wayland_presentation_feedback_discard (feedback);
     }
+}
 
+static void
+on_after_paint (ClutterStage          *stage,
+                ClutterStageView      *stage_view,
+                MetaWaylandCompositor *compositor)
+{
+  struct wl_list *feedbacks;
+  GList *l;
+
+  /*
+   * We just painted this stage view, which means that all feedbacks that didn't
+   * fire (e.g. due to page flip failing) are now obsolete and should be
+   * discarded.
+   */
+  feedbacks =
+    meta_wayland_presentation_time_ensure_feedbacks (&compositor->presentation_time,
+                                                     stage_view);
+  discard_feedbacks (feedbacks);
+
+  l = compositor->presentation_time.feedback_surfaces;
+  while (l)
+    {
+      GList *l_cur = l;
+      MetaWaylandSurface *surface = l->data;
+      MetaSurfaceActor *actor;
+      ClutterStageView *surface_primary_view;
+
+      l = l->next;
+
+      actor = meta_wayland_surface_get_actor (surface);
+      if (!actor)
+        continue;
+
+      surface_primary_view =
+        meta_surface_actor_wayland_get_current_primary_view (actor, stage);
+      if (stage_view != surface_primary_view)
+        continue;
+
+      if (!wl_list_empty (&surface->presentation_time.feedback_list))
+        {
+          /* Add feedbacks to the list to be fired on presentation. */
+          wl_list_insert_list (feedbacks,
+                               &surface->presentation_time.feedback_list);
+          wl_list_init (&surface->presentation_time.feedback_list);
+
+          surface->presentation_time.needs_sequence_update = TRUE;
+        }
+
+      compositor->presentation_time.feedback_surfaces =
+        g_list_delete_link (compositor->presentation_time.feedback_surfaces,
+                            l_cur);
+    }
+}
+
+static void
+destroy_feedback_list (gpointer data)
+{
+  struct wl_list *feedbacks = data;
+
+  discard_feedbacks (feedbacks);
   g_free (feedbacks);
 }
 
@@ -141,12 +200,16 @@ meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor)
   MetaBackend *backend = compositor->backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  ClutterActor *stage = meta_backend_get_stage (backend);
 
   compositor->presentation_time.feedbacks =
     g_hash_table_new_full (NULL, NULL, NULL, destroy_feedback_list);
 
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), compositor);
+
+  g_signal_connect (stage, "after-paint",
+                    G_CALLBACK (on_after_paint), compositor);
 
   if (wl_global_create (compositor->wayland_display,
                         &wp_presentation_interface,

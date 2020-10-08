@@ -799,6 +799,10 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                        &state->presentation_feedback_list);
   wl_list_init (&state->presentation_feedback_list);
 
+  if (!wl_list_empty (&surface->presentation_time.feedback_list))
+    meta_wayland_compositor_add_presentation_feedback_surface (surface->compositor,
+                                                               surface);
+
   if (surface->role)
     {
       meta_wayland_surface_role_apply_state (surface->role, state);
@@ -1390,6 +1394,8 @@ wl_surface_destructor (struct wl_resource *resource)
     cairo_region_destroy (surface->input_region);
 
   meta_wayland_compositor_remove_frame_callback_surface (compositor, surface);
+  meta_wayland_compositor_remove_presentation_feedback_surface (compositor,
+                                                                surface);
 
   g_hash_table_foreach (surface->outputs,
                         surface_output_disconnect_signals,
