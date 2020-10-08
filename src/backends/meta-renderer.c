@@ -172,7 +172,7 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
     }
 }
 
-static MetaRendererView *
+MetaRendererView *
 meta_renderer_get_view_for_crtc (MetaRenderer *renderer,
                                  MetaCrtc     *crtc)
 {

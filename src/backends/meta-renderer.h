@@ -63,6 +63,10 @@ GList * meta_renderer_get_views_for_monitor (MetaRenderer *renderer,
                                              MetaMonitor  *monitor);
 
 META_EXPORT_TEST
+MetaRendererView * meta_renderer_get_view_for_crtc (MetaRenderer *renderer,
+                                                    MetaCrtc     *crtc);
+
+META_EXPORT_TEST
 GList * meta_renderer_get_views (MetaRenderer *renderer);
 
 gboolean meta_renderer_is_hardware_accelerated (MetaRenderer *renderer);
