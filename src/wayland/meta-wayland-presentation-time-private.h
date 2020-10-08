@@ -36,6 +36,11 @@ typedef struct _MetaWaylandPresentationFeedback
   MetaWaylandSurface *surface;
 } MetaWaylandPresentationFeedback;
 
+typedef struct _MetaWaylandPresentationTime
+{
+  GList *feedback_surfaces;
+} MetaWaylandPresentationTime;
+
 void meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor);
 
 void meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback *feedback);

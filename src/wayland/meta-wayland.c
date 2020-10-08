@@ -291,6 +291,25 @@ meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *co
     g_list_remove (compositor->frame_callback_surfaces, surface);
 }
 
+void
+meta_wayland_compositor_add_presentation_feedback_surface (MetaWaylandCompositor *compositor,
+                                                           MetaWaylandSurface    *surface)
+{
+  if (g_list_find (compositor->presentation_time.feedback_surfaces, surface))
+    return;
+
+  compositor->presentation_time.feedback_surfaces =
+    g_list_prepend (compositor->presentation_time.feedback_surfaces, surface);
+}
+
+void
+meta_wayland_compositor_remove_presentation_feedback_surface (MetaWaylandCompositor *compositor,
+                                                              MetaWaylandSurface    *surface)
+{
+  compositor->presentation_time.feedback_surfaces =
+    g_list_remove (compositor->presentation_time.feedback_surfaces, surface);
+}
+
 static void
 set_gnome_env (const char *name,
 	       const char *value)
