@@ -466,8 +466,14 @@ meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
     {
       MetaKmsPlaneAssignment *plane_assignment = l->data;
 
-      if (plane_assignment->crtc == crtc)
-        return plane_assignment;
+      if (meta_kms_plane_get_plane_type (plane_assignment->plane) !=
+          META_KMS_PLANE_TYPE_PRIMARY)
+        continue;
+
+      if (plane_assignment->crtc != crtc)
+        continue;
+
+      return plane_assignment;
     }
 
   return NULL;
