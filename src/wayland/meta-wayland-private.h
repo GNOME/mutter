@@ -93,6 +93,7 @@ struct _MetaWaylandCompositor
 
   MetaWaylandSeat *seat;
   MetaWaylandTabletManager *tablet_manager;
+  MetaWaylandActivation *activation;
 
   GHashTable *scheduled_surface_associations;
 

@@ -32,6 +32,7 @@
 #include "cogl/cogl-egl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "core/main-private.h"
+#include "wayland/meta-wayland-activation.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
@@ -542,6 +543,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
   meta_wayland_text_input_init (compositor);
   meta_wayland_gtk_text_input_init (compositor);
   meta_wayland_init_presentation_time (compositor);
+  meta_wayland_activation_init (compositor);
 
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   if (meta_xwayland_grab_keyboard_init (compositor))
