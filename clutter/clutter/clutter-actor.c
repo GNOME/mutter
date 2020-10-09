@@ -3364,12 +3364,19 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
 
   if (success)
     {
-      if (result == CLUTTER_CULL_RESULT_IN)
-        clutter_color_init (&color, 0, 255, 0, 255);
-      else if (result == CLUTTER_CULL_RESULT_OUT)
-        clutter_color_init (&color, 0, 0, 255, 255);
-      else
-        clutter_color_init (&color, 0, 255, 255, 255);
+      switch (result)
+        {
+        case CLUTTER_CULL_RESULT_IN:
+          clutter_color_init (&color, 0, 255, 0, 255);
+          break;
+        case CLUTTER_CULL_RESULT_OUT:
+          clutter_color_init (&color, 0, 0, 255, 255);
+          break;
+        case CLUTTER_CULL_RESULT_PARTIAL:
+        default:
+          clutter_color_init (&color, 0, 255, 255, 255);
+          break;
+        }
     }
   else
     clutter_color_init (&color, 255, 255, 255, 255);
