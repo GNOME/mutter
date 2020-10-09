@@ -1074,6 +1074,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
   ClutterStage *stage = priv->stage;
+  ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
   g_autoptr (GSList) devices = NULL;
   ClutterFrameResult result;
 
@@ -1097,16 +1098,11 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   if (clutter_stage_view_has_redraw_clip (view))
     {
-      ClutterStageWindow *stage_window;
-
       clutter_stage_emit_before_paint (stage, view);
 
-      stage_window = _clutter_stage_get_window (stage);
       _clutter_stage_window_redraw_view (stage_window, view);
 
       clutter_stage_emit_after_paint (stage, view);
-
-      _clutter_stage_window_finish_frame (stage_window, view);
 
       result = CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
     }
@@ -1114,6 +1110,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
     {
       result = CLUTTER_FRAME_RESULT_IDLE;
     }
+
+  _clutter_stage_window_finish_frame (stage_window, view);
 
   clutter_stage_update_devices (stage, devices);
 
