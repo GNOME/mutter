@@ -772,9 +772,9 @@ _cogl_util_get_eye_planes_for_screen_poly (float                    *polygon,
  * be able to cull them.
  */
 static void
-setup_view_for_pick_or_paint (ClutterStage                *stage,
-                              ClutterStageView            *view,
-                              const cairo_rectangle_int_t *clip)
+setup_view_for_paint (ClutterStage                *stage,
+                      ClutterStageView            *view,
+                      const cairo_rectangle_int_t *clip)
 {
   ClutterStagePrivate *priv = stage->priv;
   cairo_rectangle_int_t view_layout;
@@ -842,7 +842,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
                                                       CLUTTER_PAINT_FLAG_NONE);
 
   cairo_region_get_extents (redraw_clip, &clip_rect);
-  setup_view_for_pick_or_paint (stage, view, &clip_rect);
+  setup_view_for_paint (stage, view, &clip_rect);
 
   clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);
   clutter_paint_context_destroy (paint_context);
@@ -1484,7 +1484,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       pick_context = clutter_pick_context_new_for_view (view);
 
       context->pick_mode = mode;
-      setup_view_for_pick_or_paint (stage, view, NULL);
+      priv->cached_pick_mode = CLUTTER_PICK_NONE;
       clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
