@@ -3457,9 +3457,6 @@ cull_actor (ClutterActor        *self,
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CULLING))
     return FALSE;
 
-  stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
-  stage_clip = _clutter_stage_get_clip (stage);
-
   if (clutter_paint_context_is_drawing_off_stage (paint_context))
     {
       CLUTTER_NOTE (CLIPPING, "Bail from cull_actor without culling (%s): "
@@ -3467,6 +3464,9 @@ cull_actor (ClutterActor        *self,
                     _clutter_actor_get_debug_name (self));
       return FALSE;
     }
+
+  stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
+  stage_clip = _clutter_stage_get_clip (stage);
 
   *result_out =
     _clutter_paint_volume_cull (&priv->last_paint_volume, stage_clip);
