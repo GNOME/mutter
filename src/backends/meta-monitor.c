@@ -1948,6 +1948,28 @@ meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
   return TRUE;
 }
 
+MetaMonitorCrtcMode *
+meta_monitor_get_crtc_mode_for_output (MetaMonitor     *monitor,
+                                       MetaMonitorMode *mode,
+                                       MetaOutput      *output)
+{
+  MetaMonitorPrivate *monitor_priv =
+    meta_monitor_get_instance_private (monitor);
+  GList *l;
+  int i;
+
+  for (l = monitor_priv->outputs, i = 0; l; l = l->next, i++)
+    {
+      MetaMonitorCrtcMode *monitor_crtc_mode = &mode->crtc_modes[i];
+
+      if (monitor_crtc_mode->output == output)
+        return monitor_crtc_mode;
+    }
+
+  g_warn_if_reached ();
+  return NULL;
+}
+
 const char *
 meta_monitor_get_display_name (MetaMonitor *monitor)
 {

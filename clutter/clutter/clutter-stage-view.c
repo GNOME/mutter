@@ -1099,6 +1099,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   frame = CLUTTER_FRAME_INIT;
 
+  _clutter_stage_window_prepare_frame (stage_window, view, &frame);
+
   if (clutter_stage_view_has_redraw_clip (view))
     {
       clutter_stage_emit_before_paint (stage, view);

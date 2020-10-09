@@ -264,6 +264,10 @@ gboolean meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
                                            gpointer              user_data,
                                            GError              **error);
 
+MetaMonitorCrtcMode * meta_monitor_get_crtc_mode_for_output (MetaMonitor     *monitor,
+                                                             MetaMonitorMode *mode,
+                                                             MetaOutput      *output);
+
 META_EXPORT_TEST
 gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);
 

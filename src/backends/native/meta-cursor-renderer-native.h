@@ -33,6 +33,9 @@ G_DECLARE_FINAL_TYPE (MetaCursorRendererNative, meta_cursor_renderer_native,
                       META, CURSOR_RENDERER_NATIVE,
                       MetaCursorRenderer)
 
+void meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_renderer_native,
+                                                MetaRendererView         *view);
+
 MetaCursorRendererNative * meta_cursor_renderer_native_new (MetaBackend        *backend,
                                                             ClutterInputDevice *device);
 

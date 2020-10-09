@@ -2346,12 +2346,6 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
 }
 
 gboolean
-meta_renderer_native_is_mode_set_pending (MetaRendererNative *renderer_native)
-{
-  return renderer_native->pending_mode_set;
-}
-
-gboolean
 meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
                                                    uint32_t      drm_format,
                                                    uint64_t      drm_modifier,
@@ -3286,9 +3280,76 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
   meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
 }
 
-void
-meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
+static void
+add_onscreen_frame_info (MetaCrtc *crtc)
 {
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  MetaStageNative *stage_native =
+    meta_clutter_backend_native_get_stage_native (clutter_backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererView *view = meta_renderer_get_view_for_crtc (renderer, crtc);
+
+  clutter_stage_cogl_add_onscreen_frame_info (CLUTTER_STAGE_COGL (stage_native),
+                                              CLUTTER_STAGE_VIEW (view));
+}
+
+void
+meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
+                                   MetaRendererView   *view,
+                                   ClutterFrame       *frame)
+{
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+
+  if (!clutter_frame_has_result (frame))
+    {
+      MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+      MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+      MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);;
+      MetaKmsUpdateFlag flags;
+      MetaKmsUpdate *kms_update;
+      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+      const GError *error;
+
+      kms_update = meta_kms_get_pending_update (kms, kms_device);
+      if (!kms_update)
+        {
+          clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
+          return;
+        }
+
+      meta_kms_update_add_page_flip_listener (kms_update,
+                                              kms_crtc,
+                                              &page_flip_listener_vtable,
+                                              g_object_ref (view));
+
+      flags = META_KMS_UPDATE_FLAG_NONE;
+      kms_feedback = meta_kms_post_pending_update_sync (kms,
+                                                        kms_device,
+                                                        flags);
+      switch (meta_kms_feedback_get_result (kms_feedback))
+        {
+        case META_KMS_FEEDBACK_PASSED:
+          add_onscreen_frame_info (crtc);
+          clutter_frame_set_result (frame,
+                                    CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+          break;
+        case META_KMS_FEEDBACK_FAILED:
+          clutter_frame_set_result (frame,
+                                    CLUTTER_FRAME_RESULT_IDLE);
+
+          error = meta_kms_feedback_get_error (kms_feedback);
+          if (!g_error_matches (error,
+                                G_IO_ERROR,
+                                G_IO_ERROR_PERMISSION_DENIED))
+            g_warning ("Failed to post KMS update: %s", error->message);
+          break;
+        }
+    }
 }
 
 static gboolean

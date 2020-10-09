@@ -136,6 +136,17 @@ _clutter_stage_window_get_views (ClutterStageWindow *window)
 }
 
 void
+_clutter_stage_window_prepare_frame (ClutterStageWindow *window,
+                                     ClutterStageView   *view,
+                                     ClutterFrame       *frame)
+{
+  ClutterStageWindowInterface *iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
+
+  if (iface->prepare_frame)
+    iface->prepare_frame (window, view, frame);
+}
+
+void
 _clutter_stage_window_finish_frame (ClutterStageWindow *window,
                                     ClutterStageView   *view,
                                     ClutterFrame       *frame)

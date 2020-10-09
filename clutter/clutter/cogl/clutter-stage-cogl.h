@@ -56,6 +56,10 @@ void _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
                                     CoglFrameEvent    frame_event,
                                     ClutterFrameInfo *frame_info);
 
+CLUTTER_EXPORT
+void clutter_stage_cogl_add_onscreen_frame_info (ClutterStageCogl *stage_cogl,
+                                                 ClutterStageView *view);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_COGL_H__ */

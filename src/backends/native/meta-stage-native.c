@@ -27,6 +27,7 @@
 #include "backends/native/meta-stage-native.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-renderer-native.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-monitor-manager.h"
@@ -106,6 +107,21 @@ meta_stage_native_get_views (ClutterStageWindow *stage_window)
 }
 
 static void
+meta_stage_native_prepare_frame (ClutterStageWindow *stage_window,
+                                 ClutterStageView   *stage_view,
+                                 ClutterFrame       *frame)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (cursor_renderer);
+
+  meta_cursor_renderer_native_prepare_frame (cursor_renderer_native,
+                                             META_RENDERER_VIEW (stage_view));
+}
+
+static void
 meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
                                 ClutterStageView   *stage_view,
                                 ClutterFrame       *frame)
@@ -113,10 +129,9 @@ meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
-  meta_renderer_native_finish_frame (META_RENDERER_NATIVE (renderer));
-
-  if (!clutter_frame_has_result (frame))
-    clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
+  meta_renderer_native_finish_frame (META_RENDERER_NATIVE (renderer),
+                                     META_RENDERER_VIEW (stage_view),
+                                     frame);
 }
 
 static void
@@ -139,5 +154,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->can_clip_redraws = meta_stage_native_can_clip_redraws;
   iface->get_geometry = meta_stage_native_get_geometry;
   iface->get_views = meta_stage_native_get_views;
+  iface->prepare_frame = meta_stage_native_prepare_frame;
   iface->finish_frame = meta_stage_native_finish_frame;
 }

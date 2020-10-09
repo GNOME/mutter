@@ -53,13 +53,13 @@ struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
 
 MetaGpuKms * meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native);
 
-void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
+void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
+                                        MetaRendererView   *view,
+                                        ClutterFrame       *frame);
 
 void meta_renderer_native_reset_modes (MetaRendererNative *renderer_native);
 
 gboolean meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native);
-
-gboolean meta_renderer_native_is_mode_set_pending (MetaRendererNative *renderer_native);
 
 gboolean meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
                                                             uint32_t      drm_format,

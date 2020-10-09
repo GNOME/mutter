@@ -731,6 +731,21 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   clutter_stage_cogl_redraw_view_primary (stage_cogl, view, frame);
 }
 
+void
+clutter_stage_cogl_add_onscreen_frame_info (ClutterStageCogl *stage_cogl,
+                                            ClutterStageView *view)
+{
+  ClutterStageCoglPrivate *priv =
+    _clutter_stage_cogl_get_instance_private (stage_cogl);
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglFrameInfo *frame_info;
+
+  frame_info = cogl_frame_info_new (priv->global_frame_counter);
+  priv->global_frame_counter++;
+
+  cogl_onscreen_add_frame_info (COGL_ONSCREEN (framebuffer), frame_info);
+}
+
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
