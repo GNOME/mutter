@@ -100,14 +100,6 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
   return TRUE;
 }
 
-static int64_t
-timespec_to_nanoseconds (const struct timespec *ts)
-{
-  const int64_t one_billion = 1000000000;
-
-  return ((int64_t) ts->tv_sec) * one_billion + ts->tv_nsec;
-}
-
 MetaKmsDevice *
 meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms)
 {
@@ -130,17 +122,6 @@ const char *
 meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
 {
   return meta_kms_device_get_path (gpu_kms->kms_device);
-}
-
-int64_t
-meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
-{
-  struct timespec ts;
-
-  if (clock_gettime (gpu_kms->clock_id, &ts))
-    return 0;
-
-  return timespec_to_nanoseconds (&ts);
 }
 
 gboolean

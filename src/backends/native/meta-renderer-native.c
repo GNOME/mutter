@@ -904,15 +904,6 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
   return fb;
 }
 
-static int64_t
-meta_renderer_native_get_clock_time (CoglContext *context)
-{
-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
-  MetaGpuKms *gpu_kms = cogl_renderer->custom_winsys_user_data;
-
-  return meta_gpu_kms_get_current_time_ns (gpu_kms);
-}
-
 static const CoglWinsysVtable *
 get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 {
@@ -933,8 +924,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
       vtable.renderer_connect = meta_renderer_native_connect;
       vtable.renderer_disconnect = meta_renderer_native_disconnect;
       vtable.renderer_create_dma_buf = meta_renderer_native_create_dma_buf;
-
-      vtable.context_get_clock_time = meta_renderer_native_get_clock_time;
 
       vtable_inited = TRUE;
     }

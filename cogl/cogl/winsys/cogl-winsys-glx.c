@@ -174,51 +174,6 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
   return NULL;
 }
 
-static int64_t
-get_monotonic_time_ns (void)
-{
-  struct timespec ts;
-
-  clock_gettime (CLOCK_MONOTONIC, &ts);
-  return ts.tv_sec * G_GINT64_CONSTANT (1000000000) + ts.tv_nsec;
-}
-
-static int64_t
-_cogl_winsys_get_clock_time (CoglContext *context)
-{
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
-
-  if (!glx_renderer->glXWaitForMsc)
-    return get_monotonic_time_ns ();
-
-  /* We don't call ensure_ust_type() because we don't have a drawable
-   * to work with. cogl_get_clock_time() is documented to only work
-   * once a valid, non-zero, timestamp has been retrieved from Cogl.
-   */
-
-  switch (glx_renderer->ust_type)
-    {
-    case COGL_GLX_UST_IS_UNKNOWN:
-    case COGL_GLX_UST_IS_OTHER:
-      return 0;
-    case COGL_GLX_UST_IS_GETTIMEOFDAY:
-      {
-        struct timeval tv;
-
-        gettimeofday(&tv, NULL);
-        return tv.tv_sec * G_GINT64_CONSTANT (1000000000) +
-          tv.tv_usec * G_GINT64_CONSTANT (1000);
-      }
-    case COGL_GLX_UST_IS_MONOTONIC_TIME:
-      {
-        return get_monotonic_time_ns ();
-      }
-    }
-
-  g_assert_not_reached();
-  return 0;
-}
-
 static void
 notify_swap_buffers (CoglContext *context, GLXBufferSwapComplete *swap_event)
 {
@@ -1468,7 +1423,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .display_destroy = _cogl_winsys_display_destroy,
     .context_init = _cogl_winsys_context_init,
     .context_deinit = _cogl_winsys_context_deinit,
-    .context_get_clock_time = _cogl_winsys_get_clock_time,
 
     /* X11 tfp support... */
     /* XXX: instead of having a rather monolithic winsys vtable we could

@@ -449,17 +449,6 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
   context->current_modelview_entry = entry;
 }
 
-int64_t
-cogl_get_clock_time (CoglContext *context)
-{
-  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
-
-  if (winsys->context_get_clock_time)
-    return winsys->context_get_clock_time (context);
-  else
-    return 0;
-}
-
 CoglGraphicsResetStatus
 cogl_get_graphics_reset_status (CoglContext *context)
 {

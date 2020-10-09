@@ -105,9 +105,6 @@ typedef struct _CoglWinsysVtable
 
   /* Optional functions */
 
-  int64_t
-  (*context_get_clock_time) (CoglContext *context);
-
 #ifdef COGL_HAS_XLIB_SUPPORT
   gboolean
   (*texture_pixmap_x11_create) (CoglTexturePixmapX11 *tex_pixmap);
