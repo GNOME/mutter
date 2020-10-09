@@ -1010,6 +1010,9 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
   CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
 
+  if (!onscreen_native->gbm.next_fb)
+    return;
+
   free_current_bo (onscreen);
 
   g_set_object (&onscreen_native->gbm.current_fb, onscreen_native->gbm.next_fb);
