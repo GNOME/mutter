@@ -776,12 +776,6 @@ setup_view_for_paint (ClutterStage                *stage,
   float viewport[4];
   cairo_rectangle_int_t geom;
 
-  /* Any mode of painting/picking invalidates the pick cache, unless we're
-   * in the middle of building it. So we reset the cached flag but don't
-   * completely clear the pick stack.
-   */
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
-
   _clutter_stage_window_get_geometry (priv->impl, &geom);
 
   viewport[0] = priv->viewport[0];
@@ -829,9 +823,16 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
                              ClutterStageView     *view,
                              const cairo_region_t *redraw_clip)
 {
+  ClutterStagePrivate *priv = stage->priv;
   ClutterPaintContext *paint_context;
   cairo_rectangle_int_t clip_rect;
   graphene_frustum_t clip_frustum;
+
+  /* Any mode of painting/picking invalidates the pick cache, unless we're
+   * in the middle of building it. So we reset the cached flag but don't
+   * completely clear the pick stack.
+   */
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 
   cairo_region_get_extents (redraw_clip, &clip_rect);
   setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
