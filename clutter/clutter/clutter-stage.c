@@ -730,11 +730,6 @@ _cogl_util_get_eye_planes_for_screen_poly (float                    *polygon,
                                        tmp_poly,
                                        n_vertices * 2);
 
-  /* XXX: It's quite ugly that we end up with these casts between
-   * Vector4 types and CoglVector3s, it might be better if the
-   * cogl_vector APIs just took pointers to floats.
-   */
-
   for (i = 0; i < n_vertices; i++)
     {
       graphene_point3d_t p[3];
