@@ -34,6 +34,12 @@
 #include "cogl-frame-info.h"
 #include "cogl-object-private.h"
 
+typedef enum _CoglFrameInfoFlag
+{
+  COGL_FRAME_INFO_FLAG_NONE = 0,
+  COGL_FRAME_INFO_FLAG_SYMBOLIC = 1 << 0,
+} CoglFrameInfoFlag;
+
 struct _CoglFrameInfo
 {
   CoglObject _parent;
@@ -43,6 +49,8 @@ struct _CoglFrameInfo
   float refresh_rate;
 
   int64_t global_frame_counter;
+
+  CoglFrameInfoFlag flags;
 };
 
 COGL_EXPORT

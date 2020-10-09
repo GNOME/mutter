@@ -762,6 +762,27 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
 }
 
 static gboolean
+symbolic_page_flip_idle (gpointer user_data)
+{
+  MetaKmsPageFlipData *page_flip_data = user_data;
+  MetaKmsImplDevice *impl_device;
+  MetaKmsCrtc *crtc;
+
+  impl_device = meta_kms_page_flip_data_get_impl_device (page_flip_data);
+  crtc = meta_kms_page_flip_data_get_crtc (page_flip_data);
+
+  meta_topic (META_DEBUG_KMS,
+              "[simple] Handling symbolic page flip callback from %s, data: %p, CRTC: %u",
+              meta_kms_impl_device_get_path (impl_device),
+              page_flip_data,
+              meta_kms_crtc_get_id (crtc));
+
+  meta_kms_impl_device_handle_page_flip_callback (impl_device, page_flip_data);
+
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
 dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                     MetaKmsUpdate        *update,
                     MetaKmsPageFlipData  *page_flip_data,
@@ -780,10 +801,30 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
   plane_assignment = meta_kms_update_get_primary_plane_assignment (update,
                                                                    crtc);
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
   meta_kms_update_get_custom_page_flip_func (update,
                                              &custom_page_flip_func,
                                              &custom_page_flip_user_data);
+
+  if (!plane_assignment && !custom_page_flip_func)
+    {
+      MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+      MetaKms *kms = meta_kms_device_get_kms (device);
+      GSource *source;
+
+      meta_kms_page_flip_data_make_symbolic (page_flip_data);
+
+      source = meta_kms_add_source_in_impl (kms,
+                                            symbolic_page_flip_idle,
+                                            page_flip_data,
+                                            NULL);
+
+      g_source_set_ready_time (source, 0);
+      g_source_unref (source);
+
+      return TRUE;
+    }
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
   if (custom_page_flip_func)
     {
       meta_topic (META_DEBUG_KMS,

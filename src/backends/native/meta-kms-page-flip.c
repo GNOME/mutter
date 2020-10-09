@@ -44,6 +44,8 @@ struct _MetaKmsPageFlipData
   unsigned int sec;
   unsigned int usec;
 
+  gboolean is_symbolic;
+
   GError *error;
 };
 
@@ -125,11 +127,19 @@ meta_kms_page_flip_data_flipped (MetaKms  *kms,
     {
       MetaKmsPageFlipClosure *closure = l->data;
 
-      closure->vtable->flipped (page_flip_data->crtc,
-                                page_flip_data->sequence,
-                                page_flip_data->sec,
-                                page_flip_data->usec,
-                                closure->user_data);
+      if (page_flip_data->is_symbolic)
+        {
+          closure->vtable->ready (page_flip_data->crtc,
+                                  closure->user_data);
+        }
+      else
+        {
+          closure->vtable->flipped (page_flip_data->crtc,
+                                    page_flip_data->sequence,
+                                    page_flip_data->sec,
+                                    page_flip_data->usec,
+                                    closure->user_data);
+        }
     }
 }
 
@@ -154,6 +164,12 @@ meta_kms_page_flip_data_set_timings_in_impl (MetaKmsPageFlipData *page_flip_data
   page_flip_data->sequence = sequence;
   page_flip_data->sec = sec;
   page_flip_data->usec = usec;
+}
+
+void
+meta_kms_page_flip_data_make_symbolic (MetaKmsPageFlipData *page_flip_data)
+{
+  page_flip_data->is_symbolic = TRUE;
 }
 
 void

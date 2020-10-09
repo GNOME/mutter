@@ -137,6 +137,9 @@ float cogl_frame_info_get_refresh_rate (CoglFrameInfo *info);
 COGL_EXPORT
 int64_t cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info);
 
+COGL_EXPORT
+gboolean cogl_frame_info_get_is_symbolic (CoglFrameInfo *info);
+
 G_END_DECLS
 
 #endif /* __COGL_FRAME_INFO_H */

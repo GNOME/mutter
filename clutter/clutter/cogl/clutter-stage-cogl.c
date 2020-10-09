@@ -791,18 +791,26 @@ frame_cb (CoglOnscreen  *onscreen,
           void          *user_data)
 {
   ClutterStageView *view = user_data;
-  ClutterFrameInfo clutter_frame_info;
 
   if (frame_event == COGL_FRAME_EVENT_SYNC)
     return;
 
-  clutter_frame_info = (ClutterFrameInfo) {
-    .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
-    .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
-    .presentation_time = ns2us (cogl_frame_info_get_presentation_time (frame_info)),
-  };
+  if (cogl_frame_info_get_is_symbolic (frame_info))
+    {
+      clutter_stage_view_notify_ready (view);
+    }
+  else
+    {
+      ClutterFrameInfo clutter_frame_info;
 
-  clutter_stage_view_notify_presented (view, &clutter_frame_info);
+      clutter_frame_info = (ClutterFrameInfo) {
+        .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
+        .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
+        .presentation_time =
+          ns2us (cogl_frame_info_get_presentation_time (frame_info)),
+      };
+      clutter_stage_view_notify_presented (view, &clutter_frame_info);
+    }
 }
 
 static void

@@ -1111,6 +1111,24 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 }
 
 static void
+page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
+                          gpointer     user_data)
+{
+  MetaRendererView *view = user_data;
+  CoglFramebuffer *framebuffer =
+    clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  CoglFrameInfo *frame_info;
+
+  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+
+  meta_onscreen_native_notify_frame_complete (onscreen);
+
+  g_object_unref (view);
+}
+
+static void
 page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
@@ -1162,6 +1180,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
   .flipped = page_flip_feedback_flipped,
+  .ready = page_flip_feedback_ready,
   .mode_set_fallback = page_flip_feedback_mode_set_fallback,
   .discarded = page_flip_feedback_discarded,
 };
