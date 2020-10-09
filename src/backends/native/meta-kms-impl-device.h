@@ -80,6 +80,10 @@ GList * meta_kms_impl_device_copy_planes (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_peek_connectors (MetaKmsImplDevice *impl_device);
 
+GList * meta_kms_impl_device_peek_crtcs (MetaKmsImplDevice *impl_device);
+
+GList * meta_kms_impl_device_peek_planes (MetaKmsImplDevice *impl_device);
+
 const MetaKmsDeviceCaps * meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_copy_fallback_modes (MetaKmsImplDevice *impl_device);

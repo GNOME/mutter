@@ -129,6 +129,24 @@ meta_kms_impl_device_peek_connectors (MetaKmsImplDevice *impl_device)
   return priv->connectors;
 }
 
+GList *
+meta_kms_impl_device_peek_crtcs (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  return priv->crtcs;
+}
+
+GList *
+meta_kms_impl_device_peek_planes (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  return priv->planes;
+}
+
 const MetaKmsDeviceCaps *
 meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
 {

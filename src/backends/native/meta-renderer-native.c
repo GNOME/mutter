@@ -3330,6 +3330,7 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
                                     CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
           break;
         case META_KMS_FEEDBACK_FAILED:
+          add_onscreen_frame_info (crtc);
           clutter_frame_set_result (frame,
                                     CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 
