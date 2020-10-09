@@ -215,6 +215,24 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
 }
 
+void
+clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
+{
+  switch (frame_clock->state)
+    {
+    case CLUTTER_FRAME_CLOCK_STATE_INIT:
+    case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+      g_warn_if_reached ();
+      break;
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
+    case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
+      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+      maybe_reschedule_update (frame_clock);
+      break;
+    }
+}
+
 static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                int64_t           *out_next_update_time_us,
