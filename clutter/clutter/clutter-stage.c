@@ -115,7 +115,7 @@ struct _ClutterStagePrivate
 
   GArray *paint_volume_stack;
 
-  graphene_plane_t current_clip_planes[4];
+  graphene_frustum_t clip_frustum;
 
   GSList *pending_relayouts;
   GList *pending_queue_redraws;
@@ -659,13 +659,16 @@ typedef struct _Vector4
 } Vector4;
 
 static void
-_cogl_util_get_eye_planes_for_screen_poly (float                   *polygon,
-                                           int                      n_vertices,
-                                           float                   *viewport,
-                                           const graphene_matrix_t *projection,
-                                           const graphene_matrix_t *inverse_project,
-                                           graphene_plane_t        *planes)
+_cogl_util_get_eye_planes_for_screen_poly (float                    *polygon,
+                                           int                       n_vertices,
+                                           float                    *viewport,
+                                           const graphene_matrix_t  *projection,
+                                           const graphene_matrix_t  *inverse_project,
+                                           const ClutterPerspective *perspective,
+                                           graphene_frustum_t       *frustum)
 {
+  graphene_plane_t planes[6];
+  graphene_vec4_t v;
   float Wc;
   Vector4 *tmp_poly;
   int i;
@@ -749,6 +752,18 @@ _cogl_util_get_eye_planes_for_screen_poly (float                   *polygon,
 
       graphene_plane_init_from_points (&planes[i], &p[0], &p[1], &p[2]);
     }
+
+  graphene_plane_init_from_vec4 (&planes[4],
+                                 graphene_vec4_init (&v, 0.f, 0.f, -1.f,
+                                                     perspective->z_near));
+  graphene_plane_init_from_vec4 (&planes[5],
+                                 graphene_vec4_init (&v, 0.f, 0.f, 1.f,
+                                                     perspective->z_far));
+
+  graphene_frustum_init (frustum,
+                         &planes[0], &planes[1],
+                         &planes[2], &planes[3],
+                         &planes[4], &planes[5]);
 }
 
 /* XXX: Instead of having a toplevel 2D clip region, it might be
@@ -809,7 +824,8 @@ setup_view_for_pick_or_paint (ClutterStage                *stage,
                                              viewport,
                                              &priv->projection,
                                              &priv->inverse_projection,
-                                             priv->current_clip_planes);
+                                             &priv->perspective,
+                                             &priv->clip_frustum);
 
   _clutter_stage_paint_volume_stack_free_all (stage);
 }
@@ -3075,10 +3091,10 @@ _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage)
 
 /* The is an out-of-band parameter available while painting that
  * can be used to cull actors. */
-const graphene_plane_t *
+const graphene_frustum_t *
 _clutter_stage_get_clip (ClutterStage *stage)
 {
-  return stage->priv->current_clip_planes;
+  return &stage->priv->clip_frustum;
 }
 
 /* When an actor queues a redraw we add it to a list on the stage that

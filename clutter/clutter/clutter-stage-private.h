@@ -98,7 +98,7 @@ ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
 void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);
 
-const graphene_plane_t *_clutter_stage_get_clip (ClutterStage *stage);
+const graphene_frustum_t *_clutter_stage_get_clip (ClutterStage *stage);
 
 ClutterStageQueueRedrawEntry *_clutter_stage_queue_actor_redraw            (ClutterStage                 *stage,
                                                                             ClutterStageQueueRedrawEntry *entry,

@@ -1071,14 +1071,11 @@ _clutter_paint_volume_set_reference_actor (ClutterPaintVolume *pv,
 }
 
 ClutterCullResult
-_clutter_paint_volume_cull (ClutterPaintVolume     *pv,
-                            const graphene_plane_t *planes)
+_clutter_paint_volume_cull (ClutterPaintVolume       *pv,
+                            const graphene_frustum_t *frustum)
 {
   int vertex_count;
-  graphene_point3d_t *vertices = pv->vertices;
-  gboolean partial = FALSE;
-  int i;
-  int j;
+  graphene_box_t box;
 
   if (pv->is_empty)
     return CLUTTER_CULL_RESULT_OUT;
@@ -1095,26 +1092,12 @@ _clutter_paint_volume_cull (ClutterPaintVolume     *pv,
   else
     vertex_count = 8;
 
-  for (i = 0; i < 4; i++)
-    {
-      const graphene_plane_t *plane = &planes[i];
-      int out = 0;
-      for (j = 0; j < vertex_count; j++)
-        {
-          if (graphene_plane_distance (plane, &vertices[j]) < 0)
-            out++;
-        }
+  graphene_box_init_from_points (&box, vertex_count, pv->vertices);
 
-      if (out == vertex_count)
-        return CLUTTER_CULL_RESULT_OUT;
-      else if (out != 0)
-        partial = TRUE;
-    }
-
-  if (partial)
-    return CLUTTER_CULL_RESULT_PARTIAL;
-  else
+  if (graphene_frustum_intersects_box (frustum, &box))
     return CLUTTER_CULL_RESULT_IN;
+  else
+    return CLUTTER_CULL_RESULT_OUT;
 }
 
 void

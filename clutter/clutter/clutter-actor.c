@@ -3444,7 +3444,7 @@ cull_actor (ClutterActor        *self,
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterStage *stage;
-  const graphene_plane_t *stage_clip;
+  const graphene_frustum_t *clip_frustum;
 
   if (!priv->last_paint_volume_valid)
     {
@@ -3466,10 +3466,10 @@ cull_actor (ClutterActor        *self,
     }
 
   stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
-  stage_clip = _clutter_stage_get_clip (stage);
+  clip_frustum = _clutter_stage_get_clip (stage);
 
   *result_out =
-    _clutter_paint_volume_cull (&priv->last_paint_volume, stage_clip);
+    _clutter_paint_volume_cull (&priv->last_paint_volume, clip_frustum);
 
   if (*result_out != CLUTTER_CULL_RESULT_OUT)
     {
