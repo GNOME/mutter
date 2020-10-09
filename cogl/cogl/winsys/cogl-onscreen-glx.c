@@ -355,15 +355,6 @@ _cogl_winsys_wait_for_gpu (CoglOnscreen *onscreen)
   ctx->glFinish ();
 }
 
-static int64_t
-get_monotonic_time_ns (void)
-{
-  struct timespec ts;
-
-  clock_gettime (CLOCK_MONOTONIC, &ts);
-  return ts.tv_sec * G_GINT64_CONSTANT (1000000000) + ts.tv_nsec;
-}
-
 static void
 ensure_ust_type (CoglRenderer *renderer,
                  GLXDrawable   drawable)
@@ -403,7 +394,7 @@ ensure_ust_type (CoglRenderer *renderer,
 
   /* This is the time source that the newer (fixed) linux drm
    * drivers use (Linux >= 3.8) */
-  current_monotonic_time = get_monotonic_time_ns () / 1000;
+  current_monotonic_time = g_get_monotonic_time ();
 
   if (current_monotonic_time > ust - 1000000 &&
       current_monotonic_time < ust + 1000000)
