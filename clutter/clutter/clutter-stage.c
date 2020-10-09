@@ -115,7 +115,7 @@ struct _ClutterStagePrivate
 
   GArray *paint_volume_stack;
 
-  ClutterPlane current_clip_planes[4];
+  graphene_plane_t current_clip_planes[4];
 
   GSList *pending_relayouts;
   GList *pending_queue_redraws;
@@ -659,20 +659,17 @@ typedef struct _Vector4
 } Vector4;
 
 static void
-_cogl_util_get_eye_planes_for_screen_poly (float *polygon,
-                                           int n_vertices,
-                                           float *viewport,
+_cogl_util_get_eye_planes_for_screen_poly (float                   *polygon,
+                                           int                      n_vertices,
+                                           float                   *viewport,
                                            const graphene_matrix_t *projection,
                                            const graphene_matrix_t *inverse_project,
-                                           ClutterPlane *planes)
+                                           graphene_plane_t        *planes)
 {
   float Wc;
   Vector4 *tmp_poly;
-  ClutterPlane *plane;
   int i;
   Vector4 *poly;
-  graphene_vec3_t b;
-  graphene_vec3_t c;
   float zw, ww;
 
   tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
@@ -739,21 +736,18 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
 
   for (i = 0; i < n_vertices; i++)
     {
-      plane = &planes[i];
+      graphene_point3d_t p[3];
 
       poly = &tmp_poly[i];
-      graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
+      graphene_point3d_init (&p[0], poly->x, poly->y, poly->z);
 
       poly = &tmp_poly[n_vertices + i];
-      graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+      graphene_point3d_init (&p[1], poly->x, poly->y, poly->z);
 
       poly = &tmp_poly[n_vertices + ((i + 1) % n_vertices)];
-      graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+      graphene_point3d_init (&p[2], poly->x, poly->y, poly->z);
 
-      graphene_vec3_subtract (&b, &plane->v0, &b);
-      graphene_vec3_subtract (&c, &plane->v0, &c);
-      graphene_vec3_cross (&b, &c, &plane->n);
-      graphene_vec3_normalize (&plane->n, &plane->n);
+      graphene_plane_init_from_points (&planes[i], &p[0], &p[1], &p[2]);
     }
 }
 
@@ -3081,7 +3075,7 @@ _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage)
 
 /* The is an out-of-band parameter available while painting that
  * can be used to cull actors. */
-const ClutterPlane *
+const graphene_plane_t *
 _clutter_stage_get_clip (ClutterStage *stage)
 {
   return stage->priv->current_clip_planes;

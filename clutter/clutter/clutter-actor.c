@@ -3444,7 +3444,7 @@ cull_actor (ClutterActor        *self,
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterStage *stage;
-  const ClutterPlane *stage_clip;
+  const graphene_plane_t *stage_clip;
 
   if (!priv->last_paint_volume_valid)
     {

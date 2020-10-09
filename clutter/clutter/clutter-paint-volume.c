@@ -1071,8 +1071,8 @@ _clutter_paint_volume_set_reference_actor (ClutterPaintVolume *pv,
 }
 
 ClutterCullResult
-_clutter_paint_volume_cull (ClutterPaintVolume *pv,
-                            const ClutterPlane *planes)
+_clutter_paint_volume_cull (ClutterPaintVolume     *pv,
+                            const graphene_plane_t *planes)
 {
   int vertex_count;
   graphene_point3d_t *vertices = pv->vertices;
@@ -1097,18 +1097,11 @@ _clutter_paint_volume_cull (ClutterPaintVolume *pv,
 
   for (i = 0; i < 4; i++)
     {
-      const ClutterPlane *plane = &planes[i];
+      const graphene_plane_t *plane = &planes[i];
       int out = 0;
       for (j = 0; j < vertex_count; j++)
         {
-          graphene_vec3_t v;
-
-          graphene_vec3_init (&v,
-                              vertices[j].x - graphene_vec3_get_x (&plane->v0),
-                              vertices[j].y - graphene_vec3_get_y (&plane->v0),
-                              vertices[j].z - graphene_vec3_get_z (&plane->v0));
-
-          if (graphene_vec3_dot (&plane->n, &v) < 0)
+          if (graphene_plane_distance (plane, &vertices[j]) < 0)
             out++;
         }
 
