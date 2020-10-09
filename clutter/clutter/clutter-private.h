@@ -245,12 +245,6 @@ PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 PangoDirection _clutter_pango_find_base_dir     (const gchar *text,
                                                  gint         length);
 
-typedef struct _ClutterPlane
-{
-  graphene_vec3_t v0;
-  graphene_vec3_t n;
-} ClutterPlane;
-
 typedef enum _ClutterCullResult
 {
   CLUTTER_CULL_RESULT_UNKNOWN,
