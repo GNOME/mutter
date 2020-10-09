@@ -67,6 +67,8 @@ COGL_GTYPE_DEFINE_BOXED (OnscreenDirtyClosure,
                          cogl_dummy_copy,
                          cogl_dummy_free);
 
+G_DEFINE_QUARK (cogl-scanout-error-quark, cogl_scanout_error)
+
 static void
 _cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
                                    CoglOnscreenTemplate *onscreen_template)

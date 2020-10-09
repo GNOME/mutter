@@ -53,6 +53,15 @@ G_DECLARE_FINAL_TYPE (CoglOnscreen, cogl_onscreen,
                       COGL, ONSCREEN,
                       CoglFramebuffer)
 
+#define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
+COGL_EXPORT GQuark
+cogl_scanout_error_quark (void);
+
+typedef enum _CoglScanoutError
+{
+  COGL_SCANOUT_ERROR_INHIBITED,
+} CoglScanoutError;
+
 typedef struct _CoglScanout CoglScanout;
 
 /**

@@ -722,7 +722,10 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                            &error))
         return;
 
-      g_warning ("Failed to scan out client buffer: %s", error->message);
+      if (!g_error_matches (error,
+                            COGL_SCANOUT_ERROR,
+                            COGL_SCANOUT_ERROR_INHIBITED))
+        g_warning ("Failed to scan out client buffer: %s", error->message);
     }
 
   clutter_stage_cogl_redraw_view_primary (stage_cogl, view, frame);

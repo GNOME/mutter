@@ -264,6 +264,12 @@ clutter_round_to_256ths (float *f)
   *f = roundf ((*f) * 256) / 256;
 }
 
+static inline uint64_t
+ns (uint64_t ns)
+{
+  return ns;
+}
+
 static inline int64_t
 us (int64_t us)
 {
@@ -280,6 +286,12 @@ static inline int64_t
 ms2us (int64_t ms)
 {
   return us (ms * 1000);
+}
+
+static inline int64_t
+us2ns (int64_t us)
+{
+  return ns (us * 1000);
 }
 
 static inline int64_t
