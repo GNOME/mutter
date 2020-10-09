@@ -68,4 +68,6 @@ void clutter_stage_view_schedule_update (ClutterStageView *view);
 void clutter_stage_view_notify_presented (ClutterStageView *view,
                                           ClutterFrameInfo *frame_info);
 
+void clutter_stage_view_notify_ready (ClutterStageView *view);
+
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */
