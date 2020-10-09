@@ -115,8 +115,6 @@ struct _ClutterStagePrivate
 
   GArray *paint_volume_stack;
 
-  graphene_frustum_t clip_frustum;
-
   GSList *pending_relayouts;
   GList *pending_queue_redraws;
 
@@ -774,7 +772,8 @@ _cogl_util_get_eye_planes_for_screen_poly (float                    *polygon,
 static void
 setup_view_for_paint (ClutterStage                *stage,
                       ClutterStageView            *view,
-                      const cairo_rectangle_int_t *clip)
+                      const cairo_rectangle_int_t *clip,
+                      graphene_frustum_t          *out_frustum)
 {
   ClutterStagePrivate *priv = stage->priv;
   cairo_rectangle_int_t view_layout;
@@ -825,7 +824,7 @@ setup_view_for_paint (ClutterStage                *stage,
                                              &priv->projection,
                                              &priv->inverse_projection,
                                              &priv->perspective,
-                                             &priv->clip_frustum);
+                                             out_frustum);
 
   _clutter_stage_paint_volume_stack_free_all (stage);
 }
@@ -837,12 +836,15 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
 {
   ClutterPaintContext *paint_context;
   cairo_rectangle_int_t clip_rect;
-
-  paint_context = clutter_paint_context_new_for_view (view, redraw_clip,
-                                                      CLUTTER_PAINT_FLAG_NONE);
+  graphene_frustum_t clip_frustum;
 
   cairo_region_get_extents (redraw_clip, &clip_rect);
-  setup_view_for_paint (stage, view, &clip_rect);
+  setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
+
+  paint_context = clutter_paint_context_new_for_view (view,
+                                                      redraw_clip,
+                                                      &clip_frustum,
+                                                      CLUTTER_PAINT_FLAG_NONE);
 
   clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);
   clutter_paint_context_destroy (paint_context);
@@ -3087,14 +3089,6 @@ _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage)
     }
 
   g_array_set_size (paint_volume_stack, 0);
-}
-
-/* The is an out-of-band parameter available while painting that
- * can be used to cull actors. */
-const graphene_frustum_t *
-_clutter_stage_get_clip (ClutterStage *stage)
-{
-  return &stage->priv->clip_frustum;
 }
 
 /* When an actor queues a redraw we add it to a list on the stage that

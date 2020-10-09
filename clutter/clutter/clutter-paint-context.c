@@ -30,6 +30,7 @@ struct _ClutterPaintContext
   ClutterStageView *view;
 
   cairo_region_t *redraw_clip;
+  graphene_frustum_t clip_frustum;
 };
 
 G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
@@ -37,9 +38,10 @@ G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
                      clutter_paint_context_unref)
 
 ClutterPaintContext *
-clutter_paint_context_new_for_view (ClutterStageView     *view,
-                                    const cairo_region_t *redraw_clip,
-                                    ClutterPaintFlag      paint_flags)
+clutter_paint_context_new_for_view (ClutterStageView         *view,
+                                    const cairo_region_t     *redraw_clip,
+                                    const graphene_frustum_t *clip_frustum,
+                                    ClutterPaintFlag          paint_flags)
 {
   ClutterPaintContext *paint_context;
   CoglFramebuffer *framebuffer;
@@ -49,6 +51,8 @@ clutter_paint_context_new_for_view (ClutterStageView     *view,
   paint_context->view = view;
   paint_context->redraw_clip = cairo_region_copy (redraw_clip);
   paint_context->paint_flags = paint_flags;
+  graphene_frustum_init_from_frustum (&paint_context->clip_frustum,
+                                      clip_frustum);
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);
@@ -131,6 +135,12 @@ const cairo_region_t *
 clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context)
 {
   return paint_context->redraw_clip;
+}
+
+const graphene_frustum_t *
+clutter_paint_context_get_clip_frustum (ClutterPaintContext *paint_context)
+{
+  return &paint_context->clip_frustum;
 }
 
 /**

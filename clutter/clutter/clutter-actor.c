@@ -3449,7 +3449,6 @@ cull_actor (ClutterActor        *self,
             ClutterCullResult   *result_out)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterStage *stage;
   const graphene_frustum_t *clip_frustum;
 
   if (!priv->last_paint_volume_valid)
@@ -3471,8 +3470,7 @@ cull_actor (ClutterActor        *self,
       return FALSE;
     }
 
-  stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
-  clip_frustum = _clutter_stage_get_clip (stage);
+  clip_frustum = clutter_paint_context_get_clip_frustum (paint_context);
 
   *result_out =
     _clutter_paint_volume_cull (&priv->last_paint_volume, clip_frustum);
@@ -3487,6 +3485,9 @@ cull_actor (ClutterActor        *self,
           ClutterActorBox paint_box;
           cairo_rectangle_int_t paint_box_bounds;
           cairo_region_overlap_t overlap;
+          ClutterStage *stage;
+
+          stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
 
           _clutter_paint_volume_get_stage_paint_box (&priv->last_paint_volume,
                                                      stage,
