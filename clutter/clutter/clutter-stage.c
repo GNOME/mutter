@@ -674,7 +674,6 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   graphene_vec3_t b;
   graphene_vec3_t c;
   float zw, ww;
-  int count;
 
   tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
 
@@ -738,8 +737,7 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
    * cogl_vector APIs just took pointers to floats.
    */
 
-  count = n_vertices - 1;
-  for (i = 0; i < count; i++)
+  for (i = 0; i < n_vertices; i++)
     {
       plane = &planes[i];
 
@@ -749,7 +747,7 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
       poly = &tmp_poly[n_vertices + i];
       graphene_vec3_init (&b, poly->x, poly->y, poly->z);
 
-      poly = &tmp_poly[n_vertices + i + 1];
+      poly = &tmp_poly[n_vertices + ((i + 1) % n_vertices)];
       graphene_vec3_init (&c, poly->x, poly->y, poly->z);
 
       graphene_vec3_subtract (&b, &plane->v0, &b);
@@ -757,22 +755,6 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
       graphene_vec3_cross (&b, &c, &plane->n);
       graphene_vec3_normalize (&plane->n, &plane->n);
     }
-
-  plane = &planes[n_vertices - 1];
-
-  poly = &tmp_poly[0];
-  graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
-
-  poly = &tmp_poly[2 * n_vertices - 1];
-  graphene_vec3_init (&b, poly->x, poly->y, poly->z);
-
-  poly = &tmp_poly[n_vertices];
-  graphene_vec3_init (&c, poly->x, poly->y, poly->z);
-
-  graphene_vec3_subtract (&b, &plane->v0, &b);
-  graphene_vec3_subtract (&c, &plane->v0, &c);
-  graphene_vec3_cross (&b, &c, &plane->n);
-  graphene_vec3_normalize (&plane->n, &plane->n);
 }
 
 /* XXX: Instead of having a toplevel 2D clip region, it might be
