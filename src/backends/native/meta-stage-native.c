@@ -106,7 +106,8 @@ meta_stage_native_get_views (ClutterStageWindow *stage_window)
 }
 
 static void
-meta_stage_native_finish_frame (ClutterStageWindow *stage_window)
+meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
+                                ClutterStageView   *stage_view)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);

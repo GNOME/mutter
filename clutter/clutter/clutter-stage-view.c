@@ -1106,7 +1106,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
       clutter_stage_emit_after_paint (stage, view);
 
-      _clutter_stage_window_finish_frame (stage_window);
+      _clutter_stage_window_finish_frame (stage_window, view);
 
       result = CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
     }

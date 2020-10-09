@@ -134,12 +134,13 @@ _clutter_stage_window_get_views (ClutterStageWindow *window)
 }
 
 void
-_clutter_stage_window_finish_frame (ClutterStageWindow *window)
+_clutter_stage_window_finish_frame (ClutterStageWindow *window,
+                                    ClutterStageView   *view)
 {
   ClutterStageWindowInterface *iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
 
   if (iface->finish_frame)
-    iface->finish_frame (window);
+    iface->finish_frame (window, view);
 }
 
 int64_t

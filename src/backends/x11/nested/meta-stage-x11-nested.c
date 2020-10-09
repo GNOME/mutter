@@ -158,7 +158,8 @@ draw_view (MetaStageX11Nested *stage_nested,
 }
 
 static void
-meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
+meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window,
+                                    ClutterStageView   *stage_view)
 {
   MetaStageX11Nested *stage_nested = META_STAGE_X11_NESTED (stage_window);
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
