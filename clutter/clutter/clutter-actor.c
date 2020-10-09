@@ -3372,7 +3372,6 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
         case CLUTTER_CULL_RESULT_OUT:
           clutter_color_init (&color, 0, 0, 255, 255);
           break;
-        case CLUTTER_CULL_RESULT_PARTIAL:
         default:
           clutter_color_init (&color, 0, 255, 255, 255);
           break;
@@ -3503,10 +3502,8 @@ cull_actor (ClutterActor        *self,
           switch (overlap)
             {
             case CAIRO_REGION_OVERLAP_IN:
-              *result_out = CLUTTER_CULL_RESULT_IN;
-              break;
             case CAIRO_REGION_OVERLAP_PART:
-              *result_out = CLUTTER_CULL_RESULT_PARTIAL;
+              *result_out = CLUTTER_CULL_RESULT_IN;
               break;
             case CAIRO_REGION_OVERLAP_OUT:
               *result_out = CLUTTER_CULL_RESULT_OUT;

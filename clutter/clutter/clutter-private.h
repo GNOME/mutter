@@ -250,7 +250,6 @@ typedef enum _ClutterCullResult
   CLUTTER_CULL_RESULT_UNKNOWN,
   CLUTTER_CULL_RESULT_IN,
   CLUTTER_CULL_RESULT_OUT,
-  CLUTTER_CULL_RESULT_PARTIAL
 } ClutterCullResult;
 
 gboolean        _clutter_has_progress_function  (GType gtype);
