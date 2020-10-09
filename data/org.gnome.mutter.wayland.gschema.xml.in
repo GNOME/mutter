@@ -112,7 +112,7 @@
 
     <key name="xwayland-disable-extension"
         flags='org.gnome.mutter.MetaXwaylandDisableExtension'>
-      <default>["Security"]</default>
+      <default>[]</default>
       <summary>Disable selected X extensions in Xwayland</summary>
       <description>
         This option disables the selected X extensions in Xwayland if
