@@ -303,7 +303,8 @@ void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         const int *rectangles,
                                         int n_rectangles,
-                                        CoglFrameInfo *info)
+                                        CoglFrameInfo *info,
+                                        gpointer user_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
@@ -321,7 +322,8 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
   winsys->onscreen_swap_buffers_with_damage (onscreen,
                                              rectangles, n_rectangles,
-                                             info);
+                                             info,
+                                             user_data);
   cogl_framebuffer_discard_buffers (framebuffer,
                                     COGL_BUFFER_BIT_COLOR |
                                     COGL_BUFFER_BIT_DEPTH |
@@ -346,16 +348,18 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
 void
 cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
-                            CoglFrameInfo *info)
+                            CoglFrameInfo *info,
+                            gpointer user_data)
 {
-  cogl_onscreen_swap_buffers_with_damage (onscreen, NULL, 0, info);
+  cogl_onscreen_swap_buffers_with_damage (onscreen, NULL, 0, info, user_data);
 }
 
 void
 cogl_onscreen_swap_region (CoglOnscreen *onscreen,
                            const int *rectangles,
                            int n_rectangles,
-                           CoglFrameInfo *info)
+                           CoglFrameInfo *info,
+                           gpointer user_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
@@ -379,7 +383,8 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   winsys->onscreen_swap_region (COGL_ONSCREEN (framebuffer),
                                 rectangles,
                                 n_rectangles,
-                                info);
+                                info,
+                                user_data);
 
   cogl_framebuffer_discard_buffers (framebuffer,
                                     COGL_BUFFER_BIT_COLOR |
@@ -423,6 +428,7 @@ gboolean
 cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
                               CoglScanout    *scanout,
                               CoglFrameInfo  *info,
+                              gpointer        user_data,
                               GError        **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -435,7 +441,11 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
-  if (!winsys->onscreen_direct_scanout (onscreen, scanout, info, error))
+  if (!winsys->onscreen_direct_scanout (onscreen,
+                                        scanout,
+                                        info,
+                                        user_data,
+                                        error))
     {
       g_queue_pop_tail (&onscreen->pending_frame_infos);
       return FALSE;

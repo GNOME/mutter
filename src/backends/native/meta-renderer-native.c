@@ -1919,7 +1919,8 @@ static void
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                const int     *rectangles,
                                                int            n_rectangles,
-                                               CoglFrameInfo *frame_info)
+                                               CoglFrameInfo *frame_info,
+                                               gpointer       user_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
@@ -1955,7 +1956,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   parent_vtable->onscreen_swap_buffers_with_damage (onscreen,
                                                     rectangles,
                                                     n_rectangles,
-                                                    frame_info);
+                                                    frame_info,
+                                                    user_data);
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -2170,6 +2172,7 @@ static gboolean
 meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                      CoglScanout    *scanout,
                                      CoglFrameInfo  *frame_info,
+                                     gpointer        user_data,
                                      GError        **error)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;

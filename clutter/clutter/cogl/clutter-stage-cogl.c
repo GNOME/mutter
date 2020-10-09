@@ -249,7 +249,8 @@ static void
 swap_framebuffer (ClutterStageWindow *stage_window,
                   ClutterStageView   *view,
                   cairo_region_t     *swap_region,
-                  gboolean            swap_with_damage)
+                  gboolean            swap_with_damage,
+                  ClutterFrame       *frame)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   ClutterStageCoglPrivate *priv =
@@ -289,7 +290,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
 
           cogl_onscreen_swap_region (onscreen,
                                      damage, n_rects,
-                                     frame_info);
+                                     frame_info,
+                                     frame);
         }
       else
         {
@@ -298,7 +300,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
 
           cogl_onscreen_swap_buffers_with_damage (onscreen,
                                                   damage, n_rects,
-                                                  frame_info);
+                                                  frame_info,
+                                                  frame);
         }
     }
   else
@@ -445,7 +448,8 @@ transform_swap_region_to_onscreen (ClutterStageView *view,
 
 static void
 clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
-                                        ClutterStageView *view)
+                                        ClutterStageView *view,
+                                        ClutterFrame     *frame)
 {
   ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_cogl);
   ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
@@ -658,7 +662,8 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
   swap_framebuffer (stage_window,
                     view,
                     swap_region,
-                    swap_with_damage);
+                    swap_with_damage,
+                    frame);
 
   cairo_region_destroy (swap_region);
 }
@@ -667,6 +672,7 @@ static gboolean
 clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
                                  ClutterStageView  *view,
                                  CoglScanout       *scanout,
+                                 ClutterFrame      *frame,
                                  GError           **error)
 {
   ClutterStageCoglPrivate *priv =
@@ -681,7 +687,11 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
 
   frame_info = cogl_frame_info_new (priv->global_frame_counter);
 
-  if (!cogl_onscreen_direct_scanout (onscreen, scanout, frame_info, error))
+  if (!cogl_onscreen_direct_scanout (onscreen,
+                                     scanout,
+                                     frame_info,
+                                     frame,
+                                     error))
     {
       cogl_object_unref (frame_info);
       return FALSE;
@@ -705,13 +715,17 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     {
       g_autoptr (GError) error = NULL;
 
-      if (clutter_stage_cogl_scanout_view (stage_cogl, view, scanout, &error))
+      if (clutter_stage_cogl_scanout_view (stage_cogl,
+                                           view,
+                                           scanout,
+                                           frame,
+                                           &error))
         return;
 
       g_warning ("Failed to scan out client buffer: %s", error->message);
     }
 
-  clutter_stage_cogl_redraw_view_primary (stage_cogl, view);
+  clutter_stage_cogl_redraw_view_primary (stage_cogl, view, frame);
 
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }

@@ -1637,7 +1637,8 @@ static void
 _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
                                    const int *user_rectangles,
                                    int n_rectangles,
-                                   CoglFrameInfo *info)
+                                   CoglFrameInfo *info,
+                                   gpointer user_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
@@ -1844,7 +1845,8 @@ static void
 _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                                 const int *rectangles,
                                                 int n_rectangles,
-                                                CoglFrameInfo *info)
+                                                CoglFrameInfo *info,
+                                                gpointer user_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);

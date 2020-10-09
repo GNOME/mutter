@@ -174,7 +174,8 @@ cogl_onscreen_hide (CoglOnscreen *onscreen);
  */
 COGL_EXPORT void
 cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
-                            CoglFrameInfo *frame_info);
+                            CoglFrameInfo *frame_info,
+                            gpointer       user_data);
 
 
 /**
@@ -281,7 +282,8 @@ COGL_EXPORT void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         const int *rectangles,
                                         int n_rectangles,
-                                        CoglFrameInfo *info);
+                                        CoglFrameInfo *info,
+                                        gpointer user_data);
 
 /**
  * cogl_onscreen_direct_scanout: (skip)
@@ -290,6 +292,7 @@ COGL_EXPORT gboolean
 cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
                               CoglScanout    *scanout,
                               CoglFrameInfo  *info,
+                              gpointer        user_data,
                               GError        **error);
 
 /**
@@ -316,7 +319,8 @@ COGL_EXPORT void
 cogl_onscreen_swap_region (CoglOnscreen *onscreen,
                            const int *rectangles,
                            int n_rectangles,
-                           CoglFrameInfo *info);
+                           CoglFrameInfo *info,
+                           gpointer user_data);
 
 /**
  * CoglFrameEvent:
