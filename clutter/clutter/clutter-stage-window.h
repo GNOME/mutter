@@ -45,14 +45,16 @@ struct _ClutterStageWindowInterface
                                                  cairo_rectangle_int_t *geometry);
 
   void              (* redraw_view)             (ClutterStageWindow *stage_window,
-                                                 ClutterStageView   *view);
+                                                 ClutterStageView   *view,
+                                                 ClutterFrame       *frame);
 
   gboolean          (* can_clip_redraws)        (ClutterStageWindow *stage_window);
 
   GList            *(* get_views)               (ClutterStageWindow *stage_window);
   int64_t           (* get_frame_counter)       (ClutterStageWindow *stage_window);
   void              (* finish_frame)            (ClutterStageWindow *stage_window,
-                                                 ClutterStageView   *view);
+                                                 ClutterStageView   *view,
+                                                 ClutterFrame       *frame);
 };
 
 ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *window);
@@ -80,14 +82,16 @@ void              _clutter_stage_window_set_accept_focus        (ClutterStageWin
                                                                  gboolean            accept_focus);
 
 void               _clutter_stage_window_redraw_view            (ClutterStageWindow *window,
-                                                                 ClutterStageView   *view);
+                                                                 ClutterStageView   *view,
+                                                                 ClutterFrame       *frame);
 
 gboolean          _clutter_stage_window_can_clip_redraws        (ClutterStageWindow *window);
 
 GList *           _clutter_stage_window_get_views               (ClutterStageWindow *window);
 
 void              _clutter_stage_window_finish_frame            (ClutterStageWindow *window,
-                                                                 ClutterStageView   *view);
+                                                                 ClutterStageView   *view,
+                                                                 ClutterFrame       *frame);
 
 int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
 

@@ -43,6 +43,7 @@
 #include "clutter-event.h"
 #include "clutter-enum-types.h"
 #include "clutter-feature.h"
+#include "clutter-frame.h"
 #include "clutter-main.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
@@ -693,7 +694,8 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
 
 static void
 clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
-                                ClutterStageView   *view)
+                                ClutterStageView   *view,
+                                ClutterFrame       *frame)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   g_autoptr (CoglScanout) scanout = NULL;
@@ -710,6 +712,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
 
   clutter_stage_cogl_redraw_view_primary (stage_cogl, view);
+
+  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
 static void

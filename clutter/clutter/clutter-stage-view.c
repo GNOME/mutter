@@ -25,6 +25,7 @@
 
 #include "clutter/clutter-damage-history.h"
 #include "clutter/clutter-frame-clock.h"
+#include "clutter/clutter-frame-private.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-stage-private.h"
@@ -1076,7 +1077,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   ClutterStage *stage = priv->stage;
   ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
   g_autoptr (GSList) devices = NULL;
-  ClutterFrameResult result;
+  ClutterFrame frame;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return CLUTTER_FRAME_RESULT_IDLE;
@@ -1096,29 +1097,25 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   devices = clutter_stage_find_updated_devices (stage);
 
+  frame = CLUTTER_FRAME_INIT;
+
   if (clutter_stage_view_has_redraw_clip (view))
     {
       clutter_stage_emit_before_paint (stage, view);
 
-      _clutter_stage_window_redraw_view (stage_window, view);
+      _clutter_stage_window_redraw_view (stage_window, view, &frame);
 
       clutter_stage_emit_after_paint (stage, view);
-
-      result = CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
-    }
-  else
-    {
-      result = CLUTTER_FRAME_RESULT_IDLE;
     }
 
-  _clutter_stage_window_finish_frame (stage_window, view);
+  _clutter_stage_window_finish_frame (stage_window, view, &frame);
 
   clutter_stage_update_devices (stage, devices);
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
   clutter_stage_emit_after_update (stage, view);
 
-  return result;
+  return clutter_frame_get_result (&frame);
 }
 
 static const ClutterFrameListenerIface frame_clock_listener_iface = {

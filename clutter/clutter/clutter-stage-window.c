@@ -3,6 +3,7 @@
 #include <glib-object.h>
 
 #include "clutter-actor.h"
+#include "clutter-frame.h"
 #include "clutter-stage-window.h"
 #include "clutter-private.h"
 
@@ -104,11 +105,12 @@ _clutter_stage_window_get_geometry (ClutterStageWindow    *window,
 
 void
 _clutter_stage_window_redraw_view (ClutterStageWindow *window,
-                                   ClutterStageView   *view)
+                                   ClutterStageView   *view,
+                                   ClutterFrame       *frame)
 {
   g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
 
-  CLUTTER_STAGE_WINDOW_GET_IFACE (window)->redraw_view (window, view);
+  CLUTTER_STAGE_WINDOW_GET_IFACE (window)->redraw_view (window, view, frame);
 }
 
 gboolean
@@ -135,12 +137,19 @@ _clutter_stage_window_get_views (ClutterStageWindow *window)
 
 void
 _clutter_stage_window_finish_frame (ClutterStageWindow *window,
-                                    ClutterStageView   *view)
+                                    ClutterStageView   *view,
+                                    ClutterFrame       *frame)
 {
   ClutterStageWindowInterface *iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
 
   if (iface->finish_frame)
-    iface->finish_frame (window, view);
+    {
+      iface->finish_frame (window, view, frame);
+      return;
+    }
+
+  if (!clutter_frame_has_result (frame))
+    clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
 }
 
 int64_t

@@ -159,7 +159,8 @@ draw_view (MetaStageX11Nested *stage_nested,
 
 static void
 meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window,
-                                    ClutterStageView   *stage_view)
+                                    ClutterStageView   *stage_view,
+                                    ClutterFrame       *frame)
 {
   MetaStageX11Nested *stage_nested = META_STAGE_X11_NESTED (stage_window);
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
@@ -196,6 +197,9 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window,
 
   frame_info = cogl_frame_info_new (0);
   cogl_onscreen_swap_buffers (stage_x11->onscreen, frame_info);
+
+  if (!clutter_frame_has_result (frame))
+    clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
 }
 
 static void
