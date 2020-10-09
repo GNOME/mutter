@@ -3459,13 +3459,6 @@ cull_actor (ClutterActor        *self,
 
   stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
   stage_clip = _clutter_stage_get_clip (stage);
-  if (G_UNLIKELY (!stage_clip))
-    {
-      CLUTTER_NOTE (CLIPPING, "Bail from cull_actor without culling (%s): "
-                    "No stage clip set",
-                    _clutter_actor_get_debug_name (self));
-      return FALSE;
-    }
 
   if (clutter_paint_context_is_drawing_off_stage (paint_context))
     {
