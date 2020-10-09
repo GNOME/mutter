@@ -96,8 +96,8 @@ meta_backend_native_finalize (GObject *object)
   if (native->udev_device_added_handler_id)
     disconnect_udev_device_added_handler (native);
 
-  g_clear_object (&native->udev);
   g_clear_object (&native->kms);
+  g_clear_object (&native->udev);
   meta_launcher_free (native->launcher);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
