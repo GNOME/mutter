@@ -457,6 +457,15 @@ meta_stage_x11_get_views (ClutterStageWindow *stage_window)
 }
 
 static void
+meta_stage_x11_redraw_view (ClutterStageWindow *stage_window,
+                            ClutterStageView   *view,
+                            ClutterFrame       *frame)
+{
+  clutter_stage_window_parent_iface->redraw_view (stage_window, view, frame);
+  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+}
+
+static void
 meta_stage_x11_finalize (GObject *object)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (object);
@@ -503,6 +512,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->unrealize = meta_stage_x11_unrealize;
   iface->can_clip_redraws = meta_stage_x11_can_clip_redraws;
   iface->get_views = meta_stage_x11_get_views;
+  iface->redraw_view = meta_stage_x11_redraw_view;
 }
 
 static inline void

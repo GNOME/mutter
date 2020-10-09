@@ -1939,6 +1939,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaKmsDevice *render_kms_device = meta_gpu_kms_get_kms_device (render_gpu);
+  ClutterFrame *frame = user_data;
   gboolean egl_context_changed = FALSE;
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
@@ -1947,6 +1948,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaKmsDevice *kms_device;
   MetaKmsUpdateFlag flags;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+  const GError *feedback_error;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Onscreen (swap-buffers)");
@@ -1999,6 +2001,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   else
     {
       queue_dummy_power_save_page_flip (onscreen);
+      clutter_frame_set_result (frame,
+                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
       return;
     }
 
@@ -2023,19 +2027,25 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   flags = META_KMS_UPDATE_FLAG_NONE;
   kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
-  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
+
+  switch (meta_kms_feedback_get_result (kms_feedback))
     {
-      const GError *error = meta_kms_feedback_get_error (kms_feedback);
-      MetaGpuKms *gpu_kms =
-        META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
-      int64_t now_ns;
+    case META_KMS_FEEDBACK_PASSED:
+      clutter_frame_set_result (frame,
+                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+      break;
+    case META_KMS_FEEDBACK_FAILED:
+      clutter_frame_set_result (frame,
+                                CLUTTER_FRAME_RESULT_IDLE);
 
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        g_warning ("Failed to post KMS update: %s", error->message);
-
-      now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
-      notify_view_crtc_presented (onscreen_native->view, kms_crtc, now_ns);
+      feedback_error = meta_kms_feedback_get_error (kms_feedback);
+      if (!g_error_matches (feedback_error,
+                            G_IO_ERROR,
+                            G_IO_ERROR_PERMISSION_DENIED))
+        g_warning ("Failed to post KMS update: %s", feedback_error->message);
+      break;
     }
+
   COGL_TRACE_END (MetaRendererNativePostKmsUpdate);
 }
 
@@ -2191,10 +2201,12 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaPowerSave power_save_mode;
+  ClutterFrame *frame = user_data;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsUpdateFlag flags;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+  const GError *feedback_error;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode != META_POWER_SAVE_ON)
@@ -2225,13 +2237,18 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   flags = META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR;
   kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
-  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
+  switch (meta_kms_feedback_get_result (kms_feedback))
     {
-      const GError *feedback_error = meta_kms_feedback_get_error (kms_feedback);
+    case META_KMS_FEEDBACK_PASSED:
+      clutter_frame_set_result (frame,
+                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+      break;
+    case META_KMS_FEEDBACK_FAILED:
+      feedback_error = meta_kms_feedback_get_error (kms_feedback);
 
       if (g_error_matches (feedback_error,
                            G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        return TRUE;
+        break;
 
       g_clear_object (&onscreen_native->gbm.next_fb);
       g_propagate_error (error, g_error_copy (feedback_error));

@@ -726,8 +726,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
 
   clutter_stage_cogl_redraw_view_primary (stage_cogl, view, frame);
-
-  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
 static void
