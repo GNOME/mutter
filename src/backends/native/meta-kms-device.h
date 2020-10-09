@@ -49,6 +49,8 @@ GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
 
 GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
 
+GList * meta_kms_device_get_planes (MetaKmsDevice *device);
+
 MetaKmsPlane * meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
                                                       MetaKmsCrtc   *crtc);
 

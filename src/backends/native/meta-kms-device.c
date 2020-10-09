@@ -127,7 +127,7 @@ meta_kms_device_get_crtcs (MetaKmsDevice *device)
   return device->crtcs;
 }
 
-static GList *
+GList *
 meta_kms_device_get_planes (MetaKmsDevice *device)
 {
   return device->planes;
