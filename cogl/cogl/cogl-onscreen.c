@@ -457,6 +457,14 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
   return TRUE;
 }
 
+void
+cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
+                              CoglFrameInfo *info)
+{
+  info->frame_counter = onscreen->frame_counter;
+  g_queue_push_tail (&onscreen->pending_frame_infos, info);
+}
+
 #ifdef COGL_HAS_X11_SUPPORT
 uint32_t
 cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
