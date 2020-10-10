@@ -3491,44 +3491,6 @@ cull_actor (ClutterActor        *self,
         break;
     }
 
-  if (result != CLUTTER_CULL_RESULT_OUT)
-    {
-      const cairo_region_t *redraw_clip;
-
-      redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
-      if (redraw_clip)
-        {
-          ClutterActorBox paint_box;
-          cairo_rectangle_int_t paint_box_bounds;
-          cairo_region_overlap_t overlap;
-          ClutterStage *stage;
-
-          stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
-
-          _clutter_paint_volume_get_stage_paint_box (&priv->last_paint_volume,
-                                                     stage,
-                                                     &paint_box);
-
-          paint_box_bounds.x = floorf (paint_box.x1);
-          paint_box_bounds.y = floorf (paint_box.y1);
-          paint_box_bounds.width = ceilf (paint_box.x2 - paint_box_bounds.x);
-          paint_box_bounds.height = ceilf (paint_box.y2 - paint_box_bounds.y);
-
-          overlap = cairo_region_contains_rectangle (redraw_clip,
-                                                     &paint_box_bounds);
-          switch (overlap)
-            {
-            case CAIRO_REGION_OVERLAP_IN:
-            case CAIRO_REGION_OVERLAP_PART:
-              result = CLUTTER_CULL_RESULT_IN;
-              break;
-            case CAIRO_REGION_OVERLAP_OUT:
-              result = CLUTTER_CULL_RESULT_OUT;
-              break;
-            }
-        }
-    }
-
   *result_out = result;
 
   return TRUE;
