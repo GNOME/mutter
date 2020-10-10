@@ -3449,7 +3449,9 @@ cull_actor (ClutterActor        *self,
             ClutterCullResult   *result_out)
 {
   ClutterActorPrivate *priv = self->priv;
-  const graphene_frustum_t *clip_frustum;
+  const GArray *clip_frusta;
+  ClutterCullResult result;
+  int i;
 
   if (!priv->last_paint_volume_valid)
     {
@@ -3470,12 +3472,26 @@ cull_actor (ClutterActor        *self,
       return FALSE;
     }
 
-  clip_frustum = clutter_paint_context_get_clip_frustum (paint_context);
+  clip_frusta = clutter_paint_context_get_clip_frusta (paint_context);
+  if (!clip_frusta)
+    {
+      *result_out = CLUTTER_CULL_RESULT_IN;
+      return TRUE;
+    }
 
-  *result_out =
-    _clutter_paint_volume_cull (&priv->last_paint_volume, clip_frustum);
+  for (i = 0; i < clip_frusta->len; i++)
+    {
+      const graphene_frustum_t *clip_frustum =
+        &g_array_index (clip_frusta, graphene_frustum_t, i);
 
-  if (*result_out != CLUTTER_CULL_RESULT_OUT)
+      result = _clutter_paint_volume_cull (&priv->last_paint_volume,
+                                           clip_frustum);
+
+      if (result != CLUTTER_CULL_RESULT_OUT)
+        break;
+    }
+
+  if (result != CLUTTER_CULL_RESULT_OUT)
     {
       const cairo_region_t *redraw_clip;
 
@@ -3504,14 +3520,16 @@ cull_actor (ClutterActor        *self,
             {
             case CAIRO_REGION_OVERLAP_IN:
             case CAIRO_REGION_OVERLAP_PART:
-              *result_out = CLUTTER_CULL_RESULT_IN;
+              result = CLUTTER_CULL_RESULT_IN;
               break;
             case CAIRO_REGION_OVERLAP_OUT:
-              *result_out = CLUTTER_CULL_RESULT_OUT;
+              result = CLUTTER_CULL_RESULT_OUT;
               break;
             }
         }
     }
+
+  *result_out = result;
 
   return TRUE;
 }

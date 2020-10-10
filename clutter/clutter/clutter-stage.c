@@ -77,6 +77,8 @@
 
 #include "cogl/cogl.h"
 
+#define MAX_FRUSTA 64
+
 struct _ClutterStageQueueRedrawEntry
 {
   ClutterActor *actor;
@@ -814,8 +816,6 @@ setup_view_for_paint (ClutterStage                *stage,
                                              &priv->inverse_projection,
                                              &priv->perspective,
                                              out_frustum);
-
-  _clutter_stage_paint_volume_stack_free_all (stage);
 }
 
 static void
@@ -826,7 +826,9 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
   ClutterStagePrivate *priv = stage->priv;
   ClutterPaintContext *paint_context;
   cairo_rectangle_int_t clip_rect;
+  g_autoptr (GArray) clip_frusta = NULL;
   graphene_frustum_t clip_frustum;
+  int n_rectangles;
 
   /* Any mode of painting/picking invalidates the pick cache, unless we're
    * in the middle of building it. So we reset the cached flag but don't
@@ -834,12 +836,41 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
    */
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 
-  cairo_region_get_extents (redraw_clip, &clip_rect);
-  setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
+  n_rectangles = redraw_clip ? cairo_region_num_rectangles (redraw_clip) : 0;
+  if (redraw_clip && n_rectangles < MAX_FRUSTA)
+    {
+      int i;
+
+      clip_frusta = g_array_sized_new (FALSE, FALSE,
+                                       sizeof (graphene_frustum_t),
+                                       n_rectangles);
+
+      for (i = 0; i < n_rectangles; i++)
+        {
+          cairo_region_get_rectangle (redraw_clip, i, &clip_rect);
+          setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
+          g_array_append_val (clip_frusta, clip_frustum);
+        }
+    }
+  else
+    {
+      clip_frusta = g_array_sized_new (FALSE, FALSE,
+                                       sizeof (graphene_frustum_t),
+                                       1);
+      if (redraw_clip)
+        cairo_region_get_extents (redraw_clip, &clip_rect);
+      else
+        clutter_stage_view_get_layout (view, &clip_rect);
+
+      setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
+      g_array_append_val (clip_frusta, clip_frustum);
+    }
+
+  _clutter_stage_paint_volume_stack_free_all (stage);
 
   paint_context = clutter_paint_context_new_for_view (view,
                                                       redraw_clip,
-                                                      &clip_frustum,
+                                                      clip_frusta,
                                                       CLUTTER_PAINT_FLAG_NONE);
 
   clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);

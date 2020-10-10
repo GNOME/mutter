@@ -30,7 +30,7 @@ struct _ClutterPaintContext
   ClutterStageView *view;
 
   cairo_region_t *redraw_clip;
-  graphene_frustum_t clip_frustum;
+  GArray *clip_frusta;
 };
 
 G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
@@ -38,10 +38,10 @@ G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
                      clutter_paint_context_unref)
 
 ClutterPaintContext *
-clutter_paint_context_new_for_view (ClutterStageView         *view,
-                                    const cairo_region_t     *redraw_clip,
-                                    const graphene_frustum_t *clip_frustum,
-                                    ClutterPaintFlag          paint_flags)
+clutter_paint_context_new_for_view (ClutterStageView     *view,
+                                    const cairo_region_t *redraw_clip,
+                                    GArray               *clip_frusta,
+                                    ClutterPaintFlag      paint_flags)
 {
   ClutterPaintContext *paint_context;
   CoglFramebuffer *framebuffer;
@@ -50,9 +50,8 @@ clutter_paint_context_new_for_view (ClutterStageView         *view,
   g_ref_count_init (&paint_context->ref_count);
   paint_context->view = view;
   paint_context->redraw_clip = cairo_region_copy (redraw_clip);
+  paint_context->clip_frusta = g_array_ref (clip_frusta);
   paint_context->paint_flags = paint_flags;
-  graphene_frustum_init_from_frustum (&paint_context->clip_frustum,
-                                      clip_frustum);
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);
@@ -93,6 +92,7 @@ clutter_paint_context_dispose (ClutterPaintContext *paint_context)
   g_list_free_full (paint_context->framebuffers, g_object_unref);
   paint_context->framebuffers = NULL;
   g_clear_pointer (&paint_context->redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&paint_context->clip_frusta, g_array_unref);
 }
 
 void
@@ -137,10 +137,10 @@ clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context)
   return paint_context->redraw_clip;
 }
 
-const graphene_frustum_t *
-clutter_paint_context_get_clip_frustum (ClutterPaintContext *paint_context)
+const GArray *
+clutter_paint_context_get_clip_frusta (ClutterPaintContext *paint_context)
 {
-  return &paint_context->clip_frustum;
+  return paint_context->clip_frusta;
 }
 
 /**
