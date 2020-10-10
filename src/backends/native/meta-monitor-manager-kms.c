@@ -113,6 +113,27 @@ meta_monitor_manager_kms_read_current_state (MetaMonitorManager *manager)
   parent_class->read_current_state (manager);
 }
 
+uint64_t
+meta_power_save_to_dpms_state (MetaPowerSave power_save)
+{
+  switch (power_save)
+    {
+    case META_POWER_SAVE_ON:
+      return DRM_MODE_DPMS_ON;
+    case META_POWER_SAVE_STANDBY:
+      return DRM_MODE_DPMS_STANDBY;
+    case META_POWER_SAVE_SUSPEND:
+      return DRM_MODE_DPMS_SUSPEND;
+    case META_POWER_SAVE_OFF:
+      return DRM_MODE_DPMS_OFF;
+    case META_POWER_SAVE_UNSUPPORTED:
+      return DRM_MODE_DPMS_ON;
+    }
+
+  g_warn_if_reached ();
+  return DRM_MODE_DPMS_ON;
+}
+
 static void
 meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
                                               MetaPowerSave       mode)
@@ -123,22 +144,19 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
   uint64_t state;
   GList *l;
 
-  switch (mode) {
-  case META_POWER_SAVE_ON:
-    state = DRM_MODE_DPMS_ON;
-    break;
-  case META_POWER_SAVE_STANDBY:
-    state = DRM_MODE_DPMS_STANDBY;
-    break;
-  case META_POWER_SAVE_SUSPEND:
-    state = DRM_MODE_DPMS_SUSPEND;
-    break;
-  case META_POWER_SAVE_OFF:
-    state = DRM_MODE_DPMS_OFF;
-    break;
-  default:
-    return;
-  }
+  switch (mode)
+    {
+    case META_POWER_SAVE_ON:
+    case META_POWER_SAVE_UNSUPPORTED:
+      /* This will be handled on mode set. */
+      return;
+    case META_POWER_SAVE_STANDBY:
+    case META_POWER_SAVE_SUSPEND:
+    case META_POWER_SAVE_OFF:
+      break;
+    }
+
+  state = meta_power_save_to_dpms_state (mode);
 
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {

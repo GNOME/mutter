@@ -39,4 +39,6 @@ void meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms);
 
 void meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms);
 
+uint64_t meta_power_save_to_dpms_state (MetaPowerSave power_save);
+
 #endif /* META_MONITOR_MANAGER_KMS_H */

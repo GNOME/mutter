@@ -151,6 +151,8 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
   MetaGpu *gpu = META_GPU (gpu_kms);
   GList *l;
 
+  g_return_if_fail (state != DRM_MODE_DPMS_ON);
+
   for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
     {
       MetaOutput *output = l->data;
@@ -159,17 +161,14 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
                                            state, kms_update);
     }
 
-  if (state != META_POWER_SAVE_ON)
+  /* Turn off CRTCs for DPMS */
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
-      /* Turn off CRTCs for DPMS */
-      for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
-        {
-          MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
+      MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
 
-          meta_kms_update_mode_set (kms_update,
-                                    meta_crtc_kms_get_kms_crtc (crtc_kms),
-                                    NULL, NULL);
-        }
+      meta_kms_update_mode_set (kms_update,
+                                meta_crtc_kms_get_kms_crtc (crtc_kms),
+                                NULL, NULL);
     }
 }
 
