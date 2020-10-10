@@ -333,13 +333,34 @@ meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
   connector_update->dpms.state = state;
 }
 
-static void
+void
 meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma)
 {
   g_free (gamma->red);
   g_free (gamma->green);
   g_free (gamma->blue);
   g_free (gamma);
+}
+
+MetaKmsCrtcGamma *
+meta_kms_crtc_gamma_new (MetaKmsCrtc    *crtc,
+                         int             size,
+                         const uint16_t *red,
+                         const uint16_t *green,
+                         const uint16_t *blue)
+{
+  MetaKmsCrtcGamma *gamma;
+
+  gamma = g_new0 (MetaKmsCrtcGamma, 1);
+  *gamma = (MetaKmsCrtcGamma) {
+    .crtc = crtc,
+    .size = size,
+    .red = g_memdup (red, size * sizeof (*red)),
+    .green = g_memdup (green, size * sizeof (*green)),
+    .blue = g_memdup (blue, size * sizeof (*blue)),
+  };
+
+  return gamma;
 }
 
 void
@@ -355,14 +376,7 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
-  gamma = g_new0 (MetaKmsCrtcGamma, 1);
-  *gamma = (MetaKmsCrtcGamma) {
-    .crtc = crtc,
-    .size = size,
-    .red = g_memdup (red, size * sizeof *red),
-    .green = g_memdup (green, size * sizeof *green),
-    .blue = g_memdup (blue, size * sizeof *blue),
-  };
+  gamma = meta_kms_crtc_gamma_new (crtc, size, red, green, blue);
 
   update->crtc_gammas = g_list_prepend (update->crtc_gammas, gamma);
 }

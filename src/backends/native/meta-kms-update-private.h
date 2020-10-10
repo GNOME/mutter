@@ -77,15 +77,6 @@ typedef struct _MetaKmsConnectorUpdate
   } dpms;
 } MetaKmsConnectorUpdate;
 
-typedef struct _MetaKmsCrtcGamma
-{
-  MetaKmsCrtc *crtc;
-  int size;
-  uint16_t *red;
-  uint16_t *green;
-  uint16_t *blue;
-} MetaKmsCrtcGamma;
-
 typedef struct _MetaKmsPageFlipListener
 {
   MetaKmsCrtc *crtc;

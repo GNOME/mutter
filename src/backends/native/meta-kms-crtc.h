@@ -44,6 +44,15 @@ typedef struct _MetaKmsCrtcState
   } gamma;
 } MetaKmsCrtcState;
 
+typedef struct _MetaKmsCrtcGamma
+{
+  MetaKmsCrtc *crtc;
+  int size;
+  uint16_t *red;
+  uint16_t *green;
+  uint16_t *blue;
+} MetaKmsCrtcGamma;
+
 #define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
                       META, KMS_CRTC,
@@ -58,5 +67,13 @@ uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
 int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
 
 gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
+
+void meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma);
+
+MetaKmsCrtcGamma * meta_kms_crtc_gamma_new (MetaKmsCrtc    *crtc,
+                                            int             size,
+                                            const uint16_t *red,
+                                            const uint16_t *green,
+                                            const uint16_t *blue);
 
 #endif /* META_KMS_CRTC_H */
