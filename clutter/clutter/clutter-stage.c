@@ -768,12 +768,10 @@ _cogl_util_get_eye_planes_for_screen_poly (float                    *polygon,
  */
 static void
 setup_view_for_paint (ClutterStage                *stage,
-                      ClutterStageView            *view,
                       const cairo_rectangle_int_t *clip,
                       graphene_frustum_t          *out_frustum)
 {
   ClutterStagePrivate *priv = stage->priv;
-  cairo_rectangle_int_t view_layout;
   float clip_poly[8];
   float viewport[4];
   cairo_rectangle_int_t geom;
@@ -784,12 +782,6 @@ setup_view_for_paint (ClutterStage                *stage,
   viewport[1] = priv->viewport[1];
   viewport[2] = priv->viewport[2];
   viewport[3] = priv->viewport[3];
-
-  if (!clip)
-    {
-      clutter_stage_view_get_layout (view, &view_layout);
-      clip = &view_layout;
-    }
 
   clip_poly[0] = MAX (clip->x, 0);
   clip_poly[1] = MAX (clip->y, 0);
@@ -848,7 +840,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
       for (i = 0; i < n_rectangles; i++)
         {
           cairo_region_get_rectangle (redraw_clip, i, &clip_rect);
-          setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
+          setup_view_for_paint (stage, &clip_rect, &clip_frustum);
           g_array_append_val (clip_frusta, clip_frustum);
         }
     }
@@ -862,7 +854,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
       else
         clutter_stage_view_get_layout (view, &clip_rect);
 
-      setup_view_for_paint (stage, view, &clip_rect, &clip_frustum);
+      setup_view_for_paint (stage, &clip_rect, &clip_frustum);
       g_array_append_val (clip_frusta, clip_frustum);
     }
 
