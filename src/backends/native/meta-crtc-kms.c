@@ -33,6 +33,7 @@
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-kms.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 
 #define ALL_TRANSFORMS_MASK ((1 << META_MONITOR_N_TRANSFORMS) - 1)
@@ -47,6 +48,8 @@ struct _MetaCrtcKms
 
   gpointer cursor_renderer_private;
   GDestroyNotify cursor_renderer_private_destroy_notify;
+
+  gboolean is_gamma_valid;
 };
 
 static GQuark kms_crtc_crtc_kms_quark;
@@ -177,6 +180,39 @@ generate_crtc_connector_list (MetaGpu  *gpu,
 }
 
 void
+meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
+                               MetaKmsDevice *kms_device)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerKms *monitor_manager_kms =
+    META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
+  MetaKmsUpdate *kms_update;
+  MetaKmsCrtcGamma *gamma;
+
+  if (crtc_kms->is_gamma_valid)
+    return;
+
+  gamma = meta_monitor_manager_kms_get_cached_crtc_gamma (monitor_manager_kms,
+                                                          crtc_kms);
+  if (!gamma)
+    return;
+
+  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+  meta_kms_update_set_crtc_gamma (kms_update,
+                                  meta_crtc_kms_get_kms_crtc (crtc_kms),
+                                  gamma->size,
+                                  gamma->red,
+                                  gamma->green,
+                                  gamma->blue);
+
+  crtc_kms->is_gamma_valid = TRUE;
+}
+
+void
 meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
                         MetaKmsUpdate *kms_update)
 {
@@ -285,6 +321,12 @@ meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
 {
   return meta_kms_plane_is_format_supported (crtc_kms->primary_plane,
                                              drm_format);
+}
+
+void
+meta_crtc_kms_invalidate_gamma (MetaCrtcKms *crtc_kms)
+{
+  crtc_kms->is_gamma_valid = FALSE;
 }
 
 MetaCrtcKms *

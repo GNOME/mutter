@@ -112,11 +112,16 @@ meta_stage_native_prepare_frame (ClutterStageWindow *stage_window,
                                  ClutterFrame       *frame)
 {
   MetaBackend *backend = meta_get_backend ();
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
   MetaCursorRendererNative *cursor_renderer_native =
     META_CURSOR_RENDERER_NATIVE (cursor_renderer);
 
+  meta_renderer_native_prepare_frame (renderer_native,
+                                      META_RENDERER_VIEW (stage_view),
+                                      frame);
   meta_cursor_renderer_native_prepare_frame (cursor_renderer_native,
                                              META_RENDERER_VIEW (stage_view));
 }

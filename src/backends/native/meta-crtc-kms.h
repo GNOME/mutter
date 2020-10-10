@@ -72,6 +72,11 @@ gboolean
 meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
                                uint32_t     drm_format);
 
+void meta_crtc_kms_invalidate_gamma (MetaCrtcKms *crtc_kms);
+
+void meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
+                                    MetaKmsDevice *kms_device);
+
 MetaCrtcKms * meta_crtc_kms_from_kms_crtc (MetaKmsCrtc *kms_crtc);
 
 MetaCrtcKms * meta_crtc_kms_new (MetaGpuKms  *gpu_kms,

@@ -76,6 +76,8 @@ struct _MetaMonitorManagerKms
   MetaMonitorManager parent_instance;
 
   gulong kms_resources_changed_handler_id;
+
+  GHashTable *crtc_gamma_cache;
 };
 
 struct _MetaMonitorManagerKmsClass
@@ -430,6 +432,17 @@ generate_gamma_ramp_string (size_t          size,
   return g_string_free (string, FALSE);
 }
 
+MetaKmsCrtcGamma *
+meta_monitor_manager_kms_get_cached_crtc_gamma (MetaMonitorManagerKms *manager_kms,
+                                                MetaCrtcKms           *crtc_kms)
+{
+  uint64_t crtc_id;
+
+  crtc_id = meta_crtc_get_id (META_CRTC (crtc_kms));
+  return g_hash_table_lookup (manager_kms->crtc_gamma_cache,
+                              GUINT_TO_POINTER (crtc_id));
+}
+
 static void
 meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
                                          MetaCrtc           *crtc,
@@ -438,32 +451,24 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
                                          unsigned short     *green,
                                          unsigned short     *blue)
 {
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  MetaKmsCrtc *kms_crtc;
-  MetaKmsDevice *kms_device;
-  MetaKmsUpdate *kms_update;
+  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   g_autofree char *gamma_ramp_string = NULL;
-  MetaKmsUpdateFlag flags;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
-  meta_kms_update_set_crtc_gamma (kms_update, kms_crtc, size, red, green, blue);
+  g_hash_table_replace (manager_kms->crtc_gamma_cache,
+                        GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
+                        meta_kms_crtc_gamma_new (kms_crtc, size,
+                                                 red, green, blue));
 
   gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
   g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
            meta_crtc_get_id (crtc), gamma_ramp_string);
 
-  flags = META_KMS_UPDATE_FLAG_NONE;
-  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
-  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
-    {
-      g_warning ("Failed to set CRTC gamma: %s",
-                 meta_kms_feedback_get_error (kms_feedback)->message);
-    }
+  meta_crtc_kms_invalidate_gamma (crtc_kms);
+  clutter_stage_schedule_update (stage);
 }
 
 static void
@@ -595,6 +600,17 @@ meta_monitor_manager_kms_get_default_layout_mode (MetaMonitorManager *manager)
     return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 }
 
+static void
+meta_monitor_manager_kms_dispose (GObject *object)
+{
+  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (object);
+
+  g_clear_pointer (&manager_kms->crtc_gamma_cache,
+                   g_hash_table_unref);
+
+  G_OBJECT_CLASS (meta_monitor_manager_kms_parent_class)->dispose (object);
+}
+
 static gboolean
 meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                         GCancellable *cancellable,
@@ -626,6 +642,11 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
       return FALSE;
     }
 
+  manager_kms->crtc_gamma_cache =
+    g_hash_table_new_full (NULL, NULL,
+                           NULL,
+                           (GDestroyNotify) meta_kms_crtc_gamma_free);
+
   return TRUE;
 }
 
@@ -643,7 +664,10 @@ meta_monitor_manager_kms_init (MetaMonitorManagerKms *manager_kms)
 static void
 meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
+
+  object_class->dispose = meta_monitor_manager_kms_dispose;
 
   manager_class->read_edid = meta_monitor_manager_kms_read_edid;
   manager_class->read_current_state = meta_monitor_manager_kms_read_current_state;

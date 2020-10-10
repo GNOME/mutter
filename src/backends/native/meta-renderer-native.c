@@ -3283,6 +3283,19 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
   meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
 }
 
+void
+meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
+                                    MetaRendererView   *view,
+                                    ClutterFrame       *frame)
+{
+  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);;
+
+  meta_crtc_kms_maybe_set_gamma (crtc_kms, kms_device);
+}
+
 static void
 add_onscreen_frame_info (MetaCrtc *crtc)
 {

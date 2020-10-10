@@ -27,6 +27,8 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-kms-crtc.h"
 
 typedef struct _MetaGpuKms MetaGpuKms;
 
@@ -40,5 +42,8 @@ void meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms);
 void meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms);
 
 uint64_t meta_power_save_to_dpms_state (MetaPowerSave power_save);
+
+MetaKmsCrtcGamma * meta_monitor_manager_kms_get_cached_crtc_gamma (MetaMonitorManagerKms *manager_kms,
+                                                                   MetaCrtcKms           *crtc_kms);
 
 #endif /* META_MONITOR_MANAGER_KMS_H */
