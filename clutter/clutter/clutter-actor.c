@@ -3165,9 +3165,8 @@ ensure_valid_actor_transform (ClutterActor *actor)
   graphene_matrix_init_identity (&priv->transform);
 
   CLUTTER_ACTOR_GET_CLASS (actor)->apply_transform (actor, &priv->transform);
-  priv->has_inverse_transform =
-    cogl_graphene_matrix_get_inverse (&priv->transform,
-                                      &priv->inverse_transform);
+  priv->has_inverse_transform = graphene_matrix_inverse (&priv->transform,
+                                                         &priv->inverse_transform);
 
   priv->transform_valid = TRUE;
 }

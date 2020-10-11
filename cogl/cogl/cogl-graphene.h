@@ -163,22 +163,6 @@ cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
                                      void                    *points_out,
                                      int                      n_points);
 
-/**
- * cogl_graphene_matrix_get_inverse:
- * @matrix: A 4x4 transformation matrix
- * @inverse: (out): The destination for a 4x4 inverse transformation matrix
- *
- * Gets the inverse transform of a given matrix and uses it to initialize
- * a new #graphene_matrix_t.
- *
- * Return value: %TRUE if the inverse was successfully calculated or %FALSE
- *   for degenerate transformations that can't be inverted (in this case the
- *   @inverse matrix will simply be initialized with the identity matrix)
- */
-COGL_EXPORT gboolean
-cogl_graphene_matrix_get_inverse (const graphene_matrix_t *matrix,
-                                  graphene_matrix_t       *inverse);
-
 G_END_DECLS
 
 #endif /* COGL_GRAPHENE_H */

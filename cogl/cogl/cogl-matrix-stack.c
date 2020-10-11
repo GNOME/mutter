@@ -358,9 +358,9 @@ cogl_matrix_stack_get_inverse (CoglMatrixStack   *stack,
   graphene_matrix_t *internal = cogl_matrix_stack_get (stack, &matrix);
 
   if (internal)
-    return cogl_graphene_matrix_get_inverse (internal, inverse);
+    return graphene_matrix_inverse (internal, inverse);
   else
-    return cogl_graphene_matrix_get_inverse (&matrix, inverse);
+    return graphene_matrix_inverse (&matrix, inverse);
 }
 
 /* In addition to writing the stack matrix into the give @matrix

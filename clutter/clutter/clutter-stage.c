@@ -2068,8 +2068,8 @@ clutter_stage_set_perspective (ClutterStage       *stage,
                                     priv->perspective.aspect,
                                     priv->perspective.z_near,
                                     priv->perspective.z_far);
-  cogl_graphene_matrix_get_inverse (&priv->projection,
-                                    &priv->inverse_projection);
+  graphene_matrix_inverse (&priv->projection,
+                           &priv->inverse_projection);
 
   _clutter_stage_dirty_projection (stage);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
