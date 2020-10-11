@@ -2797,7 +2797,7 @@ clutter_stage_update_view_perspective (ClutterStage *stage)
   perspective = priv->perspective;
 
   perspective.fovy = 60.0; /* 60 Degrees */
-  perspective.z_near = 0.1;
+  perspective.z_near = 1.0;
   perspective.aspect = priv->viewport[2] / priv->viewport[3];
   z_2d = calculate_z_translation (perspective.z_near);
 
