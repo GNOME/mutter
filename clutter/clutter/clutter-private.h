@@ -268,32 +268,32 @@ gboolean        _clutter_run_progress_function  (GType gtype,
 
 void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
 
-static inline uint64_t
-us (uint64_t us)
+static inline int64_t
+us (int64_t us)
 {
   return us;
 }
 
-static inline uint32_t
-ms (uint32_t ms)
+static inline int64_t
+ms (int64_t ms)
 {
   return ms;
 }
 
-static inline uint64_t
-ms2us (uint64_t ms)
+static inline int64_t
+ms2us (int64_t ms)
 {
   return us (ms * 1000);
 }
 
-static inline uint32_t
-us2ms (uint64_t us)
+static inline int64_t
+us2ms (int64_t us)
 {
-  return (uint32_t) (us / 1000);
+  return (int64_t) (us / 1000);
 }
 
-static inline uint64_t
-ns2us (uint64_t ns)
+static inline int64_t
+ns2us (int64_t ns)
 {
   return us (ns / 1000);
 }
