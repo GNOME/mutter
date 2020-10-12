@@ -118,43 +118,44 @@ typedef struct
 
 struct _CoglFramebuffer
 {
-  CoglObject          _parent;
-  CoglContext        *context;
-  CoglFramebufferType  type;
+  CoglObject _parent;
+
+  CoglContext *context;
+  CoglFramebufferType type;
 
   /* The user configuration before allocation... */
   CoglFramebufferConfig config;
 
-  int                 width;
-  int                 height;
+  int width;
+  int height;
   /* Format of the pixels in the framebuffer (including the expected
      premult state) */
-  CoglPixelFormat     internal_format;
-  gboolean            allocated;
+  CoglPixelFormat internal_format;
+  gboolean allocated;
 
-  CoglMatrixStack    *modelview_stack;
-  CoglMatrixStack    *projection_stack;
-  float               viewport_x;
-  float               viewport_y;
-  float               viewport_width;
-  float               viewport_height;
-  int                 viewport_age;
-  int                 viewport_age_for_scissor_workaround;
+  CoglMatrixStack *modelview_stack;
+  CoglMatrixStack *projection_stack;
+  float viewport_x;
+  float viewport_y;
+  float viewport_width;
+  float viewport_height;
+  int viewport_age;
+  int viewport_age_for_scissor_workaround;
 
-  CoglClipStack      *clip_stack;
+  CoglClipStack *clip_stack;
 
-  gboolean            dither_enabled;
-  gboolean            depth_writing_enabled;
-  CoglStereoMode      stereo_mode;
+  gboolean dither_enabled;
+  gboolean depth_writing_enabled;
+  CoglStereoMode stereo_mode;
 
   /* We journal the textured rectangles we want to submit to OpenGL so
    * we have an opportunity to batch them together into less draw
    * calls. */
-  CoglJournal        *journal;
+  CoglJournal *journal;
 
   /* The scene of a given framebuffer may depend on images in other
    * framebuffers... */
-  GList              *deps;
+  GList *deps;
 
   /* As part of an optimization for reading-back single pixels from a
    * framebuffer in some simple cases where the geometry is still
@@ -162,26 +163,26 @@ struct _CoglFramebuffer
    * region cleared, its color and we need to track when something
    * does in fact draw to that region so it is no longer clear.
    */
-  float               clear_color_red;
-  float               clear_color_green;
-  float               clear_color_blue;
-  float               clear_color_alpha;
-  int                 clear_clip_x0;
-  int                 clear_clip_y0;
-  int                 clear_clip_x1;
-  int                 clear_clip_y1;
-  gboolean            clear_clip_dirty;
+  float clear_color_red;
+  float clear_color_green;
+  float clear_color_blue;
+  float clear_color_alpha;
+  int clear_clip_x0;
+  int clear_clip_y0;
+  int clear_clip_x1;
+  int clear_clip_y1;
+  gboolean clear_clip_dirty;
 
   /* driver specific */
-  gboolean            dirty_bitmasks;
+  gboolean dirty_bitmasks;
   CoglFramebufferBits bits;
 
-  int                 samples_per_pixel;
+  int samples_per_pixel;
 
   /* Whether the depth buffer was enabled for this framebuffer,
-   * usually means it needs to be cleared before being reused next.
-   */
-  gboolean            depth_buffer_clear_needed;
+ * usually means it needs to be cleared before being reused next.
+ */
+  gboolean depth_buffer_clear_needed;
 };
 
 typedef enum
