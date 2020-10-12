@@ -1502,6 +1502,16 @@ queue_update_stage_views (ClutterActor *actor)
 }
 
 static void
+queue_update_paint_volume (ClutterActor *actor)
+{
+  while (actor)
+    {
+      actor->priv->needs_paint_volume_update = TRUE;
+      actor = actor->priv->parent;
+    }
+}
+
+static void
 clutter_actor_real_map (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
@@ -1516,8 +1526,6 @@ clutter_actor_real_map (ClutterActor *self)
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
-      priv->needs_paint_volume_update = TRUE;
-
       /* We skip unmapped actors when updating the stage-views list, so if
        * an actors list got invalidated while it was unmapped make sure to
        * set priv->needs_update_stage_views to TRUE for all actors up the
@@ -2463,6 +2471,9 @@ transform_changed (ClutterActor *actor)
 {
   actor->priv->transform_valid = FALSE;
 
+  if (actor->priv->parent)
+    queue_update_paint_volume (actor->priv->parent);
+
   _clutter_actor_traverse (actor,
                            CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
                            absolute_geometry_changed_cb,
@@ -2492,7 +2503,7 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj;
-  gboolean x1_changed, y1_changed, x2_changed, y2_changed;
+  gboolean origin_changed, size_changed;
   ClutterActorBox old_alloc = { 0, };
 
   g_return_if_fail (!isnan (box->x1) && !isnan (box->x2) &&
@@ -2504,10 +2515,11 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
 
   clutter_actor_store_old_geometry (self, &old_alloc);
 
-  x1_changed = priv->allocation.x1 != box->x1;
-  y1_changed = priv->allocation.y1 != box->y1;
-  x2_changed = priv->allocation.x2 != box->x2;
-  y2_changed = priv->allocation.y2 != box->y2;
+  origin_changed =
+    priv->allocation.x1 != box->x1 || priv->allocation.y1 != box->y1;
+  size_changed =
+    priv->allocation.x2 - priv->allocation.x1 != box->x2 - box->x1 ||
+    priv->allocation.y2 - priv->allocation.y1 != box->y2 - box->y1;
 
   priv->allocation = *box;
 
@@ -2516,16 +2528,16 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   priv->needs_height_request = FALSE;
   priv->needs_allocation = FALSE;
 
-  if (x1_changed ||
-      y1_changed ||
-      x2_changed ||
-      y2_changed)
+  if (origin_changed || size_changed)
     {
       CLUTTER_NOTE (LAYOUT, "Allocation for '%s' changed",
                     _clutter_actor_get_debug_name (self));
 
       /* This will also call absolute_geometry_changed() on the subtree */
       transform_changed (self);
+
+      if (size_changed)
+        queue_update_paint_volume (self);
 
       g_object_notify_by_pspec (obj, obj_props[PROP_ALLOCATION]);
 
@@ -2663,7 +2675,6 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
   priv->needs_width_request  = TRUE;
   priv->needs_height_request = TRUE;
   priv->needs_allocation     = TRUE;
-  priv->needs_paint_volume_update = TRUE;
 
   /* reset the cached size requests */
   memset (priv->width_requests, 0,
@@ -2675,18 +2686,9 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
   if (priv->parent != NULL)
     {
       if (priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
-        {
-          clutter_actor_queue_shallow_relayout (self);
-
-          /* The above might have invalidated the parent's paint volume if self
-           * has moved or resized. DnD seems to require this...
-           */
-          priv->parent->priv->needs_paint_volume_update = TRUE;
-        }
+        clutter_actor_queue_shallow_relayout (self);
       else
-        {
-          _clutter_actor_queue_only_relayout (priv->parent);
-        }
+        _clutter_actor_queue_only_relayout (priv->parent);
     }
 }
 
@@ -4757,6 +4759,7 @@ clutter_actor_set_clip_rect (ClutterActor          *self,
   else
     priv->has_clip = FALSE;
 
+  queue_update_paint_volume (self);
   clutter_actor_queue_redraw (self);
 
   g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
@@ -9267,9 +9270,6 @@ clutter_actor_allocate (ClutterActor          *self,
       return;
     }
 
-  if (CLUTTER_ACTOR_IS_MAPPED (self))
-    self->priv->needs_paint_volume_update = TRUE;
-
   if (!origin_changed && !size_changed)
     {
       /* If the actor didn't move but needs_allocation is set, we just
@@ -11142,6 +11142,7 @@ clutter_actor_set_clip (ClutterActor *self,
 
   priv->has_clip = TRUE;
 
+  queue_update_paint_volume (self);
   clutter_actor_queue_redraw (self);
 
   g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
@@ -11164,6 +11165,7 @@ clutter_actor_remove_clip (ClutterActor *self)
 
   self->priv->has_clip = FALSE;
 
+  queue_update_paint_volume (self);
   clutter_actor_queue_redraw (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_HAS_CLIP]);
@@ -15132,6 +15134,7 @@ clutter_actor_set_clip_to_allocation (ClutterActor *self,
     {
       priv->clip_to_allocation = clip_set;
 
+      queue_update_paint_volume (self);
       clutter_actor_queue_redraw (self);
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CLIP_TO_ALLOCATION]);
@@ -19547,7 +19550,7 @@ clutter_actor_invalidate_paint_volume (ClutterActor *self)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  self->priv->needs_paint_volume_update = TRUE;
+  queue_update_paint_volume (self);
 }
 
 gboolean
