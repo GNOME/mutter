@@ -1277,8 +1277,8 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
 }
 
 gboolean
-cogl_blit_framebuffer (CoglFramebuffer *src,
-                       CoglFramebuffer *dest,
+cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
+                       CoglFramebuffer *dst,
                        int src_x,
                        int src_y,
                        int dst_x,
@@ -1287,7 +1287,7 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
                        int height,
                        GError **error)
 {
-  CoglContext *ctx = src->context;
+  CoglContext *ctx = framebuffer->context;
   int src_x1, src_y1, src_x2, src_y2;
   int dst_x1, dst_y1, dst_x2, dst_y2;
 
@@ -1300,8 +1300,8 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
     }
 
   /* The buffers must use the same premult convention */
-  if ((src->internal_format & COGL_PREMULT_BIT) !=
-      (dest->internal_format & COGL_PREMULT_BIT))
+  if ((framebuffer->internal_format & COGL_PREMULT_BIT) !=
+      (dst->internal_format & COGL_PREMULT_BIT))
     {
       g_set_error_literal (error, COGL_SYSTEM_ERROR,
                            COGL_SYSTEM_ERROR_UNSUPPORTED,
@@ -1312,12 +1312,12 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
   /* Make sure any batched primitives get submitted to the driver
    * before blitting
    */
-  _cogl_framebuffer_flush_journal (src);
+  _cogl_framebuffer_flush_journal (framebuffer);
 
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
-  _cogl_framebuffer_flush_state (dest,
-                                 src,
+  _cogl_framebuffer_flush_state (dst,
+                                 framebuffer,
                                  COGL_FRAMEBUFFER_STATE_ALL &
                                  ~COGL_FRAMEBUFFER_STATE_CLIP);
 
@@ -1325,7 +1325,7 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
      by the scissor and we want to hide this feature for the Cogl API
      because it's not obvious to an app how the clip state will affect
      the scissor */
-  _cogl_clip_stack_flush (NULL, dest);
+  _cogl_clip_stack_flush (NULL, dst);
 
   /* XXX: Because we are manually flushing clip state here we need to
    * make sure that the clip state gets updated the next time we flush
@@ -1336,7 +1336,7 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
   /* Offscreens we do the normal way, onscreens need an y-flip. Even if
    * we consider offscreens to be rendered upside-down, the offscreen
    * orientation is in this function's API. */
-  if (cogl_is_offscreen (src))
+  if (cogl_is_offscreen (framebuffer))
     {
       src_x1 = src_x;
       src_y1 = src_y;
@@ -1346,12 +1346,12 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
   else
     {
       src_x1 = src_x;
-      src_y1 = cogl_framebuffer_get_height (src) - src_y;
+      src_y1 = cogl_framebuffer_get_height (framebuffer) - src_y;
       src_x2 = src_x + width;
       src_y2 = src_y1 - height;
     }
 
-  if (cogl_is_offscreen (dest))
+  if (cogl_is_offscreen (dst))
     {
       dst_x1 = dst_x;
       dst_y1 = dst_y;
@@ -1361,7 +1361,7 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
   else
     {
       dst_x1 = dst_x;
-      dst_y1 = cogl_framebuffer_get_height (dest) - dst_y;
+      dst_y1 = cogl_framebuffer_get_height (dst) - dst_y;
       dst_x2 = dst_x + width;
       dst_y2 = dst_y1 - height;
     }

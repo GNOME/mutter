@@ -1495,8 +1495,8 @@ cogl_is_framebuffer (void *object);
 
 /**
  * cogl_blit_framebuffer:
- * @src: The source #CoglFramebuffer
- * @dest: The destination #CoglFramebuffer
+ * @framebuffer: The source #CoglFramebuffer
+ * @dst: The destination #CoglFramebuffer
  * @src_x: Source x position
  * @src_y: Source y position
  * @dst_x: Destination x position
@@ -1546,8 +1546,8 @@ cogl_is_framebuffer (void *object);
  * COGL_SYSTEM_ERROR will be created.
  */
 COGL_EXPORT gboolean
-cogl_blit_framebuffer (CoglFramebuffer *src,
-                       CoglFramebuffer *dest,
+cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
+                       CoglFramebuffer *dst,
                        int src_x,
                        int src_y,
                        int dst_x,
