@@ -3158,7 +3158,7 @@ meta_window_tile (MetaWindow   *window,
       window->tile_monitor_number = -1;
       return;
     }
-  else
+  else if (window->tile_monitor_number < 0)
     {
       window->tile_monitor_number = window->monitor->number;
     }
