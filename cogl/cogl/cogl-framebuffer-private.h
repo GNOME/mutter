@@ -173,16 +173,15 @@ struct _CoglFramebuffer
   int clear_clip_y1;
   gboolean clear_clip_dirty;
 
-  /* driver specific */
-  gboolean dirty_bitmasks;
-  CoglFramebufferBits bits;
-
   int samples_per_pixel;
 
   /* Whether the depth buffer was enabled for this framebuffer,
  * usually means it needs to be cleared before being reused next.
  */
   gboolean depth_buffer_clear_needed;
+
+  gpointer driver_private;
+  GDestroyNotify driver_private_destroy;
 };
 
 typedef enum
@@ -397,5 +396,13 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  */
 COGL_EXPORT int
 _cogl_framebuffer_get_stencil_bits (CoglFramebuffer *framebuffer);
+
+gpointer
+cogl_framebuffer_get_driver_private (CoglFramebuffer *framebuffer);
+
+void
+cogl_framebuffer_set_driver_private (CoglFramebuffer *framebuffer,
+                                     gpointer         driver_private,
+                                     GDestroyNotify   desrtoy_notify);
 
 #endif /* __COGL_FRAMEBUFFER_PRIVATE_H */

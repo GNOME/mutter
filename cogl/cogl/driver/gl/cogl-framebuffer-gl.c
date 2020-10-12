@@ -126,6 +126,11 @@
 #define GL_STENCIL 0x1802
 #endif
 
+typedef struct _CoglFramebufferGl
+{
+  gboolean dirty_bitmasks;
+  CoglFramebufferBits bits;
+} CoglFramebufferGl;
 
 static void
 _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
@@ -921,12 +926,33 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
   GE (ctx, glClear (gl_buffers));
 }
 
+static CoglFramebufferGl *
+ensure_framebuffer_gl (CoglFramebuffer *framebuffer)
+{
+  CoglFramebufferGl *framebuffer_gl;
+
+  framebuffer_gl = cogl_framebuffer_get_driver_private (framebuffer);
+  if (!framebuffer_gl)
+    {
+      framebuffer_gl = g_new0 (CoglFramebufferGl, 1);
+      cogl_framebuffer_set_driver_private (framebuffer,
+                                           framebuffer_gl,
+                                           g_free);
+      framebuffer_gl->dirty_bitmasks = TRUE;
+    }
+
+  return framebuffer_gl;
+}
+
 static inline void
 _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
 {
   CoglContext *ctx = framebuffer->context;
+  CoglFramebufferGl *framebuffer_gl;
 
-  if (G_LIKELY (!framebuffer->dirty_bitmasks))
+  framebuffer_gl = ensure_framebuffer_gl (framebuffer);
+
+  if (!framebuffer_gl->dirty_bitmasks)
     return;
 
   cogl_framebuffer_allocate (framebuffer, NULL);
@@ -970,7 +996,7 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
       for (i = 0; i < G_N_ELEMENTS (params); i++)
         {
           int *value =
-            (int *) ((uint8_t *) &framebuffer->bits + params[i].offset);
+            (int *) ((uint8_t *) &framebuffer_gl->bits + params[i].offset);
           GE( ctx, glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
                                                           params[i].attachment,
                                                           params[i].pname,
@@ -980,12 +1006,12 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
   else
 #endif /* HAVE_COGL_GL */
     {
-      GE( ctx, glGetIntegerv (GL_RED_BITS,   &framebuffer->bits.red)   );
-      GE( ctx, glGetIntegerv (GL_GREEN_BITS, &framebuffer->bits.green) );
-      GE( ctx, glGetIntegerv (GL_BLUE_BITS,  &framebuffer->bits.blue)  );
-      GE( ctx, glGetIntegerv (GL_ALPHA_BITS, &framebuffer->bits.alpha) );
-      GE( ctx, glGetIntegerv (GL_DEPTH_BITS, &framebuffer->bits.depth) );
-      GE( ctx, glGetIntegerv (GL_STENCIL_BITS, &framebuffer->bits.stencil) );
+      GE( ctx, glGetIntegerv (GL_RED_BITS,   &framebuffer_gl->bits.red)   );
+      GE( ctx, glGetIntegerv (GL_GREEN_BITS, &framebuffer_gl->bits.green) );
+      GE( ctx, glGetIntegerv (GL_BLUE_BITS,  &framebuffer_gl->bits.blue)  );
+      GE( ctx, glGetIntegerv (GL_ALPHA_BITS, &framebuffer_gl->bits.alpha) );
+      GE( ctx, glGetIntegerv (GL_DEPTH_BITS, &framebuffer_gl->bits.depth) );
+      GE( ctx, glGetIntegerv (GL_STENCIL_BITS, &framebuffer_gl->bits.stencil) );
     }
 
   /* If we don't have alpha textures then the alpha bits are actually
@@ -994,8 +1020,8 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
       framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN &&
       framebuffer->internal_format == COGL_PIXEL_FORMAT_A_8)
     {
-      framebuffer->bits.alpha = framebuffer->bits.red;
-      framebuffer->bits.red = 0;
+      framebuffer_gl->bits.alpha = framebuffer_gl->bits.red;
+      framebuffer_gl->bits.red = 0;
     }
 
   COGL_NOTE (OFFSCREEN,
@@ -1004,25 +1030,28 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
              framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN
                ? "offscreen"
                : "onscreen",
-             framebuffer->bits.red,
-             framebuffer->bits.blue,
-             framebuffer->bits.green,
-             framebuffer->bits.alpha,
-             framebuffer->bits.depth,
-             framebuffer->bits.stencil);
+             framebuffer_gl->bits.red,
+             framebuffer_gl->bits.blue,
+             framebuffer_gl->bits.green,
+             framebuffer_gl->bits.alpha,
+             framebuffer_gl->bits.depth,
+             framebuffer_gl->bits.stencil);
 
-  framebuffer->dirty_bitmasks = FALSE;
+  framebuffer_gl->dirty_bitmasks = FALSE;
 }
 
 void
 _cogl_framebuffer_gl_query_bits (CoglFramebuffer *framebuffer,
                                  CoglFramebufferBits *bits)
 {
+  CoglFramebufferGl *framebuffer_gl;
+
   _cogl_framebuffer_init_bits (framebuffer);
 
   /* TODO: cache these in some driver specific location not
    * directly as part of CoglFramebuffer. */
-  *bits = framebuffer->bits;
+  framebuffer_gl = ensure_framebuffer_gl (framebuffer);
+  *bits = framebuffer_gl->bits;
 }
 
 void

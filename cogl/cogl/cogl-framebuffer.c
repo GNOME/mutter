@@ -118,8 +118,6 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
   framebuffer->modelview_stack = cogl_matrix_stack_new (ctx);
   framebuffer->projection_stack = cogl_matrix_stack_new (ctx);
 
-  framebuffer->dirty_bitmasks = TRUE;
-
   framebuffer->samples_per_pixel = 0;
 
   framebuffer->clip_stack = NULL;
@@ -192,6 +190,11 @@ _cogl_framebuffer_free (CoglFramebuffer *framebuffer)
     ctx->current_draw_buffer = NULL;
   if (ctx->current_read_buffer == framebuffer)
     ctx->current_read_buffer = NULL;
+
+  if (framebuffer->driver_private_destroy)
+    framebuffer->driver_private_destroy (framebuffer->driver_private);
+  framebuffer->driver_private_destroy = NULL;
+  framebuffer->driver_private = NULL;
 }
 
 const CoglWinsysVtable *
@@ -2279,4 +2282,21 @@ cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
                                                    pipeline,
                                                    rects,
                                                    n_rectangles);
+}
+
+gpointer
+cogl_framebuffer_get_driver_private (CoglFramebuffer *framebuffer)
+{
+  return framebuffer->driver_private;
+}
+
+void
+cogl_framebuffer_set_driver_private (CoglFramebuffer *framebuffer,
+                                     gpointer         driver_private,
+                                     GDestroyNotify   destroy_notify)
+{
+  g_warn_if_fail (!framebuffer->driver_private);
+
+  framebuffer->driver_private = driver_private;
+  framebuffer->driver_private_destroy = destroy_notify;
 }
