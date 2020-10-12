@@ -41,7 +41,8 @@
 #include "cogl-gl-header.h"
 #include "cogl-clip-stack.h"
 
-typedef enum _CoglFramebufferType {
+typedef enum _CoglFramebufferType
+{
   COGL_FRAMEBUFFER_TYPE_ONSCREEN,
   COGL_FRAMEBUFFER_TYPE_OFFSCREEN
 } CoglFramebufferType;
