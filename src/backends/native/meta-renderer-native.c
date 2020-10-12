@@ -444,6 +444,27 @@ get_supported_kms_formats (CoglOnscreen *onscreen)
   return meta_crtc_kms_copy_drm_format_list (crtc_kms);
 }
 
+static uint32_t
+get_gbm_format_from_egl (MetaEgl    *egl,
+                         EGLDisplay  egl_display,
+                         EGLConfig   egl_config)
+{
+  uint32_t gbm_format;
+  EGLint native_visual_id;
+
+  if (meta_egl_get_config_attrib (egl,
+                                  egl_display,
+                                  egl_config,
+                                  EGL_NATIVE_VISUAL_ID,
+                                  &native_visual_id,
+                                  NULL))
+    gbm_format = (uint32_t) native_visual_id;
+  else
+    g_assert_not_reached ();
+
+  return gbm_format;
+}
+
 static gboolean
 init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_native,
                                         CoglOnscreen               *onscreen,
@@ -460,13 +481,17 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
   EGLSurface egl_surface;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   MetaGpuKms *gpu_kms;
+  uint32_t format;
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
+  format = get_gbm_format_from_egl (egl,
+                                    renderer_gpu_data->egl_display,
+                                    renderer_gpu_data->secondary.egl_config);
 
   gbm_surface = gbm_surface_create (renderer_gpu_data->gbm.device,
                                     width, height,
-                                    GBM_FORMAT_XRGB8888,
+                                    format,
                                     GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
   if (!gbm_surface)
     {
@@ -2201,12 +2226,16 @@ meta_renderer_native_create_surface_gbm (CoglOnscreen        *onscreen,
   struct gbm_surface *new_gbm_surface = NULL;
   EGLNativeWindowType egl_native_window;
   EGLSurface new_egl_surface;
-  uint32_t format = GBM_FORMAT_XRGB8888;
+  uint32_t format;
   GArray *modifiers;
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
                                        onscreen_native->render_gpu);
+
+  format = get_gbm_format_from_egl (egl,
+                                    cogl_renderer_egl->edpy,
+                                    cogl_display_egl->egl_config);
 
   if (renderer_native->use_modifiers)
     modifiers = get_supported_modifiers (onscreen, format);
