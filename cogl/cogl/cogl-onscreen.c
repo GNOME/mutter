@@ -87,35 +87,6 @@ _cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
   cogl_object_ref (framebuffer->config.swap_chain);
 }
 
-/* XXX: While we still have backend in Clutter we need a dummy object
- * to represent the CoglOnscreen framebuffer that the backend
- * creates... */
-CoglOnscreen *
-_cogl_onscreen_new (void)
-{
-  g_autofree CoglOnscreen *onscreen_ptr = g_new0 (CoglOnscreen, 1);
-  CoglOnscreen *onscreen;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  onscreen = g_steal_pointer (&onscreen_ptr);
-  _cogl_framebuffer_init (COGL_FRAMEBUFFER (onscreen),
-                          ctx,
-                          COGL_FRAMEBUFFER_TYPE_ONSCREEN,
-                          0x1eadbeef, /* width */
-                          0x1eadbeef); /* height */
-  /* NB: make sure to pass positive width/height numbers here
-   * because otherwise we'll hit input validation assertions!*/
-
-  _cogl_onscreen_init_from_template (onscreen, ctx->display->onscreen_template);
-
-  COGL_FRAMEBUFFER (onscreen)->allocated = TRUE;
-
-  /* XXX: Note we don't initialize onscreen->winsys in this case. */
-
-  return _cogl_onscreen_object_new (onscreen);
-}
-
 CoglOnscreen *
 cogl_onscreen_new (CoglContext *ctx, int width, int height)
 {

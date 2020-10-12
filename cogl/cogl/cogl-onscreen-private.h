@@ -75,9 +75,6 @@ struct _CoglOnscreen
   void *winsys;
 };
 
-CoglOnscreen *
-_cogl_onscreen_new (void);
-
 COGL_EXPORT void
 _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
                                       int width, int height);
