@@ -39,6 +39,13 @@ typedef struct _MetaWaylandPresentationFeedback
 typedef struct _MetaWaylandPresentationTime
 {
   GList *feedback_surfaces;
+
+  /*
+   * A mapping from (ClutterStageView *) to a
+   * (MetaWaylandPresentationFeedback *) wl_list of presentation-time feedbacks
+   * that are scheduled to be presented.
+   */
+  GHashTable *feedbacks;
 } MetaWaylandPresentationTime;
 
 void meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor);
@@ -48,5 +55,8 @@ void meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback
 void meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *feedback,
                                                  ClutterFrameInfo                *frame_info,
                                                  MetaWaylandOutput               *output);
+
+struct wl_list * meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *presentation_time,
+                                                                  ClutterStageView            *stage_view);
 
 #endif /* META_WAYLAND_PRESENTATION_TIME_PRIVATE_H */

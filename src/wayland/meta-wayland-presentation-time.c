@@ -111,9 +111,43 @@ wp_presentation_bind (struct wl_client *client,
   wp_presentation_send_clock_id (resource, CLOCK_MONOTONIC);
 }
 
+static void
+destroy_feedback_list (gpointer data)
+{
+  struct wl_list *feedbacks = data;
+
+  while (!wl_list_empty (feedbacks))
+    {
+      MetaWaylandPresentationFeedback *feedback =
+        wl_container_of (feedbacks->next, feedback, link);
+
+      meta_wayland_presentation_feedback_discard (feedback);
+    }
+
+  g_free (feedbacks);
+}
+
+static void
+on_monitors_changed (MetaMonitorManager    *manager,
+                     MetaWaylandCompositor *compositor)
+{
+  /* All ClutterStageViews were re-created, so clear our map. */
+  g_hash_table_remove_all (compositor->presentation_time.feedbacks);
+}
+
 void
 meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor)
 {
+  MetaBackend *backend = compositor->backend;
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  compositor->presentation_time.feedbacks =
+    g_hash_table_new_full (NULL, NULL, NULL, destroy_feedback_list);
+
+  g_signal_connect (monitor_manager, "monitors-changed-internal",
+                    G_CALLBACK (on_monitors_changed), compositor);
+
   if (wl_global_create (compositor->wayland_display,
                         &wp_presentation_interface,
                         META_WP_PRESENTATION_VERSION,
@@ -251,4 +285,22 @@ meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *fee
                                            flags);
 
   wl_resource_destroy (feedback->resource);
+}
+
+struct wl_list *
+meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *presentation_time,
+                                                 ClutterStageView            *stage_view)
+{
+  if (!g_hash_table_contains (presentation_time->feedbacks, stage_view))
+    {
+      struct wl_list *list;
+
+      list = g_new0 (struct wl_list, 1);
+      wl_list_init (list);
+      g_hash_table_insert (presentation_time->feedbacks, stage_view, list);
+
+      return list;
+    }
+
+  return g_hash_table_lookup (presentation_time->feedbacks, stage_view);
 }
