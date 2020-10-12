@@ -186,7 +186,7 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
                                  CoglAttribute **attributes,
                                  int n_attributes)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   int i;
   gboolean with_color_attrib = FALSE;
   gboolean unknown_color_alpha = FALSE;

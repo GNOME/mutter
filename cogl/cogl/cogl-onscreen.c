@@ -83,8 +83,7 @@ _cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
   _cogl_list_init (&onscreen->resize_closures);
   _cogl_list_init (&onscreen->dirty_closures);
 
-  framebuffer->config = onscreen_template->config;
-  cogl_object_ref (framebuffer->config.swap_chain);
+  cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
 }
 
 CoglOnscreen *
@@ -202,7 +201,8 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
 static void
 _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
 {
-  CoglContext *ctx = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   if (!ctx->onscreen_dispatch_idle)
     {
@@ -219,7 +219,8 @@ void
 _cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
                             const CoglOnscreenDirtyInfo *info)
 {
-  CoglContext *ctx = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreenQueuedDirty *qe = g_slice_new (CoglOnscreenQueuedDirty);
 
   qe->onscreen = cogl_object_ref (onscreen);
@@ -237,8 +238,8 @@ _cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen)
 
   info.x = 0;
   info.y = 0;
-  info.width = framebuffer->width;
-  info.height = framebuffer->height;
+  info.width = cogl_framebuffer_get_width (framebuffer);
+  info.height = cogl_framebuffer_get_height (framebuffer);
 
   _cogl_onscreen_queue_dirty (onscreen, &info);
 }
@@ -248,7 +249,8 @@ _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
                             CoglFrameEvent type,
                             CoglFrameInfo *info)
 {
-  CoglContext *ctx = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   CoglOnscreenEvent *event = g_slice_new (CoglOnscreenEvent);
 
@@ -270,7 +272,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_return_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
+  g_return_if_fail  (cogl_is_onscreen (framebuffer));
 
   info->frame_counter = onscreen->frame_counter;
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
@@ -319,7 +321,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_return_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
+  g_return_if_fail  (cogl_is_onscreen (framebuffer));
 
   info->frame_counter = onscreen->frame_counter;
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
@@ -365,7 +367,7 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_return_val_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN, 0);
+  g_return_val_if_fail (cogl_is_onscreen (framebuffer), 0);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
@@ -384,7 +386,7 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_warn_if_fail (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
+  g_warn_if_fail (cogl_is_onscreen (framebuffer));
   g_warn_if_fail (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
 
   info->frame_counter = onscreen->frame_counter;
@@ -442,7 +444,7 @@ cogl_onscreen_show (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  if (!framebuffer->allocated)
+  if (!cogl_framebuffer_is_allocated (framebuffer))
     {
       if (!cogl_framebuffer_allocate (framebuffer, NULL))
         return;
@@ -458,7 +460,7 @@ cogl_onscreen_hide (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
 
-  if (framebuffer->allocated)
+  if (cogl_framebuffer_is_allocated (framebuffer))
     {
       const CoglWinsysVtable *winsys =
         _cogl_framebuffer_get_winsys (framebuffer);
@@ -487,23 +489,21 @@ _cogl_onscreen_notify_resize (CoglOnscreen *onscreen)
   _cogl_closure_list_invoke (&onscreen->resize_closures,
                              CoglOnscreenResizeCallback,
                              onscreen,
-                             framebuffer->width,
-                             framebuffer->height);
+                             cogl_framebuffer_get_width (framebuffer),
+                             cogl_framebuffer_get_height (framebuffer));
 }
 
 void
 _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
                                       int width, int height)
 {
-  if (framebuffer->width == width && framebuffer->height == height)
+  if (cogl_framebuffer_get_width (framebuffer) == width &&
+      cogl_framebuffer_get_height (framebuffer) == height)
     return;
 
-  framebuffer->width = width;
-  framebuffer->height = height;
+  cogl_framebuffer_update_size (framebuffer, width, height);
 
-  cogl_framebuffer_set_viewport (framebuffer, 0, 0, width, height);
-
-  if (!_cogl_has_private_feature (framebuffer->context,
+  if (!_cogl_has_private_feature (cogl_framebuffer_get_context (framebuffer),
                                   COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
     _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
 }
@@ -521,7 +521,7 @@ cogl_onscreen_set_resizable (CoglOnscreen *onscreen,
   onscreen->resizable = resizable;
 
   framebuffer = COGL_FRAMEBUFFER (onscreen);
-  if (framebuffer->allocated)
+  if (cogl_framebuffer_is_allocated (framebuffer))
     {
       winsys = _cogl_framebuffer_get_winsys (COGL_FRAMEBUFFER (onscreen));
 

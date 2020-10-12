@@ -81,7 +81,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
       CoglOnscreenEGL *egl_onscreen;
       CoglOnscreenXlib *xlib_onscreen;
 
-      if (framebuffer->type != COGL_FRAMEBUFFER_TYPE_ONSCREEN)
+      if (!cogl_is_onscreen (framebuffer))
         continue;
 
       egl_onscreen = COGL_ONSCREEN (framebuffer)->winsys;
@@ -99,7 +99,7 @@ flush_pending_resize_notifications_cb (void *data,
 {
   CoglFramebuffer *framebuffer = data;
 
-  if (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
+  if (cogl_is_onscreen (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
@@ -319,9 +319,9 @@ error:
 }
 
 static int
-_cogl_winsys_egl_add_config_attributes (CoglDisplay *display,
-                                        CoglFramebufferConfig *config,
-                                        EGLint *attributes)
+_cogl_winsys_egl_add_config_attributes (CoglDisplay                 *display,
+                                        const CoglFramebufferConfig *config,
+                                        EGLint                      *attributes)
 {
   int i = 0;
 
@@ -413,7 +413,7 @@ _cogl_winsys_egl_onscreen_init (CoglOnscreen *onscreen,
                                 GError **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
@@ -513,7 +513,7 @@ static void
 _cogl_winsys_egl_onscreen_deinit (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
@@ -544,7 +544,8 @@ static void
 _cogl_winsys_onscreen_set_visibility (CoglOnscreen *onscreen,
                                       gboolean visibility)
 {
-  CoglContext *context = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
@@ -562,7 +563,7 @@ _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
                                      gboolean resizable)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglOnscreenEGL *egl_onscreen = onscreen->winsys;

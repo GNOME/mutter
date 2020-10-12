@@ -123,7 +123,7 @@ log_quad_sub_textures_cb (CoglTexture *texture,
   else
     texture_override = texture;
 
-  _cogl_journal_log_quad (framebuffer->journal,
+  _cogl_journal_log_quad (cogl_framebuffer_get_journal (framebuffer),
                           quad_coords,
                           state->pipeline,
                           1, /* one layer */
@@ -458,7 +458,7 @@ _cogl_multitexture_quad_single_primitive (CoglFramebuffer *framebuffer,
   if (state.override_pipeline)
     pipeline = state.override_pipeline;
 
-  _cogl_journal_log_quad (framebuffer->journal,
+  _cogl_journal_log_quad (cogl_framebuffer_get_journal (framebuffer),
                           position,
                           pipeline,
                           n_layers,
@@ -631,7 +631,7 @@ _cogl_framebuffer_draw_multitextured_rectangles (
                                         CoglMultiTexturedRect *rects,
                                         int n_rects)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglPipeline *original_pipeline;
   ValidateLayerState state;
   int i;
@@ -714,7 +714,7 @@ cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
                               const CoglVertexP2 *vertices,
                               unsigned int n_vertices)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglAttributeBuffer *attribute_buffer;
   CoglAttribute *attributes[1];
   size_t vertices_size = sizeof (CoglVertexP2) * n_vertices;

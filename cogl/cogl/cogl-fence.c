@@ -45,7 +45,7 @@ cogl_fence_closure_get_user_data (CoglFenceClosure *closure)
 static void
 _cogl_fence_check (CoglFenceClosure *fence)
 {
-  CoglContext *context = fence->framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (fence->framebuffer);
 
   if (fence->type == FENCE_TYPE_WINSYS)
     {
@@ -95,10 +95,11 @@ _cogl_fence_poll_prepare (void *source)
    * hit and the main loop might block forever */
   for (l = context->framebuffers; l; l = l->next)
     {
-      CoglFramebuffer *fb = l->data;
+      CoglFramebuffer *framebuffer = l->data;
+      CoglJournal *journal = cogl_framebuffer_get_journal (framebuffer);
 
-      if (!_cogl_list_empty (&fb->journal->pending_fences))
-        _cogl_framebuffer_flush_journal (fb);
+      if (!_cogl_list_empty (&journal->pending_fences))
+        _cogl_framebuffer_flush_journal (framebuffer);
     }
 
   if (!_cogl_list_empty (&context->fences))
@@ -110,7 +111,7 @@ _cogl_fence_poll_prepare (void *source)
 void
 _cogl_fence_submit (CoglFenceClosure *fence)
 {
-  CoglContext *context = fence->framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (fence->framebuffer);
   const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
 
   fence->type = FENCE_TYPE_ERROR;
@@ -156,8 +157,8 @@ cogl_framebuffer_add_fence_callback (CoglFramebuffer *framebuffer,
                                      CoglFenceCallback callback,
                                      void *user_data)
 {
-  CoglContext *context = framebuffer->context;
-  CoglJournal *journal = framebuffer->journal;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  CoglJournal *journal = cogl_framebuffer_get_journal (framebuffer);
   CoglFenceClosure *fence;
 
   if (!COGL_FLAGS_GET (context->features, COGL_FEATURE_ID_FENCE))
@@ -184,7 +185,7 @@ void
 cogl_framebuffer_cancel_fence_callback (CoglFramebuffer *framebuffer,
                                         CoglFenceClosure *fence)
 {
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
 
   if (fence->type == FENCE_TYPE_PENDING)
     {
@@ -214,8 +215,8 @@ cogl_framebuffer_cancel_fence_callback (CoglFramebuffer *framebuffer,
 void
 _cogl_fence_cancel_fences_for_framebuffer (CoglFramebuffer *framebuffer)
 {
-  CoglJournal *journal = framebuffer->journal;
-  CoglContext *context = framebuffer->context;
+  CoglJournal *journal = cogl_framebuffer_get_journal (framebuffer);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglFenceClosure *fence, *tmp;
 
   while (!_cogl_list_empty (&journal->pending_fences))

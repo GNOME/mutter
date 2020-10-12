@@ -87,9 +87,9 @@ typedef struct _CoglWinsysEGLVtable
   (* onscreen_deinit) (CoglOnscreen *onscreen);
 
   int
-  (* add_config_attributes) (CoglDisplay *display,
-                             CoglFramebufferConfig *config,
-                             EGLint *attributes);
+  (* add_config_attributes) (CoglDisplay                 *display,
+                             const CoglFramebufferConfig *config,
+                             EGLint                      *attributes);
   gboolean
   (* choose_config) (CoglDisplay *display,
                      EGLint *attributes,

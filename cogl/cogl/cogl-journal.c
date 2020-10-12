@@ -567,7 +567,8 @@ _cogl_journal_flush_vbo_offsets_and_entries (CoglJournalEntry *batch_start,
                                              void             *data)
 {
   CoglJournalFlushState *state = data;
-  CoglContext *ctx = state->journal->framebuffer->context;
+  CoglFramebuffer *framebuffer = state->journal->framebuffer;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   size_t stride;
   int i;
   CoglAttribute **attribute_entry;
@@ -688,7 +689,7 @@ _cogl_journal_flush_clip_stacks_and_entries (CoglJournalEntry *batch_start,
 {
   CoglJournalFlushState *state = data;
   CoglFramebuffer *framebuffer = state->journal->framebuffer;
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixStack *projection_stack;
 
   COGL_STATIC_TIMER (time_flush_clip_stack_pipeline_entries,
@@ -1032,7 +1033,7 @@ _cogl_journal_flush_dither_and_entries (CoglJournalEntry *batch_start,
 {
   CoglJournalFlushState *state = data;
   CoglFramebuffer *framebuffer = state->journal->framebuffer;
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   COGL_STATIC_TIMER (time_flush_dither_and_entries,
                      "Journal Flush", /* parent */
@@ -1075,7 +1076,7 @@ _cogl_journal_flush_viewport_and_entries (CoglJournalEntry *batch_start,
 {
   CoglJournalFlushState *state = data;
   CoglFramebuffer *framebuffer = state->journal->framebuffer;
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   float current_viewport[4];
 
   COGL_STATIC_TIMER (time_flush_viewport_and_entries,
@@ -1123,8 +1124,8 @@ static CoglAttributeBuffer *
 create_attribute_buffer (CoglJournal *journal,
                          size_t n_bytes)
 {
+  CoglContext *ctx = cogl_framebuffer_get_context (journal->framebuffer);
   CoglAttributeBuffer *vbo;
-  CoglContext *ctx = journal->framebuffer->context;
 
   vbo = journal->vbo_pool[journal->next_vbo_in_pool];
 
@@ -1383,7 +1384,7 @@ _cogl_journal_flush (CoglJournal *journal)
     }
 
   framebuffer = journal->framebuffer;
-  ctx = framebuffer->context;
+  ctx = cogl_framebuffer_get_context (framebuffer);
 
   /* The entries in this journal may depend on images in other
    * framebuffers which may require that we flush the journals

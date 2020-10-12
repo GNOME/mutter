@@ -259,7 +259,10 @@ flush_depth_state (CoglContext *ctx,
   gboolean depth_writing_enabled = depth_state->write_enabled;
 
   if (ctx->current_draw_buffer)
-    depth_writing_enabled &= ctx->current_draw_buffer->depth_writing_enabled;
+    {
+      depth_writing_enabled &=
+        cogl_framebuffer_get_depth_write_enabled (ctx->current_draw_buffer);
+    }
 
   if (ctx->depth_test_enabled_cache != depth_state->test_enabled)
     {
@@ -267,7 +270,7 @@ flush_depth_state (CoglContext *ctx,
         {
           GE (ctx, glEnable (GL_DEPTH_TEST));
           if (ctx->current_draw_buffer)
-            ctx->current_draw_buffer->depth_buffer_clear_needed = TRUE;
+            cogl_framebuffer_set_depth_buffer_clear_needed (ctx->current_draw_buffer);
         }
       else
         GE (ctx, glDisable (GL_DEPTH_TEST));

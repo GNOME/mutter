@@ -587,12 +587,12 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
                               CoglAttribute **attributes,
                               int n_attributes)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglFlushLayerState layers_state;
   CoglPipeline *copy = NULL;
 
   if (!(flags & COGL_DRAW_SKIP_JOURNAL_FLUSH))
-    _cogl_journal_flush (framebuffer->journal);
+    _cogl_framebuffer_flush_journal (framebuffer);
 
   layers_state.unit = 0;
   layers_state.options.flags = 0;

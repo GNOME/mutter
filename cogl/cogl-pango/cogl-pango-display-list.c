@@ -259,7 +259,7 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
                              CoglPipeline *pipeline,
                              CoglPangoDisplayListNode *node)
 {
-  CoglContext *ctx = fb->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (fb);
 
   /* It's expensive to go through the Cogl journal for large runs
    * of text in part because the journal transforms the quads in software

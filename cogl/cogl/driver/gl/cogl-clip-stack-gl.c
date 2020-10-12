@@ -153,14 +153,14 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
    * the default [-1, -1, 1, 1] range.
    */
   graphene_point3d_init (&p,
-                         - framebuffer->viewport_x,
-                         - framebuffer->viewport_y,
+                         - cogl_framebuffer_get_viewport_x (framebuffer),
+                         - cogl_framebuffer_get_viewport_y (framebuffer),
                          0);
 
   graphene_matrix_init_translate (&matrix, &p);
   graphene_matrix_scale (&matrix,
-                         2.0 / framebuffer->viewport_width,
-                         - 2.0 / framebuffer->viewport_height,
+                         2.0 / cogl_framebuffer_get_viewport_width (framebuffer),
+                         - 2.0 / cogl_framebuffer_get_viewport_height (framebuffer),
                          1);
   graphene_matrix_translate (&matrix, &GRAPHENE_POINT3D_INIT (-1.f, 1.f, 0.f));
 
@@ -398,7 +398,7 @@ void
 _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                            CoglFramebuffer *framebuffer)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   gboolean using_stencil_buffer = FALSE;
   int scissor_x0;
   int scissor_y0;

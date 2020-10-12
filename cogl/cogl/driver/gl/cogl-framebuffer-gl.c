@@ -33,6 +33,7 @@
 
 #include "cogl-context-private.h"
 #include "cogl-framebuffer-private.h"
+#include "cogl-framebuffer.h"
 #include "cogl-texture-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
@@ -135,10 +136,17 @@ typedef struct _CoglFramebufferGl
 static void
 _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
 {
+  float viewport_x, viewport_y, viewport_width, viewport_height;
   float gl_viewport_y;
 
-  g_return_if_fail (framebuffer->viewport_width >= 0);
-  g_return_if_fail (framebuffer->viewport_height >= 0);
+  cogl_framebuffer_get_viewport4f (framebuffer,
+                                   &viewport_x,
+                                   &viewport_y,
+                                   &viewport_width,
+                                   &viewport_height);
+
+  g_return_if_fail (viewport_width >= 0);
+  g_return_if_fail (viewport_height >= 0);
 
   /* Convert the Cogl viewport y offset to an OpenGL viewport y offset
    * NB: OpenGL defines its window and viewport origins to be bottom
@@ -146,67 +154,73 @@ _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
    * NB: We render upside down to offscreen framebuffers so we don't
    * need to convert the y offset in this case. */
   if (cogl_is_offscreen (framebuffer))
-    gl_viewport_y = framebuffer->viewport_y;
+    gl_viewport_y = viewport_y;
   else
-    gl_viewport_y = framebuffer->height -
-      (framebuffer->viewport_y + framebuffer->viewport_height);
+    gl_viewport_y =
+      cogl_framebuffer_get_height (framebuffer) -
+      (viewport_y + viewport_height);
 
   COGL_NOTE (OPENGL, "Calling glViewport(%f, %f, %f, %f)",
-             framebuffer->viewport_x,
+             viewport_x,
              gl_viewport_y,
-             framebuffer->viewport_width,
-             framebuffer->viewport_height);
+             viewport_width,
+             viewport_height);
 
-  GE (framebuffer->context,
-      glViewport (framebuffer->viewport_x,
+  GE (cogl_framebuffer_get_context (framebuffer),
+      glViewport (viewport_x,
                   gl_viewport_y,
-                  framebuffer->viewport_width,
-                  framebuffer->viewport_height));
+                  viewport_width,
+                  viewport_height));
 }
 
 static void
 _cogl_framebuffer_gl_flush_clip_state (CoglFramebuffer *framebuffer)
 {
-  _cogl_clip_stack_flush (framebuffer->clip_stack, framebuffer);
+  _cogl_clip_stack_flush (_cogl_framebuffer_get_clip_stack (framebuffer),
+                          framebuffer);
 }
 
 static void
 _cogl_framebuffer_gl_flush_dither_state (CoglFramebuffer *framebuffer)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  gboolean is_dither_enabled =
+    cogl_framebuffer_get_dither_enabled (framebuffer);
 
-  if (ctx->current_gl_dither_enabled != framebuffer->dither_enabled)
+  if (ctx->current_gl_dither_enabled != is_dither_enabled)
     {
-      if (framebuffer->dither_enabled)
+      if (is_dither_enabled)
         GE (ctx, glEnable (GL_DITHER));
       else
         GE (ctx, glDisable (GL_DITHER));
-      ctx->current_gl_dither_enabled = framebuffer->dither_enabled;
+      ctx->current_gl_dither_enabled = is_dither_enabled;
     }
 }
 
 static void
 _cogl_framebuffer_gl_flush_modelview_state (CoglFramebuffer *framebuffer)
 {
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixEntry *modelview_entry =
     _cogl_framebuffer_get_modelview_entry (framebuffer);
-  _cogl_context_set_current_modelview_entry (framebuffer->context,
-                                             modelview_entry);
+
+  _cogl_context_set_current_modelview_entry (ctx, modelview_entry);
 }
 
 static void
 _cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
 {
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixEntry *projection_entry =
     _cogl_framebuffer_get_projection_entry (framebuffer);
-  _cogl_context_set_current_projection_entry (framebuffer->context,
-                                             projection_entry);
+
+  _cogl_context_set_current_projection_entry (ctx, projection_entry);
 }
 
 static void
 _cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffer)
 {
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglPipelineCullFaceMode mode;
 
   /* NB: The face winding state is actually owned by the current
@@ -238,10 +252,10 @@ _cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffe
 static void
 _cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   GLenum draw_buffer = GL_BACK;
 
-  if (framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN)
+  if (cogl_is_offscreen (framebuffer))
     return;
 
   if (!ctx->glDrawBuffer)
@@ -251,7 +265,7 @@ _cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
    * must have already happened. If not it would override what we set here. */
   g_assert (ctx->was_bound_to_onscreen);
 
-  switch (framebuffer->stereo_mode)
+  switch (cogl_framebuffer_get_stereo_mode (framebuffer))
     {
     case COGL_STEREO_BOTH:
       draw_buffer = GL_BACK;
@@ -274,9 +288,9 @@ _cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
 void
 _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
-  if (framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN)
+  if (cogl_is_offscreen (framebuffer))
     {
       CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
       GE (ctx, glBindFramebuffer (target,
@@ -325,7 +339,7 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
                                   CoglFramebuffer *read_buffer,
                                   CoglFramebufferState state)
 {
-  CoglContext *ctx = draw_buffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (draw_buffer);
   unsigned long differences;
   int bit;
 
@@ -377,9 +391,9 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
     return;
 
   /* Lazily ensure the framebuffers have been allocated */
-  if (G_UNLIKELY (!draw_buffer->allocated))
+  if (G_UNLIKELY (!cogl_framebuffer_is_allocated (draw_buffer)))
     cogl_framebuffer_allocate (draw_buffer, NULL);
-  if (G_UNLIKELY (!read_buffer->allocated))
+  if (G_UNLIKELY (!cogl_framebuffer_is_allocated (read_buffer)))
     cogl_framebuffer_allocate (read_buffer, NULL);
 
   /* We handle buffer binding separately since the method depends on whether
@@ -622,15 +636,15 @@ delete_renderbuffers (CoglContext *ctx, GList *renderbuffers)
  * modify anything in
  */
 static gboolean
-try_creating_fbo (CoglContext *ctx,
-                  CoglTexture *texture,
-                  int texture_level,
-                  int texture_level_width,
-                  int texture_level_height,
-                  CoglTexture *depth_texture,
-                  CoglFramebufferConfig *config,
-                  CoglOffscreenAllocateFlags flags,
-                  CoglGLFramebuffer *gl_framebuffer)
+try_creating_fbo (CoglContext                 *ctx,
+                  CoglTexture                 *texture,
+                  int                          texture_level,
+                  int                          texture_level_width,
+                  int                          texture_level_height,
+                  CoglTexture                 *depth_texture,
+                  const CoglFramebufferConfig *config,
+                  CoglOffscreenAllocateFlags   flags,
+                  CoglGLFramebuffer           *gl_framebuffer)
 {
   GLuint tex_gl_handle;
   GLenum tex_gl_target;
@@ -739,10 +753,11 @@ gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                              GError **error)
 {
-  CoglFramebuffer *fb = COGL_FRAMEBUFFER (offscreen);
-  CoglContext *ctx = fb->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglOffscreenAllocateFlags flags;
   CoglGLFramebuffer *gl_framebuffer = &offscreen->gl_framebuffer;
+  const CoglFramebufferConfig *config;
   int level_width;
   int level_height;
 
@@ -769,6 +784,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
   _cogl_texture_gl_flush_legacy_texobj_filters (offscreen->texture,
                                                 GL_NEAREST, GL_NEAREST);
 
+  config = cogl_framebuffer_get_config (framebuffer);
+
   if (((offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL) &&
        try_creating_fbo (ctx,
                          offscreen->texture,
@@ -776,7 +793,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                          level_width,
                          level_height,
                          offscreen->depth_texture,
-                         &fb->config,
+                         config,
                          flags = 0,
                          gl_framebuffer)) ||
 
@@ -787,7 +804,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                          level_width,
                          level_height,
                          offscreen->depth_texture,
-                         &fb->config,
+                         config,
                          flags = ctx->last_offscreen_allocate_flags,
                          gl_framebuffer)) ||
 
@@ -804,7 +821,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                          level_width,
                          level_height,
                          offscreen->depth_texture,
-                         &fb->config,
+                         config,
                          flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL,
                          gl_framebuffer)) ||
 
@@ -814,7 +831,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         offscreen->depth_texture,
-                        &fb->config,
+                        config,
                         flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH |
                         COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_framebuffer) ||
@@ -825,7 +842,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         offscreen->depth_texture,
-                        &fb->config,
+                        config,
                         flags = COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_framebuffer) ||
 
@@ -835,7 +852,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         offscreen->depth_texture,
-                        &fb->config,
+                        config,
                         flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH,
                         gl_framebuffer) ||
 
@@ -845,11 +862,12 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         offscreen->depth_texture,
-                        &fb->config,
+                        config,
                         flags = 0,
                         gl_framebuffer))
     {
-      fb->samples_per_pixel = gl_framebuffer->samples_per_pixel;
+      cogl_framebuffer_update_samples_per_pixel (framebuffer,
+                                                 gl_framebuffer->samples_per_pixel);
 
       if (!(offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL))
         {
@@ -878,7 +896,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
 void
 _cogl_offscreen_gl_free (CoglOffscreen *offscreen)
 {
-  CoglContext *ctx = COGL_FRAMEBUFFER (offscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   delete_renderbuffers (ctx, offscreen->gl_framebuffer.renderbuffers);
 
@@ -893,7 +912,7 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
                             float blue,
                             float alpha)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   GLbitfield gl_buffers = 0;
 
   if (buffers & COGL_BUFFER_BIT_COLOR)
@@ -904,13 +923,17 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     {
+      gboolean is_depth_writing_enabled;
+
       gl_buffers |= GL_DEPTH_BUFFER_BIT;
 
-      if (ctx->depth_writing_enabled_cache != framebuffer->depth_writing_enabled)
+      is_depth_writing_enabled =
+        cogl_framebuffer_get_depth_write_enabled (framebuffer);
+      if (ctx->depth_writing_enabled_cache != is_depth_writing_enabled)
         {
-          GE( ctx, glDepthMask (framebuffer->depth_writing_enabled));
+          GE( ctx, glDepthMask (is_depth_writing_enabled));
 
-          ctx->depth_writing_enabled_cache = framebuffer->depth_writing_enabled;
+          ctx->depth_writing_enabled_cache = is_depth_writing_enabled;
 
           /* Make sure the DepthMask is updated when the next primitive is drawn */
           ctx->current_pipeline_changes_since_flush |=
@@ -947,7 +970,7 @@ ensure_framebuffer_gl (CoglFramebuffer *framebuffer)
 static inline void
 _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglFramebufferGl *framebuffer_gl;
 
   framebuffer_gl = ensure_framebuffer_gl (framebuffer);
@@ -963,11 +986,11 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
 
 #ifdef HAVE_COGL_GL
   if ((ctx->driver == COGL_DRIVER_GL3 &&
-       framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN) ||
+       cogl_is_onscreen (framebuffer)) ||
       (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS) &&
-       framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN))
+       cogl_is_offscreen (framebuffer)))
     {
-      gboolean is_offscreen = framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN;
+      gboolean is_offscreen = cogl_is_offscreen (framebuffer);
       const struct {
         GLenum attachment, pname;
         size_t offset;
@@ -1017,8 +1040,8 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
   /* If we don't have alpha textures then the alpha bits are actually
    * stored in the red component */
   if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) &&
-      framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN &&
-      framebuffer->internal_format == COGL_PIXEL_FORMAT_A_8)
+      cogl_is_offscreen (framebuffer) &&
+      cogl_framebuffer_get_internal_format (framebuffer) == COGL_PIXEL_FORMAT_A_8)
     {
       framebuffer_gl->bits.alpha = framebuffer_gl->bits.red;
       framebuffer_gl->bits.red = 0;
@@ -1027,9 +1050,7 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
   COGL_NOTE (OFFSCREEN,
              "RGBA/D/S Bits for framebuffer[%p, %s]: %d, %d, %d, %d, %d, %d",
              framebuffer,
-             framebuffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN
-               ? "offscreen"
-               : "onscreen",
+             cogl_is_offscreen (framebuffer) ? "offscreen" : "onscreen",
              framebuffer_gl->bits.red,
              framebuffer_gl->bits.blue,
              framebuffer_gl->bits.green,
@@ -1057,27 +1078,27 @@ _cogl_framebuffer_gl_query_bits (CoglFramebuffer *framebuffer,
 void
 _cogl_framebuffer_gl_finish (CoglFramebuffer *framebuffer)
 {
-  GE (framebuffer->context, glFinish ());
+  GE (cogl_framebuffer_get_context (framebuffer), glFinish ());
 }
 
 void
 _cogl_framebuffer_gl_flush (CoglFramebuffer *framebuffer)
 {
-  GE (framebuffer->context, glFlush ());
+  GE (cogl_framebuffer_get_context (framebuffer), glFlush ());
 }
 
 void
 _cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
                                       unsigned long buffers)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   if (ctx->glDiscardFramebuffer)
     {
       GLenum attachments[3];
       int i = 0;
 
-      if (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
+      if (cogl_is_onscreen (framebuffer))
         {
           if (buffers & COGL_BUFFER_BIT_COLOR)
             attachments[i++] = GL_COLOR;
@@ -1116,7 +1137,7 @@ _cogl_framebuffer_gl_draw_attributes (CoglFramebuffer *framebuffer,
   _cogl_flush_attributes_state (framebuffer, pipeline, flags,
                                 attributes, n_attributes);
 
-  GE (framebuffer->context,
+  GE (cogl_framebuffer_get_context (framebuffer),
       glDrawArrays ((GLenum)mode, first_vertex, n_vertices));
 }
 
@@ -1180,7 +1201,7 @@ _cogl_framebuffer_gl_draw_indexed_attributes (CoglFramebuffer *framebuffer,
       break;
     }
 
-  GE (framebuffer->context,
+  GE (cogl_framebuffer_get_context (framebuffer),
       glDrawElements ((GLenum)mode,
                       n_vertices,
                       indices_gl_type,
@@ -1197,11 +1218,13 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               CoglBitmap *bitmap,
                                               GError **error)
 {
-  CoglContext *ctx = framebuffer->context;
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   int framebuffer_height = cogl_framebuffer_get_height (framebuffer);
   int width = cogl_bitmap_get_width (bitmap);
   int height = cogl_bitmap_get_height (bitmap);
   CoglPixelFormat format = cogl_bitmap_get_format (bitmap);
+  CoglPixelFormat internal_format =
+    cogl_framebuffer_get_internal_format (framebuffer);
   CoglPixelFormat required_format;
   GLenum gl_intformat;
   GLenum gl_format;
@@ -1281,8 +1304,10 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
         }
 
       if (COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT (read_format))
-        read_format = ((read_format & ~COGL_PREMULT_BIT) |
-                       (framebuffer->internal_format & COGL_PREMULT_BIT));
+        {
+          read_format = ((read_format & ~COGL_PREMULT_BIT) |
+                         (internal_format & COGL_PREMULT_BIT));
+        }
 
       tmp_bmp = _cogl_bitmap_new_with_malloc_buffer (ctx,
                                                      width, height,
@@ -1336,7 +1361,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
        * converted to the right format below */
       if (COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT (format))
         bmp_format = ((format & ~COGL_PREMULT_BIT) |
-                      (framebuffer->internal_format & COGL_PREMULT_BIT));
+                      (internal_format & COGL_PREMULT_BIT));
       else
         bmp_format = format;
 

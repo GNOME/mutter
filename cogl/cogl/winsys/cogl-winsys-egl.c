@@ -195,9 +195,9 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
 }
 
 static void
-egl_attributes_from_framebuffer_config (CoglDisplay *display,
-                                        CoglFramebufferConfig *config,
-                                        EGLint *attributes)
+egl_attributes_from_framebuffer_config (CoglDisplay                 *display,
+                                        const CoglFramebufferConfig *config,
+                                        EGLint                      *attributes)
 {
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
@@ -548,11 +548,12 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
                             GError **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
   CoglDisplayEGL *egl_display = display->winsys;
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
+  const CoglFramebufferConfig *config;
   EGLint attributes[MAX_EGL_CONFIG_ATTRIBS];
   EGLConfig egl_config;
   EGLint config_count = 0;
@@ -560,9 +561,8 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
 
   g_return_val_if_fail (egl_display->egl_context, FALSE);
 
-  egl_attributes_from_framebuffer_config (display,
-                                          &framebuffer->config,
-                                          attributes);
+  config = cogl_framebuffer_get_config (framebuffer);
+  egl_attributes_from_framebuffer_config (display, config, attributes);
 
   status = eglChooseConfig (egl_renderer->edpy,
                             attributes,
@@ -578,14 +578,14 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
 
   /* Update the real number of samples_per_pixel now that we have
    * found an egl_config... */
-  if (framebuffer->config.samples_per_pixel)
+  if (config->samples_per_pixel)
     {
       EGLint samples;
       status = eglGetConfigAttrib (egl_renderer->edpy,
                                    egl_config,
                                    EGL_SAMPLES, &samples);
       g_return_val_if_fail (status == EGL_TRUE, TRUE);
-      framebuffer->samples_per_pixel = samples;
+      cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
     }
 
   onscreen->winsys = g_slice_new0 (CoglOnscreenEGL);
@@ -606,7 +606,7 @@ static void
 _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = framebuffer->context;
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
@@ -650,8 +650,8 @@ static gboolean
 bind_onscreen_with_context (CoglOnscreen *onscreen,
                             EGLContext egl_context)
 {
-  CoglFramebuffer *fb = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = fb->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
 
   gboolean status = _cogl_winsys_egl_make_current (context->display,
@@ -672,8 +672,8 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
 static gboolean
 bind_onscreen (CoglOnscreen *onscreen)
 {
-  CoglFramebuffer *fb = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = fb->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplayEGL *egl_display = context->display->winsys;
 
   return bind_onscreen_with_context (onscreen, egl_display->egl_context);
@@ -692,7 +692,8 @@ _cogl_winsys_onscreen_bind (CoglOnscreen *onscreen)
 static int
 _cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
 {
-  CoglContext *context = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
   CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
@@ -729,11 +730,11 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
                                    int n_rectangles,
                                    CoglFrameInfo *info)
 {
-  CoglContext *context = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
   CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   int framebuffer_height  = cogl_framebuffer_get_height (framebuffer);
   int *rectangles = g_alloca (sizeof (int) * n_rectangles * 4);
   int i;
@@ -769,7 +770,8 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                                 int n_rectangles,
                                                 CoglFrameInfo *info)
 {
-  CoglContext *context = COGL_FRAMEBUFFER (onscreen)->context;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
   CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
@@ -788,7 +790,7 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   if (n_rectangles && egl_renderer->pf_eglSwapBuffersWithDamage)
     {
-      CoglFramebuffer *fb = COGL_FRAMEBUFFER (onscreen);
+      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
       size_t size = n_rectangles * sizeof (int) * 4;
       int *flipped = alloca (size);
       int i;
@@ -798,7 +800,9 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
         {
           const int *rect = rectangles + 4 * i;
           int *flip_rect = flipped + 4 * i;
-          flip_rect[1] = fb->height - rect[1] - rect[3];
+
+          flip_rect[1] =
+            cogl_framebuffer_get_height (framebuffer) - rect[1] - rect[3];
         }
 
       if (egl_renderer->pf_eglSwapBuffersWithDamage (egl_renderer->edpy,
