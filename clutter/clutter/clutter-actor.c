@@ -1294,6 +1294,9 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                           &vertices[v].y,
                                           &z,
                                           &w);
+
+      clutter_round_to_256ths (&vertices[v].x);
+      clutter_round_to_256ths (&vertices[v].y);
     }
 
   return TRUE;
