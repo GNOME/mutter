@@ -94,6 +94,10 @@ struct _CoglFramebufferClass
 {
   /*< private >*/
   GObjectClass parent_class;
+
+  gboolean (* allocate) (CoglFramebuffer  *framebuffer,
+                         GError          **error);
+  gboolean (* is_y_flipped) (CoglFramebuffer *framebuffer);
 };
 
 /**

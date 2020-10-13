@@ -939,6 +939,52 @@ cogl_offscreen_get_texture (CoglOffscreen *offscreen)
   return offscreen->texture;
 }
 
+static gboolean
+cogl_offscreen_allocate (CoglFramebuffer  *framebuffer,
+                         GError          **error)
+{
+  CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+
+  if (!cogl_texture_allocate (offscreen->texture, error))
+    return FALSE;
+
+  /* NB: it's only after allocating the texture that we will
+   * determine whether a texture needs slicing... */
+  if (cogl_texture_is_sliced (offscreen->texture))
+    {
+      g_set_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED,
+                   "Can't create offscreen framebuffer from "
+                   "sliced texture");
+      return FALSE;
+    }
+
+  /* Now that the texture has been allocated we can determine a
+   * size for the framebuffer... */
+  priv->width = cogl_texture_get_width (offscreen->texture);
+  priv->height = cogl_texture_get_height (offscreen->texture);
+  priv->viewport_width = priv->width;
+  priv->viewport_height = priv->height;
+
+  /* Forward the texture format as the internal format of the
+   * framebuffer */
+  priv->internal_format =
+    _cogl_texture_get_format (offscreen->texture);
+
+  if (!ctx->driver_vtable->offscreen_allocate (offscreen, error))
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
+cogl_offscreen_is_y_flipped (CoglFramebuffer *framebuffer)
+{
+  return TRUE;
+}
+
 static void
 cogl_offscreen_dispose (GObject *object)
 {
@@ -966,8 +1012,12 @@ static void
 cogl_offscreen_class_init (CoglOffscreenClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
 
   object_class->dispose = cogl_offscreen_dispose;
+
+  framebuffer_class->allocate = cogl_offscreen_allocate;
+  framebuffer_class->is_y_flipped = cogl_offscreen_is_y_flipped;
 }
 
 gboolean
@@ -985,58 +1035,12 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
-  CoglContext *ctx = priv->context;
 
   if (priv->allocated)
     return TRUE;
 
-  if (COGL_IS_ONSCREEN (framebuffer))
-    {
-      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-
-      if (!winsys->onscreen_init (onscreen, error))
-        return FALSE;
-
-      /* If the winsys doesn't support dirty events then we'll report
-       * one on allocation so that if the application only paints in
-       * response to dirty events then it will at least paint once to
-       * start */
-      if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
-        _cogl_onscreen_queue_full_dirty (onscreen);
-    }
-  else
-    {
-      CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
-
-      if (!cogl_texture_allocate (offscreen->texture, error))
-        return FALSE;
-
-      /* NB: it's only after allocating the texture that we will
-       * determine whether a texture needs slicing... */
-      if (cogl_texture_is_sliced (offscreen->texture))
-        {
-          g_set_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED,
-                       "Can't create offscreen framebuffer from "
-                       "sliced texture");
-          return FALSE;
-        }
-
-      /* Now that the texture has been allocated we can determine a
-       * size for the framebuffer... */
-      priv->width = cogl_texture_get_width (offscreen->texture);
-      priv->height = cogl_texture_get_height (offscreen->texture);
-      priv->viewport_width = priv->width;
-      priv->viewport_height = priv->height;
-
-      /* Forward the texture format as the internal format of the
-       * framebuffer */
-      priv->internal_format =
-        _cogl_texture_get_format (offscreen->texture);
-
-      if (!ctx->driver_vtable->offscreen_allocate (offscreen, error))
-        return FALSE;
-    }
+  if (!COGL_FRAMEBUFFER_GET_CLASS (framebuffer)->allocate (framebuffer, error))
+    return FALSE;
 
   priv->allocated = TRUE;
 
@@ -1669,6 +1673,12 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
   return ret;
 }
 
+static gboolean
+cogl_framebuffer_is_y_flipped (CoglFramebuffer *framebuffer)
+{
+  return COGL_FRAMEBUFFER_GET_CLASS (framebuffer)->is_y_flipped (framebuffer);
+}
+
 gboolean
 cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
                        CoglFramebuffer *dst,
@@ -1733,7 +1743,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
   /* Offscreens we do the normal way, onscreens need an y-flip. Even if
    * we consider offscreens to be rendered upside-down, the offscreen
    * orientation is in this function's API. */
-  if (COGL_IS_OFFSCREEN (framebuffer))
+  if (cogl_framebuffer_is_y_flipped (framebuffer))
     {
       src_x1 = src_x;
       src_y1 = src_y;
@@ -1748,7 +1758,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
       src_y2 = src_y1 - height;
     }
 
-  if (COGL_IS_OFFSCREEN (dst))
+  if (cogl_framebuffer_is_y_flipped (dst))
     {
       dst_x1 = dst_x;
       dst_y1 = dst_y;

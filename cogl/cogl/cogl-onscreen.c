@@ -107,6 +107,33 @@ cogl_onscreen_new (CoglContext *ctx, int width, int height)
   return onscreen;
 }
 
+static gboolean
+cogl_onscreen_allocate (CoglFramebuffer  *framebuffer,
+                        GError          **error)
+{
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+
+  if (!winsys->onscreen_init (onscreen, error))
+    return FALSE;
+
+  /* If the winsys doesn't support dirty events then we'll report
+   * one on allocation so that if the application only paints in
+   * response to dirty events then it will at least paint once to
+   * start */
+  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
+    _cogl_onscreen_queue_full_dirty (onscreen);
+
+  return TRUE;
+}
+
+static gboolean
+cogl_onscreen_is_y_flipped (CoglFramebuffer *framebuffer)
+{
+  return FALSE;
+}
+
 static void
 cogl_onscreen_dispose (GObject *object)
 {
@@ -139,8 +166,12 @@ static void
 cogl_onscreen_class_init (CoglOnscreenClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
 
   object_class->dispose = cogl_onscreen_dispose;
+
+  framebuffer_class->allocate = cogl_onscreen_allocate;
+  framebuffer_class->is_y_flipped = cogl_onscreen_is_y_flipped;
 }
 
 static void
