@@ -80,7 +80,7 @@
 
 struct _ClutterOffscreenEffectPrivate
 {
-  CoglHandle offscreen;
+  CoglOffscreen *offscreen;
   CoglPipeline *pipeline;
   CoglHandle texture;
 
@@ -260,6 +260,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
+  CoglFramebuffer *offscreen;
   ClutterActorBox raw_box, box;
   ClutterActor *stage;
   graphene_matrix_t projection, modelview;
@@ -321,7 +322,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   if (!update_fbo (effect, target_width, target_height, resource_scale))
     goto disable_effect;
 
-  clutter_paint_context_push_framebuffer (paint_context, priv->offscreen);
+  offscreen = COGL_FRAMEBUFFER (priv->offscreen);
+  clutter_paint_context_push_framebuffer (paint_context, offscreen);
 
   /* We don't want the FBO contents to be transformed. That could waste memory
    * (e.g. during zoom), or result in something that's not rectangular (clipped
@@ -331,30 +333,30 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
    * contents on screen...
    */
   clutter_actor_get_transform (priv->stage, &modelview);
-  cogl_framebuffer_set_modelview_matrix (priv->offscreen, &modelview);
+  cogl_framebuffer_set_modelview_matrix (offscreen, &modelview);
 
   /* Set up the viewport so that it has the same size as the stage (avoid
    * distortion), but translated to account for the FBO offset...
    */
-  cogl_framebuffer_set_viewport (priv->offscreen,
+  cogl_framebuffer_set_viewport (offscreen,
                                  -priv->fbo_offset_x,
                                  -priv->fbo_offset_y,
                                  stage_width,
                                  stage_height);
 
-  /* Copy the stage's projection matrix across to the framebuffer */
+  /* Copy the stage's projection matrix across to the offscreen */
   _clutter_stage_get_projection_matrix (CLUTTER_STAGE (priv->stage),
                                         &projection);
 
-  cogl_framebuffer_set_projection_matrix (priv->offscreen, &projection);
+  cogl_framebuffer_set_projection_matrix (offscreen, &projection);
 
   cogl_color_init_from_4ub (&transparent, 0, 0, 0, 0);
-  cogl_framebuffer_clear (priv->offscreen,
+  cogl_framebuffer_clear (offscreen,
                           COGL_BUFFER_BIT_COLOR |
                           COGL_BUFFER_BIT_DEPTH,
                           &transparent);
 
-  cogl_framebuffer_push_matrix (priv->offscreen);
+  cogl_framebuffer_push_matrix (offscreen);
 
   /* Override the actor's opacity to fully opaque - we paint the offscreen
    * texture with the actor's paint opacity, so we need to do this to avoid
