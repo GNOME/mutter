@@ -78,6 +78,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_WAYLAND: Wayland
  * @META_DEBUG_KMS: kernel mode setting
  * @META_DEBUG_SCREEN_CAST: screencasting
+ * @META_DEBUG_REMOTE_DESKTOP: remote desktop
  */
 typedef enum
 {
@@ -105,6 +106,7 @@ typedef enum
   META_DEBUG_WAYLAND         = 1 << 20,
   META_DEBUG_KMS             = 1 << 21,
   META_DEBUG_SCREEN_CAST     = 1 << 22,
+  META_DEBUG_REMOTE_DESKTOP  = 1 << 23,
 } MetaDebugTopic;
 
 /**

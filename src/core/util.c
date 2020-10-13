@@ -280,6 +280,8 @@ topic_name (MetaDebugTopic topic)
       return "KMS";
     case META_DEBUG_SCREEN_CAST:
       return "SCREEN_CAST";
+    case META_DEBUG_REMOTE_DESKTOP:
+      return "REMOTE_DESKTOP";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
     case META_DEBUG_WAYLAND:

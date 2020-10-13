@@ -122,6 +122,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "wayland", META_DEBUG_WAYLAND },
   { "kms", META_DEBUG_KMS },
   { "screen-cast", META_DEBUG_SCREEN_CAST },
+  { "remote-desktop", META_DEBUG_REMOTE_DESKTOP },
 };
 
 /*
