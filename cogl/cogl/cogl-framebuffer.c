@@ -829,23 +829,6 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
   return ret;
 }
 
-/* XXX: deprecated api */
-CoglOffscreen *
-cogl_offscreen_new_to_texture (CoglTexture *texture)
-{
-  CoglOffscreen *ret = _cogl_offscreen_new_with_texture_full (texture, 0, 0);
-  GError *error = NULL;
-
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (ret), &error))
-    {
-      cogl_object_unref (ret);
-      g_error_free (error);
-      ret = NULL;
-    }
-
-  return ret;
-}
-
 CoglOffscreen *
 cogl_offscreen_new_with_texture (CoglTexture *texture)
 {

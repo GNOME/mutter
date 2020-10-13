@@ -100,30 +100,6 @@ COGL_EXPORT CoglOffscreen *
 cogl_offscreen_new_with_texture (CoglTexture *texture);
 
 /**
- * cogl_offscreen_new_to_texture:
- * @texture: A #CoglTexture pointer
- *
- * This creates an offscreen buffer object using the given @texture as the
- * primary color buffer. It doesn't just initialize the contents of the
- * offscreen buffer with the @texture; they are tightly bound so that
- * drawing to the offscreen buffer effectivly updates the contents of the
- * given texture. You don't need to destroy the offscreen buffer before
- * you can use the @texture again.
- *
- * <note>This only works with low-level #CoglTexture types such as
- * #CoglTexture2D and not with meta-texture types such as
- * #CoglTexture2DSliced.</note>
- *
- * Return value: (transfer full): a newly instantiated #CoglOffscreen
- *   framebuffer or %NULL if it wasn't possible to create the
- *   buffer.
- * Deprecated: 1.16: Use cogl_offscreen_new_with_texture instead.
- */
-COGL_DEPRECATED_FOR (cogl_offscreen_new_with_texture)
-COGL_EXPORT CoglOffscreen *
-cogl_offscreen_new_to_texture (CoglTexture *texture);
-
-/**
  * cogl_is_offscreen:
  * @object: A pointer to a #CoglObject
  *
