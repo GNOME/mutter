@@ -40,6 +40,9 @@ G_DECLARE_FINAL_TYPE (ClutterFrameClock, clutter_frame_clock,
                       CLUTTER, FRAME_CLOCK,
                       GObject)
 
+/**
+ * ClutterFrameListenerIface: (skip)
+ */
 typedef struct _ClutterFrameListenerIface
 {
   void (* before_frame) (ClutterFrameClock *frame_clock,
