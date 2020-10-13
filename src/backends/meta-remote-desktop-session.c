@@ -66,6 +66,8 @@ struct _MetaRemoteDesktopSession
   ClutterVirtualInputDevice *virtual_touchscreen;
 
   MetaRemoteDesktopSessionHandle *handle;
+
+  gboolean is_clipboard_enabled;
 };
 
 static void
@@ -791,6 +793,164 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
+static gboolean
+handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
+                         GDBusMethodInvocation        *invocation,
+                         GVariant                     *arg_options)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Enable clipboard for %s",
+              g_dbus_method_invocation_get_sender (invocation));
+
+  if (session->is_clipboard_enabled)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Already enabled");
+      return TRUE;
+    }
+
+  session->is_clipboard_enabled = TRUE;
+
+  meta_dbus_remote_desktop_session_complete_enable_clipboard (skeleton,
+                                                              invocation);
+
+  return TRUE;
+}
+
+static gboolean
+handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
+                          GDBusMethodInvocation        *invocation)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Disable clipboard for %s",
+              g_dbus_method_invocation_get_sender (invocation));
+
+  if (!session->is_clipboard_enabled)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Was not enabled");
+      return TRUE;
+    }
+
+  meta_dbus_remote_desktop_session_complete_disable_clipboard (skeleton,
+                                                               invocation);
+
+  return TRUE;
+}
+
+static gboolean
+handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
+                      GDBusMethodInvocation        *invocation,
+                      GVariant                     *arg_options)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Set selection for %s",
+              g_dbus_method_invocation_get_sender (invocation));
+
+  if (!session->is_clipboard_enabled)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Clipboard not enabled");
+      return TRUE;
+    }
+
+  meta_dbus_remote_desktop_session_complete_set_selection (skeleton,
+                                                           invocation);
+
+  return TRUE;
+}
+
+static gboolean
+handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
+                        GDBusMethodInvocation        *invocation,
+                        GUnixFDList                  *fd_list,
+                        unsigned int                  serial)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Write selection for %s",
+              g_dbus_method_invocation_get_sender (invocation));
+
+  if (!session->is_clipboard_enabled)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Clipboard not enabled");
+      return TRUE;
+    }
+
+  meta_dbus_remote_desktop_session_complete_selection_write (skeleton,
+                                                             invocation,
+                                                             NULL,
+                                                             NULL);
+
+  return TRUE;
+}
+
+static gboolean
+handle_selection_write_done (MetaDBusRemoteDesktopSession *skeleton,
+                             GDBusMethodInvocation        *invocation,
+                             unsigned int                  arg_serial,
+                             gboolean                      arg_success)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Write selection done for %s",
+              g_dbus_method_invocation_get_sender (invocation));
+
+  if (!session->is_clipboard_enabled)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Clipboard not enabled");
+      return TRUE;
+    }
+
+  meta_dbus_remote_desktop_session_complete_selection_write_done (skeleton,
+                                                                  invocation);
+
+  return TRUE;
+}
+
+static gboolean
+handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
+                       GDBusMethodInvocation        *invocation,
+                       GUnixFDList                  *fd_list,
+                       const char                   *mime_type)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Read selection for %s",
+              g_dbus_method_invocation_get_sender (invocation));
+
+  if (!session->is_clipboard_enabled)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Clipboard not enabled");
+      return TRUE;
+    }
+
+  meta_dbus_remote_desktop_session_complete_selection_read (skeleton,
+                                                            invocation,
+                                                            NULL,
+                                                            NULL);
+
+  return TRUE;
+}
+
 static void
 meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface)
 {
@@ -806,6 +966,12 @@ meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface
   iface->handle_notify_touch_down = handle_notify_touch_down;
   iface->handle_notify_touch_motion = handle_notify_touch_motion;
   iface->handle_notify_touch_up = handle_notify_touch_up;
+  iface->handle_enable_clipboard = handle_enable_clipboard;
+  iface->handle_disable_clipboard = handle_disable_clipboard;
+  iface->handle_set_selection = handle_set_selection;
+  iface->handle_selection_write = handle_selection_write;
+  iface->handle_selection_write_done = handle_selection_write_done;
+  iface->handle_selection_read = handle_selection_read;
 }
 
 static void

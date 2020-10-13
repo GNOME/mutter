@@ -195,6 +195,141 @@
       <arg name="slot" type="u" direction="in" />
     </method>
 
+    <!--
+        EnableClipboard:
+        @options: Options for the clipboard
+
+        Available @options include:
+
+        * "mime-types" (as): List of mime types, for which the clipboard of the
+                             remote desktop client has content.
+                             Each mime-type is in string form, e.g. "image/jpeg",
+                             "text/plain", etc..
+                             If this list is included in @options, then this call
+                             is equivalent to calling 'EnableClipboard' and
+                             'SetSelection' atomically.
+
+        Enables the clipboard for the remote desktop client which will allow it
+        to call the methods 'SetSelection', 'DisableClipboard', 'SelectionWrite',
+        'SelectionWriteDone', 'SelectionRead'.
+        The 'SelectionOwnerChanged' signal will also be emitted when the
+        selection owner changes to inform the API user of new clipboard mime
+        types, and the 'SelectionTransfer' signal will be emitted to request the
+        advertised clipboard content of a mime type.
+    -->
+    <method name="EnableClipboard">
+      <arg name="options" type="a{sv}" direction="in" />
+    </method>
+
+    <!--
+        DisableClipboard:
+
+        Unregisters all clipboard types that were advertised by the
+        remote desktop client.
+        The 'SelectionOwnerChanged' or 'SelectionTransfer' signals will not be
+        emitted any more.
+        Any 'SelectionTransfer' signals that weren't answered yet with a
+        'SelectionWriteDone' call, will be answered with a 'SelectionWriteDone'
+        call where 'success' is 'false'.
+    -->
+    <method name="DisableClipboard" />
+
+    <!--
+        SetSelection:
+        @options: Options for the clipboard selection
+
+        Available @options include:
+
+        * "mime-types" (as): List of mime types, for which the clipboard of the
+                             remote desktop client has content.
+                             Each mime-type is in string form, e.g. "image/jpeg",
+                             "text/plain", etc..
+
+        Sets the owner of the clipboard formats in 'mime-types' in @options to
+        the remote desktop client, i.e. the remote desktop client has data for
+        these advertised clipboard formats.
+    -->
+    <method name="SetSelection">
+      <arg name="options" type="a{sv}" direction="in" />
+    </method>
+
+    <!--
+        SelectionWrite:
+        @serial: The serial of the request where this answer is directed to
+        @fd: The file descriptor where the data will be written to
+
+        Answer to 'SelectionTransfer' signal. Contains the fd where the clipboard
+        content will be written to.
+    -->
+    <method name="SelectionWrite">
+      <arg name="serial" type="u" direction="in" />
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="fd" type="h" direction="out" />
+    </method>
+
+    <!--
+        SelectionWriteDone:
+        @serial: The serial of the request where this answer is directed to
+        @success: A boolean which indicates whether the transfer of the clipboard
+                  data was successful ('true') or not ('false').
+
+        Notifies that the transfer of the clipboard data has either completed
+        successfully, or failed.
+    -->
+    <method name="SelectionWriteDone">
+      <arg name="serial" type="u" direction="in" />
+      <arg name="success" type="b" direction="in" />
+    </method>
+
+    <!--
+        SelectionRead:
+        @mime_type: The mime-type string of the requested format
+        @fd: The file descriptor where the data will be written to
+
+        Transfer the clipboard content given the specified mime type to the
+        method caller via a file descriptor.
+        It is the callee that creates the file descriptor.
+    -->
+    <method name="SelectionRead">
+      <arg name="mime_type" type="s" direction="in" />
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="fd" type="h" direction="out" />
+    </method>
+
+    <!--
+        SelectionOwnerChanged:
+        @options: Options for the clipboard selection
+
+        Available @options include:
+
+        * "mime-types" (as): List of mime types, for which the clipboard of the
+                             remote desktop client has content.
+                             Each mime-type is in string form, e.g. "image/jpeg",
+                             "text/plain", etc..
+        * "session-is-owner" (b): 'true', if the remote desktop clients clipboard
+                                  is already owner of these types, else 'false'.
+
+        Informs the remote desktop client of new clipboard formats that are
+        available.
+    -->
+    <signal name="SelectionOwnerChanged">
+      <arg name="options" type="a{sv}" direction="in" />
+    </signal>
+
+    <!--
+        SelectionTransfer:
+        @mime_type: The mime-type string of the requested format
+        @serial: The serial, that the answer of this particular request, MUST use
+
+        Requests the data for a clipboard format from the remote desktop client.
+        MUST NOT be called when the remote desktop clients clipboard is (already)
+        disabled.
+    -->
+    <signal name="SelectionTransfer">
+      <arg name="mime_type" type="s" direction="in" />
+      <arg name="serial" type="u" direction="in" />
+    </signal>
+
   </interface>
 
 </node>
