@@ -283,15 +283,11 @@ _cogl_framebuffer_free (CoglFramebuffer *framebuffer)
 
   _cogl_fence_cancel_fences_for_framebuffer (framebuffer);
 
-  _cogl_clip_stack_unref (priv->clip_stack);
 
-  cogl_object_unref (priv->modelview_stack);
-  priv->modelview_stack = NULL;
-
-  cogl_object_unref (priv->projection_stack);
-  priv->projection_stack = NULL;
-
-  cogl_object_unref (priv->journal);
+  g_clear_pointer (&priv->clip_stack, _cogl_clip_stack_unref);
+  cogl_clear_object (&priv->modelview_stack);
+  cogl_clear_object (&priv->projection_stack);
+  cogl_clear_object (&priv->journal);
 
   ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
 
