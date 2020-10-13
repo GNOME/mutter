@@ -173,6 +173,8 @@ update_fbo (ClutterEffect *effect,
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
   ClutterActor *stage_actor;
+  CoglOffscreen *offscreen;
+  g_autoptr (GError) error = NULL;
 
   stage_actor = clutter_actor_get_stage (priv->actor);
   if (stage_actor != priv->stage)
@@ -231,11 +233,13 @@ update_fbo (ClutterEffect *effect,
   priv->target_width = target_width;
   priv->target_height = target_height;
 
-  priv->offscreen = cogl_offscreen_new_to_texture (priv->texture);
-  if (priv->offscreen == NULL)
+  offscreen = cogl_offscreen_new_with_texture (priv->texture);
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
     {
-      g_warning ("%s: Unable to create an Offscreen buffer", G_STRLOC);
+      g_warning ("Failed to create offscreen effect framebuffer: %s",
+                 error->message);
 
+      cogl_object_unref (offscreen);
       cogl_object_unref (priv->pipeline);
       priv->pipeline = NULL;
 
@@ -244,6 +248,8 @@ update_fbo (ClutterEffect *effect,
 
       return FALSE;
     }
+
+  priv->offscreen = offscreen;
 
   return TRUE;
 }
