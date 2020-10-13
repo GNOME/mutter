@@ -268,6 +268,12 @@ gboolean        _clutter_run_progress_function  (GType gtype,
 
 void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
 
+static inline void
+clutter_round_to_256ths (float *f)
+{
+  *f = roundf ((*f) * 256) / 256;
+}
+
 static inline int64_t
 us (int64_t us)
 {
