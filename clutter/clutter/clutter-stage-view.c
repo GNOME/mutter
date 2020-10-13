@@ -321,7 +321,7 @@ init_dma_buf_shadowfbs (ClutterStageView  *view,
       return FALSE;
     }
 
-  if (!cogl_is_onscreen (priv->framebuffer))
+  if (!COGL_IS_ONSCREEN (priv->framebuffer))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                    "Tried to use shadow buffer without onscreen");
@@ -348,7 +348,7 @@ init_dma_buf_shadowfbs (ClutterStageView  *view,
 
   initial_shadowfb =
     cogl_dma_buf_handle_get_framebuffer (priv->shadow.dma_buf.handles[0]);
-  priv->shadow.framebuffer = cogl_object_ref (initial_shadowfb);
+  priv->shadow.framebuffer = COGL_OFFSCREEN (g_object_ref (initial_shadowfb));
 
   return TRUE;
 }
@@ -376,7 +376,7 @@ create_offscreen_framebuffer (CoglContext  *context,
   cogl_object_unref (texture);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (framebuffer), error))
     {
-      cogl_object_unref (framebuffer);
+      g_object_unref (framebuffer);
       return FALSE;
     }
 
@@ -631,8 +631,8 @@ swap_dma_buf_framebuffer (ClutterStageView *view)
   next_dma_buf_handle = priv->shadow.dma_buf.handles[next_idx];
   next_framebuffer =
     cogl_dma_buf_handle_get_framebuffer (next_dma_buf_handle);
-  cogl_clear_object (&priv->shadow.framebuffer);
-  priv->shadow.framebuffer = cogl_object_ref (next_framebuffer);
+  g_clear_object (&priv->shadow.framebuffer);
+  priv->shadow.framebuffer = COGL_OFFSCREEN (g_object_ref (next_framebuffer));
 }
 
 static void
@@ -1165,7 +1165,7 @@ clutter_stage_view_set_framebuffer (ClutterStageView *view,
   g_warn_if_fail (!priv->framebuffer);
   if (framebuffer)
     {
-      priv->framebuffer = cogl_object_ref (framebuffer);
+      priv->framebuffer = g_object_ref (framebuffer);
       sanity_check_framebuffer (view);
     }
 }
@@ -1192,10 +1192,10 @@ clutter_stage_view_get_property (GObject    *object,
       g_value_set_boxed (value, &priv->layout);
       break;
     case PROP_FRAMEBUFFER:
-      g_value_set_boxed (value, priv->framebuffer);
+      g_value_set_object (value, priv->framebuffer);
       break;
     case PROP_OFFSCREEN:
-      g_value_set_boxed (value, priv->offscreen);
+      g_value_set_object (value, priv->offscreen);
       break;
     case PROP_USE_SHADOWFB:
       g_value_set_boolean (value, priv->use_shadowfb);
@@ -1235,10 +1235,10 @@ clutter_stage_view_set_property (GObject      *object,
       priv->layout = *layout;
       break;
     case PROP_FRAMEBUFFER:
-      clutter_stage_view_set_framebuffer (view, g_value_get_boxed (value));
+      clutter_stage_view_set_framebuffer (view, g_value_get_object (value));
       break;
     case PROP_OFFSCREEN:
-      priv->offscreen = g_value_dup_boxed (value);
+      priv->offscreen = g_value_dup_object (value);
       break;
     case PROP_USE_SHADOWFB:
       priv->use_shadowfb = g_value_get_boolean (value);
@@ -1281,7 +1281,7 @@ clutter_stage_view_dispose (GObject *object)
 
   g_clear_pointer (&priv->name, g_free);
 
-  g_clear_pointer (&priv->shadow.framebuffer, cogl_object_unref);
+  g_clear_object (&priv->shadow.framebuffer);
   for (i = 0; i < G_N_ELEMENTS (priv->shadow.dma_buf.handles); i++)
     {
       g_clear_pointer (&priv->shadow.dma_buf.handles[i],
@@ -1290,7 +1290,7 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_pointer (&priv->shadow.dma_buf.damage_history,
                    clutter_damage_history_free);
 
-  g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_object (&priv->offscreen);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
@@ -1305,7 +1305,7 @@ clutter_stage_view_finalize (GObject *object)
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  g_clear_pointer (&priv->framebuffer, cogl_object_unref);
+  g_clear_object (&priv->framebuffer);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
 }
@@ -1364,22 +1364,22 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_FRAMEBUFFER] =
-    g_param_spec_boxed ("framebuffer",
-                        "View framebuffer",
-                        "The front buffer of the view",
-                        COGL_TYPE_HANDLE,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT |
-                        G_PARAM_STATIC_STRINGS);
+    g_param_spec_object ("framebuffer",
+                         "View framebuffer",
+                         "The front buffer of the view",
+                         COGL_TYPE_FRAMEBUFFER,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT |
+                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_OFFSCREEN] =
-    g_param_spec_boxed ("offscreen",
-                        "Offscreen buffer",
-                        "Framebuffer used as intermediate buffer",
-                        COGL_TYPE_HANDLE,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY |
-                        G_PARAM_STATIC_STRINGS);
+    g_param_spec_object ("offscreen",
+                         "Offscreen buffer",
+                         "Framebuffer used as intermediate buffer",
+                         COGL_TYPE_OFFSCREEN,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_USE_SHADOWFB] =
     g_param_spec_boolean ("use-shadowfb",

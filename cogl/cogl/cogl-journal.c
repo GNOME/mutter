@@ -1272,7 +1272,7 @@ _cogl_journal_discard (CoglJournal *journal)
 
   /* The journal only holds a reference to the framebuffer while the
      journal is not empty */
-  cogl_object_unref (journal->framebuffer);
+  g_object_unref (journal->framebuffer);
 }
 
 /* Note: A return value of FALSE doesn't mean 'no' it means
@@ -1533,7 +1533,7 @@ _cogl_journal_log_quad (CoglJournal  *journal,
      reference to the current framebuffer. This reference will be
      removed when the journal is flushed */
   if (journal->vertices->len == 0)
-    cogl_object_ref (framebuffer);
+    g_object_ref (framebuffer);
 
   /* The vertex data is logged into a separate array. The data needs
      to be copied into a vertex array before it's given to GL so we

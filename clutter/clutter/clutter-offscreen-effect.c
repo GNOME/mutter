@@ -118,7 +118,7 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
   meta_class->set_actor (meta, actor);
 
   /* clear out the previous state */
-  g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_object (&priv->offscreen);
 
   /* we keep a back pointer here, to avoid going through the ActorMeta */
   priv->actor = clutter_actor_meta_get_actor (meta);
@@ -161,7 +161,7 @@ ensure_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
 static void
 video_memory_purged (ClutterOffscreenEffect *self)
 {
-  g_clear_pointer (&self->priv->offscreen, cogl_object_unref);
+  g_clear_object (&self->priv->offscreen);
 }
 
 static gboolean
@@ -221,7 +221,7 @@ update_fbo (ClutterEffect *effect,
     }
 
   g_clear_pointer (&priv->texture, cogl_object_unref);
-  g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_object (&priv->offscreen);
 
   priv->texture =
     clutter_offscreen_effect_create_texture (self, target_width, target_height);
@@ -239,7 +239,7 @@ update_fbo (ClutterEffect *effect,
       g_warning ("Failed to create offscreen effect framebuffer: %s",
                  error->message);
 
-      cogl_object_unref (offscreen);
+      g_object_unref (offscreen);
       cogl_object_unref (priv->pipeline);
       priv->pipeline = NULL;
 
@@ -369,7 +369,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   return TRUE;
 
 disable_effect:
-  cogl_clear_object (&priv->offscreen);
+  g_clear_object (&priv->offscreen);
   return FALSE;
 }
 
@@ -476,7 +476,7 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
   if (flags & CLUTTER_EFFECT_PAINT_BYPASS_EFFECT)
     {
       clutter_actor_continue_paint (priv->actor, paint_context);
-      cogl_clear_object (&priv->offscreen);
+      g_clear_object (&priv->offscreen);
       return;
     }
 
@@ -503,7 +503,7 @@ clutter_offscreen_effect_set_enabled (ClutterActorMeta *meta,
   ClutterOffscreenEffect *offscreen_effect = CLUTTER_OFFSCREEN_EFFECT (meta);
   ClutterOffscreenEffectPrivate *priv = offscreen_effect->priv;
 
-  g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_object (&priv->offscreen);
 
   parent_class->set_enabled (meta, is_enabled);
 }
@@ -514,7 +514,7 @@ clutter_offscreen_effect_finalize (GObject *gobject)
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (gobject);
   ClutterOffscreenEffectPrivate *priv = self->priv;
 
-  g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_object (&priv->offscreen);
   g_clear_pointer (&priv->texture, cogl_object_unref);
   g_clear_pointer (&priv->pipeline, cogl_object_unref);
 

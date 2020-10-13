@@ -35,19 +35,6 @@
 #ifndef __COGL_FRAMEBUFFER_H
 #define __COGL_FRAMEBUFFER_H
 
-/* We forward declare the CoglFramebuffer type here to avoid some circular
- * dependency issues with the following headers.
- */
-#if defined(__COGL_H_INSIDE__) && !defined(COGL_ENABLE_MUTTER_API) && \
-  !defined(COGL_GIR_SCANNING)
-/* For the public C api we typedef interface types as void to avoid needing
- * lots of casting in code and instead we will rely on runtime type checking
- * for these objects. */
-typedef void CoglFramebuffer;
-#else
-typedef struct _CoglFramebuffer CoglFramebuffer;
-#define COGL_FRAMEBUFFER(X) ((CoglFramebuffer *)(X))
-#endif
 
 #include <cogl/cogl-pipeline.h>
 #include <cogl/cogl-indices.h>
@@ -98,13 +85,16 @@ G_BEGIN_DECLS
  * configuration.
  */
 
-/**
- * cogl_framebuffer_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
+#define COGL_TYPE_FRAMEBUFFER (cogl_framebuffer_get_type ())
 COGL_EXPORT
-GType cogl_framebuffer_get_gtype (void);
+G_DECLARE_DERIVABLE_TYPE (CoglFramebuffer, cogl_framebuffer,
+                          COGL, FRAMEBUFFER, GObject)
+
+struct _CoglFramebufferClass
+{
+  /*< private >*/
+  GObjectClass parent_class;
+};
 
 /**
  * cogl_framebuffer_allocate:

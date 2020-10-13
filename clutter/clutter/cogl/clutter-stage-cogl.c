@@ -257,7 +257,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
 
   clutter_stage_view_before_swap_buffer (view, swap_region);
 
-  if (cogl_is_onscreen (framebuffer))
+  if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       int *damage, n_rects, i;
@@ -481,10 +481,10 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
   fb_height = cogl_framebuffer_get_height (fb);
 
   can_blit_sub_buffer =
-    cogl_is_onscreen (onscreen) &&
+    COGL_IS_ONSCREEN (onscreen) &&
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION);
 
-  has_buffer_age = cogl_is_onscreen (onscreen) && is_buffer_age_enabled ();
+  has_buffer_age = COGL_IS_ONSCREEN (onscreen) && is_buffer_age_enabled ();
 
   redraw_clip = clutter_stage_view_take_redraw_clip (view);
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
@@ -661,7 +661,7 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
 
-  g_assert (cogl_is_onscreen (framebuffer));
+  g_assert (COGL_IS_ONSCREEN (framebuffer));
 
   onscreen = COGL_ONSCREEN (framebuffer);
 
@@ -807,7 +807,7 @@ clutter_stage_view_cogl_constructed (GObject *object)
   CoglFramebuffer *framebuffer;
 
   framebuffer = clutter_stage_view_get_onscreen (view);
-  if (framebuffer && cogl_is_onscreen (framebuffer))
+  if (framebuffer && COGL_IS_ONSCREEN (framebuffer))
     {
       view_priv->frame_cb_closure =
         cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),

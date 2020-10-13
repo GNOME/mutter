@@ -178,7 +178,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
       CoglFramebuffer *framebuffer = l->data;
       CoglOnscreenXlib *xlib_onscreen;
 
-      if (!cogl_is_onscreen (framebuffer))
+      if (!COGL_IS_ONSCREEN (framebuffer))
         continue;
 
       /* Does the GLXEvent have the GLXDrawable or the X Window? */
@@ -331,7 +331,7 @@ flush_pending_notifications_cb (void *data,
 {
   CoglFramebuffer *framebuffer = data;
 
-  if (cogl_is_onscreen (framebuffer))
+  if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
@@ -633,7 +633,7 @@ update_all_outputs (CoglRenderer *renderer)
     {
       CoglFramebuffer *framebuffer = l->data;
 
-      if (!cogl_is_onscreen (framebuffer))
+      if (!COGL_IS_ONSCREEN (framebuffer))
         continue;
 
       update_output (COGL_ONSCREEN (framebuffer));

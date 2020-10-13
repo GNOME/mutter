@@ -130,7 +130,7 @@ clutter_root_node_finalize (ClutterPaintNode *node)
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
-  cogl_object_unref (rnode->framebuffer);
+  g_object_unref (rnode->framebuffer);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_root_node_parent_class)->finalize (node);
 }
@@ -177,7 +177,7 @@ clutter_root_node_new (CoglFramebuffer    *framebuffer,
                             clear_color->alpha);
   cogl_color_premultiply (&res->clear_color);
 
-  res->framebuffer = cogl_object_ref (framebuffer);
+  res->framebuffer = g_object_ref (framebuffer);
   res->clear_flags = clear_flags;
 
   return (ClutterPaintNode *) res;
@@ -326,7 +326,7 @@ clutter_dummy_node_finalize (ClutterPaintNode *node)
 {
   ClutterDummyNode *dnode = (ClutterDummyNode *) node;
 
-  cogl_clear_object (&dnode->framebuffer);
+  g_clear_object (&dnode->framebuffer);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_dummy_node_parent_class)->finalize (node);
 }
@@ -358,7 +358,7 @@ _clutter_dummy_node_new (ClutterActor    *actor,
 
   dnode = (ClutterDummyNode *) res;
   dnode->actor = actor;
-  dnode->framebuffer = cogl_object_ref (framebuffer);
+  dnode->framebuffer = g_object_ref (framebuffer);
 
   return res;
 }
@@ -1361,8 +1361,7 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
   if (lnode->pipeline != NULL)
     cogl_object_unref (lnode->pipeline);
 
-  if (lnode->offscreen != NULL)
-    cogl_object_unref (lnode->offscreen);
+  g_clear_object (&lnode->offscreen);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_layer_node_parent_class)->finalize (node);
 }
@@ -1440,7 +1439,7 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
     {
       g_warning ("Unable to create an allocate paint node offscreen: %s",
                  error->message);
-      cogl_object_unref (offscreen);
+      g_object_unref (offscreen);
       goto out;
     }
 

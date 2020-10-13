@@ -50,19 +50,13 @@ G_BEGIN_DECLS
  * Cogl allows creating and operating on offscreen framebuffers.
  */
 
-typedef struct _CoglOffscreen CoglOffscreen;
-
-#define COGL_OFFSCREEN(X) ((CoglOffscreen *)X)
-
-/**
- * cogl_offscreen_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
-COGL_EXPORT
-GType cogl_offscreen_get_gtype (void);
-
 /* Offscreen api */
+
+#define COGL_TYPE_OFFSCREEN (cogl_offscreen_get_type ())
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglOffscreen, cogl_offscreen,
+                      COGL, OFFSCREEN,
+                      CoglFramebuffer)
 
 /**
  * cogl_offscreen_new_with_texture:
@@ -98,19 +92,6 @@ GType cogl_offscreen_get_gtype (void);
  */
 COGL_EXPORT CoglOffscreen *
 cogl_offscreen_new_with_texture (CoglTexture *texture);
-
-/**
- * cogl_is_offscreen:
- * @object: A pointer to a #CoglObject
- *
- * Determines whether the given #CoglObject references an offscreen
- * framebuffer object.
- *
- * Returns: %TRUE if @object is a #CoglOffscreen framebuffer,
- *          %FALSE otherwise
- */
-COGL_EXPORT gboolean
-cogl_is_offscreen (void *object);
 
 /**
  * cogl_offscreen_get_texture: (skip)

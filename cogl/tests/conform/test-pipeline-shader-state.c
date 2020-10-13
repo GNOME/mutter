@@ -25,9 +25,9 @@ test_pipeline_shader_state (void)
 
   tex = cogl_texture_2d_new_with_size (test_ctx, 128, 128);
   offscreen = cogl_offscreen_new_with_texture (tex);
-  fb = offscreen;
+  fb = COGL_FRAMEBUFFER (offscreen);
   cogl_framebuffer_clear4f (fb, COGL_BUFFER_BIT_COLOR, 0, 0, 0, 1);
-  cogl_object_unref (offscreen);
+  g_object_unref (offscreen);
 
   cogl_framebuffer_clear4f (test_fb, COGL_BUFFER_BIT_COLOR, 1, 1, 0, 1);
 

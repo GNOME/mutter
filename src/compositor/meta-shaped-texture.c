@@ -1402,7 +1402,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   if (!cogl_framebuffer_allocate (fb, &error))
     {
       g_error_free (error);
-      cogl_object_unref (fb);
+      g_object_unref (fb);
       return FALSE;
     }
 
@@ -1445,7 +1445,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
                                 clip->width, clip->height,
                                 CLUTTER_CAIRO_FORMAT_ARGB32,
                                 cairo_image_surface_get_data (surface));
-  cogl_object_unref (fb);
+  g_object_unref (fb);
 
   cairo_surface_mark_dirty (surface);
 

@@ -38,7 +38,7 @@ clutter_pick_context_new_for_view (ClutterStageView *view)
   pick_context = g_new0 (ClutterPickContext, 1);
   g_ref_count_init (&pick_context->ref_count);
   pick_context->framebuffer =
-    cogl_object_ref (clutter_stage_view_get_framebuffer (view));
+    g_object_ref (clutter_stage_view_get_framebuffer (view));
 
   return pick_context;
 }
@@ -53,7 +53,7 @@ clutter_pick_context_ref (ClutterPickContext *pick_context)
 static void
 clutter_pick_context_dispose (ClutterPickContext *pick_context)
 {
-  g_clear_pointer (&pick_context->framebuffer, cogl_object_unref);
+  g_clear_object (&pick_context->framebuffer);
 }
 
 void

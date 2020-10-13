@@ -53,7 +53,27 @@
 #include "cogl-gtype-private.h"
 #include "winsys/cogl-winsys-private.h"
 
-extern CoglObjectClass _cogl_onscreen_class;
+enum
+{
+  PROP_0,
+
+  PROP_CONTEXT,
+  PROP_WIDTH,
+  PROP_HEIGHT,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
+enum
+{
+  DESTROY,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
 
 #ifdef COGL_ENABLE_DEBUG
 static CoglUserDataKey wire_pipeline_key;
@@ -62,7 +82,6 @@ static CoglUserDataKey wire_pipeline_key;
 typedef struct _CoglFramebufferPrivate
 {
   CoglContext *context;
-  CoglFramebufferType type;
 
   /* The user configuration before allocation... */
   CoglFramebufferConfig config;
@@ -125,26 +144,11 @@ typedef struct _CoglFramebufferPrivate
   GDestroyNotify driver_private_destroy;
 } CoglFramebufferPrivate;
 
-static void _cogl_offscreen_free (CoglOffscreen *offscreen);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglFramebuffer, cogl_framebuffer,
+                                     G_TYPE_OBJECT)
 
-COGL_OBJECT_DEFINE_WITH_CODE_GTYPE (Offscreen, offscreen,
-                                    _cogl_offscreen_class.virt_unref =
-                                    _cogl_framebuffer_unref);
-COGL_GTYPE_DEFINE_CLASS (Offscreen, offscreen,
-                         COGL_GTYPE_IMPLEMENT_INTERFACE (framebuffer));
-COGL_GTYPE_DEFINE_INTERFACE (Framebuffer, framebuffer);
-
-/* XXX:
- * The CoglObject macros don't support any form of inheritance, so for
- * now we implement the CoglObject support for the CoglFramebuffer
- * abstract class manually.
- */
-
-static CoglFramebufferPrivate *
-cogl_framebuffer_get_instance_private (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->priv;
-}
+G_DEFINE_TYPE (CoglOffscreen, cogl_offscreen,
+               COGL_TYPE_FRAMEBUFFER)
 
 uint32_t
 cogl_framebuffer_error_quark (void)
@@ -155,43 +159,83 @@ cogl_framebuffer_error_quark (void)
 gboolean
 cogl_is_framebuffer (void *object)
 {
-  CoglObject *obj = object;
-
-  if (obj == NULL)
-    return FALSE;
-
-  return (obj->klass == &_cogl_onscreen_class ||
-          obj->klass == &_cogl_offscreen_class);
+  return COGL_IS_FRAMEBUFFER (object);
 }
 
-void
-_cogl_framebuffer_init (CoglFramebuffer *framebuffer,
-                        CoglContext *ctx,
-                        CoglFramebufferType type,
-                        int width,
-                        int height)
+static void
+cogl_framebuffer_get_property (GObject    *object,
+                               guint       prop_id,
+                               GValue     *value,
+                               GParamSpec *pspec)
 {
-  CoglFramebufferPrivate *priv;
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
 
-  framebuffer->priv = priv = g_new0 (CoglFramebufferPrivate, 1);
-  priv->context = ctx;
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      g_value_set_boxed (value, priv->context);
+      break;
+    case PROP_WIDTH:
+      g_value_set_int (value, priv->width);
+      break;
+    case PROP_HEIGHT:
+      g_value_set_int (value, priv->height);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
 
-  priv->type = type;
-  priv->width = width;
-  priv->height = height;
+static void
+cogl_framebuffer_set_property (GObject      *object,
+                               guint         prop_id,
+                               const GValue *value,
+                               GParamSpec   *pspec)
+{
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      priv->context = g_value_get_boxed (value);
+      break;
+    case PROP_WIDTH:
+      priv->width = g_value_get_int (value);
+      break;
+    case PROP_HEIGHT:
+      priv->height = g_value_get_int (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+cogl_framebuffer_constructed (GObject *object)
+{
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+
+  g_assert (priv->context);
+
   priv->internal_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
   priv->viewport_x = 0;
   priv->viewport_y = 0;
-  priv->viewport_width = width;
-  priv->viewport_height = height;
+  priv->viewport_width = priv->width;
+  priv->viewport_height = priv->height;
   priv->viewport_age = 0;
   priv->viewport_age_for_scissor_workaround = -1;
   priv->dither_enabled = TRUE;
   priv->depth_writing_enabled = TRUE;
   priv->depth_buffer_clear_needed = TRUE;
 
-  priv->modelview_stack = cogl_matrix_stack_new (ctx);
-  priv->projection_stack = cogl_matrix_stack_new (ctx);
+  priv->modelview_stack = cogl_matrix_stack_new (priv->context);
+  priv->projection_stack = cogl_matrix_stack_new (priv->context);
 
   priv->samples_per_pixel = 0;
 
@@ -232,7 +276,8 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
    * we don't have to worry about retaining references to OpenGL
    * texture coordinates that may later become invalid.
    */
-  ctx->framebuffers = g_list_prepend (ctx->framebuffers, framebuffer);
+  priv->context->framebuffers = g_list_prepend (priv->context->framebuffers,
+                                                framebuffer);
 }
 
 void
@@ -274,15 +319,20 @@ cogl_framebuffer_init_config (CoglFramebuffer             *framebuffer,
   cogl_object_ref (priv->config.swap_chain);
 }
 
-void
-_cogl_framebuffer_free (CoglFramebuffer *framebuffer)
+static void
+cogl_framebuffer_dispose (GObject *object)
 {
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
   CoglContext *ctx = priv->context;
 
-  _cogl_fence_cancel_fences_for_framebuffer (framebuffer);
+  if (priv->journal)
+    {
+      g_signal_emit (framebuffer, signals[DESTROY], 0);
 
+      _cogl_fence_cancel_fences_for_framebuffer (framebuffer);
+    }
 
   g_clear_pointer (&priv->clip_stack, _cogl_clip_stack_unref);
   cogl_clear_object (&priv->modelview_stack);
@@ -298,10 +348,65 @@ _cogl_framebuffer_free (CoglFramebuffer *framebuffer)
 
   if (priv->driver_private_destroy)
     priv->driver_private_destroy (priv->driver_private);
-  priv->driver_private_destroy = NULL;
   priv->driver_private = NULL;
+  priv->driver_private_destroy = NULL;
+}
 
-  g_clear_pointer (&framebuffer->priv, g_free);
+static void
+cogl_framebuffer_init (CoglFramebuffer *framebuffer)
+{
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+
+  priv->width = -1;
+  priv->height = -1;
+}
+
+static void
+cogl_framebuffer_class_init (CoglFramebufferClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_framebuffer_dispose;
+  object_class->constructed = cogl_framebuffer_constructed;
+  object_class->get_property = cogl_framebuffer_get_property;
+  object_class->set_property = cogl_framebuffer_set_property;
+
+  obj_props[PROP_CONTEXT] =
+    g_param_spec_boxed ("context",
+                        "context",
+                        "CoglContext",
+                        COGL_TYPE_HANDLE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_WIDTH] =
+    g_param_spec_int ("width",
+                      "width",
+                      "framebuffer width",
+                      -1, INT_MAX, -1,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_HEIGHT] =
+    g_param_spec_int ("height",
+                      "height",
+                      "framebuffer height",
+                      -1, INT_MAX, -1,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT |
+                      G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[DESTROY] =
+    g_signal_new (I_("destroy"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  0);
 }
 
 const CoglWinsysVtable *
@@ -564,7 +669,7 @@ ensure_size_initialized (CoglFramebuffer *framebuffer)
     {
       /* Currently we assume the size is always initialized for
        * onscreen framebuffers. */
-      g_return_if_fail (cogl_is_offscreen (framebuffer));
+      g_return_if_fail (COGL_IS_OFFSCREEN (framebuffer));
 
       /* We also assume the size would have been initialized if the
        * framebuffer were allocated. */
@@ -765,7 +870,7 @@ _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
    * cogl_object_set_user_data or for pipeline children as a way to
    * avoid quite a lot of mid-scene micro allocations here... */
   priv->deps =
-    g_list_prepend (priv->deps, cogl_object_ref (dependency));
+    g_list_prepend (priv->deps, g_object_ref (dependency));
 }
 
 void
@@ -787,7 +892,7 @@ _cogl_framebuffer_flush_dependency_journals (CoglFramebuffer *framebuffer)
   for (l = priv->deps; l; l = l->next)
     _cogl_framebuffer_flush_journal (l->data);
   for (l = priv->deps; l; l = l->next)
-    cogl_object_unref (l->data);
+    g_object_unref (l->data);
   g_list_free (priv->deps);
   priv->deps = NULL;
 }
@@ -800,11 +905,12 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
   CoglContext *ctx = texture->context;
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
-  CoglOffscreen *ret;
 
   g_return_val_if_fail (cogl_is_texture (texture), NULL);
 
-  offscreen = g_new0 (CoglOffscreen, 1);
+  offscreen = g_object_new (COGL_TYPE_OFFSCREEN,
+                            "context", ctx,
+                            NULL);
   offscreen->texture = cogl_object_ref (texture);
   offscreen->texture_level = level;
   offscreen->create_flags = create_flags;
@@ -816,17 +922,9 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
    * texture is being loaded from a file then the file might not
    * have been read yet. */
 
-  _cogl_framebuffer_init (fb,
-                          ctx,
-                          COGL_FRAMEBUFFER_TYPE_OFFSCREEN,
-                          -1, /* unknown width, until allocation */
-                          -1); /* unknown height until allocation */
-
-  ret = _cogl_offscreen_object_new (offscreen);
-
   _cogl_texture_associate_framebuffer (texture, fb);
 
-  return ret;
+  return offscreen;
 }
 
 CoglOffscreen *
@@ -842,25 +940,34 @@ cogl_offscreen_get_texture (CoglOffscreen *offscreen)
 }
 
 static void
-_cogl_offscreen_free (CoglOffscreen *offscreen)
+cogl_offscreen_dispose (GObject *object)
 {
+  CoglOffscreen *offscreen = COGL_OFFSCREEN (object);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
   CoglContext *ctx = priv->context;
 
-  ctx->driver_vtable->offscreen_free (offscreen);
+  if (offscreen->texture)
+    ctx->driver_vtable->offscreen_free (offscreen);
 
-  /* Chain up to parent */
-  _cogl_framebuffer_free (framebuffer);
+  G_OBJECT_CLASS (cogl_offscreen_parent_class)->dispose (object);
 
-  if (offscreen->texture != NULL)
-    cogl_object_unref (offscreen->texture);
+  cogl_clear_object (&offscreen->texture);
+  cogl_clear_object (&offscreen->depth_texture);
+}
 
-  if (offscreen->depth_texture != NULL)
-    cogl_object_unref (offscreen->depth_texture);
+static void
+cogl_offscreen_init (CoglOffscreen *offscreen)
+{
+}
 
-  g_free (offscreen);
+static void
+cogl_offscreen_class_init (CoglOffscreenClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_offscreen_dispose;
 }
 
 gboolean
@@ -878,15 +985,16 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
   CoglContext *ctx = priv->context;
 
   if (priv->allocated)
     return TRUE;
 
-  if (priv->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
+  if (COGL_IS_ONSCREEN (framebuffer))
     {
+      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+
       if (!winsys->onscreen_init (onscreen, error))
         return FALSE;
 
@@ -948,7 +1056,7 @@ _cogl_framebuffer_compare_viewport_state (CoglFramebuffer *a,
       priv_a->viewport_height != priv_b->viewport_height ||
       /* NB: we render upside down to offscreen framebuffers and that
        * can affect how we setup the GL viewport... */
-      priv_a->type != priv_b->type)
+      G_OBJECT_TYPE (a) != G_OBJECT_TYPE (b))
     return COGL_FRAMEBUFFER_STATE_VIEWPORT;
   else
     return 0;
@@ -1002,10 +1110,7 @@ static unsigned long
 _cogl_framebuffer_compare_front_face_winding_state (CoglFramebuffer *a,
                                                     CoglFramebuffer *b)
 {
-  CoglFramebufferPrivate *priv_a = cogl_framebuffer_get_instance_private (a);
-  CoglFramebufferPrivate *priv_b = cogl_framebuffer_get_instance_private (b);
-
-  if (priv_a->type != priv_b->type)
+  if (G_OBJECT_TYPE (a) != G_OBJECT_TYPE (b))
     return COGL_FRAMEBUFFER_STATE_FRONT_FACE_WINDING;
   else
     return 0;
@@ -1628,7 +1733,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
   /* Offscreens we do the normal way, onscreens need an y-flip. Even if
    * we consider offscreens to be rendered upside-down, the offscreen
    * orientation is in this function's API. */
-  if (cogl_is_offscreen (framebuffer))
+  if (COGL_IS_OFFSCREEN (framebuffer))
     {
       src_x1 = src_x;
       src_y1 = src_y;
@@ -1643,7 +1748,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
       src_y2 = src_y1 - height;
     }
 
-  if (cogl_is_offscreen (dst))
+  if (COGL_IS_OFFSCREEN (dst))
     {
       dst_x1 = dst_x;
       dst_y1 = dst_y;

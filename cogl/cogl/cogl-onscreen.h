@@ -47,18 +47,13 @@
 
 G_BEGIN_DECLS
 
-typedef struct _CoglOnscreen CoglOnscreen;
-#define COGL_ONSCREEN(X) ((CoglOnscreen *)(X))
+#define COGL_TYPE_ONSCREEN (cogl_onscreen_get_type ())
+COGL_EXPORT
+G_DECLARE_FINAL_TYPE (CoglOnscreen, cogl_onscreen,
+                      COGL, ONSCREEN,
+                      CoglFramebuffer)
 
 typedef struct _CoglScanout CoglScanout;
-
-/**
- * cogl_onscreen_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
-COGL_EXPORT
-GType cogl_onscreen_get_gtype (void);
 
 /**
  * cogl_onscreen_new: (constructor) (skip)
@@ -749,20 +744,6 @@ cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
 COGL_EXPORT void
 cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
                                      CoglOnscreenDirtyClosure *closure);
-
-/**
- * cogl_is_onscreen:
- * @object: A #CoglObject pointer
- *
- * Gets whether the given object references a #CoglOnscreen.
- *
- * Return value: %TRUE if the object references a #CoglOnscreen
- *   and %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
- */
-COGL_EXPORT gboolean
-cogl_is_onscreen (void *object);
 
 /**
  * cogl_onscreen_get_frame_counter:

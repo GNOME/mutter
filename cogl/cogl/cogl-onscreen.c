@@ -42,13 +42,7 @@
 #include "cogl-poll-private.h"
 #include "cogl-gtype-private.h"
 
-static void _cogl_onscreen_free (CoglOnscreen *onscreen);
-
-COGL_OBJECT_DEFINE_WITH_CODE_GTYPE (Onscreen, onscreen,
-                                    _cogl_onscreen_class.virt_unref =
-                                    _cogl_framebuffer_unref);
-COGL_GTYPE_DEFINE_CLASS (Onscreen, onscreen,
-                         COGL_GTYPE_IMPLEMENT_INTERFACE (framebuffer));
+G_DEFINE_TYPE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
 
 static gpointer
 cogl_dummy_copy (gpointer data)
@@ -102,21 +96,21 @@ cogl_onscreen_new (CoglContext *ctx, int width, int height)
      is not premultiplied in case it is being used for some special
      purpose. */
 
-  onscreen = g_new0 (CoglOnscreen, 1);
-  _cogl_framebuffer_init (COGL_FRAMEBUFFER (onscreen),
-                          ctx,
-                          COGL_FRAMEBUFFER_TYPE_ONSCREEN,
-                          width, /* width */
-                          height); /* height */
+  onscreen = g_object_new (COGL_TYPE_ONSCREEN,
+                           "context", ctx,
+                           "width", width,
+                           "height", height,
+                           NULL);
 
   _cogl_onscreen_init_from_template (onscreen, ctx->display->onscreen_template);
 
-  return _cogl_onscreen_object_new (onscreen);
+  return onscreen;
 }
 
 static void
-_cogl_onscreen_free (CoglOnscreen *onscreen)
+cogl_onscreen_dispose (GObject *object)
 {
+  CoglOnscreen *onscreen = COGL_ONSCREEN (object);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
   CoglFrameInfo *frame_info;
@@ -129,13 +123,24 @@ _cogl_onscreen_free (CoglOnscreen *onscreen)
     cogl_object_unref (frame_info);
   g_queue_clear (&onscreen->pending_frame_infos);
 
-  winsys->onscreen_deinit (onscreen);
+  if (onscreen->winsys)
+    winsys->onscreen_deinit (onscreen);
   g_return_if_fail (onscreen->winsys == NULL);
 
-  /* Chain up to parent */
-  _cogl_framebuffer_free (framebuffer);
+  G_OBJECT_CLASS (cogl_onscreen_parent_class)->dispose (object);
+}
 
-  g_free (onscreen);
+static void
+cogl_onscreen_init (CoglOnscreen *onscreen)
+{
+}
+
+static void
+cogl_onscreen_class_init (CoglOnscreenClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_onscreen_dispose;
 }
 
 static void
@@ -172,7 +177,7 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
 
       notify_event (onscreen, event->type, info);
 
-      cogl_object_unref (onscreen);
+      g_object_unref (onscreen);
       cogl_object_unref (info);
 
       g_slice_free (CoglOnscreenEvent, event);
@@ -192,7 +197,7 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
                                  qe->onscreen,
                                  &qe->info);
 
-      cogl_object_unref (qe->onscreen);
+      g_object_unref (qe->onscreen);
 
       g_slice_free (CoglOnscreenQueuedDirty, qe);
     }
@@ -223,7 +228,7 @@ _cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreenQueuedDirty *qe = g_slice_new (CoglOnscreenQueuedDirty);
 
-  qe->onscreen = cogl_object_ref (onscreen);
+  qe->onscreen = g_object_ref (onscreen);
   qe->info = *info;
   _cogl_list_insert (ctx->onscreen_dirty_queue.prev, &qe->link);
 
@@ -254,7 +259,7 @@ _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
 
   CoglOnscreenEvent *event = g_slice_new (CoglOnscreenEvent);
 
-  event->onscreen = cogl_object_ref (onscreen);
+  event->onscreen = g_object_ref (onscreen);
   event->info = cogl_object_ref (info);
   event->type = type;
 
@@ -272,7 +277,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_return_if_fail  (cogl_is_onscreen (framebuffer));
+  g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
   info->frame_counter = onscreen->frame_counter;
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
@@ -321,7 +326,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_return_if_fail  (cogl_is_onscreen (framebuffer));
+  g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
   info->frame_counter = onscreen->frame_counter;
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
@@ -367,7 +372,7 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_return_val_if_fail (cogl_is_onscreen (framebuffer), 0);
+  g_return_val_if_fail (COGL_IS_ONSCREEN (framebuffer), 0);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
@@ -386,7 +391,7 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  g_warn_if_fail (cogl_is_onscreen (framebuffer));
+  g_warn_if_fail (COGL_IS_ONSCREEN (framebuffer));
   g_warn_if_fail (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
 
   info->frame_counter = onscreen->frame_counter;

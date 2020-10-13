@@ -1486,7 +1486,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
     {
       g_warning ("Failed to allocate framebuffer for screenshot: %s",
                  error->message);
-      cogl_object_unref (framebuffer);
+      g_object_unref (framebuffer);
       cogl_object_unref (texture);
       goto out;
     }
@@ -1533,7 +1533,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
                                 CLUTTER_CAIRO_FORMAT_ARGB32,
                                 cairo_image_surface_get_data (surface));
 
-  cogl_object_unref (framebuffer);
+  g_object_unref (framebuffer);
 
   cairo_surface_mark_dirty (surface);
 

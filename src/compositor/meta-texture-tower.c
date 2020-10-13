@@ -132,11 +132,7 @@ meta_texture_tower_set_base_texture (MetaTextureTower *tower,
               tower->textures[i] = NULL;
             }
 
-          if (tower->fbos[i] != NULL)
-            {
-              cogl_object_unref (tower->fbos[i]);
-              tower->fbos[i] = NULL;
-            }
+          g_clear_object (&tower->fbos[i]);
         }
 
       cogl_object_unref (tower->textures[0]);

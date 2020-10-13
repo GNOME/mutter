@@ -57,7 +57,7 @@ typedef struct _CoglOnscreenQueuedDirty
 
 struct _CoglOnscreen
 {
-  CoglFramebuffer  _parent;
+  CoglFramebuffer parent;
 
   CoglList frame_closures;
 

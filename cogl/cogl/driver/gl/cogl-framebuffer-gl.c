@@ -153,7 +153,7 @@ _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
    * left, while Cogl defines them to be top left.
    * NB: We render upside down to offscreen framebuffers so we don't
    * need to convert the y offset in this case. */
-  if (cogl_is_offscreen (framebuffer))
+  if (COGL_IS_OFFSCREEN (framebuffer))
     gl_viewport_y = viewport_y;
   else
     gl_viewport_y =
@@ -255,7 +255,7 @@ _cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   GLenum draw_buffer = GL_BACK;
 
-  if (cogl_is_offscreen (framebuffer))
+  if (COGL_IS_OFFSCREEN (framebuffer))
     return;
 
   if (!ctx->glDrawBuffer)
@@ -290,7 +290,7 @@ _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
-  if (cogl_is_offscreen (framebuffer))
+  if (COGL_IS_OFFSCREEN (framebuffer))
     {
       CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
       GE (ctx, glBindFramebuffer (target,
@@ -986,11 +986,11 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
 
 #ifdef HAVE_COGL_GL
   if ((ctx->driver == COGL_DRIVER_GL3 &&
-       cogl_is_onscreen (framebuffer)) ||
+       COGL_IS_ONSCREEN (framebuffer)) ||
       (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS) &&
-       cogl_is_offscreen (framebuffer)))
+       COGL_IS_OFFSCREEN (framebuffer)))
     {
-      gboolean is_offscreen = cogl_is_offscreen (framebuffer);
+      gboolean is_offscreen = COGL_IS_OFFSCREEN (framebuffer);
       const struct {
         GLenum attachment, pname;
         size_t offset;
@@ -1040,7 +1040,7 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
   /* If we don't have alpha textures then the alpha bits are actually
    * stored in the red component */
   if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) &&
-      cogl_is_offscreen (framebuffer) &&
+      COGL_IS_OFFSCREEN (framebuffer) &&
       cogl_framebuffer_get_internal_format (framebuffer) == COGL_PIXEL_FORMAT_A_8)
     {
       framebuffer_gl->bits.alpha = framebuffer_gl->bits.red;
@@ -1050,7 +1050,7 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
   COGL_NOTE (OFFSCREEN,
              "RGBA/D/S Bits for framebuffer[%p, %s]: %d, %d, %d, %d, %d, %d",
              framebuffer,
-             cogl_is_offscreen (framebuffer) ? "offscreen" : "onscreen",
+             COGL_IS_OFFSCREEN (framebuffer) ? "offscreen" : "onscreen",
              framebuffer_gl->bits.red,
              framebuffer_gl->bits.blue,
              framebuffer_gl->bits.green,
@@ -1098,7 +1098,7 @@ _cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
       GLenum attachments[3];
       int i = 0;
 
-      if (cogl_is_onscreen (framebuffer))
+      if (COGL_IS_ONSCREEN (framebuffer))
         {
           if (buffers & COGL_BUFFER_BIT_COLOR)
             attachments[i++] = GL_COLOR;
@@ -1245,7 +1245,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
    * NB: all offscreen rendering is done upside down so no conversion
    * is necissary in this case.
    */
-  if (!cogl_is_offscreen (framebuffer))
+  if (!COGL_IS_OFFSCREEN (framebuffer))
     y = framebuffer_height - y - height;
 
   required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
@@ -1258,7 +1258,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
    * to flip in this case... */
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_MESA_PACK_INVERT) &&
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
-      !cogl_is_offscreen (framebuffer))
+      !COGL_IS_OFFSCREEN (framebuffer))
     {
       if (ctx->driver == COGL_DRIVER_GLES2)
         gl_pack_enum = GL_PACK_REVERSE_ROW_ORDER_ANGLE;
@@ -1415,7 +1415,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
 
   /* NB: All offscreen rendering is done upside down so there is no need
    * to flip in this case... */
-  if (!cogl_is_offscreen (framebuffer) &&
+  if (!COGL_IS_OFFSCREEN (framebuffer) &&
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
       !pack_invert_set)
     {

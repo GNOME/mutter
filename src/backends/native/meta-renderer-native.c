@@ -1278,7 +1278,7 @@ queue_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 
   renderer_native->power_save_page_flip_onscreens =
     g_list_prepend (renderer_native->power_save_page_flip_onscreens,
-                    cogl_object_ref (onscreen));
+                    g_object_ref (onscreen));
 }
 
 static void
@@ -1635,7 +1635,7 @@ create_dma_buf_framebuffer (MetaRendererNative  *renderer_native,
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
     {
-      cogl_object_unref (cogl_fbo);
+      g_object_unref (cogl_fbo);
       return NULL;
     }
 
@@ -1706,11 +1706,11 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
                               dumb_fb->height,
                               &error))
     {
-      cogl_object_unref (dmabuf_fb);
+      g_object_unref (dmabuf_fb);
       return FALSE;
     }
 
-  cogl_object_unref (dmabuf_fb);
+  g_object_unref (dmabuf_fb);
 
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
   buffer_dumb = meta_drm_buffer_dumb_new (dumb_fb->fb_id);
@@ -2051,7 +2051,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
                                    width, height, stride, offset, bpp,
                                    new_bo,
                                    (GDestroyNotify) gbm_bo_destroy);
-        cogl_object_unref (dmabuf_fb);
+        g_object_unref (dmabuf_fb);
         return dmabuf_handle;
       }
       break;
@@ -2790,7 +2790,7 @@ meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen), error))
     {
-      cogl_object_unref (onscreen);
+      g_object_unref (onscreen);
       return NULL;
     }
 
@@ -2805,7 +2805,7 @@ meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
     {
       if (!init_secondary_gpu_state (renderer_native, onscreen, error))
         {
-          cogl_object_unref (onscreen);
+          g_object_unref (onscreen);
           return NULL;
         }
     }
@@ -2836,7 +2836,7 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
   cogl_object_unref (tex);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (fb), error))
     {
-      cogl_object_unref (fb);
+      g_object_unref (fb);
       return FALSE;
     }
 
@@ -3075,20 +3075,20 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                        "transform", view_transform,
                        "refresh-rate", crtc_mode_info->refresh_rate,
                        NULL);
-  g_clear_pointer (&offscreen, cogl_object_unref);
+  g_clear_object (&offscreen);
 
   meta_onscreen_native_set_view (onscreen, view);
 
   if (!meta_onscreen_native_allocate (onscreen, &error))
     {
       g_warning ("Could not create onscreen: %s", error->message);
-      cogl_object_unref (onscreen);
+      g_object_unref (onscreen);
       g_object_unref (view);
       g_error_free (error);
       return NULL;
     }
 
-  cogl_object_unref (onscreen);
+  g_object_unref (onscreen);
 
   /* Ensure we don't point to stale surfaces when creating the offscreen */
   onscreen_egl = onscreen->winsys;
@@ -3857,7 +3857,7 @@ meta_renderer_native_finalize (GObject *object)
   if (renderer_native->power_save_page_flip_onscreens)
     {
       g_list_free_full (renderer_native->power_save_page_flip_onscreens,
-                        (GDestroyNotify) cogl_object_unref);
+                        g_object_unref);
       g_clear_handle_id (&renderer_native->power_save_page_flip_source_id,
                          g_source_remove);
     }

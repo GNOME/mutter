@@ -337,7 +337,7 @@ on_paint (ClutterActor        *actor,
   cogl_set_viewport (0, 0, 10, 10);
 
   cogl_pop_framebuffer ();
-  cogl_object_unref (offscreen);
+  g_object_unref (offscreen);
 
   /*
    * Verify that the previous onscreen framebuffer's viewport was restored

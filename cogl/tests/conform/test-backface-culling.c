@@ -303,12 +303,12 @@ test_backface_culling (void)
                                           state.width, state.height,
                                           TEST_UTILS_TEXTURE_NO_SLICING,
                                           COGL_TEXTURE_COMPONENTS_RGBA);
-  state.offscreen = cogl_offscreen_new_with_texture (tex);
+  state.offscreen = COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (tex));
   state.offscreen_tex = tex;
 
   paint (&state);
 
-  cogl_object_unref (state.offscreen);
+  g_object_unref (state.offscreen);
   cogl_object_unref (state.offscreen_tex);
   cogl_object_unref (state.texture);
 

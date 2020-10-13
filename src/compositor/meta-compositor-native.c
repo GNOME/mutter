@@ -98,7 +98,7 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
     return;
 
   framebuffer = clutter_stage_view_get_framebuffer (CLUTTER_STAGE_VIEW (view));
-  if (!cogl_is_onscreen (framebuffer))
+  if (!COGL_IS_ONSCREEN (framebuffer))
     return;
 
   surface_actor = meta_window_actor_get_surface (window_actor);

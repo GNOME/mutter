@@ -86,6 +86,8 @@ typedef void * CoglHandle;
 COGL_EXPORT GType
 cogl_handle_get_type (void) G_GNUC_CONST;
 
+typedef struct _CoglFramebuffer CoglFramebuffer;
+
 /**
  * CoglAngle:
  *

@@ -94,11 +94,8 @@ free_fbos (MetaBackground *self)
   for (i = 0; i < self->n_monitors; i++)
     {
       MetaBackgroundMonitor *monitor = &self->monitors[i];
-      if (monitor->fbo)
-        {
-          cogl_object_unref (monitor->fbo);
-          monitor->fbo = NULL;
-        }
+
+      g_clear_object (&monitor->fbo);
       if (monitor->texture)
         {
           cogl_object_unref (monitor->texture);
@@ -698,7 +695,7 @@ ensure_wallpaper_texture (MetaBackground *self,
 
           cogl_object_unref (self->wallpaper_texture);
           self->wallpaper_texture = NULL;
-          cogl_object_unref (fbo);
+          g_object_unref (fbo);
 
           self->wallpaper_allocation_failed = TRUE;
           return FALSE;
@@ -723,7 +720,7 @@ ensure_wallpaper_texture (MetaBackground *self,
           cogl_object_unref (pipeline);
         }
 
-      cogl_object_unref (fbo);
+      g_object_unref (fbo);
     }
 
   return self->wallpaper_texture != NULL;
@@ -860,8 +857,7 @@ meta_background_get_texture (MetaBackground         *self,
            */
           cogl_object_unref (monitor->texture);
           monitor->texture = NULL;
-          cogl_object_unref (monitor->fbo);
-          monitor->fbo = NULL;
+          g_clear_object (&monitor->fbo);
 
           g_error_free (catch_error);
           return NULL;

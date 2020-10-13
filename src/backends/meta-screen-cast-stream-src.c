@@ -214,7 +214,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   cogl_object_unref (bitmap_texture);
   if (!cogl_framebuffer_allocate (fb, error))
     {
-      cogl_object_unref (fb);
+      g_object_unref (fb);
       return FALSE;
     }
 
@@ -234,7 +234,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                 bitmap_width, bitmap_height,
                                 COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                 bitmap_data);
-  cogl_object_unref (fb);
+  g_object_unref (fb);
 
   return TRUE;
 }

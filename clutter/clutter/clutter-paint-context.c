@@ -86,8 +86,7 @@ clutter_paint_context_ref (ClutterPaintContext *paint_context)
 static void
 clutter_paint_context_dispose (ClutterPaintContext *paint_context)
 {
-  g_list_free_full (paint_context->framebuffers,
-                    cogl_object_unref);
+  g_list_free_full (paint_context->framebuffers, g_object_unref);
   paint_context->framebuffers = NULL;
   g_clear_pointer (&paint_context->redraw_clip, cairo_region_destroy);
 }
@@ -114,7 +113,7 @@ clutter_paint_context_push_framebuffer (ClutterPaintContext *paint_context,
                                         CoglFramebuffer     *framebuffer)
 {
   paint_context->framebuffers = g_list_prepend (paint_context->framebuffers,
-                                                cogl_object_ref (framebuffer));
+                                                g_object_ref (framebuffer));
 }
 
 void
@@ -122,7 +121,7 @@ clutter_paint_context_pop_framebuffer (ClutterPaintContext *paint_context)
 {
   g_return_if_fail (paint_context->framebuffers);
 
-  cogl_object_unref (paint_context->framebuffers->data);
+  g_object_unref (paint_context->framebuffers->data);
   paint_context->framebuffers =
     g_list_delete_link (paint_context->framebuffers,
                         paint_context->framebuffers);

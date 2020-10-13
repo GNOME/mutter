@@ -44,6 +44,7 @@ test_paint (TestState *state)
   CoglTexture2D *tex_2d;
   CoglTexture *tex;
   CoglOffscreen *offscreen;
+  CoglFramebuffer *framebuffer;
   CoglPipeline *opaque_pipeline;
   CoglPipeline *texture_pipeline;
 
@@ -53,6 +54,7 @@ test_paint (TestState *state)
   tex = tex_2d;
 
   offscreen = cogl_offscreen_new_with_texture (tex);
+  framebuffer = COGL_FRAMEBUFFER (offscreen);
 
   /* Set a scale and translate transform on the window framebuffer
    * before switching to the offscreen framebuffer so we can verify it
@@ -76,20 +78,24 @@ test_paint (TestState *state)
   opaque_pipeline = cogl_pipeline_new (test_ctx);
   /* red, top left */
   cogl_pipeline_set_color4ub (opaque_pipeline, 0xff, 0x00, 0x00, 0xff);
-  cogl_framebuffer_draw_rectangle (offscreen, opaque_pipeline, -0.5, 0.5, 0, 0);
+  cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
+                                   -0.5, 0.5, 0, 0);
   /* green, top right */
   cogl_pipeline_set_color4ub (opaque_pipeline, 0x00, 0xff, 0x00, 0xff);
-  cogl_framebuffer_draw_rectangle (offscreen, opaque_pipeline, 0, 0.5, 0.5, 0);
+  cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
+                                   0, 0.5, 0.5, 0);
   /* blue, bottom left */
   cogl_pipeline_set_color4ub (opaque_pipeline, 0x00, 0x00, 0xff, 0xff);
-  cogl_framebuffer_draw_rectangle (offscreen, opaque_pipeline, -0.5, 0, 0, -0.5);
+  cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
+                                   -0.5, 0, 0, -0.5);
   /* white, bottom right */
   cogl_pipeline_set_color4ub (opaque_pipeline, 0xff, 0xff, 0xff, 0xff);
-  cogl_framebuffer_draw_rectangle (offscreen, opaque_pipeline, 0, 0, 0.5, -0.5);
+  cogl_framebuffer_draw_rectangle (framebuffer, opaque_pipeline,
+                                   0, 0, 0.5, -0.5);
 
   /* Cogl should release the last reference when we call cogl_pop_framebuffer()
    */
-  cogl_object_unref (offscreen);
+  g_object_unref (offscreen);
 
   texture_pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_set_layer_texture (texture_pipeline, 0, tex);
@@ -121,6 +127,7 @@ test_flush (TestState *state)
   CoglTexture2D *tex_2d;
   CoglTexture *tex;
   CoglOffscreen *offscreen;
+  CoglFramebuffer *framebuffer;
   CoglColor clear_color;
   int i;
 
@@ -138,15 +145,16 @@ test_flush (TestState *state)
       tex = tex_2d;
 
       offscreen = cogl_offscreen_new_with_texture (tex);
+      framebuffer = COGL_FRAMEBUFFER (offscreen);
 
       cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 255);
-      cogl_framebuffer_clear (offscreen, COGL_BUFFER_BIT_COLOR, &clear_color);
+      cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
 
-      cogl_framebuffer_draw_rectangle (offscreen, pipeline, -1, -1, 1, 1);
+      cogl_framebuffer_draw_rectangle (framebuffer, pipeline, -1, -1, 1, 1);
 
       if (i == 0)
         /* First time check using read pixels on the offscreen */
-        test_utils_check_region (offscreen,
+        test_utils_check_region (framebuffer,
                                  1, 1, 15, 15, 0xff0000ff);
       else if (i == 1)
         {
@@ -178,7 +186,7 @@ test_flush (TestState *state)
         }
 
       cogl_object_unref (tex_2d);
-      cogl_object_unref (offscreen);
+      g_object_unref (offscreen);
     }
 
   cogl_object_unref (pipeline);

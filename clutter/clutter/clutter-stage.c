@@ -3731,7 +3731,7 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
                                             bitmap);
 
   cogl_object_unref (bitmap);
-  cogl_object_unref (framebuffer);
+  g_object_unref (framebuffer);
 
   return TRUE;
 }

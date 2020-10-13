@@ -62,7 +62,7 @@ _cogl_blit_texture_render_begin (CoglBlitData *data)
   if (!cogl_framebuffer_allocate (fb, &ignore_error))
     {
       g_error_free (ignore_error);
-      cogl_object_unref (fb);
+      g_object_unref (fb);
       return FALSE;
     }
 
@@ -142,7 +142,7 @@ _cogl_blit_texture_render_end (CoglBlitData *data)
   cogl_pipeline_set_layer_texture (ctx->blit_texture_pipeline, 0,
                                    data->dst_tex);
 
-  cogl_object_unref (data->dest_fb);
+  g_object_unref (data->dest_fb);
 }
 
 static gboolean
@@ -190,10 +190,8 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
 
 error:
 
-  if (dst_offscreen)
-    cogl_object_unref (dst_offscreen);
-  if (src_offscreen)
-    cogl_object_unref (src_offscreen);
+  g_clear_object (&dst_offscreen);
+  g_clear_object (&src_offscreen);
 
   return FALSE;
 }
@@ -218,8 +216,8 @@ _cogl_blit_framebuffer_blit (CoglBlitData *data,
 static void
 _cogl_blit_framebuffer_end (CoglBlitData *data)
 {
-  cogl_object_unref (data->src_fb);
-  cogl_object_unref (data->dest_fb);
+  g_object_unref (data->src_fb);
+  g_object_unref (data->dest_fb);
 }
 
 static gboolean
@@ -240,7 +238,7 @@ _cogl_blit_copy_tex_sub_image_begin (CoglBlitData *data)
   if (!cogl_framebuffer_allocate (fb, &ignore_error))
     {
       g_error_free (ignore_error);
-      cogl_object_unref (fb);
+      g_object_unref (fb);
       return FALSE;
     }
 
@@ -269,7 +267,7 @@ _cogl_blit_copy_tex_sub_image_blit (CoglBlitData *data,
 static void
 _cogl_blit_copy_tex_sub_image_end (CoglBlitData *data)
 {
-  cogl_object_unref (data->src_fb);
+  g_object_unref (data->src_fb);
 }
 
 static gboolean

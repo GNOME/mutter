@@ -41,12 +41,6 @@
 #include "cogl-gl-header.h"
 #include "cogl-clip-stack.h"
 
-typedef enum _CoglFramebufferType
-{
-  COGL_FRAMEBUFFER_TYPE_ONSCREEN,
-  COGL_FRAMEBUFFER_TYPE_OFFSCREEN
-} CoglFramebufferType;
-
 typedef struct
 {
   CoglSwapChain *swap_chain;
@@ -116,12 +110,6 @@ typedef struct
   int stencil;
 } CoglFramebufferBits;
 
-struct _CoglFramebuffer
-{
-  CoglObject _parent;
-  gpointer priv;
-};
-
 typedef enum
 {
   COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL    = 1L<<0,
@@ -138,12 +126,12 @@ typedef struct _CoglGLFramebuffer
 
 struct _CoglOffscreen
 {
-  CoglFramebuffer  _parent;
+  CoglFramebuffer parent;
 
   CoglGLFramebuffer gl_framebuffer;
 
-  CoglTexture    *texture;
-  int             texture_level;
+  CoglTexture *texture;
+  int texture_level;
 
   CoglTexture *depth_texture;
 
@@ -154,13 +142,6 @@ struct _CoglOffscreen
    * we can get rid of these flags */
   CoglOffscreenFlags create_flags;
 };
-
-void
-_cogl_framebuffer_init (CoglFramebuffer *framebuffer,
-                        CoglContext *ctx,
-                        CoglFramebufferType type,
-                        int width,
-                        int height);
 
 gboolean
 cogl_framebuffer_is_allocated (CoglFramebuffer *framebuffer);

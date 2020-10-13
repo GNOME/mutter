@@ -93,7 +93,7 @@ clutter_backend_dispose (GObject *gobject)
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
 
-  g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
+  g_clear_object (&backend->dummy_onscreen);
   if (backend->stage_window)
     {
       g_object_remove_weak_pointer (G_OBJECT (backend->stage_window),

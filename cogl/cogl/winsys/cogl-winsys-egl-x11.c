@@ -81,7 +81,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
       CoglOnscreenEGL *egl_onscreen;
       CoglOnscreenXlib *xlib_onscreen;
 
-      if (!cogl_is_onscreen (framebuffer))
+      if (!COGL_IS_ONSCREEN (framebuffer))
         continue;
 
       egl_onscreen = COGL_ONSCREEN (framebuffer)->winsys;
@@ -99,7 +99,7 @@ flush_pending_resize_notifications_cb (void *data,
 {
   CoglFramebuffer *framebuffer = data;
 
-  if (cogl_is_onscreen (framebuffer))
+  if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       CoglOnscreenEGL *egl_onscreen = onscreen->winsys;

@@ -83,7 +83,7 @@ on_paint (ClutterActor        *actor,
   g_free (pixels);
 
   cogl_pop_framebuffer ();
-  cogl_object_unref (offscreen);
+  g_object_unref (offscreen);
 
   /* Now verify reading back from an onscreen framebuffer...
    */

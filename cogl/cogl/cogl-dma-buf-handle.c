@@ -71,7 +71,7 @@ cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
   g_assert (dmabuf_fd != -1);
 
   dmabuf_handle = g_new0 (CoglDmaBufHandle, 1);
-  dmabuf_handle->framebuffer = cogl_object_ref (framebuffer);
+  dmabuf_handle->framebuffer = g_object_ref (framebuffer);
   dmabuf_handle->dmabuf_fd = dmabuf_fd;
   dmabuf_handle->user_data = user_data;
   dmabuf_handle->destroy_func = destroy_func;
@@ -90,7 +90,7 @@ cogl_dma_buf_handle_free (CoglDmaBufHandle *dmabuf_handle)
 {
   g_return_if_fail (dmabuf_handle != NULL);
 
-  g_clear_pointer (&dmabuf_handle->framebuffer, cogl_object_unref);
+  g_clear_object (&dmabuf_handle->framebuffer);
 
   if (dmabuf_handle->destroy_func)
     g_clear_pointer (&dmabuf_handle->user_data, dmabuf_handle->destroy_func);

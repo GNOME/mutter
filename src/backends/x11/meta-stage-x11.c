@@ -251,7 +251,7 @@ meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
 
   clutter_stage_window_parent_iface->unrealize (stage_window);
 
-  g_clear_pointer (&stage_x11->onscreen, cogl_object_unref);
+  g_clear_object (&stage_x11->onscreen);
 }
 
 static gboolean
@@ -289,7 +289,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
     {
       g_warning ("Failed to allocate stage: %s", error->message);
       g_error_free (error);
-      cogl_object_unref (stage_x11->onscreen);
+      g_object_unref (stage_x11->onscreen);
       abort();
     }
 
