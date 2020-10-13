@@ -252,11 +252,14 @@ test_coglbox_map (ClutterActor *actor)
   ClutterPerspective perspective;
   float stage_width;
   float stage_height;
+  GError *error = NULL;
 
   CLUTTER_ACTOR_CLASS (test_coglbox_parent_class)->map (actor);
 
   printf ("Creating offscreen\n");
-  priv->offscreen_id = cogl_offscreen_new_to_texture (priv->texture_id);
+  priv->offscreen_id = cogl_offscreen_new_with_texture (priv->texture_id);
+  if (!cogl_framebuffer_allocate (priv->offscreen_id, &error))
+    g_error ("Failed to allocate framebuffer: %s", error->message);
 
   stage = clutter_actor_get_stage (actor);
   clutter_stage_get_perspective (CLUTTER_STAGE (stage), &perspective);
