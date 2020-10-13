@@ -653,161 +653,63 @@ clutter_stage_allocate (ClutterActor           *self,
   clutter_stage_set_viewport (CLUTTER_STAGE (self), new_width, new_height);
 }
 
-typedef struct _Vector4
-{
-  float x, y, z, w;
-} Vector4;
-
 static void
-_cogl_util_get_eye_planes_for_screen_poly (float                    *polygon,
-                                           int                       n_vertices,
-                                           float                    *viewport,
-                                           const graphene_matrix_t  *projection,
-                                           const graphene_matrix_t  *inverse_project,
-                                           const ClutterPerspective *perspective,
-                                           graphene_frustum_t       *frustum)
+setup_clip_frustum (ClutterStage                *stage,
+                    const cairo_rectangle_int_t *clip,
+                    graphene_frustum_t          *frustum)
 {
+  ClutterStagePrivate *priv = stage->priv;
+  cairo_rectangle_int_t geom;
+  graphene_point3d_t camera_position;
+  graphene_point3d_t p[4];
   graphene_plane_t planes[6];
   graphene_vec4_t v;
-  float Wc;
-  Vector4 *tmp_poly;
   int i;
-  Vector4 *poly;
-  float zw, ww;
 
-  tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
+  _clutter_stage_window_get_geometry (priv->impl, &geom);
 
-#define DEPTH -50
+  CLUTTER_NOTE (CLIPPING, "Creating stage clip frustum for "
+                "x=%d, y=%d, width=%d, height=%d",
+                clip->x, clip->y, clip->width, clip->height);
 
-  /* Determine W in clip-space (Wc) for a point (0, 0, DEPTH, 1)
-   *
-   * Note: the depth could be anything except 0.
-   *
-   * We will transform the polygon into clip coordinates using this
-   * depth and then into eye coordinates. Our clip planes will be
-   * defined by triangles that extend between points of the polygon at
-   * DEPTH and corresponding points of the same polygon at DEPTH * 2.
-   *
-   * NB: Wc defines the position of the clip planes in clip
-   * coordinates. Given a screen aligned cross section through the
-   * frustum; coordinates range from [-Wc,Wc] left to right on the
-   * x-axis and [Wc,-Wc] top to bottom on the y-axis.
-   */
-  zw = graphene_matrix_get_value (projection, 2, 3);
-  ww = graphene_matrix_get_value (projection, 3, 3);
-  Wc = DEPTH * zw + ww;
+  camera_position = GRAPHENE_POINT3D_INIT_ZERO;
 
-#define CLIP_X(X) ((((float)X - viewport[0]) * (2.0 / viewport[2])) - 1) * Wc
-#define CLIP_Y(Y) ((((float)Y - viewport[1]) * (2.0 / viewport[3])) - 1) * -Wc
+  p[0] = GRAPHENE_POINT3D_INIT (MAX (clip->x, 0), MAX (clip->y, 0), 0.f);
+  p[2] = GRAPHENE_POINT3D_INIT (MIN (clip->x + clip->width, geom.width),
+                                MIN (clip->y + clip->height, geom.height),
+                                0.f);
 
-  for (i = 0; i < n_vertices; i++)
+  for (i = 0; i < 2; i++)
     {
-      tmp_poly[i].x = CLIP_X (polygon[i * 2]);
-      tmp_poly[i].y = CLIP_Y (polygon[i * 2 + 1]);
-      tmp_poly[i].z = DEPTH;
-      tmp_poly[i].w = Wc;
+      float w = 1.0;
+      cogl_graphene_matrix_project_point (&priv->view,
+                                          &p[2 * i].x,
+                                          &p[2 * i].y,
+                                          &p[2 * i].z,
+                                          &w);
     }
 
-  Wc = DEPTH * 2 * zw + ww;
+  graphene_point3d_init (&p[1], p[2].x, p[0].y, p[0].z);
+  graphene_point3d_init (&p[3], p[0].x, p[2].y, p[0].z);
 
-  /* FIXME: technically we don't need to project all of the points
-   * twice, it would be enough project every other point since
-   * we can share points in this set to define the plane vectors. */
-  for (i = 0; i < n_vertices; i++)
+  for (i = 0; i < 4; i++)
     {
-      tmp_poly[n_vertices + i].x = CLIP_X (polygon[i * 2]);
-      tmp_poly[n_vertices + i].y = CLIP_Y (polygon[i * 2 + 1]);
-      tmp_poly[n_vertices + i].z = DEPTH * 2;
-      tmp_poly[n_vertices + i].w = Wc;
+      graphene_plane_init_from_points (&planes[i],
+                                       &camera_position,
+                                       &p[i],
+                                       &p[(i + 1) % 4]);
     }
 
-#undef CLIP_X
-#undef CLIP_Y
+  graphene_vec4_init (&v, 0.f, 0.f, -1.f, priv->perspective.z_near);
+  graphene_plane_init_from_vec4 (&planes[4], &v);
 
-  cogl_graphene_matrix_project_points (inverse_project,
-                                       4,
-                                       sizeof (Vector4),
-                                       tmp_poly,
-                                       sizeof (Vector4),
-                                       tmp_poly,
-                                       n_vertices * 2);
-
-  for (i = 0; i < n_vertices; i++)
-    {
-      graphene_point3d_t p[3];
-
-      poly = &tmp_poly[i];
-      graphene_point3d_init (&p[0], poly->x, poly->y, poly->z);
-
-      poly = &tmp_poly[n_vertices + i];
-      graphene_point3d_init (&p[1], poly->x, poly->y, poly->z);
-
-      poly = &tmp_poly[n_vertices + ((i + 1) % n_vertices)];
-      graphene_point3d_init (&p[2], poly->x, poly->y, poly->z);
-
-      graphene_plane_init_from_points (&planes[i], &p[0], &p[1], &p[2]);
-    }
-
-  graphene_plane_init_from_vec4 (&planes[4],
-                                 graphene_vec4_init (&v, 0.f, 0.f, -1.f,
-                                                     perspective->z_near));
-  graphene_plane_init_from_vec4 (&planes[5],
-                                 graphene_vec4_init (&v, 0.f, 0.f, 1.f,
-                                                     perspective->z_far));
+  graphene_vec4_init (&v, 0.f, 0.f, 1.f, priv->perspective.z_far);
+  graphene_plane_init_from_vec4 (&planes[5], &v);
 
   graphene_frustum_init (frustum,
                          &planes[0], &planes[1],
                          &planes[2], &planes[3],
                          &planes[4], &planes[5]);
-}
-
-/* XXX: Instead of having a toplevel 2D clip region, it might be
- * better to have a clip volume within the view frustum. This could
- * allow us to avoid projecting actors into window coordinates to
- * be able to cull them.
- */
-static void
-setup_view_for_paint (ClutterStage                *stage,
-                      const cairo_rectangle_int_t *clip,
-                      graphene_frustum_t          *out_frustum)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  float clip_poly[8];
-  float viewport[4];
-  cairo_rectangle_int_t geom;
-
-  _clutter_stage_window_get_geometry (priv->impl, &geom);
-
-  viewport[0] = priv->viewport[0];
-  viewport[1] = priv->viewport[1];
-  viewport[2] = priv->viewport[2];
-  viewport[3] = priv->viewport[3];
-
-  clip_poly[0] = MAX (clip->x, 0);
-  clip_poly[1] = MAX (clip->y, 0);
-
-  clip_poly[2] = MIN (clip->x + clip->width, geom.width);
-  clip_poly[3] = clip_poly[1];
-
-  clip_poly[4] = clip_poly[2];
-  clip_poly[5] = MIN (clip->y + clip->height, geom.height);
-
-  clip_poly[6] = clip_poly[0];
-  clip_poly[7] = clip_poly[5];
-
-  CLUTTER_NOTE (CLIPPING, "Setting stage clip too: "
-                "x=%f, y=%f, width=%f, height=%f",
-                clip_poly[0], clip_poly[1],
-                clip_poly[2] - clip_poly[0],
-                clip_poly[5] - clip_poly[1]);
-
-  _cogl_util_get_eye_planes_for_screen_poly (clip_poly,
-                                             4,
-                                             viewport,
-                                             &priv->projection,
-                                             &priv->inverse_projection,
-                                             &priv->perspective,
-                                             out_frustum);
 }
 
 static void
@@ -840,7 +742,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
       for (i = 0; i < n_rectangles; i++)
         {
           cairo_region_get_rectangle (redraw_clip, i, &clip_rect);
-          setup_view_for_paint (stage, &clip_rect, &clip_frustum);
+          setup_clip_frustum (stage, &clip_rect, &clip_frustum);
           g_array_append_val (clip_frusta, clip_frustum);
         }
     }
@@ -854,7 +756,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
       else
         clutter_stage_view_get_layout (view, &clip_rect);
 
-      setup_view_for_paint (stage, &clip_rect, &clip_frustum);
+      setup_clip_frustum (stage, &clip_rect, &clip_frustum);
       g_array_append_val (clip_frusta, clip_frustum);
     }
 
