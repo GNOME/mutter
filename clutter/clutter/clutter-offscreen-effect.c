@@ -240,8 +240,7 @@ update_fbo (ClutterEffect *effect,
                  error->message);
 
       g_object_unref (offscreen);
-      cogl_object_unref (priv->pipeline);
-      priv->pipeline = NULL;
+      cogl_clear_object (&priv->pipeline);
 
       priv->target_width = 0;
       priv->target_height = 0;
