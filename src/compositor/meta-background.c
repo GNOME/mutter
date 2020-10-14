@@ -96,32 +96,20 @@ free_fbos (MetaBackground *self)
       MetaBackgroundMonitor *monitor = &self->monitors[i];
 
       g_clear_object (&monitor->fbo);
-      if (monitor->texture)
-        {
-          cogl_object_unref (monitor->texture);
-          monitor->texture = NULL;
-        }
+      cogl_clear_object (&monitor->texture);
     }
 }
 
 static void
 free_color_texture (MetaBackground *self)
 {
-  if (self->color_texture != NULL)
-    {
-      cogl_object_unref (self->color_texture);
-      self->color_texture = NULL;
-    }
+  cogl_clear_object (&self->color_texture);
 }
 
 static void
 free_wallpaper_texture (MetaBackground *self)
 {
-  if (self->wallpaper_texture != NULL)
-    {
-      cogl_object_unref (self->wallpaper_texture);
-      self->wallpaper_texture = NULL;
-    }
+  cogl_clear_object (&self->wallpaper_texture);
 
   self->wallpaper_allocation_failed = FALSE;
 }
@@ -130,8 +118,7 @@ static void
 invalidate_monitor_backgrounds (MetaBackground *self)
 {
   free_fbos (self);
-  g_free (self->monitors);
-  self->monitors = NULL;
+  g_clear_pointer (&self->monitors, g_free);
   self->n_monitors = 0;
 
   if (self->display)
@@ -260,8 +247,7 @@ set_file (MetaBackground       *self,
           g_signal_handlers_disconnect_by_func (*imagep,
                                                 (gpointer)on_background_loaded,
                                                 self);
-          g_object_unref (*imagep);
-          *imagep = NULL;
+          g_clear_object (imagep);
         }
 
       g_set_object (filep, file);
@@ -693,8 +679,7 @@ ensure_wallpaper_texture (MetaBackground *self,
            */
           g_error_free (catch_error);
 
-          cogl_object_unref (self->wallpaper_texture);
-          self->wallpaper_texture = NULL;
+          cogl_clear_object (&self->wallpaper_texture);
           g_object_unref (fbo);
 
           self->wallpaper_allocation_failed = TRUE;
@@ -855,8 +840,7 @@ meta_background_get_texture (MetaBackground         *self,
            * we'll try again the next time this is called. (MetaBackgroundActor
            * caches the result, so user might be left without a background.)
            */
-          cogl_object_unref (monitor->texture);
-          monitor->texture = NULL;
+          cogl_clear_object (&monitor->texture);
           g_clear_object (&monitor->fbo);
 
           g_error_free (catch_error);
