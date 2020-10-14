@@ -67,6 +67,17 @@ transform_subsurface_position (MetaWaylandSurface *surface,
   while (surface);
 }
 
+static gboolean
+should_show (MetaWaylandSurface *surface)
+{
+  if (!surface->buffer_ref->buffer)
+    return FALSE;
+  else if (surface->sub.parent)
+    return should_show (surface->sub.parent);
+  else
+    return TRUE;
+}
+
 static void
 sync_actor_subsurface_state (MetaWaylandSurface *surface)
 {
@@ -87,7 +98,7 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
   clutter_actor_set_position (actor, x, y);
   clutter_actor_set_reactive (actor, TRUE);
 
-  if (surface->buffer_ref->buffer)
+  if (should_show (surface))
     clutter_actor_show (actor);
   else
     clutter_actor_hide (actor);
