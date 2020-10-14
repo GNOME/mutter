@@ -1367,6 +1367,25 @@ has_touchscreen (MetaSeatNative *seat)
   return FALSE;
 }
 
+static gboolean
+has_tablet_switch (MetaSeatNative *seat)
+{
+  GSList *l;
+
+  for (l = seat->devices; l; l = l->next)
+    {
+      MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (l->data);
+
+      if (libinput_device_has_capability (device_native->libinput_device,
+                                          LIBINPUT_DEVICE_CAP_SWITCH) &&
+          libinput_device_switch_has_switch (device_native->libinput_device,
+                                             LIBINPUT_SWITCH_TABLET_MODE))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 update_touch_mode (MetaSeatNative *seat)
 {
@@ -2519,6 +2538,7 @@ meta_seat_native_constructed (GObject *object)
     }
 
   seat->has_touchscreen = has_touchscreen (seat);
+  seat->has_tablet_switch = has_tablet_switch (seat);
   update_touch_mode (seat);
 
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
