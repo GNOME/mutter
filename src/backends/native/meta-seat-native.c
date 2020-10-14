@@ -1450,7 +1450,8 @@ meta_seat_native_handle_device_event (ClutterSeat  *seat,
   switch (event->type)
     {
       case CLUTTER_DEVICE_ADDED:
-        seat_native->has_touchscreen = check_touch_mode;
+        if (check_touch_mode)
+          seat_native->has_touchscreen = TRUE;
 
         if (libinput_device_has_capability (device_native->libinput_device,
                                             LIBINPUT_DEVICE_CAP_SWITCH) &&
