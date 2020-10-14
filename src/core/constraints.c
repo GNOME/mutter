@@ -469,6 +469,16 @@ setup_constraint_info (ConstraintInfo      *info,
                 info->entire_monitor.width, info->entire_monitor.height);
 }
 
+static MetaRectangle *
+get_start_rect_for_resize (MetaWindow     *window,
+                           ConstraintInfo *info)
+{
+  if (!info->is_user_action && info->action_type == ACTION_MOVE_AND_RESIZE)
+    return &info->current;
+  else
+    return &info->orig;
+}
+
 static void
 place_window_if_needed(MetaWindow     *window,
                        ConstraintInfo *info)
@@ -1368,13 +1378,7 @@ constrain_size_increments (MetaWindow         *window,
     new_height = client_rect.height;
   }
 
-  /* Figure out what original rect to pass to meta_rectangle_resize_with_gravity
-   * See bug 448183
-   */
-  if (info->action_type == ACTION_MOVE_AND_RESIZE)
-    start_rect = &info->current;
-  else
-    start_rect = &info->orig;
+  start_rect = get_start_rect_for_resize (window, info);
 
   /* Resize to the new size */
   meta_rectangle_resize_with_gravity (start_rect,
@@ -1424,13 +1428,7 @@ constrain_size_limits (MetaWindow         *window,
   new_width  = CLAMP (info->current.width,  min_size.width,  max_size.width);
   new_height = CLAMP (info->current.height, min_size.height, max_size.height);
 
-  /* Figure out what original rect to pass to meta_rectangle_resize_with_gravity
-   * See bug 448183
-   */
-  if (info->action_type == ACTION_MOVE_AND_RESIZE)
-    start_rect = &info->current;
-  else
-    start_rect = &info->orig;
+  start_rect = get_start_rect_for_resize (window, info);
 
   meta_rectangle_resize_with_gravity (start_rect,
                                       &info->current,
@@ -1570,13 +1568,7 @@ constrain_aspect_ratio (MetaWindow         *window,
     new_height = client_rect.height;
   }
 
-  /* Figure out what original rect to pass to meta_rectangle_resize_with_gravity
-   * See bug 448183
-   */
-  if (info->action_type == ACTION_MOVE_AND_RESIZE)
-    start_rect = &info->current;
-  else
-    start_rect = &info->orig;
+  start_rect = get_start_rect_for_resize (window, info);
 
   meta_rectangle_resize_with_gravity (start_rect,
                                       &info->current,
