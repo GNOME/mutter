@@ -887,13 +887,9 @@ _cogl_framebuffer_flush_dependency_journals (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  GList *l;
 
-  for (l = priv->deps; l; l = l->next)
-    _cogl_framebuffer_flush_journal (l->data);
-  for (l = priv->deps; l; l = l->next)
-    g_object_unref (l->data);
-  g_list_free (priv->deps);
+  g_list_foreach (priv->deps, (GFunc) _cogl_framebuffer_flush_journal, NULL);
+  g_list_free_full (priv->deps, g_object_unref);
   priv->deps = NULL;
 }
 

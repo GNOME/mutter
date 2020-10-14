@@ -198,8 +198,8 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
   _cogl_list_insert_list (&queue, &context->onscreen_events_queue);
   _cogl_list_init (&context->onscreen_events_queue);
 
-  _cogl_closure_disconnect (context->onscreen_dispatch_idle);
-  context->onscreen_dispatch_idle = NULL;
+  g_clear_pointer (&context->onscreen_dispatch_idle,
+                   _cogl_closure_disconnect);
 
   _cogl_list_for_each_safe (event, tmp, &queue, link)
     {
