@@ -100,6 +100,7 @@ static int signals[SIGNALS_LAST];
 typedef struct _MetaMonitorManagerPrivate
 {
   MetaPowerSave power_save_mode;
+  gboolean      initial_orient_change_done;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -723,10 +724,64 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   g_object_unref (config);
 }
 
+/*
+ * Special case for tablets with a native portrait mode and a keyboard dock,
+ * where the device gets docked in landscape mode. For this combo to work
+ * properly with mutter starting while the tablet is docked, we need to take
+ * the accelerometer reported orientation into account (at mutter startup)
+ * even if there is a tablet-mode-switch which indicates that the device is
+ * NOT in tablet-mode (because it is docked).
+ */
+static gboolean
+handle_initial_orientation_change (MetaOrientationManager *orientation_manager,
+                                   MetaMonitorManager     *manager)
+{
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
+  MetaMonitor *monitor;
+  MetaMonitorMode *mode;
+  int width, height;
+
+  clutter_backend = meta_backend_get_clutter_backend (manager->backend);
+  seat = clutter_backend_get_default_seat (clutter_backend);
+
+  /* 
+   * This is a workaround to ignore the tablet mode switch on the initial config
+   * of devices with a native portrait mode panel. The touchscreen and
+   * accelerometer requirements for applying the orientation must still be met.
+   */
+  if (!clutter_seat_has_touchscreen (seat) ||
+      !meta_orientation_manager_has_accelerometer (orientation_manager))
+    return FALSE;
+
+  /* Check for a portrait mode panel */
+  monitor = meta_monitor_manager_get_laptop_panel (manager);
+  if (!monitor)
+    return FALSE;
+
+  mode = meta_monitor_get_preferred_mode (monitor);
+  meta_monitor_mode_get_resolution (mode, &width, &height);
+  if (width > height)
+    return FALSE;
+
+  handle_orientation_change (orientation_manager, manager);
+  return TRUE;
+}
+
 static void
 orientation_changed (MetaOrientationManager *orientation_manager,
                      MetaMonitorManager     *manager)                     
 {
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  if (!priv->initial_orient_change_done)
+    {
+      priv->initial_orient_change_done = TRUE;
+      if (handle_initial_orientation_change (orientation_manager, manager))
+        return;
+    }
+
   if (!manager->panel_orientation_managed)
     return;
 
