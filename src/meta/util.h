@@ -75,6 +75,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_RESIZING: resizing
  * @META_DEBUG_SHAPES: shapes
  * @META_DEBUG_EDGE_RESISTANCE: edge resistance
+ * @META_DEBUG_WAYLAND: Wayland
  */
 typedef enum
 {
@@ -99,6 +100,7 @@ typedef enum
   META_DEBUG_EDGE_RESISTANCE = 1 << 17,
   META_DEBUG_DBUS            = 1 << 18,
   META_DEBUG_INPUT           = 1 << 19,
+  META_DEBUG_WAYLAND         = 1 << 20,
 } MetaDebugTopic;
 
 /**

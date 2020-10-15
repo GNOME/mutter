@@ -278,6 +278,8 @@ topic_name (MetaDebugTopic topic)
       return "INPUT";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
+    case META_DEBUG_WAYLAND:
+      return "WAYLAND";
     }
 
   return "WM";

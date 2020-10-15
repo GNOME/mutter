@@ -119,6 +119,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "edge-resistance", META_DEBUG_EDGE_RESISTANCE },
   { "dbus", META_DEBUG_DBUS },
   { "input", META_DEBUG_INPUT },
+  { "wayland", META_DEBUG_WAYLAND },
 };
 
 /*
