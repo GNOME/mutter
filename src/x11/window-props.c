@@ -1138,6 +1138,22 @@ spew_size_hints_differences (const XSizeHints *old,
                 old->win_gravity, new->win_gravity);
 }
 
+static gboolean
+hints_have_changed (const XSizeHints *old,
+                    const XSizeHints *new)
+{
+  return FLAG_CHANGED (old, new, USPosition) ||
+         FLAG_CHANGED (old, new, USSize) ||
+         FLAG_CHANGED (old, new, PPosition) ||
+         FLAG_CHANGED (old, new, PSize) ||
+         FLAG_CHANGED (old, new, PMinSize) ||
+         FLAG_CHANGED (old, new, PMaxSize) ||
+         FLAG_CHANGED (old, new, PResizeInc) ||
+         FLAG_CHANGED (old, new, PAspect) ||
+         FLAG_CHANGED (old, new, PBaseSize) ||
+         FLAG_CHANGED (old, new, PWinGravity);
+}
+
 void
 meta_set_normal_hints (MetaWindow *window,
                        XSizeHints *hints)
@@ -1488,6 +1504,7 @@ reload_normal_hints (MetaWindow    *window,
   if (value->type != META_PROP_VALUE_INVALID)
     {
       XSizeHints old_hints;
+      gboolean hints_have_differences;
 
       meta_topic (META_DEBUG_GEOMETRY, "Updating WM_NORMAL_HINTS for %s\n", window->desc);
 
@@ -1495,12 +1512,16 @@ reload_normal_hints (MetaWindow    *window,
 
       meta_set_normal_hints (window, value->v.size_hints.hints);
 
-      spew_size_hints_differences (&old_hints, &window->size_hints);
+      hints_have_differences = hints_have_changed (&old_hints,
+                                                   &window->size_hints);
+      if (hints_have_differences)
+        {
+          spew_size_hints_differences (&old_hints, &window->size_hints);
+          meta_window_recalc_features (window);
 
-      meta_window_recalc_features (window);
-
-      if (!initial)
-        meta_window_queue(window, META_QUEUE_MOVE_RESIZE);
+          if (!initial)
+            meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+        }
     }
 }
 
