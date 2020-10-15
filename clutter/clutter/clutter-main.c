@@ -65,6 +65,7 @@
 #include "clutter-paint-node-private.h"
 #include "clutter-private.h"
 #include "clutter-settings-private.h"
+#include "clutter-stage.h"
 #include "clutter-stage-manager.h"
 #include "clutter-stage-private.h"
 #include "clutter-backend-private.h"
@@ -1567,6 +1568,122 @@ clutter_do_event (ClutterEvent *event)
    */
   _clutter_stage_queue_event (event->any.stage, event, TRUE);
 }
+
+static void
+create_crossing_event (ClutterStage         *stage,
+                       ClutterInputDevice   *device,
+                       ClutterEventSequence *sequence,
+                       ClutterEventType      event_type,
+                       ClutterActor         *source,
+                       ClutterActor         *related,
+                       graphene_point_t      coords,
+                       uint32_t              time)
+{
+  ClutterEvent *event;
+
+  event = clutter_event_new (event_type);
+  event->crossing.time = time;
+  event->crossing.flags = 0;
+  event->crossing.stage = stage;
+  event->crossing.source = source;
+  event->crossing.x = coords.x;
+  event->crossing.y = coords.y;
+  event->crossing.related = related;
+  event->crossing.sequence = sequence;
+  clutter_event_set_device (event, device);
+
+  /* we need to make sure that this event is processed
+   * before any other event we might have queued up until
+   * now, so we go on, and synthesize the event emission
+   * ourselves
+   */
+  _clutter_process_event (event);
+
+  clutter_event_free (event);
+}
+
+void
+clutter_update_device_actor (ClutterStage         *stage,
+                             ClutterInputDevice   *device,
+                             ClutterEventSequence *sequence,
+                             ClutterActor         *new_actor,
+                             graphene_point_t      point,
+                             uint32_t              time,
+                             gboolean              emit_crossing)
+{
+  ClutterActor *old_actor;
+  ClutterInputDeviceType device_type = device->device_type;
+
+  g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
+            device_type != CLUTTER_PAD_DEVICE);
+
+  old_actor = clutter_stage_get_device_actor (stage, device, sequence);
+
+  if (new_actor == old_actor)
+    return;
+
+  CLUTTER_NOTE (EVENT,
+                "Updating actor under cursor (device %d, at %.2f, %.2f): %s",
+                clutter_input_device_get_device_id (device),
+                point.x,
+                point.y,
+                _clutter_actor_get_debug_name (new_actor));
+
+  if (old_actor && emit_crossing)
+    {
+      create_crossing_event (stage,
+                             device, sequence,
+                             CLUTTER_LEAVE,
+                             old_actor, new_actor,
+                             point, time);
+    }
+
+  clutter_stage_associate_actor_device (stage, new_actor, device, sequence);
+
+  if (new_actor && emit_crossing)
+    {
+      create_crossing_event (stage,
+                             device, sequence,
+                             CLUTTER_ENTER,
+                             new_actor, old_actor,
+                             point, time);
+    }
+}
+
+static ClutterActor *
+repick_device_actor_for_event (ClutterStage *stage,
+                               ClutterEvent *event,
+                               gboolean      emit_crossing)
+{
+  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterActor *new_actor;
+  graphene_point_t point;
+  uint32_t time;
+
+  clutter_event_get_coords (event, &point.x, &point.y);
+  time = clutter_event_get_time (event);
+
+  new_actor =
+    _clutter_stage_do_pick (stage, point.x, point.y, CLUTTER_PICK_REACTIVE);
+
+  /* if the pick could not find an actor then we do not update the
+   * input device, to avoid ghost enter/leave events; the pick should
+   * never fail, except for bugs in the glReadPixels() implementation
+   * in which case this is the safest course of action anyway
+   */
+  if (new_actor == NULL)
+    return NULL; // FIXME: comment above sounds like we should assert here?
+
+  clutter_update_device_actor (stage,
+                               device, sequence,
+                               new_actor,
+                               point, time,
+                               emit_crossing);
+
+  return new_actor;
+}
+
 
 static void
 _clutter_process_event_details (ClutterActor        *stage,

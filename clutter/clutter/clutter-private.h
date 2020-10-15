@@ -208,6 +208,15 @@ gboolean _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
 
 void _clutter_run_repaint_functions (ClutterRepaintFlags flags);
 
+CLUTTER_EXPORT
+void clutter_update_device_actor (ClutterStage         *stage,
+                                  ClutterInputDevice   *device,
+                                  ClutterEventSequence *sequence,
+                                  ClutterActor         *new_actor,
+                                  graphene_point_t      point,
+                                  uint32_t              time,
+                                  gboolean              emit_crossing);
+
 GType _clutter_layout_manager_get_child_meta_type (ClutterLayoutManager *manager);
 
 void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
