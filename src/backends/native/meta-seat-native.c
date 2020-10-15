@@ -1461,30 +1461,32 @@ meta_seat_native_handle_device_event (ClutterSeat  *seat,
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
   ClutterInputDevice *device = event->device.device;
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
-  gboolean check_touch_mode;
+  gboolean is_touchscreen, is_tablet_switch;
 
-  check_touch_mode =
+  is_touchscreen =
     clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
+  is_tablet_switch =
+    libinput_device_has_capability (device_native->libinput_device,
+                                    LIBINPUT_DEVICE_CAP_SWITCH) &&
+    libinput_device_switch_has_switch (device_native->libinput_device,
+                                       LIBINPUT_SWITCH_TABLET_MODE);
 
   switch (event->type)
     {
       case CLUTTER_DEVICE_ADDED:
-        if (check_touch_mode)
+        if (is_touchscreen)
           seat_native->has_touchscreen = TRUE;
 
-        if (libinput_device_has_capability (device_native->libinput_device,
-                                            LIBINPUT_DEVICE_CAP_SWITCH) &&
-            libinput_device_switch_has_switch (device_native->libinput_device,
-                                               LIBINPUT_SWITCH_TABLET_MODE))
-          {
-            seat_native->has_tablet_switch = TRUE;
-            check_touch_mode = TRUE;
-          }
+        if (is_tablet_switch)
+          seat_native->has_tablet_switch = TRUE;
         break;
 
       case CLUTTER_DEVICE_REMOVED:
-        if (check_touch_mode)
+        if (is_touchscreen)
           seat_native->has_touchscreen = has_touchscreen (seat_native);
+
+        if (is_tablet_switch)
+          seat_native->has_tablet_switch = has_tablet_switch (seat_native);
 
         if (seat_native->repeat_timer && seat_native->repeat_device == device)
           meta_seat_native_clear_repeat_timer (seat_native);
@@ -1494,7 +1496,7 @@ meta_seat_native_handle_device_event (ClutterSeat  *seat,
         break;
     }
 
-  if (check_touch_mode)
+  if (is_touchscreen || is_tablet_switch)
     update_touch_mode (seat_native);
 
   return TRUE;
