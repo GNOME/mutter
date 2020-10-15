@@ -678,15 +678,12 @@ done:
 }
 
 static void
-orientation_changed (MetaOrientationManager *orientation_manager,
-                     MetaMonitorManager     *manager)
+handle_orientation_change (MetaOrientationManager *orientation_manager,
+                           MetaMonitorManager     *manager)
 {
   MetaMonitorTransform transform;
   GError *error = NULL;
   MetaMonitorsConfig *config;
-
-  if (!manager->panel_orientation_managed)
-    return;
 
   switch (meta_orientation_manager_get_orientation (orientation_manager))
     {
@@ -724,6 +721,16 @@ orientation_changed (MetaOrientationManager *orientation_manager,
       g_error_free (error);
     }
   g_object_unref (config);
+}
+
+static void
+orientation_changed (MetaOrientationManager *orientation_manager,
+                     MetaMonitorManager     *manager)                     
+{
+  if (!manager->panel_orientation_managed)
+    return;
+
+  handle_orientation_change (orientation_manager, manager);
 }
 
 static void
