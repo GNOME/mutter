@@ -393,31 +393,6 @@ check_has_pointing_device (ClutterSeat *seat)
   return found;
 }
 
-static inline gboolean
-check_has_physical_touchscreen (ClutterSeat *seat)
-{
-  GList *l, *devices;
-  gboolean found = FALSE;
-
-  devices = clutter_seat_list_devices (seat);
-
-  for (l = devices; l; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-
-      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL &&
-          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
-        {
-          found = TRUE;
-          break;
-        }
-    }
-
-  g_list_free (devices);
-
-  return found;
-}
-
 static void
 on_device_removed (ClutterSeat        *seat,
                    ClutterInputDevice *device,
@@ -441,7 +416,7 @@ on_device_removed (ClutterSeat        *seat,
       g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
       device_type = clutter_input_device_get_device_type (device);
-      has_touchscreen = check_has_physical_touchscreen (seat);
+      has_touchscreen = clutter_seat_has_touchscreen (seat);
 
       if (device_type == CLUTTER_TOUCHSCREEN_DEVICE && has_touchscreen)
         {
