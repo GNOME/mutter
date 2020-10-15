@@ -194,4 +194,7 @@ void clutter_seat_warp_pointer (ClutterSeat *seat,
 CLUTTER_EXPORT
 gboolean clutter_seat_get_touch_mode (ClutterSeat *seat);
 
+CLUTTER_EXPORT
+gboolean clutter_seat_has_touchscreen (ClutterSeat *seat);
+
 #endif /* CLUTTER_SEAT_H */

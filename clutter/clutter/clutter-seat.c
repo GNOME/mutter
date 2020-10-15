@@ -749,3 +749,30 @@ clutter_seat_get_touch_mode (ClutterSeat *seat)
 
   return touch_mode;
 }
+
+/**
+ * clutter_seat_has_touchscreen: (skip)
+ **/
+gboolean
+clutter_seat_has_touchscreen (ClutterSeat *seat)
+{
+  gboolean has_touchscreen;
+  const GList *devices, *l;
+
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
+
+  devices = clutter_seat_peek_devices (seat);
+  for (l = devices; l; l = l->next)
+    {
+      ClutterInputDevice *device = l->data;
+
+      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL &&
+          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
+        {
+          has_touchscreen = TRUE;
+          break;
+        }
+    }
+
+  return has_touchscreen;
+}
