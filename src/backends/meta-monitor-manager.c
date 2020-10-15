@@ -785,6 +785,10 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
 
   meta_dbus_display_config_set_panel_orientation_managed (manager->display_config,
                                                           manager->panel_orientation_managed);
+
+  /* The orientation may have changed while it was unmanaged */
+  if (panel_orientation_managed)
+    handle_orientation_change (orientation_manager, manager);
 }
 
 void
