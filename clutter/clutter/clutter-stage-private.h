@@ -149,6 +149,11 @@ GList * clutter_stage_get_views_for_rect (ClutterStage          *stage,
 
 void clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage);
 
+void clutter_stage_associate_actor_device (ClutterStage         *stage,
+                                           ClutterActor         *actor,
+                                           ClutterInputDevice   *device,
+                                           ClutterEventSequence *sequence);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
