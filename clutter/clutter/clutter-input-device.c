@@ -75,12 +75,6 @@ enum
   PROP_LAST
 };
 
-static void on_cursor_actor_destroy (ClutterActor       *actor,
-                                     ClutterInputDevice *device);
-static void on_cursor_actor_reactive_changed (ClutterActor       *actor,
-                                              GParamSpec         *pspec,
-                                              ClutterInputDevice *device);
-
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
 G_DEFINE_TYPE (ClutterInputDevice, clutter_input_device, G_TYPE_OBJECT);
@@ -111,41 +105,6 @@ clutter_input_device_dispose (GObject *gobject)
   g_clear_pointer (&device->axes, g_array_unref);
   g_clear_pointer (&device->keys, g_array_unref);
   g_clear_pointer (&device->scroll_info, g_array_unref);
-  g_clear_pointer (&device->touch_sequence_actors, g_hash_table_unref);
-
-  if (device->cursor_actor)
-    {
-      g_signal_handlers_disconnect_by_func (device->cursor_actor,
-                                            G_CALLBACK (on_cursor_actor_destroy),
-                                            device);
-      g_signal_handlers_disconnect_by_func (device->cursor_actor,
-                                            G_CALLBACK (on_cursor_actor_reactive_changed),
-                                            device);
-      _clutter_actor_set_has_pointer (device->cursor_actor, FALSE);
-      device->cursor_actor = NULL;
-    }
-
-  if (device->inv_touch_sequence_actors)
-    {
-      GHashTableIter iter;
-      gpointer key, value;
-
-      g_hash_table_iter_init (&iter, device->inv_touch_sequence_actors);
-      while (g_hash_table_iter_next (&iter, &key, &value))
-        {
-          g_signal_handlers_disconnect_by_func (key,
-                                                G_CALLBACK (on_cursor_actor_destroy),
-                                                device);
-          g_signal_handlers_disconnect_by_func (device->cursor_actor,
-                                                G_CALLBACK (on_cursor_actor_reactive_changed),
-                                                device);
-          _clutter_actor_set_has_pointer (key, FALSE);
-          g_list_free (value);
-        }
-
-      g_hash_table_unref (device->inv_touch_sequence_actors);
-      device->inv_touch_sequence_actors = NULL;
-    }
 
   G_OBJECT_CLASS (clutter_input_device_parent_class)->dispose (gobject);
 }
@@ -486,9 +445,6 @@ clutter_input_device_init (ClutterInputDevice *self)
   self->previous_x = -1;
   self->previous_y = -1;
   self->current_button_number = self->previous_button_number = -1;
-
-  self->touch_sequence_actors = g_hash_table_new (NULL, NULL);
-  self->inv_touch_sequence_actors = g_hash_table_new (NULL, NULL);
 }
 
 /**
@@ -516,188 +472,6 @@ clutter_input_device_get_modifier_state (ClutterInputDevice *device)
     return 0;
 
   return modifiers;
-}
-
-static void
-_clutter_input_device_associate_actor (ClutterInputDevice   *device,
-                                       ClutterEventSequence *sequence,
-                                       ClutterActor         *actor)
-{
-  if (sequence == NULL)
-    device->cursor_actor = actor;
-  else
-    {
-      GList *sequences =
-        g_hash_table_lookup (device->inv_touch_sequence_actors, actor);
-
-      g_hash_table_insert (device->touch_sequence_actors, sequence, actor);
-      g_hash_table_insert (device->inv_touch_sequence_actors,
-                           actor, g_list_prepend (sequences, sequence));
-    }
-
-  g_signal_connect (actor,
-                    "destroy", G_CALLBACK (on_cursor_actor_destroy),
-                    device);
-  g_signal_connect (actor,
-                    "notify::reactive", G_CALLBACK (on_cursor_actor_reactive_changed),
-                    device);
-  _clutter_actor_set_has_pointer (actor, TRUE);
-}
-
-static void
-_clutter_input_device_unassociate_actor (ClutterInputDevice   *device,
-                                         ClutterActor         *actor,
-                                         gboolean              destroyed)
-{
-  if (device->cursor_actor == actor)
-    device->cursor_actor = NULL;
-  else
-    {
-      GList *l, *sequences =
-        g_hash_table_lookup (device->inv_touch_sequence_actors,
-                             actor);
-
-      for (l = sequences; l != NULL; l = l->next)
-        g_hash_table_remove (device->touch_sequence_actors, l->data);
-
-      g_list_free (sequences);
-      g_hash_table_remove (device->inv_touch_sequence_actors, actor);
-    }
-
-  if (destroyed == FALSE)
-    {
-      g_signal_handlers_disconnect_by_func (actor,
-                                            G_CALLBACK (on_cursor_actor_destroy),
-                                            device);
-      g_signal_handlers_disconnect_by_func (actor,
-                                            G_CALLBACK (on_cursor_actor_reactive_changed),
-                                            device);
-      _clutter_actor_set_has_pointer (actor, FALSE);
-    }
-}
-
-static void
-on_cursor_actor_destroy (ClutterActor       *actor,
-                         ClutterInputDevice *device)
-{
-  _clutter_input_device_unassociate_actor (device, actor, TRUE);
-}
-
-static void
-on_cursor_actor_reactive_changed (ClutterActor       *actor,
-                                  GParamSpec         *pspec,
-                                  ClutterInputDevice *device)
-{
-  if (!clutter_actor_get_reactive (actor))
-    _clutter_input_device_unassociate_actor (device, actor, FALSE);
-}
-
-/*< private >
- * clutter_input_device_set_actor:
- * @device: a #ClutterInputDevice
- * @actor: a #ClutterActor
- * @emit_crossing: %TRUE to emit crossing events
- *
- * Sets the actor under the pointer coordinates of @device
- *
- * This function is called by clutter_input_device_update()
- * and it will:
- *
- *   - queue a %CLUTTER_LEAVE event on the previous pointer actor
- *     of @device, if any
- *   - set to %FALSE the :has-pointer property of the previous
- *     pointer actor of @device, if any
- *   - queue a %CLUTTER_ENTER event on the new pointer actor
- *   - set to %TRUE the :has-pointer property of the new pointer
- *     actor
- */
-static void
-_clutter_input_device_set_actor (ClutterInputDevice   *device,
-                                 ClutterEventSequence *sequence,
-                                 ClutterActor         *actor,
-                                 gboolean              emit_crossing,
-                                 graphene_point_t      coords,
-                                 uint32_t              time_)
-{
-  ClutterActor *old_actor = clutter_input_device_get_actor (device, sequence);
-  ClutterStage *stage = NULL;
-
-  if (old_actor == actor)
-    return;
-
-  if (emit_crossing)
-    {
-      if (actor)
-        stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
-      else if (old_actor)
-        stage = CLUTTER_STAGE (clutter_actor_get_stage (old_actor));
-
-      if (!stage)
-        return;
-    }
-
-  if (old_actor != NULL)
-    {
-      ClutterActor *tmp_old_actor;
-
-      if (emit_crossing)
-        {
-          ClutterEvent *event;
-
-          event = clutter_event_new (CLUTTER_LEAVE);
-          event->crossing.time = time_;
-          event->crossing.flags = 0;
-          event->crossing.stage = stage;
-          event->crossing.source = old_actor;
-          event->crossing.x = coords.x;
-          event->crossing.y = coords.y;
-          event->crossing.related = actor;
-          event->crossing.sequence = sequence;
-          clutter_event_set_device (event, device);
-
-          /* we need to make sure that this event is processed
-           * before any other event we might have queued up until
-           * now, so we go on, and synthesize the event emission
-           * ourselves
-           */
-          _clutter_process_event (event);
-
-          clutter_event_free (event);
-        }
-
-      /* processing the event might have destroyed the actor */
-      tmp_old_actor = clutter_input_device_get_actor (device, sequence);
-      _clutter_input_device_unassociate_actor (device,
-                                               old_actor,
-                                               tmp_old_actor == NULL);
-      old_actor = tmp_old_actor;
-    }
-
-  if (actor != NULL)
-    {
-      _clutter_input_device_associate_actor (device, sequence, actor);
-
-      if (emit_crossing)
-        {
-          ClutterEvent *event;
-
-          event = clutter_event_new (CLUTTER_ENTER);
-          event->crossing.time = time_;
-          event->crossing.flags = 0;
-          event->crossing.stage = stage;
-          event->crossing.x = coords.x;
-          event->crossing.y = coords.y;
-          event->crossing.source = actor;
-          event->crossing.related = old_actor;
-          event->crossing.sequence = sequence;
-          clutter_event_set_device (event, device);
-
-          /* see above */
-          _clutter_process_event (event);
-
-          clutter_event_free (event);
-        }
-    }
 }
 
 /**
@@ -766,102 +540,6 @@ clutter_input_device_get_coords (ClutterInputDevice   *device,
   seat = clutter_input_device_get_seat (device);
 
   return clutter_seat_query_state (seat, device, sequence, point, NULL);
-}
-
-/*
- * clutter_input_device_update:
- * @device: a #ClutterInputDevice
- *
- * Updates the input @device by determining the #ClutterActor underneath the
- * pointer's cursor
- *
- * This function calls _clutter_input_device_set_actor() if needed.
- *
- * This function only works for #ClutterInputDevice of type
- * %CLUTTER_POINTER_DEVICE.
- *
- * Since: 1.2
- */
-ClutterActor *
-clutter_input_device_update (ClutterInputDevice   *device,
-                             ClutterEventSequence *sequence,
-                             ClutterStage         *stage,
-                             gboolean              emit_crossing,
-                             ClutterEvent         *for_event)
-{
-  ClutterActor *new_cursor_actor;
-  ClutterActor *old_cursor_actor;
-  graphene_point_t point = GRAPHENE_POINT_INIT (-1.0f, -1.0f);
-  ClutterInputDeviceType device_type = device->device_type;
-  uint32_t time_;
-
-  g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
-            device_type != CLUTTER_PAD_DEVICE);
-
-  if (for_event)
-    {
-      clutter_event_get_coords (for_event, &point.x, &point.y);
-      time_ = clutter_event_get_time (for_event);
-    }
-  else
-    {
-      clutter_input_device_get_coords (device, sequence, &point);
-      time_ = CLUTTER_CURRENT_TIME;
-    }
-
-  old_cursor_actor = clutter_input_device_get_actor (device, sequence);
-  new_cursor_actor =
-    _clutter_stage_do_pick (stage, point.x, point.y, CLUTTER_PICK_REACTIVE);
-
-  /* if the pick could not find an actor then we do not update the
-   * input device, to avoid ghost enter/leave events; the pick should
-   * never fail, except for bugs in the glReadPixels() implementation
-   * in which case this is the safest course of action anyway
-   */
-  if (new_cursor_actor == NULL)
-    return NULL;
-
-  CLUTTER_NOTE (EVENT,
-                "Actor under cursor (device %d, at %.2f, %.2f): %s",
-                clutter_input_device_get_device_id (device),
-                point.x,
-                point.y,
-                _clutter_actor_get_debug_name (new_cursor_actor));
-
-  /* short-circuit here */
-  if (new_cursor_actor == old_cursor_actor)
-    return old_cursor_actor;
-
-  _clutter_input_device_set_actor (device, sequence,
-                                   new_cursor_actor,
-                                   emit_crossing,
-                                   point, time_);
-
-  return new_cursor_actor;
-}
-
-/**
- * clutter_input_device_get_actor:
- * @device: a #ClutterInputDevice
- * @sequence: (allow-none): an optional #ClutterEventSequence
- *
- * Retrieves the #ClutterActor underneath the pointer or touchpoint
- * of @device and @sequence.
- *
- * Return value: (transfer none): a pointer to the #ClutterActor or %NULL
- *
- * Since: 1.2
- */
-ClutterActor *
-clutter_input_device_get_actor (ClutterInputDevice   *device,
-                                ClutterEventSequence *sequence)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-
-  if (sequence == NULL)
-    return device->cursor_actor;
-
-  return g_hash_table_lookup (device->touch_sequence_actors, sequence);
 }
 
 /**
@@ -1300,39 +978,6 @@ _clutter_input_device_remove_physical_device (ClutterInputDevice *logical,
 {
   if (g_list_find (logical->physical_devices, physical) != NULL)
     logical->physical_devices = g_list_remove (logical->physical_devices, physical);
-}
-
-/*< private >
- * clutter_input_device_remove_sequence:
- * @device: a #ClutterInputDevice
- * @sequence: a #ClutterEventSequence
- *
- * Stop tracking information related to a touch point.
- */
-void
-_clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
-                                             ClutterEvent       *event)
-{
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterActor *actor =
-    g_hash_table_lookup (device->touch_sequence_actors, sequence);
-
-  if (actor != NULL)
-    {
-      GList *sequences =
-        g_hash_table_lookup (device->inv_touch_sequence_actors, actor);
-      graphene_point_t point;
-
-      sequences = g_list_remove (sequences, sequence);
-
-      g_hash_table_replace (device->inv_touch_sequence_actors,
-                            actor, sequences);
-      clutter_event_get_coords (event, &point.x, &point.y);
-      _clutter_input_device_set_actor (device, sequence, NULL, TRUE, point,
-                                       clutter_event_get_time (event));
-    }
-
-  g_hash_table_remove (device->touch_sequence_actors, sequence);
 }
 
 /**

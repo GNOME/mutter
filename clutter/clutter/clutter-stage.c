@@ -1349,7 +1349,18 @@ clutter_stage_update_devices (ClutterStage *stage,
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
-      clutter_input_device_update (device, NULL, stage, TRUE, NULL);
+      graphene_point_t point;
+      ClutterActor *new_actor;
+
+      clutter_input_device_get_coords (device, NULL, &point);
+      new_actor =
+        _clutter_stage_do_pick (stage, point.x, point.y, CLUTTER_PICK_REACTIVE);
+
+      clutter_update_device_actor (stage,
+                                   device, NULL,
+                                   new_actor,
+                                   point, CLUTTER_CURRENT_TIME,
+                                   TRUE);
     }
 }
 

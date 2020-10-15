@@ -1743,9 +1743,8 @@ _clutter_process_event_details (ClutterActor        *stage,
 
             emit_crossing_event (event, device);
 
-            actor = clutter_input_device_update (device, NULL,
-                                                 CLUTTER_STAGE (stage), FALSE,
-                                                 event);
+            actor = repick_device_actor_for_event (CLUTTER_STAGE (stage),
+                                                   event, FALSE);
             if (actor != stage)
               {
                 ClutterEvent *crossing;
@@ -1771,13 +1770,14 @@ _clutter_process_event_details (ClutterActor        *stage,
          */
         if (event->any.source == stage &&
             event->crossing.related == NULL &&
-            device->cursor_actor != stage)
+            clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL) != stage)
           {
             ClutterEvent *crossing;
 
             crossing = clutter_event_copy (event);
             crossing->crossing.related = stage;
-            crossing->crossing.source = device->cursor_actor;
+            crossing->crossing.source =
+              clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL);
 
             emit_crossing_event (crossing, device);
             clutter_event_free (crossing);
@@ -1894,9 +1894,8 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              actor = clutter_input_device_update (device, NULL,
-                                                   CLUTTER_STAGE (stage),
-                                                   TRUE, event);
+              actor = repick_device_actor_for_event (CLUTTER_STAGE (stage),
+                                                     event, TRUE);
               if (actor == NULL)
                 break;
 
@@ -1996,14 +1995,25 @@ _clutter_process_event_details (ClutterActor        *stage,
 
                   if (event->type == CLUTTER_TOUCH_END ||
                       event->type == CLUTTER_TOUCH_CANCEL)
-                    _clutter_input_device_remove_event_sequence (device, event);
+                    {
+                      graphene_point_t point;
+                      uint32_t time;
+
+                      clutter_event_get_coords (event, &point.x, &point.y);
+                      time = clutter_event_get_time (event);
+
+                      clutter_update_device_actor (CLUTTER_STAGE (stage),
+                                                   device, sequence,
+                                                   NULL,
+                                                   point, time,
+                                                   TRUE);
+                    }
 
                   break;
                 }
 
-              actor = clutter_input_device_update (device, sequence,
-                                                   CLUTTER_STAGE (stage),
-                                                   TRUE, event);
+              actor = repick_device_actor_for_event (CLUTTER_STAGE (stage),
+                                                     event, TRUE);
               if (actor == NULL)
                 break;
 
@@ -2024,7 +2034,19 @@ _clutter_process_event_details (ClutterActor        *stage,
 
           if (event->type == CLUTTER_TOUCH_END ||
               event->type == CLUTTER_TOUCH_CANCEL)
-            _clutter_input_device_remove_event_sequence (device, event);
+            {
+              graphene_point_t point;
+              uint32_t time;
+
+              clutter_event_get_coords (event, &point.x, &point.y);
+              time = clutter_event_get_time (event);
+
+              clutter_update_device_actor (CLUTTER_STAGE (stage),
+                                           device, sequence,
+                                           NULL,
+                                           point, time,
+                                           TRUE);
+            }
 
           break;
         }

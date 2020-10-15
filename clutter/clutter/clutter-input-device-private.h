@@ -162,15 +162,6 @@ CLUTTER_EXPORT
 void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
                                             ClutterInputDeviceTool *tool);
 CLUTTER_EXPORT
-ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
-                                            ClutterEventSequence *sequence,
-                                            ClutterStage         *stage,
-                                            gboolean              emit_crossing,
-                                            ClutterEvent         *for_event);
-CLUTTER_EXPORT
-void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
-                                                  ClutterEvent       *event);
-CLUTTER_EXPORT
 void _clutter_input_device_set_n_keys (ClutterInputDevice *device,
                                        guint               n_keys);
 CLUTTER_EXPORT

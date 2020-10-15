@@ -92,9 +92,6 @@ gboolean                clutter_input_device_get_coords        (ClutterInputDevi
 CLUTTER_EXPORT
 ClutterModifierType     clutter_input_device_get_modifier_state (ClutterInputDevice  *device);
 CLUTTER_EXPORT
-ClutterActor *          clutter_input_device_get_actor (ClutterInputDevice   *device,
-                                                        ClutterEventSequence *sequence);
-CLUTTER_EXPORT
 const gchar *           clutter_input_device_get_device_name    (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 ClutterInputMode        clutter_input_device_get_device_mode    (ClutterInputDevice  *device);
