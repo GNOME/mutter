@@ -236,6 +236,11 @@ ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
                                               float         x,
                                               float         y);
 
+CLUTTER_EXPORT
+ClutterActor * clutter_stage_get_device_actor (ClutterStage         *stage,
+                                               ClutterInputDevice   *device,
+                                               ClutterEventSequence *sequence);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_H__ */

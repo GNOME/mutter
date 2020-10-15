@@ -128,6 +128,16 @@ GList * clutter_stage_get_views_for_rect (ClutterStage          *stage,
 
 void clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage);
 
+void clutter_stage_update_device_entry (ClutterStage         *self,
+                                        ClutterInputDevice   *device,
+                                        ClutterEventSequence *sequence,
+                                        graphene_point_t      coords,
+                                        ClutterActor         *actor);
+
+void clutter_stage_remove_device_entry (ClutterStage         *self,
+                                        ClutterInputDevice   *device,
+                                        ClutterEventSequence *sequence);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
