@@ -97,6 +97,8 @@ typedef struct _CoglWinsysEGLVtable
                      GError **error);
 } CoglWinsysEGLVtable;
 
+#define MAX_EGL_CONFIG_ATTRIBS 30
+
 typedef enum _CoglEGLWinsysFeature
 {
   COGL_EGL_WINSYS_FEATURE_SWAP_REGION                   =1L<<0,
@@ -208,5 +210,10 @@ _cogl_egl_query_wayland_buffer (CoglContext *ctx,
 COGL_EXPORT gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
                                           GError **error);
+
+void
+cogl_display_egl_determine_attributes (CoglDisplay                 *display,
+                                       const CoglFramebufferConfig *config,
+                                       EGLint                      *attributes);
 
 #endif /* __COGL_WINSYS_EGL_PRIVATE_H */

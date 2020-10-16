@@ -46,6 +46,7 @@
 #include "cogl-trace.h"
 #include "winsys/cogl-winsys-egl-private.h"
 #include "winsys/cogl-winsys-private.h"
+#include "winsys/cogl-onscreen-egl.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -76,8 +77,6 @@
 #define EGL_CONTEXT_PRIORITY_MEDIUM_IMG         0x3102
 #define EGL_CONTEXT_PRIORITY_LOW_IMG            0x3103
 #endif
-
-#define MAX_EGL_CONFIG_ATTRIBS 30
 
 /* Define a set of arrays containing the functions required from GL
    for each winsys feature */
@@ -194,10 +193,10 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   return FALSE;
 }
 
-static void
-egl_attributes_from_framebuffer_config (CoglDisplay                 *display,
-                                        const CoglFramebufferConfig *config,
-                                        EGLint                      *attributes)
+void
+cogl_display_egl_determine_attributes (CoglDisplay                 *display,
+                                       const CoglFramebufferConfig *config,
+                                       EGLint                      *attributes)
 {
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
@@ -371,9 +370,9 @@ try_create_context (CoglDisplay *display,
   else if (renderer->driver == COGL_DRIVER_GLES2)
     eglBindAPI (EGL_OPENGL_ES_API);
 
-  egl_attributes_from_framebuffer_config (display,
-                                          &display->onscreen_template->config,
-                                          cfg_attribs);
+  cogl_display_egl_determine_attributes (display,
+                                         &display->onscreen_template->config,
+                                         cfg_attribs);
 
   edpy = egl_renderer->edpy;
 
@@ -584,282 +583,6 @@ _cogl_winsys_context_deinit (CoglContext *context)
   g_free (context->winsys);
 }
 
-static gboolean
-_cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
-                            GError **error)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *display = context->display;
-  CoglDisplayEGL *egl_display = display->winsys;
-  CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-  const CoglFramebufferConfig *config;
-  EGLint attributes[MAX_EGL_CONFIG_ATTRIBS];
-  EGLConfig egl_config;
-  EGLint config_count = 0;
-  EGLBoolean status;
-  CoglOnscreenEGL *winsys;
-
-  g_return_val_if_fail (egl_display->egl_context, FALSE);
-
-  config = cogl_framebuffer_get_config (framebuffer);
-  egl_attributes_from_framebuffer_config (display, config, attributes);
-
-  status = eglChooseConfig (egl_renderer->edpy,
-                            attributes,
-                            &egl_config, 1,
-                            &config_count);
-  if (status != EGL_TRUE || config_count == 0)
-    {
-      g_set_error (error, COGL_WINSYS_ERROR,
-                   COGL_WINSYS_ERROR_CREATE_ONSCREEN,
-                   "Failed to find a suitable EGL configuration");
-      return FALSE;
-    }
-
-  /* Update the real number of samples_per_pixel now that we have
-   * found an egl_config... */
-  if (config->samples_per_pixel)
-    {
-      EGLint samples;
-      status = eglGetConfigAttrib (egl_renderer->edpy,
-                                   egl_config,
-                                   EGL_SAMPLES, &samples);
-      g_return_val_if_fail (status == EGL_TRUE, TRUE);
-      cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
-    }
-
-  winsys = g_slice_new0 (CoglOnscreenEGL);
-  cogl_onscreen_set_winsys (onscreen, winsys);
-
-  if (egl_renderer->platform_vtable->onscreen_init &&
-      !egl_renderer->platform_vtable->onscreen_init (onscreen,
-                                                     egl_config,
-                                                     error))
-    {
-      g_slice_free (CoglOnscreenEGL, winsys);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static void
-_cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *egl_display = context->display->winsys;
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-
-  /* If we never successfully allocated then there's nothing to do */
-  if (egl_onscreen == NULL)
-    return;
-
-  if (egl_onscreen->egl_surface != EGL_NO_SURFACE)
-    {
-      /* Cogl always needs a valid context bound to something so if we
-       * are destroying the onscreen that is currently bound we'll
-       * switch back to the dummy drawable. */
-      if ((egl_display->dummy_surface != EGL_NO_SURFACE ||
-           (egl_renderer->private_features &
-            COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT) != 0) &&
-          (egl_display->current_draw_surface == egl_onscreen->egl_surface ||
-           egl_display->current_read_surface == egl_onscreen->egl_surface))
-        {
-          _cogl_winsys_egl_make_current (context->display,
-                                         egl_display->dummy_surface,
-                                         egl_display->dummy_surface,
-                                         egl_display->current_context);
-        }
-
-      if (eglDestroySurface (egl_renderer->edpy, egl_onscreen->egl_surface)
-          == EGL_FALSE)
-        g_warning ("Failed to destroy EGL surface");
-      egl_onscreen->egl_surface = EGL_NO_SURFACE;
-    }
-
-  if (egl_renderer->platform_vtable->onscreen_deinit)
-    egl_renderer->platform_vtable->onscreen_deinit (onscreen);
-
-  g_slice_free (CoglOnscreenEGL, cogl_onscreen_get_winsys (onscreen));
-  cogl_onscreen_set_winsys (onscreen, NULL);
-}
-
-static gboolean
-bind_onscreen_with_context (CoglOnscreen *onscreen,
-                            EGLContext egl_context)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-
-  gboolean status = _cogl_winsys_egl_make_current (context->display,
-                                                   egl_onscreen->egl_surface,
-                                                   egl_onscreen->egl_surface,
-                                                   egl_context);
-  if (status)
-    {
-      CoglRenderer *renderer = context->display->renderer;
-      CoglRendererEGL *egl_renderer = renderer->winsys;
-
-      eglSwapInterval (egl_renderer->edpy, 1);
-    }
-
-  return status;
-}
-
-static gboolean
-bind_onscreen (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *egl_display = context->display->winsys;
-
-  return bind_onscreen_with_context (onscreen, egl_display->egl_context);
-}
-
-static void
-_cogl_winsys_onscreen_bind (CoglOnscreen *onscreen)
-{
-  bind_onscreen (onscreen);
-}
-
-#ifndef EGL_BUFFER_AGE_EXT
-#define EGL_BUFFER_AGE_EXT 0x313D
-#endif
-
-static int
-_cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-  CoglDisplayEGL *egl_display = context->display->winsys;
-  EGLSurface surface = egl_onscreen->egl_surface;
-  static gboolean warned = FALSE;
-  int age = 0;
-
-  if (!(egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_BUFFER_AGE))
-    return 0;
-
-  if (!_cogl_winsys_egl_make_current (context->display,
-				      surface, surface,
-                                      egl_display->egl_context))
-    return 0;
-
-  if (!eglQuerySurface (egl_renderer->edpy, surface, EGL_BUFFER_AGE_EXT, &age))
-    {
-      if (!warned)
-        g_critical ("Failed to query buffer age, got error %x", eglGetError ());
-      warned = TRUE;
-    }
-  else
-    {
-      warned = FALSE;
-    }
-
-  return age;
-}
-
-static void
-_cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
-                                   const int *user_rectangles,
-                                   int n_rectangles,
-                                   CoglFrameInfo *info,
-                                   gpointer user_data)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-  int framebuffer_height  = cogl_framebuffer_get_height (framebuffer);
-  int *rectangles = g_alloca (sizeof (int) * n_rectangles * 4);
-  int i;
-
-  /* eglSwapBuffersRegion expects rectangles relative to the
-   * bottom left corner but we are given rectangles relative to
-   * the top left so we need to flip them... */
-  memcpy (rectangles, user_rectangles, sizeof (int) * n_rectangles * 4);
-  for (i = 0; i < n_rectangles; i++)
-    {
-      int *rect = &rectangles[4 * i];
-      rect[1] = framebuffer_height - rect[1] - rect[3];
-    }
-
-  /* At least for eglSwapBuffers the EGL spec says that the surface to
-     swap must be bound to the current context. It looks like Mesa
-     also validates that this is the case for eglSwapBuffersRegion so
-     we must bind here too */
-  _cogl_framebuffer_flush_state (COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER_STATE_BIND);
-
-  if (egl_renderer->pf_eglSwapBuffersRegion (egl_renderer->edpy,
-                                             egl_onscreen->egl_surface,
-                                             n_rectangles,
-                                             rectangles) == EGL_FALSE)
-    g_warning ("Error reported by eglSwapBuffersRegion");
-}
-
-static void
-_cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
-                                                const int *rectangles,
-                                                int n_rectangles,
-                                                CoglFrameInfo *info,
-                                                gpointer user_data)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-
-  COGL_TRACE_BEGIN_SCOPED (CoglOnscreenEGLSwapBuffersWithDamage,
-                           "Onscreen (eglSwapBuffers)");
-
-  /* The specification for EGL (at least in 1.4) says that the surface
-     needs to be bound to the current context for the swap to work
-     although it may change in future. Mesa explicitly checks for this
-     and just returns an error if this is not the case so we can't
-     just pretend this isn't in the spec. */
-  _cogl_framebuffer_flush_state (COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER_STATE_BIND);
-
-  if (n_rectangles && egl_renderer->pf_eglSwapBuffersWithDamage)
-    {
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-      size_t size = n_rectangles * sizeof (int) * 4;
-      int *flipped = alloca (size);
-      int i;
-
-      memcpy (flipped, rectangles, size);
-      for (i = 0; i < n_rectangles; i++)
-        {
-          const int *rect = rectangles + 4 * i;
-          int *flip_rect = flipped + 4 * i;
-
-          flip_rect[1] =
-            cogl_framebuffer_get_height (framebuffer) - rect[1] - rect[3];
-        }
-
-      if (egl_renderer->pf_eglSwapBuffersWithDamage (egl_renderer->edpy,
-                                                     egl_onscreen->egl_surface,
-                                                     flipped,
-                                                     n_rectangles) == EGL_FALSE)
-        g_warning ("Error reported by eglSwapBuffersWithDamage");
-    }
-  else
-    eglSwapBuffers (egl_renderer->edpy, egl_onscreen->egl_surface);
-}
-
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
 static void *
 _cogl_winsys_fence_add (CoglContext *context)
@@ -913,13 +636,13 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .display_destroy = _cogl_winsys_display_destroy,
     .context_init = _cogl_winsys_context_init,
     .context_deinit = _cogl_winsys_context_deinit,
-    .onscreen_init = _cogl_winsys_onscreen_init,
-    .onscreen_deinit = _cogl_winsys_onscreen_deinit,
-    .onscreen_bind = _cogl_winsys_onscreen_bind,
+    .onscreen_init = _cogl_winsys_onscreen_egl_init,
+    .onscreen_deinit = _cogl_winsys_onscreen_egl_deinit,
+    .onscreen_bind = _cogl_winsys_onscreen_egl_bind,
     .onscreen_swap_buffers_with_damage =
-      _cogl_winsys_onscreen_swap_buffers_with_damage,
-    .onscreen_swap_region = _cogl_winsys_onscreen_swap_region,
-    .onscreen_get_buffer_age = _cogl_winsys_onscreen_get_buffer_age,
+      _cogl_winsys_onscreen_egl_swap_buffers_with_damage,
+    .onscreen_swap_region = _cogl_winsys_onscreen_egl_swap_region,
+    .onscreen_get_buffer_age = _cogl_winsys_onscreen_egl_get_buffer_age,
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
     .fence_add = _cogl_winsys_fence_add,
