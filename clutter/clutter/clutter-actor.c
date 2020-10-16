@@ -1600,6 +1600,7 @@ queue_update_stage_views (ClutterActor *actor)
 static void
 clutter_actor_real_map (ClutterActor *self)
 {
+  ClutterActorPrivate *priv = self->priv;
   ClutterActor *iter;
 
   g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
@@ -1609,19 +1610,19 @@ clutter_actor_real_map (ClutterActor *self)
 
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
-  if (self->priv->unmapped_paint_branch_counter == 0)
+  if (priv->unmapped_paint_branch_counter == 0)
     {
-      self->priv->needs_paint_volume_update = TRUE;
+      priv->needs_paint_volume_update = TRUE;
 
       /* We skip unmapped actors when updating the stage-views list, so if
        * an actors list got invalidated while it was unmapped make sure to
        * set priv->needs_update_stage_views to TRUE for all actors up the
        * hierarchy now.
        */
-      if (self->priv->needs_update_stage_views)
+      if (priv->needs_update_stage_views)
         {
           /* Avoid the early return in queue_update_stage_views() */
-          self->priv->needs_update_stage_views = FALSE;
+          priv->needs_update_stage_views = FALSE;
           queue_update_stage_views (self);
         }
     }
@@ -1631,7 +1632,7 @@ clutter_actor_real_map (ClutterActor *self)
    */
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
 
-  for (iter = self->priv->first_child;
+  for (iter = priv->first_child;
        iter != NULL;
        iter = iter->priv->next_sibling)
     {
@@ -1715,7 +1716,7 @@ clutter_actor_real_unmap (ClutterActor *self)
   CLUTTER_NOTE (ACTOR, "Unmapping actor '%s'",
                 _clutter_actor_get_debug_name (self));
 
-  for (iter = self->priv->first_child;
+  for (iter = priv->first_child;
        iter != NULL;
        iter = iter->priv->next_sibling)
     {
@@ -1724,7 +1725,7 @@ clutter_actor_real_unmap (ClutterActor *self)
 
   CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
-  if (self->priv->unmapped_paint_branch_counter == 0)
+  if (priv->unmapped_paint_branch_counter == 0)
     {
       /* clear the contents of the last paint volume, so that hiding + moving +
        * showing will not result in the wrong area being repainted
