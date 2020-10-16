@@ -533,15 +533,17 @@ clutter_paint_volume_union (ClutterPaintVolume *pv,
                             const ClutterPaintVolume *another_pv)
 {
   ClutterPaintVolume aligned_pv;
+  graphene_point3d_t min;
+  graphene_point3d_t max;
+  graphene_box_t another_box;
+  graphene_box_t union_box;
+  graphene_box_t box;
 
   g_return_if_fail (pv != NULL);
   g_return_if_fail (another_pv != NULL);
 
   /* Both volumes have to belong to the same local coordinate space */
   g_return_if_fail (pv->actor == another_pv->actor);
-
-  /* NB: we only have to update vertices 0, 1, 3 and 4
-   * (See the ClutterPaintVolume typedef for more details) */
 
   /* We special case empty volumes because otherwise we'd end up
    * calculating a bounding box that would enclose the origin of
@@ -559,78 +561,34 @@ clutter_paint_volume_union (ClutterPaintVolume *pv,
   if (!pv->is_axis_aligned)
     _clutter_paint_volume_axis_align (pv);
 
-  if (!another_pv->is_axis_aligned)
+  _clutter_paint_volume_complete (pv);
+
+  if (!another_pv->is_axis_aligned || !another_pv->is_complete)
     {
       _clutter_paint_volume_copy_static (another_pv, &aligned_pv);
       _clutter_paint_volume_axis_align (&aligned_pv);
+      _clutter_paint_volume_complete (&aligned_pv);
       another_pv = &aligned_pv;
     }
 
-  /* grow left*/
-  /* left vertices 0, 3, 4, 7 */
-  if (another_pv->vertices[0].x < pv->vertices[0].x)
-    {
-      int min_x = another_pv->vertices[0].x;
-      pv->vertices[0].x = min_x;
-      pv->vertices[3].x = min_x;
-      pv->vertices[4].x = min_x;
-      /* pv->vertices[7].x = min_x; */
-    }
+  if (G_LIKELY (pv->is_2d))
+    graphene_box_init_from_points (&box, 4, pv->vertices);
+  else
+    graphene_box_init_from_points (&box, 8, pv->vertices);
 
-  /* grow right */
-  /* right vertices 1, 2, 5, 6 */
-  if (another_pv->vertices[1].x > pv->vertices[1].x)
-    {
-      int max_x = another_pv->vertices[1].x;
-      pv->vertices[1].x = max_x;
-      /* pv->vertices[2].x = max_x; */
-      /* pv->vertices[5].x = max_x; */
-      /* pv->vertices[6].x = max_x; */
-    }
+  if (G_LIKELY (another_pv->is_2d))
+    graphene_box_init_from_points (&another_box, 4, another_pv->vertices);
+  else
+    graphene_box_init_from_points (&another_box, 8, another_pv->vertices);
 
-  /* grow up */
-  /* top vertices 0, 1, 4, 5 */
-  if (another_pv->vertices[0].y < pv->vertices[0].y)
-    {
-      int min_y = another_pv->vertices[0].y;
-      pv->vertices[0].y = min_y;
-      pv->vertices[1].y = min_y;
-      pv->vertices[4].y = min_y;
-      /* pv->vertices[5].y = min_y; */
-    }
+  graphene_box_union (&box, &another_box, &union_box);
 
-  /* grow down */
-  /* bottom vertices 2, 3, 6, 7 */
-  if (another_pv->vertices[3].y > pv->vertices[3].y)
-    {
-      int may_y = another_pv->vertices[3].y;
-      /* pv->vertices[2].y = may_y; */
-      pv->vertices[3].y = may_y;
-      /* pv->vertices[6].y = may_y; */
-      /* pv->vertices[7].y = may_y; */
-    }
-
-  /* grow forward */
-  /* front vertices 0, 1, 2, 3 */
-  if (another_pv->vertices[0].z < pv->vertices[0].z)
-    {
-      int min_z = another_pv->vertices[0].z;
-      pv->vertices[0].z = min_z;
-      pv->vertices[1].z = min_z;
-      /* pv->vertices[2].z = min_z; */
-      pv->vertices[3].z = min_z;
-    }
-
-  /* grow backward */
-  /* back vertices 4, 5, 6, 7 */
-  if (another_pv->vertices[4].z > pv->vertices[4].z)
-    {
-      int maz_z = another_pv->vertices[4].z;
-      pv->vertices[4].z = maz_z;
-      /* pv->vertices[5].z = maz_z; */
-      /* pv->vertices[6].z = maz_z; */
-      /* pv->vertices[7].z = maz_z; */
-    }
+  graphene_box_get_min (&union_box, &min);
+  graphene_box_get_max (&union_box, &max);
+  graphene_point3d_init (&pv->vertices[0], min.x, max.y, min.z);
+  graphene_point3d_init (&pv->vertices[1], max.x, max.y, min.z);
+  graphene_point3d_init (&pv->vertices[3], min.x, min.y, min.z);
+  graphene_point3d_init (&pv->vertices[4], min.x, max.y, max.z);
 
   if (pv->vertices[4].z == pv->vertices[0].z)
     pv->is_2d = TRUE;
