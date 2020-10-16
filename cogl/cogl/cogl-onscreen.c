@@ -45,7 +45,10 @@
 struct _CoglOnscreen
 {
   CoglFramebuffer parent;
+};
 
+typedef struct _CoglOnscreenPrivate
+{
   CoglList frame_closures;
 
   gboolean resizable;
@@ -60,9 +63,9 @@ struct _CoglOnscreen
   GQueue pending_frame_infos;
 
   void *winsys;
-};
+} CoglOnscreenPrivate;
 
-G_DEFINE_TYPE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
+G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
 
 static gpointer
 cogl_dummy_copy (gpointer data)
@@ -93,11 +96,12 @@ static void
 _cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
                                    CoglOnscreenTemplate *onscreen_template)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
 
-  _cogl_list_init (&onscreen->frame_closures);
-  _cogl_list_init (&onscreen->resize_closures);
-  _cogl_list_init (&onscreen->dirty_closures);
+  _cogl_list_init (&priv->frame_closures);
+  _cogl_list_init (&priv->resize_closures);
+  _cogl_list_init (&priv->dirty_closures);
 
   cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
 }
@@ -160,21 +164,22 @@ static void
 cogl_onscreen_dispose (GObject *object)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (object);
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
   CoglFrameInfo *frame_info;
 
-  _cogl_closure_list_disconnect_all (&onscreen->resize_closures);
-  _cogl_closure_list_disconnect_all (&onscreen->frame_closures);
-  _cogl_closure_list_disconnect_all (&onscreen->dirty_closures);
+  _cogl_closure_list_disconnect_all (&priv->resize_closures);
+  _cogl_closure_list_disconnect_all (&priv->frame_closures);
+  _cogl_closure_list_disconnect_all (&priv->dirty_closures);
 
-  while ((frame_info = g_queue_pop_tail (&onscreen->pending_frame_infos)))
+  while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
     cogl_object_unref (frame_info);
-  g_queue_clear (&onscreen->pending_frame_infos);
+  g_queue_clear (&priv->pending_frame_infos);
 
-  if (onscreen->winsys)
+  if (priv->winsys)
     winsys->onscreen_deinit (onscreen);
-  g_return_if_fail (onscreen->winsys == NULL);
+  g_return_if_fail (priv->winsys == NULL);
 
   G_OBJECT_CLASS (cogl_onscreen_parent_class)->dispose (object);
 }
@@ -201,7 +206,9 @@ notify_event (CoglOnscreen *onscreen,
               CoglFrameEvent event,
               CoglFrameInfo *info)
 {
-  _cogl_closure_list_invoke (&onscreen->frame_closures,
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  _cogl_closure_list_invoke (&priv->frame_closures,
                              CoglFrameCallback,
                              onscreen, event, info);
 }
@@ -242,10 +249,12 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
         _cogl_container_of (context->onscreen_dirty_queue.next,
                             CoglOnscreenQueuedDirty,
                             link);
+      CoglOnscreen *onscreen = qe->onscreen;
+      CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
 
       _cogl_list_remove (&qe->link);
 
-      _cogl_closure_list_invoke (&qe->onscreen->dirty_closures,
+      _cogl_closure_list_invoke (&priv->dirty_closures,
                                  CoglOnscreenDirtyCallback,
                                  qe->onscreen,
                                  &qe->info);
@@ -328,13 +337,14 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         CoglFrameInfo *info,
                                         gpointer user_data)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
-  info->frame_counter = onscreen->frame_counter;
-  g_queue_push_tail (&onscreen->pending_frame_infos, info);
+  info->frame_counter = priv->frame_counter;
+  g_queue_push_tail (&priv->pending_frame_infos, info);
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
@@ -355,9 +365,9 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
     {
       CoglFrameInfo *info;
 
-      g_warn_if_fail (onscreen->pending_frame_infos.length == 1);
+      g_warn_if_fail (priv->pending_frame_infos.length == 1);
 
-      info = g_queue_pop_tail (&onscreen->pending_frame_infos);
+      info = g_queue_pop_tail (&priv->pending_frame_infos);
 
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, info);
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
@@ -365,7 +375,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
       cogl_object_unref (info);
     }
 
-  onscreen->frame_counter++;
+  priv->frame_counter++;
 }
 
 void
@@ -383,13 +393,14 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
                            CoglFrameInfo *info,
                            gpointer user_data)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
-  info->frame_counter = onscreen->frame_counter;
-  g_queue_push_tail (&onscreen->pending_frame_infos, info);
+  info->frame_counter = priv->frame_counter;
+  g_queue_push_tail (&priv->pending_frame_infos, info);
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
@@ -417,9 +428,9 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
     {
       CoglFrameInfo *info;
 
-      g_warn_if_fail (onscreen->pending_frame_infos.length == 1);
+      g_warn_if_fail (priv->pending_frame_infos.length == 1);
 
-      info = g_queue_pop_tail (&onscreen->pending_frame_infos);
+      info = g_queue_pop_tail (&priv->pending_frame_infos);
 
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_SYNC, info);
       _cogl_onscreen_queue_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
@@ -427,7 +438,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
       cogl_object_unref (info);
     }
 
-  onscreen->frame_counter++;
+  priv->frame_counter++;
 }
 
 int
@@ -453,14 +464,15 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
                               gpointer        user_data,
                               GError        **error)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
   g_warn_if_fail (COGL_IS_ONSCREEN (framebuffer));
   g_warn_if_fail (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
 
-  info->frame_counter = onscreen->frame_counter;
-  g_queue_push_tail (&onscreen->pending_frame_infos, info);
+  info->frame_counter = priv->frame_counter;
+  g_queue_push_tail (&priv->pending_frame_infos, info);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
   if (!winsys->onscreen_direct_scanout (onscreen,
@@ -469,11 +481,11 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
                                         user_data,
                                         error))
     {
-      g_queue_pop_tail (&onscreen->pending_frame_infos);
+      g_queue_pop_tail (&priv->pending_frame_infos);
       return FALSE;
     }
 
-  onscreen->frame_counter++;
+  priv->frame_counter++;
   return TRUE;
 }
 
@@ -481,26 +493,34 @@ void
 cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
                               CoglFrameInfo *info)
 {
-  info->frame_counter = onscreen->frame_counter;
-  g_queue_push_tail (&onscreen->pending_frame_infos, info);
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  info->frame_counter = priv->frame_counter;
+  g_queue_push_tail (&priv->pending_frame_infos, info);
 }
 
 CoglFrameInfo *
 cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen)
 {
-  return g_queue_peek_head (&onscreen->pending_frame_infos);
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return g_queue_peek_head (&priv->pending_frame_infos);
 }
 
 CoglFrameInfo *
 cogl_onscreen_peek_tail_frame_info (CoglOnscreen *onscreen)
 {
-  return g_queue_peek_tail (&onscreen->pending_frame_infos);
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return g_queue_peek_tail (&priv->pending_frame_infos);
 }
 
 CoglFrameInfo *
 cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
 {
-  return g_queue_pop_head (&onscreen->pending_frame_infos);
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return g_queue_pop_head (&priv->pending_frame_infos);
 }
 
 #ifdef COGL_HAS_X11_SUPPORT
@@ -523,7 +543,9 @@ cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
                                   void *user_data,
                                   CoglUserDataDestroyCallback destroy)
 {
-  return _cogl_closure_list_add (&onscreen->frame_closures,
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return _cogl_closure_list_add (&priv->frame_closures,
                                  callback,
                                  user_data,
                                  destroy);
@@ -584,9 +606,10 @@ _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info)
 void
 _cogl_onscreen_notify_resize (CoglOnscreen *onscreen)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
 
-  _cogl_closure_list_invoke (&onscreen->resize_closures,
+  _cogl_closure_list_invoke (&priv->resize_closures,
                              CoglOnscreenResizeCallback,
                              onscreen,
                              cogl_framebuffer_get_width (framebuffer),
@@ -612,13 +635,14 @@ void
 cogl_onscreen_set_resizable (CoglOnscreen *onscreen,
                              gboolean resizable)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer;
   const CoglWinsysVtable *winsys;
 
-  if (onscreen->resizable == resizable)
+  if (priv->resizable == resizable)
     return;
 
-  onscreen->resizable = resizable;
+  priv->resizable = resizable;
 
   framebuffer = COGL_FRAMEBUFFER (onscreen);
   if (cogl_framebuffer_is_allocated (framebuffer))
@@ -633,7 +657,9 @@ cogl_onscreen_set_resizable (CoglOnscreen *onscreen,
 gboolean
 cogl_onscreen_get_resizable (CoglOnscreen *onscreen)
 {
-  return onscreen->resizable;
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return priv->resizable;
 }
 
 CoglOnscreenResizeClosure *
@@ -642,7 +668,9 @@ cogl_onscreen_add_resize_callback (CoglOnscreen *onscreen,
                                    void *user_data,
                                    CoglUserDataDestroyCallback destroy)
 {
-  return _cogl_closure_list_add (&onscreen->resize_closures,
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return _cogl_closure_list_add (&priv->resize_closures,
                                  callback,
                                  user_data,
                                  destroy);
@@ -661,7 +689,9 @@ cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
                                   void *user_data,
                                   CoglUserDataDestroyCallback destroy)
 {
-  return _cogl_closure_list_add (&onscreen->dirty_closures,
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return _cogl_closure_list_add (&priv->dirty_closures,
                                  callback,
                                  user_data,
                                  destroy);
@@ -679,18 +709,24 @@ cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
 int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen)
 {
-  return onscreen->frame_counter;
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return priv->frame_counter;
 }
 
 void
 cogl_onscreen_set_winsys (CoglOnscreen *onscreen,
                           gpointer      winsys)
 {
-  onscreen->winsys = winsys;
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  priv->winsys = winsys;
 }
 
 gpointer
 cogl_onscreen_get_winsys (CoglOnscreen *onscreen)
 {
-  return onscreen->winsys;
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
+  return priv->winsys;
 }
