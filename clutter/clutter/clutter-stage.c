@@ -1405,7 +1405,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
       _clutter_stage_clear_pick_stack (stage);
 
-      pick_context = clutter_pick_context_new_for_view (view);
+      pick_context = clutter_pick_context_new_for_view (view, mode);
 
       context->pick_mode = mode;
       priv->cached_pick_mode = CLUTTER_PICK_NONE;

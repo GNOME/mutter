@@ -20,6 +20,7 @@
 
 #include "clutter-pick-context.h"
 
-ClutterPickContext * clutter_pick_context_new_for_view (ClutterStageView *view);
+ClutterPickContext * clutter_pick_context_new_for_view (ClutterStageView *view,
+                                                        ClutterPickMode   mode);
 
 #endif /* CLUTTER_PICK_CONTEXT_PRIVATE_H */

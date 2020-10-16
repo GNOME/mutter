@@ -23,6 +23,7 @@ struct _ClutterPickContext
 {
   grefcount ref_count;
 
+  ClutterPickMode mode;
   CoglFramebuffer *framebuffer;
 };
 
@@ -31,12 +32,14 @@ G_DEFINE_BOXED_TYPE (ClutterPickContext, clutter_pick_context,
                      clutter_pick_context_unref)
 
 ClutterPickContext *
-clutter_pick_context_new_for_view (ClutterStageView *view)
+clutter_pick_context_new_for_view (ClutterStageView *view,
+                                   ClutterPickMode   mode)
 {
   ClutterPickContext *pick_context;
 
   pick_context = g_new0 (ClutterPickContext, 1);
   g_ref_count_init (&pick_context->ref_count);
+  pick_context->mode = mode;
   pick_context->framebuffer =
     g_object_ref (clutter_stage_view_get_framebuffer (view));
 
@@ -80,4 +83,13 @@ CoglFramebuffer *
 clutter_pick_context_get_framebuffer (ClutterPickContext *pick_context)
 {
   return pick_context->framebuffer;
+}
+
+/**
+ * clutter_pick_context_get_mode: (skip)
+ */
+ClutterPickMode
+clutter_pick_context_get_mode (ClutterPickContext *pick_context)
+{
+  return pick_context->mode;
 }

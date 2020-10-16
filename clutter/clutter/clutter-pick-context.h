@@ -46,4 +46,7 @@ void clutter_pick_context_destroy (ClutterPickContext *pick_context);
 CLUTTER_EXPORT
 CoglFramebuffer * clutter_pick_context_get_framebuffer (ClutterPickContext *pick_context);
 
+CLUTTER_EXPORT
+ClutterPickMode clutter_pick_context_get_mode (ClutterPickContext *pick_context);
+
 #endif /* CLUTTER_PICK_CONTEXT_H */
