@@ -2311,7 +2311,7 @@ static void
 clutter_actor_real_pick (ClutterActor       *self,
                          ClutterPickContext *pick_context)
 {
-  if (clutter_actor_should_pick_paint (self, pick_context))
+  if (clutter_actor_should_pick (self, pick_context))
     {
       ClutterActorBox box = {
         .x1 = 0,
@@ -2342,22 +2342,21 @@ clutter_actor_real_pick (ClutterActor       *self,
 }
 
 /**
- * clutter_actor_should_pick_paint:
+ * clutter_actor_should_pick:
  * @self: A #ClutterActor
  * @pick_context: a #ClutterPickContext
  *
  * Should be called inside the implementation of the
  * #ClutterActor::pick virtual function in order to check whether
- * the actor should paint itself in pick mode or not.
+ * the actor should be picked or not.
  *
  * This function should never be called directly by applications.
  *
- * Return value: %TRUE if the actor should paint its silhouette,
- *   %FALSE otherwise
+ * Return value: %TRUE if the actor should be picked, %FALSE otherwise
  */
 gboolean
-clutter_actor_should_pick_paint (ClutterActor       *self,
-                                 ClutterPickContext *pick_context)
+clutter_actor_should_pick (ClutterActor       *self,
+                           ClutterPickContext *pick_context)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
