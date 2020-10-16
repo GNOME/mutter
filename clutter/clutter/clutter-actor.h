@@ -591,7 +591,8 @@ void                            clutter_actor_set_offscreen_redirect            
 CLUTTER_EXPORT
 ClutterOffscreenRedirect        clutter_actor_get_offscreen_redirect            (ClutterActor               *self);
 CLUTTER_EXPORT
-gboolean                        clutter_actor_should_pick_paint                 (ClutterActor               *self);
+gboolean                        clutter_actor_should_pick_paint                 (ClutterActor               *self,
+                                                                                 ClutterPickContext         *pick_context);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_is_in_clone_paint                 (ClutterActor               *self);
 CLUTTER_EXPORT

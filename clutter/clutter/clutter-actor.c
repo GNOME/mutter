@@ -2311,7 +2311,7 @@ static void
 clutter_actor_real_pick (ClutterActor       *self,
                          ClutterPickContext *pick_context)
 {
-  if (clutter_actor_should_pick_paint (self))
+  if (clutter_actor_should_pick_paint (self, pick_context))
     {
       ClutterActorBox box = {
         .x1 = 0,
@@ -2344,6 +2344,7 @@ clutter_actor_real_pick (ClutterActor       *self,
 /**
  * clutter_actor_should_pick_paint:
  * @self: A #ClutterActor
+ * @pick_context: a #ClutterPickContext
  *
  * Should be called inside the implementation of the
  * #ClutterActor::pick virtual function in order to check whether
@@ -2355,13 +2356,14 @@ clutter_actor_real_pick (ClutterActor       *self,
  *   %FALSE otherwise
  */
 gboolean
-clutter_actor_should_pick_paint (ClutterActor *self)
+clutter_actor_should_pick_paint (ClutterActor       *self,
+                                 ClutterPickContext *pick_context)
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
   if (CLUTTER_ACTOR_IS_MAPPED (self) &&
       clutter_actor_has_allocation (self) &&
-      (_clutter_context_get_pick_mode () == CLUTTER_PICK_ALL ||
+      (clutter_pick_context_get_mode (pick_context) == CLUTTER_PICK_ALL ||
        CLUTTER_ACTOR_IS_REACTIVE (self)))
     return TRUE;
 

@@ -184,7 +184,7 @@ meta_surface_actor_pick (ClutterActor       *actor,
   ClutterActorIter iter;
   ClutterActor *child;
 
-  if (!clutter_actor_should_pick_paint (actor))
+  if (!clutter_actor_should_pick_paint (actor, pick_context))
     return;
 
   /* If there is no region then use the regular pick */
