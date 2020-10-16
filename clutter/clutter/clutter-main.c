@@ -2311,14 +2311,6 @@ _clutter_clear_events_queue (void)
     }
 }
 
-ClutterPickMode
-_clutter_context_get_pick_mode (void)
-{
-  ClutterMainContext *context = _clutter_context_get_default ();
-
-  return context->pick_mode;
-}
-
 /**
  * clutter_add_debug_flags: (skip)
  *

@@ -1391,11 +1391,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 ClutterPickMode   mode,
                                 ClutterStageView *view)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
   ClutterStagePrivate *priv = stage->priv;
   int i;
-
-  g_assert (context->pick_mode == CLUTTER_PICK_NONE);
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
 
@@ -1407,10 +1404,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
       pick_context = clutter_pick_context_new_for_view (view, mode);
 
-      context->pick_mode = mode;
       priv->cached_pick_mode = CLUTTER_PICK_NONE;
       clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
-      context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
 
       clutter_pick_context_destroy (pick_context);

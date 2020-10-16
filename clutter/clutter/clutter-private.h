@@ -127,8 +127,6 @@ struct _ClutterMainContext
    * ordered from least recently added to most recently added */
   GList *event_filters;
 
-  ClutterPickMode  pick_mode;
-
   /* default FPS; this is only used if we cannot sync to vblank */
   guint frame_rate;
 
@@ -176,7 +174,6 @@ ClutterMainContext *    _clutter_context_get_default                    (void);
 void                    _clutter_context_lock                           (void);
 void                    _clutter_context_unlock                         (void);
 gboolean                _clutter_context_is_initialized                 (void);
-ClutterPickMode         _clutter_context_get_pick_mode                  (void);
 gboolean                _clutter_context_get_show_fps                   (void);
 
 gboolean      _clutter_feature_init (GError **error);
