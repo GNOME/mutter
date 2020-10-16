@@ -1625,6 +1625,13 @@ clutter_actor_real_map (ClutterActor *self)
           priv->needs_update_stage_views = FALSE;
           queue_update_stage_views (self);
         }
+
+      /* Avoid the early return in clutter_actor_queue_relayout() */
+      priv->needs_width_request = FALSE;
+      priv->needs_height_request = FALSE;
+      priv->needs_allocation = FALSE;
+
+      clutter_actor_queue_relayout (self);
     }
 
   /* notify on parent mapped before potentially mapping
@@ -1732,6 +1739,10 @@ clutter_actor_real_unmap (ClutterActor *self)
        */
      _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
       priv->last_paint_volume_valid = TRUE;
+
+      if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent) &&
+          (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
+        clutter_actor_queue_relayout (priv->parent);
     }
 
   /* notify on parent mapped after potentially unmapping
@@ -1789,8 +1800,6 @@ clutter_actor_queue_shallow_relayout (ClutterActor *self)
 static void
 clutter_actor_real_show (ClutterActor *self)
 {
-  ClutterActorPrivate *priv = self->priv;
-
   if (CLUTTER_ACTOR_IS_VISIBLE (self))
     return;
 
@@ -1801,13 +1810,6 @@ clutter_actor_real_show (ClutterActor *self)
    * and the branch of the scene graph is in a stable state
    */
   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
-
-  /* Avoid the early return in clutter_actor_queue_relayout() */
-  priv->needs_width_request = FALSE;
-  priv->needs_height_request = FALSE;
-  priv->needs_allocation = FALSE;
-
-  clutter_actor_queue_relayout (self);
 }
 
 static inline void
@@ -1928,8 +1930,6 @@ clutter_actor_is_visible (ClutterActor *self)
 static void
 clutter_actor_real_hide (ClutterActor *self)
 {
-  ClutterActorPrivate *priv = self->priv;
-
   if (!CLUTTER_ACTOR_IS_VISIBLE (self))
     return;
 
@@ -1940,13 +1940,6 @@ clutter_actor_real_hide (ClutterActor *self)
    * and the branch of the scene graph is in a stable state
    */
   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
-
-  /* we queue a relayout unless the actor is inside a
-   * container that explicitly told us not to
-   */
-  if (priv->parent != NULL &&
-      (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
-    clutter_actor_queue_relayout (priv->parent);
 }
 
 /**
@@ -9564,7 +9557,9 @@ clutter_actor_allocate (ClutterActor          *self,
                                 ? priv->parent->priv->absolute_origin_changed
                                 : FALSE;
 
-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+  if (!CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
+      !CLUTTER_ACTOR_IS_MAPPED (self) &&
+      !clutter_actor_has_mapped_clones (self))
     {
       if (priv->absolute_origin_changed)
         {
