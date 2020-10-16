@@ -150,6 +150,7 @@ clutter_sources = [
   'clutter-path-constraint.c',
   'clutter-path.c',
   'clutter-pick-context.c',
+  'clutter-pick-stack.c',
   'clutter-property-transition.c',
   'clutter-rotate-action.c',
   'clutter-script.c',

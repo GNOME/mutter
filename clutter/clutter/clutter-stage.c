@@ -125,10 +125,7 @@ struct _ClutterStagePrivate
   GTimer *fps_timer;
   gint32 timer_n_frames;
 
-  GArray *pick_stack;
-  GArray *pick_clip_stack;
-  int pick_clip_stack_top;
-  gboolean pick_stack_frozen;
+  ClutterPickStack *pick_stack;
   ClutterPickMode cached_pick_mode;
 
 #ifdef CLUTTER_ENABLE_DEBUG
@@ -238,263 +235,12 @@ clutter_stage_get_preferred_height (ClutterActor *self,
 }
 
 static void
-add_pick_stack_weak_refs (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  int i;
-
-  if (priv->pick_stack_frozen)
-    return;
-
-  for (i = 0; i < priv->pick_stack->len; i++)
-    {
-      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-
-      if (rec->actor)
-        g_object_add_weak_pointer (G_OBJECT (rec->actor),
-                                   (gpointer) &rec->actor);
-    }
-
-  priv->pick_stack_frozen = TRUE;
-}
-
-static void
-remove_pick_stack_weak_refs (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  int i;
-
-  if (!priv->pick_stack_frozen)
-    return;
-
-  for (i = 0; i < priv->pick_stack->len; i++)
-    {
-      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-
-      if (rec->actor)
-        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
-                                      (gpointer) &rec->actor);
-    }
-
-  priv->pick_stack_frozen = FALSE;
-}
-
-static void
 _clutter_stage_clear_pick_stack (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
 
-  remove_pick_stack_weak_refs (stage);
-  g_array_set_size (priv->pick_stack, 0);
-  g_array_set_size (priv->pick_clip_stack, 0);
-  priv->pick_clip_stack_top = -1;
+  g_clear_pointer (&priv->pick_stack, clutter_pick_stack_unref);
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
-}
-
-void
-clutter_stage_log_pick (ClutterStage           *stage,
-                        const graphene_point_t *vertices,
-                        ClutterActor           *actor)
-{
-  ClutterStagePrivate *priv;
-  PickRecord rec;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (actor != NULL);
-
-  priv = stage->priv;
-
-  g_assert (!priv->pick_stack_frozen);
-
-  memcpy (rec.vertex, vertices, 4 * sizeof (graphene_point_t));
-  rec.actor = actor;
-  rec.clip_stack_top = priv->pick_clip_stack_top;
-
-  g_array_append_val (priv->pick_stack, rec);
-}
-
-void
-clutter_stage_push_pick_clip (ClutterStage           *stage,
-                              const graphene_point_t *vertices)
-{
-  ClutterStagePrivate *priv;
-  PickClipRecord clip;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  g_assert (!priv->pick_stack_frozen);
-
-  clip.prev = priv->pick_clip_stack_top;
-  memcpy (clip.vertex, vertices, 4 * sizeof (graphene_point_t));
-
-  g_array_append_val (priv->pick_clip_stack, clip);
-  priv->pick_clip_stack_top = priv->pick_clip_stack->len - 1;
-}
-
-void
-clutter_stage_pop_pick_clip (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv;
-  const PickClipRecord *top;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  g_assert (!priv->pick_stack_frozen);
-  g_assert (priv->pick_clip_stack_top >= 0);
-
-  /* Individual elements of pick_clip_stack are not freed. This is so they
-   * can be shared as part of a tree of different stacks used by different
-   * actors in the pick_stack. The whole pick_clip_stack does however get
-   * freed later in _clutter_stage_clear_pick_stack.
-   */
-
-  top = &g_array_index (priv->pick_clip_stack,
-                        PickClipRecord,
-                        priv->pick_clip_stack_top);
-
-  priv->pick_clip_stack_top = top->prev;
-}
-
-static gboolean
-is_quadrilateral_axis_aligned_rectangle (const graphene_point_t *vertices)
-{
-  int i;
-
-  for (i = 0; i < 4; i++)
-    {
-      if (!G_APPROX_VALUE (vertices[i].x,
-                           vertices[(i + 1) % 4].x,
-                           FLT_EPSILON) &&
-          !G_APPROX_VALUE (vertices[i].y,
-                           vertices[(i + 1) % 4].y,
-                           FLT_EPSILON))
-        return FALSE;
-    }
-  return TRUE;
-}
-
-static gboolean
-is_inside_axis_aligned_rectangle (const graphene_point_t *point,
-                                  const graphene_point_t *vertices)
-{
-  float min_x = FLT_MAX;
-  float max_x = -FLT_MAX;
-  float min_y = FLT_MAX;
-  float max_y = -FLT_MAX;
-  int i;
-
-  for (i = 0; i < 3; i++)
-    {
-      min_x = MIN (min_x, vertices[i].x);
-      min_y = MIN (min_y, vertices[i].y);
-      max_x = MAX (max_x, vertices[i].x);
-      max_y = MAX (max_y, vertices[i].y);
-    }
-
-  return (point->x >= min_x &&
-          point->y >= min_y &&
-          point->x < max_x &&
-          point->y < max_y);
-}
-
-static int
-clutter_point_compare_line (const graphene_point_t *p,
-                            const graphene_point_t *a,
-                            const graphene_point_t *b)
-{
-  graphene_vec3_t vec_pa;
-  graphene_vec3_t vec_pb;
-  graphene_vec3_t cross;
-  float cross_z;
-
-  graphene_vec3_init (&vec_pa, p->x - a->x, p->y - a->y, 0.f);
-  graphene_vec3_init (&vec_pb, p->x - b->x, p->y - b->y, 0.f);
-  graphene_vec3_cross (&vec_pa, &vec_pb, &cross);
-  cross_z = graphene_vec3_get_z (&cross);
-
-  if (cross_z > 0.f)
-    return 1;
-  else if (cross_z < 0.f)
-    return -1;
-  else
-    return 0;
-}
-
-static gboolean
-is_inside_unaligned_rectangle (const graphene_point_t *point,
-                               const graphene_point_t *vertices)
-{
-  unsigned int i;
-  int first_side;
-
-  first_side = 0;
-
-  for (i = 0; i < 4; i++)
-    {
-      int side;
-
-      side = clutter_point_compare_line (point,
-                                         &vertices[i],
-                                         &vertices[(i + 1) % 4]);
-
-      if (side)
-        {
-          if (first_side == 0)
-            first_side = side;
-          else if (side != first_side)
-            return FALSE;
-        }
-    }
-
-  if (first_side == 0)
-    return FALSE;
-
-  return TRUE;
-}
-
-static gboolean
-is_inside_input_region (const graphene_point_t *point,
-                        const graphene_point_t *vertices)
-{
-
-  if (is_quadrilateral_axis_aligned_rectangle (vertices))
-    return is_inside_axis_aligned_rectangle (point, vertices);
-  else
-    return is_inside_unaligned_rectangle (point, vertices);
-}
-
-static gboolean
-pick_record_contains_point (ClutterStage     *stage,
-                            const PickRecord *rec,
-                            float             x,
-                            float             y)
-{
-  const graphene_point_t point = GRAPHENE_POINT_INIT (x, y);
-  ClutterStagePrivate *priv;
-  int clip_index;
-
-  if (!is_inside_input_region (&point, rec->vertex))
-      return FALSE;
-
-  priv = stage->priv;
-  clip_index = rec->clip_stack_top;
-  while (clip_index >= 0)
-    {
-      const PickClipRecord *clip = &g_array_index (priv->pick_clip_stack,
-                                                   PickClipRecord,
-                                                   clip_index);
-
-      if (!is_inside_input_region (&point, clip->vertex))
-        return FALSE;
-
-      clip_index = clip->prev;
-    }
-
-  return TRUE;
 }
 
 static void
@@ -1392,11 +1138,11 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 ClutterStageView *view)
 {
   ClutterStagePrivate *priv = stage->priv;
-  int i;
+  ClutterActor *actor;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
 
-  if (mode != priv->cached_pick_mode)
+  if (!priv->pick_stack || mode != priv->cached_pick_mode)
     {
       ClutterPickContext *pick_context;
 
@@ -1405,26 +1151,14 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       pick_context = clutter_pick_context_new_for_view (view, mode);
 
       clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
+      priv->pick_stack = clutter_pick_context_steal_stack (pick_context);
       priv->cached_pick_mode = mode;
 
       clutter_pick_context_destroy (pick_context);
-
-      add_pick_stack_weak_refs (stage);
     }
 
-  /* Search all "painted" pickable actors from front to back. A linear search
-   * is required, and also performs fine since there is typically only
-   * on the order of dozens of actors in the list (on screen) at a time.
-   */
-  for (i = priv->pick_stack->len - 1; i >= 0; i--)
-    {
-      const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-
-      if (rec->actor && pick_record_contains_point (stage, rec, x, y))
-        return rec->actor;
-    }
-
-  return CLUTTER_ACTOR (stage);
+  actor = clutter_pick_stack_find_actor_at (priv->pick_stack, x, y);
+  return actor ? actor : CLUTTER_ACTOR (stage);
 }
 
 /**
@@ -1636,8 +1370,6 @@ clutter_stage_finalize (GObject *object)
   g_array_free (priv->paint_volume_stack, TRUE);
 
   _clutter_stage_clear_pick_stack (stage);
-  g_array_free (priv->pick_clip_stack, TRUE);
-  g_array_free (priv->pick_stack, TRUE);
 
   if (priv->fps_timer != NULL)
     g_timer_destroy (priv->fps_timer);
@@ -1953,9 +1685,6 @@ clutter_stage_init (ClutterStage *self)
   priv->paint_volume_stack =
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
 
-  priv->pick_stack = g_array_new (FALSE, FALSE, sizeof (PickRecord));
-  priv->pick_clip_stack = g_array_new (FALSE, FALSE, sizeof (PickClipRecord));
-  priv->pick_clip_stack_top = -1;
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 

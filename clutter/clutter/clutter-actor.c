@@ -1252,8 +1252,6 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
 {
   ClutterActor *stage_actor = CLUTTER_ACTOR (stage);
   ClutterActorPrivate *stage_priv = stage_actor->priv;
-  CoglFramebuffer *fb =
-   clutter_pick_context_get_framebuffer (pick_context);
   graphene_matrix_t modelview, transform_to_stage;
   int v;
 
@@ -1261,7 +1259,7 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
 
   if (!stage_priv->has_inverse_transform)
     return FALSE;
-  cogl_framebuffer_get_modelview_matrix (fb, &modelview);
+  clutter_pick_context_get_transform (pick_context, &modelview);
   graphene_matrix_multiply (&modelview,
                             &stage_priv->inverse_transform,
                             &transform_to_stage);
@@ -1326,7 +1324,7 @@ clutter_actor_pick_box (ClutterActor          *self,
 
   if (_clutter_actor_transform_local_box_to_stage (self, stage, pick_context,
                                                    box, vertices))
-    clutter_stage_log_pick (stage, vertices, self);
+    clutter_pick_context_log_pick (pick_context, vertices, self);
 }
 
 static gboolean
@@ -1343,17 +1341,8 @@ _clutter_actor_push_pick_clip (ClutterActor          *self,
                                                     clip, vertices))
     return FALSE;
 
-  clutter_stage_push_pick_clip (stage, vertices);
+  clutter_pick_context_push_clip (pick_context, vertices);
   return TRUE;
-}
-
-static void
-_clutter_actor_pop_pick_clip (ClutterActor *self)
-{
-  ClutterActor *stage;
-
-  stage = _clutter_actor_get_stage_internal (self);
-  clutter_stage_pop_pick_clip (CLUTTER_STAGE (stage));
 }
 
 static void
@@ -4021,7 +4010,6 @@ clutter_actor_pick (ClutterActor       *actor,
                     ClutterPickContext *pick_context)
 {
   ClutterActorPrivate *priv;
-  CoglFramebuffer *framebuffer;
   ClutterActorBox clip;
   gboolean clip_set = FALSE;
 
@@ -4039,16 +4027,13 @@ clutter_actor_pick (ClutterActor       *actor,
   /* mark that we are in the paint process */
   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
 
-  framebuffer = clutter_pick_context_get_framebuffer (pick_context);
-  cogl_framebuffer_push_matrix (framebuffer);
-
   if (priv->enable_model_view_transform)
     {
       graphene_matrix_t matrix;
 
-      cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
+      graphene_matrix_init_identity (&matrix);
       _clutter_actor_apply_modelview_transform (actor, &matrix);
-      cogl_framebuffer_set_modelview_matrix (framebuffer, &matrix);
+      clutter_pick_context_push_transform (pick_context, &matrix);
     }
 
   if (priv->has_clip)
@@ -4081,9 +4066,10 @@ clutter_actor_pick (ClutterActor       *actor,
   clutter_actor_continue_pick (actor, pick_context);
 
   if (clip_set)
-    _clutter_actor_pop_pick_clip (actor);
+    clutter_pick_context_pop_clip (pick_context);
 
-  cogl_framebuffer_pop_matrix (framebuffer);
+  if (priv->enable_model_view_transform)
+    clutter_pick_context_pop_transform (pick_context);
 
   /* paint sequence complete */
   CLUTTER_UNSET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);

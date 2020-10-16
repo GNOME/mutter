@@ -19,8 +19,12 @@
 #define CLUTTER_PICK_CONTEXT_PRIVATE_H
 
 #include "clutter-pick-context.h"
+#include "clutter-pick-stack-private.h"
 
 ClutterPickContext * clutter_pick_context_new_for_view (ClutterStageView *view,
                                                         ClutterPickMode   mode);
+
+ClutterPickStack *
+clutter_pick_context_steal_stack (ClutterPickContext *pick_context);
 
 #endif /* CLUTTER_PICK_CONTEXT_PRIVATE_H */

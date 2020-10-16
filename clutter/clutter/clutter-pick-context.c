@@ -25,6 +25,7 @@ struct _ClutterPickContext
 
   ClutterPickMode mode;
   CoglFramebuffer *framebuffer;
+  ClutterPickStack *pick_stack;
 };
 
 G_DEFINE_BOXED_TYPE (ClutterPickContext, clutter_pick_context,
@@ -36,12 +37,16 @@ clutter_pick_context_new_for_view (ClutterStageView *view,
                                    ClutterPickMode   mode)
 {
   ClutterPickContext *pick_context;
+  CoglContext *context;
 
   pick_context = g_new0 (ClutterPickContext, 1);
   g_ref_count_init (&pick_context->ref_count);
   pick_context->mode = mode;
   pick_context->framebuffer =
     g_object_ref (clutter_stage_view_get_framebuffer (view));
+
+  context = cogl_framebuffer_get_context (pick_context->framebuffer);
+  pick_context->pick_stack = clutter_pick_stack_new (context);
 
   return pick_context;
 }
@@ -56,6 +61,7 @@ clutter_pick_context_ref (ClutterPickContext *pick_context)
 static void
 clutter_pick_context_dispose (ClutterPickContext *pick_context)
 {
+  g_clear_pointer (&pick_context->pick_stack, clutter_pick_stack_unref);
   g_clear_object (&pick_context->framebuffer);
 }
 
@@ -92,4 +98,99 @@ ClutterPickMode
 clutter_pick_context_get_mode (ClutterPickContext *pick_context)
 {
   return pick_context->mode;
+}
+
+ClutterPickStack *
+clutter_pick_context_steal_stack (ClutterPickContext *pick_context)
+{
+  clutter_pick_stack_seal (pick_context->pick_stack);
+  return g_steal_pointer (&pick_context->pick_stack);
+}
+
+/**
+ * clutter_pick_context_log_pick:
+ * @pick_context: a #ClutterPickContext
+ * @vertices: (array fixed-size=4): array of #graphene_point_t
+ * @actor: a #ClutterActor
+ *
+ * Logs a pick rectangle into the pick stack.
+ */
+void
+clutter_pick_context_log_pick (ClutterPickContext     *pick_context,
+                               const graphene_point_t  vertices[4],
+                               ClutterActor           *actor)
+{
+  clutter_pick_stack_log_pick (pick_context->pick_stack, vertices, actor);
+}
+
+/**
+ * clutter_pick_context_push_clip:
+ * @pick_context: a #ClutterPickContext
+ * @vertices: (array fixed-size=4): array of #graphene_point_t
+ *
+ * Pushes a clip rectangle defined by @vertices into the pick stack.
+ * Pop with clutter_pick_context_pop_clip() when done.
+ */
+void
+clutter_pick_context_push_clip (ClutterPickContext     *pick_context,
+                                const graphene_point_t  vertices[4])
+{
+  clutter_pick_stack_push_clip (pick_context->pick_stack, vertices);
+}
+
+/**
+ * clutter_pick_context_pop_clip:
+ * @pick_context: a #ClutterPickContext
+ *
+ * Pops the current clip rectangle from the clip stack. It is a programming
+ * error to call this without a corresponding clutter_pick_context_push_clip()
+ * call first.
+ */
+void
+clutter_pick_context_pop_clip (ClutterPickContext *pick_context)
+{
+  clutter_pick_stack_pop_clip (pick_context->pick_stack);
+}
+
+/**
+ * clutter_pick_context_push_transform:
+ * @pick_context: a #ClutterPickContext
+ * @transform: a #graphene_matrix_t
+ *
+ * Pushes @transform into the pick stack. Pop with
+ * clutter_pick_context_pop_transform() when done.
+ */
+void
+clutter_pick_context_push_transform (ClutterPickContext      *pick_context,
+                                     const graphene_matrix_t *transform)
+{
+  clutter_pick_stack_push_transform (pick_context->pick_stack, transform);
+}
+
+/**
+ * clutter_pick_context_get_transform:
+ * @pick_context: a #ClutterPickContext
+ * @out_matrix: (out): a #graphene_matrix_t
+ *
+ * Retrieves the current transform of the pick stack.
+ */
+void
+clutter_pick_context_get_transform (ClutterPickContext *pick_context,
+                                    graphene_matrix_t  *out_transform)
+{
+  clutter_pick_stack_get_transform (pick_context->pick_stack, out_transform);
+}
+
+/**
+ * clutter_pick_context_pop_transform:
+ * @pick_context: a #ClutterPickContext
+ *
+ * Pops the current transform from the clip stack. It is a programming error
+ * to call this without a corresponding clutter_pick_context_push_transform()
+ * call first.
+ */
+void
+clutter_pick_context_pop_transform (ClutterPickContext *pick_context)
+{
+  clutter_pick_stack_pop_transform (pick_context->pick_stack);
 }

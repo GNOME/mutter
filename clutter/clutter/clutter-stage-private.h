@@ -81,15 +81,6 @@ void     _clutter_stage_process_queued_events             (ClutterStage *stage);
 void     _clutter_stage_update_input_devices              (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
-void clutter_stage_log_pick (ClutterStage           *stage,
-                             const graphene_point_t *vertices,
-                             ClutterActor           *actor);
-
-void clutter_stage_push_pick_clip (ClutterStage           *stage,
-                                   const graphene_point_t *vertices);
-
-void clutter_stage_pop_pick_clip (ClutterStage *stage);
-
 ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
                                       float            x,
                                       float            y,
