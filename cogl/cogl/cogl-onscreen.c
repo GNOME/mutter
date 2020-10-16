@@ -42,6 +42,26 @@
 #include "cogl-poll-private.h"
 #include "cogl-gtype-private.h"
 
+struct _CoglOnscreen
+{
+  CoglFramebuffer parent;
+
+  CoglList frame_closures;
+
+  gboolean resizable;
+  CoglList resize_closures;
+
+  CoglList dirty_closures;
+
+  int64_t frame_counter;
+  int64_t swap_frame_counter; /* frame counter at last all to
+                               * cogl_onscreen_swap_region() or
+                               * cogl_onscreen_swap_buffers() */
+  GQueue pending_frame_infos;
+
+  void *winsys;
+};
+
 G_DEFINE_TYPE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
 
 static gpointer
@@ -465,6 +485,24 @@ cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
 }
 
+CoglFrameInfo *
+cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen)
+{
+  return g_queue_peek_head (&onscreen->pending_frame_infos);
+}
+
+CoglFrameInfo *
+cogl_onscreen_peek_tail_frame_info (CoglOnscreen *onscreen)
+{
+  return g_queue_peek_tail (&onscreen->pending_frame_infos);
+}
+
+CoglFrameInfo *
+cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
+{
+  return g_queue_pop_head (&onscreen->pending_frame_infos);
+}
+
 #ifdef COGL_HAS_X11_SUPPORT
 uint32_t
 cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
@@ -642,4 +680,17 @@ int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen)
 {
   return onscreen->frame_counter;
+}
+
+void
+cogl_onscreen_set_winsys (CoglOnscreen *onscreen,
+                          gpointer      winsys)
+{
+  onscreen->winsys = winsys;
+}
+
+gpointer
+cogl_onscreen_get_winsys (CoglOnscreen *onscreen)
+{
+  return onscreen->winsys;
 }

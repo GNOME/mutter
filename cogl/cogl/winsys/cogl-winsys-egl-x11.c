@@ -84,7 +84,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
       if (!COGL_IS_ONSCREEN (framebuffer))
         continue;
 
-      egl_onscreen = COGL_ONSCREEN (framebuffer)->winsys;
+      egl_onscreen = cogl_onscreen_get_winsys (COGL_ONSCREEN (framebuffer));
       xlib_onscreen = egl_onscreen->platform;
       if (xlib_onscreen->xwin == (Window)xid)
         return COGL_ONSCREEN (framebuffer);
@@ -102,7 +102,7 @@ flush_pending_resize_notifications_cb (void *data,
   if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-      CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+      CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
 
       if (egl_onscreen->pending_resize_notify)
         {
@@ -144,7 +144,7 @@ notify_resize (CoglContext *context,
   if (!onscreen)
     return;
 
-  egl_onscreen = onscreen->winsys;
+  egl_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   _cogl_framebuffer_winsys_update_size (framebuffer, width, height);
 
@@ -420,7 +420,7 @@ _cogl_winsys_egl_onscreen_init (CoglOnscreen *onscreen,
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   CoglOnscreenXlib *xlib_onscreen;
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   Window xwin;
 
   /* FIXME: We need to explicitly Select for ConfigureNotify events.
@@ -518,7 +518,7 @@ _cogl_winsys_egl_onscreen_deinit (CoglOnscreen *onscreen)
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   CoglXlibTrapState old_state;
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
 
   _cogl_xlib_renderer_trap_errors (renderer, &old_state);
@@ -549,7 +549,7 @@ _cogl_winsys_onscreen_set_visibility (CoglOnscreen *onscreen,
   CoglRenderer *renderer = context->display->renderer;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  CoglOnscreenEGL *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
   CoglOnscreenXlib *xlib_onscreen = onscreen_egl->platform;
 
   if (visibility)
@@ -566,7 +566,7 @@ _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
 
   XSizeHints *size_hints = XAllocSizeHints ();
@@ -600,7 +600,7 @@ _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
 static uint32_t
 _cogl_winsys_onscreen_x11_get_window_xid (CoglOnscreen *onscreen)
 {
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
 
   return xlib_onscreen->xwin;

@@ -55,26 +55,6 @@ typedef struct _CoglOnscreenQueuedDirty
   CoglOnscreenDirtyInfo info;
 } CoglOnscreenQueuedDirty;
 
-struct _CoglOnscreen
-{
-  CoglFramebuffer parent;
-
-  CoglList frame_closures;
-
-  gboolean resizable;
-  CoglList resize_closures;
-
-  CoglList dirty_closures;
-
-  int64_t frame_counter;
-  int64_t swap_frame_counter; /* frame counter at last all to
-                               * cogl_onscreen_swap_region() or
-                               * cogl_onscreen_swap_buffers() */
-  GQueue pending_frame_infos;
-
-  void *winsys;
-};
-
 COGL_EXPORT void
 _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
                                       int width, int height);
@@ -100,5 +80,21 @@ _cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
 
 void
 _cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen);
+
+COGL_EXPORT void
+cogl_onscreen_set_winsys (CoglOnscreen *onscreen,
+                          gpointer      winsys);
+
+COGL_EXPORT gpointer
+cogl_onscreen_get_winsys (CoglOnscreen *onscreen);
+
+COGL_EXPORT CoglFrameInfo *
+cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen);
+
+COGL_EXPORT CoglFrameInfo *
+cogl_onscreen_peek_tail_frame_info (CoglOnscreen *onscreen);
+
+COGL_EXPORT CoglFrameInfo *
+cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen);
 
 #endif /* __COGL_ONSCREEN_PRIVATE_H */

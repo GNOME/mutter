@@ -182,7 +182,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
         continue;
 
       /* Does the GLXEvent have the GLXDrawable or the X Window? */
-      xlib_onscreen = COGL_ONSCREEN (framebuffer)->winsys;
+      xlib_onscreen = cogl_onscreen_get_winsys (COGL_ONSCREEN (framebuffer));
       if (xlib_onscreen != NULL && xlib_onscreen->xwin == (Window)xid)
         return COGL_ONSCREEN (framebuffer);
     }
@@ -334,7 +334,7 @@ flush_pending_notifications_cb (void *data,
   if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-      CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+      CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
 
       while (glx_onscreen->pending_sync_notify > 0 ||
              glx_onscreen->pending_complete_notify > 0 ||
@@ -342,18 +342,18 @@ flush_pending_notifications_cb (void *data,
         {
           if (glx_onscreen->pending_sync_notify > 0)
             {
-              CoglFrameInfo *info =
-                g_queue_peek_head (&onscreen->pending_frame_infos);
+              CoglFrameInfo *info;
 
+              info = cogl_onscreen_peek_head_frame_info (onscreen);
               _cogl_onscreen_notify_frame_sync (onscreen, info);
               glx_onscreen->pending_sync_notify--;
             }
 
           if (glx_onscreen->pending_complete_notify > 0)
             {
-              CoglFrameInfo *info =
-                g_queue_pop_head (&onscreen->pending_frame_infos);
+              CoglFrameInfo *info;
 
+              info = cogl_onscreen_pop_head_frame_info (onscreen);
               _cogl_onscreen_notify_complete (onscreen, info);
               cogl_object_unref (info);
               glx_onscreen->pending_complete_notify--;
@@ -388,7 +388,7 @@ flush_pending_notifications_idle (void *user_data)
 static void
 set_sync_pending (CoglOnscreen *onscreen)
 {
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
@@ -412,7 +412,7 @@ set_sync_pending (CoglOnscreen *onscreen)
 static void
 set_complete_pending (CoglOnscreen *onscreen)
 {
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
@@ -441,7 +441,7 @@ notify_swap_buffers (CoglContext *context, GLXBufferSwapComplete *swap_event)
 
   if (!onscreen)
     return;
-  glx_onscreen = onscreen->winsys;
+  glx_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   /* We only want to notify that the swap is complete when the
      application calls cogl_context_dispatch so instead of immediately
@@ -450,7 +450,7 @@ notify_swap_buffers (CoglContext *context, GLXBufferSwapComplete *swap_event)
 
   if (swap_event->ust != 0)
     {
-      CoglFrameInfo *info = g_queue_peek_head (&onscreen->pending_frame_infos);
+      CoglFrameInfo *info = cogl_onscreen_peek_head_frame_info (onscreen);
 
       info->presentation_time =
         ust_to_nanoseconds (context->display->renderer,
@@ -464,7 +464,7 @@ notify_swap_buffers (CoglContext *context, GLXBufferSwapComplete *swap_event)
 static void
 update_output (CoglOnscreen *onscreen)
 {
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
@@ -504,8 +504,8 @@ notify_resize (CoglContext *context,
   if (!onscreen)
     return;
 
-  glx_onscreen = onscreen->winsys;
-  xlib_onscreen = onscreen->winsys;
+  glx_onscreen = cogl_onscreen_get_winsys (onscreen);
+  xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   _cogl_framebuffer_winsys_update_size (framebuffer,
                                         configure_event->width,
@@ -1249,6 +1249,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
   const CoglFramebufferConfig *config;
   GLXFBConfig fbconfig;
   GError *fbconfig_error = NULL;
+  CoglOnscreenGLX *winsys;
 
   g_return_val_if_fail (glx_display->glx_context, FALSE);
 
@@ -1347,9 +1348,10 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
         }
     }
 
-  onscreen->winsys = g_slice_new0 (CoglOnscreenGLX);
-  xlib_onscreen = onscreen->winsys;
-  glx_onscreen = onscreen->winsys;
+  winsys = g_slice_new0 (CoglOnscreenGLX);
+  cogl_onscreen_set_winsys (onscreen, winsys);
+  xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
+  glx_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   xlib_onscreen->xwin = xwin;
 
@@ -1395,8 +1397,8 @@ _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
   CoglXlibTrapState old_state;
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
   GLXDrawable drawable;
 
   /* If we never successfully allocated then there's nothing to do */
@@ -1452,8 +1454,8 @@ _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
 
   _cogl_xlib_renderer_untrap_errors (context->display->renderer, &old_state);
 
-  g_slice_free (CoglOnscreenGLX, onscreen->winsys);
-  onscreen->winsys = NULL;
+  g_slice_free (CoglOnscreenGLX, cogl_onscreen_get_winsys (onscreen));
+  cogl_onscreen_set_winsys (onscreen, NULL);
 }
 
 static void
@@ -1466,8 +1468,8 @@ _cogl_winsys_onscreen_bind (CoglOnscreen *onscreen)
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglXlibTrapState old_state;
   GLXDrawable drawable;
 
@@ -1551,11 +1553,11 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
 
   if (glx_display->can_vblank_wait)
     {
-      CoglFrameInfo *info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+      CoglFrameInfo *info = cogl_onscreen_peek_tail_frame_info (onscreen);
 
       if (glx_renderer->glXWaitForMsc)
         {
-          CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+          CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
           Drawable drawable = glx_onscreen->glxwin;
           int64_t ust;
           int64_t msc;
@@ -1606,8 +1608,8 @@ _cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
   GLXDrawable drawable = glx_onscreen->glxwin ? glx_onscreen->glxwin : xlib_onscreen->xwin;
   unsigned int age;
 
@@ -1623,7 +1625,7 @@ static void
 set_frame_info_output (CoglOnscreen *onscreen,
                        CoglOutput *output)
 {
-  CoglFrameInfo *info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+  CoglFrameInfo *info = cogl_onscreen_peek_tail_frame_info (onscreen);
 
   if (output)
     {
@@ -1646,8 +1648,8 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
   CoglGLXDisplay *glx_display = context->display->winsys;
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
   GLXDrawable drawable =
     glx_onscreen->glxwin ? glx_onscreen->glxwin : xlib_onscreen->xwin;
   uint32_t end_frame_vsync_counter = 0;
@@ -1854,8 +1856,8 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
   CoglGLXDisplay *glx_display = context->display->winsys;
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenGLX *glx_onscreen = cogl_onscreen_get_winsys (onscreen);
   gboolean have_counter;
   GLXDrawable drawable;
 
@@ -1923,7 +1925,7 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 static uint32_t
 _cogl_winsys_onscreen_x11_get_window_xid (CoglOnscreen *onscreen)
 {
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
   return xlib_onscreen->xwin;
 }
 
@@ -1935,7 +1937,7 @@ _cogl_winsys_onscreen_set_visibility (CoglOnscreen *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   if (visibility)
     XMapWindow (xlib_renderer->xdpy, xlib_onscreen->xwin);
@@ -1951,7 +1953,7 @@ _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
+  CoglOnscreenXlib *xlib_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   XSizeHints *size_hints = XAllocSizeHints ();
 

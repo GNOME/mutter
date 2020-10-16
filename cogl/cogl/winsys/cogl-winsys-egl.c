@@ -599,6 +599,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
   EGLConfig egl_config;
   EGLint config_count = 0;
   EGLBoolean status;
+  CoglOnscreenEGL *winsys;
 
   g_return_val_if_fail (egl_display->egl_context, FALSE);
 
@@ -629,14 +630,15 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
       cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
     }
 
-  onscreen->winsys = g_slice_new0 (CoglOnscreenEGL);
+  winsys = g_slice_new0 (CoglOnscreenEGL);
+  cogl_onscreen_set_winsys (onscreen, winsys);
 
   if (egl_renderer->platform_vtable->onscreen_init &&
       !egl_renderer->platform_vtable->onscreen_init (onscreen,
                                                      egl_config,
                                                      error))
     {
-      g_slice_free (CoglOnscreenEGL, onscreen->winsys);
+      g_slice_free (CoglOnscreenEGL, winsys);
       return FALSE;
     }
 
@@ -651,7 +653,7 @@ _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   /* If we never successfully allocated then there's nothing to do */
   if (egl_onscreen == NULL)
@@ -683,8 +685,8 @@ _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
   if (egl_renderer->platform_vtable->onscreen_deinit)
     egl_renderer->platform_vtable->onscreen_deinit (onscreen);
 
-  g_slice_free (CoglOnscreenEGL, onscreen->winsys);
-  onscreen->winsys = NULL;
+  g_slice_free (CoglOnscreenEGL, cogl_onscreen_get_winsys (onscreen));
+  cogl_onscreen_set_winsys (onscreen, NULL);
 }
 
 static gboolean
@@ -693,7 +695,7 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   gboolean status = _cogl_winsys_egl_make_current (context->display,
                                                    egl_onscreen->egl_surface,
@@ -737,7 +739,7 @@ _cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   CoglDisplayEGL *egl_display = context->display->winsys;
   EGLSurface surface = egl_onscreen->egl_surface;
   static gboolean warned = FALSE;
@@ -776,7 +778,7 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   int framebuffer_height  = cogl_framebuffer_get_height (framebuffer);
   int *rectangles = g_alloca (sizeof (int) * n_rectangles * 4);
   int i;
@@ -817,7 +819,7 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
+  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
 
   COGL_TRACE_BEGIN_SCOPED (CoglOnscreenEGLSwapBuffersWithDamage,
                            "Onscreen (eglSwapBuffers)");
