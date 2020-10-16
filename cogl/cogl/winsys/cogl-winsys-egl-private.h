@@ -169,8 +169,6 @@ typedef struct _CoglOnscreenEGL
 {
   EGLSurface egl_surface;
 
-  gboolean pending_resize_notify;
-
   /* Platform specific data */
   void *platform;
 } CoglOnscreenEGL;

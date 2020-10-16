@@ -60,6 +60,8 @@ typedef struct _CoglDisplayXlib
 typedef struct _CoglOnscreenXlib
 {
   Window xwin;
+
+  gboolean pending_resize_notify;
 } CoglOnscreenXlib;
 
 #ifdef EGL_KHR_image_pixmap
@@ -103,11 +105,12 @@ flush_pending_resize_notifications_cb (void *data,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
+      CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
 
-      if (egl_onscreen->pending_resize_notify)
+      if (xlib_onscreen->pending_resize_notify)
         {
           _cogl_onscreen_notify_resize (onscreen);
-          egl_onscreen->pending_resize_notify = FALSE;
+          xlib_onscreen->pending_resize_notify = FALSE;
         }
     }
 }
@@ -140,6 +143,7 @@ notify_resize (CoglContext *context,
   CoglOnscreen *onscreen = find_onscreen_for_xid (context, drawable);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglOnscreenEGL *egl_onscreen;
+  CoglOnscreenXlib *xlib_onscreen;
 
   if (!onscreen)
     return;
@@ -160,7 +164,8 @@ notify_resize (CoglContext *context,
                                       NULL);
     }
 
-  egl_onscreen->pending_resize_notify = TRUE;
+  xlib_onscreen = egl_onscreen->platform;
+  xlib_onscreen->pending_resize_notify = TRUE;
 }
 
 static CoglFilterReturn
