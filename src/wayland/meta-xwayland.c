@@ -716,10 +716,15 @@ xdisplay_connection_activity_cb (gint         fd,
                                  GIOCondition cond,
                                  gpointer     user_data)
 {
+  MetaXWaylandManager *manager = user_data;
   MetaDisplay *display = meta_get_display ();
 
   meta_display_init_x11 (display, NULL,
                          (GAsyncReadyCallback) on_init_x11_cb, NULL);
+
+  /* Stop watching both file descriptors */
+  g_clear_handle_id (&manager->abstract_fd_watch_id, g_source_remove);
+  g_clear_handle_id (&manager->unix_fd_watch_id, g_source_remove);
 
   return G_SOURCE_REMOVE;
 }
@@ -817,8 +822,12 @@ meta_xwayland_init (MetaXWaylandManager *manager,
 
   if (policy == META_DISPLAY_POLICY_ON_DEMAND)
     {
-      g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
-                     xdisplay_connection_activity_cb, manager);
+      manager->abstract_fd_watch_id =
+        g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
+                       xdisplay_connection_activity_cb, manager);
+      manager->unix_fd_watch_id =
+        g_unix_fd_add (manager->public_connection.unix_fd, G_IO_IN,
+                       xdisplay_connection_activity_cb, manager);
     }
 
   return TRUE;
