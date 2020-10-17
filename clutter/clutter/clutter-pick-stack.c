@@ -23,12 +23,14 @@ typedef struct
   graphene_point_t vertices[4];
   ClutterActor *actor;
   int clip_index;
+  CoglMatrixEntry *matrix_entry;
 } PickRecord;
 
 typedef struct
 {
   int prev;
   graphene_point_t vertices[4];
+  CoglMatrixEntry *matrix_entry;
 } PickClipRecord;
 
 struct _ClutterPickStack
@@ -224,6 +226,20 @@ clutter_pick_stack_dispose (ClutterPickStack *pick_stack)
   g_clear_pointer (&pick_stack->clip_stack, g_array_unref);
 }
 
+static void
+clear_pick_record (gpointer data)
+{
+  PickRecord *rec = data;
+  g_clear_pointer (&rec->matrix_entry, cogl_matrix_entry_unref);
+}
+
+static void
+clear_clip_record (gpointer data)
+{
+  PickClipRecord *clip = data;
+  g_clear_pointer (&clip->matrix_entry, cogl_matrix_entry_unref);
+}
+
 /**
  * clutter_pick_stack_new:
  * @context: a #CoglContext
@@ -243,6 +259,9 @@ clutter_pick_stack_new (CoglContext *context)
   pick_stack->vertices_stack = g_array_new (FALSE, FALSE, sizeof (PickRecord));
   pick_stack->clip_stack = g_array_new (FALSE, FALSE, sizeof (PickClipRecord));
   pick_stack->current_clip_stack_top = -1;
+
+  g_array_set_clear_func (pick_stack->vertices_stack, clear_pick_record);
+  g_array_set_clear_func (pick_stack->clip_stack, clear_clip_record);
 
   return pick_stack;
 }
@@ -301,6 +320,8 @@ clutter_pick_stack_log_pick (ClutterPickStack       *pick_stack,
   memcpy (rec.vertices, vertices, 4 * sizeof (graphene_point_t));
   rec.actor = actor;
   rec.clip_index = pick_stack->current_clip_stack_top;
+  rec.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
+  cogl_matrix_entry_ref (rec.matrix_entry);
 
   g_array_append_val (pick_stack->vertices_stack, rec);
 }
@@ -315,6 +336,8 @@ clutter_pick_stack_push_clip (ClutterPickStack       *pick_stack,
 
   clip.prev = pick_stack->current_clip_stack_top;
   memcpy (clip.vertices, vertices, 4 * sizeof (graphene_point_t));
+  clip.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
+  cogl_matrix_entry_ref (clip.matrix_entry);
 
   g_array_append_val (pick_stack->clip_stack, clip);
   pick_stack->current_clip_stack_top = pick_stack->clip_stack->len - 1;
