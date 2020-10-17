@@ -411,6 +411,8 @@ endif
 
 if have_egl_xlib
   cogl_sources += [
+    'winsys/cogl-onscreen-xlib.c',
+    'winsys/cogl-onscreen-xlib.h',
     'winsys/cogl-winsys-egl-x11.c',
     'winsys/cogl-winsys-egl-x11-private.h',
   ]
