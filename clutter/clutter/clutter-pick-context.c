@@ -110,32 +110,32 @@ clutter_pick_context_steal_stack (ClutterPickContext *pick_context)
 /**
  * clutter_pick_context_log_pick:
  * @pick_context: a #ClutterPickContext
- * @vertices: (array fixed-size=4): array of #graphene_point_t
+ * @box: a #ClutterActorBox
  * @actor: a #ClutterActor
  *
  * Logs a pick rectangle into the pick stack.
  */
 void
-clutter_pick_context_log_pick (ClutterPickContext     *pick_context,
-                               const graphene_point_t  vertices[4],
-                               ClutterActor           *actor)
+clutter_pick_context_log_pick (ClutterPickContext    *pick_context,
+                               const ClutterActorBox *box,
+                               ClutterActor          *actor)
 {
-  clutter_pick_stack_log_pick (pick_context->pick_stack, vertices, actor);
+  clutter_pick_stack_log_pick (pick_context->pick_stack, box, actor);
 }
 
 /**
  * clutter_pick_context_push_clip:
  * @pick_context: a #ClutterPickContext
- * @vertices: (array fixed-size=4): array of #graphene_point_t
+ * @box: a #ClutterActorBox
  *
- * Pushes a clip rectangle defined by @vertices into the pick stack.
- * Pop with clutter_pick_context_pop_clip() when done.
+ * Pushes a clip rectangle defined by @box into the pick stack. Pop with
+ * clutter_pick_context_pop_clip() when done.
  */
 void
-clutter_pick_context_push_clip (ClutterPickContext     *pick_context,
-                                const graphene_point_t  vertices[4])
+clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
+                                const ClutterActorBox *box)
 {
-  clutter_pick_stack_push_clip (pick_context->pick_stack, vertices);
+  clutter_pick_stack_push_clip (pick_context->pick_stack, box);
 }
 
 /**

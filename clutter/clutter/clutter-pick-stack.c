@@ -20,17 +20,23 @@
 
 typedef struct
 {
-  graphene_point_t vertices[4];
+  graphene_point3d_t vertices[4];
+  CoglMatrixEntry *matrix_entry;
+  ClutterActorBox rect;
+  gboolean projected;
+} Record;
+
+typedef struct
+{
+  Record base;
   ClutterActor *actor;
   int clip_index;
-  CoglMatrixEntry *matrix_entry;
 } PickRecord;
 
 typedef struct
 {
+  Record base;
   int prev;
-  graphene_point_t vertices[4];
-  CoglMatrixEntry *matrix_entry;
 } PickClipRecord;
 
 struct _ClutterPickStack
@@ -48,133 +54,101 @@ struct _ClutterPickStack
 G_DEFINE_BOXED_TYPE (ClutterPickStack, clutter_pick_stack,
                      clutter_pick_stack_ref, clutter_pick_stack_unref)
 
-static gboolean
-is_quadrilateral_axis_aligned_rectangle (const graphene_point_t vertices[4])
+static void
+project_vertices (CoglMatrixEntry       *matrix_entry,
+                  const ClutterActorBox *box,
+                  graphene_point3d_t     vertices[4])
 {
+  graphene_matrix_t m;
   int i;
 
-  for (i = 0; i < 4; i++)
-    {
-      if (!G_APPROX_VALUE (vertices[i].x,
-                           vertices[(i + 1) % 4].x,
-                           FLT_EPSILON) &&
-          !G_APPROX_VALUE (vertices[i].y,
-                           vertices[(i + 1) % 4].y,
-                           FLT_EPSILON))
-        return FALSE;
-    }
-  return TRUE;
-}
+  cogl_matrix_entry_get (matrix_entry, &m);
 
-static gboolean
-is_inside_axis_aligned_rectangle (const graphene_point_t *point,
-                                  const graphene_point_t  vertices[4])
-{
-  float min_x = FLT_MAX;
-  float max_x = -FLT_MAX;
-  float min_y = FLT_MAX;
-  float max_y = -FLT_MAX;
-  int i;
+  graphene_point3d_init (&vertices[0], box->x1, box->y1, 0.f);
+  graphene_point3d_init (&vertices[1], box->x2, box->y1, 0.f);
+  graphene_point3d_init (&vertices[2], box->x2, box->y2, 0.f);
+  graphene_point3d_init (&vertices[3], box->x1, box->y2, 0.f);
 
   for (i = 0; i < 4; i++)
     {
-      min_x = MIN (min_x, vertices[i].x);
-      min_y = MIN (min_y, vertices[i].y);
-      max_x = MAX (max_x, vertices[i].x);
-      max_y = MAX (max_y, vertices[i].y);
+      float w = 1.f;
+
+      cogl_graphene_matrix_project_point (&m,
+                                          &vertices[i].x,
+                                          &vertices[i].y,
+                                          &vertices[i].z,
+                                          &w);
     }
-
-  return (point->x >= min_x &&
-          point->y >= min_y &&
-          point->x < max_x &&
-          point->y < max_y);
 }
 
-static int
-clutter_point_compare_line (const graphene_point_t *p,
-                            const graphene_point_t *a,
-                            const graphene_point_t *b)
+static void
+maybe_project_record (Record *rec)
 {
-  graphene_vec3_t vec_pa;
-  graphene_vec3_t vec_pb;
-  graphene_vec3_t cross;
-  float cross_z;
-
-  graphene_vec3_init (&vec_pa, p->x - a->x, p->y - a->y, 0.f);
-  graphene_vec3_init (&vec_pb, p->x - b->x, p->y - b->y, 0.f);
-  graphene_vec3_cross (&vec_pa, &vec_pb, &cross);
-  cross_z = graphene_vec3_get_z (&cross);
-
-  if (cross_z > 0.f)
-    return 1;
-  else if (cross_z < 0.f)
-    return -1;
-  else
-    return 0;
-}
-
-static gboolean
-is_inside_unaligned_rectangle (const graphene_point_t *point,
-                               const graphene_point_t  vertices[4])
-{
-  unsigned int i;
-  int first_side;
-
-  first_side = 0;
-
-  for (i = 0; i < 4; i++)
+  if (!rec->projected)
     {
-      int side;
-
-      side = clutter_point_compare_line (point,
-                                         &vertices[i],
-                                         &vertices[(i + 1) % 4]);
-
-      if (side)
-        {
-          if (first_side == 0)
-            first_side = side;
-          else if (side != first_side)
-            return FALSE;
-        }
+      project_vertices (rec->matrix_entry, &rec->rect, rec->vertices);
+      rec->projected = TRUE;
     }
-
-  if (first_side == 0)
-    return FALSE;
-
-  return TRUE;
 }
 
 static gboolean
-is_inside_input_region (const graphene_point_t *point,
-                        const graphene_point_t  vertices[4])
+ray_intersects_input_region (Record                   *rec,
+                             const graphene_ray_t     *ray,
+                             const graphene_point3d_t *point)
 {
+  graphene_triangle_t t0, t1;
 
-  if (is_quadrilateral_axis_aligned_rectangle (vertices))
-    return is_inside_axis_aligned_rectangle (point, vertices);
-  else
-    return is_inside_unaligned_rectangle (point, vertices);
+  maybe_project_record (rec);
+
+  /*
+   * Degrade the projected quad into the following triangles:
+   *
+   * 0 -------------- 1
+   * |  •             |
+   * |     •     t0   |
+   * |        •       |
+   * |   t1      •    |
+   * |              • |
+   * 3 -------------- 2
+   */
+
+  graphene_triangle_init_from_point3d (&t0,
+                                       &rec->vertices[0],
+                                       &rec->vertices[1],
+                                       &rec->vertices[2]);
+
+  graphene_triangle_init_from_point3d (&t1,
+                                       &rec->vertices[0],
+                                       &rec->vertices[2],
+                                       &rec->vertices[3]);
+
+  if (graphene_triangle_contains_point (&t0, point) ||
+      graphene_triangle_contains_point (&t1, point) ||
+      graphene_ray_intersects_triangle (ray, &t0) ||
+      graphene_ray_intersects_triangle (ray, &t1))
+    return TRUE;
+
+  return FALSE;
 }
 
 static gboolean
-pick_record_contains_point (ClutterPickStack *pick_stack,
-                            const PickRecord *rec,
-                            float             x,
-                            float             y)
+ray_intersects_record (ClutterPickStack         *pick_stack,
+                       PickRecord               *rec,
+                       const graphene_point3d_t *point,
+                       const graphene_ray_t     *ray)
 {
-  const graphene_point_t point = GRAPHENE_POINT_INIT (x, y);
   int clip_index;
 
-  if (!is_inside_input_region (&point, rec->vertices))
+  if (!ray_intersects_input_region (&rec->base, ray, point))
     return FALSE;
 
   clip_index = rec->clip_index;
   while (clip_index >= 0)
     {
-      const PickClipRecord *clip =
+      PickClipRecord *clip =
         &g_array_index (pick_stack->clip_stack, PickClipRecord, clip_index);
 
-      if (!is_inside_input_region (&point, clip->vertices))
+      if (!ray_intersects_input_region (&clip->base, ray, point))
         return FALSE;
 
       clip_index = clip->prev;
@@ -230,14 +204,14 @@ static void
 clear_pick_record (gpointer data)
 {
   PickRecord *rec = data;
-  g_clear_pointer (&rec->matrix_entry, cogl_matrix_entry_unref);
+  g_clear_pointer (&rec->base.matrix_entry, cogl_matrix_entry_unref);
 }
 
 static void
 clear_clip_record (gpointer data)
 {
   PickClipRecord *clip = data;
-  g_clear_pointer (&clip->matrix_entry, cogl_matrix_entry_unref);
+  g_clear_pointer (&clip->base.matrix_entry, cogl_matrix_entry_unref);
 }
 
 /**
@@ -308,7 +282,7 @@ clutter_pick_stack_seal (ClutterPickStack *pick_stack)
 
 void
 clutter_pick_stack_log_pick (ClutterPickStack       *pick_stack,
-                             const graphene_point_t  vertices[4],
+                             const ClutterActorBox  *box,
                              ClutterActor           *actor)
 {
   PickRecord rec;
@@ -317,27 +291,29 @@ clutter_pick_stack_log_pick (ClutterPickStack       *pick_stack,
 
   g_assert (!pick_stack->sealed);
 
-  memcpy (rec.vertices, vertices, 4 * sizeof (graphene_point_t));
   rec.actor = actor;
   rec.clip_index = pick_stack->current_clip_stack_top;
-  rec.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
-  cogl_matrix_entry_ref (rec.matrix_entry);
+    rec.base.rect = *box;
+  rec.base.projected = FALSE;
+  rec.base.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
+  cogl_matrix_entry_ref (rec.base.matrix_entry);
 
   g_array_append_val (pick_stack->vertices_stack, rec);
 }
 
 void
-clutter_pick_stack_push_clip (ClutterPickStack       *pick_stack,
-                              const graphene_point_t  vertices[4])
+clutter_pick_stack_push_clip (ClutterPickStack      *pick_stack,
+                              const ClutterActorBox *box)
 {
   PickClipRecord clip;
 
   g_assert (!pick_stack->sealed);
 
   clip.prev = pick_stack->current_clip_stack_top;
-  memcpy (clip.vertices, vertices, 4 * sizeof (graphene_point_t));
-  clip.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
-  cogl_matrix_entry_ref (clip.matrix_entry);
+  clip.base.rect = *box;
+  clip.base.projected = FALSE;
+  clip.base.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
+  cogl_matrix_entry_ref (clip.base.matrix_entry);
 
   g_array_append_val (pick_stack->clip_stack, clip);
   pick_stack->current_clip_stack_top = pick_stack->clip_stack->len - 1;
@@ -386,9 +362,9 @@ clutter_pick_stack_pop_transform (ClutterPickStack *pick_stack)
 }
 
 ClutterActor *
-clutter_pick_stack_find_actor_at (ClutterPickStack *pick_stack,
-                                  float             x,
-                                  float             y)
+clutter_pick_stack_search_actor (ClutterPickStack         *pick_stack,
+                                 const graphene_point3d_t *point,
+                                 const graphene_ray_t     *ray)
 {
   int i;
 
@@ -398,10 +374,10 @@ clutter_pick_stack_find_actor_at (ClutterPickStack *pick_stack,
    */
   for (i = pick_stack->vertices_stack->len - 1; i >= 0; i--)
     {
-      const PickRecord *rec =
+      PickRecord *rec =
         &g_array_index (pick_stack->vertices_stack, PickRecord, i);
 
-      if (rec->actor && pick_record_contains_point (pick_stack, rec, x, y))
+      if (rec->actor && ray_intersects_record (pick_stack, rec, point, ray))
         return rec->actor;
     }
 

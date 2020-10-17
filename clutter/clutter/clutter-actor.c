@@ -1243,57 +1243,6 @@ clutter_actor_verify_map_state (ClutterActor *self)
 
 #endif /* CLUTTER_ENABLE_DEBUG */
 
-static gboolean
-_clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
-                                             ClutterStage          *stage,
-                                             ClutterPickContext    *pick_context,
-                                             const ClutterActorBox *box,
-                                             graphene_point_t       vertices[4])
-{
-  ClutterActor *stage_actor = CLUTTER_ACTOR (stage);
-  ClutterActorPrivate *stage_priv = stage_actor->priv;
-  graphene_matrix_t modelview, transform_to_stage;
-  int v;
-
-  ensure_valid_actor_transform (stage_actor);
-
-  if (!stage_priv->has_inverse_transform)
-    return FALSE;
-  clutter_pick_context_get_transform (pick_context, &modelview);
-  graphene_matrix_multiply (&modelview,
-                            &stage_priv->inverse_transform,
-                            &transform_to_stage);
-
-  vertices[0].x = box->x1;
-  vertices[0].y = box->y1;
-
-  vertices[1].x = box->x2;
-  vertices[1].y = box->y1;
-
-  vertices[2].x = box->x2;
-  vertices[2].y = box->y2;
-
-  vertices[3].x = box->x1;
-  vertices[3].y = box->y2;
-
-  for (v = 0; v < 4; v++)
-    {
-      float z = 0.f;
-      float w = 1.f;
-
-      cogl_graphene_matrix_project_point (&transform_to_stage,
-                                          &vertices[v].x,
-                                          &vertices[v].y,
-                                          &z,
-                                          &w);
-
-      clutter_round_to_256ths (&vertices[v].x);
-      clutter_round_to_256ths (&vertices[v].y);
-    }
-
-  return TRUE;
-}
-
 /**
  * clutter_actor_pick_box:
  * @self: The #ClutterActor being "pick" painted.
@@ -1311,38 +1260,13 @@ clutter_actor_pick_box (ClutterActor          *self,
                         ClutterPickContext    *pick_context,
                         const ClutterActorBox *box)
 {
-  ClutterStage *stage;
-  graphene_point_t vertices[4];
-
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (box != NULL);
 
   if (box->x1 >= box->x2 || box->y1 >= box->y2)
     return;
 
-  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
-
-  if (_clutter_actor_transform_local_box_to_stage (self, stage, pick_context,
-                                                   box, vertices))
-    clutter_pick_context_log_pick (pick_context, vertices, self);
-}
-
-static gboolean
-_clutter_actor_push_pick_clip (ClutterActor          *self,
-                               ClutterPickContext    *pick_context,
-                               const ClutterActorBox *clip)
-{
-  ClutterStage *stage;
-  graphene_point_t vertices[4];
-
-  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
-
-  if (!_clutter_actor_transform_local_box_to_stage (self, stage, pick_context,
-                                                    clip, vertices))
-    return FALSE;
-
-  clutter_pick_context_push_clip (pick_context, vertices);
-  return TRUE;
+  clutter_pick_context_log_pick (pick_context, box, self);
 }
 
 static void
@@ -4054,7 +3978,7 @@ clutter_actor_pick (ClutterActor       *actor,
     }
 
   if (clip_set)
-    clip_set = _clutter_actor_push_pick_clip (actor, pick_context, &clip);
+    clutter_pick_context_push_clip (pick_context, &clip);
 
   priv->next_effect_to_paint = NULL;
   if (priv->effects)

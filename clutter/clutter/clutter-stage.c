@@ -1130,6 +1130,37 @@ _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
   return is_full_stage_redraw_queued (stage);
 }
 
+static void
+setup_ray_for_coordinates (ClutterStage       *stage,
+                           float               x,
+                           float               y,
+                           graphene_point3d_t *point,
+                           graphene_ray_t     *ray)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  graphene_point3d_t camera_position;
+  graphene_point3d_t p;
+  graphene_vec3_t direction;
+  graphene_vec3_t cv;
+  graphene_vec3_t v;
+
+  camera_position = GRAPHENE_POINT3D_INIT_ZERO;
+  graphene_vec3_init (&cv,
+                      camera_position.x,
+                      camera_position.y,
+                      camera_position.z);
+
+  p = GRAPHENE_POINT3D_INIT (x, y, 0.f);
+  graphene_matrix_transform_point3d (&priv->view, &p, &p);
+
+  graphene_vec3_init (&v, p.x, p.y, p.z);
+  graphene_vec3_subtract (&v, &cv, &direction);
+  graphene_vec3_normalize (&direction, &direction);
+
+  graphene_ray_init (ray, &camera_position, &direction);
+  graphene_point3d_init_from_point (point, &p);
+}
+
 static ClutterActor *
 _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 float             x,
@@ -1138,6 +1169,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 ClutterStageView *view)
 {
   ClutterStagePrivate *priv = stage->priv;
+  graphene_point3d_t p;
+  graphene_ray_t ray;
   ClutterActor *actor;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
@@ -1157,7 +1190,9 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       clutter_pick_context_destroy (pick_context);
     }
 
-  actor = clutter_pick_stack_find_actor_at (priv->pick_stack, x, y);
+  setup_ray_for_coordinates (stage, x, y, &p, &ray);
+
+  actor = clutter_pick_stack_search_actor (priv->pick_stack, &p, &ray);
   return actor ? actor : CLUTTER_ACTOR (stage);
 }
 
