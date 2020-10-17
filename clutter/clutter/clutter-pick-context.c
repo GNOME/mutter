@@ -17,6 +17,7 @@
 
 #include "clutter-build-config.h"
 
+#include "clutter-backend.h"
 #include "clutter-pick-context-private.h"
 
 struct _ClutterPickContext
@@ -24,7 +25,6 @@ struct _ClutterPickContext
   grefcount ref_count;
 
   ClutterPickMode mode;
-  CoglFramebuffer *framebuffer;
   ClutterPickStack *pick_stack;
 };
 
@@ -42,10 +42,8 @@ clutter_pick_context_new_for_view (ClutterStageView *view,
   pick_context = g_new0 (ClutterPickContext, 1);
   g_ref_count_init (&pick_context->ref_count);
   pick_context->mode = mode;
-  pick_context->framebuffer =
-    g_object_ref (clutter_stage_view_get_framebuffer (view));
 
-  context = cogl_framebuffer_get_context (pick_context->framebuffer);
+  context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   pick_context->pick_stack = clutter_pick_stack_new (context);
 
   return pick_context;
@@ -62,7 +60,6 @@ static void
 clutter_pick_context_dispose (ClutterPickContext *pick_context)
 {
   g_clear_pointer (&pick_context->pick_stack, clutter_pick_stack_unref);
-  g_clear_object (&pick_context->framebuffer);
 }
 
 void
@@ -80,15 +77,6 @@ clutter_pick_context_destroy (ClutterPickContext *pick_context)
 {
   clutter_pick_context_dispose (pick_context);
   clutter_pick_context_unref (pick_context);
-}
-
-/**
- * clutter_pick_context_get_framebuffer: (skip)
- */
-CoglFramebuffer *
-clutter_pick_context_get_framebuffer (ClutterPickContext *pick_context)
-{
-  return pick_context->framebuffer;
 }
 
 /**
