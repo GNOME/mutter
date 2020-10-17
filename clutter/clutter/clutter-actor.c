@@ -15148,6 +15148,53 @@ _clutter_actor_has_active_paint_volume_override_effects (ClutterActor *self)
   return FALSE;
 }
 
+static void
+ensure_paint_volume (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  gboolean has_paint_volume_override_effects;
+  gboolean must_update_paint_volume;
+
+  has_paint_volume_override_effects = _clutter_actor_has_active_paint_volume_override_effects (self);
+
+  /* If effects are applied, the actor paint volume
+   * needs to be recomputed on each paint, since those
+   * paint volumes could change over the duration of the
+   * effect.
+   *
+   * We also need to update the paint volume if we went
+   * from having effects to not having effects on the last
+   * paint volume update.
+   *
+   * FIXME: This opens the door for some tricky issues: If our paint volume
+   * is invalid, it's implied that all parent paint volumes are invalid. If
+   * we don't want to break that invariant, we should find a better solution
+   * to deal with effects.
+   */
+  must_update_paint_volume =
+    priv->current_effect != NULL ||
+    has_paint_volume_override_effects ||
+    priv->had_effects_on_last_paint_volume_update;
+
+  priv->needs_paint_volume_update |= must_update_paint_volume;
+
+  if (priv->needs_paint_volume_update)
+    {
+      priv->had_effects_on_last_paint_volume_update = has_paint_volume_override_effects;
+
+      if (priv->paint_volume_valid)
+        clutter_paint_volume_free (&priv->paint_volume);
+
+      priv->paint_volume_valid = FALSE;
+
+      if (_clutter_actor_get_paint_volume_real (self, &priv->paint_volume))
+        {
+          priv->paint_volume_valid = TRUE;
+          priv->needs_paint_volume_update = FALSE;
+        }
+    }
+}
+
 /* The public clutter_actor_get_paint_volume API returns a const
  * pointer since we return a pointer directly to the cached
  * PaintVolume associated with the actor and don't want the user to
@@ -15158,44 +15205,14 @@ _clutter_actor_has_active_paint_volume_override_effects (ClutterActor *self)
 static ClutterPaintVolume *
 _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
 {
-  gboolean has_paint_volume_override_effects;
-  ClutterActorPrivate *priv;
+  ClutterActorPrivate *priv = self->priv;
 
-  priv = self->priv;
-
-  has_paint_volume_override_effects = _clutter_actor_has_active_paint_volume_override_effects (self);
+  ensure_paint_volume (self);
 
   if (priv->paint_volume_valid)
-    {
-      /* If effects are applied, the actor paint volume
-       * needs to be recomputed on each paint, since those
-       * paint volumes could change over the duration of the
-       * effect.
-       *
-       * We also need to update the paint volume if we went
-       * from having effects to not having effects on the last
-       * paint volume update. */
-      if (!priv->needs_paint_volume_update &&
-          priv->current_effect == NULL &&
-          !has_paint_volume_override_effects &&
-          !priv->had_effects_on_last_paint_volume_update)
-        return &priv->paint_volume;
-      clutter_paint_volume_free (&priv->paint_volume);
-    }
+    return &priv->paint_volume;
 
-  priv->had_effects_on_last_paint_volume_update = has_paint_volume_override_effects;
-
-  if (_clutter_actor_get_paint_volume_real (self, &priv->paint_volume))
-    {
-      priv->paint_volume_valid = TRUE;
-      priv->needs_paint_volume_update = FALSE;
-      return &priv->paint_volume;
-    }
-  else
-    {
-      priv->paint_volume_valid = FALSE;
-      return NULL;
-    }
+  return NULL;
 }
 
 /**
