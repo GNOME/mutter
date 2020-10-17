@@ -25,5 +25,7 @@ typedef struct _MetaBackendNative MetaBackendNative;
 typedef struct _MetaSeatNative MetaSeatNative;
 typedef struct _MetaSeatImpl MetaSeatImpl;
 typedef struct _MetaKeymapNative MetaKeymapNative;
+typedef struct _MetaRendererNative MetaRendererNative;
+typedef struct _MetaGpuKms MetaGpuKms;
 
 #endif /* META_BACKEND_NATIVE_TYPES_H */
