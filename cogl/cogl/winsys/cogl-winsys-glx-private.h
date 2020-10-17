@@ -34,4 +34,17 @@
 COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_glx_get_vtable (void);
 
+gboolean
+cogl_display_glx_find_fbconfig (CoglDisplay                  *display,
+                                const CoglFramebufferConfig  *config,
+                                GLXFBConfig                  *config_ret,
+                                GError                      **error);
+
+void
+cogl_context_glx_set_current_drawable (CoglContext *context,
+                                       GLXDrawable  drawable);
+
+GLXDrawable
+cogl_context_glx_get_current_drawable (CoglContext *context);
+
 #endif /* __COGL_WINSYS_GLX_PRIVATE_H */

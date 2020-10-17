@@ -380,6 +380,8 @@ if have_glx
   cogl_sources += [
     'winsys/cogl-glx-display-private.h',
     'winsys/cogl-glx-renderer-private.h',
+    'winsys/cogl-onscreen-glx.c',
+    'winsys/cogl-onscreen-glx.h',
     'winsys/cogl-winsys-glx-feature-functions.h',
     'winsys/cogl-winsys-glx-private.h',
     'winsys/cogl-winsys-glx.c',

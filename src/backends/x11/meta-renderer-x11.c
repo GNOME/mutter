@@ -34,11 +34,16 @@
 #include "clutter/x11/clutter-x11.h"
 #include "cogl/cogl-xlib.h"
 #include "cogl/cogl.h"
-#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
-#include "cogl/winsys/cogl-winsys-glx-private.h"
 #include "core/boxes-private.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
+
+#ifdef COGL_HAS_EGL_SUPPORT
+#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
+#endif
+#ifdef COGL_HAS_GLX_SUPPORT
+#include "cogl/winsys/cogl-winsys-glx-private.h"
+#endif
 
 G_DEFINE_TYPE (MetaRendererX11, meta_renderer_x11, META_TYPE_RENDERER)
 
