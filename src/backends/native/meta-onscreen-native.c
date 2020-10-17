@@ -2033,15 +2033,8 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
   EGLStreamKHR egl_stream;
 #endif
 
-  /* If a kms_fd is set then the display width and height
-   * won't be available until meta_renderer_native_set_layout
-   * is called. In that case, defer creating the surface
-   * until then.
-   */
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
-  if (width == 0 || height == 0)
-    return TRUE;
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
