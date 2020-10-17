@@ -42,6 +42,12 @@
 #include <cogl/winsys/cogl-onscreen-egl.h>
 #include <cogl/winsys/cogl-winsys-egl-private.h>
 #endif
+#if defined (COGL_HAS_GLX_SUPPORT)
+#include <cogl/winsys/cogl-onscreen-glx.h>
+#endif
+#if defined (COGL_HAS_XLIB_SUPPORT)
+#include <cogl/winsys/cogl-onscreen-xlib.h>
+#endif
 #include <cogl/winsys/cogl-winsys-private.h>
 
 COGL_EXPORT

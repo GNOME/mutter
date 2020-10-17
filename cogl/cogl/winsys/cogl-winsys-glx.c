@@ -162,15 +162,12 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
     {
       CoglFramebuffer *framebuffer = l->data;
       CoglOnscreen *onscreen;
-      CoglOnscreenGlx *onscreen_glx;
 
       if (!COGL_IS_ONSCREEN (framebuffer))
         continue;
 
       onscreen = COGL_ONSCREEN (framebuffer);
-      onscreen_glx = cogl_onscreen_get_winsys (onscreen);
-      if (onscreen_glx &&
-          cogl_onscreen_glx_is_for_window (onscreen, (Window) xid))
+      if (cogl_onscreen_glx_is_for_window (onscreen, (Window) xid))
         return onscreen;
     }
 

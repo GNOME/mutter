@@ -40,34 +40,8 @@ typedef struct _CoglOnscreenEglPrivate
   void *platform;
 } CoglOnscreenEglPrivate;
 
-typedef struct _CoglOnscreenEgl
-{
-  CoglOnscreenEglPrivate *priv;
-} CoglOnscreenEgl;
-
-CoglOnscreenEgl *
-cogl_onscreen_egl_new (void)
-{
-  CoglOnscreenEgl *onscreen_egl;
-
-  onscreen_egl = g_slice_new0 (CoglOnscreenEgl);
-  onscreen_egl->priv = g_new0 (CoglOnscreenEglPrivate, 1);
-
-  return onscreen_egl;
-}
-
-void
-cogl_onscreen_egl_free (CoglOnscreenEgl *onscreen_egl)
-{
-  g_free (onscreen_egl->priv);
-  g_slice_free (CoglOnscreenEgl, onscreen_egl);
-}
-
-static CoglOnscreenEglPrivate *
-cogl_onscreen_egl_get_instance_private (CoglOnscreenEgl *onscreen_egl)
-{
-  return onscreen_egl->priv;
-}
+G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreenEgl, cogl_onscreen_egl,
+                            COGL_TYPE_ONSCREEN)
 
 gboolean
 _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
@@ -84,7 +58,6 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
   EGLConfig egl_config;
   EGLint config_count = 0;
   EGLBoolean status;
-  CoglOnscreenEgl *winsys;
 
   g_return_val_if_fail (egl_display->egl_context, FALSE);
 
@@ -115,17 +88,11 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
       cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
     }
 
-  winsys = cogl_onscreen_egl_new ();
-  cogl_onscreen_set_winsys (onscreen, winsys);
-
   if (egl_renderer->platform_vtable->onscreen_init &&
       !egl_renderer->platform_vtable->onscreen_init (onscreen,
                                                      egl_config,
                                                      error))
-    {
-      g_slice_free (CoglOnscreenEgl, winsys);
-      return FALSE;
-    }
+    return FALSE;
 
   return TRUE;
 }
@@ -133,7 +100,7 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
 void
 _cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -171,16 +138,13 @@ _cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
 
   if (egl_renderer->platform_vtable->onscreen_deinit)
     egl_renderer->platform_vtable->onscreen_deinit (onscreen);
-
-  g_slice_free (CoglOnscreenEgl, cogl_onscreen_get_winsys (onscreen));
-  cogl_onscreen_set_winsys (onscreen, NULL);
 }
 
 static gboolean
 bind_onscreen_with_context (CoglOnscreen *onscreen,
                             EGLContext egl_context)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -224,7 +188,7 @@ _cogl_winsys_onscreen_egl_bind (CoglOnscreen *onscreen)
 int
 _cogl_winsys_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -265,7 +229,7 @@ _cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
                                        CoglFrameInfo *info,
                                        gpointer       user_data)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -308,7 +272,7 @@ _cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                     CoglFrameInfo *info,
                                                     gpointer       user_data)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -391,4 +355,14 @@ cogl_onscreen_egl_get_egl_surface (CoglOnscreenEgl *onscreen_egl)
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
 
   return priv->egl_surface;
+}
+
+static void
+cogl_onscreen_egl_init (CoglOnscreenEgl *onscreen_egl)
+{
+}
+
+static void
+cogl_onscreen_egl_class_init (CoglOnscreenEglClass *klass)
+{
 }

@@ -31,6 +31,16 @@
 
 #include "cogl-onscreen.h"
 
+#define COGL_TYPE_ONSCREEN_GLX (cogl_onscreen_glx_get_type ())
+G_DECLARE_FINAL_TYPE (CoglOnscreenGlx, cogl_onscreen_glx,
+                      COGL, ONSCREEN_GLX,
+                      CoglOnscreen)
+
+COGL_EXPORT CoglOnscreenGlx *
+cogl_onscreen_glx_new (CoglContext *context,
+                       int          width,
+                       int          height);
+
 gboolean
 _cogl_winsys_onscreen_glx_init (CoglOnscreen  *onscreen,
                                 GError       **error);

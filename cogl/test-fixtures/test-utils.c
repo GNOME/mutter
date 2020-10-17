@@ -5,6 +5,9 @@
 #include "test-unit.h"
 #include "test-utils.h"
 
+#include "cogl/winsys/cogl-onscreen-glx.h"
+#include "cogl/winsys/cogl-onscreen-xlib.h"
+
 #define FB_WIDTH 512
 #define FB_HEIGHT 512
 
@@ -77,6 +80,38 @@ is_boolean_env_set (const char *variable)
   return ret;
 }
 
+static CoglOnscreen *
+create_onscreen (CoglContext *cogl_context,
+                 int          width,
+                 int          height)
+{
+  CoglDisplay *display = cogl_context_get_display (test_ctx);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+
+  switch (cogl_renderer_get_winsys_id (renderer))
+    {
+    case COGL_WINSYS_ID_GLX:
+#ifdef COGL_HAS_GLX_SUPPORT
+      return COGL_ONSCREEN (cogl_onscreen_glx_new (cogl_context,
+                                                   width, height));
+#else
+      g_assert_not_reached ();
+      break;
+#endif
+    case COGL_WINSYS_ID_EGL_XLIB:
+#ifdef COGL_HAS_EGL_SUPPORT
+      return COGL_ONSCREEN (cogl_onscreen_xlib_new (cogl_context,
+                                                    width, height));
+#else
+      g_assert_not_reached ();
+      break;
+#endif
+    default:
+      g_assert_not_reached ();
+      return NULL;
+    }
+}
+
 gboolean
 test_utils_init (TestFlags requirement_flags,
                  TestFlags known_failure_flags)
@@ -128,7 +163,7 @@ test_utils_init (TestFlags requirement_flags,
 
   if (is_boolean_env_set ("COGL_TEST_ONSCREEN"))
     {
-      onscreen = cogl_onscreen_new (test_ctx, 640, 480);
+      onscreen = create_onscreen (test_ctx, 640, 480);
       test_fb = COGL_FRAMEBUFFER (onscreen);
     }
   else

@@ -49,9 +49,15 @@ G_BEGIN_DECLS
 
 #define COGL_TYPE_ONSCREEN (cogl_onscreen_get_type ())
 COGL_EXPORT
-G_DECLARE_FINAL_TYPE (CoglOnscreen, cogl_onscreen,
-                      COGL, ONSCREEN,
-                      CoglFramebuffer)
+G_DECLARE_DERIVABLE_TYPE (CoglOnscreen, cogl_onscreen,
+                          COGL, ONSCREEN,
+                          CoglFramebuffer)
+
+struct _CoglOnscreenClass
+{
+  /*< private >*/
+  CoglFramebufferClass parent_class;
+};
 
 #define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
 COGL_EXPORT GQuark
@@ -63,23 +69,6 @@ typedef enum _CoglScanoutError
 } CoglScanoutError;
 
 typedef struct _CoglScanout CoglScanout;
-
-/**
- * cogl_onscreen_new: (constructor) (skip)
- * @context: A #CoglContext
- * @width: The desired framebuffer width
- * @height: The desired framebuffer height
- *
- * Instantiates an "unallocated" #CoglOnscreen framebuffer that may be
- * configured before later being allocated, either implicitly when
- * it is first used or explicitly via cogl_framebuffer_allocate().
- *
- * Return value: (transfer full): A newly instantiated #CoglOnscreen framebuffer
- * Since: 1.8
- * Stability: unstable
- */
-COGL_EXPORT CoglOnscreen *
-cogl_onscreen_new (CoglContext *context, int width, int height);
 
 #ifdef COGL_HAS_X11
 /**

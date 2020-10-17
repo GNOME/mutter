@@ -28,14 +28,16 @@
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 
+#define META_TYPE_ONSCREEN_NATIVE (meta_onscreen_native_get_type ())
+G_DECLARE_FINAL_TYPE (MetaOnscreenNative, meta_onscreen_native,
+                      META, ONSCREEN_NATIVE,
+                      CoglOnscreenEgl)
+
 gboolean
 meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
                                     GError      **error);
 
 void meta_renderer_native_release_onscreen (CoglOnscreen *onscreen);
-
-gboolean meta_onscreen_native_allocate (CoglOnscreen *onscreen,
-                                        GError      **error);
 
 void meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                     const int     *rectangles,
@@ -57,13 +59,12 @@ void meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen);
 void meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
                                     MetaRendererView *view);
 
-CoglOnscreen * meta_onscreen_native_new (MetaRendererNative  *renderer_native,
-                                         MetaGpuKms          *render_gpu,
-                                         MetaOutput          *output,
-                                         MetaCrtc            *crtc,
-                                         CoglContext         *cogl_context,
-                                         int                  width,
-                                         int                  height,
-                                         GError             **error);
+MetaOnscreenNative * meta_onscreen_native_new (MetaRendererNative *renderer_native,
+                                               MetaGpuKms         *render_gpu,
+                                               MetaOutput         *output,
+                                               MetaCrtc           *crtc,
+                                               CoglContext        *cogl_context,
+                                               int                 width,
+                                               int                 height);
 
 #endif /* META_ONSCREEN_NATIVE_H */

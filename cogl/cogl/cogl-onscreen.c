@@ -42,11 +42,6 @@
 #include "cogl-poll-private.h"
 #include "cogl-gtype-private.h"
 
-struct _CoglOnscreen
-{
-  CoglFramebuffer parent;
-};
-
 typedef struct _CoglOnscreenPrivate
 {
   CoglList frame_closures;
@@ -62,7 +57,7 @@ typedef struct _CoglOnscreenPrivate
                                * cogl_onscreen_swap_buffers() */
   GQueue pending_frame_infos;
 
-  void *winsys;
+  gboolean needs_deinit;
 } CoglOnscreenPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
@@ -92,57 +87,19 @@ COGL_GTYPE_DEFINE_BOXED (OnscreenDirtyClosure,
 
 G_DEFINE_QUARK (cogl-scanout-error-quark, cogl_scanout_error)
 
-static void
-_cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
-                                   CoglOnscreenTemplate *onscreen_template)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-
-  _cogl_list_init (&priv->frame_closures);
-  _cogl_list_init (&priv->resize_closures);
-  _cogl_list_init (&priv->dirty_closures);
-
-  cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
-}
-
-CoglOnscreen *
-cogl_onscreen_new (CoglContext *ctx, int width, int height)
-{
-  CoglOnscreen *onscreen;
-
-  /* FIXME: We are assuming onscreen buffers will always be
-     premultiplied so we'll set the premult flag on the bitmap
-     format. This will usually be correct because the result of the
-     default blending operations for Cogl ends up with premultiplied
-     data in the framebuffer. However it is possible for the
-     framebuffer to be in whatever format depending on what
-     CoglPipeline is used to render to it. Eventually we may want to
-     add a way for an application to inform Cogl that the framebuffer
-     is not premultiplied in case it is being used for some special
-     purpose. */
-
-  onscreen = g_object_new (COGL_TYPE_ONSCREEN,
-                           "context", ctx,
-                           "width", width,
-                           "height", height,
-                           NULL);
-
-  _cogl_onscreen_init_from_template (onscreen, ctx->display->onscreen_template);
-
-  return onscreen;
-}
-
 static gboolean
 cogl_onscreen_allocate (CoglFramebuffer  *framebuffer,
                         GError          **error)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   if (!winsys->onscreen_init (onscreen, error))
     return FALSE;
+
+  priv->needs_deinit = TRUE;
 
   /* If the winsys doesn't support dirty events then we'll report
    * one on allocation so that if the application only paints in
@@ -158,6 +115,34 @@ static gboolean
 cogl_onscreen_is_y_flipped (CoglFramebuffer *framebuffer)
 {
   return FALSE;
+}
+
+static void
+cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
+                                   CoglOnscreenTemplate *onscreen_template)
+{
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+
+  _cogl_list_init (&priv->frame_closures);
+  _cogl_list_init (&priv->resize_closures);
+  _cogl_list_init (&priv->dirty_closures);
+
+  cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
+}
+
+static void
+cogl_onscreen_constructed (GObject *object)
+{
+  CoglOnscreen *onscreen = COGL_ONSCREEN (object);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglOnscreenTemplate *onscreen_template;
+
+  onscreen_template = ctx->display->onscreen_template;
+  cogl_onscreen_init_from_template (onscreen, onscreen_template);
+
+  G_OBJECT_CLASS (cogl_onscreen_parent_class)->constructed (object);
 }
 
 static void
@@ -177,9 +162,11 @@ cogl_onscreen_dispose (GObject *object)
     cogl_object_unref (frame_info);
   g_queue_clear (&priv->pending_frame_infos);
 
-  if (priv->winsys)
-    winsys->onscreen_deinit (onscreen);
-  g_return_if_fail (priv->winsys == NULL);
+  if (priv->needs_deinit)
+    {
+      winsys->onscreen_deinit (onscreen);
+      priv->needs_deinit = FALSE;
+    }
 
   G_OBJECT_CLASS (cogl_onscreen_parent_class)->dispose (object);
 }
@@ -195,6 +182,7 @@ cogl_onscreen_class_init (CoglOnscreenClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
 
+  object_class->constructed = cogl_onscreen_constructed;
   object_class->dispose = cogl_onscreen_dispose;
 
   framebuffer_class->allocate = cogl_onscreen_allocate;
@@ -714,19 +702,3 @@ cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen)
   return priv->frame_counter;
 }
 
-void
-cogl_onscreen_set_winsys (CoglOnscreen *onscreen,
-                          gpointer      winsys)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  priv->winsys = winsys;
-}
-
-gpointer
-cogl_onscreen_get_winsys (CoglOnscreen *onscreen)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return priv->winsys;
-}

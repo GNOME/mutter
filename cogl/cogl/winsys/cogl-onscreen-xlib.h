@@ -28,12 +28,23 @@
 #define COGL_ONSCREEN_XLIB_H
 
 #include "cogl-onscreen.h"
+#include "winsys/cogl-onscreen-egl.h"
 #include "winsys/cogl-winsys-egl-private.h"
+
+#define COGL_TYPE_ONSCREEN_XLIB (cogl_onscreen_xlib_get_type ())
+G_DECLARE_FINAL_TYPE (CoglOnscreenXlib, cogl_onscreen_xlib,
+                      COGL, ONSCREEN_XLIB,
+                      CoglOnscreenEgl)
 
 gboolean
 _cogl_winsys_egl_onscreen_xlib_init (CoglOnscreen  *onscreen,
                                      EGLConfig      egl_config,
                                      GError       **error);
+
+COGL_EXPORT CoglOnscreenXlib *
+cogl_onscreen_xlib_new (CoglContext *context,
+                        int          width,
+                        int          height);
 
 void
 _cogl_winsys_egl_onscreen_xlib_deinit (CoglOnscreen *onscreen);

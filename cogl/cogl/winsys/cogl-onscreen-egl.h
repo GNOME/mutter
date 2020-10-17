@@ -29,13 +29,17 @@
 #include "cogl-onscreen.h"
 #include "winsys/cogl-winsys-egl-private.h"
 
-typedef struct _CoglOnscreenEgl CoglOnscreenEgl;
+#define COGL_TYPE_ONSCREEN_EGL (cogl_onscreen_egl_get_type ())
+COGL_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CoglOnscreenEgl, cogl_onscreen_egl,
+                          COGL, ONSCREEN_EGL,
+                          CoglOnscreen)
 
-COGL_EXPORT CoglOnscreenEgl *
-cogl_onscreen_egl_new (void);
-
-COGL_EXPORT void
-cogl_onscreen_egl_free (CoglOnscreenEgl *onscreen_egl);
+struct _CoglOnscreenEglClass
+{
+  /*< private >*/
+  CoglOnscreenClass parent_class;
+};
 
 gboolean
 _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,

@@ -34,12 +34,17 @@
 #include "winsys/cogl-onscreen-egl.h"
 #include "winsys/cogl-winsys-egl-x11-private.h"
 
-typedef struct _CoglOnscreenXlib
+struct _CoglOnscreenXlib
 {
+  CoglOnscreenEgl parent;
+
   Window xwin;
 
   gboolean pending_resize_notify;
-} CoglOnscreenXlib;
+};
+
+G_DEFINE_TYPE (CoglOnscreenXlib, cogl_onscreen_xlib,
+               COGL_TYPE_ONSCREEN_EGL)
 
 #define COGL_ONSCREEN_X11_EVENT_MASK (StructureNotifyMask | ExposureMask)
 
@@ -48,6 +53,7 @@ _cogl_winsys_egl_onscreen_xlib_init (CoglOnscreen  *onscreen,
                                      EGLConfig      egl_config,
                                      GError       **error)
 {
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);;
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
@@ -55,8 +61,7 @@ _cogl_winsys_egl_onscreen_xlib_init (CoglOnscreen  *onscreen,
   CoglRendererEGL *egl_renderer = renderer->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
-  CoglOnscreenXlib *onscreen_xlib;
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   Window xwin;
   EGLSurface egl_surface;
 
@@ -132,9 +137,6 @@ _cogl_winsys_egl_onscreen_xlib_init (CoglOnscreen  *onscreen,
         }
     }
 
-  onscreen_xlib = g_slice_new (CoglOnscreenXlib);
-  cogl_onscreen_egl_set_platform (onscreen_egl, onscreen_xlib);
-
   onscreen_xlib->xwin = xwin;
 
   egl_surface =
@@ -151,15 +153,13 @@ _cogl_winsys_egl_onscreen_xlib_init (CoglOnscreen  *onscreen,
 void
 _cogl_winsys_egl_onscreen_xlib_deinit (CoglOnscreen *onscreen)
 {
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   CoglXlibTrapState old_state;
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *onscreen_xlib =
-    cogl_onscreen_egl_get_platform (onscreen_egl);
 
   _cogl_xlib_renderer_trap_errors (renderer, &old_state);
 
@@ -176,22 +176,18 @@ _cogl_winsys_egl_onscreen_xlib_deinit (CoglOnscreen *onscreen)
   if (_cogl_xlib_renderer_untrap_errors (renderer,
                                          &old_state) != Success)
     g_warning ("X Error while destroying X window");
-
-  g_slice_free (CoglOnscreenXlib, onscreen_xlib);
 }
 
 void
 _cogl_winsys_onscreen_xlib_set_visibility (CoglOnscreen *onscreen,
                                            gboolean      visibility)
 {
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *onscreen_xlib =
-    cogl_onscreen_egl_get_platform (onscreen_egl);
 
   if (visibility)
     XMapWindow (xlib_renderer->xdpy, onscreen_xlib->xwin);
@@ -203,13 +199,11 @@ void
 _cogl_winsys_onscreen_xlib_set_resizable (CoglOnscreen *onscreen,
                                           gboolean      resizable)
 {
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *onscreen_xlib =
-    cogl_onscreen_egl_get_platform (onscreen_egl);
 
   XSizeHints *size_hints = XAllocSizeHints ();
 
@@ -242,9 +236,7 @@ _cogl_winsys_onscreen_xlib_set_resizable (CoglOnscreen *onscreen,
 uint32_t
 _cogl_winsys_onscreen_xlib_get_window_xid (CoglOnscreen *onscreen)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *onscreen_xlib =
-    cogl_onscreen_egl_get_platform (onscreen_egl);
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
 
   return onscreen_xlib->xwin;
 }
@@ -253,9 +245,7 @@ gboolean
 cogl_onscreen_xlib_is_for_window (CoglOnscreen *onscreen,
                                   Window        window)
 {
-  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *onscreen_xlib =
-    cogl_onscreen_egl_get_platform (onscreen_egl);
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
 
   return onscreen_xlib->xwin == window;
 }
@@ -269,9 +259,7 @@ flush_pending_resize_notifications_cb (void *data,
   if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-      CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-      CoglOnscreenXlib *onscreen_xlib =
-        cogl_onscreen_egl_get_platform (onscreen_egl);
+      CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
 
       if (onscreen_xlib->pending_resize_notify)
         {
@@ -303,14 +291,12 @@ cogl_onscreen_xlib_resize (CoglOnscreen *onscreen,
                            int           width,
                            int           height)
 {
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEgl *onscreen_egl;
-  CoglOnscreenXlib *onscreen_xlib;
 
-  onscreen_egl = cogl_onscreen_get_winsys (onscreen);
 
   _cogl_framebuffer_winsys_update_size (framebuffer, width, height);
 
@@ -326,6 +312,27 @@ cogl_onscreen_xlib_resize (CoglOnscreen *onscreen,
                                       NULL);
     }
 
-  onscreen_xlib = cogl_onscreen_egl_get_platform (onscreen_egl);
   onscreen_xlib->pending_resize_notify = TRUE;
+}
+
+CoglOnscreenXlib *
+cogl_onscreen_xlib_new (CoglContext *context,
+                        int          width,
+                        int          height)
+{
+  return g_object_new (COGL_TYPE_ONSCREEN_XLIB,
+                       "context", context,
+                       "width", width,
+                       "height", height,
+                       NULL);
+}
+
+static void
+cogl_onscreen_xlib_init (CoglOnscreenXlib *onscreen_xlib)
+{
+}
+
+static void
+cogl_onscreen_xlib_class_init (CoglOnscreenXlibClass *klass)
+{
 }

@@ -1052,7 +1052,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
   MetaMonitorTransform view_transform;
-  CoglOnscreen *onscreen = NULL;
+  MetaOnscreenNative *onscreen_native;
   CoglOffscreen *offscreen = NULL;
   gboolean use_shadowfb;
   float scale;
@@ -1068,15 +1068,15 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   onscreen_width = crtc_mode_info->width;
   onscreen_height = crtc_mode_info->height;
 
-  onscreen = meta_onscreen_native_new (renderer_native,
-                                       renderer_native->primary_gpu_kms,
-                                       output,
-                                       crtc,
-                                       cogl_context,
-                                       onscreen_width,
-                                       onscreen_height,
-                                       &error);
-  if (!onscreen)
+  onscreen_native = meta_onscreen_native_new (renderer_native,
+                                              renderer_native->primary_gpu_kms,
+                                              output,
+                                              crtc,
+                                              cogl_context,
+                                              onscreen_width,
+                                              onscreen_height);
+
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &error))
     g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
 
   view_transform = calculate_view_transform (monitor_manager,
@@ -1125,30 +1125,20 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                        "layout", &view_layout,
                        "crtc", crtc,
                        "scale", scale,
-                       "framebuffer", onscreen,
+                       "framebuffer", onscreen_native,
                        "offscreen", offscreen,
                        "use-shadowfb", use_shadowfb,
                        "transform", view_transform,
                        "refresh-rate", crtc_mode_info->refresh_rate,
                        NULL);
   g_clear_object (&offscreen);
+  g_object_unref (onscreen_native);
 
-  meta_onscreen_native_set_view (onscreen, view);
-
-  if (!meta_onscreen_native_allocate (onscreen, &error))
-    {
-      g_warning ("Could not create onscreen: %s", error->message);
-      g_object_unref (onscreen);
-      g_object_unref (view);
-      g_error_free (error);
-      return NULL;
-    }
-
-  g_object_unref (onscreen);
+  meta_onscreen_native_set_view (COGL_ONSCREEN (onscreen_native), view);
 
   /* Ensure we don't point to stale surfaces when creating the offscreen */
-  onscreen_egl = cogl_onscreen_get_winsys (onscreen);
   cogl_display_egl = cogl_display->winsys;
+  onscreen_egl = COGL_ONSCREEN_EGL (onscreen_native);
   egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
   _cogl_winsys_egl_make_current (cogl_display,
                                  egl_surface,
