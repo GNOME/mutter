@@ -238,6 +238,46 @@ create_lock_file (int display, int *display_out)
 }
 
 static int
+bind_to_abstract_socket (int       display,
+                         gboolean *fatal)
+{
+  struct sockaddr_un addr;
+  socklen_t size, name_size;
+  int fd;
+
+  fd = socket (PF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  if (fd < 0)
+    {
+      *fatal = TRUE;
+      g_warning ("Failed to create socket: %m");
+      return -1;
+    }
+
+  addr.sun_family = AF_LOCAL;
+  name_size = snprintf (addr.sun_path, sizeof addr.sun_path,
+                        "%c/tmp/.X11-unix/X%d", 0, display);
+  size = offsetof (struct sockaddr_un, sun_path) + name_size;
+  if (bind (fd, (struct sockaddr *) &addr, size) < 0)
+    {
+      *fatal = errno != EADDRINUSE;
+      g_warning ("failed to bind to @%s: %m", addr.sun_path + 1);
+      close (fd);
+      return -1;
+    }
+
+  if (listen (fd, 1) < 0)
+    {
+      *fatal = errno != EADDRINUSE;
+      g_warning ("Failed to listen on abstract socket @%s: %m",
+                 addr.sun_path + 1);
+      close (fd);
+      return -1;
+    }
+
+  return fd;
+}
+
+static int
 bind_to_unix_socket (int display)
 {
   struct sockaddr_un addr;
@@ -343,18 +383,26 @@ meta_xwayland_override_display_number (int number)
 static gboolean
 open_display_sockets (MetaXWaylandManager *manager,
                       int                  display_index,
+                      int                 *abstract_fd_out,
                       int                 *unix_fd_out,
                       gboolean            *fatal)
 {
-  int unix_fd;
+  int abstract_fd, unix_fd;
+
+  abstract_fd = bind_to_abstract_socket (display_index,
+                                         fatal);
+  if (abstract_fd < 0)
+    return FALSE;
 
   unix_fd = bind_to_unix_socket (display_index);
   if (unix_fd < 0)
     {
       *fatal = FALSE;
+      close (abstract_fd);
       return FALSE;
     }
 
+  *abstract_fd_out = abstract_fd;
   *unix_fd_out = unix_fd;
 
   return TRUE;
@@ -383,6 +431,7 @@ choose_xdisplay (MetaXWaylandManager    *manager,
         }
 
       if (!open_display_sockets (manager, display,
+                                 &connection->abstract_fd,
                                  &connection->unix_fd,
                                  &fatal))
         {
@@ -588,9 +637,10 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   launcher = g_subprocess_launcher_new (flags);
 
   g_subprocess_launcher_take_fd (launcher, xwayland_client_fd[1], 3);
-  g_subprocess_launcher_take_fd (launcher, manager->public_connection.unix_fd, 4);
-  g_subprocess_launcher_take_fd (launcher, displayfd[1], 5);
-  g_subprocess_launcher_take_fd (launcher, manager->private_connection.unix_fd, 6);
+  g_subprocess_launcher_take_fd (launcher, manager->public_connection.abstract_fd, 4);
+  g_subprocess_launcher_take_fd (launcher, manager->public_connection.unix_fd, 5);
+  g_subprocess_launcher_take_fd (launcher, displayfd[1], 6);
+  g_subprocess_launcher_take_fd (launcher, manager->private_connection.abstract_fd, 7);
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
 
@@ -605,14 +655,16 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   args[i++] = manager->auth_file;
   args[i++] = "-listen";
   args[i++] = "4";
-  args[i++] = "-displayfd";
+  args[i++] = "-listen";
   args[i++] = "5";
+  args[i++] = "-displayfd";
+  args[i++] = "6",
 #ifdef HAVE_XWAYLAND_INITFD
   args[i++] = "-initfd";
-  args[i++] = "6";
+  args[i++] = "7";
 #else
   args[i++] = "-listen";
-  args[i++] = "6";
+  args[i++] = "7";
 #endif
   for (j = 0; j <  G_N_ELEMENTS (x11_extension_names); j++)
     {
@@ -747,12 +799,14 @@ meta_xwayland_init (MetaXWaylandManager *manager,
     {
       if (!open_display_sockets (manager,
                                  manager->public_connection.display_index,
+                                 &manager->public_connection.abstract_fd,
                                  &manager->public_connection.unix_fd,
                                  &fatal))
         return FALSE;
 
       if (!open_display_sockets (manager,
                                  manager->private_connection.display_index,
+                                 &manager->private_connection.abstract_fd,
                                  &manager->private_connection.unix_fd,
                                  &fatal))
         return FALSE;
@@ -763,7 +817,7 @@ meta_xwayland_init (MetaXWaylandManager *manager,
 
   if (policy == META_DISPLAY_POLICY_ON_DEMAND)
     {
-      g_unix_fd_add (manager->public_connection.unix_fd, G_IO_IN,
+      g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
                      xdisplay_connection_activity_cb, manager);
     }
 
