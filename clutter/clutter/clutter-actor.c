@@ -692,7 +692,6 @@ struct _ClutterActorPrivate
 
   /* the cached transformation matrix; see apply_transform() */
   graphene_matrix_t transform;
-  graphene_matrix_t inverse_transform;
 
   float resource_scale;
 
@@ -847,7 +846,6 @@ struct _ClutterActorPrivate
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_update_stage_views    : 1;
-  guint has_inverse_transform       : 1;
 };
 
 enum
@@ -3057,8 +3055,6 @@ ensure_valid_actor_transform (ClutterActor *actor)
   graphene_matrix_init_identity (&priv->transform);
 
   CLUTTER_ACTOR_GET_CLASS (actor)->apply_transform (actor, &priv->transform);
-  priv->has_inverse_transform = graphene_matrix_inverse (&priv->transform,
-                                                         &priv->inverse_transform);
 
   priv->transform_valid = TRUE;
 }
