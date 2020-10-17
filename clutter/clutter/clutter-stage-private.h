@@ -31,8 +31,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ClutterStageQueueRedrawEntry ClutterStageQueueRedrawEntry;
-
 /* stage */
 ClutterStageWindow *_clutter_stage_get_default_window    (void);
 
@@ -89,11 +87,12 @@ ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
 void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);
 
-ClutterStageQueueRedrawEntry *_clutter_stage_queue_actor_redraw            (ClutterStage                 *stage,
-                                                                            ClutterStageQueueRedrawEntry *entry,
-                                                                            ClutterActor                 *actor,
-                                                                            const ClutterPaintVolume     *clip);
-void                          _clutter_stage_queue_redraw_entry_invalidate (ClutterStageQueueRedrawEntry *entry);
+void clutter_stage_queue_actor_redraw (ClutterStage             *stage,
+                                       ClutterActor             *actor,
+                                       const ClutterPaintVolume *clip);
+
+void clutter_stage_dequeue_actor_redraw (ClutterStage *stage,
+                                         ClutterActor *actor);
 
 void            _clutter_stage_add_pointer_drag_actor    (ClutterStage       *stage,
                                                           ClutterInputDevice *device,

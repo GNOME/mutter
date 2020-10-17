@@ -775,8 +775,6 @@ struct _ClutterActorPrivate
    */
   ClutterPaintVolume last_paint_volume;
 
-  ClutterStageQueueRedrawEntry *queue_redraw_entry;
-
   ClutterColor bg_color;
 
 #ifdef CLUTTER_ENABLE_DEBUG
@@ -2116,6 +2114,9 @@ unrealize_actor_after_children_cb (ClutterActor *self,
       priv->parent != NULL &&
       priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
     clutter_stage_dequeue_actor_relayout (CLUTTER_STAGE (stage), self);
+
+  if (stage != NULL)
+    clutter_stage_dequeue_actor_redraw (CLUTTER_STAGE (stage), self);
 
   if (priv->unmapped_paint_branch_counter == 0)
     priv->allocation = (ClutterActorBox) CLUTTER_ACTOR_BOX_UNINITIALIZED;
@@ -4059,22 +4060,6 @@ _clutter_actor_stop_transitions (ClutterActor *self)
     }
 }
 
-static ClutterActorTraverseVisitFlags
-invalidate_queue_redraw_entry (ClutterActor *self,
-                               int           depth,
-                               gpointer      user_data)
-{
-  ClutterActorPrivate *priv = self->priv;
-
-  if (priv->queue_redraw_entry != NULL)
-    {
-      _clutter_stage_queue_redraw_entry_invalidate (priv->queue_redraw_entry);
-      priv->queue_redraw_entry = NULL;
-    }
-
-  return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
-}
-
 static inline void
 remove_child (ClutterActor *self,
               ClutterActor *child)
@@ -4107,10 +4092,9 @@ typedef enum
   REMOVE_CHILD_EMIT_PARENT_SET    = 1 << 1,
   REMOVE_CHILD_EMIT_ACTOR_REMOVED = 1 << 2,
   REMOVE_CHILD_CHECK_STATE        = 1 << 3,
-  REMOVE_CHILD_FLUSH_QUEUE        = 1 << 4,
-  REMOVE_CHILD_NOTIFY_FIRST_LAST  = 1 << 5,
-  REMOVE_CHILD_STOP_TRANSITIONS   = 1 << 6,
-  REMOVE_CHILD_CLEAR_STAGE_VIEWS  = 1 << 7,
+  REMOVE_CHILD_NOTIFY_FIRST_LAST  = 1 << 4,
+  REMOVE_CHILD_STOP_TRANSITIONS   = 1 << 5,
+  REMOVE_CHILD_CLEAR_STAGE_VIEWS  = 1 << 6,
 
   /* default flags for public API */
   REMOVE_CHILD_DEFAULT_FLAGS      = REMOVE_CHILD_STOP_TRANSITIONS |
@@ -4118,7 +4102,6 @@ typedef enum
                                     REMOVE_CHILD_EMIT_PARENT_SET |
                                     REMOVE_CHILD_EMIT_ACTOR_REMOVED |
                                     REMOVE_CHILD_CHECK_STATE |
-                                    REMOVE_CHILD_FLUSH_QUEUE |
                                     REMOVE_CHILD_NOTIFY_FIRST_LAST |
                                     REMOVE_CHILD_CLEAR_STAGE_VIEWS,
 } ClutterActorRemoveChildFlags;
@@ -4138,7 +4121,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 {
   ClutterActor *old_first, *old_last;
   gboolean destroy_meta, emit_parent_set, emit_actor_removed, check_state;
-  gboolean flush_queue;
   gboolean notify_first_last;
   gboolean stop_transitions;
   gboolean clear_stage_views;
@@ -4155,7 +4137,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   emit_parent_set = (flags & REMOVE_CHILD_EMIT_PARENT_SET) != 0;
   emit_actor_removed = (flags & REMOVE_CHILD_EMIT_ACTOR_REMOVED) != 0;
   check_state = (flags & REMOVE_CHILD_CHECK_STATE) != 0;
-  flush_queue = (flags & REMOVE_CHILD_FLUSH_QUEUE) != 0;
   notify_first_last = (flags & REMOVE_CHILD_NOTIFY_FIRST_LAST) != 0;
   stop_transitions = (flags & REMOVE_CHILD_STOP_TRANSITIONS) != 0;
   clear_stage_views = (flags & REMOVE_CHILD_CLEAR_STAGE_VIEWS) != 0;
@@ -4179,28 +4160,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
        * yhis should unmap and unrealize, unless we're reparenting.
        */
       clutter_actor_update_map_state (child, MAP_STATE_MAKE_UNREALIZED);
-    }
-
-  if (flush_queue)
-    {
-      /* We take this opportunity to invalidate any queue redraw entry
-       * associated with the actor and descendants since we won't be able to
-       * determine the appropriate stage after this.
-       *
-       * we do this after we updated the mapped state because actors might
-       * end up queueing redraws inside their mapped/unmapped virtual
-       * functions, and if we invalidate the redraw entry we could end up
-       * with an inconsistent state and weird memory corruption. see
-       * bugs:
-       *
-       *   http://bugzilla.clutter-project.org/show_bug.cgi?id=2621
-       *   https://bugzilla.gnome.org/show_bug.cgi?id=652036
-       */
-      _clutter_actor_traverse (child,
-                               0,
-                               invalidate_queue_redraw_entry,
-                               NULL,
-                               NULL);
     }
 
   old_first = self->priv->first_child;
@@ -7902,20 +7861,6 @@ clutter_actor_destroy (ClutterActor *self)
 }
 
 void
-_clutter_actor_finish_queue_redraw (ClutterActor *self)
-{
-  ClutterActorPrivate *priv = self->priv;
-
-  /* Remove queue entry early in the process, otherwise a new
-     queue_redraw() during signal handling could put back this
-     object in the stage redraw list (but the entry is freed as
-     soon as we return from this function, causing a segfault
-     later)
-  */
-  priv->queue_redraw_entry = NULL;
-}
-
-void
 _clutter_actor_queue_redraw_full (ClutterActor             *self,
                                   const ClutterPaintVolume *volume,
                                   ClutterEffect            *effect)
@@ -7980,11 +7925,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
-  self->priv->queue_redraw_entry =
-    _clutter_stage_queue_actor_redraw (CLUTTER_STAGE (stage),
-                                       priv->queue_redraw_entry,
-                                       self,
-                                       volume);
+  clutter_stage_queue_actor_redraw (CLUTTER_STAGE (stage),
+                                    self,
+                                    volume);
 
   /* If this is the first redraw queued then we can directly use the
      effect parameter */
