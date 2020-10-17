@@ -32,24 +32,24 @@
 #include "cogl-trace.h"
 #include "winsys/cogl-winsys-egl-private.h"
 
-typedef struct _CoglOnscreenEGL
+typedef struct _CoglOnscreenEgl
 {
   EGLSurface egl_surface;
 
   /* Platform specific data */
   void *platform;
-} CoglOnscreenEGL;
+} CoglOnscreenEgl;
 
-CoglOnscreenEGL *
+CoglOnscreenEgl *
 cogl_onscreen_egl_new (void)
 {
-  return g_slice_new0 (CoglOnscreenEGL);
+  return g_slice_new0 (CoglOnscreenEgl);
 }
 
 void
-cogl_onscreen_egl_free (CoglOnscreenEGL *onscreen_egl)
+cogl_onscreen_egl_free (CoglOnscreenEgl *onscreen_egl)
 {
-  g_slice_free (CoglOnscreenEGL, onscreen_egl);
+  g_slice_free (CoglOnscreenEgl, onscreen_egl);
 }
 
 gboolean
@@ -67,7 +67,7 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
   EGLConfig egl_config;
   EGLint config_count = 0;
   EGLBoolean status;
-  CoglOnscreenEGL *winsys;
+  CoglOnscreenEgl *winsys;
 
   g_return_val_if_fail (egl_display->egl_context, FALSE);
 
@@ -98,7 +98,7 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
       cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
     }
 
-  winsys = g_slice_new0 (CoglOnscreenEGL);
+  winsys = g_slice_new0 (CoglOnscreenEgl);
   cogl_onscreen_set_winsys (onscreen, winsys);
 
   if (egl_renderer->platform_vtable->onscreen_init &&
@@ -106,7 +106,7 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
                                                      egl_config,
                                                      error))
     {
-      g_slice_free (CoglOnscreenEGL, winsys);
+      g_slice_free (CoglOnscreenEgl, winsys);
       return FALSE;
     }
 
@@ -121,13 +121,13 @@ _cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
 
   /* If we never successfully allocated then there's nothing to do */
-  if (egl_onscreen == NULL)
+  if (onscreen_egl == NULL)
     return;
 
-  if (egl_onscreen->egl_surface != EGL_NO_SURFACE)
+  if (onscreen_egl->egl_surface != EGL_NO_SURFACE)
     {
       /* Cogl always needs a valid context bound to something so if we
        * are destroying the onscreen that is currently bound we'll
@@ -135,8 +135,8 @@ _cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
       if ((egl_display->dummy_surface != EGL_NO_SURFACE ||
            (egl_renderer->private_features &
             COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT) != 0) &&
-          (egl_display->current_draw_surface == egl_onscreen->egl_surface ||
-           egl_display->current_read_surface == egl_onscreen->egl_surface))
+          (egl_display->current_draw_surface == onscreen_egl->egl_surface ||
+           egl_display->current_read_surface == onscreen_egl->egl_surface))
         {
           _cogl_winsys_egl_make_current (context->display,
                                          egl_display->dummy_surface,
@@ -144,16 +144,16 @@ _cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
                                          egl_display->current_context);
         }
 
-      if (eglDestroySurface (egl_renderer->edpy, egl_onscreen->egl_surface)
+      if (eglDestroySurface (egl_renderer->edpy, onscreen_egl->egl_surface)
           == EGL_FALSE)
         g_warning ("Failed to destroy EGL surface");
-      egl_onscreen->egl_surface = EGL_NO_SURFACE;
+      onscreen_egl->egl_surface = EGL_NO_SURFACE;
     }
 
   if (egl_renderer->platform_vtable->onscreen_deinit)
     egl_renderer->platform_vtable->onscreen_deinit (onscreen);
 
-  g_slice_free (CoglOnscreenEGL, cogl_onscreen_get_winsys (onscreen));
+  g_slice_free (CoglOnscreenEgl, cogl_onscreen_get_winsys (onscreen));
   cogl_onscreen_set_winsys (onscreen, NULL);
 }
 
@@ -163,11 +163,11 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
 
   gboolean status = _cogl_winsys_egl_make_current (context->display,
-                                                   egl_onscreen->egl_surface,
-                                                   egl_onscreen->egl_surface,
+                                                   onscreen_egl->egl_surface,
+                                                   onscreen_egl->egl_surface,
                                                    egl_context);
   if (status)
     {
@@ -207,9 +207,9 @@ _cogl_winsys_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
   CoglDisplayEGL *egl_display = context->display->winsys;
-  EGLSurface surface = egl_onscreen->egl_surface;
+  EGLSurface surface = onscreen_egl->egl_surface;
   static gboolean warned = FALSE;
   int age = 0;
 
@@ -246,7 +246,7 @@ _cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
   int framebuffer_height  = cogl_framebuffer_get_height (framebuffer);
   int *rectangles = g_alloca (sizeof (int) * n_rectangles * 4);
   int i;
@@ -270,7 +270,7 @@ _cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
                                  COGL_FRAMEBUFFER_STATE_BIND);
 
   if (egl_renderer->pf_eglSwapBuffersRegion (egl_renderer->edpy,
-                                             egl_onscreen->egl_surface,
+                                             onscreen_egl->egl_surface,
                                              n_rectangles,
                                              rectangles) == EGL_FALSE)
     g_warning ("Error reported by eglSwapBuffersRegion");
@@ -287,7 +287,7 @@ _cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
-  CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
+  CoglOnscreenEgl *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
 
   COGL_TRACE_BEGIN_SCOPED (CoglOnscreenEGLSwapBuffersWithDamage,
                            "Onscreen (eglSwapBuffers)");
@@ -319,37 +319,37 @@ _cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
         }
 
       if (egl_renderer->pf_eglSwapBuffersWithDamage (egl_renderer->edpy,
-                                                     egl_onscreen->egl_surface,
+                                                     onscreen_egl->egl_surface,
                                                      flipped,
                                                      n_rectangles) == EGL_FALSE)
         g_warning ("Error reported by eglSwapBuffersWithDamage");
     }
   else
-    eglSwapBuffers (egl_renderer->edpy, egl_onscreen->egl_surface);
+    eglSwapBuffers (egl_renderer->edpy, onscreen_egl->egl_surface);
 }
 
 void
-cogl_onscreen_egl_set_platform (CoglOnscreenEGL *onscreen_egl,
+cogl_onscreen_egl_set_platform (CoglOnscreenEgl *onscreen_egl,
                                 gpointer         platform)
 {
   onscreen_egl->platform = platform;
 }
 
 gpointer
-cogl_onscreen_egl_get_platform (CoglOnscreenEGL *onscreen_egl)
+cogl_onscreen_egl_get_platform (CoglOnscreenEgl *onscreen_egl)
 {
   return onscreen_egl->platform;
 }
 
 void
-cogl_onscreen_egl_set_egl_surface (CoglOnscreenEGL *onscreen_egl,
+cogl_onscreen_egl_set_egl_surface (CoglOnscreenEgl *onscreen_egl,
                                    EGLSurface       egl_surface)
 {
   onscreen_egl->egl_surface = egl_surface;
 }
 
 EGLSurface
-cogl_onscreen_egl_get_egl_surface (CoglOnscreenEGL *onscreen_egl)
+cogl_onscreen_egl_get_egl_surface (CoglOnscreenEgl *onscreen_egl)
 {
   return onscreen_egl->egl_surface;
 }

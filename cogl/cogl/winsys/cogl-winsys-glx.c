@@ -79,7 +79,7 @@
 
 #define MAX_GLX_CONFIG_ATTRIBS 30
 
-typedef struct _CoglOnscreenGLX CoglOnscreenGLX;
+typedef struct _CoglOnscreenGlx CoglOnscreenGlx;
 
 typedef struct _CoglContextGLX
 {
@@ -162,7 +162,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
     {
       CoglFramebuffer *framebuffer = l->data;
       CoglOnscreen *onscreen;
-      CoglOnscreenGLX *onscreen_glx;
+      CoglOnscreenGlx *onscreen_glx;
 
       if (!COGL_IS_ONSCREEN (framebuffer))
         continue;
