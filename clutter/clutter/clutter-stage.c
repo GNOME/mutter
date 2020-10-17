@@ -1397,6 +1397,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
   g_assert (context->pick_mode == CLUTTER_PICK_NONE);
 
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
+
   if (mode != priv->cached_pick_mode)
     {
       ClutterPickContext *pick_context;
