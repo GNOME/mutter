@@ -126,9 +126,9 @@ void                _clutter_paint_volume_set_reference_actor  (ClutterPaintVolu
 ClutterCullResult   _clutter_paint_volume_cull                 (ClutterPaintVolume       *pv,
                                                                 const graphene_frustum_t *frustum);
 
-void                _clutter_paint_volume_get_stage_paint_box  (ClutterPaintVolume *pv,
-                                                                ClutterStage *stage,
-                                                                ClutterActorBox *box);
+void                _clutter_paint_volume_get_stage_paint_box  (const ClutterPaintVolume *pv,
+                                                                ClutterStage             *stage,
+                                                                ClutterActorBox          *box);
 
 void                _clutter_paint_volume_transform_relative   (ClutterPaintVolume *pv,
                                                                 ClutterActor *relative_to_ancestor);

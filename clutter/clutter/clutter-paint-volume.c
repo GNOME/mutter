@@ -1029,9 +1029,9 @@ _clutter_paint_volume_cull (ClutterPaintVolume       *pv,
 }
 
 void
-_clutter_paint_volume_get_stage_paint_box (ClutterPaintVolume *pv,
-                                           ClutterStage *stage,
-                                           ClutterActorBox *box)
+_clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
+                                           ClutterStage             *stage,
+                                           ClutterActorBox          *box)
 {
   ClutterPaintVolume projected_pv;
   graphene_matrix_t modelview;
