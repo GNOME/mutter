@@ -32,6 +32,26 @@
 #include "cogl-trace.h"
 #include "winsys/cogl-winsys-egl-private.h"
 
+typedef struct _CoglOnscreenEGL
+{
+  EGLSurface egl_surface;
+
+  /* Platform specific data */
+  void *platform;
+} CoglOnscreenEGL;
+
+CoglOnscreenEGL *
+cogl_onscreen_egl_new (void)
+{
+  return g_slice_new0 (CoglOnscreenEGL);
+}
+
+void
+cogl_onscreen_egl_free (CoglOnscreenEGL *onscreen_egl)
+{
+  g_slice_free (CoglOnscreenEGL, onscreen_egl);
+}
+
 gboolean
 _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
                                 GError       **error)
@@ -306,4 +326,30 @@ _cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
     }
   else
     eglSwapBuffers (egl_renderer->edpy, egl_onscreen->egl_surface);
+}
+
+void
+cogl_onscreen_egl_set_platform (CoglOnscreenEGL *onscreen_egl,
+                                gpointer         platform)
+{
+  onscreen_egl->platform = platform;
+}
+
+gpointer
+cogl_onscreen_egl_get_platform (CoglOnscreenEGL *onscreen_egl)
+{
+  return onscreen_egl->platform;
+}
+
+void
+cogl_onscreen_egl_set_egl_surface (CoglOnscreenEGL *onscreen_egl,
+                                   EGLSurface       egl_surface)
+{
+  onscreen_egl->egl_surface = egl_surface;
+}
+
+EGLSurface
+cogl_onscreen_egl_get_egl_surface (CoglOnscreenEGL *onscreen_egl)
+{
+  return onscreen_egl->egl_surface;
 }

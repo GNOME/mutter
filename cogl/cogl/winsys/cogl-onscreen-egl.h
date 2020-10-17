@@ -27,6 +27,15 @@
 #define COGL_ONSCREEN_EGL_H
 
 #include "cogl-onscreen.h"
+#include "winsys/cogl-winsys-egl-private.h"
+
+typedef struct _CoglOnscreenEGL CoglOnscreenEGL;
+
+COGL_EXPORT CoglOnscreenEGL *
+cogl_onscreen_egl_new (void);
+
+COGL_EXPORT void
+cogl_onscreen_egl_free (CoglOnscreenEGL *onscreen_egl);
 
 gboolean
 _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
@@ -54,5 +63,19 @@ _cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                     int            n_rectangles,
                                                     CoglFrameInfo *info,
                                                     gpointer       user_data);
+
+COGL_EXPORT void
+cogl_onscreen_egl_set_platform (CoglOnscreenEGL *onscreen_egl,
+                                gpointer         platform);
+
+COGL_EXPORT gpointer
+cogl_onscreen_egl_get_platform (CoglOnscreenEGL *onscreen_egl);
+
+COGL_EXPORT void
+cogl_onscreen_egl_set_egl_surface (CoglOnscreenEGL *onscreen_egl,
+                                   EGLSurface       egl_surface);
+
+COGL_EXPORT EGLSurface
+cogl_onscreen_egl_get_egl_surface (CoglOnscreenEGL *onscreen_egl);
 
 #endif /* COGL_ONSCREEN_EGL_H */

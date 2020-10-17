@@ -165,14 +165,6 @@ typedef struct _CoglContextEGL
   EGLSurface saved_read_surface;
 } CoglContextEGL;
 
-typedef struct _CoglOnscreenEGL
-{
-  EGLSurface egl_surface;
-
-  /* Platform specific data */
-  void *platform;
-} CoglOnscreenEGL;
-
 COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_egl_get_vtable (void);
 

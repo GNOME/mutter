@@ -45,6 +45,7 @@
 #include "cogl-texture-2d-private.h"
 #include "cogl-texture-2d.h"
 #include "cogl-poll-private.h"
+#include "winsys/cogl-onscreen-egl.h"
 #include "winsys/cogl-winsys-egl-x11-private.h"
 #include "winsys/cogl-winsys-egl-private.h"
 
@@ -87,7 +88,8 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
         continue;
 
       egl_onscreen = cogl_onscreen_get_winsys (COGL_ONSCREEN (framebuffer));
-      xlib_onscreen = egl_onscreen->platform;
+      xlib_onscreen =
+        cogl_onscreen_egl_get_platform (egl_onscreen);
       if (xlib_onscreen->xwin == (Window)xid)
         return COGL_ONSCREEN (framebuffer);
     }
@@ -105,7 +107,8 @@ flush_pending_resize_notifications_cb (void *data,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-      CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
+      CoglOnscreenXlib *xlib_onscreen =
+        cogl_onscreen_egl_get_platform (egl_onscreen);
 
       if (xlib_onscreen->pending_resize_notify)
         {
@@ -164,7 +167,7 @@ notify_resize (CoglContext *context,
                                       NULL);
     }
 
-  xlib_onscreen = egl_onscreen->platform;
+  xlib_onscreen = cogl_onscreen_egl_get_platform (egl_onscreen);
   xlib_onscreen->pending_resize_notify = TRUE;
 }
 
@@ -427,6 +430,7 @@ _cogl_winsys_egl_onscreen_init (CoglOnscreen *onscreen,
   CoglOnscreenXlib *xlib_onscreen;
   CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
   Window xwin;
+  EGLSurface egl_surface;
 
   /* FIXME: We need to explicitly Select for ConfigureNotify events.
    * We need to document that for windows we create then toolkits
@@ -501,15 +505,17 @@ _cogl_winsys_egl_onscreen_init (CoglOnscreen *onscreen,
     }
 
   xlib_onscreen = g_slice_new (CoglOnscreenXlib);
-  egl_onscreen->platform = xlib_onscreen;
+  cogl_onscreen_egl_set_platform (egl_onscreen, xlib_onscreen);
 
   xlib_onscreen->xwin = xwin;
 
-  egl_onscreen->egl_surface =
+  egl_surface =
     eglCreateWindowSurface (egl_renderer->edpy,
                             egl_config,
                             (EGLNativeWindowType) xlib_onscreen->xwin,
                             NULL);
+  cogl_onscreen_egl_set_egl_surface (egl_onscreen,
+                                     egl_surface);
 
   return TRUE;
 }
@@ -524,7 +530,8 @@ _cogl_winsys_egl_onscreen_deinit (CoglOnscreen *onscreen)
     _cogl_xlib_renderer_get_data (renderer);
   CoglXlibTrapState old_state;
   CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
+  CoglOnscreenXlib *xlib_onscreen =
+    cogl_onscreen_egl_get_platform (egl_onscreen);
 
   _cogl_xlib_renderer_trap_errors (renderer, &old_state);
 
@@ -555,7 +562,8 @@ _cogl_winsys_onscreen_set_visibility (CoglOnscreen *onscreen,
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   CoglOnscreenEGL *onscreen_egl = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *xlib_onscreen = onscreen_egl->platform;
+  CoglOnscreenXlib *xlib_onscreen =
+    cogl_onscreen_egl_get_platform (onscreen_egl);
 
   if (visibility)
     XMapWindow (xlib_renderer->xdpy, xlib_onscreen->xwin);
@@ -572,7 +580,8 @@ _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
+  CoglOnscreenXlib *xlib_onscreen =
+    cogl_onscreen_egl_get_platform (egl_onscreen);
 
   XSizeHints *size_hints = XAllocSizeHints ();
 
@@ -606,7 +615,8 @@ static uint32_t
 _cogl_winsys_onscreen_x11_get_window_xid (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *egl_onscreen = cogl_onscreen_get_winsys (onscreen);
-  CoglOnscreenXlib *xlib_onscreen = egl_onscreen->platform;
+  CoglOnscreenXlib *xlib_onscreen =
+    cogl_onscreen_egl_get_platform (egl_onscreen);
 
   return xlib_onscreen->xwin;
 }
