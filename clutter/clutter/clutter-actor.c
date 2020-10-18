@@ -3931,6 +3931,7 @@ clutter_actor_pick (ClutterActor       *actor,
 {
   ClutterActorPrivate *priv;
   ClutterActorBox clip;
+  gboolean transform_pushed = FALSE;
   gboolean clip_set = FALSE;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (actor))
@@ -3953,7 +3954,11 @@ clutter_actor_pick (ClutterActor       *actor,
 
       graphene_matrix_init_identity (&matrix);
       _clutter_actor_apply_modelview_transform (actor, &matrix);
-      clutter_pick_context_push_transform (pick_context, &matrix);
+      if (!graphene_matrix_is_identity (&matrix))
+        {
+          clutter_pick_context_push_transform (pick_context, &matrix);
+          transform_pushed = TRUE;
+        }
     }
 
   if (priv->has_clip)
@@ -3988,7 +3993,7 @@ clutter_actor_pick (ClutterActor       *actor,
   if (clip_set)
     clutter_pick_context_pop_clip (pick_context);
 
-  if (priv->enable_model_view_transform)
+  if (transform_pushed)
     clutter_pick_context_pop_transform (pick_context);
 
   /* paint sequence complete */
