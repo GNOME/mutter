@@ -131,7 +131,6 @@ cogl_offscreen_dispose (GObject *object)
   G_OBJECT_CLASS (cogl_offscreen_parent_class)->dispose (object);
 
   cogl_clear_object (&offscreen->texture);
-  cogl_clear_object (&offscreen->depth_texture);
 }
 
 static void

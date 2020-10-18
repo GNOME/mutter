@@ -51,8 +51,6 @@ struct _CoglOffscreen
   CoglTexture *texture;
   int texture_level;
 
-  CoglTexture *depth_texture;
-
   CoglOffscreenAllocateFlags allocation_flags;
 
   /* FIXME: _cogl_offscreen_new_with_texture_full should be made to use
