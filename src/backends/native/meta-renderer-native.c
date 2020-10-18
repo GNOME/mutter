@@ -940,9 +940,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
       vtable.renderer_disconnect = meta_renderer_native_disconnect;
       vtable.renderer_create_dma_buf = meta_renderer_native_create_dma_buf;
 
-      vtable.onscreen_init = meta_renderer_native_init_onscreen;
-      vtable.onscreen_deinit = meta_renderer_native_release_onscreen;
-
       /* The KMS winsys doesn't support swap region */
       vtable.onscreen_swap_region = NULL;
       vtable.onscreen_swap_buffers_with_damage =

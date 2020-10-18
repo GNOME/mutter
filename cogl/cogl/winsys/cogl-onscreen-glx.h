@@ -41,13 +41,6 @@ cogl_onscreen_glx_new (CoglContext *context,
                        int          width,
                        int          height);
 
-gboolean
-_cogl_winsys_onscreen_glx_init (CoglOnscreen  *onscreen,
-                                GError       **error);
-
-void
-_cogl_winsys_onscreen_glx_deinit (CoglOnscreen *onscreen);
-
 void
 _cogl_winsys_onscreen_glx_bind (CoglOnscreen *onscreen);
 

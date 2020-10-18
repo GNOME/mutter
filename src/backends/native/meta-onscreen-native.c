@@ -1667,13 +1667,13 @@ meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
   onscreen_native->view = view;
 }
 
-gboolean
-meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
-                                    GError      **error)
+static gboolean
+meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
+                               GError          **error)
 {
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   MetaRendererNativeGpuData *renderer_gpu_data;
   struct gbm_surface *gbm_surface;
   EGLSurface egl_surface;
@@ -1683,6 +1683,7 @@ meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
   MetaKmsDevice *render_kms_device;
   EGLStreamKHR egl_stream;
 #endif
+  CoglFramebufferClass *parent_class;
 
   if (META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc)) !=
       onscreen_native->render_gpu)
@@ -1736,7 +1737,8 @@ meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
 #endif /* HAVE_EGL_DEVICE */
     }
 
-  return TRUE;
+  parent_class = COGL_FRAMEBUFFER_CLASS (meta_onscreen_native_parent_class);
+  return parent_class->allocate (framebuffer, error);
 }
 
 static gboolean
@@ -2017,10 +2019,11 @@ destroy_egl_surface (CoglOnscreen *onscreen)
     }
 }
 
-void
-meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+static void
+meta_onscreen_native_dispose (GObject *object)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
@@ -2030,6 +2033,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
   MetaRendererNativeGpuData *renderer_gpu_data;
   EGLSurface egl_surface;
 
+  G_OBJECT_CLASS (meta_onscreen_native_parent_class)->dispose (object);
 
   egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
   if (egl_surface != EGL_NO_SURFACE &&
@@ -2057,11 +2061,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
 
       destroy_egl_surface (onscreen);
 
-      if (onscreen_native->gbm.surface)
-        {
-          gbm_surface_destroy (onscreen_native->gbm.surface);
-          onscreen_native->gbm.surface = NULL;
-        }
+      g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -2097,4 +2097,10 @@ meta_onscreen_native_init (MetaOnscreenNative *onscreen_native)
 static void
 meta_onscreen_native_class_init (MetaOnscreenNativeClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
+
+  object_class->dispose = meta_onscreen_native_dispose;
+
+  framebuffer_class->allocate = meta_onscreen_native_allocate;
 }

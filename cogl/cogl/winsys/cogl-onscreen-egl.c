@@ -44,13 +44,13 @@ G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreenEgl, cogl_onscreen_egl,
                             COGL_TYPE_ONSCREEN)
 
 gboolean
-_cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
-                                GError       **error)
+cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
+                                 EGLConfig        *out_egl_config,
+                                 GError          **error)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_egl);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
-  CoglDisplayEGL *egl_display = display->winsys;
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
   const CoglFramebufferConfig *config;
@@ -58,8 +58,6 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
   EGLConfig egl_config;
   EGLint config_count = 0;
   EGLBoolean status;
-
-  g_return_val_if_fail (egl_display->egl_context, FALSE);
 
   config = cogl_framebuffer_get_config (framebuffer);
   cogl_display_egl_determine_attributes (display, config, attributes);
@@ -76,8 +74,6 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
       return FALSE;
     }
 
-  /* Update the real number of samples_per_pixel now that we have
-   * found an egl_config... */
   if (config->samples_per_pixel)
     {
       EGLint samples;
@@ -88,30 +84,23 @@ _cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
       cogl_framebuffer_update_samples_per_pixel (framebuffer, samples);
     }
 
-  if (egl_renderer->platform_vtable->onscreen_init &&
-      !egl_renderer->platform_vtable->onscreen_init (onscreen,
-                                                     egl_config,
-                                                     error))
-    return FALSE;
-
+  *out_egl_config = egl_config;
   return TRUE;
 }
 
-void
-_cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
+static void
+cogl_onscreen_egl_dispose (GObject *object)
 {
-  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (object);
   CoglOnscreenEglPrivate *priv =
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
 
-  /* If we never successfully allocated then there's nothing to do */
-  if (onscreen_egl == NULL)
-    return;
+  G_OBJECT_CLASS (cogl_onscreen_egl_parent_class)->dispose (object);
 
   if (priv->egl_surface != EGL_NO_SURFACE)
     {
@@ -135,9 +124,6 @@ _cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen)
         g_warning ("Failed to destroy EGL surface");
       priv->egl_surface = EGL_NO_SURFACE;
     }
-
-  if (egl_renderer->platform_vtable->onscreen_deinit)
-    egl_renderer->platform_vtable->onscreen_deinit (onscreen);
 }
 
 static gboolean
@@ -365,4 +351,7 @@ cogl_onscreen_egl_init (CoglOnscreenEgl *onscreen_egl)
 static void
 cogl_onscreen_egl_class_init (CoglOnscreenEglClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_onscreen_egl_dispose;
 }

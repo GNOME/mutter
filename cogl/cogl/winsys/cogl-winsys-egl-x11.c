@@ -567,8 +567,6 @@ _cogl_winsys_egl_vtable =
     .cleanup_context = _cogl_winsys_egl_cleanup_context,
     .context_init = _cogl_winsys_egl_context_init,
     .context_deinit = _cogl_winsys_egl_context_deinit,
-    .onscreen_init = _cogl_winsys_egl_onscreen_xlib_init,
-    .onscreen_deinit = _cogl_winsys_egl_onscreen_xlib_deinit
   };
 
 COGL_EXPORT const CoglWinsysVtable *

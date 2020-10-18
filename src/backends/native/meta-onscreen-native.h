@@ -33,10 +33,6 @@ G_DECLARE_FINAL_TYPE (MetaOnscreenNative, meta_onscreen_native,
                       META, ONSCREEN_NATIVE,
                       CoglOnscreenEgl)
 
-gboolean
-meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
-                                    GError      **error);
-
 void meta_renderer_native_release_onscreen (CoglOnscreen *onscreen);
 
 void meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,

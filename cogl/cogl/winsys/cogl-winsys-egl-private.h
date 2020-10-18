@@ -79,13 +79,6 @@ typedef struct _CoglWinsysEGLVtable
   void
   (* context_deinit) (CoglContext *context);
 
-  gboolean
-  (* onscreen_init) (CoglOnscreen *onscreen,
-                     EGLConfig config,
-                     GError **error);
-  void
-  (* onscreen_deinit) (CoglOnscreen *onscreen);
-
   int
   (* add_config_attributes) (CoglDisplay                 *display,
                              const CoglFramebufferConfig *config,

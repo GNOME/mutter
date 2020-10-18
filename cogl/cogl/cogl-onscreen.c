@@ -56,8 +56,6 @@ typedef struct _CoglOnscreenPrivate
                                * cogl_onscreen_swap_region() or
                                * cogl_onscreen_swap_buffers() */
   GQueue pending_frame_infos;
-
-  gboolean needs_deinit;
 } CoglOnscreenPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreen, cogl_onscreen, COGL_TYPE_FRAMEBUFFER)
@@ -92,14 +90,7 @@ cogl_onscreen_allocate (CoglFramebuffer  *framebuffer,
                         GError          **error)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-
-  if (!winsys->onscreen_init (onscreen, error))
-    return FALSE;
-
-  priv->needs_deinit = TRUE;
 
   /* If the winsys doesn't support dirty events then we'll report
    * one on allocation so that if the application only paints in
@@ -150,8 +141,6 @@ cogl_onscreen_dispose (GObject *object)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (object);
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
   CoglFrameInfo *frame_info;
 
   _cogl_closure_list_disconnect_all (&priv->resize_closures);
@@ -161,12 +150,6 @@ cogl_onscreen_dispose (GObject *object)
   while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
     cogl_object_unref (frame_info);
   g_queue_clear (&priv->pending_frame_infos);
-
-  if (priv->needs_deinit)
-    {
-      winsys->onscreen_deinit (onscreen);
-      priv->needs_deinit = FALSE;
-    }
 
   G_OBJECT_CLASS (cogl_onscreen_parent_class)->dispose (object);
 }
@@ -701,4 +684,3 @@ cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen)
 
   return priv->frame_counter;
 }
-

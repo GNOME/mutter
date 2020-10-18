@@ -41,13 +41,6 @@ struct _CoglOnscreenEglClass
   CoglOnscreenClass parent_class;
 };
 
-gboolean
-_cogl_winsys_onscreen_egl_init (CoglOnscreen  *onscreen,
-                                GError       **error);
-
-void
-_cogl_winsys_onscreen_egl_deinit (CoglOnscreen *onscreen);
-
 void
 _cogl_winsys_onscreen_egl_bind (CoglOnscreen *onscreen);
 
@@ -81,5 +74,10 @@ cogl_onscreen_egl_set_egl_surface (CoglOnscreenEgl *onscreen_egl,
 
 COGL_EXPORT EGLSurface
 cogl_onscreen_egl_get_egl_surface (CoglOnscreenEgl *onscreen_egl);
+
+gboolean
+cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
+                                 EGLConfig        *out_egl_config,
+                                 GError          **error);
 
 #endif /* COGL_ONSCREEN_EGL_H */

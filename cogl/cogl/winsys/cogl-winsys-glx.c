@@ -1469,8 +1469,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .context_init = _cogl_winsys_context_init,
     .context_deinit = _cogl_winsys_context_deinit,
     .context_get_clock_time = _cogl_winsys_get_clock_time,
-    .onscreen_init = _cogl_winsys_onscreen_glx_init,
-    .onscreen_deinit = _cogl_winsys_onscreen_glx_deinit,
     .onscreen_bind = _cogl_winsys_onscreen_glx_bind,
     .onscreen_swap_buffers_with_damage =
       _cogl_winsys_onscreen_glx_swap_buffers_with_damage,

@@ -58,12 +58,11 @@ G_DEFINE_TYPE (CoglOnscreenGlx, cogl_onscreen_glx,
 
 #define COGL_ONSCREEN_X11_EVENT_MASK (StructureNotifyMask | ExposureMask)
 
-gboolean
-_cogl_winsys_onscreen_glx_init (CoglOnscreen  *onscreen,
-                                GError       **error)
+static gboolean
+cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
+                            GError          **error)
 {
-  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (framebuffer);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
   CoglGLXDisplay *glx_display = display->winsys;
@@ -205,11 +204,11 @@ _cogl_winsys_onscreen_glx_init (CoglOnscreen  *onscreen,
   return TRUE;
 }
 
-void
-_cogl_winsys_onscreen_glx_deinit (CoglOnscreen *onscreen)
+static void
+cogl_onscreen_glx_dispose (GObject *object)
 {
-  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (object);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglXlibRenderer *xlib_renderer =
@@ -218,56 +217,59 @@ _cogl_winsys_onscreen_glx_deinit (CoglOnscreen *onscreen)
   CoglXlibTrapState old_state;
   GLXDrawable drawable;
 
-  /* If we never successfully allocated then there's nothing to do */
-  if (onscreen_glx == NULL)
-    return;
+  G_OBJECT_CLASS (cogl_onscreen_glx_parent_class)->dispose (object);
 
   cogl_clear_object (&onscreen_glx->output);
 
-  _cogl_xlib_renderer_trap_errors (context->display->renderer, &old_state);
-
-  drawable =
-    onscreen_glx->glxwin == None ? onscreen_glx->xwin : onscreen_glx->glxwin;
-
-  /* Cogl always needs a valid context bound to something so if we are
-   * destroying the onscreen that is currently bound we'll switch back
-   * to the dummy drawable. Although the documentation for
-   * glXDestroyWindow states that a currently bound window won't
-   * actually be destroyed until it is unbound, it looks like this
-   * doesn't work if the X window itself is destroyed */
-  if (drawable == cogl_context_glx_get_current_drawable (context))
+  if (onscreen_glx->glxwin != None ||
+      onscreen_glx->xwin != None)
     {
-      GLXDrawable dummy_drawable = (glx_display->dummy_glxwin == None ?
-                                    glx_display->dummy_xwin :
-                                    glx_display->dummy_glxwin);
+      _cogl_xlib_renderer_trap_errors (context->display->renderer, &old_state);
 
-      glx_renderer->glXMakeContextCurrent (xlib_renderer->xdpy,
-                                           dummy_drawable,
-                                           dummy_drawable,
-                                           glx_display->glx_context);
-      cogl_context_glx_set_current_drawable (context, dummy_drawable);
+      drawable =
+        onscreen_glx->glxwin == None ? onscreen_glx->xwin : onscreen_glx->glxwin;
+
+      /* Cogl always needs a valid context bound to something so if we are
+       * destroying the onscreen that is currently bound we'll switch back
+       * to the dummy drawable. Although the documentation for
+       * glXDestroyWindow states that a currently bound window won't
+       * actually be destroyed until it is unbound, it looks like this
+       * doesn't work if the X window itself is destroyed */
+      if (drawable == cogl_context_glx_get_current_drawable (context))
+        {
+          GLXDrawable dummy_drawable = (glx_display->dummy_glxwin == None ?
+                                        glx_display->dummy_xwin :
+                                        glx_display->dummy_glxwin);
+
+          glx_renderer->glXMakeContextCurrent (xlib_renderer->xdpy,
+                                               dummy_drawable,
+                                               dummy_drawable,
+                                               glx_display->glx_context);
+          cogl_context_glx_set_current_drawable (context, dummy_drawable);
+        }
+
+      if (onscreen_glx->glxwin != None)
+        {
+          glx_renderer->glXDestroyWindow (xlib_renderer->xdpy,
+                                          onscreen_glx->glxwin);
+          onscreen_glx->glxwin = None;
+        }
+
+      if (onscreen_glx->xwin != None)
+        {
+          XDestroyWindow (xlib_renderer->xdpy, onscreen_glx->xwin);
+          onscreen_glx->xwin = None;
+        }
+      else
+        {
+          onscreen_glx->xwin = None;
+        }
+
+      XSync (xlib_renderer->xdpy, False);
+
+      _cogl_xlib_renderer_untrap_errors (context->display->renderer,
+                                         &old_state);
     }
-
-  if (onscreen_glx->glxwin != None)
-    {
-      glx_renderer->glXDestroyWindow (xlib_renderer->xdpy,
-                                      onscreen_glx->glxwin);
-      onscreen_glx->glxwin = None;
-    }
-
-  if (onscreen_glx->xwin != None)
-    {
-      XDestroyWindow (xlib_renderer->xdpy, onscreen_glx->xwin);
-      onscreen_glx->xwin = None;
-    }
-  else
-    {
-      onscreen_glx->xwin = None;
-    }
-
-  XSync (xlib_renderer->xdpy, False);
-
-  _cogl_xlib_renderer_untrap_errors (context->display->renderer, &old_state);
 }
 
 void
@@ -1142,4 +1144,10 @@ cogl_onscreen_glx_init (CoglOnscreenGlx *onscreen_glx)
 static void
 cogl_onscreen_glx_class_init (CoglOnscreenGlxClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
+
+  object_class->dispose = cogl_onscreen_glx_dispose;
+
+  framebuffer_class->allocate = cogl_onscreen_glx_allocate;
 }
