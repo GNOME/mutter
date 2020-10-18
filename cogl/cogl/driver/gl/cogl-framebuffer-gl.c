@@ -712,7 +712,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglOffscreenAllocateFlags flags;
+  CoglOffscreenAllocateFlags allocate_flags;
   CoglGlFramebuffer *gl_framebuffer;
   CoglGlFbo *gl_fbo;
   const CoglFramebufferConfig *config;
@@ -754,7 +754,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                          level_width,
                          level_height,
                          config,
-                         flags = 0,
+                         allocate_flags = 0,
                          gl_fbo)) ||
 
       (ctx->have_last_offscreen_allocate_flags &&
@@ -764,7 +764,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                          level_width,
                          level_height,
                          config,
-                         flags = ctx->last_offscreen_allocate_flags,
+                         allocate_flags = ctx->last_offscreen_allocate_flags,
                          gl_fbo)) ||
 
       (
@@ -780,7 +780,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                          level_width,
                          level_height,
                          config,
-                         flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL,
+                         allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL,
                          gl_fbo)) ||
 
       try_creating_fbo (ctx,
@@ -789,7 +789,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         config,
-                        flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH |
+                        allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH |
                         COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_fbo) ||
 
@@ -799,7 +799,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         config,
-                        flags = COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
+                        allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_fbo) ||
 
       try_creating_fbo (ctx,
@@ -808,7 +808,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         config,
-                        flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH,
+                        allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH,
                         gl_fbo) ||
 
       try_creating_fbo (ctx,
@@ -817,7 +817,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                         level_width,
                         level_height,
                         config,
-                        flags = 0,
+                        allocate_flags = 0,
                         gl_fbo))
     {
       cogl_framebuffer_update_samples_per_pixel (framebuffer,
@@ -827,7 +827,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
         {
           /* Record that the last set of flags succeeded so that we can
              try that set first next time */
-          ctx->last_offscreen_allocate_flags = flags;
+          ctx->last_offscreen_allocate_flags = allocate_flags;
           ctx->have_last_offscreen_allocate_flags = TRUE;
         }
 
