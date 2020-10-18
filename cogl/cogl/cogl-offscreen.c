@@ -32,6 +32,19 @@
 #include "cogl-offscreen-private.h"
 #include "cogl-texture-private.h"
 
+struct _CoglOffscreen
+{
+  CoglFramebuffer parent;
+
+  CoglTexture *texture;
+  int texture_level;
+
+  /* FIXME: _cogl_offscreen_new_with_texture_full should be made to use
+   * fb->config to configure if we want a depth or stencil buffer so
+   * we can get rid of these flags */
+  CoglOffscreenFlags create_flags;
+};
+
 G_DEFINE_TYPE (CoglOffscreen, cogl_offscreen,
                COGL_TYPE_FRAMEBUFFER)
 
@@ -75,6 +88,12 @@ CoglTexture *
 cogl_offscreen_get_texture (CoglOffscreen *offscreen)
 {
   return offscreen->texture;
+}
+
+int
+cogl_offscreen_get_texture_level (CoglOffscreen *offscreen)
+{
+  return offscreen->texture_level;
 }
 
 static gboolean

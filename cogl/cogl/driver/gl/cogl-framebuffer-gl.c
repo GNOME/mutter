@@ -645,15 +645,19 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
   CoglGlFramebufferPrivate *priv;
   CoglGlFbo *gl_fbo;
   const CoglFramebufferConfig *config;
+  CoglTexture *texture;
+  int texture_level;
   int level_width;
   int level_height;
 
-  g_return_val_if_fail (offscreen->texture_level <
-                        _cogl_texture_get_n_levels (offscreen->texture),
+  texture = cogl_offscreen_get_texture (offscreen);
+  texture_level = cogl_offscreen_get_texture_level (offscreen);
+
+  g_return_val_if_fail (texture_level < _cogl_texture_get_n_levels (texture),
                         FALSE);
 
-  _cogl_texture_get_level_size (offscreen->texture,
-                                offscreen->texture_level,
+  _cogl_texture_get_level_size (texture,
+                                texture_level,
                                 &level_width,
                                 &level_height,
                                 NULL);
@@ -668,7 +672,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
    * the texture is actually used for rendering according to the filters set on
    * the corresponding CoglPipeline.
    */
-  _cogl_texture_gl_flush_legacy_texobj_filters (offscreen->texture,
+  _cogl_texture_gl_flush_legacy_texobj_filters (texture,
                                                 GL_NEAREST, GL_NEAREST);
 
   config = cogl_framebuffer_get_config (framebuffer);
@@ -679,8 +683,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
 
   if (((flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL) &&
        try_creating_fbo (ctx,
-                         offscreen->texture,
-                         offscreen->texture_level,
+                         texture,
+                         texture_level,
                          level_width,
                          level_height,
                          config,
@@ -689,8 +693,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
 
       (ctx->have_last_offscreen_allocate_flags &&
        try_creating_fbo (ctx,
-                         offscreen->texture,
-                         offscreen->texture_level,
+                         texture,
+                         texture_level,
                          level_width,
                          level_height,
                          config,
@@ -705,8 +709,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
         _cogl_has_private_feature
         (ctx, COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL)) &&
        try_creating_fbo (ctx,
-                         offscreen->texture,
-                         offscreen->texture_level,
+                         texture,
+                         texture_level,
                          level_width,
                          level_height,
                          config,
@@ -714,8 +718,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                          gl_fbo)) ||
 
       try_creating_fbo (ctx,
-                        offscreen->texture,
-                        offscreen->texture_level,
+                        texture,
+                        texture_level,
                         level_width,
                         level_height,
                         config,
@@ -724,8 +728,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                         gl_fbo) ||
 
       try_creating_fbo (ctx,
-                        offscreen->texture,
-                        offscreen->texture_level,
+                        texture,
+                        texture_level,
                         level_width,
                         level_height,
                         config,
@@ -733,8 +737,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                         gl_fbo) ||
 
       try_creating_fbo (ctx,
-                        offscreen->texture,
-                        offscreen->texture_level,
+                        texture,
+                        texture_level,
                         level_width,
                         level_height,
                         config,
@@ -742,8 +746,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                         gl_fbo) ||
 
       try_creating_fbo (ctx,
-                        offscreen->texture,
-                        offscreen->texture_level,
+                        texture,
+                        texture_level,
                         level_width,
                         level_height,
                         config,

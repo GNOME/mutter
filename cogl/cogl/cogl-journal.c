@@ -1636,8 +1636,9 @@ _cogl_journal_log_quad (CoglJournal  *journal,
   if (COGL_IS_OFFSCREEN (framebuffer))
     {
       CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
+      CoglTexture *texture = cogl_offscreen_get_texture (offscreen);
 
-      _cogl_texture_2d_externally_modified (offscreen->texture);
+      _cogl_texture_2d_externally_modified (texture);
     }
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_PRIMITIVE)))

@@ -44,19 +44,6 @@ typedef enum
   COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL = 1 << 2,
 } CoglOffscreenAllocateFlags;
 
-struct _CoglOffscreen
-{
-  CoglFramebuffer parent;
-
-  CoglTexture *texture;
-  int texture_level;
-
-  /* FIXME: _cogl_offscreen_new_with_texture_full should be made to use
-   * fb->config to configure if we want a depth or stencil buffer so
-   * we can get rid of these flags */
-  CoglOffscreenFlags create_flags;
-};
-
 /*
  * _cogl_offscreen_new_with_texture_full:
  * @texture: A #CoglTexture pointer
@@ -74,5 +61,8 @@ CoglOffscreen *
 _cogl_offscreen_new_with_texture_full (CoglTexture        *texture,
                                        CoglOffscreenFlags  create_flags,
                                        int                 level);
+
+int
+cogl_offscreen_get_texture_level (CoglOffscreen *offscreen);
 
 #endif /* COGL_OFFSCREEN_PRIVATE_H */
