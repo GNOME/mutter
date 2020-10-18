@@ -1253,7 +1253,7 @@ dummy_power_save_page_flip_cb (gpointer user_data)
   g_list_foreach (renderer_native->power_save_page_flip_onscreens,
                   (GFunc) dummy_power_save_page_flip, NULL);
   g_list_free_full (renderer_native->power_save_page_flip_onscreens,
-                    (GDestroyNotify) cogl_object_unref);
+                    g_object_unref);
   renderer_native->power_save_page_flip_onscreens = NULL;
   renderer_native->power_save_page_flip_source_id = 0;
 
