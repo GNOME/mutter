@@ -44,18 +44,9 @@ typedef enum
   COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL = 1 << 2,
 } CoglOffscreenAllocateFlags;
 
-typedef struct _CoglGLFramebuffer
-{
-  GLuint fbo_handle;
-  GList *renderbuffers;
-  int samples_per_pixel;
-} CoglGlFbo;
-
 struct _CoglOffscreen
 {
   CoglFramebuffer parent;
-
-  CoglGlFbo gl_fbo;
 
   CoglTexture *texture;
   int texture_level;

@@ -128,9 +128,18 @@
 #define GL_STENCIL 0x1802
 #endif
 
+typedef struct _CoglGlFbo
+{
+  GLuint fbo_handle;
+  GList *renderbuffers;
+  int samples_per_pixel;
+} CoglGlFbo;
+
 struct _CoglGlFramebuffer
 {
   GObject parent;
+
+  CoglGlFbo gl_fbo;
 
   gboolean dirty_bitmasks;
   CoglFramebufferBits bits;
@@ -138,6 +147,9 @@ struct _CoglGlFramebuffer
 
 G_DEFINE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
                G_TYPE_OBJECT)
+
+static CoglGlFramebuffer *
+ensure_gl_framebuffer (CoglFramebuffer *framebuffer);
 
 static void
 _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
@@ -298,9 +310,11 @@ _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
 
   if (COGL_IS_OFFSCREEN (framebuffer))
     {
-      CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
+      CoglGlFramebuffer *gl_framebuffer;
+
+      gl_framebuffer = ensure_gl_framebuffer (framebuffer);
       GE (ctx, glBindFramebuffer (target,
-                                  offscreen->gl_fbo.fbo_handle));
+                                  gl_framebuffer->gl_fbo.fbo_handle));
     }
   else
     {
@@ -762,7 +776,8 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglOffscreenAllocateFlags flags;
-  CoglGlFbo *gl_fbo = &offscreen->gl_fbo;
+  CoglGlFramebuffer *gl_framebuffer;
+  CoglGlFbo *gl_fbo;
   const CoglFramebufferConfig *config;
   int level_width;
   int level_height;
@@ -791,6 +806,9 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                                                 GL_NEAREST, GL_NEAREST);
 
   config = cogl_framebuffer_get_config (framebuffer);
+
+  gl_framebuffer = ensure_gl_framebuffer (framebuffer);
+  gl_fbo = &gl_framebuffer->gl_fbo;
 
   if (((offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL) &&
        try_creating_fbo (ctx,
@@ -904,10 +922,13 @@ _cogl_offscreen_gl_free (CoglOffscreen *offscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglGlFramebuffer *gl_framebuffer;
 
-  delete_renderbuffers (ctx, offscreen->gl_fbo.renderbuffers);
+  gl_framebuffer = ensure_gl_framebuffer (framebuffer);
 
-  GE (ctx, glDeleteFramebuffers (1, &offscreen->gl_fbo.fbo_handle));
+  delete_renderbuffers (ctx, gl_framebuffer->gl_fbo.renderbuffers);
+
+  GE (ctx, glDeleteFramebuffers (1, &gl_framebuffer->gl_fbo.fbo_handle));
 }
 
 void
