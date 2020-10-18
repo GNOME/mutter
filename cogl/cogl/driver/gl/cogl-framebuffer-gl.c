@@ -831,11 +831,6 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
           ctx->have_last_offscreen_allocate_flags = TRUE;
         }
 
-      /* Save the flags we managed to successfully allocate the
-       * renderbuffers with in case we need to make renderbuffers for a
-       * GLES2 context later */
-      offscreen->allocation_flags = flags;
-
       return TRUE;
     }
   else
