@@ -232,13 +232,13 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
        *                 sizeof (options) != 0)
        *       {
        *         cogl_object_unref (overrides->weak_pipeline);
-       *         g_slice_free (Overrides, overrides);
+       *         g_free (overrides);
        *         overrides = NULL;
        *       }
        *   }
        * if (!overrides)
        *   {
-       *     overrides = g_slice_new (Overrides);
+       *     overrides = g_new0 (Overrides, 1);
        *     overrides->weak_pipeline =
        *       cogl_pipeline_weak_copy (pipeline);
        *     _cogl_pipeline_apply_overrides (overrides->weak_pipeline,

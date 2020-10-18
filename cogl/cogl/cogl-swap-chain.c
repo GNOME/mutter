@@ -46,13 +46,13 @@ COGL_GTYPE_DEFINE_CLASS (SwapChain, swap_chain);
 static void
 _cogl_swap_chain_free (CoglSwapChain *swap_chain)
 {
-  g_slice_free (CoglSwapChain, swap_chain);
+  g_free (swap_chain);
 }
 
 CoglSwapChain *
 cogl_swap_chain_new (void)
 {
-  CoglSwapChain *swap_chain = g_slice_new0 (CoglSwapChain);
+  CoglSwapChain *swap_chain = g_new0 (CoglSwapChain, 1);
 
   swap_chain->length = -1; /* no preference */
 

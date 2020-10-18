@@ -635,7 +635,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  * static void
  * destroy_cache_cb (CoglObject *object, void *user_data)
  * {
- *   g_slice_free (MyValidatedMaterialCache, user_data);
+ *   g_free (user_data);
  * }
  *
  * static void
@@ -654,7 +654,7 @@ _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);
  *                                &_cogl_my_cache_key);
  *   if (G_UNLIKELY (cache == NULL))
  *     {
- *       cache = g_slice_new (MyValidatedMaterialCache);
+ *       cache = g_new0 (MyValidatedMaterialCache, 1);
  *       cogl_object_set_user_data (COGL_OBJECT (source),
  *                                  &_cogl_my_cache_key,
  *                                  cache, destroy_cache_cb);

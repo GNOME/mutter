@@ -73,7 +73,7 @@ _cogl_program_free (CoglProgram *program)
 
   g_array_free (program->custom_uniforms, TRUE);
 
-  g_slice_free (CoglProgram, program);
+  g_free (program);
 }
 
 CoglHandle
@@ -81,7 +81,7 @@ cogl_create_program (void)
 {
   CoglProgram *program;
 
-  program = g_slice_new0 (CoglProgram);
+  program = g_new0 (CoglProgram, 1);
 
   program->custom_uniforms =
     g_array_new (FALSE, FALSE, sizeof (CoglProgramUniform));

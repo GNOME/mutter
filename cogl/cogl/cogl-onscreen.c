@@ -204,7 +204,7 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
       g_object_unref (onscreen);
       cogl_object_unref (info);
 
-      g_slice_free (CoglOnscreenEvent, event);
+      g_free (event);
     }
 
   while (!_cogl_list_empty (&context->onscreen_dirty_queue))
@@ -225,7 +225,7 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
 
       g_object_unref (qe->onscreen);
 
-      g_slice_free (CoglOnscreenQueuedDirty, qe);
+      g_free (qe);
     }
 }
 
@@ -252,7 +252,7 @@ _cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenQueuedDirty *qe = g_slice_new (CoglOnscreenQueuedDirty);
+  CoglOnscreenQueuedDirty *qe = g_new0 (CoglOnscreenQueuedDirty, 1);
 
   qe->onscreen = g_object_ref (onscreen);
   qe->info = *info;
@@ -283,7 +283,7 @@ _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
-  CoglOnscreenEvent *event = g_slice_new (CoglOnscreenEvent);
+  CoglOnscreenEvent *event = g_new0 (CoglOnscreenEvent, 1);
 
   event->onscreen = g_object_ref (onscreen);
   event->info = cogl_object_ref (info);

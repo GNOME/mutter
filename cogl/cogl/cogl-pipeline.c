@@ -80,10 +80,10 @@ void
 _cogl_pipeline_init_default_pipeline (void)
 {
   /* Create new - blank - pipeline */
-  CoglPipeline *pipeline = g_slice_new0 (CoglPipeline);
+  CoglPipeline *pipeline = g_new0 (CoglPipeline, 1);
   /* XXX: NB: It's important that we zero this to avoid polluting
    * pipeline hash values with un-initialized data */
-  CoglPipelineBigState *big_state = g_slice_new0 (CoglPipelineBigState);
+  CoglPipelineBigState *big_state = g_new0 (CoglPipelineBigState, 1);
   CoglPipelineAlphaFuncState *alpha_state = &big_state->alpha_state;
   CoglPipelineBlendState *blend_state = &big_state->blend_state;
   CoglPipelineCullFaceState *cull_face_state = &big_state->cull_face_state;
@@ -180,8 +180,7 @@ recursively_free_layer_caches (CoglPipeline *pipeline)
     return;
 
   if (G_UNLIKELY (pipeline->layers_cache != pipeline->short_layers_cache))
-    g_slice_free1 (sizeof (CoglPipelineLayer *) * pipeline->n_layers,
-                   pipeline->layers_cache);
+    g_free (pipeline->layers_cache);
   pipeline->layers_cache_dirty = TRUE;
 
   _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
@@ -254,7 +253,7 @@ _cogl_pipeline_revert_weak_ancestors (CoglPipeline *strong)
 static CoglPipeline *
 _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
 {
-  CoglPipeline *pipeline = g_slice_new (CoglPipeline);
+  CoglPipeline *pipeline = g_new0 (CoglPipeline, 1);
 
   _cogl_pipeline_node_init (COGL_NODE (pipeline));
 
@@ -393,11 +392,11 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
     _cogl_pipeline_snippet_list_free (&pipeline->big_state->fragment_snippets);
 
   if (pipeline->differences & COGL_PIPELINE_STATE_NEEDS_BIG_STATE)
-    g_slice_free (CoglPipelineBigState, pipeline->big_state);
+    g_free (pipeline->big_state);
 
   recursively_free_layer_caches (pipeline);
 
-  g_slice_free (CoglPipeline, pipeline);
+  g_free (pipeline);
 }
 
 gboolean
@@ -433,7 +432,7 @@ _cogl_pipeline_update_layers_cache (CoglPipeline *pipeline)
   else
     {
       pipeline->layers_cache =
-        g_slice_alloc0 (sizeof (CoglPipelineLayer *) * n_layers);
+        g_malloc0 (sizeof (CoglPipelineLayer *) * n_layers);
     }
 
   /* Notes:
@@ -838,7 +837,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
     {
       if (!dest->has_big_state)
         {
-          dest->big_state = g_slice_new (CoglPipelineBigState);
+          dest->big_state = g_new0 (CoglPipelineBigState, 1);
           dest->has_big_state = TRUE;
         }
       big_state = dest->big_state;
@@ -1220,7 +1219,7 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
   if (change & COGL_PIPELINE_STATE_NEEDS_BIG_STATE &&
       !pipeline->has_big_state)
     {
-      pipeline->big_state = g_slice_new (CoglPipelineBigState);
+      pipeline->big_state = g_new0 (CoglPipelineBigState, 1);
       pipeline->has_big_state = TRUE;
     }
 

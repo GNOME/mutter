@@ -231,7 +231,7 @@ program_state_new (int n_layers,
 {
   CoglPipelineProgramState *program_state;
 
-  program_state = g_slice_new (CoglPipelineProgramState);
+  program_state = g_new0 (CoglPipelineProgramState, 1);
   program_state->ref_count = 1;
   program_state->program = 0;
   program_state->unit_state = g_new (UnitState, n_layers);
@@ -278,7 +278,7 @@ destroy_program_state (void *user_data,
       if (program_state->uniform_locations)
         g_array_free (program_state->uniform_locations, TRUE);
 
-      g_slice_free (CoglPipelineProgramState, program_state);
+      g_free (program_state);
     }
 }
 

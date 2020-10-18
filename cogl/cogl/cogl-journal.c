@@ -140,13 +140,13 @@ _cogl_journal_free (CoglJournal *journal)
     if (journal->vbo_pool[i])
       cogl_object_unref (journal->vbo_pool[i]);
 
-  g_slice_free (CoglJournal, journal);
+  g_free (journal);
 }
 
 CoglJournal *
 _cogl_journal_new (CoglFramebuffer *framebuffer)
 {
-  CoglJournal *journal = g_slice_new0 (CoglJournal);
+  CoglJournal *journal = g_new0 (CoglJournal, 1);
 
   journal->framebuffer = framebuffer;
   journal->entries = g_array_new (FALSE, FALSE, sizeof (CoglJournalEntry));

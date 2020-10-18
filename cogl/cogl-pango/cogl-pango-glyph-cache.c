@@ -77,14 +77,14 @@ cogl_pango_glyph_cache_value_free (CoglPangoGlyphCacheValue *value)
 {
   if (value->texture)
     cogl_object_unref (value->texture);
-  g_slice_free (CoglPangoGlyphCacheValue, value);
+  g_free (value);
 }
 
 static void
 cogl_pango_glyph_cache_key_free (CoglPangoGlyphCacheKey *key)
 {
   g_object_unref (key->font);
-  g_slice_free (CoglPangoGlyphCacheKey, key);
+  g_free (key);
 }
 
 static unsigned int
@@ -326,7 +326,7 @@ cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
       CoglPangoGlyphCacheKey *key;
       PangoRectangle ink_rect;
 
-      value = g_slice_new (CoglPangoGlyphCacheValue);
+      value = g_new0 (CoglPangoGlyphCacheValue, 1);
       value->texture = NULL;
 
       pango_font_get_glyph_extents (font, glyph, &ink_rect, NULL);
@@ -362,7 +362,7 @@ cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
           cache->has_dirty_glyphs = TRUE;
         }
 
-      key = g_slice_new (CoglPangoGlyphCacheKey);
+      key = g_new0 (CoglPangoGlyphCacheKey, 1);
       key->font = g_object_ref (font);
       key->glyph = glyph;
 

@@ -68,7 +68,7 @@ shader_state_new (CoglPipelineCacheEntry *cache_entry)
 {
   CoglPipelineShaderState *shader_state;
 
-  shader_state = g_slice_new0 (CoglPipelineShaderState);
+  shader_state = g_new0 (CoglPipelineShaderState, 1);
   shader_state->ref_count = 1;
   shader_state->cache_entry = cache_entry;
 
@@ -98,7 +98,7 @@ destroy_shader_state (void *user_data,
       if (shader_state->gl_shader)
         GE( ctx, glDeleteShader (shader_state->gl_shader) );
 
-      g_slice_free (CoglPipelineShaderState, shader_state);
+      g_free (shader_state);
     }
 }
 

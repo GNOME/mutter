@@ -155,7 +155,7 @@ _cogl_texture_free_loader (CoglTexture *texture)
           cogl_object_unref (loader->src.bitmap.bitmap);
           break;
         }
-      g_slice_free (CoglTextureLoader, loader);
+      g_free (loader);
       texture->loader = NULL;
     }
 }
@@ -163,7 +163,7 @@ _cogl_texture_free_loader (CoglTexture *texture)
 CoglTextureLoader *
 _cogl_texture_create_loader (void)
 {
-  return g_slice_new0 (CoglTextureLoader);
+  return g_new0 (CoglTextureLoader, 1);
 }
 
 void

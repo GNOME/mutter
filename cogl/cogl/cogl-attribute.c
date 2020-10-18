@@ -190,7 +190,7 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
                     int n_components,
                     CoglAttributeType type)
 {
-  CoglAttribute *attribute = g_slice_new (CoglAttribute);
+  CoglAttribute *attribute = g_new0 (CoglAttribute, 1);
   CoglBuffer *buffer = COGL_BUFFER (attribute_buffer);
   CoglContext *ctx = buffer->context;
 
@@ -240,7 +240,7 @@ _cogl_attribute_new_const (CoglContext *context,
                            gboolean transpose,
                            const float *value)
 {
-  CoglAttribute *attribute = g_slice_new (CoglAttribute);
+  CoglAttribute *attribute = g_new0 (CoglAttribute, 1);
 
   attribute->name_state =
     g_hash_table_lookup (context->attribute_name_states_hash, name);
@@ -521,7 +521,7 @@ _cogl_attribute_free (CoglAttribute *attribute)
   else
     _cogl_boxed_value_destroy (&attribute->d.constant.boxed);
 
-  g_slice_free (CoglAttribute, attribute);
+  g_free (attribute);
 }
 
 static gboolean

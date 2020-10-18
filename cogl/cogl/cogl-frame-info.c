@@ -43,7 +43,7 @@ cogl_frame_info_new (int64_t global_frame_counter)
 {
   CoglFrameInfo *info;
 
-  info = g_slice_new0 (CoglFrameInfo);
+  info = g_new0 (CoglFrameInfo, 1);
   info->global_frame_counter = global_frame_counter;
 
   return _cogl_frame_info_object_new (info);
@@ -52,7 +52,7 @@ cogl_frame_info_new (int64_t global_frame_counter)
 static void
 _cogl_frame_info_free (CoglFrameInfo *info)
 {
-  g_slice_free (CoglFrameInfo, info);
+  g_free (info);
 }
 
 int64_t

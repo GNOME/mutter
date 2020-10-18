@@ -161,7 +161,7 @@ _cogl_pipeline_layer_copy_differences (CoglPipelineLayer *dest,
   if ((differences & COGL_PIPELINE_LAYER_STATE_NEEDS_BIG_STATE) &&
       !dest->has_big_state)
     {
-      dest->big_state = g_slice_new (CoglPipelineLayerBigState);
+      dest->big_state = g_new0 (CoglPipelineLayerBigState, 1);
       dest->has_big_state = TRUE;
     }
 
@@ -408,7 +408,7 @@ init_layer_state:
   if (change & COGL_PIPELINE_LAYER_STATE_NEEDS_BIG_STATE &&
       !layer->has_big_state)
     {
-      layer->big_state = g_slice_new (CoglPipelineLayerBigState);
+      layer->big_state = g_new0 (CoglPipelineLayerBigState, 1);
       layer->has_big_state = TRUE;
     }
 
@@ -457,7 +457,7 @@ _cogl_pipeline_layer_set_parent (CoglPipelineLayer *layer,
 CoglPipelineLayer *
 _cogl_pipeline_layer_copy (CoglPipelineLayer *src)
 {
-  CoglPipelineLayer *layer = g_slice_new (CoglPipelineLayer);
+  CoglPipelineLayer *layer = g_new0 (CoglPipelineLayer, 1);
 
   _cogl_pipeline_node_init (COGL_NODE (layer));
 
@@ -712,17 +712,17 @@ _cogl_pipeline_layer_free (CoglPipelineLayer *layer)
     _cogl_pipeline_snippet_list_free (&layer->big_state->fragment_snippets);
 
   if (layer->differences & COGL_PIPELINE_LAYER_STATE_NEEDS_BIG_STATE)
-    g_slice_free (CoglPipelineLayerBigState, layer->big_state);
+    g_free (layer->big_state);
 
-  g_slice_free (CoglPipelineLayer, layer);
+  g_free (layer);
 }
 
 void
 _cogl_pipeline_init_default_layers (void)
 {
-  CoglPipelineLayer *layer = g_slice_new0 (CoglPipelineLayer);
+  CoglPipelineLayer *layer = g_new0 (CoglPipelineLayer, 1);
   CoglPipelineLayerBigState *big_state =
-    g_slice_new0 (CoglPipelineLayerBigState);
+    g_new0 (CoglPipelineLayerBigState, 1);
   CoglPipelineLayer *new;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);

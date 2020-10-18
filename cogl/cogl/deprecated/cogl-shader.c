@@ -54,7 +54,7 @@ _cogl_shader_free (CoglShader *shader)
     if (shader->gl_handle)
       GE (ctx, glDeleteShader (shader->gl_handle));
 
-  g_slice_free (CoglShader, shader);
+  g_free (shader);
 }
 
 CoglHandle
@@ -75,7 +75,7 @@ cogl_create_shader (CoglShaderType type)
       return NULL;
     }
 
-  shader = g_slice_new (CoglShader);
+  shader = g_new0 (CoglShader, 1);
   shader->gl_handle = 0;
   shader->compilation_pipeline = NULL;
   shader->type = type;

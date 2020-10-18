@@ -47,13 +47,13 @@ COGL_GTYPE_DEFINE_CLASS (OnscreenTemplate, onscreen_template);
 static void
 _cogl_onscreen_template_free (CoglOnscreenTemplate *onscreen_template)
 {
-  g_slice_free (CoglOnscreenTemplate, onscreen_template);
+  g_free (onscreen_template);
 }
 
 CoglOnscreenTemplate *
 cogl_onscreen_template_new (CoglSwapChain *swap_chain)
 {
-  CoglOnscreenTemplate *onscreen_template = g_slice_new0 (CoglOnscreenTemplate);
+  CoglOnscreenTemplate *onscreen_template = g_new0 (CoglOnscreenTemplate, 1);
   char *user_config;
 
   onscreen_template->config.swap_chain = swap_chain;

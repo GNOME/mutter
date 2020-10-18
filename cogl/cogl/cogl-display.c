@@ -79,14 +79,14 @@ _cogl_display_free (CoglDisplay *display)
       display->onscreen_template = NULL;
     }
 
-  g_slice_free (CoglDisplay, display);
+  g_free (display);
 }
 
 CoglDisplay *
 cogl_display_new (CoglRenderer *renderer,
                   CoglOnscreenTemplate *onscreen_template)
 {
-  CoglDisplay *display = g_slice_new0 (CoglDisplay);
+  CoglDisplay *display = g_new0 (CoglDisplay, 1);
   GError *error = NULL;
 
   _cogl_init ();

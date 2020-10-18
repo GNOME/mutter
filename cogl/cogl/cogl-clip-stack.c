@@ -53,7 +53,7 @@ _cogl_clip_stack_push_entry (CoglClipStack *clip_stack,
                              size_t size,
                              CoglClipStackType type)
 {
-  CoglClipStack *entry = g_slice_alloc (size);
+  CoglClipStack *entry = g_malloc0 (size);
 
   /* The new entry starts with a ref count of 1 because the stack
      holds a reference to it as it is the top entry */
@@ -341,11 +341,11 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
           {
             CoglClipStackRect *rect = (CoglClipStackRect *) entry;
             cogl_matrix_entry_unref (rect->matrix_entry);
-            g_slice_free1 (sizeof (CoglClipStackRect), entry);
+            g_free (entry);
             break;
           }
         case COGL_CLIP_STACK_WINDOW_RECT:
-          g_slice_free1 (sizeof (CoglClipStackWindowRect), entry);
+          g_free (entry);
           break;
         case COGL_CLIP_STACK_PRIMITIVE:
           {
@@ -353,14 +353,14 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
               (CoglClipStackPrimitive *) entry;
             cogl_matrix_entry_unref (primitive_entry->matrix_entry);
             cogl_object_unref (primitive_entry->primitive);
-            g_slice_free1 (sizeof (CoglClipStackPrimitive), entry);
+            g_free (entry);
             break;
           }
         case COGL_CLIP_STACK_REGION:
           {
             CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
             cairo_region_destroy (region->region);
-            g_slice_free1 (sizeof (CoglClipStackRegion), entry);
+            g_free (entry);
             break;
           }
         default:

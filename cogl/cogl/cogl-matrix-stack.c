@@ -513,13 +513,13 @@ static void
 _cogl_matrix_stack_free (CoglMatrixStack *stack)
 {
   cogl_matrix_entry_unref (stack->last_entry);
-  g_slice_free (CoglMatrixStack, stack);
+  g_free (stack);
 }
 
 CoglMatrixStack *
 cogl_matrix_stack_new (CoglContext *ctx)
 {
-  CoglMatrixStack *stack = g_slice_new (CoglMatrixStack);
+  CoglMatrixStack *stack = g_new0 (CoglMatrixStack, 1);
 
   if (G_UNLIKELY (cogl_matrix_stack_magazine == NULL))
     {

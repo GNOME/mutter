@@ -164,7 +164,7 @@ cogl_framebuffer_add_fence_callback (CoglFramebuffer *framebuffer,
   if (!COGL_FLAGS_GET (context->features, COGL_FEATURE_ID_FENCE))
     return NULL;
 
-  fence = g_slice_new (CoglFenceClosure);
+  fence = g_new0 (CoglFenceClosure, 1);
   fence->framebuffer = framebuffer;
   fence->callback = callback;
   fence->user_data = user_data;
@@ -209,7 +209,7 @@ cogl_framebuffer_cancel_fence_callback (CoglFramebuffer *framebuffer,
 #endif
     }
 
-  g_slice_free (CoglFenceClosure, fence);
+  g_free (fence);
 }
 
 void

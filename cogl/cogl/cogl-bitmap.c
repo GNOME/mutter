@@ -58,7 +58,7 @@ _cogl_bitmap_free (CoglBitmap *bmp)
   if (bmp->buffer)
     cogl_object_unref (bmp->buffer);
 
-  g_slice_free (CoglBitmap, bmp);
+  g_free (bmp);
 }
 
 gboolean
@@ -190,7 +190,7 @@ cogl_bitmap_new_for_data (CoglContext *context,
   if (rowstride == 0)
     rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
-  bmp = g_slice_new (CoglBitmap);
+  bmp = g_new0 (CoglBitmap, 1);
   bmp->context = context;
   bmp->format = format;
   bmp->width = width;

@@ -69,7 +69,7 @@ _cogl_pango_pipeline_cache_value_destroy (void *data)
   /* We don't need to unref the pipeline because it only takes a weak
      reference */
 
-  g_slice_free (CoglPangoPipelineCacheEntry, cache_entry);
+  g_free (cache_entry);
 }
 
 CoglPangoPipelineCache *
@@ -164,7 +164,7 @@ pipeline_destroy_notify_cb (void *user_data)
   PipelineDestroyNotifyData *data = user_data;
 
   g_hash_table_remove (data->cache->hash_table, data->texture);
-  g_slice_free (PipelineDestroyNotifyData, data);
+  g_free (data);
 }
 
 CoglPipeline *
@@ -182,7 +182,7 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
     return cogl_object_ref (entry->pipeline);
 
   /* No existing pipeline was found so let's create another */
-  entry = g_slice_new (CoglPangoPipelineCacheEntry);
+  entry = g_new0 (CoglPangoPipelineCacheEntry, 1);
 
   if (texture)
     {
@@ -207,7 +207,7 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
 
   /* Add a weak reference to the pipeline so we can remove it from the
      hash table when it is destroyed */
-  destroy_data = g_slice_new (PipelineDestroyNotifyData);
+  destroy_data = g_new0 (PipelineDestroyNotifyData, 1);
   destroy_data->cache = cache;
   destroy_data->texture = texture;
   cogl_object_set_user_data (COGL_OBJECT (entry->pipeline),

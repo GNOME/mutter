@@ -481,7 +481,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
   if (egl_renderer->platform_vtable->display_destroy)
     egl_renderer->platform_vtable->display_destroy (display);
 
-  g_slice_free (CoglDisplayEGL, display->winsys);
+  g_free (display->winsys);
   display->winsys = NULL;
 }
 
@@ -495,7 +495,7 @@ _cogl_winsys_display_setup (CoglDisplay *display,
 
   g_return_val_if_fail (display->winsys == NULL, FALSE);
 
-  egl_display = g_slice_new0 (CoglDisplayEGL);
+  egl_display = g_new0 (CoglDisplayEGL, 1);
   display->winsys = egl_display;
 
 #ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT

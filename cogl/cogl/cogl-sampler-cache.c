@@ -181,7 +181,7 @@ _cogl_sampler_cache_get_entry_gl (CoglSamplerCache *cache,
 
   if (entry == NULL)
     {
-      entry = g_slice_dup (CoglSamplerCacheEntry, key);
+      entry = g_memdup2 (key, sizeof (CoglSamplerCacheEntry));
 
       cache->context->driver_vtable->sampler_init (cache->context, entry);
 
@@ -204,7 +204,7 @@ _cogl_sampler_cache_get_entry_cogl (CoglSamplerCache *cache,
       CoglSamplerCacheEntry canonical_key;
       CoglSamplerCacheEntry *gl_entry;
 
-      entry = g_slice_dup (CoglSamplerCacheEntry, key);
+      entry = g_memdup2 (key, sizeof (CoglSamplerCacheEntry));
 
       /* Get the sampler object number from the canonical GL version
          of the sampler state cache */
@@ -271,7 +271,7 @@ hash_table_free_gl_cb (void *key,
 
   context->driver_vtable->sampler_free (context, entry);
 
-  g_slice_free (CoglSamplerCacheEntry, entry);
+  g_free (entry);
 }
 
 static void
@@ -281,7 +281,7 @@ hash_table_free_cogl_cb (void *key,
 {
   CoglSamplerCacheEntry *entry = value;
 
-  g_slice_free (CoglSamplerCacheEntry, entry);
+  g_free (entry);
 }
 
 void

@@ -164,7 +164,7 @@ _cogl_renderer_get_winsys (CoglRenderer *renderer)
 static void
 native_filter_closure_free (CoglNativeFilterClosure *closure)
 {
-  g_slice_free (CoglNativeFilterClosure, closure);
+  g_free (closure);
 }
 
 static void
@@ -652,7 +652,7 @@ _cogl_renderer_add_native_filter (CoglRenderer *renderer,
 {
   CoglNativeFilterClosure *closure;
 
-  closure = g_slice_new (CoglNativeFilterClosure);
+  closure = g_new0 (CoglNativeFilterClosure, 1);
   closure->func = func;
   closure->data = data;
 

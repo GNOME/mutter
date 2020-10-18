@@ -365,7 +365,7 @@ cogl_pango_render_qdata_destroy (CoglPangoLayoutQdata *qdata)
   cogl_pango_layout_qdata_forget_display_list (qdata);
   if (qdata->first_line)
     pango_layout_line_unref (qdata->first_line);
-  g_slice_free (CoglPangoLayoutQdata, qdata);
+  g_free (qdata);
 }
 
 void
@@ -389,7 +389,7 @@ cogl_pango_show_layout (CoglFramebuffer *fb,
 
   if (qdata == NULL)
     {
-      qdata = g_slice_new0 (CoglPangoLayoutQdata);
+      qdata = g_new0 (CoglPangoLayoutQdata, 1);
       qdata->renderer = priv;
       g_object_set_qdata_full (G_OBJECT (layout),
                                cogl_pango_layout_get_qdata_key (),

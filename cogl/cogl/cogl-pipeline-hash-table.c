@@ -66,7 +66,7 @@ value_destroy_cb (void *value)
 
   cogl_object_unref (entry->parent.pipeline);
 
-  g_slice_free (CoglPipelineHashTableEntry, entry);
+  g_free (entry);
 }
 
 static unsigned int
@@ -206,7 +206,7 @@ _cogl_pipeline_hash_table_get (CoglPipelineHashTable *hash,
   if (g_hash_table_size (hash->table) >= hash->expected_min_size * 2)
     prune_old_pipelines (hash);
 
-  entry = g_slice_new (CoglPipelineHashTableEntry);
+  entry = g_new0 (CoglPipelineHashTableEntry, 1);
   entry->parent.usage_count = 0;
   entry->hash = hash;
   entry->hash_value = dummy_entry.hash_value;

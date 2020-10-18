@@ -113,7 +113,7 @@ shader_state_new (int n_layers,
 {
   CoglPipelineShaderState *shader_state;
 
-  shader_state = g_slice_new0 (CoglPipelineShaderState);
+  shader_state = g_new0 (CoglPipelineShaderState, 1);
   shader_state->ref_count = 1;
   shader_state->unit_state = g_new0 (UnitState, n_layers);
   shader_state->cache_entry = cache_entry;
@@ -146,7 +146,7 @@ destroy_shader_state (void *user_data,
 
       g_free (shader_state->unit_state);
 
-      g_slice_free (CoglPipelineShaderState, shader_state);
+      g_free (shader_state);
     }
 }
 
@@ -869,7 +869,7 @@ ensure_layer_generated (CoglPipeline *pipeline,
                           layer_index,
                           layer_index);
 
-  g_slice_free (LayerData, layer_data);
+  g_free (layer_data);
 }
 
 static gboolean
@@ -884,7 +884,7 @@ _cogl_pipeline_fragend_glsl_add_layer (CoglPipeline *pipeline,
     return TRUE;
 
   /* Store the layers in reverse order */
-  layer_data = g_slice_new (LayerData);
+  layer_data = g_new0 (LayerData, 1);
   layer_data->layer = layer;
 
   if (_cogl_list_empty (&shader_state->layers))
@@ -1016,7 +1016,7 @@ _cogl_pipeline_fragend_glsl_end (CoglPipeline *pipeline,
                                     tmp,
                                     &shader_state->layers,
                                     link)
-            g_slice_free (LayerData, layer_data);
+            g_free (layer_data);
         }
       else
         g_string_append (shader_state->source,

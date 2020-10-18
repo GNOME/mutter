@@ -121,13 +121,13 @@ struct _CoglRectangleMapStackEntry
 static CoglRectangleMapNode *
 _cogl_rectangle_map_node_new (void)
 {
-  return g_slice_new (CoglRectangleMapNode);
+  return g_new0 (CoglRectangleMapNode, 1);
 }
 
 static void
 _cogl_rectangle_map_node_free (CoglRectangleMapNode *node)
 {
-  g_slice_free (CoglRectangleMapNode, node);
+  g_free (node);
 }
 
 CoglRectangleMap *

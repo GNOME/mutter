@@ -307,7 +307,7 @@ _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
   if (glx_renderer->libgl_module)
     g_module_close (glx_renderer->libgl_module);
 
-  g_slice_free (CoglGLXRenderer, renderer->winsys);
+  g_free (renderer->winsys);
 }
 
 static gboolean
@@ -440,7 +440,7 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   CoglGLXRenderer *glx_renderer;
   CoglXlibRenderer *xlib_renderer;
 
-  renderer->winsys = g_slice_new0 (CoglGLXRenderer);
+  renderer->winsys = g_new0 (CoglGLXRenderer, 1);
 
   glx_renderer = renderer->winsys;
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
@@ -879,7 +879,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
       glx_display->dummy_xwin = None;
     }
 
-  g_slice_free (CoglGLXDisplay, display->winsys);
+  g_free (display->winsys);
   display->winsys = NULL;
 }
 
@@ -892,7 +892,7 @@ _cogl_winsys_display_setup (CoglDisplay *display,
 
   g_return_val_if_fail (display->winsys == NULL, FALSE);
 
-  glx_display = g_slice_new0 (CoglGLXDisplay);
+  glx_display = g_new0 (CoglGLXDisplay, 1);
   display->winsys = glx_display;
 
   if (!create_context (display, error))

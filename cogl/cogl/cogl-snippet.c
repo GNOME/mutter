@@ -49,7 +49,7 @@ cogl_snippet_new (CoglSnippetHook hook,
                   const char *declarations,
                   const char *post)
 {
-  CoglSnippet *snippet = g_slice_new0 (CoglSnippet);
+  CoglSnippet *snippet = g_new0 (CoglSnippet, 1);
 
   _cogl_snippet_object_new (snippet);
 
@@ -181,5 +181,5 @@ _cogl_snippet_free (CoglSnippet *snippet)
   g_free (snippet->pre);
   g_free (snippet->replace);
   g_free (snippet->post);
-  g_slice_free (CoglSnippet, snippet);
+  g_free (snippet);
 }

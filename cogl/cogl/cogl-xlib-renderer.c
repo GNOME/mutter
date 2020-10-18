@@ -58,7 +58,7 @@ _xlib_renderer_data_free (CoglXlibRenderer *data)
   if (data->xvisinfo)
     XFree (data->xvisinfo);
 
-  g_slice_free (CoglXlibRenderer, data);
+  g_free (data);
 }
 
 CoglXlibRenderer *
@@ -71,7 +71,7 @@ _cogl_xlib_renderer_get_data (CoglRenderer *renderer)
      data. */
 
   if (!renderer->custom_winsys_user_data)
-    renderer->custom_winsys_user_data = g_slice_new0 (CoglXlibRenderer);
+    renderer->custom_winsys_user_data = g_new0 (CoglXlibRenderer, 1);
 
   return renderer->custom_winsys_user_data;
 }

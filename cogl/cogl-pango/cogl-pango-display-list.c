@@ -100,7 +100,7 @@ struct _CoglPangoDisplayListNode
 CoglPangoDisplayList *
 _cogl_pango_display_list_new (CoglPangoPipelineCache *pipeline_cache)
 {
-  CoglPangoDisplayList *dl = g_slice_new0 (CoglPangoDisplayList);
+  CoglPangoDisplayList *dl = g_new0 (CoglPangoDisplayList, 1);
 
   dl->pipeline_cache = pipeline_cache;
 
@@ -161,7 +161,7 @@ _cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
   else
     {
       /* Otherwise create a new node */
-      node = g_slice_new (CoglPangoDisplayListNode);
+      node = g_new0 (CoglPangoDisplayListNode, 1);
 
       node->type = COGL_PANGO_DISPLAY_LIST_TEXTURE;
       node->color_override = dl->color_override;
@@ -195,7 +195,7 @@ _cogl_pango_display_list_add_rectangle (CoglPangoDisplayList *dl,
                                         float x_1, float y_1,
                                         float x_2, float y_2)
 {
-  CoglPangoDisplayListNode *node = g_slice_new (CoglPangoDisplayListNode);
+  CoglPangoDisplayListNode *node = g_new0 (CoglPangoDisplayListNode, 1);
 
   node->type = COGL_PANGO_DISPLAY_LIST_RECTANGLE;
   node->color_override = dl->color_override;
@@ -219,7 +219,7 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
                                         float x_22)
 {
   CoglContext *ctx = dl->pipeline_cache->ctx;
-  CoglPangoDisplayListNode *node = g_slice_new (CoglPangoDisplayListNode);
+  CoglPangoDisplayListNode *node = g_new0 (CoglPangoDisplayListNode, 1);
   CoglVertexP2 vertices[4] = {
         { x_11, y_1 },
         { x_12, y_2 },
@@ -470,7 +470,7 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
   if (node->pipeline)
     cogl_object_unref (node->pipeline);
 
-  g_slice_free (CoglPangoDisplayListNode, node);
+  g_free (node);
 }
 
 void
@@ -486,5 +486,5 @@ void
 _cogl_pango_display_list_free (CoglPangoDisplayList *dl)
 {
   _cogl_pango_display_list_clear (dl);
-  g_slice_free (CoglPangoDisplayList, dl);
+  g_free (dl);
 }

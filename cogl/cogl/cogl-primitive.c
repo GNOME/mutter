@@ -58,8 +58,8 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
   CoglPrimitive *primitive;
   int i;
 
-  primitive = g_slice_alloc (sizeof (CoglPrimitive) +
-                             sizeof (CoglAttribute *) * (n_attributes - 1));
+  primitive = g_malloc0 (sizeof (CoglPrimitive) +
+                         sizeof (CoglAttribute *) * (n_attributes - 1));
   primitive->mode = mode;
   primitive->first_vertex = 0;
   primitive->n_vertices = n_vertices;
@@ -384,15 +384,12 @@ _cogl_primitive_free (CoglPrimitive *primitive)
     cogl_object_unref (primitive->attributes[i]);
 
   if (primitive->attributes != &primitive->embedded_attribute)
-    g_slice_free1 (sizeof (CoglAttribute *) * primitive->n_attributes,
-                   primitive->attributes);
+    g_free (primitive->attributes);
 
   if (primitive->indices)
     cogl_object_unref (primitive->indices);
 
-  g_slice_free1 (sizeof (CoglPrimitive) +
-                 sizeof (CoglAttribute *) *
-                 (primitive->n_embedded_attributes - 1), primitive);
+  g_free (primitive);
 }
 
 static void
@@ -441,17 +438,15 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
   if (n_attributes <= primitive->n_embedded_attributes)
     {
       if (primitive->attributes != &primitive->embedded_attribute)
-        g_slice_free1 (sizeof (CoglAttribute *) * primitive->n_attributes,
-                       primitive->attributes);
+        g_free (primitive->attributes);
       primitive->attributes = &primitive->embedded_attribute;
     }
   else
     {
       if (primitive->attributes != &primitive->embedded_attribute)
-        g_slice_free1 (sizeof (CoglAttribute *) * primitive->n_attributes,
-                       primitive->attributes);
+        g_free (primitive->attributes);
       primitive->attributes =
-        g_slice_alloc (sizeof (CoglAttribute *) * n_attributes);
+        g_malloc0 (sizeof (CoglAttribute *) * n_attributes);
     }
 
   memcpy (primitive->attributes, attributes,

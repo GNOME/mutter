@@ -69,7 +69,7 @@ cogl_indices_new_for_buffer (CoglIndicesType type,
                              CoglIndexBuffer *buffer,
                              size_t offset)
 {
-  CoglIndices *indices = g_slice_new (CoglIndices);
+  CoglIndices *indices = g_new0 (CoglIndices, 1);
 
   indices->buffer = cogl_object_ref (buffer);
   indices->offset = offset;
@@ -161,7 +161,7 @@ static void
 _cogl_indices_free (CoglIndices *indices)
 {
   cogl_object_unref (indices->buffer);
-  g_slice_free (CoglIndices, indices);
+  g_free (indices);
 }
 
 CoglIndices *

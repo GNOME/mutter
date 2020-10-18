@@ -63,7 +63,7 @@ _cogl_pixel_buffer_new (CoglContext *context,
                         const void *data,
                         GError **error)
 {
-  CoglPixelBuffer *pixel_buffer = g_slice_new0 (CoglPixelBuffer);
+  CoglPixelBuffer *pixel_buffer = g_new0 (CoglPixelBuffer, 1);
   CoglBuffer *buffer = COGL_BUFFER (pixel_buffer);
 
   /* parent's constructor */
@@ -111,6 +111,6 @@ _cogl_pixel_buffer_free (CoglPixelBuffer *buffer)
   /* parent's destructor */
   _cogl_buffer_fini (COGL_BUFFER (buffer));
 
-  g_slice_free (CoglPixelBuffer, buffer);
+  g_free (buffer);
 }
 

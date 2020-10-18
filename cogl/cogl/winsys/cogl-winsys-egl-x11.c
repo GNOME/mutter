@@ -193,7 +193,7 @@ _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
 
   eglTerminate (egl_renderer->edpy);
 
-  g_slice_free (CoglRendererEGL, egl_renderer);
+  g_free (egl_renderer);
 }
 
 static EGLDisplay
@@ -236,7 +236,7 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   CoglRendererEGL *egl_renderer;
   CoglXlibRenderer *xlib_renderer;
 
-  renderer->winsys = g_slice_new0 (CoglRendererEGL);
+  renderer->winsys = g_new0 (CoglRendererEGL, 1);
   egl_renderer = renderer->winsys;
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
 
@@ -303,7 +303,7 @@ _cogl_winsys_egl_display_setup (CoglDisplay *display,
   CoglDisplayEGL *egl_display = display->winsys;
   CoglDisplayXlib *xlib_display;
 
-  xlib_display = g_slice_new0 (CoglDisplayXlib);
+  xlib_display = g_new0 (CoglDisplayXlib, 1);
   egl_display->platform = xlib_display;
 
   return TRUE;
@@ -314,7 +314,7 @@ _cogl_winsys_egl_display_destroy (CoglDisplay *display)
 {
   CoglDisplayEGL *egl_display = display->winsys;
 
-  g_slice_free (CoglDisplayXlib, egl_display->platform);
+  g_free (egl_display->platform);
 }
 
 static gboolean

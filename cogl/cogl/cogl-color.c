@@ -42,14 +42,14 @@ COGL_GTYPE_DEFINE_BOXED (Color, color, cogl_color_copy, cogl_color_free);
 CoglColor *
 cogl_color_new (void)
 {
-  return g_slice_new (CoglColor);
+  return g_new0 (CoglColor, 1);
 }
 
 CoglColor *
 cogl_color_copy (const CoglColor *color)
 {
   if (G_LIKELY (color))
-    return g_slice_dup (CoglColor, color);
+    return g_memdup2 (color, sizeof (CoglColor));
 
   return NULL;
 }
@@ -58,7 +58,7 @@ void
 cogl_color_free (CoglColor *color)
 {
   if (G_LIKELY (color))
-    g_slice_free (CoglColor, color);
+    g_free (color);
 }
 
 void

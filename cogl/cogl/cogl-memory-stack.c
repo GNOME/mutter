@@ -81,7 +81,7 @@ struct _CoglMemoryStack
 static CoglMemorySubStack *
 _cogl_memory_sub_stack_alloc (size_t bytes)
 {
-  CoglMemorySubStack *sub_stack = g_slice_new (CoglMemorySubStack);
+  CoglMemorySubStack *sub_stack = g_new0 (CoglMemorySubStack, 1);
   sub_stack->bytes = bytes;
   sub_stack->data = g_malloc (bytes);
   return sub_stack;
@@ -101,7 +101,7 @@ _cogl_memory_stack_add_sub_stack (CoglMemoryStack *stack,
 CoglMemoryStack *
 _cogl_memory_stack_new (size_t initial_size_bytes)
 {
-  CoglMemoryStack *stack = g_slice_new0 (CoglMemoryStack);
+  CoglMemoryStack *stack = g_new0 (CoglMemoryStack, 1);
 
   _cogl_list_init (&stack->sub_stacks);
 
@@ -175,7 +175,7 @@ static void
 _cogl_memory_sub_stack_free (CoglMemorySubStack *sub_stack)
 {
   g_free (sub_stack->data);
-  g_slice_free (CoglMemorySubStack, sub_stack);
+  g_free (sub_stack);
 }
 
 void
@@ -190,5 +190,5 @@ _cogl_memory_stack_free (CoglMemoryStack *stack)
       _cogl_memory_sub_stack_free (sub_stack);
     }
 
-  g_slice_free (CoglMemoryStack, stack);
+  g_free (stack);
 }
