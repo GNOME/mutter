@@ -127,11 +127,16 @@
 #define GL_STENCIL 0x1802
 #endif
 
-typedef struct _CoglGlFramebuffer
+struct _CoglGlFramebuffer
 {
+  GObject parent;
+
   gboolean dirty_bitmasks;
   CoglFramebufferBits bits;
-} CoglGlFramebuffer;
+};
+
+G_DEFINE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
+               G_TYPE_OBJECT)
 
 static void
 _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
@@ -957,10 +962,10 @@ ensure_gl_framebuffer (CoglFramebuffer *framebuffer)
   gl_framebuffer = cogl_framebuffer_get_driver_private (framebuffer);
   if (!gl_framebuffer)
     {
-      gl_framebuffer = g_new0 (CoglGlFramebuffer, 1);
+      gl_framebuffer = g_object_new (COGL_TYPE_GL_FRAMEBUFFER, NULL);
       cogl_framebuffer_set_driver_private (framebuffer,
                                            gl_framebuffer,
-                                           g_free);
+                                           g_object_unref);
       gl_framebuffer->dirty_bitmasks = TRUE;
     }
 
@@ -1464,4 +1469,14 @@ EXIT:
     GE (ctx, glPixelStorei (gl_pack_enum, FALSE));
 
   return status;
+}
+
+static void
+cogl_gl_framebuffer_init (CoglGlFramebuffer *gl_framebuffer)
+{
+}
+
+static void
+cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
+{
 }

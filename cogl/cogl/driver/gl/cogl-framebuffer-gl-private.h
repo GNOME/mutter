@@ -34,6 +34,11 @@
 #ifndef __COGL_FRAMEBUFFER_GL_PRIVATE_H__
 #define __COGL_FRAMEBUFFER_GL_PRIVATE_H__
 
+#define COGL_TYPE_GL_FRAMEBUFFER (cogl_gl_framebuffer_get_type ())
+G_DECLARE_FINAL_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
+                      COGL, GL_FRAMEBUFFER,
+                      GObject)
+
 gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                              GError **error);
