@@ -38,8 +38,9 @@
 #include "cogl-context-private.h"
 
 gboolean
-_cogl_offscreen_nop_allocate (CoglOffscreen *offscreen,
-                              GError **error);
+_cogl_offscreen_nop_allocate (CoglOffscreen       *offscreen,
+                              CoglOffscreenFlags   flags,
+                              GError             **error);
 
 void
 _cogl_offscreen_nop_free (CoglOffscreen *offscreen);

@@ -40,8 +40,9 @@ G_DECLARE_FINAL_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
                       GObject)
 
 gboolean
-_cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
-                             GError **error);
+_cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
+                             CoglOffscreenFlags   flags,
+                             GError             **error);
 
 void
 _cogl_offscreen_gl_free (CoglOffscreen *offscreen);

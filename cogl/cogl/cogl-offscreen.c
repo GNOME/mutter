@@ -106,7 +106,9 @@ cogl_offscreen_allocate (CoglFramebuffer  *framebuffer,
   texture_format = _cogl_texture_get_format (offscreen->texture);
   _cogl_framebuffer_set_internal_format (framebuffer, texture_format);
 
-  if (!ctx->driver_vtable->offscreen_allocate (offscreen, error))
+  if (!ctx->driver_vtable->offscreen_allocate (offscreen,
+                                               offscreen->create_flags,
+                                               error))
     return FALSE;
 
   return TRUE;

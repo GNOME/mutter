@@ -707,8 +707,9 @@ try_creating_fbo (CoglContext                 *ctx,
 }
 
 gboolean
-_cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
-                             GError **error)
+_cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
+                             CoglOffscreenFlags   flags,
+                             GError             **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
@@ -747,7 +748,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
   gl_framebuffer = ensure_gl_framebuffer (framebuffer);
   gl_fbo = &gl_framebuffer->gl_fbo;
 
-  if (((offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL) &&
+  if (((flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL) &&
        try_creating_fbo (ctx,
                          offscreen->texture,
                          offscreen->texture_level,
@@ -823,7 +824,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
       cogl_framebuffer_update_samples_per_pixel (framebuffer,
                                                  gl_fbo->samples_per_pixel);
 
-      if (!(offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL))
+      if (!(flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL))
         {
           /* Record that the last set of flags succeeded so that we can
              try that set first next time */

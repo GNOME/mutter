@@ -32,7 +32,7 @@
 #define __COGL_DRIVER_H
 
 #include "cogl-context.h"
-#include "cogl-offscreen.h"
+#include "cogl-offscreen-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-attribute-private.h"
 #include "cogl-sampler-cache-private.h"
@@ -74,8 +74,9 @@ struct _CoglDriverVtable
                        GError **error);
 
   gboolean
-  (* offscreen_allocate) (CoglOffscreen *offscreen,
-                          GError **error);
+  (* offscreen_allocate) (CoglOffscreen       *offscreen,
+                          CoglOffscreenFlags   flags,
+                          GError             **error);
 
   void
   (* offscreen_free) (CoglOffscreen *offscreen);

@@ -43,8 +43,9 @@ _cogl_framebuffer_nop_flush_state (CoglFramebuffer *draw_buffer,
 }
 
 gboolean
-_cogl_offscreen_nop_allocate (CoglOffscreen *offscreen,
-                              GError **error)
+_cogl_offscreen_nop_allocate (CoglOffscreen       *offscreen,
+                              CoglOffscreenFlags   flags,
+                              GError             **error)
 {
   return TRUE;
 }
