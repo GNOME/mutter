@@ -147,9 +147,6 @@ typedef struct _CoglFramebufferPrivate
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglFramebuffer, cogl_framebuffer,
                                      G_TYPE_OBJECT)
 
-G_DEFINE_TYPE (CoglOffscreen, cogl_offscreen,
-               COGL_TYPE_FRAMEBUFFER)
-
 uint32_t
 cogl_framebuffer_error_quark (void)
 {
@@ -891,129 +888,6 @@ _cogl_framebuffer_flush_dependency_journals (CoglFramebuffer *framebuffer)
   g_list_foreach (priv->deps, (GFunc) _cogl_framebuffer_flush_journal, NULL);
   g_list_free_full (priv->deps, g_object_unref);
   priv->deps = NULL;
-}
-
-CoglOffscreen *
-_cogl_offscreen_new_with_texture_full (CoglTexture *texture,
-                                       CoglOffscreenFlags create_flags,
-                                       int level)
-{
-  CoglContext *ctx = texture->context;
-  CoglOffscreen *offscreen;
-  CoglFramebuffer *fb;
-
-  g_return_val_if_fail (cogl_is_texture (texture), NULL);
-
-  offscreen = g_object_new (COGL_TYPE_OFFSCREEN,
-                            "context", ctx,
-                            NULL);
-  offscreen->texture = cogl_object_ref (texture);
-  offscreen->texture_level = level;
-  offscreen->create_flags = create_flags;
-
-  fb = COGL_FRAMEBUFFER (offscreen);
-
-  /* NB: we can't assume we can query the texture's width yet, since
-   * it might not have been allocated yet and for example if the
-   * texture is being loaded from a file then the file might not
-   * have been read yet. */
-
-  _cogl_texture_associate_framebuffer (texture, fb);
-
-  return offscreen;
-}
-
-CoglOffscreen *
-cogl_offscreen_new_with_texture (CoglTexture *texture)
-{
-  return _cogl_offscreen_new_with_texture_full (texture, 0, 0);
-}
-
-CoglTexture *
-cogl_offscreen_get_texture (CoglOffscreen *offscreen)
-{
-  return offscreen->texture;
-}
-
-static gboolean
-cogl_offscreen_allocate (CoglFramebuffer  *framebuffer,
-                         GError          **error)
-{
-  CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  if (!cogl_texture_allocate (offscreen->texture, error))
-    return FALSE;
-
-  /* NB: it's only after allocating the texture that we will
-   * determine whether a texture needs slicing... */
-  if (cogl_texture_is_sliced (offscreen->texture))
-    {
-      g_set_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED,
-                   "Can't create offscreen framebuffer from "
-                   "sliced texture");
-      return FALSE;
-    }
-
-  /* Now that the texture has been allocated we can determine a
-   * size for the framebuffer... */
-  priv->width = cogl_texture_get_width (offscreen->texture);
-  priv->height = cogl_texture_get_height (offscreen->texture);
-  priv->viewport_width = priv->width;
-  priv->viewport_height = priv->height;
-
-  /* Forward the texture format as the internal format of the
-   * framebuffer */
-  priv->internal_format =
-    _cogl_texture_get_format (offscreen->texture);
-
-  if (!ctx->driver_vtable->offscreen_allocate (offscreen, error))
-    return FALSE;
-
-  return TRUE;
-}
-
-static gboolean
-cogl_offscreen_is_y_flipped (CoglFramebuffer *framebuffer)
-{
-  return TRUE;
-}
-
-static void
-cogl_offscreen_dispose (GObject *object)
-{
-  CoglOffscreen *offscreen = COGL_OFFSCREEN (object);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
-
-  if (offscreen->texture)
-    ctx->driver_vtable->offscreen_free (offscreen);
-
-  G_OBJECT_CLASS (cogl_offscreen_parent_class)->dispose (object);
-
-  cogl_clear_object (&offscreen->texture);
-  cogl_clear_object (&offscreen->depth_texture);
-}
-
-static void
-cogl_offscreen_init (CoglOffscreen *offscreen)
-{
-}
-
-static void
-cogl_offscreen_class_init (CoglOffscreenClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
-
-  object_class->dispose = cogl_offscreen_dispose;
-
-  framebuffer_class->allocate = cogl_offscreen_allocate;
-  framebuffer_class->is_y_flipped = cogl_offscreen_is_y_flipped;
 }
 
 gboolean

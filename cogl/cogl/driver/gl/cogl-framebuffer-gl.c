@@ -34,6 +34,7 @@
 #include "cogl-context-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-framebuffer.h"
+#include "cogl-offscreen-private.h"
 #include "cogl-texture-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"

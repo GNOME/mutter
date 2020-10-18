@@ -308,6 +308,8 @@ cogl_sources = [
   'cogl-spans.c',
   'cogl-journal-private.h',
   'cogl-journal.c',
+  'cogl-offscreen-private.h',
+  'cogl-offscreen.c',
   'cogl-frame-info-private.h',
   'cogl-frame-info.c',
   'cogl-framebuffer-private.h',

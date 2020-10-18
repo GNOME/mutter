@@ -1,0 +1,91 @@
+/*
+ * Copyright (C) 2007,2008,2009 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
+ * Copyright (C) 2020 Red Hat
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+#ifndef COGL_OFFSCREEN_PRIVATE_H
+#define COGL_OFFSCREEN_PRIVATE_H
+
+#include "cogl-gl-header.h"
+#include "cogl-offscreen.h"
+
+/* Flags to pass to _cogl_offscreen_new_with_texture_full */
+typedef enum
+{
+  COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL = 1
+} CoglOffscreenFlags;
+
+typedef enum
+{
+  COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL = 1 << 0,
+  COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH = 1 << 1,
+  COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL = 1 << 2,
+} CoglOffscreenAllocateFlags;
+
+typedef struct _CoglGLFramebuffer
+{
+  GLuint fbo_handle;
+  GList *renderbuffers;
+  int samples_per_pixel;
+} CoglGlFbo;
+
+struct _CoglOffscreen
+{
+  CoglFramebuffer parent;
+
+  CoglGlFbo gl_fbo;
+
+  CoglTexture *texture;
+  int texture_level;
+
+  CoglTexture *depth_texture;
+
+  CoglOffscreenAllocateFlags allocation_flags;
+
+  /* FIXME: _cogl_offscreen_new_with_texture_full should be made to use
+   * fb->config to configure if we want a depth or stencil buffer so
+   * we can get rid of these flags */
+  CoglOffscreenFlags create_flags;
+};
+
+/*
+ * _cogl_offscreen_new_with_texture_full:
+ * @texture: A #CoglTexture pointer
+ * @create_flags: Flags specifying how to create the FBO
+ * @level: The mipmap level within the texture to target
+ *
+ * Creates a new offscreen buffer which will target the given
+ * texture. By default the buffer will have a depth and stencil
+ * buffer. This can be disabled by passing
+ * %COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL in @create_flags.
+ *
+ * Return value: the new CoglOffscreen object.
+ */
+CoglOffscreen *
+_cogl_offscreen_new_with_texture_full (CoglTexture        *texture,
+                                       CoglOffscreenFlags  create_flags,
+                                       int                 level);
+
+#endif /* COGL_OFFSCREEN_PRIVATE_H */

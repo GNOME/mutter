@@ -48,6 +48,7 @@
 #include "cogl-sampler-cache-private.h"
 #include "cogl-gl-header.h"
 #include "cogl-framebuffer-private.h"
+#include "cogl-offscreen-private.h"
 #include "cogl-onscreen-private.h"
 #include "cogl-fence-private.h"
 #include "cogl-poll-private.h"

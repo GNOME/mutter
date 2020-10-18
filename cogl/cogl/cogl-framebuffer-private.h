@@ -37,8 +37,6 @@
 #include "cogl-journal-private.h"
 #include "winsys/cogl-winsys-private.h"
 #include "cogl-attribute-private.h"
-#include "cogl-offscreen.h"
-#include "cogl-gl-header.h"
 #include "cogl-clip-stack.h"
 
 typedef struct
@@ -48,12 +46,6 @@ typedef struct
   int samples_per_pixel;
   gboolean stereo_enabled;
 } CoglFramebufferConfig;
-
-/* Flags to pass to _cogl_offscreen_new_with_texture_full */
-typedef enum
-{
-  COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL = 1
-} CoglOffscreenFlags;
 
 /* XXX: The order of these indices determines the order they are
  * flushed.
@@ -109,39 +101,6 @@ typedef struct
   int depth;
   int stencil;
 } CoglFramebufferBits;
-
-typedef enum
-{
-  COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL    = 1L<<0,
-  COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH            = 1L<<1,
-  COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL          = 1L<<2
-} CoglOffscreenAllocateFlags;
-
-typedef struct _CoglGlFbo
-{
-  GLuint fbo_handle;
-  GList *renderbuffers;
-  int samples_per_pixel;
-} CoglGlFbo;
-
-struct _CoglOffscreen
-{
-  CoglFramebuffer parent;
-
-  CoglGlFbo gl_fbo;
-
-  CoglTexture *texture;
-  int texture_level;
-
-  CoglTexture *depth_texture;
-
-  CoglOffscreenAllocateFlags allocation_flags;
-
-  /* FIXME: _cogl_offscreen_new_with_texture_full should be made to use
-   * fb->config to configure if we want a depth or stencil buffer so
-   * we can get rid of these flags */
-  CoglOffscreenFlags create_flags;
-};
 
 gboolean
 cogl_framebuffer_is_allocated (CoglFramebuffer *framebuffer);
@@ -242,24 +201,6 @@ _cogl_create_framebuffer_stack (void);
 
 void
 _cogl_free_framebuffer_stack (GSList *stack);
-
-/*
- * _cogl_offscreen_new_with_texture_full:
- * @texture: A #CoglTexture pointer
- * @create_flags: Flags specifying how to create the FBO
- * @level: The mipmap level within the texture to target
- *
- * Creates a new offscreen buffer which will target the given
- * texture. By default the buffer will have a depth and stencil
- * buffer. This can be disabled by passing
- * %COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL in @create_flags.
- *
- * Return value: the new CoglOffscreen object.
- */
-CoglOffscreen *
-_cogl_offscreen_new_with_texture_full (CoglTexture *texture,
-                                       CoglOffscreenFlags create_flags,
-                                       int level);
 
 void
 _cogl_framebuffer_save_clip_stack (CoglFramebuffer *framebuffer);
