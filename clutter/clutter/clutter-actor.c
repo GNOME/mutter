@@ -1752,7 +1752,7 @@ clutter_actor_queue_redraw_on_parent (ClutterActor *self)
     return;
 
   pv = clutter_actor_get_transformed_paint_volume (self, self->priv->parent);
-  _clutter_actor_queue_redraw_with_clip (self->priv->parent, pv);
+  _clutter_actor_queue_redraw_full (self->priv->parent, pv, NULL);
 }
 
 /**
@@ -8064,14 +8064,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
 
   /* Here's an outline of the actor queue redraw mechanism:
    *
-   * The process starts in one of the following two functions which
-   * are wrappers for this function:
-   *
-   *   clutter_actor_queue_redraw()
-   *   _clutter_actor_queue_redraw_with_clip()
-   *
-   * additionally, an effect can queue a redraw by wrapping this
-   * function in clutter_effect_queue_repaint().
+   * The process starts in clutter_actor_queue_redraw() which is a
+   * wrapper for this function. Additionally, an effect can queue a
+   * redraw by wrapping this function in clutter_effect_queue_repaint().
    *
    * This functions queues an entry in a list associated with the
    * stage which is a list of actors that queued a redraw while
@@ -8103,7 +8098,6 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
    *
    * So the control flow goes like this:
    * One of clutter_actor_queue_redraw(),
-   *        _clutter_actor_queue_redraw_with_clip(),
    *     or clutter_effect_queue_repaint()
    *
    * then control moves to:
@@ -8242,38 +8236,6 @@ clutter_actor_queue_redraw (ClutterActor *self)
 
   _clutter_actor_queue_redraw_full (self,
                                     NULL, /* clip volume */
-                                    NULL /* effect */);
-}
-
-/*< private >
- * _clutter_actor_queue_redraw_with_clip:
- * @self: A #ClutterActor
- * @volume: A #ClutterPaintVolume describing the bounds of what needs to be
- *   redrawn or %NULL if to use the actors own paint volume.
- *
- * Queues up a clipped redraw of an actor and any children. The redraw
- * occurs once the main loop becomes idle (after the current batch of
- * events has been processed, roughly).
- *
- * Applications rarely need to call this, as redraws are handled
- * automatically by modification functions.
- *
- * This function will not do anything if @self is not visible, or if
- * the actor is inside an invisible part of the scenegraph.
- *
- * Also be aware that painting is a NOP for actors with an opacity of
- * 0
- *
- * When you are implementing a custom actor you must queue a redraw
- * whenever some private state changes that will affect painting or
- * picking of your actor.
- */
-void
-_clutter_actor_queue_redraw_with_clip (ClutterActor             *self,
-                                       const ClutterPaintVolume *volume)
-{
-  _clutter_actor_queue_redraw_full (self,
-                                    volume, /* clip volume */
                                     NULL /* effect */);
 }
 

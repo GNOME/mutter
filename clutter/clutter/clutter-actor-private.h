@@ -228,8 +228,6 @@ void                            _clutter_actor_set_has_pointer                  
 void                            _clutter_actor_set_has_key_focus                        (ClutterActor *self,
                                                                                          gboolean      has_key_focus);
 
-void                            _clutter_actor_queue_redraw_with_clip                   (ClutterActor             *self,
-                                                                                         const ClutterPaintVolume *clip_volume);
 void                            _clutter_actor_queue_redraw_full                        (ClutterActor             *self,
                                                                                          const ClutterPaintVolume *volume,
                                                                                          ClutterEffect            *effect);
