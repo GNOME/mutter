@@ -108,7 +108,7 @@ meta_wayland_tablet_manager_new (MetaWaylandCompositor *compositor)
 {
   MetaWaylandTabletManager *tablet_manager;
 
-  tablet_manager = g_slice_new0 (MetaWaylandTabletManager);
+  tablet_manager = g_new0 (MetaWaylandTabletManager, 1);
   tablet_manager->compositor = compositor;
   tablet_manager->wl_display = compositor->wayland_display;
   tablet_manager->seats = g_hash_table_new_full (NULL, NULL, NULL,
@@ -132,7 +132,7 @@ void
 meta_wayland_tablet_manager_free (MetaWaylandTabletManager *tablet_manager)
 {
   g_hash_table_destroy (tablet_manager->seats);
-  g_slice_free (MetaWaylandTabletManager, tablet_manager);
+  g_free (tablet_manager);
 }
 
 static MetaWaylandTabletSeat *

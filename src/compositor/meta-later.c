@@ -71,7 +71,7 @@ meta_later_unref (MetaLater *later)
           later->destroy_notify = NULL;
         }
 
-      g_slice_free (MetaLater, later);
+      g_free (later);
     }
 }
 
@@ -216,7 +216,7 @@ meta_laters_add (MetaLaters     *laters,
                  GDestroyNotify  notify)
 {
   ClutterStage *stage = meta_compositor_get_stage (laters->compositor);
-  MetaLater *later = g_slice_new0 (MetaLater);
+  MetaLater *later = g_new0 (MetaLater, 1);
 
   later->id = ++laters->last_later_id;
   later->ref_count = 1;

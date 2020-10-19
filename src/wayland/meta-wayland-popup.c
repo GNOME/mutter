@@ -167,7 +167,7 @@ meta_wayland_popup_grab_create (MetaWaylandPointer      *pointer,
   struct wl_client *client = wl_resource_get_client (surface->resource);
   MetaWaylandPopupGrab *grab;
 
-  grab = g_slice_new0 (MetaWaylandPopupGrab);
+  grab = g_new0 (MetaWaylandPopupGrab, 1);
   grab->generic.interface = &popup_grab_interface;
   grab->generic.pointer = pointer;
   grab->grab_client = client;
@@ -182,7 +182,7 @@ void
 meta_wayland_popup_grab_destroy (MetaWaylandPopupGrab *grab)
 {
   meta_wayland_popup_grab_end (grab);
-  g_slice_free (MetaWaylandPopupGrab, grab);
+  g_free (grab);
 }
 
 static void
@@ -251,7 +251,7 @@ meta_wayland_popup_destroy (MetaWaylandPopup *popup)
   meta_wayland_popup_surface_dismiss (popup->popup_surface);
 
   wl_list_remove (&popup->link);
-  g_slice_free (MetaWaylandPopup, popup);
+  g_free (popup);
 }
 
 void
@@ -297,7 +297,7 @@ meta_wayland_popup_create (MetaWaylandPopupSurface *popup_surface,
   if (grab->grab_client != wl_resource_get_client (surface->resource))
     return NULL;
 
-  popup = g_slice_new0 (MetaWaylandPopup);
+  popup = g_new0 (MetaWaylandPopup, 1);
   popup->grab = grab;
   popup->popup_surface = popup_surface;
 

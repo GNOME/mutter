@@ -136,7 +136,7 @@ static void
 meta_barrier_fire_xevent (MetaBarrier    *barrier,
                           XIBarrierEvent *xevent)
 {
-  MetaBarrierEvent *event = g_slice_new0 (MetaBarrierEvent);
+  MetaBarrierEvent *event = g_new0 (MetaBarrierEvent, 1);
 
   event->ref_count = 1;
   event->event_id = xevent->eventid;

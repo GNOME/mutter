@@ -118,7 +118,7 @@ destroy_primary_offer (struct wl_resource *resource)
     }
 
   meta_display_sync_wayland_input_focus (meta_get_display ());
-  g_slice_free (MetaWaylandDataOffer, offer);
+  g_free (offer);
 }
 
 MetaWaylandDataOffer *
@@ -126,7 +126,7 @@ meta_wayland_data_offer_primary_new (struct wl_resource *target)
 {
   MetaWaylandDataOffer *offer;
 
-  offer = g_slice_new0 (MetaWaylandDataOffer);
+  offer = g_new0 (MetaWaylandDataOffer, 1);
   offer->selection_type = META_SELECTION_PRIMARY;
   offer->resource = wl_resource_create (wl_resource_get_client (target),
                                         &zwp_primary_selection_offer_v1_interface,

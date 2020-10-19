@@ -195,7 +195,7 @@ meta_seat_impl_lookup_touch_state_in_impl (MetaSeatImpl *seat_impl,
 static void
 meta_touch_state_free (MetaTouchState *state)
 {
-  g_slice_free (MetaTouchState, state);
+  g_free (state);
 }
 
 MetaTouchState *
@@ -214,7 +214,7 @@ meta_seat_impl_acquire_touch_state_in_impl (MetaSeatImpl *seat_impl,
   g_assert (!g_hash_table_contains (seat_impl->touch_states,
                                     GINT_TO_POINTER (seat_slot)));
 
-  touch_state = g_slice_new0 (MetaTouchState);
+  touch_state = g_new0 (MetaTouchState, 1);
   *touch_state = (MetaTouchState) {
     .seat_impl = seat_impl,
     .seat_slot = seat_slot,

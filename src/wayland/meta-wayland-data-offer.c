@@ -229,7 +229,7 @@ destroy_data_offer (struct wl_resource *resource)
     }
 
   meta_display_sync_wayland_input_focus (meta_get_display ());
-  g_slice_free (MetaWaylandDataOffer, offer);
+  g_free (offer);
 }
 
 MetaWaylandDataOffer *
@@ -239,7 +239,7 @@ meta_wayland_data_offer_new (MetaSelectionType      selection_type,
 {
   MetaWaylandDataOffer *offer;
 
-  offer = g_slice_new0 (MetaWaylandDataOffer);
+  offer = g_new0 (MetaWaylandDataOffer, 1);
   offer->selection_type = selection_type;
   offer->resource = wl_resource_create (wl_resource_get_client (target),
                                         &wl_data_offer_interface,

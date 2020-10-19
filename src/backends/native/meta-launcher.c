@@ -521,7 +521,7 @@ meta_launcher_new (GError **error)
   if (!seat_proxy)
     goto fail;
 
-  self = g_slice_new0 (MetaLauncher);
+  self = g_new0 (MetaLauncher, 1);
   self->session_proxy = g_object_ref (session_proxy);
   self->seat_proxy = g_object_ref (seat_proxy);
   self->seat_id = g_steal_pointer (&seat_id);
@@ -550,7 +550,7 @@ meta_launcher_free (MetaLauncher *self)
   g_object_unref (self->seat_proxy);
   g_object_unref (self->session_proxy);
   g_hash_table_destroy (self->impl.sysfs_fds);
-  g_slice_free (MetaLauncher, self);
+  g_free (self);
 }
 
 gboolean

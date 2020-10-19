@@ -45,7 +45,7 @@ meta_wayland_tablet_new (ClutterInputDevice    *device,
 {
   MetaWaylandTablet *tablet;
 
-  tablet = g_slice_new0 (MetaWaylandTablet);
+  tablet = g_new0 (MetaWaylandTablet, 1);
   wl_list_init (&tablet->resource_list);
   tablet->device = device;
   tablet->tablet_seat = tablet_seat;
@@ -65,7 +65,7 @@ meta_wayland_tablet_free (MetaWaylandTablet *tablet)
       wl_list_init (wl_resource_get_link (resource));
     }
 
-  g_slice_free (MetaWaylandTablet, tablet);
+  g_free (tablet);
 }
 
 static void

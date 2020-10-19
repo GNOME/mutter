@@ -45,7 +45,7 @@ meta_wayland_tablet_pad_group_new (MetaWaylandTabletPad *pad)
 {
   MetaWaylandTabletPadGroup *group;
 
-  group = g_slice_new0 (MetaWaylandTabletPadGroup);
+  group = g_new0 (MetaWaylandTabletPadGroup, 1);
   wl_list_init (&group->resource_list);
   wl_list_init (&group->focus_resource_list);
   group->pad = pad;
@@ -67,7 +67,7 @@ meta_wayland_tablet_pad_group_free (MetaWaylandTabletPadGroup *group)
   g_list_free (group->rings);
   g_list_free (group->strips);
 
-  g_slice_free (MetaWaylandTabletPadGroup, group);
+  g_free (group);
 }
 
 static void

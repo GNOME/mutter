@@ -51,7 +51,7 @@ meta_window_shape_new (cairo_region_t *region)
   int max_xspan_x2 = -1;
   guint hash;
 
-  shape = g_slice_new0 (MetaWindowShape);
+  shape = g_new0 (MetaWindowShape, 1);
   shape->ref_count = 1;
 
   cairo_region_get_extents (region, &extents);
@@ -176,7 +176,7 @@ meta_window_shape_unref (MetaWindowShape *shape)
   if (shape->ref_count == 0)
     {
       g_free (shape->rectangles);
-      g_slice_free (MetaWindowShape, shape);
+      g_free (shape);
     }
 }
 

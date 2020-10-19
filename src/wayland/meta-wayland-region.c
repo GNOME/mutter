@@ -79,7 +79,7 @@ wl_region_destructor (struct wl_resource *resource)
   MetaWaylandRegion *region = wl_resource_get_user_data (resource);
 
   cairo_region_destroy (region->region);
-  g_slice_free (MetaWaylandRegion, region);
+  g_free (region);
 }
 
 MetaWaylandRegion *
@@ -88,7 +88,7 @@ meta_wayland_region_create (MetaWaylandCompositor *compositor,
                             struct wl_resource    *compositor_resource,
                             guint32                id)
 {
-  MetaWaylandRegion *region = g_slice_new0 (MetaWaylandRegion);
+  MetaWaylandRegion *region = g_new0 (MetaWaylandRegion, 1);
 
   region->resource = wl_resource_create (client, &wl_region_interface, wl_resource_get_version (compositor_resource), id);
   wl_resource_set_implementation (region->resource, &meta_wayland_wl_region_interface, region, wl_region_destructor);

@@ -129,13 +129,13 @@ static void
 meta_key_binding_free (MetaKeyBinding *binding)
 {
   resolved_key_combo_reset (&binding->resolved_combo);
-  g_slice_free (MetaKeyBinding, binding);
+  g_free (binding);
 }
 
 static MetaKeyBinding *
 meta_key_binding_copy (MetaKeyBinding *binding)
 {
-  MetaKeyBinding *clone = g_slice_dup (MetaKeyBinding, binding);
+  MetaKeyBinding *clone = g_memdup2 (binding, sizeof (MetaKeyBinding));
   resolved_key_combo_copy (&binding->resolved_combo,
                            &clone->resolved_combo);
   return clone;
@@ -825,7 +825,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
             {
               MetaKeyHandler *handler = HANDLER (pref->name);
 
-              b = g_slice_new0 (MetaKeyBinding);
+              b = g_new0 (MetaKeyBinding, 1);
               b->name = pref->name;
               b->handler = handler;
               b->flags = handler->flags;
@@ -848,7 +848,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
         {
           MetaKeyHandler *handler = HANDLER ("external-grab");
 
-          b = g_slice_new0 (MetaKeyBinding);
+          b = g_new0 (MetaKeyBinding, 1);
           b->name = grab->name;
           b->handler = handler;
           b->flags = grab->flags;
@@ -1695,7 +1695,7 @@ meta_display_grab_accelerator (MetaDisplay         *display,
 
   g_hash_table_insert (external_grabs, grab->name, grab);
 
-  binding = g_slice_new0 (MetaKeyBinding);
+  binding = g_new0 (MetaKeyBinding, 1);
   binding->name = grab->name;
   binding->handler = HANDLER ("external-grab");
   binding->combo = combo;

@@ -334,7 +334,7 @@ meta_kms_callback_data_free (MetaKmsCallbackData *callback_data)
 {
   if (callback_data->user_data_destroy)
     callback_data->user_data_destroy (callback_data->user_data);
-  g_slice_free (MetaKmsCallbackData, callback_data);
+  g_free (callback_data);
 }
 
 static int
@@ -379,7 +379,7 @@ meta_kms_queue_callback (MetaKms         *kms,
 {
   MetaKmsCallbackData *callback_data;
 
-  callback_data = g_slice_new0 (MetaKmsCallbackData);
+  callback_data = g_new0 (MetaKmsCallbackData, 1);
   *callback_data = (MetaKmsCallbackData) {
     .callback = callback,
     .user_data = user_data,

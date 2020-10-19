@@ -957,7 +957,7 @@ destroy_frame_callback (struct wl_resource *callback_resource)
     wl_resource_get_user_data (callback_resource);
 
   wl_list_remove (&callback->link);
-  g_slice_free (MetaWaylandFrameCallback, callback);
+  g_free (callback);
 }
 
 static void
@@ -973,7 +973,7 @@ wl_surface_frame (struct wl_client *client,
   if (!surface)
     return;
 
-  callback = g_slice_new0 (MetaWaylandFrameCallback);
+  callback = g_new0 (MetaWaylandFrameCallback, 1);
   callback->surface = surface;
   callback->resource = wl_resource_create (client,
                                            &wl_callback_interface,

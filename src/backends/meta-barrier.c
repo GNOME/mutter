@@ -356,7 +356,7 @@ meta_barrier_event_unref (MetaBarrierEvent *event)
   g_return_if_fail (event->ref_count > 0);
 
   if (g_atomic_int_dec_and_test ((volatile int *)&event->ref_count))
-    g_slice_free (MetaBarrierEvent, event);
+    g_free (event);
 }
 
 G_DEFINE_BOXED_TYPE (MetaBarrierEvent,

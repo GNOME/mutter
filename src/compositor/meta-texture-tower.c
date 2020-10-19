@@ -77,7 +77,7 @@ meta_texture_tower_new (void)
 {
   MetaTextureTower *tower;
 
-  tower = g_slice_new0 (MetaTextureTower);
+  tower = g_new0 (MetaTextureTower, 1);
 
   return tower;
 }
@@ -98,7 +98,7 @@ meta_texture_tower_free (MetaTextureTower *tower)
 
   meta_texture_tower_set_base_texture (tower, NULL);
 
-  g_slice_free (MetaTextureTower, tower);
+  g_free (tower);
 }
 
 /**

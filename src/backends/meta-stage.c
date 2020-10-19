@@ -85,7 +85,7 @@ meta_overlay_new (MetaStage *stage)
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_backend);
   MetaOverlay *overlay;
 
-  overlay = g_slice_new0 (MetaOverlay);
+  overlay = g_new0 (MetaOverlay, 1);
   overlay->stage = stage;
   overlay->pipeline = cogl_pipeline_new (ctx);
 
@@ -98,7 +98,7 @@ meta_overlay_free (MetaOverlay *overlay)
   if (overlay->pipeline)
     cogl_object_unref (overlay->pipeline);
 
-  g_slice_free (MetaOverlay, overlay);
+  g_free (overlay);
 }
 
 static void

@@ -258,7 +258,7 @@ meta_wayland_tablet_seat_new (MetaWaylandTabletManager *manager,
   MetaWaylandTabletSeat *tablet_seat;
   GList *devices, *l;
 
-  tablet_seat = g_slice_new0 (MetaWaylandTabletSeat);
+  tablet_seat = g_new0 (MetaWaylandTabletSeat, 1);
   tablet_seat->manager = manager;
   tablet_seat->seat = seat;
   tablet_seat->clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
@@ -303,7 +303,7 @@ meta_wayland_tablet_seat_free (MetaWaylandTabletSeat *tablet_seat)
   g_hash_table_destroy (tablet_seat->tablets);
   g_hash_table_destroy (tablet_seat->tools);
   g_hash_table_destroy (tablet_seat->pads);
-  g_slice_free (MetaWaylandTabletSeat, tablet_seat);
+  g_free (tablet_seat);
 }
 
 struct wl_resource *

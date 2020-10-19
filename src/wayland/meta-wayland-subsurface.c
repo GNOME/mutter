@@ -161,7 +161,7 @@ meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
 
           if (!op->sibling)
             {
-              g_slice_free (MetaWaylandSubsurfacePlacementOp, op);
+              g_free (op);
               continue;
             }
 
@@ -188,7 +188,7 @@ meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
             }
 
           wl_list_remove (&op->sibling_destroy_listener.link);
-          g_slice_free (MetaWaylandSubsurfacePlacementOp, op);
+          g_free (op);
         }
 
       g_slist_free (surface->sub.pending_placement_ops);
@@ -434,7 +434,7 @@ queue_subsurface_placement (MetaWaylandSurface             *surface,
                             MetaWaylandSubsurfacePlacement  placement)
 {
   MetaWaylandSubsurfacePlacementOp *op =
-    g_slice_new (MetaWaylandSubsurfacePlacementOp);
+    g_new0 (MetaWaylandSubsurfacePlacementOp, 1);
 
   op->placement = placement;
   op->sibling = sibling;

@@ -387,7 +387,7 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
 {
   MetaWaylandTabletTool *tool;
 
-  tool = g_slice_new0 (MetaWaylandTabletTool);
+  tool = g_new0 (MetaWaylandTabletTool, 1);
   tool->seat = seat;
   tool->device = device;
   tool->device_tool = device_tool;
@@ -424,7 +424,7 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
   g_clear_signal_handler (&tool->prepare_at_signal_id, tool->default_sprite);
   g_object_unref (tool->default_sprite);
 
-  g_slice_free (MetaWaylandTabletTool, tool);
+  g_free (tool);
 }
 
 static void

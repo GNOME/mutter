@@ -1448,7 +1448,7 @@ device_mapping_info_free (DeviceMappingInfo *info)
   g_clear_signal_handler (&info->changed_id, info->settings);
   g_object_unref (info->settings);
   g_free (info->group_modes);
-  g_slice_free (DeviceMappingInfo, info);
+  g_free (info);
 }
 
 static gboolean
@@ -1476,7 +1476,7 @@ check_add_mappable_device (MetaInputSettings  *input_settings,
 
   priv = meta_input_settings_get_instance_private (input_settings);
 
-  info = g_slice_new0 (DeviceMappingInfo);
+  info = g_new0 (DeviceMappingInfo, 1);
   info->input_settings = input_settings;
   info->device = device;
   info->settings = settings;

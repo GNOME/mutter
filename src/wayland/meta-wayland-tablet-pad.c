@@ -100,7 +100,7 @@ meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
   MetaWaylandTabletPad *pad;
   guint n_elems, i;
 
-  pad = g_slice_new0 (MetaWaylandTabletPad);
+  pad = g_new0 (MetaWaylandTabletPad, 1);
   wl_list_init (&pad->resource_list);
   wl_list_init (&pad->focus_resource_list);
   pad->focus_surface_listener.notify = pad_handle_focus_surface_destroy;
@@ -168,7 +168,7 @@ meta_wayland_tablet_pad_free (MetaWaylandTabletPad *pad)
 
   g_hash_table_destroy (pad->feedback);
 
-  g_slice_free (MetaWaylandTabletPad, pad);
+  g_free (pad);
 }
 
 static MetaWaylandTabletPadGroup *

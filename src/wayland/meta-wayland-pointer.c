@@ -99,7 +99,7 @@ meta_wayland_pointer_client_new (void)
 {
   MetaWaylandPointerClient *pointer_client;
 
-  pointer_client = g_slice_new0 (MetaWaylandPointerClient);
+  pointer_client = g_new0 (MetaWaylandPointerClient, 1);
   wl_list_init (&pointer_client->pointer_resources);
   wl_list_init (&pointer_client->swipe_gesture_resources);
   wl_list_init (&pointer_client->pinch_gesture_resources);
@@ -138,7 +138,7 @@ meta_wayland_pointer_client_free (MetaWaylandPointerClient *pointer_client)
       wl_list_init (wl_resource_get_link (resource));
     }
 
-  g_slice_free (MetaWaylandPointerClient, pointer_client);
+  g_free (pointer_client);
 }
 
 static gboolean

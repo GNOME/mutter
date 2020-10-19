@@ -385,7 +385,7 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
       meta_display_sync_wayland_input_focus (meta_get_display ());
     }
 
-  g_slice_free (MetaWaylandDragGrab, drag_grab);
+  g_free (drag_grab);
 }
 
 static gboolean
@@ -583,7 +583,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
   ClutterModifierType modifiers;
   MetaSurfaceActor *surface_actor;
 
-  data_device->current_grab = drag_grab = g_slice_new0 (MetaWaylandDragGrab);
+  data_device->current_grab = drag_grab = g_new0 (MetaWaylandDragGrab, 1);
 
   drag_grab->generic.interface = funcs;
   drag_grab->generic.pointer = seat->pointer;

@@ -271,7 +271,7 @@ meta_stack_tracker_dump (MetaStackTracker *tracker)
 static void
 meta_stack_op_free (MetaStackOp *op)
 {
-  g_slice_free (MetaStackOp, op);
+  g_free (op);
 }
 
 static int
@@ -647,7 +647,7 @@ meta_stack_tracker_record_add (MetaStackTracker *tracker,
                                guint64           window,
 			       gulong            serial)
 {
-  MetaStackOp *op = g_slice_new (MetaStackOp);
+  MetaStackOp *op = g_new0 (MetaStackOp, 1);
 
   op->any.type = STACK_OP_ADD;
   op->any.serial = serial;
@@ -661,7 +661,7 @@ meta_stack_tracker_record_remove (MetaStackTracker *tracker,
                                   guint64           window,
 				  gulong            serial)
 {
-  MetaStackOp *op = g_slice_new (MetaStackOp);
+  MetaStackOp *op = g_new0 (MetaStackOp, 1);
 
   op->any.type = STACK_OP_REMOVE;
   op->any.serial = serial;
@@ -676,7 +676,7 @@ meta_stack_tracker_record_raise_above (MetaStackTracker *tracker,
                                        guint64           sibling,
 				       gulong            serial)
 {
-  MetaStackOp *op = g_slice_new (MetaStackOp);
+  MetaStackOp *op = g_new0 (MetaStackOp, 1);
 
   op->any.type = STACK_OP_RAISE_ABOVE;
   op->any.serial = serial;
@@ -692,7 +692,7 @@ meta_stack_tracker_record_lower_below (MetaStackTracker *tracker,
                                        guint64           sibling,
 				       gulong            serial)
 {
-  MetaStackOp *op = g_slice_new (MetaStackOp);
+  MetaStackOp *op = g_new0 (MetaStackOp, 1);
 
   op->any.type = STACK_OP_LOWER_BELOW;
   op->any.serial = serial;

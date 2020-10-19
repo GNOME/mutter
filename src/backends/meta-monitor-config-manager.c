@@ -252,7 +252,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
                                     width,
                                     height);
 
-  crtc_assignment = g_slice_new0 (MetaCrtcAssignment);
+  crtc_assignment = g_new0 (MetaCrtcAssignment, 1);
   *crtc_assignment = (MetaCrtcAssignment) {
     .crtc = crtc,
     .mode = crtc_mode,
@@ -280,7 +280,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   else
     assign_output_as_presentation = FALSE;
 
-  output_assignment = g_slice_new0 (MetaOutputAssignment);
+  output_assignment = g_new0 (MetaOutputAssignment, 1);
   *output_assignment = (MetaOutputAssignment) {
     .output = output,
     .is_primary = assign_output_as_primary,
@@ -1600,13 +1600,13 @@ static void
 meta_crtc_assignment_free (MetaCrtcAssignment *assignment)
 {
   g_ptr_array_free (assignment->outputs, TRUE);
-  g_slice_free (MetaCrtcAssignment, assignment);
+  g_free (assignment);
 }
 
 static void
 meta_output_assignment_free (MetaOutputAssignment *assignment)
 {
-  g_slice_free (MetaOutputAssignment, assignment);
+  g_free (assignment);
 }
 
 gboolean

@@ -952,7 +952,7 @@ meta_xwayland_init_dnd (Display *xdisplay)
 
   g_assert (manager->dnd == NULL);
 
-  manager->dnd = dnd = g_slice_new0 (MetaXWaylandDnd);
+  manager->dnd = dnd = g_new0 (MetaXWaylandDnd, 1);
 
   for (i = 0; i < N_DND_ATOMS; i++)
     xdnd_atoms[i] = gdk_x11_get_xatom_by_name (atom_names[i]);
@@ -987,6 +987,6 @@ meta_xwayland_shutdown_dnd (Display *xdisplay)
   XDestroyWindow (xdisplay, dnd->dnd_window);
   dnd->dnd_window = None;
 
-  g_slice_free (MetaXWaylandDnd, dnd);
+  g_free (dnd);
   manager->dnd = NULL;
 }

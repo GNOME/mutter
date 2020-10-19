@@ -46,7 +46,7 @@ meta_wayland_tablet_pad_strip_new (MetaWaylandTabletPad *pad)
 {
   MetaWaylandTabletPadStrip *strip;
 
-  strip = g_slice_new0 (MetaWaylandTabletPadStrip);
+  strip = g_new0 (MetaWaylandTabletPadStrip, 1);
   wl_list_init (&strip->resource_list);
   wl_list_init (&strip->focus_resource_list);
   strip->pad = pad;
@@ -66,7 +66,7 @@ meta_wayland_tablet_pad_strip_free (MetaWaylandTabletPadStrip *strip)
     }
 
   g_free (strip->feedback);
-  g_slice_free (MetaWaylandTabletPadStrip, strip);
+  g_free (strip);
 }
 
 static void

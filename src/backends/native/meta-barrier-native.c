@@ -395,7 +395,7 @@ emit_barrier_event (MetaBarrierImplNative *self,
                     float                  dx,
                     float                  dy)
 {
-  MetaBarrierEvent *event = g_slice_new0 (MetaBarrierEvent);
+  MetaBarrierEvent *event = g_new0 (MetaBarrierEvent, 1);
   MetaBarrierState old_state = self->state;
 
   switch (self->state)

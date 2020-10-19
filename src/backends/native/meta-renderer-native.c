@@ -197,7 +197,7 @@ meta_renderer_native_disconnect (CoglRenderer *cogl_renderer)
 {
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
 
-  g_slice_free (CoglRendererEGL, cogl_renderer_egl);
+  g_free (cogl_renderer_egl);
 }
 
 static gboolean
@@ -209,7 +209,7 @@ meta_renderer_native_connect (CoglRenderer *cogl_renderer,
   MetaRendererNative *renderer_native = meta_renderer_native_from_gpu (gpu_kms);
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  cogl_renderer->winsys = g_slice_new0 (CoglRendererEGL);
+  cogl_renderer->winsys = g_new0 (CoglRendererEGL, 1);
   cogl_renderer_egl = cogl_renderer->winsys;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,

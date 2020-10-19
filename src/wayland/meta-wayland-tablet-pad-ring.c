@@ -46,7 +46,7 @@ meta_wayland_tablet_pad_ring_new (MetaWaylandTabletPad *pad)
 {
   MetaWaylandTabletPadRing *ring;
 
-  ring = g_slice_new0 (MetaWaylandTabletPadRing);
+  ring = g_new0 (MetaWaylandTabletPadRing, 1);
   wl_list_init (&ring->resource_list);
   wl_list_init (&ring->focus_resource_list);
   ring->pad = pad;
@@ -66,7 +66,7 @@ meta_wayland_tablet_pad_ring_free (MetaWaylandTabletPadRing *ring)
     }
 
   g_free (ring->feedback);
-  g_slice_free (MetaWaylandTabletPadRing, ring);
+  g_free (ring);
 }
 
 static void

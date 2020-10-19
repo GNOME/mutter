@@ -201,7 +201,7 @@ meta_sequence_info_new (MetaGestureTracker *tracker,
   priv = meta_gesture_tracker_get_instance_private (tracker);
   ms = priv->autodeny_timeout;
 
-  info = g_slice_new0 (MetaSequenceInfo);
+  info = g_new0 (MetaSequenceInfo, 1);
   info->tracker = tracker;
   info->sequence = event->touch.sequence;
   info->state = META_SEQUENCE_NONE;
@@ -220,7 +220,7 @@ meta_sequence_info_free (MetaSequenceInfo *info)
   if (info->state == META_SEQUENCE_NONE)
     meta_gesture_tracker_set_sequence_state (info->tracker, info->sequence,
                                              META_SEQUENCE_REJECTED);
-  g_slice_free (MetaSequenceInfo, info);
+  g_free (info);
 }
 
 static gboolean

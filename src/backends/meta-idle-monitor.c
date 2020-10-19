@@ -167,7 +167,7 @@ free_watch (gpointer data)
     g_source_destroy (watch->timeout_source);
 
   g_object_unref (monitor);
-  g_slice_free (MetaIdleMonitorWatch, watch);
+  g_free (watch);
 }
 
 static void
@@ -329,7 +329,7 @@ make_watch (MetaIdleMonitor           *monitor,
 {
   MetaIdleMonitorWatch *watch;
 
-  watch = g_slice_new0 (MetaIdleMonitorWatch);
+  watch = g_new0 (MetaIdleMonitorWatch, 1);
 
   watch->monitor = monitor;
   watch->id = get_next_watch_serial ();

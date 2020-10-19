@@ -176,7 +176,7 @@ meta_shadow_unref (MetaShadow *shadow)
       cogl_object_unref (shadow->texture);
       cogl_object_unref (shadow->pipeline);
 
-      g_slice_free (MetaShadow, shadow);
+      g_free (shadow);
     }
 }
 
@@ -387,7 +387,7 @@ static void
 meta_shadow_class_info_free (MetaShadowClassInfo *class_info)
 {
   g_free ((char *)class_info->name);
-  g_slice_free (MetaShadowClassInfo, class_info);
+  g_free (class_info);
 }
 
 static void
@@ -405,7 +405,7 @@ meta_shadow_factory_init (MetaShadowFactory *factory)
 
   for (i = 0; i < G_N_ELEMENTS (default_shadow_classes); i++)
     {
-      MetaShadowClassInfo *class_info = g_slice_new (MetaShadowClassInfo);
+      MetaShadowClassInfo *class_info = g_new0 (MetaShadowClassInfo, 1);
 
       *class_info = default_shadow_classes[i];
       class_info->name = g_strdup (class_info->name);
@@ -837,7 +837,7 @@ get_shadow_params (MetaShadowFactory *factory,
     {
       if (create)
         {
-          class_info = g_slice_new0 (MetaShadowClassInfo);
+          class_info = g_new0 (MetaShadowClassInfo, 1);
           *class_info = default_shadow_classes[0];
           class_info->name = g_strdup (class_info->name);
 
@@ -954,7 +954,7 @@ meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
         return meta_shadow_ref (shadow);
     }
 
-  shadow = g_slice_new0 (MetaShadow);
+  shadow = g_new0 (MetaShadow, 1);
 
   shadow->ref_count = 1;
   shadow->factory = factory;
