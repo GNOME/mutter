@@ -32,7 +32,6 @@
 #define __COGL_WINSYS_PRIVATE_H
 
 #include "cogl-renderer.h"
-#include "cogl-onscreen.h"
 #include "cogl-scanout.h"
 
 #ifdef COGL_HAS_XLIB_SUPPORT
@@ -108,9 +107,6 @@ typedef struct _CoglWinsysVtable
 
   int64_t
   (*context_get_clock_time) (CoglContext *context);
-
-  int
-  (*onscreen_get_buffer_age) (CoglOnscreen *onscreen);
 
 #ifdef COGL_HAS_XLIB_SUPPORT
   gboolean

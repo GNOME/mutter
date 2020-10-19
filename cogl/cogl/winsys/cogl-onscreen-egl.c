@@ -163,8 +163,8 @@ cogl_onscreen_egl_bind (CoglOnscreen *onscreen)
 #define EGL_BUFFER_AGE_EXT 0x313D
 #endif
 
-int
-_cogl_winsys_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
+static int
+cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
 {
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
@@ -354,4 +354,5 @@ cogl_onscreen_egl_class_init (CoglOnscreenEglClass *klass)
   onscreen_class->swap_buffers_with_damage =
     cogl_onscreen_egl_swap_buffers_with_damage;
   onscreen_class->swap_region = cogl_onscreen_egl_swap_region;
+  onscreen_class->get_buffer_age = cogl_onscreen_egl_get_buffer_age;
 }

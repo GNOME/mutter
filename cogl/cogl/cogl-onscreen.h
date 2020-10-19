@@ -79,6 +79,8 @@ struct _CoglOnscreenClass
                                CoglFrameInfo  *info,
                                gpointer        user_data,
                                GError        **error);
+
+  int (* get_buffer_age) (CoglOnscreen *onscreen);
 };
 
 #define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())

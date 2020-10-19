@@ -41,9 +41,6 @@ cogl_onscreen_glx_new (CoglContext *context,
                        int          width,
                        int          height);
 
-int
-_cogl_winsys_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen);
-
 void
 cogl_onscreen_glx_resize (CoglOnscreen    *onscreen,
                           XConfigureEvent *configure_event);

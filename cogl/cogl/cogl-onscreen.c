@@ -414,16 +414,14 @@ int
 cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys;
+  CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
   g_return_val_if_fail (COGL_IS_ONSCREEN (framebuffer), 0);
 
-  winsys = _cogl_framebuffer_get_winsys (framebuffer);
-
-  if (!winsys->onscreen_get_buffer_age)
+  if (!klass->get_buffer_age)
     return 0;
 
-  return winsys->onscreen_get_buffer_age (onscreen);
+  return klass->get_buffer_age (onscreen);
 }
 
 gboolean

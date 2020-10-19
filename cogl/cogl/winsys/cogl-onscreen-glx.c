@@ -517,8 +517,8 @@ _cogl_winsys_get_vsync_counter (CoglContext *ctx)
 #define GLX_BACK_BUFFER_AGE_EXT 0x20F4
 #endif
 
-int
-_cogl_winsys_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
+static int
+cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -1112,4 +1112,5 @@ cogl_onscreen_glx_class_init (CoglOnscreenGlxClass *klass)
   onscreen_class->swap_buffers_with_damage =
     cogl_onscreen_glx_swap_buffers_with_damage;
   onscreen_class->swap_region = cogl_onscreen_glx_swap_region;
+  onscreen_class->get_buffer_age = cogl_onscreen_glx_get_buffer_age;
 }
