@@ -8023,8 +8023,6 @@ _clutter_actor_finish_queue_redraw (ClutterActor *self)
      later)
   */
   priv->queue_redraw_entry = NULL;
-
-  _clutter_actor_propagate_queue_redraw (self, self);
 }
 
 void
@@ -8041,63 +8039,26 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
    * wrapper for this function. Additionally, an effect can queue a
    * redraw by wrapping this function in clutter_effect_queue_repaint().
    *
+   * This function will emit the "queue-redraw" signal for each actor
+   * up the actor-tree, allowing to track redraws queued by children
+   * or to queue a redraw of a different actor (like a clone) in
+   * response to this one.
+   *
    * This functions queues an entry in a list associated with the
    * stage which is a list of actors that queued a redraw while
    * updating the timelines, performing layouting and processing other
    * mainloop sources before the next paint starts.
    *
-   * We aim to minimize the processing done at this point because
-   * there is a good chance other events will happen while updating
-   * the scenegraph that would invalidate any expensive work we might
-   * otherwise try to do here. For example we don't try and resolve
-   * the screen space bounding box of an actor at this stage so as to
-   * minimize how much of the screen redraw because it's possible
-   * something else will happen which will force a full redraw anyway.
-   *
    * When all updates are complete and we come to paint the stage then
-   * we iterate this list and actually emit the "queue-redraw" signals
-   * for each of the listed actors which will bubble up to the stage
-   * for each actor and at that point we will transform the actors
-   * paint volume into screen coordinates to determine the clip region
-   * for what needs to be redrawn in the next paint.
+   * we iterate this list and build the redraw clip of the stage by
+   * either using the clip that was supplied to
+   * _clutter_actor_queue_redraw_full() or by asking the actor for its
+   * redraw clip using clutter_actor_get_redraw_clip().
    *
-   * Besides minimizing redundant work another reason for this
-   * deferred design is that it's more likely we will be able to
-   * determine the paint volume of an actor once we've finished
-   * updating the scenegraph because its allocation should be up to
-   * date. NB: If we can't determine an actors paint volume then we
-   * can't automatically queue a clipped redraw which can make a big
-   * difference to performance.
-   *
-   * So the control flow goes like this:
-   * One of clutter_actor_queue_redraw(),
-   *     or clutter_effect_queue_repaint()
-   *
-   * then control moves to:
-   *   _clutter_stage_queue_actor_redraw()
-   *
-   * later during _clutter_stage_do_update(), once relayouting is done
-   * and the scenegraph has been updated we will call:
-   * clutter_stage_maybe_finish_queue_redraws().
-   *
-   * clutter_stage_maybe_finish_queue_redraws() will call
-   * _clutter_actor_finish_queue_redraw() for each listed actor.
-   *
-   * Note: actors *are* allowed to queue further redraws during this
-   * process (considering clone actors or texture_new_from_actor which
-   * respond to their source queueing a redraw by queuing a redraw
-   * themselves). We repeat the process until the list is empty.
-   *
-   * This will result in the "queue-redraw" signal being fired for
-   * each actor which will pass control to the default signal handler:
-   * clutter_actor_real_queue_redraw()
-   *
-   * This will bubble up to the stages handler:
-   * clutter_stage_real_queue_redraw()
-   *
-   * clutter_stage_real_queue_redraw() will transform the actors paint
-   * volume into screen space and add it as a clip region for the next
-   * paint.
+   * Doing this later during the stage update instead of now is an
+   * important optimization, because later it's more likely we will be
+   * able to determine the paint volume of an actor (its allocation
+   * should be up to date).
    */
 
   /* ignore queueing a redraw for actors being destroyed */
@@ -8179,6 +8140,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
     }
 
   priv->is_dirty = TRUE;
+
+  if (!priv->propagated_one_redraw)
+    _clutter_actor_propagate_queue_redraw (self, self);
 }
 
 /**

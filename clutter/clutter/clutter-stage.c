@@ -2882,6 +2882,7 @@ void
 clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
+  GList *l;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStageFinishQueueRedraws, "FinishQueueRedraws");
 
@@ -2890,68 +2891,50 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
 
   priv->pending_finish_queue_redraws = FALSE;
 
-  /* Note: we have to repeat until the pending_queue_redraws list is
-   * empty because actors are allowed to queue redraws in response to
-   * the queue-redraw signal. For example Clone actors or
-   * texture_new_from_actor actors will have to queue a redraw if
-   * their source queues a redraw.
-   */
-  while (stage->priv->pending_queue_redraws)
+  for (l = priv->pending_queue_redraws; l; l = l->next)
     {
-      GList *l;
-      /* XXX: we need to allow stage->priv->pending_queue_redraws to
-       * be updated while we process the current entries in the list
-       * so we steal the list pointer and then reset it to an empty
-       * list before processing... */
-      GList *stolen_list = stage->priv->pending_queue_redraws;
-      stage->priv->pending_queue_redraws = NULL;
+      ClutterStageQueueRedrawEntry *entry = l->data;
 
-      for (l = stolen_list; l; l = l->next)
+      /* NB: Entries may be invalidated if the actor gets destroyed */
+      if (G_LIKELY (entry->actor != NULL))
         {
-          ClutterStageQueueRedrawEntry *entry = l->data;
+          ClutterPaintVolume old_actor_pv, new_actor_pv;
 
-          /* NB: Entries may be invalidated if the actor gets destroyed */
-          if (G_LIKELY (entry->actor != NULL))
+          _clutter_paint_volume_init_static (&old_actor_pv, NULL);
+          _clutter_paint_volume_init_static (&new_actor_pv, NULL);
+
+          if (entry->has_clip)
             {
-              ClutterPaintVolume old_actor_pv, new_actor_pv;
-
-              _clutter_actor_finish_queue_redraw (entry->actor);
-
-              _clutter_paint_volume_init_static (&old_actor_pv, NULL);
-              _clutter_paint_volume_init_static (&new_actor_pv, NULL);
-
-              if (entry->has_clip)
-                {
-                  add_to_stage_clip (stage, &entry->clip);
-                }
-              else if (clutter_actor_get_redraw_clip (entry->actor,
-                                                      &old_actor_pv,
-                                                      &new_actor_pv))
-                {
-                  /* Add both the old paint volume of the actor (which is
-                   * currently visible on the screen) and the new paint volume
-                   * (which will be visible on the screen after this redraw)
-                   * to the redraw clip.
-                   * The former we do to ensure the old texture on the screen
-                   * will be fully painted over in case the actor was moved.
-                   */
-                  add_to_stage_clip (stage, &old_actor_pv);
-                  add_to_stage_clip (stage, &new_actor_pv);
-                }
-              else
-                {
-                  /* If there's no clip we can use, we have to trigger an
-                   * unclipped full stage redraw.
-                   */
-                  add_to_stage_clip (stage, NULL);
-                }
-
+              add_to_stage_clip (stage, &entry->clip);
             }
-
-          free_queue_redraw_entry (entry);
+          else if (clutter_actor_get_redraw_clip (entry->actor,
+                                                  &old_actor_pv,
+                                                  &new_actor_pv))
+            {
+              /* Add both the old paint volume of the actor (which is
+               * currently visible on the screen) and the new paint volume
+               * (which will be visible on the screen after this redraw)
+               * to the redraw clip.
+               * The former we do to ensure the old texture on the screen
+               * will be fully painted over in case the actor was moved.
+               */
+              add_to_stage_clip (stage, &old_actor_pv);
+              add_to_stage_clip (stage, &new_actor_pv);
+            }
+          else
+            {
+              /* If there's no clip we can use, we have to trigger an
+               * unclipped full stage redraw.
+               */
+              add_to_stage_clip (stage, NULL);
+            }
         }
-      g_list_free (stolen_list);
+
+      free_queue_redraw_entry (entry);
     }
+
+  g_list_free (priv->pending_queue_redraws);
+  priv->pending_queue_redraws = NULL;
 }
 
 /**
