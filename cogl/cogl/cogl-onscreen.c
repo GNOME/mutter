@@ -48,9 +48,6 @@ typedef struct _CoglOnscreenPrivate
 {
   CoglList frame_closures;
 
-  gboolean resizable;
-  CoglList resize_closures;
-
   CoglList dirty_closures;
 
   int64_t frame_counter;
@@ -74,10 +71,6 @@ cogl_dummy_free (gpointer data)
 }
 
 COGL_GTYPE_DEFINE_BOXED (FrameClosure, frame_closure,
-                         cogl_dummy_copy,
-                         cogl_dummy_free);
-COGL_GTYPE_DEFINE_BOXED (OnscreenResizeClosure,
-                         onscreen_resize_closure,
                          cogl_dummy_copy,
                          cogl_dummy_free);
 COGL_GTYPE_DEFINE_BOXED (OnscreenDirtyClosure,
@@ -118,7 +111,6 @@ cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
 
   _cogl_list_init (&priv->frame_closures);
-  _cogl_list_init (&priv->resize_closures);
   _cogl_list_init (&priv->dirty_closures);
 
   cogl_framebuffer_init_config (framebuffer, &onscreen_template->config);
@@ -145,7 +137,6 @@ cogl_onscreen_dispose (GObject *object)
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFrameInfo *frame_info;
 
-  _cogl_closure_list_disconnect_all (&priv->resize_closures);
   _cogl_closure_list_disconnect_all (&priv->frame_closures);
   _cogl_closure_list_disconnect_all (&priv->dirty_closures);
 
@@ -557,19 +548,6 @@ _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info)
 }
 
 void
-_cogl_onscreen_notify_resize (CoglOnscreen *onscreen)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-
-  _cogl_closure_list_invoke (&priv->resize_closures,
-                             CoglOnscreenResizeCallback,
-                             onscreen,
-                             cogl_framebuffer_get_width (framebuffer),
-                             cogl_framebuffer_get_height (framebuffer));
-}
-
-void
 _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
                                       int width, int height)
 {
@@ -582,58 +560,6 @@ _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
   if (!_cogl_has_private_feature (cogl_framebuffer_get_context (framebuffer),
                                   COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
     _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
-}
-
-void
-cogl_onscreen_set_resizable (CoglOnscreen *onscreen,
-                             gboolean resizable)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglFramebuffer *framebuffer;
-  const CoglWinsysVtable *winsys;
-
-  if (priv->resizable == resizable)
-    return;
-
-  priv->resizable = resizable;
-
-  framebuffer = COGL_FRAMEBUFFER (onscreen);
-  if (cogl_framebuffer_is_allocated (framebuffer))
-    {
-      winsys = _cogl_framebuffer_get_winsys (COGL_FRAMEBUFFER (onscreen));
-
-      if (winsys->onscreen_set_resizable)
-        winsys->onscreen_set_resizable (onscreen, resizable);
-    }
-}
-
-gboolean
-cogl_onscreen_get_resizable (CoglOnscreen *onscreen)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return priv->resizable;
-}
-
-CoglOnscreenResizeClosure *
-cogl_onscreen_add_resize_callback (CoglOnscreen *onscreen,
-                                   CoglOnscreenResizeCallback callback,
-                                   void *user_data,
-                                   CoglUserDataDestroyCallback destroy)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return _cogl_closure_list_add (&priv->resize_closures,
-                                 callback,
-                                 user_data,
-                                 destroy);
-}
-
-void
-cogl_onscreen_remove_resize_callback (CoglOnscreen *onscreen,
-                                      CoglOnscreenResizeClosure *closure)
-{
-  _cogl_closure_disconnect (closure);
 }
 
 CoglOnscreenDirtyClosure *

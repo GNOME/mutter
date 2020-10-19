@@ -39,8 +39,6 @@ struct _CoglOnscreenXlib
   CoglOnscreenEgl parent;
 
   Window xwin;
-
-  gboolean pending_resize_notify;
 };
 
 G_DEFINE_TYPE (CoglOnscreenXlib, cogl_onscreen_xlib,
@@ -196,44 +194,6 @@ cogl_onscreen_xlib_dispose (GObject *object)
     }
 }
 
-void
-_cogl_winsys_onscreen_xlib_set_resizable (CoglOnscreen *onscreen,
-                                          gboolean      resizable)
-{
-  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglXlibRenderer *xlib_renderer =
-    _cogl_xlib_renderer_get_data (context->display->renderer);
-
-  XSizeHints *size_hints = XAllocSizeHints ();
-
-  if (resizable)
-    {
-      /* TODO: Add cogl_onscreen_request_minimum_size () */
-      size_hints->min_width = 1;
-      size_hints->min_height = 1;
-
-      size_hints->max_width = INT_MAX;
-      size_hints->max_height = INT_MAX;
-    }
-  else
-    {
-      int width = cogl_framebuffer_get_width (framebuffer);
-      int height = cogl_framebuffer_get_height (framebuffer);
-
-      size_hints->min_width = width;
-      size_hints->min_height = height;
-
-      size_hints->max_width = width;
-      size_hints->max_height = height;
-    }
-
-  XSetWMNormalHints (xlib_renderer->xdpy, onscreen_xlib->xwin, size_hints);
-
-  XFree (size_hints);
-}
-
 uint32_t
 _cogl_winsys_onscreen_xlib_get_window_xid (CoglOnscreen *onscreen)
 {
@@ -251,69 +211,14 @@ cogl_onscreen_xlib_is_for_window (CoglOnscreen *onscreen,
   return onscreen_xlib->xwin == window;
 }
 
-static void
-flush_pending_resize_notifications_cb (void *data,
-                                       void *user_data)
-{
-  CoglFramebuffer *framebuffer = data;
-
-  if (COGL_IS_ONSCREEN (framebuffer))
-    {
-      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-      CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
-
-      if (onscreen_xlib->pending_resize_notify)
-        {
-          _cogl_onscreen_notify_resize (onscreen);
-          onscreen_xlib->pending_resize_notify = FALSE;
-        }
-    }
-}
-
-static void
-flush_pending_resize_notifications_idle (void *user_data)
-{
-  CoglContext *context = user_data;
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-
-  /* This needs to be disconnected before invoking the callbacks in
-   * case the callbacks cause it to be queued again */
-  _cogl_closure_disconnect (egl_renderer->resize_notify_idle);
-  egl_renderer->resize_notify_idle = NULL;
-
-  g_list_foreach (context->framebuffers,
-                  flush_pending_resize_notifications_cb,
-                  NULL);
-}
-
 void
 cogl_onscreen_xlib_resize (CoglOnscreen *onscreen,
                            int           width,
                            int           height)
 {
-  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
-
 
   _cogl_framebuffer_winsys_update_size (framebuffer, width, height);
-
-  /* We only want to notify that a resize happened when the
-   * application calls cogl_context_dispatch so instead of immediately
-   * notifying we queue an idle callback */
-  if (!egl_renderer->resize_notify_idle)
-    {
-      egl_renderer->resize_notify_idle =
-        _cogl_poll_renderer_add_idle (renderer,
-                                      flush_pending_resize_notifications_idle,
-                                      context,
-                                      NULL);
-    }
-
-  onscreen_xlib->pending_resize_notify = TRUE;
 }
 
 CoglOnscreenXlib *

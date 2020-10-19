@@ -109,9 +109,6 @@ typedef struct _CoglWinsysVtable
   int64_t
   (*context_get_clock_time) (CoglContext *context);
 
-  void
-  (*onscreen_set_resizable) (CoglOnscreen *onscreen, gboolean resizable);
-
   int
   (*onscreen_get_buffer_age) (CoglOnscreen *onscreen);
 

@@ -48,10 +48,6 @@ uint32_t
 _cogl_winsys_onscreen_glx_get_window_xid (CoglOnscreen *onscreen);
 
 void
-_cogl_winsys_onscreen_glx_set_resizable (CoglOnscreen *onscreen,
-                                         gboolean      resizable);
-
-void
 cogl_onscreen_glx_resize (CoglOnscreen    *onscreen,
                           XConfigureEvent *configure_event);
 

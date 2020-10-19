@@ -71,9 +71,6 @@ COGL_EXPORT void
 _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info);
 
 void
-_cogl_onscreen_notify_resize (CoglOnscreen *onscreen);
-
-void
 _cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
                             const CoglOnscreenDirtyInfo *info);
 

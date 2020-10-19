@@ -49,10 +49,6 @@ cogl_onscreen_xlib_new (CoglContext *context,
 void
 _cogl_winsys_egl_onscreen_xlib_deinit (CoglOnscreen *onscreen);
 
-void
-_cogl_winsys_onscreen_xlib_set_resizable (CoglOnscreen *onscreen,
-                                          gboolean      resizable);
-
 uint32_t
 _cogl_winsys_onscreen_xlib_get_window_xid (CoglOnscreen *onscreen);
 

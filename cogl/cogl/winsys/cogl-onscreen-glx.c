@@ -50,7 +50,6 @@ struct _CoglOnscreenGlx
   uint32_t last_swap_vsync_counter;
   uint32_t pending_sync_notify;
   uint32_t pending_complete_notify;
-  uint32_t pending_resize_notify;
 };
 
 G_DEFINE_TYPE (CoglOnscreenGlx, cogl_onscreen_glx,
@@ -552,8 +551,7 @@ cogl_onscreen_glx_flush_notification (CoglOnscreen *onscreen)
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
 
   while (onscreen_glx->pending_sync_notify > 0 ||
-         onscreen_glx->pending_complete_notify > 0 ||
-         onscreen_glx->pending_resize_notify > 0)
+         onscreen_glx->pending_complete_notify > 0)
     {
       if (onscreen_glx->pending_sync_notify > 0)
         {
@@ -572,12 +570,6 @@ cogl_onscreen_glx_flush_notification (CoglOnscreen *onscreen)
           _cogl_onscreen_notify_complete (onscreen, info);
           cogl_object_unref (info);
           onscreen_glx->pending_complete_notify--;
-        }
-
-      if (onscreen_glx->pending_resize_notify > 0)
-        {
-          _cogl_onscreen_notify_resize (onscreen);
-          onscreen_glx->pending_resize_notify--;
         }
     }
 }
@@ -959,44 +951,6 @@ _cogl_winsys_onscreen_glx_get_window_xid (CoglOnscreen *onscreen)
 }
 
 void
-_cogl_winsys_onscreen_glx_set_resizable (CoglOnscreen *onscreen,
-                                         gboolean      resizable)
-{
-  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglXlibRenderer *xlib_renderer =
-    _cogl_xlib_renderer_get_data (context->display->renderer);
-
-  XSizeHints *size_hints = XAllocSizeHints ();
-
-  if (resizable)
-    {
-      /* TODO: Add cogl_onscreen_request_minimum_size () */
-      size_hints->min_width = 1;
-      size_hints->min_height = 1;
-
-      size_hints->max_width = INT_MAX;
-      size_hints->max_height = INT_MAX;
-    }
-  else
-    {
-      int width = cogl_framebuffer_get_width (framebuffer);
-      int height = cogl_framebuffer_get_height (framebuffer);
-
-      size_hints->min_width = width;
-      size_hints->min_height = height;
-
-      size_hints->max_width = width;
-      size_hints->max_height = height;
-    }
-
-  XSetWMNormalHints (xlib_renderer->xdpy, onscreen_glx->xwin, size_hints);
-
-  XFree (size_hints);
-}
-
-void
 cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
                                        GLXBufferSwapComplete *swap_event)
 {
@@ -1078,8 +1032,6 @@ cogl_onscreen_glx_resize (CoglOnscreen    *onscreen,
                                       context,
                                       NULL);
     }
-
-  onscreen_glx->pending_resize_notify++;
 
   if (configure_event->send_event)
     {
