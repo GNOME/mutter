@@ -104,7 +104,7 @@ struct _ClutterBezier
 ClutterBezier *
 _clutter_bezier_new (void)
 {
-  return g_slice_new0 (ClutterBezier);
+  return g_new0 (ClutterBezier, 1);
 }
 
 void
@@ -112,7 +112,7 @@ _clutter_bezier_free (ClutterBezier * b)
 {
   if (G_LIKELY (b))
     {
-      g_slice_free (ClutterBezier, b);
+      g_free (b);
     }
 }
 

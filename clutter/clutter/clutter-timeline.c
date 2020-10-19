@@ -225,7 +225,7 @@ static TimelineMarker *
 timeline_marker_new_time (const gchar *name,
                           guint        msecs)
 {
-  TimelineMarker *marker = g_slice_new (TimelineMarker);
+  TimelineMarker *marker = g_new0 (TimelineMarker, 1);
 
   marker->name = g_strdup (name);
   marker->quark = g_quark_from_string (marker->name);
@@ -239,7 +239,7 @@ static TimelineMarker *
 timeline_marker_new_progress (const gchar *name,
                               gdouble      progress)
 {
-  TimelineMarker *marker = g_slice_new (TimelineMarker);
+  TimelineMarker *marker = g_new0 (TimelineMarker, 1);
 
   marker->name = g_strdup (name);
   marker->quark = g_quark_from_string (marker->name);
@@ -257,7 +257,7 @@ timeline_marker_free (gpointer data)
       TimelineMarker *marker = data;
 
       g_free (marker->name);
-      g_slice_free (TimelineMarker, marker);
+      g_free (marker);
     }
 }
 

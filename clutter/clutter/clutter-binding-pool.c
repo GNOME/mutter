@@ -189,7 +189,7 @@ binding_entry_new (const gchar         *name,
 
   modifiers = modifiers & BINDING_MOD_MASK;
 
-  entry = g_slice_new (ClutterBindingEntry);
+  entry = g_new0 (ClutterBindingEntry, 1);
   entry->key_val = key_val;
   entry->modifiers = modifiers;
   entry->name = (gchar *) g_intern_string (name);
@@ -221,7 +221,7 @@ binding_entry_free (gpointer data)
 
       g_closure_unref (entry->closure);
 
-      g_slice_free (ClutterBindingEntry, entry);
+      g_free (entry);
     }
 }
 

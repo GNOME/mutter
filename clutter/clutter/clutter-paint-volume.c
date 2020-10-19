@@ -59,7 +59,7 @@ _clutter_paint_volume_new (ClutterActor *actor)
 
   g_return_val_if_fail (actor != NULL, NULL);
 
-  pv = g_slice_new (ClutterPaintVolume);
+  pv = g_new0 (ClutterPaintVolume, 1);
 
   pv->actor = actor;
 
@@ -78,7 +78,7 @@ _clutter_paint_volume_new (ClutterActor *actor)
  * traversal of a Clutter scene graph and since paint volumes often
  * have a very short life cycle that maps well to stack allocation we
  * allow initializing a static ClutterPaintVolume variable to avoid
- * hammering the slice allocator.
+ * hammering the memory allocator.
  *
  * We were seeing slice allocation take about 1% cumulative CPU time
  * for some very simple clutter tests which although it isn't a *lot*
@@ -133,7 +133,7 @@ clutter_paint_volume_copy (const ClutterPaintVolume *pv)
 
   g_return_val_if_fail (pv != NULL, NULL);
 
-  copy = g_slice_dup (ClutterPaintVolume, pv);
+  copy = g_memdup2 (pv, sizeof (ClutterPaintVolume));
   copy->is_static = FALSE;
 
   return copy;
@@ -164,7 +164,7 @@ clutter_paint_volume_free (ClutterPaintVolume *pv)
   if (G_LIKELY (pv->is_static))
     return;
 
-  g_slice_free (ClutterPaintVolume, pv);
+  g_free (pv);
 }
 
 /**

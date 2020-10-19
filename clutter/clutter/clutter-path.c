@@ -1446,7 +1446,7 @@ clutter_path_get_length (ClutterPath *path)
 static ClutterPathNodeFull *
 clutter_path_node_full_new (void)
 {
-  return g_slice_new0 (ClutterPathNodeFull);
+  return g_new0 (ClutterPathNodeFull, 1);
 }
 
 static void
@@ -1455,7 +1455,7 @@ clutter_path_node_full_free (ClutterPathNodeFull *node)
   if (node->bezier)
     _clutter_bezier_free (node->bezier);
 
-  g_slice_free (ClutterPathNodeFull, node);
+  g_free (node);
 }
 
 /**
@@ -1471,7 +1471,7 @@ clutter_path_node_full_free (ClutterPathNodeFull *node)
 ClutterPathNode *
 clutter_path_node_copy (const ClutterPathNode *node)
 {
-  return g_slice_dup (ClutterPathNode, node);
+  return g_memdup2 (node, sizeof (ClutterPathNode));
 }
 
 /**
@@ -1486,7 +1486,7 @@ void
 clutter_path_node_free (ClutterPathNode *node)
 {
   if (G_LIKELY (node))
-    g_slice_free (ClutterPathNode, node);
+    g_free (node);
 }
 
 /**
@@ -1550,7 +1550,7 @@ clutter_knot_copy (const ClutterKnot *knot)
   if (G_UNLIKELY (knot == NULL))
     return NULL;
 
-  return g_slice_dup (ClutterKnot, knot);
+  return g_memdup2 (knot, sizeof (ClutterKnot));
 }
 
 /**
@@ -1565,7 +1565,7 @@ void
 clutter_knot_free (ClutterKnot *knot)
 {
   if (G_LIKELY (knot != NULL))
-    g_slice_free (ClutterKnot, knot);
+    g_free (knot);
 }
 
 /**

@@ -203,7 +203,7 @@ property_info_free (gpointer data)
 
       g_free (pinfo->name);
 
-      g_slice_free (PropertyInfo, pinfo);
+      g_free (pinfo);
     }
 }
 
@@ -219,7 +219,7 @@ signal_info_free (gpointer data)
       g_free (sinfo->object);
       g_free (sinfo->target);
 
-      g_slice_free (SignalInfo, sinfo);
+      g_free (sinfo);
     }
 }
 
@@ -258,7 +258,7 @@ object_info_free (gpointer data)
           oinfo->object = NULL;
         }
 
-      g_slice_free (ObjectInfo, oinfo);
+      g_free (oinfo);
     }
 }
 

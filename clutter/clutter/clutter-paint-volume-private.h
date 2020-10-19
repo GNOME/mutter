@@ -62,7 +62,7 @@ struct _ClutterPaintVolume
 
   /* As an optimization for internally managed PaintVolumes we allow
    * initializing ClutterPaintVolume variables allocated on the stack
-   * so we can avoid hammering the slice allocator. */
+   * so we can avoid hammering the memory allocator. */
   guint is_static:1;
 
   /* A newly initialized PaintVolume is considered empty as it is

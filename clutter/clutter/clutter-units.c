@@ -350,7 +350,7 @@ ClutterUnits *
 clutter_units_copy (const ClutterUnits *units)
 {
   if (units != NULL)
-    return g_slice_dup (ClutterUnits, units);
+    return g_memdup2 (units, sizeof (ClutterUnits));
 
   return NULL;
 }
@@ -370,7 +370,7 @@ void
 clutter_units_free (ClutterUnits *units)
 {
   if (units != NULL)
-    g_slice_free (ClutterUnits, units);
+    g_free (units);
 }
 
 /**

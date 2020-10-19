@@ -2118,7 +2118,7 @@ static gpointer
 clutter_perspective_copy (gpointer data)
 {
   if (G_LIKELY (data))
-    return g_slice_dup (ClutterPerspective, data);
+    return g_memdup2 (data, sizeof (ClutterPerspective));
 
   return NULL;
 }
@@ -2127,7 +2127,7 @@ static void
 clutter_perspective_free (gpointer data)
 {
   if (G_LIKELY (data))
-    g_slice_free (ClutterPerspective, data);
+    g_free (data);
 }
 
 G_DEFINE_BOXED_TYPE (ClutterPerspective, clutter_perspective,
@@ -2702,7 +2702,7 @@ clutter_stage_queue_actor_redraw (ClutterStage             *stage,
     }
   else
     {
-      entry = g_slice_new (QueueRedrawEntry);
+      entry = g_new0 (QueueRedrawEntry, 1);
 
       if (clip)
         {
@@ -2723,7 +2723,7 @@ free_queue_redraw_entry (QueueRedrawEntry *entry)
 {
   if (entry->has_clip)
     clutter_paint_volume_free (&entry->clip);
-  g_slice_free (QueueRedrawEntry, entry);
+  g_free (entry);
 }
 
 void

@@ -106,13 +106,13 @@ clutter_value_peek_pointer (const GValue *value)
 static void
 clutter_value_init_shader_float (GValue *value)
 {
-  value->data[0].v_pointer = g_slice_new0 (ClutterShaderFloat);
+  value->data[0].v_pointer = g_new0 (ClutterShaderFloat, 1);
 }
 
 static void
 clutter_value_free_shader_float (GValue *value)
 {
-  g_slice_free (ClutterShaderFloat, value->data[0].v_pointer);
+  g_free (value->data[0].v_pointer);
 }
 
 static void
@@ -120,7 +120,7 @@ clutter_value_copy_shader_float (const GValue *src,
                                  GValue       *dest)
 {
   dest->data[0].v_pointer =
-    g_slice_dup (ClutterShaderFloat, src->data[0].v_pointer);
+    g_memdup2 (src->data[0].v_pointer, sizeof (ClutterShaderFloat));
 }
 
 static gchar *
@@ -198,13 +198,13 @@ clutter_shader_float_get_type (void)
 static void
 clutter_value_init_shader_int (GValue *value)
 {
-  value->data[0].v_pointer = g_slice_new0 (ClutterShaderInt);
+  value->data[0].v_pointer = g_new0 (ClutterShaderInt, 1);
 }
 
 static void
 clutter_value_free_shader_int (GValue *value)
 {
-  g_slice_free (ClutterShaderInt, value->data[0].v_pointer);
+  g_free (value->data[0].v_pointer);
 }
 
 static void
@@ -212,7 +212,7 @@ clutter_value_copy_shader_int (const GValue *src,
                                GValue       *dest)
 {
   dest->data[0].v_pointer =
-    g_slice_dup (ClutterShaderInt, src->data[0].v_pointer);
+    g_memdup2 (src->data[0].v_pointer, sizeof (ClutterShaderInt));
 }
 
 static gchar *
@@ -289,13 +289,13 @@ clutter_shader_int_get_type (void)
 static void
 clutter_value_init_shader_matrix (GValue *value)
 {
-  value->data[0].v_pointer = g_slice_new0 (ClutterShaderMatrix);
+  value->data[0].v_pointer = g_new0 (ClutterShaderMatrix, 1);
 }
 
 static void
 clutter_value_free_shader_matrix (GValue *value)
 {
-  g_slice_free (ClutterShaderMatrix, value->data[0].v_pointer);
+  g_free (value->data[0].v_pointer);
 }
 
 static void
@@ -303,7 +303,7 @@ clutter_value_copy_shader_matrix (const GValue *src,
                                   GValue       *dest)
 {
   dest->data[0].v_pointer =
-    g_slice_dup (ClutterShaderMatrix, src->data[0].v_pointer);
+    g_memdup2 (src->data[0].v_pointer, sizeof (ClutterShaderMatrix));
 }
 
 static gchar *

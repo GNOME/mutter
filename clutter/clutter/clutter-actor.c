@@ -4341,7 +4341,7 @@ static void
 clutter_transform_info_free (gpointer data)
 {
   if (data != NULL)
-    g_slice_free (ClutterTransformInfo, data);
+    g_free (data);
 }
 
 /*< private >
@@ -4369,7 +4369,7 @@ _clutter_actor_get_transform_info (ClutterActor *self)
   info = g_object_get_qdata (G_OBJECT (self), quark_actor_transform_info);
   if (info == NULL)
     {
-      info = g_slice_new (ClutterTransformInfo);
+      info = g_new0 (ClutterTransformInfo, 1);
 
       *info = *get_default_transform_info ();
 
@@ -12791,7 +12791,7 @@ clutter_actor_parse_custom_node (ClutterScriptable *scriptable,
     {
       RotationInfo *info;
 
-      info = g_slice_new0 (RotationInfo);
+      info = g_new0 (RotationInfo, 1);
       retval = parse_rotation (actor, node, info);
 
       if (retval)
@@ -12800,7 +12800,7 @@ clutter_actor_parse_custom_node (ClutterScriptable *scriptable,
           g_value_set_pointer (value, info);
         }
       else
-        g_slice_free (RotationInfo, info);
+        g_free (info);
     }
   else if (strcmp (name, "actions") == 0 ||
            strcmp (name, "constraints") == 0 ||
@@ -12863,7 +12863,7 @@ clutter_actor_set_custom_property (ClutterScriptable *scriptable,
 
       clutter_actor_set_rotation_angle (actor, info->axis, info->angle);
 
-      g_slice_free (RotationInfo, info);
+      g_free (info);
 
       return;
     }
@@ -16429,7 +16429,7 @@ static void
 layout_info_free (gpointer data)
 {
   if (G_LIKELY (data != NULL))
-    g_slice_free (ClutterLayoutInfo, data);
+    g_free (data);
 }
 
 /*< private >
@@ -16472,7 +16472,7 @@ _clutter_actor_get_layout_info (ClutterActor *self)
   retval = _clutter_actor_peek_layout_info (self);
   if (retval == NULL)
     {
-      retval = g_slice_new (ClutterLayoutInfo);
+      retval = g_new0 (ClutterLayoutInfo, 1);
 
       *retval = default_layout_info;
 
@@ -17316,7 +17316,7 @@ clutter_animation_info_free (gpointer data)
       if (info->states != NULL)
         g_array_unref (info->states);
 
-      g_slice_free (ClutterAnimationInfo, info);
+      g_free (info);
     }
 }
 
@@ -17342,7 +17342,7 @@ _clutter_actor_get_animation_info (ClutterActor *self)
   res = g_object_get_qdata (obj, quark_actor_animation_info);
   if (res == NULL)
     {
-      res = g_slice_new (ClutterAnimationInfo);
+      res = g_new0 (ClutterAnimationInfo, 1);
 
       *res = default_animation_info;
 
@@ -17380,7 +17380,7 @@ transition_closure_free (gpointer data)
 
       g_free (clos->name);
 
-      g_slice_free (TransitionClosure, clos);
+      g_free (clos);
     }
 }
 
@@ -17471,7 +17471,7 @@ clutter_actor_add_transition_internal (ClutterActor *self,
 
   timeline = CLUTTER_TIMELINE (transition);
 
-  clos = g_slice_new (TransitionClosure);
+  clos = g_new0 (TransitionClosure, 1);
   clos->actor = self;
   clos->transition = g_object_ref (transition);
   clos->name = g_strdup (name);
@@ -19310,7 +19310,7 @@ bind_closure_free (gpointer data_)
     return;
 
   g_array_unref (data->props);
-  g_slice_free (BindClosure, data);
+  g_free (data);
 }
 
 static ClutterActor *
@@ -19401,7 +19401,7 @@ clutter_actor_bind_model_with_properties (ClutterActor *self,
   g_return_if_fail (G_IS_LIST_MODEL (model));
   g_return_if_fail (g_type_is_a (child_type, CLUTTER_TYPE_ACTOR));
 
-  clos = g_slice_new0 (BindClosure);
+  clos = g_new0 (BindClosure, 1);
   clos->child_type = child_type;
   clos->props = g_array_new (FALSE, FALSE, sizeof (BindProperty));
 

@@ -1090,7 +1090,7 @@ cally_actor_add_action_full (CallyActor          *cally_actor,
 
   priv = cally_actor->priv;
 
-  info = g_slice_new (CallyActorActionInfo);
+  info = g_new0 (CallyActorActionInfo, 1);
   info->name = g_strdup (action_name);
   info->description = g_strdup (action_description);
   info->keybinding = g_strdup (action_keybinding);
@@ -1195,5 +1195,5 @@ _cally_actor_destroy_action_info (gpointer action_info,
   if (info->notify)
     info->notify (info->user_data);
 
-  g_slice_free (CallyActorActionInfo, info);
+  g_free (info);
 }

@@ -54,7 +54,7 @@ clutter_actor_box_new (gfloat x_1,
 ClutterActorBox *
 clutter_actor_box_alloc (void)
 {
-  return g_slice_new0 (ClutterActorBox);
+  return g_new0 (ClutterActorBox, 1);
 }
 
 /**
@@ -130,7 +130,7 @@ ClutterActorBox *
 clutter_actor_box_copy (const ClutterActorBox *box)
 {
   if (G_LIKELY (box != NULL))
-    return g_slice_dup (ClutterActorBox, box);
+    return g_memdup2 (box, sizeof (ClutterActorBox));
 
   return NULL;
 }
@@ -148,7 +148,7 @@ void
 clutter_actor_box_free (ClutterActorBox *box)
 {
   if (G_LIKELY (box != NULL))
-    g_slice_free (ClutterActorBox, box);
+    g_free (box);
 }
 
 /**

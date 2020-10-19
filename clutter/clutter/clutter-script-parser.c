@@ -733,7 +733,7 @@ parse_signals (ClutterScript *script,
                         state != NULL ? state : "<default>", target,
                         warp_to ? "true" : "false");
 
-          sinfo = g_slice_new0 (SignalInfo);
+          sinfo = g_new0 (SignalInfo, 1);
           sinfo->is_handler = FALSE;
           sinfo->name = g_strdup (name);
           sinfo->state = g_strdup (state);
@@ -780,7 +780,7 @@ parse_signals (ClutterScript *script,
                         name,
                         handler, connect, flags);
 
-          sinfo = g_slice_new0 (SignalInfo);
+          sinfo = g_new0 (SignalInfo, 1);
           sinfo->is_handler = TRUE;
           sinfo->name = g_strdup (name);
           sinfo->handler = g_strdup (handler);
@@ -852,7 +852,7 @@ clutter_script_parser_object_end (JsonParser *json_parser,
     {
       const gchar *class_name;
 
-      oinfo = g_slice_new0 (ObjectInfo);
+      oinfo = g_new0 (ObjectInfo, 1);
       oinfo->merge_id = _clutter_script_get_last_merge_id (script);
       oinfo->id = g_strdup (id_);
       oinfo->has_unresolved = TRUE;
@@ -938,7 +938,7 @@ clutter_script_parser_object_end (JsonParser *json_parser,
           continue;
         }
 
-      pinfo = g_slice_new (PropertyInfo);
+      pinfo = g_new0 (PropertyInfo, 1);
 
       pinfo->name = g_strdup (name);
       pinfo->node = json_node_copy (node);

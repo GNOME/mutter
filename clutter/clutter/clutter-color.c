@@ -911,7 +911,7 @@ ClutterColor *
 clutter_color_copy (const ClutterColor *color)
 {
   if (G_LIKELY (color != NULL))
-    return g_slice_dup (ClutterColor, color);
+    return g_memdup2 (color, sizeof (ClutterColor));
 
   return NULL;
 }
@@ -928,7 +928,7 @@ void
 clutter_color_free (ClutterColor *color)
 {
   if (G_LIKELY (color != NULL))
-    g_slice_free (ClutterColor, color);
+    g_free (color);
 }
 
 /**
@@ -977,7 +977,7 @@ clutter_color_new (guint8 red,
 ClutterColor *
 clutter_color_alloc (void)
 {
-  return g_slice_new0 (ClutterColor);
+  return g_new0 (ClutterColor, 1);
 }
 
 /**

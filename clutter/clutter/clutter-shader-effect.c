@@ -567,7 +567,7 @@ shader_uniform_free (gpointer data)
       g_value_unset (&uniform->value);
       g_free (uniform->name);
 
-      g_slice_free (ShaderUniform, uniform);
+      g_free (uniform);
     }
 }
 
@@ -577,7 +577,7 @@ shader_uniform_new (const gchar  *name,
 {
   ShaderUniform *retval;
 
-  retval = g_slice_new0 (ShaderUniform);
+  retval = g_new0 (ShaderUniform, 1);
   retval->name = g_strdup (name);
   retval->type = G_VALUE_TYPE (value);
   retval->location = -1;

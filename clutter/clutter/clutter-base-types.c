@@ -59,7 +59,7 @@
 ClutterMargin *
 clutter_margin_new (void)
 {
-  return g_slice_new0 (ClutterMargin);
+  return g_new0 (ClutterMargin, 1);
 }
 
 /**
@@ -77,7 +77,7 @@ ClutterMargin *
 clutter_margin_copy (const ClutterMargin *margin_)
 {
   if (G_LIKELY (margin_ != NULL))
-    return g_slice_dup (ClutterMargin, margin_);
+    return g_memdup2 (margin_, sizeof (ClutterMargin));
 
   return NULL;
 }
@@ -95,7 +95,7 @@ void
 clutter_margin_free (ClutterMargin *margin_)
 {
   if (G_LIKELY (margin_ != NULL))
-    g_slice_free (ClutterMargin, margin_);
+    g_free (margin_);
 }
 
 G_DEFINE_BOXED_TYPE (ClutterMargin, clutter_margin,

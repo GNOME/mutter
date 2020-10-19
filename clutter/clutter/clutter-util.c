@@ -293,7 +293,7 @@ out:
 static void
 progress_data_destroy (gpointer data_)
 {
-  g_slice_free (ProgressData, data_);
+  g_free (data_);
 }
 
 /**
@@ -365,14 +365,14 @@ clutter_interval_register_progress_func (GType               value_type,
       if (func == NULL)
         {
           g_hash_table_remove (progress_funcs, type_name);
-          g_slice_free (ProgressData, progress_func);
+          g_free (progress_func);
         }
       else
         progress_func->func = func;
     }
   else
     {
-      progress_func = g_slice_new (ProgressData);
+      progress_func = g_new0 (ProgressData, 1);
       progress_func->value_type = value_type;
       progress_func->func = func;
 

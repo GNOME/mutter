@@ -44,7 +44,7 @@ _clutter_id_pool_new  (guint initial_size)
 {
   ClutterIDPool *self;
 
-  self = g_slice_new (ClutterIDPool);
+  self = g_new0 (ClutterIDPool, 1);
 
   self->array = g_array_sized_new (FALSE, FALSE, 
                                    sizeof (gpointer), initial_size);
@@ -59,7 +59,7 @@ _clutter_id_pool_free (ClutterIDPool *id_pool)
 
   g_array_free (id_pool->array, TRUE);
   g_slist_free (id_pool->free_ids);
-  g_slice_free (ClutterIDPool, id_pool);
+  g_free (id_pool);
 }
 
 guint32

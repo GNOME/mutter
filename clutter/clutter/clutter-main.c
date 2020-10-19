@@ -263,7 +263,7 @@ _clutter_threads_dispatch_free (gpointer data)
   if (dispatch->notify)
     dispatch->notify (dispatch->data);
 
-  g_slice_free (ClutterThreadsDispatch, dispatch);
+  g_free (dispatch);
 }
 
 /**
@@ -363,7 +363,7 @@ clutter_threads_add_idle_full (gint           priority,
 
   g_return_val_if_fail (func != NULL, 0);
 
-  dispatch = g_slice_new (ClutterThreadsDispatch);
+  dispatch = g_new0 (ClutterThreadsDispatch, 1);
   dispatch->func = func;
   dispatch->data = data;
   dispatch->notify = notify;
@@ -434,7 +434,7 @@ clutter_threads_add_timeout_full (gint           priority,
 
   g_return_val_if_fail (func != NULL, 0);
 
-  dispatch = g_slice_new (ClutterThreadsDispatch);
+  dispatch = g_new0 (ClutterThreadsDispatch, 1);
   dispatch->func = func;
   dispatch->data = data;
   dispatch->notify = notify;
@@ -2007,7 +2007,7 @@ clutter_threads_remove_repaint_func (guint handle_id)
           if (repaint_func->notify)
             repaint_func->notify (repaint_func->data);
 
-          g_slice_free (ClutterRepaintFunction, repaint_func);
+          g_free (repaint_func);
 
           break;
         }
@@ -2114,7 +2114,7 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
 
   context = _clutter_context_get_default ();
 
-  repaint_func = g_slice_new (ClutterRepaintFunction);
+  repaint_func = g_new0 (ClutterRepaintFunction, 1);
 
   repaint_func->id = context->last_repaint_id++;
 
@@ -2178,7 +2178,7 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
           if (repaint_func->notify != NULL)
             repaint_func->notify (repaint_func->data);
 
-          g_slice_free (ClutterRepaintFunction, repaint_func);
+          g_free (repaint_func);
         }
     }
 

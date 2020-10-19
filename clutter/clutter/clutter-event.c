@@ -1269,7 +1269,7 @@ clutter_event_new (ClutterEventType type)
   ClutterEvent *new_event;
   ClutterEventPrivate *priv;
 
-  priv = g_slice_new0 (ClutterEventPrivate);
+  priv = g_new0 (ClutterEventPrivate, 1);
 
   new_event = (ClutterEvent *) priv;
   new_event->type = new_event->any.type = type;
@@ -1415,7 +1415,7 @@ clutter_event_free (ClutterEvent *event)
           break;
         }
 
-      g_slice_free (ClutterEventPrivate, (ClutterEventPrivate *) event);
+      g_free ((ClutterEventPrivate *) event);
     }
 }
 
@@ -1830,7 +1830,7 @@ clutter_event_add_filter (ClutterStage          *stage,
                           gpointer               user_data)
 {
   ClutterMainContext *context = _clutter_context_get_default ();
-  ClutterEventFilter *event_filter = g_slice_new (ClutterEventFilter);
+  ClutterEventFilter *event_filter = g_new0 (ClutterEventFilter, 1);
   static guint event_filter_id = 0;
 
   event_filter->stage = stage;
@@ -1871,7 +1871,7 @@ clutter_event_remove_filter (guint id)
             event_filter->notify (event_filter->user_data);
 
           context->event_filters = g_list_delete_link (context->event_filters, l);
-          g_slice_free (ClutterEventFilter, event_filter);
+          g_free (event_filter);
           return;
         }
     }
