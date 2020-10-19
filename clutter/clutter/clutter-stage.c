@@ -128,10 +128,6 @@ struct _ClutterStagePrivate
   ClutterPickStack *pick_stack;
   ClutterPickMode cached_pick_mode;
 
-#ifdef CLUTTER_ENABLE_DEBUG
-  gulong redraw_count;
-#endif /* CLUTTER_ENABLE_DEBUG */
-
   ClutterStageState current_state;
 
   int update_freeze_count;
@@ -139,7 +135,6 @@ struct _ClutterStagePrivate
   gboolean needs_update_devices;
   gboolean pending_finish_queue_redraws;
 
-  guint redraw_pending         : 1;
   guint throttle_motion_events : 1;
   guint min_size_changed       : 1;
   guint motion_events_enabled  : 1;
@@ -2812,23 +2807,6 @@ _clutter_stage_queue_actor_redraw (ClutterStage                 *stage,
 
       priv->pending_finish_queue_redraws = TRUE;
     }
-
-  if (!priv->redraw_pending)
-    {
-      CLUTTER_NOTE (PAINT, "First redraw request");
-
-      clutter_stage_schedule_update (stage);
-      priv->redraw_pending = TRUE;
-    }
-#ifdef CLUTTER_ENABLE_DEBUG
-  else
-    {
-      CLUTTER_NOTE (PAINT, "Redraw request number %lu",
-                    priv->redraw_count + 1);
-
-      priv->redraw_count += 1;
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
 
   if (entry)
     {
