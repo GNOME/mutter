@@ -27,23 +27,6 @@
 G_BEGIN_DECLS
 
 /*< private >
- * ClutterRedrawFlags:
- * @CLUTTER_REDRAW_CLIPPED_TO_ALLOCATION: Tells clutter the maximum
- *   extents of what needs to be redrawn lies within the actors
- *   current allocation. (Only use this for 2D actors though because
- *   any actor with depth may be projected outside of its allocation)
- *
- * Flags passed to the clutter_actor_queue_redraw_with_clip ()
- * function
- *
- * Since: 1.6
- */
-typedef enum
-{
-  CLUTTER_REDRAW_CLIPPED_TO_ALLOCATION  = 1 << 0
-} ClutterRedrawFlags;
-
-/*< private >
  * ClutterActorTraverseFlags:
  * CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST: Traverse the graph in
  *   a depth first order.
@@ -246,10 +229,8 @@ void                            _clutter_actor_set_has_key_focus                
                                                                                          gboolean      has_key_focus);
 
 void                            _clutter_actor_queue_redraw_with_clip                   (ClutterActor             *self,
-                                                                                         ClutterRedrawFlags        flags,
                                                                                          const ClutterPaintVolume *clip_volume);
 void                            _clutter_actor_queue_redraw_full                        (ClutterActor             *self,
-                                                                                         ClutterRedrawFlags        flags,
                                                                                          const ClutterPaintVolume *volume,
                                                                                          ClutterEffect            *effect);
 

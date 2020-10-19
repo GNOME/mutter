@@ -1752,7 +1752,7 @@ clutter_actor_queue_redraw_on_parent (ClutterActor *self)
     return;
 
   pv = clutter_actor_get_transformed_paint_volume (self, self->priv->parent);
-  _clutter_actor_queue_redraw_with_clip (self->priv->parent, 0, pv);
+  _clutter_actor_queue_redraw_with_clip (self->priv->parent, pv);
 }
 
 /**
@@ -8054,30 +8054,12 @@ _clutter_actor_finish_queue_redraw (ClutterActor *self,
   _clutter_actor_propagate_queue_redraw (self, self, pv);
 }
 
-static void
-_clutter_actor_get_allocation_clip (ClutterActor *self,
-                                    ClutterActorBox *clip)
-{
-  ClutterActorPrivate *priv = self->priv;
-
-  /* NB: clutter_actor_queue_redraw_with_clip expects a box in the
-   * actor's own coordinate space but the allocation is in parent
-   * coordinates */
-  clip->x1 = 0;
-  clip->y1 = 0;
-  clip->x2 = priv->allocation.x2 - priv->allocation.x1;
-  clip->y2 = priv->allocation.y2 - priv->allocation.y1;
-}
-
 void
 _clutter_actor_queue_redraw_full (ClutterActor             *self,
-                                  ClutterRedrawFlags        flags,
                                   const ClutterPaintVolume *volume,
                                   ClutterEffect            *effect)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterPaintVolume allocation_pv;
-  ClutterPaintVolume *pv = NULL;
   ClutterActor *stage;
 
   /* Here's an outline of the actor queue redraw mechanism:
@@ -8185,45 +8167,11 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
-  if (flags & CLUTTER_REDRAW_CLIPPED_TO_ALLOCATION)
-    {
-      ClutterActorBox allocation_clip;
-      graphene_point3d_t origin;
-
-      /* If the actor doesn't have a valid allocation then we will
-       * queue a full stage redraw. */
-      if (priv->needs_allocation)
-        {
-          /* NB: NULL denotes an undefined clip which will result in a
-           * full redraw... */
-          _clutter_actor_propagate_queue_redraw (self, self, NULL);
-          return;
-        }
-
-      _clutter_paint_volume_init_static (&allocation_pv, self);
-      pv = &allocation_pv;
-
-      _clutter_actor_get_allocation_clip (self, &allocation_clip);
-
-      origin.x = allocation_clip.x1;
-      origin.y = allocation_clip.y1;
-      origin.z = 0;
-      clutter_paint_volume_set_origin (pv, &origin);
-      clutter_paint_volume_set_width (pv,
-                                      allocation_clip.x2 - allocation_clip.x1);
-      clutter_paint_volume_set_height (pv,
-                                       allocation_clip.y2 -
-                                       allocation_clip.y1);
-    }
-
   self->priv->queue_redraw_entry =
     _clutter_stage_queue_actor_redraw (CLUTTER_STAGE (stage),
                                        priv->queue_redraw_entry,
                                        self,
-                                       pv ? pv : volume);
-
-  if (pv)
-    clutter_paint_volume_free (pv);
+                                       volume);
 
   /* If this is the first redraw queued then we can directly use the
      effect parameter */
@@ -8293,7 +8241,6 @@ clutter_actor_queue_redraw (ClutterActor *self)
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   _clutter_actor_queue_redraw_full (self,
-                                    0, /* flags */
                                     NULL, /* clip volume */
                                     NULL /* effect */);
 }
@@ -8301,26 +8248,12 @@ clutter_actor_queue_redraw (ClutterActor *self)
 /*< private >
  * _clutter_actor_queue_redraw_with_clip:
  * @self: A #ClutterActor
- * @flags: A mask of #ClutterRedrawFlags controlling the behaviour of
- *   this queue redraw.
  * @volume: A #ClutterPaintVolume describing the bounds of what needs to be
- *   redrawn or %NULL if you are just using a @flag to state your
- *   desired clipping.
+ *   redrawn or %NULL if to use the actors own paint volume.
  *
  * Queues up a clipped redraw of an actor and any children. The redraw
  * occurs once the main loop becomes idle (after the current batch of
  * events has been processed, roughly).
- *
- * If no flags are given the clip volume is defined by @volume
- * specified in actor coordinates and tells Clutter that only content
- * within this volume has been changed so Clutter can optionally
- * optimize the redraw.
- *
- * If the %CLUTTER_REDRAW_CLIPPED_TO_ALLOCATION @flag is used, @volume
- * should be %NULL and this tells Clutter to use the actor's current
- * allocation as a clip box. This flag can only be used for 2D actors,
- * because any actor with depth may be projected outside its
- * allocation.
  *
  * Applications rarely need to call this, as redraws are handled
  * automatically by modification functions.
@@ -8337,11 +8270,9 @@ clutter_actor_queue_redraw (ClutterActor *self)
  */
 void
 _clutter_actor_queue_redraw_with_clip (ClutterActor             *self,
-                                       ClutterRedrawFlags        flags,
                                        const ClutterPaintVolume *volume)
 {
   _clutter_actor_queue_redraw_full (self,
-                                    flags, /* flags */
                                     volume, /* clip volume */
                                     NULL /* effect */);
 }
@@ -8412,7 +8343,7 @@ clutter_actor_queue_redraw_with_clip (ClutterActor                *self,
   clutter_paint_volume_set_width (&volume, clip->width);
   clutter_paint_volume_set_height (&volume, clip->height);
 
-  _clutter_actor_queue_redraw_full (self, 0, &volume, NULL);
+  _clutter_actor_queue_redraw_full (self, &volume, NULL);
 
   clutter_paint_volume_free (&volume);
 }
@@ -10872,7 +10803,6 @@ clutter_actor_set_opacity_internal (ClutterActor *self,
          is no flatten effect yet then this is equivalent to queueing
          a full redraw */
       _clutter_actor_queue_redraw_full (self,
-                                        0, /* flags */
                                         NULL, /* clip */
                                         priv->flatten_effect);
 
@@ -11071,7 +11001,6 @@ clutter_actor_set_offscreen_redirect (ClutterActor *self,
          still able to continue the paint anyway. If there is no
          effect then this is equivalent to queuing a full redraw */
       _clutter_actor_queue_redraw_full (self,
-                                        0, /* flags */
                                         NULL, /* clip */
                                         priv->flatten_effect);
 

@@ -356,7 +356,6 @@ clutter_effect_queue_repaint (ClutterEffect *effect)
   /* If the effect has no actor then nothing needs to be done */
   if (actor != NULL)
     _clutter_actor_queue_redraw_full (actor,
-                                      0, /* flags */
                                       NULL, /* clip volume */
                                       effect /* effect */);
 }
