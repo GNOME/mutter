@@ -312,6 +312,8 @@ cogl_sources = [
   'cogl-offscreen.c',
   'cogl-frame-info-private.h',
   'cogl-frame-info.c',
+  'cogl-framebuffer-driver.c',
+  'cogl-framebuffer-driver.h',
   'cogl-framebuffer-private.h',
   'cogl-framebuffer.c',
   'cogl-onscreen-private.h',

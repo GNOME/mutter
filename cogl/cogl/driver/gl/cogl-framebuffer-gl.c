@@ -137,7 +137,7 @@ typedef struct _CoglGlFbo
 
 struct _CoglGlFramebuffer
 {
-  GObject parent;
+  CoglFramebufferDriver parent;
 
   CoglGlFbo gl_fbo;
 
@@ -146,7 +146,7 @@ struct _CoglGlFramebuffer
 };
 
 G_DEFINE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
-               G_TYPE_OBJECT)
+               COGL_TYPE_FRAMEBUFFER_DRIVER)
 
 static CoglGlFramebuffer *
 ensure_gl_framebuffer (CoglFramebuffer *framebuffer);
@@ -910,7 +910,9 @@ ensure_gl_framebuffer (CoglFramebuffer *framebuffer)
   gl_framebuffer = cogl_framebuffer_get_driver_private (framebuffer);
   if (!gl_framebuffer)
     {
-      gl_framebuffer = g_object_new (COGL_TYPE_GL_FRAMEBUFFER, NULL);
+      gl_framebuffer = g_object_new (COGL_TYPE_GL_FRAMEBUFFER,
+                                     "framebuffer", framebuffer,
+                                     NULL);
       cogl_framebuffer_set_driver_private (framebuffer,
                                            gl_framebuffer,
                                            g_object_unref);
