@@ -47,20 +47,6 @@ _cogl_winsys_onscreen_egl_bind (CoglOnscreen *onscreen);
 int
 _cogl_winsys_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen);
 
-void
-_cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
-                                       const int     *user_rectangles,
-                                       int            n_rectangles,
-                                       CoglFrameInfo *info,
-                                       gpointer       user_data);
-
-void
-_cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-                                                    const int     *rectangles,
-                                                    int            n_rectangles,
-                                                    CoglFrameInfo *info,
-                                                    gpointer       user_data);
-
 COGL_EXPORT void
 cogl_onscreen_egl_set_platform (CoglOnscreenEgl *onscreen_egl,
                                 gpointer         platform);

@@ -47,20 +47,6 @@ _cogl_winsys_onscreen_glx_bind (CoglOnscreen *onscreen);
 int
 _cogl_winsys_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen);
 
-void
-_cogl_winsys_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
-                                       const int     *user_rectangles,
-                                       int            n_rectangles,
-                                       CoglFrameInfo *info,
-                                       gpointer       user_data);
-
-void
-_cogl_winsys_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-                                                    const int     *rectangles,
-                                                    int            n_rectangles,
-                                                    CoglFrameInfo *info,
-                                                    gpointer       user_data);
-
 uint32_t
 _cogl_winsys_onscreen_glx_get_window_xid (CoglOnscreen *onscreen);
 

@@ -35,12 +35,6 @@ G_DECLARE_FINAL_TYPE (MetaOnscreenNative, meta_onscreen_native,
 
 void meta_renderer_native_release_onscreen (CoglOnscreen *onscreen);
 
-void meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-                                                    const int     *rectangles,
-                                                    int            n_rectangles,
-                                                    CoglFrameInfo *frame_info,
-                                                    gpointer       user_data);
-
 gboolean meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                               CoglScanout    *scanout,
                                               CoglFrameInfo  *frame_info,

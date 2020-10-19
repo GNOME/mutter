@@ -310,7 +310,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys;
+  CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
@@ -322,11 +322,12 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
     cogl_framebuffer_finish (framebuffer);
 
-  winsys = _cogl_framebuffer_get_winsys (framebuffer);
-  winsys->onscreen_swap_buffers_with_damage (onscreen,
-                                             rectangles, n_rectangles,
-                                             info,
-                                             user_data);
+  klass->swap_buffers_with_damage (onscreen,
+                                   rectangles,
+                                   n_rectangles,
+                                   info,
+                                   user_data);
+
   cogl_framebuffer_discard_buffers (framebuffer,
                                     COGL_BUFFER_BIT_COLOR |
                                     COGL_BUFFER_BIT_DEPTH |
@@ -366,7 +367,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys;
+  CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
 
@@ -378,17 +379,15 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
     cogl_framebuffer_finish (framebuffer);
 
-  winsys = _cogl_framebuffer_get_winsys (framebuffer);
-
   /* This should only be called if the winsys advertises
      COGL_WINSYS_FEATURE_SWAP_REGION */
-  g_return_if_fail (winsys->onscreen_swap_region != NULL);
+  g_return_if_fail (klass->swap_region);
 
-  winsys->onscreen_swap_region (COGL_ONSCREEN (framebuffer),
-                                rectangles,
-                                n_rectangles,
-                                info,
-                                user_data);
+  klass->swap_region (onscreen,
+                      rectangles,
+                      n_rectangles,
+                      info,
+                      user_data);
 
   cogl_framebuffer_discard_buffers (framebuffer,
                                     COGL_BUFFER_BIT_COLOR |

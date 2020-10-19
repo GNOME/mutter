@@ -661,12 +661,12 @@ set_complete_pending (CoglOnscreen *onscreen)
   onscreen_glx->pending_complete_notify++;
 }
 
-void
-_cogl_winsys_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
-                                       const int     *user_rectangles,
-                                       int            n_rectangles,
-                                       CoglFrameInfo *info,
-                                       gpointer       user_data)
+static void
+cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
+                               const int     *user_rectangles,
+                               int            n_rectangles,
+                               CoglFrameInfo *info,
+                               gpointer       user_data)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -871,12 +871,12 @@ _cogl_winsys_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
     }
 }
 
-void
-_cogl_winsys_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-                                                    const int     *rectangles,
-                                                    int            n_rectangles,
-                                                    CoglFrameInfo *info,
-                                                    gpointer       user_data)
+static void
+cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+                                            const int     *rectangles,
+                                            int            n_rectangles,
+                                            CoglFrameInfo *info,
+                                            gpointer       user_data)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -1154,8 +1154,13 @@ cogl_onscreen_glx_class_init (CoglOnscreenGlxClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
+  CoglOnscreenClass *onscreen_class = COGL_ONSCREEN_CLASS (klass);
 
   object_class->dispose = cogl_onscreen_glx_dispose;
 
   framebuffer_class->allocate = cogl_onscreen_glx_allocate;
+
+  onscreen_class->swap_buffers_with_damage =
+    cogl_onscreen_glx_swap_buffers_with_damage;
+  onscreen_class->swap_region = cogl_onscreen_glx_swap_region;
 }

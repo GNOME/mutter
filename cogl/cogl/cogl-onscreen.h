@@ -57,6 +57,19 @@ struct _CoglOnscreenClass
 {
   /*< private >*/
   CoglFramebufferClass parent_class;
+
+  void (* swap_buffers_with_damage) (CoglOnscreen  *onscreen,
+                                     const int     *rectangles,
+                                     int            n_rectangles,
+                                     CoglFrameInfo *info,
+                                     gpointer       user_data);
+
+  void (* swap_region) (CoglOnscreen  *onscreen,
+                        const int     *rectangles,
+                        int            n_rectangles,
+                        CoglFrameInfo *info,
+                        gpointer       user_data);
+
 };
 
 #define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())

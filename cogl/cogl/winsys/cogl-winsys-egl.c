@@ -637,9 +637,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .context_init = _cogl_winsys_context_init,
     .context_deinit = _cogl_winsys_context_deinit,
     .onscreen_bind = _cogl_winsys_onscreen_egl_bind,
-    .onscreen_swap_buffers_with_damage =
-      _cogl_winsys_onscreen_egl_swap_buffers_with_damage,
-    .onscreen_swap_region = _cogl_winsys_onscreen_egl_swap_region,
     .onscreen_get_buffer_age = _cogl_winsys_onscreen_egl_get_buffer_age,
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)

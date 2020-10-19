@@ -1470,9 +1470,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .context_deinit = _cogl_winsys_context_deinit,
     .context_get_clock_time = _cogl_winsys_get_clock_time,
     .onscreen_bind = _cogl_winsys_onscreen_glx_bind,
-    .onscreen_swap_buffers_with_damage =
-      _cogl_winsys_onscreen_glx_swap_buffers_with_damage,
-    .onscreen_swap_region = _cogl_winsys_onscreen_glx_swap_region,
     .onscreen_get_buffer_age = _cogl_winsys_onscreen_glx_get_buffer_age,
     .onscreen_x11_get_window_xid =
       _cogl_winsys_onscreen_glx_get_window_xid,

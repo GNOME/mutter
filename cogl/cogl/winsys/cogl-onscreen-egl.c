@@ -208,12 +208,12 @@ _cogl_winsys_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
   return age;
 }
 
-void
-_cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
-                                       const int     *user_rectangles,
-                                       int            n_rectangles,
-                                       CoglFrameInfo *info,
-                                       gpointer       user_data)
+static void
+cogl_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
+                               const int     *user_rectangles,
+                               int            n_rectangles,
+                               CoglFrameInfo *info,
+                               gpointer       user_data)
 {
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
@@ -252,12 +252,12 @@ _cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
     g_warning ("Error reported by eglSwapBuffersRegion");
 }
 
-void
-_cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-                                                    const int     *rectangles,
-                                                    int            n_rectangles,
-                                                    CoglFrameInfo *info,
-                                                    gpointer       user_data)
+static void
+cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+                                            const int     *rectangles,
+                                            int            n_rectangles,
+                                            CoglFrameInfo *info,
+                                            gpointer       user_data)
 {
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
@@ -354,6 +354,11 @@ static void
 cogl_onscreen_egl_class_init (CoglOnscreenEglClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  CoglOnscreenClass *onscreen_class = COGL_ONSCREEN_CLASS (klass);
 
   object_class->dispose = cogl_onscreen_egl_dispose;
+
+  onscreen_class->swap_buffers_with_damage =
+    cogl_onscreen_egl_swap_buffers_with_damage;
+  onscreen_class->swap_region = cogl_onscreen_egl_swap_region;
 }
