@@ -244,10 +244,6 @@ const gchar *                   _clutter_actor_get_debug_name                   
 void                            _clutter_actor_push_clone_paint                         (void);
 void                            _clutter_actor_pop_clone_paint                          (void);
 
-void                            _clutter_actor_shader_pre_paint                         (ClutterActor *actor,
-                                                                                         gboolean      repeat);
-void                            _clutter_actor_shader_post_paint                        (ClutterActor *actor);
-
 ClutterActorAlign               _clutter_actor_get_effective_x_align                    (ClutterActor *self);
 
 void                            _clutter_actor_handle_event                             (ClutterActor       *actor,
