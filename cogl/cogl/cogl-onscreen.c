@@ -30,6 +30,8 @@
 
 #include "cogl-config.h"
 
+#include <gio/gio.h>
+
 #include "cogl-util.h"
 #include "cogl-onscreen-private.h"
 #include "cogl-frame-info-private.h"
@@ -442,20 +444,26 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys;
+  CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
   g_warn_if_fail (COGL_IS_ONSCREEN (framebuffer));
   g_warn_if_fail (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
 
+  if (!klass->direct_scanout)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Direct scanout not supported");
+      return FALSE;
+    }
+
   info->frame_counter = priv->frame_counter;
   g_queue_push_tail (&priv->pending_frame_infos, info);
 
-  winsys = _cogl_framebuffer_get_winsys (framebuffer);
-  if (!winsys->onscreen_direct_scanout (onscreen,
-                                        scanout,
-                                        info,
-                                        user_data,
-                                        error))
+  if (!klass->direct_scanout (onscreen,
+                              scanout,
+                              info,
+                              user_data,
+                              error))
     {
       g_queue_pop_tail (&priv->pending_frame_infos);
       return FALSE;

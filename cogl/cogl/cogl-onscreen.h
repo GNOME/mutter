@@ -47,6 +47,8 @@
 
 G_BEGIN_DECLS
 
+typedef struct _CoglScanout CoglScanout;
+
 #define COGL_TYPE_ONSCREEN (cogl_onscreen_get_type ())
 COGL_EXPORT
 G_DECLARE_DERIVABLE_TYPE (CoglOnscreen, cogl_onscreen,
@@ -72,6 +74,11 @@ struct _CoglOnscreenClass
                         CoglFrameInfo *info,
                         gpointer       user_data);
 
+  gboolean (* direct_scanout) (CoglOnscreen   *onscreen,
+                               CoglScanout    *scanout,
+                               CoglFrameInfo  *info,
+                               gpointer        user_data,
+                               GError        **error);
 };
 
 #define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
@@ -82,8 +89,6 @@ typedef enum _CoglScanoutError
 {
   COGL_SCANOUT_ERROR_INHIBITED,
 } CoglScanoutError;
-
-typedef struct _CoglScanout CoglScanout;
 
 #ifdef COGL_HAS_X11
 /**

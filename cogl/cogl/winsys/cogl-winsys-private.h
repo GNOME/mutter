@@ -104,13 +104,6 @@ typedef struct _CoglWinsysVtable
   void
   (*context_deinit) (CoglContext *context);
 
-  gboolean
-  (*onscreen_direct_scanout) (CoglOnscreen   *onscreen,
-                              CoglScanout    *scanout,
-                              CoglFrameInfo  *info,
-                              gpointer        user_data,
-                              GError        **error);
-
   void
   (*onscreen_set_visibility) (CoglOnscreen *onscreen,
                               gboolean visibility);
