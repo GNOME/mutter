@@ -178,9 +178,6 @@ test_utils_init (TestFlags requirement_flags,
   if (!cogl_framebuffer_allocate (test_fb, &error))
     g_critical ("Failed to allocate framebuffer: %s", error->message);
 
-  if (onscreen)
-    cogl_onscreen_show (onscreen);
-
   cogl_framebuffer_clear4f (test_fb,
                             COGL_BUFFER_BIT_COLOR |
                             COGL_BUFFER_BIT_DEPTH |
