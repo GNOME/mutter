@@ -187,7 +187,6 @@ struct _ClutterActor
  *   chain up to the parent's implementation
  * @pick: virtual function, used to draw an outline of the actor with
  *   the given color
- * @queue_redraw: class handler for #ClutterActor::queue-redraw
  * @event: class handler for #ClutterActor::event
  * @button_press_event: class handler for #ClutterActor::button-press-event
  * @button_release_event: class handler for
@@ -238,9 +237,6 @@ struct _ClutterActorClass
   void (* destroy)              (ClutterActor          *self);
   void (* pick)                 (ClutterActor          *actor,
                                  ClutterPickContext    *pick_context);
-
-  gboolean (* queue_redraw)     (ClutterActor          *actor,
-                                 ClutterActor          *leaf_that_queued);
 
   /* size negotiation */
   void (* get_preferred_width)  (ClutterActor           *self,

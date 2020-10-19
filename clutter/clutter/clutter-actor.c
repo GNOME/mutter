@@ -977,7 +977,6 @@ enum
   PICK,
   REALIZE,
   UNREALIZE,
-  QUEUE_REDRAW,
   QUEUE_RELAYOUT,
   EVENT,
   CAPTURED_EVENT,
@@ -2605,80 +2604,39 @@ static void
 _clutter_actor_propagate_queue_redraw (ClutterActor *self,
                                        ClutterActor *origin)
 {
-  gboolean stop = FALSE;
-
-  /* no point in queuing a redraw on a destroyed actor */
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
-    return;
-
-  /* NB: We can't bail out early here if the actor is hidden in case
-   * the actor bas been cloned. In this case the clone will need to
-   * receive the signal so it can queue its own redraw.
-   */
   while (self)
     {
+      /* no point in queuing a redraw on a destroyed actor */
+      if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
+        break;
+
       _clutter_actor_queue_redraw_on_clones (self);
 
-      /* calls klass->queue_redraw in default handler */
-      if (g_signal_has_handler_pending (self, actor_signals[QUEUE_REDRAW],
-                                    0, TRUE))
+      /* If the queue redraw is coming from a child then the actor has
+         become dirty and any queued effect is no longer valid */
+      if (self != origin)
         {
-          g_signal_emit (self, actor_signals[QUEUE_REDRAW], 0, origin, &stop);
-        }
-      else
-        {
-          stop = CLUTTER_ACTOR_GET_CLASS (self)->queue_redraw (self, origin);
+          self->priv->is_dirty = TRUE;
+          self->priv->effect_to_redraw = NULL;
         }
 
-      if (stop)
+      /* If the actor isn't visible, we still had to emit the signal
+       * to allow for a ClutterClone, but the appearance of the parent
+       * won't change so we don't have to propagate up the hierarchy.
+       */
+      if (!CLUTTER_ACTOR_IS_VISIBLE (self))
         break;
+
+      /* We guarantee that we will propagate a queue-redraw up the tree
+       * at least once so that all clones can get notified.
+       */
+      if (self->priv->propagated_one_redraw)
+        break;
+
+      self->priv->propagated_one_redraw = TRUE;
 
       self = self->priv->parent;
     }
-}
-
-static gboolean
-clutter_actor_real_queue_redraw (ClutterActor *self,
-                                 ClutterActor *origin)
-{
-  CLUTTER_NOTE (PAINT, "Redraw queued on '%s' (from: '%s')",
-                _clutter_actor_get_debug_name (self),
-                origin != NULL ? _clutter_actor_get_debug_name (origin)
-                               : "same actor");
-
-  /* no point in queuing a redraw on a destroyed actor */
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
-    return TRUE;
-
-  /* If the queue redraw is coming from a child then the actor has
-     become dirty and any queued effect is no longer valid */
-  if (self != origin)
-    {
-      self->priv->is_dirty = TRUE;
-      self->priv->effect_to_redraw = NULL;
-    }
-
-  /* If the actor isn't visible, we still had to emit the signal
-   * to allow for a ClutterClone, but the appearance of the parent
-   * won't change so we don't have to propagate up the hierarchy.
-   */
-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
-    return TRUE;
-
-  /* We guarantee that we will propagate a queue-redraw signal up
-   * the tree at least once so that it's possible to implement a
-   * container that tracks which of its children have queued a
-   * redraw.
-   */
-  if (self->priv->propagated_one_redraw)
-    return TRUE;
-
-  self->priv->propagated_one_redraw = TRUE;
-
-  /* notify parents, if they are all visible eventually we'll
-   * queue redraw on the stage, which queues the redraw idle.
-   */
-  return FALSE;
 }
 
 static inline gboolean
@@ -5959,7 +5917,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->get_preferred_width = clutter_actor_real_get_preferred_width;
   klass->get_preferred_height = clutter_actor_real_get_preferred_height;
   klass->allocate = clutter_actor_real_allocate;
-  klass->queue_redraw = clutter_actor_real_queue_redraw;
   klass->queue_relayout = clutter_actor_real_queue_relayout;
   klass->apply_transform = clutter_actor_real_apply_transform;
   klass->get_accessible = clutter_actor_real_get_accessible;
@@ -7346,73 +7303,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   CLUTTER_TYPE_ACTOR);
 
   /**
-   * ClutterActor::queue-redraw:
-   * @actor: the actor we're bubbling the redraw request through
-   * @origin: the actor which initiated the redraw request
-   * @volume: paint volume to redraw
-   *
-   * The ::queue_redraw signal is emitted when clutter_actor_queue_redraw()
-   * is called on @origin.
-   *
-   * The default implementation for #ClutterActor chains up to the
-   * parent actor and queues a redraw on the parent, thus "bubbling"
-   * the redraw queue up through the actor graph. The default
-   * implementation for #ClutterStage queues a clutter_stage_ensure_redraw()
-   * in a main loop idle handler.
-   *
-   * Note that the @origin actor may be the stage, or a container; it
-   * does not have to be a leaf node in the actor graph.
-   *
-   * Toolkits embedding a #ClutterStage which require a redraw and
-   * relayout cycle can stop the emission of this signal using the
-   * GSignal API, redraw the UI and then call clutter_stage_ensure_redraw()
-   * themselves, like:
-   *
-   * |[<!-- language="C" -->
-   *   static void
-   *   on_redraw_complete (gpointer data)
-   *   {
-   *     ClutterStage *stage = data;
-   *
-   *     // execute the Clutter drawing pipeline
-   *     clutter_stage_ensure_redraw (stage);
-   *   }
-   *
-   *   static void
-   *   on_stage_queue_redraw (ClutterStage *stage)
-   *   {
-   *     // this prevents the default handler to run
-   *     g_signal_stop_emission_by_name (stage, "queue-redraw");
-   *
-   *     // queue a redraw with the host toolkit and call
-   *     // a function when the redraw has been completed
-   *     queue_a_redraw (G_CALLBACK (on_redraw_complete), stage);
-   *   }
-   * ]|
-   *
-   * Note: This signal is emitted before the Clutter paint
-   * pipeline is executed. If you want to know when the pipeline has
-   * been completed you should use clutter_threads_add_repaint_func()
-   * or clutter_threads_add_repaint_func_full().
-   *
-   * Since: 1.0
-   */
-  actor_signals[QUEUE_REDRAW] =
-    g_signal_new (I_("queue-redraw"),
-		  G_TYPE_FROM_CLASS (object_class),
-		  G_SIGNAL_RUN_LAST |
-                  G_SIGNAL_NO_HOOKS,
-		  G_STRUCT_OFFSET (ClutterActorClass, queue_redraw),
-                  g_signal_accumulator_true_handled,
-		  NULL,
-		  _clutter_marshal_BOOLEAN__OBJECT,
-		  G_TYPE_BOOLEAN, 1,
-                  CLUTTER_TYPE_ACTOR);
-  g_signal_set_va_marshaller (actor_signals[QUEUE_REDRAW],
-                              G_TYPE_FROM_CLASS (object_class),
-                              _clutter_marshal_BOOLEAN__OBJECTv);
-
-  /**
    * ClutterActor::queue-relayout:
    * @actor: the actor being queued for relayout
    *
@@ -8038,11 +7928,6 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
    * The process starts in clutter_actor_queue_redraw() which is a
    * wrapper for this function. Additionally, an effect can queue a
    * redraw by wrapping this function in clutter_effect_queue_repaint().
-   *
-   * This function will emit the "queue-redraw" signal for each actor
-   * up the actor-tree, allowing to track redraws queued by children
-   * or to queue a redraw of a different actor (like a clone) in
-   * response to this one.
    *
    * This functions queues an entry in a list associated with the
    * stage which is a list of actors that queued a redraw while
