@@ -959,22 +959,6 @@ _cogl_winsys_onscreen_glx_get_window_xid (CoglOnscreen *onscreen)
 }
 
 void
-_cogl_winsys_onscreen_glx_set_visibility (CoglOnscreen *onscreen,
-                                          gboolean      visibility)
-{
-  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglXlibRenderer *xlib_renderer =
-    _cogl_xlib_renderer_get_data (context->display->renderer);
-
-  if (visibility)
-    XMapWindow (xlib_renderer->xdpy, onscreen_glx->xwin);
-  else
-    XUnmapWindow (xlib_renderer->xdpy, onscreen_glx->xwin);
-}
-
-void
 _cogl_winsys_onscreen_glx_set_resizable (CoglOnscreen *onscreen,
                                          gboolean      resizable)
 {

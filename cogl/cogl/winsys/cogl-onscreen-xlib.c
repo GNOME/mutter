@@ -197,23 +197,6 @@ cogl_onscreen_xlib_dispose (GObject *object)
 }
 
 void
-_cogl_winsys_onscreen_xlib_set_visibility (CoglOnscreen *onscreen,
-                                           gboolean      visibility)
-{
-  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
-  CoglXlibRenderer *xlib_renderer =
-    _cogl_xlib_renderer_get_data (renderer);
-
-  if (visibility)
-    XMapWindow (xlib_renderer->xdpy, onscreen_xlib->xwin);
-  else
-    XUnmapWindow (xlib_renderer->xdpy, onscreen_xlib->xwin);
-}
-
-void
 _cogl_winsys_onscreen_xlib_set_resizable (CoglOnscreen *onscreen,
                                           gboolean      resizable)
 {

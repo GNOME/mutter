@@ -50,10 +50,6 @@ void
 _cogl_winsys_egl_onscreen_xlib_deinit (CoglOnscreen *onscreen);
 
 void
-_cogl_winsys_onscreen_xlib_set_visibility (CoglOnscreen *onscreen,
-                                           gboolean      visibility);
-
-void
 _cogl_winsys_onscreen_xlib_set_resizable (CoglOnscreen *onscreen,
                                           gboolean      resizable);
 

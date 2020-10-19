@@ -590,8 +590,6 @@ _cogl_winsys_egl_xlib_get_vtable (void)
       vtable.renderer_connect = _cogl_winsys_renderer_connect;
       vtable.renderer_disconnect = _cogl_winsys_renderer_disconnect;
 
-      vtable.onscreen_set_visibility =
-        _cogl_winsys_onscreen_xlib_set_visibility;
       vtable.onscreen_set_resizable =
         _cogl_winsys_onscreen_xlib_set_resizable;
 

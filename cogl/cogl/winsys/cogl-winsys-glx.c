@@ -1472,7 +1472,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .onscreen_get_buffer_age = _cogl_winsys_onscreen_glx_get_buffer_age,
     .onscreen_x11_get_window_xid =
       _cogl_winsys_onscreen_glx_get_window_xid,
-    .onscreen_set_visibility = _cogl_winsys_onscreen_glx_set_visibility,
     .onscreen_set_resizable =
       _cogl_winsys_onscreen_glx_set_resizable,
 

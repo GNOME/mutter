@@ -545,37 +545,6 @@ cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
 }
 
 void
-cogl_onscreen_show (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys;
-
-  if (!cogl_framebuffer_is_allocated (framebuffer))
-    {
-      if (!cogl_framebuffer_allocate (framebuffer, NULL))
-        return;
-    }
-
-  winsys = _cogl_framebuffer_get_winsys (framebuffer);
-  if (winsys->onscreen_set_visibility)
-    winsys->onscreen_set_visibility (onscreen, TRUE);
-}
-
-void
-cogl_onscreen_hide (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-
-  if (cogl_framebuffer_is_allocated (framebuffer))
-    {
-      const CoglWinsysVtable *winsys =
-        _cogl_framebuffer_get_winsys (framebuffer);
-      if (winsys->onscreen_set_visibility)
-        winsys->onscreen_set_visibility (onscreen, FALSE);
-    }
-}
-
-void
 _cogl_onscreen_notify_frame_sync (CoglOnscreen *onscreen, CoglFrameInfo *info)
 {
   notify_event (onscreen, COGL_FRAME_EVENT_SYNC, info);

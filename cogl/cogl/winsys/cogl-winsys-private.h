@@ -104,10 +104,6 @@ typedef struct _CoglWinsysVtable
   void
   (*context_deinit) (CoglContext *context);
 
-  void
-  (*onscreen_set_visibility) (CoglOnscreen *onscreen,
-                              gboolean visibility);
-
   /* Optional functions */
 
   int64_t
