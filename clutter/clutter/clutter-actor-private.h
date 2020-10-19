@@ -257,8 +257,6 @@ void                            _clutter_actor_attach_clone                     
                                                                                          ClutterActor *clone);
 void                            _clutter_actor_detach_clone                             (ClutterActor *actor,
                                                                                          ClutterActor *clone);
-void                            _clutter_actor_queue_redraw_on_clones                   (ClutterActor *actor);
-void                            _clutter_actor_queue_relayout_on_clones                 (ClutterActor *actor);
 void                            _clutter_actor_queue_only_relayout                      (ClutterActor *actor);
 void                            clutter_actor_clear_stage_views_recursive               (ClutterActor *actor);
 

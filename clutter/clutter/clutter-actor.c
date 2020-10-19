@@ -2583,6 +2583,21 @@ clutter_actor_real_allocate (ClutterActor           *self,
 }
 
 static void
+_clutter_actor_queue_redraw_on_clones (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  GHashTableIter iter;
+  gpointer key;
+
+  if (priv->clones == NULL)
+    return;
+
+  g_hash_table_iter_init (&iter, priv->clones);
+  while (g_hash_table_iter_next (&iter, &key, NULL))
+    clutter_actor_queue_redraw (key);
+}
+
+static void
 _clutter_actor_propagate_queue_redraw (ClutterActor       *self,
                                        ClutterActor       *origin,
                                        ClutterPaintVolume *pv)
@@ -8237,6 +8252,21 @@ clutter_actor_queue_redraw (ClutterActor *self)
   _clutter_actor_queue_redraw_full (self,
                                     NULL, /* clip volume */
                                     NULL /* effect */);
+}
+
+static void
+_clutter_actor_queue_relayout_on_clones (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  GHashTableIter iter;
+  gpointer key;
+
+  if (priv->clones == NULL)
+    return;
+
+  g_hash_table_iter_init (&iter, priv->clones);
+  while (g_hash_table_iter_next (&iter, &key, NULL))
+    clutter_actor_queue_relayout (key);
 }
 
 void
@@ -19210,36 +19240,6 @@ _clutter_actor_detach_clone (ClutterActor *actor,
       g_hash_table_unref (priv->clones);
       priv->clones = NULL;
     }
-}
-
-void
-_clutter_actor_queue_redraw_on_clones (ClutterActor *self)
-{
-  ClutterActorPrivate *priv = self->priv;
-  GHashTableIter iter;
-  gpointer key;
-
-  if (priv->clones == NULL)
-    return;
-
-  g_hash_table_iter_init (&iter, priv->clones);
-  while (g_hash_table_iter_next (&iter, &key, NULL))
-    clutter_actor_queue_redraw (key);
-}
-
-void
-_clutter_actor_queue_relayout_on_clones (ClutterActor *self)
-{
-  ClutterActorPrivate *priv = self->priv;
-  GHashTableIter iter;
-  gpointer key;
-
-  if (priv->clones == NULL)
-    return;
-
-  g_hash_table_iter_init (&iter, priv->clones);
-  while (g_hash_table_iter_next (&iter, &key, NULL))
-    clutter_actor_queue_relayout (key);
 }
 
 /**
