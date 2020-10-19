@@ -1054,68 +1054,6 @@ is_full_stage_redraw_queued (ClutterStage *stage)
   return TRUE;
 }
 
-static gboolean
-clutter_stage_real_queue_redraw (ClutterActor       *actor,
-                                 ClutterActor       *leaf,
-                                 ClutterPaintVolume *redraw_clip)
-{
-  ClutterStage *stage = CLUTTER_STAGE (actor);
-  ClutterStageWindow *stage_window;
-  ClutterActorBox bounding_box;
-  ClutterActorBox intersection_box;
-  cairo_rectangle_int_t geom, stage_clip;
-
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (actor))
-    return TRUE;
-
-  /* If the backend can't do anything with redraw clips (e.g. it already knows
-   * it needs to redraw everything anyway) then don't spend time transforming
-   * any clip volume into stage coordinates... */
-  stage_window = _clutter_stage_get_window (stage);
-  if (stage_window == NULL)
-    return TRUE;
-
-  if (is_full_stage_redraw_queued (stage))
-    return FALSE;
-
-  if (redraw_clip == NULL)
-    {
-      clutter_stage_add_redraw_clip (stage, NULL);
-      return FALSE;
-    }
-
-  if (redraw_clip->is_empty)
-    return TRUE;
-
-  /* Convert the clip volume into stage coordinates and then into an
-   * axis aligned stage coordinates bounding box... */
-  _clutter_paint_volume_get_stage_paint_box (redraw_clip,
-                                             stage,
-                                             &bounding_box);
-
-  _clutter_stage_window_get_geometry (stage_window, &geom);
-
-  intersection_box.x1 = MAX (bounding_box.x1, 0);
-  intersection_box.y1 = MAX (bounding_box.y1, 0);
-  intersection_box.x2 = MIN (bounding_box.x2, geom.width);
-  intersection_box.y2 = MIN (bounding_box.y2, geom.height);
-
-  /* There is no need to track degenerate/empty redraw clips */
-  if (intersection_box.x2 <= intersection_box.x1 ||
-      intersection_box.y2 <= intersection_box.y1)
-    return TRUE;
-
-  /* when converting to integer coordinates make sure we round the edges of the
-   * clip rectangle outwards... */
-  stage_clip.x = intersection_box.x1;
-  stage_clip.y = intersection_box.y1;
-  stage_clip.width = intersection_box.x2 - stage_clip.x;
-  stage_clip.height = intersection_box.y2 - stage_clip.y;
-
-  clutter_stage_add_redraw_clip (stage, &stage_clip);
-  return FALSE;
-}
-
 gboolean
 _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
 {
@@ -1437,7 +1375,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->hide = clutter_stage_hide;
   actor_class->hide_all = clutter_stage_hide_all;
   actor_class->queue_relayout = clutter_stage_real_queue_relayout;
-  actor_class->queue_redraw = clutter_stage_real_queue_redraw;
   actor_class->apply_transform = clutter_stage_real_apply_transform;
 
   klass->paint_view = clutter_stage_real_paint_view;
@@ -2882,6 +2819,65 @@ _clutter_stage_queue_redraw_entry_invalidate (ClutterStageQueueRedrawEntry *entr
     }
 }
 
+static void
+add_to_stage_clip (ClutterStage       *stage,
+                   ClutterPaintVolume *redraw_clip)
+{
+  ClutterStageWindow *stage_window;
+  ClutterActorBox bounding_box;
+  ClutterActorBox intersection_box;
+  cairo_rectangle_int_t geom, stage_clip;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (CLUTTER_ACTOR (stage)))
+    return;
+
+  /* If the backend can't do anything with redraw clips (e.g. it already knows
+   * it needs to redraw everything anyway) then don't spend time transforming
+   * any clip volume into stage coordinates... */
+  stage_window = _clutter_stage_get_window (stage);
+  if (stage_window == NULL)
+    return;
+
+  if (is_full_stage_redraw_queued (stage))
+    return;
+
+  if (redraw_clip == NULL)
+    {
+      clutter_stage_add_redraw_clip (stage, NULL);
+      return;
+    }
+
+  if (redraw_clip->is_empty)
+    return;
+
+  /* Convert the clip volume into stage coordinates and then into an
+   * axis aligned stage coordinates bounding box... */
+  _clutter_paint_volume_get_stage_paint_box (redraw_clip,
+                                             stage,
+                                             &bounding_box);
+
+  _clutter_stage_window_get_geometry (stage_window, &geom);
+
+  intersection_box.x1 = MAX (bounding_box.x1, 0);
+  intersection_box.y1 = MAX (bounding_box.y1, 0);
+  intersection_box.x2 = MIN (bounding_box.x2, geom.width);
+  intersection_box.y2 = MIN (bounding_box.y2, geom.height);
+
+  /* There is no need to track degenerate/empty redraw clips */
+  if (intersection_box.x2 <= intersection_box.x1 ||
+      intersection_box.y2 <= intersection_box.y1)
+    return;
+
+  /* when converting to integer coordinates make sure we round the edges of the
+   * clip rectangle outwards... */
+  stage_clip.x = intersection_box.x1;
+  stage_clip.y = intersection_box.y1;
+  stage_clip.width = intersection_box.x2 - stage_clip.x;
+  stage_clip.height = intersection_box.y2 - stage_clip.y;
+
+  clutter_stage_add_redraw_clip (stage, &stage_clip);
+}
+
 void
 clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
 {
@@ -2913,15 +2909,44 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
       for (l = stolen_list; l; l = l->next)
         {
           ClutterStageQueueRedrawEntry *entry = l->data;
-          ClutterPaintVolume *clip;
 
           /* NB: Entries may be invalidated if the actor gets destroyed */
           if (G_LIKELY (entry->actor != NULL))
-	    {
-	      clip = entry->has_clip ? &entry->clip : NULL;
+            {
+              ClutterPaintVolume old_actor_pv, new_actor_pv;
 
-	      _clutter_actor_finish_queue_redraw (entry->actor, clip);
-	    }
+              _clutter_actor_finish_queue_redraw (entry->actor);
+
+              _clutter_paint_volume_init_static (&old_actor_pv, NULL);
+              _clutter_paint_volume_init_static (&new_actor_pv, NULL);
+
+              if (entry->has_clip)
+                {
+                  add_to_stage_clip (stage, &entry->clip);
+                }
+              else if (clutter_actor_get_redraw_clip (entry->actor,
+                                                      &old_actor_pv,
+                                                      &new_actor_pv))
+                {
+                  /* Add both the old paint volume of the actor (which is
+                   * currently visible on the screen) and the new paint volume
+                   * (which will be visible on the screen after this redraw)
+                   * to the redraw clip.
+                   * The former we do to ensure the old texture on the screen
+                   * will be fully painted over in case the actor was moved.
+                   */
+                  add_to_stage_clip (stage, &old_actor_pv);
+                  add_to_stage_clip (stage, &new_actor_pv);
+                }
+              else
+                {
+                  /* If there's no clip we can use, we have to trigger an
+                   * unclipped full stage redraw.
+                   */
+                  add_to_stage_clip (stage, NULL);
+                }
+
+            }
 
           free_queue_redraw_entry (entry);
         }

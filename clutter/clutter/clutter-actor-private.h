@@ -232,8 +232,7 @@ void                            _clutter_actor_queue_redraw_full                
                                                                                          const ClutterPaintVolume *volume,
                                                                                          ClutterEffect            *effect);
 
-void                            _clutter_actor_finish_queue_redraw                      (ClutterActor       *self,
-                                                                                         ClutterPaintVolume *clip);
+void                            _clutter_actor_finish_queue_redraw                      (ClutterActor *self);
 
 gboolean                        _clutter_actor_set_default_paint_volume                 (ClutterActor       *self,
                                                                                          GType               check_gtype,
@@ -267,6 +266,10 @@ void clutter_actor_update_stage_views (ClutterActor *self,
 void clutter_actor_queue_immediate_relayout (ClutterActor *self);
 
 gboolean clutter_actor_is_painting_unmapped (ClutterActor *self);
+
+gboolean clutter_actor_get_redraw_clip (ClutterActor       *self,
+                                        ClutterPaintVolume *dst_old_pv,
+                                        ClutterPaintVolume *dst_new_pv);
 
 G_END_DECLS
 

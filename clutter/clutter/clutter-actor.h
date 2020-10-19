@@ -240,8 +240,7 @@ struct _ClutterActorClass
                                  ClutterPickContext    *pick_context);
 
   gboolean (* queue_redraw)     (ClutterActor          *actor,
-                                 ClutterActor          *leaf_that_queued,
-                                 ClutterPaintVolume    *paint_volume);
+                                 ClutterActor          *leaf_that_queued);
 
   /* size negotiation */
   void (* get_preferred_width)  (ClutterActor           *self,

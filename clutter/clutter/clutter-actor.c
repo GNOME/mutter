@@ -2602,9 +2602,8 @@ _clutter_actor_queue_redraw_on_clones (ClutterActor *self)
 }
 
 static void
-_clutter_actor_propagate_queue_redraw (ClutterActor       *self,
-                                       ClutterActor       *origin,
-                                       ClutterPaintVolume *pv)
+_clutter_actor_propagate_queue_redraw (ClutterActor *self,
+                                       ClutterActor *origin)
 {
   gboolean stop = FALSE;
 
@@ -2624,11 +2623,11 @@ _clutter_actor_propagate_queue_redraw (ClutterActor       *self,
       if (g_signal_has_handler_pending (self, actor_signals[QUEUE_REDRAW],
                                     0, TRUE))
         {
-          g_signal_emit (self, actor_signals[QUEUE_REDRAW], 0, origin, pv, &stop);
+          g_signal_emit (self, actor_signals[QUEUE_REDRAW], 0, origin, &stop);
         }
       else
         {
-          stop = CLUTTER_ACTOR_GET_CLASS (self)->queue_redraw (self, origin, pv);
+          stop = CLUTTER_ACTOR_GET_CLASS (self)->queue_redraw (self, origin);
         }
 
       if (stop)
@@ -2639,9 +2638,8 @@ _clutter_actor_propagate_queue_redraw (ClutterActor       *self,
 }
 
 static gboolean
-clutter_actor_real_queue_redraw (ClutterActor       *self,
-                                 ClutterActor       *origin,
-                                 ClutterPaintVolume *paint_volume)
+clutter_actor_real_queue_redraw (ClutterActor *self,
+                                 ClutterActor *origin)
 {
   CLUTTER_NOTE (PAINT, "Redraw queued on '%s' (from: '%s')",
                 _clutter_actor_get_debug_name (self),
@@ -2667,20 +2665,13 @@ clutter_actor_real_queue_redraw (ClutterActor       *self,
   if (!CLUTTER_ACTOR_IS_VISIBLE (self))
     return TRUE;
 
-  /* Although we could determine here that a full stage redraw
-   * has already been queued and immediately bail out, we actually
-   * guarantee that we will propagate a queue-redraw signal to our
-   * parent at least once so that it's possible to implement a
+  /* We guarantee that we will propagate a queue-redraw signal up
+   * the tree at least once so that it's possible to implement a
    * container that tracks which of its children have queued a
    * redraw.
    */
   if (self->priv->propagated_one_redraw)
-    {
-      ClutterActor *stage = _clutter_actor_get_stage_internal (self);
-      if (stage != NULL &&
-          _clutter_stage_has_full_redraw_queued (CLUTTER_STAGE (stage)))
-        return TRUE;
-    }
+    return TRUE;
 
   self->priv->propagated_one_redraw = TRUE;
 
@@ -7414,13 +7405,12 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  G_STRUCT_OFFSET (ClutterActorClass, queue_redraw),
                   g_signal_accumulator_true_handled,
 		  NULL,
-		  _clutter_marshal_BOOLEAN__OBJECT_BOXED,
-		  G_TYPE_BOOLEAN, 2,
-                  CLUTTER_TYPE_ACTOR,
-                  CLUTTER_TYPE_PAINT_VOLUME);
+		  _clutter_marshal_BOOLEAN__OBJECT,
+		  G_TYPE_BOOLEAN, 1,
+                  CLUTTER_TYPE_ACTOR);
   g_signal_set_va_marshaller (actor_signals[QUEUE_REDRAW],
                               G_TYPE_FROM_CLASS (object_class),
-                              _clutter_marshal_BOOLEAN__OBJECT_BOXEDv);
+                              _clutter_marshal_BOOLEAN__OBJECTv);
 
   /**
    * ClutterActor::queue-relayout:
@@ -8022,11 +8012,9 @@ clutter_actor_destroy (ClutterActor *self)
 }
 
 void
-_clutter_actor_finish_queue_redraw (ClutterActor *self,
-                                    ClutterPaintVolume *clip)
+_clutter_actor_finish_queue_redraw (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterPaintVolume *pv = NULL;
 
   /* Remove queue entry early in the process, otherwise a new
      queue_redraw() during signal handling could put back this
@@ -8036,39 +8024,7 @@ _clutter_actor_finish_queue_redraw (ClutterActor *self,
   */
   priv->queue_redraw_entry = NULL;
 
-  /* If we've been explicitly passed a clip volume then there's
-   * nothing more to calculate, but otherwise the only thing we know
-   * is that the change is constrained to the given actor.
-   *
-   * The idea is that if we know the paint volume for where the actor
-   * was last drawn (in eye coordinates) and we also have the paint
-   * volume for where it will be drawn next (in actor coordinates)
-   * then if we queue a redraw for both these volumes that will cover
-   * everything that needs to be redrawn to clear the old view and
-   * show the latest view of the actor.
-   *
-   * Don't clip this redraw if we don't know what position we had for
-   * the previous redraw since we don't know where to set the clip so
-   * it will clear the actor as it is currently.
-   */
-  if (clip)
-    {
-      pv = clip;
-    }
-  else if (G_LIKELY (priv->last_paint_volume_valid))
-    {
-      pv = _clutter_actor_get_paint_volume_mutable (self);
-      if (pv)
-        {
-          ClutterActor *stage = _clutter_actor_get_stage_internal (self);
-
-          /* make sure we redraw the actors old position... */
-          _clutter_actor_propagate_queue_redraw (stage, stage,
-                                                 &priv->last_paint_volume);
-        }
-    }
-
-  _clutter_actor_propagate_queue_redraw (self, self, pv);
+  _clutter_actor_propagate_queue_redraw (self, self);
 }
 
 void
@@ -19666,4 +19622,22 @@ clutter_actor_invalidate_transform (ClutterActor *self)
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   transform_changed (self);
+}
+
+gboolean
+clutter_actor_get_redraw_clip (ClutterActor       *self,
+                               ClutterPaintVolume *dst_old_pv,
+                               ClutterPaintVolume *dst_new_pv)
+{
+  ClutterActorPrivate *priv = self->priv;
+  ClutterPaintVolume *paint_volume;
+
+  paint_volume = _clutter_actor_get_paint_volume_mutable (self);
+  if (!paint_volume || !priv->last_paint_volume_valid)
+    return FALSE;
+
+  _clutter_paint_volume_set_from_volume (dst_old_pv, &priv->last_paint_volume);
+  _clutter_paint_volume_set_from_volume (dst_new_pv, paint_volume);
+
+  return TRUE;
 }
