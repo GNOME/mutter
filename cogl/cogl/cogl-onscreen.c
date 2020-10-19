@@ -302,6 +302,12 @@ _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
 }
 
 void
+cogl_onscreen_bind (CoglOnscreen *onscreen)
+{
+  COGL_ONSCREEN_GET_CLASS (onscreen)->bind (onscreen);
+}
+
+void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         const int *rectangles,
                                         int n_rectangles,

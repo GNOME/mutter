@@ -165,10 +165,8 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
   CoglFramebuffer *framebuffer =
     cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  const CoglWinsysVtable *winsys =
-    _cogl_framebuffer_get_winsys (framebuffer);
 
-  winsys->onscreen_bind (COGL_ONSCREEN (framebuffer));
+  cogl_onscreen_bind (COGL_ONSCREEN (framebuffer));
 
   GE (ctx, glBindFramebuffer (target, 0));
 

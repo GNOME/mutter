@@ -126,7 +126,7 @@ cogl_onscreen_egl_dispose (GObject *object)
     }
 }
 
-static gboolean
+static void
 bind_onscreen_with_context (CoglOnscreen *onscreen,
                             EGLContext egl_context)
 {
@@ -147,24 +147,16 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
 
       eglSwapInterval (egl_renderer->edpy, 1);
     }
-
-  return status;
 }
 
-static gboolean
-bind_onscreen (CoglOnscreen *onscreen)
+static void
+cogl_onscreen_egl_bind (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplayEGL *egl_display = context->display->winsys;
 
-  return bind_onscreen_with_context (onscreen, egl_display->egl_context);
-}
-
-void
-_cogl_winsys_onscreen_egl_bind (CoglOnscreen *onscreen)
-{
-  bind_onscreen (onscreen);
+  bind_onscreen_with_context (onscreen, egl_display->egl_context);
 }
 
 #ifndef EGL_BUFFER_AGE_EXT
@@ -358,6 +350,7 @@ cogl_onscreen_egl_class_init (CoglOnscreenEglClass *klass)
 
   object_class->dispose = cogl_onscreen_egl_dispose;
 
+  onscreen_class->bind = cogl_onscreen_egl_bind;
   onscreen_class->swap_buffers_with_damage =
     cogl_onscreen_egl_swap_buffers_with_damage;
   onscreen_class->swap_region = cogl_onscreen_egl_swap_region;

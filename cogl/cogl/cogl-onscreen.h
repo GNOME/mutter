@@ -58,6 +58,8 @@ struct _CoglOnscreenClass
   /*< private >*/
   CoglFramebufferClass parent_class;
 
+  void (* bind) (CoglOnscreen *onscreen);
+
   void (* swap_buffers_with_damage) (CoglOnscreen  *onscreen,
                                      const int     *rectangles,
                                      int            n_rectangles,

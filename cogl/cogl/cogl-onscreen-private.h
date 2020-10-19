@@ -81,6 +81,9 @@ _cogl_onscreen_queue_dirty (CoglOnscreen *onscreen,
 void
 _cogl_onscreen_queue_full_dirty (CoglOnscreen *onscreen);
 
+void
+cogl_onscreen_bind (CoglOnscreen *onscreen);
+
 COGL_EXPORT void
 cogl_onscreen_set_winsys (CoglOnscreen *onscreen,
                           gpointer      winsys);

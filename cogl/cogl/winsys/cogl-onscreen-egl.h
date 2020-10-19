@@ -41,9 +41,6 @@ struct _CoglOnscreenEglClass
   CoglOnscreenClass parent_class;
 };
 
-void
-_cogl_winsys_onscreen_egl_bind (CoglOnscreen *onscreen);
-
 int
 _cogl_winsys_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen);
 

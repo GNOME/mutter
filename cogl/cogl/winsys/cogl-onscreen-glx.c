@@ -272,8 +272,8 @@ cogl_onscreen_glx_dispose (GObject *object)
     }
 }
 
-void
-_cogl_winsys_onscreen_glx_bind (CoglOnscreen *onscreen)
+static void
+cogl_onscreen_glx_bind (CoglOnscreen *onscreen)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -1160,6 +1160,7 @@ cogl_onscreen_glx_class_init (CoglOnscreenGlxClass *klass)
 
   framebuffer_class->allocate = cogl_onscreen_glx_allocate;
 
+  onscreen_class->bind = cogl_onscreen_glx_bind;
   onscreen_class->swap_buffers_with_damage =
     cogl_onscreen_glx_swap_buffers_with_damage;
   onscreen_class->swap_region = cogl_onscreen_glx_swap_region;
