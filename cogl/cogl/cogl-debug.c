@@ -57,6 +57,7 @@ static const GDebugKey cogl_log_debug_keys[] = {
   { "opengl", COGL_DEBUG_OPENGL },
   { "pango", COGL_DEBUG_PANGO },
   { "show-source", COGL_DEBUG_SHOW_SOURCE},
+  { "framebuffer", COGL_DEBUG_FRAMEBUFFER },
   { "offscreen", COGL_DEBUG_OFFSCREEN },
   { "texture-pixmap", COGL_DEBUG_TEXTURE_PIXMAP },
   { "bitmap", COGL_DEBUG_BITMAP },
