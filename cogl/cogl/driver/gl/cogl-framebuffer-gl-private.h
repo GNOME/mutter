@@ -34,20 +34,22 @@
 #ifndef __COGL_FRAMEBUFFER_GL_PRIVATE_H__
 #define __COGL_FRAMEBUFFER_GL_PRIVATE_H__
 
+#include "cogl-attribute-private.h"
 #include "cogl-framebuffer-driver.h"
+#include "cogl-gl-header.h"
 
 #define COGL_TYPE_GL_FRAMEBUFFER (cogl_gl_framebuffer_get_type ())
-G_DECLARE_FINAL_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
-                      COGL, GL_FRAMEBUFFER,
-                      CoglFramebufferDriver)
+G_DECLARE_DERIVABLE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
+                          COGL, GL_FRAMEBUFFER,
+                          CoglFramebufferDriver)
 
-gboolean
-_cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
-                             CoglOffscreenFlags   flags,
-                             GError             **error);
+struct _CoglGlFramebufferClass
+{
+  CoglFramebufferDriverClass parent_class;
 
-void
-_cogl_offscreen_gl_free (CoglOffscreen *offscreen);
+  void (* bind) (CoglGlFramebuffer *gl_framebuffer,
+                 GLenum             target);
+};
 
 void
 _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
@@ -56,10 +58,6 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
                             float green,
                             float blue,
                             float alpha);
-
-void
-_cogl_framebuffer_gl_query_bits (CoglFramebuffer *framebuffer,
-                                 CoglFramebufferBits *bits);
 
 void
 _cogl_framebuffer_gl_finish (CoglFramebuffer *framebuffer);
@@ -72,7 +70,8 @@ _cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
                                       unsigned long buffers);
 
 void
-_cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target);
+cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
+                          GLenum             target);
 
 void
 _cogl_framebuffer_gl_draw_attributes (CoglFramebuffer *framebuffer,

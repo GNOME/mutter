@@ -1126,15 +1126,24 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                                state);
 }
 
-int
-cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer)
+static void
+cogl_framebuffer_query_bits (CoglFramebuffer     *framebuffer,
+                             CoglFramebufferBits *bits)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
+
+  g_return_if_fail (priv->driver);
+
+  cogl_framebuffer_driver_query_bits (priv->driver, bits);
+}
+
+int
+cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer)
+{
   CoglFramebufferBits bits;
 
-  ctx->driver_vtable->framebuffer_query_bits (framebuffer, &bits);
+  cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.red;
 }
@@ -1142,12 +1151,9 @@ cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer)
 int
 cogl_framebuffer_get_green_bits (CoglFramebuffer *framebuffer)
 {
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
   CoglFramebufferBits bits;
 
-  ctx->driver_vtable->framebuffer_query_bits (framebuffer, &bits);
+  cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.green;
 }
@@ -1155,12 +1161,9 @@ cogl_framebuffer_get_green_bits (CoglFramebuffer *framebuffer)
 int
 cogl_framebuffer_get_blue_bits (CoglFramebuffer *framebuffer)
 {
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
   CoglFramebufferBits bits;
 
-  ctx->driver_vtable->framebuffer_query_bits (framebuffer, &bits);
+  cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.blue;
 }
@@ -1168,12 +1171,9 @@ cogl_framebuffer_get_blue_bits (CoglFramebuffer *framebuffer)
 int
 cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer)
 {
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
   CoglFramebufferBits bits;
 
-  ctx->driver_vtable->framebuffer_query_bits (framebuffer, &bits);
+  cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.alpha;
 }
@@ -1181,12 +1181,9 @@ cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer)
 int
 cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer)
 {
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
   CoglFramebufferBits bits;
 
-  ctx->driver_vtable->framebuffer_query_bits (framebuffer, &bits);
+  cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.depth;
 }
@@ -1194,12 +1191,9 @@ cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer)
 int
 _cogl_framebuffer_get_stencil_bits (CoglFramebuffer *framebuffer)
 {
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
   CoglFramebufferBits bits;
 
-  ctx->driver_vtable->framebuffer_query_bits (framebuffer, &bits);
+  cogl_framebuffer_query_bits (framebuffer, &bits);
 
   return bits.stencil;
 }

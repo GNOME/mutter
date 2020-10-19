@@ -35,6 +35,8 @@
 #include "cogl-types.h"
 #include "cogl-context-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
+#include "driver/gl/cogl-gl-framebuffer-fbo.h"
+#include "driver/gl/cogl-gl-framebuffer-back.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 
@@ -131,6 +133,46 @@ _cogl_driver_gl_context_deinit (CoglContext *context)
   g_free (context->driver_context);
 }
 
+CoglFramebufferDriver *
+_cogl_driver_gl_create_framebuffer_driver (CoglContext                        *context,
+                                           CoglFramebuffer                    *framebuffer,
+                                           const CoglFramebufferDriverConfig  *driver_config,
+                                           GError                            **error)
+{
+  g_return_val_if_fail (driver_config, NULL);
+
+  switch (driver_config->type)
+    {
+    case COGL_FRAMEBUFFER_DRIVER_TYPE_FBO:
+      {
+        CoglGlFramebufferFbo *gl_framebuffer_fbo;
+
+        gl_framebuffer_fbo = cogl_gl_framebuffer_fbo_new (framebuffer,
+                                                          driver_config,
+                                                          error);
+        if (!gl_framebuffer_fbo)
+          return NULL;
+
+        return COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_fbo);
+      }
+    case COGL_FRAMEBUFFER_DRIVER_TYPE_BACK:
+      {
+        CoglGlFramebufferBack *gl_framebuffer_back;
+
+        gl_framebuffer_back = cogl_gl_framebuffer_back_new (framebuffer,
+                                                            driver_config,
+                                                            error);
+        if (!gl_framebuffer_back)
+          return NULL;
+
+        return COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
+      }
+    }
+
+  g_assert_not_reached ();
+  return NULL;
+}
+
 void
 _cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
                                          CoglFramebuffer      *draw_buffer,
@@ -138,6 +180,7 @@ _cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
                                          CoglFramebufferState  state)
 {
   CoglGlFramebuffer *draw_gl_framebuffer;
+  CoglGlFramebuffer *read_gl_framebuffer;
   unsigned long differences;
 
   /* We can assume that any state that has changed for the current
@@ -193,13 +236,20 @@ _cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
   if (G_UNLIKELY (!cogl_framebuffer_is_allocated (read_buffer)))
     cogl_framebuffer_allocate (read_buffer, NULL);
 
+  draw_gl_framebuffer =
+    COGL_GL_FRAMEBUFFER (cogl_framebuffer_get_driver (draw_buffer));
+  read_gl_framebuffer =
+    COGL_GL_FRAMEBUFFER (cogl_framebuffer_get_driver (read_buffer));
+
   /* We handle buffer binding separately since the method depends on whether
    * we are binding the same buffer for read and write or not unlike all
    * other state that only relates to the draw_buffer. */
   if (differences & COGL_FRAMEBUFFER_STATE_BIND)
     {
       if (draw_buffer == read_buffer)
-        _cogl_framebuffer_gl_bind (draw_buffer, GL_FRAMEBUFFER);
+        {
+          cogl_gl_framebuffer_bind (draw_gl_framebuffer, GL_FRAMEBUFFER);
+        }
       else
         {
           /* NB: Currently we only take advantage of binding separate
@@ -207,15 +257,13 @@ _cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
           g_return_if_fail (cogl_has_feature
                             (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
 
-          _cogl_framebuffer_gl_bind (draw_buffer, GL_DRAW_FRAMEBUFFER);
-          _cogl_framebuffer_gl_bind (read_buffer, GL_READ_FRAMEBUFFER);
+          cogl_gl_framebuffer_bind (draw_gl_framebuffer, GL_DRAW_FRAMEBUFFER);
+          cogl_gl_framebuffer_bind (read_gl_framebuffer, GL_READ_FRAMEBUFFER);
         }
 
       differences &= ~COGL_FRAMEBUFFER_STATE_BIND;
     }
 
-  draw_gl_framebuffer =
-    COGL_GL_FRAMEBUFFER (cogl_framebuffer_get_driver (draw_buffer));
   cogl_gl_framebuffer_flush_state_differences (draw_gl_framebuffer,
                                                differences);
 

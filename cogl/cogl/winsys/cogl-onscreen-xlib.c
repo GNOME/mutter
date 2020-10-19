@@ -338,8 +338,14 @@ cogl_onscreen_xlib_new (CoglContext *context,
                         int          width,
                         int          height)
 {
+  CoglFramebufferDriverConfig driver_config;
+
+  driver_config = (CoglFramebufferDriverConfig) {
+    .type = COGL_FRAMEBUFFER_DRIVER_TYPE_BACK,
+  };
   return g_object_new (COGL_TYPE_ONSCREEN_XLIB,
                        "context", context,
+                       "driver-config", &driver_config,
                        "width", width,
                        "height", height,
                        NULL);

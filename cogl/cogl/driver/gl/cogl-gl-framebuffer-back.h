@@ -23,37 +23,19 @@
  *
  */
 
-#include "cogl-config.h"
+#ifndef COGL_GL_FRAMEBUFFER_BACK_H
+#define COGL_GL_FRAMEBUFFER_BACK_H
 
-#include "cogl-nop-framebuffer.h"
+#include "cogl-framebuffer-gl-private.h"
 
-#include "cogl-framebuffer-private.h"
+#define COGL_TYPE_GL_FRAMEBUFFER_BACK (cogl_gl_framebuffer_back_get_type ())
+G_DECLARE_FINAL_TYPE (CoglGlFramebufferBack, cogl_gl_framebuffer_back,
+                      COGL, GL_FRAMEBUFFER_BACK,
+                      CoglGlFramebuffer)
 
-struct _CoglNopFramebuffer
-{
-  CoglFramebufferDriver parent;
-};
+CoglGlFramebufferBack *
+cogl_gl_framebuffer_back_new (CoglFramebuffer                    *framebuffer,
+                              const CoglFramebufferDriverConfig  *driver_config,
+                              GError                            **error);
 
-G_DEFINE_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
-               COGL_TYPE_FRAMEBUFFER_DRIVER)
-
-static void
-cogl_nop_framebuffer_query_bits (CoglFramebufferDriver *driver,
-                                 CoglFramebufferBits   *bits)
-{
-  memset (bits, 0, sizeof (CoglFramebufferBits));
-}
-
-static void
-cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
-{
-}
-
-static void
-cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
-{
-  CoglFramebufferDriverClass *driver_class =
-    COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
-
-  driver_class->query_bits = cogl_nop_framebuffer_query_bits;
-}
+#endif /* COGL_GL_FRAMEBUFFER_BACK_H */

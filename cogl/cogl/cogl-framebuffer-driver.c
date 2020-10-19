@@ -58,6 +58,13 @@ cogl_framebuffer_driver_get_framebuffer (CoglFramebufferDriver *driver)
   return priv->framebuffer;
 }
 
+void
+cogl_framebuffer_driver_query_bits (CoglFramebufferDriver *driver,
+                                    CoglFramebufferBits   *bits)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->query_bits (driver, bits);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,

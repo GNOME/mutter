@@ -30,6 +30,8 @@
 
 #include "cogl-framebuffer.h"
 
+typedef struct _CoglFramebufferBits CoglFramebufferBits;
+
 #define COGL_TYPE_FRAMEBUFFER_DRIVER (cogl_framebuffer_driver_get_type ())
 G_DECLARE_DERIVABLE_TYPE (CoglFramebufferDriver,
                           cogl_framebuffer_driver,
@@ -39,9 +41,16 @@ G_DECLARE_DERIVABLE_TYPE (CoglFramebufferDriver,
 struct _CoglFramebufferDriverClass
 {
   GObjectClass parent_cleass;
+
+  void (* query_bits) (CoglFramebufferDriver *driver,
+                       CoglFramebufferBits   *bits);
 };
 
 CoglFramebuffer *
 cogl_framebuffer_driver_get_framebuffer (CoglFramebufferDriver *driver);
+
+void
+cogl_framebuffer_driver_query_bits (CoglFramebufferDriver *driver,
+                                    CoglFramebufferBits   *bits);
 
 #endif /* COGL_FRAMEBUFFER_DRIVER_H */

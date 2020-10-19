@@ -40,8 +40,16 @@
 #include "cogl-attribute-private.h"
 #include "cogl-clip-stack.h"
 
+typedef enum
+{
+  COGL_FRAMEBUFFER_DRIVER_TYPE_FBO,
+  COGL_FRAMEBUFFER_DRIVER_TYPE_BACK,
+} CoglFramebufferDriverType;
+
 struct _CoglFramebufferDriverConfig
 {
+  CoglFramebufferDriverType type;
+
   gboolean disable_depth_and_stencil;
 };
 
@@ -98,7 +106,7 @@ typedef enum
   COGL_READ_PIXELS_NO_FLIP = 1L << 30
 } CoglPrivateReadPixelsFlags;
 
-typedef struct
+typedef struct _CoglFramebufferBits
 {
   int red;
   int blue;

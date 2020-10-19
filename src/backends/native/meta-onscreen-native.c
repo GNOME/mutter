@@ -1979,9 +1979,14 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           int                 height)
 {
   MetaOnscreenNative *onscreen_native;
+  CoglFramebufferDriverConfig driver_config;
 
+  driver_config = (CoglFramebufferDriverConfig) {
+    .type = COGL_FRAMEBUFFER_DRIVER_TYPE_BACK,
+  };
   onscreen_native = g_object_new (META_TYPE_ONSCREEN_NATIVE,
                                   "context", cogl_context,
+                                  "driver-config", &driver_config,
                                   "width", width,
                                   "height", height,
                                   NULL);

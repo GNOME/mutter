@@ -56,6 +56,7 @@ _cogl_offscreen_new_with_texture_full (CoglTexture       *texture,
   g_return_val_if_fail (cogl_is_texture (texture), NULL);
 
   driver_config = (CoglFramebufferDriverConfig) {
+    .type = COGL_FRAMEBUFFER_DRIVER_TYPE_FBO,
     .disable_depth_and_stencil =
       !!(flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL),
   };

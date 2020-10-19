@@ -46,13 +46,6 @@ _cogl_framebuffer_nop_clear (CoglFramebuffer *framebuffer,
 }
 
 void
-_cogl_framebuffer_nop_query_bits (CoglFramebuffer *framebuffer,
-                                  CoglFramebufferBits *bits)
-{
-  memset (bits, 0, sizeof (CoglFramebufferBits));
-}
-
-void
 _cogl_framebuffer_nop_finish (CoglFramebuffer *framebuffer)
 {
 }
