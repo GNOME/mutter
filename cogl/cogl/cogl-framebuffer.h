@@ -85,6 +85,8 @@ G_BEGIN_DECLS
  * configuration.
  */
 
+typedef struct _CoglFramebufferDriverConfig CoglFramebufferDriverConfig;
+
 #define COGL_TYPE_FRAMEBUFFER (cogl_framebuffer_get_type ())
 COGL_EXPORT
 G_DECLARE_DERIVABLE_TYPE (CoglFramebuffer, cogl_framebuffer,

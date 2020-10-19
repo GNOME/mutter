@@ -35,19 +35,6 @@
 #include <glib.h>
 #include <string.h>
 
-gboolean
-_cogl_offscreen_nop_allocate (CoglOffscreen       *offscreen,
-                              CoglOffscreenFlags   flags,
-                              GError             **error)
-{
-  return TRUE;
-}
-
-void
-_cogl_offscreen_nop_free (CoglOffscreen *offscreen)
-{
-}
-
 void
 _cogl_framebuffer_nop_clear (CoglFramebuffer *framebuffer,
                              unsigned long buffers,

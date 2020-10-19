@@ -73,13 +73,11 @@ struct _CoglDriverVtable
   (* update_features) (CoglContext *context,
                        GError **error);
 
-  gboolean
-  (* offscreen_allocate) (CoglOffscreen       *offscreen,
-                          CoglOffscreenFlags   flags,
-                          GError             **error);
-
-  void
-  (* offscreen_free) (CoglOffscreen *offscreen);
+  CoglFramebufferDriver *
+  (* create_framebuffer_driver) (CoglContext                        *context,
+                                 CoglFramebuffer                    *framebuffer,
+                                 const CoglFramebufferDriverConfig  *driver_config,
+                                 GError                            **error);
 
   void
   (* flush_framebuffer_state) (CoglContext          *context,

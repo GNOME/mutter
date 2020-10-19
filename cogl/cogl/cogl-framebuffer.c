@@ -58,6 +58,7 @@ enum
   PROP_0,
 
   PROP_CONTEXT,
+  PROP_DRIVER_CONFIG,
   PROP_WIDTH,
   PROP_HEIGHT,
 
@@ -85,6 +86,9 @@ typedef struct _CoglFramebufferPrivate
 
   /* The user configuration before allocation... */
   CoglFramebufferConfig config;
+
+  CoglFramebufferDriverConfig driver_config;
+  CoglFramebufferDriver *driver;
 
   int width;
   int height;
@@ -139,9 +143,6 @@ typedef struct _CoglFramebufferPrivate
  * usually means it needs to be cleared before being reused next.
  */
   gboolean depth_buffer_clear_needed;
-
-  gpointer driver_private;
-  GDestroyNotify driver_private_destroy;
 } CoglFramebufferPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglFramebuffer, cogl_framebuffer,
@@ -174,6 +175,9 @@ cogl_framebuffer_get_property (GObject    *object,
     case PROP_CONTEXT:
       g_value_set_boxed (value, priv->context);
       break;
+    case PROP_DRIVER_CONFIG:
+      g_value_set_pointer (value, &priv->driver_config);
+      break;
     case PROP_WIDTH:
       g_value_set_int (value, priv->width);
       break;
@@ -194,11 +198,17 @@ cogl_framebuffer_set_property (GObject      *object,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
+  CoglFramebufferDriverConfig *driver_config;
 
   switch (prop_id)
     {
     case PROP_CONTEXT:
       priv->context = g_value_get_boxed (value);
+      break;
+    case PROP_DRIVER_CONFIG:
+      driver_config = g_value_get_pointer (value);
+      if (driver_config)
+        priv->driver_config = *driver_config;
       break;
     case PROP_WIDTH:
       priv->width = g_value_get_int (value);
@@ -343,10 +353,7 @@ cogl_framebuffer_dispose (GObject *object)
   if (ctx->current_read_buffer == framebuffer)
     ctx->current_read_buffer = NULL;
 
-  if (priv->driver_private_destroy)
-    priv->driver_private_destroy (priv->driver_private);
-  priv->driver_private = NULL;
-  priv->driver_private_destroy = NULL;
+  g_clear_object (&priv->driver);
 }
 
 static void
@@ -377,6 +384,13 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DRIVER_CONFIG] =
+    g_param_spec_pointer ("driver-config",
+                          "driver-config",
+                          "CoglFramebufferDriverConfig",
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_WIDTH] =
     g_param_spec_int ("width",
                       "width",
@@ -901,17 +915,42 @@ cogl_framebuffer_is_allocated (CoglFramebuffer *framebuffer)
   return priv->allocated;
 }
 
+static gboolean
+cogl_framebuffer_init_driver (CoglFramebuffer  *framebuffer,
+                              GError          **error)
+
+{
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+  const CoglDriverVtable *driver_vtable = priv->context->driver_vtable;
+  CoglFramebufferDriver *driver;
+
+  driver = driver_vtable->create_framebuffer_driver (priv->context,
+                                                     framebuffer,
+                                                     &priv->driver_config,
+                                                     error);
+  if (!driver)
+    return FALSE;
+
+  priv->driver = driver;
+  return TRUE;
+}
+
 gboolean
 cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
                            GError **error)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
+  CoglFramebufferClass *klass = COGL_FRAMEBUFFER_GET_CLASS (framebuffer);
 
   if (priv->allocated)
     return TRUE;
 
-  if (!COGL_FRAMEBUFFER_GET_CLASS (framebuffer)->allocate (framebuffer, error))
+  if (!klass->allocate (framebuffer, error))
+    return FALSE;
+
+  if (!cogl_framebuffer_init_driver (framebuffer, error))
     return FALSE;
 
   priv->allocated = TRUE;
@@ -2652,25 +2691,11 @@ cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
                                                    n_rectangles);
 }
 
-gpointer
-cogl_framebuffer_get_driver_private (CoglFramebuffer *framebuffer)
+CoglFramebufferDriver *
+cogl_framebuffer_get_driver (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
 
-  return priv->driver_private;
-}
-
-void
-cogl_framebuffer_set_driver_private (CoglFramebuffer *framebuffer,
-                                     gpointer         driver_private,
-                                     GDestroyNotify   destroy_notify)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  g_warn_if_fail (!priv->driver_private);
-
-  priv->driver_private = driver_private;
-  priv->driver_private_destroy = destroy_notify;
+  return priv->driver;
 }

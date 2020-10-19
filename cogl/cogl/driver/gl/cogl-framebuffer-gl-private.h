@@ -41,9 +41,6 @@ G_DECLARE_FINAL_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
                       COGL, GL_FRAMEBUFFER,
                       CoglFramebufferDriver)
 
-CoglGlFramebuffer *
-cogl_gl_framebuffer_from_framebuffer (CoglFramebuffer *framebuffer);
-
 gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                              CoglOffscreenFlags   flags,

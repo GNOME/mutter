@@ -151,9 +151,6 @@ struct _CoglGlFramebuffer
 G_DEFINE_TYPE_WITH_PRIVATE (CoglGlFramebuffer, cogl_gl_framebuffer,
                             COGL_TYPE_FRAMEBUFFER_DRIVER)
 
-static CoglGlFramebuffer *
-ensure_gl_framebuffer (CoglFramebuffer *framebuffer);
-
 static void
 _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
 {
@@ -355,6 +352,16 @@ cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
   COGL_FLAGS_FOREACH_END;
 }
 
+static CoglGlFramebuffer *
+cogl_gl_framebuffer_from_framebuffer (CoglFramebuffer *framebuffer)
+{
+  CoglFramebufferDriver *driver = cogl_framebuffer_get_driver (framebuffer);
+
+  g_assert (driver);
+
+  return COGL_GL_FRAMEBUFFER (driver);
+}
+
 void
 _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
 {
@@ -362,11 +369,11 @@ _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
 
   if (COGL_IS_OFFSCREEN (framebuffer))
     {
-      CoglGlFramebuffer *gl_framebuffer;
-      CoglGlFramebufferPrivate *priv;
+      CoglGlFramebuffer *gl_framebuffer =
+        cogl_gl_framebuffer_from_framebuffer (framebuffer);
+      CoglGlFramebufferPrivate *priv =
+        cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
 
-      gl_framebuffer = ensure_gl_framebuffer (framebuffer);
-      priv = cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
       GE (ctx, glBindFramebuffer (target, priv->gl_fbo.fbo_handle));
     }
   else
@@ -633,14 +640,14 @@ try_creating_fbo (CoglContext                 *ctx,
   return TRUE;
 }
 
-gboolean
-_cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
-                             CoglOffscreenFlags   flags,
-                             GError             **error)
+CoglFramebufferDriver *
+_cogl_driver_gl_create_framebuffer_driver (CoglContext                        *context,
+                                           CoglFramebuffer                    *framebuffer,
+                                           const CoglFramebufferDriverConfig  *driver_config,
+                                           GError                            **error)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglOffscreenAllocateFlags allocate_flags;
+  CoglOffscreen *offscreen;
   CoglGlFramebuffer *gl_framebuffer;
   CoglGlFramebufferPrivate *priv;
   CoglGlFbo *gl_fbo;
@@ -650,6 +657,14 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
   int level_width;
   int level_height;
 
+  if (COGL_IS_ONSCREEN (framebuffer))
+    {
+      return g_object_new (COGL_TYPE_GL_FRAMEBUFFER,
+                           "framebuffer", framebuffer,
+                           NULL);
+    }
+
+  offscreen = COGL_OFFSCREEN (framebuffer);
   texture = cogl_offscreen_get_texture (offscreen);
   texture_level = cogl_offscreen_get_texture_level (offscreen);
 
@@ -677,12 +692,14 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
 
   config = cogl_framebuffer_get_config (framebuffer);
 
-  gl_framebuffer = ensure_gl_framebuffer (framebuffer);
+  gl_framebuffer = g_object_new (COGL_TYPE_GL_FRAMEBUFFER,
+                                 "framebuffer", framebuffer,
+                                 NULL);
   priv = cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
   gl_fbo = &priv->gl_fbo;
 
-  if (((flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL) &&
-       try_creating_fbo (ctx,
+  if ((driver_config->disable_depth_and_stencil &&
+       try_creating_fbo (context,
                          texture,
                          texture_level,
                          level_width,
@@ -691,24 +708,24 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                          allocate_flags = 0,
                          gl_fbo)) ||
 
-      (ctx->have_last_offscreen_allocate_flags &&
-       try_creating_fbo (ctx,
+      (context->have_last_offscreen_allocate_flags &&
+       try_creating_fbo (context,
                          texture,
                          texture_level,
                          level_width,
                          level_height,
                          config,
-                         allocate_flags = ctx->last_offscreen_allocate_flags,
+                         allocate_flags = context->last_offscreen_allocate_flags,
                          gl_fbo)) ||
 
       (
        /* NB: WebGL introduces a DEPTH_STENCIL_ATTACHMENT and doesn't
         * need an extension to handle _FLAG_DEPTH_STENCIL */
        (_cogl_has_private_feature
-        (ctx, COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL) ||
+        (context, COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL) ||
         _cogl_has_private_feature
-        (ctx, COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL)) &&
-       try_creating_fbo (ctx,
+        (context, COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL)) &&
+       try_creating_fbo (context,
                          texture,
                          texture_level,
                          level_width,
@@ -717,7 +734,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                          allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL,
                          gl_fbo)) ||
 
-      try_creating_fbo (ctx,
+      try_creating_fbo (context,
                         texture,
                         texture_level,
                         level_width,
@@ -727,7 +744,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                         COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_fbo) ||
 
-      try_creating_fbo (ctx,
+      try_creating_fbo (context,
                         texture,
                         texture_level,
                         level_width,
@@ -736,7 +753,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                         allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL,
                         gl_fbo) ||
 
-      try_creating_fbo (ctx,
+      try_creating_fbo (context,
                         texture,
                         texture_level,
                         level_width,
@@ -745,7 +762,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
                         allocate_flags = COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH,
                         gl_fbo) ||
 
-      try_creating_fbo (ctx,
+      try_creating_fbo (context,
                         texture,
                         texture_level,
                         level_width,
@@ -757,35 +774,38 @@ _cogl_offscreen_gl_allocate (CoglOffscreen       *offscreen,
       cogl_framebuffer_update_samples_per_pixel (framebuffer,
                                                  gl_fbo->samples_per_pixel);
 
-      if (!(flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL))
+      if (!driver_config->disable_depth_and_stencil)
         {
           /* Record that the last set of flags succeeded so that we can
              try that set first next time */
-          ctx->last_offscreen_allocate_flags = allocate_flags;
-          ctx->have_last_offscreen_allocate_flags = TRUE;
+          context->last_offscreen_allocate_flags = allocate_flags;
+          context->have_last_offscreen_allocate_flags = TRUE;
         }
 
-      return TRUE;
+      return COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
     }
   else
     {
+      g_object_unref (gl_framebuffer);
       g_set_error (error, COGL_FRAMEBUFFER_ERROR,
                    COGL_FRAMEBUFFER_ERROR_ALLOCATE,
                    "Failed to create an OpenGL framebuffer object");
-      return FALSE;
+      return NULL;
     }
 }
 
-void
-_cogl_offscreen_gl_free (CoglOffscreen *offscreen)
+static void
+cogl_gl_framebuffer_dispose (GObject *object)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
+  CoglGlFramebuffer *gl_framebuffer = COGL_GL_FRAMEBUFFER (object);
+  CoglGlFramebufferPrivate *priv =
+    cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (object);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglGlFramebuffer *gl_framebuffer;
-  CoglGlFramebufferPrivate *priv;
 
-  gl_framebuffer = ensure_gl_framebuffer (framebuffer);
-  priv = cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
+  G_OBJECT_CLASS (cogl_gl_framebuffer_parent_class)->dispose (object);
 
   delete_renderbuffers (ctx, priv->gl_fbo.renderbuffers);
 
@@ -837,40 +857,14 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
   GE (ctx, glClear (gl_buffers));
 }
 
-CoglGlFramebuffer *
-cogl_gl_framebuffer_from_framebuffer (CoglFramebuffer *framebuffer)
-{
-  return ensure_gl_framebuffer (framebuffer);
-}
-
-static CoglGlFramebuffer *
-ensure_gl_framebuffer (CoglFramebuffer *framebuffer)
-{
-  CoglGlFramebuffer *gl_framebuffer;
-
-  gl_framebuffer = cogl_framebuffer_get_driver_private (framebuffer);
-  if (!gl_framebuffer)
-    {
-      gl_framebuffer = g_object_new (COGL_TYPE_GL_FRAMEBUFFER,
-                                     "framebuffer", framebuffer,
-                                     NULL);
-      cogl_framebuffer_set_driver_private (framebuffer,
-                                           gl_framebuffer,
-                                           g_object_unref);
-    }
-
-  return gl_framebuffer;
-}
-
 static inline void
 _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
 {
+  CoglGlFramebuffer *gl_framebuffer =
+    cogl_gl_framebuffer_from_framebuffer (framebuffer);
+  CoglGlFramebufferPrivate *priv =
+    cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglGlFramebuffer *gl_framebuffer;
-  CoglGlFramebufferPrivate *priv;
-
-  gl_framebuffer = ensure_gl_framebuffer (framebuffer);
-  priv = cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
 
   if (!priv->dirty_bitmasks)
     return;
@@ -963,15 +957,15 @@ void
 _cogl_framebuffer_gl_query_bits (CoglFramebuffer *framebuffer,
                                  CoglFramebufferBits *bits)
 {
-  CoglGlFramebuffer *gl_framebuffer;
-  CoglGlFramebufferPrivate *priv;
+  CoglGlFramebuffer *gl_framebuffer =
+    cogl_gl_framebuffer_from_framebuffer (framebuffer);
+  CoglGlFramebufferPrivate *priv =
+    cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
 
   _cogl_framebuffer_init_bits (framebuffer);
 
   /* TODO: cache these in some driver specific location not
    * directly as part of CoglFramebuffer. */
-  gl_framebuffer = ensure_gl_framebuffer (framebuffer);
-  priv = cogl_gl_framebuffer_get_instance_private (gl_framebuffer);
   *bits = priv->bits;
 }
 
@@ -1380,4 +1374,7 @@ cogl_gl_framebuffer_init (CoglGlFramebuffer *gl_framebuffer)
 static void
 cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = cogl_gl_framebuffer_dispose;
 }

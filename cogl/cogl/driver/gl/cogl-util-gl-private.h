@@ -100,6 +100,12 @@ _cogl_driver_gl_flush_framebuffer_state (CoglContext          *context,
                                          CoglFramebuffer      *read_buffer,
                                          CoglFramebufferState  state);
 
+CoglFramebufferDriver *
+_cogl_driver_gl_create_framebuffer_driver (CoglContext                        *context,
+                                           CoglFramebuffer                    *framebuffer,
+                                           const CoglFramebufferDriverConfig  *driver_config,
+                                           GError                            **error);
+
 GLenum
 _cogl_gl_util_get_error (CoglContext *ctx);
 

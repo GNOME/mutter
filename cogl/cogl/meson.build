@@ -132,6 +132,8 @@ cogl_noop_driver_sources = [
   'driver/nop/cogl-driver-nop.c',
   'driver/nop/cogl-framebuffer-nop-private.h',
   'driver/nop/cogl-framebuffer-nop.c',
+  'driver/nop/cogl-nop-framebuffer.c',
+  'driver/nop/cogl-nop-framebuffer.h',
   'driver/nop/cogl-attribute-nop-private.h',
   'driver/nop/cogl-attribute-nop.c',
   'driver/nop/cogl-clip-stack-nop-private.h',

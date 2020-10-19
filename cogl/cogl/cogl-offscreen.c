@@ -38,33 +38,33 @@ struct _CoglOffscreen
 
   CoglTexture *texture;
   int texture_level;
-
-  /* FIXME: _cogl_offscreen_new_with_texture_full should be made to use
-   * fb->config to configure if we want a depth or stencil buffer so
-   * we can get rid of these flags */
-  CoglOffscreenFlags create_flags;
 };
 
 G_DEFINE_TYPE (CoglOffscreen, cogl_offscreen,
                COGL_TYPE_FRAMEBUFFER)
 
 CoglOffscreen *
-_cogl_offscreen_new_with_texture_full (CoglTexture        *texture,
-                                       CoglOffscreenFlags  create_flags,
-                                       int                 level)
+_cogl_offscreen_new_with_texture_full (CoglTexture       *texture,
+                                       CoglOffscreenFlags flags,
+                                       int                level)
 {
   CoglContext *ctx = texture->context;
+  CoglFramebufferDriverConfig driver_config;
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
 
   g_return_val_if_fail (cogl_is_texture (texture), NULL);
 
+  driver_config = (CoglFramebufferDriverConfig) {
+    .disable_depth_and_stencil =
+      !!(flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL),
+  };
   offscreen = g_object_new (COGL_TYPE_OFFSCREEN,
                             "context", ctx,
+                            "driver-config", &driver_config,
                             NULL);
   offscreen->texture = cogl_object_ref (texture);
   offscreen->texture_level = level;
-  offscreen->create_flags = create_flags;
 
   fb = COGL_FRAMEBUFFER (offscreen);
 
@@ -101,7 +101,6 @@ cogl_offscreen_allocate (CoglFramebuffer  *framebuffer,
                          GError          **error)
 {
   CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglPixelFormat texture_format;
   int width, height;
 
@@ -125,11 +124,6 @@ cogl_offscreen_allocate (CoglFramebuffer  *framebuffer,
   texture_format = _cogl_texture_get_format (offscreen->texture);
   _cogl_framebuffer_set_internal_format (framebuffer, texture_format);
 
-  if (!ctx->driver_vtable->offscreen_allocate (offscreen,
-                                               offscreen->create_flags,
-                                               error))
-    return FALSE;
-
   return TRUE;
 }
 
@@ -143,11 +137,6 @@ static void
 cogl_offscreen_dispose (GObject *object)
 {
   CoglOffscreen *offscreen = COGL_OFFSCREEN (object);
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-
-  if (offscreen->texture)
-    ctx->driver_vtable->offscreen_free (offscreen);
 
   G_OBJECT_CLASS (cogl_offscreen_parent_class)->dispose (object);
 

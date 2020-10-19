@@ -40,6 +40,7 @@
 #include "cogl-texture-2d-nop-private.h"
 #include "cogl-attribute-nop-private.h"
 #include "cogl-clip-stack-nop-private.h"
+#include "driver/nop/cogl-nop-framebuffer.h"
 
 static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
@@ -67,6 +68,17 @@ _cogl_driver_nop_is_hardware_accelerated (CoglContext *context)
   return FALSE;
 }
 
+static CoglFramebufferDriver *
+_cogl_driver_nop_create_framebuffer_driver (CoglContext                        *context,
+                                            CoglFramebuffer                    *framebuffer,
+                                            const CoglFramebufferDriverConfig  *driver_config,
+                                            GError                            **error)
+{
+  return g_object_new (COGL_TYPE_NOP_FRAMEBUFFER,
+                       "framebuffer", framebuffer,
+                       NULL);
+}
+
 static void
 _cogl_driver_nop_flush_framebuffer_state (CoglContext          *ctx,
                                           CoglFramebuffer      *draw_buffer,
@@ -85,8 +97,7 @@ _cogl_driver_nop =
     NULL, /* pixel_format_from_gl_internal */
     NULL, /* pixel_format_to_gl */
     _cogl_driver_update_features,
-    _cogl_offscreen_nop_allocate,
-    _cogl_offscreen_nop_free,
+    _cogl_driver_nop_create_framebuffer_driver,
     _cogl_driver_nop_flush_framebuffer_state,
     _cogl_framebuffer_nop_clear,
     _cogl_framebuffer_nop_query_bits,

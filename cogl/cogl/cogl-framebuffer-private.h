@@ -32,12 +32,18 @@
 #ifndef __COGL_FRAMEBUFFER_PRIVATE_H
 #define __COGL_FRAMEBUFFER_PRIVATE_H
 
+#include "cogl-framebuffer-driver.h"
 #include "cogl-object-private.h"
 #include "cogl-matrix-stack-private.h"
 #include "cogl-journal-private.h"
 #include "winsys/cogl-winsys-private.h"
 #include "cogl-attribute-private.h"
 #include "cogl-clip-stack.h"
+
+struct _CoglFramebufferDriverConfig
+{
+  gboolean disable_depth_and_stencil;
+};
 
 typedef struct
 {
@@ -293,12 +299,7 @@ _cogl_framebuffer_get_stencil_bits (CoglFramebuffer *framebuffer);
 CoglJournal *
 cogl_framebuffer_get_journal (CoglFramebuffer *framebuffer);
 
-gpointer
-cogl_framebuffer_get_driver_private (CoglFramebuffer *framebuffer);
-
-void
-cogl_framebuffer_set_driver_private (CoglFramebuffer *framebuffer,
-                                     gpointer         driver_private,
-                                     GDestroyNotify   desrtoy_notify);
+CoglFramebufferDriver *
+cogl_framebuffer_get_driver (CoglFramebuffer *framebuffer);
 
 #endif /* __COGL_FRAMEBUFFER_PRIVATE_H */

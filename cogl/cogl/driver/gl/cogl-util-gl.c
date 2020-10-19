@@ -214,7 +214,8 @@ _cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
       differences &= ~COGL_FRAMEBUFFER_STATE_BIND;
     }
 
-  draw_gl_framebuffer = cogl_gl_framebuffer_from_framebuffer (draw_buffer);
+  draw_gl_framebuffer =
+    COGL_GL_FRAMEBUFFER (cogl_framebuffer_get_driver (draw_buffer));
   cogl_gl_framebuffer_flush_state_differences (draw_gl_framebuffer,
                                                differences);
 
