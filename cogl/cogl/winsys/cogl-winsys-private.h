@@ -112,9 +112,6 @@ typedef struct _CoglWinsysVtable
   int
   (*onscreen_get_buffer_age) (CoglOnscreen *onscreen);
 
-  uint32_t
-  (*onscreen_x11_get_window_xid) (CoglOnscreen *onscreen);
-
 #ifdef COGL_HAS_XLIB_SUPPORT
   gboolean
   (*texture_pixmap_x11_create) (CoglTexturePixmapX11 *tex_pixmap);

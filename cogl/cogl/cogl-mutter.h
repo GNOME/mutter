@@ -48,6 +48,9 @@
 #if defined (COGL_HAS_XLIB_SUPPORT)
 #include <cogl/winsys/cogl-onscreen-xlib.h>
 #endif
+#ifdef COGL_HAS_X11
+#include <cogl/cogl-x11-onscreen.h>
+#endif
 #include <cogl/winsys/cogl-winsys-private.h>
 
 COGL_EXPORT

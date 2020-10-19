@@ -371,6 +371,8 @@ if have_x11
     'cogl-xlib.h',
   ]
   cogl_sources += [
+    'cogl-x11-onscreen.c',
+    'cogl-x11-onscreen.h',
     'cogl-x11-renderer-private.h',
     'cogl-xlib-private.h',
     'cogl-xlib-renderer-private.h',

@@ -49,9 +49,6 @@ cogl_onscreen_xlib_new (CoglContext *context,
 void
 _cogl_winsys_egl_onscreen_xlib_deinit (CoglOnscreen *onscreen);
 
-uint32_t
-_cogl_winsys_onscreen_xlib_get_window_xid (CoglOnscreen *onscreen);
-
 gboolean
 cogl_onscreen_xlib_is_for_window (CoglOnscreen *onscreen,
                                   Window        window);

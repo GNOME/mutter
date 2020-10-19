@@ -90,29 +90,6 @@ typedef enum _CoglScanoutError
   COGL_SCANOUT_ERROR_INHIBITED,
 } CoglScanoutError;
 
-#ifdef COGL_HAS_X11
-/**
- * cogl_x11_onscreen_get_window_xid:
- * @onscreen: A #CoglOnscreen framebuffer
- *
- * Assuming you know the given @onscreen framebuffer is based on an x11 window
- * this queries the XID of that window. If
- * cogl_x11_onscreen_set_foreign_window_xid() was previously called then it
- * will return that same XID otherwise it will be the XID of a window Cogl
- * created internally. If the window has not been allocated yet and a foreign
- * xid has not been set then it's undefined what value will be returned.
- *
- * It's undefined what this function does if called when not using an x11 based
- * renderer.
- *
- * Since: 1.10
- * Stability: unstable
- */
-COGL_EXPORT uint32_t
-cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen);
-
-#endif /* COGL_HAS_X11 */
-
 /**
  * cogl_onscreen_show:
  * @onscreen: The onscreen framebuffer to make visible

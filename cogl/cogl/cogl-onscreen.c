@@ -498,20 +498,6 @@ cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
   return g_queue_pop_head (&priv->pending_frame_infos);
 }
 
-#ifdef COGL_HAS_X11_SUPPORT
-uint32_t
-cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
-
-  /* This should only be called for x11 onscreens */
-  g_return_val_if_fail (winsys->onscreen_x11_get_window_xid != NULL, 0);
-
-  return winsys->onscreen_x11_get_window_xid (onscreen);
-}
-#endif /* COGL_HAS_X11_SUPPORT */
-
 CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
                                   CoglFrameCallback callback,

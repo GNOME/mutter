@@ -33,6 +33,7 @@
 #include "cogl-context-private.h"
 #include "cogl-frame-info-private.h"
 #include "cogl-renderer-private.h"
+#include "cogl-x11-onscreen.h"
 #include "cogl-xlib-renderer-private.h"
 #include "winsys/cogl-glx-display-private.h"
 #include "winsys/cogl-glx-renderer-private.h"
@@ -52,8 +53,13 @@ struct _CoglOnscreenGlx
   uint32_t pending_complete_notify;
 };
 
-G_DEFINE_TYPE (CoglOnscreenGlx, cogl_onscreen_glx,
-               COGL_TYPE_ONSCREEN)
+static void
+x11_onscreen_init_iface (CoglX11OnscreenInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (CoglOnscreenGlx, cogl_onscreen_glx,
+                         COGL_TYPE_ONSCREEN,
+                         G_IMPLEMENT_INTERFACE (COGL_TYPE_X11_ONSCREEN,
+                                                x11_onscreen_init_iface))
 
 #define COGL_ONSCREEN_X11_EVENT_MASK (StructureNotifyMask | ExposureMask)
 
@@ -942,10 +948,10 @@ cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   set_frame_info_output (onscreen, onscreen_glx->output);
 }
 
-uint32_t
-_cogl_winsys_onscreen_glx_get_window_xid (CoglOnscreen *onscreen)
+static Window
+cogl_onscreen_glx_get_x11_window (CoglX11Onscreen *x11_onscreen)
 {
-  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
+  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (x11_onscreen);
 
   return onscreen_glx->xwin;
 }
@@ -1083,6 +1089,12 @@ cogl_onscreen_glx_new (CoglContext *context,
 static void
 cogl_onscreen_glx_init (CoglOnscreenGlx *onscreen_glx)
 {
+}
+
+static void
+x11_onscreen_init_iface (CoglX11OnscreenInterface *iface)
+{
+  iface->get_x11_window = cogl_onscreen_glx_get_x11_window;
 }
 
 static void

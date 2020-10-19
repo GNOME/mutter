@@ -30,6 +30,7 @@
 
 #include "cogl-context-private.h"
 #include "cogl-renderer-private.h"
+#include "cogl-x11-onscreen.h"
 #include "cogl-xlib-renderer-private.h"
 #include "winsys/cogl-onscreen-egl.h"
 #include "winsys/cogl-winsys-egl-x11-private.h"
@@ -41,8 +42,13 @@ struct _CoglOnscreenXlib
   Window xwin;
 };
 
-G_DEFINE_TYPE (CoglOnscreenXlib, cogl_onscreen_xlib,
-               COGL_TYPE_ONSCREEN_EGL)
+static void
+x11_onscreen_init_iface (CoglX11OnscreenInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (CoglOnscreenXlib, cogl_onscreen_xlib,
+                         COGL_TYPE_ONSCREEN_EGL,
+                         G_IMPLEMENT_INTERFACE (COGL_TYPE_X11_ONSCREEN,
+                                                x11_onscreen_init_iface))
 
 #define COGL_ONSCREEN_X11_EVENT_MASK (StructureNotifyMask | ExposureMask)
 
@@ -194,10 +200,10 @@ cogl_onscreen_xlib_dispose (GObject *object)
     }
 }
 
-uint32_t
-_cogl_winsys_onscreen_xlib_get_window_xid (CoglOnscreen *onscreen)
+static Window
+cogl_onscreen_xlib_get_x11_window (CoglX11Onscreen *x11_onscreen)
 {
-  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (x11_onscreen);
 
   return onscreen_xlib->xwin;
 }
@@ -242,6 +248,12 @@ cogl_onscreen_xlib_new (CoglContext *context,
 static void
 cogl_onscreen_xlib_init (CoglOnscreenXlib *onscreen_xlib)
 {
+}
+
+static void
+x11_onscreen_init_iface (CoglX11OnscreenInterface *iface)
+{
+  iface->get_x11_window = cogl_onscreen_xlib_get_x11_window;
 }
 
 static void

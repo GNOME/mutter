@@ -330,7 +330,8 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   if (!(clutter_stage_window_parent_iface->realize (stage_window)))
     return FALSE;
 
-  stage_x11->xwin = cogl_x11_onscreen_get_window_xid (stage_x11->onscreen);
+  stage_x11->xwin =
+    cogl_x11_onscreen_get_x11_window (COGL_X11_ONSCREEN (stage_x11->onscreen));
 
   if (clutter_stages_by_xid == NULL)
     clutter_stages_by_xid = g_hash_table_new (NULL, NULL);
