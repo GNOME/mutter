@@ -34,6 +34,7 @@
 
 #include "cogl-types.h"
 #include "cogl-context-private.h"
+#include "driver/gl/cogl-framebuffer-gl-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 
@@ -128,6 +129,97 @@ _cogl_driver_gl_context_deinit (CoglContext *context)
 {
   _cogl_destroy_texture_units (context);
   g_free (context->driver_context);
+}
+
+void
+_cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
+                                         CoglFramebuffer      *draw_buffer,
+                                         CoglFramebuffer      *read_buffer,
+                                         CoglFramebufferState  state)
+{
+  CoglGlFramebuffer *draw_gl_framebuffer;
+  unsigned long differences;
+
+  /* We can assume that any state that has changed for the current
+   * framebuffer is different to the currently flushed value. */
+  differences = ctx->current_draw_buffer_changes;
+
+  /* Any state of the current framebuffer that hasn't already been
+   * flushed is assumed to be unknown so we will always flush that
+   * state if asked. */
+  differences |= ~ctx->current_draw_buffer_state_flushed;
+
+  /* We only need to consider the state we've been asked to flush */
+  differences &= state;
+
+  if (ctx->current_draw_buffer != draw_buffer)
+    {
+      /* If the previous draw buffer is NULL then we'll assume
+         everything has changed. This can happen if a framebuffer is
+         destroyed while it is the last flushed draw buffer. In that
+         case the framebuffer destructor will set
+         ctx->current_draw_buffer to NULL */
+      if (ctx->current_draw_buffer == NULL)
+        differences |= state;
+      else
+        /* NB: we only need to compare the state we're being asked to flush
+         * and we don't need to compare the state we've already decided
+         * we will definitely flush... */
+        differences |= _cogl_framebuffer_compare (ctx->current_draw_buffer,
+                                                  draw_buffer,
+                                                  state & ~differences);
+
+      /* NB: we don't take a reference here, to avoid a circular
+       * reference. */
+      ctx->current_draw_buffer = draw_buffer;
+      ctx->current_draw_buffer_state_flushed = 0;
+    }
+
+  if (ctx->current_read_buffer != read_buffer &&
+      state & COGL_FRAMEBUFFER_STATE_BIND)
+    {
+      differences |= COGL_FRAMEBUFFER_STATE_BIND;
+      /* NB: we don't take a reference here, to avoid a circular
+       * reference. */
+      ctx->current_read_buffer = read_buffer;
+    }
+
+  if (!differences)
+    return;
+
+  /* Lazily ensure the framebuffers have been allocated */
+  if (G_UNLIKELY (!cogl_framebuffer_is_allocated (draw_buffer)))
+    cogl_framebuffer_allocate (draw_buffer, NULL);
+  if (G_UNLIKELY (!cogl_framebuffer_is_allocated (read_buffer)))
+    cogl_framebuffer_allocate (read_buffer, NULL);
+
+  /* We handle buffer binding separately since the method depends on whether
+   * we are binding the same buffer for read and write or not unlike all
+   * other state that only relates to the draw_buffer. */
+  if (differences & COGL_FRAMEBUFFER_STATE_BIND)
+    {
+      if (draw_buffer == read_buffer)
+        _cogl_framebuffer_gl_bind (draw_buffer, GL_FRAMEBUFFER);
+      else
+        {
+          /* NB: Currently we only take advantage of binding separate
+           * read/write buffers for framebuffer blit purposes. */
+          g_return_if_fail (cogl_has_feature
+                            (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
+
+          _cogl_framebuffer_gl_bind (draw_buffer, GL_DRAW_FRAMEBUFFER);
+          _cogl_framebuffer_gl_bind (read_buffer, GL_READ_FRAMEBUFFER);
+        }
+
+      differences &= ~COGL_FRAMEBUFFER_STATE_BIND;
+    }
+
+  draw_gl_framebuffer = cogl_gl_framebuffer_from_framebuffer (draw_buffer);
+  cogl_gl_framebuffer_flush_state_differences (draw_gl_framebuffer,
+                                               differences);
+
+  ctx->current_draw_buffer_state_flushed |= state;
+  ctx->current_draw_buffer_changes &= ~state;
 }
 
 GLenum

@@ -94,6 +94,12 @@ _cogl_driver_gl_context_init (CoglContext *context);
 void
 _cogl_driver_gl_context_deinit (CoglContext *context);
 
+void
+_cogl_driver_gl_flush_framebuffer_state (CoglContext          *context,
+                                         CoglFramebuffer      *draw_buffer,
+                                         CoglFramebuffer      *read_buffer,
+                                         CoglFramebufferState  state);
+
 GLenum
 _cogl_gl_util_get_error (CoglContext *ctx);
 

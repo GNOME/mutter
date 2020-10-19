@@ -1051,9 +1051,10 @@ _cogl_journal_flush_dither_and_entries (CoglJournalEntry *batch_start,
   cogl_framebuffer_set_dither_enabled (framebuffer, batch_start->dither_enabled);
   ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_DITHER;
 
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_DITHER);
+  cogl_context_flush_framebuffer_state (ctx,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_DITHER);
 
   batch_and_call (batch_start,
                   batch_len,
@@ -1097,9 +1098,10 @@ _cogl_journal_flush_viewport_and_entries (CoglJournalEntry *batch_start,
   cogl_framebuffer_get_viewport4fv (framebuffer, current_viewport);
   cogl_framebuffer_set_viewport4fv (framebuffer, batch_start->viewport);
 
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_VIEWPORT);
+  cogl_context_flush_framebuffer_state (ctx,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_VIEWPORT);
 
   batch_and_call (batch_start,
                   batch_len,
@@ -1402,13 +1404,14 @@ _cogl_journal_flush (CoglJournal *journal)
 
   /* NB: the journal deals with flushing the viewport, the modelview
    * stack and clip state manually */
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_ALL &
-                                 ~(COGL_FRAMEBUFFER_STATE_DITHER |
-                                   COGL_FRAMEBUFFER_STATE_VIEWPORT |
-                                   COGL_FRAMEBUFFER_STATE_MODELVIEW |
-                                   COGL_FRAMEBUFFER_STATE_CLIP));
+  cogl_context_flush_framebuffer_state (ctx,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_ALL &
+                                        ~(COGL_FRAMEBUFFER_STATE_DITHER |
+                                          COGL_FRAMEBUFFER_STATE_VIEWPORT |
+                                          COGL_FRAMEBUFFER_STATE_MODELVIEW |
+                                          COGL_FRAMEBUFFER_STATE_CLIP));
 
   /* We need to mark the current modelview state of the framebuffer as
    * dirty because we are going to manually replace it */

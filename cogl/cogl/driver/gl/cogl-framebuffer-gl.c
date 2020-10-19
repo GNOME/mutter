@@ -304,6 +304,55 @@ _cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
 }
 
 void
+cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
+                                             unsigned long      differences)
+{
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
+  int bit;
+
+  COGL_FLAGS_FOREACH_START (&differences, 1, bit)
+    {
+      /* XXX: We considered having an array of callbacks for each state index
+       * that we'd call here but decided that this way the compiler is more
+       * likely going to be able to in-line the flush functions and use the
+       * index to jump straight to the required code. */
+      switch (bit)
+        {
+        case COGL_FRAMEBUFFER_STATE_INDEX_VIEWPORT:
+          _cogl_framebuffer_gl_flush_viewport_state (framebuffer);
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
+          _cogl_framebuffer_gl_flush_clip_state (framebuffer);
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
+          _cogl_framebuffer_gl_flush_dither_state (framebuffer);
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
+          _cogl_framebuffer_gl_flush_modelview_state (framebuffer);
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
+          _cogl_framebuffer_gl_flush_projection_state (framebuffer);
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
+          _cogl_framebuffer_gl_flush_front_face_winding_state (framebuffer);
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
+          /* Nothing to do for depth write state change; the state will always
+           * be taken into account when flushing the pipeline's depth state. */
+          break;
+        case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
+          _cogl_framebuffer_gl_flush_stereo_mode_state (framebuffer);
+          break;
+        default:
+          g_warn_if_reached ();
+        }
+    }
+  COGL_FLAGS_FOREACH_END;
+}
+
+void
 _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
@@ -352,132 +401,6 @@ _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
           ctx->was_bound_to_onscreen = TRUE;
         }
     }
-}
-
-void
-_cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
-                                  CoglFramebuffer *read_buffer,
-                                  CoglFramebufferState state)
-{
-  CoglContext *ctx = cogl_framebuffer_get_context (draw_buffer);
-  unsigned long differences;
-  int bit;
-
-  /* We can assume that any state that has changed for the current
-   * framebuffer is different to the currently flushed value. */
-  differences = ctx->current_draw_buffer_changes;
-
-  /* Any state of the current framebuffer that hasn't already been
-   * flushed is assumed to be unknown so we will always flush that
-   * state if asked. */
-  differences |= ~ctx->current_draw_buffer_state_flushed;
-
-  /* We only need to consider the state we've been asked to flush */
-  differences &= state;
-
-  if (ctx->current_draw_buffer != draw_buffer)
-    {
-      /* If the previous draw buffer is NULL then we'll assume
-         everything has changed. This can happen if a framebuffer is
-         destroyed while it is the last flushed draw buffer. In that
-         case the framebuffer destructor will set
-         ctx->current_draw_buffer to NULL */
-      if (ctx->current_draw_buffer == NULL)
-        differences |= state;
-      else
-        /* NB: we only need to compare the state we're being asked to flush
-         * and we don't need to compare the state we've already decided
-         * we will definitely flush... */
-        differences |= _cogl_framebuffer_compare (ctx->current_draw_buffer,
-                                                  draw_buffer,
-                                                  state & ~differences);
-
-      /* NB: we don't take a reference here, to avoid a circular
-       * reference. */
-      ctx->current_draw_buffer = draw_buffer;
-      ctx->current_draw_buffer_state_flushed = 0;
-    }
-
-  if (ctx->current_read_buffer != read_buffer &&
-      state & COGL_FRAMEBUFFER_STATE_BIND)
-    {
-      differences |= COGL_FRAMEBUFFER_STATE_BIND;
-      /* NB: we don't take a reference here, to avoid a circular
-       * reference. */
-      ctx->current_read_buffer = read_buffer;
-    }
-
-  if (!differences)
-    return;
-
-  /* Lazily ensure the framebuffers have been allocated */
-  if (G_UNLIKELY (!cogl_framebuffer_is_allocated (draw_buffer)))
-    cogl_framebuffer_allocate (draw_buffer, NULL);
-  if (G_UNLIKELY (!cogl_framebuffer_is_allocated (read_buffer)))
-    cogl_framebuffer_allocate (read_buffer, NULL);
-
-  /* We handle buffer binding separately since the method depends on whether
-   * we are binding the same buffer for read and write or not unlike all
-   * other state that only relates to the draw_buffer. */
-  if (differences & COGL_FRAMEBUFFER_STATE_BIND)
-    {
-      if (draw_buffer == read_buffer)
-        _cogl_framebuffer_gl_bind (draw_buffer, GL_FRAMEBUFFER);
-      else
-        {
-          /* NB: Currently we only take advantage of binding separate
-           * read/write buffers for framebuffer blit purposes. */
-          g_return_if_fail (cogl_has_feature
-                            (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
-
-          _cogl_framebuffer_gl_bind (draw_buffer, GL_DRAW_FRAMEBUFFER);
-          _cogl_framebuffer_gl_bind (read_buffer, GL_READ_FRAMEBUFFER);
-        }
-
-      differences &= ~COGL_FRAMEBUFFER_STATE_BIND;
-    }
-
-  COGL_FLAGS_FOREACH_START (&differences, 1, bit)
-    {
-      /* XXX: We considered having an array of callbacks for each state index
-       * that we'd call here but decided that this way the compiler is more
-       * likely going to be able to in-line the flush functions and use the
-       * index to jump straight to the required code. */
-      switch (bit)
-        {
-        case COGL_FRAMEBUFFER_STATE_INDEX_VIEWPORT:
-          _cogl_framebuffer_gl_flush_viewport_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
-          _cogl_framebuffer_gl_flush_clip_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          _cogl_framebuffer_gl_flush_dither_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
-          _cogl_framebuffer_gl_flush_modelview_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
-          _cogl_framebuffer_gl_flush_projection_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          _cogl_framebuffer_gl_flush_front_face_winding_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
-          /* Nothing to do for depth write state change; the state will always
-           * be taken into account when flushing the pipeline's depth state. */
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
-          _cogl_framebuffer_gl_flush_stereo_mode_state (draw_buffer);
-          break;
-        default:
-          g_warn_if_reached ();
-        }
-    }
-  COGL_FLAGS_FOREACH_END;
-
-  ctx->current_draw_buffer_state_flushed |= state;
-  ctx->current_draw_buffer_changes &= ~state;
 }
 
 static GList *
@@ -902,6 +825,12 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
   GE (ctx, glClear (gl_buffers));
 }
 
+CoglGlFramebuffer *
+cogl_gl_framebuffer_from_framebuffer (CoglFramebuffer *framebuffer)
+{
+  return ensure_gl_framebuffer (framebuffer);
+}
+
 static CoglGlFramebuffer *
 ensure_gl_framebuffer (CoglFramebuffer *framebuffer)
 {
@@ -935,9 +864,10 @@ _cogl_framebuffer_init_bits (CoglFramebuffer *framebuffer)
 
   cogl_framebuffer_allocate (framebuffer, NULL);
 
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_BIND);
+  cogl_context_flush_framebuffer_state (ctx,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_BIND);
 
 #ifdef HAVE_COGL_GL
   if ((ctx->driver == COGL_DRIVER_GL3 &&
@@ -1072,9 +1002,10 @@ _cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
             attachments[i++] = GL_STENCIL_ATTACHMENT;
         }
 
-      _cogl_framebuffer_flush_state (framebuffer,
-                                     framebuffer,
-                                     COGL_FRAMEBUFFER_STATE_BIND);
+      cogl_context_flush_framebuffer_state (ctx,
+                                            framebuffer,
+                                            framebuffer,
+                                            COGL_FRAMEBUFFER_STATE_BIND);
       GE (ctx, glDiscardFramebuffer (GL_FRAMEBUFFER, i, attachments));
     }
 }
@@ -1190,9 +1121,10 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
 
   g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
 
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_BIND);
+  cogl_context_flush_framebuffer_state (ctx,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_BIND);
 
   /* The y coordinate should be given in OpenGL's coordinate system
    * so 0 is the bottom row

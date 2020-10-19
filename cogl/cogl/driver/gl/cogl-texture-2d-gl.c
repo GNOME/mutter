@@ -499,10 +499,11 @@ _cogl_texture_2d_gl_copy_from_framebuffer (CoglTexture2D *tex_2d,
   /* Make sure the current framebuffers are bound, though we don't need to
    * flush the clip state here since we aren't going to draw to the
    * framebuffer. */
-  _cogl_framebuffer_flush_state (ctx->current_draw_buffer,
-                                 src_fb,
-                                 COGL_FRAMEBUFFER_STATE_ALL &
-                                 ~COGL_FRAMEBUFFER_STATE_CLIP);
+  cogl_context_flush_framebuffer_state (ctx,
+                                        ctx->current_draw_buffer,
+                                        src_fb,
+                                        (COGL_FRAMEBUFFER_STATE_ALL &
+                                         ~COGL_FRAMEBUFFER_STATE_CLIP));
 
   _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
                                    tex_2d->gl_texture);

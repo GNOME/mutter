@@ -240,9 +240,10 @@ _cogl_winsys_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
      swap must be bound to the current context. It looks like Mesa
      also validates that this is the case for eglSwapBuffersRegion so
      we must bind here too */
-  _cogl_framebuffer_flush_state (COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER_STATE_BIND);
+  cogl_context_flush_framebuffer_state (context,
+                                        COGL_FRAMEBUFFER (onscreen),
+                                        COGL_FRAMEBUFFER (onscreen),
+                                        COGL_FRAMEBUFFER_STATE_BIND);
 
   if (egl_renderer->pf_eglSwapBuffersRegion (egl_renderer->edpy,
                                              priv->egl_surface,
@@ -274,9 +275,10 @@ _cogl_winsys_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      although it may change in future. Mesa explicitly checks for this
      and just returns an error if this is not the case so we can't
      just pretend this isn't in the spec. */
-  _cogl_framebuffer_flush_state (COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER (onscreen),
-                                 COGL_FRAMEBUFFER_STATE_BIND);
+  cogl_context_flush_framebuffer_state (context,
+                                        COGL_FRAMEBUFFER (onscreen),
+                                        COGL_FRAMEBUFFER (onscreen),
+                                        COGL_FRAMEBUFFER_STATE_BIND);
 
   if (n_rectangles && egl_renderer->pf_eglSwapBuffersWithDamage)
     {

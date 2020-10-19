@@ -82,9 +82,10 @@ struct _CoglDriverVtable
   (* offscreen_free) (CoglOffscreen *offscreen);
 
   void
-  (* framebuffer_flush_state) (CoglFramebuffer *draw_buffer,
-                               CoglFramebuffer *read_buffer,
-                               CoglFramebufferState state);
+  (* flush_framebuffer_state) (CoglContext          *context,
+                               CoglFramebuffer      *draw_buffer,
+                               CoglFramebuffer      *read_buffer,
+                               CoglFramebufferState  state);
 
   void
   (* framebuffer_clear) (CoglFramebuffer *framebuffer,

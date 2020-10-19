@@ -721,9 +721,10 @@ _cogl_winsys_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
 
     }
 
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_BIND);
+  cogl_context_flush_framebuffer_state (context,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_BIND);
 
   have_counter = glx_display->have_vblank_counter;
   can_wait = glx_display->can_vblank_wait;
@@ -891,9 +892,10 @@ _cogl_winsys_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    * the Intel drivers we have see that if we don't call
    * glXMakeContextCurrent for the drawable we are swapping then
    * we get a BadDrawable error from the X server. */
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_BIND);
+  cogl_context_flush_framebuffer_state (context,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_BIND);
 
   drawable = onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
 

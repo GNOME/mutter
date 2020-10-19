@@ -189,9 +189,10 @@ void
 _cogl_framebuffer_flush_dependency_journals (CoglFramebuffer *framebuffer);
 
 void
-_cogl_framebuffer_flush_state (CoglFramebuffer *draw_buffer,
-                               CoglFramebuffer *read_buffer,
-                               CoglFramebufferState state);
+cogl_context_flush_framebuffer_state (CoglContext          *context,
+                                      CoglFramebuffer      *draw_buffer,
+                                      CoglFramebuffer      *read_buffer,
+                                      CoglFramebufferState  state);
 
 CoglFramebuffer *
 _cogl_get_read_framebuffer (void);

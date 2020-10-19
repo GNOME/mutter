@@ -477,6 +477,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglClipStack *clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
   gboolean had_depth_and_color_buffer_bits;
   int scissor_x0;
@@ -580,11 +581,12 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  /* NB: _cogl_framebuffer_flush_state may disrupt various state (such
+  /* NB: cogl_context_flush_framebuffer_state may disrupt various state (such
    * as the pipeline state) when flushing the clip stack, so should
    * always be done first when preparing to draw. */
-  _cogl_framebuffer_flush_state (framebuffer, framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_ALL);
+  cogl_context_flush_framebuffer_state (context,
+                                        framebuffer, framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_ALL);
 
   _cogl_framebuffer_clear_without_flush4f (framebuffer, buffers,
                                            red, green, blue, alpha);
@@ -1074,13 +1076,13 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
 }
 
 void
-_cogl_framebuffer_flush_state (CoglFramebuffer *draw_buffer,
-                               CoglFramebuffer *read_buffer,
-                               CoglFramebufferState state)
+cogl_context_flush_framebuffer_state (CoglContext          *ctx,
+                                      CoglFramebuffer      *draw_buffer,
+                                      CoglFramebuffer      *read_buffer,
+                                      CoglFramebufferState  state)
 {
-  CoglContext *ctx = cogl_framebuffer_get_context (draw_buffer);
-
-  ctx->driver_vtable->framebuffer_flush_state (draw_buffer,
+  ctx->driver_vtable->flush_framebuffer_state (ctx,
+                                               draw_buffer,
                                                read_buffer,
                                                state);
 }
@@ -1593,10 +1595,11 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
 
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
-  _cogl_framebuffer_flush_state (dst,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_ALL &
-                                 ~COGL_FRAMEBUFFER_STATE_CLIP);
+  cogl_context_flush_framebuffer_state (ctx,
+                                        dst,
+                                        framebuffer,
+                                        (COGL_FRAMEBUFFER_STATE_ALL &
+                                         ~COGL_FRAMEBUFFER_STATE_CLIP));
 
   /* Flush any empty clip stack because glBlitFramebuffer is affected
      by the scissor and we want to hide this feature for the Cogl API

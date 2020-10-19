@@ -46,11 +46,6 @@ void
 _cogl_offscreen_nop_free (CoglOffscreen *offscreen);
 
 void
-_cogl_framebuffer_nop_flush_state (CoglFramebuffer *draw_buffer,
-                                   CoglFramebuffer *read_buffer,
-                                   CoglFramebufferState state);
-
-void
 _cogl_framebuffer_nop_clear (CoglFramebuffer *framebuffer,
                             unsigned long buffers,
                             float red,

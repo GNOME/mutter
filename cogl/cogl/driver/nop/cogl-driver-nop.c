@@ -67,6 +67,14 @@ _cogl_driver_nop_is_hardware_accelerated (CoglContext *context)
   return FALSE;
 }
 
+static void
+_cogl_driver_nop_flush_framebuffer_state (CoglContext          *ctx,
+                                          CoglFramebuffer      *draw_buffer,
+                                          CoglFramebuffer      *read_buffer,
+                                          CoglFramebufferState  state)
+{
+}
+
 const CoglDriverVtable
 _cogl_driver_nop =
   {
@@ -79,7 +87,7 @@ _cogl_driver_nop =
     _cogl_driver_update_features,
     _cogl_offscreen_nop_allocate,
     _cogl_offscreen_nop_free,
-    _cogl_framebuffer_nop_flush_state,
+    _cogl_driver_nop_flush_framebuffer_state,
     _cogl_framebuffer_nop_clear,
     _cogl_framebuffer_nop_query_bits,
     _cogl_framebuffer_nop_finish,

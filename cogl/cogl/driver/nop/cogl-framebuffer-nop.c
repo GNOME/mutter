@@ -35,13 +35,6 @@
 #include <glib.h>
 #include <string.h>
 
-void
-_cogl_framebuffer_nop_flush_state (CoglFramebuffer *draw_buffer,
-                                   CoglFramebuffer *read_buffer,
-                                   CoglFramebufferState state)
-{
-}
-
 gboolean
 _cogl_offscreen_nop_allocate (CoglOffscreen       *offscreen,
                               CoglOffscreenFlags   flags,

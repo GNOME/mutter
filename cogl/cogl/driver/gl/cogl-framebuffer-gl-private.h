@@ -53,11 +53,6 @@ void
 _cogl_offscreen_gl_free (CoglOffscreen *offscreen);
 
 void
-_cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
-                                  CoglFramebuffer *read_buffer,
-                                  CoglFramebufferState state);
-
-void
 _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
                             unsigned long buffers,
                             float red,
@@ -110,6 +105,10 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               CoglReadPixelsFlags source,
                                               CoglBitmap *bitmap,
                                               GError **error);
+
+void
+cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
+                                             unsigned long      differences);
 
 #endif /* __COGL_FRAMEBUFFER_GL_PRIVATE_H__ */
 

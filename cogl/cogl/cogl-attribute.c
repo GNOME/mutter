@@ -603,16 +603,19 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
                                  validate_layer_cb,
                                  &layers_state);
 
-  /* NB: _cogl_framebuffer_flush_state may disrupt various state (such
+  /* NB: cogl_context_flush_framebuffer_state may disrupt various state (such
    * as the pipeline state) when flushing the clip stack, so should
    * always be done first when preparing to draw. We need to do this
    * before setting up the array pointers because setting up the clip
    * stack can cause some drawing which would change the array
    * pointers. */
   if (!(flags & COGL_DRAW_SKIP_FRAMEBUFFER_FLUSH))
-    _cogl_framebuffer_flush_state (framebuffer,
-                                   framebuffer,
-                                   COGL_FRAMEBUFFER_STATE_ALL);
+    {
+      cogl_context_flush_framebuffer_state (ctx,
+                                            framebuffer,
+                                            framebuffer,
+                                            COGL_FRAMEBUFFER_STATE_ALL);
+    }
 
   /* In cogl_read_pixels we have a fast-path when reading a single
    * pixel and the scene is just comprised of simple rectangles still
