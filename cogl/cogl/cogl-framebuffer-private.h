@@ -310,4 +310,14 @@ cogl_framebuffer_get_journal (CoglFramebuffer *framebuffer);
 CoglFramebufferDriver *
 cogl_framebuffer_get_driver (CoglFramebuffer *framebuffer);
 
+/**
+ * cogl_framebuffer_is_y_flipped:
+ * @framebuffer: a #CoglFramebuffer
+ *
+ * Returns %TRUE if the Y coordinate 0 means the bottom of the framebuffer, and
+ * %FALSE if the Y coordinate means the top.
+ */
+gboolean
+cogl_framebuffer_is_y_flipped (CoglFramebuffer *framebuffer);
+
 #endif /* __COGL_FRAMEBUFFER_PRIVATE_H */

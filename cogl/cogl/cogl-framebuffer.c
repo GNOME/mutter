@@ -1577,7 +1577,7 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
   return ret;
 }
 
-static gboolean
+gboolean
 cogl_framebuffer_is_y_flipped (CoglFramebuffer *framebuffer)
 {
   return COGL_FRAMEBUFFER_GET_CLASS (framebuffer)->is_y_flipped (framebuffer);

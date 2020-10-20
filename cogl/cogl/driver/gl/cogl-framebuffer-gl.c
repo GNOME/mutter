@@ -77,9 +77,8 @@ cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
   /* Convert the Cogl viewport y offset to an OpenGL viewport y offset
    * NB: OpenGL defines its window and viewport origins to be bottom
    * left, while Cogl defines them to be top left.
-   * NB: We render upside down to offscreen framebuffers so we don't
-   * need to convert the y offset in this case. */
-  if (COGL_IS_OFFSCREEN (framebuffer))
+   */
+  if (cogl_framebuffer_is_y_flipped (framebuffer))
     gl_viewport_y = viewport_y;
   else
     gl_viewport_y =
@@ -441,12 +440,9 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
   /* The y coordinate should be given in OpenGL's coordinate system
-   * so 0 is the bottom row
-   *
-   * NB: all offscreen rendering is done upside down so no conversion
-   * is necissary in this case.
+   * so 0 is the bottom row.
    */
-  if (!COGL_IS_OFFSCREEN (framebuffer))
+  if (!cogl_framebuffer_is_y_flipped (framebuffer))
     y = framebuffer_height - y - height;
 
   required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
@@ -455,11 +451,9 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
                                                             &gl_format,
                                                             &gl_type);
 
-  /* NB: All offscreen rendering is done upside down so there is no need
-   * to flip in this case... */
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_MESA_PACK_INVERT) &&
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
-      !COGL_IS_OFFSCREEN (framebuffer))
+      !cogl_framebuffer_is_y_flipped (framebuffer))
     {
       if (ctx->driver == COGL_DRIVER_GLES2)
         gl_pack_enum = GL_PACK_REVERSE_ROW_ORDER_ANGLE;
@@ -614,9 +608,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
         goto EXIT;
     }
 
-  /* NB: All offscreen rendering is done upside down so there is no need
-   * to flip in this case... */
-  if (!COGL_IS_OFFSCREEN (framebuffer) &&
+  if (!cogl_framebuffer_is_y_flipped (framebuffer) &&
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
       !pack_invert_set)
     {
