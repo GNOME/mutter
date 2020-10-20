@@ -99,7 +99,6 @@ _cogl_driver_nop =
     _cogl_driver_update_features,
     _cogl_driver_nop_create_framebuffer_driver,
     _cogl_driver_nop_flush_framebuffer_state,
-    _cogl_framebuffer_nop_clear,
     _cogl_framebuffer_nop_finish,
     _cogl_framebuffer_nop_flush,
     _cogl_framebuffer_nop_discard_buffers,

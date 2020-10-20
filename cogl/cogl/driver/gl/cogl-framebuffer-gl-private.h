@@ -52,14 +52,6 @@ struct _CoglGlFramebufferClass
 };
 
 void
-_cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
-                            unsigned long buffers,
-                            float red,
-                            float green,
-                            float blue,
-                            float alpha);
-
-void
 _cogl_framebuffer_gl_finish (CoglFramebuffer *framebuffer);
 
 void

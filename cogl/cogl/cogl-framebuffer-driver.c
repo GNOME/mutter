@@ -65,6 +65,22 @@ cogl_framebuffer_driver_query_bits (CoglFramebufferDriver *driver,
   COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->query_bits (driver, bits);
 }
 
+void
+cogl_framebuffer_driver_clear (CoglFramebufferDriver *driver,
+                               unsigned long          buffers,
+                               float                  red,
+                               float                  green,
+                               float                  blue,
+                               float                  alpha)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->clear (driver,
+                                                     buffers,
+                                                     red,
+                                                     green,
+                                                     blue,
+                                                     alpha);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,

@@ -45,6 +45,16 @@ cogl_nop_framebuffer_query_bits (CoglFramebufferDriver *driver,
 }
 
 static void
+cogl_nop_framebuffer_clear (CoglFramebufferDriver *driver,
+                            unsigned long          buffers,
+                            float                  red,
+                            float                  green,
+                            float                  blue,
+                            float                  alpha)
+{
+}
+
+static void
 cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
 {
 }
@@ -56,4 +66,5 @@ cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
     COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
 
   driver_class->query_bits = cogl_nop_framebuffer_query_bits;
+  driver_class->clear = cogl_nop_framebuffer_clear;
 }

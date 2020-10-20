@@ -44,6 +44,13 @@ struct _CoglFramebufferDriverClass
 
   void (* query_bits) (CoglFramebufferDriver *driver,
                        CoglFramebufferBits   *bits);
+
+  void (* clear) (CoglFramebufferDriver *driver,
+                  unsigned long          buffers,
+                  float                  red,
+                  float                  green,
+                  float                  blue,
+                  float                  alpha);
 };
 
 CoglFramebuffer *
@@ -52,5 +59,13 @@ cogl_framebuffer_driver_get_framebuffer (CoglFramebufferDriver *driver);
 void
 cogl_framebuffer_driver_query_bits (CoglFramebufferDriver *driver,
                                     CoglFramebufferBits   *bits);
+
+void
+cogl_framebuffer_driver_clear (CoglFramebufferDriver *driver,
+                               unsigned long          buffers,
+                               float                  red,
+                               float                  green,
+                               float                  blue,
+                               float                  alpha);
 
 #endif /* COGL_FRAMEBUFFER_DRIVER_H */

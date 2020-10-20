@@ -443,7 +443,6 @@ _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
 
   if (!buffers)
     {
@@ -458,9 +457,12 @@ _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
       return;
     }
 
-  ctx->driver_vtable->framebuffer_clear (framebuffer,
-                                         buffers,
-                                         red, green, blue, alpha);
+  cogl_framebuffer_driver_clear (priv->driver,
+                                 buffers,
+                                 red,
+                                 green,
+                                 blue,
+                                 alpha);
 }
 
 void

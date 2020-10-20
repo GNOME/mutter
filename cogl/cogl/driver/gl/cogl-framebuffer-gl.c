@@ -47,6 +47,15 @@
 G_DEFINE_ABSTRACT_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
                         COGL_TYPE_FRAMEBUFFER_DRIVER)
 
+static CoglContext *
+context_from_driver (CoglFramebufferDriver *driver)
+{
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
+
+  return cogl_framebuffer_get_context (framebuffer);
+}
+
 static void
 _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
 {
@@ -256,15 +265,15 @@ cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
                                                         target);
 }
 
-void
-_cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
-                            unsigned long buffers,
-                            float red,
-                            float green,
-                            float blue,
-                            float alpha)
+static void
+cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
+                           unsigned long          buffers,
+                           float                  red,
+                           float                  green,
+                           float                  blue,
+                           float                  alpha)
 {
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglContext *ctx = context_from_driver (driver);
   GLbitfield gl_buffers = 0;
 
   if (buffers & COGL_BUFFER_BIT_COLOR)
@@ -275,6 +284,8 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     {
+      CoglFramebuffer *framebuffer =
+        cogl_framebuffer_driver_get_framebuffer (driver);
       gboolean is_depth_writing_enabled;
 
       gl_buffers |= GL_DEPTH_BUFFER_BIT;
@@ -702,4 +713,8 @@ cogl_gl_framebuffer_init (CoglGlFramebuffer *gl_framebuffer)
 static void
 cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
 {
+  CoglFramebufferDriverClass *driver_class =
+    COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
+
+  driver_class->clear = cogl_gl_framebuffer_clear;
 }

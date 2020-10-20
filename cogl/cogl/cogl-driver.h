@@ -86,14 +86,6 @@ struct _CoglDriverVtable
                                CoglFramebufferState  state);
 
   void
-  (* framebuffer_clear) (CoglFramebuffer *framebuffer,
-                         unsigned long buffers,
-                         float red,
-                         float green,
-                         float blue,
-                         float alpha);
-
-  void
   (* framebuffer_finish) (CoglFramebuffer *framebuffer);
 
   void

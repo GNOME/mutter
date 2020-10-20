@@ -36,16 +36,6 @@
 #include <string.h>
 
 void
-_cogl_framebuffer_nop_clear (CoglFramebuffer *framebuffer,
-                             unsigned long buffers,
-                             float red,
-                             float green,
-                             float blue,
-                             float alpha)
-{
-}
-
-void
 _cogl_framebuffer_nop_finish (CoglFramebuffer *framebuffer)
 {
 }
