@@ -227,6 +227,42 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
     }
 }
 
+static void
+cogl_gl_framebuffer_back_flush_stereo_mode_state (CoglGlFramebuffer *gl_framebuffer)
+{
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  GLenum draw_buffer = GL_BACK;
+
+  if (!ctx->glDrawBuffer)
+    return;
+
+  /* The one-shot default draw buffer setting in _cogl_framebuffer_gl_bind
+   * must have already happened. If not it would override what we set here. */
+  g_assert (ctx->was_bound_to_onscreen);
+
+  switch (cogl_framebuffer_get_stereo_mode (framebuffer))
+    {
+    case COGL_STEREO_BOTH:
+      draw_buffer = GL_BACK;
+      break;
+    case COGL_STEREO_LEFT:
+      draw_buffer = GL_BACK_LEFT;
+      break;
+    case COGL_STEREO_RIGHT:
+      draw_buffer = GL_BACK_RIGHT;
+      break;
+    }
+
+  if (ctx->current_gl_draw_buffer != draw_buffer)
+    {
+      GE (ctx, glDrawBuffer (draw_buffer));
+      ctx->current_gl_draw_buffer = draw_buffer;
+    }
+}
+
 CoglGlFramebufferBack *
 cogl_gl_framebuffer_back_new (CoglFramebuffer                    *framebuffer,
                               const CoglFramebufferDriverConfig  *driver_config,
@@ -262,4 +298,6 @@ cogl_gl_framebuffer_back_class_init (CoglGlFramebufferBackClass *klass)
   driver_class->discard_buffers = cogl_gl_framebuffer_back_discard_buffers;
 
   gl_framebuffer_class->bind = cogl_gl_framebuffer_back_bind;
+  gl_framebuffer_class->flush_stereo_mode_state =
+    cogl_gl_framebuffer_back_flush_stereo_mode_state;
 }

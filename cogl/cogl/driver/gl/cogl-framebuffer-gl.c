@@ -194,40 +194,10 @@ cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_frameb
 static void
 cogl_gl_framebuffer_flush_stereo_mode_state (CoglGlFramebuffer *gl_framebuffer)
 {
-  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
-  CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  GLenum draw_buffer = GL_BACK;
+  CoglGlFramebufferClass *klass =
+    COGL_GL_FRAMEBUFFER_GET_CLASS (gl_framebuffer);
 
-  if (COGL_IS_OFFSCREEN (framebuffer))
-    return;
-
-  if (!ctx->glDrawBuffer)
-    return;
-
-  /* The one-shot default draw buffer setting in _cogl_framebuffer_gl_bind
-   * must have already happened. If not it would override what we set here. */
-  g_assert (ctx->was_bound_to_onscreen);
-
-  switch (cogl_framebuffer_get_stereo_mode (framebuffer))
-    {
-    case COGL_STEREO_BOTH:
-      draw_buffer = GL_BACK;
-      break;
-    case COGL_STEREO_LEFT:
-      draw_buffer = GL_BACK_LEFT;
-      break;
-    case COGL_STEREO_RIGHT:
-      draw_buffer = GL_BACK_RIGHT;
-      break;
-    }
-
-  if (ctx->current_gl_draw_buffer != draw_buffer)
-    {
-      GE (ctx, glDrawBuffer (draw_buffer));
-      ctx->current_gl_draw_buffer = draw_buffer;
-    }
+  klass->flush_stereo_mode_state (gl_framebuffer);
 }
 
 void
