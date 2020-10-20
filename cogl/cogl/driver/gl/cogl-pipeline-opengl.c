@@ -425,10 +425,8 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
               break;
             }
 
-          /* If we are painting to an offscreen framebuffer then we
-             need to invert the winding of the front face because
-             everything is painted upside down */
-          invert_winding = COGL_IS_OFFSCREEN (ctx->current_draw_buffer);
+          invert_winding =
+            cogl_framebuffer_is_y_flipped (ctx->current_draw_buffer);
 
           switch (cull_face_state->front_winding)
             {

@@ -453,8 +453,10 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
        * down so in this case no conversion is needed.
        */
 
-      if (COGL_IS_OFFSCREEN (framebuffer))
-        scissor_y_start = scissor_y0;
+      if (cogl_framebuffer_is_y_flipped (framebuffer))
+        {
+          scissor_y_start = scissor_y0;
+        }
       else
         {
           int framebuffer_height =
