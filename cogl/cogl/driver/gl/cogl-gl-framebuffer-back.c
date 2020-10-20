@@ -130,7 +130,7 @@ ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
   COGL_NOTE (FRAMEBUFFER,
              "RGBA/D/S Bits for framebuffer[%p, %s]: %d, %d, %d, %d, %d, %d",
              framebuffer,
-             COGL_IS_OFFSCREEN (framebuffer) ? "offscreen" : "onscreen",
+             G_OBJECT_TYPE_NAME (framebuffer),
              bits->red,
              bits->blue,
              bits->green,
