@@ -511,29 +511,36 @@ meta_background_content_paint_content (ClutterContent      *content,
   if ((self->clip_region && cairo_region_is_empty (self->clip_region)))
     return;
 
-  clutter_actor_get_transformed_position (actor,
-                                          &transformed_x,
-                                          &transformed_y);
-  rect_within_stage.x = floorf (transformed_x);
-  rect_within_stage.y = floorf (transformed_y);
-
-  clutter_actor_get_transformed_size (actor,
-                                      &transformed_width,
-                                      &transformed_height);
-  rect_within_stage.width = roundf (transformed_width);
-  rect_within_stage.height = roundf (transformed_height);
-
   clutter_actor_get_content_box (actor, &actor_box);
   rect_within_actor.x = actor_box.x1;
   rect_within_actor.y = actor_box.y1;
   rect_within_actor.width = actor_box.x2 - actor_box.x1;
   rect_within_actor.height = actor_box.y2 - actor_box.y1;
 
-  untransformed =
-    rect_within_actor.x == rect_within_stage.x &&
-    rect_within_actor.y == rect_within_stage.y &&
-    rect_within_actor.width == rect_within_stage.width &&
-    rect_within_actor.height == rect_within_stage.height;
+  if (clutter_actor_is_in_clone_paint (actor))
+    {
+      untransformed = FALSE;
+    }
+  else
+    {
+      clutter_actor_get_transformed_position (actor,
+                                              &transformed_x,
+                                              &transformed_y);
+      rect_within_stage.x = floorf (transformed_x);
+      rect_within_stage.y = floorf (transformed_y);
+
+      clutter_actor_get_transformed_size (actor,
+                                          &transformed_width,
+                                          &transformed_height);
+      rect_within_stage.width = roundf (transformed_width);
+      rect_within_stage.height = roundf (transformed_height);
+
+      untransformed =
+        rect_within_actor.x == rect_within_stage.x &&
+        rect_within_actor.y == rect_within_stage.y &&
+        rect_within_actor.width == rect_within_stage.width &&
+        rect_within_actor.height == rect_within_stage.height;
+    }
 
   if (untransformed) /* actor and stage space are the same */
     {
