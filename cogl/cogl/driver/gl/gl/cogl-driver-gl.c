@@ -571,8 +571,6 @@ _cogl_driver_gl =
     _cogl_driver_update_features,
     _cogl_driver_gl_create_framebuffer_driver,
     _cogl_driver_gl_flush_framebuffer_state,
-    _cogl_framebuffer_gl_finish,
-    _cogl_framebuffer_gl_flush,
     _cogl_framebuffer_gl_discard_buffers,
     _cogl_framebuffer_gl_draw_attributes,
     _cogl_framebuffer_gl_draw_indexed_attributes,

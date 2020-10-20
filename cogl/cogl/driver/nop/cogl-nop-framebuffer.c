@@ -55,6 +55,16 @@ cogl_nop_framebuffer_clear (CoglFramebufferDriver *driver,
 }
 
 static void
+cogl_nop_framebuffer_finish (CoglFramebufferDriver *driver)
+{
+}
+
+static void
+cogl_nop_framebuffer_flush (CoglFramebufferDriver *driver)
+{
+}
+
+static void
 cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
 {
 }
@@ -67,4 +77,6 @@ cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
 
   driver_class->query_bits = cogl_nop_framebuffer_query_bits;
   driver_class->clear = cogl_nop_framebuffer_clear;
+  driver_class->finish = cogl_nop_framebuffer_finish;
+  driver_class->flush = cogl_nop_framebuffer_flush;
 }

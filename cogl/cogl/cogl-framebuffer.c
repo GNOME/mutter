@@ -1707,11 +1707,10 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  ctx->driver_vtable->framebuffer_finish (framebuffer);
+  cogl_framebuffer_driver_finish (priv->driver);
 }
 
 void
@@ -1719,11 +1718,10 @@ cogl_framebuffer_flush (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  ctx->driver_vtable->framebuffer_flush (framebuffer);
+  cogl_framebuffer_driver_flush (priv->driver);
 }
 
 void

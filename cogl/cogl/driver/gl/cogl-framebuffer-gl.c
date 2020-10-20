@@ -312,16 +312,20 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
   GE (ctx, glClear (gl_buffers));
 }
 
-void
-_cogl_framebuffer_gl_finish (CoglFramebuffer *framebuffer)
+static void
+cogl_gl_framebuffer_finish (CoglFramebufferDriver *driver)
 {
-  GE (cogl_framebuffer_get_context (framebuffer), glFinish ());
+  CoglContext *ctx = context_from_driver (driver);
+
+  GE (ctx, glFinish ());
 }
 
-void
-_cogl_framebuffer_gl_flush (CoglFramebuffer *framebuffer)
+static void
+cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
 {
-  GE (cogl_framebuffer_get_context (framebuffer), glFlush ());
+  CoglContext *ctx = context_from_driver (driver);
+
+  GE (ctx, glFlush ());
 }
 
 void
@@ -717,4 +721,6 @@ cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
     COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
 
   driver_class->clear = cogl_gl_framebuffer_clear;
+  driver_class->finish = cogl_gl_framebuffer_finish;
+  driver_class->flush = cogl_gl_framebuffer_flush;
 }

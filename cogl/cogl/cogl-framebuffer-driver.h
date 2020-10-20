@@ -51,6 +51,10 @@ struct _CoglFramebufferDriverClass
                   float                  green,
                   float                  blue,
                   float                  alpha);
+
+  void (* finish) (CoglFramebufferDriver *driver);
+
+  void (* flush) (CoglFramebufferDriver *driver);
 };
 
 CoglFramebuffer *
@@ -67,5 +71,11 @@ cogl_framebuffer_driver_clear (CoglFramebufferDriver *driver,
                                float                  green,
                                float                  blue,
                                float                  alpha);
+
+void
+cogl_framebuffer_driver_finish (CoglFramebufferDriver *driver);
+
+void
+cogl_framebuffer_driver_flush (CoglFramebufferDriver *driver);
 
 #endif /* COGL_FRAMEBUFFER_DRIVER_H */

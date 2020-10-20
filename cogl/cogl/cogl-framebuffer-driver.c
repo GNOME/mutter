@@ -81,6 +81,18 @@ cogl_framebuffer_driver_clear (CoglFramebufferDriver *driver,
                                                      alpha);
 }
 
+void
+cogl_framebuffer_driver_finish (CoglFramebufferDriver *driver)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->finish (driver);
+}
+
+void
+cogl_framebuffer_driver_flush (CoglFramebufferDriver *driver)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->flush (driver);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,

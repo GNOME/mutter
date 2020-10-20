@@ -52,12 +52,6 @@ struct _CoglGlFramebufferClass
 };
 
 void
-_cogl_framebuffer_gl_finish (CoglFramebuffer *framebuffer);
-
-void
-_cogl_framebuffer_gl_flush (CoglFramebuffer *framebuffer);
-
-void
 _cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
                                       unsigned long buffers);
 
