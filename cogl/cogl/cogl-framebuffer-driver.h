@@ -55,6 +55,9 @@ struct _CoglFramebufferDriverClass
   void (* finish) (CoglFramebufferDriver *driver);
 
   void (* flush) (CoglFramebufferDriver *driver);
+
+  void (* discard_buffers) (CoglFramebufferDriver *driver,
+                            unsigned long          buffers);
 };
 
 CoglFramebuffer *
@@ -77,5 +80,9 @@ cogl_framebuffer_driver_finish (CoglFramebufferDriver *driver);
 
 void
 cogl_framebuffer_driver_flush (CoglFramebufferDriver *driver);
+
+void
+cogl_framebuffer_driver_discard_buffers (CoglFramebufferDriver *driver,
+                                         unsigned long          buffers);
 
 #endif /* COGL_FRAMEBUFFER_DRIVER_H */

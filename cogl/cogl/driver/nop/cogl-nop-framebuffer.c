@@ -65,6 +65,12 @@ cogl_nop_framebuffer_flush (CoglFramebufferDriver *driver)
 }
 
 static void
+cogl_nop_framebuffer_discard_buffers (CoglFramebufferDriver *driver,
+                                      unsigned long          buffers)
+{
+}
+
+static void
 cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
 {
 }
@@ -79,4 +85,5 @@ cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
   driver_class->clear = cogl_nop_framebuffer_clear;
   driver_class->finish = cogl_nop_framebuffer_finish;
   driver_class->flush = cogl_nop_framebuffer_flush;
+  driver_class->discard_buffers = cogl_nop_framebuffer_discard_buffers;
 }

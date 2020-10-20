@@ -38,10 +38,6 @@
 #include "cogl-context-private.h"
 
 void
-_cogl_framebuffer_nop_discard_buffers (CoglFramebuffer *framebuffer,
-                                       unsigned long buffers);
-
-void
 _cogl_framebuffer_nop_draw_attributes (CoglFramebuffer *framebuffer,
                                        CoglPipeline *pipeline,
                                        CoglVerticesMode mode,

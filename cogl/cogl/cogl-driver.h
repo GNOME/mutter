@@ -86,10 +86,6 @@ struct _CoglDriverVtable
                                CoglFramebufferState  state);
 
   void
-  (* framebuffer_discard_buffers) (CoglFramebuffer *framebuffer,
-                                   unsigned long buffers);
-
-  void
   (* framebuffer_draw_attributes) (CoglFramebuffer *framebuffer,
                                    CoglPipeline *pipeline,
                                    CoglVerticesMode mode,

@@ -93,6 +93,13 @@ cogl_framebuffer_driver_flush (CoglFramebufferDriver *driver)
   COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->flush (driver);
 }
 
+void
+cogl_framebuffer_driver_discard_buffers (CoglFramebufferDriver *driver,
+                                         unsigned long          buffers)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->discard_buffers (driver, buffers);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,

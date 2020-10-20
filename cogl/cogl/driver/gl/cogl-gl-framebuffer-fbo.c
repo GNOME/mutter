@@ -174,6 +174,33 @@ cogl_gl_framebuffer_fbo_query_bits (CoglFramebufferDriver *driver,
 }
 
 static void
+cogl_gl_framebuffer_fbo_discard_buffers (CoglFramebufferDriver *driver,
+                                         unsigned long          buffers)
+{
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  GLenum attachments[3];
+  int i = 0;
+
+  if (!ctx->glDiscardFramebuffer)
+    return;
+
+  if (buffers & COGL_BUFFER_BIT_COLOR)
+    attachments[i++] = GL_COLOR_ATTACHMENT0;
+  if (buffers & COGL_BUFFER_BIT_DEPTH)
+    attachments[i++] = GL_DEPTH_ATTACHMENT;
+  if (buffers & COGL_BUFFER_BIT_STENCIL)
+    attachments[i++] = GL_STENCIL_ATTACHMENT;
+
+  cogl_context_flush_framebuffer_state (ctx,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_BIND);
+  GE (ctx, glDiscardFramebuffer (GL_FRAMEBUFFER, i, attachments));
+}
+
+static void
 cogl_gl_framebuffer_fbo_bind (CoglGlFramebuffer *gl_framebuffer,
                               GLenum             target)
 {
@@ -606,6 +633,7 @@ cogl_gl_framebuffer_fbo_class_init (CoglGlFramebufferFboClass *klass)
   object_class->dispose = cogl_gl_framebuffer_fbo_dispose;
 
   driver_class->query_bits = cogl_gl_framebuffer_fbo_query_bits;
+  driver_class->discard_buffers = cogl_gl_framebuffer_fbo_discard_buffers;
 
   gl_framebuffer_class->bind = cogl_gl_framebuffer_fbo_bind;
 }

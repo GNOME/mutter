@@ -52,10 +52,6 @@ struct _CoglGlFramebufferClass
 };
 
 void
-_cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
-                                      unsigned long buffers);
-
-void
 cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
                           GLenum             target);
 

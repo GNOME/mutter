@@ -329,44 +329,6 @@ cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
 }
 
 void
-_cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
-                                      unsigned long buffers)
-{
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-
-  if (ctx->glDiscardFramebuffer)
-    {
-      GLenum attachments[3];
-      int i = 0;
-
-      if (COGL_IS_ONSCREEN (framebuffer))
-        {
-          if (buffers & COGL_BUFFER_BIT_COLOR)
-            attachments[i++] = GL_COLOR;
-          if (buffers & COGL_BUFFER_BIT_DEPTH)
-            attachments[i++] = GL_DEPTH;
-          if (buffers & COGL_BUFFER_BIT_STENCIL)
-            attachments[i++] = GL_STENCIL;
-        }
-      else
-        {
-          if (buffers & COGL_BUFFER_BIT_COLOR)
-            attachments[i++] = GL_COLOR_ATTACHMENT0;
-          if (buffers & COGL_BUFFER_BIT_DEPTH)
-            attachments[i++] = GL_DEPTH_ATTACHMENT;
-          if (buffers & COGL_BUFFER_BIT_STENCIL)
-            attachments[i++] = GL_STENCIL_ATTACHMENT;
-        }
-
-      cogl_context_flush_framebuffer_state (ctx,
-                                            framebuffer,
-                                            framebuffer,
-                                            COGL_FRAMEBUFFER_STATE_BIND);
-      GE (ctx, glDiscardFramebuffer (GL_FRAMEBUFFER, i, attachments));
-    }
-}
-
-void
 _cogl_framebuffer_gl_draw_attributes (CoglFramebuffer *framebuffer,
                                       CoglPipeline *pipeline,
                                       CoglVerticesMode mode,

@@ -1695,11 +1695,10 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx = priv->context;
 
   g_return_if_fail (buffers & COGL_BUFFER_BIT_COLOR);
 
-  ctx->driver_vtable->framebuffer_discard_buffers (framebuffer, buffers);
+  cogl_framebuffer_driver_discard_buffers (priv->driver, buffers);
 }
 
 void
