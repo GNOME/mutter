@@ -85,14 +85,6 @@ struct _CoglDriverVtable
                                CoglFramebuffer      *read_buffer,
                                CoglFramebufferState  state);
 
-  gboolean
-  (* framebuffer_read_pixels_into_bitmap) (CoglFramebuffer *framebuffer,
-                                           int x,
-                                           int y,
-                                           CoglReadPixelsFlags source,
-                                           CoglBitmap *bitmap,
-                                           GError **error);
-
   /* Destroys any driver specific resources associated with the given
    * 2D texture. */
   void

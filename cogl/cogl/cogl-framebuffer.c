@@ -1483,7 +1483,6 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglContext *ctx;
   int width;
   int height;
 
@@ -1511,18 +1510,16 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
         return TRUE;
     }
 
-  ctx = cogl_framebuffer_get_context (framebuffer);
-
   /* make sure any batched primitives get emitted to the driver
    * before issuing our read pixels...
    */
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  return ctx->driver_vtable->framebuffer_read_pixels_into_bitmap (framebuffer,
-                                                                  x, y,
-                                                                  source,
-                                                                  bitmap,
-                                                                  error);
+  return cogl_framebuffer_driver_read_pixels_into_bitmap (priv->driver,
+                                                          x, y,
+                                                          source,
+                                                          bitmap,
+                                                          error);
 }
 
 gboolean

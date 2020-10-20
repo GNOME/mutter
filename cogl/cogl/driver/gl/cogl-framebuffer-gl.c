@@ -419,14 +419,16 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
   _cogl_buffer_gl_unbind (buffer);
 }
 
-gboolean
-_cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
-                                              int x,
-                                              int y,
-                                              CoglReadPixelsFlags source,
-                                              CoglBitmap *bitmap,
-                                              GError **error)
+static gboolean
+cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
+                                             int                     x,
+                                             int                     y,
+                                             CoglReadPixelsFlags     source,
+                                             CoglBitmap             *bitmap,
+                                             GError                **error)
 {
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   int framebuffer_height = cogl_framebuffer_get_height (framebuffer);
   int width = cogl_bitmap_get_width (bitmap);
@@ -693,4 +695,6 @@ cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
   driver_class->draw_attributes = cogl_gl_framebuffer_draw_attributes;
   driver_class->draw_indexed_attributes =
     cogl_gl_framebuffer_draw_indexed_attributes;
+  driver_class->read_pixels_into_bitmap =
+    cogl_gl_framebuffer_read_pixels_into_bitmap;
 }

@@ -95,6 +95,17 @@ cogl_nop_framebuffer_draw_indexed_attributes (CoglFramebufferDriver *driver,
 {
 }
 
+static gboolean
+cogl_nop_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *framebuffer,
+                                              int                     x,
+                                              int                     y,
+                                              CoglReadPixelsFlags     source,
+                                              CoglBitmap             *bitmap,
+                                              GError                **error)
+{
+  return TRUE;
+}
+
 static void
 cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
 {
@@ -114,4 +125,6 @@ cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
   driver_class->draw_attributes = cogl_nop_framebuffer_draw_attributes;
   driver_class->draw_indexed_attributes =
     cogl_nop_framebuffer_draw_indexed_attributes;
+  driver_class->read_pixels_into_bitmap =
+    cogl_nop_framebuffer_read_pixels_into_bitmap;
 }

@@ -145,6 +145,20 @@ cogl_framebuffer_driver_draw_indexed_attributes (CoglFramebufferDriver  *driver,
                                   flags);
 }
 
+gboolean
+cogl_framebuffer_driver_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
+                                                 int                     x,
+                                                 int                     y,
+                                                 CoglReadPixelsFlags     source,
+                                                 CoglBitmap             *bitmap,
+                                                 GError                **error)
+{
+  CoglFramebufferDriverClass *klass =
+    COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver);
+
+  return klass->read_pixels_into_bitmap (driver, x, y, source, bitmap, error);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,

@@ -55,14 +55,6 @@ void
 cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
                           GLenum             target);
 
-gboolean
-_cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
-                                              int x,
-                                              int y,
-                                              CoglReadPixelsFlags source,
-                                              CoglBitmap *bitmap,
-                                              GError **error);
-
 void
 cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
                                              unsigned long      differences);

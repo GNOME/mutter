@@ -78,6 +78,13 @@ struct _CoglFramebufferDriverClass
                                     CoglAttribute         **attributes,
                                     int                     n_attributes,
                                     CoglDrawFlags           flags);
+
+  gboolean (* read_pixels_into_bitmap) (CoglFramebufferDriver  *driver,
+                                        int                     x,
+                                        int                     y,
+                                        CoglReadPixelsFlags     source,
+                                        CoglBitmap             *bitmap,
+                                        GError                **error);
 };
 
 CoglFramebuffer *
@@ -125,5 +132,13 @@ cogl_framebuffer_driver_draw_indexed_attributes (CoglFramebufferDriver  *driver,
                                                  CoglAttribute         **attributes,
                                                  int                     n_attributes,
                                                  CoglDrawFlags           flags);
+
+gboolean
+cogl_framebuffer_driver_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
+                                                 int                     x,
+                                                 int                     y,
+                                                 CoglReadPixelsFlags     source,
+                                                 CoglBitmap             *bitmap,
+                                                 GError                **error);
 
 #endif /* COGL_FRAMEBUFFER_DRIVER_H */
