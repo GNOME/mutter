@@ -35,31 +35,6 @@
 #include <glib.h>
 #include <string.h>
 
-void
-_cogl_framebuffer_nop_draw_attributes (CoglFramebuffer *framebuffer,
-                                       CoglPipeline *pipeline,
-                                       CoglVerticesMode mode,
-                                       int first_vertex,
-                                       int n_vertices,
-                                       CoglAttribute **attributes,
-                                       int n_attributes,
-                                       CoglDrawFlags flags)
-{
-}
-
-void
-_cogl_framebuffer_nop_draw_indexed_attributes (CoglFramebuffer *framebuffer,
-                                               CoglPipeline *pipeline,
-                                               CoglVerticesMode mode,
-                                               int first_vertex,
-                                               int n_vertices,
-                                               CoglIndices *indices,
-                                               CoglAttribute **attributes,
-                                               int n_attributes,
-                                               CoglDrawFlags flags)
-{
-}
-
 gboolean
 _cogl_framebuffer_nop_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                                int x,

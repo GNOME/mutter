@@ -55,27 +55,6 @@ void
 cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
                           GLenum             target);
 
-void
-_cogl_framebuffer_gl_draw_attributes (CoglFramebuffer *framebuffer,
-                                      CoglPipeline *pipeline,
-                                      CoglVerticesMode mode,
-                                      int first_vertex,
-                                      int n_vertices,
-                                      CoglAttribute **attributes,
-                                      int n_attributes,
-                                      CoglDrawFlags flags);
-
-void
-_cogl_framebuffer_gl_draw_indexed_attributes (CoglFramebuffer *framebuffer,
-                                              CoglPipeline *pipeline,
-                                              CoglVerticesMode mode,
-                                              int first_vertex,
-                                              int n_vertices,
-                                              CoglIndices *indices,
-                                              CoglAttribute **attributes,
-                                              int n_attributes,
-                                              CoglDrawFlags flags);
-
 gboolean
 _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               int x,

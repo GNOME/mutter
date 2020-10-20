@@ -85,27 +85,6 @@ struct _CoglDriverVtable
                                CoglFramebuffer      *read_buffer,
                                CoglFramebufferState  state);
 
-  void
-  (* framebuffer_draw_attributes) (CoglFramebuffer *framebuffer,
-                                   CoglPipeline *pipeline,
-                                   CoglVerticesMode mode,
-                                   int first_vertex,
-                                   int n_vertices,
-                                   CoglAttribute **attributes,
-                                   int n_attributes,
-                                   CoglDrawFlags flags);
-
-  void
-  (* framebuffer_draw_indexed_attributes) (CoglFramebuffer *framebuffer,
-                                           CoglPipeline *pipeline,
-                                           CoglVerticesMode mode,
-                                           int first_vertex,
-                                           int n_vertices,
-                                           CoglIndices *indices,
-                                           CoglAttribute **attributes,
-                                           int n_attributes,
-                                           CoglDrawFlags flags);
-
   gboolean
   (* framebuffer_read_pixels_into_bitmap) (CoglFramebuffer *framebuffer,
                                            int x,

@@ -71,6 +71,31 @@ cogl_nop_framebuffer_discard_buffers (CoglFramebufferDriver *driver,
 }
 
 static void
+cogl_nop_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
+                                      CoglPipeline           *pipeline,
+                                      CoglVerticesMode        mode,
+                                      int                     first_vertex,
+                                      int                     n_vertices,
+                                      CoglAttribute         **attributes,
+                                      int                     n_attributes,
+                                      CoglDrawFlags           flags)
+{
+}
+
+static void
+cogl_nop_framebuffer_draw_indexed_attributes (CoglFramebufferDriver *driver,
+                                              CoglPipeline          *pipeline,
+                                              CoglVerticesMode       mode,
+                                              int                    first_vertex,
+                                              int                    n_vertices,
+                                              CoglIndices           *indices,
+                                              CoglAttribute        **attributes,
+                                              int                    n_attributes,
+                                              CoglDrawFlags          flags)
+{
+}
+
+static void
 cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
 {
 }
@@ -86,4 +111,7 @@ cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
   driver_class->finish = cogl_nop_framebuffer_finish;
   driver_class->flush = cogl_nop_framebuffer_flush;
   driver_class->discard_buffers = cogl_nop_framebuffer_discard_buffers;
+  driver_class->draw_attributes = cogl_nop_framebuffer_draw_attributes;
+  driver_class->draw_indexed_attributes =
+    cogl_nop_framebuffer_draw_indexed_attributes;
 }

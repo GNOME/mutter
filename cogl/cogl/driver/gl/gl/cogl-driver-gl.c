@@ -571,8 +571,6 @@ _cogl_driver_gl =
     _cogl_driver_update_features,
     _cogl_driver_gl_create_framebuffer_driver,
     _cogl_driver_gl_flush_framebuffer_state,
-    _cogl_framebuffer_gl_draw_attributes,
-    _cogl_framebuffer_gl_draw_indexed_attributes,
     _cogl_framebuffer_gl_read_pixels_into_bitmap,
     _cogl_texture_2d_gl_free,
     _cogl_texture_2d_gl_can_create,

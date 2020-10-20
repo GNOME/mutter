@@ -100,6 +100,51 @@ cogl_framebuffer_driver_discard_buffers (CoglFramebufferDriver *driver,
   COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->discard_buffers (driver, buffers);
 }
 
+void
+cogl_framebuffer_driver_draw_attributes (CoglFramebufferDriver  *driver,
+                                         CoglPipeline           *pipeline,
+                                         CoglVerticesMode        mode,
+                                         int                     first_vertex,
+                                         int                     n_vertices,
+                                         CoglAttribute         **attributes,
+                                         int                     n_attributes,
+                                         CoglDrawFlags           flags)
+{
+  COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver)->draw_attributes (driver,
+                                                               pipeline,
+                                                               mode,
+                                                               first_vertex,
+                                                               n_vertices,
+                                                               attributes,
+                                                               n_attributes,
+                                                               flags);
+}
+
+void
+cogl_framebuffer_driver_draw_indexed_attributes (CoglFramebufferDriver  *driver,
+                                                 CoglPipeline           *pipeline,
+                                                 CoglVerticesMode        mode,
+                                                 int                     first_vertex,
+                                                 int                     n_vertices,
+                                                 CoglIndices            *indices,
+                                                 CoglAttribute         **attributes,
+                                                 int                     n_attributes,
+                                                 CoglDrawFlags           flags)
+{
+  CoglFramebufferDriverClass *klass =
+    COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver);
+
+  klass->draw_indexed_attributes (driver,
+                                  pipeline,
+                                  mode,
+                                  first_vertex,
+                                  n_vertices,
+                                  indices,
+                                  attributes,
+                                  n_attributes,
+                                  flags);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,

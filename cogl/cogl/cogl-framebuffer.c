@@ -2478,16 +2478,14 @@ _cogl_framebuffer_draw_attributes (CoglFramebuffer *framebuffer,
   else
 #endif
     {
-      CoglContext *ctx = priv->context;
-
-      ctx->driver_vtable->framebuffer_draw_attributes (framebuffer,
-                                                       pipeline,
-                                                       mode,
-                                                       first_vertex,
-                                                       n_vertices,
-                                                       attributes,
-                                                       n_attributes,
-                                                       flags);
+      cogl_framebuffer_driver_draw_attributes (priv->driver,
+                                               pipeline,
+                                               mode,
+                                               first_vertex,
+                                               n_vertices,
+                                               attributes,
+                                               n_attributes,
+                                               flags);
     }
 }
 
@@ -2519,17 +2517,15 @@ _cogl_framebuffer_draw_indexed_attributes (CoglFramebuffer *framebuffer,
   else
 #endif
     {
-      CoglContext *ctx = priv->context;
-
-      ctx->driver_vtable->framebuffer_draw_indexed_attributes (framebuffer,
-                                                               pipeline,
-                                                               mode,
-                                                               first_vertex,
-                                                               n_vertices,
-                                                               indices,
-                                                               attributes,
-                                                               n_attributes,
-                                                               flags);
+      cogl_framebuffer_driver_draw_indexed_attributes (priv->driver,
+                                                       pipeline,
+                                                       mode,
+                                                       first_vertex,
+                                                       n_vertices,
+                                                       indices,
+                                                       attributes,
+                                                       n_attributes,
+                                                       flags);
     }
 }
 

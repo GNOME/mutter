@@ -28,6 +28,7 @@
 #ifndef COGL_FRAMEBUFFER_DRIVER_H
 #define COGL_FRAMEBUFFER_DRIVER_H
 
+#include "cogl-attribute-private.h"
 #include "cogl-framebuffer.h"
 
 typedef struct _CoglFramebufferBits CoglFramebufferBits;
@@ -58,6 +59,25 @@ struct _CoglFramebufferDriverClass
 
   void (* discard_buffers) (CoglFramebufferDriver *driver,
                             unsigned long          buffers);
+
+  void (* draw_attributes) (CoglFramebufferDriver  *driver,
+                            CoglPipeline           *pipeline,
+                            CoglVerticesMode        mode,
+                            int                     first_vertex,
+                            int                     n_vertices,
+                            CoglAttribute         **attributes,
+                            int                     n_attributes,
+                            CoglDrawFlags           flags);
+
+  void (* draw_indexed_attributes) (CoglFramebufferDriver  *driver,
+                                    CoglPipeline           *pipeline,
+                                    CoglVerticesMode        mode,
+                                    int                     first_vertex,
+                                    int                     n_vertices,
+                                    CoglIndices            *indices,
+                                    CoglAttribute         **attributes,
+                                    int                     n_attributes,
+                                    CoglDrawFlags           flags);
 };
 
 CoglFramebuffer *
@@ -84,5 +104,26 @@ cogl_framebuffer_driver_flush (CoglFramebufferDriver *driver);
 void
 cogl_framebuffer_driver_discard_buffers (CoglFramebufferDriver *driver,
                                          unsigned long          buffers);
+
+void
+cogl_framebuffer_driver_draw_attributes (CoglFramebufferDriver  *driver,
+                                         CoglPipeline           *pipeline,
+                                         CoglVerticesMode        mode,
+                                         int                     first_vertex,
+                                         int                     n_vertices,
+                                         CoglAttribute         **attributes,
+                                         int                     n_attributes,
+                                         CoglDrawFlags           flags);
+
+void
+cogl_framebuffer_driver_draw_indexed_attributes (CoglFramebufferDriver  *driver,
+                                                 CoglPipeline           *pipeline,
+                                                 CoglVerticesMode        mode,
+                                                 int                     first_vertex,
+                                                 int                     n_vertices,
+                                                 CoglIndices            *indices,
+                                                 CoglAttribute         **attributes,
+                                                 int                     n_attributes,
+                                                 CoglDrawFlags           flags);
 
 #endif /* COGL_FRAMEBUFFER_DRIVER_H */

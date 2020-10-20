@@ -99,8 +99,6 @@ _cogl_driver_nop =
     _cogl_driver_update_features,
     _cogl_driver_nop_create_framebuffer_driver,
     _cogl_driver_nop_flush_framebuffer_state,
-    _cogl_framebuffer_nop_draw_attributes,
-    _cogl_framebuffer_nop_draw_indexed_attributes,
     _cogl_framebuffer_nop_read_pixels_into_bitmap,
     _cogl_texture_2d_nop_free,
     _cogl_texture_2d_nop_can_create,

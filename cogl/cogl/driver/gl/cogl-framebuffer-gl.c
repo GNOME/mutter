@@ -328,16 +328,19 @@ cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
   GE (ctx, glFlush ());
 }
 
-void
-_cogl_framebuffer_gl_draw_attributes (CoglFramebuffer *framebuffer,
-                                      CoglPipeline *pipeline,
-                                      CoglVerticesMode mode,
-                                      int first_vertex,
-                                      int n_vertices,
-                                      CoglAttribute **attributes,
-                                      int n_attributes,
-                                      CoglDrawFlags flags)
+static void
+cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
+                                     CoglPipeline           *pipeline,
+                                     CoglVerticesMode        mode,
+                                     int                     first_vertex,
+                                     int                     n_vertices,
+                                     CoglAttribute         **attributes,
+                                     int                     n_attributes,
+                                     CoglDrawFlags           flags)
 {
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
+
   _cogl_flush_attributes_state (framebuffer, pipeline, flags,
                                 attributes, n_attributes);
 
@@ -360,17 +363,19 @@ sizeof_index_type (CoglIndicesType type)
   g_return_val_if_reached (0);
 }
 
-void
-_cogl_framebuffer_gl_draw_indexed_attributes (CoglFramebuffer *framebuffer,
-                                              CoglPipeline *pipeline,
-                                              CoglVerticesMode mode,
-                                              int first_vertex,
-                                              int n_vertices,
-                                              CoglIndices *indices,
-                                              CoglAttribute **attributes,
-                                              int n_attributes,
-                                              CoglDrawFlags flags)
+static void
+cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
+                                             CoglPipeline           *pipeline,
+                                             CoglVerticesMode        mode,
+                                             int                     first_vertex,
+                                             int                     n_vertices,
+                                             CoglIndices            *indices,
+                                             CoglAttribute         **attributes,
+                                             int                     n_attributes,
+                                             CoglDrawFlags           flags)
 {
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglBuffer *buffer;
   uint8_t *base;
   size_t buffer_offset;
@@ -685,4 +690,7 @@ cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
   driver_class->clear = cogl_gl_framebuffer_clear;
   driver_class->finish = cogl_gl_framebuffer_finish;
   driver_class->flush = cogl_gl_framebuffer_flush;
+  driver_class->draw_attributes = cogl_gl_framebuffer_draw_attributes;
+  driver_class->draw_indexed_attributes =
+    cogl_gl_framebuffer_draw_indexed_attributes;
 }
