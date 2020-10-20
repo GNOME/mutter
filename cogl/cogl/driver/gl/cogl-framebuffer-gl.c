@@ -57,8 +57,11 @@ context_from_driver (CoglFramebufferDriver *driver)
 }
 
 static void
-_cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   float viewport_x, viewport_y, viewport_width, viewport_height;
   float gl_viewport_y;
 
@@ -97,19 +100,26 @@ _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_clip_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_clip_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
+
   _cogl_clip_stack_flush (_cogl_framebuffer_get_clip_stack (framebuffer),
                           framebuffer);
 }
 
 static void
-_cogl_framebuffer_gl_flush_dither_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_dither_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  gboolean is_dither_enabled =
-    cogl_framebuffer_get_dither_enabled (framebuffer);
+  gboolean is_dither_enabled;
 
+  is_dither_enabled = cogl_framebuffer_get_dither_enabled (framebuffer);
   if (ctx->current_gl_dither_enabled != is_dither_enabled)
     {
       if (is_dither_enabled)
@@ -121,8 +131,11 @@ _cogl_framebuffer_gl_flush_dither_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_modelview_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_modelview_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixEntry *modelview_entry =
     _cogl_framebuffer_get_modelview_entry (framebuffer);
@@ -131,8 +144,11 @@ _cogl_framebuffer_gl_flush_modelview_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_projection_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixEntry *projection_entry =
     _cogl_framebuffer_get_projection_entry (framebuffer);
@@ -141,8 +157,11 @@ _cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglPipelineCullFaceMode mode;
 
@@ -173,8 +192,11 @@ _cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffe
 }
 
 static void
-_cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
+cogl_gl_framebuffer_flush_stereo_mode_state (CoglGlFramebuffer *gl_framebuffer)
 {
+  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebuffer *framebuffer =
+    cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   GLenum draw_buffer = GL_BACK;
 
@@ -212,9 +234,6 @@ void
 cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
                                              unsigned long      differences)
 {
-  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
-  CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
   int bit;
 
   COGL_FLAGS_FOREACH_START (&differences, 1, bit)
@@ -226,29 +245,29 @@ cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
       switch (bit)
         {
         case COGL_FRAMEBUFFER_STATE_INDEX_VIEWPORT:
-          _cogl_framebuffer_gl_flush_viewport_state (framebuffer);
+          cogl_gl_framebuffer_flush_viewport_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
-          _cogl_framebuffer_gl_flush_clip_state (framebuffer);
+          cogl_gl_framebuffer_flush_clip_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          _cogl_framebuffer_gl_flush_dither_state (framebuffer);
+          cogl_gl_framebuffer_flush_dither_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
-          _cogl_framebuffer_gl_flush_modelview_state (framebuffer);
+          cogl_gl_framebuffer_flush_modelview_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
-          _cogl_framebuffer_gl_flush_projection_state (framebuffer);
+          cogl_gl_framebuffer_flush_projection_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          _cogl_framebuffer_gl_flush_front_face_winding_state (framebuffer);
+          cogl_gl_framebuffer_flush_front_face_winding_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
           /* Nothing to do for depth write state change; the state will always
            * be taken into account when flushing the pipeline's depth state. */
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
-          _cogl_framebuffer_gl_flush_stereo_mode_state (framebuffer);
+          cogl_gl_framebuffer_flush_stereo_mode_state (gl_framebuffer);
           break;
         default:
           g_warn_if_reached ();
