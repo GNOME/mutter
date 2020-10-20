@@ -487,6 +487,8 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
       compositor->display_name = g_strdup (display_name);
     }
 
+  g_message ("Using Wayland display name '%s'", compositor->display_name);
+
   if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
     {
       set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);

@@ -201,6 +201,7 @@ static gboolean  opt_sync;
 static gboolean  opt_wayland;
 static gboolean  opt_nested;
 static gboolean  opt_no_x11;
+static char     *opt_wayland_display;
 #endif
 #ifdef HAVE_NATIVE_BACKEND
 static gboolean  opt_display_server;
@@ -260,6 +261,12 @@ static GOptionEntry meta_options[] = {
     "no-x11", 0, 0, G_OPTION_ARG_NONE,
     &opt_no_x11,
     N_("Run wayland compositor without starting Xwayland"),
+    NULL
+  },
+  {
+    "wayland-display", 0, 0, G_OPTION_ARG_STRING,
+    &opt_wayland_display,
+    N_("Specify Wayland display name to use"),
     NULL
   },
 #endif
@@ -608,7 +615,14 @@ meta_init (void)
 
 #ifdef HAVE_WAYLAND
   if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
-    meta_set_is_wayland_compositor (TRUE);
+    {
+      meta_set_is_wayland_compositor (TRUE);
+      if (opt_wayland_display)
+        {
+          meta_wayland_override_display_name (opt_wayland_display);
+          g_free (opt_wayland_display);
+        }
+    }
 #endif
 
   if (g_get_home_dir ())
