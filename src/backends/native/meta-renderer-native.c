@@ -1231,7 +1231,12 @@ custom_egl_stream_page_flip (gpointer custom_page_flip_data,
 static void
 dummy_power_save_page_flip (CoglOnscreen *onscreen)
 {
+  CoglFrameInfo *frame_info;
+
   meta_onscreen_native_swap_drm_fb (onscreen);
+
+  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
   meta_onscreen_native_notify_frame_complete (onscreen);
 }
 
