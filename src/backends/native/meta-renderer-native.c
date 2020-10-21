@@ -764,7 +764,7 @@ free_current_bo (CoglOnscreen *onscreen)
 }
 
 static void
-meta_onscreen_native_queue_swap_notify (CoglOnscreen *onscreen)
+meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
 {
   CoglFrameInfo *info;
 
@@ -1095,7 +1095,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_ns);
 
-  meta_onscreen_native_queue_swap_notify (onscreen);
+  meta_onscreen_native_notify_frame_complete (onscreen);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
@@ -1242,7 +1242,7 @@ static void
 dummy_power_save_page_flip (CoglOnscreen *onscreen)
 {
   meta_onscreen_native_swap_drm_fb (onscreen);
-  meta_onscreen_native_queue_swap_notify (onscreen);
+  meta_onscreen_native_notify_frame_complete (onscreen);
 }
 
 static gboolean
