@@ -45,7 +45,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "backends/edid.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
@@ -3029,68 +3028,6 @@ meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
   meta_monitor_manager_notify_monitors_changed (manager);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
-}
-
-void
-meta_output_info_parse_edid (MetaOutputInfo *output_info,
-                             GBytes         *edid)
-{
-  MonitorInfo *parsed_edid;
-  gsize len;
-
-  if (!edid)
-    goto out;
-
-  parsed_edid = decode_edid (g_bytes_get_data (edid, &len));
-
-  if (parsed_edid)
-    {
-      output_info->vendor = g_strndup (parsed_edid->manufacturer_code, 4);
-      if (!g_utf8_validate (output_info->vendor, -1, NULL))
-        g_clear_pointer (&output_info->vendor, g_free);
-
-      output_info->product = g_strndup (parsed_edid->dsc_product_name, 14);
-      if (!g_utf8_validate (output_info->product, -1, NULL) ||
-          output_info->product[0] == '\0')
-        {
-          g_clear_pointer (&output_info->product, g_free);
-          output_info->product = g_strdup_printf ("0x%04x", (unsigned) parsed_edid->product_code);
-        }
-
-      output_info->serial = g_strndup (parsed_edid->dsc_serial_number, 14);
-      if (!g_utf8_validate (output_info->serial, -1, NULL) ||
-          output_info->serial[0] == '\0')
-        {
-          g_clear_pointer (&output_info->serial, g_free);
-          output_info->serial = g_strdup_printf ("0x%08x", parsed_edid->serial_number);
-        }
-
-      g_free (parsed_edid);
-    }
-
- out:
-  if (!output_info->vendor)
-    output_info->vendor = g_strdup ("unknown");
-  if (!output_info->product)
-    output_info->product = g_strdup ("unknown");
-  if (!output_info->serial)
-    output_info->serial = g_strdup ("unknown");
-}
-
-gboolean
-meta_output_is_laptop (MetaOutput *output)
-{
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
-
-  switch (output_info->connector_type)
-    {
-    case META_CONNECTOR_TYPE_eDP:
-    case META_CONNECTOR_TYPE_LVDS:
-    case META_CONNECTOR_TYPE_DSI:
-      return TRUE;
-    default:
-      return FALSE;
-    }
 }
 
 void

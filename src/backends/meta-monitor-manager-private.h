@@ -144,8 +144,7 @@ struct _MetaMonitorManager
  * MetaMonitorManagerClass:
  *
  * @read_edid: Returns the raw Extended Display Identification Data (EDID)
- *   for the given #MetaOutput object. Use meta_output_parse_edid() to parse
- *   afterwards.
+ *   for the given #MetaOutput object.
  *
  * @ensure_initial_config: Called on setup. Makes sure an initial config
  *   is loaded.
@@ -306,10 +305,6 @@ void                meta_monitor_manager_power_save_mode_changed (MetaMonitorMan
 
 void                meta_monitor_manager_confirm_configuration (MetaMonitorManager *manager,
                                                                 gboolean            ok);
-
-void               meta_output_parse_edid (MetaOutput *output,
-                                           GBytes     *edid);
-gboolean           meta_output_is_laptop  (MetaOutput *output);
 
 gboolean           meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager);
 
