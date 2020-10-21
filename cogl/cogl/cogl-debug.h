@@ -94,14 +94,14 @@ unsigned long _cogl_debug_flags[COGL_DEBUG_N_LONGS];
 #ifdef __GNUC__
 #define COGL_NOTE(type,x,a...)                      G_STMT_START {            \
         if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_##type))) {            \
-          _cogl_profile_trace_message ("[" #type "] " G_STRLOC " & " x, ##a); \
+          _cogl_profile_trace_message ("[" #type "] " G_STRLOC ": " x, ##a); \
         }                                           } G_STMT_END
 
 #else
 #define COGL_NOTE(type,...)                         G_STMT_START {            \
         if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_##type))) {            \
           char *_fmt = g_strdup_printf (__VA_ARGS__);                         \
-          _cogl_profile_trace_message ("[" #type "] " G_STRLOC " & %s", _fmt);\
+          _cogl_profile_trace_message ("[" #type "] " G_STRLOC ": %s", _fmt);\
           g_free (_fmt);                                                      \
         }                                           } G_STMT_END
 
