@@ -227,30 +227,11 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
     {
       const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
       MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_config->mode);
-      MetaBackend *backend = meta_gpu_get_backend (gpu);
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
-      MetaPowerSave power_save;
-      uint64_t dpms_state;
-      GList *l;
 
       kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
 
       g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") mode to %s",
                meta_crtc_get_id (crtc), meta_kms_mode_get_name (kms_mode));
-
-      power_save = meta_monitor_manager_get_power_save_mode (monitor_manager);
-      g_warn_if_fail (power_save == META_POWER_SAVE_ON);
-
-      dpms_state = meta_power_save_to_dpms_state (power_save);
-      for (l = connectors; l; l = l->next)
-        {
-          MetaKmsConnector *kms_connector = l->data;
-
-          meta_kms_update_set_dpms_state (kms_update,
-                                          kms_connector,
-                                          dpms_state);
-        }
     }
   else
     {

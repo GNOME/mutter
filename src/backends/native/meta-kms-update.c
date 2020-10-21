@@ -35,7 +35,8 @@ struct _MetaKmsUpdate
   gboolean is_locked;
   uint64_t sequence_number;
 
-  MetaPowerSave power_save;
+  gboolean power_save;
+
   GList *mode_sets;
   GList *plane_assignments;
   GList *connector_updates;
@@ -188,6 +189,7 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+  g_assert (!update->power_save);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
   g_assert (meta_kms_plane_get_plane_type (plane) !=
             META_KMS_PLANE_TYPE_PRIMARY ||
@@ -226,6 +228,7 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
+  g_assert (!update->power_save);
 
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {
@@ -251,6 +254,7 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+  g_assert (!update->power_save);
 
   mode_set = g_new0 (MetaKmsModeSet, 1);
   *mode_set = (MetaKmsModeSet) {
@@ -296,6 +300,7 @@ meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_assert (!update->power_save);
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->underscanning.has_update = TRUE;
@@ -312,6 +317,7 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_assert (!update->power_save);
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->underscanning.has_update = TRUE;
@@ -319,18 +325,15 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
 }
 
 void
-meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
-                                MetaKmsConnector *connector,
-                                uint64_t          state)
+meta_kms_update_set_power_save (MetaKmsUpdate *update)
 {
-  MetaKmsConnectorUpdate *connector_update;
-
   g_assert (!meta_kms_update_is_locked (update));
-  g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_assert (!update->mode_sets);
+  g_assert (!update->plane_assignments);
+  g_assert (!update->connector_updates);
+  g_assert (!update->crtc_gammas);
 
-  connector_update = ensure_connector_update (update, connector);
-  connector_update->dpms.has_update = TRUE;
-  connector_update->dpms.state = state;
+  update->power_save = TRUE;
 }
 
 void
@@ -375,6 +378,7 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
 
   g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+  g_assert (!update->power_save);
 
   gamma = meta_kms_crtc_gamma_new (crtc, size, red, green, blue);
 
@@ -409,6 +413,7 @@ meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
                                       gpointer                   user_data)
 {
   g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!update->power_save);
 
   update->custom_page_flip_func = func;
   update->custom_page_flip_user_data = user_data;
@@ -521,6 +526,12 @@ GList *
 meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update)
 {
   return update->crtc_gammas;
+}
+
+gboolean
+meta_kms_update_is_power_save (MetaKmsUpdate *update)
+{
+  return update->power_save;
 }
 
 void

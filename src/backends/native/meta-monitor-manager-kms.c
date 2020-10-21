@@ -143,7 +143,6 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  uint64_t state;
   GList *l;
 
   switch (mode)
@@ -158,8 +157,6 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
       break;
     }
 
-  state = meta_power_save_to_dpms_state (mode);
-
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
@@ -169,7 +166,7 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
       g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
       kms_update = meta_kms_ensure_pending_update (kms, kms_device);
-      meta_gpu_kms_set_power_save_mode (gpu_kms, state, kms_update);
+      meta_kms_update_set_power_save (kms_update);
 
       flags = META_KMS_UPDATE_FLAG_NONE;
       kms_feedback = meta_kms_post_pending_update_sync (kms,
@@ -178,7 +175,7 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
       if (meta_kms_feedback_get_result (kms_feedback) !=
           META_KMS_FEEDBACK_PASSED)
         {
-          g_warning ("Failed to set DPMS: %s",
+          g_warning ("Failed to enter power saving mode: %s",
                      meta_kms_feedback_get_error (kms_feedback)->message);
         }
     }

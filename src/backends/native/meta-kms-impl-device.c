@@ -120,6 +120,15 @@ meta_kms_impl_device_copy_planes (MetaKmsImplDevice *impl_device)
   return g_list_copy (priv->planes);
 }
 
+GList *
+meta_kms_impl_device_peek_connectors (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  return priv->connectors;
+}
+
 const MetaKmsDeviceCaps *
 meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
 {

@@ -143,35 +143,6 @@ meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
   return timespec_to_nanoseconds (&ts);
 }
 
-void
-meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
-                                  uint64_t       state,
-                                  MetaKmsUpdate *kms_update)
-{
-  MetaGpu *gpu = META_GPU (gpu_kms);
-  GList *l;
-
-  g_return_if_fail (state != DRM_MODE_DPMS_ON);
-
-  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-
-      meta_output_kms_set_power_save_mode (META_OUTPUT_KMS (output),
-                                           state, kms_update);
-    }
-
-  /* Turn off CRTCs for DPMS */
-  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
-    {
-      MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
-
-      meta_kms_update_mode_set (kms_update,
-                                meta_crtc_kms_get_kms_crtc (crtc_kms),
-                                NULL, NULL);
-    }
-}
-
 gboolean
 meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms)
 {

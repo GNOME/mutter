@@ -67,6 +67,65 @@ static void
 flush_postponed_page_flip_datas (MetaKmsImplDeviceSimple *impl_device_simple);
 
 static gboolean
+get_connector_property (MetaKmsImplDevice     *impl_device,
+                        MetaKmsConnector      *connector,
+                        MetaKmsConnectorProp   prop,
+                        uint64_t              *value,
+                        GError               **error)
+{
+  uint32_t prop_id;
+  int fd;
+  drmModeConnector *drm_connector;
+  int i;
+  gboolean found;
+
+  prop_id = meta_kms_connector_get_prop_id (connector, prop);
+  if (!prop_id)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Property (%s) not found on connector %u",
+                   meta_kms_connector_get_prop_name (connector, prop),
+                   meta_kms_connector_get_id (connector));
+      return FALSE;
+    }
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  drm_connector = drmModeGetConnector (fd,
+                                       meta_kms_connector_get_id (connector));
+  if (!drm_connector)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to get connector %u resources: %s",
+                   meta_kms_connector_get_id (connector),
+                   g_strerror (errno));
+      return FALSE;
+    }
+
+  found = FALSE;
+  for (i = 0; i < drm_connector->count_props; i++)
+    {
+      if (drm_connector->props[i] == prop_id)
+        {
+          *value = drm_connector->prop_values[i];
+          found = TRUE;
+          break;
+        }
+    }
+
+  drmModeFreeConnector (drm_connector);
+
+  if (!found)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Connector property %u not found", prop_id);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 set_connector_property (MetaKmsImplDevice     *impl_device,
                         MetaKmsConnector      *connector,
                         MetaKmsConnectorProp   prop,
@@ -108,6 +167,32 @@ set_connector_property (MetaKmsImplDevice     *impl_device,
 }
 
 static gboolean
+process_power_save (MetaKmsImplDevice  *impl_device,
+                    GError            **error)
+{
+  GList *l;
+
+  for (l = meta_kms_impl_device_peek_connectors (impl_device); l; l = l->next)
+    {
+      MetaKmsConnector *connector = l->data;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting DPMS of connector %u (%s) to OFF",
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!set_connector_property (impl_device,
+                                   connector,
+                                   META_KMS_CONNECTOR_PROP_DPMS,
+                                   DRM_MODE_DPMS_OFF,
+                                   error))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 process_connector_update (MetaKmsImplDevice  *impl_device,
                           MetaKmsUpdate      *update,
                           gpointer            update_entry,
@@ -115,23 +200,6 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
 {
   MetaKmsConnectorUpdate *connector_update = update_entry;
   MetaKmsConnector *connector = connector_update->connector;
-
-  if (connector_update->dpms.has_update)
-    {
-      meta_topic (META_DEBUG_KMS,
-                  "[simple] Setting DPMS on connector %u (%s) to %"
-                  G_GUINT64_FORMAT,
-                  meta_kms_connector_get_id (connector),
-                  meta_kms_impl_device_get_path (impl_device),
-                  connector_update->dpms.state);
-
-      if (!set_connector_property (impl_device,
-                                   connector,
-                                   META_KMS_CONNECTOR_PROP_DPMS,
-                                   connector_update->dpms.state,
-                                   error))
-        return FALSE;
-    }
 
   if (connector_update->underscanning.has_update &&
       connector_update->underscanning.is_active)
@@ -288,6 +356,7 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
   if (mode_set->mode)
     {
       MetaDrmBuffer *buffer;
+      GList *l;
 
       drm_mode = g_alloca (sizeof *drm_mode);
       *drm_mode = *meta_kms_mode_get_drm_mode (mode_set->mode);
@@ -320,6 +389,34 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
 
       buffer = plane_assignment->buffer;
       fb_id = meta_drm_buffer_get_fb_id (buffer);
+
+      for (l = mode_set->connectors; l; l = l->next)
+        {
+          MetaKmsConnector *connector = l->data;
+          uint64_t dpms_value;
+
+          if (!get_connector_property (impl_device,
+                                       connector,
+                                       META_KMS_CONNECTOR_PROP_DPMS,
+                                       &dpms_value,
+                                       error))
+            return FALSE;
+
+          if (dpms_value != DRM_MODE_DPMS_ON)
+            {
+              meta_topic (META_DEBUG_KMS,
+                          "[simple] Setting DPMS of connector %u (%s) to ON",
+                          meta_kms_connector_get_id (connector),
+                          meta_kms_impl_device_get_path (impl_device));
+
+              if (!set_connector_property (impl_device,
+                                           connector,
+                                           META_KMS_CONNECTOR_PROP_DPMS,
+                                           DRM_MODE_DPMS_ON,
+                                           error))
+                return FALSE;
+            }
+        }
 
       meta_topic (META_DEBUG_KMS,
                   "[simple] Setting mode of CRTC %u (%s) to %s",
@@ -1256,17 +1353,24 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
               "[simple] Processing update %" G_GUINT64_FORMAT,
               meta_kms_update_get_sequence_number (update));
 
-  if (!process_entries (impl_device,
-                        update,
-                        meta_kms_update_get_connector_updates (update),
-                        process_connector_update,
-                        &error))
-    goto err;
+  if (meta_kms_update_is_power_save (update))
+    {
+      if (!process_power_save (impl_device, &error))
+        goto err;
+      goto out;
+    }
 
   if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_mode_sets (update),
                         process_mode_set,
+                        &error))
+    goto err;
+
+  if (!process_entries (impl_device,
+                        update,
+                        meta_kms_update_get_connector_updates (update),
+                        process_connector_update,
                         &error))
     goto err;
 
@@ -1283,6 +1387,7 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
   if (!maybe_dispatch_page_flips (impl_device, update, &failed_planes, &error))
     goto err;
 
+out:
   return meta_kms_feedback_new_passed (failed_planes);
 
 err:

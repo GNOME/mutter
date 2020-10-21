@@ -95,9 +95,7 @@ void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 void meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
                                           MetaKmsConnector *connector);
 
-void meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
-                                     MetaKmsConnector *connector,
-                                     uint64_t          state);
+void meta_kms_update_set_power_save (MetaKmsUpdate *update);
 
 void meta_kms_update_mode_set (MetaKmsUpdate *update,
                                MetaKmsCrtc   *crtc,

@@ -102,20 +102,6 @@ meta_output_kms_get_connector_id (MetaOutputKms *output_kms)
   return meta_kms_connector_get_id (output_kms->kms_connector);
 }
 
-void
-meta_output_kms_set_power_save_mode (MetaOutputKms *output_kms,
-                                     uint64_t       dpms_state,
-                                     MetaKmsUpdate *kms_update)
-{
-  g_debug ("Setting DPMS state of connector %s to %" G_GUINT64_FORMAT,
-           meta_kms_connector_get_name (output_kms->kms_connector),
-           dpms_state);
-
-  meta_kms_update_set_dpms_state (kms_update,
-                                  output_kms->kms_connector,
-                                  dpms_state);
-}
-
 gboolean
 meta_output_kms_can_clone (MetaOutputKms *output_kms,
                            MetaOutputKms *other_output_kms)
