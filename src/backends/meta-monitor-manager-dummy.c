@@ -34,6 +34,7 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
+#include "meta/main.h"
 #include "meta/util.h"
 
 #define MAX_MONITORS 5
@@ -188,6 +189,12 @@ append_monitor (MetaMonitorManager *manager,
           spec = g_memdup (&default_specs[i], sizeof (CrtcModeSpec));
           mode_specs = g_list_prepend (mode_specs, spec);
         }
+    }
+
+  if (!mode_specs)
+    {
+      g_warning ("Cannot create dummy output: No valid mode specs.");
+      meta_exit (META_EXIT_ERROR);
     }
 
   for (l = mode_specs; l; l = l->next)
