@@ -168,10 +168,6 @@ append_monitor (MetaMonitorManager *manager,
             {
               CrtcModeSpec *spec;
 
-              if (width < META_MONITOR_MANAGER_MIN_SCREEN_WIDTH ||
-                  height < META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT)
-                continue;
-
               spec = g_new0 (CrtcModeSpec, 1);
               spec->width = width;
               spec->height = height;
