@@ -465,18 +465,26 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
 }
 
 static void
-get_pointer_position_gdk (int         *x,
-                          int         *y,
-                          int         *mods)
+get_pointer_position_gdk (graphene_point_t *point,
+                          int              *mods)
 {
   GdkSeat *gseat;
   GdkDevice *gdevice;
   GdkScreen *gscreen;
+  int x, y;
 
   gseat = gdk_display_get_default_seat (gdk_display_get_default ());
   gdevice = gdk_seat_get_pointer (gseat);
 
-  gdk_device_get_position (gdevice, &gscreen, x, y);
+  /* Even if point is NULL we need this to get gscreen */
+  gdk_device_get_position (gdevice, &gscreen, &x, &y);
+
+  if (point)
+    {
+      point->x = x;
+      point->y = y;
+    }
+
   if (mods)
     gdk_device_get_state (gdevice,
                           gdk_screen_get_root_window (gscreen),
@@ -509,17 +517,9 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
      we forward to xwayland.
   */
   if (meta_is_wayland_compositor ())
-    {
-      get_pointer_position_clutter (coords, (int*)mods);
-    }
+    get_pointer_position_clutter (coords, (int *) mods);
   else
-    {
-      int x, y;
-
-      get_pointer_position_gdk (&x, &y, (int*)mods);
-      coords->x = x;
-      coords->y = y;
-    }
+    get_pointer_position_gdk (coords, (int *) mods);
 }
 
 void
