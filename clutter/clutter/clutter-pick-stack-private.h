@@ -61,6 +61,8 @@ clutter_pick_stack_search_actor (ClutterPickStack         *pick_stack,
                                  const graphene_point3d_t *point,
                                  const graphene_ray_t     *ray);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPickStack, clutter_pick_stack_unref)
+
 G_END_DECLS
 
 #endif /* CLUTTER_PICK_STACK_PRIVATE_H */
