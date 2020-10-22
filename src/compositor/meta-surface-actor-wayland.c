@@ -81,6 +81,54 @@ meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
   return scanout;
 }
 
+#define UNOBSCURED_TRESHOLD 0.1
+
+ClutterStageView *
+meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
+                                                     ClutterStage     *stage)
+{
+  ClutterStageView *current_primary_view = NULL;
+  float highest_refresh_rate = 0;
+  float biggest_unobscurred_fraction = 0;
+  GList *l;
+
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      float refresh_rate;
+      float unobscurred_fraction = 1.0;
+
+      if (clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)))
+        {
+          if (!clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
+                                                           stage_view))
+            continue;
+        }
+      else
+        {
+          if (meta_surface_actor_is_obscured_on_stage_view (actor,
+                                                            stage_view,
+                                                            &unobscurred_fraction))
+            continue;
+        }
+
+      refresh_rate = clutter_stage_view_get_refresh_rate (stage_view);
+
+      if ((refresh_rate > highest_refresh_rate &&
+           (unobscurred_fraction > UNOBSCURED_TRESHOLD ||
+            biggest_unobscurred_fraction < UNOBSCURED_TRESHOLD)) ||
+          (biggest_unobscurred_fraction < UNOBSCURED_TRESHOLD &&
+           unobscurred_fraction > UNOBSCURED_TRESHOLD))
+        {
+          current_primary_view = stage_view;
+          highest_refresh_rate = refresh_rate;
+          biggest_unobscurred_fraction = unobscurred_fraction;
+        }
+    }
+
+  return current_primary_view;
+}
+
 static void
 meta_surface_actor_wayland_dispose (GObject *object)
 {

@@ -55,6 +55,9 @@ void meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *se
 CoglScanout * meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
                                                               CoglOnscreen            *onscreen);
 
+ClutterStageView * meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
+                                                                        ClutterStage     *stage);
+
 G_END_DECLS
 
 #endif /* __META_SURFACE_ACTOR_WAYLAND_H__ */
