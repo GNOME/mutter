@@ -30,6 +30,7 @@
 
 #include "clutter/clutter.h"
 #include "clutter/wayland/clutter-wayland-compositor.h"
+#include "compositor/meta-surface-actor-wayland.h"
 #include "core/main-private.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-data-device.h"
@@ -212,6 +213,7 @@ on_after_update (ClutterStage          *stage,
       MetaWaylandSurface *surface = l->data;
       MetaSurfaceActor *actor;
       MetaWaylandActorSurface *actor_surface;
+      ClutterStageView *surface_primary_view;
 
       l = l->next;
 
@@ -219,12 +221,9 @@ on_after_update (ClutterStage          *stage,
       if (!actor)
         continue;
 
-      if (!clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)) &&
-          meta_surface_actor_is_obscured (actor))
-        continue;
-
-      if (!clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
-                                                       stage_view))
+      surface_primary_view =
+        meta_surface_actor_wayland_get_current_primary_view (actor, stage);
+      if (stage_view != surface_primary_view)
         continue;
 
       actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
