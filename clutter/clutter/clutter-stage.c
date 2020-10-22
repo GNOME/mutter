@@ -124,9 +124,6 @@ struct _ClutterStagePrivate
   GTimer *fps_timer;
   gint32 timer_n_frames;
 
-  ClutterPickStack *pick_stack;
-  ClutterPickMode cached_pick_mode;
-
   ClutterStageState current_state;
 
   int update_freeze_count;
@@ -226,15 +223,6 @@ clutter_stage_get_preferred_height (ClutterActor *self,
 
   if (natural_height_p)
     *natural_height_p = geom.height;
-}
-
-static void
-_clutter_stage_clear_pick_stack (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_clear_pointer (&priv->pick_stack, clutter_pick_stack_unref);
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
 static void
@@ -457,18 +445,11 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
                              ClutterStageView     *view,
                              const cairo_region_t *redraw_clip)
 {
-  ClutterStagePrivate *priv = stage->priv;
   ClutterPaintContext *paint_context;
   cairo_rectangle_int_t clip_rect;
   g_autoptr (GArray) clip_frusta = NULL;
   graphene_frustum_t clip_frustum;
   int n_rectangles;
-
-  /* Any mode of painting/picking invalidates the pick cache, unless we're
-   * in the middle of building it. So we reset the cached flag but don't
-   * completely clear the pick stack.
-   */
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 
   n_rectangles = redraw_clip ? cairo_region_num_rectangles (redraw_clip) : 0;
   if (redraw_clip && n_rectangles < MAX_FRUSTA)
@@ -632,7 +613,6 @@ clutter_stage_hide (ClutterActor *self)
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
 
   g_assert (priv->impl != NULL);
-  _clutter_stage_clear_pick_stack (CLUTTER_STAGE (self));
   _clutter_stage_window_hide (priv->impl);
 
   CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->hide (self);
@@ -1100,31 +1080,23 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 ClutterPickMode   mode,
                                 ClutterStageView *view)
 {
-  ClutterStagePrivate *priv = stage->priv;
+  g_autoptr (ClutterPickStack) pick_stack = NULL;
+  ClutterPickContext *pick_context;
   graphene_point3d_t p;
   graphene_ray_t ray;
   ClutterActor *actor;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
 
-  if (!priv->pick_stack || mode != priv->cached_pick_mode)
-    {
-      ClutterPickContext *pick_context;
+  pick_context = clutter_pick_context_new_for_view (view, mode);
 
-      _clutter_stage_clear_pick_stack (stage);
-
-      pick_context = clutter_pick_context_new_for_view (view, mode);
-
-      clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
-      priv->pick_stack = clutter_pick_context_steal_stack (pick_context);
-      priv->cached_pick_mode = mode;
-
-      clutter_pick_context_destroy (pick_context);
-    }
+  clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
+  pick_stack = clutter_pick_context_steal_stack (pick_context);
+  clutter_pick_context_destroy (pick_context);
 
   setup_ray_for_coordinates (stage, x, y, &p, &ray);
 
-  actor = clutter_pick_stack_search_actor (priv->pick_stack, &p, &ray);
+  actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray);
   return actor ? actor : CLUTTER_ACTOR (stage);
 }
 
@@ -1333,8 +1305,6 @@ clutter_stage_finalize (GObject *object)
   g_free (priv->title);
 
   g_array_free (priv->paint_volume_stack, TRUE);
-
-  _clutter_stage_clear_pick_stack (stage);
 
   if (priv->fps_timer != NULL)
     g_timer_destroy (priv->fps_timer);
@@ -1653,8 +1623,6 @@ clutter_stage_init (ClutterStage *self)
 
   priv->paint_volume_stack =
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
-
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
 static void
@@ -2726,12 +2694,6 @@ clutter_stage_queue_actor_redraw (ClutterStage             *stage,
 
   CLUTTER_NOTE (CLIPPING, "stage_queue_actor_redraw (actor=%s, clip=%p): ",
                 _clutter_actor_get_debug_name (actor), clip);
-
-  /* Queuing a redraw or clip change invalidates the pick cache, unless we're
-   * in the middle of building it. So we reset the cached flag but don't
-   * completely clear the pick stack...
-   */
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 
   if (!priv->pending_finish_queue_redraws)
     {
