@@ -629,6 +629,14 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
 
+  if (slot > CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Touch slot out of range");
+      return TRUE;
+    }
+
   if (!session->screen_cast_session)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
@@ -676,6 +684,14 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
     return TRUE;
 
 
+  if (slot > CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Touch slot out of range");
+      return TRUE;
+    }
+
   if (!session->screen_cast_session)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
@@ -709,13 +725,21 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
 
 static gboolean
 handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
-                          GDBusMethodInvocation        *invocation,
-                          unsigned int                  slot)
+                        GDBusMethodInvocation        *invocation,
+                        unsigned int                  slot)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
+
+  if (slot > CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Touch slot out of range");
+      return TRUE;
+    }
 
   clutter_virtual_input_device_notify_touch_up (session->virtual_touchscreen,
                                                        CLUTTER_CURRENT_TIME,

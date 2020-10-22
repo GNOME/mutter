@@ -151,6 +151,10 @@ clutter_virtual_input_device_notify_touch_down (ClutterVirtualInputDevice *virtu
   ClutterVirtualInputDeviceClass *klass =
     CLUTTER_VIRTUAL_INPUT_DEVICE_GET_CLASS (virtual_device);
 
+  g_return_if_fail (CLUTTER_IS_VIRTUAL_INPUT_DEVICE (virtual_device));
+  g_return_if_fail (slot >= 0 &&
+                    slot < CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS);
+
   klass->notify_touch_down (virtual_device, time_us,
                             slot, x, y);
 }
@@ -165,6 +169,10 @@ clutter_virtual_input_device_notify_touch_motion (ClutterVirtualInputDevice *vir
   ClutterVirtualInputDeviceClass *klass =
     CLUTTER_VIRTUAL_INPUT_DEVICE_GET_CLASS (virtual_device);
 
+  g_return_if_fail (CLUTTER_IS_VIRTUAL_INPUT_DEVICE (virtual_device));
+  g_return_if_fail (slot >= 0 &&
+                    slot < CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS);
+
   klass->notify_touch_motion (virtual_device, time_us,
                               slot, x, y);
 }
@@ -176,6 +184,10 @@ clutter_virtual_input_device_notify_touch_up (ClutterVirtualInputDevice *virtual
 {
   ClutterVirtualInputDeviceClass *klass =
     CLUTTER_VIRTUAL_INPUT_DEVICE_GET_CLASS (virtual_device);
+
+  g_return_if_fail (CLUTTER_IS_VIRTUAL_INPUT_DEVICE (virtual_device));
+  g_return_if_fail (slot >= 0 &&
+                    slot < CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS);
 
   klass->notify_touch_up (virtual_device, time_us,
                           slot);

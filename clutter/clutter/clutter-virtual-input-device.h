@@ -31,6 +31,8 @@
 
 #define CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE (clutter_virtual_input_device_get_type ())
 
+#define CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS 32u
+
 CLUTTER_EXPORT
 G_DECLARE_DERIVABLE_TYPE (ClutterVirtualInputDevice,
                           clutter_virtual_input_device,
