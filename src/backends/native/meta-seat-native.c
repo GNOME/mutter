@@ -2603,6 +2603,7 @@ meta_seat_native_finalize (GObject *object)
     }
   g_slist_free (seat->devices);
   g_free (seat->touch_states);
+  g_hash_table_destroy (seat->reserved_virtual_slots);
 
   g_object_unref (seat->udev_client);
 
@@ -2700,14 +2701,49 @@ meta_seat_native_apply_kbd_a11y_settings (ClutterSeat            *seat,
                                                       settings);
 }
 
+static guint
+bump_virtual_touch_slot_base (MetaSeatNative *seat_native)
+{
+  while (TRUE)
+    {
+      if (seat_native->virtual_touch_slot_base < 0x100)
+        seat_native->virtual_touch_slot_base = 0x100;
+
+      seat_native->virtual_touch_slot_base +=
+        CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS;
+
+      if (!g_hash_table_lookup (seat_native->reserved_virtual_slots,
+                                GUINT_TO_POINTER (seat_native->virtual_touch_slot_base)))
+        break;
+    }
+
+  return seat_native->virtual_touch_slot_base;
+}
+
 static ClutterVirtualInputDevice *
 meta_seat_native_create_virtual_device (ClutterSeat            *seat,
                                         ClutterInputDeviceType  device_type)
 {
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  guint slot_base;
+
+  slot_base = bump_virtual_touch_slot_base (seat_native);
+  g_hash_table_add (seat_native->reserved_virtual_slots,
+                    GUINT_TO_POINTER (slot_base));
+
   return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_NATIVE,
                        "seat", seat,
+                       "slot-base", slot_base,
                        "device-type", device_type,
                        NULL);
+}
+
+void
+meta_seat_native_release_touch_slots (MetaSeatNative *seat,
+                                      guint           base_slot)
+{
+  g_hash_table_remove (seat->reserved_virtual_slots,
+                       GUINT_TO_POINTER (base_slot));
 }
 
 static ClutterVirtualDeviceType
@@ -2854,6 +2890,8 @@ meta_seat_native_init (MetaSeatNative *seat)
   seat->repeat = TRUE;
   seat->repeat_delay = 250;     /* ms */
   seat->repeat_interval = 33;   /* ms */
+
+  seat->reserved_virtual_slots = g_hash_table_new (NULL, NULL);
 }
 
 void

@@ -90,6 +90,8 @@ struct _MetaSeatNative
 
   MetaTouchState **touch_states;
   int n_alloc_touch_states;
+  guint virtual_touch_slot_base;
+  GHashTable *reserved_virtual_slots;
 
   struct xkb_state *xkb;
   xkb_led_index_t caps_lock_led;
@@ -287,5 +289,8 @@ void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
                                            gboolean        repeat,
                                            uint32_t        delay,
                                            uint32_t        interval);
+
+void meta_seat_native_release_touch_slots (MetaSeatNative *seat,
+                                           guint           base_slot);
 
 #endif /* META_SEAT_NATIVE_H */

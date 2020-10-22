@@ -34,6 +34,7 @@ enum
   PROP_0,
 
   PROP_SEAT,
+  PROP_SLOT_BASE,
 
   PROP_LAST
 };
@@ -46,6 +47,7 @@ struct _MetaVirtualInputDeviceNative
 
   ClutterInputDevice *device;
   MetaSeatNative *seat;
+  guint slot_base;
   int button_count[KEY_CNT];
 };
 
@@ -547,14 +549,16 @@ meta_virtual_input_device_native_notify_touch_down (ClutterVirtualInputDevice *v
   MetaInputDeviceNative *device_evdev =
     META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
+  guint seat_slot;
 
   g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
+  seat_slot = virtual_evdev->slot_base + (guint) device_slot;
   touch_state = meta_input_device_native_acquire_touch_state (device_evdev,
-                                                              device_slot);
+                                                              seat_slot);
   if (!touch_state)
     return;
 
@@ -582,14 +586,16 @@ meta_virtual_input_device_native_notify_touch_motion (ClutterVirtualInputDevice 
   MetaInputDeviceNative *device_evdev =
     META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
+  guint seat_slot;
 
   g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
+  seat_slot = virtual_evdev->slot_base + (guint) device_slot;
   touch_state = meta_input_device_native_lookup_touch_state (device_evdev,
-                                                             device_slot);
+                                                             seat_slot);
   if (!touch_state)
     return;
 
@@ -615,14 +621,16 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
   MetaInputDeviceNative *device_evdev =
     META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
+  guint seat_slot;
 
   g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
+  seat_slot = virtual_evdev->slot_base + (guint) device_slot;
   touch_state = meta_input_device_native_lookup_touch_state (device_evdev,
-                                                             device_slot);
+                                                             seat_slot);
   if (!touch_state)
     return;
 
@@ -651,6 +659,9 @@ meta_virtual_input_device_native_get_property (GObject    *object,
     case PROP_SEAT:
       g_value_set_pointer (value, virtual_evdev->seat);
       break;
+    case PROP_SLOT_BASE:
+      g_value_set_uint (value, virtual_evdev->slot_base);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -670,6 +681,9 @@ meta_virtual_input_device_native_set_property (GObject      *object,
     {
     case PROP_SEAT:
       virtual_evdev->seat = g_value_get_pointer (value);
+      break;
+    case PROP_SLOT_BASE:
+      virtual_evdev->slot_base = g_value_get_uint (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -726,6 +740,9 @@ meta_virtual_input_device_native_dispose (GObject *object)
       g_clear_object (&virtual_evdev->device);
     }
 
+  meta_seat_native_release_touch_slots (virtual_evdev->seat,
+                                        virtual_evdev->slot_base);
+
   object_class->dispose (object);
 }
 
@@ -762,5 +779,11 @@ meta_virtual_input_device_native_class_init (MetaVirtualInputDeviceNativeClass *
                                                "Seat",
                                                CLUTTER_PARAM_READWRITE |
                                                G_PARAM_CONSTRUCT_ONLY);
+  obj_props[PROP_SLOT_BASE] = g_param_spec_uint ("slot-base",
+                                                 "Slot base",
+                                                 "Base for touch slots",
+                                                 0, G_MAXUINT, 0,
+                                                 CLUTTER_PARAM_READWRITE |
+                                                 G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
