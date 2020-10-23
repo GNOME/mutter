@@ -21,8 +21,11 @@
 #include "clutter-pick-context.h"
 #include "clutter-pick-stack-private.h"
 
-ClutterPickContext * clutter_pick_context_new_for_view (ClutterStageView *view,
-                                                        ClutterPickMode   mode);
+ClutterPickContext *
+clutter_pick_context_new_for_view (ClutterStageView         *view,
+                                   ClutterPickMode           mode,
+                                   const graphene_point3d_t *point,
+                                   const graphene_ray_t     *ray);
 
 ClutterPickStack *
 clutter_pick_context_steal_stack (ClutterPickContext *pick_context);

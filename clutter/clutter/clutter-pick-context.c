@@ -26,6 +26,9 @@ struct _ClutterPickContext
 
   ClutterPickMode mode;
   ClutterPickStack *pick_stack;
+
+  graphene_ray_t ray;
+  graphene_point3d_t point;
 };
 
 G_DEFINE_BOXED_TYPE (ClutterPickContext, clutter_pick_context,
@@ -33,8 +36,10 @@ G_DEFINE_BOXED_TYPE (ClutterPickContext, clutter_pick_context,
                      clutter_pick_context_unref)
 
 ClutterPickContext *
-clutter_pick_context_new_for_view (ClutterStageView *view,
-                                   ClutterPickMode   mode)
+clutter_pick_context_new_for_view (ClutterStageView         *view,
+                                   ClutterPickMode           mode,
+                                   const graphene_point3d_t *point,
+                                   const graphene_ray_t     *ray)
 {
   ClutterPickContext *pick_context;
   CoglContext *context;
@@ -42,6 +47,8 @@ clutter_pick_context_new_for_view (ClutterStageView *view,
   pick_context = g_new0 (ClutterPickContext, 1);
   g_ref_count_init (&pick_context->ref_count);
   pick_context->mode = mode;
+  graphene_ray_init_from_ray (&pick_context->ray, ray);
+  graphene_point3d_init_from_point (&pick_context->point, point);
 
   context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   pick_context->pick_stack = clutter_pick_stack_new (context);

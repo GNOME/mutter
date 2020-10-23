@@ -1088,13 +1088,13 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
 
-  pick_context = clutter_pick_context_new_for_view (view, mode);
+  setup_ray_for_coordinates (stage, x, y, &p, &ray);
+
+  pick_context = clutter_pick_context_new_for_view (view, mode, &p, &ray);
 
   clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
   pick_stack = clutter_pick_context_steal_stack (pick_context);
   clutter_pick_context_destroy (pick_context);
-
-  setup_ray_for_coordinates (stage, x, y, &p, &ray);
 
   actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray);
   return actor ? actor : CLUTTER_ACTOR (stage);
