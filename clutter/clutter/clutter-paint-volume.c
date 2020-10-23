@@ -1131,3 +1131,25 @@ _clutter_paint_volume_transform_relative (ClutterPaintVolume *pv,
 
   _clutter_paint_volume_transform (pv, &matrix);
 }
+
+void
+clutter_paint_volume_to_box (ClutterPaintVolume *pv,
+                             graphene_box_t     *box)
+{
+  int vertex_count;
+
+  if (pv->is_empty)
+    {
+      graphene_box_init_from_box (box, graphene_box_empty ());
+      return;
+    }
+
+  _clutter_paint_volume_complete (pv);
+
+  if (G_LIKELY (pv->is_2d))
+    vertex_count = 4;
+  else
+    vertex_count = 8;
+
+  graphene_box_init_from_points (box, vertex_count, pv->vertices);
+}

@@ -133,6 +133,9 @@ void                _clutter_paint_volume_get_stage_paint_box  (ClutterPaintVolu
 void                _clutter_paint_volume_transform_relative   (ClutterPaintVolume *pv,
                                                                 ClutterActor *relative_to_ancestor);
 
+void                clutter_paint_volume_to_box                (ClutterPaintVolume *pv,
+                                                                graphene_box_t     *box);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_VOLUME_PRIVATE_H__ */
