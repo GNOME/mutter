@@ -26,11 +26,16 @@ debugging purposes.
 
 To contribute, open merge requests at https://gitlab.gnome.org/GNOME/mutter.
 
+It can be useful to look at the documentation available at the
+[Wiki](https://gitlab.gnome.org/GNOME/mutter/-/wikis/home).
+
 The coding style used is primarily the GNU flavor of the [GNOME coding
 style](https://developer.gnome.org/programming-guidelines/stable/c-coding-style.html.en)
-with some minor additions such as preferring `stdint.h` types over GLib
-fundamental types, and a soft 80 character line limit. However, in general,
-look at the file you're editing for inspiration.
+with some minor additions such as preferring regular C types and
+`stdint.h` types over GLib fundamental types, except for gboolean, and
+guint/gulong for GSource ids and signal handler ids. There is also a soft
+80 character line limit. However, in general, look at the file you're
+editing for inspiration.
 
 Commit messages should follow the [GNOME commit message
 guidelines](https://wiki.gnome.org/Git/CommitMessages). We require an URL
