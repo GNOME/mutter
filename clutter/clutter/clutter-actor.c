@@ -167,16 +167,11 @@
  *   clutter_paint_node_unref (node);
  * }
  *
- * The #ClutterActorClass.paint() virtual function is invoked when the
- * #ClutterActor::paint signal is emitted, and after the other signal
- * handlers have been invoked. Overriding the paint virtual function
- * gives total control to the paint sequence of the actor itself,
- * including the children of the actor, if any.
- *
- * It is strongly discouraged to override the #ClutterActorClass.paint()
- * virtual function, as well as connecting to the #ClutterActor::paint
- * signal. These hooks into the paint sequence are considered legacy, and
- * will be removed when the Clutter API changes.
+ * The #ClutterActorClass.paint() virtual function function gives total
+ * control to the paint sequence of the actor itself, including the
+ * children of the actor, if any. It is strongly discouraged to override
+ * the #ClutterActorClass.paint() virtual function and it will be removed
+ * when the Clutter API changes.
  *
  * ## Handling events on an actor ## {#clutter-actor-event-handling}
  *
@@ -371,13 +366,6 @@
  * a #ClutterActor sub-class. It is generally recommended to implement a
  * sub-class of #ClutterActor only for actors that should be used as leaf
  * nodes of a scene graph.
- *
- * If your actor should be painted in a custom way, you should
- * override the #ClutterActor::paint signal class handler. You can either
- * opt to chain up to the parent class implementation or decide to fully
- * override the default paint implementation; Clutter will set up the
- * transformations and clip regions prior to emitting the #ClutterActor::paint
- * signal.
  *
  * By overriding the #ClutterActorClass.get_preferred_width() and
  * #ClutterActorClass.get_preferred_height() virtual functions it is
@@ -3731,8 +3719,8 @@ clutter_actor_paint_node (ClutterActor        *actor,
  * This function is context-aware, and will either cause a
  * regular paint or a pick paint.
  *
- * This function will emit the #ClutterActor::paint signal or
- * the #ClutterActor::pick signal, depending on the context.
+ * This function will call the #ClutterActorClass.paint() virtual
+ * function.
  *
  * This function does not paint the actor if the actor is set to 0,
  * unless it is performing a pick paint.
@@ -3978,17 +3966,12 @@ clutter_actor_continue_paint (ClutterActor        *self,
       clutter_paint_node_set_static_name (dummy, "Root");
 
       /* XXX - for 1.12, we use the return value of paint_node() to
-       * decide whether we should emit the ::paint signal.
+       * decide whether we should call the paint() vfunc.
        */
       clutter_actor_paint_node (self, dummy, paint_context);
       clutter_paint_node_unref (dummy);
 
-      /* XXX:2.0 - Call the paint() virtual directly */
-      if (g_signal_has_handler_pending (self, actor_signals[PAINT],
-                                        0, TRUE))
-        g_signal_emit (self, actor_signals[PAINT], 0, paint_context);
-      else
-        CLUTTER_ACTOR_GET_CLASS (self)->paint (self, paint_context);
+      CLUTTER_ACTOR_GET_CLASS (self)->paint (self, paint_context);
     }
   else
     {
@@ -7828,39 +7811,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                               G_TYPE_FROM_CLASS (object_class),
                               _clutter_marshal_BOOLEAN__BOXEDv);
 
-  /**
-   * ClutterActor::paint:
-   * @actor: the #ClutterActor that received the signal
-   * @paint_context: a #ClutterPaintContext
-   *
-   * The ::paint signal is emitted each time an actor is being painted.
-   *
-   * Subclasses of #ClutterActor should override the #ClutterActorClass.paint
-   * virtual function paint themselves in that function.
-   *
-   * It is strongly discouraged to connect a signal handler to
-   * the #ClutterActor::paint signal; if you want to change the paint
-   * sequence of an existing #ClutterActor instance, either create a new
-   * #ClutterActor class and override the #ClutterActorClass.paint virtual
-   * function, or use a #ClutterEffect. The #ClutterActor::paint signal
-   * will be removed in a future version of Clutter.
-   *
-   * Since: 0.8
-   *
-   * Deprecated: 1.12: Override the #ClutterActorClass.paint virtual
-   *   function, use a #ClutterContent implementation, or a #ClutterEffect
-   *   instead of connecting to this signal.
-   */
-  actor_signals[PAINT] =
-    g_signal_new (I_("paint"),
-                  G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_LAST |
-                  G_SIGNAL_NO_HOOKS |
-                  G_SIGNAL_DEPRECATED,
-                  G_STRUCT_OFFSET (ClutterActorClass, paint),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_PAINT_CONTEXT);
   /**
    * ClutterActor::realize:
    * @actor: the #ClutterActor that received the signal
@@ -14821,9 +14771,8 @@ _clutter_actor_set_in_clone_paint (ClutterActor *self,
  *
  * Checks whether @self is being currently painted by a #ClutterClone
  *
- * This function is useful only inside the ::paint virtual function
- * implementations or within handlers for the #ClutterActor::paint
- * signal
+ * This function is useful only inside implementations of the
+ * #ClutterActorClass.paint() virtual function.
  *
  * This function should not be used by applications
  *
@@ -15734,46 +15683,6 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
     {
       CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
                     "Actor needs allocation",
-                    _clutter_actor_get_debug_name (self));
-      return FALSE;
-    }
-
-  /* Check if there are any handlers connected to the paint
-   * signal. If there are then all bets are off for what the paint
-   * volume for this actor might possibly be!
-   *
-   * XXX: It's expected that this is going to end up being quite a
-   * costly check to have to do here, but we haven't come up with
-   * another solution that can reliably catch paint signal handlers at
-   * the right time to either avoid artefacts due to invalid stage
-   * clipping or due to incorrect culling.
-   *
-   * Previously we checked in clutter_actor_paint(), but at that time
-   * we may already be using a stage clip that could be derived from
-   * an invalid paint-volume. We used to try and handle that by
-   * queuing a follow up, unclipped, redraw but still the previous
-   * checking wasn't enough to catch invalid volumes involved in
-   * culling (considering that containers may derive their volume from
-   * children that haven't yet been painted)
-   *
-   * Longer term, improved solutions could be:
-   * - Disallow painting in the paint signal, only allow using it
-   *   for tracking when paints happen. We can add another API that
-   *   allows monkey patching the paint of arbitrary actors but in a
-   *   more controlled way and that also supports modifying the
-   *   paint-volume.
-   * - If we could be notified somehow when signal handlers are
-   *   connected we wouldn't have to poll for handlers like this.
-   *
-   * XXX:2.0 - Remove when we remove the paint signal
-   */
-  if (g_signal_has_handler_pending (self,
-                                    actor_signals[PAINT],
-                                    0,
-                                    TRUE))
-    {
-      CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
-                    "Actor has \"paint\" signal handlers",
                     _clutter_actor_get_debug_name (self));
       return FALSE;
     }
