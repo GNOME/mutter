@@ -635,6 +635,7 @@
 #include "clutter-paint-nodes.h"
 #include "clutter-paint-node-private.h"
 #include "clutter-paint-volume-private.h"
+#include "clutter-pick-context-private.h"
 #include "clutter-private.h"
 #include "clutter-property-transition.h"
 #include "clutter-scriptable.h"
@@ -3959,6 +3960,15 @@ clutter_actor_pick (ClutterActor       *actor,
   /* mark that we are in the paint process */
   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
 
+  if (priv->paint_volume_valid && priv->last_paint_volume_valid)
+    {
+      graphene_box_t box;
+
+      clutter_paint_volume_to_box (&priv->last_paint_volume, &box);
+      if (!clutter_pick_context_intersects_box (pick_context, &box))
+        goto out;
+    }
+
   if (priv->enable_model_view_transform)
     {
       graphene_matrix_t matrix;
@@ -4007,6 +4017,7 @@ clutter_actor_pick (ClutterActor       *actor,
   if (transform_pushed)
     clutter_pick_context_pop_transform (pick_context);
 
+out:
   /* paint sequence complete */
   CLUTTER_UNSET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
 }

@@ -189,3 +189,11 @@ clutter_pick_context_pop_transform (ClutterPickContext *pick_context)
 {
   clutter_pick_stack_pop_transform (pick_context->pick_stack);
 }
+
+gboolean
+clutter_pick_context_intersects_box (ClutterPickContext   *pick_context,
+                                     const graphene_box_t *box)
+{
+  return graphene_box_contains_point (box, &pick_context->point) ||
+         graphene_ray_intersects_box (&pick_context->ray, box);
+}

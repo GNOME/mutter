@@ -30,4 +30,8 @@ clutter_pick_context_new_for_view (ClutterStageView         *view,
 ClutterPickStack *
 clutter_pick_context_steal_stack (ClutterPickContext *pick_context);
 
+gboolean
+clutter_pick_context_intersects_box (ClutterPickContext   *pick_context,
+                                     const graphene_box_t *box);
+
 #endif /* CLUTTER_PICK_CONTEXT_PRIVATE_H */
