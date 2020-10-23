@@ -140,9 +140,9 @@ check_paint (TestState *state, int x, int y, int scale)
 #define FRAME_COUNT_UPDATED 8
 
 static void
-on_paint (ClutterActor        *actor,
-          ClutterPaintContext *paint_context,
-          TestState           *state)
+on_after_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context,
+                TestState           *state)
 {
   CoglHandle material;
 
@@ -219,8 +219,8 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (state.stage), &stage_color);
 
-  paint_handler = g_signal_connect_after (state.stage, "paint",
-                                          G_CALLBACK (on_paint), &state);
+  paint_handler = g_signal_connect (CLUTTER_STAGE (state.stage), "after-paint",
+                                    G_CALLBACK (on_after_paint), &state);
 
   idle_handler = g_idle_add (queue_redraw, state.stage);
 

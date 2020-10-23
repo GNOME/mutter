@@ -13,9 +13,9 @@ static int n_chars;
 static int rows, cols;
 
 static void
-on_paint (ClutterActor        *actor,
-          ClutterPaintContext *paint_context,
-          gconstpointer       *data)
+on_after_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context,
+                gconstpointer       *data)
 {
   static GTimer *timer = NULL;
   static int fps = 0;
@@ -135,7 +135,7 @@ main (int argc, char *argv[])
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Performance");
 
-  g_signal_connect (stage, "paint", G_CALLBACK (on_paint), NULL);
+  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 
   label = create_label ();
   w = clutter_actor_get_width (label);

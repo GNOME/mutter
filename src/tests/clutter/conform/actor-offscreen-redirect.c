@@ -168,12 +168,12 @@ verify_redraw (Data *data, int expected_paint_count)
   GMainLoop *main_loop = g_main_loop_new (NULL, TRUE);
   gulong paint_handler;
 
-  paint_handler = g_signal_connect_data (data->stage,
-                                         "paint",
+  paint_handler = g_signal_connect_data (CLUTTER_STAGE (data->stage),
+                                         "after-paint",
                                          G_CALLBACK (g_main_loop_quit),
                                          main_loop,
                                          NULL,
-                                         G_CONNECT_SWAPPED | G_CONNECT_AFTER);
+                                         G_CONNECT_SWAPPED);
 
   /* Queue a redraw on the stage */
   clutter_actor_queue_redraw (data->stage);

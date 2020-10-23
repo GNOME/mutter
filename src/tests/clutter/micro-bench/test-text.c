@@ -12,9 +12,9 @@
 #define ROWS 20
 
 static void
-on_paint (ClutterActor        *actor,
-          ClutterPaintContext *paint_context,
-          gconstpointer       *data)
+on_after_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context,
+                gconstpointer       *data)
 {
   static GTimer *timer = NULL;
   static int fps = 0;
@@ -65,7 +65,7 @@ main (int argc, char *argv[])
 
   clutter_threads_add_idle (queue_redraw, stage);
 
-  g_signal_connect (group, "paint", G_CALLBACK (on_paint), NULL);
+  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 
   {
     gint row, col;

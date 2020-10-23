@@ -166,8 +166,8 @@ static unsigned int timeout_id = 0;
 static int shader_no = 0;
 
 static void
-paint_cb (ClutterActor        *actor,
-          ClutterPaintContext *paint_context)
+on_after_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context)
 {
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
@@ -326,7 +326,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   cogl_material_set_layer (material, 0, redhand);
 
   set_shader_num (0);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (paint_cb), NULL);
+  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 
   clutter_actor_set_reactive (stage, TRUE);
   g_signal_connect (stage, "button-release-event",

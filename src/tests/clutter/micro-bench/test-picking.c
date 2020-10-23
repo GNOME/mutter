@@ -56,9 +56,9 @@ do_events (ClutterActor *stage)
 }
 
 static void
-on_paint (ClutterActor        *stage,
-          ClutterPaintContext *paint_context,
-          gconstpointer       *data)
+on_after_paint (ClutterActor        *stage,
+                ClutterPaintContext *paint_context,
+                gconstpointer       *data)
 {
   do_events (stage);
 }
@@ -129,7 +129,7 @@ main (int argc, char **argv)
 
   clutter_threads_add_idle (queue_redraw, stage);
 
-  g_signal_connect (stage, "paint", G_CALLBACK (on_paint), NULL);
+  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 
   clutter_test_main ();
 

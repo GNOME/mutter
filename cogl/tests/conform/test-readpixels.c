@@ -15,9 +15,9 @@ static const ClutterColor stage_color = { 0x0, 0x0, 0x0, 0xff };
 
 
 static void
-on_paint (ClutterActor        *actor,
-          ClutterPaintContext *paint_context,
-          void                *state)
+on_after_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context,
+                void                *state)
 {
   float saved_viewport[4];
   graphene_matrix_t saved_projection;
@@ -162,7 +162,7 @@ test_readpixels (TestUtilsGTestFixture *fixture,
    * the first few frames, and we won't be doing anything else that
    * will trigger redrawing. */
   idle_source = g_idle_add (queue_redraw, stage);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (on_paint), NULL);
+  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 
   clutter_actor_show (stage);
   clutter_test_main ();

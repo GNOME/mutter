@@ -112,9 +112,9 @@ TestCallback tests[] =
 };
 
 static void
-on_paint (ClutterActor        *actor,
-          ClutterPaintContext *paint_context,
-          TestState           *state)
+on_after_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context,
+                TestState           *state)
 {
   tests[state->current_test] (state, paint_context);
 }
@@ -152,7 +152,7 @@ main (int argc, char *argv[])
   /* We want continuous redrawing of the stage... */
   clutter_threads_add_idle (queue_redraw, stage);
 
-  g_signal_connect_after (stage, "paint", G_CALLBACK (on_paint), &state);
+  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), &state);
 
   clutter_actor_show (stage);
 
