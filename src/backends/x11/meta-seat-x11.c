@@ -960,6 +960,9 @@ translate_property_event (MetaSeatX11 *seat_x11,
 
       meta_input_device_x11_update_tool (device, tool);
       g_signal_emit_by_name (seat_x11, "tool-changed", device, tool);
+
+      if (tool)
+        clutter_input_device_update_from_tool (device, tool);
     }
 }
 
