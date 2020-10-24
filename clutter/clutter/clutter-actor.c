@@ -5660,8 +5660,8 @@ atk_implementor_iface_init (AtkImplementorIface *iface)
 }
 
 static gboolean
-clutter_actor_update_default_paint_volume (ClutterActor       *self,
-                                           ClutterPaintVolume *volume)
+clutter_actor_real_get_paint_volume (ClutterActor       *self,
+                                     ClutterPaintVolume *volume)
 {
   ClutterActorPrivate *priv = self->priv;
   gboolean res = TRUE;
@@ -5744,61 +5744,6 @@ clutter_actor_update_default_paint_volume (ClutterActor       *self,
           res = TRUE;
         }
     }
-
-  return res;
-
-}
-
-static gboolean
-clutter_actor_real_get_paint_volume (ClutterActor       *self,
-                                     ClutterPaintVolume *volume)
-{
-  return clutter_actor_update_default_paint_volume (self, volume);
-}
-
-/**
- * clutter_actor_get_default_paint_volume:
- * @self: a #ClutterActor
- *
- * Retrieves the default paint volume for @self.
- *
- * This function provides the same #ClutterPaintVolume that would be
- * computed by the default implementation inside #ClutterActor of the
- * #ClutterActorClass.get_paint_volume() virtual function.
- *
- * This function should only be used by #ClutterActor subclasses that
- * cannot chain up to the parent implementation when computing their
- * paint volume.
- *
- * Return value: (transfer none) (nullable): a pointer to the default
- *   #ClutterPaintVolume, relative to the #ClutterActor, or %NULL if
- *   the actor could not compute a valid paint volume. The returned value
- *   is not guaranteed to be stable across multiple frames, so if you
- *   want to retain it, you will need to copy it using
- *   clutter_paint_volume_copy().
- */
-const ClutterPaintVolume *
-clutter_actor_get_default_paint_volume (ClutterActor *self)
-{
-  ClutterPaintVolume volume;
-  ClutterPaintVolume *res;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
-
-  res = NULL;
-  _clutter_paint_volume_init_static (&volume, self);
-  if (clutter_actor_update_default_paint_volume (self, &volume))
-    {
-      ClutterActor *stage = _clutter_actor_get_stage_internal (self);
-
-      if (stage != NULL)
-        {
-          res = _clutter_stage_paint_volume_stack_allocate (CLUTTER_STAGE (stage));
-          _clutter_paint_volume_copy_static (&volume, res);
-        }
-    }
-
-  clutter_paint_volume_free (&volume);
 
   return res;
 }

@@ -638,8 +638,6 @@ const ClutterPaintVolume *      clutter_actor_get_paint_volume                  
 CLUTTER_EXPORT
 const ClutterPaintVolume *      clutter_actor_get_transformed_paint_volume      (ClutterActor               *self,
                                                                                  ClutterActor               *relative_to_ancestor);
-CLUTTER_EXPORT
-const ClutterPaintVolume *      clutter_actor_get_default_paint_volume          (ClutterActor               *self);
 
 /* Events */
 CLUTTER_EXPORT
