@@ -931,6 +931,9 @@ GList * clutter_actor_peek_stage_views (ClutterActor *self);
 CLUTTER_EXPORT
 void clutter_actor_invalidate_transform (ClutterActor *self);
 
+CLUTTER_EXPORT
+void clutter_actor_invalidate_paint_volume (ClutterActor *self);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_H__ */

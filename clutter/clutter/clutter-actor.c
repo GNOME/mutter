@@ -19533,6 +19533,23 @@ clutter_actor_invalidate_transform (ClutterActor *self)
   transform_changed (self);
 }
 
+/**
+ * clutter_actor_invalidate_paint_volume:
+ * @self: A #ClutterActor
+ *
+ * Invalidates the cached paint volume of @self. This is needed for
+ * implementations overriding the #ClutterActorClass.get_paint_volume()
+ * virtual function and has to be called every time the paint volume
+ * returned by that function would change.
+ */
+void
+clutter_actor_invalidate_paint_volume (ClutterActor *self)
+{
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  self->priv->needs_paint_volume_update = TRUE;
+}
+
 gboolean
 clutter_actor_get_redraw_clip (ClutterActor       *self,
                                ClutterPaintVolume *dst_old_pv,
