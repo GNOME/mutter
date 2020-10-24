@@ -11,17 +11,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.10\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-10-06 15:26+0000\n"
-"PO-Revision-Date: 2020-10-07 13:31+0100\n"
+"POT-Creation-Date: 2020-10-20 15:53+0000\n"
+"PO-Revision-Date: 2020-10-23 15:55+0100\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
-"Language-Team: Portuguese < >\n"
+"Language-Team: https://l10n.gnome.org/teams/pt/\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-DamnedLies-Scope: partial\n"
-"X-Generator: Gtranslator 3.36.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -149,7 +149,7 @@ msgstr "Mudar para a área de trabalho 4"
 
 #: data/50-mutter-navigation.xml:120
 msgid "Switch to last workspace"
-msgstr "Mudar para a última área de trabalho 1"
+msgstr "Mudar para a última área de trabalho"
 
 #: data/50-mutter-navigation.xml:123
 msgid "Move to workspace above"
@@ -278,8 +278,8 @@ msgid ""
 "the parent window."
 msgstr ""
 "Quando verdadeiro, em vez de terem barras de título independentes, os "
-"diálogos modais surgem anexados à barra de título da janela-principal e são "
-"movidos juntamente com a janela-principal."
+"diálogos modais surgem anexados à barra de título da janela principal e são "
+"movidos juntamente com a janela principal."
 
 #: data/org.gnome.mutter.gschema.xml.in:30
 msgid "Enable edge tiling when dropping windows on screen edges"
@@ -324,7 +324,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "No tab popup"
-msgstr "Sem popup ao utilizar tabulador"
+msgstr "Sem popup ao utilizar a tecla tab"
 
 #: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
@@ -423,7 +423,7 @@ msgstr "Modificador para localizar o cursor"
 
 #: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
-msgstr "Esta chave inicializa a ação “localizar cursor”"
+msgstr "Esta chave iniciará a ação “localizar cursor”."
 
 #: data/org.gnome.mutter.gschema.xml.in:142
 msgid "Timeout for check-alive ping"
