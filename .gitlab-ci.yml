@@ -1,18 +1,53 @@
-image: registry.gitlab.gnome.org/gnome/mutter/master:v4
+include:
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/5bc02d91b97b835099c28c54409c3438e52b4d21/templates/fedora.yml'
 
 stages:
+ - prepare
  - review
  - build
  - test
  - coverage
+
+.mutter.fedora:33:
+  variables:
+    FDO_DISTRIBUTION_VERSION: 33
+    FDO_DISTRIBUTION_TAG: '2020-11-16.0'
+    FDO_UPSTREAM_REPO: GNOME/mutter
+    FDO_DISTRIBUTION_EXEC: |
+      dnf install -y 'dnf-command(builddep)' &&
+      dnf builddep -y mutter --setopt=install_weak_deps=False &&
+
+      # For running unit tests
+      dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 \
+                     xorg-x11-server-Xvfb accountsservice-libs \
+                     gnome-control-center gcovr libnma python3-gobject \
+                     python3-dbusmock &&
+
+      # GNOME Shell
+      dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
+      dnf remove -y gnome-bluetooth-libs-devel &&
+      dnf remove -y --noautoremove mutter mutter-devel &&
+
+      dnf clean all
 
 .only_default: &only_default
   only:
       - merge_requests
       - /^.*$/
 
+build-fedora-container:
+  extends:
+    - .fdo.container-build@fedora@x86_64
+    - .mutter.fedora:33
+  stage: prepare
+  <<: *only_default
+
 check-commit-log:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: review
+  needs: ["build-fedora-container"]
   variables:
     GIT_DEPTH: "100"
   script:
@@ -26,6 +61,9 @@ check-commit-log:
   <<: *only_default
 
 build-mutter:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: build
   needs: ["check-commit-log"]
   script:
@@ -39,6 +77,9 @@ build-mutter:
   <<: *only_default
 
 build-without-opengl-and-glx:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: build
   needs: ["check-commit-log"]
   script:
@@ -51,6 +92,9 @@ build-without-opengl-and-glx:
   <<: *only_default
 
 build-without-native-backend-and-wayland:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: build
   needs: ["check-commit-log"]
   script:
@@ -63,6 +107,9 @@ build-without-native-backend-and-wayland:
   <<: *only_default
 
 test-mutter:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: test
   dependencies:
     - build-mutter
@@ -86,6 +133,9 @@ test-mutter:
   <<: *only_default
 
 test-mutter-coverage:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: coverage
   dependencies:
     - test-mutter
@@ -100,6 +150,9 @@ test-mutter-coverage:
   <<: *only_default
 
 can-build-gnome-shell:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:33
   stage: test
   dependencies:
     - build-mutter
