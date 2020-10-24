@@ -16049,12 +16049,8 @@ update_stage_views (ClutterActor *self)
                                                         &bounding_rect);
 
 out:
-  if (g_signal_has_handler_pending (self, actor_signals[STAGE_VIEWS_CHANGED],
-                                    0, TRUE))
-    {
-      if (!sorted_lists_equal (old_stage_views, priv->stage_views))
-        g_signal_emit (self, actor_signals[STAGE_VIEWS_CHANGED], 0);
-    }
+  if (!sorted_lists_equal (old_stage_views, priv->stage_views))
+    g_signal_emit (self, actor_signals[STAGE_VIEWS_CHANGED], 0);
 }
 
 static void
