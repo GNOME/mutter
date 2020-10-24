@@ -456,42 +456,9 @@ G_DEFINE_TYPE_WITH_CODE (ClutterText,
                                                 clutter_animatable_iface_init));
 
 static inline void
-clutter_text_free_paint_volume (ClutterText *text)
-{
-  ClutterTextPrivate *priv = text->priv;
-
-  if (priv->paint_volume_valid)
-    {
-      clutter_paint_volume_free (&priv->paint_volume);
-      priv->paint_volume_valid = FALSE;
-    }
-}
-
-static inline void
-clutter_text_dirty_paint_volume (ClutterText *text)
-{
-  ClutterTextPrivate *priv = text->priv;
-
-  if (priv->paint_volume_valid)
-    {
-      clutter_text_free_paint_volume (text);
-      clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (text));
-    }
-}
-
-static inline void
 clutter_text_queue_redraw (ClutterActor *self)
 {
-  /* This is a wrapper for clutter_actor_queue_redraw that also
-     dirties the cached paint volume. It would be nice if we could
-     just override the default implementation of the queue redraw
-     signal to do this instead but that doesn't work because the
-     signal isn't immediately emitted when queue_redraw is called.
-     Clutter will however immediately call get_paint_volume when
-     queue_redraw is called so we do need to dirty it immediately. */
-
-  clutter_text_dirty_paint_volume (CLUTTER_TEXT (self));
-
+  clutter_actor_invalidate_paint_volume (self);
   clutter_actor_queue_redraw (self);
 }
 
@@ -504,9 +471,6 @@ clutter_text_should_draw_cursor (ClutterText *self)
     priv->cursor_visible &&
     priv->has_focus;
 }
-
-#define clutter_actor_queue_redraw \
-  Please_use_clutter_text_queue_redraw_instead
 
 #define offset_real(t,p)        ((p) == -1 ? g_utf8_strlen ((t), -1) : (p))
 
@@ -854,7 +818,7 @@ clutter_text_dirty_cache (ClutterText *text)
 	priv->cached_layouts[i].layout = NULL;
       }
 
-  clutter_text_dirty_paint_volume (text);
+  clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (text));
 }
 
 /*
@@ -1824,8 +1788,6 @@ clutter_text_finalize (GObject *gobject)
   if (priv->preedit_attrs)
     pango_attr_list_unref (priv->preedit_attrs);
 
-  clutter_text_free_paint_volume (self);
-
   clutter_text_set_buffer (self, NULL);
   g_free (priv->font_name);
 
@@ -2447,7 +2409,7 @@ clutter_text_remove_password_hint (gpointer data)
   self->priv->password_hint_id = 0;
 
   clutter_text_dirty_cache (data);
-  clutter_text_queue_redraw (data);
+  clutter_actor_queue_redraw (data); // paint volume was already invalidated by clutter_text_dirty_cache()
 
   return G_SOURCE_REMOVE;
 }
@@ -2901,71 +2863,63 @@ clutter_text_get_paint_volume (ClutterActor       *self,
 {
   ClutterText *text = CLUTTER_TEXT (self);
   ClutterTextPrivate *priv = text->priv;
+  PangoLayout *layout;
+  PangoRectangle ink_rect;
+  graphene_point3d_t origin;
+  float resource_scale;
 
   /* ClutterText uses the logical layout as the natural size of the
      actor. This means that it can sometimes paint outside of its
      allocation for example with italic fonts with serifs. Therefore
      we should use the ink rectangle of the layout instead */
 
-  if (!priv->paint_volume_valid)
+  /* If the text is single line editable then it gets clipped to
+     the allocation anyway so we can just use that */
+  if (priv->editable && priv->single_line_mode)
+    return _clutter_actor_set_default_paint_volume (self,
+                                                    CLUTTER_TYPE_TEXT,
+                                                    volume);
+
+  if (G_OBJECT_TYPE (self) != CLUTTER_TYPE_TEXT)
+    return FALSE;
+
+  if (!clutter_actor_has_allocation (self))
+    return FALSE;
+
+  resource_scale = clutter_actor_get_resource_scale (self);
+
+  _clutter_paint_volume_init_static (volume, self);
+
+  layout = clutter_text_get_layout (text);
+  pango_layout_get_extents (layout, &ink_rect, NULL);
+
+  origin.x = pango_to_logical_pixels (ink_rect.x, resource_scale);
+  origin.y = pango_to_logical_pixels (ink_rect.y, resource_scale);
+  origin.z = 0;
+  clutter_paint_volume_set_origin (volume, &origin);
+  clutter_paint_volume_set_width (volume,
+                                  pango_to_logical_pixels (ink_rect.width,
+                                                           resource_scale));
+  clutter_paint_volume_set_height (volume,
+                                   pango_to_logical_pixels (ink_rect.height,
+                                                            resource_scale));
+
+  /* If the cursor is visible then that will likely be drawn
+     outside of the ink rectangle so we should merge that in */
+  if (clutter_text_should_draw_cursor (text))
     {
-      PangoLayout *layout;
-      PangoRectangle ink_rect;
-      graphene_point3d_t origin;
-      float resource_scale;
+      ClutterPaintVolume cursor_paint_volume;
 
-      /* If the text is single line editable then it gets clipped to
-         the allocation anyway so we can just use that */
-      if (priv->editable && priv->single_line_mode)
-        return _clutter_actor_set_default_paint_volume (self,
-                                                        CLUTTER_TYPE_TEXT,
-                                                        volume);
+      _clutter_paint_volume_init_static (&cursor_paint_volume, self);
 
-      if (G_OBJECT_TYPE (self) != CLUTTER_TYPE_TEXT)
-        return FALSE;
+      clutter_text_get_paint_volume_for_cursor (text, resource_scale,
+                                                &cursor_paint_volume);
 
-      if (!clutter_actor_has_allocation (self))
-        return FALSE;
+      clutter_paint_volume_union (volume,
+                                  &cursor_paint_volume);
 
-      resource_scale = clutter_actor_get_resource_scale (self);
-
-      _clutter_paint_volume_init_static (&priv->paint_volume, self);
-
-      layout = clutter_text_get_layout (text);
-      pango_layout_get_extents (layout, &ink_rect, NULL);
-
-      origin.x = pango_to_logical_pixels (ink_rect.x, resource_scale);
-      origin.y = pango_to_logical_pixels (ink_rect.y, resource_scale);
-      origin.z = 0;
-      clutter_paint_volume_set_origin (&priv->paint_volume, &origin);
-      clutter_paint_volume_set_width (&priv->paint_volume,
-                                      pango_to_logical_pixels (ink_rect.width,
-                                                               resource_scale));
-      clutter_paint_volume_set_height (&priv->paint_volume,
-                                       pango_to_logical_pixels (ink_rect.height,
-                                                                resource_scale));
-
-      /* If the cursor is visible then that will likely be drawn
-         outside of the ink rectangle so we should merge that in */
-      if (clutter_text_should_draw_cursor (text))
-        {
-          ClutterPaintVolume cursor_paint_volume;
-
-          _clutter_paint_volume_init_static (&cursor_paint_volume, self);
-
-          clutter_text_get_paint_volume_for_cursor (text, resource_scale,
-                                                    &cursor_paint_volume);
-
-          clutter_paint_volume_union (&priv->paint_volume,
-                                      &cursor_paint_volume);
-
-          clutter_paint_volume_free (&cursor_paint_volume);
-        }
-
-      priv->paint_volume_valid = TRUE;
+      clutter_paint_volume_free (&cursor_paint_volume);
     }
-
-  _clutter_paint_volume_copy_static (&priv->paint_volume, volume);
 
   return TRUE;
 }
@@ -3717,6 +3671,7 @@ clutter_text_set_color_internal (ClutterText        *self,
     }
 
   clutter_text_queue_redraw (CLUTTER_ACTOR (self));
+
   g_object_notify_by_pspec (G_OBJECT (self), pspec);
   if (other)
     g_object_notify_by_pspec (G_OBJECT (self), other);
@@ -4810,7 +4765,7 @@ clutter_text_queue_redraw_or_relayout (ClutterText *self)
       preferred_height > 0 &&
       fabsf (preferred_width - clutter_actor_get_width (actor)) <= 0.001 &&
       fabsf (preferred_height - clutter_actor_get_height (actor)) <= 0.001)
-    clutter_text_queue_redraw (actor);
+    clutter_actor_queue_redraw (CLUTTER_ACTOR (self)); // paint volume was already invalidated by clutter_text_dirty_cache()
   else
     clutter_actor_queue_relayout (actor);
 }
