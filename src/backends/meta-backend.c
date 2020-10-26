@@ -199,6 +199,7 @@ meta_backend_finalize (GObject *object)
 
   g_list_free_full (priv->gpus, g_object_unref);
 
+  g_clear_object (&priv->current_device);
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
   g_clear_object (&priv->input_settings);
@@ -437,7 +438,7 @@ on_device_removed (ClutterSeat        *seat,
       gboolean has_touchscreen, has_pointing_device;
       ClutterInputDeviceType device_type;
 
-      priv->current_device = NULL;
+      g_clear_object (&priv->current_device);
       g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
       device_type = clutter_input_device_get_device_type (device);
@@ -1322,7 +1323,7 @@ meta_backend_update_last_device (MetaBackend        *backend,
       clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return;
 
-  priv->current_device = device;
+  g_set_object (&priv->current_device, device);
 
   if (priv->device_update_idle_id == 0)
     {
