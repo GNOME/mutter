@@ -71,21 +71,17 @@ test-mutter:
     NO_AT_BRIDGE: "1"
   script:
     - bash -x ./.gitlab-ci/run-tests.sh
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - build
   only:
     - merge_requests
     - /^.*$/
   artifacts:
+    expire_in: 1 day
     reports:
       junit: "build/${CI_JOB_NAME}-report.xml"
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
     when: always
     paths:
-      - "build/meson-logs"
-      - "build/${CI_JOB_NAME}-report.xml"
+      - build
 
 test-mutter-coverage:
   stage: coverage
@@ -97,12 +93,12 @@ test-mutter-coverage:
     - cat build/meson-logs/coverage.txt
   artifacts:
     paths:
-      - build/meson-logs
-  when: manual
-  except:
-    refs:
-      - tags
-      - master
+      - build/meson-logs/coveragereport
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  when: always
+  only:
+    - merge_requests
+    - /^.*$/
 
 can-build-gnome-shell:
   stage: test
