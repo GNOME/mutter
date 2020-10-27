@@ -291,7 +291,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                   error);
 
 out:
-  cogl_clear_object (&cogl_fbo);
+  g_clear_object (&cogl_fbo);
   close (dmabuf_fd);
 
   return result;
