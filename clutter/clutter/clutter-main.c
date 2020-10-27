@@ -138,6 +138,10 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "max-render-time", CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME },
 };
 
+static ClutterActor * update_device_for_event (ClutterStage *stage,
+                                               ClutterEvent *event,
+                                               gboolean      emit_crossing);
+
 gboolean
 _clutter_context_get_show_fps (void)
 {
@@ -1122,9 +1126,6 @@ static inline void
 emit_pointer_event (ClutterEvent       *event,
                     ClutterInputDevice *device)
 {
-  if (_clutter_event_process_filters (event))
-    return;
-
   if (device != NULL && device->pointer_grab_actor != NULL)
     clutter_actor_event (device->pointer_grab_actor, event, FALSE);
   else
@@ -1137,9 +1138,6 @@ emit_crossing_event (ClutterEvent       *event,
 {
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   ClutterActor *grab_actor = NULL;
-
-  if (_clutter_event_process_filters (event))
-    return;
 
   if (sequence)
     {
@@ -1164,9 +1162,6 @@ emit_touch_event (ClutterEvent       *event,
 {
   ClutterActor *grab_actor = NULL;
 
-  if (_clutter_event_process_filters (event))
-    return;
-
   if (device->sequence_grab_actors != NULL)
     {
       grab_actor = g_hash_table_lookup (device->sequence_grab_actors,
@@ -1189,28 +1184,10 @@ static inline void
 process_key_event (ClutterEvent       *event,
                    ClutterInputDevice *device)
 {
-  if (_clutter_event_process_filters (event))
-    return;
-
   if (device != NULL && device->keyboard_grab_actor != NULL)
     clutter_actor_event (device->keyboard_grab_actor, event, FALSE);
   else
     emit_event_chain (event);
-}
-
-static gboolean
-is_off_stage (ClutterActor *stage,
-              gfloat        x,
-              gfloat        y)
-{
-  gfloat width, height;
-
-  clutter_actor_get_size (stage, &width, &height);
-
-  return (x < 0 ||
-          y < 0 ||
-          x >= width ||
-          y >= height);
 }
 
 /**
@@ -1230,6 +1207,9 @@ is_off_stage (ClutterActor *stage,
 void
 clutter_do_event (ClutterEvent *event)
 {
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
+
   /* we need the stage for the event */
   if (event->any.stage == NULL)
     {
@@ -1239,6 +1219,61 @@ clutter_do_event (ClutterEvent *event)
 
   /* stages in destruction do not process events */
   if (CLUTTER_ACTOR_IN_DESTRUCTION (event->any.stage))
+    return;
+
+  device = clutter_event_get_device (event);
+  sequence = clutter_event_get_event_sequence (event);
+
+  if (device)
+    {
+      ClutterActor *actor = NULL;
+
+      switch (event->any.type)
+        {
+        case CLUTTER_ENTER:
+        case CLUTTER_MOTION:
+        case CLUTTER_BUTTON_PRESS:
+        case CLUTTER_TOUCH_BEGIN:
+        case CLUTTER_TOUCH_UPDATE:
+          actor = update_device_for_event (event->any.stage, event, TRUE);
+          break;
+        case CLUTTER_KEY_PRESS:
+        case CLUTTER_KEY_RELEASE:
+        case CLUTTER_PAD_BUTTON_PRESS:
+        case CLUTTER_PAD_BUTTON_RELEASE:
+        case CLUTTER_PAD_STRIP:
+        case CLUTTER_PAD_RING:
+        case CLUTTER_IM_COMMIT:
+        case CLUTTER_IM_DELETE:
+        case CLUTTER_IM_PREEDIT:
+          actor = clutter_stage_get_key_focus (event->any.stage);
+          break;
+        case CLUTTER_DEVICE_ADDED:
+        case CLUTTER_DEVICE_REMOVED:
+          actor = CLUTTER_ACTOR (event->any.stage);
+          break;
+        case CLUTTER_LEAVE:
+        case CLUTTER_BUTTON_RELEASE:
+        case CLUTTER_TOUCH_END:
+        case CLUTTER_TOUCH_CANCEL:
+        case CLUTTER_SCROLL:
+        case CLUTTER_TOUCHPAD_PINCH:
+        case CLUTTER_TOUCHPAD_SWIPE:
+        case CLUTTER_PROXIMITY_IN:
+        case CLUTTER_PROXIMITY_OUT:
+          actor = clutter_stage_get_device_actor (event->any.stage,
+                                                  device, sequence);
+          break;
+        case CLUTTER_NOTHING:
+        case CLUTTER_EVENT_LAST:
+          g_assert_not_reached ();
+          break;
+        }
+
+      clutter_event_set_source (event, actor);
+    }
+
+  if (_clutter_event_process_filters (event))
     return;
 
   /* Instead of processing events when received, we queue them up to
@@ -1460,33 +1495,7 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_ENTER:
-        /* if we're entering from outside the stage we need
-         * to check whether the pointer is actually on another
-         * actor, and emit an additional pointer event
-         */
-        if (event->any.source == stage &&
-            event->crossing.related == NULL)
-          {
-            ClutterActor *actor = NULL;
-
-            emit_crossing_event (event, device);
-
-            actor = update_device_for_event (CLUTTER_STAGE (stage), event, FALSE);
-            if (actor != stage)
-              {
-                ClutterEvent *crossing;
-
-                /* we emit the exact same event on the actor */
-                crossing = clutter_event_copy (event);
-                crossing->crossing.related = stage;
-                crossing->crossing.source = actor;
-
-                emit_crossing_event (crossing, device);
-                clutter_event_free (crossing);
-              }
-          }
-        else
-          emit_crossing_event (event, device);
+        emit_crossing_event (event, device);
         break;
 
       case CLUTTER_LEAVE:
@@ -1531,9 +1540,6 @@ _clutter_process_event_details (ClutterActor        *stage,
             /* Only stage gets motion events */
             event->any.source = stage;
 
-            if (_clutter_event_process_filters (event))
-              break;
-
             if (device != NULL && device->pointer_grab_actor != NULL)
               {
                 clutter_actor_event (device->pointer_grab_actor,
@@ -1571,67 +1577,6 @@ _clutter_process_event_details (ClutterActor        *stage,
 
           clutter_event_get_coords (event, &x, &y);
 
-          /* Only do a pick to find the source if source is not already set
-           * (as it could be in a synthetic event)
-           */
-          if (event->any.source == NULL)
-            {
-              /* emulate X11 the implicit soft grab; the implicit soft grab
-               * keeps relaying motion events when the stage is left with a
-               * pointer button pressed. since this is what happens when we
-               * disable per-actor motion events we need to maintain the same
-               * behaviour when the per-actor motion events are enabled as
-               * well
-               */
-              if (is_off_stage (stage, x, y))
-                {
-                  if (event->type == CLUTTER_BUTTON_RELEASE)
-                    {
-                      CLUTTER_NOTE (EVENT,
-                                    "Release off stage received at %.2f, %.2f",
-                                    x, y);
-
-                      event->button.source = stage;
-                      event->button.click_count = 1;
-
-                      emit_pointer_event (event, device);
-                    }
-                  else if (event->type == CLUTTER_MOTION)
-                    {
-                      CLUTTER_NOTE (EVENT,
-                                    "Motion off stage received at %.2f, %2.f",
-                                    x, y);
-
-                      event->motion.source = stage;
-
-                      emit_pointer_event (event, device);
-                    }
-
-                  break;
-                }
-
-              /* We need to repick on both motion and button press events, the
-               * latter is only needed for X11 (there the device actor might be
-               * stale because we don't always receive motion events).
-               */
-              if (event->type == CLUTTER_BUTTON_PRESS ||
-                  event->type == CLUTTER_MOTION)
-                {
-                  event->any.source =
-                    update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
-                }
-              else
-                {
-                  event->any.source =
-                    clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                    device,
-                                                    NULL);
-                }
-
-              if (event->any.source == NULL)
-                break;
-            }
-
           CLUTTER_NOTE (EVENT,
                         "Reactive event received at %.2f, %.2f - actor: %p",
                         x, y,
@@ -1658,9 +1603,6 @@ _clutter_process_event_details (ClutterActor        *stage,
 
             /* Only stage gets motion events */
             event->any.source = stage;
-
-            if (_clutter_event_process_filters (event))
-              break;
 
             /* global grabs */
             if (device->sequence_grab_actors != NULL)
@@ -1693,51 +1635,6 @@ _clutter_process_event_details (ClutterActor        *stage,
 
           clutter_event_get_coords (event, &x, &y);
 
-          /* Only do a pick to find the source if source is not already set
-           * (as it could be in a synthetic event)
-           */
-          if (event->any.source == NULL)
-            {
-              /* same as the mouse events above, emulate the X11 implicit
-               * soft grab */
-              if (is_off_stage (stage, x, y))
-                {
-                  CLUTTER_NOTE (EVENT,
-                                "Touch %s off stage received at %.2f, %.2f",
-                                event->type == CLUTTER_TOUCH_UPDATE ? "update" :
-                                event->type == CLUTTER_TOUCH_END ? "end" :
-                                event->type == CLUTTER_TOUCH_CANCEL ? "cancel" :
-                                "?", x, y);
-
-                  event->touch.source = stage;
-
-                  emit_touch_event (event, device);
-
-                  if (event->type == CLUTTER_TOUCH_END ||
-                      event->type == CLUTTER_TOUCH_CANCEL)
-                    remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
-
-                  break;
-                }
-
-              if (event->type == CLUTTER_TOUCH_BEGIN ||
-                  event->type == CLUTTER_TOUCH_UPDATE)
-                {
-                  event->any.source =
-                    update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
-                }
-              else
-                {
-                  event->any.source =
-                    clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                    device,
-                                                    event->touch.sequence);
-                }
-
-              if (event->any.source == NULL)
-                break;
-            }
-
           CLUTTER_NOTE (EVENT,
                         "Reactive event received at %.2f, %.2f - actor: %p",
                         x, y,
@@ -1754,9 +1651,6 @@ _clutter_process_event_details (ClutterActor        *stage,
 
       case CLUTTER_PROXIMITY_IN:
       case CLUTTER_PROXIMITY_OUT:
-        if (_clutter_event_process_filters (event))
-          break;
-
         if (!clutter_actor_event (stage, event, TRUE))
           {
             /* and bubbling phase */
@@ -1765,15 +1659,9 @@ _clutter_process_event_details (ClutterActor        *stage,
 
         break;
 
-      case CLUTTER_DEVICE_ADDED:
-        _clutter_event_process_filters (event);
-        break;
-
       case CLUTTER_DEVICE_REMOVED:
         {
           ClutterInputDeviceType device_type;
-
-          _clutter_event_process_filters (event);
 
           device_type = clutter_input_device_get_device_type (device);
           if (device_type == CLUTTER_POINTER_DEVICE ||
@@ -1786,6 +1674,7 @@ _clutter_process_event_details (ClutterActor        *stage,
           break;
         }
 
+      case CLUTTER_DEVICE_ADDED:
       case CLUTTER_EVENT_LAST:
         break;
     }
