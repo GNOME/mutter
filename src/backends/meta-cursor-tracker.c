@@ -471,13 +471,13 @@ get_pointer_position_gdk (graphene_point_t *point,
   GdkSeat *gseat;
   GdkDevice *gdevice;
   GdkScreen *gscreen;
-  int x, y;
+  double x, y;
 
   gseat = gdk_display_get_default_seat (gdk_display_get_default ());
   gdevice = gdk_seat_get_pointer (gseat);
 
   /* Even if point is NULL we need this to get gscreen */
-  gdk_device_get_position (gdevice, &gscreen, &x, &y);
+  gdk_device_get_position_double (gdevice, &gscreen, &x, &y);
 
   if (point)
     {
