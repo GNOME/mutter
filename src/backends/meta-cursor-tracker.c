@@ -196,7 +196,7 @@ meta_cursor_tracker_init (MetaCursorTracker *tracker)
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  priv->is_showing = TRUE;
+  priv->is_showing = FALSE;
   priv->x = -1.0;
   priv->y = -1.0;
 }

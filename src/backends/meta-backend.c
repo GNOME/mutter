@@ -564,6 +564,14 @@ input_mapper_device_aspect_ratio_cb (MetaInputMapper    *mapper,
 }
 
 static void
+on_stage_shown_cb (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, TRUE);
+}
+
+static void
 meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -572,6 +580,9 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
   META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
+  g_signal_connect_object (priv->stage, "show",
+                           G_CALLBACK (on_stage_shown_cb), backend,
+                           G_CONNECT_SWAPPED);
 
   meta_monitor_manager_setup (priv->monitor_manager);
 
