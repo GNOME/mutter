@@ -501,7 +501,9 @@ get_pointer_position_clutter (graphene_point_t *point,
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   cdevice = clutter_seat_get_pointer (seat);
 
-  clutter_input_device_get_coords (cdevice, NULL, point);
+  if (point)
+    clutter_input_device_get_coords (cdevice, NULL, point);
+
   if (mods)
     *mods = clutter_input_device_get_modifier_state (cdevice);
 }
