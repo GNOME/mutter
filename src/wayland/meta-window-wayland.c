@@ -59,6 +59,7 @@ struct _MetaWindowWayland
   int last_sent_height;
   int last_sent_rel_x;
   int last_sent_rel_y;
+  int last_sent_geometry_scale;
   MetaGravity last_sent_gravity;
 
   gboolean has_been_shown;
@@ -192,6 +193,7 @@ surface_state_changed (MetaWindow *window)
                                            wl_window->last_sent_y,
                                            wl_window->last_sent_width,
                                            wl_window->last_sent_height,
+                                           wl_window->last_sent_geometry_scale,
                                            META_MOVE_RESIZE_STATE_CHANGED,
                                            wl_window->last_sent_gravity);
 
@@ -271,8 +273,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
     }
   else
     {
-      configured_width = constrained_rect.width / geometry_scale;
-      configured_height = constrained_rect.height / geometry_scale;
+      configured_width = constrained_rect.width;
+      configured_height = constrained_rect.height;
     }
 
   /* For wayland clients, the size is completely determined by the client,
@@ -334,7 +336,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                       meta_wayland_window_configuration_new_relative (rel_x,
                                                                       rel_y,
                                                                       configured_width,
-                                                                      configured_height);
+                                                                      configured_height,
+                                                                      geometry_scale);
                     meta_window_wayland_configure (wl_window, configuration);
 
                     wl_window->last_sent_rel_x = rel_x;
@@ -386,6 +389,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                                    configured_y,
                                                    configured_width,
                                                    configured_height,
+                                                   geometry_scale,
                                                    flags,
                                                    gravity);
           meta_window_wayland_configure (wl_window, configuration);
@@ -401,6 +405,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   wl_window->last_sent_y = configured_y;
   wl_window->last_sent_width = configured_width;
   wl_window->last_sent_height = configured_height;
+  wl_window->last_sent_geometry_scale = geometry_scale;
   wl_window->last_sent_gravity = gravity;
 
   if (can_move_now)

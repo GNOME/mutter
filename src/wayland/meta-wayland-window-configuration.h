@@ -43,6 +43,7 @@ struct _MetaWaylandWindowConfiguration
   int width;
   int height;
 
+  int scale;
   MetaGravity gravity;
   MetaMoveResizeFlags flags;
 };
@@ -51,13 +52,15 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (int     
                                                                         int                 y,
                                                                         int                 width,
                                                                         int                 height,
+                                                                        int                 scale,
                                                                         MetaMoveResizeFlags flags,
                                                                         MetaGravity         gravity);
 
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_relative (int rel_x,
                                                                                  int rel_y,
                                                                                  int width,
-                                                                                 int height);
+                                                                                 int height,
+                                                                                 int scale);
 
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (void);
 
