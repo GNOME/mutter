@@ -609,8 +609,8 @@ meta_wayland_zxdg_toplevel_v6_send_configure (MetaWaylandZxdgToplevelV6      *xd
   fill_states (&states, window);
 
   zxdg_toplevel_v6_send_configure (xdg_toplevel->resource,
-                                   configuration->width,
-                                   configuration->height,
+                                   configuration->width / configuration->scale,
+                                   configuration->height / configuration->scale,
                                    &states);
   wl_array_release (&states);
 
@@ -1075,7 +1075,8 @@ meta_wayland_zxdg_popup_v6_configure (MetaWaylandShellSurface        *shell_surf
 
   zxdg_popup_v6_send_configure (xdg_popup->resource,
                                 x, y,
-                                configuration->width, configuration->height);
+                                configuration->width / configuration->scale,
+                                configuration->height / configuration->scale);
   meta_wayland_zxdg_surface_v6_send_configure (xdg_surface, configuration);
 }
 

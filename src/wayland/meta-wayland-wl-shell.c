@@ -657,7 +657,8 @@ wl_shell_surface_role_configure (MetaWaylandShellSurface        *shell_surface,
 
   wl_shell_surface_send_configure (wl_shell_surface->resource,
                                    0,
-                                   configuration->width, configuration->height);
+                                   configuration->width / configuration->scale,
+                                   configuration->height / configuration->scale);
 
   wl_shell_surface->emulated_ack_configure_serial = configuration->serial;
 }
