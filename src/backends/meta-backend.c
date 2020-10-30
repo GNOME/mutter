@@ -350,16 +350,6 @@ meta_backend_monitor_device (MetaBackend        *backend,
   create_device_monitor (backend, device);
 }
 
-static void
-on_device_added (ClutterSeat        *seat,
-                 ClutterInputDevice *device,
-                 gpointer            user_data)
-{
-  MetaBackend *backend = META_BACKEND (user_data);
-
-  create_device_monitor (backend, device);
-}
-
 static inline gboolean
 device_is_physical_touchscreen (ClutterInputDevice *device)
 {
@@ -417,6 +407,20 @@ check_has_physical_touchscreen (ClutterSeat *seat)
   g_list_free (devices);
 
   return found;
+}
+
+static void
+on_device_added (ClutterSeat        *seat,
+                 ClutterInputDevice *device,
+                 gpointer            user_data)
+{
+  MetaBackend *backend = META_BACKEND (user_data);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  create_device_monitor (backend, device);
+
+  if (device_is_physical_touchscreen (device))
+    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
 }
 
 static void
@@ -482,27 +486,6 @@ create_device_monitors (MetaBackend *backend,
   g_list_free (devices);
 }
 
-static void
-set_initial_pointer_visibility (MetaBackend *backend,
-                                ClutterSeat *seat)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  GList *l, *devices;
-  gboolean has_touchscreen = FALSE;
-
-  devices = clutter_seat_list_devices (seat);
-  for (l = devices; l; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-
-      has_touchscreen |= device_is_physical_touchscreen (device);
-    }
-
-  g_list_free (devices);
-  meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
-                                           !has_touchscreen);
-}
-
 static MetaInputSettings *
 meta_backend_create_input_settings (MetaBackend *backend)
 {
@@ -536,8 +519,6 @@ meta_backend_real_post_init (MetaBackend *backend)
   g_signal_connect_object (seat, "device-removed",
                            G_CALLBACK (on_device_removed), backend,
                            G_CONNECT_AFTER);
-
-  set_initial_pointer_visibility (backend, seat);
 
   priv->input_settings = meta_backend_create_input_settings (backend);
 
