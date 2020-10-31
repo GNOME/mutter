@@ -102,7 +102,7 @@ meta_x11_handle_event (XEvent *xevent)
   while (spin > 0 && (event = clutter_event_get ()))
     {
       /* forward the event into clutter for emission etc. */
-      _clutter_stage_queue_event (event->any.stage, event, FALSE);
+      clutter_do_event (event);
       --spin;
     }
 
