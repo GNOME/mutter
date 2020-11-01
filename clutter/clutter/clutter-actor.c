@@ -1740,9 +1740,13 @@ clutter_actor_real_unmap (ClutterActor *self)
      _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
       priv->last_paint_volume_valid = TRUE;
 
-      if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent) &&
-          (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
-        clutter_actor_queue_relayout (priv->parent);
+      if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent))
+        {
+          if (G_UNLIKELY (priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT))
+            clutter_actor_queue_redraw (priv->parent);
+          else
+            clutter_actor_queue_relayout (priv->parent);
+        }
     }
 
   /* notify on parent mapped after potentially unmapping
