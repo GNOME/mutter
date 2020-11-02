@@ -3223,6 +3223,20 @@ clutter_stage_presented (ClutterStage     *stage,
   g_signal_emit (stage, stage_signals[PRESENTED], 0, view, frame_info);
 }
 
+/**
+ * clutter_stage_get_capture_final_size:
+ * @stage: a #ClutterStage actor
+ * @rect: a #cairo_rectangle_int_t
+ * @out_width: (out) (optional): the final width
+ * @out_height: (out) (optional): the final height
+ * @out_scale: (out) (optional): the final scale factor
+ *
+ * Get the size of the framebuffer one must pass to
+ * clutter_stage_paint_to_buffer() or clutter_stage_paint_to_framebuffer()
+ * would be used with the same @rect.
+ *
+ * Returns: %TRUE if the size has been retrieved, %FALSE otherwise.
+ */
 gboolean
 clutter_stage_get_capture_final_size (ClutterStage          *stage,
                                       cairo_rectangle_int_t *rect,
@@ -3320,6 +3334,21 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
   clutter_paint_context_destroy (paint_context);
 }
 
+/**
+ * clutter_stage_paint_to_buffer:
+ * @stage: a #ClutterStage actor
+ * @rect: a #cairo_rectangle_int_t
+ * @scale: the scale
+ * @data: (inout) (array) (element-type guint8): a pointer to the data
+ * @stride: stride of the image surface
+ * @format: the pixel format
+ * @paint_flags: the #ClutterPaintFlag
+ * @error: the error
+ *
+ * Take a snapshot of the stage to a provided buffer.
+ *
+ * Returns: %TRUE is the buffer has been paint successfully, %FALSE otherwise.
+ */
 gboolean
 clutter_stage_paint_to_buffer (ClutterStage                 *stage,
                                const cairo_rectangle_int_t  *rect,

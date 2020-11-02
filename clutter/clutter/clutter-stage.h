@@ -210,9 +210,9 @@ void clutter_stage_schedule_update (ClutterStage *stage);
 CLUTTER_EXPORT
 gboolean clutter_stage_get_capture_final_size (ClutterStage          *stage,
                                                cairo_rectangle_int_t *rect,
-                                               int                   *width,
-                                               int                   *height,
-                                               float                 *scale);
+                                               int                   *out_width,
+                                               int                   *out_height,
+                                               float                 *out_scale);
 
 CLUTTER_EXPORT
 void clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
