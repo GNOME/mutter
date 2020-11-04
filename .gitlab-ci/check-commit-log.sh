@@ -42,6 +42,11 @@ function commit_message_subject_is_compliant() {
     return 1
   fi
 
+  if echo "$commit_message_subject" | sed -e 's/^[^:]\+: //' | grep -qe '^[[:lower:]]'; then
+    echo " - message subject should be properly Capitalized. E.g. 'window: Marginalize extradicity'"
+    return 1
+  fi
+
   if echo "$commit_message_subject" | grep -qe "\.[ch]:"; then
     echo " - message subject prefix should not include .c, .h, etc."
     return 1
