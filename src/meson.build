@@ -487,6 +487,8 @@ if have_remote_desktop
     'backends/meta-screen-cast-stream.h',
     'backends/meta-screen-cast-stream-src.c',
     'backends/meta-screen-cast-stream-src.h',
+    'core/meta-selection-source-remote.c',
+    'core/meta-selection-source-remote.h',
   ]
 endif
 
