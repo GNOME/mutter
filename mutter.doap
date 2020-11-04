@@ -68,4 +68,10 @@ environment.</description>
       <gnome:userid>fmuellner</gnome:userid>
     </foaf:Person>
   </maintainer>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Marge Bot</foaf:name>
+      <gnome:userid>marge-bot</gnome:userid>
+    </foaf:Person>
+  </maintainer>
 </Project>
