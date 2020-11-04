@@ -23,33 +23,80 @@ function commit_message_has_mr_url() {
   return $?
 }
 
-function commit_message_subject_is_compliant() {
+JUNIT_REPORT_TESTS_FILE=$(mktemp)
+
+function append_failed_test_case() {
+  test_name="$1"
+  commit="$2"
+  test_message="$3"
+  commit_short=${commit:0:8}
+
+  echo "<testcase name=\"$test_name: $commit_short\"><failure message=\"$commit_short: $test_message\"/></testcase>" >> $JUNIT_REPORT_TESTS_FILE
+  echo &>2 "Commit check failed: $commit_short: $test_message"
+}
+
+function append_passed_test_case() {
+  test_name="$1"
+  commit="$2"
+  commit_short=${commit:0:8}
+
+  echo "<testcase name=\"$test_name: $commit_short\"></testcase>" >> $JUNIT_REPORT_TESTS_FILE
+}
+
+function generate_junit_report() {
+  junit_report_file="$1"
+  num_tests=$(cat "$JUNIT_REPORT_TESTS_FILE" | wc -l)
+  num_failures=$(grep '<failure />' "$JUNIT_REPORT_TESTS_FILE" | wc -l )
+
+  echo Generating JUnit report \"$(pwd)/$junit_report_file\" with $num_tests tests and $num_failures failures.
+
+  cat > $junit_report_file << __EOF__
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites tests="$num_tests" errors="0" failures="$num_failures">
+<testsuite name="commit-review" tests="$num_tests" errors="0" failures="$num_failures" skipped="0">
+$(< $JUNIT_REPORT_TESTS_FILE)
+</testsuite>
+</testsuites>
+__EOF__
+}
+
+function check_commit_message_subject() {
   commit=$1
   commit_message_subject=$(git show -s --format='format:%s' $commit)
 
   if echo "$commit_message_subject" | grep -qe "\(^meta-\|^Meta\)"; then
-    echo " - message subject should not be prefixed with 'meta-' or 'Meta'"
-    return 1
+    append_failed_test_case meta-prefix $commit \
+      "Commit message subject should not be prefixed with 'meta-' or 'Meta'"
+  else
+    append_passed_test_case meta-prefix $commit
   fi
 
   if echo "$commit_message_subject" | grep -qe "\(^clutter-\|^Clutter\)"; then
-    echo " - message subject should not be prefixed with 'clutter-' or 'Clutter', use 'clutter/' instead"
-    return 1
+    append_failed_test_case clutter-prefix $commit \
+      "Commit message subject should not be prefixed with 'clutter-' or 'Clutter', use 'clutter/' instead"
+  else
+    append_passed_test_case clutter-prefix $commit
   fi
 
   if echo "$commit_message_subject" | grep -qe "\(^cogl-\|^Cogl\)"; then
-    echo " - message subject should not be prefixed with 'cogl-' or 'Cogl', use 'cogl/' instead"
-    return 1
+    append_failed_test_case cogl-prefix $commit \
+      "Commit message subject should not be prefixed with 'cogl-' or 'Cogl', use 'cogl/' instead"
+  else
+    append_passed_test_case cogl-prefix $commit
   fi
 
   if echo "$commit_message_subject" | sed -e 's/^[^:]\+: //' | grep -qe '^[[:lower:]]'; then
-    echo " - message subject should be properly Capitalized. E.g. 'window: Marginalize extradicity'"
-    return 1
+    append_failed_test_case capitalization $commit \
+      "Commit message subject should be properly Capitalized. E.g. 'window: Marginalize extradicity'"
+  else
+    append_passed_test_case capitalization $commit
   fi
 
   if echo "$commit_message_subject" | grep -qe "\.[ch]:"; then
-    echo " - message subject prefix should not include .c, .h, etc."
-    return 1
+    append_failed_test_case not-file-suffix $commit \
+      "Commit message subject prefix should not include .c, .h, etc."
+  else
+    append_passed_test_case not-file-suffix $commit
   fi
 
   return 0
@@ -57,19 +104,18 @@ function commit_message_subject_is_compliant() {
 
 RET=0
 for commit in $commits; do
-  commit_short=$(echo $commit | cut -c -8)
 
   if commit_message_has_mr_url $commit; then
-    echo "Commit $commit_short must not contain a link to its own merge request"
-    exit 1
+    append_failed_test_case superfluous_url $commit \
+      "Commit message must not contain a link to its own merge request"
+  else
+    append_passed_test_case superfluous_url $commit
   fi
 
-  errors=$(commit_message_subject_is_compliant $commit)
-  if [ $? != 0 ]; then
-    echo "Commit message for $commit_short is not compliant:"
-    echo "$errors"
-    RET=1
-  fi
+  check_commit_message_subject $commit
 done
 
-exit $RET
+generate_junit_report commit-message-junit-report.xml
+
+! grep -q '<failure' commit-message-junit-report.xml
+exit $?

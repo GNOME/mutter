@@ -12,6 +12,12 @@ check-commit-log:
     GIT_DEPTH: "100"
   script:
     - ./.gitlab-ci/check-commit-log.sh
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - commit-message-junit-report.xml
+    reports:
+      junit: commit-message-junit-report.xml
   only:
     - merge_requests
 
