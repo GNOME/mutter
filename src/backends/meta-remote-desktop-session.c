@@ -40,11 +40,14 @@
 #include "cogl/cogl.h"
 #include "core/display-private.h"
 #include "core/meta-selection-private.h"
+#include "core/meta-selection-source-remote.h"
 #include "meta/meta-backend.h"
 
 #include "meta-dbus-remote-desktop.h"
 
 #define META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop/Session"
+
+#define TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS (s2ms (15))
 
 typedef enum _MetaRemoteDesktopNotifyAxisFlags
 {
@@ -86,6 +89,9 @@ struct _MetaRemoteDesktopSession
   gulong owner_changed_handler_id;
   SelectionReadData *read_data;
   unsigned int transfer_serial;
+  MetaSelectionSourceRemote *current_source;
+  GHashTable *transfer_requests;
+  guint transfer_request_timeout_id;
 };
 
 static void
@@ -810,6 +816,31 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
+static MetaSelectionSourceRemote *
+create_remote_desktop_source (MetaRemoteDesktopSession  *session,
+                              GVariant                  *mime_types_variant,
+                              GError                   **error)
+{
+  GVariantIter iter;
+  char *mime_type;
+  GList *mime_types = NULL;
+
+  g_variant_iter_init (&iter, mime_types_variant);
+  if (g_variant_iter_n_children (&iter) == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "No mime types in mime types list");
+      return NULL;
+    }
+
+  while (g_variant_iter_next (&iter, "s", &mime_type))
+    mime_types = g_list_prepend (mime_types, mime_type);
+
+  mime_types = g_list_reverse (mime_types);
+
+  return meta_selection_source_remote_new (session, mime_types);
+}
+
 static const char *
 mime_types_to_string (char **formats,
                       char  *buf,
@@ -831,8 +862,16 @@ mime_types_to_string (char **formats,
   return buf;
 }
 
+static gboolean
+is_own_source (MetaRemoteDesktopSession *session,
+               MetaSelectionSource      *source)
+{
+  return source && source == META_SELECTION_SOURCE (session->current_source);
+}
+
 static GVariant *
-generate_owner_changed_variant (char **mime_types_array)
+generate_owner_changed_variant (char     **mime_types_array,
+                                gboolean   is_own_source)
 {
   GVariantBuilder builder;
 
@@ -841,6 +880,8 @@ generate_owner_changed_variant (char **mime_types_array)
     {
       g_variant_builder_add (&builder, "{sv}", "mime-types",
                              g_variant_new ("(^as)", mime_types_array));
+      g_variant_builder_add (&builder, "{sv}", "session-is-owner",
+                             g_variant_new_boolean (is_own_source));
     }
 
   return g_variant_builder_end (&builder);
@@ -875,16 +916,19 @@ on_selection_owner_changed (MetaSelection            *selection,
     }
 
   meta_topic (META_DEBUG_REMOTE_DESKTOP,
-              "Clipboard owner changed, owner: %p (%s), mime types: [%s], "
+              "Clipboard owner changed, owner: %p (%s, is own? %s), mime types: [%s], "
               "notifying %s",
               owner,
               owner ? g_type_name_from_instance ((GTypeInstance *) owner)
                     : "NULL",
+              is_own_source (session, owner) ? "yes" : "no",
               mime_types_to_string (mime_types_array, log_buf,
                                     G_N_ELEMENTS (log_buf)),
               session->peer_name);
 
-  options_variant = generate_owner_changed_variant (mime_types_array);
+  options_variant =
+    generate_owner_changed_variant (mime_types_array,
+                                    is_own_source (session, owner));
 
   object_path = g_dbus_interface_skeleton_get_object_path (
     G_DBUS_INTERFACE_SKELETON (session));
@@ -895,8 +939,6 @@ on_selection_owner_changed (MetaSelection            *selection,
                                  "SelectionOwnerChanged",
                                  g_variant_new ("(@a{sv})", options_variant),
                                  NULL);
-
-  session->transfer_serial++;
 }
 
 static gboolean
@@ -905,6 +947,8 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                          GVariant                     *arg_options)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+  GVariant *mime_types_variant;
+  g_autoptr (GError) error = NULL;
   MetaDisplay *display = meta_get_display ();
   MetaSelection *selection = meta_display_get_selection (display);
 
@@ -920,6 +964,35 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
+  mime_types_variant = g_variant_lookup_value (arg_options,
+                                               "mime-types",
+                                               G_VARIANT_TYPE_STRING_ARRAY);
+  if (mime_types_variant)
+    {
+      g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
+
+      source_remote = create_remote_desktop_source (session,
+                                                    mime_types_variant,
+                                                    &error);
+      if (!source_remote)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Invalid mime type list: %s",
+                                                 error->message);
+          return TRUE;
+        }
+
+      meta_topic (META_DEBUG_REMOTE_DESKTOP,
+                  "Setting remote desktop clipboard source: %p from %s",
+                  source_remote, session->peer_name);
+
+      g_set_object (&session->current_source, source_remote);
+      meta_selection_set_owner (selection,
+                                META_SELECTION_CLIPBOARD,
+                                META_SELECTION_SOURCE (source_remote));
+    }
+
   session->is_clipboard_enabled = TRUE;
   session->owner_changed_handler_id =
     g_signal_connect (selection, "owner-changed",
@@ -930,6 +1003,64 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                                                               invocation);
 
   return TRUE;
+}
+
+static gboolean
+cancel_transfer_request (gpointer key,
+                         gpointer value,
+                         gpointer user_data)
+{
+  GTask *task = G_TASK (value);
+  MetaRemoteDesktopSession *session = user_data;
+
+  meta_selection_source_remote_cancel_transfer (session->current_source,
+                                                task);
+
+  return TRUE;
+}
+
+static void
+meta_remote_desktop_session_cancel_transfer_requests (MetaRemoteDesktopSession *session)
+{
+  g_return_if_fail (session->current_source);
+
+  g_hash_table_foreach_remove (session->transfer_requests,
+                               cancel_transfer_request,
+                               session);
+}
+
+static gboolean
+transfer_request_cleanup_timout (gpointer user_data)
+{
+  MetaRemoteDesktopSession *session = user_data;
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Cancel unanswered SelectionTransfer requests for %s, "
+              "waited for %.02f seconds already",
+              session->peer_name,
+              TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS / 1000.0);
+
+  meta_remote_desktop_session_cancel_transfer_requests (session);
+
+  session->transfer_request_timeout_id = 0;
+  return G_SOURCE_REMOVE;
+}
+
+static void
+reset_current_selection_source (MetaRemoteDesktopSession *session)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaSelection *selection = meta_display_get_selection (display);
+
+  if (!session->current_source)
+    return;
+
+  meta_selection_unset_owner (selection,
+                              META_SELECTION_CLIPBOARD,
+                              META_SELECTION_SOURCE (session->current_source));
+  meta_remote_desktop_session_cancel_transfer_requests (session);
+  g_clear_handle_id (&session->transfer_request_timeout_id, g_source_remove);
+  g_clear_object (&session->current_source);
 }
 
 static void
@@ -964,6 +1095,7 @@ handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
     }
 
   g_clear_signal_handler (&session->owner_changed_handler_id, selection);
+  reset_current_selection_source (session);
   cancel_selection_read (session);
 
   meta_dbus_remote_desktop_session_complete_disable_clipboard (skeleton,
@@ -978,10 +1110,8 @@ handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
                       GVariant                     *arg_options)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-
-  meta_topic (META_DEBUG_REMOTE_DESKTOP,
-              "Set selection for %s",
-              g_dbus_method_invocation_get_sender (invocation));
+  g_autoptr (GVariant) mime_types_variant = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (!session->is_clipboard_enabled)
     {
@@ -991,19 +1121,114 @@ handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
+  if (session->current_source)
+    {
+      meta_remote_desktop_session_cancel_transfer_requests (session);
+      g_clear_handle_id (&session->transfer_request_timeout_id,
+                         g_source_remove);
+    }
+
+  mime_types_variant = g_variant_lookup_value (arg_options,
+                                               "mime-types",
+                                               G_VARIANT_TYPE_STRING_ARRAY);
+  if (mime_types_variant)
+    {
+      g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
+      MetaDisplay *display = meta_get_display ();
+
+      source_remote = create_remote_desktop_source (session,
+                                                    mime_types_variant,
+                                                    &error);
+      if (!source_remote)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Invalid format list: %s",
+                                                 error->message);
+          return TRUE;
+        }
+
+      meta_topic (META_DEBUG_REMOTE_DESKTOP,
+                  "Set selection for %s to %p",
+                  g_dbus_method_invocation_get_sender (invocation),
+                  source_remote);
+
+      g_set_object (&session->current_source, source_remote);
+      meta_selection_set_owner (meta_display_get_selection (display),
+                                META_SELECTION_CLIPBOARD,
+                                META_SELECTION_SOURCE (source_remote));
+    }
+  else
+    {
+      meta_topic (META_DEBUG_REMOTE_DESKTOP,
+                  "Unset selection for %s",
+                  g_dbus_method_invocation_get_sender (invocation));
+
+      reset_current_selection_source (session);
+    }
+
   meta_dbus_remote_desktop_session_complete_set_selection (skeleton,
                                                            invocation);
 
   return TRUE;
 }
 
+static void
+reset_transfer_cleanup_timeout (MetaRemoteDesktopSession *session)
+{
+  g_clear_handle_id (&session->transfer_request_timeout_id, g_source_remove);
+  session->transfer_request_timeout_id =
+    g_timeout_add (TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS,
+                   transfer_request_cleanup_timout,
+                   session);
+}
+
+void
+meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession *session,
+                                              const char               *mime_type,
+                                              GTask                    *task)
+{
+  const char *object_path;
+
+  session->transfer_serial++;
+
+  meta_topic (META_DEBUG_REMOTE_DESKTOP,
+              "Emit SelectionTransfer ('%s', %u) for %s",
+              mime_type,
+              session->transfer_serial,
+              session->peer_name);
+
+  g_hash_table_insert (session->transfer_requests,
+                       GUINT_TO_POINTER (session->transfer_serial),
+                       task);
+  reset_transfer_cleanup_timeout (session);
+
+  object_path = g_dbus_interface_skeleton_get_object_path (
+    G_DBUS_INTERFACE_SKELETON (session));
+  g_dbus_connection_emit_signal (session->connection,
+                                 NULL,
+                                 object_path,
+                                 "org.gnome.Mutter.RemoteDesktop.Session",
+                                 "SelectionTransfer",
+                                 g_variant_new ("(su)",
+                                                mime_type,
+                                                session->transfer_serial),
+                                 NULL);
+}
+
 static gboolean
 handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                         GDBusMethodInvocation        *invocation,
-                        GUnixFDList                  *fd_list,
+                        GUnixFDList                  *fd_list_in,
                         unsigned int                  serial)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+  g_autoptr (GError) error = NULL;
+  int pipe_fds[2];
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  int fd_idx;
+  GVariant *fd_variant;
+  GTask *task;
 
   meta_topic (META_DEBUG_REMOTE_DESKTOP,
               "Write selection for %s",
@@ -1017,22 +1242,62 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
-  if (session->transfer_serial != serial)
+  if (!session->current_source)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
-                                             "Provided transfer serial %u "
-                                             "doesn't match current current "
-                                             "transfer serial %u",
-                                             serial,
-                                             session->transfer_serial);
+                                             "No current selection owned");
       return TRUE;
     }
 
+  if (!g_hash_table_steal_extended (session->transfer_requests,
+                                    GUINT_TO_POINTER (serial),
+                                    NULL,
+                                    (gpointer *) &task))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Transfer serial %u doesn't match "
+                                             "any transfer request",
+                                             serial);
+      return TRUE;
+    }
+
+  if (!g_unix_open_pipe (pipe_fds, FD_CLOEXEC, &error))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed open pipe: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  if (!g_unix_set_fd_nonblocking (pipe_fds[0], TRUE, &error))
+    {
+      close (pipe_fds[0]);
+      close (pipe_fds[1]);
+
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to make pipe non-blocking: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  fd_list = g_unix_fd_list_new ();
+
+  fd_idx = g_unix_fd_list_append (fd_list, pipe_fds[1], NULL);
+  close (pipe_fds[1]);
+  fd_variant = g_variant_new_handle (fd_idx);
+
+  meta_selection_source_remote_complete_transfer (session->current_source,
+                                                  pipe_fds[0],
+                                                  task);
+
   meta_dbus_remote_desktop_session_complete_selection_write (skeleton,
                                                              invocation,
-                                                             NULL,
-                                                             NULL);
+                                                             fd_list,
+                                                             fd_variant);
 
   return TRUE;
 }
@@ -1129,6 +1394,14 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FILE_NOT_FOUND,
                                              "No selection owner available");
+      return TRUE;
+    }
+
+  if (is_own_source (session, source))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Tried to read own selection");
       return TRUE;
     }
 
@@ -1233,7 +1506,9 @@ meta_remote_desktop_session_finalize (GObject *object)
   g_assert (!meta_remote_desktop_session_is_running (session));
 
   g_clear_signal_handler (&session->owner_changed_handler_id, selection);
+  reset_current_selection_source (session);
   cancel_selection_read (session);
+  g_hash_table_unref (session->transfer_requests);
 
   g_clear_object (&session->handle);
   g_free (session->peer_name);
@@ -1260,6 +1535,8 @@ meta_remote_desktop_session_init (MetaRemoteDesktopSession *session)
   session->object_path =
     g_strdup_printf (META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/u%u",
                      ++global_session_number);
+
+  session->transfer_requests = g_hash_table_new (NULL, NULL);
 }
 
 static void

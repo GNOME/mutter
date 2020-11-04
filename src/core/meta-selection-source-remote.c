@@ -22,6 +22,8 @@
 
 #include "core/meta-selection-source-remote.h"
 
+#include <gio/gunixinputstream.h>
+
 #include "backends/meta-remote-desktop-session.h"
 
 struct _MetaSelectionSourceRemote
@@ -56,16 +58,16 @@ meta_selection_source_remote_read_async (MetaSelectionSource *source,
                                          GAsyncReadyCallback  callback,
                                          gpointer             user_data)
 {
+  MetaSelectionSourceRemote *source_remote =
+    META_SELECTION_SOURCE_REMOTE (source);
   GTask *task;
-  GInputStream *stream;
 
   task = g_task_new (source, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_source_remote_read_async);
 
-  stream = g_memory_input_stream_new_from_data ("place holder text", -1, NULL);
-  g_task_return_pointer (task, stream, g_object_unref);
-
-  g_object_unref (task);
+  meta_remote_desktop_session_request_transfer (source_remote->session,
+                                                mimetype,
+                                                task);
 }
 
 static GInputStream *
@@ -78,6 +80,27 @@ meta_selection_source_remote_read_finish (MetaSelectionSource  *source,
                         meta_selection_source_remote_read_async, FALSE);
 
   return g_task_propagate_pointer (G_TASK (result), error);
+}
+
+void
+meta_selection_source_remote_complete_transfer (MetaSelectionSourceRemote *source_remote,
+                                                int                        fd,
+                                                GTask                     *task)
+{
+  GInputStream *stream;
+
+  stream = g_unix_input_stream_new (fd, TRUE);
+  g_task_return_pointer (task, stream, g_object_unref);
+  g_object_unref (task);
+}
+
+void
+meta_selection_source_remote_cancel_transfer (MetaSelectionSourceRemote *source_remote,
+                                              GTask                     *task)
+{
+  g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_CANCELLED,
+                           "Remote selection transfer was cancelled");
+  g_object_unref (task);
 }
 
 static GList *

@@ -30,6 +30,13 @@ G_DECLARE_FINAL_TYPE (MetaSelectionSourceRemote,
                       META, SELECTION_SOURCE_REMOTE,
                       MetaSelectionSource)
 
+void meta_selection_source_remote_complete_transfer (MetaSelectionSourceRemote *source_remote,
+                                                     int                        fd,
+                                                     GTask                     *task);
+
+void meta_selection_source_remote_cancel_transfer (MetaSelectionSourceRemote *source_remote,
+                                                   GTask                     *task);
+
 MetaSelectionSourceRemote * meta_selection_source_remote_new (MetaRemoteDesktopSession *session,
                                                               GList                    *mime_types);
 

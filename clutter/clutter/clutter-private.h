@@ -312,6 +312,12 @@ s2us (int64_t s)
   return ms2us (s * 1000);
 }
 
+static inline int64_t
+s2ms (int64_t s)
+{
+  return (int64_t) ms (s * 1000);
+}
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PRIVATE_H__ */

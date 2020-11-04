@@ -47,6 +47,10 @@ gboolean meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSess
                                                            MetaScreenCastSession     *screen_cast_session,
                                                            GError                   **error);
 
+void meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession  *session,
+                                                   const char                *mime_type,
+                                                   GTask                     *task);
+
 void meta_remote_desktop_session_close (MetaRemoteDesktopSession *session);
 
 MetaRemoteDesktopSession * meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
