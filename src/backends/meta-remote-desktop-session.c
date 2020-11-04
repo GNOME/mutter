@@ -24,9 +24,14 @@
 
 #include "backends/meta-remote-desktop-session.h"
 
+#include <fcntl.h>
+#include <gio/gunixfdlist.h>
+#include <gio/gunixoutputstream.h>
+#include <glib-unix.h>
 #include <linux/input.h>
-#include <xkbcommon/xkbcommon.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-screen-cast-session.h"
@@ -34,6 +39,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
+#include "core/meta-selection-private.h"
 #include "meta/meta-backend.h"
 
 #include "meta-dbus-remote-desktop.h"
@@ -48,6 +54,13 @@ typedef enum _MetaRemoteDesktopNotifyAxisFlags
   META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_FINGER = 1 << 2,
   META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_CONTINUOUS = 1 << 3,
 } MetaRemoteDesktopNotifyAxisFlags;
+
+typedef struct _SelectionReadData
+{
+  MetaRemoteDesktopSession *session;
+  GOutputStream *stream;
+  GCancellable *cancellable;
+} SelectionReadData;
 
 struct _MetaRemoteDesktopSession
 {
@@ -71,6 +84,7 @@ struct _MetaRemoteDesktopSession
 
   gboolean is_clipboard_enabled;
   gulong owner_changed_handler_id;
+  SelectionReadData *read_data;
   unsigned int transfer_serial;
 };
 
@@ -918,6 +932,17 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
+static void
+cancel_selection_read (MetaRemoteDesktopSession *session)
+{
+  if (!session->read_data)
+    return;
+
+  g_cancellable_cancel (session->read_data->cancellable);
+  session->read_data->session = NULL;
+  session->read_data = NULL;
+}
+
 static gboolean
 handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                           GDBusMethodInvocation        *invocation)
@@ -939,6 +964,7 @@ handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
     }
 
   g_clear_signal_handler (&session->owner_changed_handler_id, selection);
+  cancel_selection_read (session);
 
   meta_dbus_remote_desktop_session_complete_disable_clipboard (skeleton,
                                                                invocation);
@@ -1037,13 +1063,52 @@ handle_selection_write_done (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
+static void
+transfer_cb (MetaSelection     *selection,
+             GAsyncResult      *res,
+             SelectionReadData *read_data)
+{
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_selection_transfer_finish (selection, res, &error))
+    {
+      g_warning ("Could not fetch selection data "
+                 "for remote desktop session: %s",
+                 error->message);
+    }
+
+  if (read_data->session)
+    {
+      meta_topic (META_DEBUG_REMOTE_DESKTOP, "Finished selection transfer for %s",
+                  read_data->session->peer_name);
+    }
+
+  g_output_stream_close (read_data->stream, NULL, NULL);
+  g_clear_object (&read_data->stream);
+  g_clear_object (&read_data->cancellable);
+
+  if (read_data->session)
+    read_data->session->read_data = NULL;
+
+  g_free (read_data);
+}
+
 static gboolean
 handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                        GDBusMethodInvocation        *invocation,
-                       GUnixFDList                  *fd_list,
+                       GUnixFDList                  *fd_list_in,
                        const char                   *mime_type)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+  MetaDisplay *display = meta_get_display ();
+  MetaSelection *selection = meta_display_get_selection (display);
+  MetaSelectionSource *source;
+  g_autoptr (GError) error = NULL;
+  int pipe_fds[2];
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  int fd_idx;
+  GVariant *fd_variant;
+  SelectionReadData *read_data;
 
   meta_topic (META_DEBUG_REMOTE_DESKTOP,
               "Read selection for %s",
@@ -1057,10 +1122,68 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
+  source = meta_selection_get_current_owner (selection,
+                                             META_SELECTION_CLIPBOARD);
+  if (!source)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FILE_NOT_FOUND,
+                                             "No selection owner available");
+      return TRUE;
+    }
+
+  if (session->read_data)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_LIMITS_EXCEEDED,
+                                             "Tried to read in parallel");
+      return TRUE;
+    }
+
+  if (!g_unix_open_pipe (pipe_fds, FD_CLOEXEC, &error))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed open pipe: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  if (!g_unix_set_fd_nonblocking (pipe_fds[0], TRUE, &error))
+    {
+      close (pipe_fds[0]);
+      close (pipe_fds[1]);
+
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to make pipe non-blocking: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  fd_list = g_unix_fd_list_new ();
+
+  fd_idx = g_unix_fd_list_append (fd_list, pipe_fds[0], NULL);
+  close (pipe_fds[0]);
+  fd_variant = g_variant_new_handle (fd_idx);
+
+  session->read_data = read_data = g_new0 (SelectionReadData, 1);
+  read_data->session = session;
+  read_data->stream = g_unix_output_stream_new (pipe_fds[1], TRUE);
+  read_data->cancellable = g_cancellable_new ();
+  meta_selection_transfer_async (selection,
+                                 META_SELECTION_CLIPBOARD,
+                                 mime_type,
+                                 -1,
+                                 read_data->stream,
+                                 read_data->cancellable,
+                                 (GAsyncReadyCallback) transfer_cb,
+                                 read_data);
+
   meta_dbus_remote_desktop_session_complete_selection_read (skeleton,
                                                             invocation,
-                                                            NULL,
-                                                            NULL);
+                                                            fd_list,
+                                                            fd_variant);
 
   return TRUE;
 }
@@ -1110,6 +1233,7 @@ meta_remote_desktop_session_finalize (GObject *object)
   g_assert (!meta_remote_desktop_session_is_running (session));
 
   g_clear_signal_handler (&session->owner_changed_handler_id, selection);
+  cancel_selection_read (session);
 
   g_clear_object (&session->handle);
   g_free (session->peer_name);
