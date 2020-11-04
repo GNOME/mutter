@@ -18,12 +18,10 @@ check-commit-log:
       - commit-message-junit-report.xml
     reports:
       junit: commit-message-junit-report.xml
-  only:
-    - merge_requests
 
 build-mutter:
   stage: build
-  needs: []
+  needs: ["check-commit-log"]
   script:
     - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -32,13 +30,10 @@ build-mutter:
     expire_in: 1 day
     paths:
       - build
-  only:
-    - merge_requests
-    - /^.*$/
 
 build-without-opengl-and-glx:
   stage: build
-  needs: []
+  needs: ["check-commit-log"]
   script:
     - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -46,13 +41,10 @@ build-without-opengl-and-glx:
   artifacts:
     paths:
       - build/meson-logs
-  only:
-    - merge_requests
-    - /^.*$/
 
 build-without-native-backend-and-wayland:
   stage: build
-  needs: []
+  needs: ["check-commit-log"]
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false --werror --prefix /usr
     - ninja -C build
@@ -60,9 +52,6 @@ build-without-native-backend-and-wayland:
   artifacts:
     paths:
       - build/meson-logs
-  only:
-    - merge_requests
-    - /^.*$/
 
 test-mutter:
   stage: test
@@ -77,9 +66,6 @@ test-mutter:
     NO_AT_BRIDGE: "1"
   script:
     - bash -x ./.gitlab-ci/run-tests.sh
-  only:
-    - merge_requests
-    - /^.*$/
   artifacts:
     expire_in: 1 day
     reports:
@@ -102,9 +88,6 @@ test-mutter-coverage:
       - build/meson-logs/coveragereport
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   when: always
-  only:
-    - merge_requests
-    - /^.*$/
 
 can-build-gnome-shell:
   stage: test
@@ -117,6 +100,3 @@ can-build-gnome-shell:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
     - ninja -C gnome-shell/build install
-  only:
-    - merge_requests
-    - /^.*$/
