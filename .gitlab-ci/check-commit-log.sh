@@ -32,6 +32,16 @@ function commit_message_subject_is_compliant() {
     return 1
   fi
 
+  if echo "$commit_message_subject" | grep -qe "\(^clutter-\|^Clutter\)"; then
+    echo " - message subject should not be prefixed with 'clutter-' or 'Clutter', use 'clutter/' instead"
+    return 1
+  fi
+
+  if echo "$commit_message_subject" | grep -qe "\(^cogl-\|^Cogl\)"; then
+    echo " - message subject should not be prefixed with 'cogl-' or 'Cogl', use 'cogl/' instead"
+    return 1
+  fi
+
   if echo "$commit_message_subject" | grep -qe "\.[ch]:"; then
     echo " - message subject prefix should not include .c, .h, etc."
     return 1
