@@ -130,6 +130,20 @@ subsurface_remap_toplevel (void)
 }
 
 static void
+subsurface_invalid_subsurfaces (void)
+{
+  WaylandTestClient *wayland_test_client;
+
+  wayland_test_client = wayland_test_client_new ("invalid-subsurfaces");
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "WL: error in client communication*");
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "WL: error in client communication*");
+  wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 on_actor_destroyed (ClutterActor       *actor,
                     struct wl_resource *callback)
 {
@@ -200,4 +214,6 @@ init_wayland_tests (void)
 {
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
                    subsurface_remap_toplevel);
+  g_test_add_func ("/wayland/subsurface/invalid-subsurfaces",
+                   subsurface_invalid_subsurfaces);
 }
