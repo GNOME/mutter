@@ -848,7 +848,7 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
       output_info->height_mm = xrandr_output->mm_height;
     }
 
-  if (!meta_monitor_manager_xrandr_has_randr15 (monitor_manager_xrandr))
+  if (meta_monitor_manager_xrandr_has_randr15 (monitor_manager_xrandr))
     output_info_init_tile_info (output_info, xdisplay, output_id);
   output_info_init_modes (output_info, gpu, xrandr_output);
   output_info_init_crtcs (output_info, gpu, xrandr_output);
