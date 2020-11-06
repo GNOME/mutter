@@ -1582,7 +1582,9 @@ _clutter_event_push (const ClutterEvent *event,
   device = clutter_event_get_device (event);
   if (device != NULL)
     {
-      if (!clutter_input_device_get_enabled (device))
+      if (event->type != CLUTTER_DEVICE_ADDED &&
+          event->type != CLUTTER_DEVICE_REMOVED &&
+          !clutter_input_device_get_enabled (device))
         return;
     }
 
