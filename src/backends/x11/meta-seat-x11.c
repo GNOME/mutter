@@ -1383,6 +1383,25 @@ meta_seat_x11_get_property (GObject    *object,
     }
 }
 
+void
+meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
+			      ClutterStage *stage)
+{
+  GHashTableIter iter;
+  ClutterInputDevice *device;
+
+  g_hash_table_iter_init (&iter, seat_x11->devices_by_id);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &device))
+    {
+      ClutterEvent *event;
+
+      event = clutter_event_new (CLUTTER_DEVICE_ADDED);
+      clutter_event_set_device (event, device);
+      clutter_event_set_stage (event, stage);
+      clutter_do_event (event);
+    }
+}
+
 static void
 meta_seat_x11_constructed (GObject *object)
 {

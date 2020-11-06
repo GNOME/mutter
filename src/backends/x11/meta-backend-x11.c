@@ -525,6 +525,8 @@ meta_backend_x11_post_init (MetaBackend *backend)
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   MetaMonitorManager *monitor_manager;
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
   int major, minor;
   gboolean has_xi = FALSE;
 
@@ -577,6 +579,11 @@ meta_backend_x11_post_init (MetaBackend *backend)
   priv->touch_replay_sync_atom = XInternAtom (priv->xdisplay,
                                               "_MUTTER_TOUCH_SEQUENCE_SYNC",
                                               False);
+
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  seat = clutter_backend_get_default_seat (clutter_backend);
+  meta_seat_x11_notify_devices (META_SEAT_X11 (seat),
+                                CLUTTER_STAGE (meta_backend_get_stage (backend)));
 }
 
 static ClutterBackend *
