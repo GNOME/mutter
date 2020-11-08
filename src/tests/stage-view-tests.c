@@ -774,7 +774,7 @@ meta_test_actor_stage_views_timeline (void)
 
   actor = clutter_actor_new ();
   clutter_actor_set_size (actor, 100, 100);
-  clutter_actor_set_position (actor, 100, 100);
+  clutter_actor_set_position (actor, 800, 100);
   clutter_actor_add_child (stage, actor);
 
   clutter_actor_show (stage);
