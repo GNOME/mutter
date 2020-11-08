@@ -5,6 +5,7 @@
 #include <clutter/clutter.h>
 
 #include "compositor/meta-plugin-manager.h"
+#include "core/main-private.h"
 
 typedef struct {
   gpointer dummy_field;
@@ -50,6 +51,7 @@ init_common_pre (void)
              "aborting...\n");
 
   meta_plugin_manager_load (test_get_plugin_name ());
+  meta_override_x11_display_policy (META_DISPLAY_POLICY_DISABLED);
   meta_test_init ();
 
   display = g_getenv ("DISPLAY");

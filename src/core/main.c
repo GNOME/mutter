@@ -772,6 +772,14 @@ prefs_changed_callback (MetaPreference pref,
     }
 }
 
+static MetaDisplayPolicy x11_display_policy_override = -1;
+
+void
+meta_override_x11_display_policy (MetaDisplayPolicy x11_display_policy)
+{
+  x11_display_policy_override = x11_display_policy;
+}
+
 MetaDisplayPolicy
 meta_get_x11_display_policy (void)
 {
@@ -779,6 +787,9 @@ meta_get_x11_display_policy (void)
 
   if (META_IS_BACKEND_X11_CM (backend))
     return META_DISPLAY_POLICY_MANDATORY;
+
+  if (x11_display_policy_override != -1)
+    return x11_display_policy_override;
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
