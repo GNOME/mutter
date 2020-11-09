@@ -549,7 +549,6 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
       if (use_clipped_redraw)
         {
           cairo_region_t *fb_damage;
-          cairo_region_t *view_damage;
           int age;
 
           fb_damage = cairo_region_create ();
@@ -566,15 +565,6 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
           /* Update the fb clip region with the extra damage. */
           cairo_region_union (fb_clip_region, fb_damage);
 
-          /* Update the redraw clip with the extra damage done to the view */
-          view_damage = scale_offset_and_clamp_region (fb_damage,
-                                                       1.0f / fb_scale,
-                                                       view_rect.x,
-                                                       view_rect.y);
-
-          cairo_region_union (redraw_clip, view_damage);
-
-          cairo_region_destroy (view_damage);
           cairo_region_destroy (fb_damage);
 
           CLUTTER_NOTE (CLIPPING, "Reusing back buffer(age=%d) - repairing region: num rects: %d\n",
@@ -585,6 +575,23 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
         }
 
       clutter_damage_history_step (view_priv->damage_history);
+    }
+
+  if (use_clipped_redraw)
+    {
+      /* Regenerate redraw_clip because:
+       *  1. It's missing the regions added from damage_history above; and
+       *  2. If using fractional scaling then it might be a fraction of a
+       *     logical pixel (or one physical pixel) smaller than
+       *     fb_clip_region, due to the clamping from
+       *     offset_scale_and_clamp_region. So we need to ensure redraw_clip
+       *     is a superset of fb_clip_region to avoid such gaps.
+       */
+      cairo_region_destroy (redraw_clip);
+      redraw_clip = scale_offset_and_clamp_region (fb_clip_region,
+                                                   1.0 / fb_scale,
+                                                   view_rect.x,
+                                                   view_rect.y);
     }
 
   if (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
