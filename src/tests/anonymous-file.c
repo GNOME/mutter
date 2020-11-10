@@ -25,8 +25,6 @@
 
 #include <core/meta-anonymous-file.h>
 
-#include "wayland-test-client-utils.h"
-
 #if defined(HAVE_MEMFD_CREATE)
 #define READONLY_SEALS (F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
 #endif
