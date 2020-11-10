@@ -439,7 +439,15 @@ sync_active (MetaLauncher *self)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  gboolean active = login1_session_get_active (LOGIN1_SESSION (self->session_proxy));
+  g_autofree gchar *name_owner = NULL;
+  gboolean active;
+
+  /* Assume the active state will not change while systemd-logind is gone */
+  name_owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (self->session_proxy));
+  if (name_owner == NULL)
+    return;
+
+  active = login1_session_get_active (LOGIN1_SESSION (self->session_proxy));
 
   if (active == self->session_active)
     return;
