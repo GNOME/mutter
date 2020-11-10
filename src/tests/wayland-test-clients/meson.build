@@ -45,32 +45,24 @@ common_sources = [
   test_driver_protocol_code,
 ]
 
-executable('subsurface-remap-toplevel',
-  sources: [
-    'subsurface-remap-toplevel.c',
-    common_sources,
-  ],
-  include_directories: tests_includepath,
-  c_args: tests_c_args,
-  dependencies: [
-    glib_dep,
-    wayland_client_dep,
-  ],
-  install: have_installed_tests,
-  install_dir: wayland_test_client_installed_tests_libexecdir,
-)
+wayland_test_clients = [
+  'subsurface-remap-toplevel',
+  'invalid-subsurfaces',
+]
 
-executable('invalid-subsurfaces',
-  sources: [
-    'invalid-subsurfaces.c',
-    common_sources,
-  ],
-  include_directories: tests_includepath,
-  c_args: tests_c_args,
-  dependencies: [
-    glib_dep,
-    wayland_client_dep,
-  ],
-  install: have_installed_tests,
-  install_dir: wayland_test_client_installed_tests_libexecdir,
-)
+foreach test : wayland_test_clients
+  executable(test,
+    sources: [
+      '@0@.c'.format(test),
+      common_sources,
+    ],
+    include_directories: tests_includepath,
+    c_args: tests_c_args,
+    dependencies: [
+      glib_dep,
+      wayland_client_dep,
+    ],
+    install: have_installed_tests,
+    install_dir: wayland_test_client_installed_tests_libexecdir,
+  )
+endforeach
