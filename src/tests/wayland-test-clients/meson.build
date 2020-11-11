@@ -48,6 +48,7 @@ common_sources = [
 wayland_test_clients = [
   'subsurface-remap-toplevel',
   'invalid-subsurfaces',
+  'invalid-xdg-shell-actions',
 ]
 
 foreach test : wayland_test_clients

@@ -144,6 +144,18 @@ subsurface_invalid_subsurfaces (void)
 }
 
 static void
+subsurface_invalid_xdg_shell_actions (void)
+{
+  WaylandTestClient *wayland_test_client;
+
+  wayland_test_client = wayland_test_client_new ("invalid-xdg-shell-actions");
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "Invalid geometry * set on xdg_surface*");
+  wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 on_actor_destroyed (ClutterActor       *actor,
                     struct wl_resource *callback)
 {
@@ -216,4 +228,6 @@ init_wayland_tests (void)
                    subsurface_remap_toplevel);
   g_test_add_func ("/wayland/subsurface/invalid-subsurfaces",
                    subsurface_invalid_subsurfaces);
+  g_test_add_func ("/wayland/subsurface/invalid-xdg-shell-actions",
+                   subsurface_invalid_xdg_shell_actions);
 }
