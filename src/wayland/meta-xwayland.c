@@ -37,8 +37,10 @@
 #include <linux/random.h>
 #endif
 #include <unistd.h>
+#include <X11/extensions/Xrandr.h>
 #include <X11/Xauth.h>
 
+#include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-settings-private.h"
 #include "core/main-private.h"
 #include "meta/main.h"
@@ -49,6 +51,9 @@
 static int display_number_override = -1;
 
 static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
+
+static void
+meta_xwayland_set_primary_output (Display *xdisplay);
 
 void
 meta_xwayland_associate_window_with_surface (MetaWindow          *window,
@@ -834,14 +839,47 @@ meta_xwayland_init (MetaXWaylandManager *manager,
 }
 
 static void
+monitors_changed_cb (MetaMonitorManager *monitor_manager)
+{
+  MetaX11Display *x11_display = meta_get_display ()->x11_display;
+
+  meta_xwayland_set_primary_output (x11_display->xdisplay);
+}
+
+static void
 on_x11_display_closing (MetaDisplay *display)
 {
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
   meta_xwayland_shutdown_dnd (xdisplay);
+  g_signal_handlers_disconnect_by_func (meta_monitor_manager_get (),
+                                        monitors_changed_cb,
+                                        NULL);
   g_signal_handlers_disconnect_by_func (display,
                                         on_x11_display_closing,
                                         NULL);
+}
+
+static void
+meta_xwayland_init_xrandr (MetaXWaylandManager *manager,
+                           Display             *xdisplay)
+{
+  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
+
+  manager->has_xrandr = XRRQueryExtension (xdisplay,
+                                           &manager->rr_event_base,
+                                           &manager->rr_error_base);
+
+  if (!manager->has_xrandr)
+    return;
+
+  XRRSelectInput (xdisplay, DefaultRootWindow (xdisplay),
+                  RRCrtcChangeNotifyMask | RROutputChangeNotifyMask);
+
+  g_signal_connect (monitor_manager, "monitors-changed",
+                    G_CALLBACK (monitors_changed_cb), NULL);
+
+  meta_xwayland_set_primary_output (xdisplay);
 }
 
 /* To be called right after connecting */
@@ -863,6 +901,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
                     G_CALLBACK (on_x11_display_closing), NULL);
   meta_xwayland_init_dnd (xdisplay);
   add_local_user_to_xhost (xdisplay);
+  meta_xwayland_init_xrandr (manager, xdisplay);
 
   if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     {
@@ -903,4 +942,80 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
       unlink (manager->auth_file);
       g_clear_pointer (&manager->auth_file, g_free);
     }
+}
+
+static void
+meta_xwayland_set_primary_output (Display *xdisplay)
+{
+  XRRScreenResources *resources;
+  MetaMonitorManager *monitor_manager;
+  MetaLogicalMonitor *primary_monitor;
+  int i;
+
+  monitor_manager = meta_monitor_manager_get ();
+  primary_monitor =
+    meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+
+  if (!primary_monitor)
+    return;
+
+  resources = XRRGetScreenResourcesCurrent (xdisplay,
+                                            DefaultRootWindow (xdisplay));
+  if (!resources)
+    return;
+
+  for (i = 0; i < resources->noutput; i++)
+    {
+      RROutput output_id = resources->outputs[i];
+      XRROutputInfo *xrandr_output;
+      XRRCrtcInfo *crtc_info = NULL;
+      MetaRectangle crtc_geometry;
+
+      xrandr_output = XRRGetOutputInfo (xdisplay, resources, output_id);
+      if (!xrandr_output)
+        continue;
+
+      if (xrandr_output->crtc)
+        crtc_info = XRRGetCrtcInfo (xdisplay, resources, xrandr_output->crtc);
+
+      XRRFreeOutputInfo (xrandr_output);
+
+      if (!crtc_info)
+        continue;
+
+      crtc_geometry.x = crtc_info->x;
+      crtc_geometry.y = crtc_info->y;
+      crtc_geometry.width = crtc_info->width;
+      crtc_geometry.height = crtc_info->height;
+
+      XRRFreeCrtcInfo (crtc_info);
+
+      if (meta_rectangle_equal (&crtc_geometry, &primary_monitor->rect))
+        {
+          XRRSetOutputPrimary (xdisplay, DefaultRootWindow (xdisplay),
+                               output_id);
+          break;
+        }
+    }
+
+  XRRFreeScreenResources (resources);
+}
+
+gboolean
+meta_xwayland_handle_xevent (XEvent *event)
+{
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+
+  if (meta_xwayland_dnd_handle_event (event))
+    return TRUE;
+
+  if (manager->has_xrandr && event->type == manager->rr_event_base + RRNotify)
+    {
+      MetaX11Display *x11_display = meta_get_display ()->x11_display;
+      meta_xwayland_set_primary_output (x11_display->xdisplay);
+      return TRUE;
+    }
+
+  return FALSE;
 }
