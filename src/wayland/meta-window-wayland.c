@@ -53,6 +53,7 @@ struct _MetaWindowWayland
   GList *pending_configurations;
   gboolean has_pending_state_change;
 
+  gboolean has_last_sent_configuration;
   int last_sent_x;
   int last_sent_y;
   int last_sent_width;
@@ -186,6 +187,10 @@ surface_state_changed (MetaWindow *window)
 
   /* don't send notify when the window is being unmanaged */
   if (window->unmanaging)
+    return;
+
+  g_return_if_fail (wl_window->has_last_sent_configuration);
+  if (!wl_window->has_last_sent_configuration)
     return;
 
   configuration =
@@ -401,6 +406,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
         }
     }
 
+  wl_window->has_last_sent_configuration = TRUE;
   wl_window->last_sent_x = configured_x;
   wl_window->last_sent_y = configured_y;
   wl_window->last_sent_width = configured_width;
