@@ -999,7 +999,14 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   else
     {
       if (acked_configuration)
-        calculate_offset (acked_configuration, &new_geom, &rect);
+        {
+          calculate_offset (acked_configuration, &new_geom, &rect);
+        }
+      else
+        {
+          rect.x = window->rect.x;
+          rect.y = window->rect.y;
+        }
     }
 
   if (rect.x != window->rect.x || rect.y != window->rect.y)
