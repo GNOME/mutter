@@ -31,7 +31,7 @@
 
 static const char *teststring = "test string 1234567890";
 
-static int
+static gboolean
 test_read_fd_mmap (int         fd,
                    const char *expected_string)
 {
@@ -53,7 +53,7 @@ test_read_fd_mmap (int         fd,
   return TRUE;
 }
 
-static int
+static gboolean
 test_write_fd (int         fd,
                const char *string)
 {
@@ -68,7 +68,7 @@ test_write_fd (int         fd,
 }
 
 #if defined(HAVE_MEMFD_CREATE)
-static int
+static gboolean
 test_readonly_seals (int fd)
 {
   unsigned int seals;
@@ -84,7 +84,7 @@ test_readonly_seals (int fd)
 }
 #endif
 
-static int
+static gboolean
 test_write_read (int fd)
 {
   g_autofree char *new_string = g_uuid_string_random ();
@@ -99,7 +99,7 @@ test_write_read (int fd)
 }
 
 #if defined(HAVE_MEMFD_CREATE)
-static int
+static gboolean
 test_open_write_read (const char *path)
 {
   int fd;
