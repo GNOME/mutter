@@ -209,17 +209,25 @@ main (int    argc,
    * size this process may create to 2 bytes, if memfd_create with
    * MAPMODE_PRIVATE is used, everything should still work (the existing FD
    * should be used). */
-  struct rlimit limit = {2, 2};
-  if (setrlimit (RLIMIT_FSIZE, &limit) == -1)
-    goto fail;
 
-  fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
-  g_assert (fd != -1);
+  if (!getenv ("CI_JOB_ID"))
+    {
+      struct rlimit rlimit = {
+        .rlim_cur = 2,
+        .rlim_max = 2,
+      };
 
-  if (!test_read_fd_mmap (fd, teststring))
-    goto fail;
+      if (setrlimit (RLIMIT_FSIZE, &rlimit) == -1)
+        goto fail;
 
-  meta_anonymous_file_close_fd (fd);
+      fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+      g_assert (fd != -1);
+
+      if (!test_read_fd_mmap (fd, teststring))
+        goto fail;
+
+      meta_anonymous_file_close_fd (fd);
+    }
 #else
   fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   g_assert (fd != -1);
