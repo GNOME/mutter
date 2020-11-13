@@ -11,7 +11,7 @@ stages:
 .mutter.fedora:33:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    FDO_DISTRIBUTION_TAG: '2020-11-16.0'
+    FDO_DISTRIBUTION_TAG: '2020-11-20.0'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -25,6 +25,7 @@ stages:
 
       # GNOME Shell
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
+      dnf install -y 'pkgconfig(gtk4)' 'pkgconfig(vulkan)' &&
       dnf remove -y gnome-bluetooth-libs-devel &&
       dnf remove -y --noautoremove mutter mutter-devel &&
 
