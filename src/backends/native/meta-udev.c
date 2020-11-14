@@ -96,6 +96,18 @@ meta_is_udev_device_requires_modifiers (GUdevDevice *device)
 }
 
 gboolean
+meta_is_udev_device_preferred_primary (GUdevDevice *device)
+{
+  const char * const * tags;
+
+  tags = g_udev_device_get_tags (device);
+  if (!tags)
+    return FALSE;
+
+  return g_strv_contains (tags, "mutter-device-preferred-primary");
+}
+
+gboolean
 meta_udev_is_drm_device (MetaUdev    *udev,
                          GUdevDevice *device)
 {
