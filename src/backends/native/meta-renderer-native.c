@@ -64,6 +64,7 @@
 #include "backends/native/meta-drm-buffer-import.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
@@ -3725,6 +3726,21 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
    */
   for (allow_sw = 0; allow_sw < 2; allow_sw++)
   {
+    /* First check if one was explicitly configured. */
+    for (l = gpus; l; l = l->next)
+      {
+        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+        MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+
+        if (meta_kms_device_get_flags (kms_device) &
+            META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY)
+          {
+            g_message ("GPU %s selected primary given udev rule",
+                       meta_gpu_kms_get_file_path (gpu_kms));
+            return gpu_kms;
+          }
+      }
+
     /* Prefer a platform device */
     for (l = gpus; l; l = l->next)
       {
@@ -3733,7 +3749,11 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
         if (meta_gpu_kms_is_platform_device (gpu_kms) &&
             (allow_sw == 1 ||
              gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
-          return gpu_kms;
+          {
+            g_message ("Integrated GPU %s selected as primary",
+                       meta_gpu_kms_get_file_path (gpu_kms));
+            return gpu_kms;
+          }
       }
 
     /* Otherwise a device we booted with */
@@ -3744,7 +3764,11 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
         if (meta_gpu_kms_is_boot_vga (gpu_kms) &&
             (allow_sw == 1 ||
              gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
-          return gpu_kms;
+          {
+            g_message ("Boot VGA GPU %s selected as primary",
+                       meta_gpu_kms_get_file_path (gpu_kms));
+            return gpu_kms;
+          }
       }
 
     /* Fall back to any device */
@@ -3754,7 +3778,11 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
 
         if (allow_sw == 1 ||
             gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
-          return gpu_kms;
+          {
+            g_message ("GPU %s selected as primary",
+                       meta_gpu_kms_get_file_path (gpu_kms));
+            return gpu_kms;
+          }
       }
   }
 
