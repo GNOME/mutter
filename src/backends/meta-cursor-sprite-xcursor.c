@@ -155,12 +155,29 @@ meta_create_x_cursor (Display    *xdisplay,
 static XcursorImages *
 load_cursor_on_client (MetaCursor cursor, int scale)
 {
+  XcursorImages *xcursor_images;
+  int fallback_size;
+
   if (cursor == META_CURSOR_BLANK)
     return create_blank_cursor_images ();
 
-  return XcursorLibraryLoadImages (translate_meta_cursor (cursor),
-                                   meta_prefs_get_cursor_theme (),
-                                   meta_prefs_get_cursor_size () * scale);
+  xcursor_images =
+    XcursorLibraryLoadImages (translate_meta_cursor (cursor),
+                              meta_prefs_get_cursor_theme (),
+                              meta_prefs_get_cursor_size () * scale);
+  if (xcursor_images)
+    return xcursor_images;
+
+  g_warning_once ("No cursor theme available, please install a cursor theme");
+
+  fallback_size = 24 * scale;
+  xcursor_images = XcursorImagesCreate (1);
+  xcursor_images->images[0] = XcursorImageCreate (fallback_size, fallback_size);
+  xcursor_images->images[0]->xhot = 0;
+  xcursor_images->images[0]->yhot = 0;
+  memset (xcursor_images->images[0]->pixels, 0xc0,
+          fallback_size * fallback_size * sizeof (int32_t));
+  return xcursor_images;
 }
 
 static void
@@ -295,8 +312,6 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
   sprite_xcursor->xcursor_images =
     load_cursor_on_client (sprite_xcursor->cursor,
                            sprite_xcursor->theme_scale);
-  if (!sprite_xcursor->xcursor_images)
-    g_error ("Could not find cursor. Perhaps set XCURSOR_PATH?");
 
   load_from_current_xcursor_image (sprite_xcursor);
 }
