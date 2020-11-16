@@ -119,7 +119,7 @@ load_cursor_on_client (MetaCursor cursor, int scale)
   if (xcursor_images)
     return xcursor_images;
 
-  g_warning_once ("No cursor theme available, please install a cursor theme");
+  g_warning ("No cursor theme available, please install a cursor theme");
 
   fallback_size = 24 * scale;
   xcursor_images = XcursorImagesCreate (1);
