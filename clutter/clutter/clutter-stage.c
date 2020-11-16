@@ -2817,9 +2817,6 @@ add_to_stage_clip (ClutterStage       *stage,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (CLUTTER_ACTOR (stage)))
     return;
 
-  /* If the backend can't do anything with redraw clips (e.g. it already knows
-   * it needs to redraw everything anyway) then don't spend time transforming
-   * any clip volume into stage coordinates... */
   stage_window = _clutter_stage_get_window (stage);
   if (stage_window == NULL)
     return;
@@ -2836,8 +2833,9 @@ add_to_stage_clip (ClutterStage       *stage,
   if (redraw_clip->is_empty)
     return;
 
-  /* Convert the clip volume into stage coordinates and then into an
-   * axis aligned stage coordinates bounding box... */
+  /* Now transform and project the clip volume to view coordinates and get
+   * the axis aligned bounding box that's aligned to the pixel grid.
+   */
   _clutter_paint_volume_get_stage_paint_box (redraw_clip,
                                              stage,
                                              &bounding_box);
@@ -2854,8 +2852,6 @@ add_to_stage_clip (ClutterStage       *stage,
       intersection_box.y2 <= intersection_box.y1)
     return;
 
-  /* when converting to integer coordinates make sure we round the edges of the
-   * clip rectangle outwards... */
   stage_clip.x = intersection_box.x1;
   stage_clip.y = intersection_box.y1;
   stage_clip.width = intersection_box.x2 - stage_clip.x;
