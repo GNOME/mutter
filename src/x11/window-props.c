@@ -1078,13 +1078,19 @@ reload_update_counter (MetaWindow    *window,
     }
 }
 
+#define FLAG_IS_ON(hints,flag) \
+  (((hints)->flags & (flag)) != 0)
+
+#define FLAG_IS_OFF(hints,flag) \
+  (((hints)->flags & (flag)) == 0)
+
 #define FLAG_TOGGLED_ON(old,new,flag) \
- (((old)->flags & (flag)) == 0 &&     \
-  ((new)->flags & (flag)) != 0)
+  (FLAG_IS_OFF(old,flag) &&           \
+   FLAG_IS_ON(new,flag))
 
 #define FLAG_TOGGLED_OFF(old,new,flag) \
- (((old)->flags & (flag)) != 0 &&      \
-  ((new)->flags & (flag)) == 0)
+  (FLAG_IS_ON(old,flag) &&             \
+   FLAG_IS_OFF(new,flag))
 
 #define FLAG_CHANGED(old,new,flag) \
   (FLAG_TOGGLED_ON(old,new,flag) || FLAG_TOGGLED_OFF(old,new,flag))
@@ -1142,16 +1148,80 @@ static gboolean
 hints_have_changed (const XSizeHints *old,
                     const XSizeHints *new)
 {
-  return FLAG_CHANGED (old, new, USPosition) ||
-         FLAG_CHANGED (old, new, USSize) ||
-         FLAG_CHANGED (old, new, PPosition) ||
-         FLAG_CHANGED (old, new, PSize) ||
-         FLAG_CHANGED (old, new, PMinSize) ||
-         FLAG_CHANGED (old, new, PMaxSize) ||
-         FLAG_CHANGED (old, new, PResizeInc) ||
-         FLAG_CHANGED (old, new, PAspect) ||
-         FLAG_CHANGED (old, new, PBaseSize) ||
-         FLAG_CHANGED (old, new, PWinGravity);
+  /* 1. Check if the relevant values have changed if the flag is set. */
+
+  if (FLAG_TOGGLED_ON (old, new, USPosition) ||
+      (FLAG_IS_ON (new, USPosition) &&
+       (old->x != new->x ||
+        old->y != new->y)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, USSize) ||
+      (FLAG_IS_ON (new, USSize) &&
+       (old->width != new->width ||
+        old->height != new->height)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PPosition) ||
+      (FLAG_IS_ON (new, PPosition) &&
+       (old->x != new->x ||
+        old->y != new->y)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PSize) ||
+      (FLAG_IS_ON (new, PSize) &&
+       (old->width != new->width ||
+        old->height != new->height)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PMinSize) ||
+      (FLAG_IS_ON (new, PMinSize) &&
+       (old->min_width != new->min_width ||
+        old->min_height != new->min_height)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PMaxSize) ||
+      (FLAG_IS_ON (new, PMaxSize) &&
+       (old->max_width != new->max_width ||
+        old->max_height != new->max_height)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PResizeInc) ||
+      (FLAG_IS_ON (new, PResizeInc) &&
+       (old->width_inc != new->width_inc ||
+        old->height_inc != new->height_inc)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PAspect) ||
+      (FLAG_IS_ON (new, PAspect) &&
+       (old->min_aspect.x != new->min_aspect.x ||
+        old->min_aspect.y != new->min_aspect.y ||
+        old->max_aspect.x != new->max_aspect.x ||
+        old->max_aspect.y != new->max_aspect.y)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PBaseSize) ||
+      (FLAG_IS_ON (new, PBaseSize) &&
+       (old->base_width != new->base_width ||
+        old->base_height != new->base_height)))
+    return TRUE;
+
+  if (FLAG_TOGGLED_ON (old, new, PWinGravity) ||
+      (FLAG_IS_ON (new, PWinGravity) &&
+       (old->win_gravity != new->win_gravity)))
+    return TRUE;
+
+  /* 2. Check if the flags have been unset. */
+  return FLAG_TOGGLED_OFF (old, new, USPosition) ||
+         FLAG_TOGGLED_OFF (old, new, USSize) ||
+         FLAG_TOGGLED_OFF (old, new, PPosition) ||
+         FLAG_TOGGLED_OFF (old, new, PSize) ||
+         FLAG_TOGGLED_OFF (old, new, PMinSize) ||
+         FLAG_TOGGLED_OFF (old, new, PMaxSize) ||
+         FLAG_TOGGLED_OFF (old, new, PResizeInc) ||
+         FLAG_TOGGLED_OFF (old, new, PAspect) ||
+         FLAG_TOGGLED_OFF (old, new, PBaseSize) ||
+         FLAG_TOGGLED_OFF (old, new, PWinGravity);
 }
 
 void
