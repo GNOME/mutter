@@ -97,7 +97,6 @@ test-mutter-coverage:
     paths:
       - build/meson-logs/coveragereport
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
-  when: always
   <<: *only_default
 
 can-build-gnome-shell:
