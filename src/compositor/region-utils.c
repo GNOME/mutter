@@ -196,7 +196,7 @@ meta_region_scale_double (cairo_region_t       *region,
 
   g_return_val_if_fail (scale > 0.0, NULL);
 
-  if (scale == 1.0)
+  if (G_APPROX_VALUE (scale, 1.f, FLT_EPSILON))
     return cairo_region_copy (region);
 
   n_rects = cairo_region_num_rectangles (region);
@@ -419,14 +419,17 @@ meta_region_crop_and_scale (cairo_region_t  *region,
   cairo_rectangle_int_t *rects;
   cairo_region_t *viewport_region;
 
-  if (src_rect->size.width == dst_width &&
-      src_rect->size.height == dst_height &&
-      roundf (src_rect->origin.x) == src_rect->origin.x &&
-      roundf (src_rect->origin.y) == src_rect->origin.y)
+  if (G_APPROX_VALUE (src_rect->size.width, dst_width, FLT_EPSILON) &&
+      G_APPROX_VALUE (src_rect->size.height, dst_height, FLT_EPSILON) &&
+      G_APPROX_VALUE (roundf (src_rect->origin.x),
+                      src_rect->origin.x, FLT_EPSILON) &&
+      G_APPROX_VALUE (roundf (src_rect->origin.y),
+                      src_rect->origin.y, FLT_EPSILON))
     {
       viewport_region = cairo_region_copy (region);
 
-      if (src_rect->origin.x != 0 || src_rect->origin.y != 0)
+      if (G_APPROX_VALUE (src_rect->origin.x, 0, FLT_EPSILON) ||
+          G_APPROX_VALUE (src_rect->origin.y, 0, FLT_EPSILON))
         {
           cairo_region_translate (viewport_region,
                                   (int) src_rect->origin.x,
