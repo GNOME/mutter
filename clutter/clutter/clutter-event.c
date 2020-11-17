@@ -1009,29 +1009,6 @@ clutter_event_get_event_sequence (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_get_device_id:
- * @event: a clutter event 
- *
- * Retrieves the events device id if set.
- *
- * Return value: A unique identifier for the device or -1 if the event has
- *   no specific device set.
- */
-gint
-clutter_event_get_device_id (const ClutterEvent *event)
-{
-  ClutterInputDevice *device = NULL;
-
-  g_return_val_if_fail (event != NULL, CLUTTER_POINTER_DEVICE);
-
-  device = clutter_event_get_device (event);
-  if (device != NULL)
-    return clutter_input_device_get_device_id (device);
-
-  return -1;
-}
-
-/**
  * clutter_event_get_device_type:
  * @event: a #ClutterEvent
  *

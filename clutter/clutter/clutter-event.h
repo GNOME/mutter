@@ -699,8 +699,6 @@ void                    clutter_event_set_stage                 (ClutterEvent   
 CLUTTER_EXPORT
 ClutterStage *          clutter_event_get_stage                 (const ClutterEvent     *event);
 CLUTTER_EXPORT
-gint                    clutter_event_get_device_id             (const ClutterEvent     *event);
-CLUTTER_EXPORT
 ClutterInputDeviceType  clutter_event_get_device_type           (const ClutterEvent     *event);
 CLUTTER_EXPORT
 void                    clutter_event_set_coords                (ClutterEvent           *event,
