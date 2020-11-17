@@ -163,6 +163,7 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
                                const ClutterEvent   *event,
                                EventsUnfreezeMethod  unfreeze_method)
 {
+  ClutterInputDevice *device;
   Display *xdisplay;
   int event_mode;
   int device_id;
@@ -173,7 +174,8 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
   if (!META_IS_BACKEND_X11 (backend))
     return;
 
-  device_id = clutter_event_get_device_id (event);
+  device = clutter_event_get_device (event);
+  device_id = clutter_input_device_get_device_id (device);
   switch (unfreeze_method)
     {
     case EVENTS_UNFREEZE_SYNC:
