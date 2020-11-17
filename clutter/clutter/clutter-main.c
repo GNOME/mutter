@@ -1319,9 +1319,9 @@ event_click_count_generate (ClutterEvent *event)
       previous_button_number = device->previous_button_number;
 
       CLUTTER_NOTE (EVENT,
-                    "Restoring previous click count:%d (device:%d, time:%u)",
+                    "Restoring previous click count:%d (device:%s, time:%u)",
                     click_count,
-                    clutter_input_device_get_device_id (device),
+                    clutter_input_device_get_device_name (device),
                     previous_time);
     }
   else
@@ -1375,9 +1375,9 @@ event_click_count_generate (ClutterEvent *event)
 
   if (event->type == CLUTTER_BUTTON_PRESS && device != NULL)
     {
-      CLUTTER_NOTE (EVENT, "Storing click count: %d (device:%d, time:%u)",
+      CLUTTER_NOTE (EVENT, "Storing click count: %d (device:%s, time:%u)",
                     click_count,
-                    clutter_input_device_get_device_id (device),
+                    clutter_input_device_get_device_name (device),
                     previous_time);
 
       device->click_count = click_count;
