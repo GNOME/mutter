@@ -91,8 +91,6 @@ struct _ClutterInputDevice
 {
   GObject parent_instance;
 
-  int id;
-
   ClutterInputDeviceType device_type;
   ClutterInputMode device_mode;
 

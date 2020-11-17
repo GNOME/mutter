@@ -82,8 +82,6 @@ GType clutter_input_device_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterInputDeviceType  clutter_input_device_get_device_type    (ClutterInputDevice  *device);
-CLUTTER_EXPORT
-gint                    clutter_input_device_get_device_id      (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
 gboolean                clutter_input_device_get_coords        (ClutterInputDevice   *device,

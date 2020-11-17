@@ -53,7 +53,6 @@ enum
 
   PROP_BACKEND,
 
-  PROP_ID,
   PROP_NAME,
 
   PROP_DEVICE_TYPE,
@@ -162,10 +161,6 @@ clutter_input_device_set_property (GObject      *gobject,
 
   switch (prop_id)
     {
-    case PROP_ID:
-      self->id = g_value_get_int (value);
-      break;
-
     case PROP_DEVICE_TYPE:
       self->device_type = g_value_get_enum (value);
       break;
@@ -234,10 +229,6 @@ clutter_input_device_get_property (GObject    *gobject,
 
   switch (prop_id)
     {
-    case PROP_ID:
-      g_value_set_int (value, self->id);
-      break;
-
     case PROP_DEVICE_TYPE:
       g_value_set_enum (value, self->device_type);
       break;
@@ -304,22 +295,6 @@ static void
 clutter_input_device_class_init (ClutterInputDeviceClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  /**
-   * ClutterInputDevice:id:
-   *
-   * The unique identifier of the device
-   *
-   * Since: 1.2
-   */
-  obj_props[PROP_ID] =
-    g_param_spec_int ("id",
-                      P_("Id"),
-                      P_("Unique identifier of the device"),
-                      -1, G_MAXINT,
-                      0,
-                      CLUTTER_PARAM_READWRITE |
-                      G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:name:
@@ -506,7 +481,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
 static void
 clutter_input_device_init (ClutterInputDevice *self)
 {
-  self->id = -1;
   self->device_type = CLUTTER_POINTER_DEVICE;
 
   self->click_count = 0;
@@ -815,24 +789,6 @@ clutter_input_device_get_device_type (ClutterInputDevice *device)
 }
 
 /**
- * clutter_input_device_get_device_id:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the unique identifier of @device
- *
- * Return value: the identifier of the device
- *
- * Since: 1.0
- */
-gint
-clutter_input_device_get_device_id (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), -1);
-
-  return device->id;
-}
-
-/**
  * clutter_input_device_set_enabled:
  * @device: a #ClutterInputDevice
  * @enabled: %TRUE to enable the @device
@@ -970,8 +926,8 @@ clutter_input_device_update (ClutterInputDevice   *device,
     return NULL;
 
   CLUTTER_NOTE (EVENT,
-                "Actor under cursor (device %d, at %.2f, %.2f): %s",
-                clutter_input_device_get_device_id (device),
+                "Actor under cursor (device '%s', at %.2f, %.2f): %s",
+                clutter_input_device_get_device_name (device),
                 point.x,
                 point.y,
                 _clutter_actor_get_debug_name (new_cursor_actor));
@@ -1636,12 +1592,8 @@ _clutter_input_device_set_associated_device (ClutterInputDevice *device,
   if (device->associated != NULL)
     g_object_ref (device->associated);
 
-  CLUTTER_NOTE (MISC, "Associating device %d '%s' to device %d '%s'",
-                clutter_input_device_get_device_id (device),
+  CLUTTER_NOTE (MISC, "Associating device '%s' to device '%s'",
                 clutter_input_device_get_device_name (device),
-                device->associated != NULL
-                  ? clutter_input_device_get_device_id (device->associated)
-                  : -1,
                 device->associated != NULL
                   ? clutter_input_device_get_device_name (device->associated)
                   : "(none)");
