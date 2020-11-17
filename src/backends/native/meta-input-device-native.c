@@ -59,17 +59,10 @@ static void stop_mousekeys_move  (MetaInputDeviceNative *device);
 static void
 meta_input_device_native_finalize (GObject *object)
 {
-  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (object);
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (object);
-  ClutterBackend *backend;
-  ClutterSeat *seat;
 
   if (device_evdev->libinput_device)
     libinput_device_unref (device_evdev->libinput_device);
-
-  backend = clutter_get_default_backend ();
-  seat = clutter_backend_get_default_seat (backend);
-  meta_seat_native_release_device_id (META_SEAT_NATIVE (seat), device);
 
   clear_slow_keys (device_evdev);
   stop_bounce_keys (device_evdev);
@@ -1281,14 +1274,13 @@ meta_input_device_native_new (MetaSeatNative         *seat,
   MetaInputDeviceNative *device;
   ClutterInputDeviceType type;
   char *vendor, *product;
-  int device_id, n_rings = 0, n_strips = 0, n_groups = 1;
+  int n_rings = 0, n_strips = 0, n_groups = 1;
   char *node_path;
   double width, height;
 
   type = meta_input_device_native_determine_type (libinput_device);
   vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
   product = g_strdup_printf ("%.4x", libinput_device_get_id_product (libinput_device));
-  device_id = meta_seat_native_acquire_device_id (seat);
   node_path = g_strdup_printf ("/dev/input/%s", libinput_device_get_sysname (libinput_device));
 
   if (libinput_device_has_capability (libinput_device,
@@ -1300,7 +1292,6 @@ meta_input_device_native_new (MetaSeatNative         *seat,
     }
 
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
-                         "id", device_id,
                          "name", libinput_device_get_name (libinput_device),
                          "device-type", type,
                          "device-mode", CLUTTER_INPUT_MODE_PHYSICAL,
@@ -1343,7 +1334,6 @@ meta_input_device_native_new_virtual (MetaSeatNative         *seat,
 {
   MetaInputDeviceNative *device;
   const char *name;
-  int device_id;
 
   switch (type)
     {
@@ -1361,9 +1351,7 @@ meta_input_device_native_new_virtual (MetaSeatNative         *seat,
       break;
     };
 
-  device_id = meta_seat_native_acquire_device_id (seat);
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
-                         "id", device_id,
                          "name", name,
                          "device-type", type,
                          "device-mode", mode,

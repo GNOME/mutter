@@ -3050,49 +3050,6 @@ meta_seat_native_update_xkb_state (MetaSeatNative *seat)
   meta_seat_native_sync_leds (seat);
 }
 
-gint
-meta_seat_native_acquire_device_id (MetaSeatNative *seat)
-{
-  GList *first;
-  gint next_id;
-
-  if (seat->free_device_ids == NULL)
-    {
-      gint i;
-
-      /* We ran out of free ID's, so append 10 new ones. */
-      for (i = 0; i < 10; i++)
-        seat->free_device_ids =
-          g_list_append (seat->free_device_ids,
-                         GINT_TO_POINTER (seat->device_id_next++));
-    }
-
-  first = g_list_first (seat->free_device_ids);
-  next_id = GPOINTER_TO_INT (first->data);
-  seat->free_device_ids = g_list_delete_link (seat->free_device_ids, first);
-
-  return next_id;
-}
-
-static int
-compare_ids (gconstpointer a,
-             gconstpointer b)
-{
-  return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
-}
-
-void
-meta_seat_native_release_device_id (MetaSeatNative     *seat,
-                                    ClutterInputDevice *device)
-{
-  gint device_id;
-
-  device_id = clutter_input_device_get_device_id (device);
-  seat->free_device_ids = g_list_insert_sorted (seat->free_device_ids,
-                                                GINT_TO_POINTER (device_id),
-                                                compare_ids);
-}
-
 /**
  * meta_seat_native_release_devices:
  *
