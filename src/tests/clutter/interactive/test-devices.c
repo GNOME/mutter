@@ -93,9 +93,8 @@ stage_button_event_cb (ClutterActor   *actor,
 
   hand = g_hash_table_lookup (app->devices, device);
 
-  g_print ("Device: '%s' (id:%d, type: %s, source: '%s', axes: %d)\n",
+  g_print ("Device: '%s' (type: %s, source: '%s', axes: %d)\n",
            clutter_input_device_get_device_name (device),
-           clutter_input_device_get_device_id (device),
            device_type_name (device),
            source_device != device
              ? clutter_input_device_get_device_name (source_device)
@@ -160,10 +159,9 @@ seat_device_added_cb (ClutterSeat        *seat,
   ClutterInputDeviceType device_type;
   ClutterActor *hand = NULL;
 
-  g_print ("got a %s device '%s' with id %d\n",
+  g_print ("got a %s device '%s'\n",
            device_type_name (device),
-           clutter_input_device_get_device_name (device),
-           clutter_input_device_get_device_id (device));
+           clutter_input_device_get_device_name (device));
 
   device_type = clutter_input_device_get_device_type (device);
   if (device_type == CLUTTER_POINTER_DEVICE ||
@@ -193,10 +191,9 @@ seat_device_removed_cb (ClutterSeat        *seat,
   ClutterInputDeviceType device_type;
   ClutterActor *hand = NULL;
 
-  g_print ("removed a %s device '%s' with id %d\n",
+  g_print ("removed a %s device '%s'\n",
            device_type_name (device),
-           clutter_input_device_get_device_name (device),
-           clutter_input_device_get_device_id (device));
+           clutter_input_device_get_device_name (device));
 
   device_type = clutter_input_device_get_device_type (device);
   if (device_type == CLUTTER_POINTER_DEVICE ||
@@ -259,10 +256,9 @@ test_devices_main (int argc, char **argv)
       ClutterInputDeviceType device_type;
       ClutterActor *hand = NULL;
 
-      g_print ("got a %s device '%s' with id %d\n",
+      g_print ("got a %s device '%s'\n",
                device_type_name (device),
-               clutter_input_device_get_device_name (device),
-               clutter_input_device_get_device_id (device));
+               clutter_input_device_get_device_name (device));
 
       device_type = clutter_input_device_get_device_type (device);
       if (device_type == CLUTTER_POINTER_DEVICE ||
