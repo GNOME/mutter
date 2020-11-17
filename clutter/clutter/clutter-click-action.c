@@ -114,7 +114,7 @@ struct _ClutterClickActionPrivate
   gint drag_threshold;
 
   guint press_button;
-  gint press_device_id;
+  ClutterInputDevice *press_device;
   ClutterEventSequence *press_sequence;
   ClutterModifierType modifier_state;
   gfloat press_x;
@@ -299,7 +299,7 @@ on_event (ClutterActor       *actor,
         return CLUTTER_EVENT_PROPAGATE;
 
       priv->press_button = has_button ? clutter_event_get_button (event) : 0;
-      priv->press_device_id = clutter_event_get_device_id (event);
+      priv->press_device = clutter_event_get_device (event);
       priv->press_sequence = clutter_event_get_event_sequence (event);
       priv->modifier_state = clutter_event_get_state (event);
       clutter_event_get_coords (event, &priv->press_x, &priv->press_y);
@@ -370,7 +370,7 @@ on_captured_event (ClutterActor       *stage,
 
       if ((has_button && clutter_event_get_button (event) != priv->press_button) ||
           (has_button && clutter_event_get_click_count (event) != 1) ||
-          clutter_event_get_device_id (event) != priv->press_device_id ||
+          clutter_event_get_device (event) != priv->press_device ||
           clutter_event_get_event_sequence (event) != priv->press_sequence)
         return CLUTTER_EVENT_PROPAGATE;
 
@@ -411,7 +411,7 @@ on_captured_event (ClutterActor       *stage,
         gfloat motion_x, motion_y;
         gfloat delta_x, delta_y;
 
-        if (clutter_event_get_device_id (event) != priv->press_device_id ||
+        if (clutter_event_get_device (event) != priv->press_device ||
             clutter_event_get_event_sequence (event) != priv->press_sequence)
           return CLUTTER_EVENT_PROPAGATE;
 
