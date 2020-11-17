@@ -145,7 +145,7 @@ translate_valuator_class (Display             *xdisplay,
            class->min,
            class->max,
            class->resolution,
-           device->id);
+           meta_input_device_x11_get_device_id (device));
 }
 
 static void
@@ -577,7 +577,7 @@ pad_passive_button_grab (ClutterInputDevice *device)
   XIEventMask xi_event_mask;
   int device_id, rc;
 
-  device_id = clutter_input_device_get_device_id (device);
+  device_id = meta_input_device_x11_get_device_id (device);
 
   xi_event_mask.deviceid = device_id;
   xi_event_mask.mask_len = XIMaskLen (XI_LASTEVENT);
@@ -791,7 +791,7 @@ device_get_tool_serial (ClutterInputDevice *device)
 
   clutter_x11_trap_x_errors ();
   rc = XIGetProperty (clutter_x11_get_default_display (),
-                      clutter_input_device_get_device_id (device),
+                      meta_input_device_x11_get_device_id (device),
                       prop, 0, 4, FALSE, XA_INTEGER, &type, &format, &nitems, &bytes_after,
                       (guchar **) &data);
   clutter_x11_untrap_x_errors ();
@@ -980,7 +980,7 @@ translate_raw_event (MetaSeatX11 *seat_x11,
     {
     case XI_RawMotion:
       g_debug ("raw motion: device:%d '%s'",
-               device->id,
+               meta_input_device_x11_get_device_id (device),
                device->device_name);
 
       /* We don't get actual pointer location with raw events, and we cannot
@@ -997,7 +997,7 @@ translate_raw_event (MetaSeatX11 *seat_x11,
                cookie->evtype == XI_RawButtonPress
                ? "press  "
                : "release",
-               device->id,
+               meta_input_device_x11_get_device_id (device),
                device->device_name,
                xev->detail);
       _clutter_input_pointer_a11y_on_button_event (device,
@@ -1102,7 +1102,7 @@ translate_pad_event (ClutterEvent       *event,
            ? "pad ring  "
            : "pad strip",
            (unsigned int) xev->event,
-           device->id,
+           meta_input_device_x11_get_device_id (device),
            device->device_name,
            event->any.time, value);
 
@@ -1914,7 +1914,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                      ? "pad button press  "
                      : "pad button release",
                      (unsigned int) stage_x11->xwin,
-                     device->id,
+                     meta_input_device_x11_get_device_id (device),
                      device->device_name,
                      event->any.time,
                      event->pad_button.button);
@@ -1964,7 +1964,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                      "x:%.2f, y:%.2f, "
                      "emulated:%s)",
                      (unsigned int) stage_x11->xwin,
-                     device->id,
+                     meta_input_device_x11_get_device_id (device),
                      device->device_name,
                      event->any.time,
                      event->scroll.direction == CLUTTER_SCROLL_UP ? "up" :
@@ -2010,7 +2010,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                      ? "button press  "
                      : "button release",
                      (unsigned int) stage_x11->xwin,
-                     device->id,
+                     meta_input_device_x11_get_device_id (device),
                      device->device_name,
                      event->any.time,
                      event->button.button,
@@ -2073,7 +2073,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
             g_debug ("smooth scroll: win:0x%x device:%d '%s' (x:%.2f, y:%.2f, delta:%f, %f)",
                      (unsigned int) stage_x11->xwin,
-                     event->scroll.device->id,
+                     meta_input_device_x11_get_device_id (event->scroll.device),
                      event->scroll.device->device_name,
                      event->scroll.x,
                      event->scroll.y,
@@ -2109,7 +2109,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         g_debug ("motion: win:0x%x device:%d '%s' (x:%.2f, y:%.2f, axes:%s)",
                  (unsigned int) stage_x11->xwin,
-                 event->motion.device->id,
+                 meta_input_device_x11_get_device_id (event->motion.device),
                  event->motion.device->device_name,
                  event->motion.x,
                  event->motion.y,
@@ -2172,7 +2172,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         g_debug ("touch %s: win:0x%x device:%d '%s' (seq:%d, x:%.2f, y:%.2f, axes:%s)",
                  event->type == CLUTTER_TOUCH_BEGIN ? "begin" : "end",
                  (unsigned int) stage_x11->xwin,
-                 event->touch.device->id,
+                 meta_input_device_x11_get_device_id (event->touch.device),
                  event->touch.device->device_name,
                  GPOINTER_TO_UINT (event->touch.sequence),
                  event->touch.x,
@@ -2218,7 +2218,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         g_debug ("touch update: win:0x%x device:%d '%s' (seq:%d, x:%.2f, y:%.2f, axes:%s)",
                  (unsigned int) stage_x11->xwin,
-                 event->touch.device->id,
+                 meta_input_device_x11_get_device_id (event->touch.device),
                  event->touch.device->device_name,
                  GPOINTER_TO_UINT (event->touch.sequence),
                  event->touch.x,

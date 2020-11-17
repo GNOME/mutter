@@ -37,6 +37,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
 #include "core/display-private.h"
 #include "meta/meta-x11-errors.h"
 
@@ -77,7 +78,7 @@ device_ensure_xdevice (ClutterInputDevice *device)
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  int device_id = clutter_input_device_get_device_id (device);
+  int device_id = meta_input_device_x11_get_device_id (device);
   XDevice *xdev = NULL;
 
   xdev = g_object_get_data (G_OBJECT (device), "meta-input-settings-xdevice");
@@ -116,7 +117,7 @@ get_property (ClutterInputDevice *device,
   if (!property_atom)
     return NULL;
 
-  device_id = clutter_input_device_get_device_id (device);
+  device_id = meta_input_device_x11_get_device_id (device);
 
   clutter_x11_trap_x_errors ();
   rc = XIGetProperty (xdisplay, device_id, property_atom,
@@ -154,7 +155,7 @@ change_property (ClutterInputDevice *device,
   if (!property_atom)
     return;
 
-  device_id = clutter_input_device_get_device_id (device);
+  device_id = meta_input_device_x11_get_device_id (device);
 
   data_ret = get_property (device, property, type, format, nitems);
   if (!data_ret)
@@ -674,7 +675,7 @@ device_query_area (ClutterInputDevice *device,
   Atom abs_x, abs_y;
 
   *width = *height = 0;
-  device_id = clutter_input_device_get_device_id (device);
+  device_id = meta_input_device_x11_get_device_id (device);
   info = XIQueryDevice (xdisplay, device_id, &n_devices);
   if (n_devices <= 0 || !info)
     return FALSE;

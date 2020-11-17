@@ -27,6 +27,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
@@ -175,7 +176,7 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
     return;
 
   device = clutter_event_get_device (event);
-  device_id = clutter_input_device_get_device_id (device);
+  device_id = meta_input_device_x11_get_device_id (device);
   switch (unfreeze_method)
     {
     case EVENTS_UNFREEZE_SYNC:

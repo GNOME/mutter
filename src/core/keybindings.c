@@ -34,6 +34,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
 #include "core/edge-resistance.h"
 #include "core/frame.h"
@@ -2075,7 +2076,7 @@ process_special_modifier_key (MetaDisplay          *display,
 
               if (xdisplay)
                 XIAllowEvents (xdisplay,
-                               clutter_input_device_get_device_id (event->device),
+                               meta_input_device_x11_get_device_id (event->device),
                                XIAsyncDevice, event->time);
             }
           else
@@ -2084,7 +2085,7 @@ process_special_modifier_key (MetaDisplay          *display,
                * per-window key bindings or to the application */
               if (xdisplay)
                 XIAllowEvents (xdisplay,
-                               clutter_input_device_get_device_id (event->device),
+                               meta_input_device_x11_get_device_id (event->device),
                                XIReplayDevice, event->time);
             }
         }
@@ -2098,7 +2099,7 @@ process_special_modifier_key (MetaDisplay          *display,
            * starts typing into the overlay we get all the keys */
           if (xdisplay)
             XIAllowEvents (xdisplay,
-                           clutter_input_device_get_device_id (event->device),
+                           meta_input_device_x11_get_device_id (event->device),
                            XIAsyncDevice, event->time);
 
           binding = get_keybinding (keys, resolved_key_combo);
@@ -2123,7 +2124,7 @@ process_special_modifier_key (MetaDisplay          *display,
            */
           if (xdisplay)
             XIAllowEvents (xdisplay,
-                           clutter_input_device_get_device_id (event->device),
+                           meta_input_device_x11_get_device_id (event->device),
                            XIAsyncDevice, event->time);
         }
 
@@ -2139,7 +2140,7 @@ process_special_modifier_key (MetaDisplay          *display,
        * on the next event if it's not the release of the modifier key */
       if (xdisplay)
         XIAllowEvents (xdisplay,
-                       clutter_input_device_get_device_id (event->device),
+                       meta_input_device_x11_get_device_id (event->device),
                        XISyncDevice, event->time);
 
       return TRUE;
@@ -2258,7 +2259,7 @@ process_key_event (MetaDisplay     *display,
       {
         Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
         XIAllowEvents (xdisplay,
-                       clutter_input_device_get_device_id (event->device),
+                       meta_input_device_x11_get_device_id (event->device),
                        XIAsyncDevice, event->time);
       }
   }

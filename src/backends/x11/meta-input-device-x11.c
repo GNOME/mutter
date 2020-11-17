@@ -394,6 +394,16 @@ meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
   return device_xi2->query_status;
 }
 
+int
+meta_input_device_x11_get_device_id (ClutterInputDevice *device)
+{
+  MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
+
+  g_return_val_if_fail (META_IS_INPUT_DEVICE_X11 (device), 0);
+
+  return device_xi2->device_id;
+}
+
 #ifdef HAVE_LIBWACOM
 uint32_t
 meta_input_device_x11_get_pad_group_mode (ClutterInputDevice *device,

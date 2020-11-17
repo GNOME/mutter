@@ -69,6 +69,7 @@ void meta_input_device_x11_update_pad_state (ClutterInputDevice *device,
 gboolean meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
                                                      float              *x,
                                                      float              *y);
+int meta_input_device_x11_get_device_id (ClutterInputDevice *device);
 
 G_END_DECLS
 
