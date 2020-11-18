@@ -94,13 +94,6 @@ clutter_input_device_dispose (GObject *gobject)
   g_clear_pointer (&device->product_id, g_free);
   g_clear_pointer (&device->node_path, g_free);
 
-  if (device->associated != NULL)
-    {
-      _clutter_input_device_set_associated_device (device->associated, NULL);
-      g_object_unref (device->associated);
-      device->associated = NULL;
-    }
-
   if (device->accessibility_virtual_device)
     g_clear_object (&device->accessibility_virtual_device);
 
@@ -1071,69 +1064,6 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                        clutter_event_get_time (event));
       g_hash_table_remove (device->touch_sequence_actors, sequence);
     }
-}
-
-/*< internal >
- * clutter_input_device_set_associated_device:
- * @device: a #ClutterInputDevice
- * @associated: (allow-none): a #ClutterInputDevice, or %NULL
- *
- * Sets the associated device for @device.
- *
- * This function keeps a reference on the associated device.
- */
-void
-_clutter_input_device_set_associated_device (ClutterInputDevice *device,
-                                             ClutterInputDevice *associated)
-{
-  if (device->associated == associated)
-    return;
-
-  if (device->associated != NULL)
-    g_object_unref (device->associated);
-
-  device->associated = associated;
-  if (device->associated != NULL)
-    g_object_ref (device->associated);
-
-  CLUTTER_NOTE (MISC, "Associating device '%s' to device '%s'",
-                clutter_input_device_get_device_name (device),
-                device->associated != NULL
-                  ? clutter_input_device_get_device_name (device->associated)
-                  : "(none)");
-
-  if (device->device_mode != CLUTTER_INPUT_MODE_LOGICAL)
-    {
-      if (device->associated != NULL)
-        device->device_mode = CLUTTER_INPUT_MODE_PHYSICAL;
-      else
-        device->device_mode = CLUTTER_INPUT_MODE_FLOATING;
-
-      g_object_notify_by_pspec (G_OBJECT (device), obj_props[PROP_DEVICE_MODE]);
-    }
-}
-
-/**
- * clutter_input_device_get_associated_device:
- * @device: a #ClutterInputDevice
- *
- * Retrieves a pointer to the #ClutterInputDevice that has been
- * associated to @device.
- *
- * If the #ClutterInputDevice:device-mode property of @device is
- * set to %CLUTTER_INPUT_MODE_LOGICAL, this function will return
- * %NULL.
- *
- * Return value: (transfer none): a #ClutterInputDevice, or %NULL
- *
- * Since: 1.6
- */
-ClutterInputDevice *
-clutter_input_device_get_associated_device (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-
-  return device->associated;
 }
 
 /**

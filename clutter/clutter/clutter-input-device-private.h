@@ -85,9 +85,6 @@ struct _ClutterInputDevice
 
   ClutterBackend *backend;
 
-  /* the associated device */
-  ClutterInputDevice *associated;
-
   /* the actor underneath the pointer */
   ClutterActor *cursor_actor;
   GHashTable   *inv_touch_sequence_actors;
@@ -136,9 +133,6 @@ struct _ClutterInputDevice
   ClutterPtrA11yData *ptr_a11y_data;
 };
 
-CLUTTER_EXPORT
-void _clutter_input_device_set_associated_device (ClutterInputDevice *device,
-                                                  ClutterInputDevice *associated);
 CLUTTER_EXPORT
 void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
                                             ClutterInputDeviceTool *tool);

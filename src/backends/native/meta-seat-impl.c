@@ -1510,7 +1510,7 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
                   struct libinput_device *libinput_device)
 {
   ClutterInputDeviceType type;
-  ClutterInputDevice *device, *master = NULL;
+  ClutterInputDevice *device;
   gboolean is_touchscreen, is_tablet_switch;
 
   device = meta_input_device_native_new (seat_impl, libinput_device);
@@ -1520,14 +1520,6 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
   /* Clutter assumes that device types are exclusive in the
    * ClutterInputDevice API */
   type = meta_input_device_native_determine_type (libinput_device);
-
-  if (type == CLUTTER_KEYBOARD_DEVICE)
-    master = seat_impl->core_keyboard;
-  else if (type == CLUTTER_POINTER_DEVICE)
-    master = seat_impl->core_pointer;
-
-  if (master)
-    _clutter_input_device_set_associated_device (device, master);
 
   is_touchscreen = type == CLUTTER_TOUCHSCREEN_DEVICE;
   is_tablet_switch =
