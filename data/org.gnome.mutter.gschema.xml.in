@@ -161,10 +161,12 @@
 
     <key name="toggle-tiled-left" type="as">
       <default><![CDATA[['<Super>Left']]]></default>
+      <summary>View split on left</summary>
     </key>
 
     <key name="toggle-tiled-right" type="as">
       <default><![CDATA[['<Super>Right']]]></default>
+      <summary>View split on right</summary>
     </key>
 
     <key name="tab-popup-select" type="as">
