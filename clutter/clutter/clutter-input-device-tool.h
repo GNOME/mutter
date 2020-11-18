@@ -64,6 +64,9 @@ ClutterInputDeviceToolType clutter_input_device_tool_get_tool_type (ClutterInput
 CLUTTER_EXPORT
 guint64                    clutter_input_device_tool_get_id        (ClutterInputDeviceTool *tool);
 
+CLUTTER_EXPORT
+ClutterInputAxisFlags      clutter_input_device_tool_get_axes      (ClutterInputDeviceTool *tool);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_INPUT_DEVICE_TOOL_H__ */

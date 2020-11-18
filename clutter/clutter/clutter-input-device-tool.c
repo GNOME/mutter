@@ -33,6 +33,7 @@ struct _ClutterInputDeviceToolPrivate
   ClutterInputDeviceToolType type;
   guint64 serial;
   guint64 id;
+  ClutterInputAxisFlags axes;
 };
 
 enum
@@ -41,6 +42,7 @@ enum
   PROP_TYPE,
   PROP_SERIAL,
   PROP_ID,
+  PROP_AXES,
   PROP_LAST
 };
 
@@ -70,6 +72,9 @@ clutter_input_device_tool_set_property (GObject      *object,
     case PROP_ID:
       priv->id = g_value_get_uint64 (value);
       break;
+    case PROP_AXES:
+      priv->axes = g_value_get_flags (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -96,6 +101,9 @@ clutter_input_device_tool_get_property (GObject    *object,
       break;
     case PROP_ID:
       g_value_set_uint64 (value, priv->id);
+      break;
+    case PROP_AXES:
+      g_value_set_flags (value, priv->axes);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -129,6 +137,13 @@ clutter_input_device_tool_class_init (ClutterInputDeviceToolClass *klass)
                          P_("Tool ID"),
                          0, G_MAXUINT64, 0,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_AXES] =
+    g_param_spec_flags ("axes",
+                        P_("Axes"),
+                        P_("Axes"),
+                        CLUTTER_TYPE_INPUT_AXIS_FLAGS,
+                        CLUTTER_INPUT_AXIS_FLAG_NONE,
+                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, props);
 }
@@ -203,4 +218,16 @@ clutter_input_device_tool_get_id (ClutterInputDeviceTool *tool)
   priv = clutter_input_device_tool_get_instance_private (tool);
 
   return priv->id;
+}
+
+ClutterInputAxisFlags
+clutter_input_device_tool_get_axes (ClutterInputDeviceTool *tool)
+{
+  ClutterInputDeviceToolPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), 0);
+
+  priv = clutter_input_device_tool_get_instance_private (tool);
+
+  return priv->axes;
 }

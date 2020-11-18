@@ -38,8 +38,19 @@ ClutterInputDeviceTool *
 meta_input_device_tool_x11_new (guint                      serial,
                                 ClutterInputDeviceToolType type)
 {
+  ClutterInputAxisFlags axes =
+    CLUTTER_INPUT_AXIS_FLAG_PRESSURE |
+    CLUTTER_INPUT_AXIS_FLAG_DISTANCE |
+    CLUTTER_INPUT_AXIS_FLAG_XTILT |
+    CLUTTER_INPUT_AXIS_FLAG_YTILT |
+    CLUTTER_INPUT_AXIS_FLAG_WHEEL |
+    CLUTTER_INPUT_AXIS_FLAG_DISTANCE |
+    CLUTTER_INPUT_AXIS_FLAG_ROTATION |
+    CLUTTER_INPUT_AXIS_FLAG_SLIDER;
+
   return g_object_new (META_TYPE_INPUT_DEVICE_TOOL_X11,
                        "type", type,
                        "serial", serial,
+                       "axes", axes,
                        NULL);
 }
