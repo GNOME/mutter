@@ -465,33 +465,6 @@ clutter_input_device_init (ClutterInputDevice *self)
   self->inv_touch_sequence_actors = g_hash_table_new (NULL, NULL);
 }
 
-/**
- * clutter_input_device_get_modifier_state:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the current modifiers state of the device, as seen
- * by the last event Clutter processed.
- *
- * Return value: the last known modifier state
- *
- * Since: 1.16
- */
-ClutterModifierType
-clutter_input_device_get_modifier_state (ClutterInputDevice *device)
-{
-  uint32_t modifiers;
-  ClutterSeat *seat;
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
-
-  seat = clutter_input_device_get_seat (device);
-
-  if (!clutter_seat_query_state (seat, device, NULL, NULL, &modifiers))
-    return 0;
-
-  return modifiers;
-}
-
 static void
 _clutter_input_device_associate_actor (ClutterInputDevice   *device,
                                        ClutterEventSequence *sequence,

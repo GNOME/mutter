@@ -84,8 +84,6 @@ CLUTTER_EXPORT
 ClutterInputDeviceType  clutter_input_device_get_device_type    (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
-ClutterModifierType     clutter_input_device_get_modifier_state (ClutterInputDevice  *device);
-CLUTTER_EXPORT
 ClutterActor *          clutter_input_device_get_actor (ClutterInputDevice   *device,
                                                         ClutterEventSequence *sequence);
 CLUTTER_EXPORT
