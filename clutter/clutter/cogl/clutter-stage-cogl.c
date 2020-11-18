@@ -636,9 +636,19 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
 
   if (queued_redraw_clip)
     {
+      cairo_region_t *swap_region_in_stage_space;
+
+      swap_region_in_stage_space =
+        scale_offset_and_clamp_region (swap_region,
+                                       1.0f / fb_scale,
+                                       view_rect.x,
+                                       view_rect.y);
+
       paint_damage_region (stage_window, view,
-                           swap_region, queued_redraw_clip);
+                           swap_region_in_stage_space, queued_redraw_clip);
+
       cairo_region_destroy (queued_redraw_clip);
+      cairo_region_destroy (swap_region_in_stage_space);
     }
 
   swap_framebuffer (stage_window,
