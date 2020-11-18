@@ -96,9 +96,6 @@ clutter_input_device_dispose (GObject *gobject)
 
   if (device->associated != NULL)
     {
-      if (device->device_mode == CLUTTER_INPUT_MODE_PHYSICAL)
-        _clutter_input_device_remove_physical_device (device->associated, device);
-
       _clutter_input_device_set_associated_device (device->associated, NULL);
       g_object_unref (device->associated);
       device->associated = NULL;
@@ -1041,42 +1038,6 @@ clutter_input_device_get_n_axes (ClutterInputDevice *device)
 }
 
 /*< private >
- * clutter_input_device_add_physical_device:
- * @logical: a #ClutterInputDevice
- * @physical: a #ClutterInputDevice
- *
- * Adds @physical to the list of physical devices of @logical
- *
- * This function does not increase the reference count of either @logical
- * or @physical.
- */
-void
-_clutter_input_device_add_physical_device (ClutterInputDevice *logical,
-                                           ClutterInputDevice *physical)
-{
-  if (g_list_find (logical->physical_devices, physical) == NULL)
-    logical->physical_devices = g_list_prepend (logical->physical_devices, physical);
-}
-
-/*< private >
- * clutter_input_device_remove_physical_device:
- * @logical: a #ClutterInputDevice
- * @physical: a #ClutterInputDevice
- *
- * Removes @physical from the list of physical devices of @logical.
- *
- * This function does not decrease the reference count of either @logical
- * or @physical.
- */
-void
-_clutter_input_device_remove_physical_device (ClutterInputDevice *logical,
-                                              ClutterInputDevice *physical)
-{
-  if (g_list_find (logical->physical_devices, physical) != NULL)
-    logical->physical_devices = g_list_remove (logical->physical_devices, physical);
-}
-
-/*< private >
  * clutter_input_device_remove_sequence:
  * @device: a #ClutterInputDevice
  * @sequence: a #ClutterEventSequence
@@ -1110,26 +1071,6 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                        clutter_event_get_time (event));
       g_hash_table_remove (device->touch_sequence_actors, sequence);
     }
-}
-
-/**
- * clutter_input_device_get_physical_devices:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the physical devices attached to @device.
- *
- * Return value: (transfer container) (element-type Clutter.InputDevice): a
- *   list of #ClutterInputDevice, or %NULL. The contents of the list are
- *   owned by the device. Use g_list_free() when done
- *
- * Since: 1.6
- */
-GList *
-clutter_input_device_get_physical_devices (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-
-  return g_list_copy (device->physical_devices);
 }
 
 /*< internal >

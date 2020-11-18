@@ -106,8 +106,6 @@ gboolean                clutter_input_device_get_axis_value     (ClutterInputDev
 
 CLUTTER_EXPORT
 ClutterInputDevice *    clutter_input_device_get_associated_device (ClutterInputDevice *device);
-CLUTTER_EXPORT
-GList *                 clutter_input_device_get_physical_devices  (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
 void                    clutter_input_device_grab               (ClutterInputDevice  *device,

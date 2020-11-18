@@ -1527,10 +1527,7 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
     master = seat_impl->core_pointer;
 
   if (master)
-    {
-      _clutter_input_device_set_associated_device (device, master);
-      _clutter_input_device_add_physical_device (master, device);
-    }
+    _clutter_input_device_set_associated_device (device, master);
 
   is_touchscreen = type == CLUTTER_TOUCHSCREEN_DEVICE;
   is_tablet_switch =

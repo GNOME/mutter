@@ -664,7 +664,6 @@ add_device (MetaSeatX11    *seat_x11,
           logical = g_hash_table_lookup (seat_x11->devices_by_id,
                                          GINT_TO_POINTER (info->attachment));
           _clutter_input_device_set_associated_device (device, logical);
-          _clutter_input_device_add_physical_device (logical, device);
         }
     }
 
@@ -755,21 +754,6 @@ relate_logical_devices (gpointer key,
 
   _clutter_input_device_set_associated_device (device, relative);
   _clutter_input_device_set_associated_device (relative, device);
-}
-
-static void
-relate_physical_devices (gpointer key,
-                         gpointer value,
-                         gpointer data)
-{
-  MetaSeatX11 *seat_x11 = data;
-  ClutterInputDevice *logical, *physical;
-
-  physical = g_hash_table_lookup (seat_x11->devices_by_id, key);
-  logical = g_hash_table_lookup (seat_x11->devices_by_id, value);
-
-  _clutter_input_device_set_associated_device (physical, logical);
-  _clutter_input_device_add_physical_device (logical, physical);
 }
 
 static uint
@@ -879,10 +863,7 @@ translate_hierarchy_event (ClutterBackend   *backend,
 
           /* detach the physical device in both cases */
           if (logical != NULL)
-            {
-              _clutter_input_device_remove_physical_device (logical, physical);
-              _clutter_input_device_set_associated_device (physical, NULL);
-            }
+            _clutter_input_device_set_associated_device (physical, NULL);
 
           /* and attach the physical device to the new logical device if needed */
           if (ev->info[i].flags & XISlaveAttached)
@@ -897,10 +878,7 @@ translate_hierarchy_event (ClutterBackend   *backend,
                   logical = g_hash_table_lookup (seat_x11->devices_by_id,
                                                  GINT_TO_POINTER (info->attachment));
                   if (logical != NULL)
-                    {
-                      _clutter_input_device_set_associated_device (physical, logical);
-                      _clutter_input_device_add_physical_device (logical, physical);
-                    }
+                    _clutter_input_device_set_associated_device (physical, logical);
                   XIFreeDeviceInfo (info);
                 }
             }
@@ -1411,7 +1389,7 @@ meta_seat_x11_constructed (GObject *object)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
   ClutterBackend *backend = clutter_get_default_backend ();
-  GHashTable *logical_devices, *physical_devices;
+  GHashTable *logical_devices;
   XIDeviceInfo *info;
   XIEventMask event_mask;
   unsigned char mask[XIMaskLen(XI_LASTEVENT)] = { 0, };
@@ -1420,7 +1398,6 @@ meta_seat_x11_constructed (GObject *object)
 
   xdisplay = clutter_x11_get_default_display ();
   logical_devices = g_hash_table_new (NULL, NULL);
-  physical_devices = g_hash_table_new (NULL, NULL);
 
   info = XIQueryDevice (clutter_x11_get_default_display (),
                         XIAllDevices, &n_devices);
@@ -1441,22 +1418,12 @@ meta_seat_x11_constructed (GObject *object)
                                GINT_TO_POINTER (xi_device->deviceid),
                                GINT_TO_POINTER (xi_device->attachment));
         }
-      else if (xi_device->use == XISlavePointer ||
-               xi_device->use == XISlaveKeyboard)
-        {
-          g_hash_table_insert (physical_devices,
-                               GINT_TO_POINTER (xi_device->deviceid),
-                               GINT_TO_POINTER (xi_device->attachment));
-        }
     }
 
   XIFreeDeviceInfo (info);
 
   g_hash_table_foreach (logical_devices, relate_logical_devices, seat_x11);
   g_hash_table_destroy (logical_devices);
-
-  g_hash_table_foreach (physical_devices, relate_physical_devices, seat_x11);
-  g_hash_table_destroy (physical_devices);
 
   XISetMask (mask, XI_HierarchyChanged);
   XISetMask (mask, XI_DeviceChanged);
