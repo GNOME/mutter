@@ -45,12 +45,6 @@ typedef struct _ClutterAxisInfo
   double resolution;
 } ClutterAxisInfo;
 
-typedef struct _ClutterKeyInfo
-{
-  guint keyval;
-  ClutterModifierType modifiers;
-} ClutterKeyInfo;
-
 typedef struct _ClutterScrollInfo
 {
   guint axis_id;
@@ -124,9 +118,6 @@ struct _ClutterInputDevice
 
   GArray *axes;
 
-  guint n_keys;
-  GArray *keys;
-
   GArray *scroll_info;
 
   char *vendor_id;
@@ -168,15 +159,6 @@ ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
 CLUTTER_EXPORT
 void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                                   ClutterEvent       *event);
-CLUTTER_EXPORT
-void _clutter_input_device_set_n_keys (ClutterInputDevice *device,
-                                       guint               n_keys);
-CLUTTER_EXPORT
-void clutter_input_device_set_key (ClutterInputDevice  *device,
-                                   guint                index_,
-                                   guint                keyval,
-                                   ClutterModifierType  modifiers);
-
 CLUTTER_EXPORT
 gboolean _clutter_input_device_translate_axis (ClutterInputDevice *device,
                                                guint               index_,

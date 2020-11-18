@@ -108,7 +108,6 @@ clutter_input_device_dispose (GObject *gobject)
     g_clear_object (&device->accessibility_virtual_device);
 
   g_clear_pointer (&device->axes, g_array_unref);
-  g_clear_pointer (&device->keys, g_array_unref);
   g_clear_pointer (&device->scroll_info, g_array_unref);
   g_clear_pointer (&device->touch_sequence_actors, g_hash_table_unref);
 
@@ -1039,120 +1038,6 @@ clutter_input_device_get_n_axes (ClutterInputDevice *device)
     return device->axes->len;
 
   return 0;
-}
-
-/*< private >
- * clutter_input_device_set_n_keys:
- * @device: a #ClutterInputDevice
- * @n_keys: the number of keys of the device
- *
- * Initializes the keys of @device.
- *
- * Call clutter_input_device_set_key() on each key to set the keyval
- * and modifiers.
- */
-void
-_clutter_input_device_set_n_keys (ClutterInputDevice *device,
-                                  guint               n_keys)
-{
-  if (device->keys != NULL)
-    g_array_free (device->keys, TRUE);
-
-  device->n_keys = n_keys;
-  device->keys = g_array_sized_new (FALSE, TRUE,
-                                    sizeof (ClutterKeyInfo),
-                                    n_keys);
-}
-
-/**
- * clutter_input_device_get_n_keys:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the number of keys registered for @device.
- *
- * Return value: the number of registered keys
- *
- * Since: 1.6
- */
-guint
-clutter_input_device_get_n_keys (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
-
-  return device->n_keys;
-}
-
-/**
- * clutter_input_device_set_key:
- * @device: a #ClutterInputDevice
- * @index_: the index of the key
- * @keyval: the keyval
- * @modifiers: a bitmask of modifiers
- *
- * Sets the keyval and modifiers at the given @index_ for @device.
- *
- * Clutter will use the keyval and modifiers set when filling out
- * an event coming from the same input device.
- *
- * Since: 1.6
- */
-void
-clutter_input_device_set_key (ClutterInputDevice  *device,
-                              guint                index_,
-                              guint                keyval,
-                              ClutterModifierType  modifiers)
-{
-  ClutterKeyInfo *key_info;
-
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-  g_return_if_fail (index_ < device->n_keys);
-
-  key_info = &g_array_index (device->keys, ClutterKeyInfo, index_);
-  key_info->keyval = keyval;
-  key_info->modifiers = modifiers;
-}
-
-/**
- * clutter_input_device_get_key:
- * @device: a #ClutterInputDevice
- * @index_: the index of the key
- * @keyval: (out): return location for the keyval at @index_
- * @modifiers: (out): return location for the modifiers at @index_
- *
- * Retrieves the key set using clutter_input_device_set_key()
- *
- * Return value: %TRUE if a key was set at the given index
- *
- * Since: 1.6
- */
-gboolean
-clutter_input_device_get_key (ClutterInputDevice  *device,
-                              guint                index_,
-                              guint               *keyval,
-                              ClutterModifierType *modifiers)
-{
-  ClutterKeyInfo *key_info;
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
-
-  if (device->keys == NULL)
-    return FALSE;
-
-  if (index_ > device->keys->len)
-    return FALSE;
-
-  key_info = &g_array_index (device->keys, ClutterKeyInfo, index_);
-
-  if (!key_info->keyval && !key_info->modifiers)
-    return FALSE;
-
-  if (keyval)
-    *keyval = key_info->keyval;
-
-  if (modifiers)
-    *modifiers = key_info->modifiers;
-
-  return TRUE;
 }
 
 /*< private >

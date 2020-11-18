@@ -105,14 +105,6 @@ gboolean                clutter_input_device_get_axis_value     (ClutterInputDev
                                                                  gdouble             *value);
 
 CLUTTER_EXPORT
-guint                   clutter_input_device_get_n_keys         (ClutterInputDevice  *device);
-CLUTTER_EXPORT
-gboolean                clutter_input_device_get_key            (ClutterInputDevice  *device,
-                                                                 guint                index_,
-                                                                 guint               *keyval,
-                                                                 ClutterModifierType *modifiers);
-
-CLUTTER_EXPORT
 ClutterInputDevice *    clutter_input_device_get_associated_device (ClutterInputDevice *device);
 CLUTTER_EXPORT
 GList *                 clutter_input_device_get_physical_devices  (ClutterInputDevice  *device);

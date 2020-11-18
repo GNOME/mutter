@@ -175,23 +175,6 @@ translate_device_classes (Display             *xdisplay,
 
       switch (class_info->type)
         {
-        case XIKeyClass:
-          {
-            XIKeyClassInfo *key_info = (XIKeyClassInfo *) class_info;
-            int j;
-
-            _clutter_input_device_set_n_keys (device,
-                                              key_info->num_keycodes);
-
-            for (j = 0; j < key_info->num_keycodes; j++)
-              {
-                clutter_input_device_set_key (device, j,
-                                              key_info->keycodes[i],
-                                              0);
-              }
-          }
-          break;
-
         case XIValuatorClass:
           translate_valuator_class (xdisplay, device,
                                     (XIValuatorClassInfo *) class_info);
