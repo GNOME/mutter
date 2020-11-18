@@ -935,7 +935,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
       else
         {
-          swap_region = cairo_region_copy (fb_clip_region);
+          swap_region = cairo_region_reference (fb_clip_region);
           do_swap_buffer = TRUE;
         }
     }
