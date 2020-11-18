@@ -442,15 +442,6 @@ transform_swap_region_to_onscreen (ClutterStageView *view,
   return transformed_region;
 }
 
-static inline gboolean
-is_buffer_age_enabled (void)
-{
-  /* Buffer age is disabled when running with CLUTTER_PAINT=damage-region,
-   * to ensure the red damage represents the currently damaged area */
-  return !(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION) &&
-         cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
-}
-
 static void
 clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
                                         ClutterStageView *view)
@@ -484,7 +475,9 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
     COGL_IS_ONSCREEN (onscreen) &&
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION);
 
-  has_buffer_age = COGL_IS_ONSCREEN (onscreen) && is_buffer_age_enabled ();
+  has_buffer_age =
+    COGL_IS_ONSCREEN (onscreen) &&
+    cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 
   redraw_clip = clutter_stage_view_take_redraw_clip (view);
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
@@ -589,7 +582,15 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
       clutter_damage_history_step (view_priv->damage_history);
     }
 
-  if (use_clipped_redraw)
+  if (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
+    {
+      cairo_region_t *debug_redraw_clip;
+
+      debug_redraw_clip = cairo_region_create_rectangle (&view_rect);
+      paint_stage (stage_cogl, view, debug_redraw_clip);
+      cairo_region_destroy (debug_redraw_clip);
+    }
+  else if (use_clipped_redraw)
     {
       cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
