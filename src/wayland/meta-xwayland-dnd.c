@@ -546,7 +546,8 @@ meta_x11_drag_dest_update (MetaWaylandDataDevice *data_device,
   MetaWaylandSeat *seat = compositor->seat;
   graphene_point_t pos;
 
-  clutter_input_device_get_coords (seat->pointer->device, NULL, &pos);
+  clutter_seat_query_state (clutter_input_device_get_seat (seat->pointer->device),
+                            seat->pointer->device, NULL, &pos, NULL);
   xdnd_send_position (dnd, dnd->dnd_dest,
                       clutter_get_current_event_time (),
                       pos.x, pos.y);
@@ -834,7 +835,8 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
           dnd->client_message_timestamp = event->data.l[3];
 
           motion = clutter_event_new (CLUTTER_MOTION);
-          clutter_input_device_get_coords (seat->pointer->device, NULL, &pos);
+          clutter_seat_query_state (clutter_input_device_get_seat (seat->pointer->device),
+                                    seat->pointer->device, NULL, &pos, NULL);
           clutter_event_set_coords (motion, pos.x, pos.y);
           clutter_event_set_device (motion, seat->pointer->device);
           clutter_event_set_source_device (motion, seat->pointer->device);

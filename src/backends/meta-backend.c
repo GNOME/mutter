@@ -324,7 +324,7 @@ meta_backend_monitors_changed (MetaBackend *backend)
 
   meta_backend_sync_screen_size (backend);
 
-  if (clutter_input_device_get_coords (device, NULL, &point))
+  if (clutter_seat_query_state (seat, device, NULL, &point, NULL))
     {
       /* If we're outside all monitors, warp the pointer back inside */
       if ((!meta_monitor_manager_get_logical_monitor_at (monitor_manager,

@@ -198,7 +198,8 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
     meta_rectangle_to_graphene_rect (&logical_monitor->rect);
 
   device = meta_cursor_renderer_get_input_device (priv->cursor_renderer);
-  clutter_input_device_get_coords (device, NULL,  &point);
+  clutter_seat_query_state (clutter_input_device_get_seat (device),
+                            device, NULL, &point, NULL);
 
   return graphene_rect_contains_point (&logical_monitor_rect, &point);
 }

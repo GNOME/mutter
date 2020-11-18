@@ -909,7 +909,8 @@ clutter_stage_find_updated_devices (ClutterStage *stage)
         case CLUTTER_PEN_DEVICE:
         case CLUTTER_ERASER_DEVICE:
         case CLUTTER_CURSOR_DEVICE:
-          if (!clutter_input_device_get_coords (dev, NULL, &point))
+          if (!clutter_seat_query_state (seat, dev, NULL,
+                                         &point, NULL))
             continue;
 
           view = clutter_stage_get_view_at (stage, point.x, point.y);

@@ -515,7 +515,8 @@ meta_barrier_manager_native_process (MetaBarrierManagerNative *manager,
   MetaBarrierEventData barrier_event_data;
   MetaBarrierImplNative *barrier_impl;
 
-  if (!clutter_input_device_get_coords (device, NULL, &prev_pos))
+  if (!clutter_seat_query_state (clutter_input_device_get_seat (device),
+                                 device, NULL, &prev_pos, NULL))
     return;
 
   g_mutex_lock (&manager->mutex);

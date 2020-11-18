@@ -448,7 +448,8 @@ meta_cursor_renderer_update_position (MetaCursorRenderer *renderer)
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   graphene_point_t pos;
 
-  clutter_input_device_get_coords (priv->device, NULL, &pos);
+  clutter_seat_query_state (clutter_input_device_get_seat (priv->device),
+                            priv->device, NULL, &pos, NULL);
   priv->current_x = pos.x;
   priv->current_y = pos.y;
 

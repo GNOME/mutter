@@ -682,37 +682,6 @@ clutter_input_device_get_device_type (ClutterInputDevice *device)
   return device->device_type;
 }
 
-/**
- * clutter_input_device_get_coords:
- * @device: a #ClutterInputDevice
- * @sequence: (allow-none): a #ClutterEventSequence, or %NULL if
- *   the device is not touch-based
- * @point: (out caller-allocates): return location for the pointer
- *   or touch point
- *
- * Retrieves the latest coordinates of a pointer or touch point of
- * @device.
- *
- * Return value: %FALSE if the device's sequence hasn't been found,
- *   and %TRUE otherwise.
- *
- * Since: 1.12
- */
-gboolean
-clutter_input_device_get_coords (ClutterInputDevice   *device,
-                                 ClutterEventSequence *sequence,
-                                 graphene_point_t     *point)
-{
-  ClutterSeat *seat;
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
-  g_return_val_if_fail (point != NULL, FALSE);
-
-  seat = clutter_input_device_get_seat (device);
-
-  return clutter_seat_query_state (seat, device, sequence, point, NULL);
-}
-
 /*
  * clutter_input_device_update:
  * @device: a #ClutterInputDevice
@@ -750,7 +719,8 @@ clutter_input_device_update (ClutterInputDevice   *device,
     }
   else
     {
-      clutter_input_device_get_coords (device, sequence, &point);
+      clutter_seat_query_state (clutter_input_device_get_seat (device),
+                                device, NULL, &point, NULL);
       time_ms = CLUTTER_CURRENT_TIME;
     }
 

@@ -84,10 +84,6 @@ CLUTTER_EXPORT
 ClutterInputDeviceType  clutter_input_device_get_device_type    (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
-gboolean                clutter_input_device_get_coords        (ClutterInputDevice   *device,
-                                                                ClutterEventSequence *sequence,
-                                                                graphene_point_t     *point);
-CLUTTER_EXPORT
 ClutterModifierType     clutter_input_device_get_modifier_state (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 ClutterActor *          clutter_input_device_get_actor (ClutterInputDevice   *device,

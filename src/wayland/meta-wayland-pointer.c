@@ -949,7 +949,8 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                 G_CALLBACK (focus_surface_destroyed),
                                 pointer);
 
-      clutter_input_device_get_coords (pointer->device, NULL, &pos);
+      clutter_seat_query_state (clutter_input_device_get_seat (pointer->device),
+                                pointer->device, NULL, &pos, NULL);
 
       focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
       if (focus_window)
@@ -1061,7 +1062,8 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
   float xf = 0.0f, yf = 0.0f;
   graphene_point_t pos;
 
-  clutter_input_device_get_coords (pointer->device, NULL, &pos);
+  clutter_seat_query_state (clutter_input_device_get_seat (pointer->device),
+                            pointer->device, NULL, &pos, NULL);
   meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, &xf, &yf);
 
   *sx = wl_fixed_from_double (xf);

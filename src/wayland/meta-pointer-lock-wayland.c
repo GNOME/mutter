@@ -63,7 +63,7 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   cairo_region_t *region;
   float sx, sy, x, y;
 
-  clutter_input_device_get_coords (pointer, NULL, &point);
+  clutter_seat_query_state (seat, pointer, NULL, &point, NULL);
   wayland_constraint =
     meta_pointer_confinement_wayland_get_wayland_pointer_constraint (confinement);
   surface = meta_wayland_pointer_constraint_get_surface (wayland_constraint);

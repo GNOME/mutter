@@ -641,7 +641,8 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
                                       0, 0);
       clutter_actor_add_child (drag_grab->feedback_actor, drag_surface_actor);
 
-      clutter_input_device_get_coords (seat->pointer->device, NULL, &pos);
+      clutter_seat_query_state (clutter_input_device_get_seat (seat->pointer->device),
+                                seat->pointer->device, NULL, &pos, NULL);
       meta_feedback_actor_set_position (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
                                         pos.x, pos.y);
     }

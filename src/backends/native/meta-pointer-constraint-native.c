@@ -609,7 +609,8 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
   constraint_impl_native = META_POINTER_CONSTRAINT_IMPL_NATIVE (constraint_impl);
   region = cairo_region_reference (constraint_impl_native->region);
 
-  clutter_input_device_get_coords (device, NULL, &point);
+  clutter_seat_query_state (clutter_input_device_get_seat (device),
+                            device, NULL, &point, NULL);
   x = point.x;
   y = point.y;
 
