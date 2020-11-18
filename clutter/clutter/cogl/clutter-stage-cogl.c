@@ -645,6 +645,8 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
                                        view_rect.x,
                                        view_rect.y);
 
+      cairo_region_subtract (swap_region_in_stage_space, queued_redraw_clip);
+
       paint_damage_region (stage_window, view,
                            swap_region_in_stage_space, queued_redraw_clip);
 
