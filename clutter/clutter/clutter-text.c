@@ -1307,7 +1307,7 @@ update_cursor_location (ClutterText *self)
   if (!priv->editable)
     return;
 
-  rect = priv->cursor_rect;
+  clutter_text_get_cursor_rect (self, &rect);
   clutter_actor_get_transformed_position (CLUTTER_ACTOR (self), &x, &y);
   graphene_rect_offset (&rect, x, y);
   clutter_input_focus_set_cursor_location (priv->input_focus, &rect);
