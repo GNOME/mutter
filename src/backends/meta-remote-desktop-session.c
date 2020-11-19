@@ -888,10 +888,8 @@ generate_owner_changed_variant (char     **mime_types_array,
 }
 
 static void
-on_selection_owner_changed (MetaSelection            *selection,
-                            MetaSelectionType         selection_type,
-                            MetaSelectionSource      *owner,
-                            MetaRemoteDesktopSession *session)
+emit_owner_changed (MetaRemoteDesktopSession *session,
+                    MetaSelectionSource      *owner)
 {
   char log_buf[255];
   g_autofree char **mime_types_array = NULL;
@@ -900,14 +898,11 @@ on_selection_owner_changed (MetaSelection            *selection,
   GVariant *options_variant;
   const char *object_path;
 
-  if (selection_type != META_SELECTION_CLIPBOARD)
-    return;
-
   if (owner)
     {
       GList *mime_types;
-      mime_types = meta_selection_source_get_mimetypes (owner);
 
+      mime_types = meta_selection_source_get_mimetypes (owner);
       mime_types_array = g_new0 (char *, g_list_length (mime_types) + 1);
       for (l = meta_selection_source_get_mimetypes (owner), i = 0;
            l;
@@ -941,6 +936,18 @@ on_selection_owner_changed (MetaSelection            *selection,
                                  NULL);
 }
 
+static void
+on_selection_owner_changed (MetaSelection            *selection,
+                            MetaSelectionType         selection_type,
+                            MetaSelectionSource      *owner,
+                            MetaRemoteDesktopSession *session)
+{
+  if (selection_type != META_SELECTION_CLIPBOARD)
+    return;
+
+  emit_owner_changed (session, owner);
+}
+
 static gboolean
 handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                          GDBusMethodInvocation        *invocation,
@@ -951,6 +958,7 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
   g_autoptr (GError) error = NULL;
   MetaDisplay *display = meta_get_display ();
   MetaSelection *selection = meta_display_get_selection (display);
+  g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
 
   meta_topic (META_DEBUG_REMOTE_DESKTOP,
               "Enable clipboard for %s",
@@ -969,8 +977,6 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                                                G_VARIANT_TYPE_STRING_ARRAY);
   if (mime_types_variant)
     {
-      g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
-
       source_remote = create_remote_desktop_source (session,
                                                     mime_types_variant,
                                                     &error);
@@ -982,7 +988,10 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                                                  error->message);
           return TRUE;
         }
+    }
 
+  if (source_remote)
+    {
       meta_topic (META_DEBUG_REMOTE_DESKTOP,
                   "Setting remote desktop clipboard source: %p from %s",
                   source_remote, session->peer_name);
@@ -991,6 +1000,16 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
       meta_selection_set_owner (selection,
                                 META_SELECTION_CLIPBOARD,
                                 META_SELECTION_SOURCE (source_remote));
+    }
+  else
+    {
+      MetaSelectionSource *owner;
+
+      owner = meta_selection_get_current_owner (selection,
+                                                META_SELECTION_CLIPBOARD);
+
+      if (owner)
+        emit_owner_changed (session, owner);
     }
 
   session->is_clipboard_enabled = TRUE;
