@@ -30,6 +30,18 @@ stages:
 
       dnf clean all
 
+default:
+  # Cancel jobs if newer commits are pushed to the branch
+  interruptible: true
+  # Auto-retry jobs in case of infra failures
+  retry:
+    max: 1
+    when:
+      - 'runner_system_failure'
+      - 'stuck_or_timeout_failure'
+      - 'scheduler_failure'
+      - 'api_failure'
+
 workflow:
   rules:
     - if: '$CI_MERGE_REQUEST_IID'
