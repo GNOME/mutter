@@ -67,6 +67,7 @@ enum
   PROP_N_STRIPS,
   PROP_N_RINGS,
   PROP_N_MODE_GROUPS,
+  PROP_N_BUTTONS,
   PROP_DEVICE_NODE,
 
   PROP_LAST
@@ -100,6 +101,7 @@ struct _ClutterInputDevicePrivate
   int n_rings;
   int n_strips;
   int n_mode_groups;
+  int n_buttons;
 
   gboolean has_cursor;
 };
@@ -216,6 +218,10 @@ clutter_input_device_set_property (GObject      *gobject,
       priv->n_mode_groups = g_value_get_int (value);
       break;
 
+    case PROP_N_BUTTONS:
+      priv->n_buttons = g_value_get_int (value);
+      break;
+
     case PROP_DEVICE_NODE:
       priv->node_path = g_value_dup_string (value);
       break;
@@ -280,6 +286,10 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_N_MODE_GROUPS:
       g_value_set_int (value, priv->n_mode_groups);
+      break;
+
+    case PROP_N_BUTTONS:
+      g_value_set_int (value, priv->n_buttons);
       break;
 
     case PROP_DEVICE_NODE:
@@ -429,6 +439,13 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
     g_param_spec_int ("n-mode-groups",
                       P_("Number of mode groups"),
                       P_("Number of mode groups"),
+                      0, G_MAXINT, 0,
+                      CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+
+  obj_props[PROP_N_BUTTONS] =
+    g_param_spec_int ("n-buttons",
+                      P_("Number of buttons"),
+                      P_("Number of buttons"),
                       0, G_MAXINT, 0,
                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
@@ -1237,6 +1254,19 @@ clutter_input_device_get_n_mode_groups (ClutterInputDevice *device)
 }
 
 gint
+clutter_input_device_get_n_buttons (ClutterInputDevice *device)
+{
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
+  g_return_val_if_fail (clutter_input_device_get_device_type (device) ==
+                        CLUTTER_PAD_DEVICE, 0);
+
+  return priv->n_buttons;
+}
+
+gint
 clutter_input_device_get_group_n_modes (ClutterInputDevice *device,
                                         gint                group)
 {
@@ -1293,6 +1323,22 @@ clutter_input_device_get_mode_switch_button_group (ClutterInputDevice *device,
     }
 
   return -1;
+}
+
+int
+clutter_input_device_get_pad_feature_group (ClutterInputDevice           *device,
+                                            ClutterInputDevicePadFeature  feature,
+                                            int                           n_feature)
+{
+  ClutterInputDeviceClass *device_class;
+
+  device_class = CLUTTER_INPUT_DEVICE_GET_CLASS (device);
+  if (!device_class->get_pad_feature_group)
+    return 0;
+
+  return CLUTTER_INPUT_DEVICE_GET_CLASS (device)->get_pad_feature_group (device,
+                                                                         feature,
+                                                                         n_feature);
 }
 
 const gchar *

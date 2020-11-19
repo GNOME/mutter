@@ -52,6 +52,15 @@ typedef struct _SlowKeysEventPending
   guint timer;
 } SlowKeysEventPending;
 
+typedef struct _PadFeature PadFeature;
+
+struct _PadFeature
+{
+  ClutterInputDevicePadFeature feature;
+  int n_feature;
+  int group;
+};
+
 static void clear_slow_keys      (MetaInputDeviceNative *device);
 static void stop_bounce_keys     (MetaInputDeviceNative *device);
 static void stop_toggle_slowkeys (MetaInputDeviceNative *device);
@@ -69,6 +78,8 @@ meta_input_device_native_finalize (GObject *object)
   stop_bounce_keys (device_evdev);
   stop_toggle_slowkeys (device_evdev);
   stop_mousekeys_move (device_evdev);
+
+  g_clear_pointer (&device_evdev->pad_features, g_array_unref);
 
   G_OBJECT_CLASS (meta_input_device_native_parent_class)->finalize (object);
 }
@@ -158,6 +169,31 @@ meta_input_device_native_is_grouped (ClutterInputDevice *device,
 
   return libinput_device_get_device_group (libinput_device) ==
     libinput_device_get_device_group (other_libinput_device);
+}
+
+static int
+meta_input_device_native_get_pad_feature_group (ClutterInputDevice           *device,
+                                                ClutterInputDevicePadFeature  feature,
+                                                int                           n_feature)
+{
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  int i;
+
+  if (!device_native->pad_features)
+    return -1;
+
+  for (i = 0; i < device_native->pad_features->len; i++)
+    {
+      PadFeature *pad_feature;
+
+      pad_feature = &g_array_index (device_native->pad_features, PadFeature, i);
+
+      if (pad_feature->feature == feature &&
+          pad_feature->n_feature == n_feature)
+        return pad_feature->group;
+    }
+
+  return -1;
 }
 
 static void
@@ -1183,17 +1219,18 @@ meta_input_device_native_a11y_maybe_notify_toggle_keys (MetaInputDeviceNative *d
 static void
 meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
 {
-  ClutterInputDeviceClass *device_manager_class = CLUTTER_INPUT_DEVICE_CLASS (klass);
+  ClutterInputDeviceClass *device_class = CLUTTER_INPUT_DEVICE_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_input_device_native_finalize;
   object_class->set_property = meta_input_device_native_set_property;
   object_class->get_property = meta_input_device_native_get_property;
 
-  device_manager_class->is_mode_switch_button = meta_input_device_native_is_mode_switch_button;
-  device_manager_class->get_group_n_modes = meta_input_device_native_get_group_n_modes;
-  device_manager_class->is_grouped = meta_input_device_native_is_grouped;
-  device_manager_class->process_kbd_a11y_event = meta_input_device_native_process_kbd_a11y_event;
+  device_class->is_mode_switch_button = meta_input_device_native_is_mode_switch_button;
+  device_class->get_group_n_modes = meta_input_device_native_get_group_n_modes;
+  device_class->is_grouped = meta_input_device_native_is_grouped;
+  device_class->get_pad_feature_group = meta_input_device_native_get_pad_feature_group;
+  device_class->process_kbd_a11y_event = meta_input_device_native_process_kbd_a11y_event;
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix",
@@ -1219,6 +1256,53 @@ meta_input_device_native_init (MetaInputDeviceNative *self)
   self->output_ratio = 0;
 }
 
+static void
+update_pad_features (MetaInputDeviceNative *device_native)
+{
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_native);
+  struct libinput_device *libinput_device;
+  struct libinput_tablet_pad_mode_group *mode_group;
+  int n_groups, n_buttons, n_rings, n_strips, i, j;
+
+  libinput_device = meta_input_device_native_get_libinput_device (device);
+  n_rings = libinput_device_tablet_pad_get_num_rings (libinput_device);
+  n_strips = libinput_device_tablet_pad_get_num_strips (libinput_device);
+  n_groups = libinput_device_tablet_pad_get_num_mode_groups (libinput_device);
+  n_buttons = libinput_device_tablet_pad_get_num_buttons (libinput_device);
+
+  device_native->pad_features = g_array_new (FALSE, FALSE, sizeof (PadFeature));
+
+  for (i = 0; i < n_groups; i++)
+    {
+      mode_group =
+        libinput_device_tablet_pad_get_mode_group (libinput_device, i);
+
+      for (j = 0; j < n_buttons; j++)
+        {
+          PadFeature feature = { CLUTTER_PAD_FEATURE_BUTTON, j, i };
+
+          if (libinput_tablet_pad_mode_group_has_button (mode_group, j))
+            g_array_append_val (device_native->pad_features, feature);
+        }
+
+      for (j = 0; j < n_rings; j++)
+        {
+          PadFeature feature = { CLUTTER_PAD_FEATURE_RING, j, i };
+
+          if (libinput_tablet_pad_mode_group_has_ring (mode_group, j))
+            g_array_append_val (device_native->pad_features, feature);
+        }
+
+      for (j = 0; j < n_strips; j++)
+        {
+          PadFeature feature = { CLUTTER_PAD_FEATURE_STRIP, j, i };
+
+          if (libinput_tablet_pad_mode_group_has_strip (mode_group, j))
+            g_array_append_val (device_native->pad_features, feature);
+        }
+    }
+}
+
 /*
  * meta_input_device_native_new:
  * @manager: the device manager
@@ -1235,7 +1319,7 @@ meta_input_device_native_new (MetaSeatImpl           *seat_impl,
   MetaInputDeviceNative *device;
   ClutterInputDeviceType type;
   char *vendor, *product;
-  int n_rings = 0, n_strips = 0, n_groups = 1;
+  int n_rings = 0, n_strips = 0, n_groups = 1, n_buttons = 0;
   char *node_path;
   double width, height;
 
@@ -1250,6 +1334,7 @@ meta_input_device_native_new (MetaSeatImpl           *seat_impl,
       n_rings = libinput_device_tablet_pad_get_num_rings (libinput_device);
       n_strips = libinput_device_tablet_pad_get_num_strips (libinput_device);
       n_groups = libinput_device_tablet_pad_get_num_mode_groups (libinput_device);
+      n_buttons = libinput_device_tablet_pad_get_num_buttons (libinput_device);
     }
 
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
@@ -1261,6 +1346,7 @@ meta_input_device_native_new (MetaSeatImpl           *seat_impl,
                          "n-rings", n_rings,
                          "n-strips", n_strips,
                          "n-mode-groups", n_groups,
+                         "n-buttons", n_buttons,
                          "device-node", node_path,
                          "seat", seat_impl->seat_native,
                          NULL);
@@ -1273,6 +1359,10 @@ meta_input_device_native_new (MetaSeatImpl           *seat_impl,
   g_free (vendor);
   g_free (product);
   g_free (node_path);
+
+  if (libinput_device_has_capability (libinput_device,
+                                      LIBINPUT_DEVICE_CAP_TABLET_PAD))
+    update_pad_features (device);
 
   if (libinput_device_get_size (libinput_device, &width, &height) == 0)
     device->device_aspect_ratio = width / height;

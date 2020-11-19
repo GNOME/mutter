@@ -32,12 +32,6 @@
 #include "wayland/meta-wayland-tablet-pad.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-event-native.h"
-#include "backends/native/meta-input-device-native.h"
-#endif
-
 #include "tablet-unstable-v2-server-protocol.h"
 
 static void
@@ -123,26 +117,14 @@ gboolean
 meta_wayland_tablet_pad_group_has_button (MetaWaylandTabletPadGroup *group,
                                           guint                      button)
 {
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
+  int n_group = g_list_index (group->pad->groups, group);
 
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      struct libinput_device *libinput_device;
-      struct libinput_tablet_pad_mode_group *mode_group;
-      guint n_group;
+  if (clutter_input_device_get_pad_feature_group (group->pad->device,
+                                                  CLUTTER_PAD_FEATURE_BUTTON,
+                                                  button) == n_group)
+    return TRUE;
 
-      libinput_device = meta_input_device_native_get_libinput_device (group->pad->device);
-      n_group = g_list_index (group->pad->groups, group);
-      mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device, n_group);
-
-      return libinput_tablet_pad_mode_group_has_button (mode_group, button);
-    }
-  else
-#endif
-    {
-      return g_list_length (group->pad->groups) == 1;
-    }
+  return FALSE;
 }
 
 static void

@@ -38,12 +38,6 @@
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-tablet.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include <libinput.h>
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-input-device-native.h"
-#endif
-
 #include "tablet-unstable-v2-server-protocol.h"
 
 static void
@@ -66,41 +60,20 @@ group_rings_strips (MetaWaylandTabletPad *pad)
 {
   gint n_group, n_elem;
   GList *g, *l;
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-  struct libinput_device *libinput_device = NULL;
-
-  if (META_IS_BACKEND_NATIVE (backend))
-    libinput_device = meta_input_device_native_get_libinput_device (pad->device);
-#endif
 
   for (n_group = 0, g = pad->groups; g; g = g->next)
     {
       MetaWaylandTabletPadGroup *group = g->data;
-#ifdef HAVE_NATIVE_BACKEND
-      struct libinput_tablet_pad_mode_group *mode_group = NULL;
-
-      if (libinput_device)
-        mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device, n_group);
-#endif
 
       for (n_elem = 0, l = pad->rings; l; l = l->next)
         {
           MetaWaylandTabletPadRing *ring = l->data;
 
-#ifdef HAVE_NATIVE_BACKEND
-          if (mode_group)
-            {
-              if (libinput_tablet_pad_mode_group_has_ring (mode_group, n_elem))
-                meta_wayland_tablet_pad_ring_set_group (ring, group);
-            }
-          else
-#endif
-            {
-              /* Assign everything to the first group */
-              if (n_group == 0)
-                meta_wayland_tablet_pad_ring_set_group (ring, group);
-            }
+          if (clutter_input_device_get_pad_feature_group (pad->device,
+                                                          CLUTTER_PAD_FEATURE_RING,
+                                                          n_elem) == n_group)
+            meta_wayland_tablet_pad_ring_set_group (ring, group);
+
           n_elem++;
         }
 
@@ -108,19 +81,10 @@ group_rings_strips (MetaWaylandTabletPad *pad)
         {
           MetaWaylandTabletPadStrip *strip = l->data;
 
-#ifdef HAVE_NATIVE_BACKEND
-          if (mode_group)
-            {
-              if (libinput_tablet_pad_mode_group_has_strip (mode_group, n_elem))
-                meta_wayland_tablet_pad_strip_set_group (strip, group);
-            }
-          else
-#endif
-            {
-              /* Assign everything to the first group */
-              if (n_group == 0)
-                meta_wayland_tablet_pad_strip_set_group (strip, group);
-            }
+          if (clutter_input_device_get_pad_feature_group (pad->device,
+                                                          CLUTTER_PAD_FEATURE_STRIP,
+                                                          n_elem) == n_group)
+            meta_wayland_tablet_pad_strip_set_group (strip, group);
 
           n_elem++;
         }
@@ -133,9 +97,6 @@ MetaWaylandTabletPad *
 meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
                              MetaWaylandTabletSeat *tablet_seat)
 {
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-#endif
   MetaWaylandTabletPad *pad;
   guint n_elems, i;
 
@@ -149,16 +110,7 @@ meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
   pad->feedback = g_hash_table_new_full (NULL, NULL, NULL,
                                          (GDestroyNotify) g_free);
 
-#ifdef HAVE_NATIVE_BACKEND
-  /* Buttons, only can be honored this with the native backend */
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      struct libinput_device *libinput_device;
-
-      libinput_device = meta_input_device_native_get_libinput_device (device);
-      pad->n_buttons = libinput_device_tablet_pad_get_num_buttons (libinput_device);
-    }
-#endif
+  pad->n_buttons = clutter_input_device_get_n_buttons (device);
 
   n_elems = clutter_input_device_get_n_mode_groups (pad->device);
 

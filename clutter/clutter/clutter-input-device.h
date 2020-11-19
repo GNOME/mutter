@@ -50,6 +50,10 @@ struct _ClutterInputDeviceClass
   gboolean (* is_grouped) (ClutterInputDevice *device,
                            ClutterInputDevice *other_device);
 
+  int (* get_pad_feature_group) (ClutterInputDevice           *device,
+                                 ClutterInputDevicePadFeature  feature,
+                                 int                           n_feature);
+
   /* Keyboard accessbility */
   void (* process_kbd_a11y_event) (ClutterEvent               *event,
                                    ClutterInputDevice         *device,
@@ -128,6 +132,9 @@ CLUTTER_EXPORT
 gint                    clutter_input_device_get_n_strips       (ClutterInputDevice *device);
 CLUTTER_EXPORT
 gint                    clutter_input_device_get_n_mode_groups  (ClutterInputDevice *device);
+CLUTTER_EXPORT
+int                     clutter_input_device_get_n_buttons (ClutterInputDevice *device);
+
 
 CLUTTER_EXPORT
 gint                    clutter_input_device_get_group_n_modes  (ClutterInputDevice *device,
@@ -149,6 +156,11 @@ gboolean                  clutter_input_device_is_grouped       (ClutterInputDev
                                                                  ClutterInputDevice *other_device);
 CLUTTER_EXPORT
 ClutterSeat *             clutter_input_device_get_seat         (ClutterInputDevice *device);
+
+CLUTTER_EXPORT
+int clutter_input_device_get_pad_feature_group (ClutterInputDevice           *device,
+                                                ClutterInputDevicePadFeature  feature,
+                                                int                           n_feature);
 
 G_END_DECLS
 

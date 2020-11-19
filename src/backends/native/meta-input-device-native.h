@@ -71,6 +71,7 @@ struct _MetaInputDeviceNative
   struct libinput_device *libinput_device;
   MetaSeatImpl *seat_impl;
   ClutterInputDeviceTool *last_tool;
+  GArray *pad_features;
 
   cairo_matrix_t device_matrix;
   double device_aspect_ratio; /* w:h */
