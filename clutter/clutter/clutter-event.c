@@ -1302,9 +1302,7 @@ clutter_event_copy (const ClutterEvent *event)
 {
   ClutterEvent *new_event;
   ClutterEventPrivate *new_real_event;
-  ClutterInputDevice *device;
   ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-  gint n_axes = 0;
 
   g_return_val_if_fail (event != NULL, NULL);
 
@@ -1324,29 +1322,25 @@ clutter_event_copy (const ClutterEvent *event)
   new_real_event->locked_state = real_event->locked_state;
   new_real_event->tool = real_event->tool;
 
-  device = clutter_event_get_device (event);
-  if (device != NULL)
-    n_axes = clutter_input_device_get_n_axes (device);
-
   switch (event->type)
     {
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
       if (event->button.axes != NULL)
         new_event->button.axes = g_memdup (event->button.axes,
-                                           sizeof (gdouble) * n_axes);
+                                           sizeof (gdouble) * CLUTTER_INPUT_AXIS_LAST);
       break;
 
     case CLUTTER_SCROLL:
       if (event->scroll.axes != NULL)
         new_event->scroll.axes = g_memdup (event->scroll.axes,
-                                           sizeof (gdouble) * n_axes);
+                                           sizeof (gdouble) * CLUTTER_INPUT_AXIS_LAST);
       break;
 
     case CLUTTER_MOTION:
       if (event->motion.axes != NULL)
         new_event->motion.axes = g_memdup (event->motion.axes,
-                                           sizeof (gdouble) * n_axes);
+                                           sizeof (gdouble) * CLUTTER_INPUT_AXIS_LAST);
       break;
 
     case CLUTTER_TOUCH_BEGIN:
@@ -1355,7 +1349,7 @@ clutter_event_copy (const ClutterEvent *event)
     case CLUTTER_TOUCH_CANCEL:
       if (event->touch.axes != NULL)
         new_event->touch.axes = g_memdup (event->touch.axes,
-                                          sizeof (gdouble) * n_axes);
+                                          sizeof (gdouble) * CLUTTER_INPUT_AXIS_LAST);
       break;
 
     case CLUTTER_DEVICE_ADDED:
@@ -1624,7 +1618,6 @@ clutter_event_get_axes (const ClutterEvent *event,
                         guint              *n_axes)
 {
   gdouble *retval = NULL;
-  guint len = 0;
 
   switch (event->type)
     {
@@ -1675,19 +1668,8 @@ clutter_event_get_axes (const ClutterEvent *event,
       break;
     }
 
-  if (retval != NULL)
-    {
-      ClutterInputDevice *device;
-
-      device = clutter_event_get_device (event);
-      if (device != NULL)
-        len = clutter_input_device_get_n_axes (device);
-      else
-        retval = NULL;
-    }
-
   if (n_axes)
-    *n_axes = len;
+    *n_axes = CLUTTER_INPUT_AXIS_LAST;
 
   return retval;
 }

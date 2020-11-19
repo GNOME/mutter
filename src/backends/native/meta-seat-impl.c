@@ -1695,63 +1695,57 @@ static double *
 translate_tablet_axes (struct libinput_event_tablet_tool *tablet_event,
                        ClutterInputDeviceTool            *tool)
 {
-  GArray *axes = g_array_new (FALSE, FALSE, sizeof (double));
+  double *axes = g_new0 (double, CLUTTER_INPUT_AXIS_LAST);
   struct libinput_tablet_tool *libinput_tool;
   double value;
 
   libinput_tool = libinput_event_tablet_tool_get_tool (tablet_event);
 
   value = libinput_event_tablet_tool_get_x (tablet_event);
-  g_array_append_val (axes, value);
+  axes[CLUTTER_INPUT_AXIS_X] = value;
   value = libinput_event_tablet_tool_get_y (tablet_event);
-  g_array_append_val (axes, value);
+  axes[CLUTTER_INPUT_AXIS_Y] = value;
 
   if (libinput_tablet_tool_has_distance (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_distance (tablet_event);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_DISTANCE] = value;
     }
 
   if (libinput_tablet_tool_has_pressure (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_pressure (tablet_event);
       value = meta_input_device_tool_native_translate_pressure (tool, value);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_PRESSURE] = value;
     }
 
   if (libinput_tablet_tool_has_tilt (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_tilt_x (tablet_event);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_XTILT] = value;
       value = libinput_event_tablet_tool_get_tilt_y (tablet_event);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_YTILT] = value;
     }
 
   if (libinput_tablet_tool_has_rotation (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_rotation (tablet_event);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_ROTATION] = value;
     }
 
   if (libinput_tablet_tool_has_slider (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_slider_position (tablet_event);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_SLIDER] = value;
     }
 
   if (libinput_tablet_tool_has_wheel (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_wheel_delta (tablet_event);
-      g_array_append_val (axes, value);
+      axes[CLUTTER_INPUT_AXIS_WHEEL] = value;
     }
 
-  if (axes->len == 0)
-    {
-      g_array_free (axes, TRUE);
-      return NULL;
-    }
-  else
-    return (double *) g_array_free (axes, FALSE);
+  return axes;
 }
 
 static void
@@ -1834,8 +1828,6 @@ process_tablet_axis (MetaSeatImpl          *seat_impl,
 
   axes = translate_tablet_axes (tablet_event,
                                 evdev_device->last_tool);
-  if (!axes)
-    return;
 
   meta_viewport_info_get_extents (seat_impl->viewports,
                                   &stage_width, &stage_height);

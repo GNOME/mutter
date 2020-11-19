@@ -1135,12 +1135,11 @@ translate_axes (ClutterInputDevice *device,
                 double              y,
                 XIValuatorState    *valuators)
 {
-  uint32_t n_axes = clutter_input_device_get_n_axes (device);
   uint32_t i;
   double *retval;
   double *values;
 
-  retval = g_new0 (double, n_axes);
+  retval = g_new0 (double, CLUTTER_INPUT_AXIS_LAST);
   values = valuators->values;
 
   for (i = 0; i < valuators->mask_len * 8; i++)
@@ -1157,15 +1156,15 @@ translate_axes (ClutterInputDevice *device,
       switch (axis)
         {
         case CLUTTER_INPUT_AXIS_X:
-          retval[i] = x;
+          retval[axis] = x;
           break;
 
         case CLUTTER_INPUT_AXIS_Y:
-          retval[i] = y;
+          retval[axis] = y;
           break;
 
         default:
-          _clutter_input_device_translate_axis (device, i, val, &retval[i]);
+          _clutter_input_device_translate_axis (device, i, val, &retval[axis]);
           break;
         }
     }
