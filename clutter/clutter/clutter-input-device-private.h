@@ -32,16 +32,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ClutterScrollInfo
-{
-  guint axis_id;
-  ClutterScrollDirection direction;
-  double increment;
-
-  double last_value;
-  guint last_value_valid : 1;
-} ClutterScrollInfo;
-
 typedef struct _ClutterPtrA11yData
 {
   int n_btn_pressed;
@@ -98,8 +88,6 @@ struct _ClutterInputDevice
   uint32_t previous_time;
   int previous_button_number;
 
-  GArray *scroll_info;
-
   char *vendor_id;
   char *product_id;
   char *node_path;
@@ -127,20 +115,6 @@ ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
 CLUTTER_EXPORT
 void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                                   ClutterEvent       *event);
-
-CLUTTER_EXPORT
-void _clutter_input_device_add_scroll_info (ClutterInputDevice     *device,
-                                            guint                   index_,
-                                            ClutterScrollDirection  direction,
-                                            gdouble                 increment);
-CLUTTER_EXPORT
-gboolean _clutter_input_device_get_scroll_delta (ClutterInputDevice     *device,
-                                                 guint                   index_,
-                                                 gdouble                 value,
-                                                 ClutterScrollDirection *direction_p,
-                                                 gdouble                *delta_p);
-CLUTTER_EXPORT
-void _clutter_input_device_reset_scroll_info (ClutterInputDevice *device);
 
 CLUTTER_EXPORT
 void clutter_input_device_add_tool (ClutterInputDevice     *device,

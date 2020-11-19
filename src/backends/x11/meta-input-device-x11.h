@@ -86,6 +86,17 @@ gboolean meta_input_device_x11_translate_axis (ClutterInputDevice *device,
                                                double              value,
                                                double             *axis_value);
 
+void meta_input_device_x11_add_scroll_info (ClutterInputDevice     *device,
+                                            int                     idx,
+                                            ClutterScrollDirection  direction,
+                                            double                  increment);
+gboolean meta_input_device_x11_get_scroll_delta (ClutterInputDevice     *device,
+                                                 int                     idx,
+                                                 gdouble                 value,
+                                                 ClutterScrollDirection *direction_p,
+                                                 double                 *delta_p);
+void meta_input_device_x11_reset_scroll_info (ClutterInputDevice *device);
+
 G_END_DECLS
 
 #endif /* META_INPUT_DEVICE_X11_H */

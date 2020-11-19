@@ -38,6 +38,7 @@ struct _MetaInputDeviceX11
   float current_y;
 
   GArray *axes;
+  GArray *scroll_info;
 
 #ifdef HAVE_LIBWACOM
   GArray *group_modes;
@@ -56,6 +57,16 @@ typedef struct _MetaX11AxisInfo
 
   double resolution;
 } MetaX11AxisInfo;
+
+typedef struct _MetaX11ScrollInfo
+{
+  guint axis_id;
+  ClutterScrollDirection direction;
+  double increment;
+
+  double last_value;
+  guint last_value_valid : 1;
+} MetaX11ScrollInfo;
 
 struct _MetaInputDeviceX11Class
 {
@@ -149,6 +160,7 @@ meta_input_device_x11_finalize (GObject *object)
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (object);
 
   g_clear_pointer (&device_xi2->axes, g_array_unref);
+  g_clear_pointer (&device_xi2->scroll_info, g_array_unref);
 
 #ifdef HAVE_LIBWACOM
   if (device_xi2->group_modes)
@@ -592,6 +604,101 @@ meta_input_device_x11_get_n_axes (ClutterInputDevice *device)
   MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
 
   return device_x11->axes->len;
+}
+
+void
+meta_input_device_x11_add_scroll_info (ClutterInputDevice     *device,
+                                       int                     idx,
+                                       ClutterScrollDirection  direction,
+                                       double                  increment)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  MetaX11ScrollInfo info;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+
+  info.axis_id = idx;
+  info.direction = direction;
+  info.increment = increment;
+  info.last_value_valid = FALSE;
+
+  if (device_x11->scroll_info == NULL)
+    {
+      device_x11->scroll_info = g_array_new (FALSE,
+                                             FALSE,
+                                             sizeof (MetaX11ScrollInfo));
+    }
+
+  g_array_append_val (device_x11->scroll_info, info);
+}
+
+gboolean
+meta_input_device_x11_get_scroll_delta (ClutterInputDevice     *device,
+                                        int                     idx,
+                                        double                  value,
+                                        ClutterScrollDirection *direction_p,
+                                        double                 *delta_p)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  int i;
+
+  if (device_x11->scroll_info == NULL)
+    return FALSE;
+
+  for (i = 0; i < device_x11->scroll_info->len; i++)
+    {
+      MetaX11ScrollInfo *info = &g_array_index (device_x11->scroll_info,
+                                                MetaX11ScrollInfo,
+                                                i);
+
+      if (info->axis_id == idx)
+        {
+          if (direction_p != NULL)
+            *direction_p = info->direction;
+
+          if (delta_p != NULL)
+            *delta_p = 0.0;
+
+          if (info->last_value_valid)
+            {
+              if (delta_p != NULL)
+                {
+                  *delta_p = (value - info->last_value)
+                           / info->increment;
+                }
+
+              info->last_value = value;
+            }
+          else
+            {
+              info->last_value = value;
+              info->last_value_valid = TRUE;
+            }
+
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+void
+meta_input_device_x11_reset_scroll_info (ClutterInputDevice *device)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  int i;
+
+  if (device_x11->scroll_info == NULL)
+    return;
+
+  for (i = 0; i < device_x11->scroll_info->len; i++)
+    {
+      MetaX11ScrollInfo *info = &g_array_index (device_x11->scroll_info,
+                                                MetaX11ScrollInfo,
+                                                i);
+
+      info->last_value_valid = FALSE;
+    }
 }
 
 #ifdef HAVE_LIBWACOM

@@ -197,7 +197,7 @@ translate_device_classes (Display             *xdisplay,
                      : "horizontal",
                      scroll_info->increment);
 
-            _clutter_input_device_add_scroll_info (device,
+            meta_input_device_x11_add_scroll_info (device,
                                                    scroll_info->number,
                                                    direction,
                                                    scroll_info->increment);
@@ -1195,7 +1195,7 @@ scroll_valuators_changed (ClutterInputDevice *device,
       if (!XIMaskIsSet (valuators->mask, i))
         continue;
 
-      if (_clutter_input_device_get_scroll_delta (device, i,
+      if (meta_input_device_x11_get_scroll_delta (device, i,
                                                   values[n_val],
                                                   &direction,
                                                   &delta))
@@ -1794,7 +1794,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
           }
 
         if (source_device)
-          _clutter_input_device_reset_scroll_info (source_device);
+          meta_input_device_x11_reset_scroll_info (source_device);
       }
       retval = FALSE;
       break;
@@ -2308,7 +2308,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
             translate_coords (stage_x11, xev->event_x, xev->event_y, &event->crossing.x, &event->crossing.y);
           }
 
-        _clutter_input_device_reset_scroll_info (source_device);
+        meta_input_device_x11_reset_scroll_info (source_device);
 
         clutter_event_set_device (event, device);
         clutter_event_set_source_device (event, source_device);
