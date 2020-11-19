@@ -149,5 +149,7 @@ void                     meta_input_device_native_set_coords (MetaInputDeviceNat
 void                     meta_input_device_native_get_coords (MetaInputDeviceNative *device_native,
                                                               float                 *x,
                                                               float                 *y);
+gboolean                 meta_input_device_native_process_kbd_a11y_event (ClutterInputDevice *device,
+                                                                          ClutterEvent       *event);
 
 #endif /* META_INPUT_DEVICE_NATIVE_H */

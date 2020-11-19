@@ -34,9 +34,6 @@
 
 G_BEGIN_DECLS
 
-typedef void (*ClutterEmitInputDeviceEvent) (ClutterEvent       *event,
-                                             ClutterInputDevice *device);
-
 struct _ClutterInputDeviceClass
 {
   GObjectClass parent_class;
@@ -53,11 +50,6 @@ struct _ClutterInputDeviceClass
   int (* get_pad_feature_group) (ClutterInputDevice           *device,
                                  ClutterInputDevicePadFeature  feature,
                                  int                           n_feature);
-
-  /* Keyboard accessbility */
-  void (* process_kbd_a11y_event) (ClutterEvent               *event,
-                                   ClutterInputDevice         *device,
-                                   ClutterEmitInputDeviceEvent emit_event_func);
 };
 
 #define CLUTTER_TYPE_INPUT_DEVICE               (clutter_input_device_get_type ())

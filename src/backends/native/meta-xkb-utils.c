@@ -62,7 +62,7 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
    * 0, whereas X11's minimum keycode, for really stupid reasons, is 8.
    * So the evdev XKB rules are based on the keycodes all being shifted
    * upwards by 8. */
-  key += 8;
+  key = meta_xkb_evdev_to_keycode (key);
 
   n = xkb_key_get_syms (xkb_state, key, &syms);
   if (n == 1)
@@ -127,4 +127,11 @@ meta_xkb_keycode_to_evdev (uint32_t xkb_keycode)
    *  offset by 8. See the comment in _clutter_key_event_new_from_evdev()
    */
   return xkb_keycode - 8;
+}
+
+uint32_t
+meta_xkb_evdev_to_keycode (uint32_t evcode)
+{
+  /* The inverse of meta_xkb_keycode_to_evdev */
+  return evcode + 8;
 }

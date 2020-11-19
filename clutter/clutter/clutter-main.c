@@ -1488,8 +1488,8 @@ emit_touch_event (ClutterEvent       *event,
 }
 
 static inline void
-emit_keyboard_event (ClutterEvent       *event,
-                     ClutterInputDevice *device)
+process_key_event (ClutterEvent       *event,
+                   ClutterInputDevice *device)
 {
   if (_clutter_event_process_filters (event))
     return;
@@ -1498,21 +1498,6 @@ emit_keyboard_event (ClutterEvent       *event,
     clutter_actor_event (device->keyboard_grab_actor, event, FALSE);
   else
     emit_event_chain (event);
-}
-
-static inline void
-process_key_event (ClutterEvent       *event,
-                   ClutterInputDevice *device)
-{
-  ClutterInputDeviceClass *device_class = CLUTTER_INPUT_DEVICE_GET_CLASS (device);
-
-  if (device_class->process_kbd_a11y_event)
-    {
-      device_class->process_kbd_a11y_event (event, device, emit_keyboard_event);
-      return;
-    }
-
-  emit_keyboard_event (event, device);
 }
 
 static gboolean

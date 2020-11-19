@@ -48,7 +48,6 @@ typedef struct _SlowKeysEventPending
 {
   MetaInputDeviceNative *device;
   ClutterEvent *event;
-  ClutterEmitInputDeviceEvent emit_event_func;
   guint timer;
 } SlowKeysEventPending;
 
@@ -242,8 +241,7 @@ trigger_slow_keys (gpointer data)
 
   /* Alter timestamp and emit the event */
   key_event->time = us2ms (g_get_monotonic_time ());
-  slow_keys_event->emit_event_func (slow_keys_event->event,
-                                    CLUTTER_INPUT_DEVICE (device));
+  _clutter_event_push (slow_keys_event->event, TRUE);
 
   /* Then remote the pending event */
   device->slow_keys_list = g_list_remove (device->slow_keys_list, slow_keys_event);
@@ -266,21 +264,19 @@ find_pending_event_by_keycode (gconstpointer a,
   return kb->hardware_keycode - ka->hardware_keycode;
 }
 
-static void
-start_slow_keys (ClutterEvent                *event,
-                 MetaInputDeviceNative       *device,
-                 ClutterEmitInputDeviceEvent  emit_event_func)
+static gboolean
+start_slow_keys (ClutterEvent          *event,
+                 MetaInputDeviceNative *device)
 {
   SlowKeysEventPending *slow_keys_event;
   ClutterKeyEvent *key_event = (ClutterKeyEvent *) event;
 
   if (key_event->flags & CLUTTER_EVENT_FLAG_REPEATED)
-    return;
+    return TRUE;
 
   slow_keys_event = g_new0 (SlowKeysEventPending, 1);
   slow_keys_event->device = device;
   slow_keys_event->event = clutter_event_copy (event);
-  slow_keys_event->emit_event_func = emit_event_func;
   slow_keys_event->timer =
     clutter_threads_add_timeout (get_slow_keys_delay (CLUTTER_INPUT_DEVICE (device)),
                                  trigger_slow_keys,
@@ -289,12 +285,13 @@ start_slow_keys (ClutterEvent                *event,
 
   if (device->a11y_flags & META_A11Y_SLOW_KEYS_BEEP_PRESS)
     meta_input_device_native_bell_notify (device);
+
+  return TRUE;
 }
 
-static void
-stop_slow_keys (ClutterEvent                *event,
-                MetaInputDeviceNative       *device,
-                ClutterEmitInputDeviceEvent  emit_event_func)
+static gboolean
+stop_slow_keys (ClutterEvent          *event,
+                MetaInputDeviceNative *device)
 {
   GList *item;
 
@@ -310,11 +307,11 @@ stop_slow_keys (ClutterEvent                *event,
       if (device->a11y_flags & META_A11Y_SLOW_KEYS_BEEP_REJECT)
         meta_input_device_native_bell_notify (device);
 
-      return;
+      return TRUE;
     }
 
   /* If no key press event was pending, just emit the key release as-is */
-  emit_event_func (event, CLUTTER_INPUT_DEVICE (device));
+  return FALSE;
 }
 
 static guint
@@ -1105,16 +1102,11 @@ handle_mousekeys_release (ClutterEvent          *event,
   return FALSE;
 }
 
-static void
-meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *event,
-                                                 ClutterInputDevice         *device,
-                                                 ClutterEmitInputDeviceEvent emit_event_func)
+gboolean
+meta_input_device_native_process_kbd_a11y_event (ClutterInputDevice *device,
+                                                 ClutterEvent       *event)
 {
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (device);
-
-  /* Ignore key events injected from IM */
-  if (event->key.flags & CLUTTER_EVENT_FLAG_INPUT_METHOD)
-    goto emit_event;
 
   if (device_evdev->a11y_flags & META_A11Y_KEYBOARD_ENABLED)
     {
@@ -1128,10 +1120,10 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
     {
       if (event->type == CLUTTER_KEY_PRESS &&
           handle_mousekeys_press (event, device_evdev))
-        return; /* swallow event */
+        return TRUE; /* swallow event */
       if (event->type == CLUTTER_KEY_RELEASE &&
           handle_mousekeys_release (event, device_evdev))
-        return; /* swallow event */
+        return TRUE; /* swallow event */
     }
 
   if ((device_evdev->a11y_flags & META_A11Y_BOUNCE_KEYS_ENABLED) &&
@@ -1141,7 +1133,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
         {
           notify_bounce_keys_reject (device_evdev);
 
-          return;
+          return TRUE;
         }
       else if (event->type == CLUTTER_KEY_RELEASE)
         start_bounce_keys (event, device_evdev);
@@ -1151,11 +1143,9 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
       (get_slow_keys_delay (device) != 0))
     {
       if (event->type == CLUTTER_KEY_PRESS)
-        start_slow_keys (event, device_evdev, emit_event_func);
+        return start_slow_keys (event, device_evdev);
       else if (event->type == CLUTTER_KEY_RELEASE)
-        stop_slow_keys (event, device_evdev, emit_event_func);
-
-      return;
+        return stop_slow_keys (event, device_evdev);
     }
 
   if (device_evdev->a11y_flags & META_A11Y_STICKY_KEYS_ENABLED)
@@ -1166,8 +1156,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
         handle_stickykeys_release (event, device_evdev);
     }
 
-emit_event:
-  emit_event_func (event, device);
+  return FALSE;
 }
 
 void
@@ -1230,7 +1219,6 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
   device_class->get_group_n_modes = meta_input_device_native_get_group_n_modes;
   device_class->is_grouped = meta_input_device_native_is_grouped;
   device_class->get_pad_feature_group = meta_input_device_native_get_pad_feature_group;
-  device_class->process_kbd_a11y_event = meta_input_device_native_process_kbd_a11y_event;
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix",

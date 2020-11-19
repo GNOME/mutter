@@ -320,6 +320,7 @@ meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
 {
   ClutterEvent *event = NULL;
   enum xkb_state_component changed_state;
+  uint32_t keycode;
 
   if (state != AUTOREPEAT_VALUE)
     {
@@ -342,12 +343,13 @@ meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
                                          us2ms (time_us), key, state);
   meta_event_native_set_event_code (event, key);
 
+  keycode = meta_xkb_evdev_to_keycode (key);
+
   /* We must be careful and not pass multiple releases to xkb, otherwise it gets
      confused and locks the modifiers */
   if (state != AUTOREPEAT_VALUE)
     {
-      changed_state = xkb_state_update_key (seat_impl->xkb,
-                                            event->key.hardware_keycode,
+      changed_state = xkb_state_update_key (seat_impl->xkb, keycode,
                                             state ? XKB_KEY_DOWN : XKB_KEY_UP);
     }
   else
@@ -356,7 +358,11 @@ meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
       clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_REPEATED);
     }
 
-  queue_event (seat_impl, event);
+  if (!meta_input_device_native_process_kbd_a11y_event (seat_impl->core_keyboard,
+                                                        event))
+    queue_event (seat_impl, event);
+  else
+    clutter_event_free (event);
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
@@ -380,7 +386,7 @@ meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
   if (state == 0 ||             /* key release */
       !seat_impl->repeat ||
       !xkb_keymap_key_repeats (xkb_state_get_keymap (seat_impl->xkb),
-                               event->key.hardware_keycode))
+                               keycode))
     {
       meta_seat_impl_clear_repeat_timer (seat_impl);
       return;
