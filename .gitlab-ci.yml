@@ -30,10 +30,19 @@ stages:
 
       dnf clean all
 
+workflow:
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH'
+
 .only_default: &only_default
-  only:
-      - merge_requests
-      - /^.*$/
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ /^gnome-[0-9-]+$/'
+    - when: 'manual'
 
 build-fedora-container:
   extends:
@@ -58,7 +67,6 @@ check-commit-log:
       - commit-message-junit-report.xml
     reports:
       junit: commit-message-junit-report.xml
-  <<: *only_default
 
 build-mutter:
   extends:
@@ -74,7 +82,6 @@ build-mutter:
     expire_in: 1 day
     paths:
       - build
-  <<: *only_default
 
 build-without-opengl-and-glx:
   extends:
@@ -89,7 +96,6 @@ build-without-opengl-and-glx:
   artifacts:
     paths:
       - build/meson-logs
-  <<: *only_default
 
 build-without-native-backend-and-wayland:
   extends:
@@ -104,7 +110,6 @@ build-without-native-backend-and-wayland:
   artifacts:
     paths:
       - build/meson-logs
-  <<: *only_default
 
 test-mutter:
   extends:
@@ -130,7 +135,6 @@ test-mutter:
     when: always
     paths:
       - build
-  <<: *only_default
 
 test-mutter-coverage:
   extends:
@@ -147,7 +151,6 @@ test-mutter-coverage:
     paths:
       - build/meson-logs/coveragereport
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
-  <<: *only_default
 
 can-build-gnome-shell:
   extends:
@@ -163,4 +166,3 @@ can-build-gnome-shell:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
     - ninja -C gnome-shell/build install
-  <<: *only_default
