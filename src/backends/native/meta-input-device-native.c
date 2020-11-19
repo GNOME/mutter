@@ -133,45 +133,6 @@ meta_input_device_native_keycode_to_evdev (ClutterInputDevice *device,
   return TRUE;
 }
 
-static void
-meta_input_device_native_update_from_tool (ClutterInputDevice     *device,
-                                           ClutterInputDeviceTool *tool)
-{
-  MetaInputDeviceToolNative *evdev_tool;
-
-  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
-
-  g_object_freeze_notify (G_OBJECT (device));
-
-  _clutter_input_device_reset_axes (device);
-
-  _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_X, 0, 0, 0);
-  _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_Y, 0, 0, 0);
-
-  if (libinput_tablet_tool_has_distance (evdev_tool->tool))
-    _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_DISTANCE, 0, 1, 0);
-
-  if (libinput_tablet_tool_has_pressure (evdev_tool->tool))
-    _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_PRESSURE, 0, 1, 0);
-
-  if (libinput_tablet_tool_has_tilt (evdev_tool->tool))
-    {
-      _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_XTILT, -90, 90, 0);
-      _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_YTILT, -90, 90, 0);
-    }
-
-  if (libinput_tablet_tool_has_rotation (evdev_tool->tool))
-    _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_ROTATION, 0, 360, 0);
-
-  if (libinput_tablet_tool_has_slider (evdev_tool->tool))
-    _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_SLIDER, -1, 1, 0);
-
-  if (libinput_tablet_tool_has_wheel (evdev_tool->tool))
-    _clutter_input_device_add_axis (device, CLUTTER_INPUT_AXIS_WHEEL, -180, 180, 0);
-
-  g_object_thaw_notify (G_OBJECT (device));
-}
-
 static gboolean
 meta_input_device_native_is_mode_switch_button (ClutterInputDevice *device,
                                                 uint32_t            group,
@@ -1243,7 +1204,6 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
   object_class->get_property = meta_input_device_native_get_property;
 
   device_manager_class->keycode_to_evdev = meta_input_device_native_keycode_to_evdev;
-  device_manager_class->update_from_tool = meta_input_device_native_update_from_tool;
   device_manager_class->is_mode_switch_button = meta_input_device_native_is_mode_switch_button;
   device_manager_class->get_group_n_modes = meta_input_device_native_get_group_n_modes;
   device_manager_class->is_grouped = meta_input_device_native_is_grouped;

@@ -867,9 +867,6 @@ translate_property_event (MetaSeatX11 *seat_x11,
       meta_input_device_x11_update_tool (device, tool);
       input_settings = meta_backend_get_input_settings (meta_get_backend ());
       meta_input_settings_notify_tool_change (input_settings, device, tool);
-
-      if (tool)
-        clutter_input_device_update_from_tool (device, tool);
     }
 }
 

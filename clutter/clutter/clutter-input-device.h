@@ -44,8 +44,6 @@ struct _ClutterInputDeviceClass
   gboolean (* keycode_to_evdev) (ClutterInputDevice *device,
                                  guint               hardware_keycode,
                                  guint              *evdev_keycode);
-  void (* update_from_tool) (ClutterInputDevice     *device,
-                             ClutterInputDeviceTool *tool);
 
   gboolean (* is_mode_switch_button) (ClutterInputDevice *device,
                                       guint               group,

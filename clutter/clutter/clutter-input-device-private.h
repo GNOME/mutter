@@ -134,9 +134,6 @@ struct _ClutterInputDevice
 };
 
 CLUTTER_EXPORT
-void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
-                                            ClutterInputDeviceTool *tool);
-CLUTTER_EXPORT
 ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
                                             ClutterEventSequence *sequence,
                                             ClutterStage         *stage,

@@ -1682,9 +1682,6 @@ input_device_update_tool (MetaSeatImpl                *seat_impl,
 
   if (evdev_device->last_tool != tool)
     {
-      if (tool)
-        clutter_input_device_update_from_tool (input_device, tool);
-
       evdev_device->last_tool = tool;
       input_settings = seat_impl->input_settings;
       meta_input_settings_notify_tool_change (input_settings, input_device, tool);
