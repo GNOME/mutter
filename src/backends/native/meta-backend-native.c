@@ -259,7 +259,7 @@ meta_backend_native_create_renderer (MetaBackend *backend,
 }
 
 static MetaInputSettings *
-meta_backend_native_create_input_settings (MetaBackend *backend)
+meta_backend_native_get_input_settings (MetaBackend *backend)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
 
@@ -555,7 +555,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->create_monitor_manager = meta_backend_native_create_monitor_manager;
   backend_class->get_cursor_renderer = meta_backend_native_get_cursor_renderer;
   backend_class->create_renderer = meta_backend_native_create_renderer;
-  backend_class->create_input_settings = meta_backend_native_create_input_settings;
+  backend_class->get_input_settings = meta_backend_native_get_input_settings;
 
   backend_class->get_current_logical_monitor = meta_backend_native_get_current_logical_monitor;
 

@@ -46,6 +46,8 @@ struct _MetaBackendX11Cm
   char *keymap_variants;
   char *keymap_options;
   int locked_group;
+
+  MetaInputSettings *input_settings;
 };
 
 G_DEFINE_TYPE (MetaBackendX11Cm, meta_backend_x11_cm, META_TYPE_BACKEND_X11)
@@ -87,7 +89,10 @@ meta_backend_x11_cm_post_init (MetaBackend *backend)
 {
   MetaBackendClass *parent_backend_class =
     META_BACKEND_CLASS (meta_backend_x11_cm_parent_class);
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (backend);
   ClutterSeat *seat;
+
+  x11_cm->input_settings = g_object_new (META_TYPE_INPUT_SETTINGS_X11, NULL);
 
   parent_backend_class->post_init (backend);
 
@@ -143,9 +148,11 @@ meta_backend_x11_cm_create_cursor_tracker (MetaBackend *backend)
 }
 
 static MetaInputSettings *
-meta_backend_x11_cm_create_input_settings (MetaBackend *backend)
+meta_backend_x11_cm_get_input_settings (MetaBackend *backend)
 {
-  return g_object_new (META_TYPE_INPUT_SETTINGS_X11, NULL);
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (backend);
+
+  return x11_cm->input_settings;
 }
 
 static void
@@ -457,7 +464,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_class->create_monitor_manager = meta_backend_x11_cm_create_monitor_manager;
   backend_class->get_cursor_renderer = meta_backend_x11_cm_get_cursor_renderer;
   backend_class->create_cursor_tracker = meta_backend_x11_cm_create_cursor_tracker;
-  backend_class->create_input_settings = meta_backend_x11_cm_create_input_settings;
+  backend_class->get_input_settings = meta_backend_x11_cm_get_input_settings;
   backend_class->update_screen_size = meta_backend_x11_cm_update_screen_size;
   backend_class->select_stage_events = meta_backend_x11_cm_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_cm_lock_layout_group;

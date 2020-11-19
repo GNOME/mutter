@@ -84,7 +84,7 @@ meta_backend_x11_nested_get_cursor_renderer (MetaBackend        *backend,
 }
 
 static MetaInputSettings *
-meta_backend_x11_nested_create_input_settings (MetaBackend *backend)
+meta_backend_x11_nested_get_input_settings (MetaBackend *backend)
 {
   return NULL;
 }
@@ -289,7 +289,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;
   backend_class->get_cursor_renderer = meta_backend_x11_nested_get_cursor_renderer;
-  backend_class->create_input_settings = meta_backend_x11_nested_create_input_settings;
+  backend_class->get_input_settings = meta_backend_x11_nested_get_input_settings;
   backend_class->update_screen_size = meta_backend_x11_nested_update_screen_size;
   backend_class->select_stage_events = meta_backend_x11_nested_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_nested_lock_layout_group;

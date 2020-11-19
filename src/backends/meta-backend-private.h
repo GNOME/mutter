@@ -69,7 +69,7 @@ struct _MetaBackendClass
   MetaCursorTracker * (* create_cursor_tracker) (MetaBackend *backend);
   MetaRenderer * (* create_renderer) (MetaBackend *backend,
                                       GError     **error);
-  MetaInputSettings * (* create_input_settings) (MetaBackend *backend);
+  MetaInputSettings * (* get_input_settings) (MetaBackend *backend);
 
   gboolean (* grab_device) (MetaBackend *backend,
                             int          device_id,

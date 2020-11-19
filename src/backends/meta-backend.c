@@ -122,7 +122,6 @@ struct _MetaBackendPrivate
   MetaMonitorManager *monitor_manager;
   MetaOrientationManager *orientation_manager;
   MetaCursorTracker *cursor_tracker;
-  MetaInputSettings *input_settings;
   MetaInputMapper *input_mapper;
   MetaRenderer *renderer;
 #ifdef HAVE_EGL
@@ -202,7 +201,6 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->current_device);
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
-  g_clear_object (&priv->input_settings);
 #ifdef HAVE_REMOTE_DESKTOP
   g_clear_object (&priv->remote_desktop);
   g_clear_object (&priv->screen_cast);
@@ -521,21 +519,12 @@ create_device_monitors (MetaBackend *backend,
   g_list_free (devices);
 }
 
-static MetaInputSettings *
-meta_backend_create_input_settings (MetaBackend *backend)
-{
-  return META_BACKEND_GET_CLASS (backend)->create_input_settings (backend);
-}
-
 static void
 input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
                                ClutterInputDevice *device,
                                float               matrix[6],
-                               MetaBackend        *backend)
+                               MetaInputSettings  *input_settings)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaInputSettings *input_settings = priv->input_settings;
-
   meta_input_settings_set_device_matrix (input_settings, device, matrix);
 }
 
@@ -543,11 +532,8 @@ static void
 input_mapper_device_enabled_cb (MetaInputMapper    *mapper,
                                 ClutterInputDevice *device,
                                 gboolean            enabled,
-                                MetaBackend        *backend)
+                                MetaInputSettings  *input_settings)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaInputSettings *input_settings = priv->input_settings;
-
   meta_input_settings_set_device_enabled (input_settings, device, enabled);
 }
 
@@ -555,11 +541,8 @@ static void
 input_mapper_device_aspect_ratio_cb (MetaInputMapper    *mapper,
                                      ClutterInputDevice *device,
                                      double              aspect_ratio,
-                                     MetaBackend        *backend)
+                                     MetaInputSettings  *input_settings)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaInputSettings *input_settings = priv->input_settings;
-
   meta_input_settings_set_device_aspect_ratio (input_settings, device, aspect_ratio);
 }
 
@@ -576,6 +559,7 @@ meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  MetaInputSettings *input_settings;
 
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
@@ -599,15 +583,22 @@ meta_backend_real_post_init (MetaBackend *backend)
                            G_CALLBACK (on_device_removed), backend,
                            G_CONNECT_AFTER);
 
-  priv->input_settings = meta_backend_create_input_settings (backend);
-
   priv->input_mapper = meta_input_mapper_new ();
-  g_signal_connect (priv->input_mapper, "device-mapped",
-                    G_CALLBACK (input_mapper_device_mapped_cb), backend);
-  g_signal_connect (priv->input_mapper, "device-enabled",
-                    G_CALLBACK (input_mapper_device_enabled_cb), backend);
-  g_signal_connect (priv->input_mapper, "device-aspect-ratio",
-                    G_CALLBACK (input_mapper_device_aspect_ratio_cb), backend);
+
+  input_settings = meta_backend_get_input_settings (backend);
+
+  if (input_settings)
+    {
+      g_signal_connect (priv->input_mapper, "device-mapped",
+                        G_CALLBACK (input_mapper_device_mapped_cb),
+                        input_settings);
+      g_signal_connect (priv->input_mapper, "device-enabled",
+                        G_CALLBACK (input_mapper_device_enabled_cb),
+                        input_settings);
+      g_signal_connect (priv->input_mapper, "device-aspect-ratio",
+                        G_CALLBACK (input_mapper_device_aspect_ratio_cb),
+                        input_settings);
+    }
 
 #ifdef HAVE_REMOTE_DESKTOP
   priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
@@ -1521,9 +1512,7 @@ meta_backend_get_input_mapper (MetaBackend *backend)
 MetaInputSettings *
 meta_backend_get_input_settings (MetaBackend *backend)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  return priv->input_settings;
+  return META_BACKEND_GET_CLASS (backend)->get_input_settings (backend);
 }
 
 /**
