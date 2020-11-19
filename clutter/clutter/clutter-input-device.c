@@ -61,8 +61,6 @@ enum
 
   PROP_HAS_CURSOR,
 
-  PROP_N_AXES,
-
   PROP_VENDOR_ID,
   PROP_PRODUCT_ID,
 
@@ -97,7 +95,6 @@ clutter_input_device_dispose (GObject *gobject)
   if (device->accessibility_virtual_device)
     g_clear_object (&device->accessibility_virtual_device);
 
-  g_clear_pointer (&device->axes, g_array_unref);
   g_clear_pointer (&device->scroll_info, g_array_unref);
   g_clear_pointer (&device->touch_sequence_actors, g_hash_table_unref);
 
@@ -236,10 +233,6 @@ clutter_input_device_get_property (GObject    *gobject,
       g_value_set_boolean (value, self->has_cursor);
       break;
 
-    case PROP_N_AXES:
-      g_value_set_uint (value, clutter_input_device_get_n_axes (self));
-      break;
-
     case PROP_VENDOR_ID:
       g_value_set_string (value, self->vendor_id);
       break;
@@ -346,21 +339,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                           P_("Whether the device has a cursor"),
                           FALSE,
                           CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterInputDevice:n-axes:
-   *
-   * The number of axes of the device.
-   *
-   * Since: 1.6
-   */
-  obj_props[PROP_N_AXES] =
-    g_param_spec_uint ("n-axes",
-                       P_("Number of Axes"),
-                       P_("The number of axes on the device"),
-                       0, G_MAXUINT,
-                       0,
-                       CLUTTER_PARAM_READABLE);
 
   /**
    * ClutterInputDevice:backend:
@@ -801,236 +779,6 @@ clutter_input_device_get_device_mode (ClutterInputDevice *device)
 }
 
 /*< private >
- * clutter_input_device_reset_axes:
- * @device: a #ClutterInputDevice
- *
- * Resets the axes on @device
- */
-void
-_clutter_input_device_reset_axes (ClutterInputDevice *device)
-{
-  if (device->axes != NULL)
-    {
-      g_array_free (device->axes, TRUE);
-      device->axes = NULL;
-
-      g_object_notify_by_pspec (G_OBJECT (device), obj_props[PROP_N_AXES]);
-    }
-}
-
-/*< private >
- * clutter_input_device_add_axis:
- * @device: a #ClutterInputDevice
- * @axis: the axis type
- * @minimum: the minimum axis value
- * @maximum: the maximum axis value
- * @resolution: the axis resolution
- *
- * Adds an axis of type @axis on @device.
- */
-guint
-_clutter_input_device_add_axis (ClutterInputDevice *device,
-                                ClutterInputAxis    axis,
-                                gdouble             minimum,
-                                gdouble             maximum,
-                                gdouble             resolution)
-{
-  ClutterAxisInfo info;
-  guint pos;
-
-  if (device->axes == NULL)
-    device->axes = g_array_new (FALSE, TRUE, sizeof (ClutterAxisInfo));
-
-  info.axis = axis;
-  info.min_value = minimum;
-  info.max_value = maximum;
-  info.resolution = resolution;
-
-  switch (axis)
-    {
-    case CLUTTER_INPUT_AXIS_X:
-    case CLUTTER_INPUT_AXIS_Y:
-      info.min_axis = 0;
-      info.max_axis = 0;
-      break;
-
-    case CLUTTER_INPUT_AXIS_XTILT:
-    case CLUTTER_INPUT_AXIS_YTILT:
-      info.min_axis = -1;
-      info.max_axis = 1;
-      break;
-
-    default:
-      info.min_axis = 0;
-      info.max_axis = 1;
-      break;
-    }
-
-  device->axes = g_array_append_val (device->axes, info);
-  pos = device->axes->len - 1;
-
-  g_object_notify_by_pspec (G_OBJECT (device), obj_props[PROP_N_AXES]);
-
-  return pos;
-}
-
-/*< private >
- * clutter_input_translate_axis:
- * @device: a #ClutterInputDevice
- * @index_: the index of the axis
- * @gint: the absolute value of the axis
- * @axis_value: (out): the translated value of the axis
- *
- * Performs a conversion from the absolute value of the axis
- * to a relative value.
- *
- * The axis at @index_ must not be %CLUTTER_INPUT_AXIS_X or
- * %CLUTTER_INPUT_AXIS_Y.
- *
- * Return value: %TRUE if the conversion was successful
- */
-gboolean
-_clutter_input_device_translate_axis (ClutterInputDevice *device,
-                                      guint               index_,
-                                      gdouble             value,
-                                      gdouble            *axis_value)
-{
-  ClutterAxisInfo *info;
-  gdouble width;
-  gdouble real_value;
-
-  if (device->axes == NULL || index_ >= device->axes->len)
-    return FALSE;
-
-  info = &g_array_index (device->axes, ClutterAxisInfo, index_);
-
-  if (info->axis == CLUTTER_INPUT_AXIS_X ||
-      info->axis == CLUTTER_INPUT_AXIS_Y)
-    return FALSE;
-
-  if (fabs (info->max_value - info->min_value) < 0.0000001)
-    return FALSE;
-
-  width = info->max_value - info->min_value;
-  real_value = (info->max_axis * (value - info->min_value)
-             + info->min_axis * (info->max_value - value))
-             / width;
-
-  if (axis_value)
-    *axis_value = real_value;
-
-  return TRUE;
-}
-
-/**
- * clutter_input_device_get_axis:
- * @device: a #ClutterInputDevice
- * @index_: the index of the axis
- *
- * Retrieves the type of axis on @device at the given index.
- *
- * Return value: the axis type
- *
- * Since: 1.6
- */
-ClutterInputAxis
-clutter_input_device_get_axis (ClutterInputDevice *device,
-                               guint               index_)
-{
-  ClutterAxisInfo *info;
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device),
-                        CLUTTER_INPUT_AXIS_IGNORE);
-
-  if (device->axes == NULL)
-    return CLUTTER_INPUT_AXIS_IGNORE;
-
-  if (index_ >= device->axes->len)
-    return CLUTTER_INPUT_AXIS_IGNORE;
-
-  info = &g_array_index (device->axes, ClutterAxisInfo, index_);
-
-  return info->axis;
-}
-
-/**
- * clutter_input_device_get_axis_value:
- * @device: a #ClutterInputDevice
- * @axes: (array): an array of axes values, typically
- *   coming from clutter_event_get_axes()
- * @axis: the axis to extract
- * @value: (out): return location for the axis value
- *
- * Extracts the value of the given @axis of a #ClutterInputDevice from
- * an array of axis values.
- *
- * An example of typical usage for this function is:
- *
- * |[
- *   ClutterInputDevice *device = clutter_event_get_device (event);
- *   gdouble *axes = clutter_event_get_axes (event, NULL);
- *   gdouble pressure_value = 0;
- *
- *   clutter_input_device_get_axis_value (device, axes,
- *                                        CLUTTER_INPUT_AXIS_PRESSURE,
- *                                        &pressure_value);
- * ]|
- *
- * Return value: %TRUE if the value was set, and %FALSE otherwise
- *
- * Since: 1.6
- */
-gboolean
-clutter_input_device_get_axis_value (ClutterInputDevice *device,
-                                     gdouble            *axes,
-                                     ClutterInputAxis    axis,
-                                     gdouble            *value)
-{
-  gint i;
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
-  g_return_val_if_fail (device->axes != NULL, FALSE);
-
-  for (i = 0; i < device->axes->len; i++)
-    {
-      ClutterAxisInfo *info;
-
-      info = &g_array_index (device->axes, ClutterAxisInfo, i);
-
-      if (info->axis == axis)
-        {
-          if (value)
-            *value = axes[i];
-
-          return TRUE;
-        }
-    }
-
-  return FALSE;
-}
-
-/**
- * clutter_input_device_get_n_axes:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the number of axes available on @device.
- *
- * Return value: the number of axes on the device
- *
- * Since: 1.6
- */
-guint
-clutter_input_device_get_n_axes (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
-
-  if (device->axes != NULL)
-    return device->axes->len;
-
-  return 0;
-}
-
-/*< private >
  * clutter_input_device_remove_sequence:
  * @device: a #ClutterInputDevice
  * @sequence: a #ClutterEventSequence
@@ -1109,7 +857,6 @@ _clutter_input_device_add_scroll_info (ClutterInputDevice     *device,
   ClutterScrollInfo info;
 
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-  g_return_if_fail (index_ < clutter_input_device_get_n_axes (device));
 
   info.axis_id = index_;
   info.direction = direction;
@@ -1136,7 +883,6 @@ _clutter_input_device_get_scroll_delta (ClutterInputDevice     *device,
   guint i;
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
-  g_return_val_if_fail (index_ < clutter_input_device_get_n_axes (device), FALSE);
 
   if (device->scroll_info == NULL)
     return FALSE;

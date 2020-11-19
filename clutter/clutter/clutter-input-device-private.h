@@ -32,19 +32,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ClutterAxisInfo
-{
-  ClutterInputAxis axis;
-
-  double min_axis;
-  double max_axis;
-
-  double min_value;
-  double max_value;
-
-  double resolution;
-} ClutterAxisInfo;
-
 typedef struct _ClutterScrollInfo
 {
   guint axis_id;
@@ -111,8 +98,6 @@ struct _ClutterInputDevice
   uint32_t previous_time;
   int previous_button_number;
 
-  GArray *axes;
-
   GArray *scroll_info;
 
   char *vendor_id;
@@ -142,20 +127,6 @@ ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
 CLUTTER_EXPORT
 void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                                   ClutterEvent       *event);
-CLUTTER_EXPORT
-gboolean _clutter_input_device_translate_axis (ClutterInputDevice *device,
-                                               guint               index_,
-                                               gdouble             value,
-                                               gdouble            *axis_value);
-CLUTTER_EXPORT
-guint _clutter_input_device_add_axis (ClutterInputDevice *device,
-                                      ClutterInputAxis    axis,
-                                      gdouble             minimum,
-                                      gdouble             maximum,
-                                      gdouble             resolution);
-
-CLUTTER_EXPORT
-void _clutter_input_device_reset_axes (ClutterInputDevice *device);
 
 CLUTTER_EXPORT
 void _clutter_input_device_add_scroll_info (ClutterInputDevice     *device,

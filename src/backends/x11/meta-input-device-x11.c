@@ -37,10 +37,25 @@ struct _MetaInputDeviceX11
   float current_x;
   float current_y;
 
+  GArray *axes;
+
 #ifdef HAVE_LIBWACOM
   GArray *group_modes;
 #endif
 };
+
+typedef struct _MetaX11AxisInfo
+{
+  ClutterInputAxis axis;
+
+  double min_axis;
+  double max_axis;
+
+  double min_value;
+  double max_value;
+
+  double resolution;
+} MetaX11AxisInfo;
 
 struct _MetaInputDeviceX11Class
 {
@@ -132,6 +147,8 @@ static void
 meta_input_device_x11_finalize (GObject *object)
 {
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (object);
+
+  g_clear_pointer (&device_xi2->axes, g_array_unref);
 
 #ifdef HAVE_LIBWACOM
   if (device_xi2->group_modes)
@@ -458,6 +475,123 @@ meta_input_device_x11_get_device_id (ClutterInputDevice *device)
   g_return_val_if_fail (META_IS_INPUT_DEVICE_X11 (device), 0);
 
   return device_xi2->device_id;
+}
+
+void
+meta_input_device_x11_reset_axes (ClutterInputDevice *device)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+
+  g_clear_pointer (&device_x11->axes, g_array_unref);
+}
+
+int
+meta_input_device_x11_add_axis (ClutterInputDevice *device,
+                                ClutterInputAxis    axis,
+                                double              minimum,
+                                double              maximum,
+                                double              resolution)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  MetaX11AxisInfo info;
+  guint pos;
+
+  if (device_x11->axes == NULL)
+    device_x11->axes = g_array_new (FALSE, TRUE, sizeof (MetaX11AxisInfo));
+
+  info.axis = axis;
+  info.min_value = minimum;
+  info.max_value = maximum;
+  info.resolution = resolution;
+
+  switch (axis)
+    {
+    case CLUTTER_INPUT_AXIS_X:
+    case CLUTTER_INPUT_AXIS_Y:
+      info.min_axis = 0;
+      info.max_axis = 0;
+      break;
+
+    case CLUTTER_INPUT_AXIS_XTILT:
+    case CLUTTER_INPUT_AXIS_YTILT:
+      info.min_axis = -1;
+      info.max_axis = 1;
+      break;
+
+    default:
+      info.min_axis = 0;
+      info.max_axis = 1;
+      break;
+    }
+
+  g_array_append_val (device_x11->axes, info);
+  pos = device_x11->axes->len - 1;
+
+  return pos;
+}
+
+gboolean
+meta_input_device_x11_get_axis (ClutterInputDevice *device,
+                                int                 idx,
+                                ClutterInputAxis   *use)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  MetaX11AxisInfo *info;
+
+  if (device_x11->axes == NULL)
+    return FALSE;
+
+  if (idx < 0 || idx >= device_x11->axes->len)
+    return FALSE;
+
+  info = &g_array_index (device_x11->axes, MetaX11AxisInfo, idx);
+
+  if (use)
+    *use = info->axis;
+
+  return TRUE;
+}
+
+gboolean
+meta_input_device_x11_translate_axis (ClutterInputDevice *device,
+                                      int                 idx,
+                                      double              value,
+                                      double             *axis_value)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  MetaX11AxisInfo *info;
+  double width;
+  double real_value;
+
+  if (device_x11->axes == NULL || idx < 0 || idx >= device_x11->axes->len)
+    return FALSE;
+
+  info = &g_array_index (device_x11->axes, MetaX11AxisInfo, idx);
+
+  if (info->axis == CLUTTER_INPUT_AXIS_X ||
+      info->axis == CLUTTER_INPUT_AXIS_Y)
+    return FALSE;
+
+  if (fabs (info->max_value - info->min_value) < 0.0000001)
+    return FALSE;
+
+  width = info->max_value - info->min_value;
+  real_value = (info->max_axis * (value - info->min_value)
+             + info->min_axis * (info->max_value - value))
+             / width;
+
+  if (axis_value)
+    *axis_value = real_value;
+
+  return TRUE;
+}
+
+int
+meta_input_device_x11_get_n_axes (ClutterInputDevice *device)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+
+  return device_x11->axes->len;
 }
 
 #ifdef HAVE_LIBWACOM

@@ -148,7 +148,7 @@ translate_valuator_class (Display             *xdisplay,
         }
     }
 
-  _clutter_input_device_add_axis (device, axis,
+  meta_input_device_x11_add_axis (device, axis,
                                   class->min,
                                   class->max,
                                   class->resolution);
@@ -947,7 +947,7 @@ translate_pad_axis (ClutterInputDevice *device,
       if (val <= 0)
         continue;
 
-      _clutter_input_device_translate_axis (device, i, val, value);
+      meta_input_device_x11_translate_axis (device, i, val, value);
 
       if (i == PAD_AXIS_RING1 || i == PAD_AXIS_RING2)
         {
@@ -1146,8 +1146,9 @@ translate_axes (ClutterInputDevice *device,
 
       if (!XIMaskIsSet (valuators->mask, i))
         continue;
+      if (!meta_input_device_x11_get_axis (device, i, &axis))
+        continue;
 
-      axis = clutter_input_device_get_axis (device, i);
       val = *values++;
 
       switch (axis)
@@ -1161,7 +1162,7 @@ translate_axes (ClutterInputDevice *device,
           break;
 
         default:
-          _clutter_input_device_translate_axis (device, i, val, &retval[axis]);
+          meta_input_device_x11_translate_axis (device, i, val, &retval[axis]);
           break;
         }
     }
@@ -1179,7 +1180,7 @@ scroll_valuators_changed (ClutterInputDevice *device,
   uint32_t n_axes, n_val, i;
   double *values;
 
-  n_axes = clutter_input_device_get_n_axes (device);
+  n_axes = meta_input_device_x11_get_n_axes (device);
   values = valuators->values;
 
   *dx_p = *dy_p = 0.0;
@@ -1785,7 +1786,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                              GINT_TO_POINTER (xev->sourceid));
         if (device)
           {
-            _clutter_input_device_reset_axes (device);
+            meta_input_device_x11_reset_axes (device);
             translate_device_classes (clutter_x11_get_default_display (),
                                       device,
                                       xev->classes,

@@ -71,6 +71,21 @@ gboolean meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
                                                      float              *y);
 int meta_input_device_x11_get_device_id (ClutterInputDevice *device);
 
+int meta_input_device_x11_get_n_axes (ClutterInputDevice *device);
+void meta_input_device_x11_reset_axes (ClutterInputDevice *device);
+int meta_input_device_x11_add_axis (ClutterInputDevice *device,
+                                    ClutterInputAxis    axis,
+                                    double              minimum,
+                                    double              maximum,
+                                    double              resolution);
+gboolean meta_input_device_x11_get_axis (ClutterInputDevice *device,
+                                         int                 idx,
+                                         ClutterInputAxis   *use);
+gboolean meta_input_device_x11_translate_axis (ClutterInputDevice *device,
+                                               int                 idx,
+                                               double              value,
+                                               double             *axis_value);
+
 G_END_DECLS
 
 #endif /* META_INPUT_DEVICE_X11_H */
