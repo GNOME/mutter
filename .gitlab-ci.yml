@@ -69,7 +69,8 @@ check-commit-log:
     - .fdo.distribution-image@fedora
     - .mutter.fedora:33
   stage: review
-  needs: ["build-fedora-container"]
+  needs:
+    - build-fedora-container
   variables:
     GIT_DEPTH: "100"
   script:
@@ -86,7 +87,8 @@ build-mutter:
     - .fdo.distribution-image@fedora
     - .mutter.fedora:33
   stage: build
-  needs: ["check-commit-log"]
+  needs:
+    - check-commit-log
   script:
     - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -101,7 +103,8 @@ build-without-opengl-and-glx:
     - .fdo.distribution-image@fedora
     - .mutter.fedora:33
   stage: build
-  needs: ["check-commit-log"]
+  needs:
+    - check-commit-log
   script:
     - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -115,7 +118,8 @@ build-without-native-backend-and-wayland:
     - .fdo.distribution-image@fedora
     - .mutter.fedora:33
   stage: build
-  needs: ["check-commit-log"]
+  needs:
+    - check-commit-log
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false --werror --prefix /usr
     - ninja -C build
@@ -131,7 +135,8 @@ test-mutter:
   stage: test
   dependencies:
     - build-mutter
-  needs: ["build-mutter"]
+  needs:
+    - build-mutter
   variables:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
@@ -156,7 +161,8 @@ test-mutter-coverage:
   stage: coverage
   dependencies:
     - test-mutter
-  needs: ["test-mutter"]
+  needs:
+    - test-mutter
   script:
     - ninja -C build coverage
     - cat build/meson-logs/coverage.txt
@@ -172,7 +178,8 @@ can-build-gnome-shell:
   stage: test
   dependencies:
     - build-mutter
-  needs: ["build-mutter"]
+  needs:
+    - build-mutter
   before_script:
     - meson install --no-rebuild -C build
   script:
