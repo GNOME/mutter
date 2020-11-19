@@ -53,15 +53,6 @@ struct _ClutterInputDevice
 {
   GObject parent_instance;
 
-  ClutterInputDeviceType device_type;
-  ClutterInputMode device_mode;
-
-  char *device_name;
-
-  ClutterSeat *seat;
-
-  ClutterBackend *backend;
-
   /* the actor underneath the pointer */
   ClutterActor *cursor_actor;
   GHashTable   *inv_touch_sequence_actors;
@@ -74,10 +65,7 @@ struct _ClutterInputDevice
 
   /* the current click count */
   int click_count;
-
-  /* the current state */
   int current_button_number;
-  ClutterModifierType current_state;
 
   /* the current touch points targets */
   GHashTable *touch_sequence_actors;
@@ -87,17 +75,6 @@ struct _ClutterInputDevice
   int previous_y;
   uint32_t previous_time;
   int previous_button_number;
-
-  char *vendor_id;
-  char *product_id;
-  char *node_path;
-
-  int n_rings;
-  int n_strips;
-  int n_mode_groups;
-
-  guint has_cursor : 1;
-  guint is_enabled : 1;
 
   /* Accessiblity */
   ClutterVirtualInputDevice *accessibility_virtual_device;

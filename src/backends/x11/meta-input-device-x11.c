@@ -447,7 +447,8 @@ meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
 
   g_return_val_if_fail (META_IS_INPUT_DEVICE_X11 (device), FALSE);
-  g_return_val_if_fail (device->device_type == CLUTTER_POINTER_DEVICE, FALSE);
+  g_return_val_if_fail (clutter_input_device_get_device_type (device) ==
+                        CLUTTER_POINTER_DEVICE, FALSE);
 
   /* Throttle XServer queries and roundtrips using an idle timeout */
   if (device_xi2->inhibit_pointer_query_timer == 0)

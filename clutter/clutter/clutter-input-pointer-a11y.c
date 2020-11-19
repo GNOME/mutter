@@ -36,8 +36,9 @@ static gboolean
 is_secondary_click_enabled (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return (settings.controls & CLUTTER_A11Y_SECONDARY_CLICK_ENABLED);
 }
@@ -46,8 +47,9 @@ static gboolean
 is_dwell_click_enabled (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return (settings.controls & CLUTTER_A11Y_DWELL_ENABLED);
 }
@@ -56,8 +58,9 @@ static unsigned int
 get_secondary_click_delay (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return settings.secondary_click_delay;
 }
@@ -66,8 +69,9 @@ static unsigned int
 get_dwell_delay (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return settings.dwell_delay;
 }
@@ -76,8 +80,9 @@ static unsigned int
 get_dwell_threshold (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return settings.dwell_threshold;
 }
@@ -86,8 +91,9 @@ static ClutterPointerA11yDwellMode
 get_dwell_mode (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return settings.dwell_mode;
 }
@@ -96,8 +102,9 @@ static ClutterPointerA11yDwellClickType
 get_dwell_click_type (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   return settings.dwell_click_type;
 }
@@ -107,8 +114,9 @@ get_dwell_click_type_for_direction (ClutterInputDevice               *device,
                                     ClutterPointerA11yDwellDirection  direction)
 {
   ClutterPointerA11ySettings settings;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   if (direction == settings.dwell_gesture_single)
     return CLUTTER_A11Y_DWELL_CLICK_TYPE_PRIMARY;
@@ -163,11 +171,12 @@ static gboolean
 trigger_secondary_click (gpointer data)
 {
   ClutterInputDevice *device = data;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->secondary_click_triggered = TRUE;
   device->ptr_a11y_data->secondary_click_timer = 0;
 
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-stopped",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
@@ -180,11 +189,12 @@ static void
 start_secondary_click_timeout (ClutterInputDevice *device)
 {
   unsigned int delay = get_secondary_click_delay (device);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->secondary_click_timer =
     clutter_threads_add_timeout (delay, trigger_secondary_click, device);
 
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
@@ -194,12 +204,14 @@ start_secondary_click_timeout (ClutterInputDevice *device)
 static void
 stop_secondary_click_timeout (ClutterInputDevice *device)
 {
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
+
   if (device->ptr_a11y_data->secondary_click_timer)
     {
       g_clear_handle_id (&device->ptr_a11y_data->secondary_click_timer,
                          g_source_remove);
 
-      g_signal_emit_by_name (device->seat,
+      g_signal_emit_by_name (seat,
                              "ptr-a11y-timeout-stopped",
                              device,
                              CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
@@ -302,8 +314,9 @@ update_dwell_click_type (ClutterInputDevice *device)
 {
   ClutterPointerA11ySettings settings;
   ClutterPointerA11yDwellClickType dwell_click_type;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  clutter_seat_get_pointer_a11y_settings (device->seat, &settings);
+  clutter_seat_get_pointer_a11y_settings (seat, &settings);
 
   dwell_click_type = settings.dwell_click_type;
   switch (dwell_click_type)
@@ -328,9 +341,9 @@ update_dwell_click_type (ClutterInputDevice *device)
   if (dwell_click_type != settings.dwell_click_type)
     {
       settings.dwell_click_type = dwell_click_type;
-      clutter_seat_set_pointer_a11y_settings (device->seat, &settings);
+      clutter_seat_set_pointer_a11y_settings (seat, &settings);
 
-      g_signal_emit_by_name (device->seat,
+      g_signal_emit_by_name (seat,
                              "ptr-a11y-dwell-click-type-changed",
                              dwell_click_type);
     }
@@ -424,6 +437,7 @@ trigger_dwell_gesture (gpointer data)
   ClutterInputDevice *device = data;
   ClutterPointerA11yDwellDirection direction;
   unsigned int delay = get_dwell_delay (device);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   restore_dwell_position (device);
   direction = get_dwell_direction (device);
@@ -435,7 +449,7 @@ trigger_dwell_gesture (gpointer data)
   device->ptr_a11y_data->dwell_timer =
     clutter_threads_add_timeout (delay, trigger_clear_dwell_gesture, device);
 
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-stopped",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE,
@@ -448,12 +462,13 @@ static void
 start_dwell_gesture_timeout (ClutterInputDevice *device)
 {
   unsigned int delay = get_dwell_delay (device);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->dwell_timer =
     clutter_threads_add_timeout (delay, trigger_dwell_gesture, device);
   device->ptr_a11y_data->dwell_gesture_started = TRUE;
 
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE,
@@ -464,10 +479,11 @@ static gboolean
 trigger_dwell_click (gpointer data)
 {
   ClutterInputDevice *device = data;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->dwell_timer = 0;
 
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-stopped",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
@@ -493,11 +509,12 @@ static void
 start_dwell_timeout (ClutterInputDevice *device)
 {
   unsigned int delay = get_dwell_delay (device);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->dwell_timer =
     clutter_threads_add_timeout (delay, trigger_dwell_click, device);
 
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
@@ -507,12 +524,14 @@ start_dwell_timeout (ClutterInputDevice *device)
 static void
 stop_dwell_timeout (ClutterInputDevice *device)
 {
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
+
   if (device->ptr_a11y_data->dwell_timer)
     {
       g_clear_handle_id (&device->ptr_a11y_data->dwell_timer, g_source_remove);
       device->ptr_a11y_data->dwell_gesture_started = FALSE;
 
-      g_signal_emit_by_name (device->seat,
+      g_signal_emit_by_name (seat,
                              "ptr-a11y-timeout-stopped",
                              device,
                              CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
@@ -570,8 +589,9 @@ static gboolean
 is_device_core_pointer (ClutterInputDevice *device)
 {
   ClutterInputDevice *core_pointer;
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-  core_pointer = clutter_seat_get_pointer (device->seat);
+  core_pointer = clutter_seat_get_pointer (seat);
   if (core_pointer == NULL)
     return FALSE;
 
@@ -581,11 +601,13 @@ is_device_core_pointer (ClutterInputDevice *device)
 void
 _clutter_input_pointer_a11y_add_device (ClutterInputDevice *device)
 {
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
+
   if (!is_device_core_pointer (device))
     return;
 
   device->accessibility_virtual_device =
-    clutter_seat_create_virtual_device (device->seat,
+    clutter_seat_create_virtual_device (seat,
                                         CLUTTER_POINTER_DEVICE);
 
   device->ptr_a11y_data = g_new0 (ClutterPtrA11yData, 1);

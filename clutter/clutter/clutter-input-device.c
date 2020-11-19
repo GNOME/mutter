@@ -80,17 +80,43 @@ static void on_cursor_actor_reactive_changed (ClutterActor       *actor,
 
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
-G_DEFINE_TYPE (ClutterInputDevice, clutter_input_device, G_TYPE_OBJECT);
+typedef struct _ClutterInputDevicePrivate ClutterInputDevicePrivate;
+
+struct _ClutterInputDevicePrivate
+{
+  ClutterInputDeviceType device_type;
+  ClutterInputMode device_mode;
+
+  char *device_name;
+
+  ClutterSeat *seat;
+
+  ClutterBackend *backend;
+
+  char *vendor_id;
+  char *product_id;
+  char *node_path;
+
+  int n_rings;
+  int n_strips;
+  int n_mode_groups;
+
+  gboolean has_cursor;
+};
+
+G_DEFINE_TYPE_WITH_PRIVATE (ClutterInputDevice, clutter_input_device, G_TYPE_OBJECT);
 
 static void
 clutter_input_device_dispose (GObject *gobject)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (gobject);
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
 
-  g_clear_pointer (&device->device_name, g_free);
-  g_clear_pointer (&device->vendor_id, g_free);
-  g_clear_pointer (&device->product_id, g_free);
-  g_clear_pointer (&device->node_path, g_free);
+  g_clear_pointer (&priv->device_name, g_free);
+  g_clear_pointer (&priv->vendor_id, g_free);
+  g_clear_pointer (&priv->product_id, g_free);
+  g_clear_pointer (&priv->node_path, g_free);
 
   if (device->accessibility_virtual_device)
     g_clear_object (&device->accessibility_virtual_device);
@@ -141,55 +167,57 @@ clutter_input_device_set_property (GObject      *gobject,
                                    GParamSpec   *pspec)
 {
   ClutterInputDevice *self = CLUTTER_INPUT_DEVICE (gobject);
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (self);
 
   switch (prop_id)
     {
     case PROP_DEVICE_TYPE:
-      self->device_type = g_value_get_enum (value);
+      priv->device_type = g_value_get_enum (value);
       break;
 
     case PROP_SEAT:
-      self->seat = g_value_get_object (value);
+      priv->seat = g_value_get_object (value);
       break;
 
     case PROP_DEVICE_MODE:
-      self->device_mode = g_value_get_enum (value);
+      priv->device_mode = g_value_get_enum (value);
       break;
 
     case PROP_BACKEND:
-      self->backend = g_value_get_object (value);
+      priv->backend = g_value_get_object (value);
       break;
 
     case PROP_NAME:
-      self->device_name = g_value_dup_string (value);
+      priv->device_name = g_value_dup_string (value);
       break;
 
     case PROP_HAS_CURSOR:
-      self->has_cursor = g_value_get_boolean (value);
+      priv->has_cursor = g_value_get_boolean (value);
       break;
 
     case PROP_VENDOR_ID:
-      self->vendor_id = g_value_dup_string (value);
+      priv->vendor_id = g_value_dup_string (value);
       break;
 
     case PROP_PRODUCT_ID:
-      self->product_id = g_value_dup_string (value);
+      priv->product_id = g_value_dup_string (value);
       break;
 
     case PROP_N_RINGS:
-      self->n_rings = g_value_get_int (value);
+      priv->n_rings = g_value_get_int (value);
       break;
 
     case PROP_N_STRIPS:
-      self->n_strips = g_value_get_int (value);
+      priv->n_strips = g_value_get_int (value);
       break;
 
     case PROP_N_MODE_GROUPS:
-      self->n_mode_groups = g_value_get_int (value);
+      priv->n_mode_groups = g_value_get_int (value);
       break;
 
     case PROP_DEVICE_NODE:
-      self->node_path = g_value_dup_string (value);
+      priv->node_path = g_value_dup_string (value);
       break;
 
     default:
@@ -205,55 +233,57 @@ clutter_input_device_get_property (GObject    *gobject,
                                    GParamSpec *pspec)
 {
   ClutterInputDevice *self = CLUTTER_INPUT_DEVICE (gobject);
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (self);
 
   switch (prop_id)
     {
     case PROP_DEVICE_TYPE:
-      g_value_set_enum (value, self->device_type);
+      g_value_set_enum (value, priv->device_type);
       break;
 
     case PROP_SEAT:
-      g_value_set_object (value, self->seat);
+      g_value_set_object (value, priv->seat);
       break;
 
     case PROP_DEVICE_MODE:
-      g_value_set_enum (value, self->device_mode);
+      g_value_set_enum (value, priv->device_mode);
       break;
 
     case PROP_BACKEND:
-      g_value_set_object (value, self->backend);
+      g_value_set_object (value, priv->backend);
       break;
 
     case PROP_NAME:
-      g_value_set_string (value, self->device_name);
+      g_value_set_string (value, priv->device_name);
       break;
 
     case PROP_HAS_CURSOR:
-      g_value_set_boolean (value, self->has_cursor);
+      g_value_set_boolean (value, priv->has_cursor);
       break;
 
     case PROP_VENDOR_ID:
-      g_value_set_string (value, self->vendor_id);
+      g_value_set_string (value, priv->vendor_id);
       break;
 
     case PROP_PRODUCT_ID:
-      g_value_set_string (value, self->product_id);
+      g_value_set_string (value, priv->product_id);
       break;
 
     case PROP_N_RINGS:
-      g_value_set_int (value, self->n_rings);
+      g_value_set_int (value, priv->n_rings);
       break;
 
     case PROP_N_STRIPS:
-      g_value_set_int (value, self->n_strips);
+      g_value_set_int (value, priv->n_strips);
       break;
 
     case PROP_N_MODE_GROUPS:
-      g_value_set_int (value, self->n_mode_groups);
+      g_value_set_int (value, priv->n_mode_groups);
       break;
 
     case PROP_DEVICE_NODE:
-      g_value_set_string (value, self->node_path);
+      g_value_set_string (value, priv->node_path);
       break;
 
     default:
@@ -418,7 +448,10 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
 static void
 clutter_input_device_init (ClutterInputDevice *self)
 {
-  self->device_type = CLUTTER_POINTER_DEVICE;
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (self);
+
+  priv->device_type = CLUTTER_POINTER_DEVICE;
 
   self->click_count = 0;
 
@@ -615,10 +648,13 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
 ClutterInputDeviceType
 clutter_input_device_get_device_type (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device),
                         CLUTTER_POINTER_DEVICE);
 
-  return device->device_type;
+  return priv->device_type;
 }
 
 /*
@@ -645,7 +681,9 @@ clutter_input_device_update (ClutterInputDevice   *device,
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
   graphene_point_t point = GRAPHENE_POINT_INIT (-1.0f, -1.0f);
-  ClutterInputDeviceType device_type = device->device_type;
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+  ClutterInputDeviceType device_type = priv->device_type;
   uint32_t time_ms;
 
   g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
@@ -734,9 +772,12 @@ clutter_input_device_get_actor (ClutterInputDevice   *device,
 const gchar *
 clutter_input_device_get_device_name (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
-  return device->device_name;
+  return priv->device_name;
 }
 
 /**
@@ -753,9 +794,12 @@ clutter_input_device_get_device_name (ClutterInputDevice *device)
 gboolean
 clutter_input_device_get_has_cursor (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
 
-  return device->has_cursor;
+  return priv->has_cursor;
 }
 
 /**
@@ -771,10 +815,13 @@ clutter_input_device_get_has_cursor (ClutterInputDevice *device)
 ClutterInputMode
 clutter_input_device_get_device_mode (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device),
                         CLUTTER_INPUT_MODE_FLOATING);
 
-  return device->device_mode;
+  return priv->device_mode;
 }
 
 /*< private >
@@ -817,7 +864,10 @@ static void
 on_grab_actor_destroy (ClutterActor       *actor,
                        ClutterInputDevice *device)
 {
-  switch (device->device_type)
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
+  switch (priv->device_type)
     {
     case CLUTTER_POINTER_DEVICE:
     case CLUTTER_TABLET_DEVICE:
@@ -857,11 +907,13 @@ clutter_input_device_grab (ClutterInputDevice *device,
                            ClutterActor       *actor)
 {
   ClutterActor **grab_actor;
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
 
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
 
-  switch (device->device_type)
+  switch (priv->device_type)
     {
     case CLUTTER_POINTER_DEVICE:
     case CLUTTER_TABLET_DEVICE:
@@ -904,10 +956,12 @@ void
 clutter_input_device_ungrab (ClutterInputDevice *device)
 {
   ClutterActor **grab_actor;
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
 
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
 
-  switch (device->device_type)
+  switch (priv->device_type)
     {
     case CLUTTER_POINTER_DEVICE:
     case CLUTTER_TABLET_DEVICE:
@@ -946,9 +1000,12 @@ clutter_input_device_ungrab (ClutterInputDevice *device)
 ClutterActor *
 clutter_input_device_get_grabbed_actor (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
-  switch (device->device_type)
+  switch (priv->device_type)
     {
     case CLUTTER_POINTER_DEVICE:
     case CLUTTER_TABLET_DEVICE:
@@ -1113,10 +1170,13 @@ clutter_input_device_sequence_get_grabbed_actor (ClutterInputDevice   *device,
 const gchar *
 clutter_input_device_get_vendor_id (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
   g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
 
-  return device->vendor_id;
+  return priv->vendor_id;
 }
 
 /**
@@ -1132,36 +1192,48 @@ clutter_input_device_get_vendor_id (ClutterInputDevice *device)
 const gchar *
 clutter_input_device_get_product_id (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
   g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
 
-  return device->product_id;
+  return priv->product_id;
 }
 
 gint
 clutter_input_device_get_n_rings (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
 
-  return device->n_rings;
+  return priv->n_rings;
 }
 
 gint
 clutter_input_device_get_n_strips (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
 
-  return device->n_strips;
+  return priv->n_strips;
 }
 
 gint
 clutter_input_device_get_n_mode_groups (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
   g_return_val_if_fail (clutter_input_device_get_device_type (device) ==
                         CLUTTER_PAD_DEVICE, 0);
 
-  return device->n_mode_groups;
+  return priv->n_mode_groups;
 }
 
 gint
@@ -1206,13 +1278,15 @@ gint
 clutter_input_device_get_mode_switch_button_group (ClutterInputDevice *device,
                                                    guint               button)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
   gint group;
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), -1);
   g_return_val_if_fail (clutter_input_device_get_device_type (device) ==
                         CLUTTER_PAD_DEVICE, -1);
 
-  for (group = 0; group < device->n_mode_groups; group++)
+  for (group = 0; group < priv->n_mode_groups; group++)
     {
       if (clutter_input_device_is_mode_switch_button (device, group, button))
         return group;
@@ -1224,9 +1298,12 @@ clutter_input_device_get_mode_switch_button_group (ClutterInputDevice *device,
 const gchar *
 clutter_input_device_get_device_node (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
-  return device->node_path;
+  return priv->node_path;
 }
 
 gboolean
@@ -1250,7 +1327,10 @@ clutter_input_device_is_grouped (ClutterInputDevice *device,
 ClutterSeat *
 clutter_input_device_get_seat (ClutterInputDevice *device)
 {
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
-  return device->seat;
+  return priv->seat;
 }
