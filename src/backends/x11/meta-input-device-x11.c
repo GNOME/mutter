@@ -107,20 +107,6 @@ meta_input_device_x11_constructed (GObject *object)
 }
 
 static gboolean
-meta_input_device_x11_keycode_to_evdev (ClutterInputDevice *device,
-                                        uint32_t            hardware_keycode,
-                                        uint32_t           *evdev_keycode)
-{
-  /* When using evdev under X11 the hardware keycodes are the evdev
-     keycodes plus 8. I haven't been able to find any documentation to
-     know what the +8 is for. FIXME: This should probably verify that
-     X server is using evdev. */
-  *evdev_keycode = hardware_keycode - 8;
-
-  return TRUE;
-}
-
-static gboolean
 meta_input_device_x11_is_grouped (ClutterInputDevice *device,
                                   ClutterInputDevice *other_device)
 {
@@ -296,7 +282,6 @@ meta_input_device_x11_class_init (MetaInputDeviceX11Class *klass)
   gobject_class->set_property = meta_input_device_x11_set_property;
   gobject_class->get_property = meta_input_device_x11_get_property;
 
-  device_class->keycode_to_evdev = meta_input_device_x11_keycode_to_evdev;
   device_class->is_grouped = meta_input_device_x11_is_grouped;
   device_class->get_group_n_modes = meta_input_device_x11_get_group_n_modes;
   device_class->is_mode_switch_button = meta_input_device_x11_is_mode_switch_button;

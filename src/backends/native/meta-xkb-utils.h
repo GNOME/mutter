@@ -37,5 +37,6 @@ void               meta_xkb_translate_state     (ClutterEvent       *event,
                                                  uint32_t            button_state);
 ClutterModifierType meta_xkb_translate_modifiers (struct xkb_state    *state,
                                                   ClutterModifierType  button_state);
+uint32_t meta_xkb_keycode_to_evdev (uint32_t hardware_keycode);
 
 #endif /* META_XKB_UTILS_H */

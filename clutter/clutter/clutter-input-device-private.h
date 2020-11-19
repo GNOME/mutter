@@ -114,9 +114,4 @@ CLUTTER_EXPORT
 void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                                   ClutterEvent       *event);
 
-CLUTTER_EXPORT
-gboolean clutter_input_device_keycode_to_evdev (ClutterInputDevice *device,
-                                                guint               hardware_keycode,
-                                                guint              *evdev_keycode);
-
 #endif /* CLUTTER_INPUT_DEVICE_PRIVATE_H */

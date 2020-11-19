@@ -121,19 +121,6 @@ meta_input_device_native_get_property (GObject    *object,
 }
 
 static gboolean
-meta_input_device_native_keycode_to_evdev (ClutterInputDevice *device,
-                                           uint32_t            hardware_keycode,
-                                           uint32_t           *evdev_keycode)
-{
-  /* The hardware keycodes from the evdev backend are almost evdev
-     keycodes: we use the evdev keycode file, but xkb rules have an
-     offset by 8. See the comment in _clutter_key_event_new_from_evdev()
-  */
-  *evdev_keycode = hardware_keycode - 8;
-  return TRUE;
-}
-
-static gboolean
 meta_input_device_native_is_mode_switch_button (ClutterInputDevice *device,
                                                 uint32_t            group,
                                                 uint32_t            button)
@@ -1203,7 +1190,6 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
   object_class->set_property = meta_input_device_native_set_property;
   object_class->get_property = meta_input_device_native_get_property;
 
-  device_manager_class->keycode_to_evdev = meta_input_device_native_keycode_to_evdev;
   device_manager_class->is_mode_switch_button = meta_input_device_native_is_mode_switch_button;
   device_manager_class->get_group_n_modes = meta_input_device_native_get_group_n_modes;
   device_manager_class->is_grouped = meta_input_device_native_is_grouped;

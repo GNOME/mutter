@@ -41,10 +41,6 @@ struct _ClutterInputDeviceClass
 {
   GObjectClass parent_class;
 
-  gboolean (* keycode_to_evdev) (ClutterInputDevice *device,
-                                 guint               hardware_keycode,
-                                 guint              *evdev_keycode);
-
   gboolean (* is_mode_switch_button) (ClutterInputDevice *device,
                                       guint               group,
                                       guint               button);

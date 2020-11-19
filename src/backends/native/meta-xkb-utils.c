@@ -118,3 +118,13 @@ meta_xkb_translate_modifiers (struct xkb_state    *state,
 
   return modifiers;
 }
+
+uint32_t
+meta_xkb_keycode_to_evdev (uint32_t xkb_keycode)
+{
+  /* The keycodes from the evdev backend are almost evdev
+   * keycodes: we use the evdev keycode file, but xkb rules have an
+   *  offset by 8. See the comment in _clutter_key_event_new_from_evdev()
+   */
+  return xkb_keycode - 8;
+}

@@ -538,8 +538,7 @@ apply_level_modifiers (ClutterVirtualInputDevice *virtual_device,
                                                  &keycode, NULL))
     return;
 
-  clutter_input_device_keycode_to_evdev (virtual_evdev->impl_state->device,
-                                         keycode, &evcode);
+  evcode = meta_xkb_keycode_to_evdev (keycode);
 
   meta_topic (META_DEBUG_INPUT,
               "Emitting virtual key-%s of modifier key 0x%x (device %p)",
@@ -576,8 +575,7 @@ notify_keyval (GTask *task)
       goto out;
     }
 
-  clutter_input_device_keycode_to_evdev (virtual_evdev->impl_state->device,
-                                         keycode, &evcode);
+  evcode = meta_xkb_keycode_to_evdev (keycode);
 
   if (get_button_type (evcode) != EVDEV_BUTTON_TYPE_KEY)
     {
