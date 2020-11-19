@@ -92,8 +92,6 @@ struct _ClutterInputDevice
   char *product_id;
   char *node_path;
 
-  GPtrArray *tools;
-
   int n_rings;
   int n_strips;
   int n_mode_groups;
@@ -115,16 +113,6 @@ ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
 CLUTTER_EXPORT
 void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                                   ClutterEvent       *event);
-
-CLUTTER_EXPORT
-void clutter_input_device_add_tool (ClutterInputDevice     *device,
-                                    ClutterInputDeviceTool *tool);
-
-CLUTTER_EXPORT
-ClutterInputDeviceTool *
-   clutter_input_device_lookup_tool (ClutterInputDevice         *device,
-                                     guint64                     serial,
-                                     ClutterInputDeviceToolType  type);
 
 CLUTTER_EXPORT
 gboolean clutter_input_device_keycode_to_evdev (ClutterInputDevice *device,

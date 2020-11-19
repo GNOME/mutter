@@ -62,6 +62,7 @@ struct _MetaSeatImpl
   GRWLock state_lock;
 
   GSList *devices;
+  GHashTable *tools;
 
   ClutterInputDevice *core_pointer;
   ClutterInputDevice *core_keyboard;

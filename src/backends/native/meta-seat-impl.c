@@ -1661,22 +1661,29 @@ input_device_update_tool (MetaSeatImpl                *seat_impl,
 {
   MetaInputDeviceNative *evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterInputDeviceTool *tool = NULL;
-  ClutterInputDeviceToolType tool_type;
   MetaInputSettings *input_settings;
-  uint64_t tool_serial;
 
   if (libinput_tool)
     {
-      tool_serial = libinput_tablet_tool_get_serial (libinput_tool);
-      tool_type = translate_tool_type (libinput_tool);
-      tool = clutter_input_device_lookup_tool (input_device,
-                                               tool_serial, tool_type);
+      if (!seat_impl->tools)
+        {
+          seat_impl->tools =
+            g_hash_table_new_full (NULL, NULL, NULL,
+                                   (GDestroyNotify) g_object_unref);
+        }
+
+      tool = g_hash_table_lookup (seat_impl->tools, libinput_tool);
 
       if (!tool)
         {
+          ClutterInputDeviceToolType tool_type;
+          uint64_t tool_serial;
+
+          tool_serial = libinput_tablet_tool_get_serial (libinput_tool);
+          tool_type = translate_tool_type (libinput_tool);
           tool = meta_input_device_tool_native_new (libinput_tool,
                                                     tool_serial, tool_type);
-          clutter_input_device_add_tool (input_device, tool);
+          g_hash_table_insert (seat_impl->tools, libinput_tool, tool);
         }
     }
 
@@ -2663,6 +2670,7 @@ meta_seat_impl_finalize (GObject *object)
       g_object_unref (device);
     }
   g_slist_free (seat_impl->devices);
+  g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
 
   if (seat_impl->touch_states)
     g_hash_table_destroy (seat_impl->touch_states);
