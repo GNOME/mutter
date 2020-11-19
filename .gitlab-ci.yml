@@ -9,10 +9,10 @@ stages:
  - test
  - coverage
 
-.mutter.fedora:33:
+.mutter.fedora:33@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    FDO_DISTRIBUTION_TAG: '2020-11-20.1'
+    BASE_TAG: '2020-11-23.0'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -51,6 +51,18 @@ default:
       - 'stuck_or_timeout_failure'
       - 'scheduler_failure'
       - 'api_failure'
+
+.mutter.fedora:33@x86_64:
+  extends: .mutter.fedora:33@common
+  variables:
+    FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
+
+.mutter.fedora:33@aarch64:
+  extends: .mutter.fedora:33@common
+  variables:
+    FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
+  tags:
+    - aarch64
 
 workflow:
   rules:
@@ -101,22 +113,28 @@ check-merge-request:
       junit: check-merge-request-report.xml
   <<: *pipline-guard
 
-build-fedora-container:
+build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora@x86_64
-    - .mutter.fedora:33
+    - .mutter.fedora:33@x86_64
   stage: prepare
   needs:
     - check-commit-log
     - check-merge-request
 
-build-mutter:
+build-fedora-container@aarch64:
+  extends:
+    - .fdo.container-build@fedora@aarch64
+    - .mutter.fedora:33@aarch64
+  stage: prepare
+  needs:
+    - check-commit-log
+    - check-merge-request
+
+.build-mutter:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
   stage: build
-  needs:
-    - build-fedora-container
   script:
     - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -126,13 +144,27 @@ build-mutter:
     paths:
       - build
 
-build-without-opengl-and-glx:
+build-mutter@x86_64:
+  extends:
+    - .build-mutter
+    - .mutter.fedora:33@x86_64
+  needs:
+    - build-fedora-container@x86_64
+
+build-mutter@aarch64:
+  extends:
+    - .build-mutter
+    - .mutter.fedora:33@aarch64
+  needs:
+    - build-fedora-container@aarch64
+
+build-without-opengl-and-glx@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
+    - .mutter.fedora:33@x86_64
   stage: build
   needs:
-    - build-fedora-container
+    - build-fedora-container@x86_64
   script:
     - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -141,13 +173,13 @@ build-without-opengl-and-glx:
     paths:
       - build/meson-logs
 
-build-without-native-backend-and-wayland:
+build-without-native-backend-and-wayland@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
+    - .mutter.fedora:33@x86_64
   stage: build
   needs:
-    - build-fedora-container
+    - build-fedora-container@x86_64
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false --werror --prefix /usr
     - ninja -C build
@@ -156,15 +188,10 @@ build-without-native-backend-and-wayland:
     paths:
       - build/meson-logs
 
-test-mutter:
+.test-mutter:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
   stage: test
-  dependencies:
-    - build-mutter
-  needs:
-    - build-mutter
   variables:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
@@ -182,15 +209,28 @@ test-mutter:
     paths:
       - build
 
-test-mutter-coverage:
+test-mutter@x86_64:
+  extends:
+    - .test-mutter
+    - .mutter.fedora:33@x86_64
+  needs:
+    - build-mutter@x86_64
+  dependencies:
+    - build-mutter@x86_64
+
+test-mutter@aarch64:
+  extends:
+    - .test-mutter
+    - .mutter.fedora:33@aarch64
+  needs:
+    - build-mutter@aarch64
+  dependencies:
+    - build-mutter@aarch64
+
+.test-mutter-coverage:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
   stage: coverage
-  dependencies:
-    - test-mutter
-  needs:
-    - test-mutter
   script:
     - ninja -C build coverage
     - cat build/meson-logs/coverage.txt
@@ -199,15 +239,33 @@ test-mutter-coverage:
       - build/meson-logs/coveragereport
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
-can-build-gnome-shell:
+test-mutter-coverage@x86_64:
+  extends:
+    - .test-mutter-coverage
+    - .mutter.fedora:33@x86_64
+  needs:
+    - test-mutter@x86_64
+  dependencies:
+    - test-mutter@x86_64
+
+test-mutter-coverage@aarch64:
+  extends:
+    - .test-mutter-coverage
+    - .mutter.fedora:33@aarch64
+  needs:
+    - test-mutter@aarch64
+  dependencies:
+    - test-mutter@aarch64
+
+can-build-gnome-shell@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
+    - .mutter.fedora:33@x86_64
   stage: test
   dependencies:
-    - build-mutter
+    - build-mutter@x86_64
   needs:
-    - build-mutter
+    - build-mutter@x86_64
   before_script:
     - meson install --no-rebuild -C build
   script:
