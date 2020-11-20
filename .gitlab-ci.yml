@@ -20,7 +20,7 @@ stages:
 
       # For running unit tests
       dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 \
-                     xorg-x11-server-Xvfb accountsservice-libs \
+                     xorg-x11-server-Xvfb 'pkgconfig(accountsservice)' \
                      gnome-control-center gcovr libnma python3-gobject \
                      python3-dbusmock &&
 
