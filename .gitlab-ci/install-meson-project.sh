@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+if [[ $# -lt 3 ]]; then
+  echo Usage: $0 [options] [repo-url] [commit] [subdir]
+  echo  Options:
+  echo    -Dkey=val
+  exit 1
+fi
+
+MESON_OPTIONS=()
+
+while [[ $1 =~ ^-D ]]; do
+  MESON_OPTIONS+=( "$1" )
+  shift
+done
+
+REPO_URL="$1"
+COMMIT="$2"
+SUBDIR="$3"
+
+REPO_DIR="$(basename ${REPO_URL%.git})"
+
+git clone --depth 1 "$REPO_URL" -b "$COMMIT"
+pushd "$REPO_DIR"
+pushd "$SUBDIR"
+meson --prefix=/usr _build "${MESON_OPTIONS[@]}"
+ninja -C _build install
+popd
+popd
+rm -rf "$REPO_DIR"

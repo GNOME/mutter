@@ -12,7 +12,7 @@ stages:
 .mutter.fedora:33:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    FDO_DISTRIBUTION_TAG: '2020-11-20.0'
+    FDO_DISTRIBUTION_TAG: '2020-11-20.1'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -29,6 +29,14 @@ stages:
       dnf install -y 'pkgconfig(gtk4)' 'pkgconfig(vulkan)' &&
       dnf remove -y gnome-bluetooth-libs-devel &&
       dnf remove -y --noautoremove mutter mutter-devel &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+          -Dlibaudit=disabled \
+          -Dplymouth=disabled \
+          -Dselinux=disabled \
+          -Dxdmcp=disabled \
+          https://gitlab.gnome.org/GNOME/gdm.git \
+          3.38.0 . &&
 
       dnf clean all
 
