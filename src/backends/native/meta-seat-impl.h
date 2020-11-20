@@ -23,6 +23,10 @@
 #ifndef META_SEAT_IMPL_H
 #define META_SEAT_IMPL_H
 
+#ifndef META_INPUT_THREAD_H_INSIDE
+#error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
+#endif /* META_INPUT_THREAD_H_INSIDE */
+
 #include <gudev/gudev.h>
 #include <libinput.h>
 #include <linux/input-event-codes.h>

@@ -27,8 +27,6 @@
 
 #include "config.h"
 
-#include "backends/native/meta-seat-impl.h"
-
 #include <errno.h>
 #include <fcntl.h>
 #include <libinput.h>
@@ -38,10 +36,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-event-native.h"
-#include "backends/native/meta-input-device-native.h"
-#include "backends/native/meta-input-device-tool-native.h"
-#include "backends/native/meta-input-settings-native.h"
-#include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
 #include "core/bell.h"

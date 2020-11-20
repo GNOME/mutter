@@ -36,6 +36,7 @@
 
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-input-thread.h"
 
 #include <sched.h>
 #include <stdlib.h>
@@ -50,8 +51,6 @@
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-event-native.h"
-#include "backends/native/meta-input-device-native.h"
-#include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-launcher.h"

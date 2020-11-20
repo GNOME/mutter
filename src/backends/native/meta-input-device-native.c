@@ -25,9 +25,7 @@
 #include <cairo-gobject.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/native/meta-input-device-tool-native.h"
-#include "backends/native/meta-input-device-native.h"
-#include "backends/native/meta-seat-impl.h"
+#include "backends/native/meta-input-thread.h"
 #include "clutter/clutter-mutter.h"
 
 G_DEFINE_TYPE (MetaInputDeviceNative,

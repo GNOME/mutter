@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "backends/native/meta-input-device-tool-native.h"
+#include "backends/native/meta-input-thread.h"
 
 G_DEFINE_TYPE (MetaInputDeviceToolNative, meta_input_device_tool_native,
                CLUTTER_TYPE_INPUT_DEVICE_TOOL)

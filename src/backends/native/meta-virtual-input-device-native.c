@@ -22,8 +22,7 @@
 #include <glib-object.h>
 #include <linux/input.h>
 
-#include "backends/native/meta-input-device-native.h"
-#include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"

@@ -27,12 +27,12 @@
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
+#include "backends/meta-input-settings-private.h"
 #include "backends/meta-viewport-info.h"
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
-#include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-pointer-constraint-native.h"
-#include "backends/native/meta-seat-impl.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 

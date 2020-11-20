@@ -22,7 +22,7 @@
 #include "config.h"
 
 #include "backends/meta-keymap-utils.h"
-#include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-seat-native.h"
 
 static const char *option_xkb_layout = "us";

@@ -20,6 +20,10 @@
 #ifndef META_INPUT_DEVICE_NATIVE_TOOL_H
 #define META_INPUT_DEVICE_NATIVE_TOOL_H
 
+#ifndef META_INPUT_THREAD_H_INSIDE
+#error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
+#endif /* META_INPUT_THREAD_H_INSIDE */
+
 #include <libinput.h>
 
 #include "clutter/clutter.h"

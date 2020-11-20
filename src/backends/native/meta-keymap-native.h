@@ -21,6 +21,10 @@
 #ifndef META_KEYMAP_NATIVE_H
 #define META_KEYMAP_NATIVE_H
 
+#ifndef META_INPUT_THREAD_H_INSIDE
+#error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
+#endif /* META_INPUT_THREAD_H_INSIDE */
+
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 

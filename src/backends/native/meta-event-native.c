@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "backends/native/meta-event-native.h"
-#include "backends/native/meta-input-device-native.h"
+#include "backends/native/meta-input-thread.h"
 #include "clutter/clutter-mutter.h"
 
 typedef struct _MetaEventNative MetaEventNative;

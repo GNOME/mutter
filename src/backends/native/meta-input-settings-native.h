@@ -22,6 +22,10 @@
 #ifndef META_INPUT_SETTINGS_NATIVE_H
 #define META_INPUT_SETTINGS_NATIVE_H
 
+#ifndef META_INPUT_THREAD_H_INSIDE
+#error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
+#endif /* META_INPUT_THREAD_H_INSIDE */
+
 #include "backends/meta-input-settings-private.h"
 
 #define META_TYPE_INPUT_SETTINGS_NATIVE             (meta_input_settings_native_get_type ())
