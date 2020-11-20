@@ -198,7 +198,7 @@ meta_input_device_native_get_pad_feature_group (ClutterInputDevice           *de
 static void
 meta_input_device_native_bell_notify (MetaInputDeviceNative *device)
 {
-  meta_seat_impl_notify_bell (device->seat_impl);
+  meta_seat_impl_notify_bell_in_impl (device->seat_impl);
 }
 
 static void
@@ -419,9 +419,9 @@ key_event_is_modifier (ClutterEvent *event)
 static void
 notify_stickykeys_mask (MetaInputDeviceNative *device)
 {
-  meta_seat_impl_notify_kbd_a11y_mods_state_changed (device->seat_impl,
-                                                     device->stickykeys_latched_mask,
-                                                     device->stickykeys_locked_mask);
+  meta_seat_impl_notify_kbd_a11y_mods_state_changed_in_impl (device->seat_impl,
+                                                             device->stickykeys_latched_mask,
+                                                             device->stickykeys_locked_mask);
 }
 
 static void
@@ -438,7 +438,7 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
 
   g_rw_lock_writer_lock (&seat_impl->state_lock);
 
-  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
   depressed_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
   latched_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
   locked_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
@@ -478,7 +478,7 @@ update_stickykeys_event (ClutterEvent          *event,
 
   update_internal_xkb_state (device, new_latched_mask, new_locked_mask);
 
-  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
   effective_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE);
   latched_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
   locked_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
@@ -498,9 +498,9 @@ notify_stickykeys_change (MetaInputDeviceNative *device)
   device->stickykeys_depressed_mask = 0;
   update_internal_xkb_state (device, 0, 0);
 
-  meta_seat_impl_notify_kbd_a11y_flags_changed (device->seat_impl,
-                                                device->a11y_flags,
-                                                META_A11Y_STICKY_KEYS_ENABLED);
+  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (device->seat_impl,
+                                                        device->a11y_flags,
+                                                        META_A11Y_STICKY_KEYS_ENABLED);
 }
 
 static void
@@ -530,9 +530,9 @@ set_slowkeys_off (MetaInputDeviceNative *device)
 {
   device->a11y_flags &= ~META_A11Y_SLOW_KEYS_ENABLED;
 
-  meta_seat_impl_notify_kbd_a11y_flags_changed (device->seat_impl,
-                                                device->a11y_flags,
-                                                META_A11Y_SLOW_KEYS_ENABLED);
+  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (device->seat_impl,
+                                                        device->a11y_flags,
+                                                        META_A11Y_SLOW_KEYS_ENABLED);
 }
 
 static void
@@ -540,9 +540,9 @@ set_slowkeys_on (MetaInputDeviceNative *device)
 {
   device->a11y_flags |= META_A11Y_SLOW_KEYS_ENABLED;
 
-  meta_seat_impl_notify_kbd_a11y_flags_changed (device->seat_impl,
-                                                device->a11y_flags,
-                                                META_A11Y_SLOW_KEYS_ENABLED);
+  meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (device->seat_impl,
+                                                        device->a11y_flags,
+                                                        META_A11Y_SLOW_KEYS_ENABLED);
 }
 
 static void
@@ -565,7 +565,7 @@ handle_stickykeys_press (ClutterEvent          *event,
       return;
     }
 
-  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
   depressed_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
   /* Ignore the lock modifier mask, that one cannot be sticky, yet the
    * CAPS_LOCK key itself counts as a modifier as it might be remapped
@@ -602,7 +602,7 @@ handle_stickykeys_release (ClutterEvent          *event,
   MetaSeatImpl *seat_impl = device->seat_impl;
   struct xkb_state *xkb_state;
 
-  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
   device->stickykeys_depressed_mask =
     xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
 
@@ -846,7 +846,7 @@ is_numlock_active (MetaInputDeviceNative *device)
   MetaSeatImpl *seat_impl = device->seat_impl;
   struct xkb_state *xkb_state;
 
-  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        "Mod2",
@@ -1126,8 +1126,8 @@ handle_mousekeys_release (ClutterEvent          *event,
 }
 
 gboolean
-meta_input_device_native_process_kbd_a11y_event (ClutterInputDevice *device,
-                                                 ClutterEvent       *event)
+meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *device,
+                                                         ClutterEvent       *event)
 {
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (device);
 
@@ -1183,8 +1183,8 @@ meta_input_device_native_process_kbd_a11y_event (ClutterInputDevice *device,
 }
 
 void
-meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative *device,
-                                                  MetaKbdA11ySettings   *settings)
+meta_input_device_native_apply_kbd_a11y_settings_in_impl (MetaInputDeviceNative *device,
+                                                          MetaKbdA11ySettings   *settings)
 {
   MetaKeyboardA11yFlags changed_flags = (device->a11y_flags ^ settings->controls);
 
@@ -1222,7 +1222,7 @@ meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative *device,
 }
 
 void
-meta_input_device_native_a11y_maybe_notify_toggle_keys (MetaInputDeviceNative *device)
+meta_input_device_native_a11y_maybe_notify_toggle_keys_in_impl (MetaInputDeviceNative *device)
 {
   if (device->a11y_flags & META_A11Y_TOGGLE_KEYS_ENABLED)
     meta_input_device_native_bell_notify (device);
@@ -1324,8 +1324,8 @@ update_pad_features (MetaInputDeviceNative *device_native)
  * it with the provided seat.
  */
 ClutterInputDevice *
-meta_input_device_native_new (MetaSeatImpl           *seat_impl,
-                              struct libinput_device *libinput_device)
+meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
+                                      struct libinput_device *libinput_device)
 {
   MetaInputDeviceNative *device;
   ClutterInputDeviceType type;
@@ -1334,7 +1334,7 @@ meta_input_device_native_new (MetaSeatImpl           *seat_impl,
   char *node_path;
   double width, height;
 
-  type = meta_input_device_native_determine_type (libinput_device);
+  type = meta_input_device_native_determine_type_in_impl (libinput_device);
   vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
   product = g_strdup_printf ("%.4x", libinput_device_get_id_product (libinput_device));
   node_path = g_strdup_printf ("/dev/input/%s", libinput_device_get_sysname (libinput_device));
@@ -1431,8 +1431,8 @@ meta_input_device_native_get_seat_impl (MetaInputDeviceNative *device)
 }
 
 void
-meta_input_device_native_update_leds (MetaInputDeviceNative *device,
-                                      enum libinput_led      leds)
+meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative *device,
+                                              enum libinput_led      leds)
 {
   if (!device->libinput_device)
     return;
@@ -1441,7 +1441,7 @@ meta_input_device_native_update_leds (MetaInputDeviceNative *device,
 }
 
 ClutterInputDeviceType
-meta_input_device_native_determine_type (struct libinput_device *ldev)
+meta_input_device_native_determine_type_in_impl (struct libinput_device *ldev)
 {
   /* This setting is specific to touchpads and alike, only in these
    * devices there is this additional layer of touch event interpretation.
@@ -1486,10 +1486,10 @@ meta_input_device_native_get_libinput_device (ClutterInputDevice *device)
 }
 
 void
-meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
-                                                MetaViewportInfo   *viewports,
-                                                float              *x,
-                                                float              *y)
+meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *device,
+                                                        MetaViewportInfo   *viewports,
+                                                        float              *x,
+                                                        float              *y)
 {
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (device);
   double min_x = 0, min_y = 0, max_x = 1, max_y = 1;
@@ -1521,7 +1521,7 @@ meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
 }
 
 MetaInputDeviceMapping
-meta_input_device_native_get_mapping_mode (ClutterInputDevice *device)
+meta_input_device_native_get_mapping_mode_in_impl (ClutterInputDevice *device)
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   ClutterInputDeviceType device_type;
@@ -1539,8 +1539,8 @@ meta_input_device_native_get_mapping_mode (ClutterInputDevice *device)
 }
 
 void
-meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
-                                           MetaInputDeviceMapping  mapping)
+meta_input_device_native_set_mapping_mode_in_impl (ClutterInputDevice     *device,
+                                                   MetaInputDeviceMapping  mapping)
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   ClutterInputDeviceType device_type;
@@ -1556,18 +1556,18 @@ meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
 }
 
 void
-meta_input_device_native_set_coords (MetaInputDeviceNative *device_native,
-                                     float                  x,
-                                     float                  y)
+meta_input_device_native_set_coords_in_impl (MetaInputDeviceNative *device_native,
+                                             float                  x,
+                                             float                  y)
 {
   device_native->pointer_x = x;
   device_native->pointer_y = y;
 }
 
 void
-meta_input_device_native_get_coords (MetaInputDeviceNative *device_native,
-                                     float                 *x,
-                                     float                 *y)
+meta_input_device_native_get_coords_in_impl (MetaInputDeviceNative *device_native,
+                                             float                 *x,
+                                             float                 *y)
 {
   if (x)
     *x = device_native->pointer_x;

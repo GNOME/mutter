@@ -41,11 +41,11 @@ typedef struct _MetaBarrierManagerNative     MetaBarrierManagerNative;
 MetaBarrierImpl *meta_barrier_impl_native_new (MetaBarrier *barrier);
 
 MetaBarrierManagerNative *meta_barrier_manager_native_new (void);
-void meta_barrier_manager_native_process (MetaBarrierManagerNative *manager,
-                                          ClutterInputDevice       *device,
-                                          guint32                   time,
-                                          float                    *x,
-                                          float                    *y);
+void meta_barrier_manager_native_process_in_impl (MetaBarrierManagerNative *manager,
+                                                  ClutterInputDevice       *device,
+                                                  guint32                   time,
+                                                  float                    *x,
+                                                  float                    *y);
 
 G_END_DECLS
 

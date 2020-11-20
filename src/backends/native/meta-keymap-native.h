@@ -29,9 +29,9 @@ G_DECLARE_FINAL_TYPE (MetaKeymapNative, meta_keymap_native,
                       META, KEYMAP_NATIVE,
                       ClutterKeymap)
 
-void                meta_keymap_native_set_keyboard_map (MetaKeymapNative  *keymap,
-                                                         struct xkb_keymap *xkb_keymap);
-struct xkb_keymap * meta_keymap_native_get_keyboard_map (MetaKeymapNative *keymap);
-void                meta_keymap_native_update           (MetaKeymapNative *keymap);
+void meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative  *keymap,
+                                                  struct xkb_keymap *xkb_keymap);
+struct xkb_keymap * meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap);
+void meta_keymap_native_update_in_impl (MetaKeymapNative *keymap);
 
 #endif /* META_KEYMAP_NATIVE_H */

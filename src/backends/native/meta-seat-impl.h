@@ -129,67 +129,67 @@ void meta_seat_impl_run_input_task (MetaSeatImpl *seat_impl,
                                     GTask        *task,
                                     GSourceFunc   dispatch_func);
 
-void meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
-                                ClutterInputDevice *device,
-                                uint64_t            time_us,
-                                uint32_t            key,
-                                uint32_t            state,
-                                gboolean            update_keys);
-
-void meta_seat_impl_notify_relative_motion (MetaSeatImpl       *seat_impl,
-                                            ClutterInputDevice *input_device,
-                                            uint64_t            time_us,
-                                            float               dx,
-                                            float               dy,
-                                            float               dx_unaccel,
-                                            float               dy_unaccel);
-
-void meta_seat_impl_notify_absolute_motion (MetaSeatImpl       *seat_impl,
-                                            ClutterInputDevice *input_device,
-                                            uint64_t            time_us,
-                                            float               x,
-                                            float               y,
-                                            double             *axes);
-
-void meta_seat_impl_notify_button (MetaSeatImpl       *seat_impl,
-                                   ClutterInputDevice *input_device,
-                                   uint64_t            time_us,
-                                   uint32_t            button,
-                                   uint32_t            state);
-
-void meta_seat_impl_notify_scroll_continuous (MetaSeatImpl             *seat_impl,
-                                              ClutterInputDevice       *input_device,
-                                              uint64_t                  time_us,
-                                              double                    dx,
-                                              double                    dy,
-                                              ClutterScrollSource       source,
-                                              ClutterScrollFinishFlags  flags);
-
-void meta_seat_impl_notify_discrete_scroll (MetaSeatImpl        *seat_impl,
-                                            ClutterInputDevice  *input_device,
-                                            uint64_t             time_us,
-                                            double               discrete_dx,
-                                            double               discrete_dy,
-                                            ClutterScrollSource  source);
-
-void meta_seat_impl_notify_touch_event (MetaSeatImpl       *seat_impl,
-                                        ClutterInputDevice *input_device,
-                                        ClutterEventType    evtype,
+void meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
+                                        ClutterInputDevice *device,
                                         uint64_t            time_us,
-                                        int                 slot,
-                                        double              x,
-                                        double              y);
+                                        uint32_t            key,
+                                        uint32_t            state,
+                                        gboolean            update_keys);
 
-void meta_seat_impl_sync_leds (MetaSeatImpl *seat_impl);
+void meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
+                                                    ClutterInputDevice *input_device,
+                                                    uint64_t            time_us,
+                                                    float               dx,
+                                                    float               dy,
+                                                    float               dx_unaccel,
+                                                    float               dy_unaccel);
 
-MetaTouchState * meta_seat_impl_acquire_touch_state (MetaSeatImpl *seat_impl,
-                                                     int           seat_slot);
-MetaTouchState * meta_seat_impl_lookup_touch_state (MetaSeatImpl *seat_impl,
-                                                    int           seat_slot);
-void meta_seat_impl_release_touch_state (MetaSeatImpl   *seat_impl,
-                                         int             seat_slot);
+void meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
+                                                    ClutterInputDevice *input_device,
+                                                    uint64_t            time_us,
+                                                    float               x,
+                                                    float               y,
+                                                    double             *axes);
 
-void meta_seat_impl_update_xkb_state (MetaSeatImpl *seat_impl);
+void meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
+                                           ClutterInputDevice *input_device,
+                                           uint64_t            time_us,
+                                           uint32_t            button,
+                                           uint32_t            state);
+
+void meta_seat_impl_notify_scroll_continuous_in_impl (MetaSeatImpl             *seat_impl,
+                                                      ClutterInputDevice       *input_device,
+                                                      uint64_t                  time_us,
+                                                      double                    dx,
+                                                      double                    dy,
+                                                      ClutterScrollSource       source,
+                                                      ClutterScrollFinishFlags  flags);
+
+void meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
+                                                    ClutterInputDevice  *input_device,
+                                                    uint64_t             time_us,
+                                                    double               discrete_dx,
+                                                    double               discrete_dy,
+                                                    ClutterScrollSource  source);
+
+void meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
+                                                ClutterInputDevice *input_device,
+                                                ClutterEventType    evtype,
+                                                uint64_t            time_us,
+                                                int                 slot,
+                                                double              x,
+                                                double              y);
+
+void meta_seat_impl_sync_leds_in_impl (MetaSeatImpl *seat_impl);
+
+MetaTouchState * meta_seat_impl_acquire_touch_state_in_impl (MetaSeatImpl *seat_impl,
+                                                             int           seat_slot);
+MetaTouchState * meta_seat_impl_lookup_touch_state_in_impl (MetaSeatImpl *seat_impl,
+                                                            int           seat_slot);
+void meta_seat_impl_release_touch_state_in_impl (MetaSeatImpl   *seat_impl,
+                                                 int             seat_slot);
+
+void meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl);
 
 /**
  * MetaOpenDeviceCallback:
@@ -214,18 +214,18 @@ void  meta_seat_impl_set_device_callbacks (MetaOpenDeviceCallback  open_callback
 void  meta_seat_impl_release_devices (MetaSeatImpl *seat_impl);
 void  meta_seat_impl_reclaim_devices (MetaSeatImpl *seat_impl);
 
-struct xkb_state * meta_seat_impl_get_xkb_state (MetaSeatImpl *seat_impl);
+struct xkb_state * meta_seat_impl_get_xkb_state_in_impl (MetaSeatImpl *seat_impl);
 
-void               meta_seat_impl_set_keyboard_map   (MetaSeatImpl      *seat_impl,
-                                                      struct xkb_keymap *keymap);
+void meta_seat_impl_set_keyboard_map (MetaSeatImpl      *seat_impl,
+                                      struct xkb_keymap *keymap);
 
 void meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
                                                xkb_layout_index_t  idx);
 
-void meta_seat_impl_set_keyboard_repeat (MetaSeatImpl *seat_impl,
-                                         gboolean      repeat,
-                                         uint32_t      delay,
-                                         uint32_t      interval);
+void meta_seat_impl_set_keyboard_repeat_in_impl (MetaSeatImpl *seat_impl,
+                                                 gboolean      repeat,
+                                                 uint32_t      delay,
+                                                 uint32_t      interval);
 
 MetaBarrierManagerNative * meta_seat_impl_get_barrier_manager (MetaSeatImpl *seat_impl);
 
@@ -244,17 +244,17 @@ gboolean meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                                      ClutterModifierType  *modifiers);
 ClutterInputDevice * meta_seat_impl_get_pointer (MetaSeatImpl *seat_impl);
 ClutterInputDevice * meta_seat_impl_get_keyboard (MetaSeatImpl *seat_impl);
-GSList * meta_seat_impl_get_devices (MetaSeatImpl *seat_impl);
+GSList * meta_seat_impl_get_devices_in_impl (MetaSeatImpl *seat_impl);
 
 MetaKeymapNative * meta_seat_impl_get_keymap (MetaSeatImpl *seat_impl);
 
-void meta_seat_impl_notify_kbd_a11y_flags_changed (MetaSeatImpl          *seat_impl,
-                                                   MetaKeyboardA11yFlags  new_flags,
-                                                   MetaKeyboardA11yFlags  what_changed);
-void meta_seat_impl_notify_kbd_a11y_mods_state_changed (MetaSeatImpl   *seat_impl,
-                                                        xkb_mod_mask_t  new_latched_mods,
-                                                        xkb_mod_mask_t  new_locked_mods);
-void meta_seat_impl_notify_bell (MetaSeatImpl *seat_impl);
+void meta_seat_impl_notify_kbd_a11y_flags_changed_in_impl (MetaSeatImpl          *seat_impl,
+                                                           MetaKeyboardA11yFlags  new_flags,
+                                                           MetaKeyboardA11yFlags  what_changed);
+void meta_seat_impl_notify_kbd_a11y_mods_state_changed_in_impl (MetaSeatImpl   *seat_impl,
+                                                                xkb_mod_mask_t  new_latched_mods,
+                                                                xkb_mod_mask_t  new_locked_mods);
+void meta_seat_impl_notify_bell_in_impl (MetaSeatImpl *seat_impl);
 
 MetaInputSettings * meta_seat_impl_get_input_settings (MetaSeatImpl *seat_impl);
 

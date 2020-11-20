@@ -47,6 +47,6 @@ struct _MetaInputSettingsNativeClass
 
 GType meta_input_settings_native_get_type (void) G_GNUC_CONST;
 
-MetaInputSettings * meta_input_settings_native_new (MetaSeatImpl *seat_impl);
+MetaInputSettings * meta_input_settings_native_new_in_impl (MetaSeatImpl *seat_impl);
 
 #endif /* META_INPUT_SETTINGS_NATIVE_H */

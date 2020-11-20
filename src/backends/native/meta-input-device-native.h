@@ -112,44 +112,44 @@ struct _MetaInputDeviceNativeClass
 
 GType                     meta_input_device_native_get_type        (void) G_GNUC_CONST;
 
-ClutterInputDevice *      meta_input_device_native_new             (MetaSeatImpl            *seat_impl,
+ClutterInputDevice *      meta_input_device_native_new_in_impl     (MetaSeatImpl            *seat_impl,
                                                                     struct libinput_device  *libinput_device);
 
-ClutterInputDevice *      meta_input_device_native_new_virtual     (MetaSeatImpl            *seat_impl,
-                                                                    ClutterInputDeviceType   type,
-                                                                    ClutterInputMode         mode);
+ClutterInputDevice *      meta_input_device_native_new_virtual (MetaSeatImpl            *seat_impl,
+                                                                ClutterInputDeviceType   type,
+                                                                ClutterInputMode         mode);
 
-MetaSeatImpl *            meta_input_device_native_get_seat_impl   (MetaInputDeviceNative   *device);
+MetaSeatImpl *            meta_input_device_native_get_seat_impl (MetaInputDeviceNative   *device);
 
-void                      meta_input_device_native_update_leds     (MetaInputDeviceNative   *device,
-                                                                    enum libinput_led        leds);
+void                      meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative   *device,
+                                                                        enum libinput_led        leds);
 
-ClutterInputDeviceType    meta_input_device_native_determine_type  (struct libinput_device  *libinput_device);
+ClutterInputDeviceType    meta_input_device_native_determine_type_in_impl  (struct libinput_device  *libinput_device);
 
 
-void                      meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
-                                                                          MetaViewportInfo   *viewports,
-                                                                          float              *x,
-                                                                          float              *y);
+void                      meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *device,
+                                                                                  MetaViewportInfo   *viewports,
+                                                                                  float              *x,
+                                                                                  float              *y);
 
-MetaInputDeviceMapping    meta_input_device_native_get_mapping_mode (ClutterInputDevice     *device);
-void                      meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
-                                                                     MetaInputDeviceMapping  mapping);
+MetaInputDeviceMapping    meta_input_device_native_get_mapping_mode_in_impl (ClutterInputDevice     *device);
+void                      meta_input_device_native_set_mapping_mode_in_impl (ClutterInputDevice     *device,
+                                                                             MetaInputDeviceMapping  mapping);
 
-void                      meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative *device,
-                                                                            MetaKbdA11ySettings   *settings);
+void                      meta_input_device_native_apply_kbd_a11y_settings_in_impl (MetaInputDeviceNative *device,
+                                                                                    MetaKbdA11ySettings   *settings);
 
-void                      meta_input_device_native_a11y_maybe_notify_toggle_keys  (MetaInputDeviceNative *device_evdev);
+void                      meta_input_device_native_a11y_maybe_notify_toggle_keys_in_impl (MetaInputDeviceNative *device_evdev);
 
 struct libinput_device * meta_input_device_native_get_libinput_device (ClutterInputDevice *device);
 
-void                     meta_input_device_native_set_coords (MetaInputDeviceNative *device_native,
-                                                              float                  x,
-                                                              float                  y);
-void                     meta_input_device_native_get_coords (MetaInputDeviceNative *device_native,
-                                                              float                 *x,
-                                                              float                 *y);
-gboolean                 meta_input_device_native_process_kbd_a11y_event (ClutterInputDevice *device,
-                                                                          ClutterEvent       *event);
+void                     meta_input_device_native_set_coords_in_impl (MetaInputDeviceNative *device_native,
+                                                                      float                  x,
+                                                                      float                  y);
+void                     meta_input_device_native_get_coords_in_impl (MetaInputDeviceNative *device_native,
+                                                                      float                 *x,
+                                                                      float                 *y);
+gboolean                 meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *device,
+                                                                                  ClutterEvent       *event);
 
 #endif /* META_INPUT_DEVICE_NATIVE_H */

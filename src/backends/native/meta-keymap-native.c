@@ -107,8 +107,8 @@ meta_keymap_native_init (MetaKeymapNative *keymap)
 }
 
 void
-meta_keymap_native_set_keyboard_map (MetaKeymapNative  *keymap,
-                                     struct xkb_keymap *xkb_keymap)
+meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative  *keymap,
+                                             struct xkb_keymap *xkb_keymap)
 {
   g_return_if_fail (xkb_keymap != NULL);
 
@@ -118,19 +118,19 @@ meta_keymap_native_set_keyboard_map (MetaKeymapNative  *keymap,
 }
 
 struct xkb_keymap *
-meta_keymap_native_get_keyboard_map (MetaKeymapNative *keymap)
+meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap)
 {
   return keymap->keymap;
 }
 
 void
-meta_keymap_native_update (MetaKeymapNative *keymap)
+meta_keymap_native_update_in_impl (MetaKeymapNative *keymap)
 {
   struct xkb_state *xkb_state;
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  xkb_state = meta_seat_impl_get_xkb_state (META_SEAT_NATIVE (seat)->impl);
+  xkb_state = meta_seat_impl_get_xkb_state_in_impl (META_SEAT_NATIVE (seat)->impl);
 
   keymap->num_lock =
     xkb_state_mod_name_is_active (xkb_state,

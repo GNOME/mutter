@@ -385,10 +385,10 @@ out:
 }
 
 static int
-on_evdev_device_open (const char  *path,
-                      int          flags,
-                      gpointer     user_data,
-                      GError     **error)
+on_evdev_device_open_in_input_impl (const char  *path,
+                                    int          flags,
+                                    gpointer     user_data,
+                                    GError     **error)
 {
   MetaLauncher *self = user_data;
 
@@ -420,8 +420,8 @@ on_evdev_device_open (const char  *path,
 }
 
 static void
-on_evdev_device_close (int      fd,
-                       gpointer user_data)
+on_evdev_device_close_in_input_impl (int      fd,
+                                     gpointer user_data)
 {
   MetaLauncher *self = user_data;
 
@@ -530,8 +530,8 @@ meta_launcher_new (GError **error)
 
   meta_clutter_backend_native_set_seat_id (self->seat_id);
 
-  meta_seat_impl_set_device_callbacks (on_evdev_device_open,
-                                       on_evdev_device_close,
+  meta_seat_impl_set_device_callbacks (on_evdev_device_open_in_input_impl,
+                                       on_evdev_device_close_in_input_impl,
                                        self);
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);

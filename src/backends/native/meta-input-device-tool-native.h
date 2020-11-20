@@ -70,16 +70,16 @@ ClutterInputDeviceTool * meta_input_device_tool_native_new      (struct libinput
                                                                  uint64_t                     serial,
                                                                  ClutterInputDeviceToolType   type);
 
-gdouble                  meta_input_device_tool_native_translate_pressure (ClutterInputDeviceTool *tool,
-                                                                           double                  pressure);
-uint32_t                 meta_input_device_tool_native_get_button_code    (ClutterInputDeviceTool *tool,
-                                                                           uint32_t                button);
+gdouble                  meta_input_device_tool_native_translate_pressure_in_impl (ClutterInputDeviceTool *tool,
+                                                                                   double                  pressure);
+uint32_t                 meta_input_device_tool_native_get_button_code_in_impl (ClutterInputDeviceTool *tool,
+                                                                                uint32_t                button);
 
-void                     meta_input_device_tool_native_set_pressure_curve (ClutterInputDeviceTool *tool,
-                                                                           double                  curve[4]);
-void                     meta_input_device_tool_native_set_button_code    (ClutterInputDeviceTool *tool,
-                                                                           uint32_t                button,
-                                                                           uint32_t                evcode);
+void                     meta_input_device_tool_native_set_pressure_curve_in_impl (ClutterInputDeviceTool *tool,
+                                                                                   double                  curve[4]);
+void                     meta_input_device_tool_native_set_button_code_in_impl (ClutterInputDeviceTool *tool,
+                                                                                uint32_t                button,
+                                                                                uint32_t                evcode);
 
 G_END_DECLS
 

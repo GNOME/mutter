@@ -157,7 +157,7 @@ meta_input_settings_native_set_matrix (MetaInputSettings  *settings,
 
   if (clutter_input_device_get_device_type (device) ==
       CLUTTER_TOUCHSCREEN_DEVICE ||
-      meta_input_device_native_get_mapping_mode (device) ==
+      meta_input_device_native_get_mapping_mode_in_impl (device) ==
       META_INPUT_DEVICE_MAPPING_ABSOLUTE)
     {
       cairo_matrix_init (dev_matrix, matrix[0], matrix[3], matrix[1],
@@ -504,8 +504,8 @@ meta_input_settings_native_set_keyboard_repeat (MetaInputSettings *settings,
   MetaInputSettingsNative *input_settings_native;
 
   input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
-  meta_seat_impl_set_keyboard_repeat (input_settings_native->seat_impl,
-                                      enabled, delay, interval);
+  meta_seat_impl_set_keyboard_repeat_in_impl (input_settings_native->seat_impl,
+                                              enabled, delay, interval);
 }
 
 static void
@@ -636,7 +636,7 @@ meta_input_settings_native_set_tablet_mapping (MetaInputSettings     *settings,
   else
     return;
 
-  meta_input_device_native_set_mapping_mode (device, dev_mapping);
+  meta_input_device_native_set_mapping_mode_in_impl (device, dev_mapping);
 }
 
 static gboolean
@@ -660,7 +660,7 @@ meta_input_settings_native_set_tablet_aspect_ratio (MetaInputSettings  *settings
   MetaInputSettingsNative *input_settings_native;
   GTask *task;
 
-  if (meta_input_device_native_get_mapping_mode (device) ==
+  if (meta_input_device_native_get_mapping_mode_in_impl (device) ==
       META_INPUT_DEVICE_MAPPING_RELATIVE)
     aspect_ratio = 0;
 
@@ -718,7 +718,7 @@ meta_input_settings_native_set_stylus_pressure (MetaInputSettings      *settings
   pressure_curve[2] = (gdouble) curve[2] / 100;
   pressure_curve[3] = (gdouble) curve[3] / 100;
 
-  meta_input_device_tool_native_set_pressure_curve (tool, pressure_curve);
+  meta_input_device_tool_native_set_pressure_curve_in_impl (tool, pressure_curve);
 }
 
 static guint
@@ -748,12 +748,12 @@ meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *se
                                                   GDesktopStylusButtonAction  secondary,
                                                   GDesktopStylusButtonAction  tertiary)
 {
-  meta_input_device_tool_native_set_button_code (tool, CLUTTER_BUTTON_MIDDLE,
-                                                 action_to_evcode (primary));
-  meta_input_device_tool_native_set_button_code (tool, CLUTTER_BUTTON_SECONDARY,
-                                                 action_to_evcode (secondary));
-  meta_input_device_tool_native_set_button_code (tool, 8, /* Back */
-                                                 action_to_evcode (tertiary));
+  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_MIDDLE,
+                                                         action_to_evcode (primary));
+  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_SECONDARY,
+                                                         action_to_evcode (secondary));
+  meta_input_device_tool_native_set_button_code_in_impl (tool, 8, /* Back */
+                                                         action_to_evcode (tertiary));
 }
 
 static void
@@ -870,7 +870,7 @@ meta_input_settings_native_init (MetaInputSettingsNative *settings)
 }
 
 MetaInputSettings *
-meta_input_settings_native_new (MetaSeatImpl *seat_impl)
+meta_input_settings_native_new_in_impl (MetaSeatImpl *seat_impl)
 {
   return g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE,
                        "seat-impl", seat_impl,
