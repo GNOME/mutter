@@ -1,9 +1,10 @@
 include:
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/97556201e6e0e30554ee93249f5287be826be718/templates/fedora.yml'
+  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/97556201e6e0e30554ee93249f5287be826be718/templates/fedora.yml"
+  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/97556201e6e0e30554ee93249f5287be826be718/templates/ci-fairy.yml"
 
 stages:
- - prepare
  - review
+ - prepare
  - build
  - test
  - coverage
@@ -62,15 +63,15 @@ build-fedora-container:
     - .fdo.container-build@fedora@x86_64
     - .mutter.fedora:33
   stage: prepare
+  needs:
+    - check-commit-log
+    - check-merge-request
   <<: *only_default
 
 check-commit-log:
   extends:
-    - .fdo.distribution-image@fedora
-    - .mutter.fedora:33
+    - .fdo.ci-fairy
   stage: review
-  needs:
-    - build-fedora-container
   variables:
     GIT_DEPTH: "100"
   script:
@@ -88,7 +89,7 @@ build-mutter:
     - .mutter.fedora:33
   stage: build
   needs:
-    - check-commit-log
+    - build-fedora-container
   script:
     - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -104,7 +105,7 @@ build-without-opengl-and-glx:
     - .mutter.fedora:33
   stage: build
   needs:
-    - check-commit-log
+    - build-fedora-container
   script:
     - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -119,7 +120,7 @@ build-without-native-backend-and-wayland:
     - .mutter.fedora:33
   stage: build
   needs:
-    - check-commit-log
+    - build-fedora-container
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false --werror --prefix /usr
     - ninja -C build
