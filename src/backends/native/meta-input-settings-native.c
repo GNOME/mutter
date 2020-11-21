@@ -82,13 +82,16 @@ meta_input_settings_native_get_property (GObject    *object,
     }
 }
 
-static void
-meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
-                                            ClutterInputDevice       *device,
-                                            GDesktopDeviceSendEvents  mode)
+static gboolean
+set_send_events (GTask *task)
 {
+  GDesktopDeviceSendEvents mode;
+  ClutterInputDevice *device;
   enum libinput_config_send_events_mode libinput_mode;
   struct libinput_device *libinput_device;
+
+  device = g_task_get_source_object (task);
+  mode = GPOINTER_TO_UINT (g_task_get_task_data (task));
 
   switch (mode)
     {
@@ -106,9 +109,39 @@ meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
     }
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
-  if (!libinput_device)
-    return;
   libinput_device_config_send_events_set_mode (libinput_device, libinput_mode);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
+                                            ClutterInputDevice       *device,
+                                            GDesktopDeviceSendEvents  mode)
+{
+  MetaInputSettingsNative *input_settings_native;
+  GTask *task;
+
+  task = g_task_new (device, NULL, NULL, NULL);
+  g_task_set_task_data (task, GUINT_TO_POINTER (mode), NULL);
+
+  input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
+  meta_seat_impl_run_input_task (input_settings_native->seat_impl,
+                                 task, (GSourceFunc) set_send_events);
+  g_object_unref (task);
+}
+
+static gboolean
+set_matrix (GTask *task)
+{
+  ClutterInputDevice *device;
+  cairo_matrix_t *dev_matrix;
+
+  device = g_task_get_source_object (task);
+  dev_matrix = g_task_get_task_data (task);
+  g_object_set (device, "device-matrix", dev_matrix, NULL);
+
+  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -116,22 +149,32 @@ meta_input_settings_native_set_matrix (MetaInputSettings  *settings,
                                        ClutterInputDevice *device,
                                        gfloat              matrix[6])
 {
-  cairo_matrix_t dev_matrix;
+  MetaInputSettingsNative *input_settings_native;
+  cairo_matrix_t *dev_matrix;
+  GTask *task;
+
+  dev_matrix = g_new0 (cairo_matrix_t, 1);
 
   if (clutter_input_device_get_device_type (device) ==
       CLUTTER_TOUCHSCREEN_DEVICE ||
       meta_input_device_native_get_mapping_mode (device) ==
       META_INPUT_DEVICE_MAPPING_ABSOLUTE)
     {
-      cairo_matrix_init (&dev_matrix, matrix[0], matrix[3], matrix[1],
+      cairo_matrix_init (dev_matrix, matrix[0], matrix[3], matrix[1],
                          matrix[4], matrix[2], matrix[5]);
     }
   else
     {
-      cairo_matrix_init_identity (&dev_matrix);
+      cairo_matrix_init_identity (dev_matrix);
     }
 
-  g_object_set (device, "device-matrix", &dev_matrix, NULL);
+  task = g_task_new (device, NULL, NULL, NULL);
+  g_task_set_task_data (task, dev_matrix, g_free);
+
+  input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
+  meta_seat_impl_run_input_task (input_settings_native->seat_impl,
+                                 task, (GSourceFunc) set_matrix);
+  g_object_unref (task);
 }
 
 static void
@@ -596,16 +639,40 @@ meta_input_settings_native_set_tablet_mapping (MetaInputSettings     *settings,
   meta_input_device_native_set_mapping_mode (device, dev_mapping);
 }
 
+static gboolean
+set_tablet_aspect_ratio (GTask *task)
+{
+  ClutterInputDevice *device;
+  double *aspect_ratio;
+
+  device = g_task_get_source_object (task);
+  aspect_ratio = g_task_get_task_data (task);
+  g_object_set (device, "output-aspect-ratio", *aspect_ratio, NULL);
+
+  return G_SOURCE_REMOVE;
+}
+
 static void
 meta_input_settings_native_set_tablet_aspect_ratio (MetaInputSettings  *settings,
                                                     ClutterInputDevice *device,
                                                     gdouble             aspect_ratio)
 {
+  MetaInputSettingsNative *input_settings_native;
+  GTask *task;
+
   if (meta_input_device_native_get_mapping_mode (device) ==
       META_INPUT_DEVICE_MAPPING_RELATIVE)
     aspect_ratio = 0;
 
-  g_object_set (device, "output-aspect-ratio", aspect_ratio, NULL);
+  task = g_task_new (device, NULL, NULL, NULL);
+  g_task_set_task_data (task,
+                        g_memdup (&aspect_ratio, sizeof (double)),
+                        g_free);
+
+  input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
+  meta_seat_impl_run_input_task (input_settings_native->seat_impl,
+                                 task, (GSourceFunc) set_tablet_aspect_ratio);
+  g_object_unref (task);
 }
 
 static void
