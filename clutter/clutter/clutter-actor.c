@@ -5701,6 +5701,21 @@ clutter_actor_update_default_paint_volume (ClutterActor       *self,
   if (priv->needs_allocation)
     return FALSE;
 
+  if (priv->has_clip)
+    {
+      graphene_point3d_t origin;
+
+      origin.x = priv->clip.origin.x;
+      origin.y = priv->clip.origin.y;
+      origin.z = 0;
+
+      clutter_paint_volume_set_origin (volume, &origin);
+      clutter_paint_volume_set_width (volume, priv->clip.size.width);
+      clutter_paint_volume_set_height (volume, priv->clip.size.height);
+
+      return TRUE;
+    }
+
   /* we start from the allocation */
   clutter_paint_volume_set_width (volume,
                                   priv->allocation.x2 - priv->allocation.x1);
@@ -5721,23 +5736,6 @@ clutter_actor_update_default_paint_volume (ClutterActor       *self,
   else
     {
       ClutterActor *child;
-
-      if (priv->has_clip &&
-          priv->clip.size.width >= 0 &&
-          priv->clip.size.height >= 0)
-        {
-          graphene_point3d_t origin;
-
-          origin.x = priv->clip.origin.x;
-          origin.y = priv->clip.origin.y;
-          origin.z = 0;
-
-          clutter_paint_volume_set_origin (volume, &origin);
-          clutter_paint_volume_set_width (volume, priv->clip.size.width);
-          clutter_paint_volume_set_height (volume, priv->clip.size.height);
-
-          return TRUE;
-        }
 
       /* if we don't have children we just bail out here... */
       if (priv->n_children == 0)
