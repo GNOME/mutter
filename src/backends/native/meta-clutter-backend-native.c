@@ -126,6 +126,17 @@ meta_clutter_backend_native_is_display_server (ClutterBackend *backend)
 }
 
 static void
+meta_clutter_backend_native_finalize (GObject *object)
+{
+  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (object);
+
+  g_clear_object (&backend_native->main_seat);
+  g_clear_object (&backend_native->stage_native);
+
+  G_OBJECT_CLASS (meta_clutter_backend_native_parent_class)->finalize (object);
+}
+
+static void
 meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nativen)
 {
 }
@@ -133,7 +144,10 @@ meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nati
 static void
 meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
+
+  object_class->finalize = meta_clutter_backend_native_finalize;
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;

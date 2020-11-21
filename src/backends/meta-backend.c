@@ -231,6 +231,8 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->profiler);
 #endif
 
+  g_clear_object (&priv->clutter_backend);
+
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
 
