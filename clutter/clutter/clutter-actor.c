@@ -5664,7 +5664,7 @@ clutter_actor_real_get_paint_volume (ClutterActor       *self,
                                      ClutterPaintVolume *volume)
 {
   ClutterActorPrivate *priv = self->priv;
-  gboolean res = TRUE;
+  ClutterActor *child;
 
   /* this should be checked before we call this function, but it's a
    * good idea to be explicit when it costs us nothing
@@ -5698,54 +5698,41 @@ clutter_actor_real_get_paint_volume (ClutterActor       *self,
    * outside the clip region.
    */
   if (priv->clip_to_allocation)
+    return TRUE;
+
+  /* if we don't have children we just bail out here... */
+  if (priv->n_children == 0)
+    return TRUE;
+
+  /* ...but if we have children then we ask for their paint volume in
+   * our coordinates. if any of our children replies that it doesn't
+   * have a paint volume, we bail out
+   */
+  for (child = priv->first_child;
+       child != NULL;
+       child = child->priv->next_sibling)
     {
-      /* the allocation has already been set, so we just flip the
-       * return value
+      const ClutterPaintVolume *child_volume;
+
+      /* we ignore unmapped children, since they won't be painted.
+       *
+       * XXX: we also have to ignore mapped children without a valid
+       * allocation, because apparently some code above Clutter allows
+       * them.
        */
-      res = TRUE;
-    }
-  else
-    {
-      ClutterActor *child;
+      if ((!CLUTTER_ACTOR_IS_MAPPED (child) &&
+           !clutter_actor_has_mapped_clones (child)) ||
+          !clutter_actor_has_allocation (child))
+        continue;
 
-      /* if we don't have children we just bail out here... */
-      if (priv->n_children == 0)
-        return res;
+      child_volume = clutter_actor_get_transformed_paint_volume (child, self);
+      if (child_volume == NULL)
+        return FALSE;
 
-      /* ...but if we have children then we ask for their paint volume in
-       * our coordinates. if any of our children replies that it doesn't
-       * have a paint volume, we bail out
-       */
-      for (child = priv->first_child;
-           child != NULL;
-           child = child->priv->next_sibling)
-        {
-          const ClutterPaintVolume *child_volume;
-
-          /* we ignore unmapped children, since they won't be painted.
-           *
-           * XXX: we also have to ignore mapped children without a valid
-           * allocation, because apparently some code above Clutter allows
-           * them.
-           */
-          if ((!CLUTTER_ACTOR_IS_MAPPED (child) &&
-               !clutter_actor_has_mapped_clones (child)) ||
-              !clutter_actor_has_allocation (child))
-            continue;
-
-          child_volume = clutter_actor_get_transformed_paint_volume (child, self);
-          if (child_volume == NULL)
-            {
-              res = FALSE;
-              break;
-            }
-
-          clutter_paint_volume_union (volume, child_volume);
-          res = TRUE;
-        }
+      clutter_paint_volume_union (volume, child_volume);
     }
 
-  return res;
+  return TRUE;
 }
 
 static gboolean
