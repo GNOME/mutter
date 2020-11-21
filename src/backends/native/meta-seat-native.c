@@ -333,14 +333,8 @@ meta_seat_native_warp_pointer (ClutterSeat *seat,
                                int          y)
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
-  MetaBackend *backend = meta_get_backend ();
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
-  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   meta_seat_impl_warp_pointer (seat_native->impl, x, y);
-  meta_cursor_renderer_update_position (cursor_renderer);
-  meta_cursor_tracker_invalidate_position (cursor_tracker);
 }
 
 static gboolean
