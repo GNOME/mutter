@@ -825,7 +825,7 @@ struct _ClutterActorPrivate
   guint enable_paint_unmapped       : 1;
   guint has_key_focus               : 1;
   guint propagated_one_redraw       : 1;
-  guint paint_volume_valid          : 1;
+  guint has_paint_volume            : 1;
   guint last_paint_volume_valid     : 1;
   guint in_clone_paint              : 1;
   guint transform_valid             : 1;
@@ -3965,7 +3965,7 @@ clutter_actor_pick (ClutterActor       *actor,
   /* mark that we are in the paint process */
   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
 
-  if (should_cull && priv->paint_volume_valid && priv->last_paint_volume_valid)
+  if (should_cull && priv->has_paint_volume && priv->last_paint_volume_valid)
     {
       graphene_box_t box;
 
@@ -15182,14 +15182,14 @@ ensure_paint_volume (ClutterActor *self)
     {
       priv->had_effects_on_last_paint_volume_update = has_paint_volume_override_effects;
 
-      if (priv->paint_volume_valid)
+      if (priv->has_paint_volume)
         clutter_paint_volume_free (&priv->paint_volume);
 
-      priv->paint_volume_valid = FALSE;
+      priv->has_paint_volume = FALSE;
 
       if (_clutter_actor_get_paint_volume_real (self, &priv->paint_volume))
         {
-          priv->paint_volume_valid = TRUE;
+          priv->has_paint_volume = TRUE;
           priv->needs_paint_volume_update = FALSE;
         }
     }
@@ -15209,7 +15209,7 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
 
   ensure_paint_volume (self);
 
-  if (priv->paint_volume_valid)
+  if (priv->has_paint_volume)
     return &priv->paint_volume;
 
   return NULL;
