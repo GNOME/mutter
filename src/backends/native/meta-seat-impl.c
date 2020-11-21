@@ -2477,6 +2477,17 @@ static const struct libinput_interface libinput_interface = {
 };
 
 static void
+kbd_a11y_changed_cb (MetaInputSettings   *input_settings,
+                     MetaKbdA11ySettings *a11y_settings,
+                     MetaSeatImpl        *seat_impl)
+{
+  MetaInputDeviceNative *keyboard;
+
+  keyboard = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
+  meta_input_device_native_apply_kbd_a11y_settings (keyboard, a11y_settings);
+}
+
+static void
 meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat_impl,
                                      gboolean      numlock_state)
 {
@@ -2568,6 +2579,8 @@ meta_seat_impl_constructed (GObject *object)
   udev_unref (udev);
 
   seat_impl->input_settings = meta_input_settings_native_new (seat_impl);
+  g_signal_connect_object (seat_impl->input_settings, "kbd-a11y-changed",
+                           G_CALLBACK (kbd_a11y_changed_cb), seat_impl, 0);
 
   seat_impl->udev_client = g_udev_client_new ((const char *[]) { "input", NULL });
 

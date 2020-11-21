@@ -74,7 +74,6 @@ struct _MetaBackendNative
   MetaLauncher *launcher;
   MetaUdev *udev;
   MetaKms *kms;
-  MetaInputSettings *input_settings;
 
   gulong udev_device_added_handler_id;
 };
@@ -102,7 +101,6 @@ meta_backend_native_finalize (GObject *object)
   g_clear_object (&native->udev);
   g_clear_object (&native->kms);
   meta_launcher_free (native->launcher);
-  g_clear_object (&native->input_settings);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
 }
@@ -164,32 +162,9 @@ update_viewports (MetaBackend *backend)
 }
 
 static void
-kbd_a11y_changed_cb (MetaInputSettings   *input_settings,
-                     MetaKbdA11ySettings *a11y_settings,
-                     MetaBackend         *backend)
-{
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  ClutterInputDevice *device;
-
-  device = clutter_seat_get_keyboard (seat);
-  if (device)
-    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
-                                                      a11y_settings);
-}
-
-static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  MetaSeatNative *seat =
-    META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
-
-  backend_native->input_settings = meta_seat_impl_get_input_settings (seat->impl);
-  g_signal_connect_object (backend_native->input_settings, "kbd-a11y-changed",
-                           G_CALLBACK (kbd_a11y_changed_cb), backend, 0);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
@@ -261,9 +236,11 @@ meta_backend_native_create_renderer (MetaBackend *backend,
 static MetaInputSettings *
 meta_backend_native_get_input_settings (MetaBackend *backend)
 {
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  MetaSeatNative *seat_native =
+    META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
-  return backend_native->input_settings;
+  return meta_seat_impl_get_input_settings (seat_native->impl);
 }
 
 static MetaLogicalMonitor *
@@ -667,6 +644,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaInputSettings *input_settings;
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
                            "Backend (resume)");
@@ -683,7 +661,8 @@ void meta_backend_native_resume (MetaBackendNative *native)
   idle_monitor = meta_idle_monitor_get_core ();
   meta_idle_monitor_reset_idletime (idle_monitor);
 
-  meta_input_settings_maybe_restore_numlock_state (native->input_settings);
+  input_settings = meta_backend_get_input_settings (backend);
+  meta_input_settings_maybe_restore_numlock_state (input_settings);
 
   clutter_seat_ensure_a11y_state (CLUTTER_SEAT (seat));
 }
