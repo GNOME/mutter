@@ -5736,7 +5736,7 @@ clutter_actor_update_default_paint_volume (ClutterActor       *self,
           clutter_paint_volume_set_width (volume, priv->clip.size.width);
           clutter_paint_volume_set_height (volume, priv->clip.size.height);
 
-          res = TRUE;
+          return TRUE;
         }
 
       /* if we don't have children we just bail out here... */
