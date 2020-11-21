@@ -844,6 +844,7 @@ struct _ClutterActorPrivate
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_update_stage_views    : 1;
+  guint children_painted            : 1;
 };
 
 enum
@@ -3586,6 +3587,30 @@ clutter_actor_paint_node (ClutterActor        *actor,
   return TRUE;
 }
 
+static void
+ensure_last_paint_volumes_updated (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  ClutterActor *child;
+
+  /* Same entry checks as in clutter_actor_paint() */
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
+    return;
+
+  if (!CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
+      ((priv->opacity_override >= 0) ?
+       priv->opacity_override : priv->opacity) == 0)
+    return;
+
+  if (!CLUTTER_ACTOR_IS_MAPPED (self))
+    return;
+
+  _clutter_actor_update_last_paint_volume (self);
+
+  for (child = priv->first_child; child; child = child->priv->next_sibling)
+    ensure_last_paint_volumes_updated (child);
+}
+
 /**
  * clutter_actor_paint:
  * @self: A #ClutterActor
@@ -3791,7 +3816,27 @@ clutter_actor_paint (ClutterActor        *self,
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES))
     _clutter_actor_draw_paint_volume (self, actor_node);
 
+  priv->children_painted = FALSE;
+
   clutter_paint_node_paint (root_node, paint_context);
+
+  /* If an effect choose to not call clutter_actor_continue_paint()
+   * (for example offscreen effects might just paint their cached
+   * texture instead), the last_paint_volumes of the whole subtree
+   * still need to be updated to adjust for any changes to their
+   * eye-coordinates transformation matrices.
+   */
+  if (!priv->children_painted)
+    {
+      if (!culling_inhibited &&
+          !in_clone_paint () &&
+          G_LIKELY ((clutter_paint_debug_flags &
+                     (CLUTTER_DEBUG_DISABLE_CULLING |
+                      CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)) !=
+                    (CLUTTER_DEBUG_DISABLE_CULLING |
+                     CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
+        ensure_last_paint_volumes_updated (self);
+    }
 
   /* If we make it here then the actor has run through a complete
      paint run including all the effects so it's no longer dirty */
@@ -3834,6 +3879,8 @@ clutter_actor_continue_paint (ClutterActor        *self,
     {
       CoglFramebuffer *framebuffer;
       ClutterPaintNode *dummy;
+
+      priv->children_painted = TRUE;
 
       /* XXX - this will go away in 2.0, when we can get rid of this
        * stuff and switch to a pure retained render tree of PaintNodes
