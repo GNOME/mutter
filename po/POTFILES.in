@@ -18,6 +18,7 @@ src/core/display.c
 src/core/keybindings.c
 src/core/main.c
 src/core/meta-close-dialog-default.c
+src/core/meta-pad-action-mapper.c
 src/core/mutter.c
 src/core/prefs.c
 src/core/util.c
