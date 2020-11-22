@@ -26,6 +26,7 @@
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-update-private.h"
+#include "backends/native/meta-thread-private.h"
 #include "backends/native/meta-udev.h"
 #include "cogl/cogl.h"
 
@@ -132,37 +133,11 @@ enum
 
 static int signals[N_SIGNALS];
 
-typedef struct _MetaKmsCallbackData
-{
-  MetaKmsCallback callback;
-  gpointer user_data;
-  GDestroyNotify user_data_destroy;
-} MetaKmsCallbackData;
-
-typedef struct _MetaKmsSimpleImplSource
-{
-  GSource source;
-  MetaKms *kms;
-} MetaKmsSimpleImplSource;
-
-typedef struct _MetaKmsFdImplSource
-{
-  GSource source;
-
-  gpointer fd_tag;
-  MetaKms *kms;
-
-  MetaKmsImplTaskFunc dispatch;
-  gpointer user_data;
-} MetaKmsFdImplSource;
-
 struct _MetaKms
 {
-  GObject parent;
+  MetaThread parent;
 
   MetaKmsFlags flags;
-
-  MetaBackend *backend;
 
   gulong hotplug_handler_id;
   gulong removed_handler_id;
@@ -179,11 +154,11 @@ struct _MetaKms
   guint callback_source_id;
 };
 
-G_DEFINE_TYPE (MetaKms, meta_kms, G_TYPE_OBJECT)
+G_DEFINE_TYPE (MetaKms, meta_kms, META_TYPE_THREAD)
 
 static void
-invoke_result_listener (MetaKms  *kms,
-                        gpointer  user_data)
+invoke_result_listener (MetaThread *thread,
+                        gpointer    user_data)
 {
   MetaKmsResultListener *listener = user_data;
 
@@ -201,10 +176,12 @@ meta_kms_queue_result_callback (MetaKms               *kms,
 }
 
 static gpointer
-meta_kms_discard_pending_page_flips_in_impl (MetaKmsImpl  *impl,
-                                             gpointer      user_data,
-                                             GError      **error)
+meta_kms_discard_pending_page_flips_in_impl (MetaThreadImpl  *thread_impl,
+                                             gpointer         user_data,
+                                             GError         **error)
 {
+  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
+
   meta_kms_impl_discard_pending_page_flips (impl);
   return GINT_TO_POINTER (TRUE);
 }
@@ -219,10 +196,12 @@ meta_kms_discard_pending_page_flips (MetaKms *kms)
 }
 
 static gpointer
-meta_kms_notify_modes_set_in_impl (MetaKmsImpl  *impl,
-                                   gpointer      user_data,
-                                   GError      **error)
+meta_kms_notify_modes_set_in_impl (MetaThreadImpl  *thread_impl,
+                                   gpointer         user_data,
+                                   GError         **error)
 {
+  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
+
   meta_kms_impl_notify_modes_set (impl);
   return GINT_TO_POINTER (TRUE);
 }
@@ -230,113 +209,35 @@ meta_kms_notify_modes_set_in_impl (MetaKmsImpl  *impl,
 void
 meta_kms_notify_modes_set (MetaKms *kms)
 {
-  meta_kms_run_impl_task_sync (kms,
-                               meta_kms_notify_modes_set_in_impl,
-                               NULL,
-                               NULL);
-}
+  MetaThread *thread = META_THREAD (kms);
 
-static void
-meta_kms_callback_data_free (MetaKmsCallbackData *callback_data)
-{
-  if (callback_data->user_data_destroy)
-    callback_data->user_data_destroy (callback_data->user_data);
-  g_free (callback_data);
-}
-
-static int
-flush_callbacks (MetaKms *kms)
-{
-  GList *l;
-  int callback_count = 0;
-
-  meta_assert_not_in_kms_impl (kms);
-
-  g_clear_handle_id (&kms->callback_source_id, g_source_remove);
-
-  for (l = kms->pending_callbacks; l; l = l->next)
-    {
-      MetaKmsCallbackData *callback_data = l->data;
-
-      callback_data->callback (kms, callback_data->user_data);
-      meta_kms_callback_data_free (callback_data);
-      callback_count++;
-    }
-
-  g_list_free (kms->pending_callbacks);
-  kms->pending_callbacks = NULL;
-
-  return callback_count;
-}
-
-static gboolean
-callback_idle (gpointer user_data)
-{
-  MetaKms *kms = user_data;
-
-  flush_callbacks (kms);
-
-  kms->callback_source_id = 0;
-  return G_SOURCE_REMOVE;
+  meta_thread_run_impl_task_sync (thread,
+                                  meta_kms_notify_modes_set_in_impl,
+                                  NULL,
+                                  NULL);
 }
 
 void
-meta_kms_queue_callback (MetaKms         *kms,
-                         MetaKmsCallback  callback,
-                         gpointer         user_data,
-                         GDestroyNotify   user_data_destroy)
+meta_kms_queue_callback (MetaKms            *kms,
+                         MetaThreadCallback  callback,
+                         gpointer            user_data,
+                         GDestroyNotify      user_data_destroy)
 {
-  MetaKmsCallbackData *callback_data;
+  MetaThread *thread = META_THREAD (kms);
 
-  callback_data = g_new0 (MetaKmsCallbackData, 1);
-  *callback_data = (MetaKmsCallbackData) {
-    .callback = callback,
-    .user_data = user_data,
-    .user_data_destroy = user_data_destroy,
-  };
-  kms->pending_callbacks = g_list_append (kms->pending_callbacks,
-                                          callback_data);
-  if (!kms->callback_source_id)
-    kms->callback_source_id = g_idle_add (callback_idle, kms);
+  meta_thread_queue_callback (thread, callback, user_data, user_data_destroy);
 }
 
 gpointer
-meta_kms_run_impl_task_sync (MetaKms              *kms,
-                             MetaKmsImplTaskFunc   func,
-                             gpointer              user_data,
-                             GError              **error)
+meta_kms_run_impl_task_sync (MetaKms             *kms,
+                             MetaThreadTaskFunc   func,
+                             gpointer             user_data,
+                             GError             **error)
 {
-  gpointer ret;
+  MetaThread *thread = META_THREAD (kms);
 
-  kms->in_impl_task = TRUE;
-  kms->waiting_for_impl_task = TRUE;
-  ret = func (kms->impl, user_data, error);
-  kms->waiting_for_impl_task = FALSE;
-  kms->in_impl_task = FALSE;
-
-  return ret;
+  return meta_thread_run_impl_task_sync (thread, func, user_data, error);
 }
-
-static gboolean
-simple_impl_source_dispatch (GSource     *source,
-                             GSourceFunc  callback,
-                             gpointer     user_data)
-{
-  MetaKmsSimpleImplSource *simple_impl_source =
-    (MetaKmsSimpleImplSource *) source;
-  MetaKms *kms = simple_impl_source->kms;
-  gboolean ret;
-
-  kms->in_impl_task = TRUE;
-  ret = callback (user_data);
-  kms->in_impl_task = FALSE;
-
-  return ret;
-}
-
-static GSourceFuncs simple_impl_source_funcs = {
-  .dispatch = simple_impl_source_dispatch,
-};
 
 GSource *
 meta_kms_add_source_in_impl (MetaKms        *kms,
@@ -344,98 +245,37 @@ meta_kms_add_source_in_impl (MetaKms        *kms,
                              gpointer        user_data,
                              GDestroyNotify  user_data_destroy)
 {
-  GSource *source;
-  MetaKmsSimpleImplSource *simple_impl_source;
+  MetaThread *thread = META_THREAD (kms);
 
-  meta_assert_in_kms_impl (kms);
-
-  source = g_source_new (&simple_impl_source_funcs,
-                         sizeof (MetaKmsSimpleImplSource));
-  g_source_set_name (source, "[mutter] KMS simple impl");
-  simple_impl_source = (MetaKmsSimpleImplSource *) source;
-  simple_impl_source->kms = kms;
-
-  g_source_set_callback (source, func, user_data, user_data_destroy);
-  g_source_set_ready_time (source, 0);
-  g_source_attach (source, g_main_context_get_thread_default ());
-
-  return source;
+  return meta_thread_add_source_in_impl (thread, func,
+                                         user_data, user_data_destroy);
 }
-
-static gboolean
-meta_kms_fd_impl_source_check (GSource *source)
-{
-  MetaKmsFdImplSource *fd_impl_source = (MetaKmsFdImplSource *) source;
-
-  return g_source_query_unix_fd (source, fd_impl_source->fd_tag) & G_IO_IN;
-}
-
-static gboolean
-meta_kms_fd_impl_source_dispatch (GSource     *source,
-                                  GSourceFunc  callback,
-                                  gpointer     user_data)
-{
-  MetaKmsFdImplSource *fd_impl_source = (MetaKmsFdImplSource *) source;
-  MetaKms *kms = fd_impl_source->kms;
-  gpointer ret;
-  GError *error = NULL;
-
-  kms->in_impl_task = TRUE;
-  ret = fd_impl_source->dispatch (kms->impl,
-                                  fd_impl_source->user_data,
-                                  &error);
-  kms->in_impl_task = FALSE;
-
-  if (!GPOINTER_TO_INT (ret))
-    {
-      g_warning ("Failed to dispatch fd source: %s", error->message);
-      g_error_free (error);
-    }
-
-  return G_SOURCE_CONTINUE;
-}
-
-static GSourceFuncs fd_impl_source_funcs = {
-  NULL,
-  meta_kms_fd_impl_source_check,
-  meta_kms_fd_impl_source_dispatch
-};
 
 GSource *
-meta_kms_register_fd_in_impl (MetaKms             *kms,
-                              int                  fd,
-                              MetaKmsImplTaskFunc  dispatch,
-                              gpointer             user_data)
+meta_kms_register_fd_in_impl (MetaKms            *kms,
+                              int                 fd,
+                              MetaThreadTaskFunc  dispatch,
+                              gpointer            user_data)
 {
-  GSource *source;
-  MetaKmsFdImplSource *fd_impl_source;
+  MetaThread *thread = META_THREAD (kms);
 
-  meta_assert_in_kms_impl (kms);
-
-  source = g_source_new (&fd_impl_source_funcs, sizeof (MetaKmsFdImplSource));
-  g_source_set_name (source, "[mutter] KMS fd impl");
-  fd_impl_source = (MetaKmsFdImplSource *) source;
-  fd_impl_source->dispatch = dispatch;
-  fd_impl_source->user_data = user_data;
-  fd_impl_source->kms = kms;
-  fd_impl_source->fd_tag = g_source_add_unix_fd (source, fd,
-                                                 G_IO_IN | G_IO_ERR);
-
-  g_source_attach (source, g_main_context_get_thread_default ());
-
-  return source;
+  return meta_thread_register_fd_in_impl (thread, fd, dispatch, user_data);
 }
 
 gboolean
 meta_kms_in_impl_task (MetaKms *kms)
 {
-  return kms->in_impl_task;
+  MetaThread *thread = META_THREAD (kms);
+
+  return meta_thread_is_in_impl_task (thread);
 }
 
 gboolean
 meta_kms_is_waiting_for_impl_task (MetaKms *kms)
 {
-  return kms->waiting_for_impl_task;
+  MetaThread *thread = META_THREAD (kms);
+
+  return meta_thread_is_waiting_for_impl_task (thread);
 }
 
 typedef struct _UpdateStatesData
@@ -488,11 +328,12 @@ meta_kms_update_states_in_impl (MetaKms          *kms,
 }
 
 static gpointer
-update_states_in_impl (MetaKmsImpl  *impl,
-                       gpointer      user_data,
-                       GError      **error)
+update_states_in_impl (MetaThreadImpl  *thread_impl,
+                       gpointer         user_data,
+                       GError         **error)
 {
   UpdateStatesData *data = user_data;
+  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
   MetaKms *kms = meta_kms_impl_get_kms (impl);
 
   return GUINT_TO_POINTER (meta_kms_update_states_in_impl (kms, data));
@@ -557,7 +398,7 @@ on_udev_device_removed (MetaUdev    *udev,
 MetaBackend *
 meta_kms_get_backend (MetaKms *kms)
 {
-  return kms->backend;
+  return meta_thread_get_backend (META_THREAD (kms));
 }
 
 GList *
@@ -587,10 +428,12 @@ meta_kms_create_device (MetaKms            *kms,
 }
 
 static gpointer
-prepare_shutdown_in_impl (MetaKmsImpl  *impl,
-                          gpointer      user_data,
-                          GError      **error)
+prepare_shutdown_in_impl (MetaThreadImpl  *thread_impl,
+                          gpointer         user_data,
+                          GError         **error)
 {
+  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
+
   meta_kms_impl_prepare_shutdown (impl);
   return GINT_TO_POINTER (TRUE);
 }
@@ -600,7 +443,7 @@ on_prepare_shutdown (MetaBackend *backend,
                      MetaKms     *kms)
 {
   meta_kms_run_impl_task_sync (kms, prepare_shutdown_in_impl, NULL, NULL);
-  flush_callbacks (kms);
+  meta_thread_flush_callbacks (META_THREAD (kms));
 }
 
 MetaKms *
@@ -612,15 +455,10 @@ meta_kms_new (MetaBackend   *backend,
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
 
-  kms = g_object_new (META_TYPE_KMS, NULL);
+  kms = g_object_new (META_TYPE_KMS,
+                      "backend", backend,
+                      NULL);
   kms->flags = flags;
-  kms->backend = backend;
-  kms->impl = meta_kms_impl_new (kms);
-  if (!kms->impl)
-    {
-      g_object_unref (kms);
-      return NULL;
-    }
 
   if (!(flags & META_KMS_FLAG_NO_MODE_SETTING))
     {
@@ -643,15 +481,9 @@ static void
 meta_kms_finalize (GObject *object)
 {
   MetaKms *kms = META_KMS (object);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (kms->backend);
+  MetaBackend *backend = meta_thread_get_backend (META_THREAD (kms));
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
-  GList *l;
-
-  for (l = kms->pending_callbacks; l; l = l->next)
-    meta_kms_callback_data_free (l->data);
-  g_list_free (kms->pending_callbacks);
-
-  g_clear_handle_id (&kms->callback_source_id, g_source_remove);
 
   g_list_free_full (kms->devices, g_object_unref);
 
@@ -675,6 +507,7 @@ static void
 meta_kms_class_init (MetaKmsClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  MetaThreadClass *thread_class = META_THREAD_CLASS (klass);
 
   object_class->finalize = meta_kms_finalize;
   object_class->constructed = meta_kms_constructed;
@@ -687,6 +520,8 @@ meta_kms_class_init (MetaKmsClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   META_TYPE_KMS_RESOURCE_CHANGES);
+
+  meta_thread_class_register_impl_type (thread_class, META_TYPE_KMS_IMPL);
 }
 
 void

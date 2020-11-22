@@ -30,32 +30,28 @@
 typedef void (* MetaKmsCallback) (MetaKms  *kms,
                                   gpointer  user_data);
 
-typedef gpointer (* MetaKmsImplTaskFunc) (MetaKmsImpl  *impl,
-                                          gpointer      user_data,
-                                          GError      **error);
-
-void meta_kms_queue_callback (MetaKms         *kms,
-                              MetaKmsCallback  callback,
-                              gpointer         user_data,
-                              GDestroyNotify   user_data_destroy);
+void meta_kms_queue_callback (MetaKms            *kms,
+                              MetaThreadCallback  callback,
+                              gpointer            user_data,
+                              GDestroyNotify      user_data_destroy);
 
 void meta_kms_queue_result_callback (MetaKms               *kms,
                                      MetaKmsResultListener *listener);
 
-gpointer meta_kms_run_impl_task_sync (MetaKms              *kms,
-                                      MetaKmsImplTaskFunc   func,
-                                      gpointer              user_data,
-                                      GError              **error);
+gpointer meta_kms_run_impl_task_sync (MetaKms             *kms,
+                                      MetaThreadTaskFunc   func,
+                                      gpointer             user_data,
+                                      GError             **error);
 
 GSource * meta_kms_add_source_in_impl (MetaKms        *kms,
                                        GSourceFunc     func,
                                        gpointer        user_data,
                                        GDestroyNotify  user_data_destroy);
 
-GSource * meta_kms_register_fd_in_impl (MetaKms             *kms,
-                                        int                  fd,
-                                        MetaKmsImplTaskFunc  dispatch,
-                                        gpointer             user_data);
+GSource * meta_kms_register_fd_in_impl (MetaKms            *kms,
+                                        int                 fd,
+                                        MetaThreadTaskFunc  dispatch,
+                                        gpointer            user_data);
 
 META_EXPORT_TEST
 MetaKmsResourceChanges meta_kms_update_states_sync (MetaKms     *kms,

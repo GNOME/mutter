@@ -26,13 +26,6 @@
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-update-private.h"
 
-enum
-{
-  PROP_0,
-
-  PROP_KMS,
-};
-
 struct _MetaKmsImpl
 {
   GObject parent;
@@ -40,19 +33,17 @@ struct _MetaKmsImpl
 
 typedef struct _MetaKmsImplPrivate
 {
-  MetaKms *kms;
-
   GList *impl_devices;
 } MetaKmsImplPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaKmsImpl, meta_kms_impl, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaKmsImpl, meta_kms_impl, META_TYPE_THREAD_IMPL)
 
 MetaKms *
 meta_kms_impl_get_kms (MetaKmsImpl *impl)
 {
-  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
 
-  return priv->kms;
+  return META_KMS (meta_thread_impl_get_thread (thread_impl));
 }
 
 void
@@ -61,7 +52,7 @@ meta_kms_impl_add_impl_device (MetaKmsImpl       *impl,
 {
   MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
 
-  meta_assert_in_kms_impl (priv->kms);
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
   priv->impl_devices = g_list_append (priv->impl_devices, impl_device);
 }
@@ -72,7 +63,7 @@ meta_kms_impl_remove_impl_device (MetaKmsImpl       *impl,
 {
   MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
 
-  meta_assert_in_kms_impl (priv->kms);
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
   priv->impl_devices = g_list_remove (priv->impl_devices, impl_device);
 }
@@ -121,46 +112,6 @@ meta_kms_impl_new (MetaKms *kms)
 }
 
 static void
-meta_kms_impl_set_property (GObject      *object,
-                            guint         prop_id,
-                            const GValue *value,
-                            GParamSpec   *pspec)
-{
-  MetaKmsImpl *impl = META_KMS_IMPL (object);
-  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
-
-  switch (prop_id)
-    {
-    case PROP_KMS:
-      priv->kms = g_value_get_object (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-    }
-}
-
-static void
-meta_kms_impl_get_property (GObject    *object,
-                            guint       prop_id,
-                            GValue     *value,
-                            GParamSpec *pspec)
-{
-  MetaKmsImpl *impl = META_KMS_IMPL (object);
-  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
-
-  switch (prop_id)
-    {
-    case PROP_KMS:
-      g_value_set_object (value, priv->kms);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-    }
-}
-
-static void
 meta_kms_impl_init (MetaKmsImpl *kms_impl)
 {
 }
@@ -168,20 +119,4 @@ meta_kms_impl_init (MetaKmsImpl *kms_impl)
 static void
 meta_kms_impl_class_init (MetaKmsImplClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  GParamSpec *pspec;
-
-  object_class->set_property = meta_kms_impl_set_property;
-  object_class->get_property = meta_kms_impl_get_property;
-
-  pspec = g_param_spec_object ("kms",
-                               "kms",
-                               "MetaKms",
-                               META_TYPE_KMS,
-                               G_PARAM_READWRITE |
-                               G_PARAM_STATIC_STRINGS |
-                               G_PARAM_CONSTRUCT_ONLY);
-  g_object_class_install_property (object_class,
-                                   PROP_KMS,
-                                   pspec);
 }

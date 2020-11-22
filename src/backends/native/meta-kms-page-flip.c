@@ -142,13 +142,13 @@ meta_kms_page_flip_data_get_crtc (MetaKmsPageFlipData *page_flip_data)
 }
 
 static void
-meta_kms_page_flip_data_flipped (MetaKms  *kms,
-                                 gpointer  user_data)
+meta_kms_page_flip_data_flipped (MetaThread *thread,
+                                 gpointer    user_data)
 {
   MetaKmsPageFlipData *page_flip_data = user_data;
   GList *l;
 
-  meta_assert_not_in_kms_impl (kms);
+  meta_assert_not_in_kms_impl (META_KMS (thread));
 
   for (l = page_flip_data->closures; l; l = l->next)
     {
@@ -219,13 +219,13 @@ meta_kms_page_flip_data_flipped_in_impl (MetaKmsPageFlipData *page_flip_data)
 }
 
 static void
-meta_kms_page_flip_data_mode_set_fallback (MetaKms  *kms,
-                                           gpointer  user_data)
+meta_kms_page_flip_data_mode_set_fallback (MetaThread *thread,
+                                           gpointer    user_data)
 {
   MetaKmsPageFlipData *page_flip_data = user_data;
   GList *l;
 
-  meta_assert_not_in_kms_impl (kms);
+  meta_assert_not_in_kms_impl (META_KMS (thread));
 
   for (l = page_flip_data->closures; l; l = l->next)
     {
@@ -250,13 +250,13 @@ meta_kms_page_flip_data_mode_set_fallback_in_impl (MetaKmsPageFlipData *page_fli
 }
 
 static void
-meta_kms_page_flip_data_discard (MetaKms  *kms,
-                                 gpointer  user_data)
+meta_kms_page_flip_data_discard (MetaThread *thread,
+                                 gpointer    user_data)
 {
   MetaKmsPageFlipData *page_flip_data = user_data;
   GList *l;
 
-  meta_assert_not_in_kms_impl (kms);
+  meta_assert_not_in_kms_impl (META_KMS (thread));
 
   for (l = page_flip_data->closures; l; l = l->next)
     {

@@ -248,9 +248,9 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
 }
 
 static gpointer
-kms_event_dispatch_in_impl (MetaKmsImpl  *impl,
-                            gpointer      user_data,
-                            GError      **error)
+kms_event_dispatch_in_impl (MetaThreadImpl  *impl,
+                            gpointer         user_data,
+                            GError         **error)
 {
   MetaKmsImplDevice *impl_device = user_data;
   gboolean ret;
@@ -992,12 +992,12 @@ meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
 }
 
 static void
-emit_resources_changed_callback (MetaKms  *kms,
-                                 gpointer  user_data)
+emit_resources_changed_callback (MetaThread *thread,
+                                 gpointer    user_data)
 {
   MetaKmsResourceChanges changes = GPOINTER_TO_UINT (user_data);
 
-  meta_kms_emit_resources_changed (kms, changes);
+  meta_kms_emit_resources_changed (META_KMS (thread), changes);
 }
 
 static void

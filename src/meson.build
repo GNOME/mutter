@@ -838,6 +838,11 @@ if have_native_backend
     'backends/native/meta-seat-native.h',
     'backends/native/meta-stage-native.c',
     'backends/native/meta-stage-native.h',
+    'backends/native/meta-thread-impl.c',
+    'backends/native/meta-thread-impl.h',
+    'backends/native/meta-thread.c',
+    'backends/native/meta-thread.h',
+    'backends/native/meta-thread-private.h',
     'backends/native/meta-udev.c',
     'backends/native/meta-udev.h',
     'backends/native/meta-virtual-input-device-native.c',
@@ -874,6 +879,7 @@ if have_native_backend
     'backends/native/meta-backend-native-types.h',
     'backends/native/meta-drm-buffer.h',
     'backends/native/meta-kms-types.h',
+    'backends/native/meta-thread.h',
   ]
 endif
 

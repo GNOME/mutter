@@ -24,10 +24,11 @@
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms.h"
+#include "backends/native/meta-thread-impl.h"
 
 #define META_TYPE_KMS_IMPL (meta_kms_impl_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsImpl, meta_kms_impl,
-                      META, KMS_IMPL, GObject)
+                      META, KMS_IMPL, MetaThreadImpl)
 
 MetaKms * meta_kms_impl_get_kms (MetaKmsImpl *impl);
 

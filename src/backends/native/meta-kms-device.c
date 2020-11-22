@@ -232,9 +232,9 @@ meta_kms_device_get_fallback_modes (MetaKmsDevice *device)
 }
 
 static gpointer
-disable_device_in_impl (MetaKmsImpl  *impl,
-                        gpointer      user_data,
-                        GError      **error)
+disable_device_in_impl (MetaThreadImpl  *thread_impl,
+                        gpointer         user_data,
+                        GError         **error)
 {
   MetaKmsImplDevice *impl_device = user_data;
 
@@ -289,9 +289,9 @@ typedef struct
 } PostUpdateData;
 
 static gpointer
-process_update_in_impl (MetaKmsImpl  *impl,
-                        gpointer      user_data,
-                        GError      **error)
+process_update_in_impl (MetaThreadImpl  *thread_impl,
+                        gpointer         user_data,
+                        GError         **error)
 {
   PostUpdateData *data = user_data;
   MetaKmsUpdate *update = data->update;
@@ -484,10 +484,11 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
 }
 
 static gpointer
-create_impl_device_in_impl (MetaKmsImpl  *impl,
-                            gpointer      user_data,
-                            GError      **error)
+create_impl_device_in_impl (MetaThreadImpl  *thread_impl,
+                            gpointer         user_data,
+                            GError         **error)
 {
+  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
   CreateImplDeviceData *data = user_data;
   MetaKmsImplDevice *impl_device;
 
@@ -561,9 +562,9 @@ meta_kms_device_new (MetaKms            *kms,
 }
 
 static gpointer
-free_impl_device_in_impl (MetaKmsImpl  *impl,
-                          gpointer      user_data,
-                          GError      **error)
+free_impl_device_in_impl (MetaThreadImpl  *thread_impl,
+                          gpointer         user_data,
+                          GError         **error)
 {
   MetaKmsImplDevice *impl_device = user_data;
 

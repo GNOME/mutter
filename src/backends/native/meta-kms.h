@@ -24,6 +24,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-kms-types.h"
+#include "backends/native/meta-thread.h"
 
 typedef enum _MetaKmsFlags
 {
@@ -32,7 +33,7 @@ typedef enum _MetaKmsFlags
 } MetaKmsFlags;
 
 #define META_TYPE_KMS (meta_kms_get_type ())
-G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, GObject)
+G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, MetaThread)
 
 void meta_kms_discard_pending_page_flips (MetaKms *kms);
 
