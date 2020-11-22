@@ -455,9 +455,10 @@ meta_kms_new (MetaBackend   *backend,
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
 
-  kms = g_object_new (META_TYPE_KMS,
-                      "backend", backend,
-                      NULL);
+  kms = g_initable_new (META_TYPE_KMS,
+                        NULL, error,
+                        "backend", backend,
+                        NULL);
   kms->flags = flags;
 
   if (!(flags & META_KMS_FLAG_NO_MODE_SETTING))

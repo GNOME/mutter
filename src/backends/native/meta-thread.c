@@ -79,8 +79,12 @@ typedef struct _MetaThreadClassPrivate
   GType impl_type;
 } MetaThreadClassPrivate;
 
+static void initable_iface_init (GInitableIface *initable_iface);
+
 G_DEFINE_TYPE_WITH_CODE (MetaThread, meta_thread, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (MetaThread)
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init)
                          g_type_add_class_private (g_define_type_id,
                                                    sizeof (MetaThreadClassPrivate)))
 
@@ -132,17 +136,17 @@ meta_thread_set_property (GObject      *object,
     }
 }
 
-static void
-meta_thread_constructed (GObject *object)
+static gboolean
+meta_thread_initable_init (GInitable     *initable,
+                           GCancellable  *cancellable,
+                           GError       **error)
 {
-  MetaThread *thread = META_THREAD (object);
+  MetaThread *thread = META_THREAD (initable);
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   MetaThreadClass *thread_class = META_THREAD_GET_CLASS (thread);
   MetaThreadClassPrivate *class_priv =
     G_TYPE_CLASS_GET_PRIVATE (thread_class, META_TYPE_THREAD,
                               MetaThreadClassPrivate);
-
-  G_OBJECT_CLASS (meta_thread_parent_class)->constructed (object);
 
   priv->main_context = g_main_context_get_thread_default ();
 
@@ -150,6 +154,14 @@ meta_thread_constructed (GObject *object)
   priv->impl = g_object_new (class_priv->impl_type,
                              "thread", thread,
                              NULL);
+
+  return TRUE;
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_iface->init = meta_thread_initable_init;
 }
 
 static void
@@ -174,7 +186,6 @@ meta_thread_class_init (MetaThreadClass *klass)
 
   object_class->get_property = meta_thread_get_property;
   object_class->set_property = meta_thread_set_property;
-  object_class->constructed = meta_thread_constructed;
   object_class->finalize = meta_thread_finalize;
 
   obj_props[PROP_BACKEND] =
