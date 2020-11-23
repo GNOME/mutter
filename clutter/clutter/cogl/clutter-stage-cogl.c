@@ -485,8 +485,6 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 
   redraw_clip = clutter_stage_view_take_redraw_clip (view);
-  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
-    queued_redraw_clip = cairo_region_copy (redraw_clip);
 
   /* NB: a NULL redraw clip == full stage redraw */
   if (!redraw_clip)
@@ -523,6 +521,16 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
                                                       -view_rect.x,
                                                       -view_rect.y,
                                                       fb_scale);
+
+      if (G_UNLIKELY (clutter_paint_debug_flags &
+                      CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
+        {
+          queued_redraw_clip =
+            scale_offset_and_clamp_region (fb_clip_region,
+                                           1.0 / fb_scale,
+                                           view_rect.x,
+                                           view_rect.y);
+        }
     }
   else
     {
@@ -533,6 +541,10 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
         .height = fb_height,
       };
       fb_clip_region = cairo_region_create_rectangle (&fb_rect);
+
+      if (G_UNLIKELY (clutter_paint_debug_flags &
+                      CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
+        queued_redraw_clip = cairo_region_reference (redraw_clip);
 
       g_clear_pointer (&redraw_clip, cairo_region_destroy);
       redraw_clip = cairo_region_create_rectangle (&view_rect);
