@@ -120,8 +120,6 @@ ray_intersects_input_region (Record                   *rec,
                              const graphene_ray_t     *ray,
                              const graphene_point3d_t *point)
 {
-  graphene_triangle_t t0, t1;
-
   maybe_project_record (rec);
 
   if (G_LIKELY (is_axis_aligned_2d_rectangle (rec->vertices)))
@@ -132,36 +130,37 @@ ray_intersects_input_region (Record                   *rec,
       return graphene_box_contains_point (&box, point) ||
              graphene_ray_intersects_box (ray, &box);
     }
+  else
+    {
+      graphene_triangle_t t0, t1;
 
-  /*
-   * Degrade the projected quad into the following triangles:
-   *
-   * 0 -------------- 1
-   * |  •             |
-   * |     •     t0   |
-   * |        •       |
-   * |   t1      •    |
-   * |              • |
-   * 3 -------------- 2
-   */
+      /*
+       * Degrade the projected quad into the following triangles:
+       *
+       * 0 -------------- 1
+       * |  •             |
+       * |     •     t0   |
+       * |        •       |
+       * |   t1      •    |
+       * |              • |
+       * 3 -------------- 2
+       */
 
-  graphene_triangle_init_from_point3d (&t0,
-                                       &rec->vertices[0],
-                                       &rec->vertices[1],
-                                       &rec->vertices[2]);
+      graphene_triangle_init_from_point3d (&t0,
+                                           &rec->vertices[0],
+                                           &rec->vertices[1],
+                                           &rec->vertices[2]);
 
-  graphene_triangle_init_from_point3d (&t1,
-                                       &rec->vertices[0],
-                                       &rec->vertices[2],
-                                       &rec->vertices[3]);
+      graphene_triangle_init_from_point3d (&t1,
+                                           &rec->vertices[0],
+                                           &rec->vertices[2],
+                                           &rec->vertices[3]);
 
-  if (graphene_triangle_contains_point (&t0, point) ||
-      graphene_triangle_contains_point (&t1, point) ||
-      graphene_ray_intersects_triangle (ray, &t0) ||
-      graphene_ray_intersects_triangle (ray, &t1))
-    return TRUE;
-
-  return FALSE;
+      return graphene_triangle_contains_point (&t0, point) ||
+             graphene_triangle_contains_point (&t1, point) ||
+             graphene_ray_intersects_triangle (ray, &t0) ||
+             graphene_ray_intersects_triangle (ray, &t1);
+    }
 }
 
 static gboolean
