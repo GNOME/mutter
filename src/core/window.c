@@ -6313,7 +6313,7 @@ update_resize (MetaWindow *window,
   else if (window->display->grab_op & META_GRAB_OP_WINDOW_DIR_NORTH)
     new_rect.height -= dy;
 
-  ensure_size_hints_satisfied (&new_rect, &window->size_hints);
+  meta_window_maybe_apply_size_hints (window, &new_rect);
 
   /* If we're waiting for a request for _NET_WM_SYNC_REQUEST, we'll
    * resize the window when the window responds, or when we time
