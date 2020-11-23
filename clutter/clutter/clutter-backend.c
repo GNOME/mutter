@@ -111,7 +111,7 @@ clutter_backend_finalize (GObject *gobject)
   g_source_destroy (backend->cogl_source);
 
   g_free (backend->font_name);
-  clutter_backend_set_font_options (backend, NULL);
+  g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
   g_clear_object (&backend->input_method);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->finalize (gobject);
