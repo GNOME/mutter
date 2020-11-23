@@ -88,15 +88,15 @@ meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
                                                      ClutterStage     *stage)
 {
   ClutterStageView *current_primary_view = NULL;
-  float highest_refresh_rate = 0;
-  float biggest_unobscurred_fraction = 0;
+  float highest_refresh_rate = 0.f;
+  float biggest_unobscurred_fraction = 0.f;
   GList *l;
 
   for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
     {
       ClutterStageView *stage_view = l->data;
       float refresh_rate;
-      float unobscurred_fraction = 1.0;
+      float unobscurred_fraction = 1.f;
 
       if (clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)))
         {
@@ -106,10 +106,18 @@ meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
         }
       else
         {
-          if (meta_surface_actor_is_obscured_on_stage_view (actor,
-                                                            stage_view,
-                                                            &unobscurred_fraction))
-            continue;
+          if (l->next || biggest_unobscurred_fraction > 0.f)
+            {
+              if (meta_surface_actor_is_obscured_on_stage_view (actor,
+                                                                stage_view,
+                                                                &unobscurred_fraction))
+                continue;
+            }
+          else
+            {
+              if (meta_surface_actor_is_obscured (actor))
+                continue;
+            }
         }
 
       refresh_rate = clutter_stage_view_get_refresh_rate (stage_view);
