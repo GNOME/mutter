@@ -91,6 +91,30 @@ maybe_project_record (Record *rec)
     }
 }
 
+static inline gboolean
+is_axis_aligned_2d_rectangle (const graphene_point3d_t vertices[4])
+{
+  int i;
+
+  for (i = 0; i < 4; i++)
+    {
+      if (!G_APPROX_VALUE (vertices[i].z,
+                           vertices[(i + 1) % 4].z,
+                           FLT_EPSILON))
+        return FALSE;
+
+      if (!G_APPROX_VALUE (vertices[i].x,
+                           vertices[(i + 1) % 4].x,
+                           FLT_EPSILON) &&
+          !G_APPROX_VALUE (vertices[i].y,
+                           vertices[(i + 1) % 4].y,
+                           FLT_EPSILON))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static gboolean
 ray_intersects_input_region (Record                   *rec,
                              const graphene_ray_t     *ray,
@@ -99,6 +123,15 @@ ray_intersects_input_region (Record                   *rec,
   graphene_triangle_t t0, t1;
 
   maybe_project_record (rec);
+
+  if (G_LIKELY (is_axis_aligned_2d_rectangle (rec->vertices)))
+    {
+      graphene_box_t box;
+
+      graphene_box_init_from_points (&box, 4, rec->vertices);
+      return graphene_box_contains_point (&box, point) ||
+             graphene_ray_intersects_box (ray, &box);
+    }
 
   /*
    * Degrade the projected quad into the following triangles:
