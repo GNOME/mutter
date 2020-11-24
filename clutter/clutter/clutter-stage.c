@@ -3028,40 +3028,6 @@ _clutter_stage_remove_touch_drag_actor (ClutterStage         *stage,
                        NULL);
 }
 
-/**
- * clutter_stage_set_sync_delay:
- * @stage: a #ClutterStage
- * @sync_delay: number of milliseconds after frame presentation to wait
- *   before painting the next frame. If less than zero, restores the
- *   default behavior where redraw is throttled to the refresh rate but
- *   not synchronized to it.
- *
- * This function enables an alternate behavior where Clutter draws at
- * a fixed point in time after the frame presentation time (also known
- * as the VBlank time). This is most useful when the application
- * wants to show incoming data with predictable latency. (The primary
- * example of this would be a window system compositor.) By synchronizing
- * to provide new data before Clutter redraws, an external source of
- * updates (in the compositor, an application) can get a reliable latency.
- *
- * The appropriate value of @sync_delay depends on the complexity of
- * drawing the stage's scene graph - in general a value of between 0
- * and 8 ms (up to one-half of a typical 60hz frame rate) is appropriate.
- * using a larger value will reduce latency but risks skipping a frame if
- * drawing the stage takes too long.
- *
- * Since: 1.14
- * Stability: unstable
- */
-void
-clutter_stage_set_sync_delay (ClutterStage *stage,
-                              gint          sync_delay)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  stage->priv->sync_delay = sync_delay;
-}
-
 int64_t
 clutter_stage_get_frame_counter (ClutterStage          *stage)
 {

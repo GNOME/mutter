@@ -548,8 +548,6 @@ meta_compositor_do_manage (MetaCompositor  *compositor,
                       G_CALLBACK (on_presented),
                       compositor);
 
-  clutter_stage_set_sync_delay (CLUTTER_STAGE (stage), META_SYNC_DELAY);
-
   priv->window_group = meta_window_group_new (display);
   priv->top_window_group = meta_window_group_new (display);
   priv->feedback_group = meta_window_group_new (display);
