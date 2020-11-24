@@ -3637,6 +3637,11 @@ clutter_actor_paint (ClutterActor        *self,
   g_autoptr (ClutterPaintNode) root_node = NULL;
   ClutterActorPrivate *priv;
   ClutterActorBox clip;
+  gboolean should_cull_out = (clutter_paint_debug_flags &
+                              (CLUTTER_DEBUG_DISABLE_CULLING |
+                               CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)) !=
+                             (CLUTTER_DEBUG_DISABLE_CULLING |
+                              CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS);
   gboolean culling_inhibited;
   gboolean clip_set = FALSE;
 
@@ -3792,11 +3797,7 @@ clutter_actor_paint (ClutterActor        *self,
        * the initialization is redundant :-( */
       ClutterCullResult result = CLUTTER_CULL_RESULT_IN;
 
-      if (G_LIKELY ((clutter_paint_debug_flags &
-                     (CLUTTER_DEBUG_DISABLE_CULLING |
-                      CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)) !=
-                    (CLUTTER_DEBUG_DISABLE_CULLING |
-                     CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
+      if (should_cull_out)
         _clutter_actor_update_last_paint_volume (self);
 
       success = cull_actor (self, paint_context, &result);
@@ -3828,13 +3829,7 @@ clutter_actor_paint (ClutterActor        *self,
    */
   if (!priv->children_painted)
     {
-      if (!culling_inhibited &&
-          !in_clone_paint () &&
-          G_LIKELY ((clutter_paint_debug_flags &
-                     (CLUTTER_DEBUG_DISABLE_CULLING |
-                      CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)) !=
-                    (CLUTTER_DEBUG_DISABLE_CULLING |
-                     CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
+      if (!culling_inhibited && !in_clone_paint () && should_cull_out)
         ensure_last_paint_volumes_updated (self);
     }
 
