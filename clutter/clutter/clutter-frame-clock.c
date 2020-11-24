@@ -410,7 +410,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   int64_t frame_count;
   ClutterFrameResult result;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameCLockDispatch, "Frame Clock (dispatch)");
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Frame Clock (dispatch)");
 
   g_source_set_ready_time (frame_clock->source, -1);
 
