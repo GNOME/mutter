@@ -199,9 +199,6 @@ gboolean        clutter_stage_is_redraw_queued_on_view          (ClutterStage   
 #ifdef CLUTTER_ENABLE_EXPERIMENTAL_API
 CLUTTER_EXPORT
 void            clutter_stage_set_sync_delay                    (ClutterStage          *stage,
-                                                                 gint                   sync_delay);
-CLUTTER_EXPORT
-void            clutter_stage_skip_sync_delay                   (ClutterStage          *stage);
 #endif
 
 CLUTTER_EXPORT
