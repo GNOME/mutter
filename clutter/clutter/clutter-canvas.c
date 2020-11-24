@@ -50,8 +50,6 @@
 
 #include "clutter-canvas.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
-
 #include "clutter-actor-private.h"
 #include "clutter-backend.h"
 #include "clutter-cairo.h"

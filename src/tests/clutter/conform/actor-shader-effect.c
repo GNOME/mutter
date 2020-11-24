@@ -1,4 +1,3 @@
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 

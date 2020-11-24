@@ -53,7 +53,6 @@
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
 #include "clutter-deform-effect.h"
 
 #include <cogl/cogl.h>

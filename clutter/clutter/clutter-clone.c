@@ -39,7 +39,6 @@
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
 #include "clutter-actor-private.h"
 #include "clutter-clone.h"
 #include "clutter-debug.h"

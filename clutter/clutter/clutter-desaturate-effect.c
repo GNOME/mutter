@@ -41,8 +41,6 @@
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
-
 #include <math.h>
 
 #include "clutter-desaturate-effect.h"

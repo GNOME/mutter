@@ -41,8 +41,6 @@
 
 #include <math.h>
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
-
 #include "clutter-brightness-contrast-effect.h"
 
 #include <cogl/cogl.h>

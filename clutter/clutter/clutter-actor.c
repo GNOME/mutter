@@ -609,7 +609,6 @@
 #include <cogl/cogl.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
 
 #include "clutter-actor-private.h"
 

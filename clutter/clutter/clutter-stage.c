@@ -48,7 +48,6 @@
 #include <cairo-gobject.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
 
 #include "clutter-stage.h"
 #include "deprecated/clutter-container.h"

@@ -27,8 +27,6 @@
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
-
 #include "clutter-config.h"
 
 #include "clutter-stage-cogl.h"

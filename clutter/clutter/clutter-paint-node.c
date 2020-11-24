@@ -60,8 +60,6 @@
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
-
 #include <pango/pango.h>
 #include <cogl/cogl.h>
 #include <json-glib/json-glib.h>

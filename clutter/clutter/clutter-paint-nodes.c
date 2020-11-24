@@ -33,8 +33,6 @@
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_ENABLE_EXPERIMENTAL_API
-
 #include "clutter-paint-node-private.h"
 
 #include <pango/pango.h>
