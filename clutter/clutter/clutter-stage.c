@@ -128,8 +128,6 @@ struct _ClutterStagePrivate
   GSList *pending_relayouts;
   GHashTable *pending_queue_redraws;
 
-  gint sync_delay;
-
   int update_freeze_count;
 
   gboolean needs_update_devices;
@@ -1599,7 +1597,6 @@ clutter_stage_init (ClutterStage *self)
 
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
-  priv->sync_delay = -1;
   priv->motion_events_enabled = TRUE;
 
   priv->pointer_devices =
