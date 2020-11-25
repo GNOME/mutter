@@ -197,7 +197,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       frame_clock->last_presentation_time_us = g_get_monotonic_time ();
     }
 
-  frame_clock->refresh_rate = frame_info->refresh_rate;
+  if (frame_info->refresh_rate > 1)
+    frame_clock->refresh_rate = frame_info->refresh_rate;
 
   switch (frame_clock->state)
     {
