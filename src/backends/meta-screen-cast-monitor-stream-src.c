@@ -443,6 +443,9 @@ maybe_paint_cursor_sprite (MetaScreenCastMonitorStreamSrc *monitor_src,
   cairo_surface_t *surface;
   cairo_t *cr;
 
+  if (!is_cursor_in_stream (monitor_src))
+    return;
+
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (!cursor_sprite)
     return;
