@@ -5398,8 +5398,6 @@ meta_test_monitor_wm_tiling (void)
   meta_window_move_to_monitor (test_window, 1);
   check_test_client_state (test_client);
 
-  fprintf(stderr, ":::: %s:%d %s() - UNPLUGGING\n", __FILE__, __LINE__, __func__);
-
   test_case.setup.n_outputs = 0;
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
