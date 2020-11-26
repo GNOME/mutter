@@ -173,8 +173,9 @@ struct _MetaInputSettingsClass
                                     ClutterInputDevice *device);
 };
 
-void meta_input_settings_maybe_save_numlock_state    (MetaInputSettings *input_settings);
-void meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
+void meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings,
+                                                   gboolean           numlock_state);
+gboolean meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
 
 void meta_input_settings_set_device_matrix (MetaInputSettings  *input_settings,
                                             ClutterInputDevice *device,

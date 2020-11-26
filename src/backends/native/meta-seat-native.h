@@ -107,9 +107,6 @@ void meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
 
 xkb_layout_index_t meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat);
 
-void meta_seat_native_set_keyboard_numlock (MetaSeatNative *seat,
-                                            gboolean        numlock_state);
-
 void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
                                            gboolean        repeat,
                                            uint32_t        delay,

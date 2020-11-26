@@ -157,7 +157,6 @@ struct _MetaBackendPrivate
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
-  gulong keymap_state_changed_id;
 
   GHashTable *device_monitors;
 
@@ -197,16 +196,6 @@ meta_backend_finalize (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  if (priv->keymap_state_changed_id)
-    {
-      ClutterSeat *seat;
-      ClutterKeymap *keymap;
-
-      seat = clutter_backend_get_default_seat (priv->clutter_backend);
-      keymap = clutter_seat_get_keymap (seat);
-      g_clear_signal_handler (&priv->keymap_state_changed_id, keymap);
-    }
 
   g_list_free_full (priv->gpus, g_object_unref);
 
@@ -579,7 +568,6 @@ meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
-  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
 
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
@@ -601,15 +589,6 @@ meta_backend_real_post_init (MetaBackend *backend)
                            G_CONNECT_AFTER);
 
   priv->input_settings = meta_backend_create_input_settings (backend);
-
-  if (priv->input_settings)
-    {
-      priv->keymap_state_changed_id =
-        g_signal_connect_swapped (keymap, "state-changed",
-                                  G_CALLBACK (meta_input_settings_maybe_save_numlock_state),
-                                  priv->input_settings);
-      meta_input_settings_maybe_restore_numlock_state (priv->input_settings);
-    }
 
   priv->input_mapper = meta_input_mapper_new ();
   g_signal_connect (priv->input_mapper, "device-mapped",
@@ -1356,14 +1335,6 @@ meta_backend_lock_layout_group (MetaBackend *backend,
 {
   META_BACKEND_GET_CLASS (backend)->lock_layout_group (backend, idx);
 }
-
-void
-meta_backend_set_numlock (MetaBackend *backend,
-                          gboolean     numlock_state)
-{
-  META_BACKEND_GET_CLASS (backend)->set_numlock (backend, numlock_state);
-}
-
 
 /**
  * meta_backend_get_stage:

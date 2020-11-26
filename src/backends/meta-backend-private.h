@@ -100,9 +100,6 @@ struct _MetaBackendClass
   void (* update_screen_size) (MetaBackend *backend, int width, int height);
   void (* select_stage_events) (MetaBackend *backend);
 
-  void (* set_numlock) (MetaBackend *backend,
-                        gboolean     numlock_state);
-
   void (* set_pointer_constraint) (MetaBackend           *backend,
                                    MetaPointerConstraint *constraint);
 };

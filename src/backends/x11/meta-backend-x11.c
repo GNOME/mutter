@@ -82,6 +82,8 @@ struct _MetaBackendX11Private
   uint8_t xkb_event_base;
   uint8_t xkb_error_base;
 
+  gulong keymap_state_changed_id;
+
   struct xkb_keymap *keymap;
   xkb_layout_index_t keymap_layout_group;
 
@@ -605,6 +607,14 @@ meta_backend_x11_post_init (MetaBackend *backend)
       g_signal_connect_object (meta_backend_get_input_settings (backend),
                                "kbd-a11y-changed",
                                G_CALLBACK (on_kbd_a11y_changed), backend, 0);
+
+      if (meta_input_settings_maybe_restore_numlock_state (input_settings))
+        {
+          unsigned int num_mask;
+
+          num_mask = XkbKeysymToModifiers (priv->xdisplay, XK_Num_Lock);
+          XkbLockModifiers (priv->xdisplay, XkbUseCoreKbd, num_mask, num_mask);
+        }
     }
 }
 
@@ -758,19 +768,6 @@ meta_backend_x11_get_keymap_layout_group (MetaBackend *backend)
   return priv->keymap_layout_group;
 }
 
-static void
-meta_backend_x11_set_numlock (MetaBackend *backend,
-                              gboolean     numlock_state)
-{
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  unsigned int num_mask;
-
-  num_mask = XkbKeysymToModifiers (priv->xdisplay, XK_Num_Lock);
-  XkbLockModifiers (priv->xdisplay, XkbUseCoreKbd, num_mask,
-                    numlock_state ? num_mask : 0);
-}
-
 void
 meta_backend_x11_handle_event (MetaBackendX11 *x11,
                                XEvent      *xevent)
@@ -853,8 +850,20 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_x11_finalize (GObject *object)
 {
+  MetaBackend *backend = META_BACKEND (object);
   MetaBackendX11 *x11 = META_BACKEND_X11 (object);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+
+  if (priv->keymap_state_changed_id)
+    {
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+      ClutterKeymap *keymap;
+
+      seat = clutter_backend_get_default_seat (clutter_backend);
+      keymap = clutter_seat_get_keymap (seat);
+      g_clear_signal_handler (&priv->keymap_state_changed_id, keymap);
+    }
 
   if (priv->user_active_alarm != None)
     {
@@ -880,7 +889,6 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
   backend_class->get_keymap_layout_group = meta_backend_x11_get_keymap_layout_group;
-  backend_class->set_numlock = meta_backend_x11_set_numlock;
 }
 
 static void

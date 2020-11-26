@@ -209,9 +209,6 @@ void               meta_seat_impl_set_keyboard_map   (MetaSeatImpl      *seat_im
 void meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
                                                xkb_layout_index_t  idx);
 
-void meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat_impl,
-                                          gboolean      numlock_state);
-
 void meta_seat_impl_set_keyboard_repeat (MetaSeatImpl *seat_impl,
                                          gboolean      repeat,
                                          uint32_t      delay,

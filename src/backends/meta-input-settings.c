@@ -1161,8 +1161,6 @@ meta_input_settings_changed_cb (GSettings  *settings,
           strcmp (key, "repeat-interval") == 0 ||
           strcmp (key, "delay") == 0)
         update_keyboard_repeat (input_settings);
-      else if (strcmp (key, "remember-numlock-state") == 0)
-        meta_input_settings_maybe_save_numlock_state (input_settings);
     }
 }
 
@@ -1838,21 +1836,15 @@ meta_input_settings_init (MetaInputSettings *settings)
 }
 
 void
-meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings)
+meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings,
+                                              gboolean           numlock_state)
 {
   MetaInputSettingsPrivate *priv;
-  ClutterSeat *seat;
-  ClutterKeymap *keymap;
-  gboolean numlock_state;
 
   priv = meta_input_settings_get_instance_private (input_settings);
 
   if (!g_settings_get_boolean (priv->keyboard_settings, "remember-numlock-state"))
     return;
-
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  keymap = clutter_seat_get_keymap (seat);
-  numlock_state = clutter_keymap_get_num_lock_state (keymap);
 
   if (numlock_state == g_settings_get_boolean (priv->keyboard_settings, "numlock-state"))
     return;
@@ -1860,19 +1852,18 @@ meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings)
   g_settings_set_boolean (priv->keyboard_settings, "numlock-state", numlock_state);
 }
 
-void
+gboolean
 meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings)
 {
   MetaInputSettingsPrivate *priv;
-  gboolean numlock_state;
+  gboolean numlock_state = FALSE;
 
   priv = meta_input_settings_get_instance_private (input_settings);
 
-  if (!g_settings_get_boolean (priv->keyboard_settings, "remember-numlock-state"))
-    return;
+  if (g_settings_get_boolean (priv->keyboard_settings, "remember-numlock-state"))
+    numlock_state = g_settings_get_boolean (priv->keyboard_settings, "numlock-state");
 
-  numlock_state = g_settings_get_boolean (priv->keyboard_settings, "numlock-state");
-  meta_backend_set_numlock (meta_get_backend (), numlock_state);
+  return numlock_state;
 }
 
 void

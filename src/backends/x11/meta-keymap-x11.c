@@ -26,6 +26,8 @@
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
 
+#include "backends/meta-backend-private.h"
+#include "backends/meta-input-settings-private.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
@@ -218,6 +220,21 @@ update_locked_mods (MetaKeymapX11 *keymap_x11,
   if ((keymap_x11->caps_lock_state != old_caps_lock_state) ||
       (keymap_x11->num_lock_state != old_num_lock_state))
     g_signal_emit_by_name (keymap_x11, "state-changed");
+
+  if (keymap_x11->num_lock_state != old_num_lock_state)
+    {
+      MetaBackend *backend;
+      MetaInputSettings *input_settings;
+
+      backend = meta_get_backend ();
+      input_settings = meta_backend_get_input_settings (backend);
+
+      if (input_settings)
+        {
+          meta_input_settings_maybe_save_numlock_state (input_settings,
+                                                        keymap_x11->num_lock_state);
+        }
+    }
 }
 
 /* the code to retrieve the keymap direction and cache it

@@ -344,9 +344,18 @@ meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
       MetaInputDeviceNative *keyboard_native;
+      gboolean numlock_active;
 
       g_signal_emit (seat_impl, signals[MODS_STATE_CHANGED], 0);
       meta_seat_impl_sync_leds (seat_impl);
+
+      numlock_active =
+        xkb_state_mod_name_is_active (seat_impl->xkb, XKB_MOD_NAME_NUM,
+                                      XKB_STATE_MODS_LATCHED |
+                                      XKB_STATE_MODS_LOCKED);
+      meta_input_settings_maybe_save_numlock_state (seat_impl->input_settings,
+                                                    numlock_active);
+
       keyboard_native = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
       meta_input_device_native_a11y_maybe_notify_toggle_keys (keyboard_native);
     }
@@ -2466,6 +2475,48 @@ static const struct libinput_interface libinput_interface = {
 };
 
 static void
+meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat_impl,
+                                     gboolean      numlock_state)
+{
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+  xkb_mod_mask_t group_mods;
+  xkb_mod_mask_t numlock;
+  struct xkb_keymap *xkb_keymap;
+  MetaKeymapNative *keymap;
+
+  keymap = seat_impl->keymap;
+  xkb_keymap = meta_keymap_native_get_keyboard_map (keymap);
+
+  numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
+
+  depressed_mods =
+    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_DEPRESSED);
+  latched_mods =
+    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_LATCHED);
+  locked_mods =
+    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_LOCKED);
+  group_mods =
+    xkb_state_serialize_layout (seat_impl->xkb, XKB_STATE_LAYOUT_EFFECTIVE);
+
+  if (numlock_state)
+    locked_mods |= numlock;
+  else
+    locked_mods &= ~numlock;
+
+  xkb_state_update_mask (seat_impl->xkb,
+                         depressed_mods,
+                         latched_mods,
+                         locked_mods,
+                         0, 0,
+                         group_mods);
+
+  meta_seat_impl_sync_leds (seat_impl);
+  meta_keymap_native_update (seat_impl->keymap);
+}
+
+static void
 meta_seat_impl_constructed (GObject *object)
 {
   MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
@@ -2536,6 +2587,9 @@ meta_seat_impl_constructed (GObject *object)
         xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
     }
 
+  if (meta_input_settings_maybe_restore_numlock_state (seat_impl->input_settings))
+    meta_seat_impl_set_keyboard_numlock (seat_impl, TRUE);
+
   seat_impl->has_touchscreen = has_touchscreen (seat_impl);
   seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
   update_touch_mode (seat_impl);
@@ -2604,6 +2658,7 @@ static void
 meta_seat_impl_finalize (GObject *object)
 {
   MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
+  gboolean numlock_active;
   GSList *iter;
 
   for (iter = seat_impl->devices; iter; iter = g_slist_next (iter))
@@ -2620,6 +2675,13 @@ meta_seat_impl_finalize (GObject *object)
   g_object_unref (seat_impl->udev_client);
 
   meta_event_source_free (seat_impl->event_source);
+
+  numlock_active =
+    xkb_state_mod_name_is_active (seat_impl->xkb, XKB_MOD_NAME_NUM,
+                                  XKB_STATE_MODS_LATCHED |
+                                  XKB_STATE_MODS_LOCKED);
+  meta_input_settings_maybe_save_numlock_state (seat_impl->input_settings,
+                                                numlock_active);
 
   xkb_state_unref (seat_impl->xkb);
 
@@ -2974,61 +3036,6 @@ meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
   meta_keymap_native_update (seat_impl->keymap);
 
   seat_impl->layout_idx = idx;
-
-  g_rw_lock_writer_unlock (&seat_impl->state_lock);
-}
-
-/**
- * meta_seat_impl_set_keyboard_numlock: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
- * @numlock_set: TRUE to set NumLock ON, FALSE otherwise.
- *
- * Sets the NumLock state on the backend's #xkb_state .
- */
-void
-meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat_impl,
-                                     gboolean      numlock_state)
-{
-  xkb_mod_mask_t depressed_mods;
-  xkb_mod_mask_t latched_mods;
-  xkb_mod_mask_t locked_mods;
-  xkb_mod_mask_t group_mods;
-  xkb_mod_mask_t numlock;
-  struct xkb_keymap *xkb_keymap;
-  MetaKeymapNative *keymap;
-
-  g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
-
-  g_rw_lock_writer_lock (&seat_impl->state_lock);
-
-  keymap = seat_impl->keymap;
-  xkb_keymap = meta_keymap_native_get_keyboard_map (keymap);
-
-  numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
-
-  depressed_mods =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_DEPRESSED);
-  latched_mods =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_LATCHED);
-  locked_mods =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_LOCKED);
-  group_mods =
-    xkb_state_serialize_layout (seat_impl->xkb, XKB_STATE_LAYOUT_EFFECTIVE);
-
-  if (numlock_state)
-    locked_mods |= numlock;
-  else
-    locked_mods &= ~numlock;
-
-  xkb_state_update_mask (seat_impl->xkb,
-                         depressed_mods,
-                         latched_mods,
-                         locked_mods,
-                         0, 0,
-                         group_mods);
-
-  meta_seat_impl_sync_leds (seat_impl);
-  meta_keymap_native_update (seat_impl->keymap);
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
 }

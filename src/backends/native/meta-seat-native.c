@@ -612,20 +612,6 @@ meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat)
   return seat->xkb_layout_index;
 }
 
-/**
- * meta_seat_native_set_keyboard_numlock: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
- * @numlock_set: TRUE to set NumLock ON, FALSE otherwise.
- *
- * Sets the NumLock state on the backend's #xkb_state .
- */
-void
-meta_seat_native_set_keyboard_numlock (MetaSeatNative *seat,
-                                       gboolean        numlock_state)
-{
-  meta_seat_impl_set_keyboard_numlock (seat->impl, numlock_state);
-}
-
 MetaBarrierManagerNative *
 meta_seat_native_get_barrier_manager (MetaSeatNative *seat)
 {

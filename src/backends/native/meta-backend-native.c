@@ -333,18 +333,6 @@ meta_backend_native_lock_layout_group (MetaBackend *backend,
 }
 
 static void
-meta_backend_native_set_numlock (MetaBackend *backend,
-                                 gboolean     numlock_state)
-{
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat;
-
-  seat = clutter_backend_get_default_seat (clutter_backend);
-  meta_seat_native_set_keyboard_numlock (META_SEAT_NATIVE (seat),
-                                         numlock_state);
-}
-
-static void
 meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
                                             MetaPointerConstraint *constraint)
 {
@@ -576,7 +564,6 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
   backend_class->lock_layout_group = meta_backend_native_lock_layout_group;
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
-  backend_class->set_numlock = meta_backend_native_set_numlock;
 
   backend_class->set_pointer_constraint = meta_backend_native_set_pointer_constraint;
 }
