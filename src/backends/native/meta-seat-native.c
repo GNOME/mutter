@@ -3124,6 +3124,7 @@ meta_seat_native_set_keyboard_map (MetaSeatNative    *seat,
   ClutterKeymap *keymap;
 
   g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+  g_return_if_fail (xkb_keymap != NULL);
 
   keymap = clutter_seat_get_keymap (CLUTTER_SEAT (seat));
   meta_keymap_native_set_keyboard_map (META_KEYMAP_NATIVE (keymap),
