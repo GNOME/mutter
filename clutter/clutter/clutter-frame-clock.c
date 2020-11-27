@@ -280,7 +280,20 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       next_presentation_time_us = logical_clock_phase_us + hw_clock_offset_us;
     }
 
-  /* Skip one interval if we got an early presented event. */
+  /*
+   * Skip one interval if we got an early presented event.
+   *
+   *        last frame this was last_presentation_time
+   *       /       frame_clock->next_presentation_time_us
+   *      /       /
+   * |---|-o-----|-x----->
+   *       |       \
+   *       \        next_presentation_time_us is thus right after the last one
+   *        but got an unexpected early presentation
+   *             \_/
+   *             time_since_last_next_presentation_time_us
+   *
+   */
   last_next_presentation_time_us = frame_clock->next_presentation_time_us;
   time_since_last_next_presentation_time_us =
       next_presentation_time_us - last_next_presentation_time_us;
