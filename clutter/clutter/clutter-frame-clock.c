@@ -44,8 +44,15 @@ typedef struct _EstimateQueue
   int next_index;
 } EstimateQueue;
 
-/* Wait 2ms after vblank before starting to draw next frame */
-#define SYNC_DELAY_US ms2us (2)
+/* When heuristic render time is off,
+ * wait 2ms after vblank before starting to draw next frame.
+ */
+#define SYNC_DELAY_FALLBACK_US ms2us (2)
+
+/* A constant added to heuristic max render time to account for variations
+ * in the estimates.
+ */
+#define MAX_RENDER_TIME_CONSTANT_US ms2us (2)
 
 typedef struct _ClutterFrameListener
 {
@@ -100,6 +107,8 @@ struct _ClutterFrameClock
   EstimateQueue swap_to_rendering_done_us;
   /* Last few durations between buffer swap and KMS submission. */
   EstimateQueue swap_to_flip_us;
+  /* If we got new measurements last frame. */
+  gboolean got_measurements_last_frame;
 
   gboolean pending_reschedule;
   gboolean pending_reschedule_now;
@@ -217,6 +226,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 {
   frame_clock->last_presentation_time_us = frame_info->presentation_time;
 
+  frame_clock->got_measurements_last_frame = FALSE;
+
   if (frame_info->cpu_time_before_buffer_swap_us != 0 &&
       frame_info->gpu_rendering_duration_ns != 0)
     {
@@ -243,6 +254,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                 swap_to_rendering_done_us);
       estimate_queue_add_value (&frame_clock->swap_to_flip_us,
                                 swap_to_flip_us);
+
+      frame_clock->got_measurements_last_frame = TRUE;
     }
 
   if (frame_info->refresh_rate > 1)
@@ -281,6 +294,56 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
     }
 }
 
+static int64_t
+clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
+{
+  int64_t refresh_interval_us;
+  int64_t max_dispatch_to_swap_us = 0;
+  int64_t max_swap_to_rendering_done_us = 0;
+  int64_t max_swap_to_flip_us = 0;
+  int64_t max_render_time_us;
+  int i;
+
+  refresh_interval_us =
+    (int64_t) (0.5 + G_USEC_PER_SEC / frame_clock->refresh_rate);
+
+  if (!frame_clock->got_measurements_last_frame)
+    return refresh_interval_us - SYNC_DELAY_FALLBACK_US;
+
+  for (i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
+    {
+      max_dispatch_to_swap_us =
+        MAX (max_dispatch_to_swap_us,
+             frame_clock->dispatch_to_swap_us.values[i]);
+      max_swap_to_rendering_done_us =
+        MAX (max_swap_to_rendering_done_us,
+             frame_clock->swap_to_rendering_done_us.values[i]);
+      max_swap_to_flip_us =
+        MAX (max_swap_to_flip_us,
+             frame_clock->swap_to_flip_us.values[i]);
+    }
+
+  /* Max render time shows how early the frame clock needs to be dispatched
+   * to make it to the predicted next presentation time. It is composed of:
+   * - An estimate of duration from dispatch start to buffer swap.
+   * - Maximum between estimates of duration from buffer swap to GPU rendering
+   *   finish and duration from buffer swap to buffer submission to KMS. This
+   *   is because both of these things need to happen before the vblank, and
+   *   they are done in parallel.
+   * - Duration of the vblank.
+   * - A constant to account for variations in the above estimates.
+   */
+  max_render_time_us =
+    max_dispatch_to_swap_us +
+    MAX (max_swap_to_rendering_done_us, max_swap_to_flip_us) +
+    frame_clock->vblank_duration_us +
+    MAX_RENDER_TIME_CONSTANT_US;
+
+  max_render_time_us = CLAMP (max_render_time_us, 0, refresh_interval_us);
+
+  return max_render_time_us;
+}
+
 static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                int64_t           *out_next_update_time_us,
@@ -314,7 +377,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     }
 
   min_render_time_allowed_us = refresh_interval_us / 2;
-  max_render_time_allowed_us = refresh_interval_us - SYNC_DELAY_US;
+  max_render_time_allowed_us =
+    clutter_frame_clock_compute_max_render_time_us (frame_clock);
 
   if (min_render_time_allowed_us > max_render_time_allowed_us)
     min_render_time_allowed_us = max_render_time_allowed_us;
