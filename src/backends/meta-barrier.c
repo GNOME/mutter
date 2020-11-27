@@ -180,6 +180,10 @@ meta_barrier_constructed (GObject *object)
 
   g_return_if_fail (priv->border.line.a.x == priv->border.line.b.x ||
                     priv->border.line.a.y == priv->border.line.b.y);
+  g_return_if_fail (priv->border.line.a.x >= 0);
+  g_return_if_fail (priv->border.line.a.y >= 0);
+  g_return_if_fail (priv->border.line.b.x >= 0);
+  g_return_if_fail (priv->border.line.b.y >= 0);
 
 #if defined(HAVE_NATIVE_BACKEND)
   if (META_IS_BACKEND_NATIVE (meta_get_backend ()))
