@@ -1225,6 +1225,9 @@ create_for_switch_config_external (MetaMonitorConfigManager *config_manager)
       x += logical_monitor_config->layout.width;
     }
 
+  if (!logical_monitor_configs)
+    return NULL;
+
   monitors_config = meta_monitors_config_new (monitor_manager,
                                               logical_monitor_configs,
                                               layout_mode,
