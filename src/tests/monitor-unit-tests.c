@@ -2507,6 +2507,150 @@ meta_test_monitor_non_upright_panel (void)
 }
 
 static void
+meta_test_monitor_switch_external_without_external (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        }
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .is_laptop_panel = TRUE
+        },
+        {
+          .crtc = 1,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 1 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .is_laptop_panel = TRUE
+        }
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0
+        },
+        {
+          .current_mode = 0
+        }
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        },
+        {
+          .outputs = { 1 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 1,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        }
+      },
+      .n_monitors = 2,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        },
+        {
+          .monitors = { 1 },
+          .n_monitors = 1,
+          .layout = { .x = 1024, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        }
+      },
+      .n_logical_monitors = 2,
+      .primary_logical_monitor = 0,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        },
+        {
+          .current_mode = 0,
+          .x = 1024,
+        },
+      },
+      .n_crtcs = 2,
+      .n_tiled_monitors = 0,
+      .screen_width = 2048,
+      .screen_height = 768
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  test_setup = create_monitor_test_setup (&test_case.setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+  check_monitor_configuration (&test_case.expect);
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_EXTERNAL);
+  check_monitor_configuration (&test_case.expect);
+
+  check_monitor_test_clients_state ();
+}
+
+static void
 meta_test_monitor_custom_vertical_config (void)
 {
   MonitorTestCase test_case = {
@@ -5656,6 +5800,8 @@ init_monitor_tests (void)
                     meta_test_monitor_preferred_non_first_mode);
   add_monitor_test ("/backends/monitor/non-upright-panel",
                     meta_test_monitor_non_upright_panel);
+  add_monitor_test ("/backends/monitor/switch-external-without-external",
+                    meta_test_monitor_switch_external_without_external);
 
   add_monitor_test ("/backends/monitor/custom/vertical-config",
                     meta_test_monitor_custom_vertical_config);
