@@ -266,18 +266,59 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
   last_presentation_time_us = frame_clock->last_presentation_time_us;
   next_presentation_time_us = last_presentation_time_us + refresh_interval_us;
 
-  /* Skip ahead to get close to the actual next presentation time. */
+  /*
+   * However, the last presentation could have happened more than a frame ago.
+   * For example, due to idling (nothing on screen changed, so no need to
+   * redraw) or due to frames missing deadlines (GPU busy with heavy rendering).
+   * The following code adjusts next_presentation_time_us to be in the future,
+   * but still aligned to display presentation times. Instead of
+   * next presentation = last presentation + 1 * refresh interval, it will be
+   * next presentation = last presentation + N * refresh interval.
+   */
   if (next_presentation_time_us < now_us)
     {
-      int64_t logical_clock_offset_us;
-      int64_t logical_clock_phase_us;
-      int64_t hw_clock_offset_us;
+      int64_t presentation_phase_us;
+      int64_t current_phase_us;
+      int64_t current_refresh_interval_start_us;
 
-      logical_clock_offset_us = now_us % refresh_interval_us;
-      logical_clock_phase_us = now_us - logical_clock_offset_us;
-      hw_clock_offset_us = last_presentation_time_us % refresh_interval_us;
+      /*
+       * Let's say we're just past next_presentation_time_us.
+       *
+       * First, we compute presentation_phase_us. Real presentation times don't
+       * have to be exact multiples of refresh_interval_us and
+       * presentation_phase_us represents this difference. Next, we compute
+       * current phase and the refresh interval start corresponding to now_us.
+       * Finally, add presentation_phase_us and a refresh interval to get the
+       * next presentation after now_us.
+       *
+       *        last_presentation_time_us
+       *       /       next_presentation_time_us
+       *      /       /   now_us
+       *     /       /   /   new next_presentation_time_us
+       * |--|-------|---o---|-------|--> presentation times
+       * |        __|
+       * |       |presentation_phase_us
+       * |       |
+       * |       |     now_us - presentation_phase_us
+       * |       |    /
+       * |-------|---o---|-------|-----> integer multiples of refresh_interval_us
+       * |       \__/
+       * |       |current_phase_us
+       * |       \
+       * |        current_refresh_interval_start_us
+       * 0
+       *
+       */
 
-      next_presentation_time_us = logical_clock_phase_us + hw_clock_offset_us;
+      presentation_phase_us = last_presentation_time_us % refresh_interval_us;
+      current_phase_us = (now_us - presentation_phase_us) % refresh_interval_us;
+      current_refresh_interval_start_us =
+        now_us - presentation_phase_us - current_phase_us;
+
+      next_presentation_time_us =
+        current_refresh_interval_start_us +
+        presentation_phase_us +
+        refresh_interval_us;
     }
 
   /*
