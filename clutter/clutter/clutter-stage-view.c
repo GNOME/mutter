@@ -1187,6 +1187,9 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
       _clutter_stage_window_redraw_view (stage_window, view, &frame);
 
+      clutter_frame_clock_record_flip_time (frame_clock,
+                                            g_get_monotonic_time ());
+
       clutter_stage_emit_after_paint (stage, view);
 
       if (_clutter_context_get_show_fps ())

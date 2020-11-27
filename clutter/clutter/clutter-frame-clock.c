@@ -76,6 +76,9 @@ struct _ClutterFrameClock
   gboolean is_next_presentation_time_valid;
   int64_t next_presentation_time_us;
 
+  /* Last KMS buffer submission time. */
+  int64_t last_flip_time_us;
+
   gboolean pending_reschedule;
   gboolean pending_reschedule_now;
 
@@ -546,6 +549,13 @@ frame_clock_source_dispatch (GSource     *source,
   clutter_frame_clock_dispatch (frame_clock, dispatch_time_us);
 
   return G_SOURCE_CONTINUE;
+}
+
+void
+clutter_frame_clock_record_flip_time (ClutterFrameClock *frame_clock,
+                                      int64_t            flip_time_us)
+{
+  frame_clock->last_flip_time_us = flip_time_us;
 }
 
 static GSourceFuncs frame_clock_source_funcs = {
