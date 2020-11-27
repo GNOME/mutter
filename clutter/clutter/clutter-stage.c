@@ -1313,6 +1313,51 @@ clutter_stage_real_paint_view (ClutterStage         *stage,
 }
 
 static void
+clutter_stage_paint (ClutterActor        *actor,
+                     ClutterPaintContext *paint_context)
+{
+  ClutterStageView *view;
+
+  CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->paint (actor, paint_context);
+
+  view = clutter_paint_context_get_stage_view (paint_context);
+  if (view &&
+      G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME))
+    {
+      cairo_rectangle_int_t view_layout;
+      ClutterFrameClock *frame_clock;
+      g_autoptr (GString) string = NULL;
+      PangoLayout *layout;
+      PangoRectangle logical;
+      ClutterColor color;
+      g_autoptr (ClutterPaintNode) node = NULL;
+      ClutterActorBox box;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      frame_clock = clutter_stage_view_get_frame_clock (view);
+
+      string = clutter_frame_clock_get_max_render_time_debug_info (frame_clock);
+
+      layout = clutter_actor_create_pango_layout (actor, string->str);
+      pango_layout_set_alignment (layout, PANGO_ALIGN_RIGHT);
+      pango_layout_get_pixel_extents (layout, NULL, &logical);
+
+      clutter_color_init (&color, 255, 255, 255, 255);
+      node = clutter_text_node_new (layout, &color);
+
+      box.x1 = view_layout.x;
+      box.y1 = view_layout.y + 30;
+      box.x2 = box.x1 + logical.width;
+      box.y2 = box.y1 + logical.height;
+      clutter_paint_node_add_rectangle (node, &box);
+
+      clutter_paint_node_paint (node, paint_context);
+
+      g_object_unref (layout);
+    }
+}
+
+static void
 clutter_stage_class_init (ClutterStageClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -1335,6 +1380,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->hide_all = clutter_stage_hide_all;
   actor_class->queue_relayout = clutter_stage_real_queue_relayout;
   actor_class->apply_transform = clutter_stage_real_apply_transform;
+  actor_class->paint = clutter_stage_paint;
 
   klass->paint_view = clutter_stage_real_paint_view;
 

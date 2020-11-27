@@ -678,6 +678,51 @@ clutter_frame_clock_record_flip_time (ClutterFrameClock *frame_clock,
   frame_clock->last_flip_time_us = flip_time_us;
 }
 
+GString *
+clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clock)
+{
+  int64_t max_dispatch_to_swap_us = 0;
+  int64_t max_swap_to_rendering_done_us = 0;
+  int64_t max_swap_to_flip_us = 0;
+  int i;
+  GString *string;
+
+  string = g_string_new (NULL);
+  g_string_append_printf (string, "Max render time: %ld µs",
+                          clutter_frame_clock_compute_max_render_time_us (frame_clock));
+
+  if (frame_clock->got_measurements_last_frame)
+    g_string_append_printf (string, " =");
+  else
+    g_string_append_printf (string, " (no measurements last frame)");
+
+  for (i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
+    {
+      max_dispatch_to_swap_us =
+        MAX (max_dispatch_to_swap_us,
+             frame_clock->dispatch_to_swap_us.values[i]);
+      max_swap_to_rendering_done_us =
+        MAX (max_swap_to_rendering_done_us,
+             frame_clock->swap_to_rendering_done_us.values[i]);
+      max_swap_to_flip_us =
+        MAX (max_swap_to_flip_us,
+             frame_clock->swap_to_flip_us.values[i]);
+    }
+
+  g_string_append_printf (string, "\nVblank duration: %ld µs +",
+                          frame_clock->vblank_duration_us);
+  g_string_append_printf (string, "\nDispatch to swap: %ld µs +",
+                          max_dispatch_to_swap_us);
+  g_string_append_printf (string, "\nmax(Swap to rendering done: %ld µs,",
+                          max_swap_to_rendering_done_us);
+  g_string_append_printf (string, "\nSwap to flip: %ld µs) +",
+                          max_swap_to_flip_us);
+  g_string_append_printf (string, "\nConstant: %d µs",
+                          clutter_max_render_time_constant_us);
+
+  return string;
+}
+
 static GSourceFuncs frame_clock_source_funcs = {
   NULL,
   NULL,

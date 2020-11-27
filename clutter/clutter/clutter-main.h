@@ -73,6 +73,7 @@ typedef enum
   CLUTTER_DEBUG_PAINT_DEFORM_TILES              = 1 << 7,
   CLUTTER_DEBUG_PAINT_DAMAGE_REGION             = 1 << 8,
   CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME = 1 << 9,
+  CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME           = 1 << 10,
 } ClutterDrawDebugFlag;
 
 /**
