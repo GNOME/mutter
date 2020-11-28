@@ -19,6 +19,7 @@
 
 #include "clutter/clutter-frame-clock.h"
 
+#include "clutter/clutter-debug.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-timeline-private.h"
@@ -307,7 +308,9 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
   refresh_interval_us =
     (int64_t) (0.5 + G_USEC_PER_SEC / frame_clock->refresh_rate);
 
-  if (!frame_clock->got_measurements_last_frame)
+  if (!frame_clock->got_measurements_last_frame ||
+      G_UNLIKELY (clutter_paint_debug_flags &
+                  CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
     return refresh_interval_us - SYNC_DELAY_FALLBACK_US;
 
   for (i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)

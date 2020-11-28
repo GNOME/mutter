@@ -130,6 +130,7 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "continuous-redraw", CLUTTER_DEBUG_CONTINUOUS_REDRAW },
   { "paint-deform-tiles", CLUTTER_DEBUG_PAINT_DEFORM_TILES },
   { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
+  { "disable-dynamic-max-render-time", CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME },
 };
 
 gboolean
