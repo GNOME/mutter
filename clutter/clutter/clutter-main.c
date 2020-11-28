@@ -95,6 +95,11 @@ guint clutter_debug_flags       = 0;
 guint clutter_paint_debug_flags = 0;
 guint clutter_pick_debug_flags  = 0;
 
+/* A constant added to heuristic max render time to account for variations
+ * in the estimates.
+ */
+int clutter_max_render_time_constant_us = 2000;
+
 #ifdef CLUTTER_ENABLE_DEBUG
 static const GDebugKey clutter_debug_keys[] = {
   { "misc", CLUTTER_DEBUG_MISC },
@@ -2273,6 +2278,12 @@ clutter_remove_debug_flags (ClutterDebugFlag     debug_flags,
   clutter_debug_flags &= ~debug_flags;
   clutter_paint_debug_flags &= ~draw_flags;
   clutter_pick_debug_flags &= ~pick_flags;
+}
+
+void
+clutter_debug_set_max_render_time_constant (int max_render_time_constant_us)
+{
+  clutter_max_render_time_constant_us = max_render_time_constant_us;
 }
 
 void

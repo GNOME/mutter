@@ -198,6 +198,9 @@ void                    clutter_remove_debug_flags              (ClutterDebugFla
                                                                  ClutterDrawDebugFlag draw_flags,
                                                                  ClutterPickDebugFlag pick_flags);
 
+CLUTTER_EXPORT
+void                    clutter_debug_set_max_render_time_constant (int max_render_time_constant_us);
+
 G_END_DECLS
 
 #endif /* _CLUTTER_MAIN_H__ */

@@ -41,6 +41,7 @@ G_BEGIN_DECLS
 extern guint clutter_debug_flags;
 extern guint clutter_pick_debug_flags;
 extern guint clutter_paint_debug_flags;
+extern int clutter_max_render_time_constant_us;
 
 void    _clutter_debug_messagev         (const char *format,
                                          va_list     var_args) G_GNUC_PRINTF (1, 0);
