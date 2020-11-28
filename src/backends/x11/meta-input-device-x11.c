@@ -288,8 +288,8 @@ meta_input_device_x11_class_init (MetaInputDeviceX11Class *klass)
 
   props[PROP_ID] =
     g_param_spec_int ("id",
-                      P_("Id"),
-                      P_("Unique identifier of the device"),
+                      "Id",
+                      "Unique identifier of the device",
                       -1, G_MAXINT,
                       0,
                       CLUTTER_PARAM_READWRITE |
