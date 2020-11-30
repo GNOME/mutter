@@ -1535,7 +1535,7 @@ translate_state (XIButtonState   *button_state,
     }
 
   if (group_state)
-    state = XkbBuildCoreState (group_state->effective, state);
+    state |= XkbBuildCoreState (0, group_state->effective);
 
   return state;
 }
