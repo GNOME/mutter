@@ -2800,6 +2800,8 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
       QueueRedrawEntry *entry = value;
       ClutterPaintVolume old_actor_pv, new_actor_pv;
 
+      g_hash_table_iter_steal (&iter);
+
       _clutter_paint_volume_init_static (&old_actor_pv, NULL);
       _clutter_paint_volume_init_static (&new_actor_pv, NULL);
 
@@ -2829,7 +2831,15 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
           add_to_stage_clip (stage, NULL);
         }
 
-      g_hash_table_iter_remove (&iter);
+      g_object_unref (redraw_actor);
+      free_queue_redraw_entry (entry);
+
+      /* get_paint_volume() vfuncs might queue redraws and can cause our
+       * iterator to now be invalidated. So start over. This isn't wasting
+       * any time since we already stole (removed) the elements previously
+       * visited.
+       */
+      g_hash_table_iter_init (&iter, priv->pending_queue_redraws);
     }
 }
 
