@@ -1798,6 +1798,7 @@ stackcmp (gconstpointer a, gconstpointer b)
 static gboolean
 idle_calc_showing (gpointer data)
 {
+  MetaDisplay *display = meta_get_display ();
   GSList *tmp;
   GSList *copy;
   GSList *should_show;
@@ -1868,6 +1869,8 @@ idle_calc_showing (gpointer data)
       tmp = tmp->next;
     }
 
+  meta_stack_freeze (display->stack);
+
   tmp = should_show;
   while (tmp != NULL)
     {
@@ -1891,6 +1894,8 @@ idle_calc_showing (gpointer data)
 
       tmp = tmp->next;
     }
+
+  meta_stack_thaw (display->stack);
 
   tmp = copy;
   while (tmp != NULL)
