@@ -1506,7 +1506,7 @@ translate_state (XIButtonState   *button_state,
 
   if (button_state)
     {
-      for (i = 1; i < XIMaskLen (button_state->mask_len); i++)
+      for (i = 1; i <= button_state->mask_len * 8; i++)
         {
           if (!XIMaskIsSet (button_state->mask, i))
             continue;
