@@ -1807,6 +1807,8 @@ idle_calc_showing (gpointer data)
   GSList *displays;
   guint queue_index = GPOINTER_TO_INT (data);
 
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowCalcShowing, "Window: Calc showing");
+
   g_return_val_if_fail (queue_pending[queue_index] != NULL, FALSE);
 
   meta_topic (META_DEBUG_WINDOW_STATE,
@@ -1833,6 +1835,8 @@ idle_calc_showing (gpointer data)
   unplaced = NULL;
   displays = NULL;
 
+  COGL_TRACE_BEGIN (MetaWindowCalcShowingCalc, "Window: Calc showing (calc)");
+
   tmp = copy;
   while (tmp != NULL)
     {
@@ -1857,6 +1861,11 @@ idle_calc_showing (gpointer data)
   should_show = g_slist_sort (should_show, stackcmp);
   should_show = g_slist_reverse (should_show);
 
+  COGL_TRACE_END (MetaWindowCalcShowingCalc);
+
+  COGL_TRACE_BEGIN (MetaWindowCalcShowingUnplaced,
+                    "Window: Calc showing (calc unplaced)");
+
   tmp = unplaced;
   while (tmp != NULL)
     {
@@ -1869,8 +1878,11 @@ idle_calc_showing (gpointer data)
       tmp = tmp->next;
     }
 
+  COGL_TRACE_END (MetaWindowCalcShowingUnplaced);
+
   meta_stack_freeze (display->stack);
 
+  COGL_TRACE_BEGIN (MetaWindowCalcShowingShow, "Window: Calc showing (show)");
   tmp = should_show;
   while (tmp != NULL)
     {
@@ -1882,7 +1894,9 @@ idle_calc_showing (gpointer data)
 
       tmp = tmp->next;
     }
+  COGL_TRACE_END (MetaWindowCalcShowingShow);
 
+  COGL_TRACE_BEGIN (MetaWindowCalcShowingHide, "Window: Calc showing (hide)");
   tmp = should_hide;
   while (tmp != NULL)
     {
@@ -1894,8 +1908,12 @@ idle_calc_showing (gpointer data)
 
       tmp = tmp->next;
     }
+  COGL_TRACE_END (MetaWindowCalcShowingHide);
 
+  COGL_TRACE_BEGIN (MetaWindowCalcShowingSync,
+                    "Window: Calc showing (sync stack)");
   meta_stack_thaw (display->stack);
+  COGL_TRACE_END (MetaWindowCalcShowingSync);
 
   tmp = copy;
   while (tmp != NULL)
