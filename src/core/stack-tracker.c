@@ -1185,9 +1185,13 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
   int n_windows;
   int old_pos, new_pos;
 
+  COGL_TRACE_BEGIN_SCOPED (StackTrackerRestackManaged,
+                           "StackTracker: Restack Managed");
   if (n_managed == 0)
     return;
 
+  COGL_TRACE_BEGIN (StackTrackerRestackManagedGet,
+                    "StackTracker: Restack Managed (get)");
   meta_stack_tracker_get_stack (tracker, &windows, &n_windows);
 
   /* If the top window has to be restacked, we don't want to move it to the very
@@ -1204,7 +1208,10 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
         break;
     }
   g_assert (old_pos >= 0);
+  COGL_TRACE_END (StackTrackerRestackManagedGet);
 
+  COGL_TRACE_BEGIN (StackTrackerRestackManagedRaise,
+                    "StackTracker: Restack Managed (raise)");
   new_pos = n_managed - 1;
   if (managed[new_pos] != windows[old_pos])
     {
@@ -1213,10 +1220,13 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
       meta_stack_tracker_get_stack (tracker, &windows, &n_windows);
       /* Moving managed[new_pos] above windows[old_pos], moves the window at old_pos down by one */
     }
+  COGL_TRACE_END (StackTrackerRestackManagedRaise);
 
   old_pos--;
   new_pos--;
 
+  COGL_TRACE_BEGIN (StackTrackerRestackManagedRestack,
+                    "StackTracker: Restack Managed (restack)");
   while (old_pos >= 0 && new_pos >= 0)
     {
       if (meta_stack_tracker_is_guard_window (tracker, windows[old_pos]))
@@ -1243,12 +1253,16 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
       old_pos--;
       new_pos--;
     }
+  COGL_TRACE_END (StackTrackerRestackManagedRestack);
 
+  COGL_TRACE_BEGIN (StackTrackerRestackManagedLower,
+                    "StackTracker: Restack Managed (lower)");
   while (new_pos > 0)
     {
       meta_stack_tracker_lower_below (tracker, managed[new_pos], managed[new_pos - 1]);
       new_pos--;
     }
+  COGL_TRACE_END (StackTrackerRestackManagedLower);
 }
 
 void
@@ -1260,6 +1274,8 @@ meta_stack_tracker_restack_at_bottom (MetaStackTracker *tracker,
   int n_windows;
   int pos;
 
+  COGL_TRACE_BEGIN_SCOPED (StackTrackerRestackAtBottom,
+                           "Stack tracker: Restack at bottom");
   meta_stack_tracker_get_stack (tracker, &windows, &n_windows);
 
   for (pos = 0; pos < n_new_order; pos++)

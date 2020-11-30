@@ -78,6 +78,8 @@ on_stack_changed (MetaStack *stack)
   GArray *hidden_stack_ids;
   GList *sorted;
 
+  COGL_TRACE_BEGIN_SCOPED (StackChanged, "Stack changed");
+
   meta_topic (META_DEBUG_STACK, "Syncing window stack to server");
 
   all_root_children_stacked = g_array_new (FALSE, FALSE, sizeof (uint64_t));
@@ -258,6 +260,8 @@ meta_stack_changed (MetaStack *stack)
   /* Bail out if frozen */
   if (stack->freeze_count > 0)
     return;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaStackChangedSort, "Stack: Changed");
 
   stack_ensure_sorted (stack);
   g_signal_emit (stack, signals[CHANGED], 0);
