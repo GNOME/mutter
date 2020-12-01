@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2020 Endless OS Foundation, LLC
+ * Copyright (C) 2018 Canonical Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
