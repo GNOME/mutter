@@ -1,3 +1,56 @@
+40.alpha
+========
+* Replace CoglMatrix with graphene_matrix [Georges; !1439]
+* Allow to specify debug topics in MUTTER_DEBUG [Jonas Å.; !1465]
+* Fix unwanted position changes on window resize
+  [Jonas Å., Olivier, Robert; !1477, !1495]
+* Do not disable the X Security extension by default [Olivier; !1485]
+* Fix _NET_WM_FRAME_DRAWN timestamps [Jonas Å.; !1494]
+* Fix tiling to the correct monitor [Florian; #1389]
+* Only snap to window edges when CTRL is pressed [Florian; #679609]
+* Add support for scroll button locking [Peter; !1432]
+* Clip Frustra [Georges; !1489]
+* Improve tablet-mode-switch support [Hans; !1506]
+* Fix missed redraws of newly-mapped actors [Jonas D.; !1366, #1494]
+* Gracefully handle Xwayland crashes [Carlos; !1447]
+* wayland: Provide previous window dimensions on restore [Christian; !801]
+* Remove the ClutterActor::paint signal [Jonas; !1522]
+* Fix background artifacts in magnifier [Daniel; #1480]
+* Use raycasting for picking [Georges; !1509]
+* Fix monitor tiling support on X11 [Jonas Å.; #1524]
+* Fix xwayland grabs for override-redirect windows [Olivier; !1254]
+* Fix device configuration not being picked up on X11 [Carlos; !1553]
+* Support tagging devices as primary GPU via udev [Jonas Å.; !1562]
+* Fix size hints with CSD [Olivier; !1594]
+* Fix unresponsive input after screen blank [Simon; !1601]
+* Cull actors when picking [Georges; !1520]
+* Handle input in a thread [Carlos; !1403]
+* Improve freezes when switching workspace [Jonas Å.; !1616]
+* Plugged memory leaks [Ray; !1225]
+* Fixed crashes [Christian, Olivier, Daniel, Robert, Jonas Å., Florian Z.,
+  Simon, Carlos; #1481, !1529, !1519, !1534, #1521, !1563, !1604, !1605,
+  !1607, !1612]
+* Misc. bug fixes and cleanups [Florian, Carlos, Olivier, Georges, Björn,
+  Jonas Å., Julius, Corentin, Bastien, Robert, Daniel, Niels, Jonas D., Uday,
+  Ian, Jordan, Piotr; !1473, !1472, !1438, #1449, !1475, !1474, !1481, !1466,
+  !1483, !1427, !1413, !1103, !1467, !1339, !1297, #1384, !1491, !528, !1496,
+  !1510, !1507, !1387, !1498, !1515, !1516, !1517, !1486, !1524, !1527, !1528,
+  !1531, !1532, !1521, !1535, #1490, !1545, !1555, !1564, !1549, !1567, !1565,
+  !1572, !1569, !1573, !1566, !1525, !1468, !1578, !1583, !1584, !1585, !1571,
+  !1327, !1586, !1590, !1588, !1050, !1596, !1592, !1587, !1599, !1577, !1511,
+  !1591, !1603, !1611, !1593, !1617, !1619]
+
+Contributors:
+  Björn Daase, Jonas Dreßler, Piotr Drąg, Olivier Fourdan, Carlos Garnacho,
+  Hans de Goede, Niels De Graef, Peter Hutterer, Julius Lehmann, Robert Mader,
+  Simon McVittie, Florian Müllner, Georges Basile Stavracas Neto,
+  Bastien Nocera, Corentin Noël, Jordan Petridis, Uday Kiran Pichika,
+  Christian Rauch, Ian Douglas Scott, Ray Strode, Daniel van Vugt,
+  Florian Zwoch, Jonas Ådahl
+
+Translators:
+  Juliano de Souza Camargo [pt], Ask Hjorth Larsen [da], Yuri Chornoivan [uk]
+
 3.38.1
 ======
 * Fix Night Light updates after DPMS [Jonas, Benjamin; #1392]
