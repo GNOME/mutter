@@ -1,3 +1,37 @@
+3.38.2
+======
+* Fix unwanted position changes on window resize
+  [Jonas Å., Olivier, Robert; !1477, !1495]
+* Fix _NET_WM_FRAME_DRAWN timestamps [Jonas Å.; !1494]
+* Fix missed redraws of newly-mapped actors [Jonas D.; !1366, #1494]
+* (Temporarily) make Xwayland listen on abstract namespace socket again
+  [James; !1508]
+* Fix tiling to the correct monitor [Florian; #1389]
+* Fix background artifacts in magnifier [Daniel; #1480]
+* Fix monitor tiling support on X11 [Jonas Å.; #1524]
+* Fix device configuration not being picked up on X11 [Carlos; !1553]
+* Improve compatibility with Qt's wayland support [Jonas Å.; !1559]
+* Support tagging devices as primary GPU via udev [Jonas Å.; !1562]
+* Fix size hints with CSD [Christian, Olivier; !1595]
+* Do not disable the X Security extension by default [Olivier; !1600]
+* Fix unresponsive input after screen blank [Simon; !1602]
+* Improve tablet-mode-switch support [Hans; !1610]
+* Plugged memory leaks [Ray; !1225]
+* Fixed crashes [Olivier, Robert, Jonas Å., Florian Z., Simon; !1529, !1534,
+  #1521, !1563, !1606, !1608, !1609]
+* Misc. bug fixes and cleanups [Bastien, Jonas Å., Carlos, Olivier, Robert,
+  Daniel; !1103, #1490, #1449, !1574, !1468, !1565, !1572, !983, !1597,
+  !1596, !1613]
+
+Contributors:
+  Jonas Dreßler, Olivier Fourdan, Carlos Garnacho, Hans de Goede,
+  James Henstridge, Robert Mader, Simon McVittie, Florian Müllner,
+  Bastien Nocera, Christian Rauch, Ray Strode, Daniel van Vugt, Florian Zwoch,
+  Jonas Ådahl
+
+Translators:
+  Juliano de Souza Camargo [pt]
+
 3.38.1
 ======
 * Fix Night Light updates after DPMS [Jonas, Benjamin; #1392]
