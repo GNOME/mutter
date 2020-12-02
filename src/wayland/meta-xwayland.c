@@ -336,8 +336,8 @@ x_io_error (Display *display)
 
 #ifdef HAVE_XSETIOERROREXITHANDLER
 static void
-x_io_error_exit (Display        *display,
-                 MetaX11Display *x11_display)
+x_io_error_exit (Display *display,
+                 void    *data)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
