@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-29 10:31+0000\n"
-"PO-Revision-Date: 2020-08-29 14:01+0300\n"
+"POT-Creation-Date: 2020-11-28 21:49+0000\n"
+"PO-Revision-Date: 2020-11-29 09:58+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -237,11 +237,11 @@ msgstr "Розгорнути вікно на весь екран вертика�
 msgid "Maximize window horizontally"
 msgstr "Розгорнути вікно на весь екран горизонтально"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Перегляд розділити ліворуч"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Перегляд розділити праворуч"
 
@@ -384,6 +384,19 @@ msgid "Enable experimental features"
 msgstr "Увімкнути експериментальні можливості"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
+#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
+#| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
+#| "are X11 clients. Requires restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -395,7 +408,10 @@ msgid ""
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
 "must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
+"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
+"already enabled by default when using the i915 driver, but disabled for "
+"everything else. Requires a restart."
 msgstr ""
 "Щоб увімкнути експериментальну можливість, додайте до списку ключове слово "
 "можливості. Те, чи потребуватиме вмикання можливості перезапуску "
@@ -411,21 +427,24 @@ msgstr ""
 "щодо низькопріоритетного планування режиму реального часу. Для виконуваного "
 "файла або запису користувача має бути встановлено CAP_SYS_NICE. Потребує "
 "перезапуску композитора. • «autostart-xwayland» — лінива ініціалізація "
-"Xwayland, якщо виявлено клієнти X11. Потребує перезапуску композитора."
+"Xwayland, якщо виявлено клієнти X11. Потребує перезапуску композитора.• "
+"“dma-buf-screen-sharing\" — вмикає спільне використання буферизованих екранів"
+" DMA. Типово вже увімкнено, якщо використано драйвер i915, але вимкнено для"
+" усіх інших драйверів. Потребує перезапуску композитора."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Модифікатор для пошуку вказівника"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ця комбінація ініціює дію «встановити розташування вказівника»"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Інтервал між послідовними перевірками працездатності"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -434,19 +453,19 @@ msgstr ""
 "запит, щоб вважатися працездатним. Скористайтеся значенням 0, щоб повністю "
 "вимкнути перевірку працездатності."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Select window from tab popup"
 msgstr "Вибрати вікно з контекстних вкладок"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Cancel tab popup"
 msgstr "Скасувати контекстні вкладки"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:184
 msgid "Switch monitor configurations"
 msgstr "Перемкнути налаштування монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:189
 msgid "Rotates the built-in monitor configuration"
 msgstr "Зміна конфігурації вбудованого монітора"
 
@@ -573,29 +592,10 @@ msgid ""
 "Xwayland was built without support for the selected extensions. Xwayland "
 "needs to be restarted for this setting to take effect."
 msgstr ""
-"За допомогою цього пункту можна вимкнути вибрані розширення X у Xwayland,"
-" якщо Xwayland було зібрано із підтримкою цих розширень X. Цей пункт ні на що"
-" не впливає, якщо Xwayland було зібрано без підтримки вибраних розширень. Для"
-" набуття змінами у цьому параметрі чинності Xwayland слід перезапустити."
-
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Перемкнути режим (група %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "Перемкнути монітор"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "Показати довідку на екрані"
+"За допомогою цього пункту можна вимкнути вибрані розширення X у Xwayland, "
+"якщо Xwayland було зібрано із підтримкою цих розширень X. Цей пункт ні на що "
+"не впливає, якщо Xwayland було зібрано без підтримки вибраних розширень. Для "
+"набуття змінами у цьому параметрі чинності Xwayland слід перезапустити."
 
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
@@ -641,47 +641,51 @@ msgstr "Уже запущено інший композитний менедже
 msgid "Bell event"
 msgstr "Подія гудка"
 
-#: src/core/main.c:190
+#: src/core/main.c:215
 msgid "Disable connection to session manager"
 msgstr "Вимкнути з'єднання з менеджером сеансу"
 
-#: src/core/main.c:196
+#: src/core/main.c:221
 msgid "Replace the running window manager"
 msgstr "Замінити запущений віконний менеджер"
 
-#: src/core/main.c:202
+#: src/core/main.c:227
 msgid "Specify session management ID"
 msgstr "Вказати ідентифікатор сеансу"
 
-#: src/core/main.c:207
+#: src/core/main.c:232
 msgid "X Display to use"
 msgstr "Дисплей X"
 
-#: src/core/main.c:213
+#: src/core/main.c:238
 msgid "Initialize session from savefile"
 msgstr "Розпочати сеанс зі збереженого файла"
 
-#: src/core/main.c:219
+#: src/core/main.c:244
 msgid "Make X calls synchronous"
 msgstr "Зробити виклики X синхронними"
 
-#: src/core/main.c:226
+#: src/core/main.c:251
 msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
-#: src/core/main.c:232
+#: src/core/main.c:257
 msgid "Run as a nested compositor"
 msgstr "Запустити як вкладений композитор"
 
-#: src/core/main.c:238
+#: src/core/main.c:263
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запустити композитор wayland без запуску Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:269
+msgid "Specify Wayland display name to use"
+msgstr "Вказати назву дисплея Wayland, якою слід скористатися"
+
+#: src/core/main.c:277
 msgid "Run as a full display server, rather than nested"
 msgstr "Запусти як повноцінний сервер, а не вкладений"
 
-#: src/core/main.c:252
+#: src/core/main.c:283
 msgid "Run with X11 backend"
 msgstr "Запустити із модулем X11"
 
@@ -710,6 +714,25 @@ msgstr "_Завершити примусово"
 msgid "_Wait"
 msgstr "_Зачекати"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Перемкнути режим (група %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Перемкнути монітор"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Показати довідку на екрані"
+
 #: src/core/mutter.c:38
 #, c-format
 msgid ""
@@ -733,16 +756,17 @@ msgstr "Показати версію"
 msgid "Mutter plugin to use"
 msgstr "Додатки Clutter для використання"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
-#: src/core/util.c:119
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter зібрано без підтримки докладного режиму\n"
+#: src/core/util.c:117
+#| msgid "Mutter was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter зібрано без підтримки докладного режиму"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Перемикання режимів: режим %d"
@@ -757,25 +781,28 @@ msgstr ""
 "щоб замінити поточний менеджер вікон."
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Не вдалося ініціалізувати GDK\n"
+#| msgid "Failed to initialize GDK\n"
+msgid "Failed to initialize GDK"
+msgstr "Не вдалося ініціалізувати GDK"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Не вдалось відкрити дисплей віконної системи X «%s»\n"
+#| msgid "Failed to open X Window System display “%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Не вдалося відкрити дисплей віконної системи X «%s»"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Екран %d на дисплеї «%s» не правильний\n"
+#| msgid "Screen %d on display “%s” is invalid\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Екран %d на дисплеї «%s» є некоректним"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Підтримки формату %s не передбачено"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
