@@ -32,7 +32,7 @@ function append_failed_test_case() {
   commit_short=${commit:0:8}
 
   echo "<testcase name=\"$test_name: $commit_short\"><failure message=\"$commit_short: $test_message\"/></testcase>" >> $JUNIT_REPORT_TESTS_FILE
-  echo &>2 "Commit check failed: $commit_short: $test_message"
+  echo >&2 "Commit check failed: $commit_short: $test_message"
 }
 
 function append_passed_test_case() {
