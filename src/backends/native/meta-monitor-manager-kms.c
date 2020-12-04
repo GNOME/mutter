@@ -347,7 +347,7 @@ generate_gamma_ramp_string (size_t          size,
   string = g_string_new ("[");
   for (color = 0; color < 3; color++)
     {
-      unsigned short **color_ptr;
+      unsigned short **color_ptr = NULL;
       char color_char;
       size_t i;
 
@@ -367,6 +367,7 @@ generate_gamma_ramp_string (size_t          size,
           break;
         }
 
+      g_assert (color_ptr);
       g_string_append_printf (string, " %c: ", color_char);
       for (i = 0; i < MIN (4, size); i++)
         {
