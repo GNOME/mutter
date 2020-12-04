@@ -83,7 +83,7 @@ get_scaled_region (MetaSurfaceActor     *surface_actor,
                    ScalePerspectiveType  scale_perspective)
 {
   MetaWindowActor *window_actor;
-  cairo_region_t *scaled_region;
+  cairo_region_t *scaled_region = NULL;
   int geometry_scale;
   float x, y;
 
@@ -107,6 +107,7 @@ get_scaled_region (MetaSurfaceActor     *surface_actor,
       break;
     }
 
+  g_assert (scaled_region != NULL);
   cairo_region_translate (region, -x, -y);
   cairo_region_translate (scaled_region, -x, -y);
 
