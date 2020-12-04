@@ -3309,7 +3309,7 @@ cull_actor (ClutterActor        *self,
 {
   ClutterActorPrivate *priv = self->priv;
   const GArray *clip_frusta;
-  ClutterCullResult result;
+  ClutterCullResult result = CLUTTER_CULL_RESULT_IN;
   int i;
 
   if (!priv->last_paint_volume_valid)
@@ -3334,7 +3334,7 @@ cull_actor (ClutterActor        *self,
   clip_frusta = clutter_paint_context_get_clip_frusta (paint_context);
   if (!clip_frusta)
     {
-      *result_out = CLUTTER_CULL_RESULT_IN;
+      *result_out = result;
       return TRUE;
     }
 
