@@ -1086,7 +1086,6 @@ static GQuark quark_button = 0;
 static GQuark quark_scroll = 0;
 static GQuark quark_stage = 0;
 static GQuark quark_destroy = 0;
-static GQuark quark_client = 0;
 static GQuark quark_touch = 0;
 static GQuark quark_touchpad = 0;
 static GQuark quark_proximity = 0;
@@ -5906,7 +5905,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
   quark_scroll = g_quark_from_static_string ("scroll");
   quark_stage = g_quark_from_static_string ("stage");
   quark_destroy = g_quark_from_static_string ("destroy");
-  quark_client = g_quark_from_static_string ("client");
   quark_touch = g_quark_from_static_string ("touch");
   quark_touchpad = g_quark_from_static_string ("touchpad");
   quark_proximity = g_quark_from_static_string ("proximity");
@@ -12279,10 +12277,6 @@ clutter_actor_event (ClutterActor       *actor,
     case CLUTTER_DESTROY_NOTIFY:
       signal_num = -1;
       detail = quark_destroy;
-      break;
-    case CLUTTER_CLIENT_MESSAGE:
-      signal_num = -1;
-      detail = quark_client;
       break;
     case CLUTTER_STAGE_STATE:
       signal_num = -1;
