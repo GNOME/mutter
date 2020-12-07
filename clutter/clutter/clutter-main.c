@@ -1653,16 +1653,6 @@ _clutter_process_event_details (ClutterActor        *stage,
         emit_crossing_event (event, device);
         break;
 
-      case CLUTTER_DESTROY_NOTIFY:
-        event->any.source = stage;
-
-        if (_clutter_event_process_filters (event))
-          break;
-
-        /* the stage did not handle the event, so we just quit */
-        clutter_stage_event (CLUTTER_STAGE (stage), event);
-        break;
-
       case CLUTTER_MOTION:
         if (clutter_backend_is_display_server (backend) &&
             !(event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC))

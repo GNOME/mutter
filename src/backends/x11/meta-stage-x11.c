@@ -734,9 +734,10 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
       g_debug ("Destroy notification received for stage, win:0x%x",
                (unsigned int) xevent->xany.window);
 
-      event->any.type = CLUTTER_DESTROY_NOTIFY;
-      event->any.stage = stage;
-      res = TRUE;
+      g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
+                            FALSE);
+      meta_quit (META_EXIT_SUCCESS);
+      res = FALSE;
       break;
 
     case ClientMessage:

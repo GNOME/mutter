@@ -350,9 +350,6 @@ input_cb (ClutterActor *actor,
     case CLUTTER_STAGE_STATE:
       g_print ("[%s] STAGE STATE", clutter_actor_get_name (source_actor));
       break;
-    case CLUTTER_DESTROY_NOTIFY:
-      g_print ("[%s] DESTROY NOTIFY", clutter_actor_get_name (source_actor));
-      break;
     case CLUTTER_TOUCHPAD_PINCH:
       g_print ("[%s] TOUCHPAD PINCH", clutter_actor_get_name (source_actor));
       break;

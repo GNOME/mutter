@@ -62,9 +62,6 @@ debug_event_cb (ClutterActor *actor,
     case CLUTTER_STAGE_STATE:
       printf("[%s] STAGE STATE", source);
       break;
-    case CLUTTER_DESTROY_NOTIFY:
-      printf("[%s] DESTROY NOTIFY", source);
-      break;
     case CLUTTER_TOUCH_BEGIN:
       g_print ("[%s] TOUCH BEGIN", source);
       break;
