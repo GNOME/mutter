@@ -1443,22 +1443,12 @@ meta_seat_x11_copy_event_data (ClutterSeat        *seat,
                                const ClutterEvent *src,
                                ClutterEvent       *dest)
 {
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (src);
-  if (event_x11 != NULL)
-    _clutter_event_set_platform_data (dest, meta_event_x11_copy (event_x11));
 }
 
 static void
 meta_seat_x11_free_event_data (ClutterSeat  *seat,
                                ClutterEvent *event)
 {
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (event);
-  if (event_x11 != NULL)
-    meta_event_x11_free (event_x11);
 }
 
 static ClutterVirtualInputDevice *
@@ -1803,7 +1793,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
         MetaKeymapX11 *keymap_x11 = seat->keymap;
-        MetaEventX11 *event_x11;
         char buffer[7] = { 0, };
         gunichar n;
 
@@ -1829,21 +1818,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                                event->key.hardware_keycode,
                                                &event->key.modifier_state,
                                                NULL);
-
-        /* KeyEvents have platform specific data associated to them */
-        event_x11 = meta_event_x11_new ();
-        _clutter_event_set_platform_data (event, event_x11);
-
-        event_x11->key_group =
-          meta_keymap_x11_get_key_group (keymap_x11,
-                                         event->key.modifier_state);
-        event_x11->key_is_modifier =
-          meta_keymap_x11_get_is_modifier (keymap_x11,
-                                           event->key.hardware_keycode);
-        event_x11->num_lock_set =
-          clutter_keymap_get_num_lock_state (CLUTTER_KEYMAP (keymap_x11));
-        event_x11->caps_lock_set =
-          clutter_keymap_get_caps_lock_state (CLUTTER_KEYMAP (keymap_x11));
 
         clutter_event_set_source_device (event, source_device);
 

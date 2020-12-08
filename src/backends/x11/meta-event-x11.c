@@ -30,28 +30,6 @@
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 
-MetaEventX11 *
-meta_event_x11_new (void)
-{
-  return g_slice_new0 (MetaEventX11);
-}
-
-MetaEventX11 *
-meta_event_x11_copy (MetaEventX11 *event_x11)
-{
-  if (event_x11 != NULL)
-    return g_slice_dup (MetaEventX11, event_x11);
-
-  return NULL;
-}
-
-void
-meta_event_x11_free (MetaEventX11 *event_x11)
-{
-  if (event_x11 != NULL)
-    g_slice_free (MetaEventX11, event_x11);
-}
-
 /**
  * meta_x11_handle_event:
  * @xevent: pointer to XEvent structure
@@ -134,30 +112,6 @@ out:
     XFreeEventData (xdisplay, &xevent->xcookie);
 
   return result;
-}
-
-Time
-meta_x11_get_current_event_time (void)
-{
-  ClutterBackend *backend = clutter_get_default_backend ();
-
-  return CLUTTER_BACKEND_X11 (backend)->last_event_time;
-}
-
-gint
-meta_x11_event_get_key_group (const ClutterEvent *event)
-{
-  MetaEventX11 *event_x11;
-
-  g_return_val_if_fail (event != NULL, 0);
-  g_return_val_if_fail (event->type == CLUTTER_KEY_PRESS ||
-                        event->type == CLUTTER_KEY_RELEASE, 0);
-
-  event_x11 = _clutter_event_get_platform_data (event);
-  if (event_x11 == NULL)
-    return 0;
-
-  return event_x11->key_group;
 }
 
 guint

@@ -28,26 +28,6 @@
 
 #include "clutter/x11/clutter-x11.h"
 
-typedef struct _MetaEventX11         MetaEventX11;
-
-struct _MetaEventX11
-{
-  /* additional fields for Key events */
-  gint key_group;
-
-  guint key_is_modifier : 1;
-  guint num_lock_set    : 1;
-  guint caps_lock_set   : 1;
-};
-
-MetaEventX11 *       meta_event_x11_new          (void);
-MetaEventX11 *       meta_event_x11_copy         (MetaEventX11 *event_x11);
-void                 meta_event_x11_free         (MetaEventX11 *event_x11);
-
-Time  meta_x11_get_current_event_time (void);
-
-gint  meta_x11_event_get_key_group (const ClutterEvent *event);
-
 guint meta_x11_event_sequence_get_touch_detail (const ClutterEventSequence *sequence);
 
 ClutterX11FilterReturn meta_x11_handle_event (XEvent *xevent);
