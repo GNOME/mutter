@@ -9,15 +9,6 @@ test_grab_main (int argc, char *argv[]);
 const char *
 test_grab_describe (void);
 
-static void
-stage_state_cb (ClutterStage    *stage,
-		gpointer         data)
-{
-  gchar *detail = (gchar*)data;
-
-  printf("[stage signal] %s\n", detail);
-}
-
 static gboolean
 debug_event_cb (ClutterActor *actor,
                 ClutterEvent *event,
@@ -58,9 +49,6 @@ debug_event_cb (ClutterActor *actor,
       break;
     case CLUTTER_SCROLL:
       printf("[%s] BUTTON SCROLL", source);
-      break;
-    case CLUTTER_STAGE_STATE:
-      printf("[%s] STAGE STATE", source);
       break;
     case CLUTTER_TOUCH_BEGIN:
       g_print ("[%s] TOUCH BEGIN", source);
@@ -222,10 +210,6 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   g_signal_connect (stage, "event",
                     G_CALLBACK (debug_event_cb), (char *) "stage");
-  g_signal_connect (stage, "activate", 
-		    G_CALLBACK (stage_state_cb), (char *) "activate");
-  g_signal_connect (stage, "deactivate", 
-		    G_CALLBACK (stage_state_cb), (char *) "deactivate");
 
   actor = clutter_actor_new ();
   clutter_actor_set_background_color (actor, &rcol);

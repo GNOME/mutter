@@ -384,7 +384,6 @@ clutter_event_get_position (const ClutterEvent *event,
     case CLUTTER_NOTHING:
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
-    case CLUTTER_STAGE_STATE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -460,7 +459,6 @@ clutter_event_set_coords (ClutterEvent *event,
     case CLUTTER_NOTHING:
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
-    case CLUTTER_STAGE_STATE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -1052,7 +1050,6 @@ clutter_event_set_device (ClutterEvent       *event,
   switch (event->type)
     {
     case CLUTTER_NOTHING:
-    case CLUTTER_STAGE_STATE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_IM_COMMIT:
     case CLUTTER_IM_DELETE:
@@ -1150,7 +1147,6 @@ clutter_event_get_device (const ClutterEvent *event)
   switch (event->type)
     {
     case CLUTTER_NOTHING:
-    case CLUTTER_STAGE_STATE:
     case CLUTTER_IM_COMMIT:
     case CLUTTER_IM_DELETE:
     case CLUTTER_IM_PREEDIT:
@@ -1614,7 +1610,6 @@ clutter_event_get_axes (const ClutterEvent *event,
   switch (event->type)
     {
     case CLUTTER_NOTHING:
-    case CLUTTER_STAGE_STATE:
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
     case CLUTTER_KEY_PRESS:

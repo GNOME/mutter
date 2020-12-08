@@ -110,15 +110,6 @@ ClutterActor *  _clutter_stage_get_touch_drag_actor    (ClutterStage         *st
 void            _clutter_stage_remove_touch_drag_actor (ClutterStage         *stage,
                                                         ClutterEventSequence *sequence);
 
-CLUTTER_EXPORT
-ClutterStageState       _clutter_stage_get_state        (ClutterStage      *stage);
-CLUTTER_EXPORT
-gboolean                _clutter_stage_is_activated     (ClutterStage      *stage);
-CLUTTER_EXPORT
-gboolean                _clutter_stage_update_state     (ClutterStage      *stage,
-                                                         ClutterStageState  unset_state,
-                                                         ClutterStageState  set_state);
-
 void                    _clutter_stage_set_scale_factor (ClutterStage      *stage,
                                                          int                factor);
 

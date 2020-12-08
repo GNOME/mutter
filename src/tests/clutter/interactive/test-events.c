@@ -104,15 +104,6 @@ get_event_state_string (const ClutterEvent *event)
   return g_strjoinv (",", (char **) mods);
 }
 
-static void
-stage_state_cb (ClutterStage    *stage,
-		gpointer         data)
-{
-  gchar *detail = (gchar*)data;
-
-  printf("[stage signal] %s\n", detail);
-}
-
 static gboolean
 red_button_cb (ClutterActor *actor,
                ClutterEvent *event,
@@ -347,9 +338,6 @@ input_cb (ClutterActor *actor,
                    state);
       }
       break;
-    case CLUTTER_STAGE_STATE:
-      g_print ("[%s] STAGE STATE", clutter_actor_get_name (source_actor));
-      break;
     case CLUTTER_TOUCHPAD_PINCH:
       g_print ("[%s] TOUCHPAD PINCH", clutter_actor_get_name (source_actor));
       break;
@@ -401,10 +389,6 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_name (stage, "Stage");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   g_signal_connect (stage, "event", G_CALLBACK (input_cb), (char *) "stage");
-  g_signal_connect (stage, "activate", 
-		    G_CALLBACK (stage_state_cb), (char *) "activate");
-  g_signal_connect (stage, "deactivate", 
-		    G_CALLBACK (stage_state_cb), (char *) "deactivate");
 
   focus_box = clutter_actor_new ();
   clutter_actor_set_background_color (focus_box, CLUTTER_COLOR_Black);

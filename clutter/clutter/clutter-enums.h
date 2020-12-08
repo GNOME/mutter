@@ -816,7 +816,6 @@ typedef enum /*< flags prefix=CLUTTER_EVENT >*/
  * @CLUTTER_BUTTON_PRESS: Pointer button press event
  * @CLUTTER_BUTTON_RELEASE: Pointer button release event
  * @CLUTTER_SCROLL: Pointer scroll event
- * @CLUTTER_STAGE_STATE: Stage state change event
  * @CLUTTER_TOUCH_BEGIN: A new touch event sequence has started;
  *   event added in 1.10
  * @CLUTTER_TOUCH_UPDATE: A touch event sequence has been updated;
@@ -851,7 +850,6 @@ typedef enum /*< prefix=CLUTTER >*/
   CLUTTER_BUTTON_PRESS,
   CLUTTER_BUTTON_RELEASE,
   CLUTTER_SCROLL,
-  CLUTTER_STAGE_STATE,
   CLUTTER_TOUCH_BEGIN,
   CLUTTER_TOUCH_UPDATE,
   CLUTTER_TOUCH_END,
@@ -896,19 +894,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
   CLUTTER_SCROLL_RIGHT,
   CLUTTER_SCROLL_SMOOTH
 } ClutterScrollDirection;
-
-/**
- * ClutterStageState:
- * @CLUTTER_STAGE_STATE_ACTIVATED: Activated mask
- *
- * Stage state masks, used by the #ClutterEvent of type %CLUTTER_STAGE_STATE.
- *
- * Since: 0.4
- */
-typedef enum
-{
-  CLUTTER_STAGE_STATE_ACTIVATED        = (1 << 3)
-} ClutterStageState;
 
 /**
  * ClutterFeatureFlags:

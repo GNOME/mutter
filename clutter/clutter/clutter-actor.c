@@ -12272,10 +12272,6 @@ clutter_actor_event (ClutterActor       *actor,
       signal_num = -1;
       detail = quark_pad;
       break;
-    case CLUTTER_STAGE_STATE:
-      signal_num = -1;
-      detail = quark_stage;
-      break;
     case CLUTTER_IM_COMMIT:
     case CLUTTER_IM_DELETE:
     case CLUTTER_IM_PREEDIT:

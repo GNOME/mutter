@@ -112,7 +112,6 @@ typedef struct _ClutterButtonEvent      ClutterButtonEvent;
 typedef struct _ClutterKeyEvent         ClutterKeyEvent;
 typedef struct _ClutterMotionEvent      ClutterMotionEvent;
 typedef struct _ClutterScrollEvent      ClutterScrollEvent;
-typedef struct _ClutterStageStateEvent  ClutterStageStateEvent;
 typedef struct _ClutterCrossingEvent    ClutterCrossingEvent;
 typedef struct _ClutterTouchEvent       ClutterTouchEvent;
 typedef struct _ClutterTouchpadPinchEvent ClutterTouchpadPinchEvent;
@@ -348,32 +347,6 @@ struct _ClutterScrollEvent
 };
 
 /**
- * ClutterStageStateEvent:
- * @type: event type
- * @time: event time
- * @flags: event flags
- * @stage: event source stage
- * @source: event source actor (unused)
- * @changed_mask: bitwise OR of the changed flags
- * @new_state: bitwise OR of the current state flags
- *
- * Event signalling a change in the #ClutterStage state.
- *
- * Since: 0.2
- */
-struct _ClutterStageStateEvent
-{
-  ClutterEventType type;
-  guint32 time;
-  ClutterEventFlags flags;
-  ClutterStage *stage;
-  ClutterActor *source; /* XXX: should probably be the stage itself */
-
-  ClutterStageState changed_mask;
-  ClutterStageState new_state;
-};
-
-/**
  * ClutterTouchEvent:
  * @type: event type
  * @time: event time
@@ -587,7 +560,6 @@ union _ClutterEvent
   ClutterKeyEvent key;
   ClutterMotionEvent motion;
   ClutterScrollEvent scroll;
-  ClutterStageStateEvent stage_state;
   ClutterCrossingEvent crossing;
   ClutterTouchEvent touch;
   ClutterTouchpadPinchEvent touchpad_pinch;

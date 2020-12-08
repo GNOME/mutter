@@ -434,40 +434,13 @@ void
 meta_stage_set_active (MetaStage *stage,
                        gboolean   is_active)
 {
-  ClutterEvent *event;
-
-  /* Used by the native backend to inform accessibility technologies
-   * about when the stage loses and gains input focus.
-   *
-   * For the X11 backend, clutter transparently takes care of this
-   * for us.
-   */
-
   if (stage->is_active == is_active)
     return;
 
-  event = clutter_event_new (CLUTTER_STAGE_STATE);
-  clutter_event_set_stage (event, CLUTTER_STAGE (stage));
-  event->stage_state.changed_mask = CLUTTER_STAGE_STATE_ACTIVATED;
-
   if (is_active)
-    event->stage_state.new_state = CLUTTER_STAGE_STATE_ACTIVATED;
-
-  /* Emitting this StageState event will result in the stage getting
-   * activated or deactivated (with the activated or deactivated signal
-   * getting emitted from the stage)
-   *
-   * FIXME: This won't update ClutterStage's own notion of its
-   * activeness. For that we would need to somehow trigger a
-   * _clutter_stage_update_state call, which will probably
-   * require new API in clutter. In practice, nothing relies
-   * on the ClutterStage's own notion of activeness when using
-   * the EGL backend.
-   *
-   * See http://bugzilla.gnome.org/746670
-   */
-  clutter_stage_event (CLUTTER_STAGE (stage), event);
-  clutter_event_free (event);
+    g_signal_emit_by_name (CLUTTER_STAGE (stage), "activate");
+  else
+    g_signal_emit_by_name (CLUTTER_STAGE (stage), "deactivate");
 }
 
 MetaStageWatch *

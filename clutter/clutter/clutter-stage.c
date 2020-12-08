@@ -121,8 +121,6 @@ struct _ClutterStagePrivate
 
   gint sync_delay;
 
-  ClutterStageState current_state;
-
   int update_freeze_count;
 
   gboolean needs_update_devices;
@@ -1949,45 +1947,6 @@ clutter_stage_get_actor_at_pos (ClutterStage    *stage,
 }
 
 /**
- * clutter_stage_event:
- * @stage: a #ClutterStage
- * @event: a #ClutterEvent
- *
- * This function is used to emit an event on the main stage.
- *
- * You should rarely need to use this function, except for
- * synthetised events.
- *
- * Return value: the return value from the signal emission
- *
- * Since: 0.4
- */
-gboolean
-clutter_stage_event (ClutterStage *stage,
-                     ClutterEvent *event)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-  g_return_val_if_fail (event != NULL, FALSE);
-
-  if (event->type != CLUTTER_STAGE_STATE)
-    return FALSE;
-
-  /* emit raw event */
-  if (clutter_actor_event (CLUTTER_ACTOR (stage), event, FALSE))
-    return TRUE;
-
-  if (event->stage_state.changed_mask & CLUTTER_STAGE_STATE_ACTIVATED)
-    {
-      if (event->stage_state.new_state & CLUTTER_STAGE_STATE_ACTIVATED)
-	g_signal_emit (stage, stage_signals[ACTIVATE], 0);
-      else
-	g_signal_emit (stage, stage_signals[DEACTIVATE], 0);
-    }
-
-  return TRUE;
-}
-
-/**
  * clutter_stage_set_title:
  * @stage: A #ClutterStage
  * @title: A utf8 string for the stage windows title.
@@ -3022,77 +2981,6 @@ _clutter_stage_remove_touch_drag_actor (ClutterStage         *stage,
     g_object_set_data (G_OBJECT (stage),
                        "__clutter_stage_touch_drag_actors",
                        NULL);
-}
-
-/*< private >
- * _clutter_stage_get_state:
- * @stage: a #ClutterStage
- *
- * Retrieves the current #ClutterStageState flags associated to the @stage.
- *
- * Return value: a bitwise OR of #ClutterStageState flags
- */
-ClutterStageState
-_clutter_stage_get_state (ClutterStage *stage)
-{
-  return stage->priv->current_state;
-}
-
-/*< private >
- * _clutter_stage_is_activated:
- * @stage: a #ClutterStage
- *
- * Checks whether the @stage state includes %CLUTTER_STAGE_STATE_ACTIVATED.
- *
- * Return value: %TRUE if the @stage is active
- */
-gboolean
-_clutter_stage_is_activated (ClutterStage *stage)
-{
-  return (stage->priv->current_state & CLUTTER_STAGE_STATE_ACTIVATED) != 0;
-}
-
-/*< private >
- * _clutter_stage_update_state:
- * @stage: a #ClutterStage
- * @unset_flags: flags to unset
- * @set_flags: flags to set
- *
- * Updates the state of @stage, by unsetting the @unset_flags and setting
- * the @set_flags.
- *
- * If the stage state has been changed, this function will queue a
- * #ClutterEvent of type %CLUTTER_STAGE_STATE.
- *
- * Return value: %TRUE if the state was updated, and %FALSE otherwise
- */
-gboolean
-_clutter_stage_update_state (ClutterStage      *stage,
-                             ClutterStageState  unset_flags,
-                             ClutterStageState  set_flags)
-{
-  ClutterStageState new_state;
-  ClutterEvent *event;
-
-  new_state = stage->priv->current_state;
-  new_state |= set_flags;
-  new_state &= ~unset_flags;
-
-  if (new_state == stage->priv->current_state)
-    return FALSE;
-
-  event = clutter_event_new (CLUTTER_STAGE_STATE);
-  clutter_event_set_stage (event, stage);
-
-  event->stage_state.new_state = new_state;
-  event->stage_state.changed_mask = new_state ^ stage->priv->current_state;
-
-  stage->priv->current_state = new_state;
-
-  clutter_stage_event (stage, event);
-  clutter_event_free (event);
-
-  return TRUE;
 }
 
 /**

@@ -1900,13 +1900,6 @@ _clutter_process_event_details (ClutterActor        *stage,
 
         break;
 
-      case CLUTTER_STAGE_STATE:
-        /* focus - forward to stage */
-        event->any.source = stage;
-        if (!_clutter_event_process_filters (event))
-          clutter_stage_event (CLUTTER_STAGE (stage), event);
-        break;
-
       case CLUTTER_DEVICE_ADDED:
       case CLUTTER_DEVICE_REMOVED:
         _clutter_event_process_filters (event);
