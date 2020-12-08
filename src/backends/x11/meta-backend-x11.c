@@ -691,7 +691,7 @@ meta_backend_x11_finish_touch_sequence (MetaBackend          *backend,
 
   XIAllowTouchEvents (priv->xdisplay,
                       META_VIRTUAL_CORE_POINTER_ID,
-                      meta_x11_event_sequence_get_touch_detail (sequence),
+                      clutter_event_sequence_get_slot (sequence),
                       DefaultRootWindow (priv->xdisplay), event_mode);
 
   if (state == META_SEQUENCE_REJECTED)

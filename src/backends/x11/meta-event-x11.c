@@ -113,11 +113,3 @@ out:
 
   return result;
 }
-
-guint
-meta_x11_event_sequence_get_touch_detail (const ClutterEventSequence *sequence)
-{
-  g_return_val_if_fail (sequence != NULL, 0);
-
-  return GPOINTER_TO_UINT (sequence);
-}

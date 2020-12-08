@@ -188,7 +188,7 @@ touch_get_info (MetaWaylandTouch     *touch,
   if (!touch_info && create)
     {
       touch_info = g_new0 (MetaWaylandTouchInfo, 1);
-      touch_info->slot = meta_event_native_sequence_get_slot (sequence);
+      touch_info->slot = clutter_event_sequence_get_slot (sequence);
       g_hash_table_insert (touch->touches, sequence, touch_info);
     }
 

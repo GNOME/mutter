@@ -2134,3 +2134,11 @@ clutter_event_get_event_code (const ClutterEvent *event)
 
   return 0;
 }
+
+int32_t
+clutter_event_sequence_get_slot (const ClutterEventSequence *sequence)
+{
+  g_return_val_if_fail (sequence != NULL, -1);
+
+  return GPOINTER_TO_INT (sequence) - 1;
+}

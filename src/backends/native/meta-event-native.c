@@ -154,23 +154,3 @@ meta_event_native_get_relative_motion (const ClutterEvent *event,
   else
     return FALSE;
 }
-
-/**
- * meta_event_native_sequence_get_slot:
- * @sequence: a #ClutterEventSequence
- *
- * Retrieves the touch slot triggered by this @sequence
- *
- * Returns: the libinput touch slot.
- *
- * Since: 1.20
- * Stability: unstable
- **/
-int32_t
-meta_event_native_sequence_get_slot (const ClutterEventSequence *sequence)
-{
-  if (!sequence)
-    return -1;
-
-  return GPOINTER_TO_INT (sequence) - 1;
-}

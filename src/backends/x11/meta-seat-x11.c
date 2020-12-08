@@ -2213,7 +2213,8 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                              GUINT_TO_POINTER (xev->detail));
           }
 
-        event->touch.sequence = GUINT_TO_POINTER (xev->detail);
+        /* "NULL" sequences are special cased in clutter */
+        event->touch.sequence = GINT_TO_POINTER (MAX (1, xev->detail + 1));
 
         if (xev->flags & XITouchEmulatingPointer)
           _clutter_event_set_pointer_emulated (event, TRUE);
@@ -2242,7 +2243,8 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         event->touch.type = event->type = CLUTTER_TOUCH_UPDATE;
         event->touch.stage = stage;
         event->touch.time = xev->time;
-        event->touch.sequence = GUINT_TO_POINTER (xev->detail);
+        /* "NULL" sequences are special cased in clutter */
+        event->touch.sequence = GINT_TO_POINTER (MAX (1, xev->detail + 1));
         translate_coords (stage_x11, xev->event_x, xev->event_y, &event->touch.x, &event->touch.y);
 
         clutter_event_set_source_device (event, source_device);

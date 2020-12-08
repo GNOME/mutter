@@ -2890,7 +2890,7 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
       MetaTouchState *touch_state;
       int slot;
 
-      slot = meta_event_native_sequence_get_slot (sequence);
+      slot = clutter_event_sequence_get_slot (sequence);
       touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, slot);
       if (!touch_state)
         goto out;

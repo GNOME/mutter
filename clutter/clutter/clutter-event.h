@@ -788,6 +788,9 @@ gboolean                 clutter_event_get_pad_event_details         (const Clut
 CLUTTER_EXPORT
 uint32_t                 clutter_event_get_event_code                (const ClutterEvent     *event);
 
+CLUTTER_EXPORT
+int32_t                  clutter_event_sequence_get_slot (const ClutterEventSequence *sequence);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_EVENT_H__ */

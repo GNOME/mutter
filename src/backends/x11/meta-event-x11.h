@@ -28,8 +28,6 @@
 
 #include "clutter/x11/clutter-x11.h"
 
-guint meta_x11_event_sequence_get_touch_detail (const ClutterEventSequence *sequence);
-
 ClutterX11FilterReturn meta_x11_handle_event (XEvent *xevent);
 
 #endif /* META_EVENT_X11_H */

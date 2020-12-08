@@ -42,6 +42,4 @@ gboolean          meta_event_native_get_relative_motion (const ClutterEvent *eve
                                                          double             *dx_unaccel,
                                                          double             *dy_unaccel);
 
-int32_t           meta_event_native_sequence_get_slot (const ClutterEventSequence *sequence);
-
 #endif /* META_EVENT_NATIVE_H */
