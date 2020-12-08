@@ -173,6 +173,7 @@ struct _ClutterKeyEvent
   guint keyval;
   guint16 hardware_keycode;
   gunichar unicode_value;
+  uint32_t evdev_code;
   ClutterInputDevice *device;
 };
 
@@ -216,6 +217,7 @@ struct _ClutterButtonEvent
   guint click_count;
   gdouble *axes; /* Future use */
   ClutterInputDevice *device;
+  uint32_t evdev_code;
 };
 
 /**
@@ -783,7 +785,8 @@ gboolean                 clutter_event_get_pad_event_details         (const Clut
                                                                       guint                  *number,
                                                                       guint                  *mode,
                                                                       gdouble                *value);
-
+CLUTTER_EXPORT
+uint32_t                 clutter_event_get_event_code                (const ClutterEvent     *event);
 
 G_END_DECLS
 

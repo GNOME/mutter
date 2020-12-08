@@ -397,7 +397,7 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                          seat_impl->xkb,
                                          seat_impl->button_state,
                                          us2ms (time_us), key, state);
-  meta_event_native_set_event_code (event, key);
+  event->key.evdev_code = key;
 
   keycode = meta_xkb_evdev_to_keycode (key);
 
@@ -712,7 +712,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
         button = mapped_button;
     }
 
-  meta_event_native_set_event_code (event, button);
+  event->button.evdev_code = button;
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     {

@@ -28,8 +28,6 @@ typedef struct _MetaEventNative MetaEventNative;
 
 struct _MetaEventNative
 {
-  uint32_t evcode;
-
   uint64_t time_usec;
 
   gboolean has_relative_motion;
@@ -76,16 +74,6 @@ meta_event_native_ensure_platform_data (ClutterEvent *event)
 }
 
 void
-meta_event_native_set_event_code (ClutterEvent *event,
-                                  uint32_t      evcode)
-{
-  MetaEventNative *event_evdev;
-
-  event_evdev = meta_event_native_ensure_platform_data (event);
-  event_evdev->evcode = evcode;
-}
-
-void
 meta_event_native_set_time_usec (ClutterEvent *event,
                                  uint64_t      time_usec)
 {
@@ -110,26 +98,6 @@ meta_event_native_set_relative_motion (ClutterEvent *event,
   event_evdev->dx_unaccel = dx_unaccel;
   event_evdev->dy_unaccel = dy_unaccel;
   event_evdev->has_relative_motion = TRUE;
-}
-
-/**
- * meta_event_native_get_event_code:
- * @event: a #ClutterEvent
- *
- * Returns the event code of the original event. See linux/input.h for more
- * information.
- *
- * Returns: The event code.
- **/
-uint32_t
-meta_event_native_get_event_code (const ClutterEvent *event)
-{
-  MetaEventNative *event_evdev = _clutter_event_get_platform_data (event);
-
-  if (event_evdev)
-    return event_evdev->evcode;
-
-  return 0;
 }
 
 /**

@@ -2121,3 +2121,16 @@ clutter_event_get_pad_event_details (const ClutterEvent *event,
 
   return TRUE;
 }
+
+uint32_t
+clutter_event_get_event_code (const ClutterEvent *event)
+{
+  if (event->type == CLUTTER_KEY_PRESS ||
+      event->type == CLUTTER_KEY_RELEASE)
+    return event->key.evdev_code;
+  else if (event->type == CLUTTER_BUTTON_PRESS ||
+           event->type == CLUTTER_BUTTON_RELEASE)
+    return event->button.evdev_code;
+
+  return 0;
+}

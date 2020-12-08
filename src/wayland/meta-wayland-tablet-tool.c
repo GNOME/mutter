@@ -36,13 +36,6 @@
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include <linux/input-event-codes.h>
-
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-event-native.h"
-#endif
-
 #include "tablet-unstable-v2-server-protocol.h"
 
 #define TABLET_AXIS_MAX 65535
@@ -657,23 +650,9 @@ broadcast_button (MetaWaylandTabletTool *tool,
                   const ClutterEvent    *event)
 {
   struct wl_resource *resource;
-  guint32 button;
+  uint32_t button;
 
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      button = meta_event_native_get_event_code (event);
-    }
-  else
-#endif
-    {
-      /* We can't do much better here, there's several
-       * different BTN_ ranges to cover.
-       */
-      button = event->button.button;
-    }
-
+  button = clutter_event_get_event_code (event);
   tool->button_serial = wl_display_next_serial (tool->seat->manager->wl_display);
 
   wl_resource_for_each (resource, &tool->focus_resource_list)

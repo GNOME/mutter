@@ -377,36 +377,7 @@ meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
       uint32_t button;
       uint32_t serial;
 
-#ifdef HAVE_NATIVE_BACKEND
-      MetaBackend *backend = meta_get_backend ();
-      if (META_IS_BACKEND_NATIVE (backend))
-        button = meta_event_native_get_event_code (event);
-      else
-#endif
-        {
-          button = clutter_event_get_button (event);
-          switch (button)
-            {
-            case 1:
-              button = BTN_LEFT;
-              break;
-
-              /* The evdev input right and middle button numbers are swapped
-                 relative to how Clutter numbers them */
-            case 2:
-              button = BTN_MIDDLE;
-              break;
-
-            case 3:
-              button = BTN_RIGHT;
-              break;
-
-            default:
-              button = button + (BTN_LEFT - 1) + 4;
-              break;
-            }
-        }
-
+      button = clutter_event_get_event_code (event);
       time = clutter_event_get_time (event);
       serial = meta_wayland_input_device_next_serial (input_device);
 

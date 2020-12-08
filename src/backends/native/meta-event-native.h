@@ -28,9 +28,6 @@ typedef struct _MetaEventNative MetaEventNative;
 MetaEventNative * meta_event_native_copy (MetaEventNative *event_evdev);
 void              meta_event_native_free (MetaEventNative *event_evdev);
 
-uint32_t          meta_event_native_get_event_code (const ClutterEvent *event);
-void              meta_event_native_set_event_code (ClutterEvent *event,
-                                                    uint32_t      evcode);
 uint64_t          meta_event_native_get_time_usec  (const ClutterEvent *event);
 void              meta_event_native_set_time_usec  (ClutterEvent *event,
                                                     uint64_t      time_usec);

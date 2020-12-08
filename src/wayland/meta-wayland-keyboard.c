@@ -58,11 +58,6 @@
 #include "core/meta-anonymous-file.h"
 #include "wayland/meta-wayland-private.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-event-native.h"
-#endif
-
 #define GSD_KEYBOARD_SCHEMA "org.gnome.settings-daemon.peripherals.keyboard"
 
 G_DEFINE_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
@@ -70,7 +65,6 @@ G_DEFINE_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
 
 static void meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard);
 static void notify_modifiers (MetaWaylandKeyboard *keyboard);
-static guint evdev_code (const ClutterKeyEvent *event);
 
 static void
 unbind_resource (struct wl_resource *resource)
@@ -491,21 +485,13 @@ default_grab_key (MetaWaylandKeyboardGrab *grab,
   MetaWaylandKeyboard *keyboard = grab->keyboard;
   gboolean is_press = event->type == CLUTTER_KEY_PRESS;
   guint32 code = 0;
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-#endif
 
   /* Ignore autorepeat events, as autorepeat in Wayland is done on the client
    * side. */
   if (event->key.flags & CLUTTER_EVENT_FLAG_REPEATED)
     return FALSE;
 
-#ifdef HAVE_NATIVE_BACKEND
-  if (META_IS_BACKEND_NATIVE (backend))
-    code = meta_event_native_get_event_code (event);
-  if (code == 0)
-#endif
-    code = evdev_code (&event->key);
+  code = clutter_event_get_event_code (event);
 
   return meta_wayland_keyboard_broadcast_key (keyboard, event->key.time,
                                               code, is_press);
@@ -570,14 +556,6 @@ meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
   wl_list_init (&keyboard->focus_resource_list);
 
   g_clear_object (&keyboard->settings);
-}
-
-static guint
-evdev_code (const ClutterKeyEvent *event)
-{
-  /* clutter-xkb-utils.c adds a fixed offset of 8 to go into XKB's
-   * range, so we do the reverse here. */
-  return event->hardware_keycode - 8;
 }
 
 void
