@@ -239,7 +239,8 @@ create_lock_file (int      display,
 
   while (!try_display (display, &filename, &fd, &local_error))
     {
-      g_warning ("Failed to lock X11 display: %s", local_error->message);
+      meta_topic (META_DEBUG_WAYLAND,
+                  "Failed to lock X11 display: %s", local_error->message);
       g_clear_error (&local_error);
       display++;
       number_of_tries++;
@@ -831,6 +832,10 @@ meta_xwayland_init (MetaXWaylandManager  *manager,
                                  error))
         return FALSE;
     }
+
+  g_message ("Using public X11 display %s, (using %s for managed services)",
+             manager->public_connection.name,
+             manager->private_connection.name);
 
   manager->wayland_display = wl_display;
   policy = meta_get_x11_display_policy ();
