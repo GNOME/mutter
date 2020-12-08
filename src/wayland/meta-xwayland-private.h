@@ -25,8 +25,9 @@
 #include "wayland/meta-wayland-private.h"
 
 gboolean
-meta_xwayland_init (MetaXWaylandManager *manager,
-		    struct wl_display   *display);
+meta_xwayland_init (MetaXWaylandManager  *manager,
+                    struct wl_display    *display,
+                    GError              **error);
 
 void
 meta_xwayland_complete_init (MetaDisplay *display,

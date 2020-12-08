@@ -120,9 +120,10 @@ meta_xwayland_is_xwayland_surface (MetaWaylandSurface *surface)
 }
 
 static gboolean
-try_display (int    display,
-             char **filename_out,
-             int   *fd_out)
+try_display (int      display,
+             char   **filename_out,
+             int     *fd_out,
+             GError **error)
 {
   gboolean ret = FALSE;
   char *filename;
@@ -138,11 +139,32 @@ try_display (int    display,
       char pid[11];
       char *end;
       pid_t other;
+      int read_bytes;
 
       fd = open (filename, O_CLOEXEC, O_RDONLY);
-      if (fd < 0 || read (fd, pid, 11) != 11)
+      if (fd < 0)
         {
-          g_warning ("can't read lock file %s: %m", filename);
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                       "Failed to open lock file %s: %s",
+                       filename, g_strerror (errno));
+          goto out;
+        }
+
+      read_bytes = read (fd, pid, 11);
+      if (read_bytes != 11)
+        {
+          if (read_bytes < 0)
+            {
+              g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                           "Failed to read from lock file %s: %s",
+                           filename, g_strerror (errno));
+            }
+          else
+            {
+              g_set_error (error, G_IO_ERROR, G_IO_ERROR_PARTIAL_INPUT,
+                           "Only read %d bytes (needed 11) from lock file: %s",
+                           read_bytes, filename);
+            }
           goto out;
         }
       close (fd);
@@ -152,7 +174,8 @@ try_display (int    display,
       other = strtol (pid, &end, 0);
       if (end != pid + 10)
         {
-          g_warning ("can't parse lock file %s", filename);
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Can't parse lock file %s", filename);
           goto out;
         }
 
@@ -161,18 +184,24 @@ try_display (int    display,
           /* Process is dead. Try unlinking the lock file and trying again. */
           if (unlink (filename) < 0)
             {
-              g_warning ("failed to unlink stale lock file %s: %m", filename);
+              g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                           "Failed to unlink stale lock file %s: %s",
+                           filename, g_strerror (errno));
               goto out;
             }
 
           goto again;
         }
 
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Lock file %s is already occupied", filename);
       goto out;
     }
   else if (fd < 0)
     {
-      g_warning ("failed to create lock file %s: %m", filename);
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                  "Failed to create lock file %s: %s",
+                  filename, g_strerror (errno));
       goto out;
     }
 
@@ -197,24 +226,33 @@ try_display (int    display,
 }
 
 static char *
-create_lock_file (int display, int *display_out)
+create_lock_file (int      display,
+                  int     *display_out,
+                  GError **error)
 {
   char *filename;
   int fd;
-
   char pid[12];
   int size;
   int number_of_tries = 0;
+  g_autoptr (GError) local_error = NULL;
 
-  while (!try_display (display, &filename, &fd))
+  while (!try_display (display, &filename, &fd, &local_error))
     {
+      g_warning ("Failed to lock X11 display: %s", local_error->message);
+      g_clear_error (&local_error);
       display++;
       number_of_tries++;
 
       /* If we can't get a display after 50 times, then something's wrong. Just
        * abort in this case. */
       if (number_of_tries >= 50)
-        return NULL;
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Gave up after trying to lock different "
+                       "X11 display lock file 50 times");
+          return NULL;
+        }
     }
 
   /* Subtle detail: we use the pid of the wayland compositor, not the xserver
@@ -222,11 +260,23 @@ create_lock_file (int display, int *display_out)
    * it _would've_ written without either the NUL or the size clamping, hence
    * the disparity in size. */
   size = snprintf (pid, 12, "%10d\n", getpid ());
+  errno = 0;
   if (size != 11 || write (fd, pid, 11) != 11)
     {
+      if (errno != 0)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                       "Failed to write pid to lock file %s: %s",
+                       filename, g_strerror (errno));
+        }
+      else
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Failed to write pid to lock file %s", filename);
+        }
+
       unlink (filename);
       close (fd);
-      g_warning ("failed to write pid to lock file %s", filename);
       g_free (filename);
       return NULL;
     }
@@ -238,7 +288,8 @@ create_lock_file (int display, int *display_out)
 }
 
 static int
-bind_to_unix_socket (int display)
+bind_to_unix_socket (int      display,
+                     GError **error)
 {
   struct sockaddr_un addr;
   socklen_t size, name_size;
@@ -246,7 +297,11 @@ bind_to_unix_socket (int display)
 
   fd = socket (PF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd < 0)
-    return -1;
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to create socket: %s", g_strerror (errno));
+      return -1;
+    }
 
   addr.sun_family = AF_LOCAL;
   name_size = snprintf (addr.sun_path, sizeof addr.sun_path,
@@ -255,13 +310,18 @@ bind_to_unix_socket (int display)
   unlink (addr.sun_path);
   if (bind (fd, (struct sockaddr *) &addr, size) < 0)
     {
-      g_warning ("failed to bind to %s: %m", addr.sun_path);
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to bind to %s: %s",
+                   addr.sun_path, g_strerror (errno));
       close (fd);
       return -1;
     }
 
   if (listen (fd, 1) < 0)
     {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to listen to %s: %s",
+                   addr.sun_path, g_strerror (errno));
       unlink (addr.sun_path);
       close (fd);
       return -1;
@@ -301,13 +361,15 @@ xserver_died (GObject      *source,
   else if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     {
       MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+      g_autoptr (GError) error = NULL;
 
       if (display->x11_display)
         meta_display_shutdown_x11 (display);
 
       if (!meta_xwayland_init (&compositor->xwayland_manager,
-                               compositor->wayland_display))
-        g_warning ("Failed to init X sockets");
+                               compositor->wayland_display,
+                               &error))
+        g_warning ("Failed to init X sockets: %s", error->message);
     }
 }
 
@@ -355,19 +417,16 @@ meta_xwayland_override_display_number (int number)
 }
 
 static gboolean
-open_display_sockets (MetaXWaylandManager *manager,
-                      int                  display_index,
-                      int                 *unix_fd_out,
-                      gboolean            *fatal)
+open_display_sockets (MetaXWaylandManager  *manager,
+                      int                   display_index,
+                      int                  *unix_fd_out,
+                      GError              **error)
 {
   int unix_fd;
 
-  unix_fd = bind_to_unix_socket (display_index);
+  unix_fd = bind_to_unix_socket (display_index, error);
   if (unix_fd < 0)
-    {
-      *fatal = FALSE;
-      return FALSE;
-    }
+    return FALSE;
 
   *unix_fd_out = unix_fd;
 
@@ -375,12 +434,12 @@ open_display_sockets (MetaXWaylandManager *manager,
 }
 
 static gboolean
-choose_xdisplay (MetaXWaylandManager    *manager,
-                 MetaXWaylandConnection *connection)
+choose_xdisplay (MetaXWaylandManager     *manager,
+                 MetaXWaylandConnection  *connection,
+                 GError                 **error)
 {
   int display = 0;
   char *lock_file = NULL;
-  gboolean fatal = FALSE;
 
   if (display_number_override != -1)
     display = display_number_override;
@@ -389,29 +448,23 @@ choose_xdisplay (MetaXWaylandManager    *manager,
 
   do
     {
-      lock_file = create_lock_file (display, &display);
+      g_autoptr (GError) local_error = NULL;
+
+      lock_file = create_lock_file (display, &display, &local_error);
       if (!lock_file)
         {
-          g_warning ("Failed to create an X lock file");
+          g_prefix_error (&local_error, "Failed to create an X lock file: ");
+          g_propagate_error (error, g_steal_pointer (&local_error));
           return FALSE;
         }
 
       if (!open_display_sockets (manager, display,
                                  &connection->unix_fd,
-                                 &fatal))
+                                 &local_error))
         {
           unlink (lock_file);
-
-          if (!fatal)
-            {
-              display++;
-              continue;
-            }
-          else
-            {
-              g_warning ("Failed to bind X11 socket");
-              return FALSE;
-            }
+          g_prefix_error (error, "Failed to bind X11 socket: ");
+          return FALSE;
         }
 
       break;
@@ -428,7 +481,8 @@ choose_xdisplay (MetaXWaylandManager    *manager,
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (FILE, fclose)
 
 static gboolean
-prepare_auth_file (MetaXWaylandManager *manager)
+prepare_auth_file (MetaXWaylandManager  *manager,
+                   GError              **error)
 {
   Xauth auth_entry = { 0 };
   g_autoptr (FILE) fp = NULL;
@@ -441,7 +495,8 @@ prepare_auth_file (MetaXWaylandManager *manager)
 
   if (getrandom (auth_data, sizeof (auth_data), 0) != sizeof (auth_data))
     {
-      g_warning ("Failed to get random data: %s", g_strerror (errno));
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to get random data: %s", g_strerror (errno));
       return FALSE;
     }
 
@@ -456,34 +511,39 @@ prepare_auth_file (MetaXWaylandManager *manager)
   fd = g_mkstemp (manager->auth_file);
   if (fd < 0)
     {
-      g_warning ("Failed to open Xauthority file: %s", g_strerror (errno));
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to open Xauthority file: %s", g_strerror (errno));
       return FALSE;
     }
 
   fp = fdopen (fd, "w+");
   if (!fp)
     {
-      g_warning ("Failed to open Xauthority stream: %s", g_strerror (errno));
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to open Xauthority stream: %s", g_strerror (errno));
       close (fd);
       return FALSE;
     }
 
   if (!XauWriteAuth (fp, &auth_entry))
     {
-      g_warning ("Error writing to Xauthority file: %s", g_strerror (errno));
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Error writing to Xauthority file: %s", g_strerror (errno));
       return FALSE;
     }
 
   auth_entry.family = FamilyWild;
   if (!XauWriteAuth (fp, &auth_entry))
     {
-      g_warning ("Error writing to Xauthority file: %s", g_strerror (errno));
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Error writing to Xauthority file: %s", g_strerror (errno));
       return FALSE;
     }
 
   if (fflush (fp) == EOF)
     {
-      g_warning ("Error writing to Xauthority file: %s", g_strerror (errno));
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Error writing to Xauthority file: %s", g_strerror (errno));
       return FALSE;
     }
 
@@ -741,20 +801,20 @@ meta_xwayland_stop_xserver (MetaXWaylandManager *manager)
 }
 
 gboolean
-meta_xwayland_init (MetaXWaylandManager *manager,
-                    struct wl_display   *wl_display)
+meta_xwayland_init (MetaXWaylandManager  *manager,
+                    struct wl_display    *wl_display,
+                    GError              **error)
 {
   MetaDisplayPolicy policy;
-  gboolean fatal;
 
   if (!manager->public_connection.name)
     {
-      if (!choose_xdisplay (manager, &manager->public_connection))
+      if (!choose_xdisplay (manager, &manager->public_connection, error))
         return FALSE;
-      if (!choose_xdisplay (manager, &manager->private_connection))
+      if (!choose_xdisplay (manager, &manager->private_connection, error))
         return FALSE;
 
-      if (!prepare_auth_file (manager))
+      if (!prepare_auth_file (manager, error))
         return FALSE;
     }
   else
@@ -762,13 +822,13 @@ meta_xwayland_init (MetaXWaylandManager *manager,
       if (!open_display_sockets (manager,
                                  manager->public_connection.display_index,
                                  &manager->public_connection.unix_fd,
-                                 &fatal))
+                                 error))
         return FALSE;
 
       if (!open_display_sockets (manager,
                                  manager->private_connection.display_index,
                                  &manager->private_connection.unix_fd,
-                                 &fatal))
+                                 error))
         return FALSE;
     }
 
