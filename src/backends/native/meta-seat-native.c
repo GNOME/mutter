@@ -342,32 +342,6 @@ meta_seat_native_get_supported_virtual_device_types (ClutterSeat *seat)
 }
 
 static void
-meta_seat_native_compress_motion (ClutterSeat        *seat,
-                                  ClutterEvent       *event,
-                                  const ClutterEvent *to_discard)
-{
-  double dx, dy;
-  double dx_unaccel, dy_unaccel;
-  double dst_dx = 0.0, dst_dy = 0.0;
-  double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
-
-  if (!clutter_event_get_relative_motion (to_discard,
-                                          &dx, &dy,
-                                          &dx_unaccel, &dy_unaccel))
-    return;
-
-  clutter_event_get_relative_motion (event,
-                                     &dst_dx, &dst_dy,
-                                     &dst_dx_unaccel, &dst_dy_unaccel);
-
-  event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
-  event->motion.dx = dx + dst_dx;
-  event->motion.dy = dy + dst_dy;
-  event->motion.dx_unaccel = dx_unaccel + dst_dx_unaccel;
-  event->motion.dy_unaccel = dy_unaccel + dst_dy_unaccel;
-}
-
-static void
 meta_seat_native_warp_pointer (ClutterSeat *seat,
                                int          x,
                                int          y)
@@ -408,7 +382,6 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_keymap = meta_seat_native_get_keymap;
   seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
-  seat_class->compress_motion = meta_seat_native_compress_motion;
   seat_class->warp_pointer = meta_seat_native_warp_pointer;
   seat_class->handle_event_post = meta_seat_native_handle_event_post;
   seat_class->query_state = meta_seat_native_query_state;

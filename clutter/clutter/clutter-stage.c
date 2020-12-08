@@ -687,6 +687,32 @@ _clutter_stage_has_queued_events (ClutterStage *stage)
   return priv->event_queue->length > 0;
 }
 
+static void
+clutter_stage_compress_motion (ClutterStage       *stage,
+                               ClutterEvent       *event,
+                               const ClutterEvent *to_discard)
+{
+  double dx, dy;
+  double dx_unaccel, dy_unaccel;
+  double dst_dx = 0.0, dst_dy = 0.0;
+  double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
+
+  if (!clutter_event_get_relative_motion (to_discard,
+                                          &dx, &dy,
+                                          &dx_unaccel, &dy_unaccel))
+    return;
+
+  clutter_event_get_relative_motion (event,
+                                     &dst_dx, &dst_dy,
+                                     &dst_dx_unaccel, &dst_dy_unaccel);
+
+  event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
+  event->motion.dx = dx + dst_dx;
+  event->motion.dy = dy + dst_dy;
+  event->motion.dx_unaccel = dx_unaccel + dst_dx_unaccel;
+  event->motion.dy_unaccel = dy_unaccel + dst_dy_unaccel;
+}
+
 void
 _clutter_stage_process_queued_events (ClutterStage *stage)
 {
@@ -754,11 +780,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
                             (int) event->motion.y);
 
               if (next_event->type == CLUTTER_MOTION)
-                {
-                  ClutterSeat *seat = clutter_input_device_get_seat (device);
-
-                  clutter_seat_compress_motion (seat, next_event, event);
-                }
+                clutter_stage_compress_motion (stage, next_event, event);
 
               goto next_event;
             }
