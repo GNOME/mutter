@@ -504,7 +504,7 @@ new_absolute_motion_event (MetaSeatImpl       *seat_impl,
                                         &x, &y);
     }
 
-  meta_event_native_set_time_usec (event, time_us);
+  event->motion.time_us = time_us;
   event->motion.time = us2ms (time_us);
   meta_xkb_translate_state (event, seat_impl->xkb, seat_impl->button_state);
   event->motion.x = x;
@@ -577,9 +577,11 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
   event = new_absolute_motion_event (seat_impl, input_device,
                                      time_us, new_x, new_y, NULL);
 
-  meta_event_native_set_relative_motion (event,
-                                         dx, dy,
-                                         dx_unaccel, dy_unaccel);
+  event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
+  event->motion.dx = dx;
+  event->motion.dy = dy;
+  event->motion.dx_unaccel = dx_unaccel;
+  event->motion.dy_unaccel = dy_unaccel;
 
   queue_event (seat_impl, event);
 }
@@ -680,7 +682,6 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
         seat_impl->button_state &= ~maskmap[button_nr - 1];
     }
 
-  meta_event_native_set_time_usec (event, time_us);
   event->button.time = us2ms (time_us);
   meta_xkb_translate_state (event, seat_impl->xkb, seat_impl->button_state);
   event->button.button = button_nr;
@@ -752,7 +753,6 @@ notify_scroll (ClutterInputDevice       *input_device,
 
   event = clutter_event_new (CLUTTER_SCROLL);
 
-  meta_event_native_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
   meta_xkb_translate_state (event, seat_impl->xkb, seat_impl->button_state);
 
@@ -794,7 +794,6 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
 
   event = clutter_event_new (CLUTTER_SCROLL);
 
-  meta_event_native_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
   meta_xkb_translate_state (event, seat_impl->xkb, seat_impl->button_state);
 
@@ -917,7 +916,6 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
 
   event = clutter_event_new (evtype);
 
-  meta_event_native_set_time_usec (event, time_us);
   event->touch.time = us2ms (time_us);
   event->touch.x = x;
   event->touch.y = y;
@@ -1216,7 +1214,10 @@ notify_relative_tool_motion_in_impl (ClutterInputDevice *input_device,
 
   event = new_absolute_motion_event (seat_impl, input_device, time_us,
                                      x, y, axes);
-  meta_event_native_set_relative_motion (event, dx, dy, 0, 0);
+
+  event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
+  event->motion.dx = dx;
+  event->motion.dy = dy;
 
   queue_event (seat_impl, event);
 }
@@ -1242,7 +1243,6 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
                                                &event->touchpad_pinch.x,
                                                &event->touchpad_pinch.y);
 
-  meta_event_native_set_time_usec (event, time_us);
   event->touchpad_pinch.phase = phase;
   event->touchpad_pinch.time = us2ms (time_us);
   event->touchpad_pinch.dx = dx;
@@ -1274,7 +1274,6 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_SWIPE);
 
-  meta_event_native_set_time_usec (event, time_us);
   event->touchpad_swipe.phase = phase;
   event->touchpad_swipe.time = us2ms (time_us);
 
@@ -1310,8 +1309,6 @@ notify_proximity (ClutterInputDevice *input_device,
   else
     event = clutter_event_new (CLUTTER_PROXIMITY_OUT);
 
-  meta_event_native_set_time_usec (event, time_us);
-
   event->proximity.time = us2ms (time_us);
   clutter_event_set_device_tool (event, device_native->last_tool);
   clutter_event_set_device (event, seat_impl->core_pointer);
@@ -1338,7 +1335,6 @@ notify_pad_button (ClutterInputDevice *input_device,
   else
     event = clutter_event_new (CLUTTER_PAD_BUTTON_RELEASE);
 
-  meta_event_native_set_time_usec (event, time_us);
   event->pad_button.button = button;
   event->pad_button.group = mode_group;
   event->pad_button.mode = mode;
@@ -1370,7 +1366,6 @@ notify_pad_strip (ClutterInputDevice *input_device,
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
 
   event = clutter_event_new (CLUTTER_PAD_STRIP);
-  meta_event_native_set_time_usec (event, time_us);
   event->pad_strip.strip_source = source;
   event->pad_strip.strip_number = strip_number;
   event->pad_strip.value = value;
@@ -1404,7 +1399,6 @@ notify_pad_ring (ClutterInputDevice *input_device,
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
 
   event = clutter_event_new (CLUTTER_PAD_RING);
-  meta_event_native_set_time_usec (event, time_us);
   event->pad_ring.ring_source = source;
   event->pad_ring.ring_number = ring_number;
   event->pad_ring.angle = angle;

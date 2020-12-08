@@ -2142,3 +2142,37 @@ clutter_event_sequence_get_slot (const ClutterEventSequence *sequence)
 
   return GPOINTER_TO_INT (sequence) - 1;
 }
+
+int64_t
+clutter_event_get_time_us (const ClutterEvent *event)
+{
+  if (event->type == CLUTTER_MOTION)
+    return event->motion.time_us;
+
+  return 0;
+}
+
+gboolean
+clutter_event_get_relative_motion (const ClutterEvent *event,
+                                   double             *dx,
+                                   double             *dy,
+                                   double             *dx_unaccel,
+                                   double             *dy_unaccel)
+{
+  if (event->type == CLUTTER_MOTION &&
+      event->motion.flags & CLUTTER_EVENT_FLAG_RELATIVE_MOTION)
+    {
+      if (dx)
+        *dx = event->motion.dx;
+      if (dy)
+        *dy = event->motion.dy;
+      if (dx_unaccel)
+        *dx_unaccel = event->motion.dx_unaccel;
+      if (dy_unaccel)
+        *dy_unaccel = event->motion.dy_unaccel;
+
+      return TRUE;
+    }
+  else
+    return FALSE;
+}

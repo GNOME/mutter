@@ -375,19 +375,20 @@ meta_seat_native_compress_motion (ClutterSeat        *seat,
   double dst_dx = 0.0, dst_dy = 0.0;
   double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
 
-  if (!meta_event_native_get_relative_motion (to_discard,
-                                              &dx, &dy,
-                                              &dx_unaccel, &dy_unaccel))
+  if (!clutter_event_get_relative_motion (to_discard,
+                                          &dx, &dy,
+                                          &dx_unaccel, &dy_unaccel))
     return;
 
-  meta_event_native_get_relative_motion (event,
-                                         &dst_dx, &dst_dy,
-                                         &dst_dx_unaccel, &dst_dy_unaccel);
-  meta_event_native_set_relative_motion (event,
-                                         dx + dst_dx,
-                                         dy + dst_dy,
-                                         dx_unaccel + dst_dx_unaccel,
-                                         dy_unaccel + dst_dy_unaccel);
+  clutter_event_get_relative_motion (event,
+                                     &dst_dx, &dst_dy,
+                                     &dst_dx_unaccel, &dst_dy_unaccel);
+
+  event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
+  event->motion.dx = dx + dst_dx;
+  event->motion.dy = dy + dst_dy;
+  event->motion.dx_unaccel = dx_unaccel + dst_dx_unaccel;
+  event->motion.dy_unaccel = dy_unaccel + dst_dy_unaccel;
 }
 
 static void

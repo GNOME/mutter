@@ -66,7 +66,6 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-event-native.h"
 #endif
 
 #include "relative-pointer-unstable-v1-server-protocol.h"
@@ -286,7 +285,6 @@ void
 meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
                                            const ClutterEvent *event)
 {
-#ifdef HAVE_NATIVE_BACKEND
   struct wl_resource *resource;
   double dx, dy;
   double dx_unaccel, dy_unaccel;
@@ -295,18 +293,16 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
   uint32_t time_us_lo;
   wl_fixed_t dxf, dyf;
   wl_fixed_t dx_unaccelf, dy_unaccelf;
-  MetaBackend *backend = meta_get_backend ();
 
   if (!pointer->focus_client)
     return;
 
-  if (!META_IS_BACKEND_NATIVE (backend) ||
-      !meta_event_native_get_relative_motion (event,
-                                              &dx, &dy,
-                                              &dx_unaccel, &dy_unaccel))
+  if (!clutter_event_get_relative_motion (event,
+                                          &dx, &dy,
+                                          &dx_unaccel, &dy_unaccel))
     return;
 
-  time_us = meta_event_native_get_time_usec (event);
+  time_us = clutter_event_get_time_us (event);
   if (time_us == 0)
     time_us = clutter_event_get_time (event) * 1000ULL;
   time_us_hi = (uint32_t) (time_us >> 32);
@@ -327,7 +323,6 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
                                                     dx_unaccelf,
                                                     dy_unaccelf);
     }
-#endif
 }
 
 void

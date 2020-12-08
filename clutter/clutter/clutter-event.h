@@ -307,6 +307,12 @@ struct _ClutterMotionEvent
   ClutterModifierType modifier_state;
   gdouble *axes; /* Future use */
   ClutterInputDevice *device;
+
+  int64_t time_us;
+  double dx;
+  double dy;
+  double dx_unaccel;
+  double dy_unaccel;
 };
 
 /**
@@ -790,6 +796,16 @@ uint32_t                 clutter_event_get_event_code                (const Clut
 
 CLUTTER_EXPORT
 int32_t                  clutter_event_sequence_get_slot (const ClutterEventSequence *sequence);
+
+CLUTTER_EXPORT
+int64_t                  clutter_event_get_time_us (const ClutterEvent *event);
+CLUTTER_EXPORT
+gboolean                 clutter_event_get_relative_motion (const ClutterEvent *event,
+                                                            double             *dx,
+                                                            double             *dy,
+                                                            double             *dx_unaccel,
+                                                            double             *dy_unaccel);
+
 
 G_END_DECLS
 
