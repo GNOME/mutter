@@ -101,13 +101,6 @@ struct _ClutterSeatClass
                             graphene_point_t     *coords,
                             ClutterModifierType  *modifiers);
 
-  /* Event platform data */
-  void (* copy_event_data) (ClutterSeat        *seat,
-                            const ClutterEvent *src,
-                            ClutterEvent       *dest);
-  void (* free_event_data) (ClutterSeat        *seat,
-                            ClutterEvent       *event);
-
   /* Virtual devices */
   ClutterVirtualInputDevice * (* create_virtual_device) (ClutterSeat            *seat,
                                                          ClutterInputDeviceType  device_type);

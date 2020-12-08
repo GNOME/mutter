@@ -1353,10 +1353,6 @@ clutter_event_copy (const ClutterEvent *event)
       break;
     }
 
-  _clutter_backend_copy_event_data (clutter_get_default_backend (),
-                                    event,
-                                    new_event);
-
   return new_event;
 }
 
@@ -1372,8 +1368,6 @@ clutter_event_free (ClutterEvent *event)
   if (G_LIKELY (event != NULL))
     {
       ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-      _clutter_backend_free_event_data (clutter_get_default_backend (), event);
 
       g_clear_object (&real_event->device);
       g_clear_object (&real_event->source_device);

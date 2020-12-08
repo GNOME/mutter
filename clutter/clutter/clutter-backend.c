@@ -678,31 +678,6 @@ _clutter_backend_get_units_per_em (ClutterBackend       *backend,
   return backend->units_per_em;
 }
 
-void
-_clutter_backend_copy_event_data (ClutterBackend     *backend,
-                                  const ClutterEvent *src,
-                                  ClutterEvent       *dest)
-{
-  ClutterSeatClass *seat_class;
-  ClutterSeat *seat;
-
-  seat = clutter_backend_get_default_seat (backend);
-  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
-  seat_class->copy_event_data (seat, src, dest);
-}
-
-void
-_clutter_backend_free_event_data (ClutterBackend *backend,
-                                  ClutterEvent   *event)
-{
-  ClutterSeatClass *seat_class;
-  ClutterSeat *seat;
-
-  seat = clutter_backend_get_default_seat (backend);
-  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
-  seat_class->free_event_data (seat, event);
-}
-
 /**
  * clutter_get_default_backend:
  *

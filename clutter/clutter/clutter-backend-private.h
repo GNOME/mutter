@@ -117,11 +117,6 @@ gboolean                _clutter_backend_post_parse                     (Clutter
                                                                          GError                **error);
 
 void                    _clutter_backend_init_events                    (ClutterBackend         *backend);
-void                    _clutter_backend_copy_event_data                (ClutterBackend         *backend,
-                                                                         const ClutterEvent     *src,
-                                                                         ClutterEvent           *dest);
-void                    _clutter_backend_free_event_data                (ClutterBackend         *backend,
-                                                                         ClutterEvent           *event);
 CLUTTER_EXPORT
 gboolean                _clutter_backend_translate_event                (ClutterBackend         *backend,
                                                                          gpointer                native,

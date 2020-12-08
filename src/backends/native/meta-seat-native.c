@@ -288,19 +288,6 @@ meta_seat_native_get_keymap (ClutterSeat *seat)
   return CLUTTER_KEYMAP (seat_native->keymap);
 }
 
-static void
-meta_seat_native_copy_event_data (ClutterSeat        *seat,
-                                  const ClutterEvent *src,
-                                  ClutterEvent       *dest)
-{
-}
-
-static void
-meta_seat_native_free_event_data (ClutterSeat  *seat,
-                                  ClutterEvent *event)
-{
-}
-
 static guint
 bump_virtual_touch_slot_base (MetaSeatNative *seat_native)
 {
@@ -419,8 +406,6 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->peek_devices = meta_seat_native_peek_devices;
   seat_class->bell_notify = meta_seat_native_bell_notify;
   seat_class->get_keymap = meta_seat_native_get_keymap;
-  seat_class->copy_event_data = meta_seat_native_copy_event_data;
-  seat_class->free_event_data = meta_seat_native_free_event_data;
   seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
   seat_class->compress_motion = meta_seat_native_compress_motion;

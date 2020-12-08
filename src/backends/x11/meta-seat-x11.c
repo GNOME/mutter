@@ -1439,19 +1439,6 @@ meta_seat_x11_get_keymap (ClutterSeat *seat)
   return CLUTTER_KEYMAP (META_SEAT_X11 (seat)->keymap);
 }
 
-static void
-meta_seat_x11_copy_event_data (ClutterSeat        *seat,
-                               const ClutterEvent *src,
-                               ClutterEvent       *dest)
-{
-}
-
-static void
-meta_seat_x11_free_event_data (ClutterSeat  *seat,
-                               ClutterEvent *event)
-{
-}
-
 static ClutterVirtualInputDevice *
 meta_seat_x11_create_virtual_device (ClutterSeat            *seat,
                                      ClutterInputDeviceType  device_type)
@@ -1634,8 +1621,6 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->peek_devices = meta_seat_x11_peek_devices;
   seat_class->bell_notify = meta_seat_x11_bell_notify;
   seat_class->get_keymap = meta_seat_x11_get_keymap;
-  seat_class->copy_event_data = meta_seat_x11_copy_event_data;
-  seat_class->free_event_data = meta_seat_x11_free_event_data;
   seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;
