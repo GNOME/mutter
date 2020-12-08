@@ -31,7 +31,6 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-keymap-utils.h"
 #include "backends/native/meta-barrier-native.h"
-#include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-virtual-input-device-native.h"
@@ -294,22 +293,12 @@ meta_seat_native_copy_event_data (ClutterSeat        *seat,
                                   const ClutterEvent *src,
                                   ClutterEvent       *dest)
 {
-  MetaEventNative *event_evdev;
-
-  event_evdev = _clutter_event_get_platform_data (src);
-  if (event_evdev != NULL)
-    _clutter_event_set_platform_data (dest, meta_event_native_copy (event_evdev));
 }
 
 static void
 meta_seat_native_free_event_data (ClutterSeat  *seat,
                                   ClutterEvent *event)
 {
-  MetaEventNative *event_evdev;
-
-  event_evdev = _clutter_event_get_platform_data (event);
-  if (event_evdev != NULL)
-    meta_event_native_free (event_evdev);
 }
 
 static guint

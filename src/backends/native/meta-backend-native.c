@@ -50,7 +50,6 @@
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
-#include "backends/native/meta-event-native.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-launcher.h"

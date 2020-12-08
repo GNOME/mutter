@@ -35,7 +35,6 @@
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/native/meta-barrier-native.h"
-#include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"

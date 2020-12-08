@@ -652,8 +652,6 @@ if have_native_backend
     'backends/native/meta-drm-buffer-import.h',
     'backends/native/meta-drm-buffer.c',
     'backends/native/meta-drm-buffer.h',
-    'backends/native/meta-event-native.c',
-    'backends/native/meta-event-native.h',
     'backends/native/meta-gpu-kms.c',
     'backends/native/meta-gpu-kms.h',
     'backends/native/meta-input-device-native.c',
