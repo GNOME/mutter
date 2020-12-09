@@ -30,6 +30,7 @@
 #include <glib-unix.h>
 #include <glib.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #if defined(HAVE_SYS_RANDOM)
 #include <sys/random.h>
@@ -407,9 +408,27 @@ open_display_sockets (MetaXWaylandManager *manager,
 }
 
 static gboolean
+ensure_x11_unix_dir (GError **error)
+{
+  if (mkdir ("/tmp/.X11-unix", 01777) != 0)
+    {
+      if (errno == EEXIST)
+        return TRUE;
+
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to create directory \"/tmp/.X11-unix\": %s",
+                   g_strerror (errno));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 choose_xdisplay (MetaXWaylandManager    *manager,
                  MetaXWaylandConnection *connection)
 {
+  g_autoptr (GError) error = NULL;
   int display = 0;
   char *lock_file = NULL;
   gboolean fatal = FALSE;
@@ -418,6 +437,13 @@ choose_xdisplay (MetaXWaylandManager    *manager,
     display = display_number_override;
   else if (g_getenv ("RUNNING_UNDER_GDM"))
     display = 1024;
+
+  if (!ensure_x11_unix_dir (&error))
+    {
+      g_warning ("Failed to ensure X11 socket directory: %s",
+                 error->message);
+      return FALSE;
+    }
 
   do
     {
