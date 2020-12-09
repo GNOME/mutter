@@ -1559,7 +1559,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
  *
  * Unlike cogl_framebuffer_finish(), this does not block the CPU.
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_flush (CoglFramebuffer *framebuffer);
 
 G_END_DECLS
