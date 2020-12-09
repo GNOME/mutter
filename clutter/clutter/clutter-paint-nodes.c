@@ -41,6 +41,7 @@
 #include <cogl/cogl.h>
 
 #include "clutter-actor-private.h"
+#include "clutter-blur-private.h"
 #include "clutter-color.h"
 #include "clutter-debug.h"
 #include "clutter-private.h"
@@ -1807,4 +1808,151 @@ clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
                                             dst_y,
                                             dst_x + width,
                                             dst_y + height);
+}
+
+/*
+ * ClutterBlurNode
+ */
+
+struct _ClutterBlurNode
+{
+  ClutterLayerNode parent_instance;
+
+  ClutterBlur *blur;
+  unsigned int sigma;
+};
+
+G_DEFINE_TYPE (ClutterBlurNode, clutter_blur_node, CLUTTER_TYPE_LAYER_NODE)
+
+static void
+clutter_blur_node_post_draw (ClutterPaintNode    *node,
+                             ClutterPaintContext *paint_context)
+{
+  ClutterPaintNodeClass *parent_class =
+    CLUTTER_PAINT_NODE_CLASS (clutter_blur_node_parent_class);
+  ClutterBlurNode *blur_node = CLUTTER_BLUR_NODE (node);
+
+  clutter_blur_apply (blur_node->blur);
+
+  parent_class->post_draw (node, paint_context);
+}
+
+static void
+clutter_blur_node_finalize (ClutterPaintNode *node)
+{
+  ClutterBlurNode *blur_node = CLUTTER_BLUR_NODE (node);
+
+  g_clear_pointer (&blur_node->blur, clutter_blur_free);
+
+  CLUTTER_PAINT_NODE_CLASS (clutter_blur_node_parent_class)->finalize (node);
+}
+
+static JsonNode *
+clutter_blur_node_serialize (ClutterPaintNode *node)
+{
+  ClutterBlurNode *blur_node = CLUTTER_BLUR_NODE (node);
+  g_autoptr (JsonBuilder) builder = NULL;
+  g_autofree char *src_ptr = NULL;
+
+  src_ptr = g_strdup_printf ("%d", blur_node->sigma);
+
+  builder = json_builder_new ();
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "sigma");
+  json_builder_add_string_value (builder, src_ptr);
+  json_builder_end_object (builder);
+
+  return json_builder_get_root (builder);
+}
+
+static void
+clutter_blur_node_class_init (ClutterBlurNodeClass *klass)
+{
+  ClutterPaintNodeClass *node_class;
+
+  node_class = CLUTTER_PAINT_NODE_CLASS (klass);
+  node_class->post_draw = clutter_blur_node_post_draw;
+  node_class->finalize = clutter_blur_node_finalize;
+  node_class->serialize = clutter_blur_node_serialize;
+}
+
+static void
+clutter_blur_node_init (ClutterBlurNode *blur_node)
+{
+}
+
+/**
+ * clutter_blur_node_new:
+ * @width width of the blur layer
+ * @height: height of the blur layer
+ * @sigma: sigma value of the blur
+ *
+ * Creates a new #ClutterBlurNode.
+ *
+ * Children of this node will be painted inside a separate framebuffer,
+ * which will be blurred and painted on the current draw framebuffer.
+ *
+ * Return value: (transfer full): the newly created #ClutterBlurNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
+ClutterPaintNode *
+clutter_blur_node_new (unsigned int width,
+                       unsigned int height,
+                       unsigned int sigma)
+{
+  g_autoptr (CoglOffscreen) offscreen = NULL;
+  g_autoptr (GError) error = NULL;
+  graphene_matrix_t projection;
+  ClutterLayerNode *layer_node;
+  ClutterBlurNode *blur_node;
+  CoglTexture2D *tex_2d;
+  CoglContext *context;
+  CoglTexture *texture;
+  ClutterBlur *blur;
+
+  blur_node = _clutter_paint_node_create (CLUTTER_TYPE_BLUR_NODE);
+  blur_node->sigma = sigma;
+  context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  tex_2d = cogl_texture_2d_new_with_size (context, width, height);
+
+  texture = COGL_TEXTURE (tex_2d);
+  cogl_texture_set_premultiplied (texture, TRUE);
+
+  offscreen = cogl_offscreen_new_with_texture (texture);
+  cogl_object_unref (tex_2d);
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
+    {
+      g_warning ("Unable to allocate paint node offscreen: %s",
+                 error->message);
+      goto out;
+    }
+
+  blur = clutter_blur_new (texture, sigma);
+  blur_node->blur = blur;
+
+  if (!blur)
+    {
+      g_warning ("Failed to create blur pipeline");
+      goto out;
+    }
+
+  layer_node = CLUTTER_LAYER_NODE (blur_node);
+  layer_node->offscreen = COGL_FRAMEBUFFER (g_steal_pointer (&offscreen));
+  layer_node->pipeline = cogl_pipeline_copy (default_texture_pipeline);
+  cogl_pipeline_set_layer_filters (layer_node->pipeline, 0,
+                                   COGL_PIPELINE_FILTER_LINEAR,
+                                   COGL_PIPELINE_FILTER_LINEAR);
+  cogl_pipeline_set_layer_texture (layer_node->pipeline,
+                                   0,
+                                   clutter_blur_get_texture (blur));
+
+  graphene_matrix_init_translate (&projection,
+                                  &GRAPHENE_POINT3D_INIT (-(width / 2.f),
+                                                          -(height / 2.f),
+                                                          0.f));
+  graphene_matrix_scale (&projection, 2.f / width, -2.f / height, 1.f);
+  cogl_framebuffer_set_projection_matrix (layer_node->offscreen, &projection);
+
+out:
+  return (ClutterPaintNode *) blur_node;
 }

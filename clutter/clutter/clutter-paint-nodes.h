@@ -263,6 +263,27 @@ void clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
                                            int              width,
                                            int              height);
 
+#define CLUTTER_TYPE_BLUR_NODE                  (clutter_blur_node_get_type ())
+#define CLUTTER_BLUR_NODE(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BLUR_NODE, ClutterBlurNode))
+#define CLUTTER_IS_BLUR_NODE(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BLUR_NODE))
+
+/**
+ * ClutterBlurNode:
+ *
+ * The #ClutterBurNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ */
+typedef struct _ClutterBlurNode                 ClutterBlurNode;
+typedef struct _ClutterLayerNodeClass           ClutterBlurNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_blur_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode * clutter_blur_node_new (unsigned int width,
+                                          unsigned int height,
+                                          unsigned int sigma);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_NODES_H__ */
