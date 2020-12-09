@@ -1731,7 +1731,7 @@ clutter_blit_node_serialize (ClutterPaintNode *node)
 }
 
 static void
-clutter_blit_node_class_init (ClutterTransformNodeClass *klass)
+clutter_blit_node_class_init (ClutterBlitNodeClass *klass)
 {
   ClutterPaintNodeClass *node_class;
 
@@ -1767,7 +1767,7 @@ clutter_blit_node_new (CoglFramebuffer *src)
   g_return_val_if_fail (COGL_IS_FRAMEBUFFER (src), NULL);
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_BLIT_NODE);
-  res->src = cogl_object_ref (src);
+  res->src = g_object_ref (src);
 
   return (ClutterPaintNode *) res;
 }
