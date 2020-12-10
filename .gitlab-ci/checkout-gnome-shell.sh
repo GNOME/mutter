@@ -1,5 +1,12 @@
 #!/usr/bin/bash
 
+fetch() {
+  local remote=$1
+  local ref=$2
+
+  git fetch --quiet $remote $ref 2>/dev/null
+}
+
 gnome_shell_target=
 
 echo -n Cloning into gnome-shell ...
@@ -17,7 +24,7 @@ if [ "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
   merge_request_branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
 
   echo -n Looking for $merge_request_branch on remote ...
-  if git fetch -q $merge_request_remote $merge_request_branch 2>/dev/null; then
+  if fetch $merge_request_remote $merge_request_branch; then
     echo \ found
     gnome_shell_target=FETCH_HEAD
   else
@@ -29,9 +36,9 @@ fi
 
 if [ -z "$gnome_shell_target" ]; then
   echo -n Looking for $CI_COMMIT_REF_NAME on remote ...
-  gnome_shell_target=$(git branch -r -l origin/$CI_COMMIT_REF_NAME)
-  if [ "$gnome_shell_target" ]; then
+  if fetch origin $CI_COMMIT_REF_NAME; then
     echo \ found
+    gnome_shell_target=FETCH_HEAD
   else
     echo \ not found
     gnome_shell_target=origin/master
