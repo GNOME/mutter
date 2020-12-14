@@ -778,8 +778,7 @@ clutter_paint_operation_clear (ClutterPaintOperation *op)
       break;
 
     case PAINT_OP_MULTITEX_RECT:
-      if (op->multitex_coords != NULL)
-        g_array_unref (op->multitex_coords);
+      g_clear_pointer (&op->coords, g_array_unref);
       break;
 
     case PAINT_OP_PRIMITIVE:
@@ -819,11 +818,11 @@ clutter_paint_op_init_multitex_rect (ClutterPaintOperation *op,
   clutter_paint_operation_clear (op);
 
   op->opcode = PAINT_OP_MULTITEX_RECT;
-  op->multitex_coords = g_array_sized_new (FALSE, FALSE,
-                                           sizeof (float),
-                                           tex_coords_len);
+  op->coords = g_array_sized_new (FALSE, FALSE,
+                                  sizeof (float),
+                                  tex_coords_len);
 
-  g_array_append_vals (op->multitex_coords, tex_coords, tex_coords_len);
+  g_array_append_vals (op->coords, tex_coords, tex_coords_len);
 
   op->op.texrect[0] = rect->x1;
   op->op.texrect[1] = rect->y1;
@@ -1062,9 +1061,9 @@ clutter_paint_node_to_json (ClutterPaintNode *node)
               json_builder_set_member_name (builder, "texrect");
               json_builder_begin_array (builder);
 
-              for (j = 0; i < op->multitex_coords->len; j++)
+              for (j = 0; i < op->coords->len; j++)
                 {
-                  float coord = g_array_index (op->multitex_coords, float, j);
+                  float coord = g_array_index (op->coords, float, j);
                   json_builder_add_double_value (builder, coord);
                 }
 

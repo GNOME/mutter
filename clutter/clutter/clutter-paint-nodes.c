@@ -474,8 +474,8 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
                                                          op->op.texrect[1],
                                                          op->op.texrect[2],
                                                          op->op.texrect[3],
-                                                         (float*) op->multitex_coords->data,
-                                                         op->multitex_coords->len);
+                                                         (float *) op->coords->data,
+                                                         op->coords->len);
           break;
 
         case PAINT_OP_PRIMITIVE:
@@ -1447,8 +1447,8 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
                                                          op->op.texrect[1],
                                                          op->op.texrect[2],
                                                          op->op.texrect[3],
-                                                         (float*) op->multitex_coords->data,
-                                                         op->multitex_coords->len);
+                                                         (float *) op->coords->data,
+                                                         op->coords->len);
           break;
 
         case PAINT_OP_PRIMITIVE:

@@ -90,7 +90,7 @@ struct _ClutterPaintOperation
 {
   PaintOpCode opcode;
 
-  GArray *multitex_coords;
+  GArray *coords;
 
   union {
     float texrect[8];
