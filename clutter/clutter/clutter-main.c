@@ -1757,9 +1757,7 @@ _clutter_process_event_details (ClutterActor        *stage,
 
             emit_crossing_event (event, device);
 
-            actor = clutter_input_device_update (device, NULL,
-                                                 CLUTTER_STAGE (stage), FALSE,
-                                                 event);
+            actor = update_device_for_event (CLUTTER_STAGE (stage), event, FALSE);
             if (actor != stage)
               {
                 ClutterEvent *crossing;
@@ -1785,13 +1783,14 @@ _clutter_process_event_details (ClutterActor        *stage,
          */
         if (event->any.source == stage &&
             event->crossing.related == NULL &&
-            device->cursor_actor != stage)
+            clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL) != stage)
           {
             ClutterEvent *crossing;
 
             crossing = clutter_event_copy (event);
             crossing->crossing.related = stage;
-            crossing->crossing.source = device->cursor_actor;
+            crossing->crossing.source =
+              clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL);
 
             emit_crossing_event (crossing, device);
             clutter_event_free (crossing);
@@ -1898,9 +1897,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              actor = clutter_input_device_update (device, NULL,
-                                                   CLUTTER_STAGE (stage),
-                                                   TRUE, event);
+              actor = update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
               if (actor == NULL)
                 break;
 
@@ -1970,11 +1967,7 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_TOUCH_END:
         {
           ClutterActor *actor;
-          ClutterEventSequence *sequence;
           gfloat x, y;
-
-          sequence =
-            clutter_event_get_event_sequence (event);
 
           clutter_event_get_coords (event, &x, &y);
 
@@ -2000,14 +1993,12 @@ _clutter_process_event_details (ClutterActor        *stage,
 
                   if (event->type == CLUTTER_TOUCH_END ||
                       event->type == CLUTTER_TOUCH_CANCEL)
-                    _clutter_input_device_remove_event_sequence (device, event);
+                    remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
 
                   break;
                 }
 
-              actor = clutter_input_device_update (device, sequence,
-                                                   CLUTTER_STAGE (stage),
-                                                   TRUE, event);
+              actor = update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
               if (actor == NULL)
                 break;
 
@@ -2028,7 +2019,7 @@ _clutter_process_event_details (ClutterActor        *stage,
 
           if (event->type == CLUTTER_TOUCH_END ||
               event->type == CLUTTER_TOUCH_CANCEL)
-            _clutter_input_device_remove_event_sequence (device, event);
+            remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
 
           break;
         }
@@ -2047,9 +2038,25 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_DEVICE_ADDED:
-      case CLUTTER_DEVICE_REMOVED:
         _clutter_event_process_filters (event);
         break;
+
+      case CLUTTER_DEVICE_REMOVED:
+        {
+          ClutterInputDeviceType device_type;
+
+          _clutter_event_process_filters (event);
+
+          device_type = clutter_input_device_get_device_type (device);
+          if (device_type == CLUTTER_POINTER_DEVICE ||
+              device_type == CLUTTER_TABLET_DEVICE ||
+              device_type == CLUTTER_PEN_DEVICE ||
+              device_type == CLUTTER_ERASER_DEVICE ||
+              device_type == CLUTTER_CURSOR_DEVICE)
+            remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+
+          break;
+        }
 
       case CLUTTER_EVENT_LAST:
         break;

@@ -8188,11 +8188,13 @@ window_has_pointer_wayland (MetaWindow *window)
 {
   ClutterSeat *seat;
   ClutterInputDevice *dev;
+  ClutterStage *stage;
   ClutterActor *pointer_actor, *window_actor;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   dev = clutter_seat_get_pointer (seat);
-  pointer_actor = clutter_input_device_get_actor (dev, NULL);
+  stage = CLUTTER_STAGE (meta_backend_get_stage (meta_get_backend ()));
+  pointer_actor = clutter_stage_get_device_actor (stage, dev, NULL);
   window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
 
   return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);

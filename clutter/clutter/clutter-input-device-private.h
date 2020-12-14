@@ -53,10 +53,6 @@ struct _ClutterInputDevice
 {
   GObject parent_instance;
 
-  /* the actor underneath the pointer */
-  ClutterActor *cursor_actor;
-  GHashTable   *inv_touch_sequence_actors;
-
   /* the actor that has a grab in place for the device */
   ClutterActor *pointer_grab_actor;
   ClutterActor *keyboard_grab_actor;
@@ -66,9 +62,6 @@ struct _ClutterInputDevice
   /* the current click count */
   int click_count;
   int current_button_number;
-
-  /* the current touch points targets */
-  GHashTable *touch_sequence_actors;
 
   /* the previous state, used for click count generation */
   int previous_x;
@@ -80,15 +73,5 @@ struct _ClutterInputDevice
   ClutterVirtualInputDevice *accessibility_virtual_device;
   ClutterPtrA11yData *ptr_a11y_data;
 };
-
-CLUTTER_EXPORT
-ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
-                                            ClutterEventSequence *sequence,
-                                            ClutterStage         *stage,
-                                            gboolean              emit_crossing,
-                                            ClutterEvent         *for_event);
-CLUTTER_EXPORT
-void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
-                                                  ClutterEvent       *event);
 
 #endif /* CLUTTER_INPUT_DEVICE_PRIVATE_H */

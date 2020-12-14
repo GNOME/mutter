@@ -1005,6 +1005,7 @@ void
 clutter_stage_update_devices (ClutterStage *stage,
                               GSList       *devices)
 {
+  ClutterStagePrivate *priv = stage->priv;
   GSList *l;
 
   COGL_TRACE_BEGIN (ClutterStageUpdateDevices, "UpdateDevices");
@@ -1012,7 +1013,23 @@ clutter_stage_update_devices (ClutterStage *stage,
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
-      clutter_input_device_update (device, NULL, stage, TRUE, NULL);
+      PointerDeviceEntry *entry = NULL;
+      ClutterActor *new_actor;
+
+      entry = g_hash_table_lookup (priv->pointer_devices, device);
+      g_assert (entry != NULL);
+
+      new_actor = _clutter_stage_do_pick (stage,
+                                          entry->coords.x,
+                                          entry->coords.y,
+                                          CLUTTER_PICK_REACTIVE);
+
+      clutter_stage_update_device (stage,
+                                   device, NULL,
+                                   entry->coords,
+                                   CLUTTER_CURRENT_TIME,
+                                   new_actor,
+                                   TRUE);
     }
 }
 
@@ -3421,6 +3438,23 @@ on_device_actor_reactive_changed (ClutterActor       *actor,
                                   GParamSpec         *pspec,
                                   PointerDeviceEntry *entry)
 {
+  ClutterStage *self = entry->stage;
+  ClutterActor *new_device_actor;
+
+  g_assert (!clutter_actor_get_reactive (actor));
+
+  new_device_actor =
+    _clutter_stage_do_pick (self,
+                            entry->coords.x,
+                            entry->coords.y,
+                            CLUTTER_PICK_REACTIVE);
+
+  clutter_stage_update_device (self,
+                               entry->device, entry->sequence,
+                               entry->coords,
+                               CLUTTER_CURRENT_TIME,
+                               new_device_actor,
+                               TRUE);
 }
 
 static void

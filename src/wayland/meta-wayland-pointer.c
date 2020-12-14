@@ -581,13 +581,15 @@ static void
 repick_for_event (MetaWaylandPointer *pointer,
                   const ClutterEvent *for_event)
 {
+  MetaBackend *backend = meta_get_backend ();
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterActor *actor;
   MetaWaylandSurface *surface;
 
   if (for_event)
     actor = clutter_event_get_source (for_event);
   else
-    actor = clutter_input_device_get_actor (pointer->device, NULL);
+    actor = clutter_stage_get_device_actor (stage, pointer->device, NULL);
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
     {
@@ -1014,8 +1016,21 @@ meta_wayland_pointer_repick (MetaWaylandPointer *pointer)
   MetaBackend *backend = meta_get_backend ();
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  clutter_input_device_update (pointer->device, NULL, stage, FALSE,
-                               CLUTTER_CURRENT_TIME);
+  graphene_point_t point;
+  ClutterActor *new_actor;
+
+  clutter_stage_get_device_coords (stage, pointer->device, NULL, &point);
+  new_actor =
+    clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_REACTIVE,
+                                    point.x, point.y);
+
+  clutter_stage_update_device (stage,
+                               pointer->device, NULL,
+                               point,
+                               CLUTTER_CURRENT_TIME,
+                               new_actor,
+                               FALSE);
+
   repick_for_event (pointer, NULL);
 }
 
