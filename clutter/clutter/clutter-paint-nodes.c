@@ -467,6 +467,13 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
                                                     op->op.texrect[7]);
           break;
 
+        case PAINT_OP_TEX_RECTS:
+          cogl_framebuffer_draw_textured_rectangles (fb,
+                                                     pnode->pipeline,
+                                                     (float *) op->coords->data,
+                                                     op->coords->len / 8);
+          break;
+
         case PAINT_OP_MULTITEX_RECT:
           cogl_framebuffer_draw_multitextured_rectangle (fb,
                                                          pnode->pipeline,
@@ -872,6 +879,7 @@ clutter_text_node_draw (ClutterPaintNode    *node,
             cogl_framebuffer_pop_clip (fb);
           break;
 
+        case PAINT_OP_TEX_RECTS:
         case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
@@ -1033,6 +1041,7 @@ clutter_clip_node_pre_draw (ClutterPaintNode    *node,
           retval = TRUE;
           break;
 
+        case PAINT_OP_TEX_RECTS:
         case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
@@ -1067,6 +1076,7 @@ clutter_clip_node_post_draw (ClutterPaintNode    *node,
           cogl_framebuffer_pop_clip (fb);
           break;
 
+        case PAINT_OP_TEX_RECTS:
         case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
@@ -1440,6 +1450,13 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
                                                     op->op.texrect[7]);
           break;
 
+        case PAINT_OP_TEX_RECTS:
+          cogl_framebuffer_draw_textured_rectangles (fb,
+                                                     lnode->pipeline,
+                                                     (float *) op->coords->data,
+                                                     op->coords->len / 8);
+          break;
+
         case PAINT_OP_MULTITEX_RECT:
           cogl_framebuffer_draw_multitextured_rectangle (fb,
                                                          lnode->pipeline,
@@ -1695,6 +1712,7 @@ clutter_blit_node_draw (ClutterPaintNode    *node,
             }
           break;
 
+        case PAINT_OP_TEX_RECTS:
         case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
           break;

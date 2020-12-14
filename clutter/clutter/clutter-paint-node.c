@@ -777,6 +777,7 @@ clutter_paint_operation_clear (ClutterPaintOperation *op)
     case PAINT_OP_TEX_RECT:
       break;
 
+    case PAINT_OP_TEX_RECTS:
     case PAINT_OP_MULTITEX_RECT:
       g_clear_pointer (&op->coords, g_array_unref);
       break;
@@ -807,6 +808,36 @@ clutter_paint_op_init_tex_rect (ClutterPaintOperation *op,
   op->op.texrect[5] = y_1;
   op->op.texrect[6] = x_2;
   op->op.texrect[7] = y_2;
+}
+
+static inline void
+clutter_paint_op_init_tex_rects (ClutterPaintOperation *op,
+                                 const float           *coords,
+                                 unsigned int           n_rects,
+                                 gboolean               use_default_tex_coords)
+{
+  const unsigned int n_floats = n_rects * 8;
+
+  clutter_paint_operation_clear (op);
+
+  op->opcode = PAINT_OP_TEX_RECTS;
+  op->coords = g_array_sized_new (FALSE, FALSE, sizeof (float), n_floats);
+
+  if (use_default_tex_coords)
+    {
+      const float default_tex_coords[4] = { 0.0, 0.0, 1.0, 1.0 };
+      int i;
+
+      for (i = 0; i < n_rects; i++)
+        {
+          g_array_append_vals (op->coords, &coords[i * 4], 4);
+          g_array_append_vals (op->coords, default_tex_coords, 4);
+        }
+    }
+  else
+    {
+      g_array_append_vals (op->coords, coords, n_floats);
+    }
 }
 
 static inline void
@@ -935,6 +966,74 @@ clutter_paint_node_add_multitexture_rectangle (ClutterPaintNode      *node,
 }
 
 /**
+ * clutter_paint_node_add_rectangles:
+ * @node: a #ClutterPaintNode
+ * @coords: (in) (array length=n_rects) (transfer none): array of
+ *   coordinates containing groups of 4 float values: [x_1, y_1, x_2, y_2] that
+ *   are interpreted as two position coordinates; one for the top left of the
+ *   rectangle (x1, y1), and one for the bottom right of the rectangle
+ *   (x2, y2).
+ * @n_rects: number of rectangles defined in @coords.
+ *
+ * Adds a series of rectangles to @node.
+ *
+ * As a general rule for better performance its recommended to use this API
+ * instead of calling clutter_paint_node_add_rectangle() separately for
+ * multiple rectangles if all of the rectangles will be drawn together.
+ *
+ * See cogl_framebuffer_draw_rectangles().
+ */
+void
+clutter_paint_node_add_rectangles (ClutterPaintNode *node,
+                                   const float      *coords,
+                                   unsigned int      n_rects)
+{
+  ClutterPaintOperation operation = PAINT_OP_INIT;
+
+  g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
+  g_return_if_fail (coords != NULL);
+
+  clutter_paint_node_maybe_init_operations (node);
+
+  clutter_paint_op_init_tex_rects (&operation, coords, n_rects, TRUE);
+  g_array_append_val (node->operations, operation);
+}
+
+/**
+ * clutter_paint_node_add_texture_rectangles:
+ * @node: a #ClutterPaintNode
+ * @coords: (in) (array length=n_rects) (transfer none): array containing
+ *   groups of 8 float values: [x_1, y_1, x_2, y_2, s_1, t_1, s_2, t_2]
+ *   that have the same meaning as the arguments for
+ *   cogl_framebuffer_draw_textured_rectangle().
+ * @n_rects: number of rectangles defined in @coords.
+ *
+ * Adds a series of rectangles to @node.
+ *
+ * The given texture coordinates should always be normalized such that
+ * (0, 0) corresponds to the top left and (1, 1) corresponds to the
+ * bottom right. To map an entire texture across the rectangle pass
+ * in s_1=0, t_1=0, s_2=1, t_2=1.
+ *
+ * See cogl_framebuffer_draw_textured_rectangles().
+ */
+void
+clutter_paint_node_add_texture_rectangles (ClutterPaintNode *node,
+                                           const float      *coords,
+                                           unsigned int      n_rects)
+{
+  ClutterPaintOperation operation = PAINT_OP_INIT;
+
+  g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
+  g_return_if_fail (coords != NULL);
+
+  clutter_paint_node_maybe_init_operations (node);
+
+  clutter_paint_op_init_tex_rects (&operation, coords, n_rects, FALSE);
+  g_array_append_val (node->operations, operation);
+}
+
+/**
  * clutter_paint_node_add_primitive: (skip)
  * @node: a #ClutterPaintNode
  * @primitive: a Cogl primitive
@@ -1054,6 +1153,19 @@ clutter_paint_node_to_json (ClutterPaintNode *node)
               json_builder_add_double_value (builder, op->op.texrect[5]);
               json_builder_add_double_value (builder, op->op.texrect[6]);
               json_builder_add_double_value (builder, op->op.texrect[7]);
+              json_builder_end_array (builder);
+              break;
+
+            case PAINT_OP_TEX_RECTS:
+              json_builder_set_member_name (builder, "texrects");
+              json_builder_begin_array (builder);
+
+              for (j = 0; i < op->coords->len; j++)
+                {
+                  float coord = g_array_index (op->coords, float, j);
+                  json_builder_add_double_value (builder, coord);
+                }
+
               json_builder_end_array (builder);
               break;
 
