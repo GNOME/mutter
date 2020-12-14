@@ -473,11 +473,6 @@ clutter_timeline_set_actor (ClutterTimeline *timeline,
       g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
       priv->stage = NULL;
       priv->actor = NULL;
-
-      if (priv->is_playing)
-        maybe_remove_timeline (timeline);
-
-      priv->frame_clock = NULL;
     }
 
   priv->actor = actor;
