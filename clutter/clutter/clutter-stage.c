@@ -910,58 +910,29 @@ GSList *
 clutter_stage_find_updated_devices (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  ClutterBackend *backend;
-  ClutterSeat *seat;
   GSList *updating = NULL;
-  const GList *l, *devices;
-  graphene_point_t point;
+  GHashTableIter iter;
+  gpointer value;
 
   if (!priv->needs_update_devices)
     return NULL;
 
   priv->needs_update_devices = FALSE;
 
-  backend = clutter_get_default_backend ();
-  seat = clutter_backend_get_default_seat (backend);
-  devices = clutter_seat_peek_devices (seat);
-
-  for (l = devices; l; l = l->next)
+  g_hash_table_iter_init (&iter, priv->pointer_devices);
+  while (g_hash_table_iter_next (&iter, NULL, &value))
     {
-      ClutterInputDevice *dev = l->data;
+      PointerDeviceEntry *entry = value;
       ClutterStageView *view;
       const cairo_region_t *clip;
 
-      if (clutter_input_device_get_device_mode (dev) !=
-          CLUTTER_INPUT_MODE_LOGICAL)
+      view = clutter_stage_get_view_at (stage, entry->coords.x, entry->coords.y);
+      if (!view)
         continue;
 
-      switch (clutter_input_device_get_device_type (dev))
-        {
-        case CLUTTER_POINTER_DEVICE:
-        case CLUTTER_TABLET_DEVICE:
-        case CLUTTER_PEN_DEVICE:
-        case CLUTTER_ERASER_DEVICE:
-        case CLUTTER_CURSOR_DEVICE:
-          if (!clutter_seat_query_state (seat, dev, NULL,
-                                         &point, NULL))
-            continue;
-
-          view = clutter_stage_get_view_at (stage, point.x, point.y);
-          if (!view)
-            continue;
-
-          clip = clutter_stage_view_peek_redraw_clip (view);
-          if (!clip || cairo_region_contains_point (clip, point.x, point.y))
-            updating = g_slist_prepend (updating, dev);
-          break;
-        default:
-          /* Any other devices don't need checking, either because they
-           * don't have x/y coordinates, or because they're implicitly
-           * grabbed on an actor by default as it's the case of
-           * touch(screens).
-           */
-          break;
-        }
+      clip = clutter_stage_view_peek_redraw_clip (view);
+      if (!clip || cairo_region_contains_point (clip, entry->coords.x, entry->coords.y))
+        updating = g_slist_prepend (updating, entry->device);
     }
 
   return updating;
