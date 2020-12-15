@@ -577,6 +577,8 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
+  meta_topic (META_DEBUG_KMS, "Updating device state for %s", priv->path);
+
   drm_resources = drmModeGetResources (priv->fd);
   if (!drm_resources)
     {

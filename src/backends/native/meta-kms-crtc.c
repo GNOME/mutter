@@ -172,6 +172,13 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
       crtc->current_state.is_active = drm_crtc->mode_valid;
     }
 
+  meta_topic (META_DEBUG_KMS,
+              "Read CRTC %u state: active: %d, mode: %s",
+              crtc->id, crtc->current_state.is_active,
+              crtc->current_state.is_drm_mode_valid
+                ? crtc->current_state.drm_mode.name
+                : "(nil)");
+
   read_gamma_state (crtc, impl_device, drm_crtc);
 }
 
