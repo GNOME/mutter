@@ -573,6 +573,12 @@ handle_hotplug_event (MetaKms *kms)
   g_signal_emit (kms, signals[RESOURCES_CHANGED], 0);
 }
 
+void
+meta_kms_resume (MetaKms *kms)
+{
+  handle_hotplug_event (kms);
+}
+
 static void
 on_udev_hotplug (MetaUdev *udev,
                  MetaKms  *kms)

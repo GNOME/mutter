@@ -652,6 +652,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
                            "Backend (resume)");
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
+  meta_kms_resume (native->kms);
 
   connect_udev_device_added_handler (native);
 

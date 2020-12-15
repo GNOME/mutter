@@ -516,7 +516,6 @@ void
 meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms)
 {
   meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
-  handle_hotplug_event (META_MONITOR_MANAGER (manager_kms));
 }
 
 static gboolean

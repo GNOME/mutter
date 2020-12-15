@@ -50,6 +50,8 @@ MetaBackend * meta_kms_get_backend (MetaKms *kms);
 
 GList * meta_kms_get_devices (MetaKms *kms);
 
+void meta_kms_resume (MetaKms *kms);
+
 MetaKmsDevice * meta_kms_create_device (MetaKms            *kms,
                                         const char         *path,
                                         MetaKmsDeviceFlag   flags,
