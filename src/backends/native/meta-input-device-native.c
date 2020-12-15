@@ -56,6 +56,7 @@ struct _PadFeature
   ClutterInputDevicePadFeature feature;
   int n_feature;
   int group;
+  gboolean mode_switch;
 };
 
 static void clear_slow_keys      (MetaInputDeviceNative *device);
@@ -133,13 +134,25 @@ meta_input_device_native_is_mode_switch_button (ClutterInputDevice *device,
                                                 uint32_t            group,
                                                 uint32_t            button)
 {
-  struct libinput_device *libinput_device;
-  struct libinput_tablet_pad_mode_group *mode_group;
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  int i;
 
-  libinput_device = meta_input_device_native_get_libinput_device (device);
-  mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device, group);
+  if (!device_native->pad_features)
+    return FALSE;
 
-  return libinput_tablet_pad_mode_group_button_is_toggle (mode_group, button) != 0;
+  for (i = 0; i < device_native->pad_features->len; i++)
+    {
+      PadFeature *pad_feature;
+
+      pad_feature = &g_array_index (device_native->pad_features, PadFeature, i);
+
+      if (pad_feature->feature == CLUTTER_PAD_FEATURE_BUTTON &&
+          pad_feature->group == group &&
+          pad_feature->n_feature == button)
+        return pad_feature->mode_switch;
+    }
+
+  return FALSE;
 }
 
 static int
@@ -1288,7 +1301,9 @@ update_pad_features (MetaInputDeviceNative *device_native)
 
       for (j = 0; j < n_buttons; j++)
         {
-          PadFeature feature = { CLUTTER_PAD_FEATURE_BUTTON, j, i };
+          gboolean is_mode_switch =
+            libinput_tablet_pad_mode_group_button_is_toggle (mode_group, j) != 0;
+          PadFeature feature = { CLUTTER_PAD_FEATURE_BUTTON, j, i, is_mode_switch };
 
           if (libinput_tablet_pad_mode_group_has_button (mode_group, j))
             g_array_append_val (device_native->pad_features, feature);
