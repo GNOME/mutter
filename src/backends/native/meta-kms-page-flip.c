@@ -33,7 +33,7 @@ typedef struct _MetaKmsPageFlipClosure
 
 struct _MetaKmsPageFlipData
 {
-  int ref_count;
+  gatomicrefcount ref_count;
 
   MetaKmsImplDevice *impl_device;
   MetaKmsCrtc *crtc;
@@ -78,10 +78,10 @@ meta_kms_page_flip_data_new (MetaKmsImplDevice *impl_device,
 
   page_flip_data = g_new0 (MetaKmsPageFlipData , 1);
   *page_flip_data = (MetaKmsPageFlipData) {
-    .ref_count = 1,
     .impl_device = impl_device,
     .crtc = crtc,
   };
+  g_atomic_ref_count_init (&page_flip_data->ref_count);
 
   return page_flip_data;
 }
@@ -89,7 +89,7 @@ meta_kms_page_flip_data_new (MetaKmsImplDevice *impl_device,
 MetaKmsPageFlipData *
 meta_kms_page_flip_data_ref (MetaKmsPageFlipData *page_flip_data)
 {
-  page_flip_data->ref_count++;
+  g_atomic_ref_count_inc (&page_flip_data->ref_count);
 
   return page_flip_data;
 }
@@ -97,9 +97,7 @@ meta_kms_page_flip_data_ref (MetaKmsPageFlipData *page_flip_data)
 void
 meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data)
 {
-  page_flip_data->ref_count--;
-
-  if (page_flip_data->ref_count == 0)
+  if (g_atomic_ref_count_dec (&page_flip_data->ref_count))
     {
       g_list_free_full (page_flip_data->closures,
                         (GDestroyNotify) meta_kms_page_flip_closure_free);
