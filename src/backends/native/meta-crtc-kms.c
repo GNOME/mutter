@@ -230,15 +230,17 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
 
       kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
 
-      g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") mode to %s",
-               meta_crtc_get_id (crtc), meta_kms_mode_get_name (kms_mode));
+      meta_topic (META_DEBUG_KMS,
+                  "Setting CRTC (%" G_GUINT64_FORMAT ") mode to %s",
+                  meta_crtc_get_id (crtc), meta_kms_mode_get_name (kms_mode));
     }
   else
     {
       kms_mode = NULL;
 
-      g_debug ("Unsetting CRTC (%" G_GUINT64_FORMAT ") mode",
-               meta_crtc_get_id (crtc));
+      meta_topic (META_DEBUG_KMS,
+                  "Unsetting CRTC (%" G_GUINT64_FORMAT ") mode",
+                  meta_crtc_get_id (crtc));
     }
 
   meta_kms_update_mode_set (kms_update,
