@@ -49,6 +49,27 @@ struct _MetaKmsPageFlipData
   GError *error;
 };
 
+static MetaKmsPageFlipClosure *
+meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
+                                gpointer                             user_data)
+{
+  MetaKmsPageFlipClosure *closure;
+
+  closure = g_new0 (MetaKmsPageFlipClosure, 1);
+  *closure = (MetaKmsPageFlipClosure) {
+    .vtable = vtable,
+    .user_data = user_data,
+  };
+
+  return closure;
+}
+
+static void
+meta_kms_page_flip_closure_free (MetaKmsPageFlipClosure *closure)
+{
+  g_free (closure);
+}
+
 MetaKmsPageFlipData *
 meta_kms_page_flip_data_new (MetaKmsImplDevice *impl_device,
                              MetaKmsCrtc       *crtc)
@@ -80,7 +101,8 @@ meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data)
 
   if (page_flip_data->ref_count == 0)
     {
-      g_list_free_full (page_flip_data->closures, g_free);
+      g_list_free_full (page_flip_data->closures,
+                        (GDestroyNotify) meta_kms_page_flip_closure_free);
       g_clear_error (&page_flip_data->error);
       g_free (page_flip_data);
     }
@@ -93,12 +115,7 @@ meta_kms_page_flip_data_add_listener (MetaKmsPageFlipData                 *page_
 {
   MetaKmsPageFlipClosure *closure;
 
-  closure = g_new0 (MetaKmsPageFlipClosure, 1);
-  *closure = (MetaKmsPageFlipClosure) {
-    .vtable = vtable,
-    .user_data = user_data,
-  };
-
+  closure = meta_kms_page_flip_closure_new (vtable, user_data);
   page_flip_data->closures = g_list_append (page_flip_data->closures, closure);
 }
 
