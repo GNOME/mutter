@@ -172,13 +172,12 @@ static gboolean
 meta_input_device_native_is_grouped (ClutterInputDevice *device,
                                      ClutterInputDevice *other_device)
 {
-  struct libinput_device *libinput_device, *other_libinput_device;
+  MetaInputDeviceNative *device_native, *other_device_native;
 
-  libinput_device = meta_input_device_native_get_libinput_device (device);
-  other_libinput_device = meta_input_device_native_get_libinput_device (other_device);
+  device_native = META_INPUT_DEVICE_NATIVE (device);
+  other_device_native = META_INPUT_DEVICE_NATIVE (other_device);
 
-  return libinput_device_get_device_group (libinput_device) ==
-    libinput_device_get_device_group (other_libinput_device);
+  return device_native->group == other_device_native->group;
 }
 
 static int
@@ -1394,6 +1393,8 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
 
   if (libinput_device_get_size (libinput_device, &width, &height) == 0)
     device->device_aspect_ratio = width / height;
+
+  device->group = (intptr_t) libinput_device_get_device_group (libinput_device);
 
   return CLUTTER_INPUT_DEVICE (device);
 }

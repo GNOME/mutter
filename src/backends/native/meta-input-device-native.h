@@ -77,6 +77,7 @@ struct _MetaInputDeviceNative
   ClutterInputDeviceTool *last_tool;
   GArray *pad_features;
   GArray *modes;
+  intptr_t group;
 
   cairo_matrix_t device_matrix;
   double device_aspect_ratio; /* w:h */
