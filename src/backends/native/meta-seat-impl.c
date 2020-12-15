@@ -1602,6 +1602,8 @@ evdev_remove_device (MetaSeatImpl          *seat_impl,
   if (seat_impl->repeat_source && seat_impl->repeat_device == device)
     meta_seat_impl_clear_repeat_source (seat_impl);
 
+  meta_input_device_native_detach_libinput_in_impl (device_native);
+
   g_object_unref (device);
 }
 
@@ -1633,9 +1635,9 @@ process_base_event (MetaSeatImpl          *seat_impl,
       device = libinput_device_get_user_data (libinput_device);
       device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
       clutter_event_set_device (device_event, device);
+      meta_input_settings_remove_device (input_settings, device);
       evdev_remove_device (seat_impl,
                            META_INPUT_DEVICE_NATIVE (device));
-      meta_input_settings_remove_device (input_settings, device);
       break;
 
     default:

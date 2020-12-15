@@ -1592,3 +1592,9 @@ meta_input_device_native_get_coords_in_impl (MetaInputDeviceNative *device_nativ
   if (y)
     *y = device_native->pointer_y;
 }
+
+void
+meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_native)
+{
+  g_clear_pointer (&device_native->libinput_device, libinput_device_unref);
+}
