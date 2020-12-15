@@ -78,6 +78,7 @@ meta_input_device_native_finalize (GObject *object)
   stop_mousekeys_move (device_evdev);
 
   g_clear_pointer (&device_evdev->pad_features, g_array_unref);
+  g_clear_pointer (&device_evdev->modes, g_array_unref);
 
   G_OBJECT_CLASS (meta_input_device_native_parent_class)->finalize (object);
 }
@@ -159,13 +160,12 @@ static int
 meta_input_device_native_get_group_n_modes (ClutterInputDevice *device,
                                             int                 group)
 {
-  struct libinput_device *libinput_device;
-  struct libinput_tablet_pad_mode_group *mode_group;
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
 
-  libinput_device = meta_input_device_native_get_libinput_device (device);
-  mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device, group);
+  if (!device_native->modes || group < device_native->modes->len)
+    return -1;
 
-  return libinput_tablet_pad_mode_group_get_num_modes (mode_group);
+  return g_array_index (device_native->modes, int, group);
 }
 
 static gboolean
@@ -1284,7 +1284,7 @@ update_pad_features (MetaInputDeviceNative *device_native)
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_native);
   struct libinput_device *libinput_device;
   struct libinput_tablet_pad_mode_group *mode_group;
-  int n_groups, n_buttons, n_rings, n_strips, i, j;
+  int n_groups, n_buttons, n_rings, n_strips, n_modes, i, j;
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
   n_rings = libinput_device_tablet_pad_get_num_rings (libinput_device);
@@ -1293,11 +1293,15 @@ update_pad_features (MetaInputDeviceNative *device_native)
   n_buttons = libinput_device_tablet_pad_get_num_buttons (libinput_device);
 
   device_native->pad_features = g_array_new (FALSE, FALSE, sizeof (PadFeature));
+  device_native->modes = g_array_sized_new (FALSE, FALSE, sizeof (int), n_groups);
 
   for (i = 0; i < n_groups; i++)
     {
       mode_group =
         libinput_device_tablet_pad_get_mode_group (libinput_device, i);
+
+      n_modes = libinput_tablet_pad_mode_group_get_num_modes (mode_group);
+      g_array_append_val (device_native->modes, n_modes);
 
       for (j = 0; j < n_buttons; j++)
         {
