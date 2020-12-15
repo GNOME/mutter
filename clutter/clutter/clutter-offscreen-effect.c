@@ -436,19 +436,14 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
   graphene_matrix_t transform;
-  float resource_scale;
+  float unscale;
 
-  graphene_matrix_init_translate (&transform,
-                                  &GRAPHENE_POINT3D_INIT (priv->fbo_offset_x,
-                                                          priv->fbo_offset_y,
-                                                          0.0f));
-
-  resource_scale = clutter_actor_get_resource_scale (priv->actor);
-  if (resource_scale != 1.0f)
-    {
-      float paint_scale = 1.0f / resource_scale;
-      graphene_matrix_scale (&transform, paint_scale, paint_scale, 1.f);
-    }
+  unscale = 1.0 / clutter_actor_get_resource_scale (priv->actor);
+  graphene_matrix_init_scale (&transform, unscale, unscale, 1.0);
+  graphene_matrix_translate (&transform,
+                             &GRAPHENE_POINT3D_INIT (priv->fbo_offset_x,
+                                                     priv->fbo_offset_y,
+                                                     0.0));
 
   if (!graphene_matrix_is_identity (&transform))
     {
