@@ -39,9 +39,13 @@
 
 #define META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop/Session"
 
-enum _MetaRemoteDesktopNotifyAxisFlags
+typedef enum _MetaRemoteDesktopNotifyAxisFlags
 {
+  META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_NONE = 0,
   META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_FINISH = 1 << 0,
+  META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_WHEEL = 1 << 1,
+  META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_FINGER = 1 << 2,
+  META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_CONTINUOUS = 1 << 3,
 } MetaRemoteDesktopNotifyAxisFlags;
 
 struct _MetaRemoteDesktopSession
@@ -453,6 +457,33 @@ handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
 }
 
 static gboolean
+clutter_scroll_source_from_axis_flags (MetaRemoteDesktopNotifyAxisFlags  axis_flags,
+                                       ClutterScrollSource              *scroll_source)
+{
+  MetaRemoteDesktopNotifyAxisFlags scroll_mask;
+
+  scroll_mask = META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_WHEEL |
+                META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_FINGER |
+                META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_CONTINUOUS;
+
+  switch (axis_flags & scroll_mask)
+    {
+    case META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_WHEEL:
+      *scroll_source = CLUTTER_SCROLL_SOURCE_WHEEL;
+      return TRUE;
+    case META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_NONE:
+    case META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_FINGER:
+      *scroll_source = CLUTTER_SCROLL_SOURCE_FINGER;
+      return TRUE;
+    case META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_SOURCE_CONTINUOUS:
+      *scroll_source = CLUTTER_SCROLL_SOURCE_CONTINUOUS;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
                             GDBusMethodInvocation        *invocation,
                             double                        dx,
@@ -461,9 +492,18 @@ handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
   ClutterScrollFinishFlags finish_flags = CLUTTER_SCROLL_FINISHED_NONE;
+  ClutterScrollSource scroll_source;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
+
+  if (!clutter_scroll_source_from_axis_flags (flags, &scroll_source))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Invalid scroll source");
+      return TRUE;
+    }
 
   if (flags & META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_FINISH)
     {
@@ -474,7 +514,7 @@ handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
   clutter_virtual_input_device_notify_scroll_continuous (session->virtual_pointer,
                                                          CLUTTER_CURRENT_TIME,
                                                          dx, dy,
-                                                         CLUTTER_SCROLL_SOURCE_FINGER,
+                                                         scroll_source,
                                                          finish_flags);
 
   meta_dbus_remote_desktop_session_complete_notify_pointer_axis (skeleton,

@@ -115,6 +115,15 @@
 
 	Possible @flags:
 	  1: finish - scroll motion was finished (e.g. fingers lifted)
+	  2: source_wheel - The scroll event is originated by a mouse wheel.
+	  4: source_finger - The scroll event is originated by one or more fingers on
+	                     the device (eg. touchpads).
+	  8: source_continuous - The scroll event is originated by the motion of some
+	                          device (eg. a scroll button is set).
+
+	  Maximum one of the @flags 'source_wheel', 'source_finger',
+	  'source_continuous' may be specified.
+	  If no source flag is specified, `source_finger` is assumed.
      -->
     <method name="NotifyPointerAxis">
       <arg name="dx" type="d" direction="in" />
