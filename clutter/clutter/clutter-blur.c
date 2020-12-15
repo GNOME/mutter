@@ -355,6 +355,9 @@ clutter_blur_new (CoglTexture  *texture,
   blur->source_texture = cogl_object_ref (texture);
   blur->downscale_factor = calculate_downscale_factor (width, height, sigma);
 
+  if (sigma == 0)
+    goto out;
+
   vpass = &blur->pass[VERTICAL];
   hpass = &blur->pass[HORIZONTAL];
 
@@ -365,6 +368,7 @@ clutter_blur_new (CoglTexture  *texture,
       return NULL;
     }
 
+out:
   return g_steal_pointer (&blur);
 }
 
@@ -378,6 +382,9 @@ clutter_blur_new (CoglTexture  *texture,
 void
 clutter_blur_apply (ClutterBlur *blur)
 {
+  if (blur->sigma == 0)
+    return;
+
   apply_blur_pass (&blur->pass[VERTICAL]);
   apply_blur_pass (&blur->pass[HORIZONTAL]);
 }
@@ -394,7 +401,10 @@ clutter_blur_apply (ClutterBlur *blur)
 CoglTexture *
 clutter_blur_get_texture (ClutterBlur *blur)
 {
-  return blur->pass[HORIZONTAL].texture;
+  if (blur->sigma == 0)
+    return blur->source_texture;
+  else
+    return blur->pass[HORIZONTAL].texture;
 }
 
 /**
