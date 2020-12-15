@@ -392,9 +392,15 @@ endif
 
 have_xwayland_initfd = false
 if have_wayland
+  xwayland_dep = dependency('xwayland', required: false)
+
   xwayland_path = get_option('xwayland_path')
   if xwayland_path == ''
-    xwayland_path = find_program('Xwayland').path()
+    if xwayland_dep.found()
+      xwayland_path = xwayland_dep.get_pkgconfig_variable('xwayland')
+    else
+      xwayland_path = find_program('Xwayland').path()
+    endif
   endif
   cdata.set_quoted('XWAYLAND_PATH', xwayland_path)
 
@@ -409,12 +415,18 @@ if have_wayland
 
   # For Xwayland -initfd usage
   use_initfd = get_option('xwayland_initfd')
-  xwayland_options = run_command(xwayland_path, '-help')
+  if xwayland_dep.found()
+    xwayland_supports_initfd = xwayland_dep.get_pkgconfig_variable('have_initfd') == 'true'
+  else
+    xwayland_options = run_command(xwayland_path, '-help')
+    xwayland_supports_initfd = xwayland_options.stderr().contains('-initfd')
+  endif
+
   if use_initfd.auto()
-    have_xwayland_initfd = xwayland_options.stderr().contains('-initfd')
+    have_xwayland_initfd = xwayland_supports_initfd
   else
     have_xwayland_initfd = use_initfd.enabled()
-    if have_xwayland_initfd and not xwayland_options.stderr().contains('-initfd')
+    if have_xwayland_initfd and not xwayland_supports_initfd
       error('XWayland -initfd support requested but not available')
     endif
   endif
