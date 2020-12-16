@@ -179,6 +179,7 @@ stacking_tests = [
   'fullscreen-maximize',
   'restore-position',
   'default-size',
+  'modals',
 ]
 
 foreach stacking_test: stacking_tests

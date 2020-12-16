@@ -561,8 +561,13 @@ test_case_do (TestCase *test,
     }
   else if (strcmp (argv[0], "show") == 0)
     {
-      if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+      gboolean show_async = FALSE;
+
+      if (argc != 2 && argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> [async]", argv[0]);
+
+      if (argc == 3 && strcmp (argv[2], "async") == 0)
+        show_async = TRUE;
 
       TestClient *client;
       const char *window_id;
@@ -579,7 +584,8 @@ test_case_do (TestCase *test,
       if (!window)
         return FALSE;
 
-      test_client_wait_for_window_shown (client, window);
+      if (!show_async)
+        test_client_wait_for_window_shown (client, window);
     }
   else if (strcmp (argv[0], "resize") == 0)
     {
@@ -671,6 +677,8 @@ test_case_do (TestCase *test,
            strcmp (argv[0], "unmaximize") == 0 ||
            strcmp (argv[0], "fullscreen") == 0 ||
            strcmp (argv[0], "unfullscreen") == 0 ||
+           strcmp (argv[0], "freeze") == 0 ||
+           strcmp (argv[0], "thaw") == 0 ||
            strcmp (argv[0], "destroy") == 0)
     {
       if (argc != 2)

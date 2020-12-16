@@ -1,0 +1,32 @@
+new_client w wayland
+
+# Create two Wayland windows, and make the second a transient of the
+# first. Then make the parent not actually ever show, but show the
+# transient.
+
+# Then make sure that hiding the transient can hide without causing
+# issues.
+
+# https://gitlab.gnome.org/GNOME/mutter/-/issues/862
+
+create w/1 csd
+create w/2 csd
+
+set_parent w/2 1
+
+freeze w/1
+
+show w/1 async
+show w/2
+
+wait
+
+assert_stacking w/1 w/2
+
+hide w/2
+wait
+
+assert_stacking w/1
+
+hide w/2
+wait
