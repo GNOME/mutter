@@ -974,6 +974,110 @@ meta_test_actor_stage_views_parent_views_changed (void)
 }
 
 static void
+meta_test_actor_stage_views_and_frame_clocks_freed (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterActor *actor_1;
+  ClutterActor *actor_2;
+  GList *stage_views;
+  ClutterStageView *first_view;
+  ClutterStageView *second_view;
+  ClutterTimeline *timeline;
+  ClutterFrameClock *timeline_frame_clock;
+  ClutterFrameClock *first_view_frame_clock;
+  ClutterFrameClock *second_view_frame_clock;
+  MonitorTestCaseSetup frame_clock_test_setup;
+  MetaMonitorTestSetup *test_setup;
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  first_view = stage_views->data;
+  second_view = stage_views->next->data;
+
+  g_object_add_weak_pointer (G_OBJECT (first_view), (gpointer *) &first_view);
+  g_object_add_weak_pointer (G_OBJECT (second_view), (gpointer *) &second_view);
+
+  /* Create two actors, one on the first stage view, another one on the
+   * second view.
+   */
+  actor_1 = clutter_actor_new ();
+  clutter_actor_set_size (actor_1, 100, 100);
+  clutter_actor_set_position (actor_1, 100, 100);
+  clutter_actor_add_child (stage, actor_1);
+
+  actor_2 = clutter_actor_new ();
+  clutter_actor_set_size (actor_2, 100, 100);
+  clutter_actor_set_position (actor_2, 1100, 100);
+  clutter_actor_add_child (stage, actor_2);
+
+  clutter_actor_show (stage);
+
+  wait_for_paint (stage);
+
+  is_on_stage_views (actor_1, 1, first_view);
+  is_on_stage_views (actor_2, 1, second_view);
+
+  /* Now create a timeline for the first actor and make sure its using the
+   * frame clock of the first view.
+   */
+  timeline = clutter_timeline_new_for_actor (actor_1, 100);
+  clutter_timeline_start (timeline);
+
+  first_view_frame_clock =
+    clutter_stage_view_get_frame_clock (first_view);
+  second_view_frame_clock =
+    clutter_stage_view_get_frame_clock (second_view);
+  g_assert_nonnull (first_view_frame_clock);
+  g_assert_nonnull (second_view_frame_clock);
+
+  g_object_add_weak_pointer (G_OBJECT (first_view_frame_clock),
+                             (gpointer *) &first_view_frame_clock);
+  g_object_add_weak_pointer (G_OBJECT (second_view_frame_clock),
+                             (gpointer *) &second_view_frame_clock);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+
+  g_assert_nonnull (timeline_frame_clock);
+  g_assert (timeline_frame_clock == first_view_frame_clock);
+
+  /* Now set the timeline actor to actor_2 and make sure the timeline is
+   * using the second frame clock.
+   */
+  clutter_timeline_set_actor (timeline, actor_2);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+
+  g_assert_nonnull (timeline_frame_clock);
+  g_assert (timeline_frame_clock == second_view_frame_clock);
+
+  /* Trigger a hotplug and remove both monitors, after that the timeline
+   * should have no frame clock set and both stage views and their
+   * frame clocks should have been freed.
+   */
+  frame_clock_test_setup = initial_test_case_setup;
+  frame_clock_test_setup.n_outputs = 0;
+  frame_clock_test_setup.n_crtcs = 0;
+  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+
+  g_assert_null (timeline_frame_clock);
+  g_assert_null (first_view);
+  g_assert_null (first_view_frame_clock);
+  g_assert_null (second_view);
+  g_assert_null (second_view_frame_clock);
+
+  clutter_actor_destroy (actor_1);
+  clutter_actor_destroy (actor_2);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -998,6 +1102,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_parent_views_rebuilt);
   g_test_add_func ("/stage-views/actor-stage-views-parent-changed",
                    meta_test_actor_stage_views_parent_views_changed);
+  g_test_add_func ("/stage-views/actor-stage-views-and-frame-clocks-freed",
+                   meta_test_actor_stage_views_and_frame_clocks_freed);
 }
 
 int
