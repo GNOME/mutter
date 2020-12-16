@@ -108,7 +108,8 @@ set_send_events (GTask *task)
     }
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
-  libinput_device_config_send_events_set_mode (libinput_device, libinput_mode);
+  if (libinput_device)
+    libinput_device_config_send_events_set_mode (libinput_device, libinput_mode);
 
   return G_SOURCE_REMOVE;
 }
