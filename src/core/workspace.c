@@ -1346,7 +1346,10 @@ find_focusable_ancestor (MetaWindow *window,
 {
   MetaWorkspaceFocusableAncestorData *data = user_data;
 
-  if (!window->unmanaging && meta_window_is_focusable (window) &&
+  if (!window->unmanaging &&
+      window->mapped &&
+      !window->hidden &&
+      meta_window_is_focusable (window) &&
       meta_window_located_on_workspace (window, data->workspace) &&
       meta_window_showing_on_its_workspace (window))
     {
