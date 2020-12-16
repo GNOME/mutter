@@ -1357,6 +1357,30 @@ find_focusable_ancestor (MetaWindow *window,
   return TRUE;
 }
 
+static gboolean
+try_to_set_focus_and_check (MetaWindow *window,
+                            MetaWindow *not_this_one,
+                            uint32_t    timestamp)
+{
+  meta_window_focus (window, timestamp);
+
+  /* meta_window_focus() does not guarantee that focus will end up
+   * where we expect, it can fail for various reasons, better check
+   * it did not actually changed or even left focus to the window we
+   * explicitly want to avoid.
+   */
+  if (not_this_one &&
+      meta_display_get_focus_window (window->display) == not_this_one)
+    {
+      meta_warning ("Failed to focus window %s while avoiding %s",
+                    window->desc, not_this_one->desc);
+
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 /* Focus ancestor of not_this_one if there is one */
 static void
 focus_ancestor_or_top_window (MetaWorkspace *workspace,
@@ -1390,13 +1414,14 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
                       "Focusing %s, ancestor of %s",
                       ancestor->desc, not_this_one->desc);
 
-          meta_window_focus (ancestor, timestamp);
+          if (try_to_set_focus_and_check (ancestor, not_this_one, timestamp))
+            {
+              /* Also raise the window if in click-to-focus */
+              if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+                meta_window_raise (ancestor);
 
-          /* Also raise the window if in click-to-focus */
-          if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
-            meta_window_raise (ancestor);
-
-          return;
+              return;
+            }
         }
     }
 
@@ -1408,19 +1433,19 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing workspace MRU window %s", window->desc);
+      if (try_to_set_focus_and_check (window, not_this_one, timestamp))
+        {
+          /* Also raise the window if in click-to-focus */
+          if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+            meta_window_raise (window);
 
-      meta_window_focus (window, timestamp);
+          return;
+        }
+    }
 
-      /* Also raise the window if in click-to-focus */
-      if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
-        meta_window_raise (window);
-    }
-  else
-    {
-      meta_topic (META_DEBUG_FOCUS,
-                  "No MRU window to focus found; focusing no_focus_window.");
-      meta_display_unset_input_focus (workspace->display, timestamp);
-    }
+  meta_topic (META_DEBUG_FOCUS,
+             "No MRU window to focus found; focusing no_focus_window.");
+  meta_display_unset_input_focus (workspace->display, timestamp);
 }
 
 /**
