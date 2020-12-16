@@ -766,6 +766,34 @@ process_line (const char *line)
 
       gtk_window_unfullscreen (GTK_WINDOW (window));
     }
+  else if (strcmp (argv[0], "freeze") == 0)
+    {
+      if (argc != 2)
+        {
+          g_print ("usage: freeze <id>\n");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gdk_window_freeze_updates (gtk_widget_get_window (window));
+    }
+  else if (strcmp (argv[0], "thaw") == 0)
+    {
+      if (argc != 2)
+        {
+          g_print ("usage: thaw <id>\n");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gdk_window_thaw_updates (gtk_widget_get_window (window));
+    }
   else if (strcmp (argv[0], "assert_size") == 0)
     {
       int expected_width;
