@@ -222,7 +222,6 @@ create_fbo (ClutterBlur *blur,
 {
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  graphene_matrix_t projection;
   float scaled_height;
   float scaled_width;
   float height;
@@ -250,17 +249,11 @@ create_fbo (ClutterBlur *blur,
       return FALSE;
     }
 
-  graphene_matrix_init_translate (&projection,
-                                  &GRAPHENE_POINT3D_INIT (-scaled_width / 2.f,
-                                                          -scaled_height / 2.f,
-                                                          0.f));
-  graphene_matrix_scale (&projection,
-                         2.f / scaled_width,
-                         -2.f / scaled_height,
-                         1.f);
-
-  cogl_framebuffer_set_projection_matrix (pass->framebuffer, &projection);
-
+  cogl_framebuffer_orthographic (pass->framebuffer,
+                                 0.0, 0.0,
+                                 scaled_width,
+                                 scaled_height,
+                                 0.0, 1.0);
   return TRUE;
 }
 

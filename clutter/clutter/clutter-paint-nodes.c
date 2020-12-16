@@ -1901,7 +1901,6 @@ clutter_blur_node_new (unsigned int width,
 {
   g_autoptr (CoglOffscreen) offscreen = NULL;
   g_autoptr (GError) error = NULL;
-  graphene_matrix_t projection;
   ClutterLayerNode *layer_node;
   ClutterBlurNode *blur_node;
   CoglTexture2D *tex_2d;
@@ -1945,12 +1944,10 @@ clutter_blur_node_new (unsigned int width,
                                    0,
                                    clutter_blur_get_texture (blur));
 
-  graphene_matrix_init_translate (&projection,
-                                  &GRAPHENE_POINT3D_INIT (-(width / 2.f),
-                                                          -(height / 2.f),
-                                                          0.f));
-  graphene_matrix_scale (&projection, 2.f / width, -2.f / height, 1.f);
-  cogl_framebuffer_set_projection_matrix (layer_node->offscreen, &projection);
+  cogl_framebuffer_orthographic (layer_node->offscreen,
+                                 0.0, 0.0,
+                                 width, height,
+                                 0.0, 1.0);
 
 out:
   return (ClutterPaintNode *) blur_node;
