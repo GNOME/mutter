@@ -703,7 +703,7 @@ schedule_retry_page_flip (MetaKmsImplDeviceSimple   *impl_device_simple,
   *retry_page_flip_data = (RetryPageFlipData) {
     .crtc = crtc,
     .fb_id = fb_id,
-    .page_flip_data = meta_kms_page_flip_data_ref (page_flip_data),
+    .page_flip_data = page_flip_data,
     .refresh_rate = refresh_rate,
     .retry_time_us = retry_time_us,
     .custom_page_flip_func = custom_page_flip_func,
@@ -758,9 +758,7 @@ invoke_page_flip_datas (GList                        *page_flip_datas,
 static void
 clear_page_flip_datas (GList **page_flip_datas)
 {
-  g_list_free_full (*page_flip_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_unref);
-  *page_flip_datas = NULL;
+  g_clear_pointer (page_flip_datas, g_list_free);
 }
 
 static gboolean
@@ -853,7 +851,7 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
 
   impl_device_simple->mode_set_fallback_page_flip_datas =
     g_list_prepend (impl_device_simple->mode_set_fallback_page_flip_datas,
-                    meta_kms_page_flip_data_ref (page_flip_data));
+                    page_flip_data);
 
   return TRUE;
 }
@@ -929,7 +927,7 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                   meta_kms_crtc_get_id (crtc),
                   meta_kms_impl_device_get_path (impl_device));
       ret = custom_page_flip_func (custom_page_flip_user_data,
-                                   meta_kms_page_flip_data_ref (page_flip_data));
+                                   page_flip_data);
     }
   else
     {
@@ -948,11 +946,8 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                              meta_kms_crtc_get_id (crtc),
                              fb_id,
                              DRM_MODE_PAGE_FLIP_EVENT,
-                             meta_kms_page_flip_data_ref (page_flip_data));
+                             page_flip_data);
     }
-
-  if (ret != 0)
-    meta_kms_page_flip_data_unref (page_flip_data);
 
   if (ret == -EBUSY)
     {
@@ -989,7 +984,6 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "Page flip of %u failed, and no mode set available",
                        meta_kms_crtc_get_id (crtc));
-          meta_kms_page_flip_data_unref (page_flip_data);
           return FALSE;
         }
     }
@@ -1005,10 +999,7 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                               plane_assignment,
                               page_flip_data,
                               error))
-        {
-          meta_kms_page_flip_data_unref (page_flip_data);
-          return FALSE;
-        }
+        return FALSE;
     }
   else if (ret != 0)
     {
@@ -1016,11 +1007,9 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                    "drmModePageFlip on CRTC %u failed: %s",
                    meta_kms_crtc_get_id (crtc),
                    g_strerror (-ret));
-      meta_kms_page_flip_data_unref (page_flip_data);
       return FALSE;
     }
 
-  meta_kms_page_flip_data_unref (page_flip_data);
   return TRUE;
 }
 
@@ -1038,14 +1027,20 @@ generate_page_flip_datas (MetaKmsImplDevice  *impl_device,
       MetaKmsPageFlipListener *listener = listeners->data;
       MetaKmsCrtc *crtc = listener->crtc;
       MetaKmsPageFlipData *page_flip_data;
+      gpointer user_data;
+      GDestroyNotify destroy_notify;
       GList *l;
 
       page_flip_data = meta_kms_page_flip_data_new (impl_device, crtc);
       page_flip_datas = g_list_append (page_flip_datas, page_flip_data);
 
+      user_data = g_steal_pointer (&listener->user_data);
+      destroy_notify = g_steal_pointer (&listener->destroy_notify);
       meta_kms_page_flip_data_add_listener (page_flip_data,
                                             listener->vtable,
-                                            listener->user_data);
+                                            listener->flags,
+                                            user_data,
+                                            destroy_notify);
 
       listeners = g_list_delete_link (listeners, listeners);
 
@@ -1057,9 +1052,17 @@ generate_page_flip_datas (MetaKmsImplDevice  *impl_device,
 
           if (other_listener->crtc == crtc)
             {
+              gpointer other_user_data;
+              GDestroyNotify other_destroy_notify;
+
+              other_user_data = g_steal_pointer (&other_listener->user_data);
+              other_destroy_notify =
+                g_steal_pointer (&other_listener->destroy_notify);
               meta_kms_page_flip_data_add_listener (page_flip_data,
                                                     other_listener->vtable,
-                                                    other_listener->user_data);
+                                                    other_listener->flags,
+                                                    other_user_data,
+                                                    other_destroy_notify);
               listeners = g_list_delete_link (listeners, l);
             }
 
@@ -1081,9 +1084,14 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
 
   page_flip_datas = generate_page_flip_datas (impl_device, update);
 
-  for (l = page_flip_datas; l; l = l->next)
+  while (page_flip_datas)
     {
-      MetaKmsPageFlipData *page_flip_data = l->data;
+      g_autoptr (GList) l = NULL;
+      MetaKmsPageFlipData *page_flip_data;
+
+      l = page_flip_datas;
+      page_flip_datas = g_list_remove_link (page_flip_datas, l);
+      page_flip_data = g_steal_pointer (&l->data);
 
       if (!dispatch_page_flip (impl_device, update, page_flip_data, error))
         {
@@ -1106,11 +1114,24 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
               *failed_planes = g_list_prepend (*failed_planes, plane_feedback);
             }
 
-          return FALSE;
+          meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
+
+          goto err;
         }
     }
 
   return TRUE;
+
+err:
+  for (l = page_flip_datas; l; l = l->next)
+    {
+      MetaKmsPageFlipData *page_flip_data = l->data;
+
+      meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
+    }
+  g_list_free (page_flip_datas);
+
+  return FALSE;
 }
 
 static gboolean
@@ -1417,14 +1438,12 @@ meta_kms_impl_device_simple_handle_page_flip_callback (MetaKmsImplDevice   *impl
     {
       impl_device_simple->postponed_page_flip_datas =
         g_list_append (impl_device_simple->postponed_page_flip_datas,
-                       meta_kms_page_flip_data_ref (page_flip_data));
+                       page_flip_data);
     }
   else
     {
       meta_kms_page_flip_data_flipped_in_impl (page_flip_data);
     }
-
-  meta_kms_page_flip_data_unref (page_flip_data);
 }
 
 static void
@@ -1469,9 +1488,9 @@ meta_kms_impl_device_simple_finalize (GObject *object)
   g_list_free_full (impl_device_simple->pending_page_flip_retries,
                     (GDestroyNotify) retry_page_flip_data_free);
   g_list_free_full (impl_device_simple->postponed_page_flip_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_unref);
+                    (GDestroyNotify) meta_kms_page_flip_data_discard_in_impl);
   g_list_free_full (impl_device_simple->postponed_mode_set_fallback_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_unref);
+                    (GDestroyNotify) meta_kms_page_flip_data_discard_in_impl);
 
   g_clear_pointer (&impl_device_simple->mode_set_fallback_feedback_source,
                    g_source_destroy);

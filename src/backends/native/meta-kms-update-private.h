@@ -76,7 +76,9 @@ typedef struct _MetaKmsPageFlipListener
 {
   MetaKmsCrtc *crtc;
   const MetaKmsPageFlipListenerVtable *vtable;
+  MetaKmsPageFlipListenerFlag flags;
   gpointer user_data;
+  GDestroyNotify destroy_notify;
 } MetaKmsPageFlipListener;
 
 typedef struct _MetaKmsResultListener

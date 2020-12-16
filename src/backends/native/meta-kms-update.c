@@ -143,6 +143,13 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
+static void
+meta_kms_page_flip_listener_free (MetaKmsPageFlipListener *listener)
+{
+  g_clear_pointer (&listener->user_data, listener->destroy_notify);
+  g_free (listener);
+}
+
 static gboolean
 drop_plane_assignment (MetaKmsUpdate          *update,
                        MetaKmsPlane           *plane,
@@ -389,7 +396,9 @@ void
 meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *update,
                                         MetaKmsCrtc                         *crtc,
                                         const MetaKmsPageFlipListenerVtable *vtable,
-                                        gpointer                             user_data)
+                                        MetaKmsPageFlipListenerFlag          flags,
+                                        gpointer                             user_data,
+                                        GDestroyNotify                       destroy_notify)
 {
   MetaKmsPageFlipListener *listener;
 
@@ -400,7 +409,9 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
   *listener = (MetaKmsPageFlipListener) {
     .crtc = crtc,
     .vtable = vtable,
+    .flags = flags,
     .user_data = user_data,
+    .destroy_notify = destroy_notify,
   };
 
   update->page_flip_listeners = g_list_prepend (update->page_flip_listeners,
@@ -595,7 +606,8 @@ meta_kms_update_free (MetaKmsUpdate *update)
                     (GDestroyNotify) meta_kms_plane_assignment_free);
   g_list_free_full (update->mode_sets,
                     (GDestroyNotify) meta_kms_mode_set_free);
-  g_list_free_full (update->page_flip_listeners, g_free);
+  g_list_free_full (update->page_flip_listeners,
+                    (GDestroyNotify) meta_kms_page_flip_listener_free);
   g_list_free_full (update->connector_updates, g_free);
   g_list_free_full (update->crtc_gammas, (GDestroyNotify) meta_kms_crtc_gamma_free);
 

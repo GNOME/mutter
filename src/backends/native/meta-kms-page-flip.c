@@ -28,7 +28,9 @@
 typedef struct _MetaKmsPageFlipClosure
 {
   const MetaKmsPageFlipListenerVtable *vtable;
+  MetaKmsPageFlipListenerFlag flags;
   gpointer user_data;
+  GDestroyNotify destroy_notify;
 } MetaKmsPageFlipClosure;
 
 struct _MetaKmsPageFlipData
@@ -51,14 +53,18 @@ struct _MetaKmsPageFlipData
 
 static MetaKmsPageFlipClosure *
 meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
-                                gpointer                             user_data)
+                                MetaKmsPageFlipListenerFlag          flags,
+                                gpointer                             user_data,
+                                GDestroyNotify                       destroy_notify)
 {
   MetaKmsPageFlipClosure *closure;
 
   closure = g_new0 (MetaKmsPageFlipClosure, 1);
   *closure = (MetaKmsPageFlipClosure) {
     .vtable = vtable,
+    .flags = flags,
     .user_data = user_data,
+    .destroy_notify = destroy_notify,
   };
 
   return closure;
@@ -67,6 +73,7 @@ meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
 static void
 meta_kms_page_flip_closure_free (MetaKmsPageFlipClosure *closure)
 {
+  g_clear_pointer (&closure->user_data, closure->destroy_notify);
   g_free (closure);
 }
 
@@ -109,11 +116,15 @@ meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data)
 void
 meta_kms_page_flip_data_add_listener (MetaKmsPageFlipData                 *page_flip_data,
                                       const MetaKmsPageFlipListenerVtable *vtable,
-                                      gpointer                             user_data)
+                                      MetaKmsPageFlipListenerFlag          flags,
+                                      gpointer                             user_data,
+                                      GDestroyNotify                       destroy_notify)
 {
   MetaKmsPageFlipClosure *closure;
 
-  closure = meta_kms_page_flip_closure_new (vtable, user_data);
+  closure = meta_kms_page_flip_closure_new (vtable, flags,
+                                            user_data,
+                                            destroy_notify);
   page_flip_data->closures = g_list_append (page_flip_data->closures, closure);
 }
 
@@ -196,7 +207,7 @@ meta_kms_page_flip_data_flipped_in_impl (MetaKmsPageFlipData *page_flip_data)
 
   meta_kms_queue_callback (kms,
                            meta_kms_page_flip_data_flipped,
-                           meta_kms_page_flip_data_ref (page_flip_data),
+                           page_flip_data,
                            (GDestroyNotify) meta_kms_page_flip_data_unref);
 }
 
@@ -227,7 +238,7 @@ meta_kms_page_flip_data_mode_set_fallback_in_impl (MetaKmsPageFlipData *page_fli
 
   meta_kms_queue_callback (kms,
                            meta_kms_page_flip_data_mode_set_fallback,
-                           meta_kms_page_flip_data_ref (page_flip_data),
+                           page_flip_data,
                            (GDestroyNotify) meta_kms_page_flip_data_unref);
 }
 
@@ -243,6 +254,9 @@ meta_kms_page_flip_data_discard (MetaKms  *kms,
   for (l = page_flip_data->closures; l; l = l->next)
     {
       MetaKmsPageFlipClosure *closure = l->data;
+
+      if (closure->flags & META_KMS_PAGE_FLIP_LISTENER_FLAG_NO_DISCARD)
+        continue;
 
       closure->vtable->discarded (page_flip_data->crtc,
                                   closure->user_data,
@@ -272,6 +286,6 @@ meta_kms_page_flip_data_discard_in_impl (MetaKmsPageFlipData *page_flip_data,
 
   meta_kms_queue_callback (kms,
                            meta_kms_page_flip_data_discard,
-                           meta_kms_page_flip_data_ref (page_flip_data),
+                           page_flip_data,
                            (GDestroyNotify) meta_kms_page_flip_data_unref);
 }

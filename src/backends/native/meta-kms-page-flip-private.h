@@ -37,7 +37,9 @@ void meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data);
 
 void meta_kms_page_flip_data_add_listener (MetaKmsPageFlipData                 *page_flip_data,
                                            const MetaKmsPageFlipListenerVtable *vtable,
-                                           gpointer                             user_data);
+                                           MetaKmsPageFlipListenerFlag          flags,
+                                           gpointer                             user_data,
+                                           GDestroyNotify                       destroy_notify);
 
 MetaKmsImplDevice * meta_kms_page_flip_data_get_impl_device (MetaKmsPageFlipData *page_flip_data);
 
