@@ -548,10 +548,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
 
       if (use_clipped_redraw)
         {
-          cairo_region_t *fb_damage;
           int age;
-
-          fb_damage = cairo_region_create ();
 
           for (age = 1; age <= buffer_age; age++)
             {
@@ -559,13 +556,8 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
 
               old_damage =
                 clutter_damage_history_lookup (view_priv->damage_history, age);
-              cairo_region_union (fb_damage, old_damage);
+              cairo_region_union (fb_clip_region, old_damage);
             }
-
-          /* Update the fb clip region with the extra damage. */
-          cairo_region_union (fb_clip_region, fb_damage);
-
-          cairo_region_destroy (fb_damage);
 
           CLUTTER_NOTE (CLIPPING, "Reusing back buffer(age=%d) - repairing region: num rects: %d\n",
                         buffer_age,
