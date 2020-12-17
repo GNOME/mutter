@@ -3520,32 +3520,9 @@ clutter_actor_paint_node (ClutterActor        *actor,
 
   bg_color = priv->bg_color;
 
-  if (CLUTTER_ACTOR_IS_TOPLEVEL (actor))
-    {
-      ClutterPaintNode *node;
-      CoglFramebuffer *fb;
-      CoglBufferBit clear_flags;
-
-      fb = clutter_paint_context_get_base_framebuffer (paint_context);
-
-      bg_color.alpha = 255;
-
-      CLUTTER_NOTE (PAINT, "Stage clear color: (%d, %d, %d, %d)",
-                    bg_color.red,
-                    bg_color.green,
-                    bg_color.blue,
-                    bg_color.alpha);
-
-      clear_flags = COGL_BUFFER_BIT_DEPTH;
-
-      node = clutter_root_node_new (fb, &bg_color, clear_flags);
-      clutter_paint_node_set_static_name (node, "stageClear");
-      clutter_paint_node_add_rectangle (node, &box);
-      clutter_paint_node_add_child (root, node);
-      clutter_paint_node_unref (node);
-    }
-  else if (priv->bg_color_set &&
-           !clutter_color_equal (&priv->bg_color, CLUTTER_COLOR_Transparent))
+  if (!CLUTTER_ACTOR_IS_TOPLEVEL (actor) &&
+      priv->bg_color_set &&
+      !clutter_color_equal (&priv->bg_color, CLUTTER_COLOR_Transparent))
     {
       ClutterPaintNode *node;
 
