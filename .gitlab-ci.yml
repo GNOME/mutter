@@ -98,6 +98,8 @@ check-merge-request:
   extends:
     - .fdo.ci-fairy
   stage: review
+  variables:
+    GIT_STRATEGY: none
   script:
     - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
       then
@@ -121,6 +123,8 @@ build-fedora-container@x86_64:
   needs:
     - check-commit-log
     - check-merge-request
+  variables:
+    GIT_STRATEGY: none
 
 build-fedora-container@aarch64:
   extends:
@@ -130,6 +134,8 @@ build-fedora-container@aarch64:
   needs:
     - check-commit-log
     - check-merge-request
+  variables:
+    GIT_STRATEGY: none
 
 .build-mutter:
   extends:
