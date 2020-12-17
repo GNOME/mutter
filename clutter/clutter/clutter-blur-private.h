@@ -26,8 +26,8 @@ G_BEGIN_DECLS
 
 typedef struct _ClutterBlur ClutterBlur;
 
-ClutterBlur * clutter_blur_new (CoglTexture  *texture,
-                                unsigned int  sigma);
+ClutterBlur * clutter_blur_new (CoglTexture *texture,
+                                float        sigma);
 
 void clutter_blur_apply (ClutterBlur *blur);
 

@@ -282,7 +282,7 @@ GType clutter_blur_node_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 ClutterPaintNode * clutter_blur_node_new (unsigned int width,
                                           unsigned int height,
-                                          unsigned int sigma);
+                                          float        sigma);
 
 G_END_DECLS
 

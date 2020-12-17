@@ -125,7 +125,7 @@ typedef struct
 struct _ClutterBlur
 {
   CoglTexture *source_texture;
-  unsigned int sigma;
+  float sigma;
   float downscale_factor;
 
   BlurPass pass[2];
@@ -341,14 +341,17 @@ clear_blur_pass (BlurPass *pass)
  * Returns: (transfer full) (nullable): A newly created #ClutterBlur
  */
 ClutterBlur *
-clutter_blur_new (CoglTexture  *texture,
-                  unsigned int  sigma)
+clutter_blur_new (CoglTexture *texture,
+                  float        sigma)
 {
   ClutterBlur *blur;
   unsigned int height;
   unsigned int width;
   BlurPass *hpass;
   BlurPass *vpass;
+
+  g_return_val_if_fail (texture != NULL, NULL);
+  g_return_val_if_fail (sigma >= 0.0, NULL);
 
   width = cogl_texture_get_width (texture);
   height = cogl_texture_get_height (texture);
@@ -358,7 +361,7 @@ clutter_blur_new (CoglTexture  *texture,
   blur->source_texture = cogl_object_ref (texture);
   blur->downscale_factor = calculate_downscale_factor (width, height, sigma);
 
-  if (sigma == 0)
+  if (G_APPROX_VALUE (sigma, 0.0, FLT_EPSILON))
     goto out;
 
   vpass = &blur->pass[VERTICAL];
@@ -385,7 +388,7 @@ out:
 void
 clutter_blur_apply (ClutterBlur *blur)
 {
-  if (blur->sigma == 0)
+  if (G_APPROX_VALUE (blur->sigma, 0.0, FLT_EPSILON))
     return;
 
   apply_blur_pass (&blur->pass[VERTICAL]);
@@ -404,7 +407,7 @@ clutter_blur_apply (ClutterBlur *blur)
 CoglTexture *
 clutter_blur_get_texture (ClutterBlur *blur)
 {
-  if (blur->sigma == 0)
+  if (G_APPROX_VALUE (blur->sigma, 0.0, FLT_EPSILON))
     return blur->source_texture;
   else
     return blur->pass[HORIZONTAL].texture;

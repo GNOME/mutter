@@ -1915,7 +1915,7 @@ clutter_blur_node_init (ClutterBlurNode *blur_node)
 ClutterPaintNode *
 clutter_blur_node_new (unsigned int width,
                        unsigned int height,
-                       unsigned int sigma)
+                       float        sigma)
 {
   g_autoptr (CoglOffscreen) offscreen = NULL;
   g_autoptr (GError) error = NULL;
@@ -1925,6 +1925,8 @@ clutter_blur_node_new (unsigned int width,
   CoglContext *context;
   CoglTexture *texture;
   ClutterBlur *blur;
+
+  g_return_val_if_fail (sigma >= 0.0, NULL);
 
   blur_node = _clutter_paint_node_create (CLUTTER_TYPE_BLUR_NODE);
   blur_node->sigma = sigma;
