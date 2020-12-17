@@ -674,6 +674,8 @@ if have_native_backend
     'backends/native/meta-monitor-manager-native.h',
     'backends/native/meta-output-kms.c',
     'backends/native/meta-output-kms.h',
+    'backends/native/meta-output-native.c',
+    'backends/native/meta-output-native.h',
     'backends/native/meta-kms-connector-private.h',
     'backends/native/meta-kms-connector.c',
     'backends/native/meta-kms-connector.h',

@@ -41,12 +41,12 @@
 
 struct _MetaOutputKms
 {
-  MetaOutput parent;
+  MetaOutputNative parent;
 
   MetaKmsConnector *kms_connector;
 };
 
-G_DEFINE_TYPE (MetaOutputKms, meta_output_kms, META_TYPE_OUTPUT)
+G_DEFINE_TYPE (MetaOutputKms, meta_output_kms, META_TYPE_OUTPUT_NATIVE)
 
 MetaKmsConnector *
 meta_output_kms_get_kms_connector (MetaOutputKms *output_kms)
