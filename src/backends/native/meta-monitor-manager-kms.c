@@ -63,14 +63,6 @@
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
-typedef struct
-{
-  GSource source;
-
-  gpointer fd_tag;
-  MetaMonitorManagerKms *manager_kms;
-} MetaKmsSource;
-
 struct _MetaMonitorManagerKms
 {
   MetaMonitorManager parent_instance;
