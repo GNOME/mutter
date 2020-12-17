@@ -89,7 +89,7 @@ static GBytes *
 meta_monitor_manager_native_read_edid (MetaMonitorManager *manager,
                                        MetaOutput         *output)
 {
-  return meta_output_kms_read_edid (META_OUTPUT_KMS (output));
+  return meta_output_native_read_edid (META_OUTPUT_NATIVE (output));
 }
 
 static void

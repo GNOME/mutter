@@ -24,6 +24,14 @@
 G_DEFINE_ABSTRACT_TYPE (MetaOutputNative, meta_output_native,
                         META_TYPE_OUTPUT)
 
+GBytes *
+meta_output_native_read_edid (MetaOutputNative *output_native)
+{
+  MetaOutputNativeClass *klass = META_OUTPUT_NATIVE_GET_CLASS (output_native);
+
+  return klass->read_edid (output_native);
+}
+
 static void
 meta_output_native_init (MetaOutputNative *output_native)
 {

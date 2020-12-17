@@ -30,6 +30,10 @@ G_DECLARE_DERIVABLE_TYPE (MetaOutputNative, meta_output_native,
 struct _MetaOutputNativeClass
 {
   MetaOutputClass parent_class;
+
+  GBytes * (* read_edid) (MetaOutputNative *output_native);
 };
+
+GBytes * meta_output_native_read_edid (MetaOutputNative *output_native);
 
 #endif /* META_OUTPUT_NATIVE_H */

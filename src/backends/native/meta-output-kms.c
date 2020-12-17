@@ -110,9 +110,10 @@ meta_output_kms_can_clone (MetaOutputKms *output_kms,
                                        other_output_kms->kms_connector);
 }
 
-GBytes *
-meta_output_kms_read_edid (MetaOutputKms *output_kms)
+static GBytes *
+meta_output_kms_read_edid (MetaOutputNative *output_native)
 {
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (output_native);
   const MetaKmsConnectorState *connector_state;
   GBytes *edid_data;
 
@@ -387,4 +388,7 @@ meta_output_kms_init (MetaOutputKms *output_kms)
 static void
 meta_output_kms_class_init (MetaOutputKmsClass *klass)
 {
+  MetaOutputNativeClass *output_native_class = META_OUTPUT_NATIVE_CLASS (klass);
+
+  output_native_class->read_edid = meta_output_kms_read_edid;
 }
