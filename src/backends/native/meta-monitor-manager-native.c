@@ -23,11 +23,11 @@
  */
 
 /**
- * SECTION:meta-monitor-manager-kms
- * @title: MetaMonitorManagerKms
+ * SECTION:meta-monitor-manager-native
+ * @title: MetaMonitorManagerNative
  * @short_description: A subclass of #MetaMonitorManager using Linux DRM
  *
- * #MetaMonitorManagerKms is a subclass of #MetaMonitorManager which
+ * #MetaMonitorManagerNative is a subclass of #MetaMonitorManager which
  * implements its functionality "natively": it uses the appropriate
  * functions of the Linux DRM kernel module and using a udev client.
  *
@@ -36,7 +36,7 @@
 
 #include "config.h"
 
-#include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-monitor-manager-native.h"
 
 #include <drm.h>
 #include <errno.h>
@@ -63,7 +63,7 @@
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
-struct _MetaMonitorManagerKms
+struct _MetaMonitorManagerNative
 {
   MetaMonitorManager parent_instance;
 
@@ -72,7 +72,7 @@ struct _MetaMonitorManagerKms
   GHashTable *crtc_gamma_cache;
 };
 
-struct _MetaMonitorManagerKmsClass
+struct _MetaMonitorManagerNativeClass
 {
   MetaMonitorManagerClass parent_class;
 };
@@ -80,23 +80,23 @@ struct _MetaMonitorManagerKmsClass
 static void
 initable_iface_init (GInitableIface *initable_iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaMonitorManagerKms, meta_monitor_manager_kms,
+G_DEFINE_TYPE_WITH_CODE (MetaMonitorManagerNative, meta_monitor_manager_native,
                          META_TYPE_MONITOR_MANAGER,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
 static GBytes *
-meta_monitor_manager_kms_read_edid (MetaMonitorManager *manager,
-                                    MetaOutput         *output)
+meta_monitor_manager_native_read_edid (MetaMonitorManager *manager,
+                                       MetaOutput         *output)
 {
   return meta_output_kms_read_edid (META_OUTPUT_KMS (output));
 }
 
 static void
-meta_monitor_manager_kms_read_current_state (MetaMonitorManager *manager)
+meta_monitor_manager_native_read_current_state (MetaMonitorManager *manager)
 {
   MetaMonitorManagerClass *parent_class =
-    META_MONITOR_MANAGER_CLASS (meta_monitor_manager_kms_parent_class);
+    META_MONITOR_MANAGER_CLASS (meta_monitor_manager_native_parent_class);
   MetaPowerSave power_save_mode;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
@@ -129,8 +129,8 @@ meta_power_save_to_dpms_state (MetaPowerSave power_save)
 }
 
 static void
-meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
-                                              MetaPowerSave       mode)
+meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
+                                                 MetaPowerSave       mode)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
@@ -174,7 +174,7 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
 }
 
 static void
-meta_monitor_manager_kms_ensure_initial_config (MetaMonitorManager *manager)
+meta_monitor_manager_native_ensure_initial_config (MetaMonitorManager *manager)
 {
   MetaMonitorsConfig *config;
 
@@ -286,10 +286,10 @@ update_screen_size (MetaMonitorManager *manager,
 }
 
 static gboolean
-meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager,
-                                                MetaMonitorsConfig      *config,
-                                                MetaMonitorsConfigMethod method,
-                                                GError                 **error)
+meta_monitor_manager_native_apply_monitors_config (MetaMonitorManager        *manager,
+                                                   MetaMonitorsConfig        *config,
+                                                   MetaMonitorsConfigMethod   method,
+                                                   GError                   **error)
 {
   GPtrArray *crtc_assignments;
   GPtrArray *output_assignments;
@@ -339,12 +339,12 @@ meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager
 }
 
 static void
-meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager  *manager,
-                                         MetaCrtc            *crtc,
-                                         gsize               *size,
-                                         unsigned short     **red,
-                                         unsigned short     **green,
-                                         unsigned short     **blue)
+meta_monitor_manager_native_get_crtc_gamma (MetaMonitorManager  *manager,
+                                            MetaCrtc            *crtc,
+                                            gsize               *size,
+                                            unsigned short     **red,
+                                            unsigned short     **green,
+                                            unsigned short     **blue)
 {
   MetaKmsCrtc *kms_crtc;
   const MetaKmsCrtcState *crtc_state;
@@ -422,32 +422,33 @@ generate_gamma_ramp_string (size_t          size,
 }
 
 MetaKmsCrtcGamma *
-meta_monitor_manager_kms_get_cached_crtc_gamma (MetaMonitorManagerKms *manager_kms,
-                                                MetaCrtcKms           *crtc_kms)
+meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
+                                                   MetaCrtcKms              *crtc_kms)
 {
   uint64_t crtc_id;
 
   crtc_id = meta_crtc_get_id (META_CRTC (crtc_kms));
-  return g_hash_table_lookup (manager_kms->crtc_gamma_cache,
+  return g_hash_table_lookup (manager_native->crtc_gamma_cache,
                               GUINT_TO_POINTER (crtc_id));
 }
 
 static void
-meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
-                                         MetaCrtc           *crtc,
-                                         gsize               size,
-                                         unsigned short     *red,
-                                         unsigned short     *green,
-                                         unsigned short     *blue)
+meta_monitor_manager_native_set_crtc_gamma (MetaMonitorManager *manager,
+                                            MetaCrtc           *crtc,
+                                            gsize               size,
+                                            unsigned short     *red,
+                                            unsigned short     *green,
+                                            unsigned short     *blue)
 {
-  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (manager);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   g_autofree char *gamma_ramp_string = NULL;
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  g_hash_table_replace (manager_kms->crtc_gamma_cache,
+  g_hash_table_replace (manager_native->crtc_gamma_cache,
                         GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
                         meta_kms_crtc_gamma_new (kms_crtc, size,
                                                  red, green, blue));
@@ -474,63 +475,63 @@ on_kms_resources_changed (MetaKms            *kms,
 }
 
 static void
-meta_monitor_manager_kms_connect_hotplug_handler (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_native_connect_hotplug_handler (MetaMonitorManagerNative *manager_native)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_native);
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
 
-  manager_kms->kms_resources_changed_handler_id =
+  manager_native->kms_resources_changed_handler_id =
     g_signal_connect (kms, "resources-changed",
                       G_CALLBACK (on_kms_resources_changed), manager);
 }
 
 static void
-meta_monitor_manager_kms_disconnect_hotplug_handler (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_native_disconnect_hotplug_handler (MetaMonitorManagerNative *manager_native)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_native);
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
 
-  g_clear_signal_handler (&manager_kms->kms_resources_changed_handler_id, kms);
+  g_clear_signal_handler (&manager_native->kms_resources_changed_handler_id, kms);
 }
 
 void
-meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_native_pause (MetaMonitorManagerNative *manager_native)
 {
-  meta_monitor_manager_kms_disconnect_hotplug_handler (manager_kms);
+  meta_monitor_manager_native_disconnect_hotplug_handler (manager_native);
 }
 
 void
-meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_native_resume (MetaMonitorManagerNative *manager_native)
 {
-  meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
+  meta_monitor_manager_native_connect_hotplug_handler (manager_native);
 }
 
 static gboolean
-meta_monitor_manager_kms_is_transform_handled (MetaMonitorManager  *manager,
-                                               MetaCrtc            *crtc,
-                                               MetaMonitorTransform transform)
+meta_monitor_manager_native_is_transform_handled (MetaMonitorManager  *manager,
+                                                  MetaCrtc            *crtc,
+                                                  MetaMonitorTransform transform)
 {
   return meta_crtc_kms_is_transform_handled (META_CRTC_KMS (crtc), transform);
 }
 
 static float
-meta_monitor_manager_kms_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                       MetaMonitor        *monitor,
-                                                       MetaMonitorMode    *monitor_mode)
+meta_monitor_manager_native_calculate_monitor_mode_scale (MetaMonitorManager *manager,
+                                                          MetaMonitor        *monitor,
+                                                          MetaMonitorMode    *monitor_mode)
 {
   return meta_monitor_calculate_mode_scale (monitor, monitor_mode);
 }
 
 static float *
-meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager           *manager,
-                                                     MetaLogicalMonitorLayoutMode  layout_mode,
-                                                     MetaMonitor                  *monitor,
-                                                     MetaMonitorMode              *monitor_mode,
-                                                     int                          *n_supported_scales)
+meta_monitor_manager_native_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                        MetaLogicalMonitorLayoutMode  layout_mode,
+                                                        MetaMonitor                  *monitor,
+                                                        MetaMonitorMode              *monitor_mode,
+                                                        int                          *n_supported_scales)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -550,7 +551,7 @@ meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager         
 }
 
 static MetaMonitorManagerCapability
-meta_monitor_manager_kms_get_capabilities (MetaMonitorManager *manager)
+meta_monitor_manager_native_get_capabilities (MetaMonitorManager *manager)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaSettings *settings = meta_backend_get_settings (backend);
@@ -566,15 +567,15 @@ meta_monitor_manager_kms_get_capabilities (MetaMonitorManager *manager)
 }
 
 static gboolean
-meta_monitor_manager_kms_get_max_screen_size (MetaMonitorManager *manager,
-                                              int                *max_width,
-                                              int                *max_height)
+meta_monitor_manager_native_get_max_screen_size (MetaMonitorManager *manager,
+                                                 int                *max_width,
+                                                 int                *max_height)
 {
   return FALSE;
 }
 
 static MetaLogicalMonitorLayoutMode
-meta_monitor_manager_kms_get_default_layout_mode (MetaMonitorManager *manager)
+meta_monitor_manager_native_get_default_layout_mode (MetaMonitorManager *manager)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaSettings *settings = meta_backend_get_settings (backend);
@@ -588,28 +589,30 @@ meta_monitor_manager_kms_get_default_layout_mode (MetaMonitorManager *manager)
 }
 
 static void
-meta_monitor_manager_kms_dispose (GObject *object)
+meta_monitor_manager_native_dispose (GObject *object)
 {
-  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (object);
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (object);
 
-  g_clear_pointer (&manager_kms->crtc_gamma_cache,
+  g_clear_pointer (&manager_native->crtc_gamma_cache,
                    g_hash_table_unref);
 
-  G_OBJECT_CLASS (meta_monitor_manager_kms_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_monitor_manager_native_parent_class)->dispose (object);
 }
 
 static gboolean
-meta_monitor_manager_kms_initable_init (GInitable    *initable,
-                                        GCancellable *cancellable,
-                                        GError      **error)
+meta_monitor_manager_native_initable_init (GInitable    *initable,
+                                           GCancellable *cancellable,
+                                           GError      **error)
 {
-  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (initable);
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (initable);
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_native);
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   gboolean can_have_outputs;
   GList *l;
 
-  meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
+  meta_monitor_manager_native_connect_hotplug_handler (manager_native);
 
   can_have_outputs = FALSE;
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
@@ -629,7 +632,7 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
       return FALSE;
     }
 
-  manager_kms->crtc_gamma_cache =
+  manager_native->crtc_gamma_cache =
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_kms_crtc_gamma_free);
@@ -640,33 +643,46 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
 static void
 initable_iface_init (GInitableIface *initable_iface)
 {
-  initable_iface->init = meta_monitor_manager_kms_initable_init;
+  initable_iface->init = meta_monitor_manager_native_initable_init;
 }
 
 static void
-meta_monitor_manager_kms_init (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_native_init (MetaMonitorManagerNative *manager_native)
 {
 }
 
 static void
-meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
+meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
 
-  object_class->dispose = meta_monitor_manager_kms_dispose;
+  object_class->dispose = meta_monitor_manager_native_dispose;
 
-  manager_class->read_edid = meta_monitor_manager_kms_read_edid;
-  manager_class->read_current_state = meta_monitor_manager_kms_read_current_state;
-  manager_class->ensure_initial_config = meta_monitor_manager_kms_ensure_initial_config;
-  manager_class->apply_monitors_config = meta_monitor_manager_kms_apply_monitors_config;
-  manager_class->set_power_save_mode = meta_monitor_manager_kms_set_power_save_mode;
-  manager_class->get_crtc_gamma = meta_monitor_manager_kms_get_crtc_gamma;
-  manager_class->set_crtc_gamma = meta_monitor_manager_kms_set_crtc_gamma;
-  manager_class->is_transform_handled = meta_monitor_manager_kms_is_transform_handled;
-  manager_class->calculate_monitor_mode_scale = meta_monitor_manager_kms_calculate_monitor_mode_scale;
-  manager_class->calculate_supported_scales = meta_monitor_manager_kms_calculate_supported_scales;
-  manager_class->get_capabilities = meta_monitor_manager_kms_get_capabilities;
-  manager_class->get_max_screen_size = meta_monitor_manager_kms_get_max_screen_size;
-  manager_class->get_default_layout_mode = meta_monitor_manager_kms_get_default_layout_mode;
+  manager_class->read_edid =
+    meta_monitor_manager_native_read_edid;
+  manager_class->read_current_state =
+    meta_monitor_manager_native_read_current_state;
+  manager_class->ensure_initial_config =
+    meta_monitor_manager_native_ensure_initial_config;
+  manager_class->apply_monitors_config =
+    meta_monitor_manager_native_apply_monitors_config;
+  manager_class->set_power_save_mode =
+    meta_monitor_manager_native_set_power_save_mode;
+  manager_class->get_crtc_gamma =
+    meta_monitor_manager_native_get_crtc_gamma;
+  manager_class->set_crtc_gamma =
+    meta_monitor_manager_native_set_crtc_gamma;
+  manager_class->is_transform_handled =
+    meta_monitor_manager_native_is_transform_handled;
+  manager_class->calculate_monitor_mode_scale =
+    meta_monitor_manager_native_calculate_monitor_mode_scale;
+  manager_class->calculate_supported_scales =
+    meta_monitor_manager_native_calculate_supported_scales;
+  manager_class->get_capabilities =
+    meta_monitor_manager_native_get_capabilities;
+  manager_class->get_max_screen_size =
+    meta_monitor_manager_native_get_max_screen_size;
+  manager_class->get_default_layout_mode =
+    meta_monitor_manager_native_get_default_layout_mode;
 }

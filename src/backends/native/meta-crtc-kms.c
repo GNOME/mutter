@@ -34,7 +34,7 @@
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
-#include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-monitor-manager-native.h"
 
 #define ALL_TRANSFORMS_MASK ((1 << META_MONITOR_N_TRANSFORMS) - 1)
 
@@ -187,8 +187,8 @@ meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
   MetaBackend *backend = meta_gpu_get_backend (gpu);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaMonitorManagerNative *monitor_manager_native =
+    META_MONITOR_MANAGER_NATIVE (monitor_manager);
   MetaKms *kms = meta_kms_device_get_kms (kms_device);
   MetaKmsUpdate *kms_update;
   MetaKmsCrtcGamma *gamma;
@@ -196,8 +196,8 @@ meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
   if (crtc_kms->is_gamma_valid)
     return;
 
-  gamma = meta_monitor_manager_kms_get_cached_crtc_gamma (monitor_manager_kms,
-                                                          crtc_kms);
+  gamma = meta_monitor_manager_native_get_cached_crtc_gamma (monitor_manager_native,
+                                                             crtc_kms);
   if (!gamma)
     return;
 

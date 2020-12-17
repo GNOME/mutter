@@ -20,8 +20,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_MONITOR_MANAGER_KMS_H
-#define META_MONITOR_MANAGER_KMS_H
+#ifndef META_MONITOR_MANAGER_NATIVE_H
+#define META_MONITOR_MANAGER_NATIVE_H
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
@@ -32,18 +32,18 @@
 
 typedef struct _MetaGpuKms MetaGpuKms;
 
-#define META_TYPE_MONITOR_MANAGER_KMS (meta_monitor_manager_kms_get_type ())
-G_DECLARE_FINAL_TYPE (MetaMonitorManagerKms, meta_monitor_manager_kms,
-                      META, MONITOR_MANAGER_KMS,
+#define META_TYPE_MONITOR_MANAGER_NATIVE (meta_monitor_manager_native_get_type ())
+G_DECLARE_FINAL_TYPE (MetaMonitorManagerNative, meta_monitor_manager_native,
+                      META, MONITOR_MANAGER_NATIVE,
                       MetaMonitorManager)
 
-void meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms);
+void meta_monitor_manager_native_pause (MetaMonitorManagerNative *manager_native);
 
-void meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms);
+void meta_monitor_manager_native_resume (MetaMonitorManagerNative *manager_native);
 
 uint64_t meta_power_save_to_dpms_state (MetaPowerSave power_save);
 
-MetaKmsCrtcGamma * meta_monitor_manager_kms_get_cached_crtc_gamma (MetaMonitorManagerKms *manager_kms,
-                                                                   MetaCrtcKms           *crtc_kms);
+MetaKmsCrtcGamma * meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
+                                                                      MetaCrtcKms              *crtc_kms);
 
-#endif /* META_MONITOR_MANAGER_KMS_H */
+#endif /* META_MONITOR_MANAGER_NATIVE_H */

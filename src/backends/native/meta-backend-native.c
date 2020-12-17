@@ -53,7 +53,7 @@
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-launcher.h"
-#include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-monitor-manager-native.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-stage-native.h"
@@ -214,7 +214,7 @@ meta_backend_native_create_monitor_manager (MetaBackend *backend,
 {
   MetaMonitorManager *manager;
 
-  manager = g_initable_new (META_TYPE_MONITOR_MANAGER_KMS, NULL, error,
+  manager = g_initable_new (META_TYPE_MONITOR_MANAGER_NATIVE, NULL, error,
                             "backend", backend,
                             NULL);
   if (!manager)
@@ -638,8 +638,8 @@ meta_backend_native_pause (MetaBackendNative *native)
   MetaBackend *backend = META_BACKEND (native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaMonitorManagerNative *monitor_manager_native =
+    META_MONITOR_MANAGER_NATIVE (monitor_manager);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
@@ -653,7 +653,7 @@ meta_backend_native_pause (MetaBackendNative *native)
 
   disconnect_udev_device_added_handler (native);
 
-  meta_monitor_manager_kms_pause (monitor_manager_kms);
+  meta_monitor_manager_native_pause (monitor_manager_native);
 }
 
 void meta_backend_native_resume (MetaBackendNative *native)
@@ -662,8 +662,8 @@ void meta_backend_native_resume (MetaBackendNative *native)
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaMonitorManagerNative *monitor_manager_native =
+    META_MONITOR_MANAGER_NATIVE (monitor_manager);
   MetaIdleMonitor *idle_monitor;
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
@@ -674,7 +674,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
                            "Backend (resume)");
 
-  meta_monitor_manager_kms_resume (monitor_manager_kms);
+  meta_monitor_manager_native_resume (monitor_manager_native);
   meta_kms_resume (native->kms);
 
   connect_udev_device_added_handler (native);

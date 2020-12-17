@@ -31,7 +31,7 @@
 
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-gpu-kms.h"
-#include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-monitor-manager-native.h"
 
 #define META_TYPE_RENDERER_NATIVE (meta_renderer_native_get_type ())
 G_DECLARE_FINAL_TYPE (MetaRendererNative, meta_renderer_native,
