@@ -69,11 +69,9 @@
 static const char *gaussian_blur_glsl_declarations =
 "uniform float sigma;                                                      \n"
 "uniform float pixel_step;                                                 \n"
-"uniform int vertical;                                                     \n";
+"uniform vec2 direction;                                                   \n";
 
 static const char *gaussian_blur_glsl =
-"  int horizontal = 1 - vertical;                                          \n"
-"                                                                          \n"
 "  vec2 uv = vec2 (cogl_tex_coord.st);                                     \n"
 "                                                                          \n"
 "  vec3 gauss_coefficient;                                                 \n"
@@ -96,8 +94,7 @@ static const char *gaussian_blur_glsl =
 "    float gauss_ratio = gauss_coefficient.x / coefficient_subtotal;       \n"
 "                                                                          \n"
 "    float foffset = float (i) + gauss_ratio;                              \n"
-"    vec2 offset = vec2 (foffset * pixel_step * float (horizontal),        \n"
-"                        foffset * pixel_step * float (vertical));         \n"
+"    vec2 offset = direction * foffset * pixel_step;                       \n"
 "                                                                          \n"
 "    ret += texture2D (cogl_sampler, uv + offset) * coefficient_subtotal;  \n"
 "    ret += texture2D (cogl_sampler, uv - offset) * coefficient_subtotal;  \n"
@@ -179,7 +176,7 @@ update_blur_uniforms (ClutterBlur *blur,
   gboolean vertical = pass->orientation == VERTICAL;
   int sigma_uniform;
   int pixel_step_uniform;
-  int vertical_uniform;
+  int direction_uniform;
 
   pixel_step_uniform =
     cogl_pipeline_get_uniform_location (pass->pipeline, "pixel_step");
@@ -205,13 +202,20 @@ update_blur_uniforms (ClutterBlur *blur,
                                     blur->sigma / blur->downscale_factor);
     }
 
-  vertical_uniform =
-    cogl_pipeline_get_uniform_location (pass->pipeline, "vertical");
-  if (vertical_uniform > -1)
+  direction_uniform =
+    cogl_pipeline_get_uniform_location (pass->pipeline, "direction");
+  if (direction_uniform > -1)
     {
-      cogl_pipeline_set_uniform_1i (pass->pipeline,
-                                    vertical_uniform,
-                                    vertical);
+      gboolean horizontal = !vertical;
+      float direction[2] = {
+        horizontal,
+        vertical,
+      };
+
+      cogl_pipeline_set_uniform_float (pass->pipeline,
+                                       direction_uniform,
+                                       2, 1,
+                                       direction);
     }
 }
 
