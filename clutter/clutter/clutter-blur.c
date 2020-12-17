@@ -123,9 +123,6 @@ typedef struct
   CoglPipeline *pipeline;
   CoglTexture *texture;
   int orientation;
-  int sigma_uniform;
-  int pixel_step_uniform;
-  int vertical_uniform;
 } BlurPass;
 
 struct _ClutterBlur
@@ -180,10 +177,13 @@ update_blur_uniforms (ClutterBlur *blur,
                       BlurPass    *pass)
 {
   gboolean vertical = pass->orientation == VERTICAL;
+  int sigma_uniform;
+  int pixel_step_uniform;
+  int vertical_uniform;
 
-  pass->pixel_step_uniform =
+  pixel_step_uniform =
     cogl_pipeline_get_uniform_location (pass->pipeline, "pixel_step");
-  if (pass->pixel_step_uniform > -1)
+  if (pixel_step_uniform > -1)
     {
       float pixel_step;
 
@@ -193,25 +193,24 @@ update_blur_uniforms (ClutterBlur *blur,
         pixel_step = 1.f / cogl_texture_get_width (pass->texture);
 
       cogl_pipeline_set_uniform_1f (pass->pipeline,
-                                    pass->pixel_step_uniform,
+                                    pixel_step_uniform,
                                     pixel_step);
     }
 
-  pass->sigma_uniform =
-    cogl_pipeline_get_uniform_location (pass->pipeline, "sigma");
-  if (pass->sigma_uniform > -1)
+  sigma_uniform = cogl_pipeline_get_uniform_location (pass->pipeline, "sigma");
+  if (sigma_uniform > -1)
     {
       cogl_pipeline_set_uniform_1f (pass->pipeline,
-                                    pass->sigma_uniform,
+                                    sigma_uniform,
                                     blur->sigma / blur->downscale_factor);
     }
 
-  pass->vertical_uniform =
+  vertical_uniform =
     cogl_pipeline_get_uniform_location (pass->pipeline, "vertical");
-  if (pass->vertical_uniform > -1)
+  if (vertical_uniform > -1)
     {
       cogl_pipeline_set_uniform_1i (pass->pipeline,
-                                    pass->vertical_uniform,
+                                    vertical_uniform,
                                     vertical);
     }
 }
