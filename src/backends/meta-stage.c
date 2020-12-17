@@ -33,15 +33,6 @@
 
 #define N_WATCH_MODES 4
 
-enum
-{
-  ACTORS_PAINTED,
-
-  N_SIGNALS
-};
-
-static guint signals[N_SIGNALS];
-
 struct _MetaStageWatch
 {
   ClutterStageView *view;
@@ -237,8 +228,6 @@ meta_stage_paint (ClutterActor        *actor,
                                 META_STAGE_WATCH_AFTER_ACTOR_PAINT);
     }
 
-  g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
-
   if ((clutter_paint_context_get_paint_flags (paint_context) &
        CLUTTER_PAINT_FLAG_FORCE_CURSORS))
     {
@@ -328,13 +317,6 @@ meta_stage_class_init (MetaStageClass *klass)
   stage_class->deactivate = meta_stage_deactivate;
   stage_class->before_paint = meta_stage_before_paint;
   stage_class->paint_view = meta_stage_paint_view;
-
-  signals[ACTORS_PAINTED] = g_signal_new ("actors-painted",
-                                          G_TYPE_FROM_CLASS (klass),
-                                          G_SIGNAL_RUN_LAST,
-                                          0,
-                                          NULL, NULL, NULL,
-                                          G_TYPE_NONE, 0);
 }
 
 static void
