@@ -442,11 +442,17 @@ meta_compositor_x11_monotonic_to_high_res_xserver_time (MetaCompositor *composit
 static void
 meta_compositor_x11_grab_begin (MetaCompositor *compositor)
 {
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (meta_get_backend ());
+
+  meta_backend_x11_sync_pointer (backend_x11);
 }
 
 static void
 meta_compositor_x11_grab_end (MetaCompositor *compositor)
 {
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (meta_get_backend ());
+
+  meta_backend_x11_sync_pointer (backend_x11);
 }
 
 Window

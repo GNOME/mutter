@@ -921,3 +921,28 @@ meta_backend_x11_reload_cursor (MetaBackendX11 *x11)
 
   meta_cursor_renderer_force_update (cursor_renderer);
 }
+
+void
+meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11)
+{
+  MetaBackend *backend = META_BACKEND (backend_x11);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterModifierType modifiers;
+  ClutterEvent *event;
+  graphene_point_t pos;
+
+  event = clutter_event_new (CLUTTER_MOTION);
+  clutter_seat_query_state (seat, pointer, NULL, &pos, &modifiers);
+  clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_SYNTHETIC);
+  clutter_event_set_coords (event, pos.x, pos.y);
+  clutter_event_set_device (event, pointer);
+  clutter_event_set_state (event, modifiers);
+  clutter_event_set_source_device (event, NULL);
+  clutter_event_set_stage (event, stage);
+
+  clutter_event_put (event);
+  clutter_event_free (event);
+}
