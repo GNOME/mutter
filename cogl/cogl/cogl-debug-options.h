@@ -184,3 +184,8 @@ OPT (SYNC_FRAME,
      N_("Call glFinish after rendering each frame, so profilers can measure "
         "the total render time (as a portion of the stage update time) more "
         "accurately."))
+OPT (TEXTURES,
+     N_("Cogl Tracing"),
+     "textures",
+     N_("Debug texture management"),
+     N_("Logs information about texture management"))

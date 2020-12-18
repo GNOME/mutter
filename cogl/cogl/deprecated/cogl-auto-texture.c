@@ -177,7 +177,7 @@ cogl_texture_new_from_data (int width,
                             int rowstride,
                             const uint8_t *data)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) error = NULL;
   CoglTexture *tex;
 
   _COGL_GET_CONTEXT (ctx, NULL);
@@ -188,9 +188,17 @@ cogl_texture_new_from_data (int width,
                                      format, internal_format,
                                      rowstride,
                                      data,
-                                     &ignore_error);
+                                     &error);
   if (!tex)
-    g_error_free (ignore_error);
+    {
+      COGL_NOTE (TEXTURES, "Failed to create texture with size %dx%d and "
+                 "format %s (internal: %s) from data: %s",
+                 width, height,
+                 cogl_pixel_format_to_string (format),
+                 cogl_pixel_format_to_string (internal_format),
+                 error->message);
+      return NULL;
+    }
   return tex;
 }
 
@@ -231,6 +239,15 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
 
   if (!cogl_texture_allocate (tex, &internal_error))
     {
+      COGL_NOTE (TEXTURES,
+                 "Failed to allocate texture from bitmap with size "
+                 "%dx%d and format %s (internal: %s), "
+                 "falling back on slicing: %s",
+                 cogl_bitmap_get_width (bitmap),
+                 cogl_bitmap_get_height (bitmap),
+                 cogl_pixel_format_to_string (cogl_bitmap_get_format (bitmap)),
+                 cogl_pixel_format_to_string (internal_format),
+                 internal_error->message);
       g_error_free (internal_error);
       internal_error = NULL;
       cogl_object_unref (tex);
@@ -273,15 +290,20 @@ cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                               CoglTextureFlags flags,
                               CoglPixelFormat internal_format)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) error = NULL;
+
   CoglTexture *tex =
     _cogl_texture_new_from_bitmap (bitmap,
                                    flags,
                                    internal_format,
                                    FALSE, /* can't convert in-place */
-                                   &ignore_error);
+                                   &error);
   if (!tex)
-    g_error_free (ignore_error);
+    {
+      COGL_NOTE (TEXTURES, "Failed to create texture from bitmap: %s",
+                 error->message);
+      return NULL;
+    }
   return tex;
 }
 

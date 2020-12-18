@@ -62,7 +62,8 @@ static const GDebugKey cogl_log_debug_keys[] = {
   { "bitmap", COGL_DEBUG_BITMAP },
   { "clipping", COGL_DEBUG_CLIPPING },
   { "winsys", COGL_DEBUG_WINSYS },
-  { "performance", COGL_DEBUG_PERFORMANCE }
+  { "performance", COGL_DEBUG_PERFORMANCE },
+  { "textures", COGL_DEBUG_TEXTURES },
 };
 static const int n_cogl_log_debug_keys =
   G_N_ELEMENTS (cogl_log_debug_keys);
