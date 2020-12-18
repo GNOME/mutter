@@ -2586,7 +2586,6 @@ clutter_text_paint (ClutterActor        *self,
   gint text_x = priv->text_x;
   gint text_y = priv->text_y;
   gboolean clip_set = FALSE;
-  gboolean bg_color_set = FALSE;
   guint n_chars;
   float alloc_width;
   float alloc_height;
@@ -2606,36 +2605,6 @@ clutter_text_paint (ClutterActor        *self,
       CoglContext *ctx =
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
       default_color_pipeline = cogl_pipeline_new (ctx);
-    }
-
-  g_assert (default_color_pipeline != NULL);
-
-  g_object_get (self, "background-color-set", &bg_color_set, NULL);
-  if (bg_color_set)
-    {
-      CoglPipeline *color_pipeline = cogl_pipeline_copy (default_color_pipeline);
-      ClutterColor bg_color;
-
-      clutter_actor_get_background_color (self, &bg_color);
-      bg_color.alpha = clutter_actor_get_paint_opacity (self)
-                     * bg_color.alpha
-                     / 255;
-
-      cogl_color_init_from_4ub (&color,
-                                bg_color.red,
-                                bg_color.green,
-                                bg_color.blue,
-                                bg_color.alpha);
-      cogl_color_premultiply (&color);
-      cogl_pipeline_set_color (color_pipeline, &color);
-
-      cogl_framebuffer_draw_rectangle (fb,
-                                       color_pipeline,
-                                       0, 0,
-                                       clutter_actor_box_get_width (&alloc),
-                                       clutter_actor_box_get_height (&alloc));
-
-      cogl_object_unref (color_pipeline);
     }
 
   /* don't bother painting an empty text actor, unless it's
