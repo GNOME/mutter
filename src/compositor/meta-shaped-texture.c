@@ -664,8 +664,8 @@ do_paint_content (MetaShapedTexture   *stex,
     }
   else
     {
-      sample_width = cogl_texture_get_width (stex->texture);
-      sample_height = cogl_texture_get_height (stex->texture);
+      sample_width = meta_multi_texture_get_width (stex->texture);
+      sample_height = meta_multi_texture_get_height (stex->texture);
     }
   if (meta_monitor_transform_is_rotated (stex->transform))
     flip_ints (&sample_width, &sample_height);

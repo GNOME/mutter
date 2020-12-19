@@ -191,7 +191,7 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 static gboolean
 shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
                                  MetaMultiTextureFormat *multi_format_out,
-                                 CoglPixelFormat        *format_out,
+                                 CoglPixelFormat        *cogl_format_out,
                                  CoglTextureComponents  *components_out)
 {
   MetaMultiTextureFormat multi_format = META_MULTI_TEXTURE_FORMAT_SIMPLE;
@@ -210,7 +210,7 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
       break;
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_RGB565:
-      format = COGL_PIXEL_FORMAT_RGB_565;
+      cogl_format = COGL_PIXEL_FORMAT_RGB_565;
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
     case WL_SHM_FORMAT_ARGB8888:
@@ -224,25 +224,25 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
       components = COGL_TEXTURE_COMPONENTS_RGB;
       G_GNUC_FALLTHROUGH;
     case WL_SHM_FORMAT_ARGB2101010:
-      format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
+      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
       break;
     case WL_SHM_FORMAT_XBGR2101010:
       components = COGL_TEXTURE_COMPONENTS_RGB;
       G_GNUC_FALLTHROUGH;
     case WL_SHM_FORMAT_ABGR2101010:
-      format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
+      cogl_format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
       break;
     case WL_SHM_FORMAT_XRGB16161616F:
       components = COGL_TEXTURE_COMPONENTS_RGB;
       G_GNUC_FALLTHROUGH;
     case WL_SHM_FORMAT_ARGB16161616F:
-      format = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
+      cogl_format = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
       break;
     case WL_SHM_FORMAT_XBGR16161616F:
       components = COGL_TEXTURE_COMPONENTS_RGB;
       G_GNUC_FALLTHROUGH;
     case WL_SHM_FORMAT_ABGR16161616F:
-      format = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
+      cogl_format = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
       break;
 #endif
     case WL_SHM_FORMAT_NV12:
@@ -329,6 +329,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   int stride, width, height;
   MetaMultiTextureFormat multi_format;
   CoglTextureComponents components;
+  MetaDrmFormatBuf format_buf;
   uint8_t h_factors[3], v_factors[3], bpp[3];
   CoglPixelFormat subformats[3];
   guint i, n_planes;
@@ -350,11 +351,13 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
     }
 
   meta_topic (META_DEBUG_WAYLAND,
-              "[wl-shm] wl_buffer@%u wl_shm_format %s -> CoglPixelFormat %s",
+              "[wl-shm] wl_buffer@%u wl_shm_format %s -> MetaMultiTextureFormat %s",
               wl_resource_get_id (meta_wayland_buffer_get_resource (buffer)),
               shm_format_to_string (&format_buf,
                                     wl_shm_buffer_get_format (shm_buffer)),
-              cogl_pixel_format_to_string (format));
+			  /* XXX implement this */
+              /* meta_multi_texture_format_to_string (format)); */
+              "(some format)");
 
   /* Fetch some properties from the pixel format */
   n_planes = meta_multi_texture_format_get_n_planes (multi_format);
@@ -728,10 +731,6 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
 
-  shm_buffer_get_cogl_pixel_format (shm_buffer, &multi_format, &cogl_format, NULL);
-  g_return_val_if_fail (multi_format == META_MULTI_TEXTURE_FORMAT_SIMPLE, FALSE);
-  cogl_texture = meta_multi_texture_get_plane (texture, 0);
-
   /* Get the data */
   wl_shm_buffer_begin_access (shm_buffer);
   data = wl_shm_buffer_get_data (shm_buffer);
@@ -739,7 +738,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
   /* Query the necessary properties */
   stride = wl_shm_buffer_get_stride (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
-  shm_buffer_get_format (shm_buffer, &multi_format, &subformats[0], &components);
+  shm_buffer_get_cogl_pixel_format (shm_buffer, &multi_format, &subformats[0], &components);
 
   /* Fetch some properties from the pixel format */
   n_planes = meta_multi_texture_format_get_n_planes (multi_format);
@@ -1001,7 +1000,8 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
     {
       CoglPixelFormat cogl_format;
 
-      if (!shm_format_to_cogl_pixel_format (shm_formats[i],
+	  if (!shm_format_to_cogl_pixel_format (shm_formats[i],
+                                            NULL,
                                             &cogl_format,
                                             NULL))
         continue;
