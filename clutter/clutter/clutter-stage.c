@@ -1359,7 +1359,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
                           P_("Perspective"),
                           P_("Perspective projection parameters"),
                           CLUTTER_TYPE_PERSPECTIVE,
-                          CLUTTER_PARAM_READABLE);
+                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterStage:title:
@@ -1373,7 +1374,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("Title"),
                            P_("Stage Title"),
                            NULL,
-                           CLUTTER_PARAM_READWRITE);
+                           CLUTTER_PARAM_READWRITE |
+                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterStage:key-focus:
@@ -1390,7 +1392,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("Key Focus"),
                            P_("The currently key focused actor"),
                            CLUTTER_TYPE_ACTOR,
-                           CLUTTER_PARAM_READWRITE);
+                           CLUTTER_PARAM_READWRITE |
+                           G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 

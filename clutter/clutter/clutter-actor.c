@@ -5959,6 +5959,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -5978,6 +5979,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6000,6 +6002,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6019,6 +6022,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6038,6 +6042,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6059,6 +6064,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         GRAPHENE_TYPE_SIZE,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6077,7 +6083,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("Forced X position of the actor"),
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:fixed-y:
@@ -6095,7 +6102,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("Forced Y position of the actor"),
                         -G_MAXFLOAT, G_MAXFLOAT,
                         0,
-                        CLUTTER_PARAM_READWRITE);
+                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:fixed-position-set:
@@ -6110,7 +6118,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Fixed position set"),
                           P_("Whether to use fixed positioning for the actor"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:min-width:
@@ -6130,7 +6139,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("Forced minimum width request for the actor"),
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:min-height:
@@ -6149,7 +6159,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("Forced minimum height request for the actor"),
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:natural-width:
@@ -6168,7 +6179,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("Forced natural width request for the actor"),
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:natural-height:
@@ -6187,7 +6199,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("Forced natural height request for the actor"),
                         0.0, G_MAXFLOAT,
                         0.0,
-                        CLUTTER_PARAM_READWRITE);
+                        CLUTTER_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:min-width-set:
@@ -6202,7 +6215,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Minimum width set"),
                           P_("Whether to use the min-width property"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:min-height-set:
@@ -6217,7 +6231,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Minimum height set"),
                           P_("Whether to use the min-height property"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:natural-width-set:
@@ -6232,7 +6247,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Natural width set"),
                           P_("Whether to use the natural-width property"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:natural-height-set:
@@ -6247,7 +6263,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Natural height set"),
                           P_("Whether to use the natural-height property"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:allocation:
@@ -6266,6 +6283,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         CLUTTER_TYPE_ACTOR_BOX,
                         G_PARAM_READABLE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6333,7 +6351,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("The actor's request mode"),
                        CLUTTER_TYPE_REQUEST_MODE,
                        CLUTTER_REQUEST_HEIGHT_FOR_WIDTH,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:z-position:
@@ -6360,6 +6379,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0f,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6378,6 +6398,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        255,
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS |
+                       G_PARAM_EXPLICIT_NOTIFY |
                        CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6411,7 +6432,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Visible"),
                           P_("Whether the actor is visible or not"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:mapped:
@@ -6426,7 +6448,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Mapped"),
                           P_("Whether the actor will be painted"),
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:realized:
@@ -6440,7 +6463,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Realized"),
                           P_("Whether the actor has been realized"),
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:reactive:
@@ -6456,7 +6480,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Reactive"),
                           P_("Whether the actor is reactive to events"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:has-clip:
@@ -6468,7 +6493,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Has Clip"),
                           P_("Whether the actor has a clip set"),
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:clip-rect:
@@ -6489,7 +6515,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         P_("The visible region of the actor"),
                         GRAPHENE_TYPE_RECT,
                         G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS);
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:name:
@@ -6503,7 +6530,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Name"),
                          P_("Name of the actor"),
                          NULL,
-                         CLUTTER_PARAM_READWRITE);
+                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:pivot-point:
@@ -6527,6 +6555,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6547,6 +6576,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.f,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6566,6 +6596,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          1.0,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY |
                          CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6585,6 +6616,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          1.0,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY |
                          CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6604,6 +6636,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          1.0,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY |
                          CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6623,6 +6656,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          0.0,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY |
                          CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6642,6 +6676,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          0.0,
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY |
                          CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6681,6 +6716,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.f,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6701,6 +6737,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.f,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6721,6 +6758,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.f,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6751,6 +6789,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         GRAPHENE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6766,7 +6805,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Whether the transform property is set"),
                           FALSE,
                           G_PARAM_READABLE |
-                          G_PARAM_STATIC_STRINGS);
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:child-transform:
@@ -6789,6 +6829,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         GRAPHENE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -6804,7 +6845,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Whether the child-transform property is set"),
                           FALSE,
                           G_PARAM_READABLE |
-                          G_PARAM_STATIC_STRINGS);
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:show-on-set-parent:
@@ -6839,7 +6881,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Clip to Allocation"),
                           P_("Sets the clip region to track the actor's allocation"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:text-direction:
@@ -6854,7 +6897,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("Direction of the text"),
                        CLUTTER_TYPE_TEXT_DIRECTION,
                        CLUTTER_TEXT_DIRECTION_LTR,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:has-pointer:
@@ -6869,7 +6913,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Has Pointer"),
                           P_("Whether the actor contains the pointer of an input device"),
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:actions:
@@ -6883,7 +6928,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Actions"),
                          P_("Adds an action to the actor"),
                          CLUTTER_TYPE_ACTION,
-                         CLUTTER_PARAM_WRITABLE);
+                         CLUTTER_PARAM_WRITABLE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:constraints:
@@ -6897,7 +6943,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Constraints"),
                          P_("Adds a constraint to the actor"),
                          CLUTTER_TYPE_CONSTRAINT,
-                         CLUTTER_PARAM_WRITABLE);
+                         CLUTTER_PARAM_WRITABLE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:effect:
@@ -6911,7 +6958,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Effect"),
                          P_("Add an effect to be applied on the actor"),
                          CLUTTER_TYPE_EFFECT,
-                         CLUTTER_PARAM_WRITABLE);
+                         CLUTTER_PARAM_WRITABLE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:layout-manager:
@@ -6926,7 +6974,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Layout Manager"),
                          P_("The object controlling the layout of an actor's children"),
                          CLUTTER_TYPE_LAYOUT_MANAGER,
-                         CLUTTER_PARAM_READWRITE);
+                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:x-expand:
@@ -6942,7 +6991,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Whether extra horizontal space should be assigned to the actor"),
                           FALSE,
                           G_PARAM_READWRITE |
-                          G_PARAM_STATIC_STRINGS);
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:y-expand:
@@ -6958,7 +7008,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Whether extra vertical space should be assigned to the actor"),
                           FALSE,
                           G_PARAM_READWRITE |
-                          G_PARAM_STATIC_STRINGS);
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:x-align:
@@ -6975,7 +7026,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("The alignment of the actor on the X axis within its allocation"),
                        CLUTTER_TYPE_ACTOR_ALIGN,
                        CLUTTER_ACTOR_ALIGN_FILL,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:y-align:
@@ -6991,7 +7043,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("The alignment of the actor on the Y axis within its allocation"),
                        CLUTTER_TYPE_ACTOR_ALIGN,
                        CLUTTER_ACTOR_ALIGN_FILL,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:margin-top:
@@ -7013,6 +7066,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -7035,6 +7089,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -7057,6 +7112,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -7079,6 +7135,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -7093,7 +7150,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Background Color Set"),
                           P_("Whether the background color is set"),
                           FALSE,
-                          CLUTTER_PARAM_READABLE);
+                          CLUTTER_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:background-color:
@@ -7112,6 +7170,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                               CLUTTER_COLOR_Transparent,
                               G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS |
+                              G_PARAM_EXPLICIT_NOTIFY |
                               CLUTTER_PARAM_ANIMATABLE);
 
   /**
@@ -7126,7 +7185,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("First Child"),
                          P_("The actor's first child"),
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READABLE);
+                         CLUTTER_PARAM_READABLE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:last-child:
@@ -7140,7 +7200,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Last Child"),
                          P_("The actor's last child"),
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READABLE);
+                         CLUTTER_PARAM_READABLE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:content:
@@ -7155,7 +7216,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Content"),
                          P_("Delegate object for painting the actor's content"),
                          CLUTTER_TYPE_CONTENT,
-                         CLUTTER_PARAM_READWRITE);
+                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:content-gravity:
@@ -7182,7 +7244,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("Alignment of the actor's content"),
                        CLUTTER_TYPE_CONTENT_GRAVITY,
                        CLUTTER_CONTENT_GRAVITY_RESIZE_FILL,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:content-box:
@@ -7204,6 +7267,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         CLUTTER_TYPE_ACTOR_BOX,
                         G_PARAM_READABLE |
                         G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY |
                         CLUTTER_PARAM_ANIMATABLE);
 
   obj_props[PROP_MINIFICATION_FILTER] =
@@ -7212,7 +7276,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("The filter used when reducing the size of the content"),
                        CLUTTER_TYPE_SCALING_FILTER,
                        CLUTTER_SCALING_FILTER_LINEAR,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   obj_props[PROP_MAGNIFICATION_FILTER] =
     g_param_spec_enum ("magnification-filter",
@@ -7220,7 +7285,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        P_("The filter used when increasing the size of the content"),
                        CLUTTER_TYPE_SCALING_FILTER,
                        CLUTTER_SCALING_FILTER_LINEAR,
-                       CLUTTER_PARAM_READWRITE);
+                       CLUTTER_PARAM_READWRITE |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:content-repeat:
@@ -7236,7 +7302,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         CLUTTER_TYPE_CONTENT_REPEAT,
                         CLUTTER_REPEAT_NONE,
                         G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS);
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
