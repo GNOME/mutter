@@ -3333,7 +3333,8 @@ meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat,
   g_return_if_fail (META_IS_SEAT_IMPL (seat));
 
   task = g_task_new (seat, NULL, NULL, NULL);
-  g_task_set_task_data (task, g_object_ref (constraint_impl), g_object_unref);
+  if (constraint_impl)
+    g_task_set_task_data (task, g_object_ref (constraint_impl), g_object_unref);
   meta_seat_impl_run_input_task (seat, task,
                                  (GSourceFunc) set_pointer_constraint);
   g_object_unref (task);
