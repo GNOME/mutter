@@ -281,6 +281,14 @@ meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager
 
   if (!config)
     {
+      if (!manager->in_init)
+        {
+          MetaBackend *backend = meta_get_backend ();
+          MetaRenderer *renderer = meta_backend_get_renderer (backend);
+
+          meta_renderer_native_reset_modes (META_RENDERER_NATIVE (renderer));
+        }
+
       manager->screen_width = META_MONITOR_MANAGER_MIN_SCREEN_WIDTH;
       manager->screen_height = META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT;
       meta_monitor_manager_rebuild (manager, NULL);
