@@ -55,4 +55,6 @@ void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
 
 int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
 
+void meta_renderer_native_reset_modes (MetaRendererNative *renderer_native);
+
 #endif /* META_RENDERER_NATIVE_H */

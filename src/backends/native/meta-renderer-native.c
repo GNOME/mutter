@@ -3802,6 +3802,21 @@ on_power_save_mode_changed (MetaMonitorManager *monitor_manager,
     meta_kms_discard_pending_page_flips (kms);
 }
 
+void
+meta_renderer_native_reset_modes (MetaRendererNative *renderer_native)
+{
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsUpdate *kms_update;
+
+  kms_update = unset_disabled_crtcs (backend, kms);
+
+  if (kms_update)
+    post_pending_update (kms);
+}
+
 static MetaGpuKms *
 choose_primary_gpu_unchecked (MetaBackend        *backend,
                               MetaRendererNative *renderer_native)
