@@ -2012,6 +2012,48 @@ retry:
     }
 }
 
+static MetaKmsUpdate *
+unset_disabled_crtcs (MetaBackend *backend,
+                      MetaKms     *kms)
+{
+  MetaKmsUpdate *kms_update = NULL;
+  GList *l;
+
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+      GList *k;
+
+      for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
+        {
+          MetaCrtc *crtc = k->data;
+
+          if (crtc->config)
+            continue;
+
+          kms_update = meta_kms_ensure_pending_update (kms);
+          meta_crtc_kms_set_mode (crtc, kms_update);
+        }
+    }
+
+  return kms_update;
+}
+
+static void
+post_pending_update (MetaKms *kms)
+{
+  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+
+  kms_feedback = meta_kms_post_pending_update_sync (kms);
+  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
+    {
+      const GError *error = meta_kms_feedback_get_error (kms_feedback);
+
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+        g_warning ("Failed to post KMS update: %s", error->message);
+    }
+}
+
 static void
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                                const int    *rectangles,
@@ -2120,14 +2162,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   COGL_TRACE_BEGIN (MetaRendererNativePostKmsUpdate,
                     "Onscreen (post pending update)");
-  kms_feedback = meta_kms_post_pending_update_sync (kms);
-  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
-    {
-      const GError *error = meta_kms_feedback_get_error (kms_feedback);
-
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        g_warning ("Failed to post KMS update: %s", error->message);
-    }
+  post_pending_update (kms);
   COGL_TRACE_END (MetaRendererNativePostKmsUpdate);
 }
 
@@ -3180,41 +3215,12 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
 
   if (renderer_native->pending_unset_disabled_crtcs)
     {
-      GList *l;
-
-      for (l = meta_backend_get_gpus (backend); l; l = l->next)
-        {
-          MetaGpu *gpu = l->data;
-          GList *k;
-
-          for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
-            {
-              MetaCrtc *crtc = k->data;
-
-              if (crtc->config)
-                continue;
-
-              kms_update = meta_kms_ensure_pending_update (kms);
-              meta_crtc_kms_set_mode (crtc, kms_update);
-            }
-        }
-
+      kms_update = unset_disabled_crtcs (backend, kms);
       renderer_native->pending_unset_disabled_crtcs = FALSE;
     }
 
   if (kms_update)
-    {
-      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-
-      kms_feedback = meta_kms_post_pending_update_sync (kms);
-      if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
-        {
-          const GError *error = meta_kms_feedback_get_error (kms_feedback);
-
-          if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-            g_warning ("Failed to post KMS update: %s", error->message);
-        }
-    }
+    post_pending_update (kms);
 }
 
 int64_t
