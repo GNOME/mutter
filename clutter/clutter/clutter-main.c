@@ -1608,6 +1608,11 @@ clutter_stage_update_device (ClutterStage         *stage,
   old_actor = clutter_stage_get_device_actor (stage, device, sequence);
   device_actor_changed = new_actor != old_actor;
 
+  clutter_stage_update_device_entry (stage,
+                                     device, sequence,
+                                     point,
+                                     new_actor);
+
   if (device_actor_changed)
     {
       CLUTTER_NOTE (EVENT,
@@ -1625,15 +1630,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                                  old_actor, new_actor,
                                  point, time);
         }
-    }
 
-  clutter_stage_update_device_entry (stage,
-                                     device, sequence,
-                                     point,
-                                     new_actor);
-
-  if (device_actor_changed)
-    {
       if (new_actor && emit_crossing)
         {
           create_crossing_event (stage,
