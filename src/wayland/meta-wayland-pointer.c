@@ -581,17 +581,13 @@ static void
 repick_for_event (MetaWaylandPointer *pointer,
                   const ClutterEvent *for_event)
 {
-  MetaBackend *backend = meta_get_backend ();
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterActor *actor;
   MetaWaylandSurface *surface;
 
-  if (for_event && clutter_event_type (for_event) == CLUTTER_LEAVE)
+  if (clutter_event_type (for_event) == CLUTTER_LEAVE)
     actor = clutter_event_get_related (for_event);
-  else if (for_event)
-    actor = clutter_event_get_source (for_event);
   else
-    actor = clutter_stage_get_device_actor (stage, pointer->device, NULL);
+    actor = clutter_event_get_source (for_event);
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
     {
@@ -1031,9 +1027,7 @@ meta_wayland_pointer_repick (MetaWaylandPointer *pointer)
                                point,
                                CLUTTER_CURRENT_TIME,
                                new_actor,
-                               FALSE);
-
-  repick_for_event (pointer, NULL);
+                               TRUE);
 }
 
 void
