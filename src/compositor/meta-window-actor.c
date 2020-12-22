@@ -659,16 +659,24 @@ meta_window_actor_after_effects (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
+  ClutterStage *stage;
+  ClutterSeat *seat;
+
+  stage = CLUTTER_STAGE (clutter_actor_get_stage (CLUTTER_ACTOR (self)));
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
 
   if (priv->needs_destroy)
     {
       clutter_actor_destroy (CLUTTER_ACTOR (self));
-      return;
+    }
+  else
+    {
+      g_signal_emit (self, signals[EFFECTS_COMPLETED], 0);
+      meta_window_actor_sync_visibility (self);
+      meta_window_actor_sync_actor_geometry (self, FALSE);
     }
 
-  g_signal_emit (self, signals[EFFECTS_COMPLETED], 0);
-  meta_window_actor_sync_visibility (self);
-  meta_window_actor_sync_actor_geometry (self, FALSE);
+  clutter_stage_repick_device (stage, clutter_seat_get_pointer (seat));
 }
 
 void

@@ -44,7 +44,6 @@ struct _MetaXwaylandSurface
   MetaWindow *window;
 
   gulong unmanaging_handler_id;
-  gulong effects_completed_handler_id;
 };
 
 G_DEFINE_TYPE (MetaXwaylandSurface,
@@ -58,7 +57,6 @@ clear_window (MetaXwaylandSurface *xwayland_surface)
     META_WAYLAND_SURFACE_ROLE (xwayland_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  MetaWindowActor *window_actor;
   MetaSurfaceActor *surface_actor;
 
   if (!xwayland_surface->window)
@@ -66,10 +64,6 @@ clear_window (MetaXwaylandSurface *xwayland_surface)
 
   g_clear_signal_handler (&xwayland_surface->unmanaging_handler_id,
                           xwayland_surface->window);
-
-  window_actor = meta_window_actor_from_window (xwayland_surface->window);
-  g_clear_signal_handler (&xwayland_surface->effects_completed_handler_id,
-                          window_actor);
 
   xwayland_surface->window->surface = NULL;
   xwayland_surface->window = NULL;
@@ -86,13 +80,6 @@ window_unmanaging (MetaWindow          *window,
                    MetaXwaylandSurface *xwayland_surface)
 {
   clear_window (xwayland_surface);
-}
-
-static void
-window_actor_effects_completed (MetaWindowActor    *window_actor,
-                                MetaWaylandSurface *surface)
-{
-  meta_wayland_compositor_repick (surface->compositor);
 }
 
 void
@@ -131,11 +118,6 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
                       "unmanaging",
                       G_CALLBACK (window_unmanaging),
                       xwayland_surface);
-  xwayland_surface->effects_completed_handler_id =
-    g_signal_connect (meta_window_actor_from_window (window),
-                      "effects-completed",
-                      G_CALLBACK (window_actor_effects_completed),
-                      surface);
 
   g_signal_emit (xwayland_surface, signals[WINDOW_ASSOCIATED], 0);
 
