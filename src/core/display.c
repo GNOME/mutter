@@ -1366,6 +1366,8 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaWindow *focus_window = NULL;
   MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
   gboolean is_no_focus_xwindow = FALSE;
 
@@ -1385,7 +1387,8 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
   meta_stage_set_active (stage, focus_window == NULL);
   meta_wayland_compositor_set_input_focus (compositor, focus_window);
 
-  meta_wayland_seat_repick (compositor->seat);
+  clutter_stage_repick_device (CLUTTER_STAGE (stage),
+                               clutter_seat_get_pointer (seat));
 #endif
 }
 
