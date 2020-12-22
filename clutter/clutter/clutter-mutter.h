@@ -89,6 +89,9 @@ void clutter_stage_get_device_coords (ClutterStage         *stage,
                                       ClutterInputDevice   *device,
                                       ClutterEventSequence *sequence,
                                       graphene_point_t     *coords);
+CLUTTER_EXPORT
+void clutter_stage_repick_device (ClutterStage       *stage,
+                                  ClutterInputDevice *device);
 
 #undef __CLUTTER_H_INSIDE__
 

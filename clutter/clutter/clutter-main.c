@@ -1642,6 +1642,26 @@ clutter_stage_update_device (ClutterStage         *stage,
     }
 }
 
+void
+clutter_stage_repick_device (ClutterStage       *stage,
+                             ClutterInputDevice *device)
+{
+  graphene_point_t point;
+  ClutterActor *new_actor;
+
+  clutter_stage_get_device_coords (stage, device, NULL, &point);
+  new_actor =
+    clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_REACTIVE,
+                                    point.x, point.y);
+
+  clutter_stage_update_device (stage,
+                               device, NULL,
+                               point,
+                               CLUTTER_CURRENT_TIME,
+                               new_actor,
+                               TRUE);
+}
+
 static ClutterActor *
 update_device_for_event (ClutterStage *stage,
                          ClutterEvent *event,
