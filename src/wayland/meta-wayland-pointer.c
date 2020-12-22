@@ -586,7 +586,9 @@ repick_for_event (MetaWaylandPointer *pointer,
   ClutterActor *actor;
   MetaWaylandSurface *surface;
 
-  if (for_event)
+  if (for_event && clutter_event_type (for_event) == CLUTTER_LEAVE)
+    actor = clutter_event_get_related (for_event);
+  else if (for_event)
     actor = clutter_event_get_source (for_event);
   else
     actor = clutter_stage_get_device_actor (stage, pointer->device, NULL);
