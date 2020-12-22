@@ -433,15 +433,6 @@ meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
 }
 
 void
-meta_wayland_seat_repick (MetaWaylandSeat *seat)
-{
-  if (!meta_wayland_seat_has_pointer (seat))
-    return;
-
-  meta_wayland_pointer_repick (seat->pointer);
-}
-
-void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {

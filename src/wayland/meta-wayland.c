@@ -131,12 +131,6 @@ meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
   meta_wayland_seat_set_input_focus (compositor->seat, surface);
 }
 
-void
-meta_wayland_compositor_repick (MetaWaylandCompositor *compositor)
-{
-  meta_wayland_seat_repick (compositor->seat);
-}
-
 static void
 wl_compositor_create_surface (struct wl_client   *client,
                               struct wl_resource *resource,

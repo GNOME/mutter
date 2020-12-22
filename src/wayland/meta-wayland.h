@@ -55,8 +55,6 @@ void                    meta_wayland_compositor_update_key_state (MetaWaylandCom
                                                                   int                    key_vector_len,
                                                                   int                    offset);
 
-void                    meta_wayland_compositor_repick          (MetaWaylandCompositor *compositor);
-
 void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
                                                                  MetaWindow            *window);
 

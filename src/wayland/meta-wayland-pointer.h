@@ -124,8 +124,6 @@ MetaWaylandPopup *meta_wayland_pointer_start_popup_grab (MetaWaylandPointer     
 
 void meta_wayland_pointer_end_popup_grab (MetaWaylandPointer *pointer);
 
-void meta_wayland_pointer_repick (MetaWaylandPointer *pointer);
-
 void meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
                                                     MetaWaylandSurface *surface,
                                                     wl_fixed_t         *x,

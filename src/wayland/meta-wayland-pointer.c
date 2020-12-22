@@ -1009,28 +1009,6 @@ meta_wayland_pointer_start_popup_grab (MetaWaylandPointer      *pointer,
 }
 
 void
-meta_wayland_pointer_repick (MetaWaylandPointer *pointer)
-{
-  MetaBackend *backend = meta_get_backend ();
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-
-  graphene_point_t point;
-  ClutterActor *new_actor;
-
-  clutter_stage_get_device_coords (stage, pointer->device, NULL, &point);
-  new_actor =
-    clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_REACTIVE,
-                                    point.x, point.y);
-
-  clutter_stage_update_device (stage,
-                               pointer->device, NULL,
-                               point,
-                               CLUTTER_CURRENT_TIME,
-                               new_actor,
-                               TRUE);
-}
-
-void
 meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 					       MetaWaylandSurface *surface,
 					       wl_fixed_t         *sx,
