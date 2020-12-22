@@ -1368,8 +1368,6 @@ wl_surface_destructor (struct wl_resource *resource)
   g_hash_table_destroy (surface->shortcut_inhibited_seats);
 
   g_object_unref (surface);
-
-  meta_wayland_compositor_repick (compositor);
 }
 
 MetaWaylandSurface *
