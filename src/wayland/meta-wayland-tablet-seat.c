@@ -32,10 +32,6 @@
 #include "wayland/meta-wayland-tablet-tool.h"
 #include "wayland/meta-wayland-tablet.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-backend-native.h"
-#endif
-
 #include "tablet-unstable-v2-server-protocol.h"
 
 static void

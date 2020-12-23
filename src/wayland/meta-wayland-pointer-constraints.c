@@ -44,10 +44,6 @@
 
 #include "pointer-constraints-unstable-v1-server-protocol.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-backend-native.h"
-#endif
-
 static GQuark quark_pending_constraint_state = 0;
 static GQuark quark_surface_pointer_constraints_data = 0;
 
