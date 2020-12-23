@@ -625,12 +625,15 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
                                                   frame->right_width);
       actual_height = window->buffer_rect.height - (frame->child_y +
                                                     frame->bottom_height);
-      cairo_region_intersect_rectangle (region, &(cairo_rectangle_int_t) {
-                                          .x = frame->child_x,
-                                          .y = frame->child_y,
-                                          .width = actual_width,
-                                          .height = actual_height
-                                        });
+      if (actual_width > 0 && actual_height > 0)
+        {
+          cairo_region_intersect_rectangle (region, &(cairo_rectangle_int_t) {
+                                              .x = frame->child_x,
+                                              .y = frame->child_y,
+                                              .width = actual_width,
+                                              .height = actual_height
+                                            });
+        }
     }
 
   return region;
