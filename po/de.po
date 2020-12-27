@@ -13,9 +13,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-09-09 13:46+0000\n"
-"PO-Revision-Date: 2020-09-09 19:09+0200\n"
-"Last-Translator: Tim Sabsch <tim@sabsch.com>\n"
+"POT-Creation-Date: 2020-11-28 21:49+0000\n"
+"PO-Revision-Date: 2020-12-13 18:55+0100\n"
+"Last-Translator: Philipp Kiemle <philipp.kiemle@gmail.com>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -243,11 +243,11 @@ msgstr "Fenster vertikal maximieren"
 msgid "Maximize window horizontally"
 msgstr "Fenster horizontal maximieren"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Ansicht links teilen"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Ansicht rechts teilen"
 
@@ -409,37 +409,43 @@ msgid ""
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
 "must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
+"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
+"already enabled by default when using the i915 driver, but disabled for "
+"everything else. Requires a restart."
 msgstr ""
-"Um experimentelle Funktionsmerkmale zu aktivieren, fügen Sie das "
-"entsprechende Schlüsselwort zur Liste hinzu. Möglicherweise muss der "
-"Compositor neu gestartet werden, um es zu aktivieren, dies ist vom "
-"Funktionsmerkmal abhängig. Für diese experimentellen Funktionsmerkmale gilt, "
-"dass sie nicht unbedingt dauerhaft verfügbar sein werden, oder Einstellungen "
-"möglich sind. Derzeit mögliche Schlüsselwörter: • »scale-monitor-"
-"framebuffer« – weist Mutter an, in der Voreinstellung logische Bildschirme "
-"in einem logischen Pixel-Koordinatensystem anzuordnen, wobei die Bildschirm-"
-"Framebuffer anstelle der Fensterinhalte skaliert werden, um HiDPI-"
-"Bildschirme besser versorgen zu können. Dafür ist kein Neustart "
-"erforderlich. • »rt-scheduler« – weist Mutter an, ein Echtzeit-Scheduling "
-"mit niedriger Priorität anzufordern. Dafür muss der Anwendung oder dem "
-"Benutzer »CAP_SYS_NICE« zur Verfügung stehen. Hierfür ist ein Neustart "
-"erforderlich. • “autostart-xwayland” – startet Xwayland, wenn X11-"
-"Anwendungen vorhanden sind. Hierfür ist ein Neustart erforderlich."
+"Um experimentelle Funktionen zu aktivieren, fügen Sie das entsprechende "
+"Schlüsselwort zur Liste hinzu. Möglicherweise muss zur Aktivierung der "
+"Compositor neu gestartet werden, um es zu aktivieren, dies ist von der "
+"Funktion abhängig. Für diese experimentellen Funktionsmerkmale gilt, dass "
+"sie nicht unbedingt dauerhaft verfügbar sein werden, oder Einstellungen "
+"möglich sind. Gehen Sie nicht davon aus, dass diese Funktionen auch in "
+"Zukunft funktionieren werden. Derzeit mögliche Schlüsselwörter: • »scale-"
+"monitor-framebuffer« — weist Mutter an, in der Voreinstellung logische "
+"Bildschirme in einem logischen Pixel-Koordinatensystem anzuordnen, wobei die "
+"Bildschirm-Framebuffer anstelle der Fensterinhalte skaliert werden, um HiDPI-"
+"Bildschirme besser versorgen zu können. Erfordert keinen Neustart. • »rt-"
+"scheduler« — weist Mutter an, ein Echtzeit-Scheduling mit niedriger "
+"Priorität anzufordern. Dafür muss der Anwendung oder dem Benutzer "
+"»CAP_SYS_NICE« zur Verfügung stehen. Erfordert einen Neustart. • “autostart-"
+"xwayland” — startet Xwayland, wenn X11-Anwendungen vorhanden sind. Erfordert "
+"einen Neustart. • »dma-buf-screen-sharing« — ermöglicht Teilen des "
+"Bildschirms mittels DMA-Pufferung. Wenn der i915-Treiber genutzt wird, ist "
+"dies bereits aktiv, andernfalls nicht. Erfordert einen Neustart."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Zusatztaste zum Finden des Zeigers"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Diese Taste wird die Aktion »Zeiger finden« auslösen."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Reaktionsschwellwert bei Kontaktkontrolle"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -448,20 +454,20 @@ msgstr ""
 "Kontaktkontrolle antworten muss, um nicht als abgestürzt zu gelten. »0« "
 "bedeutet, dass die Kontaktkontrolle ausgeschaltet wird."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Select window from tab popup"
 msgstr "Fenster aus Tab-Anzeige auswählen"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Cancel tab popup"
 msgstr "Tab-Anzeige abbrechen"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:184
 msgid "Switch monitor configurations"
 msgstr "Bildschirmkonfigurationen wechseln"
 
 # Ich denke nicht, dass »rotate« hier die Bildschirmdrehung meint, sondern eher eine Liste aus Konfigurationen rotiert (d.h. umgewälzt) wird.
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:189
 msgid "Rotates the built-in monitor configuration"
 msgstr "Wechselt die Konfiguration des eingebauten Bildschirms"
 
@@ -595,25 +601,6 @@ msgstr ""
 "die ausgewählten X-Erweiterungen gebaut wurde. Damit diese Einstellung "
 "wirksam werden kann, muss Xwayland neu gestartet werden."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2702
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Moduswechsel (Gruppe %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2725
-msgid "Switch monitor"
-msgstr "Bildschirm wechseln"
-
-#: src/backends/meta-input-settings.c:2727
-msgid "Show on-screen help"
-msgstr "Bildschirmhilfe anzeigen"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Eingebaute Anzeige"
@@ -661,47 +648,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Klangereignis"
 
-#: src/core/main.c:190
+#: src/core/main.c:215
 msgid "Disable connection to session manager"
 msgstr "Verbindung zur Sitzungsverwaltung deaktivieren"
 
-#: src/core/main.c:196
+#: src/core/main.c:221
 msgid "Replace the running window manager"
 msgstr "Den aktuellen Fensterverwalter ersetzen"
 
-#: src/core/main.c:202
+#: src/core/main.c:227
 msgid "Specify session management ID"
 msgstr "Kennung der Sitzungsverwaltung angeben"
 
-#: src/core/main.c:207
+#: src/core/main.c:232
 msgid "X Display to use"
 msgstr "Zu verwendende X-Anzeige"
 
-#: src/core/main.c:213
+#: src/core/main.c:238
 msgid "Initialize session from savefile"
 msgstr "Sitzung anhand gespeicherter Datei starten"
 
-#: src/core/main.c:219
+#: src/core/main.c:244
 msgid "Make X calls synchronous"
 msgstr "X-Aufrufe abgleichen"
 
-#: src/core/main.c:226
+#: src/core/main.c:251
 msgid "Run as a wayland compositor"
 msgstr "Als Wayland-Compositor ausführen"
 
-#: src/core/main.c:232
+#: src/core/main.c:257
 msgid "Run as a nested compositor"
 msgstr "Als eingebetteten Compositor ausführen"
 
-#: src/core/main.c:238
+#: src/core/main.c:263
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland-Compositor ausführen, ohne Xwayland zu starten"
 
-#: src/core/main.c:246
+#: src/core/main.c:269
+msgid "Specify Wayland display name to use"
+msgstr "Name der Wayland-Anzeige festlegen"
+
+#: src/core/main.c:277
 msgid "Run as a full display server, rather than nested"
 msgstr "Als vollwertigen Display-Server verwenden (nicht eingebettet)"
 
-#: src/core/main.c:252
+#: src/core/main.c:283
 msgid "Run with X11 backend"
 msgstr "Mit X11-Backend ausführen"
 
@@ -731,6 +722,25 @@ msgstr "_Beenden erzwingen"
 msgid "_Wait"
 msgstr "_Warten"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Moduswechsel (Gruppe %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Bildschirm wechseln"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Bildschirmhilfe anzeigen"
+
 # CHECK
 # c-format
 #: src/core/mutter.c:38
@@ -757,16 +767,16 @@ msgstr "Version ausgeben"
 msgid "Mutter plugin to use"
 msgstr "Zu benutzendes Mutter-Plugin"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbeitsfläche %d"
 
-#: src/core/util.c:118
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter wurde ohne Unterstützung für den redseligen Modus kompiliert\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter wurde ohne Unterstützung für den ausführlichen Modus kompiliert"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Moduswechsel: Modus %d"
@@ -781,25 +791,25 @@ msgstr ""
 "»--replace«, um den aktuellen Fensterverwalter zu ersetzen."
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "GDK konnte nicht initialisiert werden\n"
+msgid "Failed to initialize GDK"
+msgstr "GDK konnte nicht initialisiert werden"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "X-Window-Systemanzeige »%s« konnte nicht geöffnet werden\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "X-Window-Systemanzeige »%s« konnte nicht geöffnet werden"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Bildschirm %d auf Anzeige »%s« ist ungültig\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Bildschirm %d auf Anzeige »%s« ist ungültig"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s wird nicht unterstützt"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
