@@ -189,6 +189,7 @@ mapper_input_info_new (ClutterInputDevice *device,
 static void
 mapper_input_info_free (MetaMapperInputInfo *info)
 {
+  g_signal_handlers_disconnect_by_func (info->settings, settings_output_changed_cb, info);
   g_object_unref (info->settings);
   g_free (info);
 }
