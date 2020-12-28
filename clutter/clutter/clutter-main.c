@@ -1394,26 +1394,13 @@ event_click_count_generate (ClutterEvent *event)
 static inline void
 emit_event_chain (ClutterEvent *event)
 {
-  static gboolean lock = FALSE;
-
   if (event->any.source == NULL)
     {
       CLUTTER_NOTE (EVENT, "No source set, discarding event");
       return;
     }
 
-  /* reentrancy check */
-  if (lock != FALSE)
-    {
-      g_warning ("Tried emitting event during event delivery, bailing out.");
-      return;
-    }
-
-  lock = TRUE;
-
   _clutter_actor_handle_event (event->any.source, event);
-
-  lock = FALSE;
 }
 
 /*
