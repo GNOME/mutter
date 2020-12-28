@@ -611,8 +611,9 @@ void
 meta_wayland_pointer_update (MetaWaylandPointer *pointer,
                              const ClutterEvent *event)
 {
-  if (event->type == CLUTTER_ENTER ||
-      event->type == CLUTTER_LEAVE)
+  if ((event->type == CLUTTER_ENTER ||
+       event->type == CLUTTER_LEAVE) &&
+      !clutter_event_get_event_sequence (event))
     repick_for_event (pointer, event);
 
   if (event->type == CLUTTER_MOTION ||
