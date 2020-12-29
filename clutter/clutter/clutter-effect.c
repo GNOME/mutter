@@ -201,10 +201,8 @@ clutter_effect_real_modify_paint_volume (ClutterEffect      *effect,
 }
 
 static void
-clutter_effect_real_paint_node (ClutterEffect           *effect,
-                                ClutterPaintNode        *node,
-                                ClutterPaintContext     *paint_context,
-                                ClutterEffectPaintFlags  flags)
+add_actor_node (ClutterEffect    *effect,
+                ClutterPaintNode *node)
 {
   ClutterPaintNode *actor_node;
   ClutterActor *actor;
@@ -214,6 +212,15 @@ clutter_effect_real_paint_node (ClutterEffect           *effect,
   actor_node = clutter_actor_node_new (actor, -1);
   clutter_paint_node_add_child (node, actor_node);
   clutter_paint_node_unref (actor_node);
+}
+
+static void
+clutter_effect_real_paint_node (ClutterEffect           *effect,
+                                ClutterPaintNode        *node,
+                                ClutterPaintContext     *paint_context,
+                                ClutterEffectPaintFlags  flags)
+{
+  add_actor_node (effect, node);
 }
 
 static void
@@ -231,10 +238,16 @@ clutter_effect_real_paint (ClutterEffect           *effect,
 
   pre_paint_succeeded = effect_class->pre_paint (effect, node,paint_context);
 
-  effect_class->paint_node (effect, node, paint_context, flags);
-
   if (pre_paint_succeeded)
-    effect_class->post_paint (effect, node, paint_context);
+    {
+      effect_class->paint_node (effect, node, paint_context, flags);
+      effect_class->post_paint (effect, node, paint_context);
+    }
+  else
+    {
+      /* Just paint the actor as fallback */
+      add_actor_node (effect, node);
+    }
 }
 
 static void
