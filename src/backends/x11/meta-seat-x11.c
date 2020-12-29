@@ -73,6 +73,7 @@ struct _MetaSeatX11
   int opcode;
   guint has_touchscreens : 1;
   guint touch_mode : 1;
+  guint has_pointer_focus : 1;
 };
 
 static GParamSpec *props[N_PROPS] = { 0 };
@@ -872,6 +873,29 @@ translate_property_event (MetaSeatX11 *seat_x11,
 }
 
 static void
+emulate_motion (MetaSeatX11 *seat_x11,
+                double       x,
+                double       y)
+{
+  ClutterInputDevice *pointer;
+  ClutterEvent *event;
+  ClutterStage *stage;
+
+  pointer = clutter_seat_get_pointer (CLUTTER_SEAT (seat_x11));
+  stage = CLUTTER_STAGE (meta_backend_get_stage (meta_get_backend ()));
+
+  event = clutter_event_new (CLUTTER_MOTION);
+  clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_SYNTHETIC);
+  clutter_event_set_coords (event, x, y);
+  clutter_event_set_device (event, pointer);
+  clutter_event_set_source_device (event, NULL);
+  clutter_event_set_stage (event, stage);
+
+  clutter_event_put (event);
+  clutter_event_free (event);
+}
+
+static void
 translate_raw_event (MetaSeatX11 *seat_x11,
                      XEvent      *xevent)
 {
@@ -890,9 +914,6 @@ translate_raw_event (MetaSeatX11 *seat_x11,
   if (device == NULL)
     return;
 
-  if (!_clutter_is_input_pointer_a11y_enabled (device))
-    return;
-
   switch (cookie->evtype)
     {
     case XI_RawMotion:
@@ -906,7 +927,12 @@ translate_raw_event (MetaSeatX11 *seat_x11,
        * so we need to explicitly query the pointer here...
        */
       if (meta_input_device_x11_get_pointer_location (device, &x, &y))
-        _clutter_input_pointer_a11y_on_motion_event (device, x, y);
+        {
+          if (_clutter_is_input_pointer_a11y_enabled (device))
+            _clutter_input_pointer_a11y_on_motion_event (device, x, y);
+          if (!seat_x11->has_pointer_focus)
+            emulate_motion (seat_x11, x, y);
+        }
       break;
     case XI_RawButtonPress:
     case XI_RawButtonRelease:
@@ -917,9 +943,12 @@ translate_raw_event (MetaSeatX11 *seat_x11,
                meta_input_device_x11_get_device_id (device),
                clutter_input_device_get_device_name (device),
                xev->detail);
-      _clutter_input_pointer_a11y_on_button_event (device,
-                                                  xev->detail,
-                                                  (cookie->evtype == XI_RawButtonPress));
+      if (_clutter_is_input_pointer_a11y_enabled (device))
+        {
+          _clutter_input_pointer_a11y_on_button_event (device,
+                                                       xev->detail,
+                                                       (cookie->evtype == XI_RawButtonPress));
+        }
       break;
     }
 }
@@ -2291,6 +2320,9 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
             event->crossing.time = xev->time;
             translate_coords (stage_x11, xev->event_x, xev->event_y, &event->crossing.x, &event->crossing.y);
+
+            if (xev->deviceid == seat->pointer_id)
+              seat->has_pointer_focus = TRUE;
           }
         else
           {
@@ -2302,6 +2334,9 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
             event->crossing.time = xev->time;
             translate_coords (stage_x11, xev->event_x, xev->event_y, &event->crossing.x, &event->crossing.y);
+
+            if (xev->deviceid == seat->pointer_id)
+              seat->has_pointer_focus = FALSE;
           }
 
         meta_input_device_x11_reset_scroll_info (source_device);
