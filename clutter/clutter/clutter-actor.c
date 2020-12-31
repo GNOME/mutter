@@ -13428,7 +13428,6 @@ clutter_actor_transform_stage_point (ClutterActor *self,
 
       RQ[0][2] = DET (px, dx2, py, dy2) / det;
       RQ[1][2] = DET (dx1, px, dy1, py) / det;
-      RQ[1][2] = DET (dx1, px, dy1, py) / det;
       RQ[2][2] = 1.0;
       RQ[0][0] = v[1].x - v[0].x + (RQ[0][2] * v[1].x);
       RQ[1][0] = v[2].x - v[0].x + (RQ[1][2] * v[2].x);
