@@ -1740,6 +1740,9 @@ get_control (MetaUIFrame *frame, int root_x, int root_y)
   int x, y;
   int win_x, win_y;
 
+  if (meta_window_is_fullscreen (frame->meta_window))
+    return META_FRAME_CONTROL_CLIENT_AREA;
+
   gdk_window_get_position (frame->window, &win_x, &win_y);
   x = root_x - win_x;
   y = root_y - win_y;
