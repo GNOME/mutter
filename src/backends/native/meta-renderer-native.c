@@ -1217,6 +1217,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                        "use-shadowfb", use_shadowfb,
                        "transform", view_transform,
                        "refresh-rate", crtc_mode_info->refresh_rate,
+                       "vblank-duration-us", crtc_mode_info->vblank_duration_us,
                        NULL);
 
   if (META_IS_ONSCREEN_NATIVE (framebuffer))
