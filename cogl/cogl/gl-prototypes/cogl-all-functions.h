@@ -224,6 +224,14 @@ COGL_EXT_FUNCTION (void, glDeleteSync,
 COGL_EXT_END ()
 #endif
 
+COGL_EXT_BEGIN (sync_get_int64, 3, 2,
+                0,
+                "ARB:\0",
+                "sync\0")
+COGL_EXT_FUNCTION (void, glGetInteger64v,
+                   (GLenum pname, GLint64 *params))
+COGL_EXT_END ()
+
 COGL_EXT_BEGIN (draw_buffers, 2, 0,
                 COGL_EXT_IN_GLES3,
                 "ARB\0EXT\0",
@@ -246,4 +254,24 @@ COGL_EXT_BEGIN (multitexture_part1, 1, 3,
                 "multitexture\0")
 COGL_EXT_FUNCTION (void, glClientActiveTexture,
                    (GLenum                texture))
+COGL_EXT_END ()
+
+COGL_EXT_BEGIN (query_counter, 3, 3,
+                0,
+                "ARB:\0",
+                "timer_query\0")
+COGL_EXT_FUNCTION (void, glQueryCounter,
+                   (GLuint id, GLenum target))
+COGL_EXT_FUNCTION (void, glGetQueryObjecti64v,
+                   (GLuint id, GLenum pname, GLint64 *params))
+COGL_EXT_END ()
+
+COGL_EXT_BEGIN (queries, 1, 5,
+                0,
+                "\0",
+                "\0")
+COGL_EXT_FUNCTION (void, glGenQueries,
+                   (GLsizei n, GLuint *ids))
+COGL_EXT_FUNCTION (void, glDeleteQueries,
+                   (GLsizei n, const GLuint *ids))
 COGL_EXT_END ()
