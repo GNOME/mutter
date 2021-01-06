@@ -55,6 +55,8 @@ meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
   crtc_mode_info->flags = drm_mode->flags;
   crtc_mode_info->refresh_rate =
     meta_calculate_drm_mode_refresh_rate (drm_mode);
+  crtc_mode_info->vblank_duration_us =
+    meta_calculate_drm_mode_vblank_duration_us (drm_mode);
 
   crtc_mode_name = g_strndup (drm_mode->name, DRM_DISPLAY_MODE_LEN);
   mode_kms = g_object_new (META_TYPE_CRTC_MODE_KMS,
