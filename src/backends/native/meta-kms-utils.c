@@ -47,6 +47,27 @@ meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode)
   return numerator / denominator;
 }
 
+int64_t
+meta_calculate_drm_mode_vblank_duration_us (const drmModeModeInfo *drm_mode)
+{
+  int64_t value;
+
+  if (drm_mode->htotal <= 0 || drm_mode->vtotal <= 0)
+    return 0;
+
+  /* Convert to int64_t early. */
+  value = drm_mode->vtotal - drm_mode->vdisplay;
+  value *= drm_mode->htotal;
+
+  if (drm_mode->flags & DRM_MODE_FLAG_DBLSCAN)
+    value *= 2;
+
+  /* Round the duration up as it is used for buffer swap deadline computation. */
+  value = (value * 1000 + drm_mode->clock - 1) / drm_mode->clock;
+
+  return value;
+}
+
 /**
  * meta_drm_format_to_string:
  * @tmp: temporary buffer
