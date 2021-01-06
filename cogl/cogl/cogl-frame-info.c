@@ -126,7 +126,8 @@ cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info)
 {
   int64_t gpu_time_rendering_done_ns;
 
-  if (!info->timestamp_query)
+  if (!info->timestamp_query ||
+      info->gpu_time_before_buffer_swap_ns == 0)
     return 0;
 
   gpu_time_rendering_done_ns =

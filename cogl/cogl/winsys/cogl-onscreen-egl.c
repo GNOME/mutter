@@ -28,6 +28,7 @@
 #include "winsys/cogl-onscreen-egl.h"
 
 #include "cogl-context-private.h"
+#include "cogl-frame-info-private.h"
 #include "cogl-renderer-private.h"
 #include "cogl-trace.h"
 #include "winsys/cogl-winsys-egl-private.h"
@@ -268,6 +269,21 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                         COGL_FRAMEBUFFER (onscreen),
                                         COGL_FRAMEBUFFER (onscreen),
                                         COGL_FRAMEBUFFER_STATE_BIND);
+
+  if (cogl_has_feature (context, COGL_FEATURE_ID_GET_GPU_TIME))
+    {
+      info->gpu_time_before_buffer_swap_ns =
+        cogl_context_get_gpu_time_ns (context);
+    }
+
+  info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
+
+  /* Set up a timestamp query for when all rendering will be finished. */
+  if (cogl_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+    {
+      info->timestamp_query =
+        cogl_framebuffer_create_timestamp_query (COGL_FRAMEBUFFER (onscreen));
+    }
 
   if (n_rectangles && egl_renderer->pf_eglSwapBuffersWithDamage)
     {
