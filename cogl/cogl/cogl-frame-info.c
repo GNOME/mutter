@@ -32,6 +32,7 @@
 
 #include "cogl-frame-info-private.h"
 #include "cogl-gtype-private.h"
+#include "cogl-context-private.h"
 
 static void _cogl_frame_info_free (CoglFrameInfo *info);
 
@@ -39,11 +40,13 @@ COGL_OBJECT_DEFINE (FrameInfo, frame_info);
 COGL_GTYPE_DEFINE_CLASS (FrameInfo, frame_info);
 
 CoglFrameInfo *
-cogl_frame_info_new (int64_t global_frame_counter)
+cogl_frame_info_new (CoglContext *context,
+                     int64_t      global_frame_counter)
 {
   CoglFrameInfo *info;
 
   info = g_new0 (CoglFrameInfo, 1);
+  info->context = context;
   info->global_frame_counter = global_frame_counter;
 
   return _cogl_frame_info_object_new (info);
@@ -52,6 +55,9 @@ cogl_frame_info_new (int64_t global_frame_counter)
 static void
 _cogl_frame_info_free (CoglFrameInfo *info)
 {
+  if (info->timestamp_query)
+    cogl_context_free_timestamp_query (info->context, info->timestamp_query);
+
   g_free (info);
 }
 
@@ -113,4 +119,25 @@ cogl_frame_info_get_sequence (CoglFrameInfo *info)
   g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
 
   return info->sequence;
+}
+
+int64_t
+cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info)
+{
+  int64_t gpu_time_rendering_done_ns;
+
+  if (!info->timestamp_query)
+    return 0;
+
+  gpu_time_rendering_done_ns =
+    cogl_context_timestamp_query_get_time_ns (info->context,
+                                              info->timestamp_query);
+
+  return gpu_time_rendering_done_ns - info->gpu_time_before_buffer_swap_ns;
+}
+
+int64_t
+cogl_frame_info_get_time_before_buffer_swap_us (CoglFrameInfo *info)
+{
+  return info->cpu_time_before_buffer_swap_us;
 }

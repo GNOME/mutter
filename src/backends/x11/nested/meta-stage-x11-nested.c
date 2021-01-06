@@ -168,6 +168,7 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglFramebuffer *onscreen = COGL_FRAMEBUFFER (stage_x11->onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (onscreen);
   GList *l;
   CoglFrameInfo *frame_info;
 
@@ -195,7 +196,7 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window,
       draw_view (stage_nested, renderer_view, texture);
     }
 
-  frame_info = cogl_frame_info_new (0);
+  frame_info = cogl_frame_info_new (context, 0);
   cogl_onscreen_swap_buffers (stage_x11->onscreen, frame_info, frame);
 
   if (!clutter_frame_has_result (frame))

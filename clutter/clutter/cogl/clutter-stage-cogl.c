@@ -254,6 +254,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
   ClutterStageCoglPrivate *priv =
     _clutter_stage_cogl_get_instance_private (stage_cogl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
 
   clutter_stage_view_before_swap_buffer (view, swap_region);
 
@@ -276,7 +277,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
           damage[i * 4 + 3] = rect.height;
         }
 
-      frame_info = cogl_frame_info_new (priv->global_frame_counter);
+      frame_info =
+        cogl_frame_info_new (cogl_context, priv->global_frame_counter);
       priv->global_frame_counter++;
 
       /* push on the screen */
@@ -688,6 +690,7 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
   ClutterStageCoglPrivate *priv =
     _clutter_stage_cogl_get_instance_private (stage_cogl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
 
@@ -695,7 +698,7 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
 
   onscreen = COGL_ONSCREEN (framebuffer);
 
-  frame_info = cogl_frame_info_new (priv->global_frame_counter);
+  frame_info = cogl_frame_info_new (cogl_context, priv->global_frame_counter);
 
   if (!cogl_onscreen_direct_scanout (onscreen,
                                      scanout,
@@ -748,9 +751,10 @@ clutter_stage_cogl_add_onscreen_frame_info (ClutterStageCogl *stage_cogl,
   ClutterStageCoglPrivate *priv =
     _clutter_stage_cogl_get_instance_private (stage_cogl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglFrameInfo *frame_info;
 
-  frame_info = cogl_frame_info_new (priv->global_frame_counter);
+  frame_info = cogl_frame_info_new (cogl_context, priv->global_frame_counter);
   priv->global_frame_counter++;
 
   cogl_onscreen_add_frame_info (COGL_ONSCREEN (framebuffer), frame_info);

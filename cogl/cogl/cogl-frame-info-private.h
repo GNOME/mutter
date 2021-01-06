@@ -33,6 +33,7 @@
 
 #include "cogl-frame-info.h"
 #include "cogl-object-private.h"
+#include "cogl-context.h"
 
 typedef enum _CoglFrameInfoFlag
 {
@@ -62,6 +63,8 @@ struct _CoglFrameInfo
 {
   CoglObject _parent;
 
+  CoglContext *context;
+
   int64_t frame_counter;
   int64_t presentation_time_us; /* CLOCK_MONOTONIC */
   float refresh_rate;
@@ -71,9 +74,14 @@ struct _CoglFrameInfo
   CoglFrameInfoFlag flags;
 
   unsigned int sequence;
+
+  CoglTimestampQuery *timestamp_query;
+  int64_t gpu_time_before_buffer_swap_ns;
+  int64_t cpu_time_before_buffer_swap_us;
 };
 
 COGL_EXPORT
-CoglFrameInfo *cogl_frame_info_new (int64_t global_frame_counter);
+CoglFrameInfo *cogl_frame_info_new (CoglContext *context,
+                                    int64_t      global_frame_counter);
 
 #endif /* __COGL_FRAME_INFO_PRIVATE_H */

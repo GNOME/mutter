@@ -150,6 +150,12 @@ gboolean cogl_frame_info_is_vsync (CoglFrameInfo *info);
 COGL_EXPORT
 unsigned int cogl_frame_info_get_sequence (CoglFrameInfo *info);
 
+COGL_EXPORT
+int64_t cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info);
+
+COGL_EXPORT
+int64_t cogl_frame_info_get_time_before_buffer_swap_us (CoglFrameInfo *info);
+
 G_END_DECLS
 
 #endif /* __COGL_FRAME_INFO_H */
