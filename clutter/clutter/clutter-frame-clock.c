@@ -33,6 +33,17 @@ enum
 
 static guint signals[N_SIGNALS];
 
+/* An estimate queue holds several int64_t values. Adding a new value to the
+ * queue overwrites the oldest value.
+ */
+#define ESTIMATE_QUEUE_LENGTH 16
+
+typedef struct _EstimateQueue
+{
+  int64_t values[ESTIMATE_QUEUE_LENGTH];
+  int next_index;
+} EstimateQueue;
+
 /* Wait 2ms after vblank before starting to draw next frame */
 #define SYNC_DELAY_US ms2us (2)
 
@@ -83,6 +94,13 @@ struct _ClutterFrameClock
   /* Last KMS buffer submission time. */
   int64_t last_flip_time_us;
 
+  /* Last few durations between dispatch start and buffer swap. */
+  EstimateQueue dispatch_to_swap_us;
+  /* Last few durations between buffer swap and GPU rendering finish. */
+  EstimateQueue swap_to_rendering_done_us;
+  /* Last few durations between buffer swap and KMS submission. */
+  EstimateQueue swap_to_flip_us;
+
   gboolean pending_reschedule;
   gboolean pending_reschedule_now;
 
@@ -93,6 +111,14 @@ struct _ClutterFrameClock
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
+
+static void
+estimate_queue_add_value (EstimateQueue *queue,
+                          int64_t        value)
+{
+  queue->values[queue->next_index] = value;
+  queue->next_index = (queue->next_index + 1) % ESTIMATE_QUEUE_LENGTH;
+}
 
 float
 clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock)
@@ -190,6 +216,28 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
 {
   frame_clock->last_presentation_time_us = frame_info->presentation_time;
+
+  if (frame_info->cpu_time_before_buffer_swap_us != 0 &&
+      frame_info->gpu_rendering_duration_ns != 0)
+    {
+      int64_t dispatch_to_swap_us, swap_to_rendering_done_us, swap_to_flip_us;
+
+      dispatch_to_swap_us =
+        frame_info->cpu_time_before_buffer_swap_us -
+        frame_clock->last_dispatch_time_us;
+      swap_to_rendering_done_us =
+        frame_info->gpu_rendering_duration_ns / 1000;
+      swap_to_flip_us =
+        frame_clock->last_flip_time_us -
+        frame_info->cpu_time_before_buffer_swap_us;
+
+      estimate_queue_add_value (&frame_clock->dispatch_to_swap_us,
+                                dispatch_to_swap_us);
+      estimate_queue_add_value (&frame_clock->swap_to_rendering_done_us,
+                                swap_to_rendering_done_us);
+      estimate_queue_add_value (&frame_clock->swap_to_flip_us,
+                                swap_to_flip_us);
+    }
 
   if (frame_info->refresh_rate > 1)
     frame_clock->refresh_rate = frame_info->refresh_rate;
