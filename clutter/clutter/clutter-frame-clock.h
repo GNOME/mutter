@@ -56,6 +56,7 @@ typedef struct _ClutterFrameListenerIface
 
 CLUTTER_EXPORT
 ClutterFrameClock * clutter_frame_clock_new (float                            refresh_rate,
+                                             int64_t                          vblank_duration_us,
                                              const ClutterFrameListenerIface *iface,
                                              gpointer                         user_data);
 

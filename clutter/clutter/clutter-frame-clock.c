@@ -76,6 +76,10 @@ struct _ClutterFrameClock
   gboolean is_next_presentation_time_valid;
   int64_t next_presentation_time_us;
 
+  /* Buffer must be submitted to KMS and GPU rendering must be finished
+   * this amount of time before the next presentation time.
+   */
+  int64_t vblank_duration_us;
   /* Last KMS buffer submission time. */
   int64_t last_flip_time_us;
 
@@ -587,6 +591,7 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
 
 ClutterFrameClock *
 clutter_frame_clock_new (float                            refresh_rate,
+                         int64_t                          vblank_duration_us,
                          const ClutterFrameListenerIface *iface,
                          gpointer                         user_data)
 {
@@ -602,6 +607,7 @@ clutter_frame_clock_new (float                            refresh_rate,
   init_frame_clock_source (frame_clock);
 
   frame_clock->refresh_rate = refresh_rate;
+  frame_clock->vblank_duration_us = vblank_duration_us;
 
   return frame_clock;
 }

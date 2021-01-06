@@ -1365,6 +1365,7 @@ clutter_stage_view_constructed (GObject *object)
     init_shadowfb (view);
 
   priv->frame_clock = clutter_frame_clock_new (priv->refresh_rate,
+                                               priv->vblank_duration_us,
                                                &frame_clock_listener_iface,
                                                view);
 
