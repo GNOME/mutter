@@ -193,6 +193,122 @@ meta_drm_buffer_gbm_new_take (MetaDeviceFile  *device_file,
 }
 
 static gboolean
+meta_drm_buffer_gbm_fill_timings (MetaDrmBuffer  *buffer,
+                                  CoglFrameInfo  *info,
+                                  GError        **error)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+  MetaBackend *backend = meta_get_backend ();
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglDisplay *cogl_display = cogl_context->display;
+  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+  EGLDisplay egl_display = cogl_renderer_egl->edpy;
+  EGLImageKHR egl_image;
+  CoglPixelFormat cogl_format;
+  CoglEglImageFlags flags;
+  g_autoptr (CoglOffscreen) cogl_fbo = NULL;
+  CoglTexture2D *cogl_tex;
+  uint32_t n_planes;
+  uint64_t *modifiers;
+  uint32_t *strides;
+  uint32_t *offsets;
+  uint32_t width;
+  uint32_t height;
+  uint32_t drm_format;
+  int *fds;
+  gboolean result;
+  int dmabuf_fd = -1;
+  uint32_t i;
+
+  dmabuf_fd = gbm_bo_get_fd (buffer_gbm->bo);
+  if (dmabuf_fd == -1)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to export buffer's DMA fd: %s",
+                   g_strerror (errno));
+      return FALSE;
+    }
+
+  drm_format = gbm_bo_get_format (buffer_gbm->bo);
+  result = meta_cogl_pixel_format_from_drm_format (drm_format,
+                                                   &cogl_format,
+                                                   NULL);
+  g_assert (result);
+
+  width = gbm_bo_get_width (buffer_gbm->bo);
+  height = gbm_bo_get_height (buffer_gbm->bo);
+  n_planes = gbm_bo_get_plane_count (buffer_gbm->bo);
+  fds = g_alloca (sizeof (int) * n_planes);
+  strides = g_alloca (sizeof (uint32_t) * n_planes);
+  offsets = g_alloca (sizeof (uint32_t) * n_planes);
+  modifiers = g_alloca (sizeof (uint64_t) * n_planes);
+
+  for (i = 0; i < n_planes; i++)
+    {
+      fds[i] = dmabuf_fd;
+      strides[i] = gbm_bo_get_stride_for_plane (buffer_gbm->bo, i);
+      offsets[i] = gbm_bo_get_offset (buffer_gbm->bo, i);
+      modifiers[i] = gbm_bo_get_modifier (buffer_gbm->bo);
+    }
+
+  egl_image = meta_egl_create_dmabuf_image (egl,
+                                            egl_display,
+                                            width,
+                                            height,
+                                            drm_format,
+                                            n_planes,
+                                            fds,
+                                            strides,
+                                            offsets,
+                                            modifiers,
+                                            error);
+  if (egl_image == EGL_NO_IMAGE_KHR)
+    goto out;
+
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
+  cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                 width,
+                                                 height,
+                                                 cogl_format,
+                                                 egl_image,
+                                                 flags,
+                                                 error);
+
+  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+
+  if (!cogl_tex)
+    goto out;
+
+  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
+  cogl_object_unref (cogl_tex);
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_GET_GPU_TIME))
+    {
+      info->gpu_time_before_buffer_swap_ns =
+        cogl_context_get_gpu_time_ns (cogl_context);
+    }
+
+  info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
+
+  /* Set up a timestamp query for when all rendering will be finished. */
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+    {
+      info->timestamp_query =
+        cogl_framebuffer_create_timestamp_query (COGL_FRAMEBUFFER (cogl_fbo));
+    }
+
+out:
+  close (dmabuf_fd);
+
+  return TRUE;
+}
+
+static gboolean
 meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                          CoglFramebuffer  *framebuffer,
                                          int               x,
@@ -354,4 +470,5 @@ meta_drm_buffer_gbm_class_init (MetaDrmBufferGbmClass *klass)
   buffer_class->get_height = meta_drm_buffer_gbm_get_height;
   buffer_class->get_stride = meta_drm_buffer_gbm_get_stride;
   buffer_class->get_format = meta_drm_buffer_gbm_get_format;
+  buffer_class->fill_timings = meta_drm_buffer_gbm_fill_timings;
 }

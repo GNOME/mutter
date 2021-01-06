@@ -26,6 +26,8 @@
 #include <glib-object.h>
 #include <stdint.h>
 
+#include "cogl/cogl.h"
+
 #define META_TYPE_DRM_BUFFER (meta_drm_buffer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
                           meta_drm_buffer,
@@ -41,5 +43,11 @@ int meta_drm_buffer_get_height (MetaDrmBuffer *buffer);
 int meta_drm_buffer_get_stride (MetaDrmBuffer *buffer);
 
 uint32_t meta_drm_buffer_get_format (MetaDrmBuffer *buffer);
+
+gboolean meta_drm_buffer_supports_fill_timings (MetaDrmBuffer *buffer);
+
+gboolean meta_drm_buffer_fill_timings (MetaDrmBuffer  *buffer,
+                                       CoglFrameInfo  *info,
+                                       GError        **error);
 
 #endif /* META_DRM_BUFFER_H */

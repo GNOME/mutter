@@ -185,6 +185,27 @@ meta_drm_buffer_get_format (MetaDrmBuffer *buffer)
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_format (buffer);
 }
 
+gboolean
+meta_drm_buffer_supports_fill_timings (MetaDrmBuffer *buffer)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->fill_timings != NULL;
+}
+
+gboolean
+meta_drm_buffer_fill_timings (MetaDrmBuffer  *buffer,
+                              CoglFrameInfo  *info,
+                              GError        **error)
+{
+  if (!meta_drm_buffer_supports_fill_timings (buffer))
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                           "Buffer doesn't support filling timing info");
+      return FALSE;
+    }
+
+  return META_DRM_BUFFER_GET_CLASS (buffer)->fill_timings (buffer, info, error);
+}
+
 static void
 meta_drm_buffer_get_property (GObject    *object,
                               guint       prop_id,

@@ -43,6 +43,10 @@ struct _MetaDrmBufferClass
   int (* get_height) (MetaDrmBuffer *buffer);
   int (* get_stride) (MetaDrmBuffer *buffer);
   uint32_t (* get_format) (MetaDrmBuffer *buffer);
+
+  gboolean (* fill_timings) (MetaDrmBuffer  *buffer,
+                             CoglFrameInfo  *info,
+                             GError        **error);
 };
 
 MetaDeviceFile * meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer);
