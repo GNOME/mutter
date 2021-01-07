@@ -2837,11 +2837,11 @@ meta_seat_impl_get_keymap (MetaSeatImpl *seat_impl)
 static gboolean
 warp_pointer_in_impl (GTask *task)
 {
-  MetaSeatImpl *seat = g_task_get_source_object (task);
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
   graphene_point_t *point;
 
   point = g_task_get_task_data (task);
-  notify_absolute_motion_in_impl (seat->core_pointer, 0,
+  notify_absolute_motion_in_impl (seat_impl->core_pointer, 0,
                                   point->x, point->y, NULL);
   g_task_return_boolean (task, TRUE);
 
@@ -3190,7 +3190,7 @@ set_keyboard_map (GTask *task)
 
 /**
  * meta_seat_impl_set_keyboard_map: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
+ * @seat_impl: the #ClutterSeat created by the evdev backend
  * @keymap: the new keymap
  *
  * Instructs @evdev to use the speficied keyboard map. This will cause
@@ -3247,7 +3247,7 @@ set_keyboard_layout_index (GTask *task)
 
 /**
  * meta_seat_impl_set_keyboard_layout_index: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
+ * @seat_impl: the #ClutterSeat created by the evdev backend
  * @idx: the xkb layout index to set
  *
  * Sets the xkb layout index on the backend's #xkb_state .
@@ -3269,7 +3269,7 @@ meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
 
 /**
  * meta_seat_impl_set_keyboard_repeat_in_impl:
- * @seat: the #ClutterSeat created by the evdev backend
+ * @seat_impl: the #ClutterSeat created by the evdev backend
  * @repeat: whether to enable or disable keyboard repeat events
  * @delay: the delay in ms between the hardware key press event and
  * the first synthetic event
@@ -3325,17 +3325,17 @@ set_pointer_constraint (GTask *task)
 }
 
 void
-meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat,
+meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat_impl,
                                        MetaPointerConstraintImpl *constraint_impl)
 {
   GTask *task;
 
-  g_return_if_fail (META_IS_SEAT_IMPL (seat));
+  g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
 
-  task = g_task_new (seat, NULL, NULL, NULL);
+  task = g_task_new (seat_impl, NULL, NULL, NULL);
   if (constraint_impl)
     g_task_set_task_data (task, g_object_ref (constraint_impl), g_object_unref);
-  meta_seat_impl_run_input_task (seat, task,
+  meta_seat_impl_run_input_task (seat_impl, task,
                                  (GSourceFunc) set_pointer_constraint);
   g_object_unref (task);
 }
@@ -3343,10 +3343,10 @@ meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat,
 static gboolean
 set_viewports (GTask *task)
 {
-  MetaSeatImpl *seat = g_task_get_source_object (task);
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
   MetaViewportInfo *viewports = g_task_get_task_data (task);
 
-  g_set_object (&seat->viewports, viewports);
+  g_set_object (&seat_impl->viewports, viewports);
   g_task_return_boolean (task, TRUE);
 
   return G_SOURCE_REMOVE;
