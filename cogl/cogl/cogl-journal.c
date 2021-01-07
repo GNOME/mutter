@@ -35,6 +35,7 @@
 #include "cogl-graphene.h"
 #include "cogl-journal-private.h"
 #include "cogl-texture-private.h"
+#include "cogl-texture-2d-private.h"
 #include "cogl-pipeline-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-profile.h"
@@ -1628,6 +1629,13 @@ _cogl_journal_log_quad (CoglJournal  *journal,
   _cogl_pipeline_foreach_layer_internal (pipeline,
                                          add_framebuffer_deps_cb,
                                          framebuffer);
+
+  if (COGL_IS_OFFSCREEN (framebuffer))
+    {
+      CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
+
+      _cogl_texture_2d_externally_modified (offscreen->texture);
+    }
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_PRIMITIVE)))
     {
