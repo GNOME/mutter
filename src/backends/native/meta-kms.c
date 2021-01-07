@@ -261,7 +261,7 @@ meta_kms_post_pending_update_sync (MetaKms       *kms,
   if (!update)
     return NULL;
 
-  meta_kms_update_seal (update);
+  meta_kms_update_lock (update);
 
   feedback = meta_kms_run_impl_task_sync (kms,
                                           meta_kms_process_update_in_impl,

@@ -32,7 +32,7 @@ struct _MetaKmsUpdate
 {
   MetaKmsDevice *device;
 
-  gboolean is_sealed;
+  gboolean is_locked;
 
   MetaPowerSave power_save;
   GList *mode_sets;
@@ -152,7 +152,7 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
 {
   MetaKmsPlaneAssignment *plane_assignment;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
   g_assert (meta_kms_plane_get_plane_type (plane) !=
@@ -183,7 +183,7 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
 {
   MetaKmsPlaneAssignment *plane_assignment;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
 
@@ -209,7 +209,7 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
 {
   MetaKmsModeSet *mode_set;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   mode_set = g_new0 (MetaKmsModeSet, 1);
@@ -254,7 +254,7 @@ meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -270,7 +270,7 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -285,7 +285,7 @@ meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -312,7 +312,7 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
 {
   MetaKmsCrtcGamma *gamma;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   gamma = g_new0 (MetaKmsCrtcGamma, 1);
@@ -335,7 +335,7 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
 {
   MetaKmsPageFlipListener *listener;
 
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   listener = g_new0 (MetaKmsPageFlipListener, 1);
@@ -354,7 +354,7 @@ meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
                                       MetaKmsCustomPageFlipFunc  func,
                                       gpointer                   user_data)
 {
-  g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (!meta_kms_update_is_locked (update));
 
   update->custom_page_flip_func = func;
   update->custom_page_flip_user_data = user_data;
@@ -364,7 +364,7 @@ void
 meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                         uint64_t                rotation)
 {
-  g_assert (!meta_kms_update_is_sealed (plane_assignment->update));
+  g_assert (!meta_kms_update_is_locked (plane_assignment->update));
   g_warn_if_fail (rotation);
 
   plane_assignment->rotation = rotation;
@@ -464,15 +464,15 @@ meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update)
 }
 
 void
-meta_kms_update_seal (MetaKmsUpdate *update)
+meta_kms_update_lock (MetaKmsUpdate *update)
 {
-  update->is_sealed = TRUE;
+  update->is_locked = TRUE;
 }
 
 gboolean
-meta_kms_update_is_sealed (MetaKmsUpdate *update)
+meta_kms_update_is_locked (MetaKmsUpdate *update)
 {
-  return update->is_sealed;
+  return update->is_locked;
 }
 
 MetaKmsDevice *
