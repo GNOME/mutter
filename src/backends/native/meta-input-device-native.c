@@ -69,8 +69,7 @@ meta_input_device_native_finalize (GObject *object)
 {
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (object);
 
-  if (device_evdev->libinput_device)
-    libinput_device_unref (device_evdev->libinput_device);
+  g_warn_if_fail (!device_evdev->libinput_device);
 
   clear_slow_keys (device_evdev);
   stop_bounce_keys (device_evdev);

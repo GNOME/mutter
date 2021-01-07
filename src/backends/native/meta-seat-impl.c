@@ -2750,18 +2750,23 @@ meta_seat_impl_get_property (GObject    *object,
     }
 }
 
-static void
-meta_seat_impl_dispose (GObject *object)
+static gboolean
+destroy_in_impl (GTask *task)
 {
-  MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
+  MetaSeatImpl *seat_impl = g_task_get_task_data (task);
 
-  if (seat_impl->libinput)
-    {
-      libinput_unref (seat_impl->libinput);
-      seat_impl->libinput = NULL;
-    }
+  g_slist_foreach (seat_impl->devices,
+                   (GFunc) meta_input_device_native_detach_libinput_in_impl,
+                   NULL);
+  g_slist_free_full (seat_impl->devices, g_object_unref);
+  seat_impl->devices = NULL;
 
-  G_OBJECT_CLASS (meta_seat_impl_parent_class)->dispose (object);
+  g_clear_pointer (&seat_impl->libinput, libinput_unref);
+
+  g_main_loop_quit (seat_impl->input_loop);
+  g_task_return_boolean (task, TRUE);
+
+  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -2769,18 +2774,21 @@ meta_seat_impl_finalize (GObject *object)
 {
   MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
   gboolean numlock_active;
-  GSList *iter;
 
-  g_main_loop_quit (seat_impl->input_loop);
-  g_thread_join (seat_impl->input_thread);
-
-  for (iter = seat_impl->devices; iter; iter = g_slist_next (iter))
+  if (seat_impl->libinput)
     {
-      ClutterInputDevice *device = iter->data;
+      GTask *task;
 
-      g_object_unref (device);
+      task = g_task_new (seat_impl, NULL, NULL, NULL);
+      g_task_set_task_data (task, seat_impl, NULL);
+      meta_seat_impl_run_input_task (seat_impl, task,
+                                     (GSourceFunc) destroy_in_impl);
+      g_object_unref (task);
+
+      g_thread_join (seat_impl->input_thread);
+      g_assert (!seat_impl->libinput);
     }
-  g_slist_free (seat_impl->devices);
+
   g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
 
   if (seat_impl->touch_states)
@@ -2940,7 +2948,6 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
   object_class->constructed = meta_seat_impl_constructed;
   object_class->set_property = meta_seat_impl_set_property;
   object_class->get_property = meta_seat_impl_get_property;
-  object_class->dispose = meta_seat_impl_dispose;
   object_class->finalize = meta_seat_impl_finalize;
 
   props[PROP_SEAT] =
