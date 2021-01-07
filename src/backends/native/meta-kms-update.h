@@ -71,11 +71,11 @@ typedef struct _MetaKmsPlaneFeedback
 
 void meta_kms_feedback_free (MetaKmsFeedback *feedback);
 
-MetaKmsFeedbackResult meta_kms_feedback_get_result (MetaKmsFeedback *feedback);
+MetaKmsFeedbackResult meta_kms_feedback_get_result (const MetaKmsFeedback *feedback);
 
-GList * meta_kms_feedback_get_failed_planes (MetaKmsFeedback *feedback);
+GList * meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback);
 
-const GError * meta_kms_feedback_get_error (MetaKmsFeedback *feedback);
+const GError * meta_kms_feedback_get_error (const MetaKmsFeedback *feedback);
 
 MetaKmsUpdate * meta_kms_update_new (MetaKmsDevice *device);
 

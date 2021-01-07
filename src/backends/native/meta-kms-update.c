@@ -109,19 +109,19 @@ meta_kms_feedback_free (MetaKmsFeedback *feedback)
 }
 
 MetaKmsFeedbackResult
-meta_kms_feedback_get_result (MetaKmsFeedback *feedback)
+meta_kms_feedback_get_result (const MetaKmsFeedback *feedback)
 {
   return feedback->result;
 }
 
 GList *
-meta_kms_feedback_get_failed_planes (MetaKmsFeedback *feedback)
+meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback)
 {
   return feedback->failed_planes;
 }
 
 const GError *
-meta_kms_feedback_get_error (MetaKmsFeedback *feedback)
+meta_kms_feedback_get_error (const MetaKmsFeedback *feedback)
 {
   return feedback->error;
 }
