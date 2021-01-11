@@ -419,7 +419,9 @@ on_captured_event (ClutterActor       *stage,
         priv->modifier_state = 0;
 
       click_action_set_pressed (action, FALSE);
-      g_signal_emit (action, click_signals[CLICKED], 0, actor);
+
+      if (event_within_drag_threshold (action, event))
+        g_signal_emit (action, click_signals[CLICKED], 0, actor);
       break;
 
     case CLUTTER_MOTION:
