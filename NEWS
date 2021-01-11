@@ -1,3 +1,21 @@
+3.36.8
+======
+* Fix _NET_WM_FRAME_DRAWN timestamps [Jonas; !1360]
+* Fix unwanted position changes on window resize
+  [Jonas, Olivier, Robert; !1477, !1495]
+* Fix device configuration not being picked up on X11 [Carlos; !1553]
+* Fix size hints with CSD [Christian, Olivier; !1598]
+* Disable CRTCs if there is no monitor [Kai-Heng; !1561]
+* Fixed crashes [Olivier, Robert, Jonas; !1529, !1534, #1521, !1563, !1653]
+* Plugged memory leaks [Ray; !1225]
+* Misc. bug fixes and cleanups [Olivier, Robert, Daniel, Carlos; !1575,
+  !1565, !1572, !1655]
+
+Contributors:
+  Jonas Ådahl, Kai-Heng Feng, Olivier Fourdan, Carlos Garnacho, Robert Mader,
+  Christian Rauch, Ray Strode, Daniel van Vugt
+
+
 3.36.7
 ======
 * Fix Night Light updates after DPMS [Jonas, Benjamin; #1392]
