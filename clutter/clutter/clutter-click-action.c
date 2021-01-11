@@ -435,7 +435,7 @@ on_captured_event (ClutterActor       *stage,
           return CLUTTER_EVENT_PROPAGATE;
 
         if (!event_within_drag_threshold (action, event))
-          click_action_cancel_long_press (action);
+          clutter_click_action_release (action);
       }
       break;
 
