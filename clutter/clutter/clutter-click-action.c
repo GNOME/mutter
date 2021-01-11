@@ -272,6 +272,23 @@ click_action_cancel_long_press (ClutterClickAction *action)
     }
 }
 
+static inline gboolean
+event_within_drag_threshold (ClutterClickAction *click_action,
+                             ClutterEvent       *event)
+{
+  ClutterClickActionPrivate *priv =
+    clutter_click_action_get_instance_private (click_action);
+  float motion_x, motion_y;
+  float delta_x, delta_y;
+
+  clutter_event_get_coords (event, &motion_x, &motion_y);
+
+  delta_x = ABS (motion_x - priv->press_x);
+  delta_y = ABS (motion_y - priv->press_y);
+
+  return delta_x <= priv->drag_threshold && delta_y <= priv->drag_threshold;
+}
+
 static gboolean
 on_event (ClutterActor       *actor,
           ClutterEvent       *event,
@@ -408,9 +425,6 @@ on_captured_event (ClutterActor       *stage,
     case CLUTTER_MOTION:
     case CLUTTER_TOUCH_UPDATE:
       {
-        gfloat motion_x, motion_y;
-        gfloat delta_x, delta_y;
-
         if (clutter_event_get_device (event) != priv->press_device ||
             clutter_event_get_event_sequence (event) != priv->press_sequence)
           return CLUTTER_EVENT_PROPAGATE;
@@ -418,13 +432,7 @@ on_captured_event (ClutterActor       *stage,
         if (!priv->is_held)
           return CLUTTER_EVENT_PROPAGATE;
 
-        clutter_event_get_coords (event, &motion_x, &motion_y);
-
-        delta_x = ABS (motion_x - priv->press_x);
-        delta_y = ABS (motion_y - priv->press_y);
-
-        if (delta_x > priv->drag_threshold ||
-            delta_y > priv->drag_threshold)
+        if (!event_within_drag_threshold (action, event))
           click_action_cancel_long_press (action);
       }
       break;
