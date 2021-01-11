@@ -1866,7 +1866,7 @@ static gint
 _cally_atk_attribute_lookup_func (gconstpointer data,
                                   gconstpointer user_data)
 {
-    AtkTextAttribute attr = (AtkTextAttribute) user_data;
+    AtkTextAttribute attr = (AtkTextAttribute) GPOINTER_TO_INT (user_data);
     AtkAttribute *at = (AtkAttribute *) data;
     if (!g_strcmp0 (at->name, atk_text_attribute_get_name (attr)))
         return 0;
