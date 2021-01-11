@@ -1,3 +1,17 @@
+3.38.3
+======
+* xwayland: Set xrandr primary output [Aleksandr; !1638]
+* Disable CRTCs if there is no monitor [Kai-Heng; !1561]
+* Fixed crashes [Olivier, Jonas; !1650]
+* Misc. bug fixes [Marc-Antoine, Carlos; !1668, !1655]
+
+Contributors:
+  Jonas Ådahl, Kai-Heng Feng, Olivier Fourdan, Carlos Garnacho,
+  Aleksandr Mezin, Marc-Antoine Perennou
+
+Translators:
+  Kjartan Maraas [nb], Juliano de Souza Camargo [pt], Florentina Mușat [ro]
+
 3.38.2
 ======
 * Fix unwanted position changes on window resize
