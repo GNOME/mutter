@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-31 16:06+0000\n"
-"PO-Revision-Date: 2020-08-31 18:16+0200\n"
+"POT-Creation-Date: 2021-01-12 12:08+0000\n"
+"PO-Revision-Date: 2021-01-12 19:27+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -240,11 +240,11 @@ msgstr "Razpni okno navpično"
 msgid "Maximize window horizontally"
 msgstr "Razpni okno vodoravno"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Poglej razdelek na levi"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Poglej razdelek na desni"
 
@@ -398,7 +398,10 @@ msgid ""
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
 "must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
+"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
+"already enabled by default when using the i915 driver, but disabled for "
+"everything else. Requires a restart."
 msgstr ""
 "Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
 "ključev. Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je "
@@ -407,25 +410,27 @@ msgstr ""
 "monitor-framebuffer« – določi privzeto rabo sistema mutter za logične "
 "zaslone v logičnem točkovnem koordinatnem prostoru, pri čemer prilagaja "
 "predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. Možnost ne "
-"zahteva ponovnega zagona.• “rt-scheduler” — postavi zahteve mutter na nižjo "
+"zahteva ponovnega zagona.• “rt-scheduler” – postavi zahteve mutter na nižjo "
 "prednostno raven. Izvršljivi program oziroma uporabnik mora imeti omogočeno "
 "možnost CAP_SYS_NICE. Ta možnost zahteva ponovni zagon. • »autostart-"
-"xwayland« - lenobno zažne okolje Xwayland, če ima odjemalce X11. Prav tako "
-"zahteva ponoven zagon."
+"xwayland« – lenobno zažne okolje Xwayland, če ima odjemalce X11. Prav tako "
+"zahteva ponoven zagon.• “dma-buf-screen-sharing\" – omogoči predpomnilnik "
+"zaslona DMA. Ta možnost je že v dejavna pri uporabi gonilnika i915, a "
+"onemogočeno za vse ostale. Možnost zahteva ponovni zagon."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Spremenilnik, ki naj se uporabi za določanje mesta kazalnika"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ključ začne dejanje »zaznavanja kazalnika«."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Časovni zamik za preverjanje delovanja z ukazom ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -434,19 +439,19 @@ msgstr ""
 "preden sistem sporoči napako odziva. Vrednost 0 povsem omogoči preverjanje "
 "stanja povezave."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Select window from tab popup"
 msgstr "Izbor okna iz pojavnega zavihka"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Cancel tab popup"
 msgstr "Prekliči pojavni zavihek"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:184
 msgid "Switch monitor configurations"
 msgstr "Nastavitve nadzornika preklopa"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:189
 msgid "Rotates the built-in monitor configuration"
 msgstr "Zavrti vgrajene nastavitve zaslona"
 
@@ -571,25 +576,6 @@ msgstr ""
 "izgradnji ni bila upoštevana. Xwayland mora biti, preden se nastavitve "
 "uveljavijo, znova zagnan."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Preklop načina (skupina %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "Nadzornik preklopa"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "Pokaži zaslonsko pomoč"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Vgrajen zaslon"
@@ -635,47 +621,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
 
-#: src/core/main.c:190
+#: src/core/main.c:215
 msgid "Disable connection to session manager"
 msgstr "Onemogoči povezavo z upravljalnikom sej"
 
-#: src/core/main.c:196
+#: src/core/main.c:221
 msgid "Replace the running window manager"
 msgstr "Zamenjaj trenutni upravljalnik oken"
 
-#: src/core/main.c:202
+#: src/core/main.c:227
 msgid "Specify session management ID"
 msgstr "Navedite ID upravljanja seje"
 
-#: src/core/main.c:207
+#: src/core/main.c:232
 msgid "X Display to use"
 msgstr "Zaslon X za uporabo"
 
-#: src/core/main.c:213
+#: src/core/main.c:238
 msgid "Initialize session from savefile"
 msgstr "Začni sejo iz shranjene datoteke"
 
-#: src/core/main.c:219
+#: src/core/main.c:244
 msgid "Make X calls synchronous"
 msgstr "Uskladi klice X"
 
-#: src/core/main.c:226
+#: src/core/main.c:251
 msgid "Run as a wayland compositor"
 msgstr "Zaženi izbirnik wayland"
 
-#: src/core/main.c:232
+#: src/core/main.c:257
 msgid "Run as a nested compositor"
 msgstr "Zaženi kot gnezden vpisovalnik"
 
-#: src/core/main.c:238
+#: src/core/main.c:263
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:269
+msgid "Specify Wayland display name to use"
+msgstr "Določilo prikazno ime Wayland za uporabo"
+
+#: src/core/main.c:277
 msgid "Run as a full display server, rather than nested"
 msgstr "Zaženi kot polni strežnik zaslona in ne vstavljeno"
 
-#: src/core/main.c:252
+#: src/core/main.c:283
 msgid "Run with X11 backend"
 msgstr "Zaženi z zaledjem X11"
 
@@ -705,6 +695,25 @@ msgstr "_Vsili konec"
 msgid "_Wait"
 msgstr "_Počakaj"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Preklop načina (skupina %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Nadzornik preklopa"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Pokaži zaslonsko pomoč"
+
 #: src/core/mutter.c:38
 #, c-format
 msgid ""
@@ -728,17 +737,17 @@ msgid "Mutter plugin to use"
 msgstr "Vstavek Mutter za uporabo"
 
 # G:1 K:0 O:0
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Delovna površina %d"
 
-#: src/core/util.c:118
-msgid "Mutter was compiled without support for verbose mode\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
 msgstr ""
-"Program Mutter je kodno preveden brez podpore za podrobni način izpisovanja\n"
+"Program Mutter je kodno preveden brez podpore za podrobni način izpisovanja"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Način preklopa: način %d"
@@ -753,18 +762,18 @@ msgstr ""
 "replace za zamenjavo trenutnega upravljalnika zaslona."
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Začenjanje okolja GDK je spodletelo\n"
+msgid "Failed to initialize GDK"
+msgstr "Začenjanje okolja GDK je spodletelo"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Odpiranje zaslona »%s« okenskega sistema X je spodletelo\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Odpiranje zaslona »%s« okenskega sistema X je spodletelo"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Zaslon %d na prikazu »%s« ni veljaven\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Zaslon %d na prikazu »%s« ni veljaven"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
@@ -772,7 +781,7 @@ msgid "Format %s not supported"
 msgstr "Zapis %s ni podprt."
 
 # G:2 K:6 O:0
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
