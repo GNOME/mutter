@@ -1,3 +1,32 @@
+40.alpha.1
+==========
+* Base ClutterEffects on ClutterPaintNodes [Georges; !1340, !1355]
+* xwayland: Set xrandr primary output [Aleksandr; !1558]
+* Add paint node based blur support [Georges; !1627, !1646]
+* Disable CRTCs if there is no monitor [Kai-Heng; !1561]
+* Fix updates of mipmapped animated backgrounds [Daniel; !1664]
+* Allow remote desktop clients to specify scroll source [Pascal; !1636]
+* Support the color transform matrix RandR property on X11 [Aaron; !1048]
+* Plugged memory leaks [Jonas D.; !1632]
+* Fixed crashes [Jonas Å., Olivier, Carlos; !1557, !1648, !1643, !1654, !1663]
+* Misc. bug fixes and cleanups [Olivier, Niels, Carlos, Jonas Å., Florian,
+  Jonas D., Daniel, Georges, Michel, Sebastian, Marc-Antoine; !1621, !1622,
+  !1624, !1623, !1625, !1626, !1630, !1631, !1576, !1635, !1640, !1642,
+  !1639, !1644, !1637, !1615, !1647, !1633, !1634, !1651, !1652, !1657,
+  !1660, !1658, !1665, !1649, !1668, !1655]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Jonas Dreßler, Kai-Heng Feng, Olivier Fourdan,
+  Carlos Garnacho, Niels De Graef, Sebastian Keller, Aleksandr Mezin,
+  Florian Müllner, Georges Basile Stavracas Neto, Pascal Nowack,
+  Marc-Antoine Perennou, Aaron Plattner, Daniel van Vugt
+
+Translators:
+  Kjartan Maraas [nb], Juliano de Souza Camargo [pt], Florentina Mușat [ro],
+  Daniel Mustieles [es], Jordi Mas i Hernandez [ca], Fabio Tomat [fur],
+  Philipp Kiemle [de], Asier Sarasua Garmendia [eu], Aurimas Černius [lt],
+  Fran Dieguez [gl], Hugo Carvalho [pt], Matej Urbančič [sl]
+
 40.alpha
 ========
 * Replace CoglMatrix with graphene_matrix [Georges; !1439]
