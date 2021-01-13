@@ -199,68 +199,68 @@ struct _MetaMonitorManagerClass
 {
   MetaDBusDisplayConfigSkeletonClass parent_class;
 
-  GBytes* (*read_edid) (MetaMonitorManager *,
-                        MetaOutput         *);
+  GBytes * (* read_edid) (MetaMonitorManager *manager,
+                          MetaOutput         *output);
 
-  void (*read_current_state) (MetaMonitorManager *);
+  void (* read_current_state) (MetaMonitorManager *manager);
 
-  void (*ensure_initial_config) (MetaMonitorManager *);
+  void (* ensure_initial_config) (MetaMonitorManager *manager);
 
-  gboolean (*apply_monitors_config) (MetaMonitorManager      *,
-                                     MetaMonitorsConfig      *,
-                                     MetaMonitorsConfigMethod ,
-                                     GError                 **);
+  gboolean (* apply_monitors_config) (MetaMonitorManager        *manager,
+                                      MetaMonitorsConfig        *config,
+                                      MetaMonitorsConfigMethod   method,
+                                      GError                   **error);
 
-  void (*set_power_save_mode) (MetaMonitorManager *,
-                               MetaPowerSave);
+  void (* set_power_save_mode) (MetaMonitorManager *manager,
+                                MetaPowerSave       power_save);
 
-  void (*change_backlight) (MetaMonitorManager *,
-                            MetaOutput         *,
-                            int);
+  void (* change_backlight) (MetaMonitorManager *manager,
+                             MetaOutput         *output,
+                             int                 backlight);
 
-  void (*get_crtc_gamma) (MetaMonitorManager  *,
-                          MetaCrtc            *,
-                          gsize               *,
-                          unsigned short     **,
-                          unsigned short     **,
-                          unsigned short     **);
-  void (*set_crtc_gamma) (MetaMonitorManager *,
-                          MetaCrtc           *,
-                          gsize               ,
-                          unsigned short     *,
-                          unsigned short     *,
-                          unsigned short     *);
+  void (* get_crtc_gamma) (MetaMonitorManager  *manager,
+                           MetaCrtc            *crtc,
+                           size_t              *size,
+                           unsigned short     **red,
+                           unsigned short     **green,
+                           unsigned short     **blue);
+  void (* set_crtc_gamma) (MetaMonitorManager *manager,
+                           MetaCrtc           *crtc,
+                           size_t              size,
+                           unsigned short     *red,
+                           unsigned short     *green,
+                           unsigned short     *blue);
 
-  void (*tiled_monitor_added) (MetaMonitorManager *,
-                               MetaMonitor        *);
+  void (* tiled_monitor_added) (MetaMonitorManager *manager,
+                                MetaMonitor        *monitor);
 
-  void (*tiled_monitor_removed) (MetaMonitorManager *,
-                                 MetaMonitor        *);
+  void (* tiled_monitor_removed) (MetaMonitorManager *manager,
+                                  MetaMonitor        *monitor);
 
-  gboolean (*is_transform_handled) (MetaMonitorManager  *,
-                                    MetaCrtc            *,
-                                    MetaMonitorTransform);
+  gboolean (* is_transform_handled) (MetaMonitorManager   *manager,
+                                     MetaCrtc             *crtc,
+                                     MetaMonitorTransform  transform);
 
-  float (*calculate_monitor_mode_scale) (MetaMonitorManager *,
-                                         MetaMonitor        *,
-                                         MetaMonitorMode    *);
+  float (* calculate_monitor_mode_scale) (MetaMonitorManager *manager,
+                                          MetaMonitor        *monitor,
+                                          MetaMonitorMode    *monitor_mode);
 
-  float * (*calculate_supported_scales) (MetaMonitorManager          *,
-                                         MetaLogicalMonitorLayoutMode ,
-                                         MetaMonitor                 *,
-                                         MetaMonitorMode             *,
-                                         int                         *);
+  float * (* calculate_supported_scales) (MetaMonitorManager           *manager,
+                                          MetaLogicalMonitorLayoutMode  layout_mode,
+                                          MetaMonitor                  *monitor,
+                                          MetaMonitorMode              *monitor_mode,
+                                          int                          *n_supported_scales);
 
-  MetaMonitorManagerCapability (*get_capabilities) (MetaMonitorManager *);
+  MetaMonitorManagerCapability (* get_capabilities) (MetaMonitorManager *manager);
 
-  gboolean (*get_max_screen_size) (MetaMonitorManager *,
-                                   int                *,
-                                   int                *);
+  gboolean (* get_max_screen_size) (MetaMonitorManager *manager,
+                                    int                *width,
+                                    int                *height);
 
-  MetaLogicalMonitorLayoutMode (*get_default_layout_mode) (MetaMonitorManager *);
+  MetaLogicalMonitorLayoutMode (* get_default_layout_mode) (MetaMonitorManager *manager);
 
-  void (*set_output_ctm) (MetaOutput          *,
-                          const MetaOutputCtm *);
+  void (* set_output_ctm) (MetaOutput          *output,
+                           const MetaOutputCtm *ctm);
 };
 
 META_EXPORT_TEST
