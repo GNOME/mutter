@@ -711,7 +711,8 @@ choose_xdisplay (MetaXWaylandManager     *manager,
             }
           else
             {
-              g_warning ("Failed to bind X11 socket");
+              g_prefix_error (&local_error, "Failed to bind X11 socket: ");
+              g_propagate_error (error, g_steal_pointer (&local_error));
               return FALSE;
             }
         }
