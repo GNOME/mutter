@@ -649,9 +649,6 @@ open_display_sockets (MetaXWaylandManager  *manager,
 {
   int abstract_fd, unix_fd;
 
-  if (!ensure_x11_unix_dir (error))
-    return FALSE;
-
   abstract_fd = bind_to_abstract_socket (display_index, fatal, error);
   if (abstract_fd < 0)
     return FALSE;
@@ -683,6 +680,9 @@ choose_xdisplay (MetaXWaylandManager     *manager,
     display = display_number_override;
   else if (g_getenv ("RUNNING_UNDER_GDM"))
     display = 1024;
+
+  if (!ensure_x11_unix_dir (error))
+    return FALSE;
 
   do
     {
