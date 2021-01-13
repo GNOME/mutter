@@ -231,6 +231,12 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
         frame_clock->last_flip_time_us -
         frame_info->cpu_time_before_buffer_swap_us;
 
+      CLUTTER_NOTE (FRAME_TIMINGS,
+                    "dispatch2swap %ld µs, swap2render %ld µs, swap2flip %ld µs",
+                    dispatch_to_swap_us,
+                    swap_to_rendering_done_us,
+                    swap_to_flip_us);
+
       estimate_queue_add_value (&frame_clock->dispatch_to_swap_us,
                                 dispatch_to_swap_us);
       estimate_queue_add_value (&frame_clock->swap_to_rendering_done_us,
