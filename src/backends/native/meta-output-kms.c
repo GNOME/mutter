@@ -39,12 +39,12 @@
 
 #define SYNC_TOLERANCE 0.01    /* 1 percent */
 
-typedef struct _MetaOutputKms
+struct _MetaOutputKms
 {
   MetaOutput parent;
 
   MetaKmsConnector *kms_connector;
-} MetaOutputKms;
+};
 
 G_DEFINE_TYPE (MetaOutputKms, meta_output_kms, META_TYPE_OUTPUT)
 
