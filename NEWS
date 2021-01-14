@@ -1,3 +1,11 @@
+40.alpha.1.1
+============
+* Adapt to settings moving to gsettings-desktop-schemas [Carlos; !1416]
+* Misc. bug fixes and cleanups [Georges; !1667]
+
+Contributors:
+  Carlos Garnacho, Georges Basile Stavracas Neto
+
 40.alpha.1
 ==========
 * Base ClutterEffects on ClutterPaintNodes [Georges; !1340, !1355]
