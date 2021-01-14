@@ -114,24 +114,12 @@ clutter_seat_get_property (GObject    *object,
 }
 
 static void
-clutter_seat_finalize (GObject *object)
-{
-  ClutterSeat *seat = CLUTTER_SEAT (object);
-  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
-
-  g_clear_object (&priv->backend);
-
-  G_OBJECT_CLASS (clutter_seat_parent_class)->finalize (object);
-}
-
-static void
 clutter_seat_class_init (ClutterSeatClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->set_property = clutter_seat_set_property;
   object_class->get_property = clutter_seat_get_property;
-  object_class->finalize = clutter_seat_finalize;
 
   signals[DEVICE_ADDED] =
     g_signal_new (I_("device-added"),
