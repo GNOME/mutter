@@ -28,6 +28,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-crtc.h"
+#include "backends/native/meta-crtc-native.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-crtc.h"
@@ -36,7 +37,7 @@
 #define META_TYPE_CRTC_KMS (meta_crtc_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaCrtcKms, meta_crtc_kms,
                       META, CRTC_KMS,
-                      MetaCrtc)
+                      MetaCrtcNative)
 
 gpointer meta_crtc_kms_get_cursor_renderer_private (MetaCrtcKms *crtc_kms);
 

@@ -645,6 +645,8 @@ if have_native_backend
     'backends/native/meta-cogl-utils.h',
     'backends/native/meta-crtc-kms.c',
     'backends/native/meta-crtc-kms.h',
+    'backends/native/meta-crtc-native.c',
+    'backends/native/meta-crtc-native.h',
     'backends/native/meta-crtc-mode-kms.c',
     'backends/native/meta-crtc-mode-kms.h',
     'backends/native/meta-cursor-renderer-native.c',

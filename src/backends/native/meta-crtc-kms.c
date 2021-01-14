@@ -40,7 +40,7 @@
 
 struct _MetaCrtcKms
 {
-  MetaCrtc parent;
+  MetaCrtcNative parent;
 
   MetaKmsCrtc *kms_crtc;
 
@@ -54,7 +54,7 @@ struct _MetaCrtcKms
 
 static GQuark kms_crtc_crtc_kms_quark;
 
-G_DEFINE_TYPE (MetaCrtcKms, meta_crtc_kms, META_TYPE_CRTC)
+G_DEFINE_TYPE (MetaCrtcKms, meta_crtc_kms, META_TYPE_CRTC_NATIVE)
 
 gpointer
 meta_crtc_kms_get_cursor_renderer_private (MetaCrtcKms *crtc_kms)
