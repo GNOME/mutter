@@ -98,6 +98,7 @@ clutter_backend_dispose (GObject *gobject)
     {
       g_object_remove_weak_pointer (G_OBJECT (backend->stage_window),
                                     (gpointer *) &backend->stage_window);
+      backend->stage_window = NULL;
     }
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
