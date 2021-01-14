@@ -2753,7 +2753,8 @@ meta_seat_impl_get_property (GObject    *object,
 static gboolean
 destroy_in_impl (GTask *task)
 {
-  MetaSeatImpl *seat_impl = g_task_get_task_data (task);
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  gboolean numlock_active;
 
   g_slist_foreach (seat_impl->devices,
                    (GFunc) meta_input_device_native_detach_libinput_in_impl,
@@ -2762,41 +2763,10 @@ destroy_in_impl (GTask *task)
   seat_impl->devices = NULL;
 
   g_clear_pointer (&seat_impl->libinput, libinput_unref);
-
-  g_main_loop_quit (seat_impl->input_loop);
-  g_task_return_boolean (task, TRUE);
-
-  return G_SOURCE_REMOVE;
-}
-
-static void
-meta_seat_impl_finalize (GObject *object)
-{
-  MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
-  gboolean numlock_active;
-
-  if (seat_impl->libinput)
-    {
-      GTask *task;
-
-      task = g_task_new (seat_impl, NULL, NULL, NULL);
-      g_task_set_task_data (task, seat_impl, NULL);
-      meta_seat_impl_run_input_task (seat_impl, task,
-                                     (GSourceFunc) destroy_in_impl);
-      g_object_unref (task);
-
-      g_thread_join (seat_impl->input_thread);
-      g_assert (!seat_impl->libinput);
-    }
-
   g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
-
-  if (seat_impl->touch_states)
-    g_hash_table_destroy (seat_impl->touch_states);
-
-  g_object_unref (seat_impl->udev_client);
-
-  meta_event_source_free (seat_impl->event_source);
+  g_clear_pointer (&seat_impl->touch_states, g_hash_table_destroy);
+  g_clear_object (&seat_impl->udev_client);
+  g_clear_pointer (&seat_impl->event_source, meta_event_source_free);
 
   numlock_active =
     xkb_state_mod_name_is_active (seat_impl->xkb, XKB_MOD_NAME_NUM,
@@ -2805,9 +2775,44 @@ meta_seat_impl_finalize (GObject *object)
   meta_input_settings_maybe_save_numlock_state (seat_impl->input_settings,
                                                 numlock_active);
 
-  xkb_state_unref (seat_impl->xkb);
+  g_clear_pointer (&seat_impl->xkb, xkb_state_unref);
 
   meta_seat_impl_clear_repeat_source (seat_impl);
+
+  g_main_loop_quit (seat_impl->input_loop);
+  g_task_return_boolean (task, TRUE);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_seat_impl_destroy (MetaSeatImpl *seat_impl)
+{
+  if (seat_impl->libinput)
+    {
+      GTask *task;
+
+      task = g_task_new (seat_impl, NULL, NULL, NULL);
+      meta_seat_impl_run_input_task (seat_impl, task,
+                                     (GSourceFunc) destroy_in_impl);
+      g_object_unref (task);
+
+      g_thread_join (seat_impl->input_thread);
+      g_assert (!seat_impl->libinput);
+    }
+
+  g_object_unref (seat_impl);
+}
+
+static void
+meta_seat_impl_finalize (GObject *object)
+{
+  MetaSeatImpl *seat_impl = META_SEAT_IMPL (object);
+
+  g_assert (!seat_impl->libinput);
+  g_assert (!seat_impl->tools);
+  g_assert (!seat_impl->udev_client);
+  g_assert (!seat_impl->event_source);
 
   g_free (seat_impl->seat_id);
 

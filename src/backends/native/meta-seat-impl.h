@@ -129,6 +129,8 @@ G_DECLARE_FINAL_TYPE (MetaSeatImpl, meta_seat_impl,
 MetaSeatImpl * meta_seat_impl_new (MetaSeatNative *seat_native,
                                    const char     *seat_id);
 
+void meta_seat_impl_destroy (MetaSeatImpl *seat_impl);
+
 void meta_seat_impl_run_input_task (MetaSeatImpl *seat_impl,
                                     GTask        *task,
                                     GSourceFunc   dispatch_func);
