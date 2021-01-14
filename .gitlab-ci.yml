@@ -12,7 +12,7 @@ stages:
 .mutter.fedora:33@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    BASE_TAG: '2020-11-23.0'
+    BASE_TAG: '2021-01-14.0'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -37,6 +37,10 @@ stages:
           -Dxdmcp=disabled \
           https://gitlab.gnome.org/GNOME/gdm.git \
           3.38.0 . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+          https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
+          40.alpha . &&
 
       dnf clean all
 
