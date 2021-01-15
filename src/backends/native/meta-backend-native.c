@@ -101,9 +101,10 @@ meta_backend_native_dispose (GObject *object)
 
   g_clear_object (&native->kms);
   g_clear_object (&native->udev);
-  g_clear_pointer (&native->launcher, meta_launcher_free);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->dispose (object);
+
+  g_clear_pointer (&native->launcher, meta_launcher_free);
 }
 
 static ClutterBackend *
