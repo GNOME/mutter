@@ -300,9 +300,9 @@ msgid ""
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
 "Si s'habilita, es maximitzaran les finestres verticalment i es "
-"redimensionaran horitzontalment per cobrir la meitat de l'àrea disponible en "
-"deixar-les anar a les vores verticals de la pantalla. Si es deixen anar a la "
-"vora superior de la pantalla es maximitzaran completament."
+"redimensionaran horitzontalment per a cobrir la meitat de l'àrea disponible "
+"en deixar-les anar a les vores verticals de la pantalla. Si es deixen anar a "
+"la vora superior de la pantalla es maximitzaran completament."
 
 #: data/org.gnome.mutter.gschema.xml.in:40
 msgid "Workspaces are managed dynamically"
@@ -366,8 +366,8 @@ msgid ""
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
 "La quantitat total de contorn arrossegable. Si els contorns visibles del "
-"tema no són suficients, s'afegiran contorns invisibles per aconseguir aquest "
-"valor."
+"tema no són suficients, s'afegiran contorns invisibles per a aconseguir "
+"aquest valor."
 
 #: data/org.gnome.mutter.gschema.xml.in:89
 msgid "Auto maximize nearly monitor sized windows"
@@ -526,7 +526,7 @@ msgstr "Torna a habilitar les dreceres"
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
-"Permetre la captura amb Xwayland per bloquejar el focus del teclat amb "
+"Permetre la captura amb Xwayland per a bloquejar el focus del teclat amb "
 "Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
@@ -543,8 +543,8 @@ msgid ""
 msgstr ""
 "Permet que tots els esdeveniments de teclat s'encaminin a les finestres X11 "
 "«sobredirigir redirecció» amb una captura en executar-se a Xwayland. Aquesta "
-"opció és per permetre als clients X11 que mapan una finestra «override "
-"redirect» (que no rep el focus del teclat) i emeten un teclat per forçar "
+"opció és per a permetre als clients X11 que mapan una finestra «override "
+"redirect» (que no rep el focus del teclat) i emeten un teclat per a forçar "
 "tots els esdeveniments del teclat a aquesta finestra. Aquesta opció "
 "s'utilitza rarament i no té cap efecte en les finestres X11 regulars que "
 "poden rebre el focus del teclat en circumstàncies normals. Perquè una "
@@ -658,7 +658,7 @@ msgstr "Especifica l'ID de gestió de sessió"
 
 #: src/core/main.c:232
 msgid "X Display to use"
-msgstr "Visualització X per usar"
+msgstr "Visualització X per a usar"
 
 #: src/core/main.c:238
 msgid "Initialize session from savefile"
@@ -725,7 +725,6 @@ msgstr "_Espera"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
-#.
 #: src/core/meta-pad-action-mapper.c:780
 #, c-format
 msgid "Mode Switch (Group %d)"
@@ -733,7 +732,6 @@ msgstr "Mode de commutació (grup %d)"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
-#.
 #: src/core/meta-pad-action-mapper.c:803
 msgid "Switch monitor"
 msgstr "Commuta el monitor"
@@ -787,7 +785,7 @@ msgid ""
 "replace the current window manager."
 msgstr ""
 "La pantalla «%s» ja té un gestor de finestres; proveu l'opció --replace per "
-"reemplaçar el gestor de finestres actual."
+"a reemplaçar el gestor de finestres actual."
 
 #: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK"
