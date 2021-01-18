@@ -212,10 +212,12 @@ static MetaMonitorManager *
 meta_backend_native_create_monitor_manager (MetaBackend *backend,
                                             GError     **error)
 {
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaMonitorManager *manager;
 
   manager = g_initable_new (META_TYPE_MONITOR_MANAGER_NATIVE, NULL, error,
                             "backend", backend,
+                            "needs-outputs", !backend_native->is_headless,
                             NULL);
   if (!manager)
     return NULL;

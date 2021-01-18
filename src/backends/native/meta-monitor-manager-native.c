@@ -63,6 +63,17 @@
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_NEED_OUTPUTS,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 struct _MetaMonitorManagerNative
 {
   MetaMonitorManager parent_instance;
@@ -70,6 +81,8 @@ struct _MetaMonitorManagerNative
   gulong kms_resources_changed_handler_id;
 
   GHashTable *crtc_gamma_cache;
+
+  gboolean needs_outputs;
 };
 
 struct _MetaMonitorManagerNativeClass
@@ -589,6 +602,26 @@ meta_monitor_manager_native_get_default_layout_mode (MetaMonitorManager *manager
 }
 
 static void
+meta_monitor_manager_native_set_property (GObject      *object,
+                                          guint         prop_id,
+                                          const GValue *value,
+                                          GParamSpec   *pspec)
+{
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (object);
+
+  switch (prop_id)
+    {
+    case PROP_NEED_OUTPUTS:
+      manager_native->needs_outputs = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_monitor_manager_native_dispose (GObject *object)
 {
   MetaMonitorManagerNative *manager_native =
@@ -625,7 +658,8 @@ meta_monitor_manager_native_initable_init (GInitable    *initable,
           break;
         }
     }
-  if (!can_have_outputs)
+
+  if (manager_native->needs_outputs && !can_have_outputs)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
                    "No GPUs with outputs found");
@@ -649,6 +683,7 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_monitor_manager_native_init (MetaMonitorManagerNative *manager_native)
 {
+  manager_native->needs_outputs = TRUE;
 }
 
 static void
@@ -657,6 +692,7 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
 
+  object_class->set_property = meta_monitor_manager_native_set_property;
   object_class->dispose = meta_monitor_manager_native_dispose;
 
   manager_class->read_edid =
@@ -685,4 +721,14 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
     meta_monitor_manager_native_get_max_screen_size;
   manager_class->get_default_layout_mode =
     meta_monitor_manager_native_get_default_layout_mode;
+
+  obj_props[PROP_NEED_OUTPUTS] =
+    g_param_spec_boolean ("needs-outputs",
+                          "needs-outputs",
+                          "Whether any outputs are needed for operation",
+                          TRUE,
+                          G_PARAM_WRITABLE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
