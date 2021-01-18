@@ -269,6 +269,18 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
+  if (event->type == CLUTTER_SCROLL && meta_prefs_get_mouse_button_mods () > 0)
+    {
+      ClutterModifierType grab_mods;
+
+      grab_mods = meta_display_get_window_grab_modifiers (display);
+      if ((clutter_event_get_state (event) & grab_mods) != 0)
+        {
+          bypass_wayland = TRUE;
+          goto out;
+        }
+    }
+
   if (event->type != CLUTTER_DEVICE_ADDED &&
       event->type != CLUTTER_DEVICE_REMOVED)
     {
