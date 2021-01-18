@@ -580,35 +580,6 @@ meta_activate_vt (int vt, GError **error)
   return meta_launcher_activate_vt (launcher, vt, error);
 }
 
-/**
- * meta_activate_session:
- *
- * Tells mutter to activate the session. When mutter is a
- * display server, this tells logind to switch over to
- * the new session.
- */
-gboolean
-meta_activate_session (void)
-{
-  GError *error = NULL;
-  MetaBackend *backend = meta_get_backend ();
-
-  /* Do nothing. */
-  if (!META_IS_BACKEND_NATIVE (backend))
-    return TRUE;
-
-  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
-
-  if (!meta_launcher_activate_session (native->launcher, &error))
-    {
-      g_warning ("Could not activate session: %s", error->message);
-      g_error_free (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
 void
 meta_backend_native_pause (MetaBackendNative *native)
 {

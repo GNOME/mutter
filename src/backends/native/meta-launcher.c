@@ -556,17 +556,6 @@ meta_launcher_free (MetaLauncher *self)
 }
 
 gboolean
-meta_launcher_activate_session (MetaLauncher  *launcher,
-                                GError       **error)
-{
-  if (!login1_session_call_activate_sync (launcher->session_proxy, NULL, error))
-    return FALSE;
-
-  sync_active (launcher);
-  return TRUE;
-}
-
-gboolean
 meta_launcher_activate_vt (MetaLauncher  *launcher,
                            signed char    vt,
                            GError       **error)

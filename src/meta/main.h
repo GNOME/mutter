@@ -39,9 +39,6 @@ META_EXPORT
 void            meta_register_with_session  (void);
 
 META_EXPORT
-gboolean        meta_activate_session       (void);  /* Actually defined in meta-backend.c */
-
-META_EXPORT
 gboolean        meta_get_replace_current_wm (void);  /* Actually defined in util.c */
 
 META_EXPORT
