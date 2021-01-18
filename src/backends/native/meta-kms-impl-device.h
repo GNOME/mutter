@@ -140,4 +140,7 @@ void meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_de
 
 int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 
+gboolean meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
+                                                 GError            **error);
+
 #endif /* META_KMS_IMPL_DEVICE_H */

@@ -44,8 +44,13 @@ struct _MetaKmsImplDeviceAtomic
   GHashTable *page_flip_datas;
 };
 
-G_DEFINE_TYPE (MetaKmsImplDeviceAtomic, meta_kms_impl_device_atomic,
-               META_TYPE_KMS_IMPL_DEVICE)
+static void
+initable_iface_init (GInitableIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDeviceAtomic, meta_kms_impl_device_atomic,
+                         META_TYPE_KMS_IMPL_DEVICE,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init))
 
 static uint32_t
 store_new_blob (MetaKmsImplDevice  *impl_device,
@@ -1006,6 +1011,16 @@ meta_kms_impl_device_atomic_finalize (GObject *object)
   G_OBJECT_CLASS (meta_kms_impl_device_atomic_parent_class)->finalize (object);
 }
 
+static gboolean
+meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
+                                           GCancellable  *cancellable,
+                                           GError       **error)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
+
+  return meta_kms_impl_device_init_mode_setting (impl_device, error);
+}
+
 static void
 meta_kms_impl_device_atomic_init (MetaKmsImplDeviceAtomic *impl_device_atomic)
 {
@@ -1013,6 +1028,12 @@ meta_kms_impl_device_atomic_init (MetaKmsImplDeviceAtomic *impl_device_atomic)
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_kms_page_flip_data_unref);
+}
+
+static void
+initable_iface_init (GInitableIface *iface)
+{
+  iface->init = meta_kms_impl_device_atomic_initable_init;
 }
 
 static void

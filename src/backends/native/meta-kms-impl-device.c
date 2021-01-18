@@ -75,14 +75,9 @@ typedef struct _MetaKmsImplDevicePrivate
   GList *fallback_modes;
 } MetaKmsImplDevicePrivate;
 
-static void
-initable_iface_init (GInitableIface *iface);
-
 G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
                          G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (MetaKmsImplDevice)
-                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                initable_iface_init))
+                         G_ADD_PRIVATE (MetaKmsImplDevice))
 
 MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
@@ -786,12 +781,10 @@ meta_kms_impl_device_finalize (GObject *object)
   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
 }
 
-static gboolean
-meta_kms_impl_device_initable_init (GInitable     *initable,
-                                    GCancellable  *cancellable,
-                                    GError       **error)
+gboolean
+meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
+                                        GError            **error)
 {
-  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   drmModeRes *drm_resources;
@@ -827,12 +820,6 @@ meta_kms_impl_device_initable_init (GInitable     *initable,
 static void
 meta_kms_impl_device_init (MetaKmsImplDevice *device)
 {
-}
-
-static void
-initable_iface_init (GInitableIface *initable_iface)
-{
-  initable_iface->init = meta_kms_impl_device_initable_init;
 }
 
 static void

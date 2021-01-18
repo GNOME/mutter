@@ -58,8 +58,6 @@ struct _MetaKmsImplDeviceSimple
   GHashTable *cached_mode_sets;
 };
 
-static GInitableIface *initable_parent_iface;
-
 static void
 initable_iface_init (GInitableIface *iface);
 
@@ -1507,7 +1505,7 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
   MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
   GList *l;
 
-  if (!initable_parent_iface->init (initable, cancellable, error))
+  if (!meta_kms_impl_device_init_mode_setting (impl_device, error))
     return FALSE;
 
   impl_device_simple->cached_mode_sets =
@@ -1546,8 +1544,6 @@ meta_kms_impl_device_simple_init (MetaKmsImplDeviceSimple *impl_device_simple)
 static void
 initable_iface_init (GInitableIface *iface)
 {
-  initable_parent_iface = g_type_interface_peek_parent (iface);
-
   iface->init = meta_kms_impl_device_simple_initable_init;
 }
 
