@@ -314,6 +314,12 @@ meta_backend_native_lock_layout_group (MetaBackend *backend,
   meta_backend_notify_keymap_layout_group_changed (backend, idx);
 }
 
+const char *
+meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
+{
+  return meta_launcher_get_seat_id (backend_native->launcher);
+}
+
 static void
 meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
                                             MetaPointerConstraint *constraint)

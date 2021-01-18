@@ -111,8 +111,6 @@ gboolean
 meta_udev_is_drm_device (MetaUdev    *udev,
                          GUdevDevice *device)
 {
-  MetaLauncher *launcher =
-    meta_backend_native_get_launcher (udev->backend_native);
   const char *seat_id;
   const char *device_type;
   const char *device_seat;
@@ -133,7 +131,7 @@ meta_udev_is_drm_device (MetaUdev    *udev,
     }
 
   /* Skip devices that do not belong to our seat. */
-  seat_id = meta_launcher_get_seat_id (launcher);
+  seat_id = meta_backend_native_get_seat_id (udev->backend_native);
   if (g_strcmp0 (seat_id, device_seat))
     return FALSE;
 
