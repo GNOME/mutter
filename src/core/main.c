@@ -794,14 +794,12 @@ meta_get_x11_display_policy (void)
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     {
-      MetaSettings *settings = meta_backend_get_settings (backend);
-
       if (opt_no_x11)
         return META_DISPLAY_POLICY_DISABLED;
 
-      if (meta_settings_is_experimental_feature_enabled (settings,
-                                                         META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND))
-        return META_DISPLAY_POLICY_ON_DEMAND;
+#ifdef HAVE_XWAYLAND_INITFD
+      return META_DISPLAY_POLICY_ON_DEMAND;
+#endif
     }
 #endif
 

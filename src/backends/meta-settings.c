@@ -271,8 +271,6 @@ experimental_features_handler (GVariant *features_variant,
         feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
       else if (g_str_equal (feature_str, "rt-scheduler"))
         feature = META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
-      else if (g_str_equal (feature_str, "autostart-xwayland"))
-        feature = META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND;
       else if (g_str_equal (feature_str, "dma-buf-screen-sharing"))
         feature = META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING;
       else if (g_str_equal (feature_str, "autoclose-xwayland"))
