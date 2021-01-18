@@ -529,6 +529,11 @@ shutdown_xwayland_cb (gpointer data)
 {
   MetaXWaylandManager *manager = data;
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+
+  if (!meta_settings_is_experimental_feature_enabled (meta_backend_get_settings (backend),
+                                                      META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
+    return G_SOURCE_REMOVE;
 
   if (!can_terminate_xwayland (display->x11_display->xdisplay))
     return G_SOURCE_CONTINUE;
