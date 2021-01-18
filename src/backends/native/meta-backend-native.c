@@ -204,6 +204,9 @@ meta_backend_native_create_monitor_manager (MetaBackend *backend,
   manager = g_initable_new (META_TYPE_MONITOR_MANAGER_KMS, NULL, error,
                             "backend", backend,
                             NULL);
+  if (!manager)
+    return NULL;
+
   g_signal_connect_swapped (manager, "monitors-changed-internal",
                             G_CALLBACK (update_viewports), backend);
 
