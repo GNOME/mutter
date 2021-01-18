@@ -281,21 +281,11 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
 {
   GType impl_device_type;
   gboolean supports_atomic_mode_setting;
-  int ret;
   g_autofree char *driver_name = NULL;
   g_autofree char *driver_description = NULL;
   const char *atomic_kms_enable_env;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
-
-  ret = drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
-  if (ret != 0)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "Failed to activate universal planes: %s",
-                   g_strerror (-ret));
-      return NULL;
-    }
 
   if (!get_driver_info (fd, &driver_name, &driver_description))
     {
@@ -340,6 +330,8 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
     }
   else
     {
+      int ret;
+
       ret = drmSetClientCap (fd, DRM_CLIENT_CAP_ATOMIC, 1);
       if (ret == 0)
         supports_atomic_mode_setting = TRUE;
