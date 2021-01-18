@@ -461,6 +461,10 @@ xwayland_grab_default_access_rules = get_option('xwayland_grab_default_access_ru
 cdata.set_quoted('XWAYLAND_GRAB_DEFAULT_ACCESS_RULES',
                  xwayland_grab_default_access_rules)
 
+xwayland_ignore_executables = get_option('xwayland_ignore_executables')
+cdata.set_quoted('XWAYLAND_IGNORE_EXECUTABLES',
+                 xwayland_ignore_executables)
+
 cdata.set_quoted('MUTTER_PLUGIN_DIR', join_paths(pkglibdir, 'plugins'))
 cdata.set_quoted('MUTTER_LOCALEDIR', localedir)
 cdata.set_quoted('MUTTER_LIBEXECDIR', libexecdir)
