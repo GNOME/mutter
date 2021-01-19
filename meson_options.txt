@@ -117,6 +117,12 @@ option('core_tests',
   description: 'Enable mutter core tests'
 )
 
+option('native_tests',
+  type: 'boolean',
+  value: true,
+  description: 'Enable mutter native backend tests'
+)
+
 option('tests',
   type: 'boolean',
   value: true,

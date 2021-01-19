@@ -262,6 +262,7 @@ have_tests = get_option('tests')
 have_core_tests = false
 have_cogl_tests = false
 have_clutter_tests = false
+have_native_tests = false
 have_installed_tests = false
 
 if have_tests
@@ -269,6 +270,12 @@ if have_tests
   if have_core_tests
     if not have_wayland
       error('Tests require Wayland to be enabled')
+    endif
+  endif
+  have_native_tests = get_option('native_tests')
+  if have_native_tests
+    if not have_native_backend
+      error('Native tests require the native backend')
     endif
   endif
 

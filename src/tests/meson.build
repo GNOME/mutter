@@ -157,6 +157,21 @@ anonymous_file_test = executable('anonymous-file-tests',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
+if have_native_tests
+  native_headless_tests = executable('mutter-native-headless-tests',
+    sources: [
+      'native-headless.c',
+      'test-utils.c',
+      'test-utils.h',
+    ],
+    include_directories: tests_includepath,
+    c_args: tests_c_args,
+    dependencies: [tests_deps],
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+endif
+
 stacking_tests = [
   'basic-x11',
   'basic-wayland',
@@ -223,3 +238,12 @@ test('anonymous-file', anonymous_file_test,
   is_parallel: false,
   timeout: 60,
 )
+
+if have_native_tests
+  test('native-headless', native_headless_tests,
+    suite: ['core', 'mutter/native/headless'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+endif
