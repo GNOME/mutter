@@ -31,6 +31,11 @@
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-kms-utils.h"
 
+typedef gboolean (* MetaKmsSimpleProcessFunc) (MetaKmsImplDevice  *impl_device,
+                                               MetaKmsUpdate      *update,
+                                               gpointer            entry_data,
+                                               GError            **error);
+
 typedef struct _CachedModeSet
 {
   GList *connectors;
@@ -1135,14 +1140,11 @@ err:
 }
 
 static gboolean
-process_entries (MetaKmsImplDevice  *impl_device,
-                 MetaKmsUpdate      *update,
-                 GList              *entries,
-                 gboolean         (* func) (MetaKmsImplDevice  *impl_device,
-                                            MetaKmsUpdate      *update,
-                                            gpointer            entry_data,
-                                            GError            **error),
-                 GError            **error)
+process_entries (MetaKmsImplDevice         *impl_device,
+                 MetaKmsUpdate             *update,
+                 GList                     *entries,
+                 MetaKmsSimpleProcessFunc   func,
+                 GError                   **error)
 {
   GList *l;
 
