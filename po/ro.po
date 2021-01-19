@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-12-12 18:28+0000\n"
-"PO-Revision-Date: 2020-12-12 22:00+0200\n"
+"POT-Creation-Date: 2021-01-19 11:41+0000\n"
+"PO-Revision-Date: 2021-01-19 16:55+0100\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
 "sourceforge.net>\n"
@@ -240,11 +240,11 @@ msgstr "Maximizează fereastra pe verticală"
 msgid "Maximize window horizontally"
 msgstr "Maximizează fereastra pe orizontală"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Împarte în stânga"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Împarte în dreapta"
 
@@ -406,43 +406,43 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
-"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
-"already enabled by default when using the i915 driver, but disabled for "
-"everything else. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
-"Pentru a activa funcționalitățile experimentale, adăugați cuvântul cheie a "
+"Pentru a activa funcționalitățile experimentale, adăugați cuvântul cheie al "
 "funcționalității la listă. Dacă funcționalitatea necesită repornirea "
 "compozitorului depinde de funcționalitatea dată. Nu este necesar ca orice "
 "funcționalitate experimentală să fie încă disponibilă sau configurabilă. Nu "
-"vă așteptați să adăugați ceva în această configurare care să fie rezistent "
-"la viitor. Cuvinte cheie posibile în mod curent: • „scale-monitor-"
+"vă așteptați să adăugați ceva în această configurare care să fie rezistentă "
+"pe viitor. Cuvinte cheie posibile în mod curent: • „scale-monitor-"
 "framebuffer” — face ca mutter să fie stabilit implicit la monitoare logice "
 "de aranjament într-un spațiu logic de coordonate pixel, în timpul scalării "
 "framebuffer-urilor monitorului în locul conținutului ferestrei, pentru a "
 "gestiona monitoarele HiDPI. Nu necesită o repornire. • „rt-scheduler” — face "
 "ca mutter să ceară o programare în timp real de prioritate scăzută. "
 "Executabilul sau utilizatorul trebuie să aibă CAP_SYS_NICE. Necesită o "
-"repornire. • „autostart-xwayland” — inițializează Xwayland alene dacă există "
-"clienți X11. Necesită o repornire. • „dma-buf-screen-sharing” — activează "
-"partajarea ecranului preîncărcată DMA. Aceasta este deja activată implicit "
-"la utilizarea driverului i915, dar este dezactivat pentru orice altceva. "
-"Necesită o repornire."
+"repornire.  • „dma-buf-screen-sharing” — activează partajarea ecranului "
+"preîncărcată DMA. Aceasta este deja activată implicit la utilizarea "
+"driverului i915, dar este dezactivat pentru orice altceva. Necesită o "
+"repornire. • „autoclose-xwayland” — termină automat Xwayland dacă toți "
+"clienții X11 au dispărut. Nu necesită o repornire."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificator de utilizat pentru a localiza pointerul"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Această cheie va iniția acțiunea „localizează pointer”."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "A expirat limita de timp pentru check-alive ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -451,19 +451,19 @@ msgstr ""
 "ping pentru a nu fi detectat ca înghețat. Utilizând 0 va dezactiva check-"
 "alive complet."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Selectează fereastra din popup-ul tabului"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Elimină popup-ul pentru tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Comută configurațiile de monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotește configurarea de monitor integrat"
 
@@ -754,7 +754,7 @@ msgstr "Afișează versiunea"
 msgid "Mutter plugin to use"
 msgstr "Modul Mutter de utilizat"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
