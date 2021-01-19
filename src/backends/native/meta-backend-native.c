@@ -335,6 +335,12 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
   return meta_launcher_get_seat_id (backend_native->launcher);
 }
 
+gboolean
+meta_backend_native_is_headless (MetaBackendNative *backend_native)
+{
+  return backend_native->is_headless;
+}
+
 static void
 meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
                                             MetaPointerConstraint *constraint)
