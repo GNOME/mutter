@@ -40,6 +40,8 @@
 #include "clutter/clutter-mutter.h"
 #include "core/bell.h"
 
+#include "meta-private-enum-types.h"
+
 /*
  * Clutter makes the assumption that two core devices have ID's 2 and 3 (core
  * pointer and core keyboard).
@@ -96,6 +98,7 @@ enum
   PROP_0,
   PROP_SEAT,
   PROP_SEAT_ID,
+  PROP_FLAGS,
   N_PROPS,
 };
 
@@ -259,9 +262,12 @@ keyboard_repeat (gpointer data)
 
   /* There might be events queued in libinput that could cancel the
      repeat timer. */
-  dispatch_libinput (seat_impl);
-  if (!seat_impl->repeat_source)
-    return G_SOURCE_REMOVE;
+  if (seat_impl->libinput)
+    {
+      dispatch_libinput (seat_impl);
+      if (!seat_impl->repeat_source)
+        return G_SOURCE_REMOVE;
+    }
 
   g_return_val_if_fail (seat_impl->repeat_device != NULL, G_SOURCE_REMOVE);
 
@@ -2654,49 +2660,70 @@ meta_seat_impl_set_keyboard_numlock_in_impl (MetaSeatImpl *seat_impl,
                                      seat_impl->xkb);
 }
 
-static gpointer
-input_thread (MetaSeatImpl *seat_impl)
+static gboolean
+init_libinput (MetaSeatImpl  *seat_impl,
+               GError       **error)
 {
   MetaEventSource *source;
   struct udev *udev;
-  struct xkb_keymap *xkb_keymap;
-
-  g_main_context_push_thread_default (seat_impl->input_context);
+  struct libinput *libinput;
 
   udev = udev_new ();
   if (G_UNLIKELY (udev == NULL))
     {
       g_warning ("Failed to create udev object");
       seat_impl->input_thread_initialized = TRUE;
-      return NULL;
+      return FALSE;
     }
 
-  seat_impl->libinput = libinput_udev_create_context (&libinput_interface,
-                                                      seat_impl, udev);
-  if (seat_impl->libinput == NULL)
-    {
-      g_critical ("Failed to create the libinput object.");
-      seat_impl->input_thread_initialized = TRUE;
-      return NULL;
-    }
-
-  if (libinput_udev_assign_seat (seat_impl->libinput, seat_impl->seat_id) == -1)
-    {
-      g_critical ("Failed to assign a seat to the libinput object.");
-      libinput_unref (seat_impl->libinput);
-      seat_impl->libinput = NULL;
-      seat_impl->input_thread_initialized = TRUE;
-      return NULL;
-    }
-
+  libinput = libinput_udev_create_context (&libinput_interface,
+                                           seat_impl, udev);
   udev_unref (udev);
+
+  if (libinput == NULL)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create the libinput object.");
+      return FALSE;
+    }
+
+  if (libinput_udev_assign_seat (libinput, seat_impl->seat_id) == -1)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to assign a seat to the libinput object.");
+      libinput_unref (seat_impl->libinput);
+      return FALSE;
+    }
+
+  seat_impl->libinput = libinput;
+  source = meta_event_source_new (seat_impl);
+  seat_impl->event_source = source;
+
+  return TRUE;
+}
+
+static gpointer
+input_thread (MetaSeatImpl *seat_impl)
+{
+  struct xkb_keymap *xkb_keymap;
+
+  g_main_context_push_thread_default (seat_impl->input_context);
+
+  if (!(seat_impl->flags & META_SEAT_NATIVE_FLAG_NO_LIBINPUT))
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (!init_libinput (seat_impl, &error))
+        {
+          g_critical ("Failed to initialize seat: %s", error->message);
+          seat_impl->input_thread_initialized = TRUE;
+          return NULL;
+        }
+    }
 
   seat_impl->input_settings = meta_input_settings_native_new_in_impl (seat_impl);
   g_signal_connect_object (seat_impl->input_settings, "kbd-a11y-changed",
                            G_CALLBACK (kbd_a11y_changed_cb), seat_impl, 0);
-
-  source = meta_event_source_new (seat_impl);
-  seat_impl->event_source = source;
 
   seat_impl->keymap = g_object_new (META_TYPE_KEYMAP_NATIVE, NULL);
 
@@ -2803,6 +2830,9 @@ meta_seat_impl_set_property (GObject      *object,
       break;
     case PROP_SEAT_ID:
       seat_impl->seat_id = g_value_dup_string (value);
+      break;
+    case PROP_FLAGS:
+      seat_impl->flags = g_value_get_flags (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3049,6 +3079,15 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
+
+  props[PROP_FLAGS] =
+    g_param_spec_flags ("flags",
+                        "Flags",
+                        "Flags",
+                        META_TYPE_SEAT_NATIVE_FLAG,
+                        META_SEAT_NATIVE_FLAG_NONE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY);
 
   signals[KBD_A11Y_FLAGS_CHANGED] =
     g_signal_new ("kbd-a11y-flags-changed",
@@ -3462,13 +3501,15 @@ meta_seat_impl_set_viewports (MetaSeatImpl     *seat_impl,
 }
 
 MetaSeatImpl *
-meta_seat_impl_new (MetaSeatNative *seat_native,
-                    const char     *seat_id)
+meta_seat_impl_new (MetaSeatNative     *seat_native,
+                    const char         *seat_id,
+                    MetaSeatNativeFlag  flags)
 {
   return g_initable_new (META_TYPE_SEAT_IMPL,
                          NULL, NULL,
                          "seat", seat_native,
                          "seat-id", seat_id,
+                         "flags", flags,
                          NULL);
 }
 

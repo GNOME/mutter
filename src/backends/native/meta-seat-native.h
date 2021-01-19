@@ -44,6 +44,7 @@ struct _MetaSeatNative
 
   MetaSeatImpl *impl;
   char *seat_id;
+  MetaSeatNativeFlag flags;
 
   GList *devices;
   struct xkb_keymap *xkb_keymap;

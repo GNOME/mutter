@@ -37,10 +37,13 @@
 #include "clutter/clutter-mutter.h"
 #include "core/bell.h"
 
+#include "meta-private-enum-types.h"
+
 enum
 {
   PROP_0,
   PROP_SEAT_ID,
+  PROP_FLAGS,
   N_PROPS,
 
   /* This property is overridden */
@@ -153,7 +156,7 @@ meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
 
-  seat->impl = meta_seat_impl_new (seat, seat->seat_id);
+  seat->impl = meta_seat_impl_new (seat, seat->seat_id, seat->flags);
   g_signal_connect (seat->impl, "kbd-a11y-flags-changed",
                     G_CALLBACK (proxy_kbd_a11y_flags_changed), seat);
   g_signal_connect (seat->impl, "kbd-a11y-mods-state-changed",
@@ -187,6 +190,9 @@ meta_seat_native_set_property (GObject      *object,
     case PROP_SEAT_ID:
       seat_native->seat_id = g_value_dup_string (value);
       break;
+    case PROP_FLAGS:
+      seat_native->flags = g_value_get_flags (value);
+      break;
     case PROP_TOUCH_MODE:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -208,6 +214,9 @@ meta_seat_native_get_property (GObject    *object,
       break;
     case PROP_TOUCH_MODE:
       g_value_set_boolean (value, seat_native->touch_mode);
+      break;
+    case PROP_FLAGS:
+      g_value_set_flags (value, seat_native->flags);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -392,6 +401,15 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
                          NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
+
+  props[PROP_FLAGS] =
+    g_param_spec_flags ("flags",
+                        "Flags",
+                        "Flags",
+                        META_TYPE_SEAT_NATIVE_FLAG,
+                        META_SEAT_NATIVE_FLAG_NONE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 

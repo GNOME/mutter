@@ -67,6 +67,7 @@ struct _MetaSeatImpl
 
   MetaSeatNative *seat_native;
   char *seat_id;
+  MetaSeatNativeFlag flags;
   MetaEventSource *event_source;
   struct libinput *libinput;
   GRWLock state_lock;
@@ -126,8 +127,9 @@ struct _MetaSeatImpl
 G_DECLARE_FINAL_TYPE (MetaSeatImpl, meta_seat_impl,
                       META, SEAT_IMPL, GObject)
 
-MetaSeatImpl * meta_seat_impl_new (MetaSeatNative *seat_native,
-                                   const char     *seat_id);
+MetaSeatImpl * meta_seat_impl_new (MetaSeatNative     *seat_native,
+                                   const char         *seat_id,
+                                   MetaSeatNativeFlag  flags);
 
 void meta_seat_impl_destroy (MetaSeatImpl *seat_impl);
 

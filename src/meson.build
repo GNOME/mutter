@@ -744,13 +744,25 @@ if have_wayland_eglstream
   ]
 endif
 
-mutter_built_sources = []
+mutter_private_enum_sources = []
 
 if have_remote_desktop
+  mutter_private_enum_sources += [
+    'backends/meta-screen-cast.h',
+  ]
+endif
+
+if have_native_backend
+  mutter_private_enum_sources += [
+    'backends/native/meta-backend-native-types.h',
+  ]
+endif
+
+mutter_built_sources = []
+
+if mutter_private_enum_sources.length() > 0
   mutter_private_enum_types = gnome.mkenums('meta-private-enum-types',
-    sources: [
-      'backends/meta-screen-cast.h',
-    ],
+    sources: mutter_private_enum_sources,
     c_template: 'meta-private-enum-types.c.in',
     h_template: 'meta-private-enum-types.h.in',
   )
