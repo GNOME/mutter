@@ -2703,8 +2703,6 @@ meta_seat_impl_constructed (GObject *object)
       CLUTTER_INPUT_MODE_LOGICAL);
   seat_impl->core_keyboard = device;
 
-  seat_impl->udev_client = g_udev_client_new ((const char *[]) { "input", NULL });
-
   if (G_OBJECT_CLASS (meta_seat_impl_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_impl_parent_class)->constructed (object);
 }
@@ -2766,7 +2764,6 @@ destroy_in_impl (GTask *task)
   g_clear_pointer (&seat_impl->libinput, libinput_unref);
   g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
   g_clear_pointer (&seat_impl->touch_states, g_hash_table_destroy);
-  g_clear_object (&seat_impl->udev_client);
   g_clear_pointer (&seat_impl->event_source, meta_event_source_free);
 
   numlock_active =
@@ -2812,7 +2809,6 @@ meta_seat_impl_finalize (GObject *object)
 
   g_assert (!seat_impl->libinput);
   g_assert (!seat_impl->tools);
-  g_assert (!seat_impl->udev_client);
   g_assert (!seat_impl->event_source);
 
   g_free (seat_impl->seat_id);

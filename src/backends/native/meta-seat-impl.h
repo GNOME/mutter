@@ -96,7 +96,6 @@ struct _MetaSeatImpl
 
   MetaViewportInfo *viewports;
 
-  GUdevClient *udev_client;
   gboolean tablet_mode_switch_state;
   gboolean has_touchscreen;
   gboolean has_tablet_switch;
