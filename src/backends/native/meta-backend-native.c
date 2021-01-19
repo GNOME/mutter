@@ -89,18 +89,21 @@ static void
 disconnect_udev_device_added_handler (MetaBackendNative *native);
 
 static void
-meta_backend_native_finalize (GObject *object)
+meta_backend_native_dispose (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
 
   if (native->udev_device_added_handler_id)
-    disconnect_udev_device_added_handler (native);
+    {
+      disconnect_udev_device_added_handler (native);
+      native->udev_device_added_handler_id = 0;
+    }
 
   g_clear_object (&native->kms);
   g_clear_object (&native->udev);
-  meta_launcher_free (native->launcher);
+  g_clear_pointer (&native->launcher, meta_launcher_free);
 
-  G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_backend_native_parent_class)->dispose (object);
 }
 
 static ClutterBackend *
@@ -521,7 +524,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_backend_native_finalize;
+  object_class->dispose = meta_backend_native_dispose;
 
   backend_class->create_clutter_backend = meta_backend_native_create_clutter_backend;
 

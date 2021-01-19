@@ -848,7 +848,7 @@ initable_iface_init (GInitableIface *initable_iface)
 }
 
 static void
-meta_backend_x11_finalize (GObject *object)
+meta_backend_x11_dispose (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendX11 *x11 = META_BACKEND_X11 (object);
@@ -871,7 +871,7 @@ meta_backend_x11_finalize (GObject *object)
       priv->user_active_alarm = None;
     }
 
-  G_OBJECT_CLASS (meta_backend_x11_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_backend_x11_parent_class)->dispose (object);
 }
 
 static void
@@ -880,7 +880,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_backend_x11_finalize;
+  object_class->dispose = meta_backend_x11_dispose;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
