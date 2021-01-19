@@ -37,6 +37,7 @@
 #include "backends/native/meta-kms-update.h"
 
 #include "meta-default-modes.h"
+#include "meta-private-enum-types.h"
 
 enum
 {
@@ -46,6 +47,7 @@ enum
   PROP_IMPL,
   PROP_FD,
   PROP_PATH,
+  PROP_FLAGS,
   PROP_DRIVER_NAME,
   PROP_DRIVER_DESCRIPTION,
 
@@ -62,6 +64,7 @@ typedef struct _MetaKmsImplDevicePrivate
   int fd;
   GSource *fd_source;
   char *path;
+  MetaKmsDeviceFlag flags;
 
   char *driver_name;
   char *driver_description;
@@ -712,6 +715,9 @@ meta_kms_impl_device_get_property (GObject    *object,
     case PROP_PATH:
       g_value_set_string (value, priv->path);
       break;
+    case PROP_FLAGS:
+      g_value_set_flags (value, priv->flags);
+      break;
     case PROP_DRIVER_NAME:
       g_value_set_string (value, priv->driver_name);
       break;
@@ -747,6 +753,9 @@ meta_kms_impl_device_set_property (GObject      *object,
       break;
     case PROP_PATH:
       priv->path = g_value_dup_string (value);
+      break;
+    case PROP_FLAGS:
+      priv->flags = g_value_get_flags (value);
       break;
     case PROP_DRIVER_NAME:
       priv->driver_name = g_value_dup_string (value);
@@ -873,6 +882,15 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_FLAGS] =
+    g_param_spec_flags ("flags",
+                        "flags",
+                        "KMS impl device flags",
+                        META_TYPE_KMS_DEVICE_FLAG,
+                        META_KMS_DEVICE_FLAG_NONE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DRIVER_NAME] =
     g_param_spec_string ("driver-name",
                          "driver-name",

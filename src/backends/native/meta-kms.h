@@ -25,6 +25,12 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-kms-types.h"
 
+typedef enum _MetaKmsFlags
+{
+  META_KMS_FLAG_NONE = 0,
+  META_KMS_FLAG_NO_MODE_SETTING = 1 << 0,
+} MetaKmsFlags;
+
 typedef enum _MetaKmsUpdateFlag
 {
   META_KMS_UPDATE_FLAG_NONE = 0,
@@ -57,7 +63,8 @@ MetaKmsDevice * meta_kms_create_device (MetaKms            *kms,
                                         MetaKmsDeviceFlag   flags,
                                         GError            **error);
 
-MetaKms * meta_kms_new (MetaBackend  *backend,
-                        GError      **error);
+MetaKms * meta_kms_new (MetaBackend   *backend,
+                        MetaKmsFlags   flags,
+                        GError       **error);
 
 #endif /* META_KMS_H */

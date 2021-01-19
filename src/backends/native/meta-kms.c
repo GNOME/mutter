@@ -158,6 +158,8 @@ struct _MetaKms
 {
   GObject parent;
 
+  MetaKmsFlags flags;
+
   MetaBackend *backend;
 
   gulong hotplug_handler_id;
@@ -614,6 +616,9 @@ meta_kms_create_device (MetaKms            *kms,
 {
   MetaKmsDevice *device;
 
+  if (kms->flags & META_KMS_FLAG_NO_MODE_SETTING)
+    flags |= META_KMS_DEVICE_FLAG_NO_MODE_SETTING;
+
   device = meta_kms_device_new (kms, path, flags, error);
   if (!device)
     return NULL;
@@ -624,14 +629,16 @@ meta_kms_create_device (MetaKms            *kms,
 }
 
 MetaKms *
-meta_kms_new (MetaBackend  *backend,
-              GError      **error)
+meta_kms_new (MetaBackend   *backend,
+              MetaKmsFlags   flags,
+              GError       **error)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
 
   kms = g_object_new (META_TYPE_KMS, NULL);
+  kms->flags = flags;
   kms->backend = backend;
   kms->impl = meta_kms_impl_new (kms);
   if (!kms->impl)
@@ -640,8 +647,12 @@ meta_kms_new (MetaBackend  *backend,
       return NULL;
     }
 
-  kms->hotplug_handler_id =
-    g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), kms);
+  if (!(flags & META_KMS_FLAG_NO_MODE_SETTING))
+    {
+      kms->hotplug_handler_id =
+        g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), kms);
+    }
+
   kms->removed_handler_id =
     g_signal_connect (udev, "device-removed",
                       G_CALLBACK (on_udev_device_removed), kms);

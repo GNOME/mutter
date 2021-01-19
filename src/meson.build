@@ -689,6 +689,8 @@ if have_native_backend
     'backends/native/meta-kms-device.h',
     'backends/native/meta-kms-impl-device-atomic.c',
     'backends/native/meta-kms-impl-device-atomic.h',
+    'backends/native/meta-kms-impl-device-dummy.c',
+    'backends/native/meta-kms-impl-device-dummy.h',
     'backends/native/meta-kms-impl-device-simple.c',
     'backends/native/meta-kms-impl-device-simple.h',
     'backends/native/meta-kms-impl-device.c',
@@ -755,6 +757,7 @@ endif
 if have_native_backend
   mutter_private_enum_sources += [
     'backends/native/meta-backend-native-types.h',
+    'backends/native/meta-kms-types.h',
   ]
 endif
 

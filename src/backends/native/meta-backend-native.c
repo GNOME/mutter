@@ -531,7 +531,9 @@ meta_backend_native_initable_init (GInitable     *initable,
 
   native->udev = meta_udev_new (native);
 
-  native->kms = meta_kms_new (META_BACKEND (native), error);
+  native->kms = meta_kms_new (META_BACKEND (native),
+                              META_KMS_FLAG_NONE,
+                              error);
   if (!native->kms)
     return FALSE;
 
