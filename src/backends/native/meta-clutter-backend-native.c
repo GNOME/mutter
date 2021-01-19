@@ -106,12 +106,19 @@ meta_clutter_backend_native_init_events (ClutterBackend *clutter_backend)
   MetaBackend *backend = meta_get_backend ();
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   const char *seat_id;
+  MetaSeatNativeFlag flags;
 
   seat_id = meta_backend_native_get_seat_id (backend_native);
+
+  if (meta_backend_native_is_headless (backend_native))
+    flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
+  else
+    flags = META_SEAT_NATIVE_FLAG_NONE;
 
   clutter_backend_native->main_seat = g_object_new (META_TYPE_SEAT_NATIVE,
                                                     "backend", clutter_backend,
                                                     "seat-id", seat_id,
+                                                    "flags", flags,
                                                     NULL);
 }
 

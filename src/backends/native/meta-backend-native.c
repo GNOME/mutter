@@ -332,7 +332,10 @@ meta_backend_native_lock_layout_group (MetaBackend *backend,
 const char *
 meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
 {
-  return meta_launcher_get_seat_id (backend_native->launcher);
+  if (backend_native->is_headless)
+    return "seat0";
+  else
+    return meta_launcher_get_seat_id (backend_native->launcher);
 }
 
 gboolean
@@ -513,6 +516,7 @@ meta_backend_native_initable_init (GInitable     *initable,
                                    GError       **error)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (initable);
+  MetaKmsFlags kms_flags;
 
   if (!meta_is_stage_views_enabled ())
     {
@@ -521,9 +525,12 @@ meta_backend_native_initable_init (GInitable     *initable,
       return FALSE;
     }
 
-  native->launcher = meta_launcher_new (error);
-  if (!native->launcher)
-    return FALSE;
+  if (!native->is_headless)
+    {
+      native->launcher = meta_launcher_new (error);
+      if (!native->launcher)
+        return FALSE;
+    }
 
 #ifdef HAVE_WAYLAND
   meta_backend_init_wayland_display (META_BACKEND (native));
@@ -531,9 +538,11 @@ meta_backend_native_initable_init (GInitable     *initable,
 
   native->udev = meta_udev_new (native);
 
-  native->kms = meta_kms_new (META_BACKEND (native),
-                              META_KMS_FLAG_NONE,
-                              error);
+  kms_flags = META_KMS_FLAG_NONE;
+  if (native->is_headless)
+    kms_flags |= META_KMS_FLAG_NO_MODE_SETTING;
+
+  native->kms = meta_kms_new (META_BACKEND (native), kms_flags, error);
   if (!native->kms)
     return FALSE;
 
@@ -638,6 +647,13 @@ meta_activate_vt (int vt, GError **error)
   MetaBackend *backend = meta_get_backend ();
   MetaBackendNative *native = META_BACKEND_NATIVE (backend);
   MetaLauncher *launcher = meta_backend_native_get_launcher (native);
+
+  if (native->is_headless)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Can't switch VT while headless");
+      return FALSE;
+    }
 
   return meta_launcher_activate_vt (launcher, vt, error);
 }
