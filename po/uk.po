@@ -2,13 +2,13 @@
 # Yuriy Syrota <rasta@renome.rovno.ua>, 2001, 2002.
 # Maxim Dziumanenko <dziumanenko@gmail.com>, 2004-2008.
 # Daniel Korostil <ted.korostiled@gmail.com>, 2014, 2015.
-# Yuri Chornoivan <yurchor@ukr.net>, 2020.
+# Yuri Chornoivan <yurchor@ukr.net>, 2020, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-11-28 21:49+0000\n"
-"PO-Revision-Date: 2020-11-29 09:58+0200\n"
+"POT-Creation-Date: 2021-01-19 11:41+0000\n"
+"PO-Revision-Date: 2021-01-19 17:11+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -237,11 +237,11 @@ msgstr "Розгорнути вікно на весь екран вертика�
 msgid "Maximize window horizontally"
 msgstr "Розгорнути вікно на весь екран горизонтально"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Перегляд розділити ліворуч"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Перегляд розділити праворуч"
 
@@ -396,7 +396,10 @@ msgstr "Увімкнути експериментальні можливості
 #| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
 #| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
 #| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
-#| "are X11 clients. Requires restart."
+#| "are X11 clients. Requires a restart. • “dma-buf-screen-sharing\" — "
+#| "enables DMA buffered screen sharing. This is already enabled by default "
+#| "when using the i915 driver, but disabled for everything else. Requires a "
+#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -407,11 +410,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
-"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
-"already enabled by default when using the i915 driver, but disabled for "
-"everything else. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Щоб увімкнути експериментальну можливість, додайте до списку ключове слово "
 "можливості. Те, чи потребуватиме вмикання можливості перезапуску "
@@ -426,25 +429,26 @@ msgstr ""
 "композитора. • «rt-scheduler» — наказати mutter надсилати до системи запит "
 "щодо низькопріоритетного планування режиму реального часу. Для виконуваного "
 "файла або запису користувача має бути встановлено CAP_SYS_NICE. Потребує "
-"перезапуску композитора. • «autostart-xwayland» — лінива ініціалізація "
-"Xwayland, якщо виявлено клієнти X11. Потребує перезапуску композитора.• "
-"“dma-buf-screen-sharing\" — вмикає спільне використання буферизованих екранів"
-" DMA. Типово вже увімкнено, якщо використано драйвер i915, але вимкнено для"
-" усіх інших драйверів. Потребує перезапуску композитора."
+"перезапуску композитора. • “dma-"
+"buf-screen-sharing\" — вмикає спільне використання буферизованих екранів "
+"DMA. Типово вже увімкнено, якщо використано драйвер i915, але вимкнено для "
+"усіх інших драйверів. Потребує перезапуску композитора. •"
+" «autoclose-xwayland» — автоматично перериває роботу Xwayland, якщо завершать"
+" роботу усі відповідні клієнти X11. Не потребує перезапуску композитора."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Модифікатор для пошуку вказівника"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ця комбінація ініціює дію «встановити розташування вказівника»"
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Інтервал між послідовними перевірками працездатності"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -453,19 +457,19 @@ msgstr ""
 "запит, щоб вважатися працездатним. Скористайтеся значенням 0, щоб повністю "
 "вимкнути перевірку працездатності."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Вибрати вікно з контекстних вкладок"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Скасувати контекстні вкладки"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Перемкнути налаштування монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Зміна конфігурації вбудованого монітора"
 
@@ -756,13 +760,12 @@ msgstr "Показати версію"
 msgid "Mutter plugin to use"
 msgstr "Додатки Clutter для використання"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
 #: src/core/util.c:117
-#| msgid "Mutter was compiled without support for verbose mode\n"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter зібрано без підтримки докладного режиму"
 
@@ -781,19 +784,16 @@ msgstr ""
 "щоб замінити поточний менеджер вікон."
 
 #: src/x11/meta-x11-display.c:1089
-#| msgid "Failed to initialize GDK\n"
 msgid "Failed to initialize GDK"
 msgstr "Не вдалося ініціалізувати GDK"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-#| msgid "Failed to open X Window System display “%s”\n"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не вдалося відкрити дисплей віконної системи X «%s»"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-#| msgid "Screen %d on display “%s” is invalid\n"
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Екран %d на дисплеї «%s» є некоректним"
 
