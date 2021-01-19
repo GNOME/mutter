@@ -528,8 +528,6 @@ meta_launcher_new (GError **error)
   self->impl.sysfs_fds = g_hash_table_new (NULL, NULL);
   self->session_active = TRUE;
 
-  meta_clutter_backend_native_set_seat_id (self->seat_id);
-
   meta_seat_impl_set_device_callbacks (on_evdev_device_open_in_input_impl,
                                        on_evdev_device_close_in_input_impl,
                                        self);

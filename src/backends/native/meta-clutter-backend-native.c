@@ -44,6 +44,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
+#include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
@@ -57,8 +58,6 @@ struct _MetaClutterBackendNative
   MetaSeatNative *main_seat;
   MetaStageNative *stage_native;
 };
-
-static gchar *evdev_seat_id;
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
                CLUTTER_TYPE_BACKEND)
@@ -104,7 +103,11 @@ meta_clutter_backend_native_init_events (ClutterBackend *clutter_backend)
 {
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (clutter_backend);
-  const gchar *seat_id = evdev_seat_id ? evdev_seat_id : "seat0";
+  MetaBackend *backend = meta_get_backend ();
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  const char *seat_id;
+
+  seat_id = meta_backend_native_get_seat_id (backend_native);
 
   clutter_backend_native->main_seat = g_object_new (META_TYPE_SEAT_NATIVE,
                                                     "backend", clutter_backend,
@@ -157,19 +160,4 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
-}
-
-/**
- * meta_cluter_backend_native_set_seat_id:
- * @seat_id: The seat ID
- *
- * Sets the seat to assign to the libinput context.
- *
- * For reliable effects, this function must be called before clutter_init().
- */
-void
-meta_clutter_backend_native_set_seat_id (const gchar *seat_id)
-{
-  g_free (evdev_seat_id);
-  evdev_seat_id = g_strdup (seat_id);
 }
