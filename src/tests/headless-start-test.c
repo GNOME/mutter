@@ -217,7 +217,8 @@ main (int argc, char *argv[])
   meta_plugin_manager_load (test_get_plugin_name ());
 
   meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
-                                          META_TYPE_BACKEND_TEST);
+                                          META_TYPE_BACKEND_TEST,
+                                          NULL);
 
   meta_init ();
   meta_register_with_session ();
