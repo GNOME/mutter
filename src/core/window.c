@@ -8573,6 +8573,8 @@ meta_window_is_focusable (MetaWindow *window)
 gboolean
 meta_window_can_ping (MetaWindow *window)
 {
+  g_return_val_if_fail (!window->unmanaging, FALSE);
+
   return META_WINDOW_GET_CLASS (window)->can_ping (window);
 }
 
