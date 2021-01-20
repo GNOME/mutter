@@ -8313,6 +8313,9 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   gfloat x, y;
   guint button;
 
+  if (window->unmanaging)
+    return;
+
   if (event->type != CLUTTER_BUTTON_PRESS &&
       event->type != CLUTTER_TOUCH_BEGIN)
     return;
