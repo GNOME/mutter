@@ -535,7 +535,8 @@ shutdown_xwayland_cb (gpointer data)
                                                       META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
     return G_SOURCE_REMOVE;
 
-  if (!can_terminate_xwayland (display->x11_display->xdisplay))
+  if (display->x11_display &&
+      !can_terminate_xwayland (display->x11_display->xdisplay))
     return G_SOURCE_CONTINUE;
 
   meta_verbose ("Shutting down Xwayland");
