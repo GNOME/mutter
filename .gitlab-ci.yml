@@ -12,7 +12,7 @@ stages:
 .mutter.fedora:33@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    BASE_TAG: '2021-01-14.0'
+    BASE_TAG: '2021-01-22.0'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -20,15 +20,19 @@ stages:
 
       # For running unit tests
       dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 \
-                     xorg-x11-server-Xvfb 'pkgconfig(accountsservice)' \
+                     'pkgconfig(accountsservice)' \
                      gnome-control-center gcovr libnma python3-gobject \
                      python3-dbusmock &&
 
       # GNOME Shell
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
-      dnf install -y 'pkgconfig(gtk4)' 'pkgconfig(vulkan)' &&
+      dnf install -y 'pkgconfig(gtk4)' 'pkgconfig(vulkan)' 'pkgconfig(libtirpc)' &&
       dnf remove -y gnome-bluetooth-libs-devel &&
       dnf remove -y --noautoremove mutter mutter-devel &&
+
+      # For Xwayland/Xvfb
+      dnf builddep -y xorg-x11-server-Xwayland --setopt=install_weak_deps=False &&
+      dnf remove -y --noautoremove 'xorg-x11-server-Xwayland' &&
 
       ./.gitlab-ci/install-meson-project.sh \
           -Dlibaudit=disabled \
@@ -41,6 +45,21 @@ stages:
       ./.gitlab-ci/install-meson-project.sh \
           https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
           40.alpha . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+          -Dxwayland=true \
+          -Dxwayland_eglstream=true \
+          -D{xorg,xnest,xvfb}=false \
+          -Dvendor_name="Mutter CI" \
+          -D{xdmcp,udev,udev_kms}=false \
+          -Dxcsecurity=true \
+          -Dglamor=true \
+          -D{dri1,dri2}=false \
+          -Ddri3=true \
+          https://gitlab.freedesktop.org/xorg/xserver.git \
+          master \
+          . \
+          a9269808f394955f213e34303c2c14fd61c35ab5 &&
 
       dnf clean all
 

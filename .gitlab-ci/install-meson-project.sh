@@ -17,14 +17,21 @@ while [[ $1 =~ ^-D ]]; do
 done
 
 REPO_URL="$1"
-COMMIT="$2"
+TAG_OR_BRANCH="$2"
 SUBDIR="$3"
+COMMIT="$4"
 
 REPO_DIR="$(basename ${REPO_URL%.git})"
 
-git clone --depth 1 "$REPO_URL" -b "$COMMIT"
+git clone --depth 1 "$REPO_URL" -b "$TAG_OR_BRANCH"
 pushd "$REPO_DIR"
 pushd "$SUBDIR"
+
+if [ ! -z "$COMMIT" ]; then
+  git fetch origin "$COMMIT"
+  git checkout "$COMMIT"
+fi
+
 meson --prefix=/usr _build "${MESON_OPTIONS[@]}"
 ninja -C _build install
 popd
