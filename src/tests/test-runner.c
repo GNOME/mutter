@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "compositor/meta-plugin-manager.h"
+#include "core/main-private.h"
 #include "core/window-private.h"
 #include "meta/main.h"
 #include "meta/util.h"
@@ -61,18 +62,37 @@ test_case_alarm_filter (MetaX11Display        *x11_display,
   return FALSE;
 }
 
+static void
+on_x11_display_opened (MetaDisplay *display,
+                       TestCase    *test)
+{
+  meta_x11_display_set_alarm_filter (display->x11_display,
+                                     test_case_alarm_filter, test);
+  test->waiter = async_waiter_new ();
+}
+
 static TestCase *
 test_case_new (void)
 {
   TestCase *test = g_new0 (TestCase, 1);
+  MetaDisplay *display = meta_get_display ();
 
-  test_wait_for_x11_display ();
-
-  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
-                                     test_case_alarm_filter, test);
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+    {
+      test_wait_for_x11_display ();
+      on_x11_display_opened (display, test);
+    }
+  else
+    {
+      if (display->x11_display)
+        on_x11_display_opened (display, test);
+      else
+        g_signal_connect (meta_get_display (), "x11-display-opened",
+                          G_CALLBACK (on_x11_display_opened),
+                          test);
+    }
 
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
-  test->waiter = async_waiter_new ();
   test->loop = g_main_loop_new (NULL, FALSE);
 
   return test;
@@ -129,7 +149,8 @@ test_case_wait (TestCase *test,
    * we receive the resulting event - this makes sure that we've
    * received back any X events we generated.
    */
-  async_waiter_set_and_wait (test->waiter);
+  if (test->waiter)
+    async_waiter_set_and_wait (test->waiter);
   return TRUE;
 }
 
@@ -323,6 +344,9 @@ test_case_check_xserver_stacking (TestCase *test,
   GString *local_string = g_string_new (NULL);
   GString *x11_string = g_string_new (NULL);
   int i;
+
+  if (!display->x11_display)
+    return TRUE;
 
   guint64 *windows;
   int n_windows;
@@ -880,10 +904,13 @@ test_case_destroy (TestCase *test,
   while (g_hash_table_iter_next (&iter, &key, &value))
     test_client_destroy (value);
 
-  async_waiter_destroy (test->waiter);
+  g_clear_pointer (&test->waiter, async_waiter_destroy);
 
-  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
-                                     NULL, NULL);
+  if (meta_get_display ()->x11_display)
+    {
+      meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                         NULL, NULL);
+    }
 
   g_hash_table_destroy (test->clients);
   g_free (test);

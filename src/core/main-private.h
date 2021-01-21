@@ -49,6 +49,7 @@ META_EXPORT_TEST
 void meta_override_compositor_configuration (MetaCompositorType compositor_type,
                                              GType              backend_gtype);
 
+META_EXPORT_TEST
 MetaDisplayPolicy meta_get_x11_display_policy (void);
 
 META_EXPORT_TEST
