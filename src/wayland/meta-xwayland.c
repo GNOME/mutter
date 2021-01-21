@@ -664,16 +664,11 @@ open_display_sockets (MetaXWaylandManager  *manager,
 static gboolean
 choose_xdisplay (MetaXWaylandManager     *manager,
                  MetaXWaylandConnection  *connection,
+                 int                     *display,
                  GError                 **error)
 {
-  int display = 0;
   int number_of_tries = 0;
   char *lock_file = NULL;
-
-  if (display_number_override != -1)
-    display = display_number_override;
-  else if (g_getenv ("RUNNING_UNDER_GDM"))
-    display = 1024;
 
   if (!ensure_x11_unix_dir (error))
     return FALSE;
@@ -682,7 +677,7 @@ choose_xdisplay (MetaXWaylandManager     *manager,
     {
       g_autoptr (GError) local_error = NULL;
 
-      lock_file = create_lock_file (display, &display, &local_error);
+      lock_file = create_lock_file (*display, display, &local_error);
       if (!lock_file)
         {
           g_prefix_error (&local_error, "Failed to create an X lock file: ");
@@ -690,7 +685,7 @@ choose_xdisplay (MetaXWaylandManager     *manager,
           return FALSE;
         }
 
-      if (!open_display_sockets (manager, display,
+      if (!open_display_sockets (manager, *display,
                                  &connection->abstract_fd,
                                  &connection->unix_fd,
                                  &local_error))
@@ -704,7 +699,7 @@ choose_xdisplay (MetaXWaylandManager     *manager,
               return FALSE;
             }
 
-          display++;
+          (*display)++;
           continue;
         }
 
@@ -712,7 +707,7 @@ choose_xdisplay (MetaXWaylandManager     *manager,
     }
   while (1);
 
-  connection->display_index = display;
+  connection->display_index = *display;
   connection->name = g_strdup_printf (":%d", connection->display_index);
   connection->lock_file = lock_file;
 
@@ -1055,12 +1050,21 @@ meta_xwayland_init (MetaXWaylandManager  *manager,
                     GError              **error)
 {
   MetaDisplayPolicy policy;
+  int display = 0;
+
+  if (display_number_override != -1)
+    display = display_number_override;
+  else if (g_getenv ("RUNNING_UNDER_GDM"))
+    display = 1024;
+
 
   if (!manager->public_connection.name)
     {
-      if (!choose_xdisplay (manager, &manager->public_connection, error))
+      if (!choose_xdisplay (manager, &manager->public_connection, &display, error))
         return FALSE;
-      if (!choose_xdisplay (manager, &manager->private_connection, error))
+
+      display++;
+      if (!choose_xdisplay (manager, &manager->private_connection, &display, error))
         return FALSE;
 
       if (!prepare_auth_file (manager, error))
