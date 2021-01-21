@@ -424,6 +424,7 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
       MetaInputDeviceNative *keyboard_native;
       gboolean numlock_active;
 
+      meta_keymap_native_update_in_impl (seat_impl->keymap, seat_impl->xkb);
       emit_signal (seat_impl, signals[MODS_STATE_CHANGED], NULL, 0);
       meta_seat_impl_sync_leds_in_impl (seat_impl);
 
