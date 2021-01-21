@@ -422,6 +422,18 @@ test_client_alarm_filter (MetaX11Display        *x11_display,
     return FALSE;
 }
 
+static gpointer
+spawn_xwayland (gpointer user_data)
+{
+  xcb_connection_t *connection;
+
+  connection = xcb_connect (NULL, NULL);
+  g_assert_nonnull (connection);
+  xcb_disconnect (connection);
+
+  return NULL;
+}
+
 TestClient *
 test_client_new (const char          *id,
                  MetaWindowClientType type,
@@ -474,7 +486,22 @@ test_client_new (const char          *id,
   client->loop = g_main_loop_new (NULL, FALSE);
 
   if (client->type == META_WINDOW_CLIENT_TYPE_X11)
-    client->waiter = async_waiter_new ();
+    {
+      MetaDisplay *display = meta_get_display ();
+
+      if (!display->x11_display)
+        {
+          GThread *thread;
+
+          thread = g_thread_new ("Mutter Spawn Xwayland Thread",
+                                 spawn_xwayland,
+                                 NULL);
+          test_wait_for_x11_display ();
+          g_thread_join (thread);
+        }
+
+      client->waiter = async_waiter_new ();
+    }
 
   return client;
 }
