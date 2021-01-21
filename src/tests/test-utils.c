@@ -440,7 +440,7 @@ test_client_new (const char          *id,
   g_assert (meta_is_wayland_compositor ());
   compositor = meta_wayland_compositor_get_default ();
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
-  x11_display_name = meta_wayland_get_xwayland_display_name (compositor);
+  x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
 
   g_subprocess_launcher_setenv (launcher,
                                 "WAYLAND_DISPLAY", wayland_display_name,

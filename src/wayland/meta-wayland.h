@@ -70,7 +70,9 @@ META_EXPORT_TEST
 const char             *meta_wayland_get_wayland_display_name   (MetaWaylandCompositor *compositor);
 
 META_EXPORT_TEST
-const char             *meta_wayland_get_xwayland_display_name  (MetaWaylandCompositor *compositor);
+const char             *meta_wayland_get_public_xwayland_display_name  (MetaWaylandCompositor *compositor);
+
+const char             *meta_wayland_get_private_xwayland_display_name (MetaWaylandCompositor *compositor);
 
 void                    meta_wayland_compositor_restore_shortcuts      (MetaWaylandCompositor *compositor,
                                                                         ClutterInputDevice    *source);

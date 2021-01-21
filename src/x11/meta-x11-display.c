@@ -1044,7 +1044,7 @@ meta_x11_get_display_name (void)
 
       compositor = meta_wayland_compositor_get_default ();
 
-      return meta_wayland_get_xwayland_display_name (compositor);
+      return meta_wayland_get_private_xwayland_display_name (compositor);
     }
   else
 #endif

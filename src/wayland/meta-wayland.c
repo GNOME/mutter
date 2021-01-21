@@ -503,7 +503,13 @@ meta_wayland_get_wayland_display_name (MetaWaylandCompositor *compositor)
 }
 
 const char *
-meta_wayland_get_xwayland_display_name (MetaWaylandCompositor *compositor)
+meta_wayland_get_public_xwayland_display_name (MetaWaylandCompositor *compositor)
+{
+  return compositor->xwayland_manager.public_connection.name;
+}
+
+const char *
+meta_wayland_get_private_xwayland_display_name (MetaWaylandCompositor *compositor)
 {
   return compositor->xwayland_manager.private_connection.name;
 }
