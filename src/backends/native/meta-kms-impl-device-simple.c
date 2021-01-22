@@ -527,14 +527,15 @@ typedef struct _RetryPageFlipData
   MetaKmsPageFlipData *page_flip_data;
   float refresh_rate;
   uint64_t retry_time_us;
-  MetaKmsCustomPageFlipFunc custom_page_flip_func;
-  gpointer custom_page_flip_user_data;
+  MetaKmsCustomPageFlip *custom_page_flip;
 } RetryPageFlipData;
 
 static void
 retry_page_flip_data_free (RetryPageFlipData *retry_page_flip_data)
 {
   g_assert (!retry_page_flip_data->page_flip_data);
+  g_clear_pointer (&retry_page_flip_data->custom_page_flip,
+                   meta_kms_custom_page_flip_free);
   g_free (retry_page_flip_data);
 }
 
@@ -581,7 +582,7 @@ retry_page_flips (gpointer user_data)
       int fd;
       int ret;
       MetaKmsPageFlipData *page_flip_data;
-      MetaKmsCustomPageFlipFunc custom_page_flip_func;
+      MetaKmsCustomPageFlip *custom_page_flip;
 
       if (is_timestamp_earlier_than (now_us,
                                      retry_page_flip_data->retry_time_us))
@@ -590,15 +591,15 @@ retry_page_flips (gpointer user_data)
           continue;
         }
 
-      custom_page_flip_func = retry_page_flip_data->custom_page_flip_func;
-      if (custom_page_flip_func)
+      custom_page_flip = retry_page_flip_data->custom_page_flip;
+      if (custom_page_flip)
         {
           meta_topic (META_DEBUG_KMS,
                       "[simple] Retrying custom page flip on CRTC %u (%s)",
                       meta_kms_crtc_get_id (crtc),
                       meta_kms_impl_device_get_path (impl_device));
-          ret = custom_page_flip_func (retry_page_flip_data->custom_page_flip_user_data,
-                                       retry_page_flip_data->page_flip_data);
+          ret = custom_page_flip->func (custom_page_flip->user_data,
+                                        retry_page_flip_data->page_flip_data);
         }
       else
         {
@@ -689,13 +690,12 @@ retry_page_flips (gpointer user_data)
 }
 
 static void
-schedule_retry_page_flip (MetaKmsImplDeviceSimple   *impl_device_simple,
-                          MetaKmsCrtc               *crtc,
-                          uint32_t                   fb_id,
-                          float                      refresh_rate,
-                          MetaKmsPageFlipData       *page_flip_data,
-                          MetaKmsCustomPageFlipFunc  custom_page_flip_func,
-                          gpointer                   custom_page_flip_user_data)
+schedule_retry_page_flip (MetaKmsImplDeviceSimple *impl_device_simple,
+                          MetaKmsCrtc             *crtc,
+                          uint32_t                 fb_id,
+                          float                    refresh_rate,
+                          MetaKmsPageFlipData     *page_flip_data,
+                          MetaKmsCustomPageFlip   *custom_page_flip)
 {
   RetryPageFlipData *retry_page_flip_data;
   uint64_t now_us;
@@ -711,8 +711,7 @@ schedule_retry_page_flip (MetaKmsImplDeviceSimple   *impl_device_simple,
     .page_flip_data = page_flip_data,
     .refresh_rate = refresh_rate,
     .retry_time_us = retry_time_us,
-    .custom_page_flip_func = custom_page_flip_func,
-    .custom_page_flip_user_data = custom_page_flip_user_data,
+    .custom_page_flip = custom_page_flip,
   };
 
   if (!impl_device_simple->retry_page_flips_source)
@@ -892,8 +891,7 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
     META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
   MetaKmsCrtc *crtc;
   MetaKmsPlaneAssignment *plane_assignment;
-  MetaKmsCustomPageFlipFunc custom_page_flip_func;
-  gpointer custom_page_flip_user_data;
+  g_autoptr (MetaKmsCustomPageFlip) custom_page_flip = NULL;
   int fd;
   int ret;
 
@@ -901,11 +899,9 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
   plane_assignment = meta_kms_update_get_primary_plane_assignment (update,
                                                                    crtc);
 
-  meta_kms_update_get_custom_page_flip_func (update,
-                                             &custom_page_flip_func,
-                                             &custom_page_flip_user_data);
+  custom_page_flip = meta_kms_update_take_custom_page_flip_func (update);
 
-  if (!plane_assignment && !custom_page_flip_func)
+  if (!plane_assignment && !custom_page_flip)
     {
       MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
       MetaKms *kms = meta_kms_device_get_kms (device);
@@ -925,14 +921,14 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
     }
 
   fd = meta_kms_impl_device_get_fd (impl_device);
-  if (custom_page_flip_func)
+  if (custom_page_flip)
     {
       meta_topic (META_DEBUG_KMS,
                   "[simple] Invoking custom page flip on CRTC %u (%s)",
                   meta_kms_crtc_get_id (crtc),
                   meta_kms_impl_device_get_path (impl_device));
-      ret = custom_page_flip_func (custom_page_flip_user_data,
-                                   page_flip_data);
+      ret = custom_page_flip->func (custom_page_flip->user_data,
+                                    page_flip_data);
     }
   else
     {
@@ -981,8 +977,7 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
                                     fb_id,
                                     refresh_rate,
                                     page_flip_data,
-                                    custom_page_flip_func,
-                                    custom_page_flip_user_data);
+                                    g_steal_pointer (&custom_page_flip));
         }
       else
         {
