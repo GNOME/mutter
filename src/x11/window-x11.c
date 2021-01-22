@@ -35,6 +35,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "compositor/meta-window-actor-private.h"
 #include "core/boxes-private.h"
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
@@ -1324,6 +1325,18 @@ meta_window_x11_current_workspace_changed (MetaWindow *window)
   meta_x11_error_trap_pop (x11_display);
 }
 
+static gboolean
+meta_window_x11_can_freeze_commits (MetaWindow *window)
+{
+  MetaWindowActor *window_actor;
+
+  window_actor = meta_window_actor_from_window (window);
+  if (window_actor == NULL)
+    return FALSE;
+
+  return meta_window_actor_can_freeze_commits (window_actor);
+}
+
 static void
 meta_window_x11_move_resize_internal (MetaWindow                *window,
                                       MetaGravity                gravity,
@@ -1475,7 +1488,8 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   /* If resizing, freeze commits - This is for Xwayland, and a no-op on Xorg */
   if (need_resize_client || need_resize_frame)
     {
-      if (!meta_window_x11_should_thaw_after_paint (window))
+      if (meta_window_x11_can_freeze_commits (window) &&
+          !meta_window_x11_should_thaw_after_paint (window))
         {
           meta_window_x11_set_thaw_after_paint (window, TRUE);
           meta_window_x11_freeze_commits (window);
