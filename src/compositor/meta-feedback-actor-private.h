@@ -62,4 +62,9 @@ void meta_feedback_actor_set_position (MetaFeedbackActor  *self,
 void meta_feedback_actor_update (MetaFeedbackActor  *self,
                                  const ClutterEvent *event);
 
+void meta_feedback_actor_set_geometry_scale (MetaFeedbackActor *self,
+                                             int                geometry_scale);
+
+int meta_feedback_actor_get_geometry_scale (MetaFeedbackActor *self);
+
 #endif /* META_FEEDBACK_ACTOR_PRIVATE_H */
