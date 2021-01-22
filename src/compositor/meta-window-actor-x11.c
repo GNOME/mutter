@@ -1458,6 +1458,14 @@ meta_window_actor_x11_update_regions (MetaWindowActor *actor)
   update_regions (META_WINDOW_ACTOR_X11 (actor));
 }
 
+static gboolean
+meta_window_actor_x11_can_freeze_commits (MetaWindowActor *actor)
+{
+  ClutterActor *clutter_actor = CLUTTER_ACTOR (actor);
+
+  return clutter_actor_is_mapped (clutter_actor);
+}
+
 static void
 meta_window_actor_x11_set_property (GObject      *object,
                                     guint         prop_id,
@@ -1632,6 +1640,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->queue_destroy = meta_window_actor_x11_queue_destroy;
   window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
   window_actor_class->update_regions = meta_window_actor_x11_update_regions;
+  window_actor_class->can_freeze_commits = meta_window_actor_x11_can_freeze_commits;
 
   actor_class->paint = meta_window_actor_x11_paint;
   actor_class->get_paint_volume = meta_window_actor_x11_get_paint_volume;

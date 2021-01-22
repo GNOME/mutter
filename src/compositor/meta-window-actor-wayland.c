@@ -146,6 +146,12 @@ meta_window_actor_wayland_update_regions (MetaWindowActor *actor)
 {
 }
 
+static gboolean
+meta_window_actor_wayland_can_freeze_commits (MetaWindowActor *actor)
+{
+  return FALSE;
+}
+
 static void
 meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
 {
@@ -159,6 +165,7 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   window_actor_class->queue_destroy = meta_window_actor_wayland_queue_destroy;
   window_actor_class->set_frozen = meta_window_actor_wayland_set_frozen;
   window_actor_class->update_regions = meta_window_actor_wayland_update_regions;
+  window_actor_class->can_freeze_commits = meta_window_actor_wayland_can_freeze_commits;
 }
 
 static void
