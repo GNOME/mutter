@@ -257,6 +257,14 @@ meta_window_actor_update_regions (MetaWindowActor *self)
   META_WINDOW_ACTOR_GET_CLASS (self)->update_regions (self);
 }
 
+gboolean
+meta_window_actor_can_freeze_commits (MetaWindowActor *self)
+{
+  g_return_val_if_fail (META_IS_WINDOW_ACTOR (self), FALSE);
+
+  return META_WINDOW_ACTOR_GET_CLASS (self)->can_freeze_commits (self);
+}
+
 static void
 meta_window_actor_set_frozen (MetaWindowActor *self,
                               gboolean         frozen)

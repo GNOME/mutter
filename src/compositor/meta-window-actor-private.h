@@ -32,6 +32,7 @@ struct _MetaWindowActorClass
   void (*set_frozen) (MetaWindowActor *actor,
                       gboolean         frozen);
   void (*update_regions) (MetaWindowActor *actor);
+  gboolean (*can_freeze_commits) (MetaWindowActor *actor);
 };
 
 typedef enum
@@ -95,5 +96,7 @@ gboolean meta_window_actor_is_frozen (MetaWindowActor *self);
 gboolean meta_window_actor_is_opaque (MetaWindowActor *self);
 
 void meta_window_actor_update_regions (MetaWindowActor *self);
+
+gboolean meta_window_actor_can_freeze_commits (MetaWindowActor *self);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */
