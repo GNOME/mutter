@@ -71,6 +71,9 @@
 /* Whether Xwayland has -initfd option */
 #mesondefine HAVE_XWAYLAND_INITFD
 
+/* Whether Xwayland has -listenfd option */
+#mesondefine HAVE_XWAYLAND_LISTENFD
+
 /* Whether libX11 has XSetIOErrorExitHandler */
 #mesondefine HAVE_XSETIOERROREXITHANDLER
 

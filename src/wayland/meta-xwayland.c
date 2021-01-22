@@ -53,6 +53,12 @@
 #include "wayland/meta-xwayland-surface.h"
 #include "x11/meta-x11-display-private.h"
 
+#ifdef HAVE_XWAYLAND_LISTENFD
+#define XWAYLAND_LISTENFD "-listenfd"
+#else
+#define XWAYLAND_LISTENFD "-listen"
+#endif
+
 static int display_number_override = -1;
 
 static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
@@ -914,9 +920,9 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   args[i++] = "-core";
   args[i++] = "-auth";
   args[i++] = manager->auth_file;
-  args[i++] = "-listen";
+  args[i++] = XWAYLAND_LISTENFD;
   args[i++] = "4";
-  args[i++] = "-listen";
+  args[i++] = XWAYLAND_LISTENFD;
   args[i++] = "5";
   args[i++] = "-displayfd";
   args[i++] = "6";
@@ -924,7 +930,7 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   args[i++] = "-initfd";
   args[i++] = "7";
 #else
-  args[i++] = "-listen";
+  args[i++] = XWAYLAND_LISTENFD;
   args[i++] = "7";
 #endif
   for (j = 0; j <  G_N_ELEMENTS (x11_extension_names); j++)
