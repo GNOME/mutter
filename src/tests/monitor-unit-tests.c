@@ -178,11 +178,6 @@ create_monitor_test_clients (void)
 {
   GError *error = NULL;
 
-  test_wait_for_x11_display ();
-
-  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
-                                     monitor_tests_alarm_filter, NULL);
-
   wayland_monitor_test_client = test_client_new (WAYLAND_TEST_CLIENT_NAME,
                                                  META_WINDOW_CLIENT_TYPE_WAYLAND,
                                                  &error);
@@ -194,6 +189,9 @@ create_monitor_test_clients (void)
                                              &error);
   if (!x11_monitor_test_client)
     g_error ("Failed to launch X11 test client: %s", error->message);
+
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     monitor_tests_alarm_filter, NULL);
 
   if (!test_client_do (wayland_monitor_test_client, &error,
                        "create", WAYLAND_TEST_CLIENT_WINDOW,
