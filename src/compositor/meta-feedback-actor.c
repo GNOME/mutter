@@ -44,6 +44,8 @@ struct _MetaFeedbackActorPrivate
   float anchor_y;
   float pos_x;
   float pos_y;
+
+  int geometry_scale;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE_ACTOR)
@@ -65,8 +67,10 @@ meta_feedback_actor_update_position (MetaFeedbackActor *self)
   MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (self);
 
   clutter_actor_set_position (CLUTTER_ACTOR (self),
-                              priv->pos_x - priv->anchor_x,
-                              priv->pos_y - priv->anchor_y);
+                              priv->pos_x -
+                              (priv->anchor_x * priv->geometry_scale),
+                              priv->pos_y -
+                              (priv->anchor_y * priv->geometry_scale));
 }
 
 static void
@@ -248,4 +252,32 @@ meta_feedback_actor_update (MetaFeedbackActor  *self,
 
   clutter_event_get_position (event, &point);
   meta_feedback_actor_set_position (self, point.x, point.y);
+}
+
+void
+meta_feedback_actor_set_geometry_scale (MetaFeedbackActor *self,
+                                        int                geometry_scale)
+{
+  MetaFeedbackActorPrivate *priv =
+    meta_feedback_actor_get_instance_private (self);
+  CoglMatrix child_transform;
+
+  if (priv->geometry_scale == geometry_scale)
+    return;
+
+  priv->geometry_scale = geometry_scale;
+
+  cogl_matrix_init_identity (&child_transform);
+  cogl_matrix_scale (&child_transform, geometry_scale, geometry_scale, 1);
+  clutter_actor_set_child_transform (CLUTTER_ACTOR (self),
+                                     &child_transform);
+}
+
+int
+meta_feedback_actor_get_geometry_scale (MetaFeedbackActor *self)
+{
+  MetaFeedbackActorPrivate *priv =
+    meta_feedback_actor_get_instance_private (self);
+
+  return priv->geometry_scale;
 }
