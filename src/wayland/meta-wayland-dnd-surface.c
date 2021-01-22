@@ -30,7 +30,6 @@ struct _MetaWaylandSurfaceRoleDND
   MetaWaylandActorSurface parent;
   int32_t pending_offset_x;
   int32_t pending_offset_y;
-  int geometry_scale;
 };
 
 G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
@@ -123,19 +122,12 @@ dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 
   geometry_scale =
     meta_wayland_actor_surface_get_geometry_scale (actor_surface);
+  meta_feedback_actor_set_geometry_scale (feedback_actor, geometry_scale);
 
   meta_feedback_actor_get_anchor (feedback_actor, &anchor_x, &anchor_y);
-  anchor_x -= surface_role_dnd->pending_offset_x * geometry_scale;
-  anchor_y -= surface_role_dnd->pending_offset_y * geometry_scale;
+  anchor_x -= surface_role_dnd->pending_offset_x;
+  anchor_y -= surface_role_dnd->pending_offset_y;
   meta_feedback_actor_set_anchor (feedback_actor, anchor_x, anchor_y);
-
-  if (surface_role_dnd->geometry_scale != geometry_scale)
-    {
-      surface_role_dnd->geometry_scale = geometry_scale;
-      clutter_actor_set_scale (CLUTTER_ACTOR (surface_actor),
-                               geometry_scale,
-                               geometry_scale);
-    }
 
   actor_surface_class->sync_actor_state (actor_surface);
 }
@@ -143,7 +135,6 @@ dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 static void
 meta_wayland_surface_role_dnd_init (MetaWaylandSurfaceRoleDND *role)
 {
-  role->geometry_scale = 1;
 }
 
 static void
