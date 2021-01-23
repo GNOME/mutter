@@ -230,3 +230,9 @@ option('bash_completion',
   value: true,
   description: 'Integrate bash completion for gdctl'
 )
+
+option('devkit',
+  type: 'feature',
+  value: 'auto',
+  description: 'Compositor and shell software development kit'
+)

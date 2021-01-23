@@ -1,5 +1,23 @@
 msgfmt = find_program('msgfmt')
 
+desktop_conf = configuration_data()
+desktop_conf.set('bindir', bindir)
+
+if have_devkit
+  i18n.merge_file(
+    input: configure_file(
+      input: 'org.gnome.Mutter.Mdk.desktop.in.in',
+      output: 'org.gnome.Mutter.Mdk.desktop.in',
+      configuration: desktop_conf
+    ),
+    output: 'org.gnome.Mutter.Mdk.desktop',
+    po_dir: po_path,
+    install: true,
+    install_dir: desktopdir,
+    type: 'desktop',
+  )
+endif
+
 # Unconditionally use this dir to avoid a circular dep with gnomecc
 gnome_keybindings_keysdir = datadir / 'gnome-control-center' / 'keybindings'
 
@@ -65,3 +83,4 @@ if have_libgudev
 endif
 
 subdir('dbus-interfaces')
+subdir('icons')

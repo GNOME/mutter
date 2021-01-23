@@ -20,7 +20,7 @@ glib_req = '>= 2.81.1'
 gi_req = '>= 0.9.5'
 graphene_req = '>= 1.10.2'
 gtk3_req = '>= 3.19.8'
-gtk4_req = '>= 4.0.0'
+gtk4_req = '>= 4.14.0'
 gdk_pixbuf_req = '>= 2.0'
 pango_req = '>= 1.46.0'
 cairo_req = '>= 1.10.0'
@@ -99,6 +99,11 @@ pkgincludedir = includedir / pkgname
 
 pcdir = libdir / 'pkgconfig'
 
+desktopdir = join_paths(datadir, 'applications')
+icondir = join_paths(datadir, 'icons')
+
+po_path = join_paths(meson.current_source_dir(), 'po')
+
 gettext_package = meson.project_name()
 localedir = datadir / 'locale'
 
@@ -121,6 +126,7 @@ gio_dep = dependency('gio-unix-2.0', version: glib_req)
 gio_unix_dep = dependency('gio-unix-2.0', version: glib_req)
 gobject_dep = dependency('gobject-2.0', version: glib_req)
 gthread_dep = dependency('gobject-2.0', version: glib_req)
+gtk4_dep = dependency('gtk4', version: gtk4_req, required: false)
 gmodule_no_export_dep = dependency('gmodule-no-export-2.0', version: glib_req)
 gnome_settings_daemon_dep = dependency('gnome-settings-daemon', required: false)
 xkbcommon_dep = dependency('xkbcommon', version: xkbcommon_req)
@@ -158,7 +164,9 @@ if have_fonts or have_x11
 endif
 
 if have_x11_client
-  gtk4_dep = dependency('gtk4', version: gtk4_req)
+  if not gtk4_dep.found()
+    error('X11 client support requires gtk4 @0@'.format(gtk4_req))
+  endif
 
   x11_dep = dependency('x11', version: x11_req)
   xcomposite_dep = dependency('xcomposite', version: xcomposite_req)
@@ -341,6 +349,15 @@ endif
 have_remote_desktop = get_option('remote_desktop')
 if have_remote_desktop
   libpipewire_dep = dependency('libpipewire-0.3', version: libpipewire_req)
+endif
+
+have_devkit = get_option('devkit').enable_auto_if(
+  gtk4_dep.found() and
+  have_native_backend and
+  have_remote_desktop
+).enabled()
+if have_devkit and (not gtk4_dep.found() or not have_native_backend or not have_remote_desktop)
+  error('MDK requires gtk4 @0@, the native backend, and remote desktop'.format(gtk4_req))
 endif
 
 have_introspection = get_option('introspection')
@@ -744,6 +761,9 @@ subdir('clutter')
 subdir('data')
 subdir('tools')
 subdir('src')
+if have_devkit
+  subdir('mdk')
+endif
 subdir('po')
 subdir('doc/man')
 if have_documentation
@@ -778,6 +798,7 @@ summary('XWayland', have_xwayland, section: 'Options')
 summary('Native Backend', have_native_backend, section: 'Options')
 summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
+summary('Development Kit', have_devkit, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')

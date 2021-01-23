@@ -6,6 +6,8 @@ data/50-mutter-wayland.xml
 data/50-mutter-windows.xml
 data/org.gnome.mutter.gschema.xml.in
 data/org.gnome.mutter.wayland.gschema.xml.in
+mdk/mdk-devkit.ui
+mdk/mdk-main.c
 src/backends/meta-monitor.c
 src/core/bell.c
 src/core/display.c

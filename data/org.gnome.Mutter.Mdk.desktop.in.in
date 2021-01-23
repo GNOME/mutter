@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Mutter Development Kit
+Comment=Mutter Development Kit
+Exec=mutter-devkit
+Icon=org.gnome.Mutter.Mdk
+Type=Application
+Categories=GNOME;
+Keywords=mutter;emulator;debug
+NoDisplay=true
