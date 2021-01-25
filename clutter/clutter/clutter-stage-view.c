@@ -81,6 +81,14 @@ typedef struct _ClutterStageViewPrivate
   float refresh_rate;
   ClutterFrameClock *frame_clock;
 
+  struct {
+    int frame_count;
+    int64_t last_print_time_us;
+    int64_t cumulative_draw_time_us;
+    int64_t began_draw_time_us;
+    int64_t worst_draw_time_us;
+  } frame_timings;
+
   guint dirty_viewport   : 1;
   guint dirty_projection : 1;
 } ClutterStageViewPrivate;
@@ -1065,6 +1073,70 @@ handle_frame_clock_before_frame (ClutterFrameClock *frame_clock,
   _clutter_stage_process_queued_events (priv->stage);
 }
 
+static void
+begin_frame_timing_measurement (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  priv->frame_timings.began_draw_time_us = g_get_monotonic_time ();
+}
+
+static void
+end_frame_timing_measurement (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  int64_t now_us = g_get_monotonic_time ();
+  int64_t draw_time_us;
+
+  draw_time_us = now_us - priv->frame_timings.began_draw_time_us;
+
+  priv->frame_timings.frame_count++;
+  priv->frame_timings.cumulative_draw_time_us += draw_time_us;
+  if (draw_time_us > priv->frame_timings.worst_draw_time_us)
+    priv->frame_timings.worst_draw_time_us = draw_time_us;
+
+  if (priv->frame_timings.frame_count && priv->frame_timings.last_print_time_us)
+    {
+      float time_since_last_print_s;
+
+      time_since_last_print_s =
+        (now_us - priv->frame_timings.last_print_time_us) /
+        (float) G_USEC_PER_SEC;
+
+      if (time_since_last_print_s >= 1.0)
+        {
+          float avg_fps, avg_draw_time_ms, worst_draw_time_ms;
+
+          avg_fps = priv->frame_timings.frame_count / time_since_last_print_s;
+
+          avg_draw_time_ms =
+            (priv->frame_timings.cumulative_draw_time_us / 1000.0) /
+            priv->frame_timings.frame_count;
+
+          worst_draw_time_ms = priv->frame_timings.worst_draw_time_us / 1000.0;
+
+          g_print ("*** %s frame timings over %.01fs: "
+                   "%.02f FPS, average: %.01fms, peak: %.01fms\n",
+                   priv->name,
+                   time_since_last_print_s,
+                   avg_fps,
+                   avg_draw_time_ms,
+                   worst_draw_time_ms);
+
+          priv->frame_timings.frame_count = 0;
+          priv->frame_timings.cumulative_draw_time_us = 0;
+          priv->frame_timings.worst_draw_time_us = 0;
+          priv->frame_timings.last_print_time_us = now_us;
+        }
+    }
+  else if (!priv->frame_timings.last_print_time_us)
+    {
+      priv->frame_timings.last_print_time_us = now_us;
+    }
+}
+
 static ClutterFrameResult
 handle_frame_clock_frame (ClutterFrameClock *frame_clock,
                           int64_t            frame_count,
@@ -1088,6 +1160,9 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   if (!clutter_actor_is_mapped (CLUTTER_ACTOR (stage)))
     return CLUTTER_FRAME_RESULT_IDLE;
 
+  if (_clutter_context_get_show_fps ())
+    begin_frame_timing_measurement (view);
+
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_PRE_PAINT);
   clutter_stage_emit_before_update (stage, view);
 
@@ -1108,6 +1183,9 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
       _clutter_stage_window_redraw_view (stage_window, view, &frame);
 
       clutter_stage_emit_after_paint (stage, view);
+
+      if (_clutter_context_get_show_fps ())
+        end_frame_timing_measurement (view);
     }
 
   _clutter_stage_window_finish_frame (stage_window, view, &frame);
