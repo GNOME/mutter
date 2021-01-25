@@ -63,8 +63,7 @@ meta_monitor_manager_test_emulate_hotplug (MetaMonitorManagerTest *manager_test,
   old_test_setup = manager_test->test_setup;
   manager_test->test_setup = test_setup;
 
-  meta_monitor_manager_read_current_state (manager);
-  meta_monitor_manager_on_hotplug (manager);
+  meta_monitor_manager_reload (manager);
 
   g_free (old_test_setup);
 }

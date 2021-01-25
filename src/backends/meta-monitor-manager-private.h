@@ -325,11 +325,12 @@ void                meta_monitor_manager_confirm_configuration (MetaMonitorManag
 
 gboolean           meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager);
 
-META_EXPORT_TEST
 void               meta_monitor_manager_read_current_state (MetaMonitorManager *manager);
 
+void               meta_monitor_manager_reconfigure (MetaMonitorManager *manager);
+
 META_EXPORT_TEST
-void               meta_monitor_manager_on_hotplug (MetaMonitorManager *manager);
+void               meta_monitor_manager_reload (MetaMonitorManager *manager);
 
 gboolean           meta_monitor_manager_get_monitor_matrix (MetaMonitorManager *manager,
                                                             MetaMonitor        *monitor,

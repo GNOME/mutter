@@ -809,7 +809,7 @@ experimental_features_changed (MetaSettings           *settings,
     should_reconfigure = TRUE;
 
   if (should_reconfigure)
-    meta_monitor_manager_on_hotplug (manager);
+    meta_monitor_manager_reconfigure (manager);
 
   meta_settings_update_ui_scaling_factor (settings);
 }
@@ -3098,9 +3098,16 @@ meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
 }
 
 void
-meta_monitor_manager_on_hotplug (MetaMonitorManager *manager)
+meta_monitor_manager_reconfigure (MetaMonitorManager *manager)
 {
   meta_monitor_manager_ensure_configured (manager);
+}
+
+void
+meta_monitor_manager_reload (MetaMonitorManager *manager)
+{
+  meta_monitor_manager_read_current_state (manager);
+  meta_monitor_manager_reconfigure (manager);
 }
 
 static gboolean

@@ -463,8 +463,7 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
 static void
 handle_hotplug_event (MetaMonitorManager *manager)
 {
-  meta_monitor_manager_read_current_state (manager);
-  meta_monitor_manager_on_hotplug (manager);
+  meta_monitor_manager_reload (manager);
 }
 
 static void

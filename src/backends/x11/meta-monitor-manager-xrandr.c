@@ -1126,7 +1126,7 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
                           manager_xrandr->last_xrandr_set_timestamp);
   if (is_hotplug)
     {
-      meta_monitor_manager_on_hotplug (manager);
+      meta_monitor_manager_reconfigure (manager);
     }
   else
     {
