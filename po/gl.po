@@ -15,10 +15,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-12-23 12:33+0000\n"
-"PO-Revision-Date: 2021-01-05 00:10+0100\n"
+"POT-Creation-Date: 2021-01-19 11:41+0000\n"
+"PO-Revision-Date: 2021-01-25 20:04+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Galician <proxecto@trasno.gal>\n"
+"Language-Team: Galician <Proxecto Trasno <proxecto@trasno.gal>>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -243,11 +243,11 @@ msgstr "Maximizar xanela verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar xanela horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Dividir vista á esquerda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Dividir vista á dereita"
 
@@ -407,7 +407,10 @@ msgstr "Activar as características experimentais"
 #| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
 #| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
 #| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
-#| "are X11 clients. Requires restart."
+#| "are X11 clients. Requires a restart. • “dma-buf-screen-sharing\" — "
+#| "enables DMA buffered screen sharing. This is already enabled by default "
+#| "when using the i915 driver, but disabled for everything else. Requires a "
+#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -418,11 +421,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
-"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
-"already enabled by default when using the i915 driver, but disabled for "
-"everything else. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Para activar as características experimentais, engada a palabra chave da "
 "característica á lista. Depende da característica que se deba reiniciar ou "
@@ -438,21 +441,23 @@ msgstr ""
 "xwayland” — Inicia Xwayland só se hai clientes X11. Require reiniciar. "
 "Require un reinicio. • “dma-buf-screen-sharing\" — activa a compartición de "
 "pantalla con búfer DMA. Isto xa está activo por omisión ao usar o "
-"controlador i915, pero desactivado para o resto. Require un reinicio."
+"controlador i915, pero desactivado para o resto. Require un reinicio. • "
+"“autoclose-xwayland” — Remata XWayland automaticamente se se pecharon os "
+"clientes relevantes. Non require reiniciar."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador a usar para localizar o punteiro"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará a acción «localizar punteiro»."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Tempo de espera para  comprobación de ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -460,19 +465,19 @@ msgstr ""
 "Número de milisegundos que ten un cliente para responder a ping e que non se "
 "lle detecte como caído. Usar 0 desactivará esta comprobación."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Seleccionar xanela da lapela emerxente"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Cancelar lapela emerxente"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Cambiar preferencias do monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota a configuración do monitor embebido"
 
@@ -762,13 +767,12 @@ msgstr "Imprimir versión"
 msgid "Mutter plugin to use"
 msgstr "Engadido de mutter que usar"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
 
 #: src/core/util.c:117
-#| msgid "Mutter was compiled without support for verbose mode\n"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter foi compilado sen compatibilidade para o modo detallado"
 
@@ -787,19 +791,16 @@ msgstr ""
 "para substituír o xestor de xanelas."
 
 #: src/x11/meta-x11-display.c:1089
-#| msgid "Failed to initialize GDK\n"
 msgid "Failed to initialize GDK"
 msgstr "Produciuse un fallo ao inicializar GDK"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-#| msgid "Failed to open X Window System display “%s”\n"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-#| msgid "Screen %d on display “%s” is invalid\n"
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A pantalla %d na visualización «%s» non é válida"
 
