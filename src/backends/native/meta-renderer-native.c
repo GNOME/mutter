@@ -1361,7 +1361,7 @@ init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
   if (init_secondary_gpu_data_gpu (renderer_gpu_data, &error))
     return;
 
-  g_warning ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
+  g_message ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
              error->message);
   g_error_free (error);
 
