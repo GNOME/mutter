@@ -1033,7 +1033,7 @@ meta_virtual_input_device_native_constructed (GObject *object)
 static void
 impl_state_free (ImplState *impl_state)
 {
-  g_clear_object (&impl_state->device);
+  g_warn_if_fail (!impl_state->device);
   g_free (impl_state);
 }
 
