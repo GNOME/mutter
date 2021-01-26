@@ -164,6 +164,7 @@ int meta_output_get_backlight (MetaOutput *output);
 void meta_output_add_possible_clone (MetaOutput *output,
                                      MetaOutput *possible_clone);
 
+META_EXPORT_TEST
 const MetaOutputInfo * meta_output_get_info (MetaOutput *output);
 
 META_EXPORT_TEST

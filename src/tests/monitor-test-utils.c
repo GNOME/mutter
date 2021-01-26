@@ -365,6 +365,8 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
   for (l = monitors, i = 0; l; l = l->next, i++)
     {
       MetaMonitor *monitor = l->data;
+      MetaOutput *main_output;
+      const MetaOutputInfo *main_output_info;
       GList *outputs;
       GList *l_output;
       int j;
@@ -399,6 +401,19 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
       g_assert_cmpint (height_mm,
                        ==,
                        expect->monitors[i].height_mm);
+
+      main_output = meta_monitor_get_main_output (monitor);
+      main_output_info = meta_output_get_info (main_output);
+      g_assert_cmpstr (meta_monitor_get_connector (monitor), ==,
+                       main_output_info->name);
+      g_assert_cmpstr (meta_monitor_get_vendor (monitor), ==,
+                       main_output_info->vendor);
+      g_assert_cmpstr (meta_monitor_get_product (monitor), ==,
+                       main_output_info->product);
+      g_assert_cmpstr (meta_monitor_get_serial (monitor), ==,
+                       main_output_info->serial);
+      g_assert_cmpint (meta_monitor_get_connector_type (monitor), ==,
+                       main_output_info->connector_type);
 
       modes = meta_monitor_get_modes (monitor);
       g_assert_cmpint (g_list_length (modes),
