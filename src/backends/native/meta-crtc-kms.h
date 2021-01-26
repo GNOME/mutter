@@ -45,9 +45,6 @@ void meta_crtc_kms_set_cursor_renderer_private (MetaCrtcKms    *crtc_kms,
                                                 gpointer        cursor_renderer_private,
                                                 GDestroyNotify  destroy_notify);
 
-gboolean meta_crtc_kms_is_transform_handled (MetaCrtcKms          *crtc_kms,
-                                             MetaMonitorTransform  transform);
-
 void meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
                                     MetaKmsPlaneAssignment *kms_plane_assignment);
 

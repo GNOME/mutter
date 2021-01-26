@@ -24,6 +24,15 @@
 G_DEFINE_ABSTRACT_TYPE (MetaCrtcNative, meta_crtc_native,
                         META_TYPE_CRTC)
 
+gboolean
+meta_crtc_native_is_transform_handled (MetaCrtcNative       *crtc_native,
+                                       MetaMonitorTransform  transform)
+{
+  MetaCrtcNativeClass *klass = META_CRTC_NATIVE_GET_CLASS (crtc_native);
+
+  return klass->is_transform_handled (crtc_native, transform);
+}
+
 static void
 meta_crtc_native_init (MetaCrtcNative *crtc_native)
 {

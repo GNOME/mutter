@@ -528,7 +528,8 @@ meta_monitor_manager_native_is_transform_handled (MetaMonitorManager  *manager,
                                                   MetaCrtc            *crtc,
                                                   MetaMonitorTransform transform)
 {
-  return meta_crtc_kms_is_transform_handled (META_CRTC_KMS (crtc), transform);
+  return meta_crtc_native_is_transform_handled (META_CRTC_NATIVE (crtc),
+                                                transform);
 }
 
 static float

@@ -30,6 +30,12 @@ G_DECLARE_DERIVABLE_TYPE (MetaCrtcNative, meta_crtc_native,
 struct _MetaCrtcNativeClass
 {
   MetaCrtcClass parent_class;
+
+  gboolean (* is_transform_handled) (MetaCrtcNative       *crtc_native,
+                                     MetaMonitorTransform  monitor_transform);
 };
+
+gboolean meta_crtc_native_is_transform_handled (MetaCrtcNative       *crtc_native,
+                                                MetaMonitorTransform  transform);
 
 #endif /* META_CRTC_NATIVE_H */

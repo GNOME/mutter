@@ -74,15 +74,24 @@ meta_crtc_kms_set_cursor_renderer_private (MetaCrtcKms    *crtc_kms,
   crtc_kms->cursor_renderer_private_destroy_notify = destroy_notify;
 }
 
-gboolean
-meta_crtc_kms_is_transform_handled (MetaCrtcKms          *crtc_kms,
-                                    MetaMonitorTransform  transform)
+static gboolean
+is_transform_handled (MetaCrtcKms          *crtc_kms,
+                      MetaMonitorTransform  transform)
 {
   if (!crtc_kms->primary_plane)
     return FALSE;
 
   return meta_kms_plane_is_transform_handled (crtc_kms->primary_plane,
                                               transform);
+}
+
+static gboolean
+meta_crtc_kms_is_transform_handled (MetaCrtcNative       *crtc_native,
+                                    MetaMonitorTransform  transform)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc_native);
+
+  return is_transform_handled (crtc_kms, transform);
 }
 
 void
@@ -96,9 +105,9 @@ meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
   crtc_config = meta_crtc_get_config (crtc);
 
   hw_transform = crtc_config->transform;
-  if (!meta_crtc_kms_is_transform_handled (crtc_kms, hw_transform))
+  if (!is_transform_handled (crtc_kms, hw_transform))
     hw_transform = META_MONITOR_TRANSFORM_NORMAL;
-  if (!meta_crtc_kms_is_transform_handled (crtc_kms, hw_transform))
+  if (!is_transform_handled (crtc_kms, hw_transform))
     return;
 
   meta_kms_plane_update_set_rotation (crtc_kms->primary_plane,
@@ -369,6 +378,9 @@ static void
 meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  MetaCrtcNativeClass *crtc_native_class = META_CRTC_NATIVE_CLASS (klass);
 
   object_class->dispose = meta_crtc_kms_dispose;
+
+  crtc_native_class->is_transform_handled = meta_crtc_kms_is_transform_handled;
 }
