@@ -166,8 +166,11 @@ if have_native_tests
   native_headless_tests = executable('mutter-native-headless-tests',
     sources: [
       'native-headless.c',
+      'native-virtual-monitor.c',
+      'native-virtual-monitor.h',
       'test-utils.c',
       'test-utils.h',
+      ref_test_sources,
     ],
     include_directories: tests_includepath,
     c_args: tests_c_args,

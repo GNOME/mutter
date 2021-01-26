@@ -397,6 +397,7 @@ MetaVirtualMonitor * meta_monitor_manager_create_virtual_monitor (MetaMonitorMan
                                                                   const MetaVirtualMonitorInfo  *info,
                                                                   GError                       **error);
 
+META_EXPORT_TEST
 MetaMonitorConfigManager *
                    meta_monitor_manager_get_config_manager (MetaMonitorManager *manager);
 

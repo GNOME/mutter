@@ -62,6 +62,7 @@ MetaCrtc * meta_virtual_monitor_get_crtc (MetaVirtualMonitor *virtual_monitor);
 
 MetaCrtcMode * meta_virtual_monitor_get_crtc_mode (MetaVirtualMonitor *virtual_monitor);
 
+META_EXPORT_TEST
 MetaOutput * meta_virtual_monitor_get_output (MetaVirtualMonitor *virtual_monitor);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualMonitorInfo,

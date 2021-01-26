@@ -65,6 +65,7 @@ typedef enum _MetaMonitorScalesConstraint
 } MetaMonitorScalesConstraint;
 
 #define META_TYPE_MONITOR (meta_monitor_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaMonitor, meta_monitor, META, MONITOR, GObject)
 
 struct _MetaMonitorClass
