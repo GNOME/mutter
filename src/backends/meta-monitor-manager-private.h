@@ -261,6 +261,10 @@ struct _MetaMonitorManagerClass
 
   void (* set_output_ctm) (MetaOutput          *output,
                            const MetaOutputCtm *ctm);
+
+  MetaVirtualMonitor * (* create_virtual_monitor) (MetaMonitorManager            *manager,
+                                                   const MetaVirtualMonitorInfo  *info,
+                                                   GError                       **error);
 };
 
 META_EXPORT_TEST
@@ -388,6 +392,10 @@ gboolean           meta_monitor_manager_get_max_screen_size (MetaMonitorManager 
 MetaLogicalMonitorLayoutMode
                    meta_monitor_manager_get_default_layout_mode (MetaMonitorManager *manager);
 
+MetaVirtualMonitor * meta_monitor_manager_create_virtual_monitor (MetaMonitorManager            *manager,
+                                                                  const MetaVirtualMonitorInfo  *info,
+                                                                  GError                       **error);
+
 MetaMonitorConfigManager *
                    meta_monitor_manager_get_config_manager (MetaMonitorManager *manager);
 
@@ -423,5 +431,7 @@ meta_find_output_assignment (MetaOutputAssignment **outputs,
 void meta_monitor_manager_post_init (MetaMonitorManager *manager);
 
 MetaViewportInfo * meta_monitor_manager_get_viewports (MetaMonitorManager *manager);
+
+GList * meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager);
 
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */

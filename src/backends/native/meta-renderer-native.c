@@ -50,6 +50,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-crtc-virtual.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-onscreen-native.h"
@@ -1021,13 +1022,11 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  CoglDisplayEGL *cogl_display_egl;
-  CoglOnscreenEgl *onscreen_egl;
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
   MetaMonitorTransform view_transform;
-  MetaOnscreenNative *onscreen_native;
-  CoglOffscreen *offscreen = NULL;
+  g_autoptr (CoglFramebuffer) framebuffer = NULL;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
   gboolean use_shadowfb;
   float scale;
   int onscreen_width;
@@ -1042,16 +1041,41 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   onscreen_width = crtc_mode_info->width;
   onscreen_height = crtc_mode_info->height;
 
-  onscreen_native = meta_onscreen_native_new (renderer_native,
-                                              renderer_native->primary_gpu_kms,
-                                              output,
-                                              crtc,
-                                              cogl_context,
-                                              onscreen_width,
-                                              onscreen_height);
+  if (META_IS_CRTC_KMS (crtc))
+    {
+      MetaOnscreenNative *onscreen_native;
 
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &error))
-    g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
+      onscreen_native = meta_onscreen_native_new (renderer_native,
+                                                  renderer_native->primary_gpu_kms,
+                                                  output,
+                                                  crtc,
+                                                  cogl_context,
+                                                  onscreen_width,
+                                                  onscreen_height);
+
+      if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &error))
+        g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
+
+      use_shadowfb = should_force_shadow_fb (renderer_native,
+                                             renderer_native->primary_gpu_kms);
+      framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+    }
+  else
+    {
+      CoglOffscreen *virtual_onscreen;
+
+      g_assert (META_IS_CRTC_VIRTUAL (crtc));
+
+      virtual_onscreen = meta_renderer_native_create_offscreen (renderer_native,
+                                                                cogl_context,
+                                                                onscreen_width,
+                                                                onscreen_height,
+                                                                &error);
+      if (!virtual_onscreen)
+        g_error ("Failed to allocate back buffer texture: %s", error->message);
+      use_shadowfb = FALSE;
+      framebuffer = COGL_FRAMEBUFFER (virtual_onscreen);
+    }
 
   view_transform = calculate_view_transform (monitor_manager,
                                              logical_monitor,
@@ -1082,9 +1106,6 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
         g_error ("Failed to allocate back buffer texture: %s", error->message);
     }
 
-  use_shadowfb = should_force_shadow_fb (renderer_native,
-                                         renderer_native->primary_gpu_kms);
-
   if (meta_is_stage_views_scaled ())
     scale = meta_logical_monitor_get_scale (logical_monitor);
   else
@@ -1099,25 +1120,29 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                        "layout", &view_layout,
                        "crtc", crtc,
                        "scale", scale,
-                       "framebuffer", onscreen_native,
+                       "framebuffer", framebuffer,
                        "offscreen", offscreen,
                        "use-shadowfb", use_shadowfb,
                        "transform", view_transform,
                        "refresh-rate", crtc_mode_info->refresh_rate,
                        NULL);
-  g_clear_object (&offscreen);
-  g_object_unref (onscreen_native);
 
-  meta_onscreen_native_set_view (COGL_ONSCREEN (onscreen_native), view);
+  if (META_IS_ONSCREEN_NATIVE (framebuffer))
+    {
+      CoglDisplayEGL *cogl_display_egl;
+      CoglOnscreenEgl *onscreen_egl;
 
-  /* Ensure we don't point to stale surfaces when creating the offscreen */
-  cogl_display_egl = cogl_display->winsys;
-  onscreen_egl = COGL_ONSCREEN_EGL (onscreen_native);
-  egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
-  _cogl_winsys_egl_make_current (cogl_display,
-                                 egl_surface,
-                                 egl_surface,
-                                 cogl_display_egl->egl_context);
+      meta_onscreen_native_set_view (COGL_ONSCREEN (framebuffer), view);
+
+      /* Ensure we don't point to stale surfaces when creating the offscreen */
+      cogl_display_egl = cogl_display->winsys;
+      onscreen_egl = COGL_ONSCREEN_EGL (framebuffer);
+      egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
+      _cogl_winsys_egl_make_current (cogl_display,
+                                     egl_surface,
+                                     egl_surface,
+                                     cogl_display_egl->egl_context);
+    }
 
   return view;
 }
@@ -1165,9 +1190,16 @@ meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
                                     ClutterFrame       *frame)
 {
   MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);;
+  MetaCrtcKms *crtc_kms;
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsDevice *kms_device;
+
+  if (!META_IS_CRTC_KMS (crtc))
+    return;
+
+  crtc_kms = META_CRTC_KMS (crtc);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
 
   meta_crtc_kms_maybe_set_gamma (crtc_kms, kms_device);
 }
@@ -1181,9 +1213,13 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
     {
       CoglFramebuffer *framebuffer =
         clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
-      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
 
-      meta_onscreen_native_finish_frame (onscreen, frame);
+      if (COGL_IS_ONSCREEN (framebuffer))
+        {
+          CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+
+          meta_onscreen_native_finish_frame (onscreen, frame);
+        }
     }
 }
 

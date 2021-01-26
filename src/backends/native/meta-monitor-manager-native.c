@@ -59,6 +59,7 @@
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-virtual-monitor-native.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
@@ -89,6 +90,8 @@ struct _MetaMonitorManagerNativeClass
 {
   MetaMonitorManagerClass parent_class;
 };
+
+#define VIRTUAL_OUTPUT_ID_BIT (((uint64_t) 1) << 63)
 
 static void
 initable_iface_init (GInitableIface *initable_iface);
@@ -222,6 +225,16 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
 
       crtcs = g_list_copy (meta_gpu_get_crtcs (gpu));
       to_configure_crtcs = g_list_concat (to_configure_crtcs, crtcs);
+    }
+
+  for (l = meta_monitor_manager_get_virtual_monitors (manager); l; l = l->next)
+    {
+      MetaVirtualMonitor *virtual_monitor = l->data;
+      MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
+      MetaCrtc *crtc = meta_virtual_monitor_get_crtc (virtual_monitor);
+
+      to_configure_outputs = g_list_append (to_configure_outputs, output);
+      to_configure_crtcs = g_list_append (to_configure_crtcs, crtc);
     }
 
   for (i = 0; i < n_crtcs; i++)
@@ -362,6 +375,8 @@ meta_monitor_manager_native_get_crtc_gamma (MetaMonitorManager  *manager,
   MetaKmsCrtc *kms_crtc;
   const MetaKmsCrtcState *crtc_state;
 
+  g_return_if_fail (META_IS_CRTC_KMS (crtc));
+
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
@@ -455,11 +470,16 @@ meta_monitor_manager_native_set_crtc_gamma (MetaMonitorManager *manager,
 {
   MetaMonitorManagerNative *manager_native =
     META_MONITOR_MANAGER_NATIVE (manager);
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  MetaCrtcKms *crtc_kms;
+  MetaKmsCrtc *kms_crtc;
   g_autofree char *gamma_ramp_string = NULL;
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+  g_return_if_fail (META_IS_CRTC_KMS (crtc));
+
+  crtc_kms = META_CRTC_KMS (crtc);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
 
   g_hash_table_replace (manager_native->crtc_gamma_cache,
                         GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
@@ -602,6 +622,55 @@ meta_monitor_manager_native_get_default_layout_mode (MetaMonitorManager *manager
     return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 }
 
+static MetaVirtualMonitorNative *
+find_virtual_monitor (MetaMonitorManagerNative *manager_native,
+                      uint64_t                  id)
+{
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_native);
+  GList *l;
+
+  for (l = meta_monitor_manager_get_virtual_monitors (manager); l; l = l->next)
+    {
+      MetaVirtualMonitorNative *virtual_monitor_native = l->data;
+
+      if (meta_virtual_monitor_native_get_id (virtual_monitor_native) == id)
+        return virtual_monitor_native;
+    }
+
+  return NULL;
+}
+
+static uint64_t
+allocate_virtual_monitor_id (MetaMonitorManagerNative *manager_native)
+{
+  uint64_t id;
+
+  id = 0;
+
+  while (TRUE)
+    {
+      if (!find_virtual_monitor (manager_native, id))
+        return id;
+
+      id++;
+    }
+}
+
+static MetaVirtualMonitor *
+meta_monitor_manager_native_create_virtual_monitor (MetaMonitorManager            *manager,
+                                                    const MetaVirtualMonitorInfo  *info,
+                                                    GError                       **error)
+{
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (manager);
+  MetaVirtualMonitorNative *virtual_monitor_native;
+  uint64_t id;
+
+  id = allocate_virtual_monitor_id (manager_native);
+  virtual_monitor_native = meta_virtual_monitor_native_new (id, info);
+  return META_VIRTUAL_MONITOR (virtual_monitor_native);
+}
+
 static void
 meta_monitor_manager_native_set_property (GObject      *object,
                                           guint         prop_id,
@@ -722,6 +791,8 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
     meta_monitor_manager_native_get_max_screen_size;
   manager_class->get_default_layout_mode =
     meta_monitor_manager_native_get_default_layout_mode;
+  manager_class->create_virtual_monitor =
+    meta_monitor_manager_native_create_virtual_monitor;
 
   obj_props[PROP_NEED_OUTPUTS] =
     g_param_spec_boolean ("needs-outputs",

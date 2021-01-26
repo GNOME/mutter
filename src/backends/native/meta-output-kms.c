@@ -270,6 +270,8 @@ init_output_modes (MetaOutputInfo    *output_info,
 static MetaConnectorType
 meta_kms_connector_type_from_drm (uint32_t drm_connector_type)
 {
+  g_warn_if_fail (drm_connector_type < META_CONNECTOR_TYPE_META);
+
   return (MetaConnectorType) drm_connector_type;
 }
 

@@ -27,6 +27,7 @@
 #include "backends/native/meta-stage-native.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/native/meta-crtc-virtual.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-renderer-native.h"
 #include "meta/meta-backend.h"
@@ -44,6 +45,8 @@ struct _MetaStageNative
   int64_t presented_frame_counter_sync;
   int64_t presented_frame_counter_complete;
 };
+
+static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
 
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
@@ -127,6 +130,24 @@ meta_stage_native_prepare_frame (ClutterStageWindow *stage_window,
 }
 
 static void
+meta_stage_native_redraw_view (ClutterStageWindow *stage_window,
+                               ClutterStageView   *view,
+                               ClutterFrame       *frame)
+{
+  MetaCrtc *crtc;
+
+  clutter_stage_window_parent_iface->redraw_view (stage_window, view, frame);
+
+  crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (view));
+  if (META_IS_CRTC_VIRTUAL (crtc))
+    {
+      g_warn_if_fail (!clutter_frame_has_result (frame));
+
+      clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+    }
+}
+
+static void
 meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
                                 ClutterStageView   *stage_view,
                                 ClutterFrame       *frame)
@@ -137,6 +158,9 @@ meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
   meta_renderer_native_finish_frame (META_RENDERER_NATIVE (renderer),
                                      META_RENDERER_VIEW (stage_view),
                                      frame);
+
+  if (!clutter_frame_has_result (frame))
+    clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
 }
 
 static void
@@ -156,9 +180,12 @@ meta_stage_native_class_init (MetaStageNativeClass *klass)
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
+  clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
+
   iface->can_clip_redraws = meta_stage_native_can_clip_redraws;
   iface->get_geometry = meta_stage_native_get_geometry;
   iface->get_views = meta_stage_native_get_views;
   iface->prepare_frame = meta_stage_native_prepare_frame;
+  iface->redraw_view = meta_stage_native_redraw_view;
   iface->finish_frame = meta_stage_native_finish_frame;
 }

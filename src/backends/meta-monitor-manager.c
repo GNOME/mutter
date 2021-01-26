@@ -53,6 +53,7 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-orientation-manager.h"
 #include "backends/meta-output.h"
+#include "backends/meta-virtual-monitor.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "clutter/clutter.h"
 #include "core/main-private.h"
@@ -101,6 +102,10 @@ typedef struct _MetaMonitorManagerPrivate
 {
   MetaPowerSave power_save_mode;
   gboolean      initial_orient_change_done;
+
+  GList *virtual_monitors;
+
+  gboolean shutting_down;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -400,6 +405,16 @@ lid_is_closed_changed (MetaBackend *backend,
   meta_monitor_manager_lid_is_closed_changed (manager);
 }
 
+static void
+prepare_shutdown (MetaBackend        *backend,
+                  MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  priv->shutting_down = TRUE;
+}
+
 /**
  * meta_monitor_manager_is_headless:
  * @manager: A #MetaMonitorManager object
@@ -481,6 +496,60 @@ meta_monitor_manager_get_default_layout_mode (MetaMonitorManager *manager)
     META_MONITOR_MANAGER_GET_CLASS (manager);
 
   return manager_class->get_default_layout_mode (manager);
+}
+
+static void
+on_virtual_monitor_destroyed (MetaVirtualMonitor *virtual_monitor,
+                              MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  MetaOutput *output;
+
+  output = meta_virtual_monitor_get_output (virtual_monitor);
+  g_message ("Removed virtual monitor %s", meta_output_get_name (output));
+  priv->virtual_monitors = g_list_remove (priv->virtual_monitors,
+                                          virtual_monitor);
+
+  if (!priv->shutting_down)
+    meta_monitor_manager_reload (manager);
+}
+
+MetaVirtualMonitor *
+meta_monitor_manager_create_virtual_monitor (MetaMonitorManager            *manager,
+                                             const MetaVirtualMonitorInfo  *info,
+                                             GError                       **error)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  MetaMonitorManagerClass *manager_class =
+    META_MONITOR_MANAGER_GET_CLASS (manager);
+  MetaVirtualMonitor *virtual_monitor;
+  MetaOutput *output;
+
+  if (!manager_class->create_virtual_monitor)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Backend doesn't support creating virtual monitors");
+      return NULL;
+    }
+
+  virtual_monitor = manager_class->create_virtual_monitor (manager, info,
+                                                           error);
+  if (!virtual_monitor)
+    return NULL;
+
+  g_signal_connect (virtual_monitor, "destroy",
+                    G_CALLBACK (on_virtual_monitor_destroyed),
+                    manager);
+
+  priv->virtual_monitors = g_list_append (priv->virtual_monitors,
+                                          virtual_monitor);
+
+  output = meta_virtual_monitor_get_output (virtual_monitor);
+  g_message ("Added virtual monitor %s", meta_output_get_name (output));
+
+  return virtual_monitor;
 }
 
 static void
@@ -896,6 +965,10 @@ meta_monitor_manager_constructed (GObject *object)
                            G_CALLBACK (lid_is_closed_changed),
                            manager, 0);
 
+  g_signal_connect (backend, "prepare-shutdown",
+                    G_CALLBACK (prepare_shutdown),
+                    manager);
+
   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
   initialize_dbus_interface (manager);
@@ -905,8 +978,12 @@ static void
 meta_monitor_manager_finalize (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
 
   g_list_free_full (manager->logical_monitors, g_object_unref);
+
+  g_warn_if_fail (!priv->virtual_monitors);
 
   g_clear_signal_handler (&manager->experimental_features_changed_handler_id,
                           manager->backend);
@@ -2894,6 +2971,18 @@ rebuild_monitors (MetaMonitorManager *manager)
             }
         }
     }
+
+  for (l = meta_monitor_manager_get_virtual_monitors (manager); l; l = l->next)
+    {
+      MetaVirtualMonitor *virtual_monitor = l->data;
+      MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
+      MetaMonitorNormal *monitor_normal;
+
+      monitor_normal = meta_monitor_normal_new (manager, output);
+      manager->monitors = g_list_append (manager->monitors,
+                                         monitor_normal);
+
+    }
 }
 
 void
@@ -3364,4 +3453,13 @@ meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
   g_array_unref (scales);
 
   return info;
+}
+
+GList *
+meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  return priv->virtual_monitors;
 }

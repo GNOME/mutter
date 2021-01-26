@@ -39,7 +39,8 @@ struct _MetaTileInfo
   uint32_t tile_h;
 };
 
-/* This matches the values in drm_mode.h */
+/* The first 17 matches the values in drm_mode.h, the ones starting with
+ * 1000 do not. */
 typedef enum
 {
   META_CONNECTOR_TYPE_Unknown = 0,
@@ -59,6 +60,8 @@ typedef enum
   META_CONNECTOR_TYPE_eDP = 14,
   META_CONNECTOR_TYPE_VIRTUAL = 15,
   META_CONNECTOR_TYPE_DSI = 16,
+
+  META_CONNECTOR_TYPE_META = 1000,
 } MetaConnectorType;
 
 typedef struct _MetaOutputInfo

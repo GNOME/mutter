@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Red Hat
+ * Copyright (C) 2021 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,25 +15,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
- *
  */
 
-#ifndef META_BACKEND_NATIVE_TYPES_H
-#define META_BACKEND_NATIVE_TYPES_H
+#ifndef META_CRTC_VIRTUAL_H
+#define META_CRTC_VIRTUAL_H
 
-typedef struct _MetaBackendNative MetaBackendNative;
-typedef struct _MetaSeatNative MetaSeatNative;
-typedef struct _MetaSeatImpl MetaSeatImpl;
-typedef struct _MetaKeymapNative MetaKeymapNative;
-typedef struct _MetaRendererNative MetaRendererNative;
-typedef struct _MetaGpuKms MetaGpuKms;
-typedef struct _MetaCrtcVirtual MetaCrtcVirtual;
-typedef struct _MetaCrtcModeVirtual MetaCrtcModeVirtual;
+#include "backends/native/meta-crtc-native.h"
 
-typedef enum _MetaSeatNativeFlag
-{
-  META_SEAT_NATIVE_FLAG_NONE = 0,
-  META_SEAT_NATIVE_FLAG_NO_LIBINPUT = 1 << 0,
-} MetaSeatNativeFlag;
+#define META_TYPE_CRTC_VIRTUAL (meta_crtc_virtual_get_type ())
+G_DECLARE_FINAL_TYPE (MetaCrtcVirtual, meta_crtc_virtual,
+                      META, CRTC_VIRTUAL,
+                      MetaCrtcNative)
 
-#endif /* META_BACKEND_NATIVE_TYPES_H */
+MetaCrtcVirtual * meta_crtc_virtual_new (uint64_t id);
+
+#endif /* META_CRTC_VIRTUAL_H */

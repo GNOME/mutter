@@ -542,6 +542,9 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
       META_POWER_SAVE_ON)
     return;
 
+  if (!meta_crtc_get_gpu (crtc))
+    return;
+
   crtc_cursor_data = ensure_crtc_cursor_data (META_CRTC_KMS (crtc));
   if (!crtc_cursor_data->hw_state_invalidated &&
       !crtc_cursor_data->needs_sync_position)
@@ -849,6 +852,9 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
   float scale;
   GList *l;
 
+  if (!gpus)
+    return FALSE;
+
   if (!cursor_sprite)
     return FALSE;
 
@@ -989,7 +995,7 @@ calculate_cursor_sprite_gpus (MetaCursorRenderer *renderer,
           MetaGpu *gpu;
 
           gpu = meta_output_get_gpu (output);
-          if (!g_list_find (gpus, gpu))
+          if (gpu && !g_list_find (gpus, gpu))
             gpus = g_list_prepend (gpus, gpu);
         }
     }
