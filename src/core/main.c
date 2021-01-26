@@ -76,6 +76,8 @@
 #endif
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-virtual-monitor.h"
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter.h"
@@ -139,6 +141,10 @@ static GMainLoop *meta_main_loop = NULL;
 
 static void prefs_changed_callback (MetaPreference pref,
                                     gpointer       data);
+
+#ifdef HAVE_NATIVE_BACKEND
+static void release_virtual_monitors (void);
+#endif
 
 /**
  * meta_print_compilation_info:
@@ -213,6 +219,13 @@ static gboolean  opt_headless;
 #endif
 static gboolean  opt_x11;
 
+#ifdef HAVE_NATIVE_BACKEND
+static gboolean opt_virtual_monitor_cb (const char  *option_name,
+                                        const char  *value,
+                                        gpointer     data,
+                                        GError     **error);
+#endif
+
 static GOptionEntry meta_options[] = {
   {
     "sm-disable", 0, 0, G_OPTION_ARG_NONE,
@@ -286,6 +299,11 @@ static GOptionEntry meta_options[] = {
     &opt_headless,
     N_("Run as a headless display server")
   },
+  {
+    "virtual-monitor", 0, 0, G_OPTION_ARG_CALLBACK,
+    &opt_virtual_monitor_cb,
+    N_("Add persistent virtual monitor (WxH or WxH@R)")
+  },
 #endif
   {
     "x11", 0, 0, G_OPTION_ARG_NONE,
@@ -356,6 +374,10 @@ meta_finalize (void)
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     meta_wayland_finalize ();
+#endif
+
+#ifdef HAVE_NATIVE_BACKEND
+  release_virtual_monitors ();
 #endif
 
   meta_release_backend ();
@@ -455,6 +477,92 @@ check_for_wayland_session_type (void)
   free (session_type);
 
   return is_wayland;
+}
+#endif
+
+#ifdef HAVE_NATIVE_BACKEND
+static GList *opt_virtual_monitor_infos = NULL;
+
+static GList *persistent_virtual_monitors = NULL;
+
+static gboolean
+opt_virtual_monitor_cb (const char  *option_name,
+                        const char  *value,
+                        gpointer     data,
+                        GError     **error)
+{
+  int width, height;
+  float refresh_rate = 60.0;
+
+  if (sscanf (value, "%dx%d@%f",
+              &width, &height, &refresh_rate) == 3 ||
+      sscanf (value, "%dx%d",
+              &width, &height) == 2)
+    {
+      g_autofree char *serial = NULL;
+      MetaVirtualMonitorInfo *virtual_monitor;
+
+      serial = g_strdup_printf ("0x%.2x",
+                                g_list_length (opt_virtual_monitor_infos));
+      virtual_monitor = meta_virtual_monitor_info_new (width,
+                                                       height,
+                                                       refresh_rate,
+                                                       "MetaVendor",
+                                                       "MetaVirtualMonitor",
+                                                       serial);
+      opt_virtual_monitor_infos = g_list_append (opt_virtual_monitor_infos,
+                                                 virtual_monitor);
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
+static void
+release_virtual_monitors (void)
+{
+  g_list_free_full (persistent_virtual_monitors, g_object_unref);
+  persistent_virtual_monitors = NULL;
+}
+
+static void
+add_persistent_virtual_monitors (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  GList *l;
+
+  for (l = opt_virtual_monitor_infos; l; l = l->next)
+    {
+      MetaVirtualMonitorInfo *info = l->data;
+      g_autoptr (GError) error = NULL;
+      MetaVirtualMonitor *virtual_monitor;
+
+      virtual_monitor =
+        meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                     info,
+                                                     &error);
+      if (!virtual_monitor)
+        {
+          g_warning ("Failed to add virtual monitor: %s", error->message);
+          meta_exit (META_EXIT_ERROR);
+        }
+
+      persistent_virtual_monitors = g_list_append (persistent_virtual_monitors,
+                                                   virtual_monitor);
+    }
+
+  if (opt_virtual_monitor_infos)
+    {
+      g_list_free_full (opt_virtual_monitor_infos,
+                        (GDestroyNotify) meta_virtual_monitor_info_free);
+      opt_virtual_monitor_infos = NULL;
+
+      meta_monitor_manager_reload (monitor_manager);
+    }
 }
 #endif
 
@@ -750,6 +858,10 @@ meta_init (void)
       g_array_free (_backend_property_names, TRUE);
       g_array_free (_backend_property_values, TRUE);
     }
+
+#ifdef HAVE_NATIVE_BACKEND
+  add_persistent_virtual_monitors ();
+#endif
 
   meta_set_syncing (opt_sync || (g_getenv ("MUTTER_SYNC") != NULL));
 
