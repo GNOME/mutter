@@ -414,7 +414,6 @@ match_size (MetaMapperInputInfo  *input,
                                        &i_width, &i_height))
     return FALSE;
 
-
   meta_monitor_get_physical_dimensions (monitor, &o_width, &o_height);
   w_diff = ABS (1 - ((double) o_width / i_width));
   h_diff = ABS (1 - ((double) o_height / i_height));
