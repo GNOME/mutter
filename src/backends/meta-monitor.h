@@ -95,17 +95,15 @@ G_DECLARE_FINAL_TYPE (MetaMonitorTiled, meta_monitor_tiled,
                       META, MONITOR_TILED,
                       MetaMonitor)
 
-MetaMonitorTiled * meta_monitor_tiled_new (MetaGpu            *gpu,
-                                           MetaMonitorManager *monitor_manager,
+MetaMonitorTiled * meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
                                            MetaOutput         *output);
 
-MetaMonitorNormal * meta_monitor_normal_new (MetaGpu            *gpu,
-                                             MetaMonitorManager *monitor_manager,
+MetaMonitorNormal * meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
                                              MetaOutput         *output);
 
 MetaMonitorSpec * meta_monitor_get_spec (MetaMonitor *monitor);
 
-MetaGpu * meta_monitor_get_gpu (MetaMonitor *monitor);
+MetaBackend * meta_monitor_get_backend (MetaMonitor *monitor);
 
 META_EXPORT_TEST
 gboolean meta_monitor_is_active (MetaMonitor *monitor);

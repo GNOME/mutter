@@ -985,9 +985,10 @@ calculate_cursor_sprite_gpus (MetaCursorRenderer *renderer,
       for (l_mon = monitors; l_mon; l_mon = l_mon->next)
         {
           MetaMonitor *monitor = l_mon->data;
+          MetaOutput *output = meta_monitor_get_main_output (monitor);
           MetaGpu *gpu;
 
-          gpu = meta_monitor_get_gpu (monitor);
+          gpu = meta_output_get_gpu (output);
           if (!g_list_find (gpus, gpu))
             gpus = g_list_prepend (gpus, gpu);
         }

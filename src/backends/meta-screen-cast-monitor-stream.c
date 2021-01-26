@@ -113,8 +113,7 @@ meta_screen_cast_monitor_stream_new (MetaScreenCastSession     *session,
                                      MetaScreenCastFlag         flags,
                                      GError                   **error)
 {
-  MetaGpu *gpu = meta_monitor_get_gpu (monitor);
-  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaScreenCastMonitorStream *monitor_stream;

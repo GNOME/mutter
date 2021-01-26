@@ -55,7 +55,7 @@ typedef struct _MetaMonitorModeTiled
 
 typedef struct _MetaMonitorPrivate
 {
-  MetaGpu *gpu;
+  MetaBackend *backend;
 
   GList *outputs;
   GList *modes;
@@ -288,12 +288,12 @@ meta_monitor_make_display_name (MetaMonitor        *monitor,
     }
 }
 
-MetaGpu *
-meta_monitor_get_gpu (MetaMonitor *monitor)
+MetaBackend *
+meta_monitor_get_backend (MetaMonitor *monitor)
 {
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
-  return priv->gpu;
+  return priv->backend;
 }
 
 GList *
@@ -660,8 +660,7 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 }
 
 MetaMonitorNormal *
-meta_monitor_normal_new (MetaGpu            *gpu,
-                         MetaMonitorManager *monitor_manager,
+meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
                          MetaOutput         *output)
 {
   MetaMonitorNormal *monitor_normal;
@@ -672,7 +671,7 @@ meta_monitor_normal_new (MetaGpu            *gpu,
   monitor = META_MONITOR (monitor_normal);
   monitor_priv = meta_monitor_get_instance_private (monitor);
 
-  monitor_priv->gpu = gpu;
+  monitor_priv->backend = meta_monitor_manager_get_backend (monitor_manager);
 
   monitor_priv->outputs = g_list_append (NULL, g_object_ref (output));
   meta_output_set_monitor (output, monitor);
@@ -1348,8 +1347,7 @@ meta_monitor_tiled_generate_modes (MetaMonitorTiled *monitor_tiled)
 }
 
 MetaMonitorTiled *
-meta_monitor_tiled_new (MetaGpu            *gpu,
-                        MetaMonitorManager *monitor_manager,
+meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
                         MetaOutput         *output)
 {
   const MetaOutputInfo *output_info = meta_output_get_info (output);
@@ -1361,13 +1359,13 @@ meta_monitor_tiled_new (MetaGpu            *gpu,
   monitor = META_MONITOR (monitor_tiled);
   monitor_priv = meta_monitor_get_instance_private (monitor);
 
-  monitor_priv->gpu = gpu;
+  monitor_priv->backend = meta_monitor_manager_get_backend (monitor_manager);
 
   monitor_tiled->tile_group_id = output_info->tile_info.group_id;
   monitor_priv->winsys_id = meta_output_get_id (output);
 
   monitor_tiled->origin_output = output;
-  add_tiled_monitor_outputs (gpu, monitor_tiled);
+  add_tiled_monitor_outputs (meta_output_get_gpu (output), monitor_tiled);
 
   monitor_tiled->main_output = find_untiled_output (monitor_tiled);
 
