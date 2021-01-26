@@ -162,6 +162,7 @@ release_device_in_impl (GTask *task)
   MetaSeatImpl *seat_impl;
   int code;
   uint64_t time_us;
+  ClutterEvent *device_event;
 
   device_native = META_INPUT_DEVICE_NATIVE (impl_state->device);
   seat_impl = meta_input_device_native_get_seat_impl (device_native);
@@ -197,6 +198,10 @@ release_device_in_impl (GTask *task)
           g_assert_not_reached ();
         }
     }
+
+  device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
+  clutter_event_set_device (device_event, impl_state->device);
+  _clutter_event_push (device_event, FALSE);
 
   g_clear_object (&impl_state->device);
   g_task_return_boolean (task, TRUE);
@@ -1006,6 +1011,7 @@ meta_virtual_input_device_native_constructed (GObject *object)
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (object);
   ClutterInputDeviceType device_type;
+  ClutterEvent *device_event = NULL;
 
   device_type = clutter_virtual_input_device_get_device_type (virtual_device);
 
@@ -1018,6 +1024,10 @@ meta_virtual_input_device_native_constructed (GObject *object)
     meta_input_device_native_new_virtual (virtual_evdev->seat->impl,
                                           device_type,
                                           CLUTTER_INPUT_MODE_PHYSICAL);
+
+  device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
+  clutter_event_set_device (device_event, virtual_evdev->impl_state->device);
+  _clutter_event_push (device_event, FALSE);
 }
 
 static void
