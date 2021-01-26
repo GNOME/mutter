@@ -44,6 +44,7 @@ void clutter_stage_view_invalidate_projection (ClutterStageView *view);
 void clutter_stage_view_set_projection (ClutterStageView        *view,
                                         const graphene_matrix_t *matrix);
 
+CLUTTER_EXPORT
 void clutter_stage_view_add_redraw_clip (ClutterStageView            *view,
                                          const cairo_rectangle_int_t *clip);
 
@@ -63,6 +64,7 @@ void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            
                                                     int                          dst_height,
                                                     cairo_rectangle_int_t       *dst_rect);
 
+CLUTTER_EXPORT
 void clutter_stage_view_schedule_update (ClutterStageView *view);
 
 void clutter_stage_view_notify_presented (ClutterStageView *view,

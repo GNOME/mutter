@@ -392,6 +392,7 @@ gboolean           meta_monitor_manager_get_max_screen_size (MetaMonitorManager 
 MetaLogicalMonitorLayoutMode
                    meta_monitor_manager_get_default_layout_mode (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 MetaVirtualMonitor * meta_monitor_manager_create_virtual_monitor (MetaMonitorManager            *manager,
                                                                   const MetaVirtualMonitorInfo  *info,
                                                                   GError                       **error);

@@ -21,6 +21,7 @@
 #define META_STAGE_PRIVATE_H
 
 #include "backends/meta-cursor.h"
+#include "core/util-private.h"
 #include "meta/boxes.h"
 #include "meta/meta-stage.h"
 #include "meta/types.h"
@@ -62,12 +63,14 @@ gboolean meta_overlay_is_visible (MetaOverlay *overlay);
 void meta_stage_set_active (MetaStage *stage,
                             gboolean   is_active);
 
+META_EXPORT_TEST
 MetaStageWatch * meta_stage_watch_view (MetaStage           *stage,
                                         ClutterStageView    *view,
                                         MetaStageWatchPhase  watch_mode,
                                         MetaStageWatchFunc   callback,
                                         gpointer             user_data);
 
+META_EXPORT_TEST
 void meta_stage_remove_watch (MetaStage      *stage,
                               MetaStageWatch *watch);
 

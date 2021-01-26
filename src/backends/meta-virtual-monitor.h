@@ -47,6 +47,7 @@ struct _MetaVirtualMonitorClass
   GObjectClass parent_class;
 };
 
+META_EXPORT_TEST
 MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (int         width,
                                                         int         height,
                                                         float       refresh_rate,
@@ -54,6 +55,7 @@ MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (int         width,
                                                         const char *product,
                                                         const char *serial);
 
+META_EXPORT_TEST
 void meta_virtual_monitor_info_free (MetaVirtualMonitorInfo *info);
 
 MetaCrtc * meta_virtual_monitor_get_crtc (MetaVirtualMonitor *virtual_monitor);

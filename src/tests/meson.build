@@ -157,12 +157,31 @@ anonymous_file_test = executable('anonymous-file-tests',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
+ref_test_sources = [
+  'meta-ref-test.c',
+  'meta-ref-test.h',
+]
+
 if have_native_tests
   native_headless_tests = executable('mutter-native-headless-tests',
     sources: [
       'native-headless.c',
       'test-utils.c',
       'test-utils.h',
+    ],
+    include_directories: tests_includepath,
+    c_args: tests_c_args,
+    dependencies: [tests_deps],
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+
+  ref_test_sanity = executable('mutter-ref-test-sanity',
+    sources: [
+      'ref-test-sanity.c',
+      'test-utils.c',
+      'test-utils.h',
+      ref_test_sources,
     ],
     include_directories: tests_includepath,
     c_args: tests_c_args,
@@ -242,6 +261,13 @@ test('anonymous-file', anonymous_file_test,
 if have_native_tests
   test('native-headless', native_headless_tests,
     suite: ['core', 'mutter/native/headless'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
+  test('ref-test-sanity', ref_test_sanity,
+    suite: ['core', 'mutter/ref-test/sanity'],
     env: test_env,
     is_parallel: false,
     timeout: 60,
