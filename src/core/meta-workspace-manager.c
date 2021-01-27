@@ -243,8 +243,8 @@ meta_workspace_manager_new (MetaDisplay *display)
   meta_workspace_manager_update_workspace_layout (workspace_manager,
                                                   META_DISPLAY_TOPLEFT,
                                                   FALSE,
-                                                  -1,
-                                                  1);
+                                                  1,
+                                                  -1);
 
   /* There must be at least one workspace at all times,
    * so create that required workspace.

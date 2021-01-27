@@ -2164,8 +2164,8 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
 {
   MetaWorkspaceManager *workspace_manager = x11_display->display->workspace_manager;
   gboolean vertical_layout = FALSE;
-  int n_rows = -1;
-  int n_columns = 1;
+  int n_rows = 1;
+  int n_columns = -1;
   MetaDisplayCorner starting_corner = META_DISPLAY_TOPLEFT;
   uint32_t *list;
   int n_items;
