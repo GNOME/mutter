@@ -485,7 +485,7 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
                                       area, scale,
                                       paint_flags);
 
-  cogl_framebuffer_finish (framebuffer);
+  cogl_framebuffer_flush (framebuffer);
 
   return TRUE;
 }

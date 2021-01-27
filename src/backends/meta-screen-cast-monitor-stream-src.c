@@ -608,7 +608,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
         }
     }
 
-  cogl_framebuffer_finish (framebuffer);
+  cogl_framebuffer_flush (framebuffer);
 
   return TRUE;
 }
