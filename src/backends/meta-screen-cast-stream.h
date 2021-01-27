@@ -59,6 +59,8 @@ void meta_screen_cast_stream_close (MetaScreenCastStream *stream);
 
 char * meta_screen_cast_stream_get_object_path (MetaScreenCastStream *stream);
 
+MetaScreenCastStreamSrc * meta_screen_cast_stream_get_src (MetaScreenCastStream *stream);
+
 void meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                                  double                stream_x,
                                                  double                stream_y,

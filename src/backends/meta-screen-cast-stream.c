@@ -168,6 +168,15 @@ meta_screen_cast_stream_get_object_path (MetaScreenCastStream *stream)
   return priv->object_path;
 }
 
+MetaScreenCastStreamSrc *
+meta_screen_cast_stream_get_src (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->src;
+}
+
 void
 meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                             double                stream_x,
