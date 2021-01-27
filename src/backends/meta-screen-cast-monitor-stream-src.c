@@ -492,7 +492,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   stage = get_stage (monitor_src);
-  clutter_stage_capture_into (stage, FALSE, &logical_monitor->rect, data);
+  clutter_stage_capture_into (stage, &logical_monitor->rect, data);
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {

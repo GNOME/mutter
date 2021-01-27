@@ -51,7 +51,6 @@ int64_t clutter_stage_get_frame_counter (ClutterStage *stage);
 
 CLUTTER_EXPORT
 void clutter_stage_capture_into (ClutterStage          *stage,
-                                 gboolean               paint,
                                  cairo_rectangle_int_t *rect,
                                  uint8_t               *data);
 

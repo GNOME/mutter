@@ -179,7 +179,6 @@ static const ClutterColor default_stage_color = { 255, 255, 255, 255 };
 static void free_queue_redraw_entry (QueueRedrawEntry *entry);
 static void free_pointer_device_entry (PointerDeviceEntry *entry);
 static void capture_view_into (ClutterStage          *stage,
-                               gboolean               paint,
                                ClutterStageView      *view,
                                cairo_rectangle_int_t *rect,
                                uint8_t               *data,
@@ -3268,7 +3267,6 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
 
 static void
 capture_view_into (ClutterStage          *stage,
-                   gboolean               paint,
                    ClutterStageView      *view,
                    cairo_rectangle_int_t *rect,
                    uint8_t               *data,
@@ -3286,16 +3284,6 @@ capture_view_into (ClutterStage          *stage,
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
-
-  if (paint)
-    {
-      cairo_region_t *region;
-
-      _clutter_stage_maybe_setup_viewport (stage, view);
-      region = cairo_region_create_rectangle (rect);
-      clutter_stage_do_paint_view (stage, view, region);
-      cairo_region_destroy (region);
-    }
 
   view_scale = clutter_stage_view_get_scale (view);
   texture_width = roundf (rect->width * view_scale);
@@ -3322,7 +3310,6 @@ capture_view_into (ClutterStage          *stage,
 
 void
 clutter_stage_capture_into (ClutterStage          *stage,
-                            gboolean               paint,
                             cairo_rectangle_int_t *rect,
                             uint8_t               *data)
 {
@@ -3351,7 +3338,7 @@ clutter_stage_capture_into (ClutterStage          *stage,
       x_offset = capture_rect.x - rect->x;
       y_offset = capture_rect.y - rect->y;
 
-      capture_view_into (stage, paint, view,
+      capture_view_into (stage, view,
                          &capture_rect,
                          data + (x_offset * bpp) + (y_offset * stride),
                          stride);
