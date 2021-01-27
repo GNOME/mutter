@@ -337,17 +337,58 @@ add_view_watches (MetaScreenCastMonitorStreamSrc *monitor_src,
 }
 
 static void
+reattach_watches (MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastStream *stream;
+  ClutterStage *stage;
+  GList *l;
+
+  stream = meta_screen_cast_stream_src_get_stream (src);
+  stage = get_stage (monitor_src);
+
+  for (l = monitor_src->watches; l; l = l->next)
+    meta_stage_remove_watch (META_STAGE (stage), l->data);
+  g_clear_pointer (&monitor_src->watches, g_list_free);
+
+  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      add_view_watches (monitor_src,
+                        META_STAGE_WATCH_BEFORE_PAINT,
+                        before_stage_painted);
+      add_view_watches (monitor_src,
+                        META_STAGE_WATCH_AFTER_ACTOR_PAINT,
+                        stage_painted);
+      break;
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      add_view_watches (monitor_src,
+                        META_STAGE_WATCH_AFTER_PAINT,
+                        stage_painted);
+      break;
+    }
+}
+
+static void
+on_monitors_changed (MetaMonitorManager             *monitor_manager,
+                     MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  reattach_watches (monitor_src);
+}
+
+static void
 meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaBackend *backend = get_backend (monitor_src);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  ClutterStage *stage;
   MetaScreenCastStream *stream;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
-  stage = get_stage (monitor_src);
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
@@ -361,25 +402,21 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
                                 G_CALLBACK (cursor_changed),
                                 monitor_src);
       meta_cursor_tracker_track_position (cursor_tracker);
-      G_GNUC_FALLTHROUGH;
+      break;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      add_view_watches (monitor_src,
-                        META_STAGE_WATCH_BEFORE_PAINT,
-                        before_stage_painted);
-      add_view_watches (monitor_src,
-                        META_STAGE_WATCH_AFTER_ACTOR_PAINT,
-                        stage_painted);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
       inhibit_hw_cursor (monitor_src);
       meta_cursor_tracker_track_position (cursor_tracker);
-      add_view_watches (monitor_src,
-                        META_STAGE_WATCH_AFTER_PAINT,
-                        stage_painted);
       break;
     }
 
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+  reattach_watches (monitor_src);
+  g_signal_connect_object (monitor_manager, "monitors-changed-internal",
+                           G_CALLBACK (on_monitors_changed),
+                           monitor_src, 0);
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (get_stage (monitor_src)));
 }
 
 static void
