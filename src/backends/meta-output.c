@@ -135,6 +135,16 @@ meta_output_set_monitor (MetaOutput  *output,
   priv->monitor = monitor;
 }
 
+void
+meta_output_unset_monitor (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  g_warn_if_fail (priv->monitor);
+
+  priv->monitor = NULL;
+}
+
 const char *
 meta_output_get_name (MetaOutput *output)
 {

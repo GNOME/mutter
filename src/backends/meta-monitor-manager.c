@@ -2844,6 +2844,13 @@ meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager)
 }
 
 static void
+destroy_monitor (MetaMonitor *monitor)
+{
+  g_object_run_dispose (G_OBJECT (monitor));
+  g_object_unref (monitor);
+}
+
+static void
 rebuild_monitors (MetaMonitorManager *manager)
 {
   GList *gpus;
@@ -2851,7 +2858,7 @@ rebuild_monitors (MetaMonitorManager *manager)
 
   if (manager->monitors)
     {
-      g_list_free_full (manager->monitors, g_object_unref);
+      g_list_free_full (manager->monitors, (GDestroyNotify) destroy_monitor);
       manager->monitors = NULL;
     }
 

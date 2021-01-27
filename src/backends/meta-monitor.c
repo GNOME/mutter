@@ -486,6 +486,7 @@ meta_monitor_dispose (GObject *object)
 
   if (priv->outputs)
     {
+      g_list_foreach (priv->outputs, (GFunc) meta_output_unset_monitor, NULL);
       g_list_free_full (priv->outputs, g_object_unref);
       priv->outputs = NULL;
     }
