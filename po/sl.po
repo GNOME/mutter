@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-12 12:08+0000\n"
-"PO-Revision-Date: 2021-01-12 19:27+0100\n"
+"POT-Creation-Date: 2021-01-27 15:09+0000\n"
+"PO-Revision-Date: 2021-01-27 21:31+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -240,11 +240,11 @@ msgstr "Razpni okno navpično"
 msgid "Maximize window horizontally"
 msgstr "Razpni okno vodoravno"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Poglej razdelek na levi"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Poglej razdelek na desni"
 
@@ -397,11 +397,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
-"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
-"already enabled by default when using the i915 driver, but disabled for "
-"everything else. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
 "ključev. Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je "
@@ -412,25 +412,26 @@ msgstr ""
 "predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. Možnost ne "
 "zahteva ponovnega zagona.• “rt-scheduler” – postavi zahteve mutter na nižjo "
 "prednostno raven. Izvršljivi program oziroma uporabnik mora imeti omogočeno "
-"možnost CAP_SYS_NICE. Ta možnost zahteva ponovni zagon. • »autostart-"
-"xwayland« – lenobno zažne okolje Xwayland, če ima odjemalce X11. Prav tako "
-"zahteva ponoven zagon.• “dma-buf-screen-sharing\" – omogoči predpomnilnik "
-"zaslona DMA. Ta možnost je že v dejavna pri uporabi gonilnika i915, a "
-"onemogočeno za vse ostale. Možnost zahteva ponovni zagon."
+"možnost CAP_SYS_NICE. Ta možnost zahteva ponovni zagon. • “dma-buf-screen-"
+"sharing\" — omogoča predpomnjeno souporabo zaslona DMA. Ta možnosti je "
+"omogočena privzeto pri uporabi gonilnika i915 in onemogočena za katerikoli "
+"drugi gonilnik. Uporaba zahteva ponovni zagon. • »autostart-xwayland« - "
+"samodejno konča okolje Xwayland, če ni razpoložljivega okolja X11. Prav tako "
+"zahteva ponoven zagon."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Spremenilnik, ki naj se uporabi za določanje mesta kazalnika"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ključ začne dejanje »zaznavanja kazalnika«."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Časovni zamik za preverjanje delovanja z ukazom ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -439,19 +440,19 @@ msgstr ""
 "preden sistem sporoči napako odziva. Vrednost 0 povsem omogoči preverjanje "
 "stanja povezave."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Izbor okna iz pojavnega zavihka"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Prekliči pojavni zavihek"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Nastavitve nadzornika preklopa"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Zavrti vgrajene nastavitve zaslona"
 
@@ -621,51 +622,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
 
-#: src/core/main.c:215
+#: src/core/main.c:216
 msgid "Disable connection to session manager"
 msgstr "Onemogoči povezavo z upravljalnikom sej"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Replace the running window manager"
 msgstr "Zamenjaj trenutni upravljalnik oken"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Specify session management ID"
 msgstr "Navedite ID upravljanja seje"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "X Display to use"
 msgstr "Zaslon X za uporabo"
 
-#: src/core/main.c:238
+#: src/core/main.c:239
 msgid "Initialize session from savefile"
 msgstr "Začni sejo iz shranjene datoteke"
 
-#: src/core/main.c:244
+#: src/core/main.c:245
 msgid "Make X calls synchronous"
 msgstr "Uskladi klice X"
 
-#: src/core/main.c:251
+#: src/core/main.c:252
 msgid "Run as a wayland compositor"
 msgstr "Zaženi izbirnik wayland"
 
-#: src/core/main.c:257
+#: src/core/main.c:258
 msgid "Run as a nested compositor"
 msgstr "Zaženi kot gnezden vpisovalnik"
 
-#: src/core/main.c:263
+#: src/core/main.c:264
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
 
-#: src/core/main.c:269
+#: src/core/main.c:270
 msgid "Specify Wayland display name to use"
 msgstr "Določilo prikazno ime Wayland za uporabo"
 
-#: src/core/main.c:277
+#: src/core/main.c:278
 msgid "Run as a full display server, rather than nested"
 msgstr "Zaženi kot polni strežnik zaslona in ne vstavljeno"
 
-#: src/core/main.c:283
+#: src/core/main.c:284
 msgid "Run with X11 backend"
 msgstr "Zaženi z zaledjem X11"
 
@@ -737,7 +738,7 @@ msgid "Mutter plugin to use"
 msgstr "Vstavek Mutter za uporabo"
 
 # G:1 K:0 O:0
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Delovna površina %d"
