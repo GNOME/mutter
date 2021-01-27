@@ -175,11 +175,6 @@ static const ClutterColor default_stage_color = { 255, 255, 255, 255 };
 
 static void free_queue_redraw_entry (QueueRedrawEntry *entry);
 static void free_pointer_device_entry (PointerDeviceEntry *entry);
-static void capture_view_into (ClutterStage          *stage,
-                               ClutterStageView      *view,
-                               cairo_rectangle_int_t *rect,
-                               uint8_t               *data,
-                               int                    stride);
 static void clutter_stage_update_view_perspective (ClutterStage *stage);
 static void clutter_stage_set_viewport (ClutterStage *stage,
                                         float         width,
@@ -3227,12 +3222,12 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
   return TRUE;
 }
 
-static void
-capture_view_into (ClutterStage          *stage,
-                   ClutterStageView      *view,
-                   cairo_rectangle_int_t *rect,
-                   uint8_t               *data,
-                   int                    stride)
+void
+clutter_stage_capture_view_into (ClutterStage          *stage,
+                                 ClutterStageView      *view,
+                                 cairo_rectangle_int_t *rect,
+                                 uint8_t               *data,
+                                 int                    stride)
 {
   CoglFramebuffer *framebuffer;
   ClutterBackend *backend;
@@ -3247,6 +3242,11 @@ capture_view_into (ClutterStage          *stage,
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
 
+  clutter_stage_view_get_layout (view, &view_layout);
+
+  if (!rect)
+    rect = &view_layout;
+
   view_scale = clutter_stage_view_get_scale (view);
   texture_width = roundf (rect->width * view_scale);
   texture_height = roundf (rect->height * view_scale);
@@ -3258,8 +3258,6 @@ capture_view_into (ClutterStage          *stage,
                                      CLUTTER_CAIRO_FORMAT_ARGB32,
                                      stride,
                                      data);
-
-  clutter_stage_view_get_layout (view, &view_layout);
 
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                             roundf ((rect->x - view_layout.x) * view_scale),
@@ -3300,10 +3298,12 @@ clutter_stage_capture_into (ClutterStage          *stage,
       x_offset = capture_rect.x - rect->x;
       y_offset = capture_rect.y - rect->y;
 
-      capture_view_into (stage, view,
-                         &capture_rect,
-                         data + (x_offset * bpp) + (y_offset * stride),
-                         stride);
+      clutter_stage_capture_view_into (stage, view,
+                                       &capture_rect,
+                                       (data +
+                                        (x_offset * bpp) +
+                                        (y_offset * stride)),
+                                       stride);
     }
 }
 
