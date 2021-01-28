@@ -21,11 +21,10 @@
  *
  */
 
+#ifndef META_COGL_UTILS_H
+#define META_COGL_UTILS_H
 
-
-#pragma once
-
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 
@@ -35,3 +34,5 @@ meta_cogl_pixel_format_from_drm_format (uint32_t               drm_format,
                                         CoglTextureComponents *out_components);
 
 G_END_DECLS
+
+#endif /* META_COGL_UTILS_H */
