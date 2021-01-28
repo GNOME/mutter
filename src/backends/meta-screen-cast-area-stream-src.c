@@ -317,11 +317,28 @@ add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src,
 }
 
 static void
+on_monitors_changed (MetaMonitorManager          *monitor_manager,
+                     MetaScreenCastAreaStreamSrc *area_src)
+{
+  MetaStage *stage = META_STAGE (get_stage (area_src));
+  GList *l;
+
+  for (l = area_src->watches; l; l = l->next)
+    meta_stage_remove_watch (stage, l->data);
+  g_clear_pointer (&area_src->watches, g_list_free);
+
+  add_view_painted_watches (area_src,
+                            META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+}
+
+static void
 meta_screen_cast_area_stream_src_enable (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
   MetaBackend *backend = get_backend (area_src);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterStage *stage;
   MetaScreenCastStream *stream;
@@ -353,6 +370,10 @@ meta_screen_cast_area_stream_src_enable (MetaScreenCastStreamSrc *src)
                                 META_STAGE_WATCH_AFTER_ACTOR_PAINT);
       break;
     }
+
+  g_signal_connect_object (monitor_manager, "monitors-changed-internal",
+                           G_CALLBACK (on_monitors_changed),
+                           area_src, 0);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 }
