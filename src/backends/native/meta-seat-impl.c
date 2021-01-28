@@ -943,6 +943,25 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
 /*
  * MetaEventSource for reading input devices
  */
+
+static gboolean
+meta_event_prepare (GSource *g_source,
+                    int     *timeout_ms)
+{
+  MetaEventSource *source = (MetaEventSource *) g_source;
+  MetaSeatImpl *seat_impl = source->seat_impl;
+
+  *timeout_ms = -1;
+
+  switch (libinput_next_event_type (seat_impl->libinput))
+    {
+    case LIBINPUT_EVENT_NONE:
+      return FALSE;
+    default:
+      return TRUE;
+    }
+}
+
 static gboolean
 meta_event_check (GSource *source)
 {
@@ -1429,7 +1448,7 @@ meta_event_dispatch (GSource     *g_source,
 }
 
 static GSourceFuncs event_funcs = {
-  NULL,
+  meta_event_prepare,
   meta_event_check,
   meta_event_dispatch,
   NULL
