@@ -458,6 +458,7 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
       return FALSE;
     }
 
+  info->flags |= COGL_FRAME_INFO_FLAG_ZERO_COPY;
   priv->frame_counter++;
   return TRUE;
 }

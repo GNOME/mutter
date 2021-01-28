@@ -95,6 +95,12 @@ cogl_frame_info_is_hw_clock (CoglFrameInfo *info)
   return !!(info->flags & COGL_FRAME_INFO_FLAG_HW_CLOCK);
 }
 
+gboolean
+cogl_frame_info_is_zero_copy (CoglFrameInfo *info)
+{
+  return !!(info->flags & COGL_FRAME_INFO_FLAG_ZERO_COPY);
+}
+
 unsigned int
 cogl_frame_info_get_sequence (CoglFrameInfo *info)
 {

@@ -40,6 +40,14 @@ typedef enum _CoglFrameInfoFlag
   COGL_FRAME_INFO_FLAG_SYMBOLIC = 1 << 0,
   /* presentation_time timestamp was provided by the hardware */
   COGL_FRAME_INFO_FLAG_HW_CLOCK = 1 << 1,
+  /*
+   * The presentation of this frame was done zero-copy. This means the buffer
+   * from the client was given to display hardware as is, without copying it.
+   * Compositing with OpenGL counts as copying, even if textured directly from
+   * the client buffer. Possible zero-copy cases include direct scanout of a
+   * fullscreen surface and a surface on a hardware overlay.
+   */
+  COGL_FRAME_INFO_FLAG_ZERO_COPY = 1 << 2,
 } CoglFrameInfoFlag;
 
 struct _CoglFrameInfo
