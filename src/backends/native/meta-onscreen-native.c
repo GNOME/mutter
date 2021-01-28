@@ -337,11 +337,14 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                               const GError *error)
 {
   MetaRendererView *view = user_data;
-  int64_t now_us;
+  CoglFramebuffer *framebuffer =
+    clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
+  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  CoglFrameInfo *frame_info;
 
   /*
    * Page flipping failed, but we want to fail gracefully, so to avoid freezing
-   * the frame clack, pretend we flipped.
+   * the frame clock, emit a symbolic flip.
    */
 
   if (error &&
@@ -350,13 +353,10 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Page flip discarded: %s", error->message);
 
-  now_us = g_get_monotonic_time ();
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
-  notify_view_crtc_presented (view,
-                              kms_crtc,
-                              now_us,
-                              COGL_FRAME_INFO_FLAG_NONE,
-                              0);
+  meta_onscreen_native_notify_frame_complete (onscreen);
 }
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
