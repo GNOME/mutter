@@ -65,7 +65,8 @@ struct _ClutterSettings
   GObject parent_instance;
 
   ClutterBackend *backend;
-  GSettings *settings;
+  GSettings *font_settings;
+  GSettings *mouse_settings;
 
   gint double_click_time;
   gint double_click_distance;
@@ -370,7 +371,7 @@ get_font_gsettings (GSettings    *settings,
 static void
 init_font_options (ClutterSettings *self)
 {
-  GSettings *settings = self->settings;
+  GSettings *settings = self->font_settings;
   cairo_font_options_t *options = cairo_font_options_create ();
   FontSettings fs;
 
@@ -385,11 +386,26 @@ init_font_options (ClutterSettings *self)
   cairo_font_options_destroy (options);
 }
 
+static void
+sync_mouse_options (ClutterSettings *self)
+{
+  int double_click;
+  int drag_threshold;
+
+  double_click = g_settings_get_int (self->mouse_settings, "double-click");
+  drag_threshold = g_settings_get_int (self->mouse_settings, "drag-threshold");
+
+  g_object_set (self,
+		"double-click-time", double_click,
+		"dnd-drag-threshold", drag_threshold,
+                NULL);
+}
+
 static gboolean
-on_settings_change_event (GSettings *settings,
-                          gpointer   keys,
-                          gint       n_keys,
-                          gpointer   user_data)
+on_font_settings_change_event (GSettings *settings,
+			       gpointer   keys,
+			       gint       n_keys,
+			       gpointer   user_data)
 {
   ClutterSettings *self = CLUTTER_SETTINGS (user_data);
   FontSettings fs;
@@ -407,26 +423,57 @@ on_settings_change_event (GSettings *settings,
   return FALSE;
 }
 
+static gboolean
+on_mouse_settings_change_event (GSettings *settings,
+				gpointer   keys,
+				gint       n_keys,
+				gpointer   user_data)
+{
+  ClutterSettings *self = CLUTTER_SETTINGS (user_data);
+
+  sync_mouse_options (self);
+
+  return FALSE;
+}
+
 static void
 load_initial_settings (ClutterSettings *self)
 {
-  static const gchar *settings_path = "org.gnome.desktop.interface";
+  static const gchar *font_settings_path = "org.gnome.desktop.interface";
+  static const gchar *mouse_settings_path = "org.gnome.desktop.peripherals.mouse";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema;
 
-  schema = g_settings_schema_source_lookup (source, settings_path, TRUE);
+  schema = g_settings_schema_source_lookup (source, font_settings_path, TRUE);
   if (!schema)
     {
-      g_warning ("Failed to find schema: %s", settings_path);
+      g_warning ("Failed to find schema: %s", font_settings_path);
     }
   else
     {
-      self->settings = g_settings_new_full (schema, NULL, NULL);
-      if (self->settings)
+      self->font_settings = g_settings_new_full (schema, NULL, NULL);
+      if (self->font_settings)
         {
           init_font_options (self);
-          g_signal_connect (self->settings, "change-event",
-                            G_CALLBACK (on_settings_change_event),
+          g_signal_connect (self->font_settings, "change-event",
+                            G_CALLBACK (on_font_settings_change_event),
+                            self);
+        }
+    }
+
+  schema = g_settings_schema_source_lookup (source, mouse_settings_path, TRUE);
+  if (!schema)
+    {
+      g_warning ("Failed to find schema: %s", mouse_settings_path);
+    }
+  else
+    {
+      self->mouse_settings = g_settings_new_full (schema, NULL, NULL);
+      if (self->mouse_settings)
+        {
+          sync_mouse_options (self);
+          g_signal_connect (self->mouse_settings, "change-event",
+                            G_CALLBACK (on_mouse_settings_change_event),
                             self);
         }
     }
@@ -441,7 +488,8 @@ clutter_settings_finalize (GObject *gobject)
   g_free (self->xft_hint_style);
   g_free (self->xft_rgba);
 
-  g_clear_object (&self->settings);
+  g_clear_object (&self->font_settings);
+  g_clear_object (&self->mouse_settings);
 
   G_OBJECT_CLASS (clutter_settings_parent_class)->finalize (gobject);
 }
