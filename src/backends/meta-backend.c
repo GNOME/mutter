@@ -410,13 +410,6 @@ meta_backend_monitor_device (MetaBackend        *backend,
 }
 
 static inline gboolean
-device_is_physical_touchscreen (ClutterInputDevice *device)
-{
-  return (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL &&
-          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE);
-}
-
-static inline gboolean
 check_has_pointing_device (ClutterSeat *seat)
 {
   GList *l, *devices;
@@ -454,10 +447,14 @@ on_device_added (ClutterSeat        *seat,
 
   create_device_monitor (backend, device);
 
-  if (device_is_physical_touchscreen (device))
-    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
+  if (clutter_input_device_get_device_mode (device) ==
+      CLUTTER_INPUT_MODE_LOGICAL)
+    return;
 
   device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
+    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
 
   if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
       device_type == CLUTTER_TABLET_DEVICE ||
@@ -477,6 +474,10 @@ on_device_removed (ClutterSeat        *seat,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   destroy_device_monitor (backend, device);
+
+  if (clutter_input_device_get_device_mode (device) ==
+      CLUTTER_INPUT_MODE_LOGICAL)
+    return;
 
   meta_input_mapper_remove_device (priv->input_mapper, device);
 
