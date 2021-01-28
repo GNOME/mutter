@@ -169,7 +169,7 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 static void
 maybe_update_frame_info (MetaCrtc         *crtc,
                          CoglFrameInfo    *frame_info,
-                         int64_t           time_ns,
+                         int64_t           time_us,
                          CoglFrameInfoFlag flags)
 {
   const MetaCrtcConfig *crtc_config;
@@ -186,7 +186,7 @@ maybe_update_frame_info (MetaCrtc         *crtc,
   refresh_rate = crtc_mode_info->refresh_rate;
   if (refresh_rate >= frame_info->refresh_rate)
     {
-      frame_info->presentation_time = time_ns;
+      frame_info->presentation_time_us = time_us;
       frame_info->refresh_rate = refresh_rate;
       frame_info->flags |= flags;
     }
@@ -209,7 +209,7 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
 static void
 notify_view_crtc_presented (MetaRendererView *view,
                             MetaKmsCrtc      *kms_crtc,
-                            int64_t           time_ns,
+                            int64_t           time_us,
                             CoglFrameInfoFlag flags)
 {
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
@@ -225,7 +225,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  maybe_update_frame_info (crtc, frame_info, time_ns, flags);
+  maybe_update_frame_info (crtc, frame_info, time_us, flags);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
 
@@ -245,12 +245,9 @@ notify_view_crtc_presented (MetaRendererView *view,
 }
 
 static int64_t
-timeval_to_nanoseconds (const struct timeval *tv)
+timeval_to_microseconds (const struct timeval *tv)
 {
-  int64_t usec = ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
-  int64_t nsec = usec * 1000;
-
-  return nsec;
+  return ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
 }
 
 static void
@@ -269,7 +266,7 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
   };
 
   notify_view_crtc_presented (view, kms_crtc,
-                              timeval_to_nanoseconds (&page_flip_time),
+                              timeval_to_microseconds (&page_flip_time),
                               COGL_FRAME_INFO_FLAG_HW_CLOCK);
 }
 
@@ -307,7 +304,10 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
 
-  notify_view_crtc_presented (view, kms_crtc, now_ns, COGL_FRAME_INFO_FLAG_NONE);
+  notify_view_crtc_presented (view,
+                              kms_crtc,
+                              ns2us (now_ns),
+                              COGL_FRAME_INFO_FLAG_NONE);
 }
 
 static void
@@ -335,7 +335,10 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
 
-  notify_view_crtc_presented (view, kms_crtc, now_ns, COGL_FRAME_INFO_FLAG_NONE);
+  notify_view_crtc_presented (view,
+                              kms_crtc,
+                              ns2us (now_ns),
+                              COGL_FRAME_INFO_FLAG_NONE);
 }
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {

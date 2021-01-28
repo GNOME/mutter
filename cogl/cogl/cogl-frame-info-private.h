@@ -47,7 +47,7 @@ struct _CoglFrameInfo
   CoglObject _parent;
 
   int64_t frame_counter;
-  int64_t presentation_time;
+  int64_t presentation_time_us;
   float refresh_rate;
 
   int64_t global_frame_counter;

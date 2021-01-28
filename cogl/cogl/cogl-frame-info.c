@@ -62,11 +62,11 @@ cogl_frame_info_get_frame_counter (CoglFrameInfo *info)
 }
 
 int64_t
-cogl_frame_info_get_presentation_time (CoglFrameInfo *info)
+cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info)
 {
   g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
 
-  return info->presentation_time;
+  return info->presentation_time_us;
 }
 
 float

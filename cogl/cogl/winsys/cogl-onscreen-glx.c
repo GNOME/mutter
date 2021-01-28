@@ -421,11 +421,11 @@ ensure_ust_type (CoglRenderer *renderer,
 }
 
 static int64_t
-ust_to_nanoseconds (CoglRenderer *renderer,
-                    GLXDrawable   drawable,
-                    int64_t       ust)
+ust_to_microseconds (CoglRenderer *renderer,
+                     GLXDrawable   drawable,
+                     int64_t       ust)
 {
-  CoglGLXRenderer *glx_renderer =  renderer->winsys;
+  CoglGLXRenderer *glx_renderer = renderer->winsys;
 
   ensure_ust_type (renderer, drawable);
 
@@ -436,10 +436,10 @@ ust_to_nanoseconds (CoglRenderer *renderer,
       break;
     case COGL_GLX_UST_IS_GETTIMEOFDAY:
     case COGL_GLX_UST_IS_MONOTONIC_TIME:
-      return 1000 * ust;
+      return ust;
     case COGL_GLX_UST_IS_OTHER:
       /* In this case the scale of UST is undefined so we can't easily
-       * scale to nanoseconds.
+       * scale to microseconds.
        *
        * For example the driver may be reporting the rdtsc CPU counter
        * as UST values and so the scale would need to be determined
@@ -482,9 +482,9 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
           glx_renderer->glXWaitForMsc (xlib_renderer->xdpy, drawable,
                                        0, 1, 0,
                                        &ust, &msc, &sbc);
-          info->presentation_time = ust_to_nanoseconds (ctx->display->renderer,
-                                                        drawable,
-                                                        ust);
+          info->presentation_time_us = ust_to_microseconds (ctx->display->renderer,
+                                                            drawable,
+                                                            ust);
           info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
         }
       else
@@ -496,7 +496,7 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
                                           (current_count + 1) % 2,
                                           &current_count);
 
-          info->presentation_time = get_monotonic_time_ns ();
+          info->presentation_time_us = g_get_monotonic_time ();
         }
     }
 }
@@ -975,10 +975,10 @@ cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
       CoglFrameInfo *info;
 
       info = cogl_onscreen_peek_head_frame_info (onscreen);
-      info->presentation_time =
-        ust_to_nanoseconds (context->display->renderer,
-                            onscreen_glx->glxwin,
-                            swap_event->ust);
+      info->presentation_time_us =
+        ust_to_microseconds (context->display->renderer,
+                             onscreen_glx->glxwin,
+                             swap_event->ust);
       info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
     }
 

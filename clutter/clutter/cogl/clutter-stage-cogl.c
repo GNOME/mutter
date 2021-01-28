@@ -835,7 +835,7 @@ frame_cb (CoglOnscreen  *onscreen,
         .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
         .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
         .presentation_time =
-          ns2us (cogl_frame_info_get_presentation_time (frame_info)),
+          cogl_frame_info_get_presentation_time_us (frame_info),
         .flags = flags,
       };
       clutter_stage_view_notify_presented (view, &clutter_frame_info);

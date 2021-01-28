@@ -90,13 +90,13 @@ COGL_EXPORT
 int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
 
 /**
- * cogl_frame_info_get_presentation_time:
+ * cogl_frame_info_get_presentation_time_us:
  * @info: a #CoglFrameInfo object
  *
  * Gets the presentation time for the frame. This is the time at which
  * the frame became visible to the user.
  *
- * The presentation time measured in nanoseconds, is based on
+ * The presentation time measured in microseconds, is based on
  * cogl_get_clock_time().
  *
  * <note>Linux kernel version less that 3.8 can result in
@@ -109,7 +109,7 @@ int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
  * Stability: unstable
  */
 COGL_EXPORT
-int64_t cogl_frame_info_get_presentation_time (CoglFrameInfo *info);
+int64_t cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info);
 
 /**
  * cogl_frame_info_get_refresh_rate:
