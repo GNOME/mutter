@@ -131,6 +131,8 @@ struct _ClutterFrameInfo
   float refresh_rate;
 
   ClutterFrameInfoFlag flags;
+
+  unsigned int sequence;
 };
 
 typedef struct _ClutterCapture

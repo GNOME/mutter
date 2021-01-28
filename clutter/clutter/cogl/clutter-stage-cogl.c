@@ -319,6 +319,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
         .refresh_rate = clutter_stage_view_get_refresh_rate (view),
         .presentation_time = g_get_monotonic_time (),
         .flags = CLUTTER_FRAME_INFO_FLAG_NONE,
+        .sequence = 0,
       };
       priv->global_frame_counter++;
 
@@ -837,6 +838,7 @@ frame_cb (CoglOnscreen  *onscreen,
         .presentation_time =
           cogl_frame_info_get_presentation_time_us (frame_info),
         .flags = flags,
+        .sequence = cogl_frame_info_get_sequence (frame_info),
       };
       clutter_stage_view_notify_presented (view, &clutter_frame_info);
     }

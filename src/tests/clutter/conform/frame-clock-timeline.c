@@ -15,6 +15,7 @@ timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
     .presentation_time = g_get_monotonic_time (),
     .refresh_rate = refresh_rate,
     .flags = CLUTTER_FRAME_INFO_FLAG_NONE,
+    .sequence = 0,
   };
   clutter_frame_clock_notify_presented (frame_clock, &frame_info);
   clutter_frame_clock_schedule_update (frame_clock);

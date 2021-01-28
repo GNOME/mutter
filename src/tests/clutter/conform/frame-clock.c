@@ -33,6 +33,7 @@ init_frame_info (ClutterFrameInfo *frame_info,
     .presentation_time = presentation_time_us,
     .refresh_rate = refresh_rate,
     .flags = CLUTTER_FRAME_INFO_FLAG_NONE,
+    .sequence = 0,
   };
 }
 
