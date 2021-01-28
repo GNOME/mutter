@@ -88,3 +88,9 @@ cogl_frame_info_get_is_symbolic (CoglFrameInfo *info)
 {
   return !!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC);
 }
+
+gboolean
+cogl_frame_info_is_hw_clock (CoglFrameInfo *info)
+{
+  return !!(info->flags & COGL_FRAME_INFO_FLAG_HW_CLOCK);
+}

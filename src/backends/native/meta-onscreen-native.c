@@ -167,9 +167,10 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 }
 
 static void
-maybe_update_frame_info (MetaCrtc      *crtc,
-                         CoglFrameInfo *frame_info,
-                         int64_t        time_ns)
+maybe_update_frame_info (MetaCrtc         *crtc,
+                         CoglFrameInfo    *frame_info,
+                         int64_t           time_ns,
+                         CoglFrameInfoFlag flags)
 {
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
@@ -187,6 +188,7 @@ maybe_update_frame_info (MetaCrtc      *crtc,
     {
       frame_info->presentation_time = time_ns;
       frame_info->refresh_rate = refresh_rate;
+      frame_info->flags |= flags;
     }
 }
 
@@ -207,7 +209,8 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
 static void
 notify_view_crtc_presented (MetaRendererView *view,
                             MetaKmsCrtc      *kms_crtc,
-                            int64_t           time_ns)
+                            int64_t           time_ns,
+                            CoglFrameInfoFlag flags)
 {
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
@@ -222,7 +225,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  maybe_update_frame_info (crtc, frame_info, time_ns);
+  maybe_update_frame_info (crtc, frame_info, time_ns, flags);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
 
@@ -266,7 +269,8 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
   };
 
   notify_view_crtc_presented (view, kms_crtc,
-                              timeval_to_nanoseconds (&page_flip_time));
+                              timeval_to_nanoseconds (&page_flip_time),
+                              COGL_FRAME_INFO_FLAG_HW_CLOCK);
 }
 
 static void
@@ -303,7 +307,7 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
 
-  notify_view_crtc_presented (view, kms_crtc, now_ns);
+  notify_view_crtc_presented (view, kms_crtc, now_ns, COGL_FRAME_INFO_FLAG_NONE);
 }
 
 static void
@@ -331,7 +335,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
 
-  notify_view_crtc_presented (view, kms_crtc, now_ns);
+  notify_view_crtc_presented (view, kms_crtc, now_ns, COGL_FRAME_INFO_FLAG_NONE);
 }
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {

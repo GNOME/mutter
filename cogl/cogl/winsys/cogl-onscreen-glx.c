@@ -485,6 +485,7 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
           info->presentation_time = ust_to_nanoseconds (ctx->display->renderer,
                                                         drawable,
                                                         ust);
+          info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
         }
       else
         {
@@ -978,6 +979,7 @@ cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
         ust_to_nanoseconds (context->display->renderer,
                             onscreen_glx->glxwin,
                             swap_event->ust);
+      info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
     }
 
   set_complete_pending (onscreen);

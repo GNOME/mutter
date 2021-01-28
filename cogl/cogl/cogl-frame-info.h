@@ -140,6 +140,9 @@ int64_t cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info);
 COGL_EXPORT
 gboolean cogl_frame_info_get_is_symbolic (CoglFrameInfo *info);
 
+COGL_EXPORT
+gboolean cogl_frame_info_is_hw_clock (CoglFrameInfo *info);
+
 G_END_DECLS
 
 #endif /* __COGL_FRAME_INFO_H */
