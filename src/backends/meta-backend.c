@@ -456,6 +456,9 @@ on_device_added (ClutterSeat        *seat,
 
   if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
     meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
+  else if (device_type == CLUTTER_POINTER_DEVICE &&
+           !clutter_seat_has_touchscreen (seat))
+    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, TRUE);
 
   if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
       device_type == CLUTTER_TABLET_DEVICE ||
@@ -566,8 +569,26 @@ static void
 on_stage_shown_cb (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  g_autoptr (GList) devices = NULL;
+  const GList *l;
 
-  meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, TRUE);
+  devices = clutter_seat_list_devices (seat);
+  for (l = devices; l; l = l->next)
+    {
+      ClutterInputDevice *device = l->data;
+
+      if (clutter_input_device_get_device_mode (device) ==
+          CLUTTER_INPUT_MODE_LOGICAL)
+        continue;
+
+      if (clutter_input_device_get_device_type (device) !=
+          CLUTTER_POINTER_DEVICE)
+        continue;
+
+      meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, TRUE);
+      break;
+    }
 }
 
 static void
