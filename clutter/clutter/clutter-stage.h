@@ -114,6 +114,13 @@ struct _ClutterPerspective
   gfloat z_far;
 };
 
+typedef enum
+{
+  CLUTTER_FRAME_INFO_FLAG_NONE = 0,
+  /* presentation_time timestamp was provided by the hardware */
+  CLUTTER_FRAME_INFO_FLAG_HW_CLOCK = 1 << 0,
+} ClutterFrameInfoFlag;
+
 /**
  * ClutterFrameInfo: (skip)
  */
@@ -122,6 +129,8 @@ struct _ClutterFrameInfo
   int64_t frame_counter;
   int64_t presentation_time;
   float refresh_rate;
+
+  ClutterFrameInfoFlag flags;
 };
 
 typedef struct _ClutterCapture

@@ -318,6 +318,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
         .frame_counter = priv->global_frame_counter,
         .refresh_rate = clutter_stage_view_get_refresh_rate (view),
         .presentation_time = g_get_monotonic_time (),
+        .flags = CLUTTER_FRAME_INFO_FLAG_NONE,
       };
       priv->global_frame_counter++;
 
@@ -825,12 +826,17 @@ frame_cb (CoglOnscreen  *onscreen,
   else
     {
       ClutterFrameInfo clutter_frame_info;
+      ClutterFrameInfoFlag flags = CLUTTER_FRAME_INFO_FLAG_NONE;
+
+      if (cogl_frame_info_is_hw_clock (frame_info))
+        flags |= CLUTTER_FRAME_INFO_FLAG_HW_CLOCK;
 
       clutter_frame_info = (ClutterFrameInfo) {
         .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
         .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
         .presentation_time =
           ns2us (cogl_frame_info_get_presentation_time (frame_info)),
+        .flags = flags,
       };
       clutter_stage_view_notify_presented (view, &clutter_frame_info);
     }
