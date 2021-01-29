@@ -887,7 +887,8 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
 
   /* Lots of paranoia checks, forcing work_area_screen to be sane */
 #define MIN_SANE_AREA 100
-  if (work_area.width < MIN_SANE_AREA)
+  if (work_area.width < MIN_SANE_AREA &&
+      work_area.width != display_rect.width)
     {
       meta_warning ("struts occupy an unusually large percentage of the screen; "
                     "available remaining width = %d < %d",
@@ -904,7 +905,8 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
           work_area.width += 2*amount;
         }
     }
-  if (work_area.height < MIN_SANE_AREA)
+  if (work_area.height < MIN_SANE_AREA &&
+      work_area.height != display_rect.height)
     {
       meta_warning ("struts occupy an unusually large percentage of the screen; "
                     "available remaining height = %d < %d",
