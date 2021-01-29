@@ -2340,6 +2340,7 @@ meta_keybindings_process_event (MetaDisplay        *display,
     case CLUTTER_BUTTON_RELEASE:
     case CLUTTER_TOUCH_BEGIN:
     case CLUTTER_TOUCH_END:
+    case CLUTTER_SCROLL:
       keys->overlay_key_only_pressed = FALSE;
       keys->locate_pointer_key_only_pressed = FALSE;
       return FALSE;
