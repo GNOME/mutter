@@ -171,6 +171,9 @@ guint meta_display_get_keybinding_action (MetaDisplay  *display,
                                           unsigned long mask);
 
 META_EXPORT
+ClutterModifierType meta_display_get_compositor_modifiers (MetaDisplay *display);
+
+META_EXPORT
 GSList *meta_display_sort_windows_by_stacking (MetaDisplay *display,
                                                GSList      *windows);
 

@@ -167,6 +167,7 @@ enum
 {
   PROP_0,
 
+  PROP_COMPOSITOR_MODIFIERS,
   PROP_FOCUS_WINDOW
 };
 
@@ -199,6 +200,9 @@ meta_display_get_property(GObject         *object,
 
   switch (prop_id)
     {
+    case PROP_COMPOSITOR_MODIFIERS:
+      g_value_set_flags (value, meta_display_get_compositor_modifiers (display));
+      break;
     case PROP_FOCUS_WINDOW:
       g_value_set_object (value, display->focus_window);
       break;
@@ -511,6 +515,15 @@ meta_display_class_init (MetaDisplayClass *klass)
                   0, g_signal_accumulator_first_wins,
                   NULL, NULL,
                   G_TYPE_BOOLEAN, 1, G_TYPE_TASK);
+
+  g_object_class_install_property (object_class,
+                                   PROP_COMPOSITOR_MODIFIERS,
+                                   g_param_spec_flags ("compositor-modifiers",
+                                                       "Compositor modifiers",
+                                                       "Modifiers reserved for compositor actions",
+                                                       CLUTTER_TYPE_MODIFIER_TYPE,
+                                                       0,
+                                                       G_PARAM_READABLE));
 
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,

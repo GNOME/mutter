@@ -1227,7 +1227,7 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
 }
 
 ClutterModifierType
-meta_display_get_window_grab_modifiers (MetaDisplay *display)
+meta_display_get_compositor_modifiers (MetaDisplay *display)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   return keys->window_grab_modifiers;
@@ -1297,15 +1297,20 @@ meta_display_ungrab_window_buttons (MetaDisplay *display,
 }
 
 static void
-update_window_grab_modifiers (MetaKeyBindingManager *keys)
+update_window_grab_modifiers (MetaDisplay *display)
 {
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaVirtualModifier virtual_mods;
   unsigned int mods;
 
   virtual_mods = meta_prefs_get_mouse_button_mods ();
   devirtualize_modifiers (keys, virtual_mods, &mods);
 
-  keys->window_grab_modifiers = mods;
+  if (keys->window_grab_modifiers != mods)
+    {
+      keys->window_grab_modifiers = mods;
+      g_object_notify (G_OBJECT (display), "compositor-modifiers");
+    }
 }
 
 void
@@ -1378,7 +1383,7 @@ prefs_changed_callback (MetaPreference pref,
             meta_display_ungrab_window_buttons (display, w->xwindow);
           }
 
-        update_window_grab_modifiers (keys);
+        update_window_grab_modifiers (display);
 
         for (l = windows; l; l = l->next)
           {
@@ -4559,7 +4564,7 @@ meta_display_init_keys (MetaDisplay *display)
 
   reload_combos (keys);
 
-  update_window_grab_modifiers (keys);
+  update_window_grab_modifiers (display);
 
   /* Keys are actually grabbed in meta_screen_grab_keys() */
 
