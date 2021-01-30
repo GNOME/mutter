@@ -497,6 +497,9 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
             {
               info->presentation_time_us = g_get_monotonic_time ();
             }
+
+          /* Intentionally truncating to lower 32 bits, same as DRM. */
+          info->sequence = msc;
         }
       else
         {
@@ -976,26 +979,29 @@ cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   gboolean ust_is_monotonic;
+  CoglFrameInfo *info;
 
   /* We only want to notify that the swap is complete when the
      application calls cogl_context_dispatch so instead of immediately
      notifying we'll set a flag to remember to notify later */
   set_sync_pending (onscreen);
 
+  info = cogl_onscreen_peek_head_frame_info (onscreen);
+
   ust_is_monotonic = is_ust_monotonic (context->display->renderer,
                                        onscreen_glx->glxwin);
 
   if (swap_event->ust != 0 && ust_is_monotonic)
     {
-      CoglFrameInfo *info;
-
-      info = cogl_onscreen_peek_head_frame_info (onscreen);
       info->presentation_time_us =
         ust_to_microseconds (context->display->renderer,
                              onscreen_glx->glxwin,
                              swap_event->ust);
       info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
     }
+
+  /* Intentionally truncating to lower 32 bits, same as DRM. */
+  info->sequence = swap_event->msc;
 
   set_complete_pending (onscreen);
 }

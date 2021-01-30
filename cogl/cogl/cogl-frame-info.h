@@ -141,6 +141,9 @@ gboolean cogl_frame_info_get_is_symbolic (CoglFrameInfo *info);
 COGL_EXPORT
 gboolean cogl_frame_info_is_hw_clock (CoglFrameInfo *info);
 
+COGL_EXPORT
+unsigned int cogl_frame_info_get_sequence (CoglFrameInfo *info);
+
 G_END_DECLS
 
 #endif /* __COGL_FRAME_INFO_H */

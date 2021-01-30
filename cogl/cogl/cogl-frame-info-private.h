@@ -53,6 +53,8 @@ struct _CoglFrameInfo
   int64_t global_frame_counter;
 
   CoglFrameInfoFlag flags;
+
+  unsigned int sequence;
 };
 
 COGL_EXPORT

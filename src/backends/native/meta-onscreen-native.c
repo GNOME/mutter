@@ -170,7 +170,8 @@ static void
 maybe_update_frame_info (MetaCrtc         *crtc,
                          CoglFrameInfo    *frame_info,
                          int64_t           time_us,
-                         CoglFrameInfoFlag flags)
+                         CoglFrameInfoFlag flags,
+                         unsigned int      sequence)
 {
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
@@ -189,6 +190,7 @@ maybe_update_frame_info (MetaCrtc         *crtc,
       frame_info->presentation_time_us = time_us;
       frame_info->refresh_rate = refresh_rate;
       frame_info->flags |= flags;
+      frame_info->sequence = sequence;
     }
 }
 
@@ -210,7 +212,8 @@ static void
 notify_view_crtc_presented (MetaRendererView *view,
                             MetaKmsCrtc      *kms_crtc,
                             int64_t           time_us,
-                            CoglFrameInfoFlag flags)
+                            CoglFrameInfoFlag flags,
+                            unsigned int      sequence)
 {
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
@@ -225,7 +228,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  maybe_update_frame_info (crtc, frame_info, time_us, flags);
+  maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
 
@@ -287,7 +290,8 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 
   notify_view_crtc_presented (view, kms_crtc,
                               presentation_time_us,
-                              flags);
+                              flags,
+                              sequence);
 }
 
 static void
@@ -323,7 +327,8 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
   notify_view_crtc_presented (view,
                               kms_crtc,
                               now_us,
-                              COGL_FRAME_INFO_FLAG_NONE);
+                              COGL_FRAME_INFO_FLAG_NONE,
+                              0);
 }
 
 static void
@@ -350,7 +355,8 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   notify_view_crtc_presented (view,
                               kms_crtc,
                               now_us,
-                              COGL_FRAME_INFO_FLAG_NONE);
+                              COGL_FRAME_INFO_FLAG_NONE,
+                              0);
 }
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {

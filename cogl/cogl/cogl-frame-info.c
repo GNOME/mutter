@@ -94,3 +94,11 @@ cogl_frame_info_is_hw_clock (CoglFrameInfo *info)
 {
   return !!(info->flags & COGL_FRAME_INFO_FLAG_HW_CLOCK);
 }
+
+unsigned int
+cogl_frame_info_get_sequence (CoglFrameInfo *info)
+{
+  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
+
+  return info->sequence;
+}
