@@ -1033,35 +1033,8 @@ on_presented (ClutterStage     *stage,
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
-  int64_t presentation_time_cogl = frame_info->presentation_time;
-  int64_t presentation_time;
+  int64_t presentation_time = frame_info->presentation_time;
   GList *l;
-
-  if (presentation_time_cogl != 0)
-    {
-      int64_t current_cogl_time;
-      int64_t current_monotonic_time;
-
-      /* Cogl reports presentation in terms of its own clock, which is
-       * guaranteed to be in nanoseconds but with no specified base. The
-       * normal case with the open source GPU drivers on Linux 3.8 and
-       * newer is that the base of cogl_get_clock_time() is that of
-       * clock_gettime(CLOCK_MONOTONIC), so the same as g_get_monotonic_time),
-       * but there's no exposure of that through the API. clock_gettime()
-       * is fairly fast, so calling it twice and subtracting to get a
-       * nearly-zero number is acceptable, if a little ugly.
-       */
-      current_cogl_time = cogl_get_clock_time (priv->context);
-      current_monotonic_time = g_get_monotonic_time ();
-
-      presentation_time =
-        current_monotonic_time +
-        (presentation_time_cogl - current_cogl_time) / 1000;
-    }
-  else
-    {
-      presentation_time = 0;
-    }
 
   for (l = priv->windows; l; l = l->next)
     {

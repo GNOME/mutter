@@ -259,15 +259,35 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 {
   MetaRendererView *view = user_data;
   struct timeval page_flip_time;
+  MetaCrtc *crtc;
+  MetaGpuKms *gpu_kms;
+  int64_t presentation_time_us;
+  CoglFrameInfoFlag flags = COGL_FRAME_INFO_FLAG_NONE;
 
   page_flip_time = (struct timeval) {
     .tv_sec = tv_sec,
     .tv_usec = tv_usec,
   };
 
+  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
+  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  if (meta_gpu_kms_is_clock_monotonic (gpu_kms))
+    {
+      presentation_time_us = timeval_to_microseconds (&page_flip_time);
+      flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
+    }
+  else
+    {
+      /*
+       * Other parts of the code assume MONOTONIC timestamps. So, if the device
+       * timestamp isn't MONOTONIC, don't use it.
+       */
+      presentation_time_us = g_get_monotonic_time ();
+    }
+
   notify_view_crtc_presented (view, kms_crtc,
-                              timeval_to_microseconds (&page_flip_time),
-                              COGL_FRAME_INFO_FLAG_HW_CLOCK);
+                              presentation_time_us,
+                              flags);
 }
 
 static void
@@ -291,22 +311,18 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                       gpointer     user_data)
 {
   MetaRendererView *view = user_data;
-  MetaCrtc *crtc;
-  MetaGpuKms *gpu_kms;
-  int64_t now_ns;
+  int64_t now_us;
 
   /*
    * We ended up not page flipping, thus we don't have a presentation time to
    * use. Lets use the next best thing: the current time.
    */
 
-  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
+  now_us = g_get_monotonic_time ();
 
   notify_view_crtc_presented (view,
                               kms_crtc,
-                              ns2us (now_ns),
+                              now_us,
                               COGL_FRAME_INFO_FLAG_NONE);
 }
 
@@ -316,9 +332,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                               const GError *error)
 {
   MetaRendererView *view = user_data;
-  MetaCrtc *crtc;
-  MetaGpuKms *gpu_kms;
-  int64_t now_ns;
+  int64_t now_us;
 
   /*
    * Page flipping failed, but we want to fail gracefully, so to avoid freezing
@@ -331,13 +345,11 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Page flip discarded: %s", error->message);
 
-  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
+  now_us = g_get_monotonic_time ();
 
   notify_view_crtc_presented (view,
                               kms_crtc,
-                              ns2us (now_ns),
+                              now_us,
                               COGL_FRAME_INFO_FLAG_NONE);
 }
 

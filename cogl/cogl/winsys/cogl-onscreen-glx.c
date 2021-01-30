@@ -454,6 +454,17 @@ ust_to_microseconds (CoglRenderer *renderer,
   return 0;
 }
 
+static gboolean
+is_ust_monotonic (CoglRenderer *renderer,
+                  GLXDrawable   drawable)
+{
+  CoglGLXRenderer *glx_renderer = renderer->winsys;
+
+  ensure_ust_type (renderer, drawable);
+
+  return (glx_renderer->ust_type == COGL_GLX_UST_IS_MONOTONIC_TIME);
+}
+
 static void
 _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
 {
@@ -482,10 +493,19 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
           glx_renderer->glXWaitForMsc (xlib_renderer->xdpy, drawable,
                                        0, 1, 0,
                                        &ust, &msc, &sbc);
-          info->presentation_time_us = ust_to_microseconds (ctx->display->renderer,
-                                                            drawable,
-                                                            ust);
-          info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
+
+          if (is_ust_monotonic (ctx->display->renderer, drawable))
+            {
+              info->presentation_time_us =
+                ust_to_microseconds (ctx->display->renderer,
+                                     drawable,
+                                     ust);
+              info->flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
+            }
+          else
+            {
+              info->presentation_time_us = g_get_monotonic_time ();
+            }
         }
       else
         {
@@ -962,16 +982,20 @@ cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
                                        GLXBufferSwapComplete *swap_event)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  gboolean ust_is_monotonic;
 
   /* We only want to notify that the swap is complete when the
      application calls cogl_context_dispatch so instead of immediately
      notifying we'll set a flag to remember to notify later */
   set_sync_pending (onscreen);
 
-  if (swap_event->ust != 0)
+  ust_is_monotonic = is_ust_monotonic (context->display->renderer,
+                                       onscreen_glx->glxwin);
+
+  if (swap_event->ust != 0 && ust_is_monotonic)
     {
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-      CoglContext *context = cogl_framebuffer_get_context (framebuffer);
       CoglFrameInfo *info;
 
       info = cogl_onscreen_peek_head_frame_info (onscreen);

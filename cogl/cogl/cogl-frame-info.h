@@ -97,11 +97,9 @@ int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
  * the frame became visible to the user.
  *
  * The presentation time measured in microseconds, is based on
- * cogl_get_clock_time().
+ * CLOCK_MONOTONIC.
  *
- * <note>Linux kernel version less that 3.8 can result in
- * non-monotonic timestamps being reported when using a drm based
- * OpenGL driver. Also some buggy Mesa drivers up to 9.0.1 may also
+ * <note>Some buggy Mesa drivers up to 9.0.1 may
  * incorrectly report non-monotonic timestamps.</note>
  *
  * Return value: the presentation time for the frame

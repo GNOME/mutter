@@ -144,6 +144,12 @@ meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
 }
 
 gboolean
+meta_gpu_kms_is_clock_monotonic (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->clock_id == CLOCK_MONOTONIC;
+}
+
+gboolean
 meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms)
 {
   MetaKmsDeviceFlag flags;
