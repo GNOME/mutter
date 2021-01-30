@@ -6,14 +6,14 @@
 # Petr Tomeš <ptomes@gmail.com>, 2006.
 # Jakub Friedl <jfriedl@suse.cz>, 2006, 2007.
 # Petr Kovar <pknbe@volny.cz>, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014.
-# Marek Černocký <marek@manet.cz>, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020.
+# Marek Černocký <marek@manet.cz>, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-09-01 07:41+0000\n"
-"PO-Revision-Date: 2020-09-01 12:51+0200\n"
+"POT-Creation-Date: 2021-01-28 15:52+0000\n"
+"PO-Revision-Date: 2021-01-30 12:01+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -240,11 +240,11 @@ msgstr "Maximalizovat okno svisle"
 msgid "Maximize window horizontally"
 msgstr "Maximalizovat okno vodorovně"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Rozdělit okno přes levou půlku obrazovky"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Rozdělit okno přes pravou půlku obrazovky"
 
@@ -398,8 +398,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Chcete-li povolit experimentální funkce, přidejte klíčové slovo funkce do "
 "seznamu. Zda funkce vyžaduje restartování kompozitoru, závisí na dané "
@@ -413,21 +416,24 @@ msgstr ""
 "restart. • „rt-scheduler“ – zajistí, aby měly požadavky mutter nízkou "
 "prioritu v plánování reálného času. Spustitelný soubor nebo uživatel musí "
 "mít CAP_SYS_NICE. Vyžaduje restart. • „autostart-xwayland“ – inicializuje "
-"Xwayland líněji v situaci, kdy existují klienti X11. Vyžaduje restart."
+"Xwayland líněji v situaci, kdy existují klienti X11. Vyžaduje restart. • "
+"„dma-buf-screen-sharing“ – povolí sdílení obrazovky skrze vyrovnávací paměť "
+"DMA. To je jako výchozí povolené, když se používá ovladač i915, ale zakázané "
+"u všech ostatních ovladačů. Vyžaduje restart."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifikátor ke zjištění pozice ukazatele"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Tato klávesa spustí činnost „zjisti polohu ukazatele“."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Časový limit pro pingání check-alive"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -435,19 +441,19 @@ msgstr ""
 "Počet milisekund, které má klient na odpověď na na kontrolní pingnutí "
 "sloužící k detekci, jestli nazatuhl. Nastavením na 0 se kontrola zcela vypne."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Vybrat okno z překryvné nabídky tabulátoru"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Zrušit překryvné okno tabulátoru"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Přepnout nastavení monitoru"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Postupně mění vestavěná nastavení monitoru"
 
@@ -575,25 +581,6 @@ msgstr ""
 "Xwayland sestaven bez podpory pro vybraná rozšíření. Aby se nastavení "
 "projevilo, je zapotřebí Xwayland restartovat."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Přepínač režimu (skupina %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "Přepnout monitor"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "Zobrazit nápovědu na obrazovce"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Vestavěný displej"
@@ -638,47 +625,51 @@ msgstr "Jiný kompozitní správce již běží na obrazovce %i displeje „%s�
 msgid "Bell event"
 msgstr "Událost zvonku"
 
-#: src/core/main.c:190
+#: src/core/main.c:216
 msgid "Disable connection to session manager"
 msgstr "Zakázat připojení ke správci sezení"
 
-#: src/core/main.c:196
+#: src/core/main.c:222
 msgid "Replace the running window manager"
 msgstr "Nahradí běžícího správce oken"
 
-#: src/core/main.c:202
+#: src/core/main.c:228
 msgid "Specify session management ID"
 msgstr "Určit ID správy sezení"
 
-#: src/core/main.c:207
+#: src/core/main.c:233
 msgid "X Display to use"
 msgstr "Displej X, který se má použít"
 
-#: src/core/main.c:213
+#: src/core/main.c:239
 msgid "Initialize session from savefile"
 msgstr "Spustit sezení z uloženého souboru"
 
-#: src/core/main.c:219
+#: src/core/main.c:245
 msgid "Make X calls synchronous"
 msgstr "Provádět volání X synchronně"
 
-#: src/core/main.c:226
+#: src/core/main.c:252
 msgid "Run as a wayland compositor"
 msgstr "Spustit jako kompozitor protokolu Wayland"
 
-#: src/core/main.c:232
+#: src/core/main.c:258
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/main.c:238
+#: src/core/main.c:264
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:270
+msgid "Specify Wayland display name to use"
+msgstr "Určit název displeje Wayland, který se má používat"
+
+#: src/core/main.c:278
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/main.c:252
+#: src/core/main.c:284
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
@@ -708,6 +699,25 @@ msgstr "_Vynutit ukončení"
 msgid "_Wait"
 msgstr "_Počkat"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Přepínač režimu (skupina %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Přepnout monitor"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Zobrazit nápovědu na obrazovce"
+
 #: src/core/mutter.c:38
 #, c-format
 msgid ""
@@ -732,16 +742,16 @@ msgstr "Vypsat verzi"
 msgid "Mutter plugin to use"
 msgstr "Zásuvný modul Mutter, který se má použít"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Plocha %d"
 
-#: src/core/util.c:118
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter bylo přeloženo bez podpory podrobného režimu\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter byl přeloženo bez podpory podrobného režimu"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Přepínač režimu: režim %d"
@@ -756,25 +766,25 @@ msgstr ""
 "oken pomocí přepínače --replace."
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Selhala inicializace GDK\n"
+msgid "Failed to initialize GDK"
+msgstr "Selhala inicializace GDK"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Nelze otevřít displej X Window System „%s“\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Obrazovka %d na displeji „%s“ je neplatná\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Obrazovka %d na displeji „%s“ je neplatná"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formát %s není podporován"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -786,3 +796,4 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
+
