@@ -472,6 +472,7 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
   if (glx_display->can_vblank_wait)
     {
       CoglFrameInfo *info = cogl_onscreen_peek_tail_frame_info (onscreen);
+      info->flags |= COGL_FRAME_INFO_FLAG_VSYNC;
 
       if (glx_renderer->glXWaitForMsc)
         {
@@ -987,6 +988,7 @@ cogl_onscreen_glx_notify_swap_buffers (CoglOnscreen          *onscreen,
   set_sync_pending (onscreen);
 
   info = cogl_onscreen_peek_head_frame_info (onscreen);
+  info->flags |= COGL_FRAME_INFO_FLAG_VSYNC;
 
   ust_is_monotonic = is_ust_monotonic (context->display->renderer,
                                        onscreen_glx->glxwin);

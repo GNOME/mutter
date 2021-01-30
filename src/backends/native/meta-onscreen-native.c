@@ -265,7 +265,7 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
   MetaCrtc *crtc;
   MetaGpuKms *gpu_kms;
   int64_t presentation_time_us;
-  CoglFrameInfoFlag flags = COGL_FRAME_INFO_FLAG_NONE;
+  CoglFrameInfoFlag flags = COGL_FRAME_INFO_FLAG_VSYNC;
 
   page_flip_time = (struct timeval) {
     .tv_sec = tv_sec,

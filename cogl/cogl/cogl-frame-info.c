@@ -101,6 +101,12 @@ cogl_frame_info_is_zero_copy (CoglFrameInfo *info)
   return !!(info->flags & COGL_FRAME_INFO_FLAG_ZERO_COPY);
 }
 
+gboolean
+cogl_frame_info_is_vsync (CoglFrameInfo *info)
+{
+  return !!(info->flags & COGL_FRAME_INFO_FLAG_VSYNC);
+}
+
 unsigned int
 cogl_frame_info_get_sequence (CoglFrameInfo *info)
 {

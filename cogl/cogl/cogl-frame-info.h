@@ -145,6 +145,9 @@ COGL_EXPORT
 gboolean cogl_frame_info_is_zero_copy (CoglFrameInfo *info);
 
 COGL_EXPORT
+gboolean cogl_frame_info_is_vsync (CoglFrameInfo *info);
+
+COGL_EXPORT
 unsigned int cogl_frame_info_get_sequence (CoglFrameInfo *info);
 
 G_END_DECLS
