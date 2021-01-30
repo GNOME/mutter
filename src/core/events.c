@@ -269,18 +269,6 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
-  if (event->type == CLUTTER_SCROLL && meta_prefs_get_mouse_button_mods () > 0)
-    {
-      ClutterModifierType grab_mods;
-
-      grab_mods = meta_display_get_compositor_modifiers (display);
-      if ((clutter_event_get_state (event) & grab_mods) != 0)
-        {
-          bypass_wayland = TRUE;
-          goto out;
-        }
-    }
-
   if (event->type != CLUTTER_DEVICE_ADDED &&
       event->type != CLUTTER_DEVICE_REMOVED)
     {
@@ -378,6 +366,18 @@ meta_display_handle_event (MetaDisplay        *display,
   if (display->event_route == META_EVENT_ROUTE_NORMAL)
     {
       if (IS_KEY_EVENT (event) && !stage_has_key_focus ())
+        {
+          bypass_wayland = TRUE;
+          goto out;
+        }
+    }
+
+  if (event->type == CLUTTER_SCROLL && meta_prefs_get_mouse_button_mods () > 0)
+    {
+      ClutterModifierType grab_mods;
+
+      grab_mods = meta_display_get_compositor_modifiers (display);
+      if ((clutter_event_get_state (event) & grab_mods) != 0)
         {
           bypass_wayland = TRUE;
           goto out;
