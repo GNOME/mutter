@@ -678,11 +678,17 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
-  meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y);
-
-  clutter_virtual_input_device_notify_absolute_motion (session->virtual_pointer,
-                                                       CLUTTER_CURRENT_TIME,
-                                                       abs_x, abs_y);
+  if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
+    {
+      clutter_virtual_input_device_notify_absolute_motion (session->virtual_pointer,
+                                                           CLUTTER_CURRENT_TIME,
+                                                           abs_x, abs_y);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_REMOTE_DESKTOP,
+                  "Dropping early absolute pointer motion (%f, %f)", x, y);
+    }
 
   meta_dbus_remote_desktop_session_complete_notify_pointer_motion_absolute (skeleton,
                                                                             invocation);
@@ -731,12 +737,18 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
-  meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y);
-
-  clutter_virtual_input_device_notify_touch_down (session->virtual_touchscreen,
-                                                  CLUTTER_CURRENT_TIME,
-                                                  slot,
-                                                  abs_x, abs_y);
+  if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
+    {
+      clutter_virtual_input_device_notify_touch_down (session->virtual_touchscreen,
+                                                      CLUTTER_CURRENT_TIME,
+                                                      slot,
+                                                      abs_x, abs_y);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_REMOTE_DESKTOP,
+                  "Dropping early touch down (%f, %f)", x, y);
+    }
 
   meta_dbus_remote_desktop_session_complete_notify_touch_down (skeleton,
                                                                invocation);
@@ -786,12 +798,18 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
-  meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y);
-
-  clutter_virtual_input_device_notify_touch_motion (session->virtual_touchscreen,
-                                                    CLUTTER_CURRENT_TIME,
-                                                    slot,
-                                                    abs_x, abs_y);
+  if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
+    {
+      clutter_virtual_input_device_notify_touch_motion (session->virtual_touchscreen,
+                                                        CLUTTER_CURRENT_TIME,
+                                                        slot,
+                                                        abs_x, abs_y);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_REMOTE_DESKTOP,
+                  "Dropping early touch motion (%f, %f)", x, y);
+    }
 
   meta_dbus_remote_desktop_session_complete_notify_touch_motion (skeleton,
                                                                  invocation);

@@ -128,7 +128,7 @@ meta_screen_cast_window_stream_set_parameters (MetaScreenCastStream *stream,
                                         window_stream->logical_height));
 }
 
-static void
+static gboolean
 meta_screen_cast_window_stream_transform_position (MetaScreenCastStream *stream,
                                                    double                stream_x,
                                                    double                stream_y,
@@ -145,6 +145,7 @@ meta_screen_cast_window_stream_transform_position (MetaScreenCastStream *stream,
                                                        stream_y,
                                                        x,
                                                        y);
+  return TRUE;
 }
 
 static void

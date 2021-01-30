@@ -177,18 +177,16 @@ meta_screen_cast_stream_get_src (MetaScreenCastStream *stream)
   return priv->src;
 }
 
-void
+gboolean
 meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                             double                stream_x,
                                             double                stream_y,
                                             double               *x,
                                             double               *y)
 {
-  META_SCREEN_CAST_STREAM_GET_CLASS (stream)->transform_position (stream,
-                                                                  stream_x,
-                                                                  stream_y,
-                                                                  x,
-                                                                  y);
+  MetaScreenCastStreamClass *klass = META_SCREEN_CAST_STREAM_GET_CLASS (stream);
+
+  return klass->transform_position (stream, stream_x, stream_y, x, y);
 }
 
 MetaScreenCastCursorMode

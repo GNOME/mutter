@@ -148,7 +148,7 @@ meta_screen_cast_area_stream_set_parameters (MetaScreenCastStream *stream,
                                         area_stream->area.height));
 }
 
-static void
+static gboolean
 meta_screen_cast_area_stream_transform_position (MetaScreenCastStream *stream,
                                                  double                stream_x,
                                                  double                stream_y,
@@ -160,6 +160,8 @@ meta_screen_cast_area_stream_transform_position (MetaScreenCastStream *stream,
 
   *x = area_stream->area.x + (int) roundf (stream_x / area_stream->scale);
   *y = area_stream->area.y + (int) roundf (stream_y / area_stream->scale);
+
+  return TRUE;
 }
 
 static void

@@ -43,11 +43,11 @@ struct _MetaScreenCastStreamClass
                                             GError              **error);
   void (* set_parameters) (MetaScreenCastStream *stream,
                            GVariantBuilder      *parameters_builder);
-  void (* transform_position) (MetaScreenCastStream *stream,
-                               double                stream_x,
-                               double                stream_y,
-                               double               *x,
-                               double               *y);
+  gboolean (* transform_position) (MetaScreenCastStream *stream,
+                                   double                stream_x,
+                                   double                stream_y,
+                                   double               *x,
+                                   double               *y);
 };
 
 MetaScreenCastSession * meta_screen_cast_stream_get_session (MetaScreenCastStream *stream);
@@ -61,11 +61,11 @@ char * meta_screen_cast_stream_get_object_path (MetaScreenCastStream *stream);
 
 MetaScreenCastStreamSrc * meta_screen_cast_stream_get_src (MetaScreenCastStream *stream);
 
-void meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
-                                                 double                stream_x,
-                                                 double                stream_y,
-                                                 double               *x,
-                                                 double               *y);
+gboolean meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
+                                                     double                stream_x,
+                                                     double                stream_y,
+                                                     double               *x,
+                                                     double               *y);
 
 MetaScreenCastCursorMode meta_screen_cast_stream_get_cursor_mode (MetaScreenCastStream *stream);
 
