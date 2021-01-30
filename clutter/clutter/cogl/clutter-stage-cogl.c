@@ -835,6 +835,9 @@ frame_cb (CoglOnscreen  *onscreen,
       if (cogl_frame_info_is_zero_copy (frame_info))
         flags |= CLUTTER_FRAME_INFO_FLAG_ZERO_COPY;
 
+      if (cogl_frame_info_is_vsync (frame_info))
+        flags |= CLUTTER_FRAME_INFO_FLAG_VSYNC;
+
       clutter_frame_info = (ClutterFrameInfo) {
         .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
         .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),

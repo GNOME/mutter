@@ -127,6 +127,14 @@ typedef enum
    * fullscreen surface and a surface on a hardware overlay.
    */
   CLUTTER_FRAME_INFO_FLAG_ZERO_COPY = 1 << 1,
+  /*
+   * The presentation was synchronized to the "vertical retrace" by the display
+   * hardware such that tearing does not happen. Relying on user space
+   * scheduling is not acceptable for this flag. If presentation is done by a
+   * copy to the active frontbuffer, then it must guarantee that tearing cannot
+   * happen.
+   */
+  CLUTTER_FRAME_INFO_FLAG_VSYNC = 1 << 2,
 } ClutterFrameInfoFlag;
 
 /**
