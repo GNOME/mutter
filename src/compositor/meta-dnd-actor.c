@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include "compositor/meta-dnd-actor-private.h"
+#include "compositor/meta-window-actor-private.h"
 
 #include "clutter/clutter.h"
 
@@ -206,16 +207,29 @@ meta_dnd_actor_drag_finish (MetaDnDActor *self,
 
       if (CLUTTER_ACTOR_IS_VISIBLE (self->drag_origin))
         {
+          MetaWindowActor *origin_actor;
           float anchor_x, anchor_y;
           graphene_point_t dest;
+          int origin_geometry_scale;
+          int feedback_geometry_scale;
 
           clutter_actor_get_transformed_position (self->drag_origin,
                                                   &dest.x, &dest.y);
+
+          origin_actor = meta_window_actor_from_actor (self->drag_origin);
+          g_return_if_fail (origin_actor);
+          origin_geometry_scale =
+            meta_window_actor_get_geometry_scale (origin_actor);
+
           meta_feedback_actor_get_anchor (META_FEEDBACK_ACTOR (self),
                                           &anchor_x, &anchor_y);
+          feedback_geometry_scale =
+            meta_feedback_actor_get_geometry_scale (META_FEEDBACK_ACTOR (self));
 
-          dest.x += self->drag_start_x - anchor_x;
-          dest.y += self->drag_start_y - anchor_y;
+          dest.x += ((self->drag_start_x * origin_geometry_scale) -
+                     (anchor_x * feedback_geometry_scale));
+          dest.y += ((self->drag_start_y * origin_geometry_scale) -
+                     (anchor_y * feedback_geometry_scale));
           clutter_actor_set_position (actor, dest.x, dest.y);
         }
 
