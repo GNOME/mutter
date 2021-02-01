@@ -60,6 +60,9 @@ struct _MetaScreenCastStreamSrcClass
   void (* enable) (MetaScreenCastStreamSrc *src);
   void (* disable) (MetaScreenCastStreamSrc *src);
   gboolean (* record_to_buffer) (MetaScreenCastStreamSrc  *src,
+                                 int                       width,
+                                 int                       height,
+                                 int                       stride,
                                  uint8_t                  *data,
                                  GError                  **error);
   gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc  *src,
@@ -77,12 +80,6 @@ void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *s
                                                      MetaScreenCastRecordFlag  flags);
 
 gboolean meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src);
-
-int meta_screen_cast_stream_src_get_stride (MetaScreenCastStreamSrc *src);
-
-int meta_screen_cast_stream_src_get_width (MetaScreenCastStreamSrc *src);
-
-int meta_screen_cast_stream_src_get_height (MetaScreenCastStreamSrc *src);
 
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
 

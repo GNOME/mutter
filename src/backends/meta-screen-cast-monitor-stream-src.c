@@ -450,9 +450,11 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
 
 static void
 maybe_paint_cursor_sprite (MetaScreenCastMonitorStreamSrc *monitor_src,
+                           int                             width,
+                           int                             height,
+                           int                             stride,
                            uint8_t                        *data)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
   MetaBackend *backend = get_backend (monitor_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
@@ -463,7 +465,6 @@ maybe_paint_cursor_sprite (MetaScreenCastMonitorStreamSrc *monitor_src,
   uint8_t *sprite_data;
   cairo_surface_t *sprite_surface;
   graphene_rect_t sprite_rect;
-  int width, height, stride;
   cairo_surface_t *surface;
   cairo_t *cr;
 
@@ -496,9 +497,6 @@ maybe_paint_cursor_sprite (MetaScreenCastMonitorStreamSrc *monitor_src,
                                                         sprite_stride);
   cairo_surface_set_device_scale (sprite_surface, sprite_scale, sprite_scale);
 
-  stride = meta_screen_cast_stream_src_get_stride (src);
-  width = meta_screen_cast_stream_src_get_width (src);
-  height = meta_screen_cast_stream_src_get_height (src);
   surface = cairo_image_surface_create_for_data (data,
                                                  CAIRO_FORMAT_ARGB32,
                                                  width, height, stride);
@@ -516,6 +514,9 @@ maybe_paint_cursor_sprite (MetaScreenCastMonitorStreamSrc *monitor_src,
 
 static gboolean
 meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                                      int                       width,
+                                                      int                       height,
+                                                      int                       stride,
                                                       uint8_t                  *data,
                                                       GError                  **error)
 {
@@ -534,7 +535,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      maybe_paint_cursor_sprite (monitor_src, data);
+      maybe_paint_cursor_sprite (monitor_src, width, height, stride, data);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:

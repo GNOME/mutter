@@ -411,6 +411,9 @@ meta_screen_cast_area_stream_src_disable (MetaScreenCastStreamSrc *src)
 
 static gboolean
 meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                                   int                       width,
+                                                   int                       height,
+                                                   int                       stride,
                                                    uint8_t                  *data,
                                                    GError                  **error)
 {
@@ -421,13 +424,11 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src
   ClutterStage *stage;
   MetaRectangle *area;
   float scale;
-  int stride;
   ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
   stage = get_stage (area_src);
   area = meta_screen_cast_area_stream_get_area (area_stream);
   scale = meta_screen_cast_area_stream_get_scale (area_stream);
-  stride = meta_screen_cast_stream_src_get_stride (src);
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {

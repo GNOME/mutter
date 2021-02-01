@@ -244,16 +244,19 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
 
 static gboolean
 capture_into (MetaScreenCastWindowStreamSrc *window_src,
+              int                            width,
+              int                            height,
+              int                            stride,
               uint8_t                       *data)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
   MetaRectangle stream_rect;
   MetaScreenCastStream *stream;
 
-  stream_rect.x = 0;
-  stream_rect.y = 0;
-  stream_rect.width = get_stream_width (window_src);
-  stream_rect.height = get_stream_height (window_src);
+  stream_rect = (MetaRectangle) {
+    .width = width,
+    .height = height,
+  };
 
   meta_screen_cast_window_capture_into (window_src->screen_cast_window,
                                         &stream_rect, data);
@@ -449,13 +452,16 @@ meta_screen_cast_window_stream_src_disable (MetaScreenCastStreamSrc *src)
 
 static gboolean
 meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                                     int                       width,
+                                                     int                       height,
+                                                     int                       stride,
                                                      uint8_t                  *data,
                                                      GError                  **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
 
-  capture_into (window_src, data);
+  capture_into (window_src, width, height, stride, data);
 
   return TRUE;
 }
@@ -472,8 +478,8 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
 
   stream_rect.x = 0;
   stream_rect.y = 0;
-  stream_rect.width = get_stream_width (window_src);
-  stream_rect.height = get_stream_height (window_src);
+  stream_rect.width = cogl_framebuffer_get_width (framebuffer);
+  stream_rect.height = cogl_framebuffer_get_height (framebuffer);
 
   if (!meta_screen_cast_window_blit_to_framebuffer (window_src->screen_cast_window,
                                                     &stream_rect,
