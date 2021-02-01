@@ -131,7 +131,7 @@
                                         the i915 driver, but disabled for 
                                         everything else. Requires a restart.
 
-        • “autoclose-xwayland”        — Automatically terminates Xwayland if all
+        • “autoclose-xwayland”        — automatically terminates Xwayland if all
                                         relevant X11 clients are gone. Does not
                                         require a restart.
 
