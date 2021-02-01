@@ -745,6 +745,7 @@ on_stream_add_buffer (void             *data,
 
   spa_data[0].mapoffset = 0;
   spa_data[0].maxsize = stride * priv->video_format.size.height;
+  spa_data[0].data = NULL;
 
   dmabuf_handle =
     meta_screen_cast_create_dma_buf_handle (screen_cast,
@@ -756,7 +757,6 @@ on_stream_add_buffer (void             *data,
       spa_data[0].type = SPA_DATA_DmaBuf;
       spa_data[0].flags = SPA_DATA_FLAG_READWRITE;
       spa_data[0].fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
-      spa_data[0].data = NULL;
 
       g_hash_table_insert (priv->dmabuf_handles,
                            GINT_TO_POINTER (spa_data[0].fd),
