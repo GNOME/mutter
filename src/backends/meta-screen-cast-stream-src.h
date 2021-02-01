@@ -76,6 +76,8 @@ struct _MetaScreenCastStreamSrcClass
                                 struct spa_meta_cursor  *spa_meta_cursor);
 };
 
+void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
+
 void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                      MetaScreenCastRecordFlag  flags);
 

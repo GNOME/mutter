@@ -640,6 +640,17 @@ meta_screen_cast_stream_src_disable (MetaScreenCastStreamSrc *src)
   priv->is_enabled = FALSE;
 }
 
+void
+meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (meta_screen_cast_stream_src_is_enabled (src))
+    meta_screen_cast_stream_src_disable (src);
+  priv->emit_closed_after_dispatch = TRUE;
+}
+
 static void
 on_stream_state_changed (void                 *data,
                          enum pw_stream_state  old,
@@ -654,9 +665,7 @@ on_stream_state_changed (void                 *data,
     {
     case PW_STREAM_STATE_ERROR:
       g_warning ("pipewire stream error: %s", error_message);
-      if (meta_screen_cast_stream_src_is_enabled (src))
-        meta_screen_cast_stream_src_disable (src);
-      priv->emit_closed_after_dispatch = TRUE;
+      meta_screen_cast_stream_src_close (src);
       break;
     case PW_STREAM_STATE_PAUSED:
       if (priv->node_id == SPA_ID_INVALID && priv->pipewire_stream)
@@ -942,17 +951,11 @@ on_core_error (void       *data,
 	       const char *message)
 {
   MetaScreenCastStreamSrc *src = data;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
 
   g_warning ("pipewire remote error: id:%u %s", id, message);
 
   if (id == PW_ID_CORE && res == -EPIPE)
-    {
-      if (meta_screen_cast_stream_src_is_enabled (src))
-        meta_screen_cast_stream_src_disable (src);
-      priv->emit_closed_after_dispatch = TRUE;
-    }
+    meta_screen_cast_stream_src_close (src);
 }
 
 static gboolean
