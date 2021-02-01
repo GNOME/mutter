@@ -87,7 +87,7 @@ get_monitor (MetaScreenCastMonitorStreamSrc *monitor_src)
   return meta_screen_cast_monitor_stream_get_monitor (monitor_stream);
 }
 
-static void
+static gboolean
 meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
                                                int                     *width,
                                                int                     *height,
@@ -112,6 +112,8 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   *width = (int) roundf (logical_monitor->rect.width * scale);
   *height = (int) roundf (logical_monitor->rect.height * scale);
   *frame_rate = meta_monitor_mode_get_refresh_rate (mode);
+
+  return TRUE;
 }
 
 static void

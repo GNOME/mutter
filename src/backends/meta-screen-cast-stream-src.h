@@ -53,10 +53,10 @@ struct _MetaScreenCastStreamSrcClass
 {
   GObjectClass parent_class;
 
-  void (* get_specs) (MetaScreenCastStreamSrc *src,
-                      int                     *width,
-                      int                     *height,
-                      float                   *frame_rate);
+  gboolean (* get_specs) (MetaScreenCastStreamSrc *src,
+                          int                     *width,
+                          int                     *height,
+                          float                   *frame_rate);
   void (* enable) (MetaScreenCastStreamSrc *src);
   void (* disable) (MetaScreenCastStreamSrc *src);
   gboolean (* record_to_buffer) (MetaScreenCastStreamSrc  *src,
@@ -74,6 +74,9 @@ struct _MetaScreenCastStreamSrcClass
                               MetaRectangle           *crop_rect);
   void (* set_cursor_metadata) (MetaScreenCastStreamSrc *src,
                                 struct spa_meta_cursor  *spa_meta_cursor);
+
+  void (* notify_params_updated) (MetaScreenCastStreamSrc   *src,
+                                  struct spa_video_info_raw *video_format);
 };
 
 void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);

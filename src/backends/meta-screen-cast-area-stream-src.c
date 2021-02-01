@@ -83,7 +83,7 @@ get_backend (MetaScreenCastAreaStreamSrc *area_src)
   return meta_screen_cast_get_backend (screen_cast);
 }
 
-static void
+static gboolean
 meta_screen_cast_area_stream_src_get_specs (MetaScreenCastStreamSrc *src,
                                             int                     *width,
                                             int                     *height,
@@ -100,6 +100,8 @@ meta_screen_cast_area_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   *width = (int) roundf (area->width * scale);
   *height = (int) roundf (area->height * scale);
   *frame_rate = 60.0;
+
+  return TRUE;
 }
 
 static gboolean

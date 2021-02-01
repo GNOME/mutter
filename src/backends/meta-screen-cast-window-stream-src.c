@@ -275,7 +275,7 @@ capture_into (MetaScreenCastWindowStreamSrc *window_src,
   return TRUE;
 }
 
-static void
+static gboolean
 meta_screen_cast_window_stream_src_get_specs (MetaScreenCastStreamSrc *src,
                                               int                     *width,
                                               int                     *height,
@@ -287,6 +287,8 @@ meta_screen_cast_window_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   *width = get_stream_width (window_src);
   *height = get_stream_height (window_src);
   *frame_rate = 60.0f;
+
+  return TRUE;
 }
 
 static gboolean

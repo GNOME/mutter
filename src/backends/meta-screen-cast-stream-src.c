@@ -47,6 +47,14 @@
   (sizeof (struct spa_meta_cursor) + \
    sizeof (struct spa_meta_bitmap) + width * height * 4)
 
+#define DEFAULT_SIZE SPA_RECTANGLE (1280, 720)
+#define MIN_SIZE SPA_RECTANGLE (1, 1)
+#define MAX_SIZE SPA_RECTANGLE (16384, 16386)
+
+#define DEFAULT_FRAME_RATE SPA_FRACTION (60, 1)
+#define MIN_FRAME_RATE SPA_FRACTION (1, 1)
+#define MAX_FRAME_RATE SPA_FRACTION (1000, 1)
+
 enum
 {
   PROP_0,
@@ -107,7 +115,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStreamSrc,
                                                 meta_screen_cast_stream_src_init_initable_iface)
                          G_ADD_PRIVATE (MetaScreenCastStreamSrc))
 
-static void
+static gboolean
 meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
                                        int                     *width,
                                        int                     *height,
@@ -116,7 +124,7 @@ meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  klass->get_specs (src, width, height, frame_rate);
+  return klass->get_specs (src, width, height, frame_rate);
 }
 
 static gboolean
@@ -694,6 +702,8 @@ on_stream_param_changed (void                 *data,
   MetaScreenCastStreamSrc *src = data;
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
   uint8_t params_buffer[1024];
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
@@ -737,6 +747,9 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_META_size, SPA_POD_Int (CURSOR_META_SIZE (384, 384)));
 
   pw_stream_update_params (priv->pipewire_stream, params, G_N_ELEMENTS (params));
+
+  if (klass->notify_params_updated)
+    klass->notify_params_updated (src, &priv->video_format);
 }
 
 static void
@@ -884,9 +897,6 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   int width;
   int height;
   float frame_rate;
-  MetaFraction frame_rate_fraction;
-  struct spa_fraction max_framerate;
-  struct spa_fraction min_framerate;
   const struct spa_pod *params[1];
   int result;
 
@@ -903,24 +913,49 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
       return NULL;
     }
 
-  meta_screen_cast_stream_src_get_specs (src, &width, &height, &frame_rate);
-  frame_rate_fraction = meta_fraction_from_double (frame_rate);
+  if (meta_screen_cast_stream_src_get_specs (src, &width, &height, &frame_rate))
+    {
+      MetaFraction frame_rate_fraction;
+      struct spa_fraction max_framerate;
+      struct spa_fraction min_framerate;
 
-  min_framerate = SPA_FRACTION (1, 1);
-  max_framerate = SPA_FRACTION (frame_rate_fraction.num,
-                                frame_rate_fraction.denom);
+      frame_rate_fraction = meta_fraction_from_double (frame_rate);
 
-  params[0] = spa_pod_builder_add_object (
-    &pod_builder,
-    SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
-    SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
-    SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
-    SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
-    SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width, height)),
-    SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
-    SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
-                                                                  &min_framerate,
-                                                                  &max_framerate));
+      min_framerate = SPA_FRACTION (1, 1);
+      max_framerate = SPA_FRACTION (frame_rate_fraction.num,
+                                    frame_rate_fraction.denom);
+
+      params[0] = spa_pod_builder_add_object (
+        &pod_builder,
+        SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
+        SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
+        SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
+        SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
+        SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width,
+                                                                  height)),
+        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+        SPA_FORMAT_VIDEO_maxFramerate,
+          SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
+                                         &min_framerate,
+                                         &max_framerate));
+    }
+  else
+    {
+      params[0] = spa_pod_builder_add_object (
+        &pod_builder,
+        SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
+        SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
+        SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
+        SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
+        SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&DEFAULT_SIZE,
+                                                               &MIN_SIZE,
+                                                               &MAX_SIZE),
+        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+        SPA_FORMAT_VIDEO_maxFramerate,
+          SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
+                                         &MIN_FRAME_RATE,
+                                         &MAX_FRAME_RATE));
+    }
 
   pw_stream_add_listener (pipewire_stream,
                           &priv->pipewire_stream_listener,
