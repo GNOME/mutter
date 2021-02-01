@@ -26,6 +26,7 @@
 #include "core/main-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
+#include "tests/native-screen-cast.h"
 #include "tests/native-virtual-monitor.h"
 #include "tests/test-utils.h"
 
@@ -33,6 +34,7 @@ static void
 init_tests (void)
 {
   init_virtual_monitor_tests ();
+  init_screen_cast_tests ();
 }
 
 static gboolean

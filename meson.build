@@ -277,6 +277,9 @@ if have_tests
     if not have_native_backend
       error('Native tests require the native backend')
     endif
+    if not have_remote_desktop
+      error('Native tests require remote desktop')
+    endif
   endif
 
   have_cogl_tests = get_option('cogl_tests')

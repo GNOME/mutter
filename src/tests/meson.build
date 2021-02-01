@@ -166,6 +166,8 @@ if have_native_tests
   native_headless_tests = executable('mutter-native-headless-tests',
     sources: [
       'native-headless.c',
+      'native-screen-cast.c',
+      'native-screen-cast.h',
       'native-virtual-monitor.c',
       'native-virtual-monitor.h',
       'test-utils.c',
@@ -189,6 +191,21 @@ if have_native_tests
     include_directories: tests_includepath,
     c_args: tests_c_args,
     dependencies: [tests_deps],
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+
+  screen_cast_client = executable('mutter-screen-cast-client',
+    sources: [
+      'screen-cast-client.c',
+      dbus_screen_cast_built_sources,
+    ],
+    include_directories: tests_includepath,
+    c_args: tests_c_args,
+    dependencies: [
+      gio_dep,
+      libpipewire_dep,
+    ],
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
