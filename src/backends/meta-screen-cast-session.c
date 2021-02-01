@@ -30,6 +30,7 @@
 #include "backends/meta-screen-cast-area-stream.h"
 #include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-screen-cast-stream.h"
+#include "backends/meta-screen-cast-virtual-stream.h"
 #include "backends/meta-screen-cast-window-stream.h"
 #include "core/display-private.h"
 
@@ -600,6 +601,83 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   return TRUE;
 }
 
+static gboolean
+handle_record_virtual (MetaDBusScreenCastSession *skeleton,
+                       GDBusMethodInvocation     *invocation,
+                       GVariant                  *properties_variant)
+{
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
+  GDBusInterfaceSkeleton *interface_skeleton;
+  GDBusConnection *connection;
+  MetaScreenCastCursorMode cursor_mode;
+  gboolean is_platform;
+  MetaScreenCastFlag flags;
+  g_autoptr (GError) error = NULL;
+  MetaScreenCastVirtualStream *virtual_stream;
+  MetaScreenCastStream *stream;
+  char *stream_path;
+
+  if (!check_permission (session, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return TRUE;
+    }
+
+  if (!g_variant_lookup (properties_variant, "cursor-mode", "u", &cursor_mode))
+    {
+      cursor_mode = META_SCREEN_CAST_CURSOR_MODE_HIDDEN;
+    }
+  else
+    {
+      if (!is_valid_cursor_mode (cursor_mode))
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Unknown cursor mode");
+          return TRUE;
+        }
+    }
+
+  if (!g_variant_lookup (properties_variant, "is-platform", "b", &is_platform))
+    is_platform = FALSE;
+
+  interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
+  connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
+
+  flags = META_SCREEN_CAST_FLAG_NONE;
+  if (is_platform)
+    flags |= META_SCREEN_CAST_FLAG_IS_PLATFORM;
+
+  virtual_stream = meta_screen_cast_virtual_stream_new (session,
+                                                        connection,
+                                                        cursor_mode,
+                                                        flags,
+                                                        &error);
+  if (!virtual_stream)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to record virtual: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  stream = META_SCREEN_CAST_STREAM (virtual_stream);
+  stream_path = meta_screen_cast_stream_get_object_path (stream);
+
+  session->streams = g_list_append (session->streams, stream);
+
+  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+
+  meta_dbus_screen_cast_session_complete_record_virtual (skeleton,
+                                                         invocation,
+                                                         stream_path);
+
+  return TRUE;
+}
+
 static void
 meta_screen_cast_session_init_iface (MetaDBusScreenCastSessionIface *iface)
 {
@@ -608,6 +686,7 @@ meta_screen_cast_session_init_iface (MetaDBusScreenCastSessionIface *iface)
   iface->handle_record_monitor = handle_record_monitor;
   iface->handle_record_window = handle_record_window;
   iface->handle_record_area = handle_record_area;
+  iface->handle_record_virtual = handle_record_virtual;
 }
 
 static void
