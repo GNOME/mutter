@@ -781,6 +781,8 @@ on_stream_add_buffer (void             *data,
 
       if (ftruncate (spa_data[0].fd, spa_data[0].maxsize) < 0)
         {
+          close (spa_data[0].fd);
+          spa_data[0].fd = -1;
           g_critical ("Can't truncate to %d: %m", spa_data[0].maxsize);
           return;
         }
@@ -797,6 +799,8 @@ on_stream_add_buffer (void             *data,
                                spa_data[0].mapoffset);
       if (spa_data[0].data == MAP_FAILED)
         {
+          close (spa_data[0].fd);
+          spa_data[0].fd = -1;
           g_critical ("Failed to mmap memory: %m");
           return;
         }
@@ -820,8 +824,13 @@ on_stream_remove_buffer (void             *data,
     }
   else if (spa_data[0].type == SPA_DATA_MemFd)
     {
-      munmap (spa_data[0].data, spa_data[0].maxsize);
-      close (spa_data[0].fd);
+      g_warn_if_fail (spa_data[0].fd > 0 || !spa_data[0].data);
+
+      if (spa_data[0].fd > 0)
+        {
+          munmap (spa_data[0].data, spa_data[0].maxsize);
+          close (spa_data[0].fd);
+        }
     }
 }
 
