@@ -747,10 +747,17 @@ on_stream_add_buffer (void             *data,
   spa_data[0].maxsize = stride * priv->video_format.size.height;
   spa_data[0].data = NULL;
 
-  dmabuf_handle =
-    meta_screen_cast_create_dma_buf_handle (screen_cast,
-                                            priv->video_format.size.width,
-                                            priv->video_format.size.height);
+  if (spa_data[0].type & (1 << SPA_DATA_DmaBuf))
+    {
+      dmabuf_handle =
+        meta_screen_cast_create_dma_buf_handle (screen_cast,
+                                                priv->video_format.size.width,
+                                                priv->video_format.size.height);
+    }
+  else
+    {
+      dmabuf_handle = NULL;
+    }
 
   if (dmabuf_handle)
     {
@@ -765,6 +772,13 @@ on_stream_add_buffer (void             *data,
   else
     {
       unsigned int seals;
+
+      if (!(spa_data[0].type & (1 << SPA_DATA_MemFd)))
+        {
+          g_critical ("No supported PipeWire stream buffer data type could "
+                      "be negotiated");
+          return;
+        }
 
       /* Fallback to a memfd buffer */
       spa_data[0].type = SPA_DATA_MemFd;
