@@ -4025,6 +4025,8 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
   gboolean needs_frame_drawn = FALSE;
   gboolean no_delay_frame = FALSE;
 
+  COGL_TRACE_BEGIN (MetaWindowSyncRequestCounter, "X11: Sync request counter");
+
   if (window->extended_sync_request_counter && new_counter_value % 2 == 0)
     {
       needs_frame_drawn = TRUE;
@@ -4071,6 +4073,19 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
   if (needs_frame_drawn)
     meta_compositor_queue_frame_drawn (window->display->compositor, window,
                                        no_delay_frame);
+
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *description = NULL;
+
+      description =
+        g_strdup_printf ("sync request serial: %" G_GINT64_FORMAT ", "
+                         "needs frame drawn: %s",
+                         new_counter_value,
+                         needs_frame_drawn ? "yes" : "no");
+      COGL_TRACE_DESCRIBE (MetaWindowSyncRequestCounter, description);
+      COGL_TRACE_END (MetaWindowSyncRequestCounter);
+    }
 }
 
 Window

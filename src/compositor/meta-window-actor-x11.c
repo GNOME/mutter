@@ -167,6 +167,9 @@ do_send_frame_drawn (MetaWindowActorX11 *actor_x11,
 
   XClientMessageEvent ev = { 0, };
 
+  COGL_TRACE_BEGIN (MetaWindowActorX11FrameDrawn,
+                    "X11: Send _NET_WM_FRAME_DRAWN");
+
   now_us = g_get_monotonic_time ();
   frame->frame_drawn_time =
     meta_compositor_monotonic_to_high_res_xserver_time (display->compositor,
@@ -186,6 +189,19 @@ do_send_frame_drawn (MetaWindowActorX11 *actor_x11,
   XSendEvent (xdisplay, ev.window, False, 0, (XEvent *) &ev);
   XFlush (xdisplay);
   meta_x11_error_trap_pop (display->x11_display);
+
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *description = NULL;
+
+      description = g_strdup_printf ("frame drawn time: %" G_GINT64_FORMAT ", "
+                                     "sync request serial: %" G_GINT64_FORMAT,
+                                     frame->frame_drawn_time,
+                                     frame->sync_request_serial);
+      COGL_TRACE_DESCRIBE (MetaWindowActorX11FrameDrawn,
+                           description);
+      COGL_TRACE_END (MetaWindowActorX11FrameDrawn);
+    }
 }
 
 static void
@@ -200,6 +216,9 @@ do_send_frame_timings (MetaWindowActorX11 *actor_x11,
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
   XClientMessageEvent ev = { 0, };
+
+  COGL_TRACE_BEGIN (MetaWindowActorX11FrameTimings,
+                    "X11: Send _NET_WM_FRAME_TIMINGS");
 
   ev.type = ClientMessage;
   ev.window = meta_window_get_xwindow (window);
@@ -231,6 +250,21 @@ do_send_frame_timings (MetaWindowActorX11 *actor_x11,
   XSendEvent (xdisplay, ev.window, False, 0, (XEvent *) &ev);
   XFlush (xdisplay);
   meta_x11_error_trap_pop (display->x11_display);
+
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *description = NULL;
+
+      description =
+        g_strdup_printf ("refresh interval: %d, "
+                         "presentation time: %" G_GINT64_FORMAT ", "
+                         "sync request serial: %" G_GINT64_FORMAT,
+                         refresh_interval,
+                         frame->sync_request_serial,
+                         presentation_time);
+      COGL_TRACE_DESCRIBE (MetaWindowActorX11FrameTimings, description);
+      COGL_TRACE_END (MetaWindowActorX11FrameTimings);
+    }
 }
 
 static void
