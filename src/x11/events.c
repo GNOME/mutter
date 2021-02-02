@@ -518,6 +518,31 @@ get_extension_event_name (MetaX11Display *x11_display,
   return NULL;
 }
 
+static const char *
+get_event_name (MetaX11Display *x11_display,
+                XEvent         *event)
+{
+  const char *name;
+  XIEvent *input_event;
+
+  if (event->type < GenericEvent)
+    return get_core_event_name (event);
+
+  name = get_extension_event_name (x11_display, event);
+  if (name)
+    return name;
+
+  input_event = get_input_event (x11_display, event);
+  if (input_event)
+    {
+      name = get_xi2_event_name (input_event);
+      if (name)
+        return name;
+    }
+
+  return "Unknown event";
+}
+
 static void
 meta_spew_core_event (MetaX11Display *x11_display,
                       XEvent         *event,
@@ -1850,8 +1875,8 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   XIEvent *input_event;
   MetaCursorTracker *cursor_tracker;
 
-  COGL_TRACE_BEGIN_SCOPED (MetaX11DisplayHandleXevent,
-                           "X11Display (handle X11 event)");
+  COGL_TRACE_BEGIN (MetaX11DisplayHandleXevent,
+                    "X11Display (handle X11 event)");
 
 #if 0
   meta_spew_event_print (x11_display, event);
@@ -1974,6 +1999,11 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     }
 
   display->current_time = META_CURRENT_TIME;
+
+  COGL_TRACE_DESCRIBE (MetaX11DisplayHandleXevent,
+                       get_event_name (x11_display, event));
+  COGL_TRACE_END (MetaX11DisplayHandleXevent);
+
   return bypass_gtk;
 }
 
