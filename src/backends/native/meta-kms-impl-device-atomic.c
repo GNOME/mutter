@@ -850,7 +850,7 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   GError *error = NULL;
   GList *failed_planes = NULL;
   drmModeAtomicReq *req;
-  GArray *blob_ids;
+  g_autoptr (GArray) blob_ids = NULL;
   int fd;
   uint32_t commit_flags = 0;
   int ret;
