@@ -43,6 +43,7 @@ typedef struct _CoglTraceHead
 {
   uint64_t begin_time;
   const char *name;
+  char *description;
 } CoglTraceHead;
 
 COGL_EXPORT
@@ -76,6 +77,10 @@ cogl_trace_begin (CoglTraceHead *head,
 COGL_EXPORT void
 cogl_trace_end (CoglTraceHead *head);
 
+COGL_EXPORT void
+cogl_trace_describe (CoglTraceHead *head,
+                     const char    *description);
+
 static inline void
 cogl_auto_trace_end_helper (CoglTraceHead **head)
 {
@@ -102,6 +107,10 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
       ScopedCoglTrace##Name = &CoglTrace##Name; \
     }
 
+#define COGL_TRACE_DESCRIBE(Name, description)\
+  if (g_private_get (&cogl_trace_thread_data)) \
+    cogl_trace_describe (&CoglTrace##Name, description);
+
 #else /* COGL_HAS_TRACING */
 
 #include <stdio.h>
@@ -109,6 +118,7 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
 #define COGL_TRACE_BEGIN(Name, name) (void) 0
 #define COGL_TRACE_END(Name) (void) 0
 #define COGL_TRACE_BEGIN_SCOPED(Name, name) (void) 0
+#define COGL_TRACE_DESCRIBE(Name, description) (void) 0
 
 COGL_EXPORT void
 cogl_set_tracing_enabled_on_thread_with_fd (void       *data,

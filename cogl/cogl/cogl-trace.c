@@ -251,8 +251,9 @@ cogl_set_tracing_disabled_on_thread (GMainContext *main_context)
   g_source_unref (source);
 }
 
-void
-cogl_trace_end (CoglTraceHead *head)
+static void
+cogl_trace_end_with_description (CoglTraceHead *head,
+                                 const char    *description)
 {
   SysprofTimeStamp end_time;
   CoglTraceContext *trace_context;
@@ -270,7 +271,7 @@ cogl_trace_end (CoglTraceHead *head)
                                         (uint64_t) end_time - head->begin_time,
                                         trace_thread_context->group,
                                         head->name,
-                                        NULL))
+                                        description))
     {
       /* XXX: g_main_context_get_thread_default() might be wrong, it probably
        * needs to store the GMainContext in CoglTraceThreadContext when creating
@@ -280,6 +281,20 @@ cogl_trace_end (CoglTraceHead *head)
         cogl_set_tracing_disabled_on_thread (g_main_context_get_thread_default ());
     }
   g_mutex_unlock (&cogl_trace_mutex);
+}
+
+void
+cogl_trace_end (CoglTraceHead *head)
+{
+  cogl_trace_end_with_description (head, head->description);
+  g_free (head->description);
+}
+
+void
+cogl_trace_describe (CoglTraceHead *head,
+                     const char    *description)
+{
+  head->description = g_strdup (description);
 }
 
 #else
