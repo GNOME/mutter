@@ -7,16 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-19 11:41+0000\n"
-"PO-Revision-Date: 2021-01-19 17:11+0200\n"
+"POT-Creation-Date: 2021-02-02 07:25+0000\n"
+"PO-Revision-Date: 2021-02-02 11:24+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<"
-"=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Lokalize 20.11.70\n"
 "X-Project-Style: gnome\n"
 
@@ -395,11 +394,11 @@ msgstr "Увімкнути експериментальні можливості
 #| "instead of window content, to manage HiDPI monitors. Does not require a "
 #| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
 #| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
-#| "are X11 clients. Requires a restart. • “dma-buf-screen-sharing\" — "
-#| "enables DMA buffered screen sharing. This is already enabled by default "
-#| "when using the i915 driver, but disabled for everything else. Requires a "
-#| "restart."
+#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
+#| "sharing. This is already enabled by default when using the i915 driver, "
+#| "but disabled for everything else. Requires a restart. • “autoclose-"
+#| "xwayland” — Automatically terminates Xwayland if all relevant X11 clients "
+#| "are gone. Does not require a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -413,7 +412,7 @@ msgid ""
 "must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
 "enables DMA buffered screen sharing. This is already enabled by default when "
 "using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
 "X11 clients are gone. Does not require a restart."
 msgstr ""
 "Щоб увімкнути експериментальну можливість, додайте до списку ключове слово "
@@ -429,12 +428,12 @@ msgstr ""
 "композитора. • «rt-scheduler» — наказати mutter надсилати до системи запит "
 "щодо низькопріоритетного планування режиму реального часу. Для виконуваного "
 "файла або запису користувача має бути встановлено CAP_SYS_NICE. Потребує "
-"перезапуску композитора. • “dma-"
-"buf-screen-sharing\" — вмикає спільне використання буферизованих екранів "
-"DMA. Типово вже увімкнено, якщо використано драйвер i915, але вимкнено для "
-"усіх інших драйверів. Потребує перезапуску композитора. •"
-" «autoclose-xwayland» — автоматично перериває роботу Xwayland, якщо завершать"
-" роботу усі відповідні клієнти X11. Не потребує перезапуску композитора."
+"перезапуску композитора. • “dma-buf-screen-sharing\" — вмикає спільне "
+"використання буферизованих екранів DMA. Типово вже увімкнено, якщо "
+"використано драйвер i915, але вимкнено для усіх інших драйверів. Потребує "
+"перезапуску композитора. • «autoclose-xwayland» — автоматично перериває "
+"роботу Xwayland, якщо завершать роботу усі відповідні клієнти X11. Не "
+"потребує перезапуску композитора."
 
 #: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
@@ -615,8 +614,7 @@ msgstr "Невідомий екран"
 
 #: src/backends/meta-monitor.c:274
 #, c-format
-msgctxt ""
-"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgctxt "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
@@ -645,51 +643,51 @@ msgstr "Уже запущено інший композитний менедже
 msgid "Bell event"
 msgstr "Подія гудка"
 
-#: src/core/main.c:215
+#: src/core/main.c:216
 msgid "Disable connection to session manager"
 msgstr "Вимкнути з'єднання з менеджером сеансу"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Replace the running window manager"
 msgstr "Замінити запущений віконний менеджер"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Specify session management ID"
 msgstr "Вказати ідентифікатор сеансу"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "X Display to use"
 msgstr "Дисплей X"
 
-#: src/core/main.c:238
+#: src/core/main.c:239
 msgid "Initialize session from savefile"
 msgstr "Розпочати сеанс зі збереженого файла"
 
-#: src/core/main.c:244
+#: src/core/main.c:245
 msgid "Make X calls synchronous"
 msgstr "Зробити виклики X синхронними"
 
-#: src/core/main.c:251
+#: src/core/main.c:252
 msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
-#: src/core/main.c:257
+#: src/core/main.c:258
 msgid "Run as a nested compositor"
 msgstr "Запустити як вкладений композитор"
 
-#: src/core/main.c:263
+#: src/core/main.c:264
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запустити композитор wayland без запуску Xwayland"
 
-#: src/core/main.c:269
+#: src/core/main.c:270
 msgid "Specify Wayland display name to use"
 msgstr "Вказати назву дисплея Wayland, якою слід скористатися"
 
-#: src/core/main.c:277
+#: src/core/main.c:278
 msgid "Run as a full display server, rather than nested"
 msgstr "Запусти як повноцінний сервер, а не вкладений"
 
-#: src/core/main.c:283
+#: src/core/main.c:284
 msgid "Run with X11 backend"
 msgstr "Запустити із модулем X11"
 
