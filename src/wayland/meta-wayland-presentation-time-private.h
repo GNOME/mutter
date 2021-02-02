@@ -26,6 +26,7 @@
 #include <wayland-server.h>
 
 #include "clutter/clutter.h"
+#include "wayland/meta-wayland-cursor-surface.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandPresentationFeedback
@@ -58,5 +59,9 @@ void meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback
 
 struct wl_list * meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *presentation_time,
                                                                   ClutterStageView            *stage_view);
+
+void meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *presentation_time,
+                                                    ClutterStageView            *stage_view,
+                                                    MetaWaylandCursorSurface    *cursor_surface);
 
 #endif /* META_WAYLAND_PRESENTATION_TIME_PRIVATE_H */

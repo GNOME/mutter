@@ -30,6 +30,7 @@
 #include "core/boxes-private.h"
 #include "wayland/meta-cursor-sprite-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
+#include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-xwayland.h"
 
@@ -340,6 +341,9 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   guint32 time = (guint32) (g_get_monotonic_time () / 1000);
+  MetaBackend *backend = meta_get_backend ();
+  MetaWaylandCompositor *compositor =
+    meta_backend_get_wayland_compositor (backend);
 
   if (displayed_sprite != META_CURSOR_SPRITE (priv->cursor_sprite))
     return;
@@ -352,6 +356,10 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
       wl_callback_send_done (callback->resource, time);
       wl_resource_destroy (callback->resource);
     }
+
+  meta_wayland_presentation_time_cursor_painted (&compositor->presentation_time,
+                                                 stage_view,
+                                                 cursor_surface);
 }
 
 void
