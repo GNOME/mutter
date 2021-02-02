@@ -676,29 +676,28 @@ meta_spew_core_event (MetaX11Display *x11_display,
                              alarm_state_to_string (aevent->state));
         }
       else
-        if (META_X11_DISPLAY_HAS_SHAPE (x11_display) &&
-            event->type == (x11_display->shape_event_base + ShapeNotify))
-          {
-            XShapeEvent *sev = (XShapeEvent*) event;
+        {
+          if (META_X11_DISPLAY_HAS_SHAPE (x11_display) &&
+              event->type == (x11_display->shape_event_base + ShapeNotify))
+            {
+              XShapeEvent *sev = (XShapeEvent*) event;
 
-            name = "ShapeNotify";
-
-            extra =
-              g_strdup_printf ("kind: %s "
-                               "x: %d y: %d w: %u h: %u "
-                               "shaped: %d",
-                               sev->kind == ShapeBounding ?
-                               "ShapeBounding" :
-                               (sev->kind == ShapeClip ?
-                                "ShapeClip" : "(unknown)"),
-                               sev->x, sev->y, sev->width, sev->height,
-                               sev->shaped);
-          }
-        else
-          {
-            name = "(Unknown event)";
-            extra = g_strdup_printf ("type: %d", event->xany.type);
-          }
+              extra =
+                g_strdup_printf ("kind: %s "
+                                 "x: %d y: %d w: %u h: %u "
+                                 "shaped: %d",
+                                 sev->kind == ShapeBounding ?
+                                 "ShapeBounding" :
+                                 (sev->kind == ShapeClip ?
+                                  "ShapeClip" : "(unknown)"),
+                                 sev->x, sev->y, sev->width, sev->height,
+                                 sev->shaped);
+            }
+          else
+            {
+              extra = g_strdup_printf ("type: %d", event->xany.type);
+            }
+        }
       break;
     }
 
