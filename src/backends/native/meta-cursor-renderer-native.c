@@ -564,7 +564,9 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
 
   set_crtc_cursor (cursor_renderer_native, view, crtc, cursor_sprite);
 
-  meta_cursor_renderer_emit_painted (cursor_renderer, cursor_sprite);
+  meta_cursor_renderer_emit_painted (cursor_renderer,
+                                     cursor_sprite,
+                                     CLUTTER_STAGE_VIEW (view));
 
   crtc_cursor_data->needs_sync_position = FALSE;
   crtc_cursor_data->hw_state_invalidated = FALSE;

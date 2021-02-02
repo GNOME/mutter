@@ -334,6 +334,7 @@ meta_wayland_cursor_surface_get_hotspot (MetaWaylandCursorSurface *cursor_surfac
 static void
 on_cursor_painted (MetaCursorRenderer       *renderer,
                    MetaCursorSprite         *displayed_sprite,
+                   ClutterStageView         *stage_view,
                    MetaWaylandCursorSurface *cursor_surface)
 {
   MetaWaylandCursorSurfacePrivate *priv =

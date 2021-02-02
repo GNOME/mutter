@@ -97,9 +97,10 @@ meta_hw_cursor_inhibitor_default_init (MetaHwCursorInhibitorInterface *iface)
 
 void
 meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
-                                   MetaCursorSprite   *cursor_sprite)
+                                   MetaCursorSprite   *cursor_sprite,
+                                   ClutterStageView   *stage_view)
 {
-  g_signal_emit (renderer, signals[CURSOR_PAINTED], 0, cursor_sprite);
+  g_signal_emit (renderer, signals[CURSOR_PAINTED], 0, cursor_sprite, stage_view);
 }
 
 static void
@@ -177,7 +178,11 @@ meta_cursor_renderer_after_paint (ClutterStage       *stage,
       clutter_stage_view_get_layout (stage_view, &view_layout);
       view_rect = meta_rectangle_to_graphene_rect (&view_layout);
       if (graphene_rect_intersection (&rect, &view_rect, NULL))
-        meta_cursor_renderer_emit_painted (renderer, priv->displayed_cursor);
+        {
+          meta_cursor_renderer_emit_painted (renderer,
+                                             priv->displayed_cursor,
+                                             stage_view);
+        }
     }
 }
 
@@ -308,8 +313,9 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
                                           G_SIGNAL_RUN_LAST,
                                           0,
                                           NULL, NULL, NULL,
-                                          G_TYPE_NONE, 1,
-                                          G_TYPE_POINTER);
+                                          G_TYPE_NONE, 2,
+                                          G_TYPE_POINTER,
+                                          CLUTTER_TYPE_STAGE_VIEW);
 }
 
 static void
