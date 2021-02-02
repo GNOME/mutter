@@ -9203,6 +9203,16 @@ clutter_actor_allocate (ClutterActor          *self,
       !clutter_actor_has_mapped_clones (self))
     return;
 
+  COGL_TRACE_SCOPED_ANCHOR (ClutterActorAllocate);
+
+  if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
+    {
+      COGL_TRACE_BEGIN_ANCHORED (ClutterActorAllocate,
+                                 "ClutterActor (allocate)");
+      COGL_TRACE_DESCRIBE (ClutterActorAllocate,
+                           _clutter_actor_get_debug_name (self));
+    }
+
   old_allocation = priv->allocation;
   real_allocation = *box;
 
