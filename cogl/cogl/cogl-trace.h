@@ -88,27 +88,33 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
     cogl_trace_end (*head);
 }
 
+static inline gboolean
+cogl_is_tracing_enabled (void)
+{
+  return !!g_private_get (&cogl_trace_thread_data);
+}
+
 #define COGL_TRACE_BEGIN(Name, name) \
   CoglTraceHead CoglTrace##Name = { 0 }; \
-  if (g_private_get (&cogl_trace_thread_data)) \
+  if (cogl_is_tracing_enabled ()) \
     cogl_trace_begin (&CoglTrace##Name, name); \
 
 #define COGL_TRACE_END(Name)\
-  if (g_private_get (&cogl_trace_thread_data)) \
+  if (cogl_is_tracing_enabled ()) \
     cogl_trace_end (&CoglTrace##Name);
 
 #define COGL_TRACE_BEGIN_SCOPED(Name, name) \
   CoglTraceHead CoglTrace##Name = { 0 }; \
   __attribute__((cleanup (cogl_auto_trace_end_helper))) \
     CoglTraceHead *ScopedCoglTrace##Name = NULL; \
-  if (g_private_get (&cogl_trace_thread_data)) \
+  if (cogl_is_tracing_enabled ()) \
     { \
       cogl_trace_begin (&CoglTrace##Name, name); \
       ScopedCoglTrace##Name = &CoglTrace##Name; \
     }
 
 #define COGL_TRACE_DESCRIBE(Name, description)\
-  if (g_private_get (&cogl_trace_thread_data)) \
+  if (cogl_is_tracing_enabled ()) \
     cogl_trace_describe (&CoglTrace##Name, description);
 
 #define COGL_TRACE_SCOPED_ANCHOR(Name) \
@@ -117,7 +123,7 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
     CoglTraceHead *ScopedCoglTrace##Name = NULL; \
 
 #define COGL_TRACE_BEGIN_ANCHORED(Name, name) \
-  if (g_private_get (&cogl_trace_thread_data)) \
+  if (cogl_is_tracing_enabled ()) \
     { \
       cogl_trace_begin (&CoglTrace##Name, name); \
       ScopedCoglTrace##Name = &CoglTrace##Name; \
