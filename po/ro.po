@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-19 11:41+0000\n"
-"PO-Revision-Date: 2021-01-19 16:55+0100\n"
+"POT-Creation-Date: 2021-02-02 07:25+0000\n"
+"PO-Revision-Date: 2021-02-02 12:11+0100\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
 "sourceforge.net>\n"
@@ -409,7 +409,7 @@ msgid ""
 "must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
 "enables DMA buffered screen sharing. This is already enabled by default when "
 "using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
 "X11 clients are gone. Does not require a restart."
 msgstr ""
 "Pentru a activa funcționalitățile experimentale, adăugați cuvântul cheie al "
@@ -426,7 +426,7 @@ msgstr ""
 "Executabilul sau utilizatorul trebuie să aibă CAP_SYS_NICE. Necesită o "
 "repornire.  • „dma-buf-screen-sharing” — activează partajarea ecranului "
 "preîncărcată DMA. Aceasta este deja activată implicit la utilizarea "
-"driverului i915, dar este dezactivat pentru orice altceva. Necesită o "
+"driverului i915, dar este dezactivată pentru orice altceva. Necesită o "
 "repornire. • „autoclose-xwayland” — termină automat Xwayland dacă toți "
 "clienții X11 au dispărut. Nu necesită o repornire."
 
@@ -637,51 +637,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
-#: src/core/main.c:215
+#: src/core/main.c:216
 msgid "Disable connection to session manager"
 msgstr "Dezactivează conexiunea la administratorul de sesiune"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Replace the running window manager"
 msgstr "Înlocuiește administratorul de ferestre curent"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Specify session management ID"
 msgstr "Specifică ID-ul administrării de sesiune"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "X Display to use"
 msgstr "Ecranul X ce va fi folosit"
 
-#: src/core/main.c:238
+#: src/core/main.c:239
 msgid "Initialize session from savefile"
 msgstr "Inițializează sesiunea din fișierul salvat"
 
-#: src/core/main.c:244
+#: src/core/main.c:245
 msgid "Make X calls synchronous"
 msgstr "Realizează apelurile X sincron"
 
-#: src/core/main.c:251
+#: src/core/main.c:252
 msgid "Run as a wayland compositor"
 msgstr "Rulează ca un compunător wayland"
 
-#: src/core/main.c:257
+#: src/core/main.c:258
 msgid "Run as a nested compositor"
 msgstr "Rulează ca un compunător imbricat"
 
-#: src/core/main.c:263
+#: src/core/main.c:264
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Rulează compunătorul wayland fără a porni Xwayland"
 
-#: src/core/main.c:269
+#: src/core/main.c:270
 msgid "Specify Wayland display name to use"
 msgstr "Specificați numele de afișaj Wayland de utilizat"
 
-#: src/core/main.c:277
+#: src/core/main.c:278
 msgid "Run as a full display server, rather than nested"
 msgstr "Rulează ca server de afișare și nu ca server imbricat"
 
-#: src/core/main.c:283
+#: src/core/main.c:284
 msgid "Run with X11 backend"
 msgstr "Rulează cu backend X11"
 
