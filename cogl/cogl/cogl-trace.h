@@ -111,6 +111,18 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
   if (g_private_get (&cogl_trace_thread_data)) \
     cogl_trace_describe (&CoglTrace##Name, description);
 
+#define COGL_TRACE_SCOPED_ANCHOR(Name) \
+  CoglTraceHead G_GNUC_UNUSED CoglTrace##Name = { 0 }; \
+  __attribute__((cleanup (cogl_auto_trace_end_helper))) \
+    CoglTraceHead *ScopedCoglTrace##Name = NULL; \
+
+#define COGL_TRACE_BEGIN_ANCHORED(Name, name) \
+  if (g_private_get (&cogl_trace_thread_data)) \
+    { \
+      cogl_trace_begin (&CoglTrace##Name, name); \
+      ScopedCoglTrace##Name = &CoglTrace##Name; \
+    }
+
 #else /* COGL_HAS_TRACING */
 
 #include <stdio.h>
@@ -119,6 +131,8 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
 #define COGL_TRACE_END(Name) (void) 0
 #define COGL_TRACE_BEGIN_SCOPED(Name, name) (void) 0
 #define COGL_TRACE_DESCRIBE(Name, description) (void) 0
+#define COGL_TRACE_ANCHOR(Name) (void) 0
+#define COGL_TRACE_BEGIN_ANCHORED(Name, name) (void) 0
 
 COGL_EXPORT void
 cogl_set_tracing_enabled_on_thread_with_fd (void       *data,
