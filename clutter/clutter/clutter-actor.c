@@ -3651,6 +3651,16 @@ clutter_actor_paint (ClutterActor        *self,
   if (!CLUTTER_ACTOR_IS_MAPPED (self))
     return;
 
+  COGL_TRACE_SCOPED_ANCHOR (ClutterActorPaint);
+
+  if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
+    {
+      COGL_TRACE_BEGIN_ANCHORED (ClutterActorPaint,
+                                 "ClutterActor (paint)");
+      COGL_TRACE_DESCRIBE (ClutterActorPaint,
+                           _clutter_actor_get_debug_name (self));
+    }
+
   actor_node = clutter_actor_node_new (self, -1);
   root_node = clutter_paint_node_ref (actor_node);
 
