@@ -20,11 +20,11 @@
         <KeyListEntry name="move-to-workspace-last"
                       description="Move window to last workspace" />
 
-	<KeyListEntry name="move-to-workspace-up"
-	              description="Move window one workspace up" />
+	<KeyListEntry name="move-to-workspace-left"
+	              description="Move window one workspace to the left" />
 
-	<KeyListEntry name="move-to-workspace-down"
-	              description="Move window one workspace down" />
+	<KeyListEntry name="move-to-workspace-right"
+	              description="Move window one workspace to the right" />
 
 	<KeyListEntry name="move-to-monitor-left"
 	              description="Move window one monitor to the left" />
@@ -119,10 +119,10 @@
 	<KeyListEntry name="switch-to-workspace-last"
 	              description="Switch to last workspace" />
 
-	<KeyListEntry name="switch-to-workspace-up"
-	              description="Move to workspace above" />
+	<KeyListEntry name="switch-to-workspace-left"
+	              description="Move to workspace on the left" />
 
-	<KeyListEntry name="switch-to-workspace-down"
-	              description="Move to workspace below" />
+	<KeyListEntry name="switch-to-workspace-right"
+	              description="Move to workspace on the right" />
 
 </KeyListEntries>
