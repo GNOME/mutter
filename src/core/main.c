@@ -344,6 +344,10 @@ static void
 meta_finalize (void)
 {
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+
+  if (backend)
+    meta_backend_prepare_shutdown (backend);
 
   if (display)
     meta_display_close (display,

@@ -110,6 +110,8 @@ void meta_init_backend (GType         backend_gtype,
                         const GValue *values);
 void meta_release_backend (void);
 
+void meta_backend_prepare_shutdown (MetaBackend *backend);
+
 #ifdef HAVE_WAYLAND
 MetaWaylandCompositor * meta_backend_get_wayland_compositor (MetaBackend *backend);
 

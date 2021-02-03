@@ -94,6 +94,7 @@ enum
   LAST_DEVICE_CHANGED,
   LID_IS_CLOSED_CHANGED,
   GPU_ADDED,
+  PREPARE_SHUTDOWN,
 
   N_SIGNALS
 };
@@ -869,6 +870,13 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1, META_TYPE_GPU);
+  signals[PREPARE_SHUTDOWN] =
+    g_signal_new ("prepare-shutdown",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
   stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
@@ -1483,6 +1491,12 @@ void
 meta_release_backend (void)
 {
   g_clear_object (&_backend);
+}
+
+void
+meta_backend_prepare_shutdown (MetaBackend *backend)
+{
+  g_signal_emit (backend, signals[PREPARE_SHUTDOWN], 0);
 }
 
 /**
