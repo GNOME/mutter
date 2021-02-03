@@ -209,6 +209,20 @@ if have_native_tests
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
+
+  native_persistent_virtual_monitor = executable(
+    'mutter-persistent-virtual-monitor',
+    sources: [
+      'native-persistent-virtual-monitor.c',
+      'test-utils.c',
+      'test-utils.h',
+    ],
+    include_directories: tests_includepath,
+    c_args: tests_c_args,
+    dependencies: [tests_deps],
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
 endif
 
 stacking_tests = [
@@ -288,6 +302,13 @@ if have_native_tests
 
   test('ref-test-sanity', ref_test_sanity,
     suite: ['core', 'mutter/ref-test/sanity'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
+  test('native-persistent-virtual-monitor', native_persistent_virtual_monitor,
+    suite: ['core', 'mutter/native/persistent-virtual-monitor'],
     env: test_env,
     is_parallel: false,
     timeout: 60,
