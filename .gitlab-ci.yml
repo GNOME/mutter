@@ -12,7 +12,7 @@ stages:
 .mutter.fedora:33@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    BASE_TAG: '2021-02-04.1'
+    BASE_TAG: '2021-02-04.2'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -67,6 +67,20 @@ stages:
           master \
           . \
           a9269808f394955f213e34303c2c14fd61c35ab5 &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+          -Dalsa=false \
+          -Dbluez5=false \
+          -Dexamples=false \
+          -Dgstreamer=false \
+          -Djack=false \
+          -Dman=false \
+          -Dpipewire-alsa=false \
+          -Dpipewire-jack=false \
+          -Dsystemd=false \
+          -Dtests=false \
+          https://gitlab.freedesktop.org/pipewire/pipewire.git \
+          0.3.21 . &&
 
       dnf clean all
 

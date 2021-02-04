@@ -48,7 +48,7 @@ libinput_req = '>= 1.15.0'
 gbm_req = '>= 17.3'
 
 # screen cast version requirements
-libpipewire_req = '>= 0.3.0'
+libpipewire_req = '>= 0.3.21'
 
 # profiler requirements
 sysprof_req = '>= 3.37.2'
