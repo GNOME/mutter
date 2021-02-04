@@ -364,9 +364,9 @@ meta_kms_crtc_gamma_new (MetaKmsCrtc    *crtc,
   *gamma = (MetaKmsCrtcGamma) {
     .crtc = crtc,
     .size = size,
-    .red = g_memdup (red, size * sizeof (*red)),
-    .green = g_memdup (green, size * sizeof (*green)),
-    .blue = g_memdup (blue, size * sizeof (*blue)),
+    .red = g_memdup2 (red, size * sizeof (*red)),
+    .green = g_memdup2 (green, size * sizeof (*green)),
+    .blue = g_memdup2 (blue, size * sizeof (*blue)),
   };
 
   return gamma;

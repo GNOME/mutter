@@ -12,7 +12,7 @@ stages:
 .mutter.fedora:33@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 33
-    BASE_TAG: '2021-01-22.0'
+    BASE_TAG: '2021-02-04.1'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -33,6 +33,13 @@ stages:
       # For Xwayland/Xvfb
       dnf builddep -y xorg-x11-server-Xwayland --setopt=install_weak_deps=False &&
       dnf remove -y --noautoremove 'xorg-x11-server-Xwayland' &&
+
+      # For glib
+      dnf builddep -y glib2 --setopt=install_weak_deps=False &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+          https://gitlab.gnome.org/GNOME/glib.git \
+          2.67.3 . &&
 
       ./.gitlab-ci/install-meson-project.sh \
           -Dlibaudit=disabled \

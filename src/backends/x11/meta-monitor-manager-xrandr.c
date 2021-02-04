@@ -677,9 +677,9 @@ meta_monitor_manager_xrandr_get_crtc_gamma (MetaMonitorManager  *manager,
                            (XID) meta_crtc_get_id (crtc));
 
   *size = gamma->size;
-  *red = g_memdup (gamma->red, sizeof (unsigned short) * gamma->size);
-  *green = g_memdup (gamma->green, sizeof (unsigned short) * gamma->size);
-  *blue = g_memdup (gamma->blue, sizeof (unsigned short) * gamma->size);
+  *red = g_memdup2 (gamma->red, sizeof (unsigned short) * gamma->size);
+  *green = g_memdup2 (gamma->green, sizeof (unsigned short) * gamma->size);
+  *blue = g_memdup2 (gamma->blue, sizeof (unsigned short) * gamma->size);
 
   XRRFreeGamma (gamma);
 }

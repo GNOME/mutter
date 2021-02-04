@@ -182,7 +182,7 @@ append_monitor (MetaMonitorManager *manager,
         {
           CrtcModeSpec *spec;
 
-          spec = g_memdup (&default_specs[i], sizeof (CrtcModeSpec));
+          spec = g_memdup2 (&default_specs[i], sizeof (CrtcModeSpec));
           mode_specs = g_list_prepend (mode_specs, spec);
         }
     }

@@ -666,7 +666,7 @@ meta_input_settings_native_set_tablet_aspect_ratio (MetaInputSettings  *settings
 
   task = g_task_new (device, NULL, NULL, NULL);
   g_task_set_task_data (task,
-                        g_memdup (&aspect_ratio, sizeof (double)),
+                        g_memdup2 (&aspect_ratio, sizeof (double)),
                         g_free);
 
   input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
