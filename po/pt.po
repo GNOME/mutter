@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.10\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-19 11:41+0000\n"
-"PO-Revision-Date: 2021-01-20 11:49+0000\n"
+"POT-Creation-Date: 2021-02-04 13:16+0000\n"
+"PO-Revision-Date: 2021-02-04 16:49+0000\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: https://l10n.gnome.org/teams/pt/\n"
 "Language: pt\n"
@@ -48,12 +48,12 @@ msgid "Move window to last workspace"
 msgstr "Mover janela para a última área de trabalho"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Mover a janela uma área de trabalho acima"
+msgid "Move window one workspace to the left"
+msgstr "Mover a janela uma área de trabalho para a esquerda"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Mover a janela uma área de trabalho abaixo"
+msgid "Move window one workspace to the right"
+msgstr "Mover a janela uma área de trabalho para a direita"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -152,12 +152,12 @@ msgid "Switch to last workspace"
 msgstr "Mudar para a última área de trabalho"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Mover para a área de trabalho acima"
+msgid "Move to workspace on the left"
+msgstr "Mover para a área de trabalho à esquerda"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Mover para a área de trabalho abaixo"
+msgid "Move to workspace on the right"
+msgstr "Mover para a área de trabalho à direita"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -403,7 +403,7 @@ msgid ""
 "must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
 "enables DMA buffered screen sharing. This is already enabled by default when "
 "using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
 "X11 clients are gone. Does not require a restart."
 msgstr ""
 "Para ativar as funcionalidades experimentais, adicione a palavra-chave da "
@@ -629,51 +629,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campainha"
 
-#: src/core/main.c:215
+#: src/core/main.c:216
 msgid "Disable connection to session manager"
 msgstr "Desativar a ligação ao gestor de sessão"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Replace the running window manager"
 msgstr "Substituir o gestor de janelas em execução"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Specify session management ID"
 msgstr "Especificar a ID de gestão de sessão"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "X Display to use"
 msgstr "Ecrã X a utilizar"
 
-#: src/core/main.c:238
+#: src/core/main.c:239
 msgid "Initialize session from savefile"
 msgstr "Inicializar a sessão a partir de um ficheiro de gravação de sessão"
 
-#: src/core/main.c:244
+#: src/core/main.c:245
 msgid "Make X calls synchronous"
 msgstr "Fazer as chamadas X sincronamente"
 
-#: src/core/main.c:251
+#: src/core/main.c:252
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor wayland"
 
-#: src/core/main.c:257
+#: src/core/main.c:258
 msgid "Run as a nested compositor"
 msgstr "Executar como compositor aninhado"
 
-#: src/core/main.c:263
+#: src/core/main.c:264
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor wayland sem a utilização do Xwayland"
 
-#: src/core/main.c:269
+#: src/core/main.c:270
 msgid "Specify Wayland display name to use"
 msgstr "Especificar o nome do visor Wayland a utilizar"
 
-#: src/core/main.c:277
+#: src/core/main.c:278
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como servidor de ecrã completo, em vez de aninhado"
 
-#: src/core/main.c:283
+#: src/core/main.c:284
 msgid "Run with X11 backend"
 msgstr "Executar com a infira-estrutura X11"
 
@@ -801,17 +801,17 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (em %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Mover a janela uma área de trabalho para a esquerda"
+#~ msgid "Move window one workspace up"
+#~ msgstr "Mover a janela uma área de trabalho acima"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Mover a janela uma área de trabalho para a direita"
+#~ msgid "Move window one workspace down"
+#~ msgstr "Mover a janela uma área de trabalho abaixo"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "Mover para a área de trabalho à esquerda"
+#~ msgid "Move to workspace above"
+#~ msgstr "Mover para a área de trabalho acima"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "Mover para a área de trabalho à direita"
+#~ msgid "Move to workspace below"
+#~ msgstr "Mover para a área de trabalho abaixo"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Alternar estado sombreado"
