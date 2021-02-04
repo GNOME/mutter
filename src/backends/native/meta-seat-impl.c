@@ -1490,6 +1490,30 @@ has_touchscreen (MetaSeatImpl *seat_impl)
   return FALSE;
 }
 
+static inline gboolean
+device_type_is_pointer (ClutterInputDeviceType device_type)
+{
+  return device_type == CLUTTER_POINTER_DEVICE ||
+    device_type == CLUTTER_TOUCHPAD_DEVICE;
+}
+
+static gboolean
+has_pointer (MetaSeatImpl *seat_impl)
+{
+  GSList *l;
+
+  for (l = seat_impl->devices; l; l = l->next)
+    {
+      ClutterInputDeviceType device_type;
+
+      device_type = clutter_input_device_get_device_type (l->data);
+      if (device_type_is_pointer (device_type))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static gboolean
 device_is_tablet_switch (MetaInputDeviceNative *device_native)
 {
@@ -1529,11 +1553,14 @@ update_touch_mode (MetaSeatImpl *seat_impl)
   /* If we have a tablet mode switch, honor it being unset */
   else if (seat_impl->has_tablet_switch && !seat_impl->tablet_mode_switch_state)
     touch_mode = FALSE;
-  /* If tablet mode is enabled, or if there is no tablet mode switch
-   * (eg. kiosk machines), assume touch-mode.
+  /* If tablet mode is enabled, go for it */
+  else if (seat_impl->has_tablet_switch && seat_impl->tablet_mode_switch_state)
+    touch_mode = TRUE;
+  /* If there is no tablet mode switch (eg. kiosk machines),
+   * assume touch-mode is mutually exclusive with pointers.
    */
   else
-    touch_mode = TRUE;
+    touch_mode = !seat_impl->has_pointer;
 
   if (seat_impl->touch_mode != touch_mode)
     {
@@ -1553,7 +1580,7 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
 {
   ClutterInputDeviceType type;
   ClutterInputDevice *device;
-  gboolean is_touchscreen, is_tablet_switch;
+  gboolean is_touchscreen, is_tablet_switch, is_pointer;
 
   device = meta_input_device_native_new_in_impl (seat_impl, libinput_device);
 
@@ -1566,11 +1593,13 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
   is_touchscreen = type == CLUTTER_TOUCHSCREEN_DEVICE;
   is_tablet_switch =
     device_is_tablet_switch (META_INPUT_DEVICE_NATIVE (device));
+  is_pointer = device_type_is_pointer (type);
 
   seat_impl->has_touchscreen |= is_touchscreen;
   seat_impl->has_tablet_switch |= is_tablet_switch;
+  seat_impl->has_pointer |= is_pointer;
 
-  if (is_touchscreen || is_tablet_switch)
+  if (is_touchscreen || is_tablet_switch || is_pointer)
     update_touch_mode (seat_impl);
 
   return device;
@@ -1582,7 +1611,7 @@ evdev_remove_device (MetaSeatImpl          *seat_impl,
 {
   ClutterInputDevice *device;
   ClutterInputDeviceType device_type;
-  gboolean is_touchscreen, is_tablet_switch;
+  gboolean is_touchscreen, is_tablet_switch, is_pointer;
 
   device = CLUTTER_INPUT_DEVICE (device_native);
   seat_impl->devices = g_slist_remove (seat_impl->devices, device);
@@ -1591,13 +1620,16 @@ evdev_remove_device (MetaSeatImpl          *seat_impl,
 
   is_touchscreen = device_type == CLUTTER_TOUCHSCREEN_DEVICE;
   is_tablet_switch = device_is_tablet_switch (device_native);
+  is_pointer = device_type_is_pointer (device_type);
 
   if (is_touchscreen)
     seat_impl->has_touchscreen = has_touchscreen (seat_impl);
   if (is_tablet_switch)
     seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
+  if (is_pointer)
+    seat_impl->has_pointer = has_pointer (seat_impl);
 
-  if (is_touchscreen || is_tablet_switch)
+  if (is_touchscreen || is_tablet_switch || is_pointer)
     update_touch_mode (seat_impl);
 
   if (seat_impl->repeat_source && seat_impl->repeat_device == device)

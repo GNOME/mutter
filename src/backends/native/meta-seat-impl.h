@@ -99,6 +99,7 @@ struct _MetaSeatImpl
   gboolean tablet_mode_switch_state;
   gboolean has_touchscreen;
   gboolean has_tablet_switch;
+  gboolean has_pointer;
   gboolean touch_mode;
   gboolean input_thread_initialized;
 
