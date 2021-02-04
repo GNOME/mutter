@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-02 07:25+0000\n"
-"PO-Revision-Date: 2021-02-02 12:11+0100\n"
+"POT-Creation-Date: 2021-02-04 13:16+0000\n"
+"PO-Revision-Date: 2021-02-04 17:44+0100\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
 "sourceforge.net>\n"
@@ -49,12 +49,12 @@ msgid "Move window to last workspace"
 msgstr "Mută fereastra pe spațiul de lucru anterior"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Mută fereastra pe spațiul de lucru de mai sus"
+msgid "Move window one workspace to the left"
+msgstr "Mută fereastra pe spațiul de lucru de la stânga"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Mută fereastra pe spațiul de lucru de mai jos"
+msgid "Move window one workspace to the right"
+msgstr "Mută fereastra pe spațiul de lucru de la dreapta"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -153,12 +153,12 @@ msgid "Switch to last workspace"
 msgstr "Comută la ultimul spațiu de lucru"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Mută pe spațiul de lucru deasupra"
+msgid "Move to workspace on the left"
+msgstr "Mută pe spațiul de lucru din stânga"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Mută pe spațiul de lucru de jos"
+msgid "Move to workspace on the right"
+msgstr "Mută pe spațiul de lucru din dreapta"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -810,17 +810,17 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Mută fereastra pe spațiul de lucru de la stânga"
+#~ msgid "Move window one workspace up"
+#~ msgstr "Mută fereastra pe spațiul de lucru de mai sus"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Mută fereastra pe spațiul de lucru de la dreapta"
+#~ msgid "Move window one workspace down"
+#~ msgstr "Mută fereastra pe spațiul de lucru de mai jos"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "Mută pe spațiul de lucru din stânga"
+#~ msgid "Move to workspace above"
+#~ msgstr "Mută pe spațiul de lucru deasupra"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "Mută pe spațiul de lucru din dreapta"
+#~ msgid "Move to workspace below"
+#~ msgstr "Mută pe spațiul de lucru de jos"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Comută starea de umbrire"
