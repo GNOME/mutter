@@ -181,21 +181,7 @@ void
 clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
 {
-  int64_t presentation_time_us = frame_info->presentation_time;
-
-  if (presentation_time_us > frame_clock->last_presentation_time_us ||
-      ((presentation_time_us - frame_clock->last_presentation_time_us) >
-       INT64_MAX / 2))
-    {
-      frame_clock->last_presentation_time_us = presentation_time_us;
-    }
-  else
-    {
-      g_warning_once ("Bogus presentation time %" G_GINT64_FORMAT
-                      " travelled back in time, using current time.",
-                      presentation_time_us);
-      frame_clock->last_presentation_time_us = g_get_monotonic_time ();
-    }
+  frame_clock->last_presentation_time_us = frame_info->presentation_time;
 
   if (frame_info->refresh_rate > 1)
     frame_clock->refresh_rate = frame_info->refresh_rate;
