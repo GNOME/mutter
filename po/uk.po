@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-02 07:25+0000\n"
-"PO-Revision-Date: 2021-02-02 11:24+0200\n"
+"POT-Creation-Date: 2021-02-04 13:16+0000\n"
+"PO-Revision-Date: 2021-02-04 17:35+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -44,12 +44,14 @@ msgid "Move window to last workspace"
 msgstr "Перемістити вікно на останній робочий простір"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Перемістити вікно на робочий простір вище"
+#| msgid "Move window one monitor to the left"
+msgid "Move window one workspace to the left"
+msgstr "Перемістити вікно на робочий простір ліворуч"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Перемістити вікно на робочий простір нижче"
+#| msgid "Move window one monitor to the right"
+msgid "Move window one workspace to the right"
+msgstr "Перемістити вікно на робочий простір праворуч"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -148,12 +150,14 @@ msgid "Switch to last workspace"
 msgstr "Перейти до останнього робочого простору"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Перейти до робочого простору вище"
+#| msgid "Move to workspace above"
+msgid "Move to workspace on the left"
+msgstr "Перейти до робочого простору ліворуч"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Перейти до робочого простору знизу"
+#| msgid "Move to workspace above"
+msgid "Move to workspace on the right"
+msgstr "Перейти до робочого простору праворуч"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -383,22 +387,6 @@ msgid "Enable experimental features"
 msgstr "Увімкнути експериментальні можливості"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
-#| "sharing. This is already enabled by default when using the i915 driver, "
-#| "but disabled for everything else. Requires a restart. • “autoclose-"
-#| "xwayland” — Automatically terminates Xwayland if all relevant X11 clients "
-#| "are gone. Does not require a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -812,3 +800,12 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "Move window one workspace up"
+#~ msgstr "Перемістити вікно на робочий простір вище"
+
+#~ msgid "Move window one workspace down"
+#~ msgstr "Перемістити вікно на робочий простір нижче"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Перейти до робочого простору знизу"
