@@ -778,7 +778,7 @@ struct _ClutterActorPrivate
   ClutterColor bg_color;
 
   /* a string used for debugging messages */
-  gchar *debug_name;
+  char *debug_name;
 
   /* a set of clones of the actor */
   GHashTable *clones;
@@ -1108,11 +1108,11 @@ G_DEFINE_TYPE_WITH_CODE (ClutterActor,
  *
  * Return value: a string with a printable name
  */
-const gchar *
+const char *
 _clutter_actor_get_debug_name (ClutterActor *actor)
 {
   ClutterActorPrivate *priv = actor->priv;
-  const gchar *retval;
+  const char *retval;
 
   if (G_UNLIKELY (priv->debug_name == NULL))
     {

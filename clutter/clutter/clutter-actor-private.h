@@ -238,7 +238,7 @@ gboolean                        _clutter_actor_set_default_paint_volume         
                                                                                          GType               check_gtype,
                                                                                          ClutterPaintVolume *volume);
 
-const gchar *                   _clutter_actor_get_debug_name                           (ClutterActor *self);
+const char *                    _clutter_actor_get_debug_name                           (ClutterActor *self);
 
 void                            _clutter_actor_push_clone_paint                         (void);
 void                            _clutter_actor_pop_clone_paint                          (void);
