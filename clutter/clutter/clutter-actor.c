@@ -777,10 +777,8 @@ struct _ClutterActorPrivate
 
   ClutterColor bg_color;
 
-#ifdef CLUTTER_ENABLE_DEBUG
   /* a string used for debugging messages */
   gchar *debug_name;
-#endif
 
   /* a set of clones of the actor */
   GHashTable *clones;
@@ -1116,7 +1114,6 @@ _clutter_actor_get_debug_name (ClutterActor *actor)
   ClutterActorPrivate *priv = actor->priv;
   const gchar *retval;
 
-#ifdef CLUTTER_ENABLE_DEBUG
   if (G_UNLIKELY (priv->debug_name == NULL))
     {
       priv->debug_name = g_strdup_printf ("<%s>[<%s>:%p]",
@@ -1127,11 +1124,6 @@ _clutter_actor_get_debug_name (ClutterActor *actor)
     }
 
   retval = priv->debug_name;
-#else
-  retval = priv->name != NULL
-         ? priv->name
-         : G_OBJECT_TYPE_NAME (actor);
-#endif
 
   return retval;
 }
@@ -5582,9 +5574,7 @@ clutter_actor_finalize (GObject *object)
 
   g_free (priv->name);
 
-#ifdef CLUTTER_ENABLE_DEBUG
   g_free (priv->debug_name);
-#endif
 
   G_OBJECT_CLASS (clutter_actor_parent_class)->finalize (object);
 }
