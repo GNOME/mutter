@@ -246,6 +246,23 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
   if (min_render_time_allowed_us > max_render_time_allowed_us)
     min_render_time_allowed_us = max_render_time_allowed_us;
 
+  /*
+   * The common case is that the next presentation happens 1 refresh interval
+   * after the last presentation:
+   *
+   *        last_presentation_time_us
+   *       /       next_presentation_time_us
+   *      /       /
+   *     /       /
+   * |--|--o----|-------|--> presentation times
+   * |  |  \    |
+   * |  |   now_us
+   * |  \______/
+   * | refresh_interval_us
+   * |
+   * 0
+   *
+   */
   last_presentation_time_us = frame_clock->last_presentation_time_us;
   next_presentation_time_us = last_presentation_time_us + refresh_interval_us;
 
