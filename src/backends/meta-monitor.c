@@ -127,6 +127,17 @@ meta_monitor_spec_clone (MetaMonitorSpec *monitor_spec)
   return new_monitor_spec;
 }
 
+guint
+meta_monitor_spec_hash (gconstpointer key)
+{
+  const MetaMonitorSpec *monitor_spec = key;
+
+  return (g_str_hash (monitor_spec->connector) +
+          g_str_hash (monitor_spec->vendor) +
+          g_str_hash (monitor_spec->product) +
+          g_str_hash (monitor_spec->serial));
+}
+
 gboolean
 meta_monitor_spec_equals (MetaMonitorSpec *monitor_spec,
                           MetaMonitorSpec *other_monitor_spec)
