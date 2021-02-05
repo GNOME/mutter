@@ -365,21 +365,21 @@ static void
 wayland_output_update_for_output (MetaWaylandOutput *wayland_output,
                                   MetaMonitor       *monitor)
 {
-  GList *iter;
+  GList *l;
   gboolean pending_done_event;
 
   pending_done_event = FALSE;
-  for (iter = wayland_output->resources; iter; iter = iter->next)
+  for (l = wayland_output->resources; l; l = l->next)
     {
-      struct wl_resource *resource = iter->data;
+      struct wl_resource *resource = l->data;
 
       send_output_events (resource, wayland_output, monitor,
                           FALSE, &pending_done_event);
     }
 
-  for (iter = wayland_output->xdg_output_resources; iter; iter = iter->next)
+  for (l = wayland_output->xdg_output_resources; l; l = l->next)
     {
-      struct wl_resource *xdg_output = iter->data;
+      struct wl_resource *xdg_output = l->data;
 
       send_xdg_output_events (xdg_output, wayland_output, monitor,
                               FALSE, &pending_done_event);
@@ -388,16 +388,18 @@ wayland_output_update_for_output (MetaWaylandOutput *wayland_output,
   /* Send the "done" events if needed */
   if (pending_done_event)
     {
-      for (iter = wayland_output->resources; iter; iter = iter->next)
+      for (l = wayland_output->resources; l; l = l->next)
         {
-          struct wl_resource *resource = iter->data;
+          struct wl_resource *resource = l->data;
+
           if (wl_resource_get_version (resource) >= WL_OUTPUT_DONE_SINCE_VERSION)
             wl_output_send_done (resource);
         }
 
-      for (iter = wayland_output->xdg_output_resources; iter; iter = iter->next)
+      for (l = wayland_output->xdg_output_resources; l; l = l->next)
         {
-          struct wl_resource *xdg_output = iter->data;
+          struct wl_resource *xdg_output = l->data;
+
           if (wl_resource_get_version (xdg_output) < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
             zxdg_output_v1_send_done (xdg_output);
         }
