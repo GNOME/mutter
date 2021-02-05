@@ -538,7 +538,13 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 
   buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
   if (!buffer)
-    return;
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Couldn't dequeue a buffer from pipewire stream (node id %u), "
+                  "maybe your encoding is too slow?",
+                  pw_stream_get_node_id (priv->pipewire_stream));
+      return;
+    }
 
   spa_buffer = buffer->buffer;
   data = spa_buffer->datas[0].data;
