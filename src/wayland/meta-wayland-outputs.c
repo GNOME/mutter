@@ -57,6 +57,12 @@ send_xdg_output_events (struct wl_resource *resource,
                         gboolean            need_all_events,
                         gboolean           *pending_done_event);
 
+const GList *
+meta_wayland_output_get_resources (MetaWaylandOutput *wayland_output)
+{
+  return wayland_output->resources;
+}
+
 static void
 output_resource_destroy (struct wl_resource *res)
 {

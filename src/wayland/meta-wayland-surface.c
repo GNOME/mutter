@@ -1289,16 +1289,15 @@ static void
 surface_entered_output (MetaWaylandSurface *surface,
                         MetaWaylandOutput *wayland_output)
 {
-  GList *iter;
-  struct wl_resource *resource;
+  const GList *l;
 
   g_signal_connect (wayland_output, "output-destroyed",
                     G_CALLBACK (handle_output_destroyed),
                     surface);
 
-  for (iter = wayland_output->resources; iter != NULL; iter = iter->next)
+  for (l = meta_wayland_output_get_resources (wayland_output); l; l = l->next)
     {
-      resource = iter->data;
+      struct wl_resource *resource = l->data;
 
       if (wl_resource_get_client (resource) !=
           wl_resource_get_client (surface->resource))
@@ -1316,8 +1315,7 @@ static void
 surface_left_output (MetaWaylandSurface *surface,
                      MetaWaylandOutput *wayland_output)
 {
-  GList *iter;
-  struct wl_resource *resource;
+  const GList *l;
 
   g_signal_handlers_disconnect_by_func (wayland_output,
                                         G_CALLBACK (handle_output_destroyed),
@@ -1327,9 +1325,9 @@ surface_left_output (MetaWaylandSurface *surface,
                                         G_CALLBACK (handle_output_bound),
                                         surface);
 
-  for (iter = wayland_output->resources; iter != NULL; iter = iter->next)
+  for (l = meta_wayland_output_get_resources (wayland_output); l; l = l->next)
     {
-      resource = iter->data;
+      struct wl_resource *resource = l->data;
 
       if (wl_resource_get_client (resource) !=
           wl_resource_get_client (surface->resource))
