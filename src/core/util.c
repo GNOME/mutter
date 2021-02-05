@@ -278,6 +278,8 @@ topic_name (MetaDebugTopic topic)
       return "INPUT";
     case META_DEBUG_KMS:
       return "KMS";
+    case META_DEBUG_SCREEN_CAST:
+      return "SCREEN_CAST";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
     case META_DEBUG_WAYLAND:
