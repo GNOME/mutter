@@ -48,6 +48,24 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
+struct _MetaWaylandOutput
+{
+  GObject parent;
+
+  struct wl_global *global;
+  MetaLogicalMonitor *logical_monitor;
+  uint32_t mode_flags;
+  float refresh_rate;
+  int scale;
+  int mode_width;
+  int mode_height;
+
+  GList *resources;
+  GList *xdg_output_resources;
+
+  uint64_t winsys_id;
+};
+
 G_DEFINE_TYPE (MetaWaylandOutput, meta_wayland_output, G_TYPE_OBJECT)
 
 static void

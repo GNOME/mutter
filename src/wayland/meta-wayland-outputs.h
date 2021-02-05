@@ -32,24 +32,6 @@
 G_DECLARE_FINAL_TYPE (MetaWaylandOutput, meta_wayland_output,
                       META, WAYLAND_OUTPUT, GObject)
 
-struct _MetaWaylandOutput
-{
-  GObject                   parent;
-
-  struct wl_global         *global;
-  MetaLogicalMonitor       *logical_monitor;
-  guint                     mode_flags;
-  float                     refresh_rate;
-  gint                      scale;
-  int                       mode_width;
-  int                       mode_height;
-
-  GList                    *resources;
-  GList                    *xdg_output_resources;
-
-  uint64_t                  winsys_id;
-};
-
 const GList * meta_wayland_output_get_resources (MetaWaylandOutput *wayland_output);
 
 MetaLogicalMonitor * meta_wayland_output_get_logical_monitor (MetaWaylandOutput *wayland_output);
