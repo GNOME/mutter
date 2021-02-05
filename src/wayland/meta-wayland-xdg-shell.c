@@ -461,12 +461,16 @@ xdg_toplevel_set_fullscreen (struct wl_client   *client,
 
   if (output_resource)
     {
-      MetaWaylandOutput *output = wl_resource_get_user_data (output_resource);
+      MetaWaylandOutput *wayland_output;
 
-      if (output && output->logical_monitor)
+      wayland_output = wl_resource_get_user_data (output_resource);
+      if (wayland_output)
         {
-          meta_window_move_to_monitor (window,
-                                       output->logical_monitor->number);
+          MetaLogicalMonitor *logical_monitor;
+
+          logical_monitor =
+            meta_wayland_output_get_logical_monitor (wayland_output);
+          meta_window_move_to_monitor (window, logical_monitor->number);
         }
     }
 

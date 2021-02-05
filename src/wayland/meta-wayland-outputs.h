@@ -52,6 +52,8 @@ struct _MetaWaylandOutput
 
 const GList * meta_wayland_output_get_resources (MetaWaylandOutput *wayland_output);
 
+MetaLogicalMonitor * meta_wayland_output_get_logical_monitor (MetaWaylandOutput *wayland_output);
+
 void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
 
 #endif /* META_WAYLAND_OUTPUTS_H */
