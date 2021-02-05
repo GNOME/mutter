@@ -240,7 +240,6 @@ get_output_for_stage_view (MetaWaylandCompositor *compositor,
   MetaCrtc *crtc;
   MetaOutput *output;
   MetaMonitor *monitor;
-  MetaLogicalMonitor *logical_monitor;
 
   crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (stage_view));
 
@@ -251,8 +250,8 @@ get_output_for_stage_view (MetaWaylandCompositor *compositor,
   output = meta_crtc_get_outputs (crtc)->data;
 
   monitor = meta_output_get_monitor (output);
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-  return g_hash_table_lookup (compositor->outputs, &logical_monitor->winsys_id);
+  return g_hash_table_lookup (compositor->outputs,
+                              meta_monitor_get_spec (monitor));
 }
 
 static void
