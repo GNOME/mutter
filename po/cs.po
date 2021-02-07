@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-28 15:52+0000\n"
-"PO-Revision-Date: 2021-01-30 12:01+0100\n"
+"POT-Creation-Date: 2021-02-07 00:17+0000\n"
+"PO-Revision-Date: 2021-02-07 20:01+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -49,12 +49,12 @@ msgid "Move window to last workspace"
 msgstr "Přesunout okno na poslední pracovní plochu"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Přesunout okno o jednu pracovní plochu nahoru"
+msgid "Move window one workspace to the left"
+msgstr "Přesunout okno o jednu pracovní plochu doleva"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Přesunout okno o jednu pracovní plochu dolů"
+msgid "Move window one workspace to the right"
+msgstr "Přesunout okno o jednu pracovní plochu doprava"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -134,31 +134,31 @@ msgstr "Skrýt všechna běžná okna"
 
 #: data/50-mutter-navigation.xml:108
 msgid "Switch to workspace 1"
-msgstr "Přepnout na plochu 1"
+msgstr "Přepnout na pracovní plochu 1"
 
 #: data/50-mutter-navigation.xml:111
 msgid "Switch to workspace 2"
-msgstr "Přepnout na plochu 2"
+msgstr "Přepnout na pracovní plochu 2"
 
 #: data/50-mutter-navigation.xml:114
 msgid "Switch to workspace 3"
-msgstr "Přepnout na plochu 3"
+msgstr "Přepnout na pracovní plochu 3"
 
 #: data/50-mutter-navigation.xml:117
 msgid "Switch to workspace 4"
-msgstr "Přepnout na plochu 4"
+msgstr "Přepnout na pracovní plochu 4"
 
 #: data/50-mutter-navigation.xml:120
 msgid "Switch to last workspace"
-msgstr "Přepnout na poslední plochu"
+msgstr "Přepnout na poslední pracovní plochu"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Přesunout na plochu nad"
+msgid "Move to workspace on the left"
+msgstr "Přesunout na pracovní plochu vlevo"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Přesunout na plochu pod"
+msgid "Move to workspace on the right"
+msgstr "Přesunout na pracovní plochu vpravo"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -401,7 +401,7 @@ msgid ""
 "must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
 "enables DMA buffered screen sharing. This is already enabled by default when "
 "using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
 "X11 clients are gone. Does not require a restart."
 msgstr ""
 "Chcete-li povolit experimentální funkce, přidejte klíčové slovo funkce do "
@@ -415,11 +415,11 @@ msgstr ""
 "namísto v obsahu oken, aby se postaral o správu montorů s HiDPI. Nevyžaduje "
 "restart. • „rt-scheduler“ – zajistí, aby měly požadavky mutter nízkou "
 "prioritu v plánování reálného času. Spustitelný soubor nebo uživatel musí "
-"mít CAP_SYS_NICE. Vyžaduje restart. • „autostart-xwayland“ – inicializuje "
-"Xwayland líněji v situaci, kdy existují klienti X11. Vyžaduje restart. • "
-"„dma-buf-screen-sharing“ – povolí sdílení obrazovky skrze vyrovnávací paměť "
-"DMA. To je jako výchozí povolené, když se používá ovladač i915, ale zakázané "
-"u všech ostatních ovladačů. Vyžaduje restart."
+"mít CAP_SYS_NICE. Vyžaduje restart. • „dma-buf-screen-sharing“ – povolí "
+"sdílení obrazovky skrze vyrovnávací paměť DMA. To je jako výchozí povolené, "
+"když se používá ovladač i915, ale zakázané u všech ostatních ovladačů. "
+"Vyžaduje restart. • „autoclose-xwayland“ – automaticky ukončí Xwayland, když "
+"se ukončí všichny související klienti X11. Nevyžaduje restart."
 
 #: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
@@ -625,51 +625,51 @@ msgstr "Jiný kompozitní správce již běží na obrazovce %i displeje „%s�
 msgid "Bell event"
 msgstr "Událost zvonku"
 
-#: src/core/main.c:216
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "Zakázat připojení ke správci sezení"
 
-#: src/core/main.c:222
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "Nahradí běžícího správce oken"
 
-#: src/core/main.c:228
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "Určit ID správy sezení"
 
-#: src/core/main.c:233
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "Displej X, který se má použít"
 
-#: src/core/main.c:239
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "Spustit sezení z uloženého souboru"
 
-#: src/core/main.c:245
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "Provádět volání X synchronně"
 
-#: src/core/main.c:252
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "Spustit jako kompozitor protokolu Wayland"
 
-#: src/core/main.c:258
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/main.c:264
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/main.c:270
+#: src/core/main.c:272
 msgid "Specify Wayland display name to use"
 msgstr "Určit název displeje Wayland, který se má používat"
 
-#: src/core/main.c:278
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/main.c:284
+#: src/core/main.c:286
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
