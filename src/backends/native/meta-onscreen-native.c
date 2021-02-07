@@ -1212,7 +1212,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
       g_set_error_literal (error,
                            COGL_SCANOUT_ERROR,
                            COGL_SCANOUT_ERROR_INHIBITED,
-                           NULL);
+                           "Direct scanout is inhibited during power saving mode");
       return FALSE;
     }
 
@@ -1221,7 +1221,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
       g_set_error_literal (error,
                            COGL_SCANOUT_ERROR,
                            COGL_SCANOUT_ERROR_INHIBITED,
-                           NULL);
+                           "Direct scanout is inhibited when a mode set is pending");
       return FALSE;
     }
 
