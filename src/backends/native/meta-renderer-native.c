@@ -80,7 +80,6 @@ struct _MetaRendererNative
 
   GList *pending_mode_set_views;
   gboolean pending_mode_set;
-  guint mode_set_failed_feedback_source_id;
 
   GList *kept_alive_onscreens;
 
@@ -839,9 +838,6 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
   renderer_native->pending_mode_set_views =
     g_list_copy (meta_renderer_get_views (renderer));
   renderer_native->pending_mode_set = TRUE;
-
-  g_clear_handle_id (&renderer_native->mode_set_failed_feedback_source_id,
-                     g_source_remove);
 
   meta_topic (META_DEBUG_KMS, "Queue mode set");
 }
@@ -1940,8 +1936,6 @@ meta_renderer_native_finalize (GObject *object)
     }
 
   g_list_free (renderer_native->pending_mode_set_views);
-  g_clear_handle_id (&renderer_native->mode_set_failed_feedback_source_id,
-                     g_source_remove);
 
   g_hash_table_destroy (renderer_native->gpu_datas);
   g_clear_object (&renderer_native->gles3);
