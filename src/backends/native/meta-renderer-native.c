@@ -78,8 +78,6 @@ struct _MetaRendererNative
 
   GHashTable *gpu_datas;
 
-  CoglClosure *swap_notify_idle;
-
   GList *pending_mode_set_views;
   gboolean pending_mode_set;
   guint mode_set_failed_feedback_source_id;
