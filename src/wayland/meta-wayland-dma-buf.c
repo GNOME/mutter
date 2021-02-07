@@ -54,6 +54,7 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-utils.h"
+#include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-renderer-native.h"
 #endif
 
