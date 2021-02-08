@@ -1367,6 +1367,14 @@ try_to_set_focus_and_check (MetaWindow *window,
 {
   meta_window_focus (window, timestamp);
 
+  /* meta_focus_window() will not change focus for clients using the
+   * "globally active input" model of input handling, hence defeating
+   * the assumption that focus should be changed for such windows.
+   * See https://tronche.com/gui/x/icccm/sec-4.html#s-4.1.7
+   */
+  if (meta_window_is_focus_async (window))
+    return TRUE;
+
   /* meta_window_focus() does not guarantee that focus will end up
    * where we expect, it can fail for various reasons, better check
    * it did not actually changed or even left focus to the window we
