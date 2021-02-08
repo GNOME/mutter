@@ -501,6 +501,7 @@ keyboard_drag_grab_key (MetaWaylandKeyboardGrab *grab,
 
       drag_grab = wl_container_of (grab, drag_grab, keyboard_grab);
       meta_wayland_data_source_cancel (drag_grab->drag_data_source);
+      meta_wayland_data_source_set_current_offer (drag_grab->drag_data_source, NULL);
       meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor), FALSE);
       drag_grab->feedback_actor = NULL;
       data_device_end_drag_grab (drag_grab);
@@ -547,6 +548,7 @@ destroy_data_device_origin (struct wl_listener *listener, void *data)
   drag_grab->drag_origin = NULL;
   meta_wayland_data_device_set_dnd_source (&drag_grab->seat->data_device, NULL);
   unset_selection_source (&drag_grab->seat->data_device, META_SELECTION_DND);
+  meta_wayland_data_source_set_current_offer (drag_grab->drag_data_source, NULL);
   data_device_end_drag_grab (drag_grab);
 }
 
