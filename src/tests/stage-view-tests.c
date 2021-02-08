@@ -1078,6 +1078,81 @@ meta_test_actor_stage_views_and_frame_clocks_freed (void)
 }
 
 static void
+ensure_view_count (int n_views)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MonitorTestCaseSetup test_case_setup;
+  MetaMonitorTestSetup *test_setup;
+
+  test_case_setup = initial_test_case_setup;
+  test_case_setup.n_outputs = n_views;
+  test_case_setup.n_crtcs = n_views;
+  test_setup = create_monitor_test_setup (&test_case_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+}
+
+static void
+meta_test_timeline_actor_destroyed (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage;
+  GList *stage_views;
+  ClutterActor *persistent_actor;
+  ClutterActor *actor;
+  ClutterTimeline *timeline;
+  gboolean did_stage_views_changed = FALSE;
+
+  ensure_view_count (0);
+
+  stage = meta_backend_get_stage (backend);
+  clutter_actor_show (stage);
+
+  persistent_actor = clutter_actor_new ();
+  clutter_actor_add_child (stage, persistent_actor);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_null (stage_views);
+  stage_views = clutter_actor_peek_stage_views (stage);
+  g_assert_null (stage_views);
+  g_assert_null (clutter_actor_pick_frame_clock (stage, NULL));
+
+  actor = clutter_actor_new ();
+  clutter_actor_add_child (stage, actor);
+  g_assert_null (clutter_actor_pick_frame_clock (actor, NULL));
+
+  timeline = clutter_timeline_new_for_actor (actor, 100);
+  clutter_timeline_start (timeline);
+
+  g_signal_connect (stage, "stage-views-changed",
+                    G_CALLBACK (on_stage_views_changed),
+                    &did_stage_views_changed);
+
+  clutter_actor_destroy (actor);
+  g_object_unref (timeline);
+
+  ensure_view_count (1);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 1);
+
+  g_assert_false (did_stage_views_changed);
+  clutter_actor_queue_redraw (persistent_actor);
+  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+  wait_for_paint (stage);
+  g_assert_true (did_stage_views_changed);
+
+  g_signal_handlers_disconnect_by_func (stage, on_stage_views_changed,
+                                        &did_stage_views_changed);
+
+  clutter_actor_destroy (persistent_actor);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -1104,6 +1179,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_parent_views_changed);
   g_test_add_func ("/stage-views/actor-stage-views-and-frame-clocks-freed",
                    meta_test_actor_stage_views_and_frame_clocks_freed);
+  g_test_add_func ("/stage-views/timeline/actor-destroyed",
+                   meta_test_timeline_actor_destroyed);
 }
 
 int
