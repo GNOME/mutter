@@ -340,14 +340,22 @@ xdnd_send_status (MetaXWaylandDnd *dnd,
 }
 
 static void
-meta_xwayland_end_dnd_grab (MetaWaylandDataDevice *data_device)
+meta_xwayland_end_dnd_grab (MetaWaylandDataDevice *data_device,
+                            gboolean               success)
 {
   Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
+  MetaWaylandDragGrab *drag_grab = compositor->seat->data_device.current_grab;
   MetaXWaylandDnd *dnd = manager->dnd;
 
-  meta_wayland_data_device_end_drag (data_device);
+  if (drag_grab)
+    {
+      if (!success && dnd->source)
+        meta_wayland_data_source_set_current_offer (dnd->source, NULL);
+
+      meta_wayland_data_device_end_drag (data_device);
+    }
 
   XMoveResizeWindow (xdisplay, dnd->dnd_window, -1, -1, 1, 1);
   XUnmapWindow (xdisplay, dnd->dnd_window);
@@ -716,7 +724,7 @@ drag_xgrab_button (MetaWaylandPointerGrab *grab,
       (!meta_wayland_drag_grab_get_focus ((MetaWaylandDragGrab *) grab) ||
        meta_wayland_data_source_get_current_action (data_source) ==
        WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE))
-    meta_xwayland_end_dnd_grab (&seat->data_device);
+    meta_xwayland_end_dnd_grab (&seat->data_device, FALSE);
 }
 
 static const MetaWaylandPointerGrabInterface drag_xgrab_interface = {
@@ -859,7 +867,7 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
         {
           dnd->client_message_timestamp = event->data.l[2];
           meta_wayland_surface_drag_dest_drop (drag_focus);
-          meta_xwayland_end_dnd_grab (&seat->data_device);
+          meta_xwayland_end_dnd_grab (&seat->data_device, TRUE);
           return TRUE;
         }
     }
@@ -898,7 +906,7 @@ meta_xwayland_dnd_handle_xfixes_selection_notify (MetaWaylandCompositor *composi
     }
   else if (event->owner == None)
     {
-      meta_xwayland_end_dnd_grab (data_device);
+      meta_xwayland_end_dnd_grab (data_device, FALSE);
     }
 
   return FALSE;
