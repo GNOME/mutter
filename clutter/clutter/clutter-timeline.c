@@ -311,6 +311,7 @@ on_actor_destroyed (ClutterActor    *actor,
 {
   ClutterTimelinePrivate *priv = timeline->priv;
 
+  g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
   priv->actor = NULL;
 }
 
