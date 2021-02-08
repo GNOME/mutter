@@ -56,12 +56,12 @@ meta_group_new (MetaX11Display *x11_display,
   group->refcount = 1; /* owned by caller, hash table has only weak ref */
 
   xcb_connection_t *xcb_conn = XGetXCBConnection (x11_display->xdisplay);
-  xcb_generic_error_t *e;
+  g_autofree xcb_generic_error_t *e = NULL;
   g_autofree xcb_get_window_attributes_reply_t *attrs =
     xcb_get_window_attributes_reply (xcb_conn,
                                      xcb_get_window_attributes (xcb_conn, group_leader),
                                      &e);
-  if (e)
+  if (e || !attrs)
     return NULL;
 
   const uint32_t events[] = { attrs->your_event_mask | XCB_EVENT_MASK_PROPERTY_CHANGE };

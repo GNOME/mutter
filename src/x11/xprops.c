@@ -191,16 +191,13 @@ async_get_property_finish (xcb_connection_t          *xcb_conn,
                            xcb_get_property_cookie_t  cookie,
                            GetPropertyResults        *results)
 {
-  xcb_get_property_reply_t *reply;
-  xcb_generic_error_t *error;
+  g_autofree xcb_get_property_reply_t *reply = NULL;
+  g_autofree xcb_generic_error_t *error = NULL;
   int length;
 
   reply = xcb_get_property_reply (xcb_conn, cookie, &error);
-  if (error)
-    {
-      free (error);
-      return FALSE;
-    }
+  if (error || !reply)
+    return FALSE;
 
   results->n_items = reply->value_len;
   results->type = reply->type;
@@ -219,7 +216,6 @@ async_get_property_finish (xcb_connection_t          *xcb_conn,
       results->prop[length] = '\0';
     }
 
-  free (reply);
   return (results->prop != NULL);
 }
 
