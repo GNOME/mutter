@@ -352,6 +352,7 @@ drag_grab_motion (MetaWaylandPointerGrab *grab,
 static void
 data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
 {
+  meta_wayland_drag_grab_set_source (drag_grab, NULL);
   meta_wayland_drag_grab_set_focus (drag_grab, NULL);
 
   if (drag_grab->drag_origin)
@@ -365,8 +366,6 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
       drag_grab->drag_surface = NULL;
       wl_list_remove (&drag_grab->drag_icon_listener.link);
     }
-
-  meta_wayland_drag_grab_set_source (drag_grab, NULL);
 
   if (drag_grab->feedback_actor)
     {
@@ -448,9 +447,6 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
           meta_wayland_data_source_has_target (source) &&
           meta_wayland_data_source_get_current_action (source))
         {
-          /* Detach the data source from the grab, it's meant to live longer */
-          meta_wayland_drag_grab_set_source (drag_grab, NULL);
-
           meta_wayland_surface_drag_dest_drop (drag_grab->drag_focus);
           meta_wayland_data_source_notify_drop_performed (source);
 
