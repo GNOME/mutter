@@ -128,7 +128,7 @@ wait_for_paint (ClutterActor *stage)
                                      &was_painted);
 
   while (!was_painted)
-    g_main_context_iteration (NULL, FALSE);
+    g_main_context_iteration (NULL, TRUE);
 
   g_signal_handler_disconnect (stage, was_painted_id);
 }
