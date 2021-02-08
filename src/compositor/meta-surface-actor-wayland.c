@@ -74,6 +74,9 @@ meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
   CoglScanout *scanout;
 
   surface = meta_surface_actor_wayland_get_surface (self);
+  if (!surface)
+    return NULL;
+
   scanout = meta_wayland_surface_try_acquire_scanout (surface, onscreen);
   if (!scanout)
     return NULL;
