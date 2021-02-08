@@ -63,4 +63,12 @@ void meta_background_content_set_vignette (MetaBackgroundContent *self,
                                            double                 brightness,
                                            double                 sharpness);
 
+META_EXPORT
+void meta_background_content_set_rounded_clip_radius (MetaBackgroundContent *self,
+                                                      float                  radius);
+
+META_EXPORT
+void meta_background_content_set_rounded_clip_bounds (MetaBackgroundContent *self,
+                                                      const graphene_rect_t *bounds);
+
 #endif /* META_BACKGROUND_CONTENT_H */

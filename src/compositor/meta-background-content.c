@@ -77,6 +77,7 @@
 
 #include "compositor/meta-background-content-private.h"
 
+#include "backends/meta-backend-private.h"
 #include "clutter/clutter.h"
 #include "compositor/clutter-utils.h"
 #include "compositor/cogl-utils.h"
@@ -90,6 +91,7 @@ typedef enum
   CHANGED_EFFECTS = 1 << 2,
   CHANGED_VIGNETTE_PARAMETERS = 1 << 3,
   CHANGED_GRADIENT_PARAMETERS = 1 << 4,
+  CHANGED_ROUNDED_CLIP_PARAMETERS = 1 << 5,
   CHANGED_ALL = 0xFFFF
 } ChangedFlags;
 
@@ -133,6 +135,81 @@ typedef enum
 "cogl_color_out.rgb = cogl_color_out.rgb * pixel_brightness;\n"                \
 "cogl_color_out.rgb += (rand(position) - 0.5) / 255.0;\n"                      \
 
+/* The ellipsis_dist(), ellipsis_coverage() and rounded_rect_coverage() are
+ * copied from GSK, see gsk_ellipsis_dist(), gsk_ellipsis_coverage(), and
+ * gsk_rounded_rect_coverage() here:
+ * https://gitlab.gnome.org/GNOME/gtk/-/blob/master/gsk/resources/glsl/preamble.fs.glsl
+ */
+#define ROUNDED_CLIP_FRAGMENT_SHADER_DECLARATIONS                            \
+"uniform vec4 bounds;           // x, y: top left; w, v: bottom right     \n"\
+"uniform vec4 corner_centers_1; // x, y: top left; w, v: top right        \n"\
+"uniform vec4 corner_centers_2; // x, y: bottom right; w, v: bottom left  \n"\
+"uniform vec2 pixel_step;                                                 \n"\
+"                                                                         \n"\
+"float                                                                    \n"\
+"ellipsis_dist (vec2 p, vec2 radius)                                      \n"\
+"{                                                                        \n"\
+"  if (radius == vec2(0, 0))                                              \n"\
+"    return 0.0;                                                          \n"\
+"                                                                         \n"\
+"  vec2 p0 = p / radius;                                                  \n"\
+"  vec2 p1 = (2.0 * p0) / radius;                                         \n"\
+"                                                                         \n"\
+"  return (dot(p0, p0) - 1.0) / length (p1);                              \n"\
+"}                                                                        \n"\
+"                                                                         \n"\
+"float                                                                    \n"\
+"ellipsis_coverage (vec2 point, vec2 center, vec2 radius)                 \n"\
+"{                                                                        \n"\
+"  float d = ellipsis_dist ((point - center), radius);                    \n"\
+"  return clamp (0.5 - d, 0.0, 1.0);                                      \n"\
+"}                                                                        \n"\
+"                                                                         \n"\
+"float                                                                    \n"\
+"rounded_rect_coverage (vec4 bounds,                                      \n"\
+"                       vec4 corner_centers_1,                            \n"\
+"                       vec4 corner_centers_2,                            \n"\
+"                       vec2 p)                                           \n"\
+"{                                                                        \n"\
+"  if (p.x < bounds.x || p.y < bounds.y ||                                \n"\
+"      p.x >= bounds.z || p.y >= bounds.w)                                \n"\
+"    return 0.0;                                                          \n"\
+"                                                                         \n"\
+"  vec2 rad_tl = corner_centers_1.xy - bounds.xy;                         \n"\
+"  vec2 rad_tr = corner_centers_1.zw - bounds.zy;                         \n"\
+"  vec2 rad_br = corner_centers_2.xy - bounds.zw;                         \n"\
+"  vec2 rad_bl = corner_centers_2.zw - bounds.xw;                         \n"\
+"                                                                         \n"\
+"  vec2 ref_tl = corner_centers_1.xy;                                     \n"\
+"  vec2 ref_tr = corner_centers_1.zw;                                     \n"\
+"  vec2 ref_br = corner_centers_2.xy;                                     \n"\
+"  vec2 ref_bl = corner_centers_2.zw;                                     \n"\
+"                                                                         \n"\
+"  float d_tl = ellipsis_coverage(p, ref_tl, rad_tl);                     \n"\
+"  float d_tr = ellipsis_coverage(p, ref_tr, rad_tr);                     \n"\
+"  float d_br = ellipsis_coverage(p, ref_br, rad_br);                     \n"\
+"  float d_bl = ellipsis_coverage(p, ref_bl, rad_bl);                     \n"\
+"                                                                         \n"\
+"  vec4 corner_coverages = 1.0 - vec4(d_tl, d_tr, d_br, d_bl);            \n"\
+"                                                                         \n"\
+"  bvec4 is_out = bvec4(p.x < ref_tl.x && p.y < ref_tl.y,                 \n"\
+"                       p.x > ref_tr.x && p.y < ref_tr.y,                 \n"\
+"                       p.x > ref_br.x && p.y > ref_br.y,                 \n"\
+"                       p.x < ref_bl.x && p.y > ref_bl.y);                \n"\
+"                                                                         \n"\
+"  return 1.0 - dot(vec4(is_out), corner_coverages);                      \n"\
+"}                                                                        \n"
+
+#define ROUNDED_CLIP_FRAGMENT_SHADER_CODE                                    \
+"vec2 texture_coord;                                                      \n"\
+"                                                                         \n"\
+"texture_coord = cogl_tex_coord0_in.xy / pixel_step;                      \n"\
+"                                                                         \n"\
+"cogl_color_out *= rounded_rect_coverage (bounds,                         \n"\
+"                                         corner_centers_1,               \n"\
+"                                         corner_centers_2,               \n"\
+"                                         texture_coord);                 \n"
+
 typedef struct _MetaBackgroundLayer MetaBackgroundLayer;
 
 typedef enum
@@ -140,6 +217,7 @@ typedef enum
   PIPELINE_VIGNETTE = (1 << 0),
   PIPELINE_BLEND = (1 << 1),
   PIPELINE_GRADIENT = (1 << 2),
+  PIPELINE_ROUNDED_CLIP = (1 << 3),
 } PipelineFlags;
 
 struct _MetaBackgroundContent
@@ -158,6 +236,11 @@ struct _MetaBackgroundContent
   gboolean vignette;
   double vignette_brightness;
   double vignette_sharpness;
+
+  gboolean has_rounded_clip;
+  float rounded_clip_radius;
+  gboolean rounded_clip_bounds_set;
+  graphene_rect_t rounded_clip_bounds;
 
   ChangedFlags changed;
   CoglPipeline *pipeline;
@@ -189,6 +272,7 @@ enum
   PROP_VIGNETTE,
   PROP_VIGNETTE_SHARPNESS,
   PROP_VIGNETTE_BRIGHTNESS,
+  PROP_ROUNDED_CLIP_RADIUS,
   N_PROPS,
 };
 
@@ -240,7 +324,7 @@ on_background_changed (MetaBackground        *background,
 static CoglPipeline *
 make_pipeline (PipelineFlags pipeline_flags)
 {
-  static CoglPipeline *templates[8];
+  static CoglPipeline *templates[9];
   CoglPipeline **templatep;
 
   templatep = &templates[pipeline_flags];
@@ -292,6 +376,22 @@ make_pipeline (PipelineFlags pipeline_flags)
           cogl_pipeline_add_snippet (*templatep, gradient_fragment_snippet);
         }
 
+      if ((pipeline_flags & PIPELINE_ROUNDED_CLIP) != 0)
+        {
+          static CoglSnippet *rounded_clip_fragment_snippet;
+
+          if (!rounded_clip_fragment_snippet)
+            {
+              rounded_clip_fragment_snippet =
+                cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                                  ROUNDED_CLIP_FRAGMENT_SHADER_DECLARATIONS,
+                                  ROUNDED_CLIP_FRAGMENT_SHADER_CODE);
+            }
+
+          cogl_pipeline_add_snippet (*templatep, rounded_clip_fragment_snippet);
+        }
+
+
       if ((pipeline_flags & PIPELINE_BLEND) == 0)
         cogl_pipeline_set_blend (*templatep, "RGBA = ADD (SRC_COLOR, 0)", NULL);
     }
@@ -318,6 +418,8 @@ setup_pipeline (MetaBackgroundContent *self,
     pipeline_flags |= PIPELINE_VIGNETTE;
   if (self->gradient && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     pipeline_flags |= PIPELINE_GRADIENT;
+  if (self->has_rounded_clip && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+    pipeline_flags |= PIPELINE_ROUNDED_CLIP | PIPELINE_BLEND;
 
   if (pipeline_flags != self->pipeline_flags)
     g_clear_pointer (&self->pipeline, cogl_object_unref);
@@ -384,6 +486,88 @@ setup_pipeline (MetaBackgroundContent *self,
       self->changed &= ~CHANGED_GRADIENT_PARAMETERS;
     }
 
+  if (self->changed & CHANGED_ROUNDED_CLIP_PARAMETERS)
+    {
+      float monitor_scale;
+      float bounds_x1, bounds_x2, bounds_y1, bounds_y2;
+      float clip_radius;
+
+      monitor_scale = meta_is_stage_views_scaled ()
+        ? meta_display_get_monitor_scale (self->display, self->monitor)
+        : 1.0;
+
+      if (self->rounded_clip_bounds_set)
+        {
+          bounds_x1 = self->rounded_clip_bounds.origin.x;
+          bounds_x2 = self->rounded_clip_bounds.origin.x + self->rounded_clip_bounds.size.width;
+          bounds_y1 = self->rounded_clip_bounds.origin.y;
+          bounds_y2 = self->rounded_clip_bounds.origin.y + self->rounded_clip_bounds.size.height;
+
+          bounds_x1 *= monitor_scale;
+          bounds_x2 *= monitor_scale;
+          bounds_y1 *= monitor_scale;
+          bounds_y2 *= monitor_scale;
+        }
+      else
+        {
+          bounds_x1 = 0.0;
+          bounds_x2 = self->texture_width;
+          bounds_y1 = 0.0;
+          bounds_y2 = self->texture_height;
+        }
+
+      clip_radius = self->rounded_clip_radius * monitor_scale;
+
+      float bounds[] = {
+        bounds_x1,
+        bounds_y1,
+        bounds_x2,
+        bounds_y2,
+      };
+
+      float corner_centers_1[] = {
+        bounds_x1 + clip_radius,
+        bounds_y1 + clip_radius,
+        bounds_x2 - clip_radius,
+        bounds_y1 + clip_radius,
+      };
+
+      float corner_centers_2[] = {
+        bounds_x2 - clip_radius,
+        bounds_y2 - clip_radius,
+        bounds_x1 + clip_radius,
+        bounds_y2 - clip_radius,
+      };
+
+      int bounds_uniform_location;
+      int corner_centers_1_uniform_location;
+      int corner_centers_2_uniform_location;
+
+      bounds_uniform_location =
+        cogl_pipeline_get_uniform_location (self->pipeline, "bounds");
+      corner_centers_1_uniform_location =
+        cogl_pipeline_get_uniform_location (self->pipeline, "corner_centers_1");
+      corner_centers_2_uniform_location =
+        cogl_pipeline_get_uniform_location (self->pipeline, "corner_centers_2");
+
+      cogl_pipeline_set_uniform_float (self->pipeline,
+                                       bounds_uniform_location,
+                                       4, 1,
+                                       bounds);
+
+      cogl_pipeline_set_uniform_float (self->pipeline,
+                                       corner_centers_1_uniform_location,
+                                       4, 1,
+                                       corner_centers_1);
+
+      cogl_pipeline_set_uniform_float (self->pipeline,
+                                       corner_centers_2_uniform_location,
+                                       4, 1,
+                                       corner_centers_2);
+
+      self->changed &= ~CHANGED_ROUNDED_CLIP_PARAMETERS;
+    }
+
   if (self->vignette)
     {
       color_component = self->vignette_brightness * opacity / 255.;
@@ -432,8 +616,23 @@ static void
 set_glsl_parameters (MetaBackgroundContent *self,
                      cairo_rectangle_int_t *actor_pixel_rect)
 {
+  float monitor_scale;
   float scale[2];
   float offset[2];
+  int pixel_step_uniform_location;
+
+  monitor_scale = meta_is_stage_views_scaled ()
+    ? meta_display_get_monitor_scale (self->display, self->monitor)
+    : 1.0;
+
+  float pixel_step[] = {
+    1.f / (self->texture_area.width * monitor_scale),
+    1.f / (self->texture_area.height * monitor_scale),
+  };
+
+  pixel_step_uniform_location =
+    cogl_pipeline_get_uniform_location (self->pipeline,
+                                        "pixel_step");
 
   /* Compute a scale and offset for transforming texture coordinates to the
    * coordinate system from [-0.5 to 0.5] across the area of the actor
@@ -452,6 +651,11 @@ set_glsl_parameters (MetaBackgroundContent *self,
                                    cogl_pipeline_get_uniform_location (self->pipeline,
                                                                        "offset"),
                                    2, 1, offset);
+
+  cogl_pipeline_set_uniform_float (self->pipeline,
+                                   pixel_step_uniform_location,
+                                   2, 1,
+                                   pixel_step);
 }
 
 static void
@@ -732,6 +936,10 @@ meta_background_content_set_property (GObject      *object,
                                             g_value_get_double (value),
                                             self->vignette_sharpness);
       break;
+    case PROP_ROUNDED_CLIP_RADIUS:
+      meta_background_content_set_rounded_clip_radius (self,
+                                                       g_value_get_float (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -774,6 +982,9 @@ meta_background_content_get_property (GObject      *object,
       break;
     case PROP_VIGNETTE_SHARPNESS:
       g_value_set_double (value, self->vignette_sharpness);
+      break;
+    case PROP_ROUNDED_CLIP_RADIUS:
+      g_value_set_float (value, self->rounded_clip_radius);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -853,6 +1064,15 @@ meta_background_content_class_init (MetaBackgroundContentClass *klass)
                          0.0, G_MAXDOUBLE, 0.0,
                          G_PARAM_READWRITE);
 
+  properties[PROP_ROUNDED_CLIP_RADIUS] =
+    g_param_spec_float ("rounded-clip-radius",
+                        "Rounded clip radius",
+                        "Rounded clip radius",
+                        0.0, G_MAXFLOAT, 0.0,
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS |
+                        G_PARAM_EXPLICIT_NOTIFY);
+
   g_object_class_install_properties (object_class, N_PROPS, properties);
 }
 
@@ -866,6 +1086,9 @@ meta_background_content_init (MetaBackgroundContent *self)
   self->vignette = FALSE;
   self->vignette_brightness = 1.0;
   self->vignette_sharpness = 0.0;
+
+  self->has_rounded_clip = FALSE;
+  self->rounded_clip_radius = 0.0;
 }
 
 /**
@@ -979,6 +1202,76 @@ meta_background_content_set_vignette (MetaBackgroundContent *self,
 
   if (changed)
     clutter_content_invalidate (CLUTTER_CONTENT (self));
+}
+
+void
+meta_background_content_set_rounded_clip_radius (MetaBackgroundContent *self,
+                                                 float                  radius)
+{
+  gboolean enabled;
+  gboolean changed = FALSE;
+
+  g_return_if_fail (META_IS_BACKGROUND_CONTENT (self));
+  g_return_if_fail (radius >= 0.0);
+
+  enabled = radius > 0.0;
+
+  if (enabled != self->has_rounded_clip)
+    {
+      self->has_rounded_clip = enabled;
+      invalidate_pipeline (self, CHANGED_EFFECTS);
+      changed = TRUE;
+    }
+
+  if (!G_APPROX_VALUE (radius, self->rounded_clip_radius, FLT_EPSILON))
+    {
+      self->rounded_clip_radius = radius;
+      invalidate_pipeline (self, CHANGED_ROUNDED_CLIP_PARAMETERS);
+      changed = TRUE;
+    }
+
+  if (changed)
+    {
+      clutter_content_invalidate (CLUTTER_CONTENT (self));
+      g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_ROUNDED_CLIP_RADIUS]);
+    }
+}
+
+/**
+ * meta_background_content_set_rounded_clip_bounds:
+ * @self: The #MetaBackgroundContent
+ * @bounds: (allow-none): The new bounding clip rectangle, or %NULL
+ *
+ * Sets the bounding clip rectangle of the #MetaBackgroundContent that's used
+ * when a rounded clip set via meta_background_content_set_rounded_clip_radius()
+ * is in effect, set it to  %NULL to use no bounding clip, rounding the edges
+ * of the full texture.
+ */
+void
+meta_background_content_set_rounded_clip_bounds (MetaBackgroundContent *self,
+                                                 const graphene_rect_t *bounds)
+{
+  g_return_if_fail (META_IS_BACKGROUND_CONTENT (self));
+
+  if (bounds == NULL)
+    {
+      if (!self->rounded_clip_bounds_set)
+        return;
+
+      self->rounded_clip_bounds_set = FALSE;
+    }
+  else
+    {
+      if (self->rounded_clip_bounds_set &&
+          graphene_rect_equal (&self->rounded_clip_bounds, bounds))
+        return;
+
+      self->rounded_clip_bounds_set = TRUE;
+      graphene_rect_init_from_rect (&self->rounded_clip_bounds, bounds);
+    }
+
+  invalidate_pipeline (self, CHANGED_ROUNDED_CLIP_PARAMETERS);
+  clutter_content_invalidate (CLUTTER_CONTENT (self));
 }
 
 cairo_region_t *
