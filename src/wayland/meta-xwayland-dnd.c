@@ -907,6 +907,7 @@ meta_xwayland_dnd_handle_xfixes_selection_notify (MetaWaylandCompositor *composi
   else if (event->owner == None)
     {
       meta_xwayland_end_dnd_grab (data_device, FALSE);
+      g_clear_object (&dnd->source);
     }
 
   return FALSE;
