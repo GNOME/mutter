@@ -240,6 +240,9 @@ notify_view_crtc_presented (MetaRendererView *view,
     case META_RENDERER_NATIVE_MODE_GBM:
       meta_onscreen_native_swap_drm_fb (onscreen);
       break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
+      break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       break;
@@ -474,6 +477,9 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
       meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update);
 
       break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
+      break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       meta_kms_update_set_custom_page_flip (kms_update,
@@ -510,6 +516,9 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -1051,6 +1060,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       onscreen_native->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
 
       break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
+      break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       break;
@@ -1116,6 +1128,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                     CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
           return;
         }
+      break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -1736,6 +1751,9 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
       onscreen_native->gbm.surface = gbm_surface;
       cogl_onscreen_egl_set_egl_surface (onscreen_egl, egl_surface);
       break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
+      break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       render_kms_device =
@@ -2090,6 +2108,9 @@ meta_onscreen_native_dispose (GObject *object)
       destroy_egl_surface (onscreen);
 
       g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
+      break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      g_assert_not_reached ();
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:

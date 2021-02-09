@@ -159,11 +159,7 @@ meta_udev_list_drm_devices (MetaUdev  *udev,
 
   devices = g_udev_enumerator_execute (enumerator);
   if (!devices)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                   "No drm devices found");
-      return FALSE;
-    }
+    return NULL;
 
   for (l = devices; l;)
     {
@@ -177,13 +173,6 @@ meta_udev_list_drm_devices (MetaUdev  *udev,
         }
 
       l = l_next;
-    }
-
-  if (!devices)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "No DRM devices found");
-      return NULL;
     }
 
   return devices;

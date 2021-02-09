@@ -41,6 +41,7 @@ G_DECLARE_FINAL_TYPE (MetaRendererNative, meta_renderer_native,
 typedef enum _MetaRendererNativeMode
 {
   META_RENDERER_NATIVE_MODE_GBM,
+  META_RENDERER_NATIVE_MODE_SURFACELESS,
 #ifdef HAVE_EGL_DEVICE
   META_RENDERER_NATIVE_MODE_EGL_DEVICE
 #endif

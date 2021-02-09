@@ -206,13 +206,14 @@ meta_renderer_native_connect (CoglRenderer *cogl_renderer,
                               GError      **error)
 {
   CoglRendererEGL *cogl_renderer_egl;
-  MetaGpuKms *gpu_kms = cogl_renderer->custom_winsys_user_data;
-  MetaRendererNative *renderer_native = meta_renderer_native_from_gpu (gpu_kms);
+  MetaRendererNative *renderer_native = cogl_renderer->custom_winsys_user_data;
+  MetaGpuKms *gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
   cogl_renderer->winsys = g_new0 (CoglRendererEGL, 1);
   cogl_renderer_egl = cogl_renderer->winsys;
 
+  gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          gpu_kms);
 
@@ -245,6 +246,10 @@ meta_renderer_native_add_egl_config_attributes (CoglDisplay                 *cog
     case META_RENDERER_NATIVE_MODE_GBM:
       attributes[i++] = EGL_SURFACE_TYPE;
       attributes[i++] = EGL_WINDOW_BIT;
+      break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      attributes[i++] = EGL_SURFACE_TYPE;
+      attributes[i++] = EGL_PBUFFER_BIT;
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -326,6 +331,9 @@ meta_renderer_native_choose_egl_config (CoglDisplay  *cogl_display,
                                                 GBM_FORMAT_XRGB8888,
                                                 out_config,
                                                 error);
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      *out_config = EGL_NO_CONFIG_KHR;
+      return TRUE;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       return meta_egl_choose_first_config (egl,
@@ -778,10 +786,11 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         return dmabuf_handle;
       }
       break;
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      break;
 #endif
+      break;
     }
 
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_UNKNOWN,
@@ -933,24 +942,15 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 }
 
 static CoglRenderer *
-create_cogl_renderer_for_gpu (MetaGpuKms *gpu_kms)
+meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
 {
   CoglRenderer *cogl_renderer;
 
   cogl_renderer = cogl_renderer_new ();
   cogl_renderer_set_custom_winsys (cogl_renderer,
                                    get_native_cogl_winsys_vtable,
-                                   gpu_kms);
-
+                                   renderer);
   return cogl_renderer;
-}
-
-static CoglRenderer *
-meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
-{
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-
-  return create_cogl_renderer_for_gpu (renderer_native->primary_gpu_kms);
 }
 
 static MetaMonitorTransform
@@ -1244,6 +1244,7 @@ create_secondary_egl_config (MetaEgl               *egl,
   switch (mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
       return choose_egl_config_from_gbm_format (egl,
                                                 egl_display,
                                                 attributes,
@@ -1490,6 +1491,65 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   return renderer_gpu_data;
 }
 
+static EGLDisplay
+init_surfaceless_egl_display (MetaRendererNative  *renderer_native,
+                              GError             **error)
+{
+  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  EGLDisplay egl_display;
+
+  if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
+                                "EGL_MESA_platform_surfaceless",
+                                NULL))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Missing EGL platform required for surfaceless context: "
+                   "EGL_MESA_platform_surfaceless");
+      return EGL_NO_DISPLAY;
+    }
+
+  egl_display = meta_egl_get_platform_display (egl,
+                                               EGL_PLATFORM_SURFACELESS_MESA,
+                                               EGL_DEFAULT_DISPLAY,
+                                               NULL, error);
+  if (egl_display == EGL_NO_DISPLAY)
+    return EGL_NO_DISPLAY;
+
+  if (!meta_egl_initialize (egl, egl_display, error))
+    return EGL_NO_DISPLAY;
+
+  if (!meta_egl_has_extensions (egl, egl_display, NULL,
+                                "EGL_KHR_no_config_context",
+                                NULL))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Missing EGL extension required for surfaceless context: "
+                   "EGL_KHR_no_config_context");
+      return EGL_NO_DISPLAY;
+    }
+
+  return egl_display;
+}
+
+static MetaRendererNativeGpuData *
+create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
+                                      GError             **error)
+{
+  MetaRendererNativeGpuData *renderer_gpu_data;
+  EGLDisplay egl_display;
+
+  egl_display = init_surfaceless_egl_display (renderer_native, error);
+  if (egl_display == EGL_NO_DISPLAY)
+    return NULL;
+
+  renderer_gpu_data = meta_create_renderer_native_gpu_data (NULL);
+  renderer_gpu_data->renderer_native = renderer_native;
+  renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_SURFACELESS;
+  renderer_gpu_data->egl_display = egl_display;
+
+  return renderer_gpu_data;
+}
+
 #ifdef HAVE_EGL_DEVICE
 static const char *
 get_drm_device_file (MetaEgl     *egl,
@@ -1691,6 +1751,9 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 #ifdef HAVE_EGL_DEVICE
   GError *egl_device_error = NULL;
 #endif
+
+  if (!gpu_kms)
+    return create_renderer_gpu_data_surfaceless (renderer_native, error);
 
 #ifdef HAVE_EGL_DEVICE
   /* Try to initialize the EGLDevice backend first. Whenever we use a
@@ -1919,22 +1982,30 @@ meta_renderer_native_initable_init (GInitable     *initable,
   GList *l;
 
   gpus = meta_backend_get_gpus (backend);
-  for (l = gpus; l; l = l->next)
+  if (gpus)
     {
-      MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+      for (l = gpus; l; l = l->next)
+        {
+          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
 
-      if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
+          if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
+            return FALSE;
+        }
+
+      renderer_native->primary_gpu_kms = choose_primary_gpu (backend,
+                                                             renderer_native,
+                                                             error);
+      if (!renderer_native->primary_gpu_kms)
+        return FALSE;
+
+      if (meta_gpu_kms_requires_modifiers (renderer_native->primary_gpu_kms))
+        renderer_native->use_modifiers = TRUE;
+    }
+  else
+    {
+      if (!create_renderer_gpu_data (renderer_native, NULL, error))
         return FALSE;
     }
-
-  renderer_native->primary_gpu_kms = choose_primary_gpu (backend,
-                                                         renderer_native,
-                                                         error);
-  if (!renderer_native->primary_gpu_kms)
-    return FALSE;
-
-  if (meta_gpu_kms_requires_modifiers (renderer_native->primary_gpu_kms))
-    renderer_native->use_modifiers = TRUE;
 
   return TRUE;
 }

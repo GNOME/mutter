@@ -144,6 +144,12 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   };
 
   primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
+  if (!primary_gpu)
+    {
+      g_message ("Disabling DMA buffer screen sharing (surfaceless)");
+      goto disable_dma_bufs;
+    }
+
   kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
   driver_name = meta_kms_device_get_driver_name (kms_device);
 
@@ -157,6 +163,7 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   g_message ("Disabling DMA buffer screen sharing for driver '%s'.",
              driver_name);
 
+disable_dma_bufs:
   meta_screen_cast_disable_dma_bufs (screen_cast);
 }
 #endif /* HAVE_REMOTE_DESKTOP */
@@ -473,7 +480,7 @@ init_gpus (MetaBackendNative  *native,
   GList *l;
 
   devices = meta_udev_list_drm_devices (udev, error);
-  if (!devices)
+  if (*error)
     return FALSE;
 
   for (l = devices; l; l = l->next)
@@ -498,7 +505,8 @@ init_gpus (MetaBackendNative  *native,
 
   g_list_free_full (devices, g_object_unref);
 
-  if (g_list_length (meta_backend_get_gpus (backend)) == 0)
+  if (!native->is_headless &&
+      g_list_length (meta_backend_get_gpus (backend)) == 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
                    "No GPUs found");
