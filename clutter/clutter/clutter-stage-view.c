@@ -415,15 +415,19 @@ init_shadowfb (ClutterStageView *view)
   height = cogl_framebuffer_get_height (priv->framebuffer);
   cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
 
-  if (init_dma_buf_shadowfbs (view, cogl_context, width, height, &error))
+  if (g_strcmp0 (g_getenv ("MUTTER_DEBUG_ENABLE_DOUBLE_SHADOWFB"), "1") == 0)
     {
-      g_message ("Initialized double buffered shadow fb for %s", priv->name);
-      return;
-    }
+      if (init_dma_buf_shadowfbs (view, cogl_context, width, height, &error))
+        {
+          g_message ("Initialized double buffered shadow fb for %s",
+                     priv->name);
+          return;
+        }
 
-  g_warning ("Failed to initialize double buffered shadow fb for %s: %s",
-             priv->name, error->message);
-  g_clear_error (&error);
+      g_warning ("Failed to initialize double buffered shadow fb for %s: %s",
+                 priv->name, error->message);
+      g_clear_error (&error);
+    }
 
   if (!init_fallback_shadowfb (view, cogl_context, width, height, &error))
     {
