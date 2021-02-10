@@ -270,16 +270,12 @@ test-mutter@x86_64:
     - .mutter.fedora:33@x86_64
   needs:
     - build-mutter@x86_64
-  dependencies:
-    - build-mutter@x86_64
 
 test-mutter@aarch64:
   extends:
     - .test-mutter
     - .mutter.fedora:33@aarch64
   needs:
-    - build-mutter@aarch64
-  dependencies:
     - build-mutter@aarch64
 
 .test-mutter-coverage:
@@ -300,8 +296,6 @@ test-mutter-coverage@x86_64:
     - .mutter.fedora:33@x86_64
   needs:
     - test-mutter@x86_64
-  dependencies:
-    - test-mutter@x86_64
 
 test-mutter-coverage@aarch64:
   extends:
@@ -309,16 +303,12 @@ test-mutter-coverage@aarch64:
     - .mutter.fedora:33@aarch64
   needs:
     - test-mutter@aarch64
-  dependencies:
-    - test-mutter@aarch64
 
 can-build-gnome-shell@x86_64:
   extends:
     - .fdo.distribution-image@fedora
     - .mutter.fedora:33@x86_64
   stage: test
-  dependencies:
-    - build-mutter@x86_64
   needs:
     - build-mutter@x86_64
   before_script:
