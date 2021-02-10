@@ -74,14 +74,15 @@ meta_is_udev_device_boot_vga (GUdevDevice *device)
   return g_udev_device_get_sysfs_attr_as_int (pci_device, "boot_vga") == 1;
 }
 
-gboolean
-meta_is_udev_device_disable_modifiers (GUdevDevice *device)
+static gboolean
+meta_has_udev_device_tag (GUdevDevice *device,
+                          const char  *tag)
 {
   const char * const * tags;
   g_autoptr (GUdevDevice) platform_device = NULL;
 
   tags = g_udev_device_get_tags (device);
-  if (tags && g_strv_contains (tags, "mutter-device-disable-kms-modifiers"))
+  if (tags && g_strv_contains (tags, tag))
     return TRUE;
 
   platform_device = g_udev_device_get_parent_with_subsystem (device,
@@ -89,9 +90,16 @@ meta_is_udev_device_disable_modifiers (GUdevDevice *device)
                                                              NULL);
 
   if (platform_device)
-    return meta_is_udev_device_disable_modifiers (platform_device);
+    return meta_has_udev_device_tag (platform_device, tag);
   else
     return FALSE;
+}
+
+gboolean
+meta_is_udev_device_disable_modifiers (GUdevDevice *device)
+{
+  return meta_has_udev_device_tag (device,
+                                   "mutter-device-disable-kms-modifiers");
 }
 
 gboolean
