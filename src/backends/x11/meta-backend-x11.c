@@ -875,12 +875,24 @@ meta_backend_x11_dispose (GObject *object)
 }
 
 static void
+meta_backend_x11_finalize (GObject *object)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (object);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+
+  g_clear_pointer (&priv->keymap, xkb_keymap_unref);
+
+  G_OBJECT_CLASS (meta_backend_x11_parent_class)->finalize (object);
+}
+
+static void
 meta_backend_x11_class_init (MetaBackendX11Class *klass)
 {
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_backend_x11_dispose;
+  object_class->finalize = meta_backend_x11_finalize;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
