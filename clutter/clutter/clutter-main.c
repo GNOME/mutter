@@ -1701,8 +1701,18 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              event->any.source =
-                update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+              if (event->type == CLUTTER_MOTION)
+                {
+                  event->any.source =
+                    update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+                }
+              else
+                {
+                  event->any.source =
+                    clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                    device,
+                                                    NULL);
+                }
 
               if (event->any.source == NULL)
                 break;
@@ -1796,8 +1806,18 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              event->any.source =
-                update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+              if (event->type == CLUTTER_TOUCH_UPDATE)
+                {
+                  event->any.source =
+                    update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+                }
+              else
+                {
+                  event->any.source =
+                    clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                    device,
+                                                    event->touch.sequence);
+                }
 
               if (event->any.source == NULL)
                 break;
