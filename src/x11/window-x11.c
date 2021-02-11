@@ -2027,6 +2027,16 @@ meta_window_x11_impl_always_update_shape (MetaWindow *window)
   return FALSE;
 }
 
+static gboolean
+meta_window_x11_is_focus_async (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  return !window->input && priv->wm_take_focus;
+}
+
 static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
@@ -2057,6 +2067,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->calculate_layer = meta_window_x11_calculate_layer;
   window_class->map = meta_window_x11_map;
   window_class->unmap = meta_window_x11_unmap;
+  window_class->is_focus_async = meta_window_x11_is_focus_async;
 
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;

@@ -611,6 +611,7 @@ struct _MetaWindowClass
   gboolean (*is_stackable)        (MetaWindow *window);
   gboolean (*can_ping)            (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
+  gboolean (*is_focus_async)      (MetaWindow *window);
 
   MetaStackLayer (*calculate_layer) (MetaWindow *window);
 
@@ -879,4 +880,5 @@ void meta_window_force_restore_shortcuts (MetaWindow         *window,
 gboolean meta_window_shortcuts_inhibited (MetaWindow         *window,
                                           ClutterInputDevice *source);
 gboolean meta_window_is_stackable (MetaWindow *window);
+gboolean meta_window_is_focus_async (MetaWindow *window);
 #endif

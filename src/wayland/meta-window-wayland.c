@@ -718,6 +718,12 @@ meta_window_wayland_are_updates_frozen (MetaWindow *window)
   return !wl_window->has_been_shown;
 }
 
+static gboolean
+meta_window_wayland_is_focus_async (MetaWindow *window)
+{
+  return FALSE;
+}
+
 static MetaStackLayer
 meta_window_wayland_calculate_layer (MetaWindow *window)
 {
@@ -774,6 +780,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->calculate_layer = meta_window_wayland_calculate_layer;
   window_class->map = meta_window_wayland_map;
   window_class->unmap = meta_window_wayland_unmap;
+  window_class->is_focus_async = meta_window_wayland_is_focus_async;
 }
 
 MetaWindow *
