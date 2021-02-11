@@ -70,6 +70,7 @@ struct _ClutterFrameClock
   int64_t frame_count;
 
   ClutterFrameClockState state;
+  int64_t last_dispatch_time_us;
   int64_t last_presentation_time_us;
 
   gboolean is_next_presentation_time_valid;
@@ -239,6 +240,17 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 
   refresh_rate = frame_clock->refresh_rate;
   refresh_interval_us = (int64_t) (0.5 + G_USEC_PER_SEC / refresh_rate);
+
+  if (frame_clock->last_presentation_time_us == 0)
+    {
+      *out_next_update_time_us =
+        frame_clock->last_dispatch_time_us ?
+        frame_clock->last_dispatch_time_us + refresh_interval_us :
+        now_us;
+
+      *out_next_presentation_time_us = 0;
+      return;
+    }
 
   min_render_time_allowed_us = refresh_interval_us / 2;
   max_render_time_allowed_us = refresh_interval_us - SYNC_DELAY_US;
@@ -444,7 +456,8 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
       calculate_next_update_time_us (frame_clock,
                                      &next_update_time_us,
                                      &frame_clock->next_presentation_time_us);
-      frame_clock->is_next_presentation_time_valid = TRUE;
+      frame_clock->is_next_presentation_time_valid =
+        (frame_clock->next_presentation_time_us != 0);
       break;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
       return;
@@ -469,6 +482,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Frame Clock (dispatch)");
 
+  frame_clock->last_dispatch_time_us = time_us;
   g_source_set_ready_time (frame_clock->source, -1);
 
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHING;
