@@ -818,8 +818,10 @@ check_notify_discrete_scroll (MetaSeatImpl       *seat_impl,
 {
   int i, n_xscrolls, n_yscrolls;
 
-  n_xscrolls = floor (fabs (seat_impl->accum_scroll_dx) / DISCRETE_SCROLL_STEP);
-  n_yscrolls = floor (fabs (seat_impl->accum_scroll_dy) / DISCRETE_SCROLL_STEP);
+  n_xscrolls = floor ((fabs (seat_impl->accum_scroll_dx) + DBL_EPSILON) /
+                      DISCRETE_SCROLL_STEP);
+  n_yscrolls = floor ((fabs (seat_impl->accum_scroll_dy) + DBL_EPSILON) /
+                      DISCRETE_SCROLL_STEP);
 
   for (i = 0; i < n_xscrolls; i++)
     {
