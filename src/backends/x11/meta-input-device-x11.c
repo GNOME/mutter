@@ -401,7 +401,7 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
 {
   Window xroot_window, xchild_window;
   double xroot_x, xroot_y, xwin_x, xwin_y;
-  XIButtonState button_state;
+  XIButtonState button_state = { 0 };
   XIModifierState mod_state;
   XIGroupState group_state;
   int result;
@@ -418,6 +418,8 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
                            &mod_state,
                            &group_state);
   clutter_x11_untrap_x_errors ();
+
+  g_free (button_state.mask);
 
   if (!result)
     return FALSE;
