@@ -271,6 +271,7 @@ meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
         .height = xrandr_crtc->height,
       };
     }
+  XRRFreePanning (panning);
 
   modes = meta_gpu_get_modes (gpu);
   for (i = 0; i < (unsigned int) resources->nmode; i++)
