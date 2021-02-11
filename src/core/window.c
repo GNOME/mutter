@@ -8589,6 +8589,12 @@ meta_window_is_stackable (MetaWindow *window)
   return META_WINDOW_GET_CLASS (window)->is_stackable (window);
 }
 
+gboolean
+meta_window_is_focus_async (MetaWindow *window)
+{
+  return META_WINDOW_GET_CLASS (window)->is_focus_async (window);
+}
+
 MetaStackLayer
 meta_window_calculate_layer (MetaWindow *window)
 {
