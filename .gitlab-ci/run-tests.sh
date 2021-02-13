@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-set +e
+set -e
 
 dconf update
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
