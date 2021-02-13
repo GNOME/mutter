@@ -338,6 +338,9 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
       MetaRectangle rect;
       ClutterActor *background_actor;
       MetaBackground *background;
+      uint8_t red;
+      uint8_t green;
+      uint8_t blue;
       ClutterColor color;
 
       meta_display_get_monitor_geometry (display, i, &rect);
@@ -353,11 +356,11 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
          parsing the driconf XML, but it's nice if the colors are
          reproducible.
       */
-      clutter_color_init (&color,
-                          g_rand_int_range (rand, 0, 255),
-                          g_rand_int_range (rand, 0, 255),
-                          g_rand_int_range (rand, 0, 255),
-                          255);
+
+      blue = g_rand_int_range (rand, 0, 255);
+      green = g_rand_int_range (rand, 0, 255);
+      red = g_rand_int_range (rand, 0, 255);
+      clutter_color_init (&color, red, green, blue, 255);
 
       background = meta_background_new (display);
       meta_background_set_color (background, &color);
