@@ -5,6 +5,13 @@ set -e
 dconf update
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
 
+# Disable audio support to not dead lock screen cast tests
+rm -f /etc/pipewire/media-session.d/with-jack
+rm -f /etc/pipewire/media-session.d/with-pulseaudio
+pipewire &
+
+sleep 2
+
 export MUTTER_DEBUG_DUMMY_MODE_SPECS="800x600@10.0"
 
 xvfb-run -s '+iglx -noreset' \
