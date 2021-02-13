@@ -3,15 +3,12 @@
 set +e
 
 dconf update
-
-mkdir -m 700 $XDG_RUNTIME_DIR
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
 
 export MUTTER_DEBUG_DUMMY_MODE_SPECS="800x600@10.0"
 
-dbus-run-session -- \
-    xvfb-run -s '+iglx -noreset' \
-        meson test -C build --no-rebuild -t 10 --wrap catchsegv
+xvfb-run -s '+iglx -noreset' \
+    meson test -C build --no-rebuild -t 10 --wrap catchsegv
 
 exit_code=$?
 

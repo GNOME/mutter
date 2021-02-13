@@ -254,7 +254,8 @@ build-without-native-backend-and-wayland@x86_64:
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
   script:
-    - bash -x ./.gitlab-ci/run-tests.sh
+    - mkdir -m 700 $XDG_RUNTIME_DIR
+    - dbus-run-session -- bash -x ./.gitlab-ci/run-tests.sh
   artifacts:
     expire_in: 1 day
     reports:
