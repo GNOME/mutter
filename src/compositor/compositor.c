@@ -56,7 +56,6 @@
 
 #include <X11/extensions/Xcomposite.h>
 
-#include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-stage-x11.h"
@@ -66,7 +65,6 @@
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
-#include "core/display-private.h"
 #include "core/frame.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
@@ -384,6 +382,18 @@ grab_devices (MetaModalOptions  options,
   return FALSE;
 }
 
+static void
+meta_compositor_grab_begin (MetaCompositor *compositor)
+{
+  META_COMPOSITOR_GET_CLASS (compositor)->grab_begin (compositor);
+}
+
+static void
+meta_compositor_grab_end (MetaCompositor *compositor)
+{
+  META_COMPOSITOR_GET_CLASS (compositor)->grab_end (compositor);
+}
+
 gboolean
 meta_begin_modal_for_plugin (MetaCompositor   *compositor,
                              MetaPlugin       *plugin,
@@ -431,15 +441,7 @@ meta_begin_modal_for_plugin (MetaCompositor   *compositor,
                          meta_plugin_get_display (plugin),
                          display->grab_window, display->grab_op);
 
-  if (meta_is_wayland_compositor ())
-    {
-      meta_display_sync_wayland_input_focus (display);
-      meta_display_cancel_touch (display);
-
-#ifdef HAVE_WAYLAND
-      meta_dnd_wayland_handle_begin_modal (compositor);
-#endif
-    }
+  meta_compositor_grab_begin (compositor);
 
   return TRUE;
 }
@@ -467,13 +469,7 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
   meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
   meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
 
-#ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    {
-      meta_dnd_wayland_handle_end_modal (compositor);
-      meta_display_sync_wayland_input_focus (display);
-    }
-#endif
+  meta_compositor_grab_end (compositor);
 
   g_signal_emit_by_name (display, "grab-op-end",
                          meta_plugin_get_display (plugin),

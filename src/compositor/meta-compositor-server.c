@@ -20,7 +20,9 @@
 
 #include "config.h"
 
+#include "backends/meta-dnd-private.h"
 #include "compositor/meta-compositor-server.h"
+#include "core/display-private.h"
 
 G_DEFINE_TYPE (MetaCompositorServer, meta_compositor_server, META_TYPE_COMPOSITOR)
 
@@ -41,6 +43,32 @@ meta_compositor_server_monotonic_to_high_res_xserver_time (MetaCompositor *compo
                                                            int64_t         monotonic_time_us)
 {
   return meta_translate_to_high_res_xserver_time (monotonic_time_us);
+}
+
+static void
+meta_compositor_server_grab_begin (MetaCompositor *compositor)
+{
+  MetaDisplay *display;
+
+  display = meta_compositor_get_display (compositor);
+  meta_display_sync_wayland_input_focus (display);
+  meta_display_cancel_touch (display);
+
+#ifdef HAVE_WAYLAND
+  meta_dnd_wayland_handle_begin_modal (compositor);
+#endif
+}
+
+static void
+meta_compositor_server_grab_end (MetaCompositor *compositor)
+{
+  MetaDisplay *display;
+
+  display = meta_compositor_get_display (compositor);
+#ifdef HAVE_WAYLAND
+  meta_dnd_wayland_handle_end_modal (compositor);
+#endif
+  meta_display_sync_wayland_input_focus (display);
 }
 
 MetaCompositorServer *
@@ -67,4 +95,6 @@ meta_compositor_server_class_init (MetaCompositorServerClass *klass)
   compositor_class->unmanage = meta_compositor_server_unmanage;
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_server_monotonic_to_high_res_xserver_time;
+  compositor_class->grab_begin = meta_compositor_server_grab_begin;
+  compositor_class->grab_end = meta_compositor_server_grab_end;
 }
