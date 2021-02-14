@@ -1,24 +1,24 @@
 # Swedish messages for mutter.
-# Copyright © 2001-2020 Free Software Foundation, Inc.
+# Copyright © 2001-2021 Free Software Foundation, Inc.
 # Christian Rose <menthos@menthos.com>, 2001, 2002, 2003, 2004, 2005.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2007, 2008, 2009, 2010, 2011, 2012.
 # Mattias Eriksson <snaggen@gmail.com>, 2014.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020, 2021.
 # Sebastian Rasmussen <sebras@gmail.com>, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-29 10:31+0000\n"
-"PO-Revision-Date: 2020-09-06 18:08+0200\n"
+"POT-Creation-Date: 2021-02-14 13:47+0000\n"
+"PO-Revision-Date: 2021-02-14 19:38+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -45,12 +45,12 @@ msgid "Move window to last workspace"
 msgstr "Flytta fönster till sista arbetsyta"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Flytta fönster en arbetsyta uppåt"
+msgid "Move window one workspace to the left"
+msgstr "Flytta fönster en arbetsyta åt vänster"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Flytta fönster en arbetsyta nedåt"
+msgid "Move window one workspace to the right"
+msgstr "Flytta fönster en arbetsyta åt höger"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -149,12 +149,12 @@ msgid "Switch to last workspace"
 msgstr "Växla till sista arbetsyta"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Flytta till arbetsyta ovanför"
+msgid "Move to workspace on the left"
+msgstr "Flytta till arbetsyta till vänster"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Flytta till arbetsyta nedanför"
+msgid "Move to workspace on the right"
+msgstr "Flytta till arbetsyta till höger"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -236,11 +236,11 @@ msgstr "Maximera fönster vertikalt"
 msgid "Maximize window horizontally"
 msgstr "Maximera fönster horisontellt"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Vy delad till vänster"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Vy delad till höger"
 
@@ -395,8 +395,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "För att aktivera experimentella funktioner, lägg till funktionens nyckelord "
 "till listan. Huruvida funktionen kräver att kompositionshanteraren startas "
@@ -409,23 +412,25 @@ msgstr ""
 "rambuffert skalas i stället för fönsterinnehållet, för att hantera HiDPI-"
 "skärmar. Kräver inte en omstart. • ”rt-scheduler” — gör så att mutter "
 "efterfrågar realtidsschemaläggning med låg prioritet. Den körbara filen "
-"eller användaren måste ha CAP_SYS_NICE. Kräver en omstart. • ”autostart-"
-"xwayland” — lat initiering av Xwayland om det finns X11-klienter. Kräver en "
-"omstart."
+"eller användaren måste ha CAP_SYS_NICE. Kräver en omstart. • ”dma-buf-screen-"
+"sharing” — aktiverar DMA-buffrad skärmdelning. Detta är redan aktiverat som "
+"standard vid användning av i915-drivrutinen, men inaktiverat för allt annat. "
+"Kräver en omstart. • ”autoclose-xwayland” — avslutar automatiskt Xwayland om "
+"alla relevanta X11-klienter är borta. Kräver inte en omstart."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifierare att använda för att hitta muspekaren"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Denna tangent kommer att initiera åtgärden ”hitta muspekare”."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Tidsgräns för åtkomlighetstest med ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -434,19 +439,19 @@ msgstr ""
 "för att inte anses vara frusen. Att använda 0 kommer inaktivera kontrollen "
 "helt."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Välj fönster från flik-popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Avbryt flik-popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Växla skärmkonfiguration"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterar den inbyggda skärmkonfigurationen"
 
@@ -573,25 +578,6 @@ msgstr ""
 "Xwayland byggdes utan stöd för de valda tilläggen. Xwayland behöver startas "
 "om för att denna inställning ska börja gälla."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Lägesväxel (grupp %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "Växla skärm"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "Visa hjälp på skärmen"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Inbyggd display"
@@ -626,7 +612,7 @@ msgstr "Kompositionshanterare"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:512
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -636,47 +622,51 @@ msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”
 msgid "Bell event"
 msgstr "Ljudsignalhändelse"
 
-#: src/core/main.c:190
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "Inaktivera anslutning till sessionshanteraren"
 
-#: src/core/main.c:196
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "Ersätt körande fönsterhanteraren"
 
-#: src/core/main.c:202
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "Ange sessionshanteringsid"
 
-#: src/core/main.c:207
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "X-display att använda"
 
-#: src/core/main.c:213
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "Initiera session från sparandefil"
 
-#: src/core/main.c:219
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "Gör X-anrop synkrona"
 
-#: src/core/main.c:226
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "Kör som en wayland-kompositionshanterare"
 
-#: src/core/main.c:232
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
 msgstr "Kör som en nästlad kompositionshanterare"
 
-#: src/core/main.c:238
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kör wayland-kompositionshanteraren utan att starta Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:272
+msgid "Specify Wayland display name to use"
+msgstr "Ange Wayland-displaynamn att använda"
+
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "Kör som en full display-tjänst, i stället för nästlad"
 
-#: src/core/main.c:252
+#: src/core/main.c:286
 msgid "Run with X11 backend"
 msgstr "Kör med X11-gränssnitt"
 
@@ -706,39 +696,43 @@ msgstr "_Tvinga avslut"
 msgid "_Wait"
 msgstr "_Vänta"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc. och andra\n"
-"Det här är fri programvara; se källkoden för kopieringsvillkor.\n"
-"Det finns INGA garantier; inte ens för SÄLJBARHET eller LÄMPLIGHET FÖR NÅGOT "
-"SPECIELLT ÄNDAMÅL.\n"
+msgid "Mode Switch (Group %d)"
+msgstr "Lägesväxel (grupp %d)"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Växla skärm"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Visa hjälp på skärmen"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Skriv ut version"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Mutter-insticksmodul att använda"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
 
-#: src/core/util.c:119
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter kompilerades utan stöd för utförligt läge\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter kompilerades utan stöd för utförligt läge"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Lägesväxel: Läge %d"
@@ -753,25 +747,25 @@ msgstr ""
 "att ersätta den aktuella fönsterhanteraren."
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Misslyckades med att initiera GDK\n"
+msgid "Failed to initialize GDK"
+msgstr "Misslyckades med att initiera GDK"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Misslyckades med att öppna X Window System-displayen ”%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Misslyckades med att öppna X Window System-displayen ”%s”"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Skärm %d på display ”%s” är ogiltig\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Skärm %d på display ”%s” är ogiltig"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatet %s stöds ej"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -783,18 +777,3 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
-
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Flytta fönster en arbetsyta åt vänster"
-
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Flytta fönster en arbetsyta åt höger"
-
-#~ msgid "Move to workspace left"
-#~ msgstr "Flytta till arbetsyta till vänster"
-
-#~ msgid "Move to workspace right"
-#~ msgstr "Flytta till arbetsyta till höger"
-
-#~ msgid "Toggle shaded state"
-#~ msgstr "Växla upprullat tillstånd"
