@@ -6,22 +6,22 @@
 # Amanpreet_Singh <amanlinux@netscape.net>, 2004.
 # Amanpreet Singh Alam <amanlinux@netscape.net>, 2004.
 # A S Alam <aalam@users.sf.net>, 2006.
-# A S Alam <aalam@users.sf.net>, 2007, 2009, 2010, 2011.
+# A S Alam <aalam@users.sf.net>, 2007, 2009, 2010, 2011, 2021.
 # ASB <aalam@users.sf.net>, 2007.
 # Amanpreet Singh Alam <aalam@users.sf.net>, 2009, 2012, 2013, 2014, 2015, 2017, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity.gnome-2-26\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-03-04 19:52-0800\n"
-"Last-Translator: A S Alam <aalam@users.sf.net>\n"
+"POT-Creation-Date: 2021-02-09 08:07+0000\n"
+"PO-Revision-Date: 2021-02-13 21:20-0800\n"
+"Last-Translator: A S Alam <aalam@satluj.org>\n"
 "Language-Team: Punjabi <punjabi-users@lists.sf.net>\n"
 "Language: pa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 19.04.3\n"
+"X-Generator: Lokalize 20.08.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "\n"
 
@@ -50,12 +50,12 @@ msgid "Move window to last workspace"
 msgstr "ਵਿੰਡੋ ਨੂੰ ਪਿਛਲੇ ਵਰਕਸਪੇਸ ਵਿੱਚ ਲਿਜਾਓ"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਉੱਤੇ ਲਿਜਾਓ"
+msgid "Move window one workspace to the left"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਖੱਬੇ ਵੱਲ ਲਿਜਾਓ"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਹੇਠਾਂ ਲਿਜਾਓ"
+msgid "Move window one workspace to the right"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਸੱਜੇ ਵੱਲ ਲਿਜਾਓ"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -154,12 +154,14 @@ msgid "Switch to last workspace"
 msgstr "ਪਿਛਲੇ ਵਰਕਸਪੇਸ ਵਿੱਚ ਜਾਓ"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "ਉੱਤੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+#| msgid "Move to workspace left"
+msgid "Move to workspace on the left"
+msgstr "ਖੱਬੇ ਵਰਕਸਪੇਸ ਉੱਤੇ ਭੇਜੋ"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "ਹੇਠਾਂ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+#| msgid "Move to workspace right"
+msgid "Move to workspace on the right"
+msgstr "ਸੱਜੇ ਵਰਕਸਪੇਸ ਉੱਤੇ ਭੇਜੋ"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -241,11 +243,11 @@ msgstr "ਵਿੰਡੋ ਖੜਵੇਂ ਰੂਪ ਵਿੱਚ ਵੱਧੋ-ਵ�
 msgid "Maximize window horizontally"
 msgstr "ਵਿੰਡੋ ਲੇਟਵੇਂ ਰੂਪ ਵਿੱਚ ਵੱਧੋ-ਵੱਧ"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "ਖੱਬੇ ਪਾਸੇ ਵੰਡ ਵੇਖੋ"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "ਸੱਜੇ ਪਾਸੇ ਵੰਡ ਵੇਖੋ"
 
@@ -405,104 +407,122 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
+"ਤਜਰਬੇ ਅਧੀਨ ਫ਼ੀਚਰ ਸਮਰੱਥ ਕਰਨ ਲਈ, ਫੀਚਰ ਕੀਵਰਡ ਸੂਚੀ ਵਿੱਚ ਜੋੜੋ। ਕੀ ਫ਼ੀਚਰ ਲਈ"
+" ਕੰਪੋਜ਼ੀਟਰ ਮੁੜ-ਚਾਲੂ ਕਰਨ ਦੀ ਹੈ, ਇਹ ਦਿੱਤੇ ਫ਼ੀਚਰ ਉੱਤੇ ਨਿਰਭਰ ਕਰਦਾ ਹੈ। ਕਿਸੇ ਵੀ"
+" ਤਜਰਬੇ ਅਧੀਨ ਫ਼ੀਚਰ ਦੇ ਮੌਜੂਦ ਰਹਿਣਾ ਜਾਂ ਸੰਰਚਨਾ ਦੇ ਯੋਗ ਹੋਣਾ ਜ਼ਰੂਰੀ ਨਹੀਂ ਹੈ। ਇਸ"
+" ਸੈਟਿੰਗ ਵਿੱਚ ਕੁਝ ਵੀ ਜੋੜਨਾ ਭਵਿੱਖ ਵਿੱਚ ਸੰਭਵ ਨਹੀਂ ਵੀ ਹੋ ਸਕਦਾ ਹੈ। ਇਸ ਵੇਲੇ ਸੰਭਵ"
+" ਕੀਵਰਡ ਹਨ: • “scale-monitor-framebuffer” — ਲਾਜੀਕਲ ਕੋਆਰਡੀਨੇਟ ਥਾਂ ਵਿੱਚ ਲਾਜ਼ੀਕਲ"
+" ਮਾਨੀਟਰਾਂ ਦੇ ਖਾਕੇ ਲਈ ਮਟਰ ਨੂੰ ਮੂਲ ਬਣਾਉਣਾ, ਜਦੋਂ ਕਿ HiDPI ਮਾਨੀਟਰਾਂ ਦੇ ਇੰਤਜ਼ਾਮ ਲਈ"
+" ਵਿੰਡੋ ਸਮੱਗਰੀ ਦੀ ਬਜਾਏ ਸਕੇਲਿੰਗ ਮਾਨੀਟਰ ਫਰੇਮਬਰਫ਼ ਹੋਣ। ਮੁੜ-ਚਾਲੂ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ"
+" ਹੈ। • “rt-scheduler” — ਮਟਰ ਨੂੰ ਘੱਟ ਤਰਜੀਹ ਅਸਲ ਸੈਡਿਊਲਿੰਗ ਬੇਨਤੀ ਕਰਨ ਦਿੰਦਾ ਹੈ।"
+" ਚਲੱਣਯੋਗ ਜਾਂ ਵਰਤੋਂਕਾਰ CAP_SYS_NICE ਚਾਹੀਦਾ ਹੈ। ਮੁੜ-ਚਾਲੂ ਕਰਨ ਦੀ ਲੋੜ ਹੈ। •"
+" “dma-buf-screen-sharing\" — "
+"DMA ਬਫ਼ਰ ਕੀਤੀ ਸਕਰੀਨ ਸਾਂਝੀ ਕਰਨਾ ਸਮਰੱਥ ਕਰੋ। ਜਦੋਂ i915 ਡਰਾਇਵਰ ਵਰਤਿਆ ਜਾਂਦਾ ਹੈ ਤਾਂ"
+" ਇਹ ਮੂਲ ਰੂਪ ਵਿੱਚ ਪਹਿਲਾਂ ਹੀ ਸਮਰੱਥ ਹੁੰਦਾ ਹੈ, ਪਰ ਹਰ ਸਭ ਲਈ ਅਸਮਰੱਥ ਹੈ। ਮੁੜ-ਚਾਲੂ"
+" ਕਰਨ ਦੀ ਲੋੜ ਹੈ। • “autoclose-xwayland” — ਜੇ ਸਾਰੇ ਵਾਜਬ X11 ਕਲਾਈਂਟ ਖਤਮ ਹੋ ਜਾਣ"
+" ਤਾਂ ਆਪਣੇ-ਆਪ Xwayland ਨੂੰ ਖਤਮ ਕਰਦਾ ਹੈ। ਮੁੜ-ਚਾਲੂ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ ਹੈ।"
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "ਪੁਆਇੰਟਰ ਲੱਭਣ ਲਈ ਵਰਤਣ ਵਾਸਤੇ ਸੋਧਣ"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "ਇਹ ਕੁੰਜੀ “ਪੁਆਇੰਟਰ ਲੱਭੋ“ ਕਾਰਵਾਈ ਸ਼ੁਰੂ ਕਰਦੀ ਹੈ।"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "ਚੈਕ-ਸਰਗਰਮ ਪਿੰਗ ਲਈ ਸਮਾਂ-ਅੰਤਰਾਲ"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 "ਮਿਲੀਸਕਿੰਟਾਂ ਦੀ ਗਿਣਤੀ, ਜਿਸ ਵਿੱਚ ਕਲਾਂਇਟ ਨੇ ਪਿੰਗ ਦੀ ਬੇਨਤੀ ਦਾ ਜਵਾਬ ਦੇਣਾ ਹੁੰਦਾ ਹੈ"
-" ਤਾਂ ਕਿ ਜਕੜਿਆ "
-"ਨਾ ਖੋਜਿਆ ਜਾਵੇ। 0 ਵਰਤਣ ਨਾਲ ਸਰਗਰਮੀ ਦੀ ਜਾਂਚ ਨੂੰ ਪੂਰੀ ਤਰ੍ਹਾਂ ਅਸਮਰੱਥ ਕੀਤਾ ਜਾਵੇਗਾ।"
+" ਤਾਂ ਕਿ "
+"ਜਕੜਿਆ ਨਾ ਖੋਜਿਆ ਜਾਵੇ। 0 ਵਰਤਣ ਨਾਲ ਸਰਗਰਮੀ ਦੀ ਜਾਂਚ ਨੂੰ ਪੂਰੀ ਤਰ੍ਹਾਂ ਅਸਮਰੱਥ ਕੀਤਾ"
+" ਜਾਵੇਗਾ।"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "ਟੈਬ ਪੋਪਅੱਪ ਤੋਂ ਵਿੰਡੋ ਚੁਣੋ"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "ਟੈਬ ਪੋਪਅੱਪ ਰੱਦ ਕਰੋ"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "ਮਾਨੀਟਰ ਸੰਰਚਨਾ ਨੂੰ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "ਬਿਲਟ-ਇਨ ਮਾਨੀਟਰ ਸੰਰਚਨਾ ਨੂੰ ਘੁੰਮਾਓ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "VT 1 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "VT 2 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "VT 3 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "VT 4 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "VT 5 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "VT 6 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "VT 7 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "VT 8 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "VT 9 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "VT 10 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "VT 11 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "VT 12 ਲਈ ਬਦਲੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "ਸ਼ਾਰਟਕੱਟ ਮੁੜ-ਸਮਰੱਥ ਕਰੋ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "X11 ਨੂੰ Xwayland ਨਾਲ ਲਾਕ ਕੀਤੇ ਕੀਬੋਰਡ ਫੋਕਸ ਨਾਲ ਫੜਨ ਦੀ ਇਜਾਜ਼ਤ ਦਿੰਦਾ ਹੈ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -512,69 +532,60 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland ਐਪਲੀਕੇਸ਼ਨਾਂ ਕੀਬੋਰਡ ਫੜਨ ਦੀ ਇਜਾਜ਼ਤ ਦਿੰਦੀਆਂ ਹਨ"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2567
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "ਮੋਡ ਬਦਲੋ (ਗਰੁੱਪ %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Xwayland ਵਿੱਚ ਚੁਣੀਆਂ X ਇਕਸਟੈਨਸ਼ਨਾਂ ਅਸਮਰੱਥ ਕਰੋ"
 
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2590
-msgid "Switch monitor"
-msgstr "ਮਾਨੀਟਰ ਨੂੰ ਬਦਲੋ"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
 
-#: src/backends/meta-input-settings.c:2592
-msgid "Show on-screen help"
-msgstr "ਆਨ-ਸਕਰੀਨ ਮਦਦ ਵੇਖੋ"
-
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "ਬਿਲਟ-ਇਨ ਡਿਸਪਲੇਅ"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "ਅਣਜਾਣ"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "ਅਣਜਾਣ ਡਿਸਪਲੇਅ"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
@@ -583,13 +594,12 @@ msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
 #: src/backends/meta-profiler.c:79
-#| msgid "Compositing Manager"
 msgid "Compositor"
 msgstr "ਕੰਪੋਜੀਟਰ"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -601,47 +611,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "ਘੰਟੀ ਈਵੈਂਟ"
 
-#: src/core/main.c:190
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "ਸ਼ੈਸ਼ਨ ਮੈਨੇਜਰ ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਅਯੋਗ"
 
-#: src/core/main.c:196
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "ਚੱਲ ਰਹੇ ਵਿੰਡੋ ਮੈਨੇਜਰ ਨੂੰ ਬਦਲੋ"
 
-#: src/core/main.c:202
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "ਸ਼ੈਸ਼ਨ ਪਰਬੰਧਨ ID ਦਿਓ"
 
-#: src/core/main.c:207
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "ਵਰਤਣ ਲਈ X ਡਿਸਪਲੇਅ"
 
-#: src/core/main.c:213
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "ਸੰਭਾਲੀ ਫਾਇਲ ਤੋਂ ਸ਼ੈਸ਼ਨ ਸ਼ੁਰੂ"
 
-#: src/core/main.c:219
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "X ਕਾਲ ਸੈਕਰੋਨਸ ਬਣਾਓ"
 
-#: src/core/main.c:226
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "ਵੇਲੈਂਡ ਕੰਪੋਜ਼ਰ ਵਜੋਂ ਚਲਾਓ"
 
-#: src/core/main.c:232
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
 msgstr "ਨੈਸਟਡ ਕੰਪੋਜ਼ਰ ਵਜੋਂ ਚਲਾਓ"
 
-#: src/core/main.c:238
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland ਸ਼ੁਰੂ ਕੀਤੇ ਬਿਨਾਂ ਵੇਲੈਂਡ ਕੰਪੋਜ਼ੀਟਰ ਚਲਾਓ"
 
-#: src/core/main.c:246
+#: src/core/main.c:272
+msgid "Specify Wayland display name to use"
+msgstr "ਵਰਤਣ ਲਈ ਵੇਅਲੈਂਡ ਡਿਸਪਲੇਅ ਨਾਂ ਦਿਓ"
+
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "ਅੰਦਰੂਨੀ ਰੂਪ ਵਿੱਚ ਚਲਾਉਣ ਦੀ ਬਜਾਏ ਪੂਰੇ ਡਿਸਪਲੇਅ ਸਰਵਰ ਵਜੋਂ ਚਲਾਓ"
 
-#: src/core/main.c:252
+#: src/core/main.c:286
 msgid "Run with X11 backend"
 msgstr "X11 ਬੈਕਐਡ ਨਾਲ ਚਲਾਓ"
 
@@ -671,38 +685,44 @@ msgstr "ਧੱਕੇ ਨਾਲ ਬੰਦ(_F)"
 msgid "_Wait"
 msgstr "ਉਡੀਕੋ(_W)"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"ਮੁੱਟਰ %s\n"
-"ਹੱਕ ਰਾਖਵੇਂ ਹਨ ©  ੨੦੦੧-%d ਹਾਵੇਨ ਪੈਨਿੰਗਟੋਨ, ਰੈੱਡ ਹੈੱਟ, ਅਤੇ ਹੋਰ\n"
-"ਇਹ ਮੁਫਤ ਸਾਫਟਵੇਅਰ ਹੈ; ਉਤਾਰਾ ਹਾਲਤਾਂ ਲਈ ਸਰੋਤ ਵੇਖੋ।\n"
-"ਇਸ ਦੀ ਕੋਈ ਗਰੰਟੀ ਨਹੀ; ਇਥੋਂ ਤੱਕ ਕਿ ਖਰੀਦਦਾਰੀ ਜਾਂ ਖਾਸ ਮਕਸਦ ਦੀ ਪੂਰਤੀ ਲਈ ਵੀ।\n"
+msgid "Mode Switch (Group %d)"
+msgstr "ਮੋਡ ਬਦਲੋ (ਗਰੁੱਪ %d)"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "ਮਾਨੀਟਰ ਨੂੰ ਬਦਲੋ"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "ਆਨ-ਸਕਰੀਨ ਮਦਦ ਵੇਖੋ"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "ਵਰਜਨ ਛਾਪੋ"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "ਵਰਤਣ ਲਈ ਮੁੱਟਰ ਪਲੱਗਇਨ"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "ਵਰਕਸਪੇਸ %d"
 
-#: src/core/util.c:122
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "ਮੱਟਰ, ਵਰਬੋਜ਼ ਮੋਡ ਲਈ ਸਹਾਰੇ ਤੋਂ ਬਿਨਾਂ ਕੰਪਾਇਲ ਹੋਇਆ\n"
+#: src/core/util.c:117
+#| msgid "Mutter was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "ਮੱਟਰ, ਵਰਬੋਜ਼ ਮੋਡ ਲਈ ਸਹਾਰੇ ਤੋਂ ਬਿਨਾਂ ਕੰਪਾਇਲ ਹੋਇਆ"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "ਮੋਡ ਬਦਲੋ: ਮੋਡ %d"
@@ -718,25 +738,28 @@ msgstr ""
 "ਵਰਤ ਕੇ ਦੇਖੋ।"
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "GDK ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਅਸਫ਼ਲ ਹੈ\n"
+#| msgid "Failed to initialize GDK\n"
+msgid "Failed to initialize GDK"
+msgstr "GDK ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਅਸਫ਼ਲ ਹੈ"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "X ਵਿੰਡੋ ਸਿਸਟਮ ਡਿਸਪਲੇਅ ”%s” ਨੂੰ ਖੋਲਣ ਵਿੱਚ ਅਸਮਰਥ\n"
+#| msgid "Failed to open X Window System display “%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "X ਵਿੰਡੋ ਸਿਸਟਮ ਡਿਸਪਲੇਅ ”%s” ਨੂੰ ਖੋਲਣ ਵਿੱਚ ਅਸਮਰਥ"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "ਡਿਸਪਲੇਅ ”%2$s” ਉੱਤੇ ਸਕਰੀਨ %1$d ਗਲਤ ਹੈ\n"
+#| msgid "Screen %d on display “%s” is invalid\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "ਡਿਸਪਲੇਅ ”%2$s” ਉੱਤੇ ਸਕਰੀਨ %1$d ਗਲਤ ਹੈ"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "ਫਾਰਮੈਟ %s ਸਹਾਇਕ ਨਹੀਂ ਹੈ"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -745,22 +768,34 @@ msgstr ""
 " ਲਾਗਇਨ ਕਰੋਗੇ ਤਾਂ ਮੁੜ ਸ਼ੁਰੂ "
 "ਕਰਨਾ ਪਵੇਗਾ।"
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s ਉੱਤੇ)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਖੱਬੇ ਵੱਲ ਲਿਜਾਓ"
+#~ msgid "Move window one workspace up"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਉੱਤੇ ਲਿਜਾਓ"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਸੱਜੇ ਵੱਲ ਲਿਜਾਓ"
+#~ msgid "Move window one workspace down"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਹੇਠਾਂ ਲਿਜਾਓ"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "ਖੱਬੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+#~ msgid "Move to workspace above"
+#~ msgstr "ਉੱਤੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "ਸੱਜੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+#~ msgid "Move to workspace below"
+#~ msgstr "ਹੇਠਾਂ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "ਮੁੱਟਰ %s\n"
+#~ "ਹੱਕ ਰਾਖਵੇਂ ਹਨ ©  ੨੦੦੧-%d ਹਾਵੇਨ ਪੈਨਿੰਗਟੋਨ, ਰੈੱਡ ਹੈੱਟ, ਅਤੇ ਹੋਰ\n"
+#~ "ਇਹ ਮੁਫਤ ਸਾਫਟਵੇਅਰ ਹੈ; ਉਤਾਰਾ ਹਾਲਤਾਂ ਲਈ ਸਰੋਤ ਵੇਖੋ।\n"
+#~ "ਇਸ ਦੀ ਕੋਈ ਗਰੰਟੀ ਨਹੀ; ਇਥੋਂ ਤੱਕ ਕਿ ਖਰੀਦਦਾਰੀ ਜਾਂ ਖਾਸ ਮਕਸਦ ਦੀ ਪੂਰਤੀ ਲਈ ਵੀ।\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "ਰੰਗਤ ਸਥਿਤੀ ਬਦਲੋ"
