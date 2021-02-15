@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-14 13:55+0000\n"
-"PO-Revision-Date: 2021-01-15 02:47+0100\n"
+"POT-Creation-Date: 2021-02-13 21:32+0000\n"
+"PO-Revision-Date: 2021-02-15 09:18+0100\n"
 "Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
 "Language-Team: Serbian <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
@@ -50,12 +50,12 @@ msgid "Move window to last workspace"
 msgstr "Премешта прозор на последњи радни простор"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Премешта прозор један радни простор на горе"
+msgid "Move window one workspace to the left"
+msgstr "Премешта прозор један радни простор на лево"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Премешта прозор један радни простор на доле"
+msgid "Move window one workspace to the right"
+msgstr "Премешта прозор један радни простор на десно"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -154,12 +154,12 @@ msgid "Switch to last workspace"
 msgstr "Пребацује се на последњи радни простор"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Премешта на радни простор изнад"
+msgid "Move to workspace on the left"
+msgstr "Премести на радни простор лево"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Премешта на радни простор испод"
+msgid "Move to workspace on the right"
+msgstr "Премести на радни простор десно"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -241,11 +241,11 @@ msgstr "Увећава прозор вертикално"
 msgid "Maximize window horizontally"
 msgstr "Увећава прозор хоризонтално"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Прикажите поделу на лево"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Прикажите поделу на десно"
 
@@ -401,11 +401,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires a restart. • "
-"“dma-buf-screen-sharing\" — enables DMA buffered screen sharing. This is "
-"already enabled by default when using the i915 driver, but disabled for "
-"everything else. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Да укључите пробне функције, додајте кључну реч функције на списак. Да ли "
 "функција захтева поновно покретање састављача зависи од дате функције. Није "
@@ -421,21 +421,23 @@ msgstr ""
 "покреће Икс-вејленд ако има Икс11 клијената. Потребно је поновно покретање. "
 "• “dma-buf-screen-sharing\" — Омогућава дељење ДМА-ускладиштених екрана. Ово "
 "је већ омогућено подразумевано приликом коришћења i915 управљача али је "
-"онемогућено за све остале. Потребно је поновно покретање."
+"онемогућено за све остале. Потребно је поновно покретање. • „autoclose-"
+"xwayland“ — самостално прекини све Икс-вејленд процесе ако су Икс11 клијенти "
+"угашени. Не захтева поновно покретање."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Тастер који се користи за проналажење показивача"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Овај тастер ће покренути „пронађи показивач“ радњу."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Време истицања провере живахности"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -444,19 +446,19 @@ msgstr ""
 "сматрао замрзнутим. Унос броја 0 ће онемогућити проверу живахности у "
 "потпуности."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Бира прозор из језичка искакања"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Отказивање језичка искакања"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Мења подешавања монитора"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Заокреће уграђена подешавања монитора"
 
@@ -628,51 +630,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Звонца"
 
-#: src/core/main.c:215
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "Искључује везу са управником сесије"
 
-#: src/core/main.c:221
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "Мења текућег управника прозорима"
 
-#: src/core/main.c:227
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "Наводи ИБ управника сесије"
 
-#: src/core/main.c:232
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "Икс екран који ће бити коришћен"
 
-#: src/core/main.c:238
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "Покреће сесију из датотеке чувања"
 
-#: src/core/main.c:244
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "Чини Икс позиве усклађеним"
 
-#: src/core/main.c:251
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "Ради као вејлендов композитор"
 
-#: src/core/main.c:257
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
 msgstr "Ради као угнежђени композитор"
 
-#: src/core/main.c:263
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Ради као вејлендов композитор без покретања Икс-вејленда"
 
-#: src/core/main.c:269
+#: src/core/main.c:272
 msgid "Specify Wayland display name to use"
 msgstr "Наведите Вејленд приказ за коришћење"
 
-#: src/core/main.c:277
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "Ради као пуни сервер приказа, уместо као угнеждени"
 
-#: src/core/main.c:283
+#: src/core/main.c:286
 msgid "Run with X11 backend"
 msgstr "Покрени на Икс11 позадинцу"
 
@@ -721,30 +723,15 @@ msgstr "Промени монитор"
 msgid "Show on-screen help"
 msgstr "Прикажи помоћ на екрану"
 
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"матер %s\n"
-"Сва права задржана © 2001–%d Хевок Пенингтон, Ред Хет, Инк., и остали\n"
-"Ово је слободан програм; погледајте изворни кôд за услове коришћења.\n"
-"НЕ постоји никаква гаранција; чак ни гаранција о ТРЖИШНОЈ ВРЕДНОСТИ или "
-"ПРИЛАГОЂЕНОСТИ ОДРЕЂЕНОЈ НАМЕНИ.\n"
-
-#: src/core/mutter.c:52
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Исписује издање"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Прикључци Матера за коришћење"
 
-#: src/core/prefs.c:1913
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. радни простор"
@@ -799,17 +786,30 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Премешта прозор један радни простор на лево"
+#~ msgid "Move window one workspace up"
+#~ msgstr "Премешта прозор један радни простор на горе"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Премешта прозор један радни простор на десно"
+#~ msgid "Move window one workspace down"
+#~ msgstr "Премешта прозор један радни простор на доле"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "Премешта на радни простор лево"
+#~ msgid "Move to workspace above"
+#~ msgstr "Премешта на радни простор изнад"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "Премешта на радни простор десно"
+#~ msgid "Move to workspace below"
+#~ msgstr "Премешта на радни простор испод"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "матер %s\n"
+#~ "Сва права задржана © 2001–%d Хевок Пенингтон, Ред Хет, Инк., и остали\n"
+#~ "Ово је слободан програм; погледајте изворни кôд за услове коришћења.\n"
+#~ "НЕ постоји никаква гаранција; чак ни гаранција о ТРЖИШНОЈ ВРЕДНОСТИ или "
+#~ "ПРИЛАГОЂЕНОСТИ ОДРЕЂЕНОЈ НАМЕНИ.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Искључује или укључује стање засенчености"
