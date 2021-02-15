@@ -91,13 +91,13 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
-  uint32_t n_planes;
+  uint32_t i, n_planes;
   uint64_t modifiers[META_WAYLAND_DMA_BUF_MAX_FDS];
-  CoglPixelFormat cogl_format;
-  EGLImageKHR egl_image;
-  CoglEglImageFlags flags;
-  CoglTexture2D *cogl_texture;
+  MetaMultiTextureFormat multi_format = META_MULTI_TEXTURE_FORMAT_SIMPLE;
+  CoglPixelFormat cogl_format = COGL_PIXEL_FORMAT_ANY;
   MetaDrmFormatBuf format_buf;
+  GPtrArray *planes;
+
 
   if (buffer->dma_buf.texture)
     return TRUE;
@@ -134,6 +134,9 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     case DRM_FORMAT_ARGB16161616F:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
       break;
+    case DRM_FORMAT_NV12:
+      multi_format = META_MULTI_TEXTURE_FORMAT_NV12;
+      break;
     default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -142,9 +145,11 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     }
 
   meta_topic (META_DEBUG_WAYLAND,
-              "[dma-buf] wl_buffer@%u DRM format %s -> CoglPixelFormat %s",
+              "[dma-buf] wl_buffer@%u DRM format %s "
+              "-> MetaMultiTextureFormat %s / CoglPixelFormat %s",
               wl_resource_get_id (meta_wayland_buffer_get_resource (buffer)),
               meta_drm_format_to_string (&format_buf, dma_buf->drm_format),
+              meta_multi_texture_format_to_string (multi_format),
               cogl_pixel_format_to_string (cogl_format));
 
   for (n_planes = 0; n_planes < META_WAYLAND_DMA_BUF_MAX_FDS; n_planes++)
@@ -155,38 +160,56 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
       modifiers[n_planes] = dma_buf->drm_modifier;
     }
 
-  egl_image = meta_egl_create_dmabuf_image (egl,
-                                            egl_display,
-                                            dma_buf->width,
-                                            dma_buf->height,
-                                            dma_buf->drm_format,
-                                            n_planes,
-                                            dma_buf->fds,
-                                            dma_buf->strides,
-                                            dma_buf->offsets,
-                                            modifiers,
-                                            error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
-    return FALSE;
+  /* Each EGLImage is a plane in the final CoglMultiPlaneTexture */
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
-  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-  cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
-                                                     dma_buf->width,
-                                                     dma_buf->height,
-                                                     cogl_format,
-                                                     egl_image,
-                                                     flags,
-                                                     error);
+  for (i = 0; i < n_planes; i++)
+    {
+      EGLImageKHR egl_image;
+      CoglEglImageFlags flags;
+      CoglTexture2D *cogl_texture;
 
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+      egl_image = meta_egl_create_dmabuf_image (egl,
+                                                egl_display,
+                                                dma_buf->width,
+                                                dma_buf->height,
+                                                dma_buf->drm_format,
+                                                n_planes,
+                                                dma_buf->fds,
+                                                dma_buf->strides,
+                                                dma_buf->offsets,
+                                                modifiers,
+                                                error);
+      if (egl_image == EGL_NO_IMAGE_KHR)
+        goto on_error;
 
-  if (!cogl_texture)
-    return FALSE;
+      flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
+      cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                         dma_buf->width,
+                                                         dma_buf->height,
+                                                         cogl_format,
+                                                         egl_image,
+                                                         flags,
+                                                         error);
 
-  buffer->dma_buf.texture = meta_multi_texture_new_simple (COGL_TEXTURE (cogl_texture));
+      meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+
+      if (!cogl_texture)
+        goto on_error;
+
+      g_ptr_array_add (planes, cogl_texture);
+    }
+
+  buffer->dma_buf.texture = meta_multi_texture_new (multi_format,
+                                                    g_ptr_array_free (planes, FALSE),
+                                                    n_planes);
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;
+
+on_error:
+  g_ptr_array_free (planes, TRUE);
+  return FALSE;
 }
 
 gboolean
@@ -604,6 +627,8 @@ should_send_modifiers (MetaBackend *backend)
 {
   MetaSettings *settings = meta_backend_get_settings (backend);
 
+  return TRUE;
+
 #ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
     {
@@ -639,6 +664,7 @@ send_modifiers (struct wl_resource *resource,
   if (wl_resource_get_version (resource) < ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
     return;
 
+  g_warning ("should_send_modfiers() == %d", should_send_modifiers(backend));
   if (!should_send_modifiers (backend))
     {
       zwp_linux_dmabuf_v1_send_modifier (resource, format,
@@ -706,6 +732,8 @@ dma_buf_bind (struct wl_client *client,
   send_modifiers (resource, DRM_FORMAT_XBGR16161616F);
   send_modifiers (resource, DRM_FORMAT_XRGB16161616F);
   send_modifiers (resource, DRM_FORMAT_ARGB16161616F);
+  /* XXX add more */
+  send_modifiers (resource, DRM_FORMAT_NV12);
 }
 
 /**

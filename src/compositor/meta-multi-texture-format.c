@@ -89,6 +89,7 @@ static const char y_u_v_to_rgb_shader[] =
 typedef struct _MetaMultiTextureFormatInfo
 {
   MetaMultiTextureFormat multi_format;
+  const char *name;
   uint8_t n_planes;
 
   /* Per plane-information */
@@ -107,6 +108,7 @@ typedef struct _MetaMultiTextureFormatInfo
 static MetaMultiTextureFormatInfo multi_format_table[] = {
   /* Simple */
   {
+    .name = "",
     .n_planes = 1,
     .bpp  = { 4 },
     .hsub = { 1 },
@@ -116,7 +118,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shader = NULL,
   },
   /* Packed YUV */
-  { /* YUYV */
+  {
+    .name = "YUYV",
     .n_planes = 1,
     .bpp  = { 4 },
     .hsub = { 1 },
@@ -125,7 +128,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = YUV_TO_RGB_FUNC,
     .rgb_shader = yuv_to_rgb_shader,
   },
-  { /* YVYU */
+  {
+    .name = "YVYU",
     .n_planes = 1,
     .bpp  = { 4 },
     .hsub = { 1 },
@@ -134,7 +138,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = YUV_TO_RGB_FUNC,
     .rgb_shader = yuv_to_rgb_shader,
   },
-  { /* UYVY */
+  {
+    .name = "UYVY",
     .n_planes = 1,
     .bpp  = { 4 },
     .hsub = { 1 },
@@ -143,7 +148,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = YUV_TO_RGB_FUNC,
     .rgb_shader = yuv_to_rgb_shader,
   },
-  { /* VYUY */
+  {
+    .name = "VYUY",
     .n_planes = 1,
     .bpp  = { 4 },
     .hsub = { 1 },
@@ -152,7 +158,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = YUV_TO_RGB_FUNC,
     .rgb_shader = yuv_to_rgb_shader,
   },
-  { /* AYUV */
+  {
+    .name = "AYUV",
     .n_planes = 1,
     .bpp  = { 4 },
     .hsub = { 1 },
@@ -162,7 +169,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shader = yuv_to_rgb_shader,
   },
   /* 2 plane RGB + A */
-  { /* XRGB8888_A8 */
+  {
+    .name = "XRGB8888_A8",
     .n_planes = 2,
     .bpp  = { 4, 1 },
     .hsub = { 1, 1 },
@@ -171,7 +179,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* XBGR8888_A8 */
+  {
+    .name = "XBGR8888_A8",
     .n_planes = 2,
     .bpp  = { 4, 1 },
     .hsub = { 1, 1 },
@@ -180,7 +189,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* RGBX8888_A8 */
+  {
+    .name = "RGBX8888_A8",
     .n_planes = 2,
     .bpp  = { 4, 1 },
     .hsub = { 1, 1 },
@@ -189,7 +199,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* BGRX8888_A8 */
+  {
+    .name = "BGRX8888_A8",
     .n_planes = 2,
     .bpp  = { 4, 1 },
     .hsub = { 1, 1 },
@@ -198,7 +209,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* RGB888_A8 */
+  {
+    .name = "RGB888_A8",
     .n_planes = 2,
     .bpp  = { 3, 1 },
     .hsub = { 1, 1 },
@@ -207,7 +219,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* BGR888_A8 */
+  {
+    .name = "BGR888_A8",
     .n_planes = 2,
     .bpp  = { 3, 1 },
     .hsub = { 1, 1 },
@@ -216,7 +229,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* RGB565_A8 */
+  {
+    .name = "RGB565_A8",
     .n_planes = 2,
     .bpp  = { 2, 1 },
     .hsub = { 1, 1 },
@@ -225,7 +239,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = NULL,
     .rgb_shader = NULL,
   },
-  { /* BGR565_A8 */
+  {
+    .name = "BGR565_A8",
     .n_planes = 2,
     .bpp  = { 2, 1 },
     .hsub = { 1, 1 },
@@ -235,7 +250,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shader = NULL,
   },
   /* 2 plane YUV */
-  { /* NV12 */
+  {
+    .name = "NV12",
     .n_planes = 2,
     .bpp  = { 1, 2 },
     .hsub = { 1, 2 },
@@ -244,7 +260,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
     .rgb_shader = y_uv_to_rgb_shader,
   },
-  { /* NV21 */
+  {
+    .name = "NV21",
     .n_planes = 2,
     .bpp  = { 1, 2 },
     .hsub = { 1, 2 },
@@ -253,7 +270,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
     .rgb_shader = y_uv_to_rgb_shader,
   },
-  { /* NV16 */
+  {
+    .name = "NV16",
     .n_planes = 2,
     .bpp  = { 1, 2 },
     .hsub = { 1, 2 },
@@ -262,7 +280,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
     .rgb_shader = y_uv_to_rgb_shader,
   },
-  { /* NV61 */
+  {
+    .name = "NV61",
     .n_planes = 2,
     .bpp  = { 1, 2 },
     .hsub = { 1, 2 },
@@ -271,7 +290,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
     .rgb_shader = y_uv_to_rgb_shader,
   },
-  { /* NV24 */
+  {
+    .name = "NV24",
     .n_planes = 2,
     .bpp  = { 1, 2 },
     .hsub = { 1, 1 },
@@ -280,7 +300,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
     .rgb_shader = y_uv_to_rgb_shader,
   },
-  { /* NV42 */
+  {
+    .name = "NV42",
     .n_planes = 2,
     .bpp  = { 1, 2 },
     .hsub = { 1, 1 },
@@ -290,7 +311,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shader = y_uv_to_rgb_shader,
   },
   /* 3 plane YUV */
-  { /* YUV410 */
+  {
+    .name = "YUV410",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 4, 4 },
@@ -299,7 +321,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YVU410 */
+  {
+    .name = "YVU410",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 4, 4 },
@@ -308,7 +331,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YUV411 */
+  {
+    .name = "YUV411",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 4, 4 },
@@ -317,7 +341,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YVU411 */
+  {
+    .name = "YVU411",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 4, 4 },
@@ -326,7 +351,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YUV420 */
+  {
+    .name = "YUV420",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 2, 2 },
@@ -335,7 +361,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YVU420 */
+  {
+    .name = "YVU420",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 2, 2 },
@@ -344,7 +371,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YUV422 */
+  {
+    .name = "YUV422",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 2, 2 },
@@ -353,7 +381,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YVU422 */
+  {
+    .name = "YVU422",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 2, 2 },
@@ -362,7 +391,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YUV444 */
+  {
+    .name = "YUV444",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 1, 1 },
@@ -371,7 +401,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
     .rgb_shader = y_u_v_to_rgb_shader,
   },
-  { /* YVU444 */
+  {
+    .name = "YVU444",
     .n_planes = 3,
     .bpp  = { 1, 1, 1 },
     .hsub = { 1, 1, 1 },
@@ -381,6 +412,14 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .rgb_shader = y_u_v_to_rgb_shader,
   },
 };
+
+const char *
+meta_multi_texture_format_to_string (MetaMultiTextureFormat format)
+{
+  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), NULL);
+
+  return multi_format_table[format].name;
+}
 
 void
 meta_multi_texture_format_get_bytes_per_pixel (MetaMultiTextureFormat format,

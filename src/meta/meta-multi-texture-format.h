@@ -109,6 +109,9 @@ typedef enum _MetaMultiTextureFormat
 } MetaMultiTextureFormat;
 
 META_EXPORT
+const char * meta_multi_texture_format_to_string        (MetaMultiTextureFormat format);
+
+META_EXPORT
 void  meta_multi_texture_format_get_bytes_per_pixel     (MetaMultiTextureFormat format,
                                                          uint8_t               *bpp_out);
 
