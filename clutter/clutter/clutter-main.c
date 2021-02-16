@@ -1806,7 +1806,8 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              if (event->type == CLUTTER_TOUCH_UPDATE)
+              if (event->type == CLUTTER_TOUCH_BEGIN ||
+                  event->type == CLUTTER_TOUCH_UPDATE)
                 {
                   event->any.source =
                     update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
