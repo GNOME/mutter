@@ -111,7 +111,20 @@
     <!--
 	NotifyPointerAxis:
 
-	A smooth pointer axis event notification
+	A smooth pointer axis event notification. Relative motion deltas are to be
+	interpreted as pixel movement of a standardized mouse.
+
+	Additionally to the smooth pointer axis event notification, an emulated
+	discrete pointer axis event notification is emitted based on the submitted
+	accumulated smooth scrolling steps.
+	The base for these emulated discrete pointer axis event is the discrete step
+	with the value 10.0.
+	This means that for a delta dx (or dy) with the value 10.0 one emulated
+	discrete scrolling event is emitted.
+	For a high resolution smooth pointer axis event, a smaller value is submitted
+	for each scrolling step.
+	This means: For a double resolution mouse wheel one emulated discrete event
+	is emitted for 2 smooth pointer axis events with each having the value 5.0.
 
 	Possible @flags:
 	  1: finish - scroll motion was finished (e.g. fingers lifted)
