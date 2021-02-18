@@ -33,19 +33,18 @@
 float
 meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode)
 {
-  float refresh = 0.0;
+  double numerator;
+  double denominator;
 
-  if (drm_mode->htotal > 0 && drm_mode->vtotal > 0)
-    {
-      /* Calculate refresh rate in milliHz first for extra precision. */
-      refresh = (drm_mode->clock * 1000000LL) / drm_mode->htotal;
-      refresh += (drm_mode->vtotal / 2);
-      refresh /= drm_mode->vtotal;
-      if (drm_mode->vscan > 1)
-        refresh /= drm_mode->vscan;
-      refresh /= 1000.0;
-    }
-  return refresh;
+  if (drm_mode->htotal <= 0 || drm_mode->vtotal <= 0)
+    return 0.0;
+
+  numerator = drm_mode->clock * 1000.0;
+  denominator = (double) drm_mode->vtotal * drm_mode->htotal;
+  if (drm_mode->vscan > 1)
+    denominator *= drm_mode->vscan;
+
+  return numerator / denominator;
 }
 
 /**
