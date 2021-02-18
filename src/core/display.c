@@ -332,8 +332,7 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 3,
-                  META_TYPE_DISPLAY,
+                  G_TYPE_NONE, 2,
                   META_TYPE_WINDOW,
                   META_TYPE_GRAB_OP);
 
@@ -343,8 +342,7 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 3,
-                  META_TYPE_DISPLAY,
+                  G_TYPE_NONE, 2,
                   META_TYPE_WINDOW,
                   META_TYPE_GRAB_OP);
 
@@ -1906,7 +1904,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
     }
 
   g_signal_emit (display, display_signals[GRAB_OP_BEGIN], 0,
-                 display, display->grab_window, display->grab_op);
+                 display->grab_window, display->grab_op);
 
   if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
     meta_window_grab_op_began (display->grab_window, display->grab_op);
@@ -1979,7 +1977,7 @@ meta_display_end_grab_op (MetaDisplay *display,
     meta_display_sync_wayland_input_focus (display);
 
   g_signal_emit (display, display_signals[GRAB_OP_END], 0,
-                 display, grab_window, grab_op);
+                 grab_window, grab_op);
 }
 
 /**

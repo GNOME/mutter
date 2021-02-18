@@ -438,7 +438,6 @@ meta_begin_modal_for_plugin (MetaCompositor   *compositor,
   display->grab_have_keyboard = TRUE;
 
   g_signal_emit_by_name (display, "grab-op-begin",
-                         meta_plugin_get_display (plugin),
                          display->grab_window, display->grab_op);
 
   meta_compositor_grab_begin (compositor);
@@ -472,7 +471,6 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
   meta_compositor_grab_end (compositor);
 
   g_signal_emit_by_name (display, "grab-op-end",
-                         meta_plugin_get_display (plugin),
                          grab_window, grab_op);
 }
 
