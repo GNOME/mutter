@@ -4,14 +4,14 @@
 #
 # Andraž Tori <andraz.tori1@guest.arnes.si>, 2000.
 # Matjaž Horvat <m@owca.info>, 2006.
-# Matej Urbančič <mateju@svn.gnome.org>, 2007–2020.
+# Matej Urbančič <mateju@svn.gnome.org>, 2007–2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-01-27 15:09+0000\n"
-"PO-Revision-Date: 2021-01-27 21:31+0100\n"
+"POT-Creation-Date: 2021-02-18 20:13+0000\n"
+"PO-Revision-Date: 2021-02-18 21:16+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -48,12 +48,12 @@ msgid "Move window to last workspace"
 msgstr "Premakni okno na zadnjo delovno površino"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Premakni okno eno delovno površino navzgor"
+msgid "Move window one workspace to the left"
+msgstr "Premakni okno eno delovno površino levo"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Prestavi okno eno delovno površino navzdol"
+msgid "Move window one workspace to the right"
+msgstr "Premakni okno eno delovno površino desno"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -152,12 +152,12 @@ msgid "Switch to last workspace"
 msgstr "Preklopi na zadnjo delovno površino"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Premakni na zgornjo delovno površino"
+msgid "Move to workspace on the left"
+msgstr "Premakni na levo delovno površino"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Premakni na spodnjo delovno površino"
+msgid "Move to workspace on the right"
+msgstr "Premakni na desno delovno površino"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -400,7 +400,7 @@ msgid ""
 "must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
 "enables DMA buffered screen sharing. This is already enabled by default when "
 "using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — Automatically terminates Xwayland if all relevant "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
 "X11 clients are gone. Does not require a restart."
 msgstr ""
 "Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
@@ -410,12 +410,12 @@ msgstr ""
 "monitor-framebuffer« – določi privzeto rabo sistema mutter za logične "
 "zaslone v logičnem točkovnem koordinatnem prostoru, pri čemer prilagaja "
 "predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. Možnost ne "
-"zahteva ponovnega zagona.• “rt-scheduler” – postavi zahteve mutter na nižjo "
+"zahteva ponovnega zagona.• »rt-scheduler« – postavi zahteve mutter na nižjo "
 "prednostno raven. Izvršljivi program oziroma uporabnik mora imeti omogočeno "
-"možnost CAP_SYS_NICE. Ta možnost zahteva ponovni zagon. • “dma-buf-screen-"
-"sharing\" — omogoča predpomnjeno souporabo zaslona DMA. Ta možnosti je "
+"možnost CAP_SYS_NICE. Ta možnost zahteva ponovni zagon. • »dma-buf-screen-"
+"sharing« – omogoča predpomnjeno souporabo zaslona DMA. Ta možnosti je "
 "omogočena privzeto pri uporabi gonilnika i915 in onemogočena za katerikoli "
-"drugi gonilnik. Uporaba zahteva ponovni zagon. • »autostart-xwayland« - "
+"drugi gonilnik. Uporaba zahteva ponovni zagon. • »autostart-xwayland« – "
 "samodejno konča okolje Xwayland, če ni razpoložljivega okolja X11. Prav tako "
 "zahteva ponoven zagon."
 
@@ -611,7 +611,7 @@ msgstr "Sestavljalnik"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:512
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -622,51 +622,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
 
-#: src/core/main.c:216
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "Onemogoči povezavo z upravljalnikom sej"
 
-#: src/core/main.c:222
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "Zamenjaj trenutni upravljalnik oken"
 
-#: src/core/main.c:228
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "Navedite ID upravljanja seje"
 
-#: src/core/main.c:233
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "Zaslon X za uporabo"
 
-#: src/core/main.c:239
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "Začni sejo iz shranjene datoteke"
 
-#: src/core/main.c:245
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "Uskladi klice X"
 
-#: src/core/main.c:252
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "Zaženi izbirnik wayland"
 
-#: src/core/main.c:258
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
 msgstr "Zaženi kot gnezden vpisovalnik"
 
-#: src/core/main.c:264
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
 
-#: src/core/main.c:270
+#: src/core/main.c:272
 msgid "Specify Wayland display name to use"
 msgstr "Določilo prikazno ime Wayland za uporabo"
 
-#: src/core/main.c:278
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "Zaženi kot polni strežnik zaslona in ne vstavljeno"
 
-#: src/core/main.c:284
+#: src/core/main.c:286
 msgid "Run with X11 backend"
 msgstr "Zaženi z zaledjem X11"
 
@@ -715,25 +715,11 @@ msgstr "Nadzornik preklopa"
 msgid "Show on-screen help"
 msgstr "Pokaži zaslonsko pomoč"
 
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Avtorske pravice pridržane (C) 2001-%d Havoc Pennington, Red Hat in drugi\n"
-"To je prosta programska oprema; za pogoje kopiranja si oglejte dovoljenje.\n"
-"Program je na voljo BREZ KAKRŠNIHKOLI ZAGOTOVIL.\n"
-
-#: src/core/mutter.c:52
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Izpiši različico"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Vstavek Mutter za uporabo"
 
@@ -795,17 +781,31 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Premakni okno eno delovno površino levo"
+#~ msgid "Move window one workspace up"
+#~ msgstr "Premakni okno eno delovno površino navzgor"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Premakni okno eno delovno površino desno"
+#~ msgid "Move window one workspace down"
+#~ msgstr "Prestavi okno eno delovno površino navzdol"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "Premakni na levo delovno površino"
+#~ msgid "Move to workspace above"
+#~ msgstr "Premakni na zgornjo delovno površino"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "Premakni na desno delovno površino"
+#~ msgid "Move to workspace below"
+#~ msgstr "Premakni na spodnjo delovno površino"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Avtorske pravice pridržane (C) 2001-%d Havoc Pennington, Red Hat in "
+#~ "drugi\n"
+#~ "To je prosta programska oprema; za pogoje kopiranja si oglejte "
+#~ "dovoljenje.\n"
+#~ "Program je na voljo BREZ KAKRŠNIHKOLI ZAGOTOVIL.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Preklopi stanje senčenja"
