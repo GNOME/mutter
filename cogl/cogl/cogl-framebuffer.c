@@ -336,6 +336,8 @@ cogl_framebuffer_dispose (GObject *object)
 
   if (priv->journal)
     {
+      _cogl_journal_flush (priv->journal);
+
       g_signal_emit (framebuffer, signals[DESTROY], 0);
 
       _cogl_fence_cancel_fences_for_framebuffer (framebuffer);
@@ -2136,37 +2138,6 @@ cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer)
       priv->context->current_draw_buffer_changes |=
         COGL_FRAMEBUFFER_STATE_CLIP;
     }
-}
-
-void
-_cogl_framebuffer_unref (CoglFramebuffer *framebuffer)
-{
-  CoglFramebufferPrivate *priv =
-    cogl_framebuffer_get_instance_private (framebuffer);
-
-  /* The journal holds a reference to the framebuffer whenever it is
-     non-empty. Therefore if the journal is non-empty and we will have
-     exactly one reference then we know the journal is the only thing
-     keeping the framebuffer alive. In that case we want to flush the
-     journal and let the framebuffer die. It is fine at this point if
-     flushing the journal causes something else to take a reference to
-     it and it comes back to life */
-  if (priv->journal->entries->len > 0)
-    {
-      unsigned int ref_count = ((CoglObject *) framebuffer)->ref_count;
-
-      /* There should be at least two references - the one we are
-         about to drop and the one held by the journal */
-      if (ref_count < 2)
-        g_warning ("Inconsistent ref count on a framebuffer with journal "
-                   "entries.");
-
-      if (ref_count == 2)
-        _cogl_framebuffer_flush_journal (framebuffer);
-    }
-
-  /* Chain-up */
-  _cogl_object_default_unref (framebuffer);
 }
 
 #ifdef COGL_ENABLE_DEBUG

@@ -148,14 +148,7 @@ _cogl_journal_new (CoglFramebuffer *framebuffer)
 {
   CoglJournal *journal = g_slice_new0 (CoglJournal);
 
-  /* The journal keeps a pointer back to the framebuffer because there
-     is effectively a 1:1 mapping between journals and framebuffers.
-     However, to avoid a circular reference the journal doesn't take a
-     reference unless it is non-empty. The framebuffer has a special
-     unref implementation to ensure that the journal is flushed when
-     the journal is the only thing keeping it alive */
   journal->framebuffer = framebuffer;
-
   journal->entries = g_array_new (FALSE, FALSE, sizeof (CoglJournalEntry));
   journal->vertices = g_array_new (FALSE, FALSE, sizeof (float));
 
@@ -1272,10 +1265,6 @@ _cogl_journal_discard (CoglJournal *journal)
   g_array_set_size (journal->vertices, 0);
   journal->needed_vbo_len = 0;
   journal->fast_read_pixel_count = 0;
-
-  /* The journal only holds a reference to the framebuffer while the
-     journal is not empty */
-  g_object_unref (journal->framebuffer);
 }
 
 /* Note: A return value of FALSE doesn't mean 'no' it means
@@ -1532,12 +1521,6 @@ _cogl_journal_log_quad (CoglJournal  *journal,
                      0 /* no application private data */);
 
   COGL_TIMER_START (_cogl_uprof_context, log_timer);
-
-  /* If the framebuffer was previously empty then we'll take a
-     reference to the current framebuffer. This reference will be
-     removed when the journal is flushed */
-  if (journal->vertices->len == 0)
-    g_object_ref (framebuffer);
 
   /* The vertex data is logged into a separate array. The data needs
      to be copied into a vertex array before it's given to GL so we
