@@ -81,7 +81,7 @@
     <!--
 	NotifyKeyboardKeycode:
 
-	A key identified by a keycode was pressed or released
+	A key identified by an evdev keycode was pressed or released
      -->
     <method name="NotifyKeyboardKeycode">
       <arg name="keycode" type="u" direction="in" />
