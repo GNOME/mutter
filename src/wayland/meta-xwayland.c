@@ -837,6 +837,14 @@ on_displayfd_ready (int          fd,
   return G_SOURCE_REMOVE;
 }
 
+static int
+steal_fd (int *fd_ptr)
+{
+  int fd = *fd_ptr;
+  *fd_ptr = -1;
+  return fd;
+}
+
 void
 meta_xwayland_start_xserver (MetaXWaylandManager *manager,
                              GCancellable        *cancellable,
@@ -880,6 +888,9 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
 
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, displayfd) < 0)
     {
+      close (xwayland_client_fd[0]);
+      close (xwayland_client_fd[1]);
+
       g_task_return_new_error (task,
                                G_IO_ERROR,
                                g_io_error_from_errno (errno),
@@ -903,11 +914,16 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
 
   launcher = g_subprocess_launcher_new (flags);
 
-  g_subprocess_launcher_take_fd (launcher, xwayland_client_fd[1], 3);
-  g_subprocess_launcher_take_fd (launcher, manager->public_connection.abstract_fd, 4);
-  g_subprocess_launcher_take_fd (launcher, manager->public_connection.unix_fd, 5);
-  g_subprocess_launcher_take_fd (launcher, displayfd[1], 6);
-  g_subprocess_launcher_take_fd (launcher, manager->private_connection.abstract_fd, 7);
+  g_subprocess_launcher_take_fd (launcher,
+                                 steal_fd (&xwayland_client_fd[1]), 3);
+  g_subprocess_launcher_take_fd (launcher,
+                                 steal_fd (&manager->public_connection.abstract_fd), 4);
+  g_subprocess_launcher_take_fd (launcher,
+                                 steal_fd (&manager->public_connection.unix_fd), 5);
+  g_subprocess_launcher_take_fd (launcher,
+                                 steal_fd (&displayfd[1]), 6);
+  g_subprocess_launcher_take_fd (launcher,
+                                 steal_fd (&manager->private_connection.abstract_fd), 7);
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
 
@@ -954,6 +970,9 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
 
   if (!manager->proc)
     {
+      close (displayfd[0]);
+      close (xwayland_client_fd[0]);
+
       g_task_return_error (task, error);
       return;
     }
