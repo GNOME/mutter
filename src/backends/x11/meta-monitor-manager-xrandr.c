@@ -971,8 +971,8 @@ meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager      
   ensure_supported_monitor_scales (manager);
 
   *n_supported_scales = manager_xrandr->n_supported_scales;
-  return g_memdup (manager_xrandr->supported_scales,
-                   manager_xrandr->n_supported_scales * sizeof (float));
+  return g_memdup2 (manager_xrandr->supported_scales,
+                    manager_xrandr->n_supported_scales * sizeof (float));
 }
 
 static MetaMonitorManagerCapability
