@@ -1966,8 +1966,16 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   display->event_route = META_EVENT_ROUTE_NORMAL;
   display->grab_window = NULL;
+  display->grab_button = 0;
   display->grab_tile_mode = META_TILE_NONE;
   display->grab_tile_monitor_number = -1;
+  display->grab_anchor_root_x = 0;
+  display->grab_anchor_root_y = 0;
+  display->grab_latest_motion_x = 0;
+  display->grab_latest_motion_y = 0;
+  display->grab_last_moveresize_time = 0;
+  display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
+  display->grab_frame_action = FALSE;
 
   meta_display_update_cursor (display);
 
