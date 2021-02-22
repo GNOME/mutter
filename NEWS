@@ -1,3 +1,50 @@
+40.beta
+=======
+* Consider clients without mapped windows for xwayland auto-shutdown
+  [Olivier; !1671]
+* Let compositor to handle super+scroll events [Florian; !1674, !1695]
+* Default to starting Xwayland on demand [Olivier; !1673]
+* xwayland: Restore abstract socket support [James, Olivier; !1669]
+* Add support for atomic mode setting [Jonas Å.; !1488]
+* Fix clip region glitches when using fractional scaling [Daniel; !1554]
+* Default to horizontal workspace layout [Georges, Florian; !1684, !1706]
+* Do not ping unmanaging windows [Florian; gnome-shell#2467]
+* Handle monitor changes during screencasts [Jonas Å.; !1691]
+* Fix unexpected jumps after restoring misbehaving clients [Jonas Å.; !1445]
+* Fix newly opened X11 windows being invisible in overview [Olivier; !1678]
+* Fix viewport of offscreen effects [Daniel; !1053]
+* Fix drag cancel animation when using geometry scaling [Robert; !1683]
+* Improve touch-mode heuristics [Carlos; !1710]
+* Integrate clipboard with remote desktop sessions [Jonas Å.; !1552]
+* Fix stuck icon in DND operation between X11 and wayland [Carlos; !1720]
+* Automatically synchronize pointer position after modal grabs  [Carlos; !1659]
+* Reimplement support for CLUTTER_SHOW_FPS [Daniel; !154]
+* Only pick on events that may move the pointer [Jonas D.; !1729, !1733]
+* Emit discrete scroll events for accumulated smooth events in virtual
+  X11 devices [Pascal; !1727]
+* Add support for rounded clipping when drawing background [Jonas D.; !1717]
+* Plugged memory leaks [Sebastian; !1307, !1699]
+* Fixed crashes [Carlos, Thomas, Jonas Å., Olivier; !1677, !1685, !1692,
+  !1719, !1718, !1735]
+* Misc. bug fixes and cleanups [Jonas Å., Carlos, Olivier, Sebastian, Björn,
+  Jonas D., Ivan, Georges, Dor, Michel, Robert; !1670, !1679, !1680, !1682,
+  !1681, !1661, !1689, !1690, !1693, !1514, !1696, !1697, !1708, !1709, !1707,
+  !1701, !1702, !1715, !1725, !1734, !1512]
+
+Contributors:
+  Jonas Ådahl, Dor Askayo, Björn Daase, Michel Dänzer, Jonas Dreßler,
+  Olivier Fourdan, Carlos Garnacho, James Henstridge, Sebastian Keller,
+  Robert Mader, Ivan Molodetskikh, Thomas Mühlbacher, Florian Müllner,
+  Georges Basile Stavracas Neto, Pascal Nowack, Daniel van Vugt
+
+Translators:
+  Марко Костић [sr], Jordi Mas [ca], Yuri Chornoivan [uk],
+  Daniel Șerbănescu [ro], Hugo Carvalho [pt], Fran Dieguez [gl],
+  Matej Urbančič [sl], Marek Černocký [cs], Rafael Fontenelle [pt_BR],
+  Philipp Kiemle [de], A S Alam [pa], Balázs Úr [hu], Anders Jonsson [sv],
+  Daniel Mustieles [es], Emin Tufan Çetin [tr], Kukuh Syafaat [id],
+  Aurimas Černius [lt]
+
 40.alpha.1.1
 ============
 * Adapt to settings moving to gsettings-desktop-schemas [Carlos; !1416]
