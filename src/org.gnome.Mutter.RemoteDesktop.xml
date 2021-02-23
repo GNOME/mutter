@@ -343,6 +343,9 @@
       <arg name="serial" type="u" direction="in" />
     </signal>
 
+    <property name="CapsLockState" type="b" access="read" />
+    <property name="NumLockState" type="b" access="read" />
+
   </interface>
 
 </node>

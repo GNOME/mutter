@@ -253,6 +253,10 @@ meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
                                  const char         *peer_name,
                                  GError            **error)
 {
+  MetaBackend *backend = meta_remote_desktop_get_backend (remote_desktop);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
   GDBusInterfaceSkeleton *interface_skeleton;
   MetaRemoteDesktopSession *session;
 
@@ -270,6 +274,13 @@ meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
       g_object_unref (session);
       return NULL;
     }
+
+  g_object_bind_property (keymap, "caps-lock-state",
+                          session, "caps-lock-state",
+                          G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
+  g_object_bind_property (keymap, "num-lock-state",
+                          session, "num-lock-state",
+                          G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
 
   return session;
 }
