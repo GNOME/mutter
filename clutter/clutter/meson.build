@@ -204,6 +204,7 @@ clutter_private_headers = [
   'clutter-input-focus-private.h',
   'clutter-input-method-private.h',
   'clutter-input-pointer-a11y-private.h',
+  'clutter-keymap-private.h',
   'clutter-offscreen-effect-private.h',
   'clutter-paint-context-private.h',
   'clutter-paint-node-private.h',

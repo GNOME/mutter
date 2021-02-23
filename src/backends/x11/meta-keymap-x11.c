@@ -30,6 +30,7 @@
 #include "backends/meta-input-settings-private.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "clutter/clutter.h"
+#include "clutter/clutter-keymap-private.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 
@@ -80,8 +81,6 @@ struct _MetaKeymapX11
 
   uint32_t keymap_serial;
 
-  uint32_t caps_lock_state : 1;
-  uint32_t num_lock_state  : 1;
   uint32_t has_direction   : 1;
 
   uint32_t use_xkb : 1;
@@ -205,23 +204,20 @@ static void
 update_locked_mods (MetaKeymapX11 *keymap_x11,
                     int            locked_mods)
 {
-  gboolean old_caps_lock_state, old_num_lock_state;
+  ClutterKeymap *keymap = CLUTTER_KEYMAP (keymap_x11);
+  gboolean caps_lock_state;
+  gboolean num_lock_state;
+  gboolean old_num_lock_state;
 
-  old_caps_lock_state = keymap_x11->caps_lock_state;
-  old_num_lock_state  = keymap_x11->num_lock_state;
+  caps_lock_state = !!(locked_mods & CLUTTER_LOCK_MASK);
+  num_lock_state  = !!(locked_mods & keymap_x11->num_lock_mask);
 
-  keymap_x11->caps_lock_state = (locked_mods & CLUTTER_LOCK_MASK) != 0;
-  keymap_x11->num_lock_state  = (locked_mods & keymap_x11->num_lock_mask) != 0;
+  old_num_lock_state = clutter_keymap_get_num_lock_state (keymap);
+  clutter_keymap_set_lock_modifier_state (CLUTTER_KEYMAP (keymap_x11),
+                                          caps_lock_state,
+                                          num_lock_state);
 
-  g_debug ("Locks state changed - Num: %s, Caps: %s",
-           keymap_x11->num_lock_state ? "set" : "unset",
-           keymap_x11->caps_lock_state ? "set" : "unset");
-
-  if ((keymap_x11->caps_lock_state != old_caps_lock_state) ||
-      (keymap_x11->num_lock_state != old_num_lock_state))
-    g_signal_emit_by_name (keymap_x11, "state-changed");
-
-  if (keymap_x11->num_lock_state != old_num_lock_state)
+  if (num_lock_state != old_num_lock_state)
     {
       MetaBackend *backend;
       MetaInputSettings *input_settings;
@@ -232,7 +228,7 @@ update_locked_mods (MetaKeymapX11 *keymap_x11,
       if (input_settings)
         {
           meta_input_settings_maybe_save_numlock_state (input_settings,
-                                                        keymap_x11->num_lock_state);
+                                                        num_lock_state);
         }
     }
 }
@@ -516,22 +512,6 @@ meta_keymap_x11_finalize (GObject *object)
   G_OBJECT_CLASS (meta_keymap_x11_parent_class)->finalize (object);
 }
 
-static gboolean
-meta_keymap_x11_get_num_lock_state (ClutterKeymap *keymap)
-{
-  MetaKeymapX11 *keymap_x11 = META_KEYMAP_X11 (keymap);
-
-  return keymap_x11->num_lock_state;
-}
-
-static gboolean
-meta_keymap_x11_get_caps_lock_state (ClutterKeymap *keymap)
-{
-  MetaKeymapX11 *keymap_x11 = META_KEYMAP_X11 (keymap);
-
-  return keymap_x11->caps_lock_state;
-}
-
 static PangoDirection
 meta_keymap_x11_get_direction (ClutterKeymap *keymap)
 {
@@ -577,8 +557,6 @@ meta_keymap_x11_class_init (MetaKeymapX11Class *klass)
   gobject_class->set_property = meta_keymap_x11_set_property;
   gobject_class->finalize = meta_keymap_x11_finalize;
 
-  keymap_class->get_num_lock_state = meta_keymap_x11_get_num_lock_state;
-  keymap_class->get_caps_lock_state = meta_keymap_x11_get_caps_lock_state;
   keymap_class->get_direction = meta_keymap_x11_get_direction;
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);

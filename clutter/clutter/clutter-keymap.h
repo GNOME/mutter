@@ -38,8 +38,6 @@ struct _ClutterKeymapClass
 {
   GObjectClass parent_class;
 
-  gboolean (* get_num_lock_state)  (ClutterKeymap *keymap);
-  gboolean (* get_caps_lock_state) (ClutterKeymap *keymap);
   PangoDirection (* get_direction) (ClutterKeymap *keymap);
 };
 

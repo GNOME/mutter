@@ -37,6 +37,7 @@ void meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative  *keymap,
                                                   struct xkb_keymap *xkb_keymap);
 struct xkb_keymap * meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap);
 void meta_keymap_native_update_in_impl (MetaKeymapNative *keymap,
+                                        MetaSeatImpl     *seat_impl,
                                         struct xkb_state *xkb_state);
 
 #endif /* META_KEYMAP_NATIVE_H */

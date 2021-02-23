@@ -434,8 +434,9 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
       MetaInputDeviceNative *keyboard_native;
       gboolean numlock_active;
 
-      meta_keymap_native_update_in_impl (seat_impl->keymap, seat_impl->xkb);
-      emit_signal (seat_impl, signals[MODS_STATE_CHANGED], NULL, 0);
+      meta_keymap_native_update_in_impl (seat_impl->keymap,
+                                         seat_impl,
+                                         seat_impl->xkb);
       meta_seat_impl_sync_leds_in_impl (seat_impl);
 
       numlock_active =
@@ -2646,7 +2647,9 @@ meta_seat_impl_set_keyboard_numlock_in_impl (MetaSeatImpl *seat_impl,
                          group_mods);
 
   meta_seat_impl_sync_leds_in_impl (seat_impl);
-  meta_keymap_native_update_in_impl (seat_impl->keymap, seat_impl->xkb);
+  meta_keymap_native_update_in_impl (seat_impl->keymap,
+                                     seat_impl,
+                                     seat_impl->xkb);
 }
 
 static gpointer
@@ -3158,7 +3161,9 @@ meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl)
     xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
 
   meta_seat_impl_sync_leds_in_impl (seat_impl);
-  meta_keymap_native_update_in_impl (seat_impl->keymap, seat_impl->xkb);
+  meta_keymap_native_update_in_impl (seat_impl->keymap,
+                                     seat_impl,
+                                     seat_impl->xkb);
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
 }
@@ -3319,7 +3324,9 @@ set_keyboard_layout_index (GTask *task)
   locked_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED);
 
   xkb_state_update_mask (state, depressed_mods, latched_mods, locked_mods, 0, 0, idx);
-  meta_keymap_native_update_in_impl (seat_impl->keymap, seat_impl->xkb);
+  meta_keymap_native_update_in_impl (seat_impl->keymap,
+                                     seat_impl,
+                                     seat_impl->xkb);
 
   seat_impl->layout_idx = idx;
 

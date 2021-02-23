@@ -23,7 +23,9 @@
 
 #include "backends/meta-keymap-utils.h"
 #include "backends/native/meta-input-thread.h"
+#include "backends/native/meta-seat-impl.h"
 #include "backends/native/meta-seat-native.h"
+#include "clutter/clutter-keymap-private.h"
 
 static const char *option_xkb_layout = "us";
 static const char *option_xkb_variant = "";
@@ -53,22 +55,6 @@ meta_keymap_native_finalize (GObject *object)
   G_OBJECT_CLASS (meta_keymap_native_parent_class)->finalize (object);
 }
 
-static gboolean
-meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
-{
-  MetaKeymapNative *keymap_native = META_KEYMAP_NATIVE (keymap);
-
-  return keymap_native->num_lock;
-}
-
-static gboolean
-meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
-{
-  MetaKeymapNative *keymap_native = META_KEYMAP_NATIVE (keymap);
-
-  return keymap_native->caps_lock;
-}
-
 static PangoDirection
 meta_keymap_native_get_direction (ClutterKeymap *keymap)
 {
@@ -83,8 +69,6 @@ meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
 
   object_class->finalize = meta_keymap_native_finalize;
 
-  keymap_class->get_num_lock_state = meta_keymap_native_get_num_lock_state;
-  keymap_class->get_caps_lock_state = meta_keymap_native_get_caps_lock_state;
   keymap_class->get_direction = meta_keymap_native_get_direction;
 }
 
@@ -123,18 +107,46 @@ meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap)
   return keymap->keymap;
 }
 
+typedef struct
+{
+  MetaKeymapNative *keymap_native;
+  gboolean num_lock_state;
+  gboolean caps_lock_state;
+} UpdateLockedModifierStateData;
+
+static gboolean
+update_locked_modifier_state_in_main (gpointer user_data)
+{
+  UpdateLockedModifierStateData *data = user_data;
+
+  clutter_keymap_set_lock_modifier_state (CLUTTER_KEYMAP (data->keymap_native),
+                                          data->caps_lock_state,
+                                          data->num_lock_state);
+
+  return G_SOURCE_REMOVE;
+}
+
 void
-meta_keymap_native_update_in_impl (MetaKeymapNative *keymap,
+meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
+                                   MetaSeatImpl     *seat_impl,
                                    struct xkb_state *xkb_state)
 {
-  keymap->num_lock =
+  UpdateLockedModifierStateData *data;
+
+  data = g_new0 (UpdateLockedModifierStateData, 1);
+  data->keymap_native = keymap_native;
+  data->num_lock_state =
     xkb_state_mod_name_is_active (xkb_state,
                                   XKB_MOD_NAME_NUM,
                                   XKB_STATE_MODS_LATCHED |
                                   XKB_STATE_MODS_LOCKED);
-  keymap->caps_lock =
+  data->caps_lock_state =
     xkb_state_mod_name_is_active (xkb_state,
                                   XKB_MOD_NAME_CAPS,
                                   XKB_STATE_MODS_LATCHED |
                                   XKB_STATE_MODS_LOCKED);
+
+  meta_seat_impl_queue_main_thread_idle (seat_impl,
+                                         update_locked_modifier_state_in_main,
+                                         data, g_free);
 }
