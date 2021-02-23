@@ -264,4 +264,9 @@ void meta_seat_impl_notify_bell_in_impl (MetaSeatImpl *seat_impl);
 
 MetaInputSettings * meta_seat_impl_get_input_settings (MetaSeatImpl *seat_impl);
 
+void meta_seat_impl_queue_main_thread_idle (MetaSeatImpl   *seat_impl,
+                                            GSourceFunc     func,
+                                            gpointer        user_data,
+                                            GDestroyNotify  destroy_notify);
+
 #endif /* META_SEAT_IMPL_H */

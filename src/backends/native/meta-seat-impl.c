@@ -306,6 +306,22 @@ update_button_count (MetaSeatImpl *seat_impl,
     }
 }
 
+void
+meta_seat_impl_queue_main_thread_idle (MetaSeatImpl   *seat_impl,
+                                       GSourceFunc     func,
+                                       gpointer        user_data,
+                                       GDestroyNotify  destroy_notify)
+{
+  GSource *source;
+
+  source = g_idle_source_new ();
+  g_source_set_priority (source, G_PRIORITY_HIGH);
+  g_source_set_callback (source, func, user_data, destroy_notify);
+
+  g_source_attach (source, seat_impl->main_context);
+  g_source_unref (source);
+}
+
 typedef struct
 {
   MetaSeatImpl *seat_impl;
@@ -337,7 +353,6 @@ emit_signal (MetaSeatImpl *seat_impl,
              int           n_args)
 {
   MetaSeatSignalData *emit_signal_data;
-  GSource *source;
   GArray *array;
   GValue self = G_VALUE_INIT;
 
@@ -354,15 +369,10 @@ emit_signal (MetaSeatImpl *seat_impl,
   emit_signal_data->signal_id = signal_id;
   emit_signal_data->args = array;
 
-  source = g_idle_source_new ();
-  g_source_set_priority (source, G_PRIORITY_HIGH);
-  g_source_set_callback (source,
-                         (GSourceFunc) emit_signal_in_main,
-                         emit_signal_data,
-                         (GDestroyNotify) signal_data_free);
-
-  g_source_attach (source, seat_impl->main_context);
-  g_source_unref (source);
+  meta_seat_impl_queue_main_thread_idle (seat_impl,
+                                         (GSourceFunc) emit_signal_in_main,
+                                         emit_signal_data,
+                                         (GDestroyNotify) signal_data_free);
 }
 
 void
