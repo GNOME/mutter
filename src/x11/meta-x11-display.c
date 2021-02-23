@@ -1059,6 +1059,7 @@ meta_x11_init_gdk_display (GError **error)
   const char *xdisplay_name;
   GdkDisplay *gdk_display;
   const char *gdk_gl_env = NULL;
+  const char *old_no_at_bridge;
   Display *xdisplay;
 
   xdisplay_name = meta_x11_get_display_name ();
@@ -1082,7 +1083,10 @@ meta_x11_init_gdk_display (GError **error)
       return FALSE;
     }
 
+  old_no_at_bridge = g_getenv ("NO_AT_BRIDGE");
+  g_setenv ("NO_AT_BRIDGE", "1", TRUE);
   gdk_display = gdk_display_open (xdisplay_name);
+  g_setenv ("NO_AT_BRIDGE", old_no_at_bridge, TRUE);
 
   if (!gdk_display)
     {
