@@ -54,6 +54,7 @@ struct _MetaRemoteDesktop
 {
   MetaDBusRemoteDesktopSkeleton parent;
 
+  MetaBackend *backend;
   int dbus_name_id;
 
   int inhibit_count;
@@ -98,6 +99,12 @@ meta_remote_desktop_uninhibit (MetaRemoteDesktop *remote_desktop)
   g_return_if_fail (remote_desktop->inhibit_count > 0);
 
   remote_desktop->inhibit_count--;
+}
+
+MetaBackend *
+meta_remote_desktop_get_backend (MetaRemoteDesktop *remote_desktop)
+{
+  return remote_desktop->backend;
 }
 
 GDBusConnection *
@@ -260,11 +267,13 @@ meta_remote_desktop_finalize (GObject *object)
 }
 
 MetaRemoteDesktop *
-meta_remote_desktop_new (MetaDbusSessionWatcher *session_watcher)
+meta_remote_desktop_new (MetaBackend            *backend,
+                         MetaDbusSessionWatcher *session_watcher)
 {
   MetaRemoteDesktop *remote_desktop;
 
   remote_desktop = g_object_new (META_TYPE_REMOTE_DESKTOP, NULL);
+  remote_desktop->backend = backend;
   remote_desktop->session_watcher = session_watcher;
 
   return remote_desktop;

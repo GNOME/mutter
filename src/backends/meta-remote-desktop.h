@@ -25,6 +25,7 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-backend-types.h"
 #include "backends/meta-dbus-session-watcher.h"
 
 #include "meta-dbus-remote-desktop.h"
@@ -40,11 +41,14 @@ void meta_remote_desktop_inhibit (MetaRemoteDesktop *remote_desktop);
 
 void meta_remote_desktop_uninhibit (MetaRemoteDesktop *remote_desktop);
 
+MetaBackend * meta_remote_desktop_get_backend (MetaRemoteDesktop *remote_desktop);
+
 MetaRemoteDesktopSession * meta_remote_desktop_get_session (MetaRemoteDesktop *remote_desktop,
                                                             const char        *session_id);
 
 GDBusConnection * meta_remote_desktop_get_connection (MetaRemoteDesktop *remote_desktop);
 
-MetaRemoteDesktop * meta_remote_desktop_new (MetaDbusSessionWatcher *session_watcher);
+MetaRemoteDesktop * meta_remote_desktop_new (MetaBackend            *backend,
+                                             MetaDbusSessionWatcher *session_watcher);
 
 #endif /* META_REMOTE_DESKTOP_H */
