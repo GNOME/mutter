@@ -468,6 +468,12 @@ on_udev_device_added (MetaUdev          *udev,
         }
     }
 
+  if (meta_is_udev_device_ignore (device))
+    {
+      g_message ("Ignoring DRM device '%s' (from udev rule)", device_path);
+      return;
+    }
+
   new_gpu_kms = create_gpu_from_udev_device (native, device, &error);
   if (!new_gpu_kms)
     {
