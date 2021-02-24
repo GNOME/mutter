@@ -782,8 +782,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
 
   g_object_unref (dmabuf_fb);
 
-  g_clear_object (&secondary_gpu_state->gbm.next_fb);
-  secondary_gpu_state->gbm.next_fb = buffer;
+  g_set_object (&secondary_gpu_state->gbm.next_fb, buffer);
   secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 
   return TRUE;
