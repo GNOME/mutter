@@ -2,6 +2,7 @@
 # Copyright (C) 2001, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
 # Proxecto Trasno - Adaptación do software libre á lingua galega:  Se desexas
 # colaborar connosco, podes atopar máis información en http://www.trasno.net
+#
 # Manuel A. Fernández Montecelo <manuel@sindominio.net>, 2001, 2005.
 # Ignacio Casal Quinteiro <nacho.resa@gmail.com>, 2005, 2006.
 # Ignacio Casal Quinteiro <icq@cvs.gnome.org>, 2007.
@@ -10,15 +11,14 @@
 # Fran Diéguez <frandieguez@gnome.org>, 2009, 2010, 2011, 2012.
 # Leandro Regueiro <leandro.regueiro@gmail.com>, 2012.
 # Fran Dieguez <frandieguez@gnome.org>, 2012-2021.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-04 13:16+0000\n"
-"PO-Revision-Date: 2021-02-07 01:15+0100\n"
+"POT-Creation-Date: 2021-02-13 21:32+0000\n"
+"PO-Revision-Date: 2021-02-23 16:04+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Galician <proxecto@trasno.gal>\n"
+"Language-Team: Proxecto Trasno <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -52,12 +52,10 @@ msgid "Move window to last workspace"
 msgstr "Mover xanela ao último espazo de traballo"
 
 #: data/50-mutter-navigation.xml:24
-#| msgid "Move window one monitor to the left"
 msgid "Move window one workspace to the left"
 msgstr "Mover xanela un espazo de traballo á esquerda"
 
 #: data/50-mutter-navigation.xml:27
-#| msgid "Move window one monitor to the right"
 msgid "Move window one workspace to the right"
 msgstr "Mover xanela un espazo de traballo á dereita"
 
@@ -158,12 +156,10 @@ msgid "Switch to last workspace"
 msgstr "Cambiar ao último espazo de traballo"
 
 #: data/50-mutter-navigation.xml:123
-#| msgid "Move to workspace above"
 msgid "Move to workspace on the left"
 msgstr "Mover ao espazo de traballo da esquerda"
 
 #: data/50-mutter-navigation.xml:126
-#| msgid "Move to workspace above"
 msgid "Move to workspace on the right"
 msgstr "Mover ao espazo de traballo da dereita"
 
@@ -274,7 +270,7 @@ msgstr ""
 "Esta tecla iniciará o «overlay», que é unha combinación da vista previa da "
 "xanela e o sistema de inicialización de aplicación. O valor predeterminado "
 "nun PC é a «Tecla Windows». Espérase que este enlace sexa configurado ao "
-"valor predeterminado ou á cadena baleira."
+"valor predeterminado ou á cadea baleira."
 
 #: data/org.gnome.mutter.gschema.xml.in:20
 msgid "Attach modal dialogs"
@@ -315,7 +311,7 @@ msgid ""
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
-"Determina se os espazos de traballo se xestionan dinámicamente ou se hai un "
+"Determina se os espazos de traballo se xestionan dinamicamente ou se hai un "
 "número estático de áreas de traballo (determinado pola chave «num-"
 "workspaces» en «org.gnome.desktop.wm.preferences»)."
 
@@ -345,7 +341,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:68
 msgid "Delay focus changes until the pointer stops moving"
-msgstr "Retrasar o cambio de enfoque até que o punteiro se deteña ao moverse"
+msgstr "Atrasar o cambio de enfoque até que o punteiro se deteña ao moverse"
 
 #: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
@@ -399,22 +395,6 @@ msgid "Enable experimental features"
 msgstr "Activar as características experimentais"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
-#| "sharing. This is already enabled by default when using the i915 driver, "
-#| "but disabled for everything else. Requires a restart. • “autoclose-"
-#| "xwayland” — Automatically terminates Xwayland if all relevant X11 clients "
-#| "are gone. Does not require a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -437,10 +417,10 @@ msgstr ""
 "dispoñíbel ou ser configurábel. Non agarde que o que se engada neste "
 "escenario sirva como proba futura. As palabras chave actualmente dispoñíbeis "
 "son: «scale-monitor-framebuffer» — fai que mutter de maneira predeterminada "
-"dispoña os monitores lóxicos nun espacio lóxico de coordenadas de píxeles, "
+"dispoña os monitores lóxicos nun espazo lóxico de coordenadas de píxeles, "
 "mentres escala framebuffers de monitores no lugar do contido de xanela, para "
 "administrar monitores HiDPI. Non require un reinicio. • “rt-scheduler” — fai "
-"que mutter solicite unha prioritización de tempo real de baixa prioridade. O "
+"que mutter solicite unha priorización de tempo real de baixa prioridade. O "
 "executábel ou usuario debe ter CAP_SYS_NICE. Require reiniciar. “autostart-"
 "xwayland” — Inicia Xwayland só se hai clientes X11. Require reiniciar. "
 "Require un reinicio. • “dma-buf-screen-sharing\" — activa a compartición de "
@@ -567,7 +547,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
-msgstr "Aplicaciones de Xwayland que poden capturar o teclado"
+msgstr "Aplicacións de Xwayland que poden capturar o teclado"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
@@ -655,53 +635,53 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campá"
 
-#: src/core/main.c:216
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "Desactivar a conexión ao xestor de sesión"
 
-#: src/core/main.c:222
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "Substituír o xestor de xanelas en execución"
 
-#: src/core/main.c:228
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "Especificar o ID de xestión de sesión"
 
-#: src/core/main.c:233
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "Pantalla X que se vai usar"
 
-#: src/core/main.c:239
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "Inicializar sesión desde o ficheiro de salvagarda"
 
-#: src/core/main.c:245
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "Facer que as chamadas a X sexan sincrónicas"
 
-#: src/core/main.c:252
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor de wayland"
 
-#: src/core/main.c:258
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
-msgstr "Executar como compositor anidado"
+msgstr "Executar como compositor aniñado"
 
-#: src/core/main.c:264
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor de wayland sen iniciar Xwayland"
 
-#: src/core/main.c:270
+#: src/core/main.c:272
 msgid "Specify Wayland display name to use"
 msgstr "Especifique o nome de pantalla Wayland a usar"
 
-#: src/core/main.c:278
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
 
-#: src/core/main.c:284
+#: src/core/main.c:286
 msgid "Run with X11 backend"
-msgstr "Executar coa infraestructura de X11"
+msgstr "Executar coa infraestrutura de X11"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -748,26 +728,11 @@ msgstr "Cambiar monitor"
 msgid "Show on-screen help"
 msgstr "Mostrar axuda en pantalla"
 
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-
-#: src/core/mutter.c:52
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Imprimir versión"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Engadido de mutter que usar"
 
@@ -825,6 +790,19 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (en %s)"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
 
 #~ msgid "Move window one workspace up"
 #~ msgstr "Mover xanela un espazo de traballo cara a arriba"
