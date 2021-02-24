@@ -649,7 +649,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
 
 
   buffer_gbm = META_DRM_BUFFER_GBM (onscreen_native->gbm.next_fb);
-  bo =  meta_drm_buffer_gbm_get_bo (buffer_gbm);
+  bo = meta_drm_buffer_gbm_get_bo (buffer_gbm);
   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
                                                   gles3,
                                                   renderer_gpu_data->egl_display,
