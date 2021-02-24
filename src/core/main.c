@@ -71,10 +71,6 @@
 #include <systemd/sd-login.h>
 #endif /* HAVE_WAYLAND && HAVE_NATIVE_BACKEND */
 
-#ifdef HAVE_SYS_PRCTL
-#include <sys/prctl.h>
-#endif
-
 #include "backends/meta-backend-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
@@ -101,32 +97,6 @@
 #include "backends/native/meta-backend-native.h"
 #endif
 
-static const GDebugKey meta_debug_keys[] = {
-  { "focus", META_DEBUG_FOCUS },
-  { "workarea", META_DEBUG_WORKAREA },
-  { "stack", META_DEBUG_STACK },
-  { "sm", META_DEBUG_SM },
-  { "events", META_DEBUG_EVENTS },
-  { "window-state", META_DEBUG_WINDOW_STATE },
-  { "window-ops", META_DEBUG_WINDOW_OPS },
-  { "geometry", META_DEBUG_GEOMETRY },
-  { "placement", META_DEBUG_PLACEMENT },
-  { "ping", META_DEBUG_PING },
-  { "keybindings", META_DEBUG_KEYBINDINGS },
-  { "sync", META_DEBUG_SYNC },
-  { "startup", META_DEBUG_STARTUP },
-  { "prefs", META_DEBUG_PREFS },
-  { "groups", META_DEBUG_GROUPS },
-  { "resizing", META_DEBUG_RESIZING },
-  { "shapes", META_DEBUG_SHAPES },
-  { "edge-resistance", META_DEBUG_EDGE_RESISTANCE },
-  { "dbus", META_DEBUG_DBUS },
-  { "input", META_DEBUG_INPUT },
-  { "wayland", META_DEBUG_WAYLAND },
-  { "kms", META_DEBUG_KMS },
-  { "screen-cast", META_DEBUG_SCREEN_CAST },
-  { "remote-desktop", META_DEBUG_REMOTE_DESKTOP },
-};
 
 /*
  * The exit code we'll return to our parent process when we eventually die.
@@ -762,17 +732,12 @@ meta_init (void)
 {
   struct sigaction act;
   sigset_t empty_mask;
-  const char *debug_env;
   MetaCompositorType compositor_type;
   GType backend_gtype;
   unsigned int n_properties;
   const char **prop_names;
   GValue *prop_values;
   int i;
-
-#ifdef HAVE_SYS_PRCTL
-  prctl (PR_SET_DUMPABLE, 1);
-#endif
 
   sigemptyset (&empty_mask);
   act.sa_handler = SIG_IGN;
@@ -789,19 +754,7 @@ meta_init (void)
 
   g_unix_signal_add (SIGTERM, on_sigterm, NULL);
 
-  if (g_getenv ("MUTTER_VERBOSE"))
-    meta_set_verbose (TRUE);
-
-  debug_env = g_getenv ("MUTTER_DEBUG");
-  if (debug_env)
-    {
-      MetaDebugTopic topics;
-
-      topics = g_parse_debug_string (debug_env,
-                                     meta_debug_keys,
-                                     G_N_ELEMENTS (meta_debug_keys));
-      meta_add_verbose_topic (topics);
-    }
+  meta_init_debug_utils ();
 
   if (_compositor_configuration_overridden)
     {

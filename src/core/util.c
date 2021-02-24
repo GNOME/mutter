@@ -36,10 +36,41 @@
 #include <X11/Xlib.h>   /* must explicitly be included for Solaris; #326746 */
 #include <X11/Xutil.h>  /* Just for the definition of the various gravities */
 
+#ifdef HAVE_SYS_PRCTL
+#include <sys/prctl.h>
+#endif
+
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "meta/common.h"
 #include "meta/main.h"
+
+static const GDebugKey meta_debug_keys[] = {
+  { "focus", META_DEBUG_FOCUS },
+  { "workarea", META_DEBUG_WORKAREA },
+  { "stack", META_DEBUG_STACK },
+  { "sm", META_DEBUG_SM },
+  { "events", META_DEBUG_EVENTS },
+  { "window-state", META_DEBUG_WINDOW_STATE },
+  { "window-ops", META_DEBUG_WINDOW_OPS },
+  { "geometry", META_DEBUG_GEOMETRY },
+  { "placement", META_DEBUG_PLACEMENT },
+  { "ping", META_DEBUG_PING },
+  { "keybindings", META_DEBUG_KEYBINDINGS },
+  { "sync", META_DEBUG_SYNC },
+  { "startup", META_DEBUG_STARTUP },
+  { "prefs", META_DEBUG_PREFS },
+  { "groups", META_DEBUG_GROUPS },
+  { "resizing", META_DEBUG_RESIZING },
+  { "shapes", META_DEBUG_SHAPES },
+  { "edge-resistance", META_DEBUG_EDGE_RESISTANCE },
+  { "dbus", META_DEBUG_DBUS },
+  { "input", META_DEBUG_INPUT },
+  { "wayland", META_DEBUG_WAYLAND },
+  { "kms", META_DEBUG_KMS },
+  { "screen-cast", META_DEBUG_SCREEN_CAST },
+  { "remote-desktop", META_DEBUG_REMOTE_DESKTOP },
+};
 
 #ifdef WITH_VERBOSE_MODE
 static void
@@ -161,6 +192,30 @@ meta_remove_verbose_topic (MetaDebugTopic topic)
     verbose_topics = 0;
   else
     verbose_topics &= ~topic;
+}
+
+void
+meta_init_debug_utils (void)
+{
+  const char *debug_env;
+
+#ifdef HAVE_SYS_PRCTL
+  prctl (PR_SET_DUMPABLE, 1);
+#endif
+
+  if (g_getenv ("MUTTER_VERBOSE"))
+    meta_set_verbose (TRUE);
+
+  debug_env = g_getenv ("MUTTER_DEBUG");
+  if (debug_env)
+    {
+      MetaDebugTopic topics;
+
+      topics = g_parse_debug_string (debug_env,
+                                     meta_debug_keys,
+                                     G_N_ELEMENTS (meta_debug_keys));
+      meta_add_verbose_topic (topics);
+    }
 }
 
 gboolean
