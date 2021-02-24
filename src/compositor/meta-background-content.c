@@ -218,6 +218,11 @@ typedef enum
   PIPELINE_BLEND = (1 << 1),
   PIPELINE_GRADIENT = (1 << 2),
   PIPELINE_ROUNDED_CLIP = (1 << 3),
+
+  PIPELINE_ALL = (PIPELINE_VIGNETTE |
+                  PIPELINE_BLEND |
+                  PIPELINE_GRADIENT |
+                  PIPELINE_ROUNDED_CLIP)
 } PipelineFlags;
 
 struct _MetaBackgroundContent
@@ -324,8 +329,10 @@ on_background_changed (MetaBackground        *background,
 static CoglPipeline *
 make_pipeline (PipelineFlags pipeline_flags)
 {
-  static CoglPipeline *templates[9];
+  static CoglPipeline *templates[PIPELINE_ALL + 1];
   CoglPipeline **templatep;
+
+  g_assert (pipeline_flags < G_N_ELEMENTS (templates));
 
   templatep = &templates[pipeline_flags];
   if (*templatep == NULL)
