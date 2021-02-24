@@ -887,23 +887,8 @@ void
 meta_register_with_session (void)
 {
   if (!opt_disable_sm)
-    {
-      if (opt_client_id == NULL)
-        {
-          const gchar *desktop_autostart_id;
+    meta_session_init (opt_client_id, opt_save_file);
 
-          desktop_autostart_id = g_getenv ("DESKTOP_AUTOSTART_ID");
-
-          if (desktop_autostart_id != NULL)
-            opt_client_id = g_strdup (desktop_autostart_id);
-        }
-
-      /* Unset DESKTOP_AUTOSTART_ID in order to avoid child processes to
-       * use the same client id. */
-      g_unsetenv ("DESKTOP_AUTOSTART_ID");
-
-      meta_session_init (opt_client_id, opt_save_file);
-    }
   /* Free memory possibly allocated by the argument parsing which are
    * no longer needed.
    */

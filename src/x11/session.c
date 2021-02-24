@@ -233,6 +233,16 @@ meta_session_init (const char *previous_client_id,
   SmcCallbacks callbacks;
   char *saved_client_id;
 
+  if (!previous_client_id)
+    {
+      const char *desktop_autostart_id;
+
+      desktop_autostart_id = g_getenv ("DESKTOP_AUTOSTART_ID");
+      if (desktop_autostart_id)
+        previous_client_id = desktop_autostart_id;
+    }
+  g_unsetenv ("DESKTOP_AUTOSTART_ID");
+
   meta_topic (META_DEBUG_SM, "Initializing session with save file '%s'",
               previous_save_file ? previous_save_file : "(none)");
 
