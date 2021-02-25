@@ -2657,10 +2657,17 @@ prefs_changed_callback (MetaPreference pref,
 {
   MetaDisplay *display = data;
 
-  if (pref == META_PREF_CURSOR_THEME ||
-      pref == META_PREF_CURSOR_SIZE)
+  switch (pref)
     {
+    case META_PREF_DRAGGABLE_BORDER_WIDTH:
+      meta_display_queue_retheme_all_windows (display);
+      break;
+    case META_PREF_CURSOR_THEME:
+    case META_PREF_CURSOR_SIZE:
       meta_display_reload_cursor (display);
+      break;
+    default:
+      break;
     }
 }
 

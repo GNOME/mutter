@@ -109,9 +109,6 @@ static MetaExitCode meta_exit_code = META_EXIT_SUCCESS;
  */
 static GMainLoop *meta_main_loop = NULL;
 
-static void prefs_changed_callback (MetaPreference pref,
-                                    gpointer       data);
-
 #ifdef HAVE_NATIVE_BACKEND
 static void release_virtual_monitors (void);
 #endif
@@ -854,7 +851,6 @@ void
 meta_start (void)
 {
   meta_prefs_init ();
-  meta_prefs_add_listener (prefs_changed_callback, NULL);
 
   if (!meta_display_open ())
     meta_exit (META_EXIT_ERROR);
@@ -908,32 +904,6 @@ MetaExitCode
 meta_get_exit_code (void)
 {
   return meta_exit_code;
-}
-
-/**
- * prefs_changed_callback:
- * @pref:  Which preference has changed
- * @data:  Arbitrary data (which we ignore)
- *
- * Called on pref changes. (One of several functions of its kind and purpose.)
- *
- * FIXME: Why are these particular prefs handled in main.c and not others?
- *        Should they be?
- */
-static void
-prefs_changed_callback (MetaPreference pref,
-                        gpointer       data)
-{
-  switch (pref)
-    {
-    case META_PREF_DRAGGABLE_BORDER_WIDTH:
-      meta_display_queue_retheme_all_windows (meta_get_display ());
-      break;
-
-    default:
-      /* handled elsewhere or otherwise */
-      break;
-    }
 }
 
 static MetaDisplayPolicy x11_display_policy_override = -1;
