@@ -303,28 +303,6 @@ meta_get_option_context (void)
   return ctx;
 }
 
-/**
- * meta_select_display:
- *
- * Selects which display Mutter should use. It first tries to use
- * @display_name as the display. If @display_name is %NULL then
- * try to use the environment variable MUTTER_DISPLAY. If that
- * also is %NULL, use the default - :0.0
- */
-static void
-meta_select_display (char *display_arg)
-{
-  const char *display_name;
-
-  if (display_arg)
-    display_name = (const char *) display_arg;
-  else
-    display_name = g_getenv ("MUTTER_DISPLAY");
-
-  if (display_name)
-    g_setenv ("DISPLAY", display_name, TRUE);
-}
-
 void
 meta_finalize (void)
 {
@@ -653,6 +631,19 @@ calculate_compositor_configuration (MetaCompositorType  *compositor_type,
   else
 #endif /* HAVE_WAYLAND */
     {
+      static const char *display_name_prop_names[] = {
+        "display-name",
+      };
+      static GValue display_name_prop_values[] = {
+        G_VALUE_INIT,
+      };
+
+      g_value_init (&display_name_prop_values[0], G_TYPE_STRING);
+      g_value_set_string (&display_name_prop_values[0], opt_display_name);
+
+      *n_properties = G_N_ELEMENTS (display_name_prop_values);
+      *prop_names = display_name_prop_names;
+      *prop_values = display_name_prop_values;
       *backend_gtype = META_TYPE_BACKEND_X11_CM;
       return;
     }
@@ -792,11 +783,6 @@ meta_init (void)
 #ifdef HAVE_INTROSPECTION
   g_irepository_prepend_search_path (MUTTER_PKGLIBDIR);
 #endif
-
-  /* NB: When running as a hybrid wayland compositor we run our own headless X
-   * server so the user can't control the X display to connect too. */
-  if (!meta_is_wayland_compositor ())
-    meta_select_display (opt_display_name);
 
   meta_init_backend (backend_gtype, n_properties, prop_names, prop_values);
 

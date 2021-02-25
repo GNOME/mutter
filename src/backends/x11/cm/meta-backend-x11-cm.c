@@ -37,9 +37,22 @@
 #include "compositor/meta-compositor-x11.h"
 #include "core/display-private.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_DISPLAY_NAME,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 struct _MetaBackendX11Cm
 {
   MetaBackendX11 parent;
+
+  char *display_name;
 
   MetaCursorRenderer *cursor_renderer;
   char *keymap_layouts;
@@ -438,6 +451,50 @@ meta_backend_x11_cm_translate_crossing_event (MetaBackendX11 *x11,
 }
 
 static void
+meta_backend_x11_cm_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaBackendX11Cm *backend_x11_cm = META_BACKEND_X11_CM (object);
+
+  switch (prop_id)
+    {
+    case PROP_DISPLAY_NAME:
+      backend_x11_cm->display_name = g_value_dup_string (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_backend_x11_cm_finalize (GObject *object)
+{
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (object);
+
+  g_clear_pointer (&x11_cm->display_name, g_free);
+}
+
+static void
+meta_backend_x11_cm_constructed (GObject *object)
+{
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (object);
+  const char *display_name;
+
+  if (x11_cm->display_name)
+    display_name = (const char *) x11_cm->display_name;
+  else
+    display_name = g_getenv ("MUTTER_DISPLAY");
+
+  if (display_name)
+    g_setenv ("DISPLAY", display_name, TRUE);
+
+  G_OBJECT_CLASS (meta_backend_x11_cm_parent_class)->constructed (object);
+}
+
+static void
 meta_backend_x11_cm_init (MetaBackendX11Cm *backend_x11_cm)
 {
   MetaGpuXrandr *gpu_xrandr;
@@ -455,8 +512,13 @@ meta_backend_x11_cm_init (MetaBackendX11Cm *backend_x11_cm)
 static void
 meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   MetaBackendX11Class *backend_x11_class = META_BACKEND_X11_CLASS (klass);
+
+  object_class->set_property = meta_backend_x11_cm_set_property;
+  object_class->finalize = meta_backend_x11_cm_finalize;
+  object_class->constructed = meta_backend_x11_cm_constructed;
 
   backend_class->post_init = meta_backend_x11_cm_post_init;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
@@ -472,5 +534,15 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_x11_class->handle_host_xevent = meta_backend_x11_cm_handle_host_xevent;
   backend_x11_class->translate_device_event = meta_backend_x11_cm_translate_device_event;
   backend_x11_class->translate_crossing_event = meta_backend_x11_cm_translate_crossing_event;
+
+  obj_props[PROP_DISPLAY_NAME] =
+    g_param_spec_string ("display-name",
+                         "display name",
+                         "X11 display name",
+                         NULL,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
