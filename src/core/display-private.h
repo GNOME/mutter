@@ -260,7 +260,7 @@ struct _MetaDisplayClass
      (time2) != 0)                                                      \
   )
 
-gboolean      meta_display_open                (void);
+gboolean meta_display_open (GError **error);
 
 void meta_display_manage_all_xwindows (MetaDisplay *display);
 void meta_display_unmanage_windows   (MetaDisplay *display,

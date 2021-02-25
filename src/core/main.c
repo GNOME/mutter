@@ -850,6 +850,8 @@ meta_register_with_session (void)
 void
 meta_start (void)
 {
+  g_autoptr (GError) error = NULL;
+
   meta_prefs_init ();
 
 #ifdef HAVE_WAYLAND
@@ -857,8 +859,11 @@ meta_start (void)
     meta_backend_init_wayland (meta_get_backend ());
 #endif
 
-  if (!meta_display_open ())
-    meta_exit (META_EXIT_ERROR);
+  if (!meta_display_open (&error))
+    {
+      g_warning ("Failed to open display: %s", error->message);
+      meta_exit (META_EXIT_ERROR);
+    }
 }
 
 void

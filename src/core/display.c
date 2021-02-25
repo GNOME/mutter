@@ -798,9 +798,8 @@ meta_display_shutdown_x11 (MetaDisplay *display)
  * has a window manager.
  */
 gboolean
-meta_display_open (void)
+meta_display_open (GError **error)
 {
-  GError *error = NULL;
   MetaDisplay *display;
   int i;
   guint32 timestamp;
@@ -902,8 +901,11 @@ meta_display_open (void)
   else
 #endif
     {
-      if (!meta_display_init_x11_display (display, &error))
-        g_error ("Failed to init X11 display: %s", error->message);
+      if (!meta_display_init_x11_display (display, error))
+        {
+          g_object_unref (display);
+          return FALSE;
+        }
 
       timestamp = display->x11_display->timestamp;
     }
@@ -917,10 +919,10 @@ meta_display_open (void)
                           display->x11_display->atom__NET_ACTIVE_WINDOW,
                           &old_active_xwindow);
 
-  if (!meta_compositor_do_manage (display->compositor, &error))
+  if (!meta_compositor_do_manage (display->compositor, error))
     {
-      g_error ("Compositor failed to manage display: %s",
-               error->message);
+      g_object_unref (display);
+      return FALSE;
     }
 
   if (display->x11_display)
