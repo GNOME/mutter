@@ -77,7 +77,7 @@ test_case_new (void)
   TestCase *test = g_new0 (TestCase, 1);
   MetaDisplay *display = meta_get_display ();
 
-  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
+  if (!meta_is_wayland_compositor ())
     {
       test_wait_for_x11_display ();
       on_x11_display_opened (display, test);
