@@ -549,17 +549,17 @@ xserver_died (GObject      *source,
     }
   else if (!g_subprocess_get_successful (proc))
     {
-      if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+      if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
         g_warning ("X Wayland crashed; exiting");
       else
         g_warning ("X Wayland crashed; attempting to recover");
     }
 
-  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
     {
       meta_exit (META_EXIT_ERROR);
     }
-  else if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+  else if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
       MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
       g_autoptr (GError) error = NULL;
@@ -610,7 +610,7 @@ x_io_error (Display *display)
 {
   g_warning ("Connection to xwayland lost");
 
-  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
     meta_exit (META_EXIT_ERROR);
 
   return 0;
@@ -1141,7 +1141,7 @@ meta_xwayland_init (MetaXWaylandManager  *manager,
                     struct wl_display    *wl_display,
                     GError              **error)
 {
-  MetaDisplayPolicy policy;
+  MetaX11DisplayPolicy policy;
   int display = 0;
 
   if (display_number_override != -1)
@@ -1186,7 +1186,7 @@ meta_xwayland_init (MetaXWaylandManager  *manager,
   manager->wayland_display = wl_display;
   policy = meta_get_x11_display_policy ();
 
-  if (policy == META_DISPLAY_POLICY_ON_DEMAND)
+  if (policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
       manager->abstract_fd_watch_id =
         g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
@@ -1267,7 +1267,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
   add_local_user_to_xhost (xdisplay);
   meta_xwayland_init_xrandr (manager, xdisplay);
 
-  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
       meta_xwayland_stop_xserver_timeout (manager);
       g_signal_connect (meta_get_display (), "window-created",

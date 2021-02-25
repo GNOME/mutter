@@ -890,7 +890,7 @@ meta_display_open (void)
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     {
-      if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+      if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
         {
           meta_display_init_x11 (display, NULL,
                                  (GAsyncReadyCallback) on_x11_initialized,

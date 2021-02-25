@@ -906,21 +906,21 @@ meta_get_exit_code (void)
   return meta_exit_code;
 }
 
-static MetaDisplayPolicy x11_display_policy_override = -1;
+static MetaX11DisplayPolicy x11_display_policy_override = -1;
 
 void
-meta_override_x11_display_policy (MetaDisplayPolicy x11_display_policy)
+meta_override_x11_display_policy (MetaX11DisplayPolicy x11_display_policy)
 {
   x11_display_policy_override = x11_display_policy;
 }
 
-MetaDisplayPolicy
+MetaX11DisplayPolicy
 meta_get_x11_display_policy (void)
 {
   MetaBackend *backend = meta_get_backend ();
 
   if (META_IS_BACKEND_X11_CM (backend))
-    return META_DISPLAY_POLICY_MANDATORY;
+    return META_X11_DISPLAY_POLICY_MANDATORY;
 
   if (x11_display_policy_override != -1)
     return x11_display_policy_override;
@@ -933,18 +933,18 @@ meta_get_x11_display_policy (void)
 #endif
 
       if (opt_no_x11)
-        return META_DISPLAY_POLICY_DISABLED;
+        return META_X11_DISPLAY_POLICY_DISABLED;
 
 #ifdef HAVE_XWAYLAND_INITFD
       if (sd_pid_get_user_unit (0, &unit) < 0)
-        return META_DISPLAY_POLICY_MANDATORY;
+        return META_X11_DISPLAY_POLICY_MANDATORY;
       else
-        return META_DISPLAY_POLICY_ON_DEMAND;
+        return META_X11_DISPLAY_POLICY_ON_DEMAND;
 #endif
     }
 #endif
 
-  return META_DISPLAY_POLICY_MANDATORY;
+  return META_X11_DISPLAY_POLICY_MANDATORY;
 }
 
 void

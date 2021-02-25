@@ -524,7 +524,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
   meta_wayland_eglstream_controller_init (compositor);
 #endif
 
-  if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
+  if (meta_get_x11_display_policy () != META_X11_DISPLAY_POLICY_DISABLED)
     {
       g_autoptr (GError) error = NULL;
 
@@ -555,7 +555,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
 
   g_message ("Using Wayland display name '%s'", compositor->display_name);
 
-  if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
+  if (meta_get_x11_display_policy () != META_X11_DISPLAY_POLICY_DISABLED)
     {
       set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);
       set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);

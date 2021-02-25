@@ -30,12 +30,12 @@ typedef enum _MetaCompositorType
   META_COMPOSITOR_TYPE_X11,
 } MetaCompositorType;
 
-typedef enum _MetaDisplayPolicy
+typedef enum _MetaX11DisplayPolicy
 {
-  META_DISPLAY_POLICY_MANDATORY,
-  META_DISPLAY_POLICY_ON_DEMAND,
-  META_DISPLAY_POLICY_DISABLED,
-} MetaDisplayPolicy;
+  META_X11_DISPLAY_POLICY_MANDATORY,
+  META_X11_DISPLAY_POLICY_ON_DEMAND,
+  META_X11_DISPLAY_POLICY_DISABLED,
+} MetaX11DisplayPolicy;
 
 #define META_POINT_IN_RECT(xcoord, ycoord, rect) \
  ((xcoord) >= (rect).x &&                   \
@@ -52,9 +52,9 @@ void meta_override_compositor_configuration (MetaCompositorType compositor_type,
                                              ...);
 
 META_EXPORT_TEST
-MetaDisplayPolicy meta_get_x11_display_policy (void);
+MetaX11DisplayPolicy meta_get_x11_display_policy (void);
 
 META_EXPORT_TEST
-void meta_override_x11_display_policy (MetaDisplayPolicy x11_display_policy);
+void meta_override_x11_display_policy (MetaX11DisplayPolicy x11_display_policy);
 
 #endif /* META_MAIN_PRIVATE_H */
