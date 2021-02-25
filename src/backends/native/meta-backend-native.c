@@ -234,10 +234,6 @@ meta_backend_native_post_init (MetaBackend *backend)
 #endif
 
   update_viewports (backend);
-
-#ifdef HAVE_WAYLAND
-  meta_backend_init_wayland (backend);
-#endif
 }
 
 static MetaMonitorManager *

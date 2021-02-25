@@ -852,6 +852,11 @@ meta_start (void)
 {
   meta_prefs_init ();
 
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    meta_backend_init_wayland (meta_get_backend ());
+#endif
+
   if (!meta_display_open ())
     meta_exit (META_EXIT_ERROR);
 }

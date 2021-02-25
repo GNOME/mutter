@@ -243,10 +243,6 @@ meta_backend_x11_nested_post_init (MetaBackend *backend)
     META_BACKEND_CLASS (meta_backend_x11_nested_parent_class);
 
   backend_class->post_init (backend);
-
-#ifdef HAVE_WAYLAND
-  meta_backend_init_wayland (backend);
-#endif
 }
 
 static gboolean
