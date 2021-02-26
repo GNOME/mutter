@@ -24,11 +24,14 @@
 #include <stdint.h>
 #include <xf86drmMode.h>
 
+#include "core/util-private.h"
+
 typedef struct _MetaDrmFormatBuf
 {
   char s[5];
 } MetaDrmFormatBuf;
 
+META_EXPORT_TEST
 float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode);
 
 const char * meta_drm_format_to_string (MetaDrmFormatBuf *tmp,

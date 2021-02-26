@@ -29,6 +29,7 @@
 #include "core/boxes-private.h"
 #include "core/main-private.h"
 #include "tests/boxes-tests.h"
+#include "tests/kms-utils-unit-tests.h"
 #include "tests/meta-backend-test.h"
 #include "tests/monitor-config-migration-unit-tests.h"
 #include "tests/monitor-unit-tests.h"
@@ -250,6 +251,7 @@ init_tests (int argc, char **argv)
 
   g_test_add_func ("/core/boxes/adjacent-to", meta_test_adjacent_to);
 
+  init_kms_utils_tests ();
   init_monitor_store_tests ();
   init_monitor_config_migration_tests ();
   init_monitor_tests ();
