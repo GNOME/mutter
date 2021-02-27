@@ -1086,7 +1086,11 @@ meta_x11_init_gdk_display (GError **error)
   old_no_at_bridge = g_getenv ("NO_AT_BRIDGE");
   g_setenv ("NO_AT_BRIDGE", "1", TRUE);
   gdk_display = gdk_display_open (xdisplay_name);
-  g_setenv ("NO_AT_BRIDGE", old_no_at_bridge, TRUE);
+
+  if (old_no_at_bridge)
+    g_setenv ("NO_AT_BRIDGE", old_no_at_bridge, TRUE);
+  else
+    g_unsetenv ("NO_AT_BRIDGE");
 
   if (!gdk_display)
     {
