@@ -1112,6 +1112,15 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
        * that cannot be resized (e. g. it is maximized and the theme
        * currently used has borders for maximized windows), see #751884 */
       return FALSE;
+    case META_FRAME_CONTROL_CLIENT_AREA:
+      /* This can happen with broken gtk themes that have a larger shadow size
+       * in the unfocused state than in the focused one. Then when clicking
+       * below the titlebar area in the unfocused state would still be
+       * considered a click on the titlebar due to it being shifted down because
+       * of the shadow. This then causes the window to be focused before this
+       * function is called, which removes the shadow such that the same
+       * position is now considered to be on the client area */
+      return FALSE;
     default:
       g_assert_not_reached ();
       return FALSE;
