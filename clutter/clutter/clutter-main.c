@@ -1701,7 +1701,12 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              if (event->type == CLUTTER_MOTION)
+              /* We need to repick on both motion and button press events, the
+               * latter is only needed for X11 (there the device actor might be
+               * stale because we don't always receive motion events).
+               */
+              if (event->type == CLUTTER_BUTTON_PRESS ||
+                  event->type == CLUTTER_MOTION)
                 {
                   event->any.source =
                     update_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
