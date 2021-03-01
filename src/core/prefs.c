@@ -36,6 +36,7 @@
 #include "compositor/meta-plugin-manager.h"
 #include "core/keybindings-private.h"
 #include "core/meta-accel-parse.h"
+#include "core/prefs-private.h"
 #include "core/util-private.h"
 #include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"

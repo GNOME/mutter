@@ -120,9 +120,6 @@ void meta_prefs_remove_listener (MetaPrefsChangedFunc func,
                                  gpointer             user_data);
 
 META_EXPORT
-void meta_prefs_init (void);
-
-META_EXPORT
 const char* meta_preference_to_string (MetaPreference pref);
 
 META_EXPORT

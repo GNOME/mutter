@@ -79,11 +79,11 @@
 #include "clutter/clutter.h"
 #include "core/display-private.h"
 #include "core/main-private.h"
+#include "core/prefs-private.h"
 #include "core/util-private.h"
 #include "meta/compositor.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-x11-errors.h"
-#include "meta/prefs.h"
 #include "ui/ui.h"
 #include "x11/session.h"
 

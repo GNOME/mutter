@@ -388,6 +388,7 @@ mutter_sources = [
   'core/meta-workspace-manager-private.h',
   'core/place.c',
   'core/place.h',
+  'core/prefs-private.h',
   'core/prefs.c',
   'core/restart.c',
   'core/stack.c',
