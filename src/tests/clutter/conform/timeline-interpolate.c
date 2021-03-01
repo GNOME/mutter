@@ -25,23 +25,23 @@ typedef struct _TestState
 {
   ClutterTimeline *timeline;
   int64_t start_time;
-  guint new_frame_counter;
-  gint expected_frame;
-  gint completion_count;
+  int new_frame_counter;
+  int expected_frame;
+  int completion_count;
   gboolean passed;
 } TestState;
 
 
 static void
 new_frame_cb (ClutterTimeline *timeline,
-	      gint frame_num,
-	      TestState *state)
+              int              frame_num,
+              TestState       *state)
 {
   int64_t current_time;
-  gint current_frame;
-  glong msec_diff;
-  gint loop_overflow = 0;
-  static gint step = 1;
+  int current_frame;
+  long msec_diff;
+  int loop_overflow = 0;
+  static int step = 1;
 
   current_time = g_get_real_time ();
 
@@ -114,10 +114,9 @@ new_frame_cb (ClutterTimeline *timeline,
   step = -step;
 }
 
-
 static void
 completed_cb (ClutterTimeline *timeline,
-	      TestState *state)
+              TestState       *state)
 {
   state->completion_count++;
 
@@ -141,14 +140,14 @@ timeline_interpolation (void)
   state.timeline = 
     clutter_timeline_new_for_actor (stage, TEST_TIMELINE_DURATION);
   clutter_timeline_set_repeat_count (state.timeline, -1);
-  g_signal_connect (G_OBJECT(state.timeline),
-		    "new-frame",
-		    G_CALLBACK(new_frame_cb),
-		    &state);
-  g_signal_connect (G_OBJECT(state.timeline),
-		    "completed",
-		    G_CALLBACK(completed_cb),
-		    &state);
+  g_signal_connect (state.timeline,
+                    "new-frame",
+                    G_CALLBACK (new_frame_cb),
+                    &state);
+  g_signal_connect (state.timeline,
+                    "completed",
+                    G_CALLBACK (completed_cb),
+                    &state);
 
   state.completion_count = 0;
   state.new_frame_counter = 0;
@@ -159,7 +158,7 @@ timeline_interpolation (void)
 
   state.start_time = g_get_real_time ();
   clutter_timeline_start (state.timeline);
-  
+
   clutter_test_main ();
 
   g_object_unref (state.timeline);
