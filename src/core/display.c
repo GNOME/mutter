@@ -1138,8 +1138,6 @@ meta_display_close (MetaDisplay *display,
 
   g_object_unref (display);
   the_display = NULL;
-
-  meta_quit (META_EXIT_SUCCESS);
 }
 
 /**
