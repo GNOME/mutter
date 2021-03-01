@@ -912,6 +912,7 @@ main(int argc, char **argv)
     "decoration {"
     "  border-radius: 0 0 0 0;"
     "  border-width: 0;"
+    "  padding: 0 0 0 0;"
     "  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);"
     "  margin: 0px;"
     "}";
