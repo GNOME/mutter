@@ -6020,11 +6020,9 @@ clutter_text_set_attributes (ClutterText   *self,
       priv->effective_attrs = NULL;
     }
 
-  clutter_text_dirty_cache (self);
+  clutter_text_queue_redraw_or_relayout (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ATTRIBUTES]);
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
 }
 
 /**
