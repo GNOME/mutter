@@ -77,9 +77,19 @@ static gboolean
 meta_context_test_setup (MetaContext  *context,
                          GError      **error)
 {
+  MetaBackend *backend;
+  MetaSettings *settings;
+
   if (!META_CONTEXT_CLASS (meta_context_test_parent_class)->setup (context,
                                                                    error))
     return FALSE;
+
+  backend = meta_get_backend ();
+  settings = meta_backend_get_settings (backend);
+  meta_settings_override_experimental_features (settings);
+  meta_settings_enable_experimental_feature (
+    settings,
+    META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
 
   return TRUE;
 }
