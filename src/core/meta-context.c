@@ -22,6 +22,8 @@
 
 #include "core/meta-context-private.h"
 
+#include "core/util-private.h"
+
 enum
 {
   PROP_0,
@@ -39,6 +41,37 @@ typedef struct _MetaContextPrivate
 } MetaContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContext, meta_context, G_TYPE_OBJECT)
+
+static MetaCompositorType
+meta_context_get_compositor_type (MetaContext *context)
+{
+  return META_CONTEXT_GET_CLASS (context)->get_compositor_type (context);
+}
+
+gboolean
+meta_context_configure (MetaContext   *context,
+                        int           *argc,
+                        char        ***argv,
+                        GError       **error)
+{
+  MetaCompositorType compositor_type;
+
+  if (!META_CONTEXT_GET_CLASS (context)->configure (context, argc, argv, error))
+    return FALSE;
+
+  compositor_type = meta_context_get_compositor_type (context);
+  switch (compositor_type)
+    {
+    case META_COMPOSITOR_TYPE_WAYLAND:
+      meta_set_is_wayland_compositor (TRUE);
+      break;
+    case META_COMPOSITOR_TYPE_X11:
+      meta_set_is_wayland_compositor (FALSE);
+      break;
+    }
+
+  return TRUE;
+}
 
 static void
 meta_context_get_property (GObject    *object,

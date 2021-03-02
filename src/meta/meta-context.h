@@ -29,4 +29,10 @@
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaContext, meta_context, META, CONTEXT, GObject)
 
+META_EXPORT
+gboolean meta_context_configure (MetaContext   *context,
+                                 int           *argc,
+                                 char        ***argv,
+                                 GError       **error);
+
 #endif /* META_CONTEXT_H */

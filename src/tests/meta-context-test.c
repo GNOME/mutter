@@ -29,6 +29,21 @@ struct _MetaContextTest
 
 G_DEFINE_TYPE (MetaContextTest, meta_context_test, META_TYPE_CONTEXT)
 
+static gboolean
+meta_context_test_configure (MetaContext   *context,
+                             int           *argc,
+                             char        ***argv,
+                             GError       **error)
+{
+  return TRUE;
+}
+
+static MetaCompositorType
+meta_context_test_get_compositor_type (MetaContext *context)
+{
+  return META_COMPOSITOR_TYPE_WAYLAND;
+}
+
 MetaContext *
 meta_create_test_context (void)
 {
@@ -44,6 +59,10 @@ meta_create_test_context (void)
 static void
 meta_context_test_class_init (MetaContextTestClass *klass)
 {
+  MetaContextClass *context_class = META_CONTEXT_CLASS (klass);
+
+  context_class->configure = meta_context_test_configure;
+  context_class->get_compositor_type = meta_context_test_get_compositor_type;
 }
 
 static void

@@ -22,10 +22,18 @@
 #define META_CONTEXT_PRIVATE_H
 
 #include "meta/meta-context.h"
+#include "meta/meta-enums.h"
 
 struct _MetaContextClass
 {
   GObjectClass parent_class;
+
+  gboolean (* configure) (MetaContext   *context,
+                          int           *argc,
+                          char        ***argv,
+                          GError       **error);
+
+  MetaCompositorType (* get_compositor_type) (MetaContext *context);
 };
 
 #endif /* META_CONTEXT_PRIVATE_H */
