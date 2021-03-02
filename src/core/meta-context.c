@@ -26,7 +26,12 @@
 
 #include "backends/meta-backend-private.h"
 #include "compositor/meta-plugin-manager.h"
+#include "core/display-private.h"
 #include "core/util-private.h"
+
+#ifdef HAVE_WAYLAND
+#include "wayland/meta-wayland.h"
+#endif
 
 enum
 {
@@ -43,6 +48,9 @@ typedef struct _MetaContextPrivate
 {
   char *name;
   char *plugin_name;
+
+  GMainLoop *main_loop;
+  GError *termination_error;
 } MetaContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContext, meta_context, G_TYPE_OBJECT)
@@ -132,6 +140,71 @@ meta_context_setup (MetaContext  *context,
   return META_CONTEXT_GET_CLASS (context)->setup (context, error);
 }
 
+gboolean
+meta_context_start (MetaContext  *context,
+                    GError      **error)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+#ifdef HAVE_WAYLAND
+  if (meta_context_get_compositor_type (context) ==
+      META_COMPOSITOR_TYPE_WAYLAND)
+    meta_backend_init_wayland (meta_get_backend ());
+#endif
+
+  if (!meta_display_open (error))
+    return FALSE;
+
+  priv->main_loop = g_main_loop_new (NULL, FALSE);
+
+  return TRUE;
+}
+
+gboolean
+meta_context_run_main_loop (MetaContext  *context,
+                            GError      **error)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  if (!priv->main_loop)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Tried to run main loop without having started");
+      return FALSE;
+    }
+
+  g_main_loop_run (priv->main_loop);
+  g_clear_pointer (&priv->main_loop, g_main_loop_unref);
+
+  if (priv->termination_error)
+    {
+      g_propagate_error (error, g_steal_pointer (&priv->termination_error));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+void
+meta_context_terminate (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (g_main_loop_is_running (priv->main_loop));
+
+  g_main_loop_quit (priv->main_loop);
+}
+
+void
+meta_context_terminate_with_error (MetaContext *context,
+                                   GError      *error)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  priv->termination_error = g_steal_pointer (&error);
+  meta_context_terminate (context);
+}
+
 static void
 meta_context_get_property (GObject    *object,
                            guint       prop_id,
@@ -177,14 +250,36 @@ meta_context_finalize (GObject *object)
 {
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  MetaDisplay *display;
   MetaBackend *backend;
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *compositor;
+  MetaCompositorType compositor_type;
+#endif
 
   backend = meta_get_backend ();
   if (backend)
     meta_backend_prepare_shutdown (backend);
 
+#ifdef HAVE_WAYLAND
+  compositor = meta_wayland_compositor_get_default ();
+  if (compositor)
+    meta_wayland_compositor_prepare_shutdown (compositor);
+#endif
+
+  display = meta_get_display ();
+  if (display)
+    meta_display_close (display, META_CURRENT_TIME);
+
+#ifdef HAVE_WAYLAND
+  compositor_type = meta_context_get_compositor_type (context);
+  if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
+    meta_wayland_finalize ();
+#endif
+
   meta_release_backend ();
 
+  g_clear_pointer (&priv->main_loop, g_main_loop_unref);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
 

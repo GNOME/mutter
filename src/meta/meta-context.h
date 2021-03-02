@@ -43,4 +43,19 @@ META_EXPORT
 gboolean meta_context_setup (MetaContext  *context,
                              GError      **error);
 
+META_EXPORT
+gboolean meta_context_start (MetaContext  *context,
+                             GError      **error);
+
+META_EXPORT
+gboolean meta_context_run_main_loop (MetaContext  *context,
+                                     GError      **error);
+
+META_EXPORT
+void meta_context_terminate (MetaContext *context);
+
+META_EXPORT
+void meta_context_terminate_with_error (MetaContext *context,
+                                        GError      *error);
+
 #endif /* META_CONTEXT_H */
