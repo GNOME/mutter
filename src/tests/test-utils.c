@@ -23,6 +23,7 @@
 
 #include <gio/gio.h>
 #include <string.h>
+#include <X11/Xlib-xcb.h>
 
 #include "core/display-private.h"
 #include "core/window-private.h"
