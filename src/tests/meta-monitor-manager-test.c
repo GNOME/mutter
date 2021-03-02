@@ -27,6 +27,7 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
 #include "tests/meta-backend-test.h"
+#include "tests/monitor-test-utils.h"
 
 G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC)
 G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT)
@@ -389,12 +390,53 @@ meta_monitor_manager_test_dispose (GObject *object)
   G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->dispose (object);
 }
 
+static MonitorTestCaseSetup default_test_case_setup = {
+  .modes = {
+    {
+      .width = 800,
+      .height = 600,
+      .refresh_rate = 60.0
+    }
+  },
+  .n_modes = 1,
+  .outputs = {
+     {
+      .crtc = 0,
+      .modes = { 0 },
+      .n_modes = 1,
+      .preferred_mode = 0,
+      .possible_crtcs = { 0 },
+      .n_possible_crtcs = 1,
+      .width_mm = 222,
+      .height_mm = 125
+    },
+
+  },
+  .n_outputs = 1,
+  .crtcs = {
+    {
+      .current_mode = 0
+    },
+  },
+  .n_crtcs = 1,
+};
+
+static MetaMonitorTestSetup *
+create_default_test_setup (void)
+{
+  return create_monitor_test_setup (&default_test_case_setup,
+                                    MONITOR_TEST_FLAG_NO_STORED);
+}
+
 static void
 meta_monitor_manager_test_constructed (GObject *object)
 {
   MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (object);
 
-  manager_test->test_setup = initial_setup_func ();
+  if (initial_setup_func)
+    manager_test->test_setup = initial_setup_func ();
+  else
+    manager_test->test_setup = create_default_test_setup ();
 
   G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->constructed (object);
 }
