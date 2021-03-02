@@ -183,6 +183,7 @@ meta_context_setup (MetaContext  *context,
       return FALSE;
     }
 
+  meta_init_debug_utils ();
   init_signal_handlers (context);
 
   change_to_home_directory ();
