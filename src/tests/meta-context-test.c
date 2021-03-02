@@ -22,6 +22,10 @@
 
 #include "tests/meta-context-test.h"
 
+#include "tests/test-utils.h"
+#include "wayland/meta-wayland.h"
+#include "wayland/meta-xwayland.h"
+
 struct _MetaContextTest
 {
   GObject parent;
@@ -35,6 +39,14 @@ meta_context_test_configure (MetaContext   *context,
                              char        ***argv,
                              GError       **error)
 {
+  g_test_init (argc, argv, NULL);
+  g_test_bug_base ("https://gitlab.gnome.org/GNOME/mutter/issues/");
+
+  meta_ensure_test_client_path (*argc, *argv);
+
+  meta_wayland_override_display_name ("mutter-test-display");
+  meta_xwayland_override_display_number (512);
+
   return TRUE;
 }
 
