@@ -49,8 +49,7 @@ static const struct {
 static const gint n_easing_modes = G_N_ELEMENTS (easing_modes);
 static gint current_mode = 0;
 
-static gint duration = 1;
-static gboolean recenter = FALSE;
+#define DURATION 1
 
 static ClutterActor *main_stage = NULL;
 static ClutterActor *easing_mode_label = NULL;
@@ -115,7 +114,7 @@ on_button_press (ClutterActor       *actor,
       cur_mode = easing_modes[current_mode].mode;
 
       clutter_actor_save_easing_state (rectangle);
-      clutter_actor_set_easing_duration (rectangle, duration * 1000);
+      clutter_actor_set_easing_duration (rectangle, DURATION * 1000);
       clutter_actor_set_easing_mode (rectangle, cur_mode);
       clutter_actor_set_position (rectangle, event->x, event->y);
 
@@ -199,25 +198,6 @@ make_bouncer (gfloat width,
   return retval;
 }
 
-static GOptionEntry test_easing_entries[] = {
-  {
-    "re-center", 'r',
-    0,
-    G_OPTION_ARG_NONE, &recenter,
-    "Re-center the actor when the animation ends",
-    NULL
-  },
-  {
-    "duration", 'd',
-    0,
-    G_OPTION_ARG_INT, &duration,
-    "Duration of the animation",
-    "SECONDS"
-  },
-
-  { NULL }
-};
-
 G_MODULE_EXPORT int
 test_easing_main (int argc, char *argv[])
 {
@@ -225,10 +205,7 @@ test_easing_main (int argc, char *argv[])
   gchar *text;
   gfloat stage_width, stage_height;
 
-  clutter_test_init_with_args (&argc, &argv,
-                               NULL,
-                               test_easing_entries,
-                               NULL);
+  clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Easing Modes");

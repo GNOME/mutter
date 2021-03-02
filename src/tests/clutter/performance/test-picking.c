@@ -10,22 +10,6 @@
 static gint n_actors = N_ACTORS;
 static gint n_events = N_EVENTS;
 
-static GOptionEntry entries[] = {
-  {
-    "num-actors", 'a',
-    0,
-    G_OPTION_ARG_INT, &n_actors,
-    "Number of actors", "ACTORS"
-  },
-  {
-    "num-events", 'e',
-    0,
-    G_OPTION_ARG_INT, &n_events,
-    "Number of events", "EVENTS"
-  },
-  { NULL }
-};
-
 static gboolean
 motion_event_cb (ClutterActor *actor, ClutterEvent *event, gpointer user_data)
 {
@@ -72,10 +56,7 @@ main (int argc, char **argv)
 
   clutter_perf_fps_init ();
 
-  clutter_test_init_with_args (&argc, &argv,
-                               NULL,
-                               entries,
-                               NULL);
+  clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, 512, 512);

@@ -26,20 +26,8 @@ typedef struct SuperOH
   ClutterTimeline *timeline;
 } SuperOH;
 
-static gint n_hands = NHANDS;
-
 int
 test_actors_main (int argc, char *argv[]);
-
-static GOptionEntry super_oh_entries[] = {
-  {
-    "num-hands", 'n',
-    0,
-    G_OPTION_ARG_INT, &n_hands,
-    "Number of hands", "HANDS"
-  },
-  { NULL }
-};
 
 static void
 on_group_destroy (ClutterActor *actor,
@@ -54,7 +42,7 @@ on_hand_destroy (ClutterActor *actor,
 {
   int i;
 
-  for (i = 0; i < n_hands; i++)
+  for (i = 0; i < NHANDS; i++)
     {
       if (oh->hand[i] == actor)
         oh->hand[i] = NULL;
@@ -102,7 +90,7 @@ input_cb (ClutterActor *stage,
         {
           gint i;
 
-          for (i = 0; i < n_hands; i++)
+          for (i = 0; i < NHANDS; i++)
             {
               if (oh->hand[i] != NULL)
                 clutter_actor_show (oh->hand[i]);
@@ -129,7 +117,7 @@ frame_cb (ClutterTimeline *timeline,
   if (oh->group != NULL)
     clutter_actor_set_rotation_angle (oh->group, CLUTTER_Z_AXIS, rotation);
 
-  for (i = 0; i < n_hands; i++)
+  for (i = 0; i < NHANDS; i++)
     {
       /* Rotate each hand around there centers - to get this we need
        * to take into account any scaling.
@@ -161,10 +149,7 @@ test_actors_main (int argc, char *argv[])
 
   error = NULL;
 
-  clutter_test_init_with_args (&argc, &argv,
-                               NULL,
-                               super_oh_entries,
-                               NULL);
+  clutter_test_init (&argc, &argv);
 
   oh = g_new (SuperOH, 1);
 
@@ -199,14 +184,13 @@ test_actors_main (int argc, char *argv[])
   clutter_actor_add_constraint (oh->group, clutter_align_constraint_new (oh->stage, CLUTTER_ALIGN_BOTH, 0.5));
   clutter_actor_add_constraint (oh->group, clutter_bind_constraint_new (oh->stage, CLUTTER_BIND_SIZE, 0.0f));
 
-  oh->hand = g_new (ClutterActor*, n_hands);
+  oh->hand = g_new (ClutterActor *, NHANDS);
 
   oh->stage_width = clutter_actor_get_width (oh->stage);
   oh->stage_height = clutter_actor_get_height (oh->stage);
-  oh->radius = (oh->stage_width + oh->stage_height)
-             / n_hands;
+  oh->radius = (oh->stage_width + oh->stage_height) / NHANDS;
 
-  for (i = 0; i < n_hands; i++)
+  for (i = 0; i < NHANDS; i++)
     {
       gint x, y, w, h;
 
@@ -231,12 +215,12 @@ test_actors_main (int argc, char *argv[])
 
       x = oh->stage_width / 2
 	+ oh->radius
-	* cos (i * G_PI / (n_hands / 2))
+	* cos (i * G_PI / (NHANDS / 2))
 	- w / 2;
 
       y = oh->stage_height / 2
 	+ oh->radius
-	* sin (i * G_PI / (n_hands / 2))
+	* sin (i * G_PI / (NHANDS / 2))
 	- h / 2;
 
       clutter_actor_set_position (oh->hand[i], x, y);

@@ -11,18 +11,6 @@
 #define STAGE_WIDTH 800
 #define STAGE_HEIGHT 600
 
-gboolean run_all = FALSE;
-
-static GOptionEntry entries[] = {
-  {
-    "run-all", 'a',
-    0,
-    G_OPTION_ARG_NONE, &run_all,
-    "Run all tests", ""
-  },
-  { NULL }
-};
-
 typedef struct _TestState
 {
   ClutterActor *stage;
@@ -136,10 +124,7 @@ main (int argc, char *argv[])
   g_setenv ("CLUTTER_VBLANK", "none", FALSE);
   g_setenv ("CLUTTER_SHOW_FPS", "1", FALSE);
 
-  clutter_test_init_with_args (&argc, &argv,
-                               NULL,
-                               entries,
-                               NULL);
+  clutter_test_init (&argc, &argv);
 
   state.current_test = 0;
 
