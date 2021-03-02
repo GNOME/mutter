@@ -86,4 +86,7 @@ const char * test_get_plugin_name (void);
 
 void test_wait_for_x11_display (void);
 
+void meta_ensure_test_client_path (int    argc,
+                                   char **argv);
+
 #endif /* TEST_UTILS_H */

@@ -58,9 +58,9 @@ G_DEFINE_QUARK (test-runner-error-quark, test_runner_error)
 
 static char *test_client_path;
 
-static void
-ensure_test_client_path (int    argc,
-                         char **argv)
+void
+meta_ensure_test_client_path (int    argc,
+                              char **argv)
 {
   test_client_path = g_test_build_filename (G_TEST_BUILT,
                                             "src",
@@ -92,7 +92,7 @@ test_init (int    *argc,
   g_test_init (argc, argv, NULL);
   g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
 
-  ensure_test_client_path (*argc, *argv);
+  meta_ensure_test_client_path (*argc, *argv);
 
   meta_wayland_override_display_name ("mutter-test-display");
   meta_xwayland_override_display_number (512);
