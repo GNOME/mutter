@@ -42,6 +42,11 @@ test_env.set('G_TEST_SRCDIR', join_paths(meson.source_root(), 'src'))
 test_env.set('G_TEST_BUILDDIR', meson.build_root())
 test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
 
+test_context_sources = [
+  'meta-context-test.c',
+  'meta-context-test.h',
+]
+
 test_client = executable('mutter-test-client',
   sources: ['test-client.c'],
   include_directories: tests_includepath,
@@ -71,6 +76,7 @@ test_runner = executable('mutter-test-runner',
 
 unit_tests = executable('mutter-test-unit-tests',
   sources: [
+    test_context_sources,
     'test-utils.c',
     'test-utils.h',
     'unit-tests.c',
@@ -108,6 +114,7 @@ unit_tests = executable('mutter-test-unit-tests',
 
 headless_start_test = executable('mutter-headless-start-test',
   sources: [
+    test_context_sources,
     'headless-start-test.c',
     'meta-backend-test.c',
     'meta-backend-test.h',
@@ -127,6 +134,7 @@ headless_start_test = executable('mutter-headless-start-test',
 
 stage_view_tests = executable('mutter-stage-view-tests',
   sources: [
+    test_context_sources,
     'meta-backend-test.c',
     'meta-backend-test.h',
     'meta-gpu-test.c',
@@ -176,6 +184,7 @@ if have_native_tests
 
   native_headless_tests = executable('mutter-native-headless-tests',
     sources: [
+      test_context_sources,
       'native-headless.c',
       'native-screen-cast.c',
       'native-screen-cast.h',
@@ -194,6 +203,7 @@ if have_native_tests
 
   ref_test_sanity = executable('mutter-ref-test-sanity',
     sources: [
+      test_context_sources,
       'ref-test-sanity.c',
       'test-utils.c',
       'test-utils.h',
@@ -224,6 +234,7 @@ if have_native_tests
   native_persistent_virtual_monitor = executable(
     'mutter-persistent-virtual-monitor',
     sources: [
+      test_context_sources,
       'native-persistent-virtual-monitor.c',
       'test-utils.c',
       'test-utils.h',
