@@ -141,6 +141,60 @@ meta_context_test_notify_ready (MetaContext *context)
 {
 }
 
+static gboolean
+run_tests_idle (gpointer user_data)
+{
+  MetaContext *context = user_data;
+
+  if (g_test_run () != 0)
+    {
+      GError *error;
+
+      error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED,
+                           "One or more tests failed");
+      meta_context_terminate_with_error (context, error);
+    }
+  else
+    {
+      meta_context_terminate (context);
+    }
+
+  return G_SOURCE_REMOVE;
+}
+
+int
+meta_context_test_run_tests (MetaContextTest *context_test)
+{
+  MetaContext *context = META_CONTEXT (context_test);
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_context_setup (context, &error))
+    {
+      g_printerr ("Test case failed to start: %s\n", error->message);
+      return EXIT_FAILURE;
+    }
+
+  if (!meta_context_start (context, &error))
+    {
+      g_printerr ("Test case failed to start: %s\n", error->message);
+      return EXIT_FAILURE;
+    }
+
+  g_idle_add (run_tests_idle, context_test);
+
+  meta_context_notify_ready (context);
+
+  if (!meta_context_run_main_loop (context, &error))
+    {
+      g_printerr ("Test case failed: %s\n", error->message);
+      return EXIT_FAILURE;
+    }
+  else
+    {
+      return EXIT_SUCCESS;
+    }
+}
+
 MetaContext *
 meta_create_test_context (MetaContextTestType type)
 {

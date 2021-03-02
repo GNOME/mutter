@@ -38,4 +38,6 @@ G_DECLARE_FINAL_TYPE (MetaContextTest, meta_context_test,
 
 MetaContext * meta_create_test_context (MetaContextTestType type);
 
+int meta_context_test_run_tests (MetaContextTest *context_test);
+
 #endif /* META_CONTEXT_TEST_H */
