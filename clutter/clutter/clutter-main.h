@@ -91,7 +91,7 @@ typedef enum
  * @CLUTTER_INIT_ERROR_BACKEND: Backend initialisation failed
  * @CLUTTER_INIT_ERROR_INTERNAL: Internal error
  *
- * Error conditions returned by clutter_init() and clutter_init_with_args().
+ * Error conditions returned by clutter_init().
  *
  * Since: 0.2
  */
@@ -126,13 +126,6 @@ void                    clutter_base_init                       (void);
 CLUTTER_EXPORT
 ClutterInitError        clutter_init                            (int          *argc,
                                                                  char       ***argv) G_GNUC_WARN_UNUSED_RESULT;
-CLUTTER_EXPORT
-ClutterInitError        clutter_init_with_args                  (int          *argc,
-                                                                 char       ***argv,
-                                                                 const char   *parameter_string,
-                                                                 GOptionEntry *entries,
-                                                                 const char   *translation_domain,
-                                                                 GError      **error) G_GNUC_WARN_UNUSED_RESULT;
 
 CLUTTER_EXPORT
 GOptionGroup *          clutter_get_option_group                (void);

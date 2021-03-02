@@ -99,22 +99,6 @@ clutter_test_init (int    *argc,
   init_common_post (argc, argv);
 }
 
-void
-clutter_test_init_with_args (int            *argc,
-                             char         ***argv,
-                             const char     *parameter_string,
-                             GOptionEntry   *entries,
-                             const char     *translation_domain)
-{
-  init_common_pre ();
-  g_assert (clutter_init_with_args (argc, argv,
-                                    parameter_string,
-                                    entries,
-                                    translation_domain,
-                                    NULL) == CLUTTER_INIT_SUCCESS);
-  init_common_post (argc, argv);
-}
-
 /**
  * clutter_test_get_stage:
  *

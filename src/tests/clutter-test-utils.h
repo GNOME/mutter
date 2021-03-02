@@ -100,13 +100,6 @@ void            clutter_test_init               (int            *argc,
                                                  char         ***argv);
 
 CLUTTER_EXPORT
-void            clutter_test_init_with_args     (int            *argc,
-                                                 char         ***argv,
-                                                 const char     *parameter_string,
-                                                 GOptionEntry   *entries,
-                                                 const char     *translation_domain);
-
-CLUTTER_EXPORT
 int             clutter_test_run                (void);
 
 CLUTTER_EXPORT
