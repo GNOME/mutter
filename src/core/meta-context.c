@@ -22,6 +22,8 @@
 
 #include "core/meta-context-private.h"
 
+#include <locale.h>
+
 #include "core/util-private.h"
 
 enum
@@ -147,4 +149,8 @@ meta_context_class_init (MetaContextClass *klass)
 static void
 meta_context_init (MetaContext *context)
 {
+  if (!setlocale (LC_ALL, ""))
+    g_warning ("Locale not understood by C library");
+  bindtextdomain (GETTEXT_PACKAGE, MUTTER_LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 }
