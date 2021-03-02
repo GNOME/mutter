@@ -27,6 +27,7 @@
 #include "backends/meta-backend-private.h"
 #include "compositor/meta-plugin-manager.h"
 #include "core/display-private.h"
+#include "core/prefs-private.h"
 #include "core/util-private.h"
 
 #ifdef HAVE_WAYLAND
@@ -145,6 +146,8 @@ meta_context_start (MetaContext  *context,
                     GError      **error)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  meta_prefs_init ();
 
 #ifdef HAVE_WAYLAND
   if (meta_context_get_compositor_type (context) ==
