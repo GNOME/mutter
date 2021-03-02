@@ -25,6 +25,7 @@
 #include <locale.h>
 
 #include "backends/meta-backend-private.h"
+#include "compositor/meta-plugin-manager.h"
 #include "core/util-private.h"
 
 enum
@@ -41,9 +42,19 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MetaContextPrivate
 {
   char *name;
+  char *plugin_name;
 } MetaContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContext, meta_context, G_TYPE_OBJECT)
+
+void
+meta_context_set_plugin_name (MetaContext *context,
+                              const char  *plugin_name)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  priv->plugin_name = g_strdup (plugin_name);
+}
 
 static MetaCompositorType
 meta_context_get_compositor_type (MetaContext *context)
@@ -104,10 +115,20 @@ meta_context_setup (MetaContext  *context,
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaCompositorType compositor_type;
 
+  if (!priv->plugin_name)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No compositor plugin set");
+      return FALSE;
+    }
+
   compositor_type = meta_context_get_compositor_type (context);
   g_message ("Running %s (using mutter %s) as a %s",
              priv->name, VERSION,
              compositor_type_to_description (compositor_type));
+
+  meta_plugin_manager_load (priv->plugin_name);
+
   return META_CONTEXT_GET_CLASS (context)->setup (context, error);
 }
 
@@ -164,6 +185,7 @@ meta_context_finalize (GObject *object)
 
   meta_release_backend ();
 
+  g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
 
   G_OBJECT_CLASS (meta_context_parent_class)->finalize (object);

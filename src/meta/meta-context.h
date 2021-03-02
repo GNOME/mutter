@@ -30,6 +30,10 @@ META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaContext, meta_context, META, CONTEXT, GObject)
 
 META_EXPORT
+void meta_context_set_plugin_name (MetaContext *context,
+                                   const char  *plugin_name);
+
+META_EXPORT
 gboolean meta_context_configure (MetaContext   *context,
                                  int           *argc,
                                  char        ***argv,

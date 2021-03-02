@@ -49,6 +49,8 @@ meta_context_test_configure (MetaContext   *context,
                              char        ***argv,
                              GError       **error)
 {
+  const char *plugin_name;
+
   g_test_init (argc, argv, NULL);
   g_test_bug_base ("https://gitlab.gnome.org/GNOME/mutter/issues/");
 
@@ -56,6 +58,11 @@ meta_context_test_configure (MetaContext   *context,
 
   meta_wayland_override_display_name ("mutter-test-display");
   meta_xwayland_override_display_number (512);
+
+  plugin_name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
+  if (!plugin_name)
+    plugin_name = "libdefault";
+  meta_context_set_plugin_name (context, plugin_name);
 
   return TRUE;
 }
