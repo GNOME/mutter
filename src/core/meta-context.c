@@ -154,6 +154,14 @@ compositor_type_to_description (MetaCompositorType compositor_type)
   g_assert_not_reached ();
 }
 
+static void
+init_introspection (MetaContext *context)
+{
+#ifdef HAVE_INTROSPECTION
+  g_irepository_prepend_search_path (MUTTER_PKGLIBDIR);
+#endif
+}
+
 static gboolean
 meta_context_real_setup (MetaContext  *context,
                          GError      **error)
@@ -185,6 +193,8 @@ meta_context_setup (MetaContext  *context,
              compositor_type_to_description (compositor_type));
 
   meta_plugin_manager_load (priv->plugin_name);
+
+  init_introspection (context);
 
   return META_CONTEXT_GET_CLASS (context)->setup (context, error);
 }
