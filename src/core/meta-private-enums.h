@@ -1,7 +1,5 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
- * Copyright (C) 2016 Red Hat, Inc.
+ * Copyright (C) 2019-2021 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,19 +12,20 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  */
 
-#ifndef META_MAIN_PRIVATE_H
-#define META_MAIN_PRIVATE_H
+#ifndef META_PRIVATE_ENUMS_H
+#define META_PRIVATE_ENUMS_H
 
-#include "core/util-private.h"
-#include "core/meta-private-enums.h"
+typedef enum _MetaX11DisplayPolicy
+{
+  META_X11_DISPLAY_POLICY_MANDATORY,
+  META_X11_DISPLAY_POLICY_ON_DEMAND,
+  META_X11_DISPLAY_POLICY_DISABLED,
+} MetaX11DisplayPolicy;
 
-META_EXPORT_TEST
-MetaX11DisplayPolicy meta_get_x11_display_policy (void);
-
-META_EXPORT_TEST
-void meta_override_x11_display_policy (MetaX11DisplayPolicy x11_display_policy);
-
-#endif /* META_MAIN_PRIVATE_H */
+#endif /* META_PRIVATE_ENUMS_H */

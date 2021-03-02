@@ -66,6 +66,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-seat-private.h"
+#include "core/meta-context-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"

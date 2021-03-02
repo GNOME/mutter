@@ -41,6 +41,7 @@
 #include "backends/meta-pointer-constraint.h"
 #include "backends/meta-renderer.h"
 #include "backends/meta-settings-private.h"
+#include "core/meta-context-private.h"
 #include "core/util-private.h"
 
 #define DEFAULT_XKB_RULES_FILE "evdev"

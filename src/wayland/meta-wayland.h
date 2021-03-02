@@ -24,6 +24,7 @@
 #define META_WAYLAND_H
 
 #include "clutter/clutter.h"
+#include "core/meta-context-private.h"
 #include "core/util-private.h"
 #include "meta/types.h"
 #include "wayland/meta-wayland-types.h"

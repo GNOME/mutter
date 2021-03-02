@@ -5,7 +5,7 @@
 #include <clutter/clutter.h>
 
 #include "compositor/meta-plugin-manager.h"
-#include "core/main-private.h"
+#include "core/meta-context-private.h"
 
 typedef struct {
   gpointer dummy_field;

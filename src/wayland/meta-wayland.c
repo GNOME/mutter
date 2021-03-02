@@ -32,6 +32,7 @@
 #include "cogl/cogl-egl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "core/main-private.h"
+#include "core/meta-context-private.h"
 #include "wayland/meta-wayland-activation.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-data-device.h"
