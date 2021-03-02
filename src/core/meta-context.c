@@ -51,11 +51,25 @@ typedef struct _MetaContextPrivate
   char *name;
   char *plugin_name;
 
+  GOptionContext *option_context;
+
   GMainLoop *main_loop;
   GError *termination_error;
 } MetaContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContext, meta_context, G_TYPE_OBJECT)
+
+void
+meta_context_add_option_entries (MetaContext        *context,
+                                 const GOptionEntry *entries,
+                                 const char         *translation_domain)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_option_context_add_main_entries (priv->option_context,
+                                     entries,
+                                     translation_domain);
+}
 
 void
 meta_context_set_plugin_name (MetaContext *context,
@@ -76,6 +90,26 @@ static MetaCompositorType
 meta_context_get_compositor_type (MetaContext *context)
 {
   return META_CONTEXT_GET_CLASS (context)->get_compositor_type (context);
+}
+
+static gboolean
+meta_context_real_configure (MetaContext   *context,
+                             int           *argc,
+                             char        ***argv,
+                             GError       **error)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  g_autoptr (GOptionContext) option_context = NULL;
+
+  if (!priv->option_context)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Tried to configure multiple times");
+      return FALSE;
+    }
+
+  option_context = g_steal_pointer (&priv->option_context);
+  return g_option_context_parse (option_context, argc, argv, error);
 }
 
 gboolean
@@ -347,6 +381,7 @@ meta_context_finalize (GObject *object)
 
   meta_release_backend ();
 
+  g_clear_pointer (&priv->option_context, g_option_context_free);
   g_clear_pointer (&priv->main_loop, g_main_loop_unref);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
@@ -381,6 +416,7 @@ meta_context_class_init (MetaContextClass *klass)
   object_class->set_property = meta_context_set_property;
   object_class->finalize = meta_context_finalize;
 
+  klass->configure = meta_context_real_configure;
   klass->setup = meta_context_real_setup;
 
   obj_props[PROP_NAME] =
@@ -397,6 +433,8 @@ meta_context_class_init (MetaContextClass *klass)
 static void
 meta_context_init (MetaContext *context)
 {
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
   g_assert (!_context_temporary);
   _context_temporary = context;
 
@@ -404,4 +442,9 @@ meta_context_init (MetaContext *context)
     g_warning ("Locale not understood by C library");
   bindtextdomain (GETTEXT_PACKAGE, MUTTER_LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+
+  priv->option_context = g_option_context_new (NULL);
+  g_option_context_set_main_group (priv->option_context,
+                                   g_option_group_new (NULL, NULL, NULL,
+                                                       context, NULL));
 }
