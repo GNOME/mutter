@@ -25,6 +25,7 @@
 
 #include "compositor/meta-plugin-manager.h"
 #include "meta/main.h"
+#include "meta/meta-enums.h"
 #include "meta/util.h"
 
 static gboolean

@@ -26,6 +26,7 @@
 #include "core/display-private.h"
 #include "core/main-private.h"
 #include "meta/main.h"
+#include "meta/meta-enums.h"
 #include "tests/meta-backend-test.h"
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/test-utils.h"

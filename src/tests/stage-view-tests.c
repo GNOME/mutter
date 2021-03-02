@@ -22,6 +22,7 @@
 #include "compositor/meta-plugin-manager.h"
 #include "core/main-private.h"
 #include "meta/main.h"
+#include "meta/meta-enums.h"
 #include "tests/meta-backend-test.h"
 #include "tests/monitor-test-utils.h"
 #include "tests/test-utils.h"

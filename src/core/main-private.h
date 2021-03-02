@@ -21,14 +21,7 @@
 #define META_MAIN_PRIVATE_H
 
 #include "core/util-private.h"
-
-typedef enum _MetaCompositorType
-{
-#ifdef HAVE_WAYLAND
-  META_COMPOSITOR_TYPE_WAYLAND,
-#endif
-  META_COMPOSITOR_TYPE_X11,
-} MetaCompositorType;
+#include "meta/meta-enums.h"
 
 typedef enum _MetaX11DisplayPolicy
 {

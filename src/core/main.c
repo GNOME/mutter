@@ -83,6 +83,7 @@
 #include "core/util-private.h"
 #include "meta/compositor.h"
 #include "meta/meta-backend.h"
+#include "meta/meta-enums.h"
 #include "meta/meta-x11-errors.h"
 #include "ui/ui.h"
 #include "x11/session.h"

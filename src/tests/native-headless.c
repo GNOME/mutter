@@ -26,6 +26,7 @@
 #include "core/main-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
+#include "meta/meta-enums.h"
 #include "tests/native-screen-cast.h"
 #include "tests/native-virtual-monitor.h"
 #include "tests/test-utils.h"

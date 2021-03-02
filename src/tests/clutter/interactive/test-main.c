@@ -8,6 +8,7 @@
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "core/main-private.h"
 #include "meta/main.h"
+#include "meta/meta-enums.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 #include "test-unit-names.h"
