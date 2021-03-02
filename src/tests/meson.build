@@ -73,8 +73,7 @@ test_client = executable('mutter-test-client',
 
 test_runner = executable('mutter-test-runner',
   sources: [
-    'test-utils.c',
-    'test-utils.h',
+    test_context_sources,
     'test-runner.c',
   ],
   include_directories: tests_includepath,

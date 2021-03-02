@@ -24,12 +24,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "compositor/meta-plugin-manager.h"
-#include "core/main-private.h"
 #include "core/window-private.h"
-#include "meta/main.h"
 #include "meta/util.h"
 #include "meta/window.h"
+#include "tests/meta-context-test.h"
 #include "tests/test-utils.h"
 #include "ui/ui.h"
 #include "wayland/meta-wayland.h"
@@ -1033,10 +1031,10 @@ typedef struct
   char **tests;
 } RunTestsInfo;
 
-static gboolean
-run_tests (gpointer data)
+static int
+run_tests (MetaContext  *context,
+           RunTestsInfo *info)
 {
-  RunTestsInfo *info = data;
   int i;
   gboolean success = TRUE;
 
@@ -1048,9 +1046,7 @@ run_tests (gpointer data)
         success = FALSE;
     }
 
-  meta_quit (success ? 0 : 1);
-
-  return FALSE;
+  return success ? 0 : 1;
 }
 
 /**********************************************************************/
@@ -1124,35 +1120,26 @@ const GOptionEntry options[] = {
 int
 main (int argc, char **argv)
 {
-  GOptionContext *ctx;
-  GError *error = NULL;
+  g_autoptr (MetaContext) context = NULL;
+  GPtrArray *tests;
+  RunTestsInfo info;
 
-  /* First parse the arguments that are passed to us */
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED);
 
-  ctx = g_option_context_new (NULL);
-  g_option_context_add_main_entries (ctx, options, NULL);
+  meta_context_add_option_entries (context, options, NULL);
 
-  if (!g_option_context_parse (ctx,
-                               &argc, &argv, &error))
-    {
-      g_printerr ("%s", error->message);
-      return 1;
-    }
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
-  g_option_context_free (ctx);
-
-  test_init (&argc, &argv);
-
-  GPtrArray *tests = g_ptr_array_new ();
-
+  tests = g_ptr_array_new ();
   if (all_tests)
     {
       GFile *test_dir = g_file_new_for_path (MUTTER_PKGDATADIR "/tests");
+      g_autoptr (GError) error = NULL;
 
       if (!find_metatests_in_directory (test_dir, tests, &error))
         {
           g_printerr ("Error enumerating tests: %s\n", error->message);
-          return 1;
+          return EXIT_FAILURE;
         }
     }
   else
@@ -1171,31 +1158,9 @@ main (int argc, char **argv)
       g_free (curdir);
     }
 
-  /* Then initialize mutter with a different set of arguments */
-
-  char *fake_args[] = { NULL, (char *)"--wayland", (char *)"--nested" };
-  fake_args[0] = argv[0];
-  char **fake_argv = fake_args;
-  int fake_argc = G_N_ELEMENTS (fake_args);
-
-  ctx = meta_get_option_context ();
-  if (!g_option_context_parse (ctx, &fake_argc, &fake_argv, &error))
-    {
-      g_printerr ("mutter: %s\n", error->message);
-      exit (1);
-    }
-  g_option_context_free (ctx);
-
-  meta_plugin_manager_load (test_get_plugin_name ());
-
-  meta_init ();
-  meta_register_with_session ();
-
-  RunTestsInfo info;
-  info.tests = (char **)tests->pdata;
+  info.tests = (char **) tests->pdata;
   info.n_tests = tests->len;
+  g_signal_connect (context, "run-tests", G_CALLBACK (run_tests), &info);
 
-  g_idle_add (run_tests, &info);
-
-  return meta_run ();
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
 }
