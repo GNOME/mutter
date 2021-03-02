@@ -21,6 +21,7 @@
 #ifndef META_CONTEXT_PRIVATE_H
 #define META_CONTEXT_PRIVATE_H
 
+#include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "meta/meta-enums.h"
 
@@ -34,6 +35,9 @@ struct _MetaContextClass
                           GError       **error);
 
   MetaCompositorType (* get_compositor_type) (MetaContext *context);
+
+  MetaBackend * (* create_backend) (MetaContext  *context,
+                                    GError      **error);
 };
 
 #endif /* META_CONTEXT_PRIVATE_H */

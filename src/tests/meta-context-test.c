@@ -22,9 +22,17 @@
 
 #include "tests/meta-context-test.h"
 
+#include <glib.h>
+#include <gio/gio.h>
+
+#include "tests/meta-backend-test.h"
 #include "tests/test-utils.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
+#endif
 
 struct _MetaContextTest
 {
@@ -58,6 +66,46 @@ meta_context_test_get_compositor_type (MetaContext *context)
   return META_COMPOSITOR_TYPE_WAYLAND;
 }
 
+static MetaBackend *
+create_nested_backend (MetaContext  *context,
+                       GError      **error)
+{
+  return g_initable_new (META_TYPE_BACKEND_TEST,
+                         NULL, error,
+                         NULL);
+}
+
+#ifdef HAVE_NATIVE_BACKEND
+static MetaBackend *
+create_headless_backend (MetaContext  *context,
+                         GError      **error)
+{
+  return g_initable_new (META_TYPE_BACKEND_NATIVE,
+                         NULL, error,
+                         "headless", TRUE,
+                         NULL);
+}
+#endif /* HAVE_NATIVE_BACKEND */
+
+static MetaBackend *
+meta_context_test_create_backend (MetaContext  *context,
+                                  GError      **error)
+{
+  MetaContextTest *context_test = META_CONTEXT_TEST (context);
+
+  switch (context_test->type)
+    {
+    case META_CONTEXT_TEST_TYPE_NESTED:
+      return create_nested_backend (context, error);
+#ifdef HAVE_NATIVE_BACKEND
+    case META_CONTEXT_TEST_TYPE_HEADLESS:
+      return create_headless_backend (context, error);
+#endif /* HAVE_NATIVE_BACKEND */
+    }
+
+  g_assert_not_reached ();
+}
+
 MetaContext *
 meta_create_test_context (MetaContextTestType type)
 {
@@ -78,6 +126,7 @@ meta_context_test_class_init (MetaContextTestClass *klass)
 
   context_class->configure = meta_context_test_configure;
   context_class->get_compositor_type = meta_context_test_get_compositor_type;
+  context_class->create_backend = meta_context_test_create_backend;
 }
 
 static void
