@@ -127,6 +127,19 @@ init_signal_handlers (MetaContext *context)
   g_unix_signal_add (SIGTERM, on_sigterm, context);
 }
 
+static void
+change_to_home_directory (void)
+{
+  const char *home_dir;
+
+  home_dir = g_get_home_dir ();
+  if (!home_dir)
+    return;
+
+  if (chdir (home_dir) < 0)
+    g_warning ("Could not change to home directory %s", home_dir);
+}
+
 static const char *
 compositor_type_to_description (MetaCompositorType compositor_type)
 {
@@ -163,6 +176,8 @@ meta_context_setup (MetaContext  *context,
     }
 
   init_signal_handlers (context);
+
+  change_to_home_directory ();
 
   compositor_type = meta_context_get_compositor_type (context);
   g_message ("Running %s (using mutter %s) as a %s",
