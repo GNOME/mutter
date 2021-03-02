@@ -1027,7 +1027,8 @@ run_test (const char *filename,
   return success;
 }
 
-typedef struct {
+typedef struct
+{
   int n_tests;
   char **tests;
 } RunTestsInfo;
@@ -1042,8 +1043,10 @@ run_tests (gpointer data)
   g_print ("1..%d\n", info->n_tests);
 
   for (i = 0; i < info->n_tests; i++)
-    if (!run_test (info->tests[i], i + 1))
-      success = FALSE;
+    {
+      if (!run_test (info->tests[i], i + 1))
+        success = FALSE;
+    }
 
   meta_quit (success ? 0 : 1);
 
