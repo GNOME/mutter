@@ -34,6 +34,15 @@
 #include "backends/native/meta-backend-native.h"
 #endif
 
+enum
+{
+  BEFORE_TESTS,
+  AFTER_TESTS,
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 struct _MetaContextTest
 {
   GObject parent;
@@ -145,8 +154,13 @@ static gboolean
 run_tests_idle (gpointer user_data)
 {
   MetaContext *context = user_data;
+  int ret;
 
-  if (g_test_run () != 0)
+  g_signal_emit (context, signals[BEFORE_TESTS], 0);
+  ret = g_test_run ();
+  g_signal_emit (context, signals[AFTER_TESTS], 0);
+
+  if (ret != 0)
     {
       GError *error;
 
@@ -218,6 +232,23 @@ meta_context_test_class_init (MetaContextTestClass *klass)
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
   context_class->notify_ready = meta_context_test_notify_ready;
+
+  signals[BEFORE_TESTS] =
+    g_signal_new ("before-tests",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  0);
+  signals[AFTER_TESTS] =
+    g_signal_new ("after-tests",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  0);
 }
 
 static void
