@@ -52,6 +52,9 @@ gboolean meta_context_run_main_loop (MetaContext  *context,
                                      GError      **error);
 
 META_EXPORT
+void meta_context_notify_ready (MetaContext *context);
+
+META_EXPORT
 void meta_context_terminate (MetaContext *context);
 
 META_EXPORT

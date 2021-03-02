@@ -136,6 +136,11 @@ meta_context_test_create_backend (MetaContext  *context,
   g_assert_not_reached ();
 }
 
+static void
+meta_context_test_notify_ready (MetaContext *context)
+{
+}
+
 MetaContext *
 meta_create_test_context (MetaContextTestType type)
 {
@@ -158,6 +163,7 @@ meta_context_test_class_init (MetaContextTestClass *klass)
   context_class->get_compositor_type = meta_context_test_get_compositor_type;
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
+  context_class->notify_ready = meta_context_test_notify_ready;
 }
 
 static void

@@ -66,6 +66,12 @@ meta_context_set_plugin_name (MetaContext *context,
   priv->plugin_name = g_strdup (plugin_name);
 }
 
+void
+meta_context_notify_ready (MetaContext *context)
+{
+  META_CONTEXT_GET_CLASS (context)->notify_ready (context);
+}
+
 static MetaCompositorType
 meta_context_get_compositor_type (MetaContext *context)
 {

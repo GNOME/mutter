@@ -41,6 +41,8 @@ struct _MetaContextClass
 
   MetaBackend * (* create_backend) (MetaContext  *context,
                                     GError      **error);
+
+  void (* notify_ready) (MetaContext *context);
 };
 
 #endif /* META_CONTEXT_PRIVATE_H */
