@@ -20,12 +20,8 @@
 
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-renderer-native.h"
-#include "compositor/meta-plugin-manager.h"
-#include "core/main-private.h"
-#include "meta/main.h"
-#include "meta/meta-enums.h"
+#include "tests/meta-context-test.h"
 #include "tests/meta-ref-test.h"
-#include "tests/test-utils.h"
 
 static MetaVirtualMonitor *virtual_monitor;
 
@@ -71,22 +67,6 @@ tear_down_test_environment (void)
 
   g_object_unref (virtual_monitor);
   meta_monitor_manager_reload (monitor_manager);
-}
-
-static gboolean
-run_tests (gpointer data)
-{
-  int ret;
-
-  setup_test_environment ();
-
-  ret = g_test_run ();
-
-  tear_down_test_environment ();
-
-  meta_quit (ret != 0);
-
-  return ret;
 }
 
 static ClutterStageView *
@@ -151,20 +131,17 @@ int
 main (int    argc,
       char **argv)
 {
-  test_init (&argc, &argv);
+  g_autoptr (MetaContext) context = NULL;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
   init_ref_test_sanity_tests ();
 
-  meta_plugin_manager_load (test_get_plugin_name ());
+  g_signal_connect (context, "before-tests",
+                    G_CALLBACK (setup_test_environment), NULL);
+  g_signal_connect (context, "after-tests",
+                    G_CALLBACK (tear_down_test_environment), NULL);
 
-  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
-                                          META_TYPE_BACKEND_NATIVE,
-                                          "headless", TRUE,
-                                          NULL);
-
-  meta_init ();
-  meta_register_with_session ();
-
-  g_idle_add (run_tests, NULL);
-
-  return meta_run ();
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
 }
