@@ -19,37 +19,9 @@
 
 #include "clutter/clutter.h"
 #include "clutter/clutter-stage-view-private.h"
-#include "compositor/meta-plugin-manager.h"
-#include "core/main-private.h"
-#include "meta/main.h"
-#include "meta/meta-enums.h"
 #include "tests/meta-backend-test.h"
+#include "tests/meta-context-test.h"
 #include "tests/monitor-test-utils.h"
-#include "tests/test-utils.h"
-
-#define FRAME_WARNING "Frame has assigned frame counter but no frame drawn time"
-
-static gboolean
-run_tests (gpointer data)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaSettings *settings = meta_backend_get_settings (backend);
-  gboolean ret;
-
-  g_test_log_set_fatal_handler (NULL, NULL);
-
-  meta_settings_override_experimental_features (settings);
-
-  meta_settings_enable_experimental_feature (
-    settings,
-    META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-
-  ret = g_test_run ();
-
-  meta_quit (ret != 0);
-
-  return G_SOURCE_REMOVE;
-}
 
 static MonitorTestCaseSetup initial_test_case_setup = {
   .modes = {
@@ -1154,7 +1126,7 @@ meta_test_timeline_actor_destroyed (void)
 }
 
 static void
-init_tests (int argc, char **argv)
+init_tests (void)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
 
@@ -1187,19 +1159,12 @@ init_tests (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
-  test_init (&argc, &argv);
-  init_tests (argc, argv);
+  g_autoptr (MetaContext) context = NULL;
 
-  meta_plugin_manager_load (test_get_plugin_name ());
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
-  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
-                                          META_TYPE_BACKEND_TEST,
-                                          NULL);
+  init_tests ();
 
-  meta_init ();
-  meta_register_with_session ();
-
-  g_idle_add (run_tests, NULL);
-
-  return meta_run ();
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
 }
