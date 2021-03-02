@@ -37,6 +37,7 @@
 enum
 {
   BEFORE_TESTS,
+  RUN_TESTS,
   AFTER_TESTS,
   N_SIGNALS
 };
@@ -162,7 +163,15 @@ run_tests_idle (gpointer user_data)
   int ret;
 
   g_signal_emit (context, signals[BEFORE_TESTS], 0);
-  ret = g_test_run ();
+  if (g_signal_has_handler_pending (context, signals[RUN_TESTS], 0, TRUE))
+    {
+      g_signal_emit (context, signals[RUN_TESTS], 0, &ret);
+      g_assert (ret == 1 || ret == 0);
+    }
+  else
+    {
+      ret = g_test_run ();
+    }
   g_signal_emit (context, signals[AFTER_TESTS], 0);
 
   if (ret != 0)
@@ -245,6 +254,14 @@ meta_context_test_class_init (MetaContextTestClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE,
+                  0);
+  signals[RUN_TESTS] =
+    g_signal_new ("run-tests",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_INT,
                   0);
   signals[AFTER_TESTS] =
     g_signal_new ("after-tests",
