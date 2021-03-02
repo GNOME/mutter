@@ -23,11 +23,19 @@
 
 #include "core/meta-context-private.h"
 
+typedef enum _MetaContextTestType
+{
+#ifdef HAVE_NATIVE_BACKEND
+  META_CONTEXT_TEST_TYPE_HEADLESS,
+#endif
+  META_CONTEXT_TEST_TYPE_NESTED,
+} MetaContextTestType;
+
 #define META_TYPE_CONTEXT_TEST (meta_context_test_get_type ())
 G_DECLARE_FINAL_TYPE (MetaContextTest, meta_context_test,
                       META, CONTEXT_TEST,
                       MetaContext)
 
-MetaContext * meta_create_test_context (void);
+MetaContext * meta_create_test_context (MetaContextTestType type);
 
 #endif /* META_CONTEXT_TEST_H */

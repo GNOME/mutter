@@ -29,6 +29,8 @@
 struct _MetaContextTest
 {
   GObject parent;
+
+  MetaContextTestType type;
 };
 
 G_DEFINE_TYPE (MetaContextTest, meta_context_test, META_TYPE_CONTEXT)
@@ -57,13 +59,14 @@ meta_context_test_get_compositor_type (MetaContext *context)
 }
 
 MetaContext *
-meta_create_test_context (void)
+meta_create_test_context (MetaContextTestType type)
 {
   MetaContextTest *context_test;
 
   context_test = g_object_new (META_TYPE_CONTEXT_TEST,
                                "name", "Mutter Test",
                                NULL);
+  context_test->type = type;
 
   return META_CONTEXT (context_test);
 }
