@@ -20,16 +20,9 @@
 
 #include "config.h"
 
-#include "backends/meta-settings-private.h"
-#include "backends/native/meta-backend-native.h"
-#include "compositor/meta-plugin-manager.h"
-#include "core/main-private.h"
-#include "meta/main.h"
-#include "meta/meta-backend.h"
-#include "meta/meta-enums.h"
+#include "tests/meta-context-test.h"
 #include "tests/native-screen-cast.h"
 #include "tests/native-virtual-monitor.h"
-#include "tests/test-utils.h"
 
 static void
 init_tests (void)
@@ -38,43 +31,16 @@ init_tests (void)
   init_screen_cast_tests ();
 }
 
-static gboolean
-run_tests (gpointer data)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaSettings *settings = meta_backend_get_settings (backend);
-  gboolean ret;
-
-  meta_settings_override_experimental_features (settings);
-  meta_settings_enable_experimental_feature (
-    settings,
-    META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-
-  ret = g_test_run ();
-
-  meta_quit (ret != 0);
-
-  return FALSE;
-}
-
 int
 main (int    argc,
       char **argv)
 {
-  test_init (&argc, &argv);
+  g_autoptr (MetaContext) context = NULL;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
   init_tests ();
 
-  meta_plugin_manager_load (test_get_plugin_name ());
-
-  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
-                                          META_TYPE_BACKEND_NATIVE,
-                                          "headless", TRUE,
-                                          NULL);
-
-  meta_init ();
-  meta_register_with_session ();
-
-  g_idle_add (run_tests, NULL);
-
-  return meta_run ();
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
 }
