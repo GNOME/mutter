@@ -35,4 +35,8 @@ gboolean meta_context_configure (MetaContext   *context,
                                  char        ***argv,
                                  GError       **error);
 
+META_EXPORT
+gboolean meta_context_setup (MetaContext  *context,
+                             GError      **error);
+
 #endif /* META_CONTEXT_H */

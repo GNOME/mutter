@@ -24,6 +24,7 @@
 
 #include <locale.h>
 
+#include "backends/meta-backend-private.h"
 #include "core/util-private.h"
 
 enum
@@ -75,6 +76,41 @@ meta_context_configure (MetaContext   *context,
   return TRUE;
 }
 
+static const char *
+compositor_type_to_description (MetaCompositorType compositor_type)
+{
+  switch (compositor_type)
+    {
+    case META_COMPOSITOR_TYPE_WAYLAND:
+      return "Wayland display server";
+    case META_COMPOSITOR_TYPE_X11:
+      return "X11 window and compositing manager";
+    }
+
+  g_assert_not_reached ();
+}
+
+static gboolean
+meta_context_real_setup (MetaContext  *context,
+                         GError      **error)
+{
+  return !!META_CONTEXT_GET_CLASS (context)->create_backend (context, error);
+}
+
+gboolean
+meta_context_setup (MetaContext  *context,
+                    GError      **error)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  MetaCompositorType compositor_type;
+
+  compositor_type = meta_context_get_compositor_type (context);
+  g_message ("Running %s (using mutter %s) as a %s",
+             priv->name, VERSION,
+             compositor_type_to_description (compositor_type));
+  return META_CONTEXT_GET_CLASS (context)->setup (context, error);
+}
+
 static void
 meta_context_get_property (GObject    *object,
                            guint       prop_id,
@@ -120,6 +156,13 @@ meta_context_finalize (GObject *object)
 {
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  MetaBackend *backend;
+
+  backend = meta_get_backend ();
+  if (backend)
+    meta_backend_prepare_shutdown (backend);
+
+  meta_release_backend ();
 
   g_clear_pointer (&priv->name, g_free);
 
@@ -134,6 +177,8 @@ meta_context_class_init (MetaContextClass *klass)
   object_class->get_property = meta_context_get_property;
   object_class->set_property = meta_context_set_property;
   object_class->finalize = meta_context_finalize;
+
+  klass->setup = meta_context_real_setup;
 
   obj_props[PROP_NAME] =
     g_param_spec_string ("name",

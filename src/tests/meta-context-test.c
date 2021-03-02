@@ -66,6 +66,17 @@ meta_context_test_get_compositor_type (MetaContext *context)
   return META_COMPOSITOR_TYPE_WAYLAND;
 }
 
+static gboolean
+meta_context_test_setup (MetaContext  *context,
+                         GError      **error)
+{
+  if (!META_CONTEXT_CLASS (meta_context_test_parent_class)->setup (context,
+                                                                   error))
+    return FALSE;
+
+  return TRUE;
+}
+
 static MetaBackend *
 create_nested_backend (MetaContext  *context,
                        GError      **error)
@@ -126,6 +137,7 @@ meta_context_test_class_init (MetaContextTestClass *klass)
 
   context_class->configure = meta_context_test_configure;
   context_class->get_compositor_type = meta_context_test_get_compositor_type;
+  context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
 }
 

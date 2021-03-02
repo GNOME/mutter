@@ -36,6 +36,9 @@ struct _MetaContextClass
 
   MetaCompositorType (* get_compositor_type) (MetaContext *context);
 
+  gboolean (* setup) (MetaContext  *context,
+                      GError      **error);
+
   MetaBackend * (* create_backend) (MetaContext  *context,
                                     GError      **error);
 };
