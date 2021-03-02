@@ -354,6 +354,24 @@ meta_context_finalize (GObject *object)
   G_OBJECT_CLASS (meta_context_parent_class)->finalize (object);
 }
 
+/*
+ * NOTE!
+ *
+ * This global singletone is a temporary stop-gap solution
+ * to allow migrating to MetaContext in smaller steps. It will
+ * be removed later in this series of changes.
+ */
+static MetaContext *_context_temporary;
+
+MetaContext *
+meta_get_context_temporary (void);
+
+MetaContext *
+meta_get_context_temporary (void)
+{
+  return _context_temporary;
+}
+
 static void
 meta_context_class_init (MetaContextClass *klass)
 {
@@ -379,6 +397,9 @@ meta_context_class_init (MetaContextClass *klass)
 static void
 meta_context_init (MetaContext *context)
 {
+  g_assert (!_context_temporary);
+  _context_temporary = context;
+
   if (!setlocale (LC_ALL, ""))
     g_warning ("Locale not understood by C library");
   bindtextdomain (GETTEXT_PACKAGE, MUTTER_LOCALEDIR);

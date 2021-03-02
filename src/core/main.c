@@ -83,7 +83,7 @@
 #include "core/util-private.h"
 #include "meta/compositor.h"
 #include "meta/meta-backend.h"
-#include "meta/meta-enums.h"
+#include "meta/meta-context.h"
 #include "meta/meta-x11-errors.h"
 #include "ui/ui.h"
 #include "x11/session.h"
@@ -888,6 +888,9 @@ meta_run (void)
   return meta_exit_code;
 }
 
+MetaContext *
+meta_get_context_temporary (void);
+
 /**
  * meta_quit:
  * @code: The success or failure code to return to the calling process.
@@ -901,10 +904,29 @@ meta_run (void)
 void
 meta_quit (MetaExitCode code)
 {
-  if (g_main_loop_is_running (meta_main_loop))
+  MetaContext *context;
+
+  if (meta_main_loop && g_main_loop_is_running (meta_main_loop))
     {
       meta_exit_code = code;
       g_main_loop_quit (meta_main_loop);
+    }
+
+  context = meta_get_context_temporary ();
+  if (context)
+    {
+      if (code == META_EXIT_SUCCESS)
+        {
+          meta_context_terminate (context);
+        }
+      else
+        {
+          GError *error;
+
+          error = g_error_new (G_IO_ERROR,  G_IO_ERROR_FAILED,
+                               "Exited with failure status");
+          meta_context_terminate_with_error (context, error);
+        }
     }
 }
 
