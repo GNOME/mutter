@@ -91,6 +91,8 @@ meta_context_test_setup (MetaContext  *context,
     settings,
     META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
 
+  meta_set_syncing (!!g_getenv ("MUTTER_SYNC"));
+
   return TRUE;
 }
 
