@@ -16,6 +16,7 @@ mutter_public_headers = [
   'meta-background-image.h',
   'meta-close-dialog.h',
   'meta-cursor-tracker.h',
+  'meta-context.h',
   'meta-dnd.h',
   'meta-idle-monitor.h',
   'meta-inhibit-shortcuts-dialog.h',

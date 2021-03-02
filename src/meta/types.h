@@ -25,6 +25,7 @@
  *
  */
 typedef struct _MetaBackend     MetaBackend;
+typedef struct _MetaContext     MetaContext;
 typedef struct _MetaCompositor  MetaCompositor;
 typedef struct _MetaDisplay     MetaDisplay;
 typedef struct _MetaX11Display  MetaX11Display;
