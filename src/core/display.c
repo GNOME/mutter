@@ -173,6 +173,8 @@ enum
 
 static guint display_signals [LAST_SIGNAL] = { 0 };
 
+#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
+
 /*
  * The display we're managing.  This is a singleton object.  (Historically,
  * this was a list of displays, but there was never any way to add more
