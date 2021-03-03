@@ -25,7 +25,7 @@
 
 #include "compositor/meta-plugin-manager.h"
 #include "meta/main.h"
-#include "meta/meta-enums.h"
+#include "meta/meta-context.h"
 #include "meta/util.h"
 
 static gboolean
@@ -59,22 +59,39 @@ GOptionEntry mutter_options[] = {
 int
 main (int argc, char **argv)
 {
-  GOptionContext *ctx;
-  GError *error = NULL;
+  g_autoptr (MetaContext) context = NULL;
+  g_autoptr (GError) error = NULL;
 
-  ctx = meta_get_option_context ();
-  g_option_context_add_main_entries (ctx, mutter_options, GETTEXT_PACKAGE);
-  if (!g_option_context_parse (ctx, &argc, &argv, &error))
+  context = meta_create_context ("Mutter");
+
+  meta_context_add_option_entries (context, mutter_options, GETTEXT_PACKAGE);
+  if (!meta_context_configure (context, &argc, &argv, &error))
     {
-      g_printerr ("mutter: %s\n", error->message);
-      exit (1);
+      g_printerr ("Failed to configure: %s", error->message);
+      return EXIT_FAILURE;
     }
-  g_option_context_free (ctx);
 
-  if (plugin)
-    meta_plugin_manager_load (plugin);
+  meta_context_set_plugin_name (context, plugin);
 
-  meta_init ();
-  meta_register_with_session ();
-  return meta_run ();
+  if (!meta_context_setup (context, &error))
+    {
+      g_printerr ("Failed to setup: %s", error->message);
+      return EXIT_FAILURE;
+    }
+
+  if (!meta_context_start (context, &error))
+    {
+      g_printerr ("Failed to start: %s", error->message);
+      return EXIT_FAILURE;
+    }
+
+  meta_context_notify_ready (context);
+
+  if (!meta_context_run_main_loop (context, &error))
+    {
+      g_printerr ("Mutter terminated with a failure: %s", error->message);
+      return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
 }
