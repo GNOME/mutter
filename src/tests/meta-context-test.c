@@ -121,6 +121,7 @@ create_nested_backend (MetaContext  *context,
 {
   return g_initable_new (META_TYPE_BACKEND_TEST,
                          NULL, error,
+                         "context", context,
                          NULL);
 }
 
@@ -131,6 +132,7 @@ create_headless_backend (MetaContext  *context,
 {
   return g_initable_new (META_TYPE_BACKEND_NATIVE,
                          NULL, error,
+                         "context", context,
                          "headless", TRUE,
                          NULL);
 }

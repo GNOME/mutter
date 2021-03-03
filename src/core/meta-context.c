@@ -54,6 +54,8 @@ typedef struct _MetaContextPrivate
 
   GOptionContext *option_context;
 
+  MetaBackend *backend;
+
   GMainLoop *main_loop;
   GError *termination_error;
 } MetaContextPrivate;
@@ -109,6 +111,20 @@ void
 meta_context_notify_ready (MetaContext *context)
 {
   META_CONTEXT_GET_CLASS (context)->notify_ready (context);
+}
+
+/**
+ * meta_context_get_backend:
+ * @context: The #MetaContext
+ *
+ * Returns: (transfer none): the #MetaBackend
+ */
+MetaBackend *
+meta_context_get_backend (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->backend;
 }
 
 MetaCompositorType
@@ -231,7 +247,15 @@ static gboolean
 meta_context_real_setup (MetaContext  *context,
                          GError      **error)
 {
-  return !!META_CONTEXT_GET_CLASS (context)->create_backend (context, error);
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  MetaBackend *backend;
+
+  backend = META_CONTEXT_GET_CLASS (context)->create_backend (context, error);
+  if (!backend)
+    return FALSE;
+
+  priv->backend = backend;
+  return TRUE;
 }
 
 gboolean
@@ -381,15 +405,13 @@ meta_context_finalize (GObject *object)
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaDisplay *display;
-  MetaBackend *backend;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *compositor;
   MetaCompositorType compositor_type;
 #endif
 
-  backend = meta_get_backend ();
-  if (backend)
-    meta_backend_prepare_shutdown (backend);
+  if (priv->backend)
+    meta_backend_prepare_shutdown (priv->backend);
 
 #ifdef HAVE_WAYLAND
   compositor = meta_wayland_compositor_get_default ();
@@ -407,7 +429,7 @@ meta_context_finalize (GObject *object)
     meta_wayland_finalize ();
 #endif
 
-  meta_release_backend ();
+  g_clear_pointer (&priv->backend, meta_backend_destroy);
 
   g_clear_pointer (&priv->option_context, g_option_context_free);
   g_clear_pointer (&priv->main_loop, g_main_loop_unref);

@@ -381,6 +381,7 @@ create_x11_cm_backend (MetaContext  *context,
 
   return g_initable_new (META_TYPE_BACKEND_X11_CM,
                          NULL, error,
+                         "context", context,
                          "display-name", context_main->options.x11.display_name,
                          NULL);
 }
@@ -392,6 +393,7 @@ create_nested_backend (MetaContext  *context,
 {
   return g_initable_new (META_TYPE_BACKEND_X11_NESTED,
                          NULL, error,
+                         "context", context,
                          NULL);
 }
 
@@ -402,6 +404,7 @@ create_headless_backend (MetaContext  *context,
 {
   return g_initable_new (META_TYPE_BACKEND_NATIVE,
                          NULL, error,
+                         "context", context,
                          "headless", TRUE,
                          NULL);
 }
@@ -412,6 +415,7 @@ create_native_backend (MetaContext  *context,
 {
   return g_initable_new (META_TYPE_BACKEND_NATIVE,
                          NULL, error,
+                         "context", context,
                          NULL);
 }
 #endif /* HAVE_NATIVE_BACKEND */

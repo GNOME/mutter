@@ -50,6 +50,9 @@ void meta_backend_lock_layout_group (MetaBackend *backend,
                                      guint        idx);
 
 META_EXPORT
+MetaContext * meta_backend_get_context (MetaBackend *backend);
+
+META_EXPORT
 ClutterActor *meta_backend_get_stage (MetaBackend *backend);
 
 META_EXPORT

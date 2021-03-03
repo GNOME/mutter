@@ -68,6 +68,7 @@
 #include "clutter/clutter-seat-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
+#include "meta/meta-context.h"
 #include "meta/util.h"
 
 #ifdef HAVE_PROFILER
@@ -88,6 +89,17 @@
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
 #endif
+
+enum
+{
+  PROP_0,
+
+  PROP_CONTEXT,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
 
 enum
 {
@@ -122,6 +134,8 @@ meta_get_backend (void)
 
 struct _MetaBackendPrivate
 {
+  MetaContext *context;
+
   MetaMonitorManager *monitor_manager;
   MetaOrientationManager *orientation_manager;
   MetaCursorTracker *cursor_tracker;
@@ -199,6 +213,8 @@ meta_backend_dispose (GObject *object)
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
+  _backend = NULL;
+
   g_clear_pointer (&priv->cursor_tracker, meta_cursor_tracker_destroy);
   g_clear_object (&priv->current_device);
   g_clear_object (&priv->monitor_manager);
@@ -249,7 +265,7 @@ meta_backend_dispose (GObject *object)
   G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);
 }
 
-static void
+void
 meta_backend_destroy (MetaBackend *backend)
 {
   g_object_run_dispose (G_OBJECT (backend));
@@ -737,6 +753,8 @@ meta_backend_constructed (GObject *object)
   MetaBackendClass *backend_class =
    META_BACKEND_GET_CLASS (backend);
 
+  g_assert (priv->context);
+
 #ifdef HAVE_LIBWACOM
   priv->wacom_db = libwacom_database_new ();
   if (!priv->wacom_db)
@@ -759,6 +777,46 @@ meta_backend_constructed (GObject *object)
 }
 
 static void
+meta_backend_set_property (GObject      *object,
+                           guint         prop_id,
+                           const GValue *value,
+                           GParamSpec   *pspec)
+{
+  MetaBackend *backend = META_BACKEND (object);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      priv->context = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_backend_get_property (GObject    *object,
+                           guint       prop_id,
+                           GValue     *value,
+                           GParamSpec *pspec)
+{
+  MetaBackend *backend = META_BACKEND (object);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  switch (prop_id)
+    {
+    case PROP_CONTEXT:
+      g_value_set_object (value, priv->context);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_backend_class_init (MetaBackendClass *klass)
 {
   const gchar *mutter_stage_views;
@@ -766,6 +824,8 @@ meta_backend_class_init (MetaBackendClass *klass)
 
   object_class->dispose = meta_backend_dispose;
   object_class->constructed = meta_backend_constructed;
+  object_class->set_property = meta_backend_set_property;
+  object_class->get_property = meta_backend_get_property;
 
   klass->post_init = meta_backend_real_post_init;
   klass->grab_device = meta_backend_real_grab_device;
@@ -773,6 +833,16 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->select_stage_events = meta_backend_real_select_stage_events;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
   klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
+
+  obj_props[PROP_CONTEXT] =
+    g_param_spec_object ("context",
+                         "context",
+                         "MetaContext",
+                         META_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[KEYMAP_CHANGED] =
     g_signal_new ("keymap-changed",
@@ -1280,6 +1350,20 @@ meta_backend_grab_device (MetaBackend *backend,
 }
 
 /**
+ * meta_backend_get_context:
+ * @backend: the #MetaBackend
+ *
+ * Returns: (transfer none): The #MetaContext
+ */
+MetaContext *
+meta_backend_get_context (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->context;
+}
+
+/**
  * meta_backend_ungrab_device: (skip)
  */
 gboolean
@@ -1456,34 +1540,6 @@ meta_backend_get_clutter_backend (MetaBackend *backend)
     }
 
   return priv->clutter_backend;
-}
-
-void
-meta_init_backend (GType         backend_gtype,
-                   unsigned int  n_properties,
-                   const char   *names[],
-                   const GValue *values)
-{
-  MetaBackend *backend;
-  GError *error = NULL;
-
-  /* meta_backend_init() above install the backend globally so
-   * so meta_get_backend() works even during initialization. */
-  backend = META_BACKEND (g_object_new_with_properties (backend_gtype,
-                                                        n_properties,
-                                                        names,
-                                                        values));
-  if (!g_initable_init (G_INITABLE (backend), NULL, &error))
-    {
-      g_warning ("Failed to create backend: %s", error->message);
-      meta_exit (META_EXIT_ERROR);
-    }
-}
-
-void
-meta_release_backend (void)
-{
-  g_clear_pointer (&_backend, meta_backend_destroy);
 }
 
 void

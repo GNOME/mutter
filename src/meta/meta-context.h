@@ -81,4 +81,7 @@ void meta_context_terminate_with_error (MetaContext *context,
 META_EXPORT
 MetaCompositorType meta_context_get_compositor_type (MetaContext *context);
 
+META_EXPORT
+MetaBackend * meta_context_get_backend (MetaContext *context);
+
 #endif /* META_CONTEXT_H */
