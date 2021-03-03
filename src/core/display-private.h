@@ -256,7 +256,8 @@ struct _MetaDisplayClass
      (time2) != 0)                                                      \
   )
 
-MetaDisplay * meta_display_new (GError **error);
+MetaDisplay * meta_display_new (MetaContext  *context,
+                                GError      **error);
 
 void meta_display_manage_all_xwindows (MetaDisplay *display);
 void meta_display_unmanage_windows   (MetaDisplay *display,

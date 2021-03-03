@@ -321,7 +321,7 @@ meta_context_start (MetaContext  *context,
     meta_backend_init_wayland (meta_get_backend ());
 #endif
 
-  priv->display = meta_display_new (error);
+  priv->display = meta_display_new (context, error);
   if (!priv->display)
     return FALSE;
 

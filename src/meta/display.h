@@ -85,6 +85,9 @@ void meta_display_close (MetaDisplay *display,
                          guint32      timestamp);
 
 META_EXPORT
+MetaContext * meta_display_get_context (MetaDisplay *display);
+
+META_EXPORT
 MetaCompositor *meta_display_get_compositor  (MetaDisplay *display);
 
 META_EXPORT

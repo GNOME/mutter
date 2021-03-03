@@ -122,7 +122,12 @@ typedef struct
   guint       ping_timeout_id;
 } MetaPingData;
 
-G_DEFINE_TYPE(MetaDisplay, meta_display, G_TYPE_OBJECT);
+typedef struct _MetaDisplayPrivate
+{
+  MetaContext *context;
+} MetaDisplayPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE (MetaDisplay, meta_display, G_TYPE_OBJECT)
 
 /* Signals */
 enum
@@ -789,9 +794,11 @@ meta_display_shutdown_x11 (MetaDisplay *display)
 }
 
 MetaDisplay *
-meta_display_new (GError **error)
+meta_display_new (MetaContext  *context,
+                  GError      **error)
 {
   MetaDisplay *display;
+  MetaDisplayPrivate *priv;
   int i;
   guint32 timestamp;
   Window old_active_xwindow = None;
@@ -801,6 +808,9 @@ meta_display_new (GError **error)
 
   g_assert (the_display == NULL);
   display = the_display = g_object_new (META_TYPE_DISPLAY, NULL);
+
+  priv = meta_display_get_instance_private (display);
+  priv->context = context;
 
   display->closing = 0;
   display->display_opening = TRUE;
@@ -2770,6 +2780,20 @@ meta_display_supports_extended_barriers (MetaDisplay *display)
     }
 
   return FALSE;
+}
+
+/**
+ * meta_display_get_context:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): the #MetaContext
+ */
+MetaContext *
+meta_display_get_context (MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  return priv->context;
 }
 
 /**
