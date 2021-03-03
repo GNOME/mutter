@@ -56,8 +56,4 @@ typedef enum
 META_EXPORT
 void meta_exit (MetaExitCode code) G_GNUC_NORETURN;
 
-/* g_main_loop_quit() then fall out of main() */
-META_EXPORT
-void meta_quit (MetaExitCode code);
-
 #endif

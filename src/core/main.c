@@ -56,30 +56,6 @@
 MetaContext *
 meta_get_context_temporary (void);
 
-/**
- * meta_quit:
- * @code: The success or failure code to return to the calling process.
- *
- * Stops Mutter. This tells the event loop to stop processing; it is
- * rather dangerous to use this because this will leave the user with
- * no window manager. We generally do this only if, for example, the
- * session manager asks us to; we assume the session manager knows
- * what it's talking about.
- */
-void
-meta_quit (MetaExitCode code)
-{
-  MetaContext *context;
-
-  context = meta_get_context_temporary ();
-  g_assert (context);
-
-  if (code == META_EXIT_SUCCESS)
-    {
-      meta_context_terminate (context);
-    }
-}
-
 static MetaX11DisplayPolicy x11_display_policy_override = -1;
 
 void
