@@ -86,7 +86,7 @@ meta_context_notify_ready (MetaContext *context)
   META_CONTEXT_GET_CLASS (context)->notify_ready (context);
 }
 
-static MetaCompositorType
+MetaCompositorType
 meta_context_get_compositor_type (MetaContext *context)
 {
   return META_CONTEXT_GET_CLASS (context)->get_compositor_type (context);

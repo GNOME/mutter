@@ -24,10 +24,14 @@
 #include <glib-object.h>
 
 #include "meta/common.h"
+#include "meta/meta-enums.h"
 
 #define META_TYPE_CONTEXT (meta_context_get_type ())
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaContext, meta_context, META, CONTEXT, GObject)
+
+META_EXPORT
+MetaContext * meta_create_context (const char *name);
 
 META_EXPORT
 void meta_context_add_option_entries (MetaContext        *context,
@@ -65,5 +69,8 @@ void meta_context_terminate (MetaContext *context);
 META_EXPORT
 void meta_context_terminate_with_error (MetaContext *context,
                                         GError      *error);
+
+META_EXPORT
+MetaCompositorType meta_context_get_compositor_type (MetaContext *context);
 
 #endif /* META_CONTEXT_H */

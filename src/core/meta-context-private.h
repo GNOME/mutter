@@ -23,7 +23,6 @@
 
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
-#include "meta/meta-enums.h"
 
 struct _MetaContextClass
 {

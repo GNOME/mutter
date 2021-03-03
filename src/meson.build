@@ -371,6 +371,8 @@ mutter_sources = [
   'core/meta-close-dialog.c',
   'core/meta-close-dialog-default.c',
   'core/meta-close-dialog-default-private.h',
+  'core/meta-context-main.c',
+  'core/meta-context-main.h',
   'core/meta-context-private.h',
   'core/meta-context.c',
   'core/meta-fraction.c',
