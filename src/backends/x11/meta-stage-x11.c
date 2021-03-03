@@ -39,7 +39,7 @@
 #include "cogl/cogl-mutter.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
-#include "meta/main.h"
+#include "meta/meta-context.h"
 #include "meta/meta-x11-errors.h"
 
 #define STAGE_X11_IS_MAPPED(s)  ((((MetaStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
@@ -618,12 +618,14 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
   gboolean res = FALSE;
   ClutterBackendX11 *clutter_backend_x11;
   ClutterStage *stage;
+  MetaBackend *backend;
 
   stage_cogl = meta_x11_get_stage_window_from_window (xevent->xany.window);
   if (stage_cogl == NULL)
     return FALSE;
 
   stage = stage_cogl->wrapper;
+  backend = stage_x11->backend;
   clutter_backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
 
   switch (xevent->type)
@@ -723,7 +725,6 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
                */
               if (META_IS_BACKEND_X11_CM (stage_x11->backend))
                 {
-                  MetaBackend *backend = stage_x11->backend;
                   MetaRenderer *renderer = meta_backend_get_renderer (backend);
                   MetaRendererX11Cm *renderer_x11_cm =
                     META_RENDERER_X11_CM (renderer);
@@ -771,7 +772,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
 
       g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
                             FALSE);
-      meta_quit (META_EXIT_SUCCESS);
+      meta_context_terminate (meta_backend_get_context (backend));
       res = FALSE;
       break;
 
@@ -787,7 +788,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
             {
               g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
                                     FALSE);
-              meta_quit (META_EXIT_SUCCESS);
+              meta_context_terminate (meta_backend_get_context (backend));
               res = FALSE;
             }
         }
