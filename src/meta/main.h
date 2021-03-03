@@ -27,18 +27,6 @@
 #include <meta/common.h>
 
 META_EXPORT
-GOptionContext *meta_get_option_context     (void);
-
-META_EXPORT
-void            meta_init                   (void);
-
-META_EXPORT
-int             meta_run                    (void);
-
-META_EXPORT
-void            meta_register_with_session  (void);
-
-META_EXPORT
 gboolean        meta_get_replace_current_wm (void);  /* Actually defined in util.c */
 
 META_EXPORT
@@ -71,17 +59,5 @@ void meta_exit (MetaExitCode code) G_GNUC_NORETURN;
 /* g_main_loop_quit() then fall out of main() */
 META_EXPORT
 void meta_quit (MetaExitCode code);
-
-META_EXPORT
-void meta_start (void);
-
-META_EXPORT
-void meta_run_main_loop (void);
-
-META_EXPORT
-void meta_finalize (void);
-
-META_EXPORT
-MetaExitCode meta_get_exit_code (void);
 
 #endif
