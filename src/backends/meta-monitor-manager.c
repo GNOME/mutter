@@ -56,7 +56,6 @@
 #include "backends/meta-virtual-monitor.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "clutter/clutter.h"
-#include "core/main-private.h"
 #include "core/util-private.h"
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"

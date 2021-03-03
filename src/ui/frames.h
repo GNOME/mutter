@@ -25,7 +25,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
-#include "core/main-private.h"
 #include "meta/common.h"
 #include "meta/types.h"
 #include "ui/theme-private.h"

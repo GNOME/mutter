@@ -32,7 +32,6 @@
 #include "backends/meta-logical-monitor.h"
 #include "cogl/cogl.h"
 #include "core/frame.h"
-#include "core/main-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "meta/group.h"

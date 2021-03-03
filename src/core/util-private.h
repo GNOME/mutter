@@ -45,4 +45,10 @@ char *   meta_generate_random_id (GRand *rand,
 
 void meta_init_debug_utils (void);
 
+#define META_POINT_IN_RECT(xcoord, ycoord, rect) \
+  ((xcoord) >= (rect).x &&                   \
+   (xcoord) <  ((rect).x + (rect).width) &&  \
+   (ycoord) >= (rect).y &&                   \
+   (ycoord) <  ((rect).y + (rect).height))
+
 #endif

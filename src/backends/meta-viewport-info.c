@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include "backends/meta-viewport-info.h"
-#include "core/main-private.h"
 #include "core/boxes-private.h"
 
 typedef struct _ViewInfo ViewInfo;

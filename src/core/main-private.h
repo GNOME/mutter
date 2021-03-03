@@ -37,12 +37,6 @@ typedef enum _MetaX11DisplayPolicy
   META_X11_DISPLAY_POLICY_DISABLED,
 } MetaX11DisplayPolicy;
 
-#define META_POINT_IN_RECT(xcoord, ycoord, rect) \
- ((xcoord) >= (rect).x &&                   \
-  (xcoord) <  ((rect).x + (rect).width) &&  \
-  (ycoord) >= (rect).y &&                   \
-  (ycoord) <  ((rect).y + (rect).height))
-
 #define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
 
 META_EXPORT_TEST
