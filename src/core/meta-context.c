@@ -50,6 +50,7 @@ typedef struct _MetaContextPrivate
 {
   char *name;
   char *plugin_name;
+  GType plugin_gtype;
 
   GOptionContext *option_context;
 
@@ -72,10 +73,23 @@ meta_context_add_option_entries (MetaContext        *context,
 }
 
 void
+meta_context_set_plugin_gtype (MetaContext *context,
+                               GType        plugin_gtype)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (!priv->plugin_name);
+
+  priv->plugin_gtype = plugin_gtype;
+}
+
+void
 meta_context_set_plugin_name (MetaContext *context,
                               const char  *plugin_name)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (priv->plugin_gtype == G_TYPE_NONE);
 
   priv->plugin_name = g_strdup (plugin_name);
 }
@@ -216,7 +230,7 @@ meta_context_setup (MetaContext  *context,
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaCompositorType compositor_type;
 
-  if (!priv->plugin_name)
+  if (!priv->plugin_name && priv->plugin_gtype == G_TYPE_NONE)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No compositor plugin set");
@@ -233,7 +247,10 @@ meta_context_setup (MetaContext  *context,
              priv->name, VERSION,
              compositor_type_to_description (compositor_type));
 
-  meta_plugin_manager_load (priv->plugin_name);
+  if (priv->plugin_name)
+    meta_plugin_manager_load (priv->plugin_name);
+  else
+    meta_plugin_manager_set_plugin_type (priv->plugin_gtype);
 
   init_introspection (context);
 
@@ -437,6 +454,8 @@ meta_context_init (MetaContext *context)
 
   g_assert (!_context_temporary);
   _context_temporary = context;
+
+  priv->plugin_gtype = G_TYPE_NONE;
 
   if (!setlocale (LC_ALL, ""))
     g_warning ("Locale not understood by C library");
