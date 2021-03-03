@@ -460,7 +460,8 @@ meta_context_main_notify_ready (MetaContext *context)
 
   if (!context_main->options.sm.disable)
     {
-      meta_session_init (context_main->options.sm.client_id,
+      meta_session_init (context,
+                         context_main->options.sm.client_id,
                          context_main->options.sm.save_file);
     }
   g_clear_pointer (&context_main->options.sm.client_id, g_free);

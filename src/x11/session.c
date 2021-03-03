@@ -30,13 +30,14 @@
 #include <X11/Xatom.h>
 
 #include "core/util-private.h"
-#include "meta/main.h"
+#include "meta/meta-context.h"
 #include "x11/meta-x11-display-private.h"
 
 #ifndef HAVE_SM
 void
-meta_session_init (const char *client_id,
-                   const char *save_file)
+meta_session_init (MetaContext *context,
+                   const char  *client_id,
+                   const char  *save_file)
 {
   meta_topic (META_DEBUG_SM, "Compiled without session management support");
 }
@@ -71,6 +72,12 @@ meta_window_release_saved_state (const MetaWindowSessionInfo *info)
 #include "meta/util.h"
 #include "meta/workspace.h"
 
+typedef struct _MetaIceConnection
+{
+  IceConn ice_connection;
+  MetaContext *context;
+} MetaIceConnection;
+
 static void ice_io_error_handler (IceConn connection);
 
 static void new_ice_connection (IceConn connection, IcePointer client_data,
@@ -85,11 +92,12 @@ static void        disconnect         (void);
 
 /* This is called when data is available on an ICE connection.  */
 static gboolean
-process_ice_messages (GIOChannel *channel,
-                      GIOCondition condition,
-                      gpointer client_data)
+process_ice_messages (GIOChannel   *channel,
+                      GIOCondition  condition,
+                      gpointer      user_data)
 {
-  IceConn connection = (IceConn) client_data;
+  MetaIceConnection *ice_connection = user_data;
+  IceConn connection = ice_connection->ice_connection;
   IceProcessMessagesStatus status;
 
   /* This blocks infinitely sometimes. I don't know what
@@ -105,7 +113,7 @@ process_ice_messages (GIOChannel *channel,
        * being cleaned up, since it is owned by libSM.
        */
       disconnect ();
-      meta_quit (META_EXIT_SUCCESS);
+      meta_context_terminate (ice_connection->context);
 
       return FALSE;
     }
@@ -119,24 +127,29 @@ static void
 new_ice_connection (IceConn connection, IcePointer client_data, Bool opening,
 		    IcePointer *watch_data)
 {
+  MetaContext *context = client_data;
   guint input_id;
 
   if (opening)
     {
-      /* Make sure we don't pass on these file descriptors to any
-       * exec'ed children
-       */
+      MetaIceConnection *ice_connection;
       GIOChannel *channel;
 
       fcntl (IceConnectionNumber (connection), F_SETFD,
              fcntl (IceConnectionNumber (connection), F_GETFD, 0) | FD_CLOEXEC);
 
+      ice_connection = g_new0 (MetaIceConnection, 1);
+      ice_connection->ice_connection = connection;
+      ice_connection->context = context;
+
       channel = g_io_channel_unix_new (IceConnectionNumber (connection));
 
-      input_id = g_io_add_watch (channel,
-                                 G_IO_IN | G_IO_ERR,
-                                 process_ice_messages,
-                                 connection);
+      input_id = g_io_add_watch_full (channel,
+                                      G_PRIORITY_DEFAULT,
+                                      G_IO_IN | G_IO_ERR,
+                                      process_ice_messages,
+                                      ice_connection,
+                                      g_free);
 
       g_io_channel_unref (channel);
 
@@ -220,8 +233,9 @@ static ClientState current_state = STATE_DISCONNECTED;
 static gboolean interaction_allowed = FALSE;
 
 void
-meta_session_init (const char *previous_client_id,
-                   const char *previous_save_file)
+meta_session_init (MetaContext *context,
+                   const char  *previous_client_id,
+                   const char  *previous_save_file)
 {
   /* Some code here from twm */
   char buf[256];
@@ -264,16 +278,16 @@ meta_session_init (const char *previous_client_id,
     SmcSaveCompleteProcMask | SmcShutdownCancelledProcMask;
 
   callbacks.save_yourself.callback = save_yourself_callback;
-  callbacks.save_yourself.client_data = NULL;
+  callbacks.save_yourself.client_data = context;
 
   callbacks.die.callback = die_callback;
-  callbacks.die.client_data = NULL;
+  callbacks.die.client_data = context;
 
   callbacks.save_complete.callback = save_complete_callback;
-  callbacks.save_complete.client_data = NULL;
+  callbacks.save_complete.client_data = context;
 
   callbacks.shutdown_cancelled.callback = shutdown_cancelled_callback;
-  callbacks.shutdown_cancelled.client_data = NULL;
+  callbacks.shutdown_cancelled.client_data = context;
 
   session_connection =
     SmcOpenConnection (NULL, /* use SESSION_MANAGER env */
@@ -530,7 +544,10 @@ save_yourself_callback (SmcConn   smc_conn,
 static void
 die_callback (SmcConn smc_conn, SmPointer client_data)
 {
+  MetaContext *context = client_data;
+
   meta_topic (META_DEBUG_SM, "Disconnecting from session manager");
+
   disconnect ();
   /* We don't actually exit here - we will simply go away with the X
    * server on logout, when we lose the X connection and libx11 kills
@@ -545,7 +562,7 @@ die_callback (SmcConn smc_conn, SmPointer client_data)
    * case the X server won't go down until we do, so we must die first.
    */
   if (meta_is_wayland_compositor ())
-    meta_quit (0);
+    meta_context_terminate (context);
 }
 
 static void
