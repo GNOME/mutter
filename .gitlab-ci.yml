@@ -1,6 +1,6 @@
 include:
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/18194044f0f984c8815bc9a1a146582f6bf15d41/templates/fedora.yml'
-  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/6f86b8bcb0cd5168c32779c4fea9a893c4a0c046/templates/ci-fairy.yml"
+  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/f830873d69a7ff67a9bd69df2916dd0bb147ce09/templates/ci-fairy.yml"
 
 stages:
  - review
