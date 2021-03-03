@@ -37,7 +37,8 @@ main (int    argc,
 {
   g_autoptr (MetaContext) context = NULL;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS);
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();

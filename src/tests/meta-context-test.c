@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include "core/main-private.h"
 #include "tests/meta-backend-test.h"
 #include "tests/test-utils.h"
 #include "wayland/meta-wayland.h"
@@ -49,6 +50,7 @@ struct _MetaContextTest
   GObject parent;
 
   MetaContextTestType type;
+  MetaContextTestFlag flags;
 };
 
 G_DEFINE_TYPE (MetaContextTest, meta_context_test, META_TYPE_CONTEXT)
@@ -59,6 +61,7 @@ meta_context_test_configure (MetaContext   *context,
                              char        ***argv,
                              GError       **error)
 {
+  MetaContextTest *context_test = META_CONTEXT_TEST (context);
   MetaContextClass *context_class =
     META_CONTEXT_CLASS (meta_context_test_parent_class);
   const char *plugin_name;
@@ -69,7 +72,8 @@ meta_context_test_configure (MetaContext   *context,
   g_test_init (argc, argv, NULL);
   g_test_bug_base ("https://gitlab.gnome.org/GNOME/mutter/issues/");
 
-  meta_ensure_test_client_path (*argc, *argv);
+  if (context_test->flags & META_CONTEXT_TEST_FLAG_TEST_CLIENT)
+    meta_ensure_test_client_path (*argc, *argv);
 
   meta_wayland_override_display_name ("mutter-test-display");
   meta_xwayland_override_display_number (512);
@@ -224,7 +228,8 @@ meta_context_test_run_tests (MetaContextTest *context_test)
 }
 
 MetaContext *
-meta_create_test_context (MetaContextTestType type)
+meta_create_test_context (MetaContextTestType type,
+                          MetaContextTestFlag flags)
 {
   MetaContextTest *context_test;
 
@@ -232,6 +237,12 @@ meta_create_test_context (MetaContextTestType type)
                                "name", "Mutter Test",
                                NULL);
   context_test->type = type;
+  context_test->flags = flags;
+
+  /* NOTE: This will be removed in a follow up commit, but is needed
+   * until the override method is replaced. */
+  if (flags & META_CONTEXT_TEST_FLAG_NO_X11)
+    meta_override_x11_display_policy (META_X11_DISPLAY_POLICY_DISABLED);
 
   return META_CONTEXT (context_test);
 }

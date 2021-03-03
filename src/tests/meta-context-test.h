@@ -31,12 +31,21 @@ typedef enum _MetaContextTestType
   META_CONTEXT_TEST_TYPE_NESTED,
 } MetaContextTestType;
 
+typedef enum _MetaContextTestFlag
+{
+  META_CONTEXT_TEST_FLAG_NONE = 0,
+  META_CONTEXT_TEST_FLAG_TEST_CLIENT = 1 << 0,
+  META_CONTEXT_TEST_FLAG_NO_X11 = 1 << 1,
+} MetaContextTestFlag;
+
 #define META_TYPE_CONTEXT_TEST (meta_context_test_get_type ())
 G_DECLARE_FINAL_TYPE (MetaContextTest, meta_context_test,
                       META, CONTEXT_TEST,
                       MetaContext)
 
-MetaContext * meta_create_test_context (MetaContextTestType type);
+MetaContext * meta_create_test_context (MetaContextTestType type,
+                                        MetaContextTestFlag flags);
+
 
 int meta_context_test_run_tests (MetaContextTest *context_test);
 

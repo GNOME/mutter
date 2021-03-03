@@ -1124,7 +1124,8 @@ main (int argc, char **argv)
   GPtrArray *tests;
   RunTestsInfo info;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED);
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
 
   meta_context_add_option_entries (context, options, NULL);
 
