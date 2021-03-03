@@ -39,6 +39,10 @@ void meta_context_add_option_entries (MetaContext        *context,
                                       const char         *translation_domain);
 
 META_EXPORT
+void meta_context_add_option_group (MetaContext  *context,
+                                    GOptionGroup *group);
+
+META_EXPORT
 void meta_context_set_plugin_gtype (MetaContext *context,
                                     GType        plugin_gtype);
 

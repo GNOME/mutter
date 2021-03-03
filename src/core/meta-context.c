@@ -73,6 +73,17 @@ meta_context_add_option_entries (MetaContext        *context,
 }
 
 void
+meta_context_add_option_group (MetaContext  *context,
+                               GOptionGroup *group)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (priv->option_context);
+
+  g_option_context_add_group (priv->option_context, group);
+}
+
+void
 meta_context_set_plugin_gtype (MetaContext *context,
                                GType        plugin_gtype)
 {
