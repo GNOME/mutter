@@ -46,12 +46,24 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
+typedef enum _MetaContextState
+{
+  META_CONTEXT_STATE_INIT,
+  META_CONTEXT_STATE_CONFIGURED,
+  META_CONTEXT_STATE_SETUP,
+  META_CONTEXT_STATE_STARTED,
+  META_CONTEXT_STATE_RUNNING,
+  META_CONTEXT_STATE_TERMINATED,
+} MetaContextState;
+
 typedef struct _MetaContextPrivate
 {
   char *name;
   char *plugin_name;
   GType plugin_gtype;
   char *gnome_wm_keybindings;
+
+  MetaContextState state;
 
   GOptionContext *option_context;
 
@@ -74,6 +86,8 @@ meta_context_add_option_entries (MetaContext        *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_INIT);
+
   g_option_context_add_main_entries (priv->option_context,
                                      entries,
                                      translation_domain);
@@ -85,6 +99,7 @@ meta_context_add_option_group (MetaContext  *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_INIT);
   g_return_if_fail (priv->option_context);
 
   g_option_context_add_group (priv->option_context, group);
@@ -96,6 +111,7 @@ meta_context_set_plugin_gtype (MetaContext *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
   g_return_if_fail (!priv->plugin_name);
 
   priv->plugin_gtype = plugin_gtype;
@@ -107,6 +123,7 @@ meta_context_set_plugin_name (MetaContext *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
   g_return_if_fail (priv->plugin_gtype == G_TYPE_NONE);
 
   priv->plugin_name = g_strdup (plugin_name);
@@ -117,6 +134,8 @@ meta_context_set_gnome_wm_keybindings (MetaContext *context,
                                        const char  *wm_keybindings)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
 
   g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
   priv->gnome_wm_keybindings = g_strdup (wm_keybindings);
@@ -133,6 +152,11 @@ meta_context_get_gnome_wm_keybindings (MetaContext *context)
 void
 meta_context_notify_ready (MetaContext *context)
 {
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_return_if_fail (priv->state == META_CONTEXT_STATE_STARTED ||
+                    priv->state == META_CONTEXT_STATE_RUNNING);
+
   META_CONTEXT_GET_CLASS (context)->notify_ready (context);
 }
 
@@ -214,10 +238,16 @@ meta_context_configure (MetaContext   *context,
                         char        ***argv,
                         GError       **error)
 {
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaCompositorType compositor_type;
 
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_INIT);
+
   if (!META_CONTEXT_GET_CLASS (context)->configure (context, argc, argv, error))
-    return FALSE;
+    {
+      priv->state = META_CONTEXT_STATE_TERMINATED;
+      return FALSE;
+    }
 
   compositor_type = meta_context_get_compositor_type (context);
   switch (compositor_type)
@@ -229,6 +259,8 @@ meta_context_configure (MetaContext   *context,
       meta_set_is_wayland_compositor (FALSE);
       break;
     }
+
+  priv->state = META_CONTEXT_STATE_CONFIGURED;
 
   return TRUE;
 }
@@ -320,8 +352,11 @@ meta_context_setup (MetaContext  *context,
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   MetaCompositorType compositor_type;
 
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_CONFIGURED);
+
   if (!priv->plugin_name && priv->plugin_gtype == G_TYPE_NONE)
     {
+      priv->state = META_CONTEXT_STATE_TERMINATED;
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No compositor plugin set");
       return FALSE;
@@ -344,7 +379,14 @@ meta_context_setup (MetaContext  *context,
 
   init_introspection (context);
 
-  return META_CONTEXT_GET_CLASS (context)->setup (context, error);
+  if (!META_CONTEXT_GET_CLASS (context)->setup (context, error))
+    {
+      priv->state = META_CONTEXT_STATE_TERMINATED;
+      return FALSE;
+    }
+
+  priv->state = META_CONTEXT_STATE_SETUP;
+  return TRUE;
 }
 
 gboolean
@@ -352,6 +394,8 @@ meta_context_start (MetaContext  *context,
                     GError      **error)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_SETUP);
 
   meta_prefs_init ();
 
@@ -363,9 +407,14 @@ meta_context_start (MetaContext  *context,
 
   priv->display = meta_display_new (context, error);
   if (!priv->display)
-    return FALSE;
+    {
+      priv->state = META_CONTEXT_STATE_TERMINATED;
+      return FALSE;
+    }
 
   priv->main_loop = g_main_loop_new (NULL, FALSE);
+
+  priv->state = META_CONTEXT_STATE_STARTED;
 
   return TRUE;
 }
@@ -376,14 +425,18 @@ meta_context_run_main_loop (MetaContext  *context,
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_STARTED);
   if (!priv->main_loop)
     {
+      priv->state = META_CONTEXT_STATE_TERMINATED;
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Tried to run main loop without having started");
       return FALSE;
     }
 
+  priv->state = META_CONTEXT_STATE_RUNNING;
   g_main_loop_run (priv->main_loop);
+  priv->state = META_CONTEXT_STATE_TERMINATED;
   g_clear_pointer (&priv->main_loop, g_main_loop_unref);
 
   if (priv->termination_error)
@@ -400,7 +453,8 @@ meta_context_terminate (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
-  g_return_if_fail (g_main_loop_is_running (priv->main_loop));
+  g_warn_if_fail (priv->state == META_CONTEXT_STATE_RUNNING);
+  g_warn_if_fail (g_main_loop_is_running (priv->main_loop));
 
   g_main_loop_quit (priv->main_loop);
 }
