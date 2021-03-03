@@ -13,6 +13,8 @@ typedef struct {
 
 static ClutterTestEnvironment *test_environ = NULL;
 
+static GMainLoop *clutter_test_main_loop = NULL;
+
 #define DBUS_NAME_WARNING "Lost or failed to acquire name"
 
 static gboolean
@@ -29,58 +31,6 @@ log_func (const gchar    *log_domain,
   return TRUE;
 }
 
-static const char *
-test_get_plugin_name (void)
-{
-  const char *name;
-
-  name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
-  if (name)
-    return name;
-  else
-    return "libdefault";
-}
-
-static void
-init_common_pre (void)
-{
-  const char *display;
-
-  if (G_UNLIKELY (test_environ != NULL))
-    g_error ("Attempting to initialize the test suite more than once, "
-             "aborting...\n");
-
-  meta_plugin_manager_load (test_get_plugin_name ());
-  meta_override_x11_display_policy (META_X11_DISPLAY_POLICY_DISABLED);
-  meta_test_init ();
-
-  display = g_getenv ("DISPLAY");
-  if (!display || *display == '\0')
-    {
-      g_error ("No DISPLAY environment variable found, but we require a "
-               "DISPLAY set in order to run the conformance test suite.\n"
-               "Skipping all tests.\n");
-    }
-
-  /* we explicitly disable the synchronisation to the vertical refresh
-   * rate, and run the master clock using a 60 fps timer instead.
-   */
-  _clutter_set_sync_to_vblank (FALSE);
-}
-
-static void
-init_common_post (int    *argc,
-                  char ***argv)
-{
-  g_test_init (argc, argv, NULL);
-  g_test_bug_base ("https://bugzilla.gnome.org/show_bug.cgi?id=%s");
-
-  /* our global state, accessible from each test unit */
-  test_environ = g_new0 (ClutterTestEnvironment, 1);
-
-  meta_start ();
-}
-
 /*
  * clutter_test_init:
  * @argc: (inout): number of arguments in @argv
@@ -94,9 +44,18 @@ void
 clutter_test_init (int    *argc,
                    char ***argv)
 {
-  init_common_pre ();
-  g_assert (clutter_init (NULL, NULL) == CLUTTER_INIT_SUCCESS);
-  init_common_post (argc, argv);
+  MetaContext *context;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
+  g_assert (meta_context_configure (context, argc, argv, NULL));
+  g_assert (meta_context_setup (context, NULL));
+
+  test_environ = g_new0 (ClutterTestEnvironment, 1);
+
+  g_assert (meta_context_start (context, NULL));
+
+  clutter_test_main_loop = g_main_loop_new (NULL, FALSE);
 }
 
 /**
@@ -306,13 +265,17 @@ clutter_test_run (void)
 void
 clutter_test_main (void)
 {
-  meta_run_main_loop ();
+  g_assert_nonnull (clutter_test_main_loop);
+
+  g_main_loop_run (clutter_test_main_loop);
 }
 
 void
 clutter_test_quit (void)
 {
-  meta_quit (META_EXIT_SUCCESS);
+  g_assert_nonnull (clutter_test_main_loop);
+
+  g_main_loop_quit (clutter_test_main_loop);
 }
 
 typedef struct {

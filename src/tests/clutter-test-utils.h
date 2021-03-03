@@ -30,12 +30,8 @@
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-private.h"
-#include "core/main-private.h"
 #include "meta/common.h"
-#include "meta/main.h"
-#include "backends/x11/nested/meta-backend-x11-nested.h"
-#include "wayland/meta-wayland.h"
-#include "wayland/meta-xwayland.h"
+#include "tests/meta-context-test.h"
 
 G_BEGIN_DECLS
 

@@ -6,11 +6,9 @@
 #include <gmodule.h>
 
 #include "backends/x11/nested/meta-backend-x11-nested.h"
-#include "core/main-private.h"
-#include "meta/main.h"
-#include "meta/meta-enums.h"
-#include "wayland/meta-wayland.h"
-#include "wayland/meta-xwayland.h"
+#include "tests/clutter-test-utils.h"
+#include "tests/meta-context-test.h"
+
 #include "test-unit-names.h"
 
 #define MAX_DESC_SIZE   72
@@ -126,13 +124,6 @@ main (int argc, char **argv)
     }
 
   g_option_context_free (context);
-
-  meta_wayland_override_display_name ("mutter-test-display");
-  meta_xwayland_override_display_number (512);
-  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
-                                          META_TYPE_BACKEND_X11_NESTED,
-                                          NULL);
-  meta_init ();
 
   module = g_module_open (NULL, 0);
   if (!module)

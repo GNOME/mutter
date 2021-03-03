@@ -1,4 +1,20 @@
+test_context_sources = [
+  'meta-backend-test.c',
+  'meta-backend-test.h',
+  'meta-context-test.c',
+  'meta-context-test.h',
+  'meta-gpu-test.c',
+  'meta-gpu-test.h',
+  'meta-monitor-manager-test.c',
+  'meta-monitor-manager-test.h',
+  'monitor-test-utils.c',
+  'monitor-test-utils.h',
+  'test-utils.c',
+  'test-utils.h',
+]
+
 clutter_test_utils = files (
+  test_context_sources,
   'clutter-test-utils.c',
   'clutter-test-utils.h',
 )
@@ -41,21 +57,6 @@ test_env = environment()
 test_env.set('G_TEST_SRCDIR', join_paths(meson.source_root(), 'src'))
 test_env.set('G_TEST_BUILDDIR', meson.build_root())
 test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
-
-test_context_sources = [
-  'meta-backend-test.c',
-  'meta-backend-test.h',
-  'meta-context-test.c',
-  'meta-context-test.h',
-  'meta-gpu-test.c',
-  'meta-gpu-test.h',
-  'meta-monitor-manager-test.c',
-  'meta-monitor-manager-test.h',
-  'monitor-test-utils.c',
-  'monitor-test-utils.h',
-  'test-utils.c',
-  'test-utils.h',
-]
 
 test_client = executable('mutter-test-client',
   sources: ['test-client.c'],
