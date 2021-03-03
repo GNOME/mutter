@@ -100,10 +100,6 @@ process_ice_messages (GIOChannel *channel,
 
   if (status == IceProcessMessagesIOError)
     {
-#if 0
-      IcePointer context = IceGetConnectionContext (connection);
-#endif
-
       /* We were disconnected; close our connection to the
        * session manager, this will result in the ICE connection
        * being cleaned up, since it is owned by libSM.
