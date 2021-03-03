@@ -39,8 +39,8 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
-#include "meta/main.h"
 #include "meta/meta-backend.h"
+#include "meta/meta-context.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
@@ -1146,11 +1146,13 @@ static gboolean
 close_display_idle_cb (gpointer user_data)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (user_data);
+  MetaDisplay *display = x11_display->display;
+  MetaContext *context = meta_display_get_context (display);
 
-  meta_display_close (x11_display->display,
+  meta_display_close (display,
                       x11_display->xselectionclear_timestamp);
   x11_display->display_close_idle = 0;
-  meta_quit (META_EXIT_SUCCESS);
+  meta_context_terminate (context);
 
   return G_SOURCE_REMOVE;
 }
