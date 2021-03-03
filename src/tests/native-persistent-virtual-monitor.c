@@ -22,14 +22,14 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "compositor/meta-plugin-manager.h"
-#include "meta/main.h"
+#include "meta/meta-context.h"
 #include "meta/meta-backend.h"
 #include "tests/test-utils.h"
 
 static gboolean
-wait_for_paint (gpointer data)
+wait_for_paint (gpointer user_data)
 {
+  MetaContext *context = user_data;
   MetaBackend *backend = meta_get_backend ();
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaMonitorManager *monitor_manager =
@@ -65,7 +65,7 @@ wait_for_paint (gpointer data)
 
   g_main_loop_run (loop);
 
-  meta_quit (META_EXIT_SUCCESS);
+  meta_context_terminate (context);
 
   return G_SOURCE_REMOVE;
 }
@@ -75,7 +75,7 @@ main (int    argc,
       char **argv)
 {
   char *fake_args[] = {
-      NULL,
+      argv[0],
       (char *) "--wayland",
       (char *) "--headless",
       (char *) "--virtual-monitor",
@@ -83,24 +83,18 @@ main (int    argc,
   };
   char **fake_argv = fake_args;
   int fake_argc = G_N_ELEMENTS (fake_args);
-  GOptionContext *ctx;
-  GError *error = NULL;
+  g_autoptr (MetaContext) context = NULL;
+  g_autoptr (GError) error = NULL;
 
-  test_init (&argc, &argv);
+  context = meta_create_context ("Persistent virtual monitor test");
+  g_assert (meta_context_configure (context, &fake_argc, &fake_argv, &error));
+  meta_context_set_plugin_name (context, test_get_plugin_name ());
+  g_assert (meta_context_setup (context, &error));
+  g_assert (meta_context_start (context, &error));
 
-  fake_args[0] = argv[0];
+  g_idle_add (wait_for_paint, context);
 
-  ctx = meta_get_option_context ();
-  if (!g_option_context_parse (ctx, &fake_argc, &fake_argv, &error))
-    g_error ("Failed to parse fake command line arguments: %s", error->message);
-  g_option_context_free (ctx);
+  g_assert (meta_context_run_main_loop (context, &error));
 
-  meta_plugin_manager_load (test_get_plugin_name ());
-
-  meta_init ();
-  meta_register_with_session ();
-
-  g_idle_add (wait_for_paint, NULL);
-
-  return meta_run ();
+  return EXIT_SUCCESS;
 }
