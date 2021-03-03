@@ -616,7 +616,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
 {
   ClutterStageCogl *stage_cogl;
   gboolean res = FALSE;
-  ClutterBackendX11 *backend_x11;
+  ClutterBackendX11 *clutter_backend_x11;
   ClutterStage *stage;
 
   stage_cogl = meta_x11_get_stage_window_from_window (xevent->xany.window);
@@ -624,7 +624,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
     return FALSE;
 
   stage = stage_cogl->wrapper;
-  backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
+  clutter_backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
 
   switch (xevent->type)
     {
@@ -779,9 +779,11 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
       g_debug ("Client message for stage, win:0x%x",
                (unsigned int) xevent->xany.window);
 
-      if (xevent->xclient.message_type == backend_x11->atom_WM_PROTOCOLS)
+      if (xevent->xclient.message_type == clutter_backend_x11->atom_WM_PROTOCOLS)
         {
-          if (handle_wm_protocols_event (backend_x11, stage_x11, xevent))
+          if (handle_wm_protocols_event (clutter_backend_x11,
+                                         stage_x11,
+                                         xevent))
             {
               g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
                                     FALSE);
