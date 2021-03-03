@@ -56,6 +56,9 @@ typedef struct _MetaContextPrivate
 
   MetaBackend *backend;
   MetaDisplay *display;
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *wayland_compositor;
+#endif
 
   GMainLoop *main_loop;
   GError *termination_error;
@@ -141,6 +144,16 @@ meta_context_get_display (MetaContext *context)
 
   return priv->display;
 }
+
+#ifdef HAVE_WAYLAND
+MetaWaylandCompositor *
+meta_context_get_wayland_compositor (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->wayland_compositor;
+}
+#endif
 
 MetaCompositorType
 meta_context_get_compositor_type (MetaContext *context)
@@ -304,6 +317,10 @@ meta_context_setup (MetaContext  *context,
 
   init_introspection (context);
 
+#ifdef HAVE_WAYLAND
+  priv->wayland_compositor = meta_wayland_compositor_new (context);
+#endif
+
   return META_CONTEXT_GET_CLASS (context)->setup (context, error);
 }
 
@@ -318,7 +335,7 @@ meta_context_start (MetaContext  *context,
 #ifdef HAVE_WAYLAND
   if (meta_context_get_compositor_type (context) ==
       META_COMPOSITOR_TYPE_WAYLAND)
-    meta_backend_init_wayland (meta_get_backend ());
+    meta_wayland_compositor_setup (priv->wayland_compositor);
 #endif
 
   priv->display = meta_display_new (context, error);
@@ -420,18 +437,13 @@ meta_context_finalize (GObject *object)
 {
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
-#ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor;
-  MetaCompositorType compositor_type;
-#endif
 
   if (priv->backend)
     meta_backend_prepare_shutdown (priv->backend);
 
 #ifdef HAVE_WAYLAND
-  compositor = meta_wayland_compositor_get_default ();
-  if (compositor)
-    meta_wayland_compositor_prepare_shutdown (compositor);
+  if (priv->wayland_compositor)
+    meta_wayland_compositor_prepare_shutdown (priv->wayland_compositor);
 #endif
 
   if (priv->display)
@@ -439,9 +451,7 @@ meta_context_finalize (GObject *object)
   g_clear_object (&priv->display);
 
 #ifdef HAVE_WAYLAND
-  compositor_type = meta_context_get_compositor_type (context);
-  if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
-    meta_wayland_finalize ();
+  g_clear_object (&priv->wayland_compositor);
 #endif
 
   g_clear_pointer (&priv->backend, meta_backend_destroy);

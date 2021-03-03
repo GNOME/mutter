@@ -250,10 +250,6 @@ meta_backend_x11_nested_initable_init (GInitable     *initable,
                                        GCancellable  *cancellable,
                                        GError       **error)
 {
-#ifdef HAVE_WAYLAND
-  meta_backend_init_wayland_display (META_BACKEND (initable));
-#endif
-
   return initable_parent_iface->init (initable, cancellable, error);
 }
 

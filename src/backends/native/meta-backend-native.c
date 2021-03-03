@@ -577,11 +577,6 @@ meta_backend_native_initable_init (GInitable     *initable,
     }
 
   native->device_pool = meta_device_pool_new (native->launcher);
-
-#ifdef HAVE_WAYLAND
-  meta_backend_init_wayland_display (META_BACKEND (native));
-#endif
-
   native->udev = meta_udev_new (native);
 
   kms_flags = META_KMS_FLAG_NONE;

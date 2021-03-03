@@ -342,8 +342,9 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   guint32 time = (guint32) (g_get_monotonic_time () / 1000);
   MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_backend_get_context (backend);
   MetaWaylandCompositor *compositor =
-    meta_backend_get_wayland_compositor (backend);
+    meta_context_get_wayland_compositor (context);
 
   if (displayed_sprite != META_CURSOR_SPRITE (priv->cursor_sprite))
     return;

@@ -112,14 +112,6 @@ void meta_backend_destroy (MetaBackend *backend);
 
 void meta_backend_prepare_shutdown (MetaBackend *backend);
 
-#ifdef HAVE_WAYLAND
-MetaWaylandCompositor * meta_backend_get_wayland_compositor (MetaBackend *backend);
-
-void meta_backend_init_wayland_display (MetaBackend *backend);
-
-void meta_backend_init_wayland (MetaBackend *backend);
-#endif
-
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
 ClutterSeat * meta_backend_get_default_seat (MetaBackend *bakcend);

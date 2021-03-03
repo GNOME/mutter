@@ -60,10 +60,12 @@ MetaWaylandCompositor *
 meta_wayland_compositor_get_default (void)
 {
   MetaBackend *backend;
+  MetaContext *context;
   MetaWaylandCompositor *wayland_compositor;
 
   backend = meta_get_backend ();
-  wayland_compositor = meta_backend_get_wayland_compositor (backend);
+  context = meta_backend_get_context (backend);
+  wayland_compositor = meta_context_get_wayland_compositor (context);
   g_assert (wayland_compositor);
 
   return wayland_compositor;
@@ -407,6 +409,28 @@ meta_wayland_log_func (const char *fmt,
   g_free (str);
 }
 
+void
+meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
+{
+  meta_xwayland_shutdown (&compositor->xwayland_manager);
+
+  if (compositor->wayland_display)
+    wl_display_destroy_clients (compositor->wayland_display);
+}
+
+static void
+meta_wayland_compositor_finalize (GObject *object)
+{
+  MetaWaylandCompositor *compositor = META_WAYLAND_COMPOSITOR (object);
+
+  g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
+
+  g_clear_pointer (&compositor->display_name, g_free);
+  g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
+
+  G_OBJECT_CLASS (meta_wayland_compositor_parent_class)->finalize (object);
+}
+
 static void
 meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
 {
@@ -422,6 +446,9 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
 static void
 meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_wayland_compositor_finalize;
 }
 
 static bool
@@ -455,12 +482,12 @@ meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
 }
 
 MetaWaylandCompositor *
-meta_wayland_compositor_new (MetaBackend *backend)
+meta_wayland_compositor_new (MetaContext *context)
 {
   MetaWaylandCompositor *compositor;
 
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
-  compositor->backend = backend;
+  compositor->context = context;
 
   return compositor;
 }
@@ -498,7 +525,8 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
 void
 meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
 {
-  ClutterActor *stage = meta_backend_get_stage (compositor->backend);
+  MetaBackend *backend = meta_context_get_backend (compositor->context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
   GSource *wayland_event_source;
 
   wayland_event_source = wayland_event_source_new (compositor->wayland_display);
@@ -614,28 +642,6 @@ const char *
 meta_wayland_get_private_xwayland_display_name (MetaWaylandCompositor *compositor)
 {
   return compositor->xwayland_manager.private_connection.name;
-}
-
-void
-meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
-{
-  meta_xwayland_shutdown (&compositor->xwayland_manager);
-
-  if (compositor->wayland_display)
-    wl_display_destroy_clients (compositor->wayland_display);
-}
-
-void
-meta_wayland_finalize (void)
-{
-  MetaWaylandCompositor *compositor;
-
-  compositor = meta_wayland_compositor_get_default ();
-
-  g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
-
-  g_clear_pointer (&compositor->display_name, g_free);
-  g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
 }
 
 void

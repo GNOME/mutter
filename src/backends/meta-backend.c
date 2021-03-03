@@ -154,10 +154,6 @@ struct _MetaBackendPrivate
   MetaRemoteDesktop *remote_desktop;
 #endif
 
-#ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *wayland_compositor;
-#endif
-
 #ifdef HAVE_PROFILER
   MetaProfiler *profiler;
 #endif
@@ -959,32 +955,6 @@ system_bus_gotten_cb (GObject      *object,
                                         backend,
                                         NULL);
 }
-
-#ifdef HAVE_WAYLAND
-MetaWaylandCompositor *
-meta_backend_get_wayland_compositor (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  return priv->wayland_compositor;
-}
-
-void
-meta_backend_init_wayland_display (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  priv->wayland_compositor = meta_wayland_compositor_new (backend);
-}
-
-void
-meta_backend_init_wayland (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  meta_wayland_compositor_setup (priv->wayland_compositor);
-}
-#endif
 
 /* Mutter is responsible for pulling events off the X queue, so Clutter
  * doesn't need (and shouldn't) run its normal event source which polls

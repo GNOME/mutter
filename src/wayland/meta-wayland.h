@@ -32,13 +32,7 @@
 META_EXPORT_TEST
 void                    meta_wayland_override_display_name (const char *display_name);
 
-void                    meta_wayland_pre_clutter_init           (void);
-
-void                    meta_wayland_init                       (void);
-
-void                    meta_wayland_finalize                   (void);
-
-MetaWaylandCompositor * meta_wayland_compositor_new             (MetaBackend *backend);
+MetaWaylandCompositor * meta_wayland_compositor_new             (MetaContext *context);
 
 void                    meta_wayland_compositor_setup           (MetaWaylandCompositor *compositor);
 

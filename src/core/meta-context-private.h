@@ -23,6 +23,7 @@
 
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
+#include "wayland/meta-wayland-types.h"
 
 struct _MetaContextClass
 {
@@ -43,5 +44,7 @@ struct _MetaContextClass
 
   void (* notify_ready) (MetaContext *context);
 };
+
+MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
 
 #endif /* META_CONTEXT_PRIVATE_H */

@@ -82,7 +82,7 @@ struct _MetaWaylandCompositor
 {
   GObject parent;
 
-  MetaBackend *backend;
+  MetaContext *context;
 
   struct wl_display *wayland_display;
   char *display_name;

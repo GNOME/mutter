@@ -302,12 +302,11 @@ meta_wayland_actor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   if (!wl_list_empty (&pending->frame_callback_list) &&
       priv->actor &&
+      clutter_actor_is_mapped (CLUTTER_ACTOR (priv->actor)) &&
       !meta_surface_actor_is_obscured (priv->actor))
     {
-      MetaWaylandSurface *surface =
-        meta_wayland_surface_role_get_surface (surface_role);
-      MetaBackend *backend = surface->compositor->backend;
-      ClutterActor *stage = meta_backend_get_stage (backend);
+      ClutterActor *stage =
+        clutter_actor_get_stage (CLUTTER_ACTOR (priv->actor));
 
       clutter_stage_schedule_update (CLUTTER_STAGE (stage));
     }

@@ -212,7 +212,8 @@ on_monitors_changed (MetaMonitorManager    *manager,
 void
 meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor)
 {
-  MetaBackend *backend = compositor->backend;
+  MetaContext *context = compositor->context;
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   ClutterActor *stage = meta_backend_get_stage (backend);
