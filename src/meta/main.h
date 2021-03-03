@@ -73,9 +73,6 @@ META_EXPORT
 void meta_quit (MetaExitCode code);
 
 META_EXPORT
-void            meta_test_init               (void);
-
-META_EXPORT
 void meta_start (void);
 
 META_EXPORT

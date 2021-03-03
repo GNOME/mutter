@@ -661,66 +661,6 @@ calculate_compositor_configuration (MetaCompositorType  *compositor_type,
     }
 }
 
-static gboolean _compositor_configuration_overridden = FALSE;
-static MetaCompositorType _compositor_type_override;
-static GType _backend_gtype_override;
-static GArray *_backend_property_names;
-static GArray *_backend_property_values;
-
-void
-meta_override_compositor_configuration (MetaCompositorType compositor_type,
-                                        GType              backend_gtype,
-                                        const char        *first_property_name,
-                                        ...)
-{
-  va_list var_args;
-  GArray *names;
-  GArray *values;
-  GObjectClass *object_class;
-  const char *property_name;
-
-  names = g_array_new (FALSE, FALSE, sizeof (const char *));
-  values = g_array_new (FALSE, FALSE, sizeof (GValue));
-  g_array_set_clear_func (values, (GDestroyNotify) g_value_unset);
-
-  object_class = g_type_class_ref (backend_gtype);
-
-  property_name = first_property_name;
-
-  va_start (var_args, first_property_name);
-
-  while (property_name)
-    {
-      GValue value = G_VALUE_INIT;
-      GParamSpec *pspec;
-      GType ptype;
-      char *error = NULL;
-
-      pspec = g_object_class_find_property (object_class,
-                                            property_name);
-      g_assert (pspec);
-
-      ptype = G_PARAM_SPEC_VALUE_TYPE (pspec);
-      G_VALUE_COLLECT_INIT (&value, ptype, var_args, 0, &error);
-      g_assert (!error);
-
-      g_array_append_val (names, property_name);
-      g_array_append_val (values, value);
-
-      property_name = va_arg (var_args, const char *);
-    }
-
-  va_end (var_args);
-
-  g_type_class_unref (object_class);
-
-  _compositor_configuration_overridden = TRUE;
-  _compositor_type_override = compositor_type;
-  _backend_gtype_override = backend_gtype;
-  _backend_property_names = names;
-  _backend_property_values = values;
-}
-
 /**
  * meta_init: (skip)
  *
@@ -756,22 +696,11 @@ meta_init (void)
 
   meta_init_debug_utils ();
 
-  if (_compositor_configuration_overridden)
-    {
-      compositor_type = _compositor_type_override;
-      backend_gtype = _backend_gtype_override;
-      n_properties = _backend_property_names->len;
-      prop_names = (const char **) _backend_property_names->data;
-      prop_values = (GValue *) _backend_property_values->data;
-    }
-  else
-    {
-      calculate_compositor_configuration (&compositor_type,
-                                          &backend_gtype,
-                                          &n_properties,
-                                          &prop_names,
-                                          &prop_values);
-    }
+  calculate_compositor_configuration (&compositor_type,
+                                      &backend_gtype,
+                                      &n_properties,
+                                      &prop_names,
+                                      &prop_values);
 
 #ifdef HAVE_WAYLAND
   if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
@@ -800,12 +729,6 @@ meta_init (void)
 
   for (i = 0; i < n_properties; i++)
     g_value_reset (&prop_values[i]);
-
-  if (_backend_property_names)
-    {
-      g_array_free (_backend_property_names, TRUE);
-      g_array_free (_backend_property_values, TRUE);
-    }
 
 #ifdef HAVE_NATIVE_BACKEND
   add_persistent_virtual_monitors ();
@@ -975,24 +898,4 @@ meta_get_x11_display_policy (void)
 #endif
 
   return META_X11_DISPLAY_POLICY_MANDATORY;
-}
-
-void
-meta_test_init (void)
-{
-#if defined(HAVE_WAYLAND)
-  g_autofree char *display_name = g_strdup ("mutter-test-display-XXXXXX");
-  int fd = g_mkstemp (display_name);
-
-  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
-                                          META_TYPE_BACKEND_X11_NESTED,
-                                          NULL);
-  meta_wayland_override_display_name (display_name);
-  meta_xwayland_override_display_number (512 + rand() % 512);
-  meta_init ();
-
-  close (fd);
-#else
-  g_warning ("Tests require wayland support");
-#endif
 }

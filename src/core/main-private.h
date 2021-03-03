@@ -21,7 +21,6 @@
 #define META_MAIN_PRIVATE_H
 
 #include "core/util-private.h"
-#include "meta/meta-enums.h"
 
 typedef enum _MetaX11DisplayPolicy
 {
@@ -29,12 +28,6 @@ typedef enum _MetaX11DisplayPolicy
   META_X11_DISPLAY_POLICY_ON_DEMAND,
   META_X11_DISPLAY_POLICY_DISABLED,
 } MetaX11DisplayPolicy;
-
-META_EXPORT_TEST
-void meta_override_compositor_configuration (MetaCompositorType compositor_type,
-                                             GType              backend_gtype,
-                                             const char        *first_property_name,
-                                             ...);
 
 META_EXPORT_TEST
 MetaX11DisplayPolicy meta_get_x11_display_policy (void);
