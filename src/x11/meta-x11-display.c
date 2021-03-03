@@ -83,7 +83,6 @@ typedef struct _MetaX11DisplayLogicalMonitorData
 static GdkDisplay *prepared_gdk_display = NULL;
 
 static const char *gnome_wm_keybindings = "Mutter";
-static const char *net_wm_name = "Mutter";
 
 static char *get_screen_name (Display *xdisplay,
                               int      number);
@@ -730,6 +729,7 @@ static void
 init_leader_window (MetaX11Display *x11_display,
                     guint32        *timestamp)
 {
+  MetaContext *context = meta_display_get_context (x11_display->display);
   gulong data[1];
   XEvent event;
 
@@ -746,7 +746,7 @@ init_leader_window (MetaX11Display *x11_display,
   meta_prop_set_utf8_string_hint (x11_display,
                                   x11_display->leader_window,
                                   x11_display->atom__NET_WM_NAME,
-                                  net_wm_name);
+                                  meta_context_get_name (context));
 
   meta_prop_set_utf8_string_hint (x11_display,
                                   x11_display->leader_window,
@@ -1002,21 +1002,6 @@ set_work_area_hint (MetaDisplay    *display,
   meta_x11_error_trap_pop (x11_display);
 
   g_free (data);
-}
-
-/**
- * meta_set_wm_name: (skip)
- * @wm_name: value for _NET_WM_NAME
- *
- * Set the value to use for the _NET_WM_NAME property. To take effect,
- * it is necessary to call this function before meta_init().
- */
-void
-meta_set_wm_name (const char *wm_name)
-{
-  g_return_if_fail (meta_get_display () == NULL);
-
-  net_wm_name = wm_name;
 }
 
 /**

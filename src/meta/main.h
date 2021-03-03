@@ -30,9 +30,6 @@ META_EXPORT
 gboolean        meta_get_replace_current_wm (void);  /* Actually defined in util.c */
 
 META_EXPORT
-void            meta_set_wm_name              (const char *wm_name);
-
-META_EXPORT
 void            meta_set_gnome_wm_keybindings (const char *wm_keybindings);
 
 META_EXPORT

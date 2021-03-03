@@ -117,6 +117,14 @@ meta_context_notify_ready (MetaContext *context)
   META_CONTEXT_GET_CLASS (context)->notify_ready (context);
 }
 
+const char *
+meta_context_get_name (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->name;
+}
+
 /**
  * meta_context_get_backend:
  * @context: The #MetaContext

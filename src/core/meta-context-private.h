@@ -45,6 +45,8 @@ struct _MetaContextClass
   void (* notify_ready) (MetaContext *context);
 };
 
+const char * meta_context_get_name (MetaContext *context);
+
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
 
 #endif /* META_CONTEXT_PRIVATE_H */
