@@ -788,18 +788,8 @@ meta_display_shutdown_x11 (MetaDisplay *display)
   g_clear_object (&display->x11_display);
 }
 
-/**
- * meta_display_open:
- *
- * Opens a new display, sets it up, initialises all the X extensions
- * we will need, and adds it to the list of displays.
- *
- * Returns: %TRUE if the display was opened successfully, and %FALSE
- * otherwise-- that is, if the display doesn't exist or it already
- * has a window manager.
- */
-gboolean
-meta_display_open (GError **error)
+MetaDisplay *
+meta_display_new (GError **error)
 {
   MetaDisplay *display;
   int i;
@@ -905,7 +895,7 @@ meta_display_open (GError **error)
       if (!meta_display_init_x11_display (display, error))
         {
           g_object_unref (display);
-          return FALSE;
+          return NULL;
         }
 
       timestamp = display->x11_display->timestamp;
@@ -923,7 +913,7 @@ meta_display_open (GError **error)
   if (!meta_compositor_do_manage (display->compositor, error))
     {
       g_object_unref (display);
-      return FALSE;
+      return NULL;
     }
 
   if (display->x11_display)
@@ -964,7 +954,7 @@ meta_display_open (GError **error)
   /* Done opening new display */
   display->display_opening = FALSE;
 
-  return TRUE;
+  return display;
 }
 
 static gint
@@ -1077,13 +1067,14 @@ meta_display_close (MetaDisplay *display,
                     guint32      timestamp)
 {
   g_assert (display != NULL);
-  g_assert (display == the_display);
 
   if (display->closing != 0)
     {
       /* The display's already been closed. */
       return;
     }
+
+  g_assert (display == the_display);
 
   display->closing += 1;
 
@@ -1135,7 +1126,6 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->selection);
   g_clear_object (&display->pad_action_mapper);
 
-  g_object_unref (display);
   the_display = NULL;
 }
 

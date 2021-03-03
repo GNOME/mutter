@@ -55,6 +55,7 @@ typedef struct _MetaContextPrivate
   GOptionContext *option_context;
 
   MetaBackend *backend;
+  MetaDisplay *display;
 
   GMainLoop *main_loop;
   GError *termination_error;
@@ -125,6 +126,20 @@ meta_context_get_backend (MetaContext *context)
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
   return priv->backend;
+}
+
+/**
+ * meta_context_get_display:
+ * @context: The #MetaContext
+ *
+ * Returns: (transfer none): the #MetaDisplay
+ */
+MetaDisplay *
+meta_context_get_display (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->display;
 }
 
 MetaCompositorType
@@ -306,7 +321,8 @@ meta_context_start (MetaContext  *context,
     meta_backend_init_wayland (meta_get_backend ());
 #endif
 
-  if (!meta_display_open (error))
+  priv->display = meta_display_new (error);
+  if (!priv->display)
     return FALSE;
 
   priv->main_loop = g_main_loop_new (NULL, FALSE);
@@ -404,7 +420,6 @@ meta_context_finalize (GObject *object)
 {
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
-  MetaDisplay *display;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *compositor;
   MetaCompositorType compositor_type;
@@ -419,9 +434,9 @@ meta_context_finalize (GObject *object)
     meta_wayland_compositor_prepare_shutdown (compositor);
 #endif
 
-  display = meta_get_display ();
-  if (display)
-    meta_display_close (display, META_CURRENT_TIME);
+  if (priv->display)
+    meta_display_close (priv->display, META_CURRENT_TIME);
+  g_clear_object (&priv->display);
 
 #ifdef HAVE_WAYLAND
   compositor_type = meta_context_get_compositor_type (context);

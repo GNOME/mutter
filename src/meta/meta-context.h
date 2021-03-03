@@ -25,6 +25,7 @@
 
 #include "meta/common.h"
 #include "meta/meta-enums.h"
+#include "meta/types.h"
 
 #define META_TYPE_CONTEXT (meta_context_get_type ())
 META_EXPORT
@@ -83,5 +84,8 @@ MetaCompositorType meta_context_get_compositor_type (MetaContext *context);
 
 META_EXPORT
 MetaBackend * meta_context_get_backend (MetaContext *context);
+
+META_EXPORT
+MetaDisplay * meta_context_get_display (MetaContext *context);
 
 #endif /* META_CONTEXT_H */
