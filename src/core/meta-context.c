@@ -51,6 +51,7 @@ typedef struct _MetaContextPrivate
   char *name;
   char *plugin_name;
   GType plugin_gtype;
+  char *gnome_wm_keybindings;
 
   GOptionContext *option_context;
 
@@ -109,6 +110,24 @@ meta_context_set_plugin_name (MetaContext *context,
   g_return_if_fail (priv->plugin_gtype == G_TYPE_NONE);
 
   priv->plugin_name = g_strdup (plugin_name);
+}
+
+void
+meta_context_set_gnome_wm_keybindings (MetaContext *context,
+                                       const char  *wm_keybindings)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
+  priv->gnome_wm_keybindings = g_strdup (wm_keybindings);
+}
+
+const char *
+meta_context_get_gnome_wm_keybindings (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->gnome_wm_keybindings;
 }
 
 void
@@ -462,6 +481,7 @@ meta_context_finalize (GObject *object)
 
   g_clear_pointer (&priv->option_context, g_option_context_free);
   g_clear_pointer (&priv->main_loop, g_main_loop_unref);
+  g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
 
@@ -497,6 +517,7 @@ meta_context_init (MetaContext *context)
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
   priv->plugin_gtype = G_TYPE_NONE;
+  priv->gnome_wm_keybindings = g_strdup ("Mutter");
 
   if (!setlocale (LC_ALL, ""))
     g_warning ("Locale not understood by C library");

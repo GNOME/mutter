@@ -82,8 +82,6 @@ typedef struct _MetaX11DisplayLogicalMonitorData
 
 static GdkDisplay *prepared_gdk_display = NULL;
 
-static const char *gnome_wm_keybindings = "Mutter";
-
 static char *get_screen_name (Display *xdisplay,
                               int      number);
 
@@ -730,6 +728,7 @@ init_leader_window (MetaX11Display *x11_display,
                     guint32        *timestamp)
 {
   MetaContext *context = meta_display_get_context (x11_display->display);
+  const char *gnome_wm_keybindings;
   gulong data[1];
   XEvent event;
 
@@ -748,6 +747,7 @@ init_leader_window (MetaX11Display *x11_display,
                                   x11_display->atom__NET_WM_NAME,
                                   meta_context_get_name (context));
 
+  gnome_wm_keybindings = meta_context_get_gnome_wm_keybindings (context);
   meta_prop_set_utf8_string_hint (x11_display,
                                   x11_display->leader_window,
                                   x11_display->atom__GNOME_WM_KEYBINDINGS,
@@ -1002,21 +1002,6 @@ set_work_area_hint (MetaDisplay    *display,
   meta_x11_error_trap_pop (x11_display);
 
   g_free (data);
-}
-
-/**
- * meta_set_gnome_wm_keybindings: (skip)
- * @wm_keybindings: value for _GNOME_WM_KEYBINDINGS
- *
- * Set the value to use for the _GNOME_WM_KEYBINDINGS property. To take
- * effect, it is necessary to call this function before meta_init().
- */
-void
-meta_set_gnome_wm_keybindings (const char *wm_keybindings)
-{
-  g_return_if_fail (meta_get_display () == NULL);
-
-  gnome_wm_keybindings = wm_keybindings;
 }
 
 const gchar *

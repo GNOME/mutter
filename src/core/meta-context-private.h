@@ -47,6 +47,8 @@ struct _MetaContextClass
 
 const char * meta_context_get_name (MetaContext *context);
 
+const char * meta_context_get_gnome_wm_keybindings (MetaContext *context);
+
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
 
 #endif /* META_CONTEXT_PRIVATE_H */

@@ -52,6 +52,10 @@ void meta_context_set_plugin_name (MetaContext *context,
                                    const char  *plugin_name);
 
 META_EXPORT
+void meta_context_set_gnome_wm_keybindings (MetaContext *context,
+                                            const char  *wm_keybindings);
+
+META_EXPORT
 gboolean meta_context_configure (MetaContext   *context,
                                  int           *argc,
                                  char        ***argv,
