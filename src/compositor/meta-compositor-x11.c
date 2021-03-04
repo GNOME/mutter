@@ -40,6 +40,7 @@ struct _MetaCompositorX11
   Window output;
 
   gulong before_update_handler_id;
+  gulong after_update_handler_id;
 
   gboolean frame_has_updated_xsurfaces;
   gboolean have_x11_sync_object;
@@ -363,6 +364,22 @@ on_before_update (ClutterStage     *stage,
 }
 
 static void
+on_after_update (ClutterStage     *stage,
+                 ClutterStageView *stage_view,
+                 MetaCompositor   *compositor)
+{
+  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
+
+  if (compositor_x11->frame_has_updated_xsurfaces)
+    {
+      if (compositor_x11->have_x11_sync_object)
+        compositor_x11->have_x11_sync_object = meta_sync_ring_after_frame ();
+
+      compositor_x11->frame_has_updated_xsurfaces = FALSE;
+    }
+}
+
+static void
 meta_compositor_x11_before_paint (MetaCompositor   *compositor,
                                   ClutterStageView *stage_view)
 {
@@ -373,25 +390,6 @@ meta_compositor_x11_before_paint (MetaCompositor   *compositor,
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
   parent_class->before_paint (compositor, stage_view);
-}
-
-static void
-meta_compositor_x11_after_paint (MetaCompositor   *compositor,
-                                 ClutterStageView *stage_view)
-{
-  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
-  MetaCompositorClass *parent_class;
-
-  if (compositor_x11->frame_has_updated_xsurfaces)
-    {
-      if (compositor_x11->have_x11_sync_object)
-        compositor_x11->have_x11_sync_object = meta_sync_ring_after_frame ();
-
-      compositor_x11->frame_has_updated_xsurfaces = FALSE;
-    }
-
-  parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->after_paint (compositor, stage_view);
 }
 
 static void
@@ -465,6 +463,9 @@ meta_compositor_x11_constructed (GObject *object)
   compositor_x11->before_update_handler_id =
     g_signal_connect (stage, "before-update",
                       G_CALLBACK (on_before_update), compositor);
+  compositor_x11->after_update_handler_id =
+    g_signal_connect (stage, "after-update",
+                      G_CALLBACK (on_after_update), compositor);
 
   G_OBJECT_CLASS (meta_compositor_x11_parent_class)->constructed (object);
 }
@@ -483,6 +484,7 @@ meta_compositor_x11_dispose (GObject *object)
     }
 
   g_clear_signal_handler (&compositor_x11->before_update_handler_id, stage);
+  g_clear_signal_handler (&compositor_x11->after_update_handler_id, stage);
 
   G_OBJECT_CLASS (meta_compositor_x11_parent_class)->dispose (object);
 }
@@ -504,7 +506,6 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
   compositor_class->manage = meta_compositor_x11_manage;
   compositor_class->unmanage = meta_compositor_x11_unmanage;
   compositor_class->before_paint = meta_compositor_x11_before_paint;
-  compositor_class->after_paint = meta_compositor_x11_after_paint;
   compositor_class->remove_window = meta_compositor_x11_remove_window;
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_x11_monotonic_to_high_res_xserver_time;
