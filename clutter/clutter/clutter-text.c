@@ -1416,6 +1416,7 @@ clutter_text_delete_selection (ClutterText *self)
       /* XXX:2.0 - remove */
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_POSITION]);
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CURSOR_POSITION]);
+      g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
     }
 
   if (priv->selection_bound != old_selection)
@@ -6259,6 +6260,7 @@ clutter_text_set_cursor_position (ClutterText *self,
   /* XXX:2.0 - remove */
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_POSITION]);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CURSOR_POSITION]);
+  g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
 }
 
 /**
