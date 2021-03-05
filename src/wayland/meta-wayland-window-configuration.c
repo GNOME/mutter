@@ -22,6 +22,8 @@
 
 #include "wayland/meta-wayland-window-configuration.h"
 
+#include "wayland/meta-window-wayland.h"
+
 static uint32_t global_serial_counter = 0;
 
 static gboolean
@@ -51,6 +53,13 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
                                        MetaGravity          gravity)
 {
   MetaWaylandWindowConfiguration *configuration;
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  int pending_width;
+  int pending_height;
+
+  meta_window_wayland_get_pending_size (wl_window,
+                                        &pending_width,
+                                        &pending_height);
 
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
@@ -72,8 +81,8 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
 
   if (flags & META_MOVE_RESIZE_RESIZE_ACTION ||
       is_window_size_fixed (window) ||
-      window->rect.width != width ||
-      window->rect.height != height)
+      pending_width != width ||
+      pending_height != height)
     {
       configuration->has_size = TRUE;
       configuration->width = width;
