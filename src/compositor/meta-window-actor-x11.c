@@ -483,10 +483,12 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
        * damage or any unobscured, or while we had the window frozen
        * (e.g. during an interactive resize.) We need to make sure that the
        * before_paint/after_paint functions get called, enabling us to
-       * send a _NET_WM_FRAME_DRAWN. We do a 1-pixel redraw to get
-       * consistent timing with non-empty frames. If the window
-       * is completely obscured, or completely off screen we fire off the
-       * send_frame_messages timeout.
+       * send a _NET_WM_FRAME_DRAWN. We need to do full damage to ensure that
+       * the window is actually repainted, otherwise any subregion we would pass
+       * might end up being either outside of any stage view, or be occluded by
+       * something else, which could potentially result in no frame being drawn
+       * after all. If the window is completely obscured, or completely off
+       * screen we fire off the send_frame_messages timeout.
        */
       if (is_obscured ||
           !clutter_actor_peek_stage_views (CLUTTER_ACTOR (actor)))
@@ -495,8 +497,7 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
         }
       else if (surface)
         {
-          const cairo_rectangle_int_t clip = { 0, 0, 1, 1 };
-          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (surface), &clip);
+          clutter_actor_queue_redraw (CLUTTER_ACTOR (surface));
           actor_x11->repaint_scheduled = TRUE;
         }
     }
