@@ -1,5 +1,5 @@
 # French translation of mutter.
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2021 Free Software Foundation, Inc.
 # This file is distributed under the same license as the metacity package.
 #
 # Christophe Fergeau <teuf@users.sourceforge.net>, 2002.
@@ -14,22 +14,21 @@
 # Bruno Brouard <annoa.b@gmail.com>, 2011-12.
 # Jean-Baptiste Holcroft <jean-baptiste@holcroft.fr>, 2017.
 # Charles Monzat <charles.monzat@numericable.fr>, 2016-2018.
-# Claude Paroz <claude@2xlibre.net>, 2008-2019.
+# Claude Paroz <claude@2xlibre.net>, 2008-2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-09-01 07:41+0000\n"
-"PO-Revision-Date: 2020-09-03 09:04+0200\n"
-"Last-Translator: Guillaume Bernard <associations@guillaume-bernard.fr>\n"
+"POT-Creation-Date: 2021-02-23 18:32+0000\n"
+"PO-Revision-Date: 2021-02-06 10:34+0100\n"
+"Last-Translator: Claude Paroz <claude@2xlibre.net>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 2.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -56,12 +55,12 @@ msgid "Move window to last workspace"
 msgstr "Déplacer la fenêtre vers le dernier espace de travail"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Déplacer la fenêtre d’un espace de travail vers le haut"
+msgid "Move window one workspace to the left"
+msgstr "Déplacer la fenêtre d’un espace de travail vers la gauche"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Déplacer la fenêtre d’un espace de travail vers le bas"
+msgid "Move window one workspace to the right"
+msgstr "Déplacer la fenêtre d’un espace de travail vers la droite"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -160,12 +159,12 @@ msgid "Switch to last workspace"
 msgstr "Passer au dernier espace de travail"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Déplacer vers l’espace de travail du dessus"
+msgid "Move to workspace on the left"
+msgstr "Déplacer vers l’espace de travail de gauche"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Déplacer vers l’espace de travail du dessous"
+msgid "Move to workspace on the right"
+msgstr "Déplacer vers l’espace de travail de droite"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -248,11 +247,11 @@ msgstr "Maximiser la fenêtre verticalement"
 msgid "Maximize window horizontally"
 msgstr "Maximiser la fenêtre horizontalement"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Vue divisée sur la gauche"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Vue divisée sur la droite"
 
@@ -412,8 +411,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Pour activer les fonctionnalités expérimentales, ajoutez le mot-clé de la "
 "fonctionnalité dans la liste. Selon la fonctionnalité, il peut être "
@@ -427,22 +429,25 @@ msgstr ""
 "gérer les moniteurs à haute densité. Cela ne nécessite pas de redémarrage. • "
 "« rt-scheduler » — indique à mutter de demander un ordonnancement temps réel "
 "à faible priorité. L’exécutable ou l’utilisateur doit avoir CAP_SYS_NICE. "
-"Nécessite un redémarrage. • « autostart-xwayland » — initialise Xwayland de "
-"manière différée s’il y a des clients X11. Nécessite un redémarrage."
+"Nécessite un redémarrage. • « dma-buf-screen-sharing » — active le partage "
+"d’écran avec tampon DMA. Ceci est déjà actif par défaut avec le pilote i915, "
+"mais désactivé pour tout le reste. Nécessite un redémarrage. • "
+"« autoclose-xwayland » — ferme automatiquement Xwayland si tous les clients "
+"X11 concernés ont disparu. Ne nécessite pas de redémarrage."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Touche à utiliser pour situer le pointeur"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Cette clé initie l’action « situer le pointeur »."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Temps d’attente du ping de vérification d’activité"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -451,21 +456,21 @@ msgstr ""
 "ping et ne pas être considéré comme figé. Utiliser 0 désactivera "
 "complètement la vérification d’activité."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr ""
 "Sélectionner la fenêtre dans la vue qui apparaît suite à un appui sur la "
 "touche tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Fermer la vue qui apparaît suite à un appui sur la touche tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Changer de configuration de moniteur"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Passe à la prochaine configuration intégrée de moniteur"
 
@@ -596,25 +601,6 @@ msgstr ""
 "construction de Xwayland. Xwayland doit être redémarré pour que ce paramètre "
 "prenne effet."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Changement de mode (groupe %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "Changer de moniteur"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "Afficher l’aide à l’écran"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Affichage intégré"
@@ -649,7 +635,7 @@ msgstr "Compositeur"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -661,47 +647,51 @@ msgstr ""
 msgid "Bell event"
 msgstr "Évènement sonore"
 
-#: src/core/main.c:190
+#: src/core/main.c:218
 msgid "Disable connection to session manager"
 msgstr "Désactiver la connexion au gestionnaire de sessions"
 
-#: src/core/main.c:196
+#: src/core/main.c:224
 msgid "Replace the running window manager"
 msgstr "Remplacer le gestionnaire de fenêtres en cours de fonctionnement"
 
-#: src/core/main.c:202
+#: src/core/main.c:230
 msgid "Specify session management ID"
 msgstr "Indiquer l’ID de gestion de sessions"
 
-#: src/core/main.c:207
+#: src/core/main.c:235
 msgid "X Display to use"
 msgstr "Affichage X à utiliser"
 
-#: src/core/main.c:213
+#: src/core/main.c:241
 msgid "Initialize session from savefile"
 msgstr "Initialiser la session depuis le fichier de sauvegarde"
 
-#: src/core/main.c:219
+#: src/core/main.c:247
 msgid "Make X calls synchronous"
 msgstr "Rendre synchrones les appels à X"
 
-#: src/core/main.c:226
+#: src/core/main.c:254
 msgid "Run as a wayland compositor"
 msgstr "Lancer comme un compositeur wayland"
 
-#: src/core/main.c:232
+#: src/core/main.c:260
 msgid "Run as a nested compositor"
 msgstr "Lancer comme un compositeur imbriqué"
 
-#: src/core/main.c:238
+#: src/core/main.c:266
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Lancer le compositeur wayland sans démarrer Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:272
+msgid "Specify Wayland display name to use"
+msgstr "Indiquer le nom d’affichage Wayland à utiliser"
+
+#: src/core/main.c:280
 msgid "Run as a full display server, rather than nested"
 msgstr "Lancer comme un serveur d’affichage complet, plutôt qu’imbriqué"
 
-#: src/core/main.c:252
+#: src/core/main.c:286
 msgid "Run with X11 backend"
 msgstr "Lancer avec le moteur X11"
 
@@ -731,40 +721,43 @@ msgstr "_Forcer à quitter"
 msgid "_Wait"
 msgstr "_Attendre"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., et autres.\n"
-"Ceci est un logiciel libre ; consultez le code source pour les\n"
-"conditions de copie.\n"
-"Il n’y a AUCUNE garantie ; même pas de VALEUR MARCHANDE ou\n"
-"d’ADÉQUATION À UN USAGE PARTICULIER.\n"
+msgid "Mode Switch (Group %d)"
+msgstr "Changement de mode (groupe %d)"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Changer de moniteur"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Afficher l’aide à l’écran"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Afficher la version"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Greffon de Mutter à utiliser"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Espace de travail %d"
 
-#: src/core/util.c:118
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter a été compilé sans la prise en charge du mode bavard\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter a été compilé sans la prise en charge du mode bavard"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Changement de mode : mode %d"
@@ -779,25 +772,25 @@ msgstr ""
 "l’option --replace pour remplacer le gestionnaire de fenêtres actuel."
 
 #: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "L’initialisation de GDK a échoué\n"
+msgid "Failed to initialize GDK"
+msgstr "L’initialisation de GDK a échoué"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Impossible d’ouvrir l’affichage « %s » du système X Window\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Impossible d’ouvrir l’affichage « %s » du système X Window"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "L’écran %d sur l’affichage « %s » n’est pas valide\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "L’écran %d sur l’affichage « %s » n’est pas valide"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Le format %s n’est pas pris en charge"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -810,3 +803,26 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (sur %s)"
+
+#~ msgid "Move window one workspace up"
+#~ msgstr "Déplacer la fenêtre d’un espace de travail vers le haut"
+
+#~ msgid "Move window one workspace down"
+#~ msgstr "Déplacer la fenêtre d’un espace de travail vers le bas"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Déplacer vers l’espace de travail du dessous"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., et autres.\n"
+#~ "Ceci est un logiciel libre ; consultez le code source pour les\n"
+#~ "conditions de copie.\n"
+#~ "Il n’y a AUCUNE garantie ; même pas de VALEUR MARCHANDE ou\n"
+#~ "d’ADÉQUATION À UN USAGE PARTICULIER.\n"
