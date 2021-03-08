@@ -2575,7 +2575,7 @@ meta_window_move_resize_request (MetaWindow  *window,
 
   width = window->rect.width;
   height = window->rect.height;
-  if (!in_grab_op)
+  if (!in_grab_op || !meta_grab_op_is_resizing (window->display->grab_op))
     {
       if (value_mask & CWWidth)
         width = new_width;
