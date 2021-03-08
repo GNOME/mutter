@@ -35,9 +35,6 @@
 typedef struct _CoglOnscreenEglPrivate
 {
   EGLSurface egl_surface;
-
-  /* Platform specific data */
-  void *platform;
 } CoglOnscreenEglPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreenEgl, cogl_onscreen_egl,
@@ -297,25 +294,6 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
     }
   else
     eglSwapBuffers (egl_renderer->edpy, priv->egl_surface);
-}
-
-void
-cogl_onscreen_egl_set_platform (CoglOnscreenEgl *onscreen_egl,
-                                gpointer         platform)
-{
-  CoglOnscreenEglPrivate *priv =
-    cogl_onscreen_egl_get_instance_private (onscreen_egl);
-
-  priv->platform = platform;
-}
-
-gpointer
-cogl_onscreen_egl_get_platform (CoglOnscreenEgl *onscreen_egl)
-{
-  CoglOnscreenEglPrivate *priv =
-    cogl_onscreen_egl_get_instance_private (onscreen_egl);
-
-  return priv->platform;
 }
 
 void

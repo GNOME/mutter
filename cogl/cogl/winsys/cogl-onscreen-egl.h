@@ -42,13 +42,6 @@ struct _CoglOnscreenEglClass
 };
 
 COGL_EXPORT void
-cogl_onscreen_egl_set_platform (CoglOnscreenEgl *onscreen_egl,
-                                gpointer         platform);
-
-COGL_EXPORT gpointer
-cogl_onscreen_egl_get_platform (CoglOnscreenEgl *onscreen_egl);
-
-COGL_EXPORT void
 cogl_onscreen_egl_set_egl_surface (CoglOnscreenEgl *onscreen_egl,
                                    EGLSurface       egl_surface);
 
