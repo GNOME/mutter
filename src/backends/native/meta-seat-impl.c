@@ -514,21 +514,23 @@ new_absolute_motion_event (MetaSeatImpl       *seat_impl,
                                         seat_impl->pointer_y,
                                         &x, &y);
     }
+  else
+    {
+      /* This may happen early at startup */
+      if (seat_impl->viewports)
+        {
+          meta_input_device_native_translate_coordinates_in_impl (input_device,
+                                                                  seat_impl->viewports,
+                                                                  &x,
+                                                                  &y);
+        }
+    }
 
   event->motion.time_us = time_us;
   event->motion.time = us2ms (time_us);
   meta_xkb_translate_state (event, seat_impl->xkb, seat_impl->button_state);
   event->motion.x = x;
   event->motion.y = y;
-
-  /* This may happen early at startup */
-  if (seat_impl->viewports)
-    {
-      meta_input_device_native_translate_coordinates_in_impl (input_device,
-                                                              seat_impl->viewports,
-                                                              &event->motion.x,
-                                                              &event->motion.y);
-    }
 
   event->motion.axes = axes;
   clutter_event_set_device (event, seat_impl->core_pointer);
