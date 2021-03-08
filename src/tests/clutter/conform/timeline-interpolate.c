@@ -16,7 +16,7 @@
 typedef struct _TestState
 {
   ClutterTimeline *timeline;
-  int64_t start_time;
+  int64_t start_time_us;
   int new_frame_counter;
   int expected_frame;
   int completion_count;
@@ -29,16 +29,14 @@ new_frame_cb (ClutterTimeline *timeline,
               int              frame_num,
               TestState       *state)
 {
-  int64_t current_time;
-  int current_frame;
+  int64_t current_time_us;
+  int current_frame_ms;
   long msec_diff;
   int loop_overflow = 0;
 
-  current_time = g_get_real_time ();
-
-  current_frame = clutter_timeline_get_elapsed_time (state->timeline);
-
-  msec_diff = (current_time - state->start_time) / G_TIME_SPAN_MILLISECOND;
+  current_time_us = g_get_monotonic_time ();
+  current_frame_ms = clutter_timeline_get_elapsed_time (state->timeline);
+  msec_diff = us2ms (current_time_us - state->start_time_us);
 
   /* If we expect to have interpolated past the end of the timeline
    * we keep track of the overflow so we can determine when
@@ -56,14 +54,14 @@ new_frame_cb (ClutterTimeline *timeline,
     {
     case 0:
     case 1:
-      if (current_frame >= (state->expected_frame - TEST_ERROR_TOLERANCE) &&
-          current_frame <= (state->expected_frame + TEST_ERROR_TOLERANCE))
+      if (current_frame_ms >= (state->expected_frame - TEST_ERROR_TOLERANCE) &&
+          current_frame_ms <= (state->expected_frame + TEST_ERROR_TOLERANCE))
         {
           g_test_message ("elapsed milliseconds=%-5li "
                           "expected frame=%-4i actual frame=%-4i (OK)",
                           msec_diff,
                           state->expected_frame,
-                          current_frame);
+                          current_frame_ms);
         }
       else
         {
@@ -71,12 +69,12 @@ new_frame_cb (ClutterTimeline *timeline,
                           "expected frame=%-4i actual frame=%-4i (FAILED)",
                           msec_diff,
                           state->expected_frame,
-                          current_frame);
+                          current_frame_ms);
           g_test_fail ();
         }
       break;
     case 2:
-      g_assert_cmpint (current_frame, ==, TEST_TIMELINE_DURATION);
+      g_assert_cmpint (current_frame_ms, ==, TEST_TIMELINE_DURATION);
       break;
     default:
       g_assert_not_reached ();
@@ -100,10 +98,10 @@ new_frame_cb (ClutterTimeline *timeline,
          */
         int delay_ms = ms (1500);
 
-        state->expected_frame = current_frame + delay_ms;
+        state->expected_frame = current_frame_ms + delay_ms;
         g_test_message ("Sleeping for 1.5 seconds "
                         "so next frame should be (%d + %d) = %d",
-                        current_frame,
+                        current_frame_ms,
                         delay_ms,
                         state->expected_frame);
         g_usleep (ms2us (delay_ms));
@@ -117,12 +115,12 @@ new_frame_cb (ClutterTimeline *timeline,
          */
         int delay_ms = TEST_TIMELINE_DURATION;
 
-        state->expected_frame = current_frame + delay_ms;
+        state->expected_frame = current_frame_ms + delay_ms;
         g_test_message ("Sleeping for %d seconds "
                         "so next frame should be (%d + %d) = %d, "
                         "which is %d into the next cycle",
                         TEST_TIMELINE_DURATION / 1000,
-                        current_frame,
+                        current_frame_ms,
                         delay_ms,
                         state->expected_frame,
                         state->expected_frame - TEST_TIMELINE_DURATION);
@@ -200,7 +198,7 @@ timeline_interpolation (void)
 
   clutter_actor_show (stage);
 
-  state.start_time = g_get_real_time ();
+  state.start_time_us = g_get_monotonic_time ();
   clutter_timeline_start (state.timeline);
 
   clutter_test_main ();
