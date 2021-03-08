@@ -2032,8 +2032,7 @@ destroy_egl_surface (CoglOnscreen *onscreen)
   egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
   if (cogl_onscreen_egl_get_egl_surface (onscreen_egl) != EGL_NO_SURFACE)
     {
-      MetaOnscreenNative *onscreen_native =
-        cogl_onscreen_egl_get_platform (onscreen_egl);
+      MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
       MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
       CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
       CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
