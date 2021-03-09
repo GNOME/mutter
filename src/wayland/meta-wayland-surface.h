@@ -120,6 +120,8 @@ struct _MetaWaylandSurfaceState
   gboolean has_new_viewport_dst_size;
   int viewport_dst_width;
   int viewport_dst_height;
+
+  GSList *subsurface_placement_ops;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -209,7 +211,6 @@ struct _MetaWaylandSurface
     int32_t pending_x;
     int32_t pending_y;
     gboolean pending_pos;
-    GSList *pending_placement_ops;
   } sub;
 
   /* wp_viewport */
