@@ -63,7 +63,16 @@ with some additions:
    that may have side effects.
 
  - Instead of boolean arguments in functions, prefer enums or flags when
-   they're more expressive.
+   they're more expressive. The naming convention for flags is
+
+```c
+typedef _MetaSomeThingFlags
+{
+  META_SOME_THING_FLAG_NONE = 0,
+  META_SOME_THING_FLAG_ALTER_REALITY = 1 << 0,
+  META_SOME_THING_FLAG_MANIPULATE_PERCEPTION = 1 << 1,
+} MetaSomeThingFlags;
+```
 
  - Use `g_new0()` etc instead of `g_slice_new0()`.
 
