@@ -30,19 +30,6 @@
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-window-wayland.h"
 
-typedef enum
-{
-  META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE,
-  META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW
-} MetaWaylandSubsurfacePlacement;
-
-typedef struct
-{
-  MetaWaylandSubsurfacePlacement placement;
-  MetaWaylandSurface *sibling;
-  struct wl_listener sibling_destroy_listener;
-} MetaWaylandSubsurfacePlacementOp;
-
 struct _MetaWaylandSubsurface
 {
   MetaWaylandActorSurface parent;
@@ -133,57 +120,6 @@ meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
       surface->sub.x = surface->sub.pending_x;
       surface->sub.y = surface->sub.pending_y;
       surface->sub.pending_pos = FALSE;
-    }
-
-  if (surface->sub.pending_placement_ops)
-    {
-      GSList *it;
-      MetaWaylandSurface *parent;
-
-      parent = surface->sub.parent;
-
-      for (it = surface->sub.pending_placement_ops; it; it = it->next)
-        {
-          MetaWaylandSubsurfacePlacementOp *op = it->data;
-          MetaWaylandSurface *sibling;
-          GNode *sibling_node;
-
-          if (!op->sibling)
-            {
-              g_slice_free (MetaWaylandSubsurfacePlacementOp, op);
-              continue;
-            }
-
-          sibling = op->sibling;
-          if (is_child (surface, sibling))
-            sibling_node = sibling->subsurface_leaf_node;
-          else
-            sibling_node = sibling->subsurface_branch_node;
-
-          g_node_unlink (surface->subsurface_branch_node);
-
-          switch (op->placement)
-            {
-            case META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE:
-              g_node_insert_after (parent->subsurface_branch_node,
-                                   sibling_node,
-                                   surface->subsurface_branch_node);
-              break;
-            case META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW:
-              g_node_insert_before (parent->subsurface_branch_node,
-                                    sibling_node,
-                                    surface->subsurface_branch_node);
-              break;
-            }
-
-          wl_list_remove (&op->sibling_destroy_listener.link);
-          g_slice_free (MetaWaylandSubsurfacePlacementOp, op);
-        }
-
-      g_slist_free (surface->sub.pending_placement_ops);
-      surface->sub.pending_placement_ops = NULL;
-
-      meta_wayland_surface_notify_subsurface_state_changed (parent);
     }
 
   if (is_surface_effectively_synchronized (surface))
@@ -407,6 +343,16 @@ is_valid_sibling (MetaWaylandSurface *surface,
 }
 
 static void
+subsurface_handle_pending_surface_destroyed (struct wl_listener *listener,
+                                             void               *data)
+{
+  MetaWaylandSubsurfacePlacementOp *op =
+    wl_container_of (listener, op, surface_destroy_listener);
+
+  op->surface = NULL;
+}
+
+static void
 subsurface_handle_pending_sibling_destroyed (struct wl_listener *listener,
                                              void               *data)
 {
@@ -416,23 +362,39 @@ subsurface_handle_pending_sibling_destroyed (struct wl_listener *listener,
   op->sibling = NULL;
 }
 
+void
+meta_wayland_subsurface_placement_op_free (MetaWaylandSubsurfacePlacementOp *op)
+{
+  if (op->surface)
+    wl_list_remove (&op->surface_destroy_listener.link);
+  if (op->sibling)
+    wl_list_remove (&op->sibling_destroy_listener.link);
+  g_free (op);
+}
+
 static void
 queue_subsurface_placement (MetaWaylandSurface             *surface,
                             MetaWaylandSurface             *sibling,
                             MetaWaylandSubsurfacePlacement  placement)
 {
+  MetaWaylandSurface *parent = surface->sub.parent;
   MetaWaylandSubsurfacePlacementOp *op =
-    g_slice_new (MetaWaylandSubsurfacePlacementOp);
+    g_new0 (MetaWaylandSubsurfacePlacementOp, 1);
 
   op->placement = placement;
+  op->surface = surface;
   op->sibling = sibling;
+  op->surface_destroy_listener.notify =
+    subsurface_handle_pending_surface_destroyed;
   op->sibling_destroy_listener.notify =
     subsurface_handle_pending_sibling_destroyed;
+  wl_resource_add_destroy_listener (surface->resource,
+                                    &op->surface_destroy_listener);
   wl_resource_add_destroy_listener (sibling->resource,
                                     &op->sibling_destroy_listener);
 
-  surface->sub.pending_placement_ops =
-    g_slist_append (surface->sub.pending_placement_ops, op);
+  parent->pending_state->subsurface_placement_ops =
+    g_slist_append (parent->pending_state->subsurface_placement_ops, op);
 }
 
 static void
