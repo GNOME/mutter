@@ -61,7 +61,7 @@ typedef struct _MetaKmsConnectorState
 
 MetaKmsDevice * meta_kms_connector_get_device (MetaKmsConnector *connector);
 
-MetaConnectorType meta_kms_connector_get_connector_type (MetaKmsConnector *connector);
+uint32_t meta_kms_connector_get_connector_type (MetaKmsConnector *connector);
 
 uint32_t meta_kms_connector_get_id (MetaKmsConnector *connector);
 

@@ -267,6 +267,12 @@ init_output_modes (MetaOutputInfo    *output_info,
   return TRUE;
 }
 
+static MetaConnectorType
+meta_kms_connector_type_from_drm (uint32_t drm_connector_type)
+{
+  return (MetaConnectorType) drm_connector_type;
+}
+
 MetaOutputKms *
 meta_output_kms_new (MetaGpuKms        *gpu_kms,
                      MetaKmsConnector  *kms_connector,
@@ -279,6 +285,7 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   g_autoptr (MetaOutputInfo) output_info = NULL;
   MetaOutput *output;
   MetaOutputKms *output_kms;
+  uint32_t drm_connector_type;
   const MetaKmsConnectorState *connector_state;
   GArray *crtcs;
   GList *l;
@@ -331,7 +338,9 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
 
   meta_output_info_parse_edid (output_info, connector_state->edid_data);
 
-  output_info->connector_type = meta_kms_connector_get_connector_type (kms_connector);
+  drm_connector_type = meta_kms_connector_get_connector_type (kms_connector);
+  output_info->connector_type =
+    meta_kms_connector_type_from_drm (drm_connector_type);
 
   output_info->tile_info = connector_state->tile_info;
 

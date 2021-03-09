@@ -42,7 +42,7 @@ struct _MetaKmsConnector
   MetaKmsDevice *device;
 
   uint32_t id;
-  MetaConnectorType type;
+  uint32_t type;
   uint32_t type_id;
   char *name;
 
@@ -76,7 +76,7 @@ meta_kms_connector_get_prop_name (MetaKmsConnector     *connector,
   return connector->prop_table.props[prop].name;
 }
 
-MetaConnectorType
+uint32_t
 meta_kms_connector_get_connector_type (MetaKmsConnector *connector)
 {
   return connector->type;
@@ -621,7 +621,7 @@ meta_kms_connector_new (MetaKmsImplDevice *impl_device,
   connector = g_object_new (META_TYPE_KMS_CONNECTOR, NULL);
   connector->device = meta_kms_impl_device_get_device (impl_device);
   connector->id = drm_connector->connector_id;
-  connector->type = (MetaConnectorType) drm_connector->connector_type;
+  connector->type = drm_connector->connector_type;
   connector->type_id = drm_connector->connector_type_id;
   connector->name = make_connector_name (drm_connector);
 
