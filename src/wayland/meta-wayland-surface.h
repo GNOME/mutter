@@ -121,6 +121,8 @@ struct _MetaWaylandSurfaceState
   int viewport_dst_width;
   int viewport_dst_height;
 
+  GSList *subsurface_placement_ops;
+
   /* presentation-time */
   struct wl_list presentation_feedback_list;
 };
@@ -212,7 +214,6 @@ struct _MetaWaylandSurface
     int32_t pending_x;
     int32_t pending_y;
     gboolean pending_pos;
-    GSList *pending_placement_ops;
   } sub;
 
   /* wp_viewport */
