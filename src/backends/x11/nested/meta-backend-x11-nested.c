@@ -21,6 +21,7 @@
 
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 
+#include "backends/meta-input-settings-dummy.h"
 #include "backends/meta-monitor-manager-dummy.h"
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "backends/x11/nested/meta-cursor-renderer-x11-nested.h"
@@ -32,6 +33,7 @@ typedef struct _MetaBackendX11NestedPrivate
 {
   MetaGpu *gpu;
   MetaCursorRenderer *cursor_renderer;
+  MetaInputSettings *input_settings;
 } MetaBackendX11NestedPrivate;
 
 static GInitableIface *initable_parent_iface;
@@ -86,7 +88,22 @@ meta_backend_x11_nested_get_cursor_renderer (MetaBackend        *backend,
 static MetaInputSettings *
 meta_backend_x11_nested_get_input_settings (MetaBackend *backend)
 {
-  return NULL;
+  MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (backend);
+  MetaBackendX11NestedPrivate *priv =
+    meta_backend_x11_nested_get_instance_private (backend_x11_nested);
+
+  if (!priv->input_settings)
+    {
+      ClutterSeat *seat;
+
+      seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+      priv->input_settings =
+        g_object_new (META_TYPE_INPUT_SETTINGS_DUMMY,
+                      "seat", seat,
+                      NULL);
+    }
+
+  return priv->input_settings;
 }
 
 static void
@@ -272,6 +289,18 @@ meta_backend_x11_nested_constructed (GObject *object)
 }
 
 static void
+meta_backend_x11_nested_dispose (GObject *object)
+{
+  MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (object);
+  MetaBackendX11NestedPrivate *priv =
+    meta_backend_x11_nested_get_instance_private (backend_x11_nested);
+
+  g_clear_object (&priv->input_settings);
+
+  G_OBJECT_CLASS (meta_backend_x11_nested_parent_class)->dispose (object);
+}
+
+static void
 meta_backend_x11_nested_init (MetaBackendX11Nested *backend_x11_nested)
 {
 }
@@ -284,6 +313,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   MetaBackendX11Class *backend_x11_class = META_BACKEND_X11_CLASS (klass);
 
   object_class->constructed = meta_backend_x11_nested_constructed;
+  object_class->dispose = meta_backend_x11_nested_dispose;
 
   backend_class->post_init = meta_backend_x11_nested_post_init;
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
