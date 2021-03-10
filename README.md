@@ -46,16 +46,16 @@ with some additions:
 
  - Usage of g_autofree and g_autoptr are encouraged. The style used is
 
-```c
-  g_autofree char *text = NULL;
-  g_autoptr (MetaSomeThing) thing = NULL;
+    ```c
+      g_autofree char *text = NULL;
+      g_autoptr (MetaSomeThing) thing = NULL;
 
-  text = g_strdup_printf ("The text: %d", a_number);
-  thing = g_object_new (META_TYPE_SOME_THING,
-                        "text", text,
-                        NULL);
-  thinger_use_thing (rocket, thing);
-```
+      text = g_strdup_printf ("The text: %d", a_number);
+      thing = g_object_new (META_TYPE_SOME_THING,
+                            "text", text,
+                            NULL);
+      thinger_use_thing (rocket, thing);
+    ```
 
  - Declare variables at the top of the block they are used, but avoid
    non-trivial logic among variable declarations. Non-trivial logic can be
@@ -65,14 +65,14 @@ with some additions:
  - Instead of boolean arguments in functions, prefer enums or flags when
    they're more expressive. The naming convention for flags is
 
-```c
-typedef _MetaSomeThingFlags
-{
-  META_SOME_THING_FLAG_NONE = 0,
-  META_SOME_THING_FLAG_ALTER_REALITY = 1 << 0,
-  META_SOME_THING_FLAG_MANIPULATE_PERCEPTION = 1 << 1,
-} MetaSomeThingFlags;
-```
+    ```c
+    typedef _MetaSomeThingFlags
+    {
+      META_SOME_THING_FLAG_NONE = 0,
+      META_SOME_THING_FLAG_ALTER_REALITY = 1 << 0,
+      META_SOME_THING_FLAG_MANIPULATE_PERCEPTION = 1 << 1,
+    } MetaSomeThingFlags;
+    ```
 
  - Use `g_new0()` etc instead of `g_slice_new0()`.
 
