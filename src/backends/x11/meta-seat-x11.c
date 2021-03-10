@@ -1346,7 +1346,8 @@ meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
       event = clutter_event_new (CLUTTER_DEVICE_ADDED);
       clutter_event_set_device (event, device);
       clutter_event_set_stage (event, stage);
-      clutter_do_event (event);
+      clutter_event_put (event);
+      clutter_event_free (event);
     }
 }
 
