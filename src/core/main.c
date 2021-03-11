@@ -1014,11 +1014,18 @@ meta_get_x11_display_policy (void)
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     {
+#ifdef HAVE_XWAYLAND_INITFD
+      g_autofree char *unit = NULL;
+#endif
+
       if (opt_no_x11)
         return META_DISPLAY_POLICY_DISABLED;
 
 #ifdef HAVE_XWAYLAND_INITFD
-      return META_DISPLAY_POLICY_ON_DEMAND;
+      if (sd_pid_get_user_unit (0, &unit) < 0)
+        return META_DISPLAY_POLICY_MANDATORY;
+      else
+        return META_DISPLAY_POLICY_ON_DEMAND;
 #endif
     }
 #endif
