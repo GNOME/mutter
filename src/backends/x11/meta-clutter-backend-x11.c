@@ -78,24 +78,27 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
 }
 
 static gboolean
-meta_clutter_backend_x11_translate_event (ClutterBackend *backend,
+meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
                                           gpointer        native,
                                           ClutterEvent   *event)
 {
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
   MetaStageX11 *stage_x11;
   ClutterBackendClass *clutter_backend_class;
 
   clutter_backend_class =
     CLUTTER_BACKEND_CLASS (meta_clutter_backend_x11_parent_class);
-  if (clutter_backend_class->translate_event (backend, native, event))
+  if (clutter_backend_class->translate_event (clutter_backend, native, event))
     return TRUE;
 
-  stage_x11 = META_STAGE_X11 (clutter_backend_get_stage_window (backend));
+  stage_x11 =
+    META_STAGE_X11 (clutter_backend_get_stage_window (clutter_backend));
   if (meta_stage_x11_translate_event (stage_x11, native, event))
     return TRUE;
 
-  if (meta_seat_x11_translate_event (backend_x11->core_seat, native, event))
+  if (meta_seat_x11_translate_event (clutter_backend_x11->core_seat,
+                                     native, event))
     return TRUE;
 
   return FALSE;
@@ -131,11 +134,12 @@ meta_clutter_backend_x11_init_events (ClutterBackend *backend)
 }
 
 static ClutterSeat *
-meta_clutter_backend_x11_get_default_seat (ClutterBackend *backend)
+meta_clutter_backend_x11_get_default_seat (ClutterBackend *clutter_backend)
 {
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
 
-  return CLUTTER_SEAT (backend_x11->core_seat);
+  return CLUTTER_SEAT (clutter_backend_x11->core_seat);
 }
 
 static gboolean
