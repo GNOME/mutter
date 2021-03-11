@@ -375,11 +375,11 @@ static void
 meta_backend_native_update_screen_size (MetaBackend *backend,
                                         int width, int height)
 {
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  MetaStageNative *stage_native;
   ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterStageWindow *stage_window =
+    _clutter_stage_get_window (CLUTTER_STAGE (stage));
+  MetaStageNative *stage_native = META_STAGE_NATIVE (stage_window);
 
-  stage_native = meta_clutter_backend_native_get_stage_native (clutter_backend);
   meta_stage_native_rebuild_views (stage_native);
 
   clutter_actor_set_size (stage, width, height);

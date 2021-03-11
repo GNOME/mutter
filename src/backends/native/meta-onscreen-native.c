@@ -1314,13 +1314,12 @@ add_onscreen_frame_info (MetaCrtc *crtc)
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   MetaBackend *backend = meta_gpu_get_backend (gpu);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  MetaStageNative *stage_native =
-    meta_clutter_backend_native_get_stage_native (clutter_backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererView *view = meta_renderer_get_view_for_crtc (renderer, crtc);
 
-  clutter_stage_cogl_add_onscreen_frame_info (CLUTTER_STAGE_COGL (stage_native),
+  clutter_stage_cogl_add_onscreen_frame_info (CLUTTER_STAGE_COGL (stage_window),
                                               CLUTTER_STAGE_VIEW (view));
 }
 
