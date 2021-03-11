@@ -175,15 +175,23 @@ typedef enum
 "      p.x >= bounds.z || p.y >= bounds.w)                                \n"\
 "    return 0.0;                                                          \n"\
 "                                                                         \n"\
-"  vec2 rad_tl = corner_centers_1.xy - bounds.xy;                         \n"\
-"  vec2 rad_tr = corner_centers_1.zw - bounds.zy;                         \n"\
-"  vec2 rad_br = corner_centers_2.xy - bounds.zw;                         \n"\
-"  vec2 rad_bl = corner_centers_2.zw - bounds.xw;                         \n"\
-"                                                                         \n"\
 "  vec2 ref_tl = corner_centers_1.xy;                                     \n"\
 "  vec2 ref_tr = corner_centers_1.zw;                                     \n"\
 "  vec2 ref_br = corner_centers_2.xy;                                     \n"\
 "  vec2 ref_bl = corner_centers_2.zw;                                     \n"\
+"                                                                         \n"\
+"  if (p.x >= ref_tl.x && p.x >= ref_bl.x &&                              \n"\
+"      p.x <= ref_tr.x && p.x <= ref_br.x)                                \n"\
+"    return 1.0;                                                          \n"\
+"                                                                         \n"\
+"  if (p.y >= ref_tl.y && p.y >= ref_tr.y &&                              \n"\
+"      p.y <= ref_bl.y && p.y <= ref_br.y)                                \n"\
+"    return 1.0;                                                          \n"\
+"                                                                         \n"\
+"  vec2 rad_tl = corner_centers_1.xy - bounds.xy;                         \n"\
+"  vec2 rad_tr = corner_centers_1.zw - bounds.zy;                         \n"\
+"  vec2 rad_br = corner_centers_2.xy - bounds.zw;                         \n"\
+"  vec2 rad_bl = corner_centers_2.zw - bounds.xw;                         \n"\
 "                                                                         \n"\
 "  float d_tl = ellipsis_coverage(p, ref_tl, rad_tl);                     \n"\
 "  float d_tr = ellipsis_coverage(p, ref_tr, rad_tr);                     \n"\
