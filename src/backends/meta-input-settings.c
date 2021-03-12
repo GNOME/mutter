@@ -1796,10 +1796,6 @@ meta_input_settings_init (MetaInputSettings *settings)
   g_signal_connect (priv->mouse_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
 
-  g_settings_bind (priv->mouse_settings, "double-click",
-                   clutter_settings_get_default(), "double-click-time",
-                   G_SETTINGS_BIND_GET);
-
   priv->touchpad_settings = g_settings_new ("org.gnome.desktop.peripherals.touchpad");
   g_signal_connect (priv->touchpad_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
