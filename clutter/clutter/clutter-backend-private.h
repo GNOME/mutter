@@ -139,6 +139,9 @@ float clutter_backend_get_fallback_resource_scale (ClutterBackend *backend);
 
 gboolean clutter_backend_is_display_server (ClutterBackend *backend);
 
+CLUTTER_EXPORT
+void clutter_backend_destroy (ClutterBackend *backend);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_BACKEND_PRIVATE_H__ */

@@ -99,21 +99,12 @@ clutter_backend_dispose (GObject *gobject)
       backend->stage_window = NULL;
     }
 
-  G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
-}
-
-static void
-clutter_backend_finalize (GObject *gobject)
-{
-  ClutterBackend *backend = CLUTTER_BACKEND (gobject);
-
-  g_source_destroy (backend->cogl_source);
-
-  g_free (backend->font_name);
+  g_clear_pointer (&backend->cogl_source, g_source_destroy);
+  g_clear_pointer (&backend->font_name, g_free);
   g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
   g_clear_object (&backend->input_method);
 
-  G_OBJECT_CLASS (clutter_backend_parent_class)->finalize (gobject);
+  G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
 
 static gfloat
@@ -451,7 +442,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = clutter_backend_dispose;
-  gobject_class->finalize = clutter_backend_finalize;
 
   /**
    * ClutterBackend::resolution-changed:
@@ -932,4 +922,11 @@ gboolean
 clutter_backend_is_display_server (ClutterBackend *backend)
 {
   return CLUTTER_BACKEND_GET_CLASS (backend)->is_display_server (backend);
+}
+
+void
+clutter_backend_destroy (ClutterBackend *backend)
+{
+  g_object_run_dispose (G_OBJECT (backend));
+  g_object_unref (backend);
 }

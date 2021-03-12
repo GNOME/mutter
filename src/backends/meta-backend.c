@@ -247,7 +247,7 @@ meta_backend_dispose (GObject *object)
 #endif
 
   g_clear_pointer (&priv->default_seat, clutter_seat_destroy);
-  g_clear_object (&priv->clutter_backend);
+  g_clear_pointer (&priv->clutter_backend, clutter_backend_destroy);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);
 }
