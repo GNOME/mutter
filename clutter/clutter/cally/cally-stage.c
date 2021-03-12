@@ -134,8 +134,11 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
 
       if (self->priv->key_focus != NULL)
         {
-          g_object_remove_weak_pointer (G_OBJECT (self->priv->key_focus),
-                                        (gpointer *) &self->priv->key_focus);
+          if (self->priv->key_focus != CLUTTER_ACTOR (stage))
+            {
+              g_object_remove_weak_pointer (G_OBJECT (self->priv->key_focus),
+                                            (gpointer *) &self->priv->key_focus);
+            }
           old = clutter_actor_get_accessible (self->priv->key_focus);
         }
       else
@@ -160,8 +163,11 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
        *
        * we remove the weak pointer above.
        */
-      g_object_add_weak_pointer (G_OBJECT (self->priv->key_focus),
-                                 (gpointer *) &self->priv->key_focus);
+      if (key_focus != CLUTTER_ACTOR (stage))
+        {
+          g_object_add_weak_pointer (G_OBJECT (self->priv->key_focus),
+                                     (gpointer *) &self->priv->key_focus);
+        }
 
       new = clutter_actor_get_accessible (key_focus);
     }
