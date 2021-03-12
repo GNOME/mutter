@@ -1909,8 +1909,8 @@ _clutter_process_event (ClutterEvent *event)
    */
   context->current_event = g_slist_prepend (context->current_event, event);
 
-  _clutter_process_event_details (stage, context, event);
   clutter_seat_handle_event_post (seat, event);
+  _clutter_process_event_details (stage, context, event);
 
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
 }
