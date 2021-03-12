@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-23 18:32+0000\n"
-"PO-Revision-Date: 2021-02-06 10:34+0100\n"
+"POT-Creation-Date: 2021-03-12 15:44+0000\n"
+"PO-Revision-Date: 2021-03-12 19:05+0100\n"
 "Last-Translator: Claude Paroz <claude@2xlibre.net>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -431,9 +431,9 @@ msgstr ""
 "à faible priorité. L’exécutable ou l’utilisateur doit avoir CAP_SYS_NICE. "
 "Nécessite un redémarrage. • « dma-buf-screen-sharing » — active le partage "
 "d’écran avec tampon DMA. Ceci est déjà actif par défaut avec le pilote i915, "
-"mais désactivé pour tout le reste. Nécessite un redémarrage. • "
-"« autoclose-xwayland » — ferme automatiquement Xwayland si tous les clients "
-"X11 concernés ont disparu. Ne nécessite pas de redémarrage."
+"mais désactivé pour tout le reste. Nécessite un redémarrage. • « autoclose-"
+"xwayland » — ferme automatiquement Xwayland si tous les clients X11 "
+"concernés ont disparu. Ne nécessite pas de redémarrage."
 
 #: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
@@ -647,51 +647,59 @@ msgstr ""
 msgid "Bell event"
 msgstr "Évènement sonore"
 
-#: src/core/main.c:218
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Désactiver la connexion au gestionnaire de sessions"
 
-#: src/core/main.c:224
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Remplacer le gestionnaire de fenêtres en cours de fonctionnement"
 
-#: src/core/main.c:230
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Indiquer l’ID de gestion de sessions"
 
-#: src/core/main.c:235
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "Affichage X à utiliser"
 
-#: src/core/main.c:241
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Initialiser la session depuis le fichier de sauvegarde"
 
-#: src/core/main.c:247
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Rendre synchrones les appels à X"
 
-#: src/core/main.c:254
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Lancer comme un compositeur wayland"
 
-#: src/core/main.c:260
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Lancer comme un compositeur imbriqué"
 
-#: src/core/main.c:266
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Lancer le compositeur wayland sans démarrer Xwayland"
 
-#: src/core/main.c:272
+#: src/core/main.c:287
 msgid "Specify Wayland display name to use"
 msgstr "Indiquer le nom d’affichage Wayland à utiliser"
 
-#: src/core/main.c:280
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Lancer comme un serveur d’affichage complet, plutôt qu’imbriqué"
 
-#: src/core/main.c:286
+#: src/core/main.c:300
+msgid "Run as a headless display server"
+msgstr "Lancer comme un serveur d’affichage sans interface"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Ajouter un moniteur virtuel persistant (WxH ou WxH@R)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Lancer avec le moteur X11"
 
@@ -771,16 +779,16 @@ msgstr ""
 "L’affichage « %s » a déjà un gestionnaire de fenêtres ; essayez d’utiliser "
 "l’option --replace pour remplacer le gestionnaire de fenêtres actuel."
 
-#: src/x11/meta-x11-display.c:1089
+#: src/x11/meta-x11-display.c:1097
 msgid "Failed to initialize GDK"
 msgstr "L’initialisation de GDK a échoué"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impossible d’ouvrir l’affichage « %s » du système X Window"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "L’écran %d sur l’affichage « %s » n’est pas valide"
