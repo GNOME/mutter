@@ -2502,6 +2502,7 @@ meta_window_move_resize_request (MetaWindow  *window,
   gboolean allow_position_change;
   gboolean in_grab_op;
   MetaMoveResizeFlags flags;
+  MetaRectangle buffer_rect;
 
   /* We ignore configure requests while the user is moving/resizing
    * the window, since these represent the app sucking and fighting
@@ -2573,8 +2574,9 @@ meta_window_move_resize_request (MetaWindow  *window,
 		  window->type);
     }
 
-  width = window->rect.width;
-  height = window->rect.height;
+  meta_window_get_buffer_rect (window, &buffer_rect);
+  width = buffer_rect.width;
+  height = buffer_rect.height;
   if (!in_grab_op || !meta_grab_op_is_resizing (window->display->grab_op))
     {
       if (value_mask & CWWidth)
