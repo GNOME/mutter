@@ -358,7 +358,7 @@ meta_select_display (char *display_arg)
     g_setenv ("DISPLAY", display_name, TRUE);
 }
 
-static void
+void
 meta_finalize (void)
 {
   MetaDisplay *display = meta_get_display ();
@@ -964,6 +964,12 @@ meta_quit (MetaExitCode code)
       meta_exit_code = code;
       g_main_loop_quit (meta_main_loop);
     }
+}
+
+MetaExitCode
+meta_get_exit_code (void)
+{
+  return meta_exit_code;
 }
 
 /**

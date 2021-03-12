@@ -75,5 +75,16 @@ void meta_quit (MetaExitCode code);
 META_EXPORT
 void            meta_test_init               (void);
 
+META_EXPORT
+void meta_start (void);
+
+META_EXPORT
+void meta_run_main_loop (void);
+
+META_EXPORT
+void meta_finalize (void);
+
+META_EXPORT
+MetaExitCode meta_get_exit_code (void);
 
 #endif
