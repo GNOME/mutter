@@ -608,9 +608,6 @@ clutter_init_real (GError **error)
 
   clutter_text_direction = clutter_get_text_direction ();
 
-  /* Initiate event collection */
-  _clutter_backend_init_events (ctx->backend);
-
   clutter_is_initialized = TRUE;
   ctx->is_initialized = TRUE;
 

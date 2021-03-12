@@ -71,6 +71,9 @@ struct _MetaBackendClass
                                       GError     **error);
   MetaInputSettings * (* get_input_settings) (MetaBackend *backend);
 
+  ClutterSeat * (* create_default_seat) (MetaBackend  *backend,
+                                         GError      **error);
+
   gboolean (* grab_device) (MetaBackend *backend,
                             int          device_id,
                             uint32_t     timestamp);
@@ -121,6 +124,8 @@ void meta_backend_init_wayland (MetaBackend *backend);
 #endif
 
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
+
+ClutterSeat * meta_backend_get_default_seat (MetaBackend *bakcend);
 
 MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
                                                  ClutterInputDevice *device);

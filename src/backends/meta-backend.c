@@ -149,6 +149,7 @@ struct _MetaBackendPrivate
 #endif
 
   ClutterBackend *clutter_backend;
+  ClutterSeat *default_seat;
   ClutterActor *stage;
 
   GList *gpus;
@@ -244,6 +245,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->profiler);
 #endif
 
+  g_clear_object (&priv->default_seat);
   g_clear_object (&priv->clutter_backend);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);
@@ -1047,10 +1049,18 @@ meta_get_clutter_backend (void)
   return meta_backend_get_clutter_backend (backend);
 }
 
+static ClutterSeat *
+meta_backend_create_default_seat (MetaBackend  *backend,
+                                  GError      **error)
+{
+  return META_BACKEND_GET_CLASS (backend)->create_default_seat (backend, error);
+}
+
 static gboolean
 init_clutter (MetaBackend  *backend,
               GError      **error)
 {
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaBackendSource *backend_source;
   GSource *source;
 
@@ -1062,6 +1072,10 @@ init_clutter (MetaBackend  *backend,
                    "Unable to initialize Clutter");
       return FALSE;
     }
+
+  priv->default_seat = meta_backend_create_default_seat (backend, error);
+  if (!priv->default_seat)
+    return FALSE;
 
   source = g_source_new (&clutter_source_funcs, sizeof (MetaBackendSource));
   backend_source = (MetaBackendSource *) source;
@@ -1391,6 +1405,14 @@ meta_backend_get_stage (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   return priv->stage;
+}
+
+ClutterSeat *
+meta_backend_get_default_seat (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->default_seat;
 }
 
 static gboolean

@@ -126,6 +126,29 @@ meta_backend_native_create_clutter_backend (MetaBackend *backend)
   return g_object_new (META_TYPE_CLUTTER_BACKEND_NATIVE, NULL);
 }
 
+static ClutterSeat *
+meta_backend_native_create_default_seat (MetaBackend  *backend,
+                                         GError      **error)
+{
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  const char *seat_id;
+  MetaSeatNativeFlag flags;
+
+  seat_id = meta_backend_native_get_seat_id (backend_native);
+
+  if (meta_backend_native_is_headless (backend_native))
+    flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
+  else
+    flags = META_SEAT_NATIVE_FLAG_NONE;
+
+  return CLUTTER_SEAT (g_object_new (META_TYPE_SEAT_NATIVE,
+                                     "backend", clutter_backend,
+                                     "seat-id", seat_id,
+                                     "flags", flags,
+                                     NULL));
+}
+
 #ifdef HAVE_REMOTE_DESKTOP
 static void
 maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
@@ -597,6 +620,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   object_class->dispose = meta_backend_native_dispose;
 
   backend_class->create_clutter_backend = meta_backend_native_create_clutter_backend;
+  backend_class->create_default_seat = meta_backend_native_create_default_seat;
 
   backend_class->post_init = meta_backend_native_post_init;
 

@@ -624,6 +624,42 @@ meta_backend_x11_create_clutter_backend (MetaBackend *backend)
   return g_object_new (META_TYPE_CLUTTER_BACKEND_X11, NULL);
 }
 
+static ClutterSeat *
+meta_backend_x11_create_default_seat (MetaBackend  *backend,
+                                      GError      **error)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  int event_base, first_event, first_error;
+  int major, minor;
+  MetaSeatX11 *seat_x11;
+
+  if (!XQueryExtension (priv->xdisplay,
+                        "XInputExtension",
+                        &event_base,
+                        &first_event,
+                        &first_error))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to query XInputExtension");
+      return NULL;
+    }
+
+  major = 2;
+  minor = 3;
+  if (XIQueryVersion (priv->xdisplay, &major, &minor) == BadRequest)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Incompatible XInputExtension version");
+      return NULL;
+    }
+
+  seat_x11 = meta_seat_x11_new (event_base,
+                                META_VIRTUAL_CORE_POINTER_ID,
+                                META_VIRTUAL_CORE_KEYBOARD_ID);
+  return CLUTTER_SEAT (seat_x11);
+}
+
 static gboolean
 meta_backend_x11_grab_device (MetaBackend *backend,
                               int          device_id,
@@ -894,6 +930,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   object_class->dispose = meta_backend_x11_dispose;
   object_class->finalize = meta_backend_x11_finalize;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
+  backend_class->create_default_seat = meta_backend_x11_create_default_seat;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;

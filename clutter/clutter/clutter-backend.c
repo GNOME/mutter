@@ -446,12 +446,6 @@ _clutter_create_backend (void)
 }
 
 static void
-clutter_backend_real_init_events (ClutterBackend *backend)
-{
-  g_error ("Unknown input backend");
-}
-
-static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -513,7 +507,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->resolution_changed = clutter_backend_real_resolution_changed;
   klass->font_changed = clutter_backend_real_font_changed;
 
-  klass->init_events = clutter_backend_real_init_events;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
 }
@@ -650,17 +643,6 @@ _clutter_backend_get_features (ClutterBackend *backend)
     return klass->get_features (backend);
   
   return 0;
-}
-
-void
-_clutter_backend_init_events (ClutterBackend *backend)
-{
-  ClutterBackendClass *klass;
-
-  g_assert (CLUTTER_IS_BACKEND (backend));
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  klass->init_events (backend);
 }
 
 gfloat

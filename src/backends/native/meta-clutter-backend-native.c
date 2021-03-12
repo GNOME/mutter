@@ -54,8 +54,6 @@
 struct _MetaClutterBackendNative
 {
   ClutterBackend parent;
-
-  MetaSeatNative *main_seat;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
@@ -82,54 +80,18 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *clutter_backend,
                        NULL);
 }
 
-static void
-meta_clutter_backend_native_init_events (ClutterBackend *clutter_backend)
-{
-  MetaClutterBackendNative *clutter_backend_native =
-    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
-  MetaBackend *backend = meta_get_backend ();
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  const char *seat_id;
-  MetaSeatNativeFlag flags;
-
-  seat_id = meta_backend_native_get_seat_id (backend_native);
-
-  if (meta_backend_native_is_headless (backend_native))
-    flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
-  else
-    flags = META_SEAT_NATIVE_FLAG_NONE;
-
-  clutter_backend_native->main_seat = g_object_new (META_TYPE_SEAT_NATIVE,
-                                                    "backend", clutter_backend,
-                                                    "seat-id", seat_id,
-                                                    "flags", flags,
-                                                    NULL);
-}
-
 static ClutterSeat *
 meta_clutter_backend_native_get_default_seat (ClutterBackend *clutter_backend)
 {
-  MetaClutterBackendNative *clutter_backend_native =
-    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  MetaBackend *backend = meta_get_backend ();
 
-  return CLUTTER_SEAT (clutter_backend_native->main_seat);
+  return meta_backend_get_default_seat (backend);
 }
 
 static gboolean
 meta_clutter_backend_native_is_display_server (ClutterBackend *clutter_backend)
 {
   return TRUE;
-}
-
-static void
-meta_clutter_backend_native_finalize (GObject *object)
-{
-  MetaClutterBackendNative *clutter_backend_native =
-    META_CLUTTER_BACKEND_NATIVE (object);
-
-  g_clear_object (&clutter_backend_native->main_seat);
-
-  G_OBJECT_CLASS (meta_clutter_backend_native_parent_class)->finalize (object);
 }
 
 static void
@@ -140,14 +102,10 @@ meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nati
 static void
 meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
-
-  object_class->finalize = meta_clutter_backend_native_finalize;
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
-  clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
 }

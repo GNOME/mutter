@@ -41,7 +41,6 @@
 struct _MetaClutterBackendX11
 {
   ClutterBackendX11 parent;
-  MetaSeatX11 *core_seat;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
@@ -82,10 +81,10 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
                                           gpointer        native,
                                           ClutterEvent   *event)
 {
-  MetaClutterBackendX11 *clutter_backend_x11 =
-    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaBackend *backend = meta_get_backend ();
   MetaStageX11 *stage_x11;
   ClutterBackendClass *clutter_backend_class;
+  ClutterSeat *seat;
 
   clutter_backend_class =
     CLUTTER_BACKEND_CLASS (meta_clutter_backend_x11_parent_class);
@@ -97,49 +96,19 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
   if (meta_stage_x11_translate_event (stage_x11, native, event))
     return TRUE;
 
-  if (meta_seat_x11_translate_event (clutter_backend_x11->core_seat,
-                                     native, event))
+  seat = meta_backend_get_default_seat (backend);
+  if (meta_seat_x11_translate_event (META_SEAT_X11 (seat), native, event))
     return TRUE;
 
   return FALSE;
 }
 
-static void
-meta_clutter_backend_x11_init_events (ClutterBackend *backend)
-{
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
-  int event_base, first_event, first_error;
-
-  if (XQueryExtension (clutter_x11_get_default_display (),
-                       "XInputExtension",
-                       &event_base,
-                       &first_event,
-                       &first_error))
-    {
-      int major = 2;
-      int minor = 3;
-
-      if (XIQueryVersion (clutter_x11_get_default_display (),
-                          &major, &minor) != BadRequest)
-        {
-          backend_x11->core_seat =
-            meta_seat_x11_new (event_base,
-                               META_VIRTUAL_CORE_POINTER_ID,
-                               META_VIRTUAL_CORE_KEYBOARD_ID);
-        }
-    }
-
-  if (!backend_x11->core_seat)
-    g_error ("No XInput 2.3 support");
-}
-
 static ClutterSeat *
 meta_clutter_backend_x11_get_default_seat (ClutterBackend *clutter_backend)
 {
-  MetaClutterBackendX11 *clutter_backend_x11 =
-    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaBackend *backend = meta_get_backend ();
 
-  return CLUTTER_SEAT (clutter_backend_x11->core_seat);
+  return meta_backend_get_default_seat (backend);
 }
 
 static gboolean
@@ -161,7 +130,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
   clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
-  clutter_backend_class->init_events = meta_clutter_backend_x11_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_x11_is_display_server;
 }
