@@ -64,6 +64,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
+#include "clutter/clutter-seat-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
@@ -245,7 +246,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->profiler);
 #endif
 
-  g_clear_object (&priv->default_seat);
+  g_clear_pointer (&priv->default_seat, clutter_seat_destroy);
   g_clear_object (&priv->clutter_backend);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);

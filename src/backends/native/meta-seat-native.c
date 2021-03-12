@@ -224,33 +224,22 @@ meta_seat_native_get_property (GObject    *object,
 }
 
 static void
-meta_seat_native_finalize (GObject *object)
+meta_seat_native_dispose (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
-  GList *iter;
 
-  if (seat->xkb_keymap)
-    xkb_keymap_unref (seat->xkb_keymap);
+  g_clear_pointer (&seat->xkb_keymap, xkb_keymap_unref);
   g_clear_object (&seat->core_pointer);
   g_clear_object (&seat->core_keyboard);
   g_clear_pointer (&seat->impl, meta_seat_impl_destroy);
-
-  for (iter = seat->devices; iter; iter = g_list_next (iter))
-    {
-      ClutterInputDevice *device = iter->data;
-
-      g_object_unref (device);
-    }
-  g_list_free (seat->devices);
-
-  g_hash_table_destroy (seat->reserved_virtual_slots);
-
+  g_list_free_full (g_steal_pointer (&seat->devices), g_object_unref);
+  g_clear_pointer (&seat->reserved_virtual_slots, g_hash_table_destroy);
   g_clear_pointer (&seat->tablet_cursors, g_hash_table_unref);
-  g_object_unref (seat->cursor_renderer);
+  g_clear_object (&seat->cursor_renderer);
 
-  g_free (seat->seat_id);
+  g_clear_pointer (&seat->seat_id, g_free);
 
-  G_OBJECT_CLASS (meta_seat_native_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_seat_native_parent_class)->dispose (object);
 }
 
 static ClutterInputDevice *
@@ -381,7 +370,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   object_class->constructed = meta_seat_native_constructed;
   object_class->set_property = meta_seat_native_set_property;
   object_class->get_property = meta_seat_native_get_property;
-  object_class->finalize = meta_seat_native_finalize;
+  object_class->dispose = meta_seat_native_dispose;
 
   seat_class->get_pointer = meta_seat_native_get_pointer;
   seat_class->get_keyboard = meta_seat_native_get_keyboard;

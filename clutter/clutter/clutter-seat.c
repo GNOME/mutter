@@ -30,6 +30,7 @@
 #include "clutter-mutter.h"
 #include "clutter-private.h"
 #include "clutter-seat.h"
+#include "clutter-seat-private.h"
 #include "clutter-virtual-input-device.h"
 
 enum
@@ -707,4 +708,11 @@ clutter_seat_query_state (ClutterSeat          *seat,
                                                      sequence,
                                                      coords,
                                                      modifiers);
+}
+
+void
+clutter_seat_destroy (ClutterSeat *seat)
+{
+  g_object_run_dispose (G_OBJECT (seat));
+  g_object_unref (seat);
 }
