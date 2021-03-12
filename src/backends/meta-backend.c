@@ -253,6 +253,13 @@ meta_backend_dispose (GObject *object)
 }
 
 static void
+meta_backend_destroy (MetaBackend *backend)
+{
+  g_object_run_dispose (G_OBJECT (backend));
+  g_object_unref (backend);
+}
+
+static void
 meta_backend_sync_screen_size (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -1534,7 +1541,7 @@ meta_init_backend (GType         backend_gtype,
 void
 meta_release_backend (void)
 {
-  g_clear_object (&_backend);
+  g_clear_pointer (&_backend, meta_backend_destroy);
 }
 
 void
