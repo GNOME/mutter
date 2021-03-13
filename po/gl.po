@@ -11,14 +11,15 @@
 # Fran Diéguez <frandieguez@gnome.org>, 2009, 2010, 2011, 2012.
 # Leandro Regueiro <leandro.regueiro@gmail.com>, 2012.
 # Fran Dieguez <frandieguez@gnome.org>, 2012-2021.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-13 21:32+0000\n"
-"PO-Revision-Date: 2021-02-23 16:04+0100\n"
+"POT-Creation-Date: 2021-03-12 15:44+0000\n"
+"PO-Revision-Date: 2021-03-13 22:31+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Proxecto Trasno <proxecto@trasno.gal>\n"
+"Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -623,7 +624,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -635,51 +636,60 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campá"
 
-#: src/core/main.c:218
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Desactivar a conexión ao xestor de sesión"
 
-#: src/core/main.c:224
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Substituír o xestor de xanelas en execución"
 
-#: src/core/main.c:230
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Especificar o ID de xestión de sesión"
 
-#: src/core/main.c:235
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "Pantalla X que se vai usar"
 
-#: src/core/main.c:241
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Inicializar sesión desde o ficheiro de salvagarda"
 
-#: src/core/main.c:247
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Facer que as chamadas a X sexan sincrónicas"
 
-#: src/core/main.c:254
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor de wayland"
 
-#: src/core/main.c:260
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Executar como compositor aniñado"
 
-#: src/core/main.c:266
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor de wayland sen iniciar Xwayland"
 
-#: src/core/main.c:272
+#: src/core/main.c:287
 msgid "Specify Wayland display name to use"
 msgstr "Especifique o nome de pantalla Wayland a usar"
 
-#: src/core/main.c:280
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
 
-#: src/core/main.c:286
+#: src/core/main.c:300
+#| msgid "Run as a full display server, rather than nested"
+msgid "Run as a headless display server"
+msgstr ""
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Engadir un monitor virtual persistente (WxH or WxH@R)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Executar coa infraestrutura de X11"
 
@@ -759,16 +769,16 @@ msgstr ""
 "A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
 "para substituír o xestor de xanelas."
 
-#: src/x11/meta-x11-display.c:1089
+#: src/x11/meta-x11-display.c:1097
 msgid "Failed to initialize GDK"
 msgstr "Produciuse un fallo ao inicializar GDK"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A pantalla %d na visualización «%s» non é válida"
