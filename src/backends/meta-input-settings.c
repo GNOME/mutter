@@ -175,7 +175,7 @@ meta_input_settings_set_property (GObject      *object,
   switch (prop_id)
     {
     case PROP_SEAT:
-      priv->seat = g_value_get_object (value);
+      priv->seat = g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
