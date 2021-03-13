@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-07 00:17+0000\n"
-"PO-Revision-Date: 2021-02-07 20:01+0100\n"
+"POT-Creation-Date: 2021-03-12 15:44+0000\n"
+"PO-Revision-Date: 2021-03-13 11:52+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -615,7 +615,7 @@ msgstr "Kompozitor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -625,51 +625,59 @@ msgstr "Jiný kompozitní správce již běží na obrazovce %i displeje „%s�
 msgid "Bell event"
 msgstr "Událost zvonku"
 
-#: src/core/main.c:218
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Zakázat připojení ke správci sezení"
 
-#: src/core/main.c:224
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Nahradí běžícího správce oken"
 
-#: src/core/main.c:230
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Určit ID správy sezení"
 
-#: src/core/main.c:235
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "Displej X, který se má použít"
 
-#: src/core/main.c:241
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Spustit sezení z uloženého souboru"
 
-#: src/core/main.c:247
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Provádět volání X synchronně"
 
-#: src/core/main.c:254
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Spustit jako kompozitor protokolu Wayland"
 
-#: src/core/main.c:260
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/main.c:266
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/main.c:272
+#: src/core/main.c:287
 msgid "Specify Wayland display name to use"
 msgstr "Určit název displeje Wayland, který se má používat"
 
-#: src/core/main.c:280
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/main.c:286
+#: src/core/main.c:300
+msgid "Run as a headless display server"
+msgstr "Spustit jako samostatný server displeje"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Přidat trvalý virtuální monitor (WxH or WxH@R)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
@@ -718,27 +726,11 @@ msgstr "Přepnout monitor"
 msgid "Show on-screen help"
 msgstr "Zobrazit nápovědu na obrazovce"
 
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001 – %d Havoc Pennington, Red Hat, Inc. a další.\n"
-"Toto je svobodný software; podmínky kopírování a rozšiřování naleznete ve "
-"zdrojových textech.\n"
-"Tento software je BEZ JAKÉKOLIV ZÁRUKY; neposkytují se ani záruky "
-"PRODEJNOSTI anebo VHODNOSTI PRO URČITÝ ÚČEL.\n"
-
-#: src/core/mutter.c:52
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Vypsat verzi"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Zásuvný modul Mutter, který se má použít"
 
@@ -765,16 +757,16 @@ msgstr ""
 "Displej „%s“ již správce oken má; zkuste prosím nahradit aktuálního správce "
 "oken pomocí přepínače --replace."
 
-#: src/x11/meta-x11-display.c:1089
+#: src/x11/meta-x11-display.c:1097
 msgid "Failed to initialize GDK"
 msgstr "Selhala inicializace GDK"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka %d na displeji „%s“ je neplatná"
