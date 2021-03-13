@@ -407,8 +407,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
   int64_t refresh_interval_us;
   int64_t min_render_time_allowed_us;
   int64_t max_render_time_allowed_us;
-  int64_t last_next_presentation_time_us;
-  int64_t time_since_last_next_presentation_time_us;
   int64_t next_presentation_time_us;
   int64_t next_update_time_us;
 
@@ -510,29 +508,34 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
         refresh_interval_us;
     }
 
-  /*
-   * Skip one interval if we got an early presented event.
-   *
-   *        last frame this was last_presentation_time
-   *       /       frame_clock->next_presentation_time_us
-   *      /       /
-   * |---|-o-----|-x----->
-   *       |       \
-   *       \        next_presentation_time_us is thus right after the last one
-   *        but got an unexpected early presentation
-   *             \_/
-   *             time_since_last_next_presentation_time_us
-   *
-   */
-  last_next_presentation_time_us = frame_clock->next_presentation_time_us;
-  time_since_last_next_presentation_time_us =
-    next_presentation_time_us - last_next_presentation_time_us;
-  if (frame_clock->is_next_presentation_time_valid &&
-      time_since_last_next_presentation_time_us > 0 &&
-      time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
+  if (frame_clock->is_next_presentation_time_valid)
     {
-      next_presentation_time_us =
-        frame_clock->next_presentation_time_us + refresh_interval_us;
+      int64_t last_next_presentation_time_us;
+      int64_t time_since_last_next_presentation_time_us;
+
+      /*
+       * Skip one interval if we got an early presented event.
+       *
+       *        last frame this was last_presentation_time
+       *       /       frame_clock->next_presentation_time_us
+       *      /       /
+       * |---|-o-----|-x----->
+       *       |       \
+       *       \        next_presentation_time_us is thus right after the last one
+       *        but got an unexpected early presentation
+       *             \_/
+       *             time_since_last_next_presentation_time_us
+       *
+       */
+      last_next_presentation_time_us = frame_clock->next_presentation_time_us;
+      time_since_last_next_presentation_time_us =
+        next_presentation_time_us - last_next_presentation_time_us;
+      if (time_since_last_next_presentation_time_us > 0 &&
+          time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
+        {
+          next_presentation_time_us =
+            frame_clock->next_presentation_time_us + refresh_interval_us;
+        }
     }
 
   while (next_presentation_time_us < now_us + min_render_time_allowed_us)
