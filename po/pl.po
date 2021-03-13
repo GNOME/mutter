@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-23 18:32+0000\n"
-"PO-Revision-Date: 2021-03-07 13:57+0100\n"
+"POT-Creation-Date: 2021-03-12 15:44+0000\n"
+"PO-Revision-Date: 2021-03-13 18:24+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -638,51 +638,59 @@ msgstr ""
 msgid "Bell event"
 msgstr "Zdarzenie sygnału dźwiękowego"
 
-#: src/core/main.c:218
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Rozłącza połączenie z menedżerem sesji"
 
-#: src/core/main.c:224
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Zastępuje uruchomionego menedżera okien"
 
-#: src/core/main.c:230
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Podaje identyfikator zarządzania sesją"
 
-#: src/core/main.c:235
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "Używany ekran X"
 
-#: src/core/main.c:241
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Inicjuje sesję z zapisanego pliku"
 
-#: src/core/main.c:247
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Synchroniczne wywołania X"
 
-#: src/core/main.c:254
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Uruchamia jako menedżer składania Wayland"
 
-#: src/core/main.c:260
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Uruchamia jako osadzony menedżer składania"
 
-#: src/core/main.c:266
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Uruchamia menedżer składania Wayland bez uruchamiania Xwayland"
 
-#: src/core/main.c:272
+#: src/core/main.c:287
 msgid "Specify Wayland display name to use"
 msgstr "Podaje używaną nazwę ekranu Wayland"
 
-#: src/core/main.c:280
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
 
-#: src/core/main.c:286
+#: src/core/main.c:300
+msgid "Run as a headless display server"
+msgstr "Uruchamia jako serwer wyświetlania bez monitora"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Dodaje trwały wirtualny monitor (SzxW lub SzxW@O)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Uruchamia za pomocą mechanizmu X11"
 
@@ -761,16 +769,16 @@ msgstr ""
 "Na ekranie „%s” działa już menedżer okien. Aby zastąpić działającego "
 "menedżera okien, należy użyć opcji „--replace”."
 
-#: src/x11/meta-x11-display.c:1089
+#: src/x11/meta-x11-display.c:1097
 msgid "Failed to initialize GDK"
 msgstr "Zainicjowanie biblioteki GDK się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Otwarcie ekranu „%s” systemu X Window się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Podekran %d ekranu „%s” jest nieprawidłowy"
