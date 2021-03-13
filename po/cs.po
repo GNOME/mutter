@@ -154,11 +154,11 @@ msgstr "Přepnout na poslední pracovní plochu"
 
 #: data/50-mutter-navigation.xml:123
 msgid "Move to workspace on the left"
-msgstr "Přesunout na pracovní plochu vlevo"
+msgstr "Přepnout na pracovní plochu vlevo"
 
 #: data/50-mutter-navigation.xml:126
 msgid "Move to workspace on the right"
-msgstr "Přesunout na pracovní plochu vpravo"
+msgstr "Přepnout na pracovní plochu vpravo"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
