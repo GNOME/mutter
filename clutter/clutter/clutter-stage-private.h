@@ -68,7 +68,7 @@ void                clutter_stage_maybe_finish_queue_redraws (ClutterStage      
 GSList *            clutter_stage_find_updated_devices   (ClutterStage          *stage);
 void                clutter_stage_update_devices         (ClutterStage          *stage,
                                                           GSList                *devices);
-void                clutter_stage_update_actor_stage_views (ClutterStage        *stage);
+void                clutter_stage_finish_layout          (ClutterStage          *stage);
 
 CLUTTER_EXPORT
 void     _clutter_stage_queue_event                       (ClutterStage *stage,

@@ -930,7 +930,7 @@ clutter_stage_find_updated_devices (ClutterStage *stage)
 }
 
 void
-clutter_stage_update_actor_stage_views (ClutterStage *stage)
+clutter_stage_finish_layout (ClutterStage *stage)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
   ClutterStagePrivate *priv = stage->priv;
@@ -944,20 +944,21 @@ clutter_stage_update_actor_stage_views (ClutterStage *stage)
    * the paint.
    *
    * We're doing the whole thing twice and pass the phase to
-   * clutter_actor_update_stage_views() to allow actors to detect loops:
+   * clutter_actor_finish_layout() to allow actors to detect loops:
    * If the resource scale changes again after the relayout, the new
    * allocation of an actor probably moved the actor onto another stage
    * view, so if an actor sees phase == 1, it can choose a "final" scale.
    */
   for (phase = 0; phase < 2; phase++)
     {
-      clutter_actor_update_stage_views (actor, phase);
+      clutter_actor_finish_layout (actor, phase);
 
       if (!priv->actor_needs_immediate_relayout)
         break;
 
       priv->actor_needs_immediate_relayout = FALSE;
       clutter_stage_maybe_relayout (actor);
+      clutter_stage_maybe_finish_queue_redraws (stage);
     }
 
   g_warn_if_fail (!priv->actor_needs_immediate_relayout);

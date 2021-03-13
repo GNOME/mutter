@@ -1171,8 +1171,9 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   clutter_stage_emit_before_update (stage, view);
 
   clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
-  clutter_stage_update_actor_stage_views (stage);
   clutter_stage_maybe_finish_queue_redraws (stage);
+
+  clutter_stage_finish_layout (stage);
 
   devices = clutter_stage_find_updated_devices (stage);
 
