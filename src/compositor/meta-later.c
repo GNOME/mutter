@@ -277,8 +277,12 @@ meta_later_add (MetaLaterType  when,
                 GDestroyNotify notify)
 {
   MetaDisplay *display = meta_get_display ();
-  MetaCompositor *compositor = display->compositor;
+  MetaCompositor *compositor;
 
+  g_return_val_if_fail (display, 0);
+  g_return_val_if_fail (display->compositor, 0);
+
+  compositor = display->compositor;
   return meta_laters_add (meta_compositor_get_laters (compositor),
                           when, func, data, notify);
 }
@@ -306,8 +310,11 @@ void
 meta_later_remove (unsigned int later_id)
 {
   MetaDisplay *display = meta_get_display ();
-  MetaCompositor *compositor = display->compositor;
+  MetaCompositor *compositor;
 
+  g_return_if_fail (display);
+
+  compositor = display->compositor;
   if (!compositor)
     return;
 
