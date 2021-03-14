@@ -625,12 +625,13 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
           to->subsurface_placement_ops =
             g_slist_concat (to->subsurface_placement_ops,
                             from->subsurface_placement_ops);
-          from->subsurface_placement_ops = NULL;
         }
       else
         {
           to->subsurface_placement_ops = from->subsurface_placement_ops;
         }
+
+      from->subsurface_placement_ops = NULL;
     }
 
   wl_list_insert_list (&to->presentation_feedback_list,
