@@ -2225,13 +2225,15 @@ static void
 clutter_actor_real_pick (ClutterActor       *self,
                          ClutterPickContext *pick_context)
 {
+  ClutterActorPrivate *priv = self->priv;
+
   if (clutter_actor_should_pick (self, pick_context))
     {
       ClutterActorBox box = {
         .x1 = 0,
         .y1 = 0,
-        .x2 = clutter_actor_get_width (self),
-        .y2 = clutter_actor_get_height (self),
+        .x2 = priv->allocation.x2 - priv->allocation.x1,
+        .y2 = priv->allocation.y2 - priv->allocation.y1,
       };
 
       clutter_actor_pick_box (self, pick_context, &box);
@@ -2275,7 +2277,7 @@ clutter_actor_should_pick (ClutterActor       *self,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
   if (CLUTTER_ACTOR_IS_MAPPED (self) &&
-      clutter_actor_has_allocation (self) &&
+      clutter_actor_box_is_initialized (&self->priv->allocation) &&
       (clutter_pick_context_get_mode (pick_context) == CLUTTER_PICK_ALL ||
        CLUTTER_ACTOR_IS_REACTIVE (self)))
     return TRUE;
