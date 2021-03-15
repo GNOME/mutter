@@ -1,3 +1,42 @@
+40.rc
+=====
+* Fix keyboard input from remote desktop in Xorg session [Pascal; !1732]
+* Fix restoring focus to windows using globally active input [Olivier; !1716]
+* Expose unaccalerated touchpad gesture deltas [Alexander; !1353]
+* Avoid relayout on text attribute changes when possible [Jonas D.; !1750]
+* Add remote desktop caps- and num-lock state properties [Jonas Å.; !1739]
+* Improve refresh rate calculation [Akihiko; !1737]
+* Implement presentation-time protocol [Ivan; !1484]
+* Disable double-buffered shadow buffering [Jonas Å.; !1724]
+* Fix missing cursor on tablet devices [Jonas D.; !1758]
+* Fix frame timings causing X11 clients to get stuck [Jonas Å.; !1754]
+* Fix applying input settings on X11 [Marco, Suryashankar; !1769, !1767]
+* Add headless native backend [Jonas Å.; !1698]
+* Fix high latency and stalls with proprietary nvidia driver [Daniel; !1726]
+* Fix maximized windows not reacting to strut changes [Aleksandr; !1755]
+* Only start XWayland on demand when running under systemd [Benjamin; !1771]
+* Sync LEDs when a new input device is added [Olivier; !1662]
+* Fix order in which subsurface placement operations are handled [Robert; !1768]
+* Fixed crashes [Jonas Å., Sebastian; !1745, !1747, !1759, !1748, !1776, !1775]
+* Plugged leaks [Philip, Sebastian; !1738, !1728]
+* Misc. bug fixes and cleanups [Jonas Å., Jonas D., Ivan, Florian, Marco,
+  Robert; !1688, !1744, !1736, !1749, !1752, !1753, !427, !1757, !1751, !1760,
+  !1765, !1770, !1763, !1774, !1780, !1779, !1783]
+
+Contributors:
+  Jonas Ådahl, Benjamin Berg, Suryashankar Das, Jonas Dreßler, Olivier Fourdan,
+  Sebastian Keller, Robert Mader, Aleksandr Mezin, Alexander Mikhaylenko,
+  Ivan Molodetskikh, Florian Müllner, Pascal Nowack, Akihiko Odaki,
+  Marco Trevisan (Treviño), Daniel van Vugt, Philip Withnall
+
+Translators:
+  Fran Dieguez [gl], Asier Sarasua Garmendia [eu], Claude Paroz [fr],
+  Piotr Drąg [pl], Hugo Carvalho [pt], Jordi Mas [ca], Fabio Tomat [fur],
+  Yuri Chornoivan [uk], Enrico Nicoletto [pt_BR], Emin Tufan Çetin [tr],
+  Daniel Șerbănescu [ro], Marek Černocký [cs], Balázs Úr [hu],
+  Aurimas Černius [lt], Kukuh Syafaat [id], A S Alam [pa], Anders Jonsson [sv],
+  Milo Casagrande [it], Gwan-gyeong Mun [ko]
+
 40.beta
 =======
 * Consider clients without mapped windows for xwayland auto-shutdown
