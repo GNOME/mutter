@@ -7,7 +7,7 @@
 #
 # Updated in mutter:
 # Changwoo Ryu <cwryu@debian.org>, 2011-2017.
-# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2020.
+# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2021.
 #
 #
 # 주의:
@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-04 08:31+0000\n"
-"PO-Revision-Date: 2020-08-27 13:57+0300\n"
+"POT-Creation-Date: 2021-03-14 21:12+0000\n"
+"PO-Revision-Date: 2021-03-15 11:58+0200\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -27,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -54,12 +54,12 @@ msgid "Move window to last workspace"
 msgstr "창을 최근 작업 공간으로 옮기기"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "창을 한칸 위 작업 공간으로 옮기기"
+msgid "Move window one workspace to the left"
+msgstr "창을 한칸 왼쪽 작업 공간으로 옮기기"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "창을 한칸 아래 작업 공간으로 옮기기"
+msgid "Move window one workspace to the right"
+msgstr "창을 한칸 오른쪽 작업 공간으로 옮기기"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -158,12 +158,12 @@ msgid "Switch to last workspace"
 msgstr "최근 작업 공간으로 이동"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "위 작업 공간으로 옮기기"
+msgid "Move to workspace on the left"
+msgstr "왼쪽 작업 공간으로 옮기기"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "아래 작업 공간으로 옮기기"
+msgid "Move to workspace on the right"
+msgstr "오른쪽 작업 공간으로 옮기기"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -245,11 +245,11 @@ msgstr "창을 세로 방향으로 최대화"
 msgid "Maximize window horizontally"
 msgstr "창을 가로 방향으로 최대화"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "왼쪽 나눔창 보기"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "오른쪽 나눔창 보기"
 
@@ -397,33 +397,39 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "실험적인 기능을 사용하려면, 해당 기능 키워드를 목록에 추가하십시오. 기능에 따"
 "라 컴포지터를 다시 시작해야 할 수도 있습니다. 실험적인 기능은 사용할 수 없을 "
 "수도 있고, 설정할 수 없을 수도 있습니다. 이 설정에 추가한 사항이 앞으로 버전"
 "에서도 동작할 거라고 기대하지 마십시오. 현재 가능한 값은: • “scale-monitor-"
-"framebuffer” — 머터는 기본적으로 논리 픽셀 좌표 공간에서 논리 모니터를 배치하"
-"고, HiDPI 모니터를 관리하기 위해 창 내용 대신 모니터 프레임 버퍼를 스케일링합"
-"니다. 재시작은 필요하지 않습니다. • “rt-scheduler” — 머터 요청을 우선순위가 "
-"낮은 실시간 스케줄링으로 만듭니다. 실행 파일 또는 사용자는 CAP_SYS_NICE가 있"
-"어야 합니다. 재시작이 필요합니다. • “autostart-xwayland” — X11 클라이언트가 "
-"있는 경우 X웨일랜드 초기화를 늦게 합니다. 재시작이 필요합니다."
+"framebuffer” —  머터는 기본적으로 논리 픽셀 좌표 공간에서 논리 모니터를 배치"
+"하고, HiDPI 모니터를 관리하기 위해 창 내용 대신 모니터 프레임 버퍼를 스케일링"
+"합니다. 재시작은 필요하지 않습니다. • “rt-scheduler” — 머터 요청을 우선순위"
+"가 낮은 실시간 스케줄링으로 만듭니다. 실행 파일 또는 사용자는 CAP_SYS_NICE가 "
+"있어야 합니다. 재시작이 필요합니다. • “dma-buf-screen-sharing\" — DMA 버퍼 화"
+"면 공유를 활성화합니다. i915 드라이버를 사용할 때는 기본적으로 활성화되지만, "
+"다른 모든 드라이버에서는 비활성화됩니다. 재시작이 필요합니다.  • “dma-buf-"
+"screen-sharing\" — 모든 X11 관련 클라이언트가 종료되면 X웨일랜드를 자동으로 "
+"종료합니다. 재시작은 필요하지 않습니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "포인터 위치 찾기에 사용할 키"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "이 키는 “포인터 위치 찾기” 동작을 합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "활성 확인 핑 시간 초과"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -431,79 +437,79 @@ msgstr ""
 "중지된 것으로 감지되지 않도록 클라이언트가 핑 요청에 응답해야 하는 시간 (밀리"
 "초). 0을 사용하면 활성 확인이 완전히 비활성화됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "탭 팝업에서 창 선택"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "탭 팝업 취소"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "모니터 설정 전환"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "가상 터미널 1로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "가상 터미널 2로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "가상 터미널 3으로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "가상 터미널 4로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "가상 터미널 5로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "가상 터미널 6으로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "가상 터미널 7로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "가상 터미널 8로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "가상 터미널 9로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "가상 터미널 10으로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "가상 터미널 11로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "가상 터미널 12로 이동"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "바로 가기 다시 사용하기"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "키보드 포커스를 고정하는 X11 잡기를 X웨일랜드에서 허용"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -523,11 +529,11 @@ msgstr ""
 "기를 고려하려면, 클라이언트는 특정 X11 클라이언트메시지를 루트 창에 보내거나 "
 "“xwayland-grab-access-rules”에서 허용하는 프로그램 중 하나여야 합니다."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "X웨일랜드 프로그램에서 키보드 잡기 허용"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -542,31 +548,28 @@ msgid ""
 msgstr ""
 "X웨일랜드에서 X11 키보드 잡기를 허용하거나 허용하지 않는 X11 창의 리소스 이"
 "름 또는 리소스 클래스를 나열하세요. X11 창의 리소스 이름 또는 리소스 클래스"
-"는 “xprop WM_CLASS\" 명령을 사용하여 얻을 수 있습니다. 와일드카드 \"*\"와 \"?"
-"\"를 값에서 사용할 수 있습니다. \"!\"로 시작하는 값은 허용하는 값의 목록보다 "
-"높은 우선순위로 거부되고, 프로그램이 기본 시스템 목록에서 빠지게 됩니다. 기"
-"본 시스템 목록에 포함된 프로그램: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” 사용"
-"자는 “restore-shortcuts” 키 바인딩에 정의된 특정 키보드 바로 가기를 사용하여 "
-"기존 잡기를 중단할 수 있습니다."
+"는“xprop WM_CLASS” 명령을 사용하여 얻을 수 있습니다. 와일드카드 “*”와 “?”를 "
+"값에서 사용할 수 있습니다. “!”로 시작하는 값은 허용하는 값의 목록보다 높은 우"
+"선순위로 거부되고, 프로그램이 기본 시스템 목록에서 빠지게 됩니다. 기본 시스"
+"템 목록에 포함된 프로그램: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” 사용자는 "
+"“restore-shortcuts” 키 바인딩에 정의된 특정 키보드 바로 가기를 사용하여 기존 "
+"잡기를 중단할 수 있습니다."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "모드 전환 (그룹 %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "X웨일랜드에서 선택한 X 확장 기능 비활성화"
 
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "모니터 전환"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "화면 도움말 표시"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"이 옵션은 X웨일랜드가 해당 X 확장 기능을 지원하도록 빌드 된 경우 X웨일랜드에"
+"서 선택한 X 확장 기능을 비활성화합니다. 이 옵션은 선택한 확장 기능을 지원하도"
+"록 빌드하지 않은 경우에는 효과가 없습니다. 이 설정을 적용하려면 X웨일랜드를 "
+"다시 시작해야 합니다."
 
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
@@ -602,7 +605,7 @@ msgstr "컴포지터"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -614,47 +617,59 @@ msgstr ""
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/main.c:190
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "세션 관리자와 연결 하지 않습니다"
 
-#: src/core/main.c:196
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/main.c:202
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "세션 관리 ID를 지정합니다"
 
-#: src/core/main.c:207
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/main.c:213
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
 
-#: src/core/main.c:219
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/main.c:226
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/main.c:232
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/main.c:238
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
 
-#: src/core/main.c:246
+#: src/core/main.c:287
+msgid "Specify Wayland display name to use"
+msgstr "사용할 웨일랜드 디스플레이 이름 지정"
+
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/main.c:252
+#: src/core/main.c:300
+msgid "Run as a headless display server"
+msgstr "헤드리스 디스플레이 서버로 실행"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "X11 백 엔드로 실행 합니다"
 
@@ -682,39 +697,43 @@ msgstr "강제로 끝내기(_F)"
 msgid "_Wait"
 msgstr "기다리기(_W)"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
+msgid "Mode Switch (Group %d)"
+msgstr "모드 전환 (그룹 %d)"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "모니터 전환"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "화면 도움말 표시"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "버전을 출력합니다"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:119
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "머터가 자세한 모드 지원 없이 컴파일 되었습니다\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
@@ -728,26 +747,26 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "GDK 초기화에 실패했습니다\n"
+#: src/x11/meta-x11-display.c:1097
+msgid "Failed to initialize GDK"
+msgstr "GDK 초기화에 실패했습니다"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -761,17 +780,30 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "창을 한칸 왼쪽 작업 공간으로 옮기기"
+#~ msgid "Move window one workspace up"
+#~ msgstr "창을 한칸 위 작업 공간으로 옮기기"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "창을 한칸 오른쪽 작업 공간으로 옮기기"
+#~ msgid "Move window one workspace down"
+#~ msgstr "창을 한칸 아래 작업 공간으로 옮기기"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "왼쪽 작업 공간으로 옮기기"
+#~ msgid "Move to workspace above"
+#~ msgstr "위 작업 공간으로 옮기기"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "오른쪽 작업 공간으로 옮기기"
+#~ msgid "Move to workspace below"
+#~ msgstr "아래 작업 공간으로 옮기기"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "그림자 상태 토글"
