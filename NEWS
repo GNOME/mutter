@@ -1,3 +1,21 @@
+3.38.4
+======
+* Do not ping unmanaging windows [Florian; gnome-shell#2467]
+* Handle monitor changes during screencasts [Jonas Å.; !1691]
+* Improve freezes when switching workspace [Jonas Å.; !1616]
+* Fix newly opened X11 windows being invisible in overview [Olivier; !1678]
+* Fix drag cancel animation when using geometry scaling [Robert; !1683]
+* Fix stuck icon in DND operation between X11 and wayland [Carlos; !1720]
+* Fix restoring focus to windows using globally active input [Olivier; !1716]
+* Disable double-buffered shadow buffering [Jonas Å.; !1743]
+* Fix frame timings causing X11 clients to get stuck  [Jonas Å.; !1754]
+* Fix order in which subsurface placement operations are handled [Robert; !1768]
+* Fixed crashes [Thomas, Jonas Å., Sebastian; !1694, !1719, !1748]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Sebastian Keller, Robert Mader,
+  Thomas Mühlbacher, Florian Müllner
+
 3.38.3
 ======
 * xwayland: Set xrandr primary output [Aleksandr; !1638]
