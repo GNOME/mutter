@@ -1,3 +1,15 @@
+3.36.9
+======
+* Do not ping unmanaging windows [Florian; gnome-shell#2467]
+* Improve freezes when switching workspace [Jonas Å.; !1616]
+* Fix drag cancel animation when using geometry scaling [Robert; !1683]
+* Fix stuck icon in DND operation between X11 and wayland [Carlos; !1720]
+* Fix restoring focus to windows using globally active input [Olivier; !1716]
+* Fix order in which subsurface placement operations are handled [Robert; !1768]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Robert Mader, Florian Müllner
+
 3.36.8
 ======
 * Fix _NET_WM_FRAME_DRAWN timestamps [Jonas; !1360]
