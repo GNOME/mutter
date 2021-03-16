@@ -5,10 +5,11 @@ set -e
 dconf update
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
 
-# Disable audio support to not dead lock screen cast tests
-rm -f /etc/pipewire/media-session.d/with-jack
-rm -f /etc/pipewire/media-session.d/with-pulseaudio
-pipewire &
+# Disable e.g. audio support to not dead lock screen cast tests
+rm -f /usr/share/pipewire/media-session.d/with-*
+
+PIPEWIRE_DEBUG=2 PIPEWIRE_LOG="$CI_PROJECT_DIR/build/meson-logs/pipewire.log" \
+  pipewire &
 
 sleep 2
 
