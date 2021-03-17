@@ -40,6 +40,7 @@
 #endif
 #include <unistd.h>
 #include <X11/extensions/Xrandr.h>
+#include <X11/extensions/Xfixes.h>
 #include <X11/Xauth.h>
 #include <X11/Xlib-xcb.h>
 
@@ -1304,6 +1305,8 @@ meta_xwayland_setup_xdisplay (MetaXWaylandManager *manager,
 #ifdef HAVE_XSETIOERROREXITHANDLER
   XSetIOErrorExitHandler (xdisplay, x_io_error_exit, manager);
 #endif
+
+  XFixesSetClientDisconnectMode (xdisplay, XFixesClientDisconnectFlagTerminate);
 
   add_local_user_to_xhost (xdisplay);
 }

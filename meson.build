@@ -28,7 +28,7 @@ json_glib_req = '>= 0.12.0'
 upower_glib_req = '>= 0.99.0'
 xcomposite_req = '>= 0.4'
 xkbcommon_req = '>= 0.4.3'
-xfixes_req = '>= 3'
+xfixes_req = '>= 6'
 xi_req = '>= 1.7.4'
 xrandr_req = '>= 1.5.0'
 libstartup_notification_req = '>= 0.7'
@@ -457,6 +457,7 @@ endif
 
 have_xwayland_initfd = false
 have_xwayland_listenfd = false
+have_xwayland_terminate_delay = false
 if have_wayland
   xwayland_dep = dependency('xwayland', required: false)
 
@@ -508,6 +509,15 @@ if have_wayland
 
   if (have_xwayland_listenfd)
     cdata.set('HAVE_XWAYLAND_LISTENFD', 1)
+  endif
+
+  # For Xwayland -listenfd usage
+  if xwayland_dep.found()
+    have_xwayland_terminate_delay = xwayland_dep.get_pkgconfig_variable('have_terminate_delay') == 'true'
+  endif
+
+  if (have_xwayland_terminate_delay)
+    cdata.set('HAVE_XWAYLAND_TERMINATE_DELAY', 1)
   endif
 endif
 
@@ -593,6 +603,7 @@ summary('Profiler', have_profiler, section: 'Options')
 summary('Xwayland initfd', have_xwayland_initfd, section: 'Options')
 summary('Xwayland listenfd', have_xwayland_listenfd, section: 'Options')
 summary('Safe X11 I/O errors', have_xsetioerrorexithandler, section: 'Options')
+summary('Xwayland terminate delay', have_xwayland_terminate_delay, section: 'Options')
 
 summary('Enabled', have_tests, section: 'Tests')
 summary('Core tests', have_core_tests, section: 'Tests')
