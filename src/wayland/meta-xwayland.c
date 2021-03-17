@@ -139,146 +139,6 @@ meta_xwayland_is_xwayland_surface (MetaWaylandSurface *surface)
   return wl_resource_get_client (surface->resource) == manager->client;
 }
 
-static char *
-meta_xwayland_get_exe_from_proc_entry (const char *proc_entry)
-{
-  g_autofree char *exepath = NULL;
-  char *executable;
-  char *p;
-
-  exepath = g_file_read_link (proc_entry, NULL);
-  if (!exepath)
-    return NULL;
-
-  p = strrchr (exepath, G_DIR_SEPARATOR);
-  if (p)
-    executable = g_strdup (++p);
-  else
-    executable = g_strdup (exepath);
-
-  return executable;
-}
-
-static char *
-meta_xwayland_get_exe_from_pid (uint32_t pid)
-{
-  g_autofree char *proc_entry = NULL;
-  char *executable;
-
-  proc_entry = g_strdup_printf ("/proc/%i/exe", pid);
-  executable = meta_xwayland_get_exe_from_proc_entry (proc_entry);
-
-  return executable;
-}
-
-static char *
-meta_xwayland_get_self_exe (void)
-{
-  g_autofree char *proc_entry = NULL;
-  char *executable;
-
-  proc_entry = g_strdup_printf ("/proc/self/exe");
-  executable = meta_xwayland_get_exe_from_proc_entry (proc_entry);
-
-  return executable;
-}
-
-static gboolean
-can_xwayland_ignore_exe (const char *executable,
-                         const char *self)
-{
-  char ** ignore_executables;
-  gboolean ret;
-
-  if (!g_strcmp0 (executable, self))
-    return TRUE;
-
-  ignore_executables = g_strsplit_set (XWAYLAND_IGNORE_EXECUTABLES, ",", -1);
-  ret = g_strv_contains ((const char * const *) ignore_executables, executable);
-  g_strfreev (ignore_executables);
-
-  return ret;
-}
-
-static uint32_t
-meta_xwayland_get_client_pid (xcb_connection_t *xcb,
-                              uint32_t          client)
-{
-  xcb_res_client_id_spec_t spec = { 0 };
-  xcb_res_query_client_ids_cookie_t cookie;
-  xcb_res_query_client_ids_reply_t *reply = NULL;
-  uint32_t pid = 0, *value;
-
-  spec.client = client;
-  spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
-
-  cookie = xcb_res_query_client_ids (xcb, 1, &spec);
-  reply = xcb_res_query_client_ids_reply (xcb, cookie, NULL);
-
-  if (reply == NULL)
-    return 0;
-
-  xcb_res_client_id_value_iterator_t it;
-  for (it = xcb_res_query_client_ids_ids_iterator (reply);
-       it.rem;
-       xcb_res_client_id_value_next (&it))
-    {
-      spec = it.data->spec;
-      if (spec.mask & XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID)
-        {
-          value = xcb_res_client_id_value_value (it.data);
-          pid = *value;
-          break;
-        }
-    }
-  free (reply);
-
-  return pid;
-}
-
-static gboolean
-can_terminate_xwayland (Display *xdisplay)
-{
-  xcb_connection_t *xcb = XGetXCBConnection (xdisplay);
-  xcb_res_query_clients_cookie_t cookie;
-  xcb_res_query_clients_reply_t *reply = NULL;
-  xcb_res_client_iterator_t it;
-  gboolean can_terminate;
-  char *self;
-
-  cookie = xcb_res_query_clients (xcb);
-  reply = xcb_res_query_clients_reply (xcb, cookie, NULL);
-
-  /* Could not get the list of X11 clients, better not terminate Xwayland */
-  if (reply == NULL)
-    return FALSE;
-
-  can_terminate = TRUE;
-  self = meta_xwayland_get_self_exe ();
-  for (it = xcb_res_query_clients_clients_iterator (reply);
-       it.rem && can_terminate;
-       xcb_res_client_next (&it))
-    {
-      uint32_t pid;
-      char *executable;
-
-      pid = meta_xwayland_get_client_pid (xcb, it.data->resource_base);
-      if (pid == 0)
-        {
-          /* Unknown PID, don't risk terminating it */
-          can_terminate = FALSE;
-          break;
-        }
-
-      executable = meta_xwayland_get_exe_from_pid (pid);
-      can_terminate = can_xwayland_ignore_exe (executable, self);
-      g_free (executable);
-    }
-  free (reply);
-
-  return can_terminate;
-}
-
 static gboolean
 try_display (int      display,
              char   **filename_out,
@@ -595,19 +455,6 @@ static gboolean
 shutdown_xwayland_cb (gpointer data)
 {
   MetaXWaylandManager *manager = data;
-  MetaDisplay *display = meta_get_display ();
-  MetaBackend *backend = meta_get_backend ();
-
-  if (!meta_settings_is_experimental_feature_enabled (meta_backend_get_settings (backend),
-                                                      META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
-    {
-      manager->xserver_grace_period_id = 0;
-      return G_SOURCE_REMOVE;
-    }
-
-  if (display->x11_display &&
-      !can_terminate_xwayland (display->x11_display->xdisplay))
-    return G_SOURCE_CONTINUE;
 
   meta_verbose ("Shutting down Xwayland");
   manager->xserver_grace_period_id = 0;
@@ -952,6 +799,12 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   const char *args[32];
   int xwayland_disable_extensions;
   int i, j;
+#ifdef HAVE_XWAYLAND_TERMINATE_DELAY
+  MetaWaylandCompositor *compositor =
+    meta_wayland_compositor_get_default ();
+  MetaX11DisplayPolicy x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
+#endif
 
   task = g_task_new (NULL, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_xwayland_start_xserver);
@@ -1030,6 +883,16 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
 #else
   args[i++] = XWAYLAND_LISTENFD;
   args[i++] = "7";
+#endif
+#ifdef HAVE_XWAYLAND_TERMINATE_DELAY
+  if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND &&
+      meta_settings_is_experimental_feature_enabled (settings,
+                                                     META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
+    {
+      /* Terminate after a 10 seconds delay */
+      args[i++] = "-terminate";
+      args[i++] = "10";
+    }
 #endif
   for (j = 0; j <  G_N_ELEMENTS (x11_extension_names); j++)
     {

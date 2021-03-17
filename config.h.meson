@@ -89,8 +89,5 @@
 /* Whether the memfd_create function exists */
 #mesondefine HAVE_MEMFD_CREATE
 
-/* List of executable names to ignore when terminating Xwayland */
-#mesondefine XWAYLAND_IGNORE_EXECUTABLES
-
 /* Whether the Xwayland -terminate supports a delay */
 #mesondefine HAVE_XWAYLAND_TERMINATE_DELAY
