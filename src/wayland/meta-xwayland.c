@@ -628,12 +628,55 @@ meta_xwayland_override_display_number (int number)
 }
 
 static gboolean
+ensure_x11_unix_perms (GError **error)
+{
+  struct stat buf;
+
+  if (lstat (X11_TMP_UNIX_DIR, &buf) != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to check permissions on directory \"%s\": %s",
+                   X11_TMP_UNIX_DIR, g_strerror (errno));
+      return FALSE;
+    }
+
+  /* If the directory already exists, it should belong to root or ourselves ... */
+  if (buf.st_uid != 0 && buf.st_uid != getuid ())
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
+                   "Wrong ownership for directory \"%s\"",
+                   X11_TMP_UNIX_DIR);
+      return FALSE;
+    }
+
+  /* ... be writable ... */
+  if ((buf.st_mode & 0022) != 0022)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
+                   "Directory \"%s\" is not writable",
+                   X11_TMP_UNIX_DIR);
+      return FALSE;
+    }
+
+  /* ... and have the sticky bit set */
+  if ((buf.st_mode & 01000) != 01000)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
+                   "Directory \"%s\" is missing the sticky bit",
+                   X11_TMP_UNIX_DIR);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 ensure_x11_unix_dir (GError **error)
 {
   if (mkdir (X11_TMP_UNIX_DIR, 01777) != 0)
     {
       if (errno == EEXIST)
-        return TRUE;
+        return ensure_x11_unix_perms (error);
 
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
                    "Failed to create directory \"%s\": %s",
