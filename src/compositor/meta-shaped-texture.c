@@ -1027,8 +1027,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
           viewport = (graphene_rect_t) {
             .origin.x = 0,
             .origin.y = 0,
-            .size.width = stex->tex_width,
-            .size.height = stex->tex_height,
+            .size.width = stex->tex_width / stex->buffer_scale,
+            .size.height = stex->tex_height / stex->buffer_scale,
           };
         }
 
@@ -1039,8 +1039,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
         }
       else
         {
-          dst_width = (float) stex->tex_width;
-          dst_height = (float) stex->tex_height;
+          dst_width = (float) viewport.size.width;
+          dst_height = (float) viewport.size.height;
         }
 
       inverted_viewport = (graphene_rect_t) {
