@@ -572,8 +572,13 @@ clutter_gesture_action_set_enabled (ClutterActorMeta *meta,
   ClutterGestureActionPrivate *priv =
     clutter_gesture_action_get_instance_private (gesture_action);
 
-  if (!is_enabled && priv->in_gesture)
-    cancel_gesture (gesture_action);
+  if (!is_enabled)
+    {
+      if (priv->in_gesture)
+        cancel_gesture (gesture_action);
+      else
+        g_array_set_size (priv->points, 0);
+    }
 
   meta_class->set_enabled (meta, is_enabled);
 }
