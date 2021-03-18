@@ -147,7 +147,7 @@ set_matrix (GTask *task)
 static void
 meta_input_settings_native_set_matrix (MetaInputSettings  *settings,
                                        ClutterInputDevice *device,
-                                       gfloat              matrix[6])
+                                       const float         matrix[6])
 {
   MetaInputSettingsNative *input_settings_native;
   cairo_matrix_t *dev_matrix;

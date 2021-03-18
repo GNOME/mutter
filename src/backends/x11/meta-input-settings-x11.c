@@ -203,7 +203,7 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
 static void
 meta_input_settings_x11_set_matrix (MetaInputSettings  *settings,
                                     ClutterInputDevice *device,
-                                    gfloat              matrix[6])
+                                    const float         matrix[6])
 {
   MetaBackend *backend = meta_get_backend ();
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));

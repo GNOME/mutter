@@ -35,7 +35,7 @@ meta_input_settings_dummy_set_send_events (MetaInputSettings        *settings,
 static void
 meta_input_settings_dummy_set_matrix (MetaInputSettings  *settings,
                                       ClutterInputDevice *device,
-                                      gfloat              matrix[6])
+                                      const float         matrix[6])
 {
 }
 

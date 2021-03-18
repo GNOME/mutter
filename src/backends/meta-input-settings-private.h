@@ -81,7 +81,7 @@ struct _MetaInputSettingsClass
                               GDesktopDeviceSendEvents  mode);
   void (* set_matrix)        (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
-                              gfloat              matrix[6]);
+                              const float         matrix[6]);
   void (* set_speed)         (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gdouble             speed);
