@@ -134,12 +134,25 @@ meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
 static gboolean
 set_matrix (GTask *task)
 {
-  ClutterInputDevice *device;
-  cairo_matrix_t *dev_matrix;
+  ClutterInputDevice *device = g_task_get_source_object (task);
+  float *matrix = g_task_get_task_data (task);
+  cairo_matrix_t dev_matrix;
 
-  device = g_task_get_source_object (task);
-  dev_matrix = g_task_get_task_data (task);
-  g_object_set (device, "device-matrix", dev_matrix, NULL);
+  if (clutter_input_device_get_device_type (device) ==
+      CLUTTER_TOUCHSCREEN_DEVICE ||
+      meta_input_device_native_get_mapping_mode_in_impl (device) ==
+      META_INPUT_DEVICE_MAPPING_ABSOLUTE)
+    {
+      cairo_matrix_init (&dev_matrix,
+                         matrix[0], matrix[3], matrix[1],
+                         matrix[4], matrix[2], matrix[5]);
+    }
+  else
+    {
+      cairo_matrix_init_identity (&dev_matrix);
+    }
+
+  g_object_set (device, "device-matrix", &dev_matrix, NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -150,26 +163,11 @@ meta_input_settings_native_set_matrix (MetaInputSettings  *settings,
                                        const float         matrix[6])
 {
   MetaInputSettingsNative *input_settings_native;
-  cairo_matrix_t *dev_matrix;
   GTask *task;
 
-  dev_matrix = g_new0 (cairo_matrix_t, 1);
-
-  if (clutter_input_device_get_device_type (device) ==
-      CLUTTER_TOUCHSCREEN_DEVICE ||
-      meta_input_device_native_get_mapping_mode_in_impl (device) ==
-      META_INPUT_DEVICE_MAPPING_ABSOLUTE)
-    {
-      cairo_matrix_init (dev_matrix, matrix[0], matrix[3], matrix[1],
-                         matrix[4], matrix[2], matrix[5]);
-    }
-  else
-    {
-      cairo_matrix_init_identity (dev_matrix);
-    }
-
   task = g_task_new (device, NULL, NULL, NULL);
-  g_task_set_task_data (task, dev_matrix, g_free);
+
+  g_task_set_task_data (task, g_memdup2 (matrix, sizeof (float) * 6), g_free);
 
   input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
   meta_seat_impl_run_input_task (input_settings_native->seat_impl,
