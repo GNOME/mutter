@@ -59,6 +59,9 @@
 #define XWAYLAND_LISTENFD "-listen"
 #endif
 
+#define X11_TMP_UNIX_DIR     "/tmp/.X11-unix"
+#define X11_TMP_UNIX_PATH    "/tmp/.X11-unix/X"
+
 static int display_number_override = -1;
 
 static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
@@ -462,7 +465,7 @@ bind_to_abstract_socket (int      display,
 
   addr.sun_family = AF_LOCAL;
   name_size = snprintf (addr.sun_path, sizeof addr.sun_path,
-                        "%c/tmp/.X11-unix/X%d", 0, display);
+                        "%c%s%d", 0, X11_TMP_UNIX_PATH, display);
   size = offsetof (struct sockaddr_un, sun_path) + name_size;
   if (bind (fd, (struct sockaddr *) &addr, size) < 0)
     {
@@ -503,7 +506,7 @@ bind_to_unix_socket (int      display,
 
   addr.sun_family = AF_LOCAL;
   name_size = snprintf (addr.sun_path, sizeof addr.sun_path,
-                        "/tmp/.X11-unix/X%d", display) + 1;
+                        "%s%d", X11_TMP_UNIX_PATH, display) + 1;
   size = offsetof (struct sockaddr_un, sun_path) + name_size;
   unlink (addr.sun_path);
   if (bind (fd, (struct sockaddr *) &addr, size) < 0)
@@ -627,14 +630,14 @@ meta_xwayland_override_display_number (int number)
 static gboolean
 ensure_x11_unix_dir (GError **error)
 {
-  if (mkdir ("/tmp/.X11-unix", 01777) != 0)
+  if (mkdir (X11_TMP_UNIX_DIR, 01777) != 0)
     {
       if (errno == EEXIST)
         return TRUE;
 
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
-                   "Failed to create directory \"/tmp/.X11-unix\": %s",
-                   g_strerror (errno));
+                   "Failed to create directory \"%s\": %s",
+                   X11_TMP_UNIX_DIR, g_strerror (errno));
       return FALSE;
     }
 
@@ -1222,10 +1225,12 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
 
   g_cancellable_cancel (manager->xserver_died_cancellable);
 
-  snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->public_connection.display_index);
+  snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
+            manager->public_connection.display_index);
   unlink (path);
 
-  snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->private_connection.display_index);
+  snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
+            manager->private_connection.display_index);
   unlink (path);
 
   g_clear_pointer (&manager->public_connection.name, g_free);
