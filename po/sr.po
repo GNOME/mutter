@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-02-13 21:32+0000\n"
-"PO-Revision-Date: 2021-02-15 09:18+0100\n"
+"POT-Creation-Date: 2021-03-16 00:55+0000\n"
+"PO-Revision-Date: 2021-03-19 08:11+0100\n"
 "Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
 "Language-Team: Serbian <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
@@ -619,7 +619,7 @@ msgstr "Састављач"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -630,51 +630,59 @@ msgstr ""
 msgid "Bell event"
 msgstr "Звонца"
 
-#: src/core/main.c:218
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Искључује везу са управником сесије"
 
-#: src/core/main.c:224
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Мења текућег управника прозорима"
 
-#: src/core/main.c:230
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Наводи ИБ управника сесије"
 
-#: src/core/main.c:235
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "Икс екран који ће бити коришћен"
 
-#: src/core/main.c:241
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Покреће сесију из датотеке чувања"
 
-#: src/core/main.c:247
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Чини Икс позиве усклађеним"
 
-#: src/core/main.c:254
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Ради као вејлендов композитор"
 
-#: src/core/main.c:260
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Ради као угнежђени композитор"
 
-#: src/core/main.c:266
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Ради као вејлендов композитор без покретања Икс-вејленда"
 
-#: src/core/main.c:272
+#: src/core/main.c:287
 msgid "Specify Wayland display name to use"
 msgstr "Наведите Вејленд приказ за коришћење"
 
-#: src/core/main.c:280
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Ради као пуни сервер приказа, уместо као угнеждени"
 
-#: src/core/main.c:286
+#: src/core/main.c:300
+msgid "Run as a headless display server"
+msgstr "Ради као безглави сервер приказа"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Додај трајни виртуелни екран (ШхВ, ШхВ@Р)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Покрени на Икс11 позадинцу"
 
@@ -754,16 +762,16 @@ msgstr ""
 "Приказ „%s“ већ има управника прозора; пробајте да користите опцију „--"
 "replace“ да замените тренутног управника прозора."
 
-#: src/x11/meta-x11-display.c:1089
+#: src/x11/meta-x11-display.c:1097
 msgid "Failed to initialize GDK"
 msgstr "Нисам успео да покренем ГДК"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Нисам успео да отворим екран „%s“ Икс система прозора"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Приказ „%d“ на екрану „%s“ није исправан"
