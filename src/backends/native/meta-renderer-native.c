@@ -1984,6 +1984,8 @@ meta_renderer_native_initable_init (GInitable     *initable,
   gpus = meta_backend_get_gpus (backend);
   if (gpus)
     {
+      const char *use_kms_modifiers_debug_env;
+
       for (l = gpus; l; l = l->next)
         {
           MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
@@ -1998,8 +2000,20 @@ meta_renderer_native_initable_init (GInitable     *initable,
       if (!renderer_native->primary_gpu_kms)
         return FALSE;
 
-      if (meta_gpu_kms_requires_modifiers (renderer_native->primary_gpu_kms))
-        renderer_native->use_modifiers = TRUE;
+      use_kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_USE_KMS_MODIFIERS");
+      if (use_kms_modifiers_debug_env)
+        {
+          renderer_native->use_modifiers =
+            g_strcmp0 (use_kms_modifiers_debug_env, "1") == 0;
+        }
+      else
+        {
+          renderer_native->use_modifiers =
+            !meta_gpu_kms_disable_modifiers (renderer_native->primary_gpu_kms);
+        }
+
+      meta_topic (META_DEBUG_KMS, "Usage of KMS modifiers is %s",
+                  renderer_native->use_modifiers ? "enabled" : "disabled");
     }
   else
     {

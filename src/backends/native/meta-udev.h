@@ -32,7 +32,7 @@ gboolean meta_is_udev_device_platform_device (GUdevDevice *device);
 
 gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
 
-gboolean meta_is_udev_device_requires_modifiers (GUdevDevice *device);
+gboolean meta_is_udev_device_disable_modifiers (GUdevDevice *device);
 
 gboolean meta_is_udev_device_preferred_primary (GUdevDevice *device);
 

@@ -149,12 +149,12 @@ meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
 }
 
 gboolean
-meta_gpu_kms_requires_modifiers (MetaGpuKms *gpu_kms)
+meta_gpu_kms_disable_modifiers (MetaGpuKms *gpu_kms)
 {
   MetaKmsDeviceFlag flags;
 
   flags = meta_kms_device_get_flags (gpu_kms->kms_device);
-  return !!(flags & META_KMS_DEVICE_FLAG_REQUIRES_MODIFIERS);
+  return !!(flags & META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS);
 }
 
 static int

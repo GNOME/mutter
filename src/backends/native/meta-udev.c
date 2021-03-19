@@ -75,7 +75,7 @@ meta_is_udev_device_boot_vga (GUdevDevice *device)
 }
 
 gboolean
-meta_is_udev_device_requires_modifiers (GUdevDevice *device)
+meta_is_udev_device_disable_modifiers (GUdevDevice *device)
 {
   g_autoptr (GUdevDevice) platform_device = NULL;
   const char * const * tags;
@@ -92,7 +92,7 @@ meta_is_udev_device_requires_modifiers (GUdevDevice *device)
   if (!tags)
     return FALSE;
 
-  return g_strv_contains (tags, "mutter-device-requires-kms-modifiers");
+  return g_strv_contains (tags, "mutter-device-disable-kms-modifiers");
 }
 
 gboolean
