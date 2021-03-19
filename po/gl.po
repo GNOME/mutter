@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-13 22:31+0100\n"
+"POT-Creation-Date: 2021-03-19 07:12+0000\n"
+"PO-Revision-Date: 2021-03-19 21:00+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -681,9 +681,8 @@ msgid "Run as a full display server, rather than nested"
 msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
 
 #: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
 msgid "Run as a headless display server"
-msgstr ""
+msgstr "Executar como un servidor de pantalla sen interface"
 
 #: src/core/main.c:305
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
