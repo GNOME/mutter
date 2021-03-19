@@ -148,8 +148,6 @@ struct _MetaMonitorManager
 
   GnomePnpIds *pnp_ids;
 
-  gulong experimental_features_changed_handler_id;
-
   MetaMonitorSwitchConfigType current_switch_config;
 };
 

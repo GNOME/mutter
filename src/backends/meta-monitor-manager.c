@@ -1055,11 +1055,10 @@ meta_monitor_manager_constructed (GObject *object)
 
   manager->display_config = meta_dbus_display_config_skeleton_new ();
 
-  manager->experimental_features_changed_handler_id =
-    g_signal_connect (settings,
-                      "experimental-features-changed",
-                      G_CALLBACK (experimental_features_changed),
-                      manager);
+  g_signal_connect_object (settings,
+                           "experimental-features-changed",
+                           G_CALLBACK (experimental_features_changed),
+                           manager, 0);
 
   monitor_manager_setup_dbus_config_handlers (manager);
 
@@ -1101,9 +1100,6 @@ meta_monitor_manager_finalize (GObject *object)
   g_list_free_full (manager->logical_monitors, g_object_unref);
 
   g_warn_if_fail (!priv->virtual_monitors);
-
-  g_clear_signal_handler (&manager->experimental_features_changed_handler_id,
-                          manager->backend);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->finalize (object);
 }
