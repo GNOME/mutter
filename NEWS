@@ -1,3 +1,14 @@
+40.0
+====
+* xwayland: Check permissions on /tmp/.X11-unix [Olivier; !1787]
+
+Contributors:
+  Olivier Fourdan
+
+Translators:
+  Hugo Carvalho [pt], Tim Sabsch [de], Daniel Mustieles [es],
+  Matej Urbančič [sl], Марко Костић [sr], Fran Dieguez [gl]
+
 40.rc
 =====
 * Fix keyboard input from remote desktop in Xorg session [Pascal; !1732]
