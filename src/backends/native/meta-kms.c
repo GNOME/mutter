@@ -576,6 +576,9 @@ meta_kms_update_states_in_impl (MetaKms  *kms)
 
   meta_assert_in_kms_impl (kms);
 
+  if (!kms->devices)
+    return META_KMS_UPDATE_CHANGE_NO_DEVICES;
+
   for (l = kms->devices; l; l = l->next)
     {
       MetaKmsDevice *kms_device = META_KMS_DEVICE (l->data);
