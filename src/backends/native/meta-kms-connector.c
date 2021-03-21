@@ -126,7 +126,8 @@ meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector)
   uint32_t underscan_prop_id;
 
   underscan_prop_id =
-    connector->prop_table.props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
+    meta_kms_connector_get_prop_id (connector,
+                                    META_KMS_CONNECTOR_PROP_UNDERSCAN);
 
   return underscan_prop_id != 0;
 }
