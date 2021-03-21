@@ -65,6 +65,8 @@
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
+#include "meta-dbus-display-config.h"
+
 enum
 {
   PROP_0,
@@ -513,6 +515,12 @@ on_kms_resources_changed (MetaKms              *kms,
                           MetaMonitorManager   *manager)
 {
   g_assert (changes != META_KMS_UPDATE_CHANGE_NONE);
+
+  if (changes == META_KMS_UPDATE_CHANGE_GAMMA)
+    {
+      meta_dbus_display_config_emit_monitors_changed (manager->display_config);
+      return;
+    }
 
   handle_hotplug_event (manager);
 }
