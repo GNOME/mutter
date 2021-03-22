@@ -419,6 +419,50 @@ meta_output_finalize (GObject *object)
   G_OBJECT_CLASS (meta_output_parent_class)->finalize (object);
 }
 
+MetaPrivacyScreenState
+meta_output_get_privacy_screen_state (MetaOutput *output)
+{
+  MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
+
+  if (!output_class->get_privacy_screen_state)
+    return META_PRIVACY_SCREEN_UNAVAILABLE;
+
+  return output_class->get_privacy_screen_state (output);
+}
+
+gboolean
+meta_output_set_privacy_screen_enabled (MetaOutput  *output,
+                                        gboolean     enabled,
+                                        GError     **error)
+{
+  MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
+  MetaPrivacyScreenState state;
+
+  state = meta_output_get_privacy_screen_state (output);
+
+  if (state == META_PRIVACY_SCREEN_UNAVAILABLE)
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                           "The privacy screen is not supported by this output");
+      return FALSE;
+    }
+
+  g_assert (output_class->set_privacy_screen_enabled != NULL);
+
+  if (state & META_PRIVACY_SCREEN_LOCKED)
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
+                           "The privacy screen is locked at hardware level, "
+                           "impossible to set it");
+      return FALSE;
+    }
+
+  if (!!(state & META_PRIVACY_SCREEN_ENABLED) == enabled)
+    return TRUE;
+
+  return output_class->set_privacy_screen_enabled (output, enabled, error);
+}
+
 static void
 meta_output_init (MetaOutput *output)
 {

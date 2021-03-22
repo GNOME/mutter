@@ -2021,3 +2021,46 @@ meta_monitor_set_logical_monitor (MetaMonitor        *monitor,
 
   priv->logical_monitor = logical_monitor;
 }
+
+static MetaOutput *
+maybe_get_privacy_screen_output (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  if (priv->outputs && priv->outputs->next)
+      return NULL;
+
+  return meta_monitor_get_main_output (monitor);
+}
+
+MetaPrivacyScreenState
+meta_monitor_get_privacy_screen_state (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+
+  output = maybe_get_privacy_screen_output (monitor);
+
+  if (!output)
+    return META_PRIVACY_SCREEN_UNAVAILABLE;
+
+  return meta_output_get_privacy_screen_state (output);
+}
+
+gboolean
+meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
+                                         gboolean      enabled,
+                                         GError      **error)
+{
+  MetaOutput *output;
+
+  output = maybe_get_privacy_screen_output (monitor);
+
+  if (!output)
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                           "The privacy screen is not supported by this output");
+      return FALSE;
+    }
+
+  return meta_output_set_privacy_screen_enabled (output, enabled, error);
+}

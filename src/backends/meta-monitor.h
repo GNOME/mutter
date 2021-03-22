@@ -280,4 +280,10 @@ const char * meta_monitor_get_display_name (MetaMonitor *monitor);
 void meta_monitor_set_logical_monitor (MetaMonitor        *monitor,
                                        MetaLogicalMonitor *logical_monitor);
 
+MetaPrivacyScreenState meta_monitor_get_privacy_screen_state (MetaMonitor *monitor);
+
+gboolean meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
+                                                  gboolean      enabled,
+                                                  GError      **error);
+
 #endif /* META_MONITOR_H */
