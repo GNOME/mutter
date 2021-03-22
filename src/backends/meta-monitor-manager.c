@@ -1006,6 +1006,95 @@ experimental_features_changed (MetaSettings           *settings,
   meta_settings_update_ui_scaling_factor (settings);
 }
 
+static gboolean
+meta_monitor_manager_real_set_privacy_screen_enabled (MetaMonitorManager *manager,
+                                                      gboolean            enabled)
+{
+  GList *l;
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      g_autoptr (GError) error = NULL;
+      MetaMonitor *monitor = l->data;
+
+      if (!meta_monitor_set_privacy_screen_enabled (monitor, enabled, &error))
+        {
+          if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+            continue;
+
+          g_warning ("Failed to set privacy screen setting on monitor %s: %s",
+                     meta_monitor_get_display_name (monitor), error->message);
+          return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static gboolean
+set_privacy_screen_enabled (MetaMonitorManager *manager,
+                            gboolean            enabled)
+{
+  MetaMonitorManagerClass *manager_class =
+    META_MONITOR_MANAGER_GET_CLASS (manager);
+
+  return manager_class->set_privacy_screen_enabled (manager, enabled);
+}
+
+static gboolean
+ensure_monitors_settings (MetaMonitorManager *manager)
+{
+  MetaSettings *settings = meta_backend_get_settings (manager->backend);
+
+  return set_privacy_screen_enabled (
+    manager, meta_settings_is_privacy_screen_enabled (settings));
+}
+
+static MetaPrivacyScreenState
+get_global_privacy_screen_state (MetaMonitorManager *manager)
+{
+  MetaPrivacyScreenState global_state = META_PRIVACY_SCREEN_UNAVAILABLE;
+  GList *l;
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+      MetaPrivacyScreenState monitor_state;
+
+      if (!meta_monitor_is_active (monitor))
+        continue;
+
+      monitor_state = meta_monitor_get_privacy_screen_state (monitor);
+      if (monitor_state == META_PRIVACY_SCREEN_UNAVAILABLE)
+        continue;
+
+      if (monitor_state & META_PRIVACY_SCREEN_DISABLED)
+        return META_PRIVACY_SCREEN_DISABLED;
+
+      if (monitor_state & META_PRIVACY_SCREEN_ENABLED)
+        global_state = META_PRIVACY_SCREEN_ENABLED;
+    }
+
+  return global_state;
+}
+
+static void
+apply_privacy_screen_settings (MetaMonitorManager *manager)
+{
+  MetaSettings *settings = meta_backend_get_settings (manager->backend);
+  MetaPrivacyScreenState privacy_screen_state =
+    get_global_privacy_screen_state (manager);
+
+  if (privacy_screen_state == META_PRIVACY_SCREEN_UNAVAILABLE)
+    return;
+
+  if (!!(privacy_screen_state & META_PRIVACY_SCREEN_ENABLED) ==
+      meta_settings_is_privacy_screen_enabled (settings))
+    return;
+
+  ensure_monitors_settings (manager);
+}
+
 static void
 update_panel_orientation_managed (MetaMonitorManager *manager)
 {
@@ -1077,6 +1166,8 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
 
   meta_monitor_manager_ensure_initial_config (manager);
 
+  apply_privacy_screen_settings (manager);
+
   manager->in_init = FALSE;
 }
 
@@ -1093,6 +1184,11 @@ meta_monitor_manager_constructed (GObject *object)
                            "experimental-features-changed",
                            G_CALLBACK (experimental_features_changed),
                            manager, 0);
+
+  g_signal_connect_object (settings,
+                           "privacy-screen-changed",
+                           G_CALLBACK (apply_privacy_screen_settings),
+                           manager, G_CONNECT_SWAPPED);
 
   monitor_manager_setup_dbus_config_handlers (manager);
 
@@ -1223,6 +1319,8 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
 
   klass->read_edid = meta_monitor_manager_real_read_edid;
   klass->read_current_state = meta_monitor_manager_real_read_current_state;
+  klass->set_privacy_screen_enabled =
+    meta_monitor_manager_real_set_privacy_screen_enabled;
 
   signals[MONITORS_CHANGED] =
     g_signal_new ("monitors-changed",
@@ -3355,6 +3453,8 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
   old_logical_monitors = manager->logical_monitors;
 
   meta_monitor_manager_update_logical_state (manager, config);
+
+  ensure_monitors_settings (manager);
 
   meta_monitor_manager_notify_monitors_changed (manager);
 

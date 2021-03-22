@@ -229,6 +229,9 @@ struct _MetaMonitorManagerClass
                            unsigned short     *green,
                            unsigned short     *blue);
 
+  gboolean (* set_privacy_screen_enabled) (MetaMonitorManager *manager,
+                                           gboolean            enabled);
+
   void (* tiled_monitor_added) (MetaMonitorManager *manager,
                                 MetaMonitor        *monitor);
 
