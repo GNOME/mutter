@@ -649,12 +649,11 @@ meta_kms_update_states_sync (MetaKms     *kms,
 }
 
 static void
-handle_hotplug_event (MetaKms     *kms,
-                      GUdevDevice *udev_device)
+handle_hotplug_event (MetaKms              *kms,
+                      GUdevDevice          *udev_device,
+                      MetaKmsUpdateChanges  changes)
 {
-  MetaKmsUpdateChanges changes;
-
-  changes = meta_kms_update_states_sync (kms, udev_device);
+  changes |= meta_kms_update_states_sync (kms, udev_device);
 
   if (changes != META_KMS_UPDATE_CHANGE_NONE)
     g_signal_emit (kms, signals[RESOURCES_CHANGED], 0, changes);
@@ -663,7 +662,7 @@ handle_hotplug_event (MetaKms     *kms,
 void
 meta_kms_resume (MetaKms *kms)
 {
-  handle_hotplug_event (kms, NULL);
+  handle_hotplug_event (kms, NULL, META_KMS_UPDATE_CHANGE_FULL);
 }
 
 static void
@@ -671,7 +670,7 @@ on_udev_hotplug (MetaUdev    *udev,
                  GUdevDevice *udev_device,
                  MetaKms     *kms)
 {
-  handle_hotplug_event (kms, udev_device);
+  handle_hotplug_event (kms, udev_device, META_KMS_UPDATE_CHANGE_NONE);
 }
 
 static void
@@ -679,7 +678,7 @@ on_udev_device_removed (MetaUdev    *udev,
                         GUdevDevice *device,
                         MetaKms     *kms)
 {
-  handle_hotplug_event (kms, NULL);
+  handle_hotplug_event (kms, NULL, META_KMS_UPDATE_CHANGE_NONE);
 }
 
 MetaBackend *
