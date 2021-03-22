@@ -350,6 +350,21 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
 }
 
 void
+meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
+                                    MetaKmsConnector *connector,
+                                    gboolean          enabled)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
+  g_assert (!update->power_save);
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->privacy_screen.has_update = TRUE;
+  connector_update->privacy_screen.is_enabled = enabled;
+}
+
+void
 meta_kms_update_set_power_save (MetaKmsUpdate *update)
 {
   g_assert (!meta_kms_update_is_locked (update));

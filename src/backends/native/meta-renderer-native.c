@@ -58,6 +58,7 @@
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-onscreen-native.h"
+#include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-render-device-gbm.h"
 #include "backends/native/meta-render-device-surfaceless.h"
 #include "backends/native/meta-renderer-native-private.h"

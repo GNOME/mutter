@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "backends/meta-output.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-connector-private.h"
 
@@ -58,6 +59,14 @@ struct _MetaKmsConnector
 };
 
 G_DEFINE_TYPE (MetaKmsConnector, meta_kms_connector, G_TYPE_OBJECT)
+
+typedef enum _MetaKmsPrivacyScreenHwState
+{
+  META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED,
+  META_KMS_PRIVACY_SCREEN_HW_STATE_ENABLED,
+  META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED_LOCKED,
+  META_KMS_PRIVACY_SCREEN_HW_STATE_ENABLED_LOCKED,
+} MetaKmsPrivacyScreenHwState;
 
 MetaKmsDevice *
 meta_kms_connector_get_device (MetaKmsConnector *connector)
@@ -132,6 +141,20 @@ meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector)
   return underscan_prop_id != 0;
 }
 
+gboolean
+meta_kms_connector_is_privacy_screen_supported (MetaKmsConnector *connector)
+{
+  return meta_kms_connector_get_prop_id (connector,
+    META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE) != 0;
+}
+
+static gboolean
+has_privacy_screen_software_toggle (MetaKmsConnector *connector)
+{
+  return meta_kms_connector_get_prop_id (connector,
+    META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_SW_STATE) != 0;
+}
+
 static void
 sync_fd_held (MetaKmsConnector  *connector,
               MetaKmsImplDevice *impl_device)
@@ -182,8 +205,43 @@ set_panel_orientation (MetaKmsConnectorState *state,
 }
 
 static void
+set_privacy_screen (MetaKmsConnectorState *state,
+                    MetaKmsConnector      *connector,
+                    drmModePropertyPtr     prop,
+                    uint64_t               value)
+{
+  if (!meta_kms_connector_is_privacy_screen_supported (connector))
+    return;
+
+  switch (value)
+    {
+    case META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED:
+      state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
+      break;
+    case META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED_LOCKED:
+      state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
+      state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
+      break;
+    case META_KMS_PRIVACY_SCREEN_HW_STATE_ENABLED:
+      state->privacy_screen_state = META_PRIVACY_SCREEN_ENABLED;
+      break;
+    case META_KMS_PRIVACY_SCREEN_HW_STATE_ENABLED_LOCKED:
+      state->privacy_screen_state = META_PRIVACY_SCREEN_ENABLED;
+      state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
+      break;
+    default:
+      state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
+      g_warning ("Unknown privacy screen state: %" G_GUINT64_FORMAT, value);
+    }
+
+  if (!has_privacy_screen_software_toggle (connector))
+    state->privacy_screen_state |= META_PRIVACY_SCREEN_LOCKED;
+}
+
+static void
 state_set_properties (MetaKmsConnectorState *state,
                       MetaKmsImplDevice     *impl_device,
+                      MetaKmsConnector      *connector,
                       drmModeConnector      *drm_connector)
 {
   int fd;
@@ -216,6 +274,10 @@ state_set_properties (MetaKmsConnectorState *state,
       else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
                strcmp (prop->name, "non-desktop") == 0)
         state->non_desktop = drm_connector->prop_values[i];
+      else if (prop->prop_id == meta_kms_connector_get_prop_id (connector,
+                META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE))
+        set_privacy_screen (state, connector, prop,
+                            drm_connector->prop_values[i]);
 
       drmModeFreeProperty (prop);
     }
@@ -554,7 +616,23 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (!kms_modes_equal (state->modes, new_state->modes))
     return META_KMS_UPDATE_CHANGE_FULL;
 
+  if (state->privacy_screen_state != new_state->privacy_screen_state)
+    return META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN;
+
   return META_KMS_UPDATE_CHANGE_NONE;
+}
+
+static void
+meta_kms_connector_update_state_changes (MetaKmsConnector      *connector,
+                                         MetaKmsUpdateChanges   changes,
+                                         MetaKmsConnectorState *new_state)
+{
+  MetaKmsConnectorState *current_state = connector->current_state;
+
+  g_return_if_fail (changes != META_KMS_UPDATE_CHANGE_FULL);
+
+  if (changes & META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
+    current_state->privacy_screen_state = new_state->privacy_screen_state;
 }
 
 static MetaKmsUpdateChanges
@@ -593,7 +671,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
 
   state_set_blobs (state, connector, impl_device, drm_connector);
 
-  state_set_properties (state, impl_device, drm_connector);
+  state_set_properties (state, impl_device, connector, drm_connector);
 
   state->subpixel_order =
     drm_subpixel_order_to_cogl_subpixel_order (drm_connector->subpixel);
@@ -615,14 +693,18 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   else
     connector_changes = meta_kms_connector_state_changes (current_state, state);
 
-  if (connector_changes == META_KMS_UPDATE_CHANGE_NONE)
+  changes |= connector_changes;
+
+  if (!(changes & META_KMS_UPDATE_CHANGE_FULL))
     {
+      meta_kms_connector_update_state_changes (connector,
+                                               connector_changes,
+                                               state);
       connector->current_state = g_steal_pointer (&current_state);
     }
   else
     {
       connector->current_state = g_steal_pointer (&state);
-      changes |= connector_changes;
     }
 
 out:
@@ -686,6 +768,36 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
         }
     }
 
+  if (has_privacy_screen_software_toggle (connector))
+    {
+      GList *connector_updates;
+
+      connector_updates = meta_kms_update_get_connector_updates (update);
+      for (l = connector_updates; l; l = l->next)
+        {
+          MetaKmsConnectorUpdate *connector_update = l->data;
+
+          if (connector_update->connector != connector)
+            continue;
+
+          if (connector_update->privacy_screen.has_update &&
+              !(current_state->privacy_screen_state &
+                META_PRIVACY_SCREEN_LOCKED))
+            {
+              if (connector_update->privacy_screen.is_enabled)
+                {
+                  current_state->privacy_screen_state =
+                    META_PRIVACY_SCREEN_ENABLED;
+                }
+              else
+                {
+                  current_state->privacy_screen_state =
+                    META_PRIVACY_SCREEN_DISABLED;
+                }
+            }
+        }
+    }
+
   impl_device = meta_kms_device_get_impl_device (connector->device);
   sync_fd_held (connector, impl_device);
 }
@@ -723,6 +835,16 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "underscan vborder",
           .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_SW_STATE] =
+        {
+          .name = "privacy-screen sw-state",
+          .type = DRM_MODE_PROP_ENUM,
+        },
+      [META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE] =
+        {
+          .name = "privacy-screen hw-state",
+          .type = DRM_MODE_PROP_ENUM,
         },
     }
   };

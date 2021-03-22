@@ -77,6 +77,11 @@ typedef struct _MetaKmsConnectorUpdate
     uint64_t hborder;
     uint64_t vborder;
   } underscanning;
+
+  struct {
+    gboolean has_update;
+    gboolean is_enabled;
+  } privacy_screen;
 } MetaKmsConnectorUpdate;
 
 typedef struct _MetaKmsPageFlipListener

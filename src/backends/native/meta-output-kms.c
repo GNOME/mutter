@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "backends/meta-crtc.h"
+#include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-mode.h"
@@ -94,6 +95,47 @@ meta_output_kms_set_underscan (MetaOutputKms *output_kms,
       meta_kms_update_unset_underscanning (kms_update,
                                            output_kms->kms_connector);
     }
+}
+
+static MetaPrivacyScreenState
+meta_output_kms_get_privacy_screen_state (MetaOutput *output)
+{
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
+  const MetaKmsConnectorState *connector_state;
+
+  connector_state =
+    meta_kms_connector_get_current_state (output_kms->kms_connector);
+
+  return connector_state->privacy_screen_state;
+}
+
+static gboolean
+meta_output_kms_set_privacy_screen_enabled (MetaOutput  *output,
+                                            gboolean     enabled,
+                                            GError     **error)
+{
+  MetaGpu *gpu;
+  MetaKms *kms;
+  MetaKmsDevice *kms_device;
+  MetaKmsUpdate *kms_update;
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
+  MetaKmsConnector *connector = meta_output_kms_get_kms_connector (output_kms);
+
+  if (!meta_kms_connector_is_privacy_screen_supported (connector))
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                           "No privacy screen support");
+      return FALSE;
+    }
+
+  gpu = meta_output_get_gpu (META_OUTPUT (output_kms));
+  kms_device = meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
+  kms = meta_kms_device_get_kms (kms_device);
+  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+
+  meta_kms_update_set_privacy_screen (kms_update, connector, enabled);
+
+  return TRUE;
 }
 
 uint32_t
@@ -425,6 +467,12 @@ static void
 meta_output_kms_class_init (MetaOutputKmsClass *klass)
 {
   MetaOutputNativeClass *output_native_class = META_OUTPUT_NATIVE_CLASS (klass);
+  MetaOutputClass *output_class = META_OUTPUT_CLASS (klass);
+
+  output_class->get_privacy_screen_state =
+    meta_output_kms_get_privacy_screen_state;
+  output_class->set_privacy_screen_enabled =
+    meta_output_kms_set_privacy_screen_enabled;
 
   output_native_class->read_edid = meta_output_kms_read_edid;
 }

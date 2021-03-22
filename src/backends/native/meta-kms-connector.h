@@ -49,6 +49,7 @@ typedef struct _MetaKmsConnectorState
 
   gboolean has_scaling;
   gboolean non_desktop;
+  MetaPrivacyScreenState privacy_screen_state;
 
   CoglSubpixelOrder subpixel_order;
 
@@ -73,5 +74,7 @@ gboolean meta_kms_connector_can_clone (MetaKmsConnector *connector,
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector);
+
+gboolean meta_kms_connector_is_privacy_screen_supported (MetaKmsConnector *connector);
 
 #endif /* META_KMS_CONNECTOR_H */

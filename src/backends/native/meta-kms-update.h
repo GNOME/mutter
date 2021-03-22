@@ -101,6 +101,10 @@ void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 void meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
                                           MetaKmsConnector *connector);
 
+void meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
+                                         MetaKmsConnector *connector,
+                                         gboolean          enabled);
+
 void meta_kms_update_set_power_save (MetaKmsUpdate *update);
 
 void meta_kms_update_mode_set (MetaKmsUpdate *update,

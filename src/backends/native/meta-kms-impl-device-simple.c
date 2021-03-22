@@ -260,6 +260,22 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
+  if (connector_update->privacy_screen.has_update)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Toggling privacy screen to %d on connector %u (%s)",
+                  connector_update->privacy_screen.is_enabled,
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!set_connector_property (impl_device,
+                                   connector,
+                                   META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_SW_STATE,
+                                   connector_update->privacy_screen.is_enabled,
+                                   error))
+        return FALSE;
+    }
+
   return TRUE;
 }
 
