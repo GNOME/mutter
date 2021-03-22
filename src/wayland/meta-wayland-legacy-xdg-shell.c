@@ -709,9 +709,6 @@ meta_wayland_zxdg_toplevel_v6_post_apply_state (MetaWaylandSurfaceRole  *surface
   if (!window)
     return;
 
-  if (!pending->newly_attached)
-    return;
-
   old_geometry = xdg_surface_priv->geometry;
 
   surface_role_class =
@@ -1015,9 +1012,6 @@ meta_wayland_zxdg_popup_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_ro
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_popup_v6_parent_class);
   surface_role_class->post_apply_state (surface_role, pending);
-
-  if (!pending->newly_attached)
-    return;
 
   if (!surface->buffer_ref->buffer)
     return;

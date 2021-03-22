@@ -810,9 +810,6 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_toplevel_parent_class);
   surface_role_class->post_apply_state (surface_role, pending);
 
-  if (!pending->newly_attached)
-    return;
-
   window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
   geometry_changed = !meta_rectangle_equal (&old_geometry, &window_geometry);
 
@@ -1162,9 +1159,6 @@ meta_wayland_xdg_popup_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   window = meta_wayland_surface_get_window (surface);
   if (!window)
-    return;
-
-  if (!pending->newly_attached)
     return;
 
   if (!surface->buffer_ref->buffer)

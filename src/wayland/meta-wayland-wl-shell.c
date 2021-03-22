@@ -611,9 +611,6 @@ wl_shell_surface_role_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (!window)
     return;
 
-  if (!pending->newly_attached)
-    return;
-
   input_region = meta_wayland_surface_calculate_input_region (surface);
   if (!cairo_region_is_empty (input_region))
     {
