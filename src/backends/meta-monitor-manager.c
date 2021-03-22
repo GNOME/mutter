@@ -1802,6 +1802,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       MetaMonitorSpec *monitor_spec = meta_monitor_get_spec (monitor);
       MetaMonitorMode *current_mode;
       MetaMonitorMode *preferred_mode;
+      MetaPrivacyScreenState privacy_screen_state;
       GVariantBuilder modes_builder;
       GVariantBuilder monitor_properties_builder;
       GList *k;
@@ -1900,6 +1901,19 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "display-name",
                              g_variant_new_string (display_name));
+
+      privacy_screen_state = meta_monitor_get_privacy_screen_state (monitor);
+      if (privacy_screen_state != META_PRIVACY_SCREEN_UNAVAILABLE)
+        {
+          GVariant *state;
+
+          state = g_variant_new ("(bb)",
+            !!(privacy_screen_state & META_PRIVACY_SCREEN_ENABLED),
+            !!(privacy_screen_state & META_PRIVACY_SCREEN_LOCKED));
+
+          g_variant_builder_add (&monitor_properties_builder, "{sv}",
+                                 "privacy-screen-state", state);
+        }
 
       g_variant_builder_add (&monitors_builder, MONITOR_FORMAT,
                              monitor_spec->connector,

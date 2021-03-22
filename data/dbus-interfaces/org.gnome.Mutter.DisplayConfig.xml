@@ -336,6 +336,12 @@
 				laptop panel (absence of this means it is
 				not built in)
 	    - "display-name" (s): a human readable display name of the monitor
+	    - "privacy-screen-state" (bb): the state of the privacy screen
+				     (absence of this means it is not being
+				     supported) first value indicates whether
+				     it's enabled and second value whether it's
+				     hardware locked (and so can't be changed
+				     via gsettings)
 
         Possible mode flags:
 	  1 : preferred mode
