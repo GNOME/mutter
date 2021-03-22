@@ -222,6 +222,18 @@ meta_udev_new (MetaBackendNative *backend_native)
   return udev;
 }
 
+void
+meta_udev_pause (MetaUdev *udev)
+{
+  g_signal_handler_block (udev->gudev_client, udev->uevent_handler_id);
+}
+
+void
+meta_udev_resume (MetaUdev *udev)
+{
+  g_signal_handler_unblock (udev->gudev_client, udev->uevent_handler_id);
+}
+
 static void
 meta_udev_finalize (GObject *object)
 {

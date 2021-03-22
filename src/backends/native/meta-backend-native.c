@@ -87,8 +87,6 @@ struct _MetaBackendNative
   MetaKms *kms;
 
   gboolean is_headless;
-
-  gulong udev_device_added_handler_id;
 };
 
 static GInitableIface *initable_parent_iface;
@@ -101,18 +99,9 @@ G_DEFINE_TYPE_WITH_CODE (MetaBackendNative, meta_backend_native, META_TYPE_BACKE
                                                 initable_iface_init))
 
 static void
-disconnect_udev_device_added_handler (MetaBackendNative *native);
-
-static void
 meta_backend_native_dispose (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
-
-  if (native->udev_device_added_handler_id)
-    {
-      disconnect_udev_device_added_handler (native);
-      native->udev_device_added_handler_id = 0;
-    }
 
   if (native->kms)
     meta_kms_prepare_shutdown (native->kms);
@@ -485,20 +474,6 @@ on_udev_device_added (MetaUdev          *udev,
   meta_backend_add_gpu (backend, META_GPU (new_gpu_kms));
 }
 
-static void
-connect_udev_device_added_handler (MetaBackendNative *native)
-{
-  native->udev_device_added_handler_id =
-    g_signal_connect (native->udev, "device-added",
-                      G_CALLBACK (on_udev_device_added), native);
-}
-
-static void
-disconnect_udev_device_added_handler (MetaBackendNative *native)
-{
-  g_clear_signal_handler (&native->udev_device_added_handler_id, native->udev);
-}
-
 static gboolean
 init_gpus (MetaBackendNative  *native,
            GError            **error)
@@ -549,7 +524,9 @@ init_gpus (MetaBackendNative  *native,
       return FALSE;
     }
 
-  connect_udev_device_added_handler (native);
+  g_signal_connect_object (native->udev, "device-added",
+                           G_CALLBACK (on_udev_device_added), native,
+                           0);
 
   return TRUE;
 }
@@ -724,8 +701,7 @@ meta_backend_native_pause (MetaBackendNative *native)
 
   meta_seat_native_release_devices (seat);
   meta_renderer_pause (renderer);
-
-  disconnect_udev_device_added_handler (native);
+  meta_udev_pause (native->udev);
 
   meta_monitor_manager_native_pause (monitor_manager_native);
 }
@@ -749,9 +725,8 @@ void meta_backend_native_resume (MetaBackendNative *native)
                            "Backend (resume)");
 
   meta_monitor_manager_native_resume (monitor_manager_native);
+  meta_udev_resume (native->udev);
   meta_kms_resume (native->kms);
-
-  connect_udev_device_added_handler (native);
 
   meta_seat_native_reclaim_devices (seat);
   meta_renderer_resume (renderer);

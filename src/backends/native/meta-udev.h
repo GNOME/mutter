@@ -44,6 +44,10 @@ gboolean meta_udev_is_drm_device (MetaUdev    *udev,
 GList * meta_udev_list_drm_devices (MetaUdev  *udev,
                                     GError   **error);
 
+void meta_udev_pause (MetaUdev *udev);
+
+void meta_udev_resume (MetaUdev *udev);
+
 MetaUdev * meta_udev_new (MetaBackendNative *backend_native);
 
 #endif /* META_UDEV_H */
