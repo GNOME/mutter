@@ -312,14 +312,15 @@ bind_output (struct wl_client *client,
 #endif
 
   resource = wl_resource_create (client, &wl_output_interface, version, id);
-  wayland_output->resources = g_list_prepend (wayland_output->resources, resource);
-
-  wl_resource_set_user_data (resource, wayland_output);
-  wl_resource_set_destructor (resource, output_resource_destroy);
 
   monitor = wayland_output->monitor;
   if (!monitor)
     return;
+
+  wayland_output->resources = g_list_prepend (wayland_output->resources,
+                                              resource);
+  wl_resource_set_user_data (resource, wayland_output);
+  wl_resource_set_destructor (resource, output_resource_destroy);
 
 #ifdef WITH_VERBOSE_MODE
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -430,6 +431,8 @@ make_output_resources_inert (MetaWaylandOutput *wayland_output)
 {
   GList *l;
 
+  wl_global_remove (wayland_output->global);
+
   for (l = wayland_output->resources; l; l = l->next)
     {
       struct wl_resource *output_resource = l->data;
@@ -531,12 +534,10 @@ meta_wayland_output_finalize (GObject *object)
 {
   MetaWaylandOutput *wayland_output = META_WAYLAND_OUTPUT (object);
 
-  wl_global_destroy (wayland_output->global);
+  g_warn_if_fail (!wayland_output->resources);
+  g_warn_if_fail (!wayland_output->xdg_output_resources);
 
-  /* Make sure the wl_output destructor doesn't try to access MetaWaylandOutput
-   * after we have freed it.
-   */
-  make_output_resources_inert (wayland_output);
+  wl_global_destroy (wayland_output->global);
 
   G_OBJECT_CLASS (meta_wayland_output_parent_class)->finalize (object);
 }
