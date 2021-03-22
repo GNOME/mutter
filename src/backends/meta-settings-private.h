@@ -78,4 +78,6 @@ gboolean meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings);
 
 int meta_settings_get_xwayland_disable_extensions (MetaSettings *settings);
 
+gboolean meta_settings_is_privacy_screen_enabled (MetaSettings *settings);
+
 #endif /* META_SETTINGS_PRIVATE_H */
