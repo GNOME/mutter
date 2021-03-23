@@ -671,7 +671,7 @@ msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
 #: src/core/main.c:300
 msgid "Run as a headless display server"
-msgstr "Spustit jako samostatný server displeje"
+msgstr "Spustit jako server displeje bez monitoru"
 
 #: src/core/main.c:305
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
