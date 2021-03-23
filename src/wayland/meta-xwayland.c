@@ -597,7 +597,10 @@ shutdown_xwayland_cb (gpointer data)
 
   if (!meta_settings_is_experimental_feature_enabled (meta_backend_get_settings (backend),
                                                       META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
-    return G_SOURCE_REMOVE;
+    {
+      manager->xserver_grace_period_id = 0;
+      return G_SOURCE_REMOVE;
+    }
 
   if (display->x11_display &&
       !can_terminate_xwayland (display->x11_display->xdisplay))
