@@ -71,4 +71,6 @@ void meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
 void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
                                             cairo_region_t    *opaque_region);
 
+void meta_shaped_texture_ensure_size_valid (MetaShapedTexture *stex);
+
 #endif
