@@ -220,8 +220,8 @@ update_size (MetaShapedTexture *stex)
     }
 }
 
-static void
-ensure_size_valid (MetaShapedTexture *stex)
+void
+meta_shaped_texture_ensure_size_valid (MetaShapedTexture *stex)
 {
   if (stex->size_invalid)
     update_size (stex);
@@ -596,7 +596,7 @@ do_paint_content (MetaShapedTexture   *stex,
   int sample_width, sample_height;
   gboolean debug_paint_opaque_region;
 
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
 
   dst_width = stex->dst_width;
   dst_height = stex->dst_height;
@@ -910,7 +910,7 @@ meta_shaped_texture_get_preferred_size (ClutterContent *content,
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
 
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
 
   if (width)
     *width = stex->dst_width;
@@ -1002,7 +1002,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                clip);
 
   inverted_transform = meta_monitor_transform_invert (stex->transform);
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
   meta_rectangle_transform (clip,
                             inverted_transform,
                             stex->dst_width,
@@ -1215,7 +1215,7 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
 
   cairo_region_get_extents (stex->opaque_region, &opaque_rect);
 
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
 
   return meta_rectangle_equal (&opaque_rect,
                                &(MetaRectangle) {
@@ -1481,7 +1481,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   if (texture == NULL)
     return NULL;
 
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
 
   if (stex->dst_width == 0 || stex->dst_height == 0)
     return NULL;
@@ -1639,7 +1639,7 @@ meta_shaped_texture_get_width (MetaShapedTexture *stex)
 {
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
 
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
 
   return stex->dst_width;
 }
@@ -1655,7 +1655,7 @@ meta_shaped_texture_get_height (MetaShapedTexture *stex)
 {
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
 
-  ensure_size_valid (stex);
+  meta_shaped_texture_ensure_size_valid (stex);
 
   return stex->dst_height;
 }
