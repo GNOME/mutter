@@ -124,6 +124,9 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     case DRM_FORMAT_ARGB2101010:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
       break;
+    case DRM_FORMAT_ABGR2101010:
+      cogl_format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
+      break;
     case DRM_FORMAT_RGB565:
       cogl_format = COGL_PIXEL_FORMAT_RGB_565;
       break;
@@ -701,6 +704,7 @@ dma_buf_bind (struct wl_client *client,
   send_modifiers (resource, DRM_FORMAT_ARGB8888);
   send_modifiers (resource, DRM_FORMAT_XRGB8888);
   send_modifiers (resource, DRM_FORMAT_ARGB2101010);
+  send_modifiers (resource, DRM_FORMAT_ABGR2101010);
   send_modifiers (resource, DRM_FORMAT_XRGB2101010);
   send_modifiers (resource, DRM_FORMAT_RGB565);
   send_modifiers (resource, DRM_FORMAT_ABGR16161616F);
