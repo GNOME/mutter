@@ -942,10 +942,11 @@ meta_xwayland_dnd_handle_event (XEvent *xevent)
 }
 
 void
-meta_xwayland_init_dnd (Display *xdisplay)
+meta_xwayland_init_dnd (MetaX11Display *x11_display)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   MetaXWaylandDnd *dnd = manager->dnd;
   XSetWindowAttributes attributes;
   guint32 i, version = XDND_VERSION;
@@ -961,7 +962,7 @@ meta_xwayland_init_dnd (Display *xdisplay)
   attributes.override_redirect = True;
 
   dnd->dnd_window = XCreateWindow (xdisplay,
-                                   gdk_x11_window_get_xid (gdk_get_default_root_window ()),
+                                   meta_x11_display_get_xroot (x11_display),
                                    -1, -1, 1, 1,
                                    0, /* border width */
                                    0, /* depth */
@@ -977,13 +978,13 @@ meta_xwayland_init_dnd (Display *xdisplay)
 
 void
 meta_xwayland_shutdown_dnd (MetaXWaylandManager *manager,
-                            Display             *xdisplay)
+                            MetaX11Display      *x11_display)
 {
   MetaXWaylandDnd *dnd = manager->dnd;
 
   g_assert (dnd != NULL);
 
-  XDestroyWindow (xdisplay, dnd->dnd_window);
+  XDestroyWindow (meta_x11_display_get_xdisplay (x11_display), dnd->dnd_window);
   dnd->dnd_window = None;
 
   g_free (dnd);

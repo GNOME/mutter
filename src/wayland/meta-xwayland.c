@@ -1218,9 +1218,9 @@ static void
 on_x11_display_closing (MetaDisplay         *display,
                         MetaXWaylandManager *manager)
 {
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+  MetaX11Display *x11_display = meta_display_get_x11_display (display);
 
-  meta_xwayland_shutdown_dnd (manager, xdisplay);
+  meta_xwayland_shutdown_dnd (manager, x11_display);
   g_signal_handlers_disconnect_by_func (meta_monitor_manager_get (),
                                         monitors_changed_cb,
                                         NULL);
@@ -1263,7 +1263,7 @@ on_x11_display_setup (MetaDisplay         *display,
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   MetaX11DisplayPolicy x11_display_policy;
 
-  meta_xwayland_init_dnd (xdisplay);
+  meta_xwayland_init_dnd (x11_display);
   meta_xwayland_init_xrandr (manager, xdisplay);
   meta_xwayland_stop_xserver_timeout (manager);
 
