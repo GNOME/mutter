@@ -635,8 +635,7 @@ static void
 x_io_error_exit (Display *display,
                  void    *data)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
-  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+  MetaXWaylandManager *manager = data;
 
   g_warning ("Xwayland just died, attempting to recover");
   manager->xserver_grace_period_id =
@@ -1271,7 +1270,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
   */
   XSetIOErrorHandler (x_io_error);
 #ifdef HAVE_XSETIOERROREXITHANDLER
-  XSetIOErrorExitHandler (xdisplay, x_io_error_exit, display);
+  XSetIOErrorExitHandler (xdisplay, x_io_error_exit, manager);
 #endif
 
   g_signal_connect (display, "x11-display-closing",
