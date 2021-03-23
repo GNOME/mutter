@@ -1260,10 +1260,14 @@ meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
                                            graphene_rect_t   *src_rect)
 {
   if (!stex->has_viewport_src_rect ||
-      stex->viewport_src_rect.origin.x != src_rect->origin.x ||
-      stex->viewport_src_rect.origin.y != src_rect->origin.y ||
-      stex->viewport_src_rect.size.width != src_rect->size.width ||
-      stex->viewport_src_rect.size.height != src_rect->size.height)
+      !G_APPROX_VALUE (stex->viewport_src_rect.origin.x,
+                       src_rect->origin.x, FLT_EPSILON) ||
+      !G_APPROX_VALUE (stex->viewport_src_rect.origin.y,
+                       src_rect->origin.y, FLT_EPSILON) ||
+      !G_APPROX_VALUE (stex->viewport_src_rect.size.width,
+                       src_rect->size.width, FLT_EPSILON) ||
+      !G_APPROX_VALUE (stex->viewport_src_rect.size.height,
+                       src_rect->size.height, FLT_EPSILON))
     {
       stex->has_viewport_src_rect = TRUE;
       stex->viewport_src_rect = *src_rect;
