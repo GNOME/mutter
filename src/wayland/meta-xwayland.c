@@ -66,7 +66,7 @@ static int display_number_override = -1;
 static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
 
 static void
-meta_xwayland_set_primary_output (Display *xdisplay);
+meta_xwayland_set_primary_output (MetaX11Display *x11_display);
 
 void
 meta_xwayland_associate_window_with_surface (MetaWindow          *window,
@@ -1211,7 +1211,7 @@ monitors_changed_cb (MetaMonitorManager *monitor_manager)
 {
   MetaX11Display *x11_display = meta_get_display ()->x11_display;
 
-  meta_xwayland_set_primary_output (x11_display->xdisplay);
+  meta_xwayland_set_primary_output (x11_display);
 }
 
 static void
@@ -1234,9 +1234,10 @@ on_x11_display_closing (MetaDisplay         *display,
 
 static void
 meta_xwayland_init_xrandr (MetaXWaylandManager *manager,
-                           Display             *xdisplay)
+                           MetaX11Display      *x11_display)
 {
   MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
 
   manager->has_xrandr = XRRQueryExtension (xdisplay,
                                            &manager->rr_event_base,
@@ -1251,20 +1252,19 @@ meta_xwayland_init_xrandr (MetaXWaylandManager *manager,
   g_signal_connect (monitor_manager, "monitors-changed",
                     G_CALLBACK (monitors_changed_cb), NULL);
 
-  meta_xwayland_set_primary_output (xdisplay);
+  meta_xwayland_set_primary_output (x11_display);
 }
 
 static void
 on_x11_display_setup (MetaDisplay         *display,
                       MetaXWaylandManager *manager)
 {
-  MetaX11Display *x11_display = meta_display_get_x11_display (display);
   MetaContext *context = meta_display_get_context (display);
-  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
+  MetaX11Display *x11_display = meta_display_get_x11_display (display);
   MetaX11DisplayPolicy x11_display_policy;
 
   meta_xwayland_init_dnd (x11_display);
-  meta_xwayland_init_xrandr (manager, xdisplay);
+  meta_xwayland_init_xrandr (manager, x11_display);
   meta_xwayland_stop_xserver_timeout (manager);
 
   x11_display_policy = meta_context_get_x11_display_policy (context);
@@ -1354,8 +1354,9 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
 }
 
 static void
-meta_xwayland_set_primary_output (Display *xdisplay)
+meta_xwayland_set_primary_output (MetaX11Display *x11_display)
 {
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   XRRScreenResources *resources;
   MetaMonitorManager *monitor_manager;
   MetaLogicalMonitor *primary_monitor;
@@ -1422,7 +1423,8 @@ meta_xwayland_handle_xevent (XEvent *event)
   if (manager->has_xrandr && event->type == manager->rr_event_base + RRNotify)
     {
       MetaX11Display *x11_display = meta_get_display ()->x11_display;
-      meta_xwayland_set_primary_output (x11_display->xdisplay);
+
+      meta_xwayland_set_primary_output (x11_display);
       return TRUE;
     }
 
