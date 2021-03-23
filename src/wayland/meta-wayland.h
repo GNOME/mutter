@@ -36,6 +36,9 @@ MetaWaylandCompositor * meta_wayland_compositor_new             (MetaContext *co
 
 void                    meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor);
 
+void                    meta_wayland_compositor_init_display    (MetaWaylandCompositor *compositor,
+                                                                 MetaDisplay           *display);
+
 META_EXPORT_TEST
 MetaWaylandCompositor  *meta_wayland_compositor_get_default     (void);
 

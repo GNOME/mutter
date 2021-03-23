@@ -31,8 +31,12 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
                     GError                **error);
 
 void
-meta_xwayland_complete_init (MetaDisplay *display,
-                             Display     *xdisplay);
+meta_xwayland_init_display (MetaXWaylandManager  *manager,
+                            MetaDisplay          *display);
+
+void
+meta_xwayland_setup_xdisplay (MetaXWaylandManager *manager,
+                              Display             *xdisplay);
 
 void
 meta_xwayland_shutdown (MetaXWaylandManager *manager);

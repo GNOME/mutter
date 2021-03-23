@@ -1151,7 +1151,13 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
-    meta_xwayland_complete_init (display, xdisplay);
+    {
+      MetaContext *context = meta_display_get_context (display);
+      MetaWaylandCompositor *compositor =
+        meta_context_get_wayland_compositor (context);
+
+      meta_xwayland_setup_xdisplay (&compositor->xwayland_manager, xdisplay);
+    }
 #endif
 
   if (meta_is_syncing ())
