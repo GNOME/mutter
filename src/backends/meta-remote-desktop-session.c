@@ -69,6 +69,8 @@ struct _MetaRemoteDesktopSession
 {
   MetaDBusRemoteDesktopSessionSkeleton parent;
 
+  MetaRemoteDesktop *remote_desktop;
+
   GDBusConnection *connection;
   char *peer_name;
 
@@ -125,7 +127,7 @@ meta_remote_desktop_session_handle_new (MetaRemoteDesktopSession *session);
 static gboolean
 meta_remote_desktop_session_is_running (MetaRemoteDesktopSession *session)
 {
-  return !!session->virtual_pointer;
+  return !!session->started;
 }
 
 static void
@@ -143,13 +145,38 @@ init_remote_access_handle (MetaRemoteDesktopSession *session)
                                                    remote_access_handle);
 }
 
+static void
+ensure_virtual_device (MetaRemoteDesktopSession *session,
+                       ClutterInputDeviceType    device_type)
+{
+  MetaRemoteDesktop *remote_desktop = session->remote_desktop;
+  MetaBackend *backend = meta_remote_desktop_get_backend (remote_desktop);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+  switch (device_type)
+    {
+    case CLUTTER_POINTER_DEVICE:
+      session->virtual_pointer =
+        clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+      break;
+    case CLUTTER_KEYBOARD_DEVICE:
+      session->virtual_keyboard =
+        clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
+      break;
+    case CLUTTER_TOUCHSCREEN_DEVICE:
+      session->virtual_touchscreen =
+        clutter_seat_create_virtual_device (seat, CLUTTER_TOUCHSCREEN_DEVICE);
+      break;
+    default:
+      g_assert_not_reached ();
+    }
+}
+
 static gboolean
 meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
                                    GError                  **error)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
-
   g_assert (!session->started);
 
   if (session->screen_cast_session)
@@ -157,13 +184,6 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
       if (!meta_screen_cast_session_start (session->screen_cast_session, error))
         return FALSE;
     }
-
-  session->virtual_pointer =
-    clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
-  session->virtual_keyboard =
-    clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
-  session->virtual_touchscreen =
-    clutter_seat_create_virtual_device (seat, CLUTTER_TOUCHSCREEN_DEVICE);
 
   init_remote_access_handle (session);
   session->started = TRUE;
@@ -262,6 +282,7 @@ meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
 
   session = g_object_new (META_TYPE_REMOTE_DESKTOP_SESSION, NULL);
 
+  session->remote_desktop = remote_desktop;
   session->peer_name = g_strdup (peer_name);
 
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (session);
@@ -399,9 +420,22 @@ handle_notify_keyboard_keycode (MetaDBusRemoteDesktopSession *skeleton,
     return TRUE;
 
   if (pressed)
-    state = CLUTTER_KEY_STATE_PRESSED;
+    {
+      ensure_virtual_device (session, CLUTTER_KEYBOARD_DEVICE);
+      state = CLUTTER_KEY_STATE_PRESSED;
+    }
   else
-    state = CLUTTER_KEY_STATE_RELEASED;
+    {
+      if (!session->virtual_keyboard)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Invalid key event");
+          return TRUE;
+        }
+
+      state = CLUTTER_KEY_STATE_RELEASED;
+    }
 
   clutter_virtual_input_device_notify_key (session->virtual_keyboard,
                                            CLUTTER_CURRENT_TIME,
@@ -426,9 +460,22 @@ handle_notify_keyboard_keysym (MetaDBusRemoteDesktopSession *skeleton,
     return TRUE;
 
   if (pressed)
-    state = CLUTTER_KEY_STATE_PRESSED;
+    {
+      ensure_virtual_device (session, CLUTTER_KEYBOARD_DEVICE);
+      state = CLUTTER_KEY_STATE_PRESSED;
+    }
   else
-    state = CLUTTER_KEY_STATE_RELEASED;
+    {
+      if (!session->virtual_keyboard)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Invalid key event");
+          return TRUE;
+        }
+
+      state = CLUTTER_KEY_STATE_RELEASED;
+    }
 
   clutter_virtual_input_device_notify_keyval (session->virtual_keyboard,
                                               CLUTTER_CURRENT_TIME,
@@ -477,9 +524,22 @@ handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
   button = translate_to_clutter_button (button_code);
 
   if (pressed)
-    state = CLUTTER_BUTTON_STATE_PRESSED;
+    {
+      ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
+      state = CLUTTER_BUTTON_STATE_PRESSED;
+    }
   else
-    state = CLUTTER_BUTTON_STATE_RELEASED;
+    {
+      if (!session->virtual_pointer)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Invalid button event");
+          return TRUE;
+        }
+
+      state = CLUTTER_BUTTON_STATE_RELEASED;
+    }
 
   clutter_virtual_input_device_notify_button (session->virtual_pointer,
                                               CLUTTER_CURRENT_TIME,
@@ -547,6 +607,8 @@ handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
                        CLUTTER_SCROLL_FINISHED_VERTICAL);
     }
 
+  ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
+
   clutter_virtual_input_device_notify_scroll_continuous (session->virtual_pointer,
                                                          CLUTTER_CURRENT_TIME,
                                                          dx, dy,
@@ -605,6 +667,8 @@ handle_notify_pointer_axis_discrete (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
+  ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
+
   /*
    * We don't have the actual scroll source, but only know they should be
    * considered as discrete steps. The device that produces such scroll events
@@ -634,6 +698,8 @@ handle_notify_pointer_motion_relative (MetaDBusRemoteDesktopSession *skeleton,
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
+
+  ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
 
   clutter_virtual_input_device_notify_relative_motion (session->virtual_pointer,
                                                        CLUTTER_CURRENT_TIME,
@@ -677,6 +743,8 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
                                              "Unknown stream");
       return TRUE;
     }
+
+  ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
 
   if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
     {
@@ -736,6 +804,8 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
                                              "Unknown stream");
       return TRUE;
     }
+
+  ensure_virtual_device (session, CLUTTER_TOUCHSCREEN_DEVICE);
 
   if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
     {
@@ -798,6 +868,14 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
+  if (!session->virtual_touchscreen)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Invalid touch point");
+      return TRUE;
+    }
+
   if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
     {
       clutter_virtual_input_device_notify_touch_motion (session->virtual_touchscreen,
@@ -832,6 +910,14 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Touch slot out of range");
+      return TRUE;
+    }
+
+  if (!session->virtual_touchscreen)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Invalid touch point");
       return TRUE;
     }
 
