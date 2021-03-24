@@ -672,7 +672,7 @@ clutter_seat_get_touch_mode (ClutterSeat *seat)
 gboolean
 clutter_seat_has_touchscreen (ClutterSeat *seat)
 {
-  gboolean has_touchscreen;
+  gboolean has_touchscreen = FALSE;
   const GList *devices, *l;
 
   g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
