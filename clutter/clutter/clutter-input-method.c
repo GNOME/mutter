@@ -495,6 +495,7 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
   event->key.modifier_state = state;
   event->key.keyval = keyval;
   event->key.hardware_keycode = keycode;
+  event->key.evdev_code = keycode - 8;
   event->key.unicode_value = clutter_keysym_to_unicode (keyval);
 
   clutter_event_set_device (event, keyboard);
