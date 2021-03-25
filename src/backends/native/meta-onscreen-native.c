@@ -1071,6 +1071,15 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   update_secondary_gpu_state_post_swap_buffers (onscreen, &egl_context_changed);
 
+  /*
+   * If we changed EGL context, cogl will have the wrong idea about what is
+   * current, making it fail to set it when it needs to. Avoid that by making
+   * EGL_NO_CONTEXT current now, making cogl eventually set the correct
+   * context.
+   */
+  if (egl_context_changed)
+    _cogl_winsys_egl_ensure_current (cogl_display);
+
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode == META_POWER_SAVE_ON)
     {
@@ -1088,15 +1097,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                 CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
       return;
     }
-
-  /*
-   * If we changed EGL context, cogl will have the wrong idea about what is
-   * current, making it fail to set it when it needs to. Avoid that by making
-   * EGL_NO_CONTEXT current now, making cogl eventually set the correct
-   * context.
-   */
-  if (egl_context_changed)
-    _cogl_winsys_egl_ensure_current (cogl_display);
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativePostKmsUpdate,
                            "Onscreen (post pending update)");
