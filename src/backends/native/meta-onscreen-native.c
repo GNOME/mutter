@@ -2050,8 +2050,6 @@ meta_onscreen_native_dispose (GObject *object)
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  G_OBJECT_CLASS (meta_onscreen_native_parent_class)->dispose (object);
-
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
                                        onscreen_native->render_gpu);
@@ -2060,11 +2058,9 @@ meta_onscreen_native_dispose (GObject *object)
     case META_RENDERER_NATIVE_MODE_GBM:
       /* flip state takes a reference on the onscreen so there should
        * never be outstanding flips when we reach here. */
-      g_return_if_fail (onscreen_native->gbm.next_fb == NULL);
+      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
 
       free_current_bo (onscreen);
-
-      g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
@@ -2089,6 +2085,9 @@ meta_onscreen_native_dispose (GObject *object)
 #endif /* HAVE_EGL_DEVICE */
     }
 
+  G_OBJECT_CLASS (meta_onscreen_native_parent_class)->dispose (object);
+
+  g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
   g_clear_pointer (&onscreen_native->secondary_gpu_state,
                    secondary_gpu_state_free);
 }
