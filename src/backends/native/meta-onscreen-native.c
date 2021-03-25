@@ -2041,56 +2041,16 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
 }
 
 static void
-destroy_egl_surface (CoglOnscreen *onscreen)
-{
-  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
-  EGLSurface egl_surface;
-
-  egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
-  if (cogl_onscreen_egl_get_egl_surface (onscreen_egl) != EGL_NO_SURFACE)
-    {
-      MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-      MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-      CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-      CoglRenderer *cogl_renderer = cogl_context->display->renderer;
-      CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
-
-      meta_egl_destroy_surface (egl,
-                                cogl_renderer_egl->edpy,
-                                egl_surface,
-                                NULL);
-      cogl_onscreen_egl_set_egl_surface (onscreen_egl, EGL_NO_SURFACE);
-    }
-}
-
-static void
 meta_onscreen_native_dispose (GObject *object)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
-  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  EGLSurface egl_surface;
 
   G_OBJECT_CLASS (meta_onscreen_native_parent_class)->dispose (object);
-
-  egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
-  if (egl_surface != EGL_NO_SURFACE &&
-      (cogl_display_egl->current_draw_surface == egl_surface ||
-       cogl_display_egl->current_read_surface == egl_surface))
-    {
-      if (!_cogl_winsys_egl_make_current (cogl_display,
-                                          cogl_display_egl->dummy_surface,
-                                          cogl_display_egl->dummy_surface,
-                                          cogl_display_egl->egl_context))
-        g_warning ("Failed to clear current context");
-    }
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
@@ -2104,8 +2064,6 @@ meta_onscreen_native_dispose (GObject *object)
 
       free_current_bo (onscreen);
 
-      destroy_egl_surface (onscreen);
-
       g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
@@ -2114,8 +2072,6 @@ meta_onscreen_native_dispose (GObject *object)
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       g_clear_object (&onscreen_native->egl.dumb_fb);
-
-      destroy_egl_surface (onscreen);
 
       if (onscreen_native->egl.stream != EGL_NO_STREAM_KHR)
         {
