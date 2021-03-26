@@ -77,8 +77,4 @@ void meta_window_wayland_get_max_size (MetaWindow *window,
                                        int        *width,
                                        int        *height);
 
-void meta_window_wayland_get_pending_size (MetaWindowWayland *wl_window,
-                                           int               *width,
-                                           int               *height);
-
 #endif
