@@ -1179,14 +1179,15 @@ meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat_impl,
                                        float              *dx,
                                        float              *dy)
 {
-  int view = -1, dest_view;
+  int view, dest_view;
   float new_dx, new_dy, scale;
 
-  if (meta_is_stage_views_scaled ())
+  if (!seat_impl->viewports)
+    return;
+  if (meta_viewport_info_is_views_scaled (seat_impl->viewports))
     return;
 
-  if (seat_impl->viewports)
-    view = meta_viewport_info_get_view_at (seat_impl->viewports, x, y);
+  view = meta_viewport_info_get_view_at (seat_impl->viewports, x, y);
   if (view < 0)
     return;
 
