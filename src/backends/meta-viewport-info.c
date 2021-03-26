@@ -38,6 +38,7 @@ struct _MetaViewportInfo
 {
   GObject parent;
   GArray *views;
+  gboolean is_views_scaled;
 };
 
 G_DEFINE_TYPE (MetaViewportInfo, meta_viewport_info, G_TYPE_OBJECT)
@@ -69,7 +70,8 @@ meta_viewport_info_init (MetaViewportInfo *info)
 MetaViewportInfo *
 meta_viewport_info_new (cairo_rectangle_int_t *views,
                         float                 *scales,
-                        int                    n_views)
+                        int                    n_views,
+                        gboolean               is_views_scaled)
 {
   MetaViewportInfo *viewport_info;
   int i;
@@ -84,6 +86,8 @@ meta_viewport_info_new (cairo_rectangle_int_t *views,
       info.scale = scales[i];
       g_array_append_val (viewport_info->views, info);
     }
+
+  viewport_info->is_views_scaled = is_views_scaled;
 
   return viewport_info;
 }
@@ -211,4 +215,10 @@ meta_viewport_info_get_extents (MetaViewportInfo *viewport_info,
     *width = (float) max_x - min_x;
   if (height)
     *height = (float) max_y - min_y;
+}
+
+gboolean
+meta_viewport_info_is_views_scaled (MetaViewportInfo *viewport_info)
+{
+  return viewport_info->is_views_scaled;
 }

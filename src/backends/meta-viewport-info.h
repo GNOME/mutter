@@ -34,7 +34,8 @@ G_DECLARE_FINAL_TYPE (MetaViewportInfo, meta_viewport_info,
 
 MetaViewportInfo * meta_viewport_info_new (cairo_rectangle_int_t *views,
                                            float                 *scales,
-                                           int                    n_views);
+                                           int                    n_views,
+                                           gboolean               is_views_scaled);
 
 int meta_viewport_info_get_view_at (MetaViewportInfo *info,
                                     float             x,
@@ -54,5 +55,7 @@ int meta_viewport_info_get_num_views (MetaViewportInfo *info);
 void meta_viewport_info_get_extents (MetaViewportInfo *info,
                                      float            *width,
                                      float            *height);
+
+gboolean meta_viewport_info_is_views_scaled (MetaViewportInfo *info);
 
 #endif /* META_VIEWPORT_INFO_H */

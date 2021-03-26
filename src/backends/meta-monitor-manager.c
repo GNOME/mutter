@@ -3448,7 +3448,8 @@ meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
 
   info = meta_viewport_info_new ((cairo_rectangle_int_t *) views->data,
                                  (float *) scales->data,
-                                 views->len);
+                                 views->len,
+                                 meta_is_stage_views_scaled ());
   g_array_unref (views);
   g_array_unref (scales);
 
