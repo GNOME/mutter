@@ -1,5 +1,5 @@
 # Simplified Chinese translation of mutter.
-# Copyright (C) 2012-2019 mutter's COPYRIGHT HOLDER
+# Copyright (C) 2012-2021 mutter's COPYRIGHT HOLDER
 # This file is distributed under the same license as the mutter package.
 # Sun G11n <gnome_int_l10n@ireland.sun.com>, 2002.
 # He Qiangqiang <carton@linux.net.cn>, 2002
@@ -14,22 +14,22 @@
 # Mandy Wang <wangmychn@gmail.com>, 2017.
 # Mingcong Bai <jeffbai@aosc.xyz>, 2017.
 # liushuyu <liushuyu011@gmail.com>, 2018.
-# Dingzhong Chen <wsxy162@gmail.com>, 2017-2019.
+# Dingzhong Chen <wsxy162@gmail.com>, 2017-2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-29 10:31+0000\n"
-"PO-Revision-Date: 2020-08-29 09:29-0400\n"
+"POT-Creation-Date: 2021-03-12 15:44+0000\n"
+"PO-Revision-Date: 2021-03-28 00:04+0800\n"
 "Last-Translator: Dingzhong Chen <wsxy162@gmail.com>\n"
-"Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
+"Language-Team: Chinese - China <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.4.1\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Gtranslator 3.38.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -56,12 +56,12 @@ msgid "Move window to last workspace"
 msgstr "将窗口移到最后一个工作区"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "将窗口上移一个工作区"
+msgid "Move window one workspace to the left"
+msgstr "将窗口左移一个工作区"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "将窗口下移一个工作区"
+msgid "Move window one workspace to the right"
+msgstr "将窗口右移一个工作区"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -160,12 +160,14 @@ msgid "Switch to last workspace"
 msgstr "切换到最后一个工作区"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "移动到上层工作区"
+#| msgid "Move to workspace left"
+msgid "Move to workspace on the left"
+msgstr "移动到左侧工作区"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "移动到下层工作区"
+#| msgid "Move to workspace right"
+msgid "Move to workspace on the right"
+msgstr "移动到右侧工作区"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -247,13 +249,13 @@ msgstr "垂直最大化窗口"
 msgid "Maximize window horizontally"
 msgstr "水平最大化窗口"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
-msgstr "在左侧查看分割"
+msgstr "分屏到左侧"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
-msgstr "在右侧查看分割"
+msgstr "分屏到右侧"
 
 #: data/mutter.desktop.in:4
 msgid "Mutter"
@@ -261,7 +263,7 @@ msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:7
 msgid "Modifier to use for extended window management operations"
-msgstr "用于修改窗口点击动作的修饰键 met"
+msgstr "用于扩展窗口管理操作的修饰键"
 
 #: data/org.gnome.mutter.gschema.xml.in:8
 msgid ""
@@ -270,8 +272,8 @@ msgid ""
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
 msgstr ""
-"这个键指出的“覆盖”是一种混合窗口概述和应用程序运行的系统。默认要求使用 "
-"“Super 键”。可能使用默认或者空白。"
+"此按键将启动“覆盖视图”，它混合了窗口概览和应用程序启动系统。默认值为电脑硬件"
+"上的“Windows 键”。此绑定键可以设为默认值或留空。"
 
 #: data/org.gnome.mutter.gschema.xml.in:20
 msgid "Attach modal dialogs"
@@ -326,13 +328,13 @@ msgstr "决定工作区切换对所有显示器上的窗口还是只对主显示
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "No tab popup"
-msgstr "TAB轮换不弹出"
+msgstr "无 Tab 轮换弹窗"
 
 #: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
-msgstr "决定窗口轮换时是否禁用弹出和高亮边框。"
+msgstr "使用 Tab 键轮换窗口时，是否要禁用切换弹窗及其高亮边框窗口。"
 
 #: data/org.gnome.mutter.gschema.xml.in:68
 msgid "Delay focus changes until the pointer stops moving"
@@ -393,30 +395,35 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "要启用实验性功能，请将如下功能关键字添加到列表中。功能是否要重启合成器取决于"
 "功能本身。任何实验性功能都不一定仍旧可用和可配置。请不要期望此设置中的实验性"
 "功能将来有所保障。当前可用的关键字：•“scale-monitor-framebuffer”——让 Mutter "
 "默认基于逻辑像素座标排布多屏幕，并同时缩放监视器帧缓冲器而不是窗口内容，以便"
 "管理 HiDPI 监视器。该功能不需要重启来生效。•“rt-scheduler”——让 Mutter 请求低"
-"优先级的实时调度。可执行文件或用户必须有 CAP_SYS_NICE。需要重启。•“autostart-"
-"xwayland”——如果存在 X11 客户端则延迟初始化 Xwayland。需要重启。"
+"优先级的实时调度。可执行文件或用户必须有 CAP_SYS_NICE。需要重启。•“dma-buf-"
+"screen-sharing”——启用基于 DMA 缓存的屏幕共享。使用 i915 驱动时默认启用，其它"
+"驱动默认禁用。需要重启。•“autoclose-xwayland”——所有关联的 X11 客户端退出时自"
+"动终止 Xwayland。不需要重启。"
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "用来定位指针的修饰键"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "此按键将启动“定位指针”操作。"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "检测活动的 ping 超时"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -424,19 +431,19 @@ msgstr ""
 "为了不被检测为冻结，客户端必须响应 ping 请求的毫秒数。使用 0 将完全禁用活动检"
 "测。"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "从 Tab 轮换弹出界面选择窗口"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
-msgstr "取消 Tab 轮换弹出"
+msgstr "取消 Tab 轮换弹窗"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "切换显示器配置"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "旋转内置显示器配置"
 
@@ -554,25 +561,6 @@ msgstr ""
 "扩展时才有意义。如果 Xwayland 在构建时没有启用指定的扩展，该选项不会产生效"
 "果。要使配置生效，需要重新启动 Xwayland。"
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "模式切换（组别 %d）"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "切换显示器"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "显示在屏帮助"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "内置显示器"
@@ -583,7 +571,7 @@ msgstr "未知"
 
 #: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
-msgstr "未知的 Display"
+msgstr "未知的显示器"
 
 #: src/backends/meta-monitor.c:274
 #, c-format
@@ -607,57 +595,70 @@ msgstr "合成器"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
-msgstr "显示器 %2$s 的屏幕 %1$i 上已有另外一个混成窗口管理器正在运行。"
+msgstr "显示“%2$s”的屏幕 %1$i 上已有另外一个合成管理器正在运行。"
 
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/main.c:190
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "禁止连接到会话管理器"
 
-#: src/core/main.c:196
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: src/core/main.c:202
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "指定会话管理 ID"
 
-#: src/core/main.c:207
+#: src/core/main.c:250
 msgid "X Display to use"
-msgstr "要使用的 X Display"
+msgstr "要使用的 X 显示"
 
-#: src/core/main.c:213
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "从保存文件中初始化会话"
 
-#: src/core/main.c:219
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: src/core/main.c:226
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 合成器运行"
 
-#: src/core/main.c:232
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "以嵌套合成器运行"
 
-#: src/core/main.c:238
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "运行 wayland 合成器但不启动 Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:287
+msgid "Specify Wayland display name to use"
+msgstr "指定要使用的 Wayland 显示的名称"
+
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/main.c:252
+#: src/core/main.c:300
+#| msgid "Run as a full display server, rather than nested"
+msgid "Run as a headless display server"
+msgstr "以无外设显示服务器运行"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "以 X11 后端运行"
 
@@ -685,38 +686,43 @@ msgstr "强制退出(_F)"
 msgid "_Wait"
 msgstr "等待(_W)"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., 以及其他\n"
-"本软件为自由软件；版权条款请参见源码\n"
-"不存在任何保证；即便是对商业性或者特定目的的适应性也不作保证。\n"
+msgid "Mode Switch (Group %d)"
+msgstr "模式切换（组别 %d）"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "切换显示器"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "显示在屏帮助"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "打印版本"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:119
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter 编译的时候没有加入详细模式的支持\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter 编译的时候没有加入详细模式的支持"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
@@ -727,29 +733,28 @@ msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"Display“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理"
-"器。"
+"显示“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理器。"
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "初始化 GDK 失败\n"
+#: src/x11/meta-x11-display.c:1097
+msgid "Failed to initialize GDK"
+msgstr "初始化 GDK 失败"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "无法打开 X Window System 显示器“%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "无法打开 X 窗口系统显示“%s”"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "显示“%2$s”上的屏幕 %1$d 无效\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "显示“%2$s”上的屏幕 %1$d 无效"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "不支持 %s 格式"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -760,17 +765,29 @@ msgstr "这些窗口不支持“保存当前设置”，并且在您下次登录
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "将窗口左移一个工作区"
+#~ msgid "Move window one workspace up"
+#~ msgstr "将窗口上移一个工作区"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "将窗口右移一个工作区"
+#~ msgid "Move window one workspace down"
+#~ msgstr "将窗口下移一个工作区"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "移动到左侧工作区"
+#~ msgid "Move to workspace above"
+#~ msgstr "移动到上层工作区"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "移动到右侧工作区"
+#~ msgid "Move to workspace below"
+#~ msgstr "移动到下层工作区"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., 以及其他\n"
+#~ "本软件为自由软件；版权条款请参见源码\n"
+#~ "不存在任何保证；即便是对商业性或者特定目的的适应性也不作保证。\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "切换卷起状态"
