@@ -4,21 +4,21 @@
 # Copyright (C) 2005 THE PACKAGE'S COPYRIGHT HOLDER
 # Gil 'Dolfin' Osher <dolfin@rpg.org.il>, 2002,2003.
 # Yuval Tanny, 2005.
-# Yosef Or Boczko <yoseforb@gmail.com>, 2013-2020.
+# Yosef Or Boczko <yoseforb@gmail.com>, 2013-2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-29 10:31+0000\n"
-"PO-Revision-Date: 2020-09-28 22:07+0300\n"
+"POT-Creation-Date: 2021-03-19 07:12+0000\n"
+"PO-Revision-Date: 2021-03-29 00:19+0300\n"
 "Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator 3.36.0\n"
+"X-Generator: Gtranslator 3.38.0\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -46,12 +46,12 @@ msgid "Move window to last workspace"
 msgstr "העברת החלון למרחב העבודה האחרון"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "העברת החלון למרחב העבודה שמלמעלה"
+msgid "Move window one workspace to the left"
+msgstr "העברת החלון למרחב העבודה שמשמאל"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "העברת החלון למרחב העבודה שמלמטה"
+msgid "Move window one workspace to the right"
+msgstr "העברת החלון למרחב העבודה שמימין"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -150,12 +150,14 @@ msgid "Switch to last workspace"
 msgstr "מעבר למרחב העבודה האחרון"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "העברה למרחב העבודה שמלמעלה"
+#| msgid "Move to workspace left"
+msgid "Move to workspace on the left"
+msgstr "מעבר למרחב העבודה משמאל"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "העברה למרחב העבודה שמלמטה"
+#| msgid "Move to workspace right"
+msgid "Move to workspace on the right"
+msgstr "מעבר למרחב העבודה מימין"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -237,11 +239,11 @@ msgstr "הגדלת החלון אנכית"
 msgid "Maximize window horizontally"
 msgstr "הגדלת החלון אופקית"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "פיצול הצפייה משמאל"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "פיצול הצפייה מימין"
 
@@ -395,9 +397,10 @@ msgstr "Enable experimental features"
 #| "framebuffer” — makes mutter default to layout logical monitors in a "
 #| "logical pixel coordinate space, while scaling monitor framebuffers "
 #| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “remote-desktop” — enables remote desktop support. To support "
-#| "remote desktop with screen sharing, “screen-cast” must also be enabled. • "
-#| "“screen-cast” — enables screen cast support."
+#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
+#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
+#| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
+#| "are X11 clients. Requires restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -408,8 +411,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -420,22 +426,25 @@ msgstr ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifier to use to locate the pointer"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "This key will initiate the “locate pointer” action."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Timeout for check-alive ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -443,19 +452,19 @@ msgstr ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Select window from tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Cancel tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "החלפה בין תצורות צגים"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotates the built-in monitor configuration"
 
@@ -581,25 +590,6 @@ msgstr ""
 "Xwayland was built without support for the selected extensions. Xwayland "
 "needs to be restarted for this setting to take effect."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "מצב העברה (קבוצה %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "החלפה בין צגים"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "הצגת עזרה על המסך"
-
 #: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "תצוגה מובנית"
@@ -614,7 +604,6 @@ msgstr "תצוגה לא ידועה"
 
 #: src/backends/meta-monitor.c:274
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
@@ -622,7 +611,6 @@ msgstr "‏%s ‏%s"
 
 #: src/backends/meta-monitor.c:282
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
@@ -636,7 +624,7 @@ msgstr "תצוגת חלונות"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -646,47 +634,60 @@ msgstr "מנהל תצוגת חלונות אחר כבר פועל במסך %i בת
 msgid "Bell event"
 msgstr "אירוע פעמון"
 
-#: src/core/main.c:190
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Disable connection to session manager"
 
-#: src/core/main.c:196
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Replace the running window manager"
 
-#: src/core/main.c:202
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Specify session management ID"
 
-#: src/core/main.c:207
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "X Display to use"
 
-#: src/core/main.c:213
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Initialize session from savefile"
 
-#: src/core/main.c:219
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Make X calls synchronous"
 
-#: src/core/main.c:226
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Run as a wayland compositor"
 
-#: src/core/main.c:232
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Run as a nested compositor"
 
-#: src/core/main.c:238
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Run wayland compositor without starting Xwayland"
 
-#: src/core/main.c:246
+#: src/core/main.c:287
+msgid "Specify Wayland display name to use"
+msgstr "Specify Wayland display name to use"
+
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Run as a full display server, rather than nested"
 
-#: src/core/main.c:252
+#: src/core/main.c:300
+#| msgid "Run as a full display server, rather than nested"
+msgid "Run as a headless display server"
+msgstr "Run as a headless display server"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Add persistent virtual monitor (WxH or WxH@R)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Run with X11 backend"
 
@@ -715,38 +716,44 @@ msgstr "_אילוץ סגירה"
 msgid "_Wait"
 msgstr "ה_מתנה"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"כל הזכויות שמורות (C)‏ %d-2001‏ Havoc Pennington,‏ Red Hat, Inc‎.‎, ואחרים\n"
-"זוהי תכנה חופשית; יש לעיין במקור כדי לקבל מידע אודות תנאי ההעתקה.\n"
-"לא קיימת שום אחריות; אפילו לא עבור סחר או התאמה לצרכים מסוימים.\n"
+msgid "Mode Switch (Group %d)"
+msgstr "מצב העברה (קבוצה %d)"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "החלפה בין צגים"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "הצגת עזרה על המסך"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Print version"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "תוסף ה־mutter לשימוש"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "מרחב עבודה %d"
 
-#: src/core/util.c:119
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter הודר ללא תמיכה במצב פירוט\n"
+#: src/core/util.c:117
+#| msgid "Mutter was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter was compiled without support for verbose mode"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "מצב העברה: מצב %d"
@@ -760,26 +767,29 @@ msgstr ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Failed to initialize GDK\n"
+#: src/x11/meta-x11-display.c:1097
+#| msgid "Failed to initialize GDK\n"
+msgid "Failed to initialize GDK"
+msgstr "Failed to initialize GDK"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Failed to open X Window System display “%s”\n"
+#| msgid "Failed to open X Window System display “%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Failed to open X Window System display “%s”"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Screen %d on display “%s” is invalid\n"
+#| msgid "Screen %d on display “%s” is invalid\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Screen %d on display “%s” is invalid"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s not supported"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -792,17 +802,29 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (מעל %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "העברת החלון למרחב העבודה שמשמאל"
+#~ msgid "Move window one workspace up"
+#~ msgstr "העברת החלון למרחב העבודה שמלמעלה"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "העברת החלון למרחב העבודה שמימין"
+#~ msgid "Move window one workspace down"
+#~ msgstr "העברת החלון למרחב העבודה שמלמטה"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "העברה למרחב העבודה לשמאל"
+#~ msgid "Move to workspace above"
+#~ msgstr "העברה למרחב העבודה שמלמעלה"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "העברה למרחב העבודה לימין"
+#~ msgid "Move to workspace below"
+#~ msgstr "העברה למרחב העבודה שמלמטה"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "כל הזכויות שמורות (C)‏ %d-2001‏ Havoc Pennington,‏ Red Hat, Inc‎.‎, ואחרים\n"
+#~ "זוהי תכנה חופשית; יש לעיין במקור כדי לקבל מידע אודות תנאי ההעתקה.\n"
+#~ "לא קיימת שום אחריות; אפילו לא עבור סחר או התאמה לצרכים מסוימים.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "החלפת מצב ההצללה"
