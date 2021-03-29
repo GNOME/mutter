@@ -38,6 +38,7 @@
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-drm-buffer-import.h"
 #include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-output-kms.h"
@@ -246,8 +247,7 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 {
   MetaRendererView *view = user_data;
   struct timeval page_flip_time;
-  MetaCrtc *crtc;
-  MetaGpuKms *gpu_kms;
+  MetaKmsDevice *kms_device;
   int64_t presentation_time_us;
   CoglFrameInfoFlag flags = COGL_FRAME_INFO_FLAG_VSYNC;
 
@@ -256,9 +256,8 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
     .tv_usec = tv_usec,
   };
 
-  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  if (meta_gpu_kms_is_clock_monotonic (gpu_kms))
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  if (meta_kms_device_uses_monotonic_clock (kms_device))
     {
       presentation_time_us = timeval_to_microseconds (&page_flip_time);
       flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;

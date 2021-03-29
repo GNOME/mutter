@@ -39,6 +39,7 @@ typedef struct _MetaKmsDeviceCaps
   uint64_t cursor_height;
 
   gboolean prefers_shadow_buffer;
+  gboolean uses_monotonic_clock;
 } MetaKmsDeviceCaps;
 
 typedef struct _MetaKmsProp MetaKmsProp;

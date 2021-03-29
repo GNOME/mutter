@@ -57,8 +57,6 @@ struct _MetaGpuKms
   uint32_t id;
   int fd;
 
-  clockid_t clock_id;
-
   gboolean resources_init_failed_before;
 };
 
@@ -122,12 +120,6 @@ const char *
 meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
 {
   return meta_kms_device_get_path (gpu_kms->kms_device);
-}
-
-gboolean
-meta_gpu_kms_is_clock_monotonic (MetaGpuKms *gpu_kms)
-{
-  return gpu_kms->clock_id == CLOCK_MONOTONIC;
 }
 
 gboolean
@@ -317,17 +309,6 @@ init_crtcs (MetaGpuKms *gpu_kms)
 }
 
 static void
-init_frame_clock (MetaGpuKms *gpu_kms)
-{
-  uint64_t uses_monotonic;
-
-  if (drmGetCap (gpu_kms->fd, DRM_CAP_TIMESTAMP_MONOTONIC, &uses_monotonic) != 0)
-    uses_monotonic = 0;
-
-  gpu_kms->clock_id = uses_monotonic ? CLOCK_MONOTONIC : CLOCK_REALTIME;
-}
-
-static void
 init_outputs (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
@@ -391,7 +372,6 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   init_modes (gpu_kms);
   init_crtcs (gpu_kms);
   init_outputs (gpu_kms);
-  init_frame_clock (gpu_kms);
 
   return TRUE;
 }

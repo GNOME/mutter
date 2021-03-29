@@ -127,6 +127,12 @@ meta_kms_device_prefers_shadow_buffer (MetaKmsDevice *device)
   return device->caps.prefers_shadow_buffer;
 }
 
+gboolean
+meta_kms_device_uses_monotonic_clock (MetaKmsDevice *device)
+{
+  return device->caps.uses_monotonic_clock;
+}
+
 GList *
 meta_kms_device_get_connectors (MetaKmsDevice *device)
 {

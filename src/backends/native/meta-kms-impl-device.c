@@ -301,6 +301,7 @@ init_caps (MetaKmsImplDevice *impl_device)
   int fd;
   uint64_t cursor_width, cursor_height;
   uint64_t prefer_shadow;
+  uint64_t uses_monotonic_clock;
 
   fd = meta_device_file_get_fd (priv->device_file);
   if (drmGetCap (fd, DRM_CAP_CURSOR_WIDTH, &cursor_width) == 0 &&
@@ -317,6 +318,11 @@ init_caps (MetaKmsImplDevice *impl_device)
         g_message ("Device '%s' prefers shadow buffer", priv->path);
 
       priv->caps.prefers_shadow_buffer = prefer_shadow;
+    }
+
+  if (drmGetCap (fd, DRM_CAP_TIMESTAMP_MONOTONIC, &uses_monotonic_clock) == 0)
+    {
+      priv->caps.uses_monotonic_clock = uses_monotonic_clock;
     }
 }
 
