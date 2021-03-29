@@ -1493,12 +1493,14 @@ meta_seat_x11_warp_pointer (ClutterSeat *seat,
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
 
+  clutter_x11_trap_x_errors ();
   XIWarpPointer (clutter_x11_get_default_display (),
                  seat_x11->pointer_id,
                  None,
                  clutter_x11_get_root_window (),
                  0, 0, 0, 0,
                  x, y);
+  clutter_x11_untrap_x_errors ();
 }
 
 static uint32_t
