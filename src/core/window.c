@@ -6889,6 +6889,7 @@ warp_grab_pointer (MetaWindow          *window,
   MetaRectangle rect;
   MetaRectangle display_rect = { 0 };
   MetaDisplay *display;
+  ClutterSeat *seat;
 
   display = window->display;
   meta_display_get_size (display,
@@ -6921,8 +6922,6 @@ warp_grab_pointer (MetaWindow          *window,
   *x = CLAMP (*x, 0, display_rect.width - 1);
   *y = CLAMP (*y, 0, display_rect.height - 1);
 
-  meta_x11_error_trap_push (display->x11_display);
-
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Warping pointer to %d,%d with window at %d,%d",
               *x, *y, rect.x, rect.y);
@@ -6938,19 +6937,8 @@ warp_grab_pointer (MetaWindow          *window,
   meta_window_get_frame_rect (window,
                               &display->grab_anchor_window_pos);
 
-  {
-    ClutterSeat *seat;
-
-    seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-    clutter_seat_warp_pointer (seat, *x, *y);
-  }
-
-  if (meta_x11_error_trap_pop_with_return (display->x11_display) != Success)
-    {
-      meta_verbose ("Failed to warp pointer for window %s",
-                    window->desc);
-      return FALSE;
-    }
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  clutter_seat_warp_pointer (seat, *x, *y);
 
   return TRUE;
 }
