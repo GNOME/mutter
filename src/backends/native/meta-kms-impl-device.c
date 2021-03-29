@@ -300,6 +300,7 @@ init_caps (MetaKmsImplDevice *impl_device)
     meta_kms_impl_device_get_instance_private (impl_device);
   int fd;
   uint64_t cursor_width, cursor_height;
+  uint64_t prefer_shadow;
 
   fd = meta_device_file_get_fd (priv->device_file);
   if (drmGetCap (fd, DRM_CAP_CURSOR_WIDTH, &cursor_width) == 0 &&
@@ -308,6 +309,14 @@ init_caps (MetaKmsImplDevice *impl_device)
       priv->caps.has_cursor_size = TRUE;
       priv->caps.cursor_width = cursor_width;
       priv->caps.cursor_height = cursor_height;
+    }
+
+  if (drmGetCap (fd, DRM_CAP_DUMB_PREFER_SHADOW, &prefer_shadow) == 0)
+    {
+      if (prefer_shadow)
+        g_message ("Device '%s' prefers shadow buffer", priv->path);
+
+      priv->caps.prefers_shadow_buffer = prefer_shadow;
     }
 }
 

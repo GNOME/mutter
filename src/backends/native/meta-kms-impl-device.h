@@ -37,6 +37,8 @@ typedef struct _MetaKmsDeviceCaps
   gboolean has_cursor_size;
   uint64_t cursor_width;
   uint64_t cursor_height;
+
+  gboolean prefers_shadow_buffer;
 } MetaKmsDeviceCaps;
 
 typedef struct _MetaKmsProp MetaKmsProp;

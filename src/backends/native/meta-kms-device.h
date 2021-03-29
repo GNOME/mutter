@@ -45,6 +45,8 @@ gboolean meta_kms_device_get_cursor_size (MetaKmsDevice *device,
                                           uint64_t      *out_cursor_width,
                                           uint64_t      *out_cursor_height);
 
+gboolean meta_kms_device_prefers_shadow_buffer (MetaKmsDevice *device);
+
 GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
 
 GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);

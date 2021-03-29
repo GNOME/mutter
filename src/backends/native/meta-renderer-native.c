@@ -978,8 +978,7 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
-  int kms_fd;
-  uint64_t prefer_shadow = 0;
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
 
   if (meta_renderer_is_hardware_accelerated (renderer))
     return FALSE;
@@ -987,24 +986,7 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   if (!cogl_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     return FALSE;
 
-  kms_fd = meta_gpu_kms_get_fd (primary_gpu);
-  if (drmGetCap (kms_fd, DRM_CAP_DUMB_PREFER_SHADOW, &prefer_shadow) == 0)
-    {
-      if (prefer_shadow)
-        {
-          static gboolean logged_once = FALSE;
-
-          if (!logged_once)
-            {
-              g_message ("Forcing shadow framebuffer");
-              logged_once = TRUE;
-            }
-
-          return TRUE;
-        }
-    }
-
-  return FALSE;
+  return meta_kms_device_prefers_shadow_buffer (kms_device);
 }
 
 static CoglFramebuffer *

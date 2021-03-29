@@ -121,6 +121,12 @@ meta_kms_device_get_cursor_size (MetaKmsDevice *device,
     }
 }
 
+gboolean
+meta_kms_device_prefers_shadow_buffer (MetaKmsDevice *device)
+{
+  return device->caps.prefers_shadow_buffer;
+}
+
 GList *
 meta_kms_device_get_connectors (MetaKmsDevice *device)
 {
