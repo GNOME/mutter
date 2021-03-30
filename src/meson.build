@@ -833,22 +833,10 @@ if have_native_backend
   )
   mutter_built_sources += default_modes_h
 
-  gdbus_codegen = find_program('gdbus-codegen')
-  dbus_login1_built_sources = custom_target('meta-dbus-login1',
-    input: 'org.freedesktop.login1.xml',
-    output: [
-      'meta-dbus-login1.c',
-      'meta-dbus-login1.h',
-    ],
-    command: [
-      gdbus_codegen,
-      '--interface-prefix', 'org.freedesktop.login1',
-      '--c-namespace', 'Login1',
-      '--generate-c-code', 'meta-dbus-login1',
-      '--output-directory', meson.current_build_dir(),
-      '--c-generate-autocleanup', 'all',
-      '@INPUT@',
-    ]
+  dbus_login1_built_sources = gnome.gdbus_codegen('meta-dbus-login1',
+    'org.freedesktop.login1.xml',
+    interface_prefix: 'org.freedesktop.login1.',
+    namespace: 'MetaDbusLogin1',
   )
   mutter_built_sources += dbus_login1_built_sources
 endif
