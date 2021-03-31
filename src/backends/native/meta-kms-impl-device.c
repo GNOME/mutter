@@ -24,6 +24,8 @@
 #include <errno.h>
 #include <xf86drm.h>
 
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc-private.h"
@@ -45,8 +47,7 @@ enum
 
   PROP_DEVICE,
   PROP_IMPL,
-  PROP_FD,
-  PROP_PATH,
+  PROP_DEVICE_FILE,
   PROP_FLAGS,
   PROP_DRIVER_NAME,
   PROP_DRIVER_DESCRIPTION,
@@ -61,7 +62,7 @@ typedef struct _MetaKmsImplDevicePrivate
   MetaKmsDevice *device;
   MetaKmsImpl *impl;
 
-  int fd;
+  MetaDeviceFile *device_file;
   GSource *fd_source;
   char *path;
   MetaKmsDeviceFlag flags;
@@ -197,6 +198,7 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+  int fd;
 
   drmEventContext drm_event_context;
 
@@ -205,9 +207,11 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
   drm_event_context = (drmEventContext) { 0 };
   klass->setup_drm_event_context (impl_device, &drm_event_context);
 
+  fd = meta_device_file_get_fd (priv->device_file);
+
   while (TRUE)
     {
-      if (drmHandleEvent (priv->fd, &drm_event_context) != 0)
+      if (drmHandleEvent (fd, &drm_event_context) != 0)
         {
           struct pollfd pfd;
           int ret;
@@ -220,7 +224,7 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
               return FALSE;
             }
 
-          pfd.fd = priv->fd;
+          pfd.fd = fd;
           pfd.events = POLL_IN | POLL_ERR;
           do
             {
@@ -257,15 +261,18 @@ meta_kms_impl_device_find_property (MetaKmsImplDevice       *impl_device,
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  int fd;
   unsigned int i;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  fd = meta_device_file_get_fd (priv->device_file);
 
   for (i = 0; i < props->count_props; i++)
     {
       drmModePropertyPtr prop;
 
-      prop = drmModeGetProperty (priv->fd, props->props[i]);
+      prop = drmModeGetProperty (fd, props->props[i]);
       if (!prop)
         continue;
 
@@ -286,9 +293,10 @@ init_caps (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
-  int fd = priv->fd;
+  int fd;
   uint64_t cursor_width, cursor_height;
 
+  fd = meta_device_file_get_fd (priv->device_file);
   if (drmGetCap (fd, DRM_CAP_CURSOR_WIDTH, &cursor_width) == 0 &&
       drmGetCap (fd, DRM_CAP_CURSOR_HEIGHT, &cursor_height) == 0)
     {
@@ -305,6 +313,9 @@ init_crtcs (MetaKmsImplDevice *impl_device,
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   int idx;
+  int fd;
+
+  fd = meta_device_file_get_fd (priv->device_file);
 
   for (idx = 0; idx < drm_resources->count_crtcs; idx++)
     {
@@ -314,7 +325,7 @@ init_crtcs (MetaKmsImplDevice *impl_device,
       g_autoptr (GError) error = NULL;
 
       crtc_id = drm_resources->crtcs[idx];
-      drm_crtc = drmModeGetCrtc (priv->fd, crtc_id);
+      drm_crtc = drmModeGetCrtc (fd, crtc_id);
       if (!drm_crtc)
         {
           g_warning ("Failed to get CRTC %u info on '%s': %s",
@@ -365,14 +376,16 @@ update_connectors (MetaKmsImplDevice *impl_device,
     meta_kms_impl_device_get_instance_private (impl_device);
   GList *connectors = NULL;
   unsigned int i;
+  int fd;
+
+  fd = meta_device_file_get_fd (priv->device_file);
 
   for (i = 0; i < drm_resources->count_connectors; i++)
     {
       drmModeConnector *drm_connector;
       MetaKmsConnector *connector;
 
-      drm_connector = drmModeGetConnector (priv->fd,
-                                           drm_resources->connectors[i]);
+      drm_connector = drmModeGetConnector (fd, drm_resources->connectors[i]);
       if (!drm_connector)
         continue;
 
@@ -510,9 +523,11 @@ init_planes (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
-  int fd = priv->fd;
+  int fd;
   drmModePlaneRes *drm_planes;
   unsigned int i;
+
+  fd = meta_device_file_get_fd (priv->device_file);
 
   drm_planes = drmModeGetPlaneResources (fd);
   if (!drm_planes)
@@ -589,13 +604,15 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  int fd;
   drmModeRes *drm_resources;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
   meta_topic (META_DEBUG_KMS, "Updating device state for %s", priv->path);
 
-  drm_resources = drmModeGetResources (priv->fd);
+  fd = meta_device_file_get_fd (priv->device_file);
+  drm_resources = drmModeGetResources (fd);
   if (!drm_resources)
     {
       g_list_free_full (priv->planes, g_object_unref);
@@ -637,7 +654,7 @@ meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
-  return priv->fd;
+  return meta_device_file_get_fd (priv->device_file);
 }
 
 int
@@ -646,7 +663,7 @@ meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
-  return priv->fd;
+  return meta_device_file_get_fd (priv->device_file);
 }
 
 MetaKmsFeedback *
@@ -676,22 +693,6 @@ meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
   klass->discard_pending_page_flips (impl_device);
 }
 
-int
-meta_kms_impl_device_close (MetaKmsImplDevice *impl_device)
-{
-  MetaKmsImplDevicePrivate *priv =
-    meta_kms_impl_device_get_instance_private (impl_device);
-  int fd;
-
-  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
-
-  g_clear_pointer (&priv->fd_source, g_source_destroy);
-  fd = priv->fd;
-  priv->fd = -1;
-
-  return fd;
-}
-
 static void
 meta_kms_impl_device_get_property (GObject    *object,
                                    guint       prop_id,
@@ -710,11 +711,8 @@ meta_kms_impl_device_get_property (GObject    *object,
     case PROP_IMPL:
       g_value_set_object (value, priv->impl);
       break;
-    case PROP_FD:
-      g_value_set_int (value, priv->fd);
-      break;
-    case PROP_PATH:
-      g_value_set_string (value, priv->path);
+    case PROP_DEVICE_FILE:
+      g_value_set_pointer (value, priv->device_file);
       break;
     case PROP_FLAGS:
       g_value_set_flags (value, priv->flags);
@@ -749,11 +747,9 @@ meta_kms_impl_device_set_property (GObject      *object,
     case PROP_IMPL:
       priv->impl = g_value_get_object (value);
       break;
-    case PROP_FD:
-      priv->fd = g_value_get_int (value);
-      break;
-    case PROP_PATH:
-      priv->path = g_value_dup_string (value);
+    case PROP_DEVICE_FILE:
+      priv->device_file =
+        meta_device_file_acquire (g_value_get_pointer (value));
       break;
     case PROP_FLAGS:
       priv->flags = g_value_get_flags (value);
@@ -784,6 +780,9 @@ meta_kms_impl_device_finalize (GObject *object)
   g_list_free_full (priv->connectors, g_object_unref);
   g_list_free_full (priv->fallback_modes,
                     (GDestroyNotify) meta_kms_mode_free);
+
+  g_clear_pointer (&priv->device_file, meta_device_file_release);
+
   g_free (priv->driver_name);
   g_free (priv->driver_description);
   g_free (priv->path);
@@ -797,10 +796,13 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  int fd;
   int ret;
   drmModeRes *drm_resources;
 
-  ret = drmSetClientCap (priv->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
+  fd = meta_device_file_get_fd (priv->device_file);
+
+  ret = drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
   if (ret != 0)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
@@ -809,7 +811,7 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
       return FALSE;
     }
 
-  drm_resources = drmModeGetResources (priv->fd);
+  drm_resources = drmModeGetResources (fd);
   if (!drm_resources)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
@@ -830,7 +832,8 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
   drmModeFreeResources (drm_resources);
 
   priv->fd_source =
-    meta_kms_register_fd_in_impl (meta_kms_impl_get_kms (priv->impl), priv->fd,
+    meta_kms_register_fd_in_impl (meta_kms_impl_get_kms (priv->impl),
+                                  fd,
                                   kms_event_dispatch_in_impl,
                                   impl_device);
 
@@ -847,6 +850,18 @@ meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device)
 }
 
 static void
+meta_kms_impl_device_constructed (GObject *object)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (object);
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  priv->path = g_strdup (meta_device_file_get_path (priv->device_file));
+
+  G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->constructed (object);
+}
+
+static void
 meta_kms_impl_device_init (MetaKmsImplDevice *impl_device)
 {
 }
@@ -858,6 +873,7 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
 
   object_class->get_property = meta_kms_impl_device_get_property;
   object_class->set_property = meta_kms_impl_device_set_property;
+  object_class->constructed = meta_kms_impl_device_constructed;
   object_class->finalize = meta_kms_impl_device_finalize;
 
   obj_props[PROP_DEVICE] =
@@ -876,22 +892,13 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_FD] =
-    g_param_spec_int ("fd",
-                      "fd",
-                      "DRM device file descriptor",
-                      INT_MIN, INT_MAX, 0,
-                      G_PARAM_READWRITE |
-                      G_PARAM_CONSTRUCT_ONLY |
-                      G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_PATH] =
-    g_param_spec_string ("path",
-                         "path",
-                         "DRM device file path",
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEVICE_FILE] =
+    g_param_spec_pointer ("device-file",
+                          "device-file",
+                          "Device file",
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FLAGS] =
     g_param_spec_flags ("flags",
                         "flags",

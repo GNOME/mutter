@@ -28,7 +28,8 @@
 #include <sys/types.h>
 #include <xf86drm.h>
 
-#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-impl-device-atomic.h"
 #include "backends/native/meta-kms-impl-device-dummy.h"
 #include "backends/native/meta-kms-impl-device-simple.h"
@@ -229,7 +230,7 @@ meta_kms_device_add_fake_plane_in_impl (MetaKmsDevice    *device,
 typedef struct _CreateImplDeviceData
 {
   MetaKmsDevice *device;
-  int fd;
+  MetaDeviceFile *device_file;
   const char *path;
   MetaKmsDeviceFlag flags;
 
@@ -281,7 +282,7 @@ get_driver_info (int    fd,
 static MetaKmsImplDevice *
 meta_create_kms_impl_device (MetaKmsDevice      *device,
                              MetaKmsImpl        *impl,
-                             int                 fd,
+                             MetaDeviceFile     *device_file,
                              const char         *path,
                              MetaKmsDeviceFlag   flags,
                              GError            **error)
@@ -291,12 +292,13 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
   g_autofree char *driver_name = NULL;
   g_autofree char *driver_description = NULL;
   const char *atomic_kms_enable_env;
-  int impl_fd;
-  g_autofree char *impl_path = NULL;
+  int fd;
+  g_autoptr (MetaDeviceFile) impl_device_file = NULL;
   MetaKmsImplDevice *impl_device;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
+  fd = meta_device_file_get_fd (device_file);
   if (!get_driver_info (fd, &driver_name, &driver_description))
     {
       driver_name = g_strdup ("unknown");
@@ -308,6 +310,7 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
   if (flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
     {
       g_autofree char *render_node_path = NULL;
+      MetaDevicePool *device_pool;
 
       render_node_path = drmGetRenderDeviceNameFromFd (fd);
       if (!render_node_path)
@@ -318,19 +321,17 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
           return NULL;
         }
 
-      impl_fd = open (render_node_path, O_RDWR | O_CLOEXEC, 0);
-      if (impl_fd == -1)
-        {
-          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
-                       "Failed to open render node '%s': %s",
-                       render_node_path, g_strerror (errno));
-          return NULL;
-        }
+      device_pool = meta_device_file_get_pool (device_file);
+
+      impl_device_file = meta_device_pool_open (device_pool, render_node_path,
+                                                META_DEVICE_FILE_FLAG_NONE,
+                                                error);
+      if (!impl_device_file)
+        return NULL;
 
       g_message ("Adding device '%s' (from '%s', %s) using no mode setting.",
                  render_node_path, path, driver_name);
 
-      impl_path = g_steal_pointer (&render_node_path);
       impl_device_type = META_TYPE_KMS_IMPL_DEVICE_DUMMY;
     }
   else if (atomic_kms_enable_env)
@@ -355,8 +356,7 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
                    atomic_kms_enable_env);
         }
 
-      impl_fd = dup (fd);
-      impl_path = g_strdup (path);
+      impl_device_file = meta_device_file_acquire (device_file);
 
       g_message ("Mode setting implementation for '%s' (%s) forced (%s).",
                  path, driver_name,
@@ -368,8 +368,7 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
       g_message ("Adding device '%s' (%s) using non-atomic mode setting"
                  " (using atomic mode setting not allowed).",
                  path, driver_name);
-      impl_fd = dup (fd);
-      impl_path = g_strdup (path);
+      impl_device_file = meta_device_file_acquire (device_file);
       impl_device_type = META_TYPE_KMS_IMPL_DEVICE_SIMPLE;
     }
   else
@@ -395,26 +394,19 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
           impl_device_type = META_TYPE_KMS_IMPL_DEVICE_SIMPLE;
         }
 
-      impl_fd = dup (fd);
-      impl_path = g_strdup (path);
+      impl_device_file = meta_device_file_acquire (device_file);
     }
 
   impl_device = g_initable_new (impl_device_type, NULL, error,
                                 "device", device,
                                 "impl", impl,
-                                "fd", impl_fd,
-                                "path", impl_path,
+                                "device-file", impl_device_file,
                                 "flags", flags,
                                 "driver-name", driver_name,
                                 "driver-description", driver_description,
                                 NULL);
   if (!impl_device)
-    {
-      close (impl_fd);
-      return NULL;
-    }
-
-  close (fd);
+    return NULL;
 
   return impl_device;
 }
@@ -429,7 +421,7 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
 
   impl_device = meta_create_kms_impl_device (data->device,
                                              impl,
-                                             data->fd,
+                                             data->device_file,
                                              data->path,
                                              data->flags,
                                              error);
@@ -462,44 +454,33 @@ meta_kms_device_new (MetaKms            *kms,
 {
   MetaBackend *backend = meta_kms_get_backend (kms);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (backend_native);
   MetaKmsDevice *device;
   CreateImplDeviceData data;
-  int fd;
+  g_autoptr (MetaDeviceFile) device_file = NULL;
+  MetaDeviceFileFlags device_file_flags;
 
-  if (flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
-    {
-      fd = open (path, O_RDWR | O_CLOEXEC, 0);
-      if (fd == -1)
-        {
-          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
-                       "Failed to open DRM device: %s", g_strerror (errno));
-          return NULL;
-        }
-    }
-  else
-    {
-      fd = meta_launcher_open_restricted (launcher, path, error);
-      if (fd == -1)
-        return NULL;
-    }
+  device_file_flags = META_DEVICE_FILE_FLAG_NONE;
+  if (!(flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
+    device_file_flags |= META_DEVICE_FILE_FLAG_TAKE_CONTROL;
+
+  device_file = meta_device_pool_open (device_pool, path, flags, error);
+  if (!device_file)
+    return NULL;
 
   device = g_object_new (META_TYPE_KMS_DEVICE, NULL);
   device->kms = kms;
 
   data = (CreateImplDeviceData) {
     .device = device,
-    .fd = fd,
+    .device_file = device_file,
     .path = path,
     .flags = flags,
   };
   if (!meta_kms_run_impl_task_sync (kms, create_impl_device_in_impl, &data,
                                     error))
     {
-      if (flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
-        close (fd);
-      else
-        meta_launcher_close_restricted (launcher, fd);
       g_object_unref (device);
       return NULL;
     }
@@ -520,26 +501,14 @@ meta_kms_device_new (MetaKms            *kms,
   return device;
 }
 
-typedef struct _FreeImplDeviceData
-{
-  MetaKmsImplDevice *impl_device;
-
-  int out_fd;
-} FreeImplDeviceData;
-
 static gpointer
 free_impl_device_in_impl (MetaKmsImpl  *impl,
                           gpointer      user_data,
                           GError      **error)
 {
-  FreeImplDeviceData *data = user_data;
-  MetaKmsImplDevice *impl_device = data->impl_device;
-  int fd;
+  MetaKmsImplDevice *impl_device = user_data;
 
-  fd = meta_kms_impl_device_close (impl_device);
   g_object_unref (impl_device);
-
-  data->out_fd = fd;
 
   return GINT_TO_POINTER (TRUE);
 }
@@ -548,9 +517,6 @@ static void
 meta_kms_device_finalize (GObject *object)
 {
   MetaKmsDevice *device = META_KMS_DEVICE (object);
-  MetaBackend *backend = meta_kms_get_backend (device->kms);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
 
   g_free (device->path);
   g_list_free (device->crtcs);
@@ -559,26 +525,11 @@ meta_kms_device_finalize (GObject *object)
 
   if (device->impl_device)
     {
-      FreeImplDeviceData data;
-      GError *error = NULL;
-
-      data = (FreeImplDeviceData) {
-        .impl_device = device->impl_device,
-      };
-      if (!meta_kms_run_impl_task_sync (device->kms, free_impl_device_in_impl, &data,
-                                        &error))
-        {
-          g_warning ("Failed to close KMS impl device: %s", error->message);
-          g_error_free (error);
-        }
-      else
-        {
-          if (device->flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
-            close (data.out_fd);
-          else
-            meta_launcher_close_restricted (launcher, data.out_fd);
-        }
+      meta_kms_run_impl_task_sync (device->kms, free_impl_device_in_impl,
+                                   device->impl_device,
+                                   NULL);
     }
+
   G_OBJECT_CLASS (meta_kms_device_parent_class)->finalize (object);
 }
 
