@@ -403,9 +403,6 @@ zxdg_toplevel_v6_set_maximized (struct wl_client   *client,
   if (!window)
     return;
 
-  if (!window->has_maximize_func)
-    return;
-
   meta_window_force_placement (window, TRUE);
   meta_window_maximize (window, META_MAXIMIZE_BOTH);
 }
