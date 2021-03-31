@@ -503,6 +503,12 @@ get_seat_id (GError **error)
   return seat_id;
 }
 
+MetaDbusLogin1Session *
+meta_launcher_get_session_proxy (MetaLauncher *launcher)
+{
+  return launcher->session_proxy;
+}
+
 MetaLauncher *
 meta_launcher_new (GError **error)
 {

@@ -25,8 +25,11 @@
 #ifndef META_BACKEND_NATIVE_PRIVATE_H
 #define META_BACKEND_NATIVE_PRIVATE_H
 
+#include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-barrier-native.h"
 
 MetaBarrierManagerNative *meta_backend_native_get_barrier_manager (MetaBackendNative *native);
+
+MetaDevicePool * meta_backend_native_get_device_pool (MetaBackendNative *native);
 
 #endif /* META_BACKEND_NATIVE_PRIVATE_H */

@@ -50,6 +50,7 @@
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
+#include "backends/native/meta-device-pool-private.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-launcher.h"
@@ -81,6 +82,7 @@ struct _MetaBackendNative
   MetaBackend parent;
 
   MetaLauncher *launcher;
+  MetaDevicePool *device_pool;
   MetaUdev *udev;
   MetaKms *kms;
 
@@ -119,6 +121,7 @@ meta_backend_native_dispose (GObject *object)
 
   g_clear_object (&native->kms);
   g_clear_object (&native->udev);
+  g_clear_object (&native->device_pool);
   g_clear_pointer (&native->launcher, meta_launcher_free);
 }
 
@@ -574,6 +577,8 @@ meta_backend_native_initable_init (GInitable     *initable,
         return FALSE;
     }
 
+  native->device_pool = meta_device_pool_new (native->launcher);
+
 #ifdef HAVE_WAYLAND
   meta_backend_init_wayland_display (META_BACKEND (native));
 #endif
@@ -670,6 +675,12 @@ MetaLauncher *
 meta_backend_native_get_launcher (MetaBackendNative *native)
 {
   return native->launcher;
+}
+
+MetaDevicePool *
+meta_backend_native_get_device_pool (MetaBackendNative *native)
+{
+  return native->device_pool;
 }
 
 MetaUdev *
