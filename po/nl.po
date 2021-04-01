@@ -5,22 +5,22 @@
 # Michiel Sikkes <michiels@gnome.org>, 2005.
 # Wouter Bolsterlee <wbolster@gnome.org>, 2006–2012.
 # Hannie Dumoleyn <hannie@ubuntu-nl.org>, 2016.
-# Nathan Follens <nthn@unseen.is>, 2017, 2019-2020.
+# Nathan Follens <nthn@unseen.is>, 2017, 2019-2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-24 19:06+0100\n"
+"POT-Creation-Date: 2021-03-12 15:44+0000\n"
+"PO-Revision-Date: 2021-04-01 21:19+0200\n"
 "Last-Translator: Nathan Follens <nthn@unseen.is>\n"
-"Language-Team: Dutch <vertaling@vrijschrift.org>\n"
+"Language-Team: Dutch <gnome-nl-list@gnome.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -47,12 +47,12 @@ msgid "Move window to last workspace"
 msgstr "Venster verplaatsen naar laatste werkblad"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Venster één werkblad naar boven verplaatsen"
+msgid "Move window one workspace to the left"
+msgstr "Venster één werkblad naar links verplaatsen"
 
 #: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace down"
-msgstr "Venster één werkblad naar beneden verplaatsen"
+msgid "Move window one workspace to the right"
+msgstr "Venster één werkblad naar rechts verplaatsen"
 
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
@@ -151,12 +151,12 @@ msgid "Switch to last workspace"
 msgstr "Overschakelen naar laatste werkblad"
 
 #: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Verplaatsen naar werkblad hierboven"
+msgid "Move to workspace on the left"
+msgstr "Verplaatsen naar werkblad aan linkerkant"
 
 #: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Verplaatsen naar werkblad hieronder"
+msgid "Move to workspace on the right"
+msgstr "Verplaatsen naar werkblad aan rechterkant"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -238,11 +238,11 @@ msgstr "Venster verticaal maximaliseren"
 msgid "Maximize window horizontally"
 msgstr "Venster horizontaal maximaliseren"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Weergave gesplitst op links"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Weergave gesplitst op rechts"
 
@@ -399,8 +399,11 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 "Voeg het sleutelwoord van een experimentele functie toe aan de lijst om deze "
 "in te schakelen. Of de compositor herstart moet worden vooraleer de functie "
@@ -414,22 +417,25 @@ msgstr ""
 "opnieuw opstarten niet vereist. • “rt-scheduler” — zorgt ervoor dat mutter "
 "real-time plannen met lage prioriteit aanvraagt. Het uitvoerbaar bestand of "
 "de gebruiker moet CAP_SYS_NICE hebben. Hiervoor is opnieuw opstarten "
-"vereist. • “autostart-xwayland” — initialiseert Xwayland op een luie manier "
-"als er X11-cliënten zijn. Hiervoor is opnieuw opstarten vereist."
+"vereist. • “dma-buf-screen-sharing” — schakelt DMA-gebufferd schermdelen in. "
+"Dit is standaard ingeschakeld als u de i915-driver gebruikt, maar is in alle "
+"andere gevallen uitgeschakeld. Hiervoor is opnieuw opstarten vereist. • "
+"“autostart-xwayland” — initialiseert Xwayland op een luie manier als er X11-"
+"cliënten zijn. Hiervoor is opnieuw opstarten vereist."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Controletoets om de muispijl te lokaliseren"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Deze sleutel activeert de actie ‘muispijl lokaliseren’."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Time-out voor levenscontroleping"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -438,79 +444,81 @@ msgstr ""
 "verzoek om niet als bevroren beschouwd te worden. Stel dit in op 0 om de "
 "levenscontrole volledig uit te schakelen."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Venster selecteren uit tab-pop-up"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Tab-pop-up annuleren"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Tussen beeldschermconfiguraties schakelen"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roteert de ingebouwde beeldschermconfiguratie"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Schakelen naar VT 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Schakelen naar VT 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Schakelen naar VT 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Schakelen naar VT 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Schakelen naar VT 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Schakelen naar VT 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Schakelen naar VT 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Schakelen naar VT 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Schakelen naar VT 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Schakelen naar VT 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Schakelen naar VT 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Schakelen naar VT 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Sneltoetsen opnieuw inschakelen"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
-msgstr "X11-grabs toestaan om toetsenbordfocus met Xwayland te vergrendelen"
+msgstr ""
+"X11-onderscheppingen toestaan om toetsenbordfocus met Xwayland te "
+"vergrendelen"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -520,33 +528,33 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Toestaan dat alle toetsgebeurtenissen met een grab doorverwezen worden naar "
-"X11 ‘doorverwijzingsoverschrijfvensters’ wanneer ze in Xwayland draaien. "
-"Deze optie dient ter ondersteuning van X11-cliënten (die geen "
+"Toestaan dat alle toetsgebeurtenissen met een onderschepping doorverwezen "
+"worden naar X11-‘doorverwijzingsoverschrijfvensters’ wanneer ze in Xwayland "
+"draaien. Deze optie dient ter ondersteuning van X11-cliënten (die geen "
 "toetsenbordfocus verkrijgen) die een venster om doorverwijzingen te "
-"overschrijven gebruiken en een toetsenbord-grab gebruiken om alle "
+"overschrijven gebruiken en een toetsenbordonderschepping gebruiken om alle "
 "toetsgebeurtenissen naar dat venster dwingen. Deze optie wordt zelden "
 "gebruikt en heeft geen effect op gewone X11-vensters, die in normale "
 "omstandigheden toetsenbordfocus kunnen verkrijgen. Om rekening te houden met "
-"een X11-grab onder Wayland, moet de client ook: óf een specifieke X11-"
-"ClientMessage naar het root-venster sturen, óf vermeld staan in de witte "
-"lijst van toepassingen in de sleutel ‘xwayland-grab-access-rules’."
+"een X11-onderschepping onder Wayland, moet de client ook: óf een specifieke "
+"X11-ClientMessage naar het root-venster sturen, óf vermeld staan in de lijst "
+"van toegestane toepassingen in de sleutel ‘xwayland-grab-access-rules’."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
-msgstr "Xwayland-toepassingen mogen toetsenbord-grabs doen"
+msgstr "Xwayland-toepassingen mogen toetsenbordonderscheppingen doen"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -555,52 +563,50 @@ msgstr ""
 "toegestaan X11-toetsonderscheppingen onder Xwayland uit te voeren. De "
 "bronnaam of -klasse van een gegeven X11-venster kan worden verkregen met de "
 "opdracht ‘xprop WM_CLASS’. Jokers als ‘*’ en ‘?’ worden ondersteund. Waarden "
-"die beginnen met ‘!’ komen op de zwarte lijst, die voorrang heeft op de "
-"witte lijst, om toepassingen de toegang tot de standaardsysteemlijst te "
-"ontzeggen. De standaardsysteemlijst bevat volgende toepassingen: "
+"die beginnen met ‘!’ worden geweigerd, en dit heeft voorrang op de lijst met "
+"toegestane waarden, om toepassingen de toegang tot de standaardsysteemlijst "
+"te ontzeggen. De standaardsysteemlijst bevat volgende toepassingen: "
 "‘@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@’. Gebruikers kunnen een bestaande "
 "toetsonderschepping verbreken door de sneltoets te gebruiken die door de "
 "toetsinstellende toets ‘restore-shortcuts’ wordt gedefinieerd."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2567
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Moduswisselaar (groep %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Geselecteerde X-uitbreidingen uitschakelen in Xwayland"
 
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2590
-msgid "Switch monitor"
-msgstr "Van beeldscherm wisselen"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Deze optie schakelt de geselecteerde X-uitbreidingen uit in Xwayland als "
+"Xwayland gecompileerd is met ondersteuning voor die X-uitbreidingen. Deze "
+"optie heeft geen effect als Xwayland gecompileerd is zonder ondersteuning "
+"voor de geselecteerde uitbreidingen. Deze instellingen treedt pas in werking "
+"wanneer Xwayland wordt herstart."
 
-#: src/backends/meta-input-settings.c:2592
-msgid "Show on-screen help"
-msgstr "Hulptekst op scherm tonen"
-
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Ingebouwd beeldscherm"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Onbekend beeldscherm"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -615,7 +621,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -627,47 +633,59 @@ msgstr ""
 msgid "Bell event"
 msgstr "Bel-gebeurtenis"
 
-#: src/core/main.c:190
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Schakel de verbinding met het sessiebeheer uit"
 
-#: src/core/main.c:196
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "De huidige toepassing voor vensterbeheer vervangen"
 
-#: src/core/main.c:202
+#: src/core/main.c:245
 msgid "Specify session management ID"
-msgstr "Specificeer de ID van het sessiebeheer"
+msgstr "Bepaal de ID van het sessiebeheer"
 
-#: src/core/main.c:207
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "De te gebruiken X-weergave"
 
-#: src/core/main.c:213
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Initialiseer de sessie middels een opslagbestand"
 
-#: src/core/main.c:219
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "X-aanroepen synchroon maken"
 
-#: src/core/main.c:226
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Uitvoeren als een wayland compositor"
 
-#: src/core/main.c:232
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Uitvoeren als een geneste compositor"
 
-#: src/core/main.c:238
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland-compositor uitvoeren zonder Xwayland te starten"
 
-#: src/core/main.c:246
+#: src/core/main.c:287
+msgid "Specify Wayland display name to use"
+msgstr "Bepaal de te gebruiken Wayland-weergavenaam"
+
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Uitvoeren als een volledige displayserver, in plaats van genest"
 
-#: src/core/main.c:252
+#: src/core/main.c:300
+msgid "Run as a headless display server"
+msgstr "Uitvoeren als een ‘headless’ displayserver"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Blijvend virtueel beeldscherm toevoegen (BxH of BxH@V)"
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Uitvoeren met X11-backend"
 
@@ -697,39 +715,43 @@ msgstr "Ge_forceerd afsluiten"
 msgid "_Wait"
 msgstr "_Wachten"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001–%d Havoc Pennington, Red Hat, Inc., en anderen\n"
-"Dit is vrije software; zie de broncode voor de kopieervoorwaarden.\n"
-"Er is GEEN garantie; zelfs niet voor VERKOOPBAARHEID of GESCHIKTHEID VOOR "
-"EEN BEPAALD DOEL.\n"
+msgid "Mode Switch (Group %d)"
+msgstr "Moduswisselaar (groep %d)"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Van beeldscherm wisselen"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Hulptekst op scherm tonen"
+
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Versie-informatie tonen"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Te gebruiken Mutter-plug-in"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Werkblad %d"
 
-#: src/core/util.c:122
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter is gecompileerd zonder ondersteuning voor verbose-mode\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter is gecompileerd zonder ondersteuning voor verbose-mode"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Moduswisselaar: modus %d"
@@ -743,26 +765,26 @@ msgstr ""
 "Beeldscherm ‘%s’ heeft al een vensterbeheerder; probeer de optie: --replace "
 "te gebruiken om de huidige vensterbeheerder te vervangen."
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Initialiseren van GDK mislukt\n"
+#: src/x11/meta-x11-display.c:1097
+msgid "Failed to initialize GDK"
+msgstr "Initialiseren van GDK mislukt"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Openen van X Window System display ‘%s’ mislukt\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Openen van X Window System display ‘%s’ mislukt"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Scherm %d op beeldscherm ‘%s’ is ongeldig\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Scherm %d op beeldscherm ‘%s’ is ongeldig"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formaat %s wordt niet ondersteund"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -770,22 +792,35 @@ msgstr ""
 "Deze vensters ondersteunen het opslaan van de huidige instellingen niet en "
 "zullen bij een volgende sessie opnieuw moeten worden opgestart."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (op %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Venster één werkblad naar links verplaatsen"
+#~ msgid "Move window one workspace up"
+#~ msgstr "Venster één werkblad naar boven verplaatsen"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Venster één werkblad naar rechts verplaatsen"
+#~ msgid "Move window one workspace down"
+#~ msgstr "Venster één werkblad naar beneden verplaatsen"
 
-#~ msgid "Move to workspace left"
-#~ msgstr "Verplaatsen naar werkblad links"
+#~ msgid "Move to workspace above"
+#~ msgstr "Verplaatsen naar werkblad hierboven"
 
-#~ msgid "Move to workspace right"
-#~ msgstr "Verplaatsen naar werkblad rechts"
+#~ msgid "Move to workspace below"
+#~ msgstr "Verplaatsen naar werkblad hieronder"
+
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001–%d Havoc Pennington, Red Hat, Inc., en anderen\n"
+#~ "Dit is vrije software; zie de broncode voor de kopieervoorwaarden.\n"
+#~ "Er is GEEN garantie; zelfs niet voor VERKOOPBAARHEID of GESCHIKTHEID VOOR "
+#~ "EEN BEPAALD DOEL.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Oprollen in- of uitschakelen"
