@@ -837,7 +837,7 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
 }
 
 static void
-meta_kms_impl_device_init (MetaKmsImplDevice *device)
+meta_kms_impl_device_init (MetaKmsImplDevice *impl_device)
 {
 }
 

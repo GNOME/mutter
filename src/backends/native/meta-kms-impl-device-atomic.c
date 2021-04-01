@@ -711,7 +711,7 @@ atomic_page_flip_handler (int           fd,
 }
 
 static void
-meta_kms_impl_device_atomic_setup_drm_event_context (MetaKmsImplDevice *impl,
+meta_kms_impl_device_atomic_setup_drm_event_context (MetaKmsImplDevice *impl_device,
                                                      drmEventContext   *drm_event_context)
 {
   drm_event_context->version = 3;

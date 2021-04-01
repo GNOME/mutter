@@ -35,7 +35,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDeviceDummy, meta_kms_impl_device_dummy,
                                                 initable_iface_init))
 
 static void
-meta_kms_impl_device_dummy_discard_pending_page_flips (MetaKmsImplDevice *impl)
+meta_kms_impl_device_dummy_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
 {
 }
 
