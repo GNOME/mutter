@@ -162,8 +162,22 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .bpp = { 4 },
   },
   {
+    .cogl_format = COGL_PIXEL_FORMAT_XRGB_2101010,
+    .format_str = "XRGB_2101010",
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+  },
+  {
     .cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010,
     .format_str = "ARGB_2101010",
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_XBGR_2101010,
+    .format_str = "XBGR_2101010",
     .n_planes = 1,
     .aligned = 0,
     .bpp = { 4 },
