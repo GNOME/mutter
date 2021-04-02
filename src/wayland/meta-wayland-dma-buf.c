@@ -119,7 +119,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
       cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
       break;
     case DRM_FORMAT_XRGB2101010:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010;
+      cogl_format = COGL_PIXEL_FORMAT_XRGB_2101010;
       break;
     case DRM_FORMAT_ARGB2101010:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
@@ -131,10 +131,14 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
       cogl_format = COGL_PIXEL_FORMAT_RGB_565;
       break;
     case DRM_FORMAT_XBGR16161616F:
+      cogl_format = COGL_PIXEL_FORMAT_XBGR_FP_16161616;
+      break;
     case DRM_FORMAT_ABGR16161616F:
       cogl_format = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
       break;
     case DRM_FORMAT_XRGB16161616F:
+      cogl_format = COGL_PIXEL_FORMAT_XRGB_FP_16161616;
+      break;
     case DRM_FORMAT_ARGB16161616F:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
       break;
