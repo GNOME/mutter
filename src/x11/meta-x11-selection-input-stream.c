@@ -287,12 +287,15 @@ meta_x11_selection_input_stream_finalize (GObject *object)
     META_X11_SELECTION_INPUT_STREAM (object);
   MetaX11SelectionInputStreamPrivate *priv =
     meta_x11_selection_input_stream_get_instance_private (stream);
+  Display *xdisplay = priv->x11_display->xdisplay;
 
   g_async_queue_unref (priv->chunks);
 
   g_free (priv->selection);
   g_free (priv->target);
   g_free (priv->property);
+
+  XDestroyWindow (xdisplay, priv->window);
 
   G_OBJECT_CLASS (meta_x11_selection_input_stream_parent_class)->finalize (object);
 }
@@ -504,7 +507,6 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
 
 void
 meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
-                                           Window               window,
                                            const char          *selection,
                                            const char          *target,
                                            guint32              timestamp,
@@ -515,9 +517,13 @@ meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
 {
   MetaX11SelectionInputStream *stream;
   MetaX11SelectionInputStreamPrivate *priv;
+  XSetWindowAttributes attributes = { 0 };
 
   stream = g_object_new (META_TYPE_X11_SELECTION_INPUT_STREAM, NULL);
   priv = meta_x11_selection_input_stream_get_instance_private (stream);
+
+  attributes.event_mask = PropertyChangeMask;
+  attributes.override_redirect = True;
 
   priv->x11_display = x11_display;
   x11_display->selection.input_streams =
@@ -528,13 +534,21 @@ meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
   priv->xtarget = XInternAtom (x11_display->xdisplay, priv->target, False);
   priv->property = g_strdup_printf ("META_SELECTION_%p", stream);
   priv->xproperty = XInternAtom (x11_display->xdisplay, priv->property, False);
-  priv->window = window;
+  priv->window = XCreateWindow (x11_display->xdisplay,
+                                x11_display->xroot,
+                                -1, -1, 1, 1,
+                                0, /* border width */
+                                0, /* depth */
+                                InputOnly, /* class */
+                                CopyFromParent, /* visual */
+                                CWEventMask | CWOverrideRedirect,
+                                &attributes);
 
   XConvertSelection (x11_display->xdisplay,
                      priv->xselection,
                      priv->xtarget,
                      priv->xproperty,
-                     window,
+                     priv->window,
                      timestamp);
 
   priv->pending_task = g_task_new (NULL, cancellable, callback, user_data);

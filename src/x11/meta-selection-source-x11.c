@@ -92,7 +92,6 @@ meta_selection_source_x11_read_async (MetaSelectionSource *source,
     mimetype = "UTF8_STRING";
 
   meta_x11_selection_input_stream_new_async (source_x11->x11_display,
-                                             source_x11->x11_display->selection.xwindow,
                                              gdk_x11_get_xatom_name (source_x11->xselection),
                                              mimetype,
                                              source_x11->timestamp,
@@ -251,7 +250,6 @@ meta_selection_source_x11_new_async (MetaX11Display      *x11_display,
   g_task_set_task_data (task, source, g_object_unref);
 
   meta_x11_selection_input_stream_new_async (x11_display,
-                                             x11_display->selection.xwindow,
                                              gdk_x11_get_xatom_name (xselection),
                                              "TARGETS",
                                              timestamp,
