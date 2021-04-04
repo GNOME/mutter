@@ -132,7 +132,12 @@ meta_x11_selection_input_stream_flush (MetaX11SelectionInputStream *stream)
 {
   MetaX11SelectionInputStreamPrivate *priv =
     meta_x11_selection_input_stream_get_instance_private (stream);
+  Display *xdisplay = priv->x11_display->xdisplay;
   gssize written;
+
+  meta_x11_error_trap_push (priv->x11_display);
+  XDeleteProperty (xdisplay, priv->window, priv->xproperty);
+  meta_x11_error_trap_pop (priv->x11_display);
 
   if (!meta_x11_selection_input_stream_has_data (stream))
     return;
@@ -428,9 +433,6 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
           g_async_queue_push (priv->chunks, bytes);
           meta_x11_selection_input_stream_flush (stream);
         }
-
-      XDeleteProperty (xdisplay, xwindow, xevent->xproperty.atom);
-
       return FALSE;
 
     case SelectionNotify:
@@ -489,8 +491,6 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
                     meta_x11_selection_input_stream_complete (stream);
                   }
               }
-
-            XDeleteProperty (xdisplay, xwindow, xevent->xselection.property);
           }
 
         g_object_unref (task);
