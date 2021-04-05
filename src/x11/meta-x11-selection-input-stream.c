@@ -40,11 +40,8 @@ struct MetaX11SelectionInputStreamPrivate
   MetaX11Display *x11_display;
   Window window;
   GAsyncQueue *chunks;
-  char *selection;
   Atom xselection;
-  char *target;
   Atom xtarget;
-  char *property;
   Atom xproperty;
   const char *type;
   Atom xtype;
@@ -291,10 +288,6 @@ meta_x11_selection_input_stream_finalize (GObject *object)
 
   g_async_queue_unref (priv->chunks);
 
-  g_free (priv->selection);
-  g_free (priv->target);
-  g_free (priv->property);
-
   XDestroyWindow (xdisplay, priv->window);
 
   G_OBJECT_CLASS (meta_x11_selection_input_stream_parent_class)->finalize (object);
@@ -402,6 +395,7 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
   GBytes *bytes;
   Atom type;
   gint format;
+  char *target;
 
   xdisplay = priv->x11_display->xdisplay;
   xwindow = priv->window;
@@ -459,11 +453,13 @@ meta_x11_selection_input_stream_xevent (MetaX11SelectionInputStream *stream,
 
         if (xevent->xselection.property == None)
           {
+            target = XGetAtomName (xdisplay, priv->xtarget);
             g_task_return_new_error (task,
                                      G_IO_ERROR,
                                      G_IO_ERROR_NOT_FOUND,
-                                     _("Format %s not supported"), priv->target);
+                                     _("Format %s not supported"), target);
             meta_x11_selection_input_stream_complete (stream);
+            XFree (target);
           }
         else
           {
@@ -528,12 +524,9 @@ meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
   priv->x11_display = x11_display;
   x11_display->selection.input_streams =
     g_list_prepend (x11_display->selection.input_streams, stream);
-  priv->selection = g_strdup (selection);
-  priv->xselection = XInternAtom (x11_display->xdisplay, priv->selection, False);
-  priv->target = g_strdup (target);
-  priv->xtarget = XInternAtom (x11_display->xdisplay, priv->target, False);
-  priv->property = g_strdup_printf ("META_SELECTION_%p", stream);
-  priv->xproperty = XInternAtom (x11_display->xdisplay, priv->property, False);
+  priv->xselection = XInternAtom (x11_display->xdisplay, selection, False);
+  priv->xtarget = XInternAtom (x11_display->xdisplay, target, False);
+  priv->xproperty = XInternAtom (x11_display->xdisplay, "META_SELECTION", False);
   priv->window = XCreateWindow (x11_display->xdisplay,
                                 x11_display->xroot,
                                 -1, -1, 1, 1,
