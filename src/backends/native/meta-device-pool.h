@@ -27,6 +27,7 @@ typedef enum _MetaDeviceFileFlags
 {
   META_DEVICE_FILE_FLAG_NONE = 0,
   META_DEVICE_FILE_FLAG_TAKE_CONTROL = 1 << 0,
+  META_DEVICE_FILE_FLAG_READ_ONLY = 1 << 1,
 } MetaDeviceFileFlags;
 
 typedef struct _MetaDeviceFile MetaDeviceFile;

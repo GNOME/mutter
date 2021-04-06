@@ -247,9 +247,17 @@ meta_device_pool_open (MetaDevicePool       *pool,
     }
   else
     {
+      int open_flags;
+
+      if (flags & META_DEVICE_FILE_FLAG_READ_ONLY)
+        open_flags = O_RDONLY;
+      else
+        open_flags = O_RDWR;
+      open_flags |= O_CLOEXEC;
+
       do
         {
-          fd = open (path, O_RDWR | O_CLOEXEC);
+          fd = open (path, open_flags);
         }
       while (fd == -1 && errno == EINTR);
 
