@@ -199,26 +199,6 @@ void meta_seat_impl_release_touch_state_in_impl (MetaSeatImpl   *seat_impl,
 
 void meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl);
 
-/**
- * MetaOpenDeviceCallback:
- * @path: the device path
- * @flags: flags to be passed to open
- *
- * This callback will be called when Clutter needs to access an input
- * device. It should return an open file descriptor for the file at @path,
- * or -1 if opening failed.
- */
-typedef int (* MetaOpenDeviceCallback) (const char  *path,
-                                        int          flags,
-                                        gpointer     user_data,
-                                        GError     **error);
-typedef void (* MetaCloseDeviceCallback) (int          fd,
-                                          gpointer     user_data);
-
-void  meta_seat_impl_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
-                                           MetaCloseDeviceCallback close_callback,
-                                           gpointer                user_data);
-
 void  meta_seat_impl_release_devices (MetaSeatImpl *seat_impl);
 void  meta_seat_impl_reclaim_devices (MetaSeatImpl *seat_impl);
 

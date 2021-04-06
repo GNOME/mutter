@@ -75,10 +75,6 @@ struct _MetaEventSource
   GPollFD event_poll_fd;
 };
 
-static MetaOpenDeviceCallback  device_open_callback;
-static MetaCloseDeviceCallback device_close_callback;
-static gpointer                device_callback_data;
-
 #ifdef CLUTTER_ENABLE_DEBUG
 static const char *device_type_str[] = {
   "pointer",            /* CLUTTER_POINTER_DEVICE */
@@ -3164,31 +3160,6 @@ meta_seat_impl_init (MetaSeatImpl *seat_impl)
   g_cond_init (&seat_impl->init_cond);
 
   seat_impl->barrier_manager = meta_barrier_manager_native_new ();
-}
-
-/**
- * meta_seat_impl_set_device_callbacks: (skip)
- * @open_callback: the user replacement for open()
- * @close_callback: the user replacement for close()
- * @user_data: user data for @callback
- *
- * Through this function, the application can set a custom callback
- * to be invoked when Clutter is about to open an evdev device. It can do
- * so if special handling is needed, for example to circumvent permission
- * problems.
- *
- * Setting @callback to %NULL will reset the default behavior.
- *
- * For reliable effects, this function must be called before clutter_init().
- */
-void
-meta_seat_impl_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
-                                     MetaCloseDeviceCallback close_callback,
-                                     gpointer                user_data)
-{
-  device_open_callback = open_callback;
-  device_close_callback = close_callback;
-  device_callback_data = user_data;
 }
 
 void
