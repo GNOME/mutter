@@ -147,6 +147,7 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
     flags = META_SEAT_NATIVE_FLAG_NONE;
 
   return CLUTTER_SEAT (g_object_new (META_TYPE_SEAT_NATIVE,
+                                     "backend", backend,
                                      "seat-id", seat_id,
                                      "flags", flags,
                                      NULL));

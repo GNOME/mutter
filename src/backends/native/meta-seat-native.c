@@ -44,6 +44,7 @@ enum
   PROP_0,
   PROP_SEAT_ID,
   PROP_FLAGS,
+  PROP_BACKEND,
   N_PROPS,
 
   /* This property is overridden */
@@ -193,6 +194,9 @@ meta_seat_native_set_property (GObject      *object,
     case PROP_FLAGS:
       seat_native->flags = g_value_get_flags (value);
       break;
+    case PROP_BACKEND:
+      seat_native->backend = g_value_get_object (value);
+      break;
     case PROP_TOUCH_MODE:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -217,6 +221,9 @@ meta_seat_native_get_property (GObject    *object,
       break;
     case PROP_FLAGS:
       g_value_set_flags (value, seat_native->flags);
+      break;
+    case PROP_BACKEND:
+      g_value_set_object (value, seat_native->backend);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -400,6 +407,14 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY);
 
+  props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "Backend",
+                         "Backend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+
   g_object_class_install_properties (object_class, N_PROPS, props);
 
   g_object_class_override_property (object_class, PROP_TOUCH_MODE,
@@ -569,6 +584,12 @@ MetaBarrierManagerNative *
 meta_seat_native_get_barrier_manager (MetaSeatNative *seat)
 {
   return meta_seat_impl_get_barrier_manager (seat->impl);
+}
+
+MetaBackend *
+meta_seat_native_get_backend (MetaSeatNative *seat_native)
+{
+  return seat_native->backend;
 }
 
 void

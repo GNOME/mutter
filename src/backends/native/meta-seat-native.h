@@ -42,6 +42,8 @@ struct _MetaSeatNative
 {
   ClutterSeat parent_instance;
 
+  MetaBackend *backend;
+
   MetaSeatImpl *impl;
   char *seat_id;
   MetaSeatNativeFlag flags;
@@ -117,6 +119,8 @@ void meta_seat_native_release_touch_slots (MetaSeatNative *seat,
                                            guint           base_slot);
 
 MetaBarrierManagerNative * meta_seat_native_get_barrier_manager (MetaSeatNative *seat);
+
+MetaBackend * meta_seat_native_get_backend (MetaSeatNative *seat);
 
 void meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
                                               MetaPointerConstraintImpl *constraint_impl);

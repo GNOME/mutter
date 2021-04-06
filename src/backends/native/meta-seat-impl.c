@@ -34,7 +34,9 @@
 #include <math.h>
 
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-barrier-native.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
@@ -116,11 +118,17 @@ enum
 
 static guint signals[N_SIGNALS] = { 0 };
 
+typedef struct _MetaSeatImplPrivate
+{
+  GHashTable *device_files;
+} MetaSeatImplPrivate;
+
 static void meta_seat_impl_initable_iface_init (GInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaSeatImpl, meta_seat_impl, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                meta_seat_impl_initable_iface_init))
+                                                meta_seat_impl_initable_iface_init)
+                         G_ADD_PRIVATE (MetaSeatImpl))
 
 static void process_events (MetaSeatImpl *seat_impl);
 void meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
@@ -2565,31 +2573,35 @@ process_events (MetaSeatImpl *seat_impl)
 
 static int
 open_restricted (const char *path,
-                 int         flags,
+                 int         open_flags,
                  void       *user_data)
 {
+  MetaSeatImpl *seat_impl = user_data;
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+  MetaBackend *backend = meta_seat_native_get_backend (seat_impl->seat_native);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
+  MetaDeviceFileFlags flags;
+  g_autoptr (GError) error = NULL;
+  MetaDeviceFile *device_file;
   int fd;
 
-  if (device_open_callback)
-    {
-      GError *error = NULL;
+  flags = META_DEVICE_FILE_FLAG_NONE;
+  if (!(open_flags & (O_RDWR | O_WRONLY)))
+    flags |= META_DEVICE_FILE_FLAG_READ_ONLY;
 
-      fd = device_open_callback (path, flags, device_callback_data, &error);
+  if (!g_str_has_prefix (path, "/sys/"))
+    flags |= META_DEVICE_FILE_FLAG_TAKE_CONTROL;
 
-      if (fd < 0)
-        {
-          g_warning ("Could not open device %s: %s", path, error->message);
-          g_error_free (error);
-        }
-    }
-  else
+  device_file = meta_device_pool_open (device_pool, path, flags, &error);
+  if (!device_file)
     {
-      fd = open (path, O_RDWR | O_NONBLOCK);
-      if (fd < 0)
-        {
-          g_warning ("Could not open device %s: %s", path, strerror (errno));
-        }
+      g_warning ("Could not open device %s: %s", path, error->message);
+      return -1;
     }
+
+  fd = meta_device_file_get_fd (device_file);
+  g_hash_table_insert (priv->device_files, GINT_TO_POINTER (fd), device_file);
 
   return fd;
 }
@@ -2598,10 +2610,10 @@ static void
 close_restricted (int   fd,
                   void *user_data)
 {
-  if (device_close_callback)
-    device_close_callback (fd, device_callback_data);
-  else
-    close (fd);
+  MetaSeatImpl *seat_impl = user_data;
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+
+  g_hash_table_remove (priv->device_files, GINT_TO_POINTER (fd));
 }
 
 static const struct libinput_interface libinput_interface = {
@@ -2709,9 +2721,15 @@ init_libinput (MetaSeatImpl  *seat_impl,
 static gpointer
 input_thread (MetaSeatImpl *seat_impl)
 {
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   struct xkb_keymap *xkb_keymap;
 
   g_main_context_push_thread_default (seat_impl->input_context);
+
+  priv->device_files =
+    g_hash_table_new_full (NULL, NULL,
+                           NULL,
+                           (GDestroyNotify) meta_device_file_release);
 
   if (!(seat_impl->flags & META_SEAT_NATIVE_FLAG_NO_LIBINPUT))
     {
@@ -2868,6 +2886,7 @@ static gboolean
 destroy_in_impl (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   gboolean numlock_active;
 
   g_slist_foreach (seat_impl->devices,
@@ -2891,6 +2910,8 @@ destroy_in_impl (GTask *task)
   g_clear_pointer (&seat_impl->xkb, xkb_state_unref);
 
   meta_seat_impl_clear_repeat_source (seat_impl);
+
+  g_clear_pointer (&priv->device_files, g_hash_table_destroy);
 
   g_main_loop_quit (seat_impl->input_loop);
   g_task_return_boolean (task, TRUE);
