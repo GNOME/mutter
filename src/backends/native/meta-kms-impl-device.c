@@ -47,10 +47,8 @@ enum
 
   PROP_DEVICE,
   PROP_IMPL,
-  PROP_DEVICE_FILE,
+  PROP_PATH,
   PROP_FLAGS,
-  PROP_DRIVER_NAME,
-  PROP_DRIVER_DESCRIPTION,
 
   N_PROPS
 };
@@ -79,9 +77,16 @@ typedef struct _MetaKmsImplDevicePrivate
   GList *fallback_modes;
 } MetaKmsImplDevicePrivate;
 
+static void
+initable_iface_init (GInitableIface *iface);
+
 G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
                          G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (MetaKmsImplDevice))
+                         G_ADD_PRIVATE (MetaKmsImplDevice)
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init))
+
+G_DEFINE_QUARK (-meta-kms-error-quark, meta_kms_error)
 
 MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
@@ -711,17 +716,8 @@ meta_kms_impl_device_get_property (GObject    *object,
     case PROP_IMPL:
       g_value_set_object (value, priv->impl);
       break;
-    case PROP_DEVICE_FILE:
-      g_value_set_pointer (value, priv->device_file);
-      break;
     case PROP_FLAGS:
       g_value_set_flags (value, priv->flags);
-      break;
-    case PROP_DRIVER_NAME:
-      g_value_set_string (value, priv->driver_name);
-      break;
-    case PROP_DRIVER_DESCRIPTION:
-      g_value_set_string (value, priv->driver_name);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -747,18 +743,11 @@ meta_kms_impl_device_set_property (GObject      *object,
     case PROP_IMPL:
       priv->impl = g_value_get_object (value);
       break;
-    case PROP_DEVICE_FILE:
-      priv->device_file =
-        meta_device_file_acquire (g_value_get_pointer (value));
+    case PROP_PATH:
+      priv->path = g_value_dup_string (value);
       break;
     case PROP_FLAGS:
       priv->flags = g_value_get_flags (value);
-      break;
-    case PROP_DRIVER_NAME:
-      priv->driver_name = g_value_dup_string (value);
-      break;
-    case PROP_DRIVER_DESCRIPTION:
-      priv->driver_description = g_value_dup_string (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -849,21 +838,63 @@ meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device)
     klass->prepare_shutdown (impl_device);
 }
 
-static void
-meta_kms_impl_device_constructed (GObject *object)
+static gboolean
+get_driver_info (int    fd,
+                 char **name,
+                 char **description)
 {
-  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (object);
+  drmVersion *drm_version;
+
+  drm_version = drmGetVersion (fd);
+  if (!drm_version)
+    return FALSE;
+
+  *name = g_strndup (drm_version->name,
+                     drm_version->name_len);
+  *description = g_strndup (drm_version->desc,
+                            drm_version->desc_len);
+  drmFreeVersion (drm_version);
+
+  return TRUE;
+}
+
+static gboolean
+meta_kms_impl_device_initable_init (GInitable     *initable,
+                                    GCancellable  *cancellable,
+                                    GError       **error)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+  int fd;
 
+  priv->device_file = klass->open_device_file (impl_device, priv->path, error);
+  if (!priv->device_file)
+    return FALSE;
+
+  g_clear_pointer (&priv->path, g_free);
   priv->path = g_strdup (meta_device_file_get_path (priv->device_file));
 
-  G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->constructed (object);
+  fd = meta_device_file_get_fd (priv->device_file);
+  if (!get_driver_info (fd, &priv->driver_name, &priv->driver_description))
+    {
+      priv->driver_name = g_strdup ("unknown");
+      priv->driver_description = g_strdup ("Unknown");
+    }
+
+  return TRUE;
 }
 
 static void
 meta_kms_impl_device_init (MetaKmsImplDevice *impl_device)
 {
+}
+
+static void
+initable_iface_init (GInitableIface *iface)
+{
+  iface->init = meta_kms_impl_device_initable_init;
 }
 
 static void
@@ -873,7 +904,6 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
 
   object_class->get_property = meta_kms_impl_device_get_property;
   object_class->set_property = meta_kms_impl_device_set_property;
-  object_class->constructed = meta_kms_impl_device_constructed;
   object_class->finalize = meta_kms_impl_device_finalize;
 
   obj_props[PROP_DEVICE] =
@@ -892,13 +922,14 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_DEVICE_FILE] =
-    g_param_spec_pointer ("device-file",
-                          "device-file",
-                          "Device file",
-                          G_PARAM_READWRITE |
-                          G_PARAM_CONSTRUCT_ONLY |
-                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_PATH] =
+    g_param_spec_string ("path",
+                         "path",
+                         "Device path",
+                         NULL,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_FLAGS] =
     g_param_spec_flags ("flags",
                         "flags",
@@ -908,21 +939,5 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_DRIVER_NAME] =
-    g_param_spec_string ("driver-name",
-                         "driver-name",
-                         "DRM device driver name",
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_DRIVER_DESCRIPTION] =
-    g_param_spec_string ("driver-description",
-                         "driver-description",
-                         "DRM device driver description",
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

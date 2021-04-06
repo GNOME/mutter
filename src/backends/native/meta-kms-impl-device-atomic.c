@@ -21,6 +21,7 @@
 
 #include "backends/native/meta-kms-impl-device-atomic.h"
 
+#include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-device-private.h"
@@ -43,6 +44,8 @@ struct _MetaKmsImplDeviceAtomic
 
   GHashTable *page_flip_datas;
 };
+
+static GInitableIface *initable_parent_iface;
 
 static void
 initable_iface_init (GInitableIface *iface);
@@ -1039,14 +1042,83 @@ meta_kms_impl_device_atomic_finalize (GObject *object)
   G_OBJECT_CLASS (meta_kms_impl_device_atomic_parent_class)->finalize (object);
 }
 
+static MetaDeviceFile *
+meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
+                                              const char         *path,
+                                              GError            **error)
+{
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (device);
+  MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
+  g_autoptr (MetaDeviceFile) device_file = NULL;
+
+  device_file = meta_device_pool_open (device_pool, path,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       error);
+  if (!device_file)
+    return NULL;
+
+  if (drmSetClientCap (meta_device_file_get_fd (device_file),
+                       DRM_CLIENT_CAP_ATOMIC, 1) != 0)
+    {
+      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                   "DRM_CLIENT_CAP_ATOMIC not supported");
+      return NULL;
+    }
+
+  return g_steal_pointer (&device_file);
+}
+
+static gboolean
+is_atomic_allowed (const char *driver_name)
+{
+  const char *atomic_driver_deny_list[] = {
+    "qxl",
+    "vmwgfx",
+    "vboxvideo",
+    "nvidia-drm",
+    NULL,
+  };
+
+  return !g_strv_contains (atomic_driver_deny_list, driver_name);
+}
+
 static gboolean
 meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
                                            GCancellable  *cancellable,
                                            GError       **error)
 {
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
+  const char *atomic_kms_enable_env;
 
-  return meta_kms_impl_device_init_mode_setting (impl_device, error);
+  atomic_kms_enable_env = getenv ("MUTTER_DEBUG_ENABLE_ATOMIC_KMS");
+  if (atomic_kms_enable_env && g_strcmp0 (atomic_kms_enable_env, "1") != 0)
+    {
+      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_USER_INHIBITED,
+                   "Atomic mode setting disable via env var");
+      return FALSE;
+    }
+
+  if (!initable_parent_iface->init (initable, cancellable, error))
+    return FALSE;
+
+  if (!is_atomic_allowed (meta_kms_impl_device_get_driver_name (impl_device)))
+    {
+      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_DENY_LISTED,
+                   "Atomic mode setting disable via driver deny list");
+      return FALSE;
+    }
+
+  if (!meta_kms_impl_device_init_mode_setting (impl_device, error))
+    return FALSE;
+
+  g_message ("Added device '%s' (%s) using atomic mode setting.",
+             meta_kms_impl_device_get_path (impl_device),
+             meta_kms_impl_device_get_driver_name (impl_device));
+
+  return TRUE;
 }
 
 static void
@@ -1058,6 +1130,8 @@ meta_kms_impl_device_atomic_init (MetaKmsImplDeviceAtomic *impl_device_atomic)
 static void
 initable_iface_init (GInitableIface *iface)
 {
+  initable_parent_iface = g_type_interface_peek_parent (iface);
+
   iface->init = meta_kms_impl_device_atomic_initable_init;
 }
 
@@ -1070,6 +1144,8 @@ meta_kms_impl_device_atomic_class_init (MetaKmsImplDeviceAtomicClass *klass)
 
   object_class->finalize = meta_kms_impl_device_atomic_finalize;
 
+  impl_device_class->open_device_file =
+    meta_kms_impl_device_atomic_open_device_file;
   impl_device_class->setup_drm_event_context =
     meta_kms_impl_device_atomic_setup_drm_event_context;
   impl_device_class->process_update =

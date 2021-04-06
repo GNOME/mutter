@@ -25,6 +25,7 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms-types.h"
@@ -62,6 +63,9 @@ struct _MetaKmsImplDeviceClass
 {
   GObjectClass parent_class;
 
+  MetaDeviceFile * (* open_device_file) (MetaKmsImplDevice  *impl_device,
+                                         const char         *path,
+                                         GError            **error);
   void (* setup_drm_event_context) (MetaKmsImplDevice *impl_device,
                                     drmEventContext   *drm_event_context);
   MetaKmsFeedback * (* process_update) (MetaKmsImplDevice *impl_device,
@@ -72,6 +76,16 @@ struct _MetaKmsImplDeviceClass
   void (* discard_pending_page_flips) (MetaKmsImplDevice *impl_device);
   void (* prepare_shutdown) (MetaKmsImplDevice *impl_device);
 };
+
+enum
+{
+  META_KMS_ERROR_USER_INHIBITED,
+  META_KMS_ERROR_DENY_LISTED,
+  META_KMS_ERROR_NOT_SUPPORTED,
+};
+
+#define META_KMS_ERROR meta_kms_error_quark ()
+GQuark meta_kms_error_quark (void);
 
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
 

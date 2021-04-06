@@ -21,15 +21,21 @@
 
 #include "backends/native/meta-kms-impl-device-dummy.h"
 
+#include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-kms.h"
+
 struct _MetaKmsImplDeviceDummy
 {
   MetaKmsImplDevice parent;
 };
 
+static GInitableIface *initable_parent_iface;
+
 static void
 initable_iface_init (GInitableIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDeviceDummy, meta_kms_impl_device_dummy,
+G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDeviceDummy,
+                         meta_kms_impl_device_dummy,
                          META_TYPE_KMS_IMPL_DEVICE,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
@@ -39,9 +45,43 @@ meta_kms_impl_device_dummy_discard_pending_page_flips (MetaKmsImplDevice *impl_d
 {
 }
 
-static void
-meta_kms_impl_device_dummy_init (MetaKmsImplDeviceDummy *impl_device_dummy)
+static MetaDeviceFile *
+meta_kms_impl_device_dummy_open_device_file (MetaKmsImplDevice  *impl_device,
+                                             const char         *path,
+                                             GError            **error)
 {
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (device);
+  MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
+  g_autoptr (MetaDeviceFile) device_file = NULL;
+  int fd;
+  g_autofree char *render_node_path = NULL;
+
+  device_file = meta_device_pool_open (device_pool, path,
+                                       META_DEVICE_FILE_FLAG_NONE,
+                                       error);
+  if (!device_file)
+    return NULL;
+
+  fd = meta_device_file_get_fd (device_file);
+  render_node_path = drmGetRenderDeviceNameFromFd (fd);
+  if (!render_node_path)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Couldn't find render node device for '%s' (%s)",
+                   meta_kms_impl_device_get_path (impl_device),
+                   meta_kms_impl_device_get_driver_name (impl_device));
+      return NULL;
+    }
+
+  meta_topic (META_DEBUG_KMS, "Found render node '%s' from '%s'",
+              render_node_path, path);
+
+  return meta_device_pool_open (device_pool, render_node_path,
+                                META_DEVICE_FILE_FLAG_NONE,
+                                error);
 }
 
 static gboolean
@@ -49,13 +89,29 @@ meta_kms_impl_device_dummy_initable_init (GInitable     *initable,
                                           GCancellable  *cancellable,
                                           GError       **error)
 {
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
+
+  if (!initable_parent_iface->init (initable, cancellable, error))
+    return FALSE;
+
+  g_message ("Added device '%s' (%s) using no mode setting.",
+             meta_kms_impl_device_get_path (impl_device),
+             meta_kms_impl_device_get_driver_name (impl_device));
+
   return TRUE;
 }
 
 static void
 initable_iface_init (GInitableIface *iface)
 {
+  initable_parent_iface = g_type_interface_peek_parent (iface);
+
   iface->init = meta_kms_impl_device_dummy_initable_init;
+}
+
+static void
+meta_kms_impl_device_dummy_init (MetaKmsImplDeviceDummy *impl_device_dummy)
+{
 }
 
 static void
@@ -64,6 +120,8 @@ meta_kms_impl_device_dummy_class_init (MetaKmsImplDeviceDummyClass *klass)
   MetaKmsImplDeviceClass *impl_device_class =
     META_KMS_IMPL_DEVICE_CLASS (klass);
 
+  impl_device_class->open_device_file =
+    meta_kms_impl_device_dummy_open_device_file;
   impl_device_class->discard_pending_page_flips =
     meta_kms_impl_device_dummy_discard_pending_page_flips;
 }

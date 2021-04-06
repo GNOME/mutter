@@ -21,6 +21,7 @@
 
 #include "backends/native/meta-kms-impl-device-simple.h"
 
+#include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-crtc-private.h"
@@ -59,6 +60,8 @@ struct _MetaKmsImplDeviceSimple
 
   GHashTable *cached_mode_sets;
 };
+
+static GInitableIface *initable_parent_iface;
 
 static void
 initable_iface_init (GInitableIface *iface);
@@ -1534,6 +1537,22 @@ meta_kms_impl_device_simple_finalize (GObject *object)
   G_OBJECT_CLASS (meta_kms_impl_device_simple_parent_class)->finalize (object);
 }
 
+static MetaDeviceFile *
+meta_kms_impl_device_simple_open_device_file (MetaKmsImplDevice  *impl_device,
+                                              const char         *path,
+                                              GError            **error)
+{
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (device);
+  MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
+
+  return meta_device_pool_open (device_pool, path,
+                                META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                error);
+}
+
 static gboolean
 meta_kms_impl_device_simple_initable_init (GInitable     *initable,
                                            GCancellable  *cancellable,
@@ -1544,6 +1563,9 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (impl_device_simple);
   MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
   GList *l;
+
+  if (!initable_parent_iface->init (initable, cancellable, error))
+    return FALSE;
 
   if (!meta_kms_impl_device_init_mode_setting (impl_device, error))
     return FALSE;
@@ -1573,6 +1595,10 @@ meta_kms_impl_device_simple_initable_init (GInitable     *initable,
                                               crtc);
     }
 
+  g_message ("Added device '%s' (%s) using non-atomic mode setting.",
+             meta_kms_impl_device_get_path (impl_device),
+             meta_kms_impl_device_get_driver_name (impl_device));
+
   return TRUE;
 }
 
@@ -1584,6 +1610,8 @@ meta_kms_impl_device_simple_init (MetaKmsImplDeviceSimple *impl_device_simple)
 static void
 initable_iface_init (GInitableIface *iface)
 {
+  initable_parent_iface = g_type_interface_peek_parent (iface);
+
   iface->init = meta_kms_impl_device_simple_initable_init;
 }
 
@@ -1596,6 +1624,8 @@ meta_kms_impl_device_simple_class_init (MetaKmsImplDeviceSimpleClass *klass)
 
   object_class->finalize = meta_kms_impl_device_simple_finalize;
 
+  impl_device_class->open_device_file =
+    meta_kms_impl_device_simple_open_device_file;
   impl_device_class->setup_drm_event_context =
     meta_kms_impl_device_simple_setup_drm_event_context;
   impl_device_class->process_update =
