@@ -247,7 +247,12 @@ meta_device_pool_open (MetaDevicePool       *pool,
     }
   else
     {
-      fd = open (path, O_RDWR | O_CLOEXEC, 0);
+      do
+        {
+          fd = open (path, O_RDWR | O_CLOEXEC);
+        }
+      while (fd == -1 && errno == EINTR);
+
       if (fd == -1)
         {
           g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
