@@ -23,7 +23,6 @@
 
 #include "clutter-build-config.h"
 
-#include "clutter-backend-private.h"
 #include "clutter-input-device-tool.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-marshal.h"
@@ -52,7 +51,6 @@ static guint signals[N_SIGNALS] = { 0 };
 enum
 {
   PROP_0,
-  PROP_BACKEND,
   PROP_TOUCH_MODE,
   N_PROPS
 };
@@ -63,8 +61,6 @@ typedef struct _ClutterSeatPrivate ClutterSeatPrivate;
 
 struct _ClutterSeatPrivate
 {
-  ClutterBackend *backend;
-
   unsigned int inhibit_unfocus_count;
 
   /* Pointer a11y */
@@ -79,14 +75,8 @@ clutter_seat_set_property (GObject      *object,
                            const GValue *value,
                            GParamSpec   *pspec)
 {
-  ClutterSeat *seat = CLUTTER_SEAT (object);
-  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
-
   switch (prop_id)
     {
-    case PROP_BACKEND:
-      priv->backend = g_value_get_object (value);
-      break;
     case PROP_TOUCH_MODE:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -99,14 +89,8 @@ clutter_seat_get_property (GObject    *object,
                            GValue     *value,
                            GParamSpec *pspec)
 {
-  ClutterSeat *seat = CLUTTER_SEAT (object);
-  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
-
   switch (prop_id)
     {
-    case PROP_BACKEND:
-      g_value_set_object (value, priv->backend);
-      break;
     case PROP_TOUCH_MODE:
       g_value_set_boolean (value, FALSE);
       break;
@@ -279,13 +263,6 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
-
-  props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         P_("Backend"),
-                         P_("Backend"),
-                         CLUTTER_TYPE_BACKEND,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterSeat:touch-mode:
