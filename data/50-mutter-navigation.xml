@@ -26,6 +26,14 @@
 	<KeyListEntry name="move-to-workspace-right"
 	              description="Move window one workspace to the right" />
 
+        <KeyListEntry name="move-to-workspace-up"
+                      description="Move window one workspace up"
+                      hidden="true" />
+
+        <KeyListEntry name="move-to-workspace-down"
+                      description="Move window one workspace down"
+                      hidden="true" />
+
 	<KeyListEntry name="move-to-monitor-left"
 	              description="Move window one monitor to the left" />
 
@@ -124,5 +132,13 @@
 
 	<KeyListEntry name="switch-to-workspace-right"
 	              description="Move to workspace on the right" />
+
+        <KeyListEntry name="switch-to-workspace-up"
+                      description="Move to workspace above"
+                      hidden="true" />
+
+        <KeyListEntry name="switch-to-workspace-down"
+                      description="Move to workspace below"
+                      hidden="true" />
 
 </KeyListEntries>
