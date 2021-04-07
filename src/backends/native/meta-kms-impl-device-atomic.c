@@ -703,7 +703,6 @@ atomic_page_flip_handler (int           fd,
 
   if (!page_flip_data)
     return;
-  g_return_if_fail (page_flip_data);
 
   meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
                                                sequence, tv_sec, tv_usec);
