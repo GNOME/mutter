@@ -50,6 +50,9 @@
 struct _MetaOutputXrandr
 {
   MetaOutput parent;
+
+  gboolean ctm_initialized;
+  MetaOutputCtm ctm;
 };
 
 G_DEFINE_TYPE (MetaOutputXrandr, meta_output_xrandr, META_TYPE_OUTPUT)
@@ -198,19 +201,41 @@ meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
   meta_output_set_backlight (output, normalize_backlight (output, hw_value));
 }
 
+static gboolean
+ctm_is_equal (const MetaOutputCtm *ctm1,
+              const MetaOutputCtm *ctm2)
+{
+  int i;
+
+  for (i = 0; i < 9; i++)
+    {
+      if (ctm1->matrix[i] != ctm2->matrix[i])
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 void
 meta_output_xrandr_set_ctm (MetaOutputXrandr *output_xrandr,
                             const MetaOutputCtm *ctm)
 {
-  MetaOutput *output = META_OUTPUT (output_xrandr);
-  Display *xdisplay = xdisplay_from_output (output);
-  Atom ctm_atom = XInternAtom (xdisplay, "CTM", False);
+  if (!output_xrandr->ctm_initialized ||
+      !ctm_is_equal (ctm, &output_xrandr->ctm))
+    {
+      MetaOutput *output = META_OUTPUT (output_xrandr);
+      Display *xdisplay = xdisplay_from_output (output);
+      Atom ctm_atom = XInternAtom (xdisplay, "CTM", False);
 
-  xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID) meta_output_get_id (output),
-                                    ctm_atom, XCB_ATOM_INTEGER, 32,
-                                    XCB_PROP_MODE_REPLACE,
-                                    18, &ctm->matrix);
+      xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
+                                        (XID) meta_output_get_id (output),
+                                        ctm_atom, XCB_ATOM_INTEGER, 32,
+                                        XCB_PROP_MODE_REPLACE,
+                                        18, &ctm->matrix);
+
+      output_xrandr->ctm = *ctm;
+      output_xrandr->ctm_initialized = TRUE;
+    }
 }
 
 static gboolean
