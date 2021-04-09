@@ -587,9 +587,8 @@ dummy_power_save_page_flip_cb (gpointer user_data)
   g_list_foreach (renderer_native->power_save_page_flip_onscreens,
                   (GFunc) meta_onscreen_native_dummy_power_save_page_flip,
                   NULL);
-  g_list_free_full (renderer_native->power_save_page_flip_onscreens,
-                    g_object_unref);
-  renderer_native->power_save_page_flip_onscreens = NULL;
+  g_clear_list (&renderer_native->power_save_page_flip_onscreens,
+                g_object_unref);
   renderer_native->power_save_page_flip_source_id = 0;
 
   return G_SOURCE_REMOVE;
@@ -617,9 +616,8 @@ meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_na
 static void
 clear_kept_alive_onscreens (MetaRendererNative *renderer_native)
 {
-  g_list_free_full (renderer_native->kept_alive_onscreens,
-                    g_object_unref);
-  renderer_native->kept_alive_onscreens = NULL;
+  g_clear_list (&renderer_native->kept_alive_onscreens,
+                g_object_unref);
 }
 
 void
@@ -2037,13 +2035,10 @@ meta_renderer_native_finalize (GObject *object)
 
   clear_kept_alive_onscreens (renderer_native);
 
-  if (renderer_native->power_save_page_flip_onscreens)
-    {
-      g_list_free_full (renderer_native->power_save_page_flip_onscreens,
-                        g_object_unref);
-      g_clear_handle_id (&renderer_native->power_save_page_flip_source_id,
-                         g_source_remove);
-    }
+  g_clear_list (&renderer_native->power_save_page_flip_onscreens,
+                g_object_unref);
+  g_clear_handle_id (&renderer_native->power_save_page_flip_source_id,
+                     g_source_remove);
 
   g_list_free (renderer_native->pending_mode_set_views);
 

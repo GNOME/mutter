@@ -143,8 +143,7 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
 
-  g_list_free_full (priv->views, (GDestroyNotify) clutter_stage_view_destroy);
-  priv->views = NULL;
+  g_clear_list (&priv->views, (GDestroyNotify) clutter_stage_view_destroy);
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -372,8 +371,7 @@ meta_renderer_finalize (GObject *object)
   MetaRenderer *renderer = META_RENDERER (object);
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
 
-  g_list_free_full (priv->views, g_object_unref);
-  priv->views = NULL;
+  g_clear_list (&priv->views, g_object_unref);
 
   G_OBJECT_CLASS (meta_renderer_parent_class)->finalize (object);
 }
