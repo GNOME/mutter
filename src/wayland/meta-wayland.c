@@ -591,7 +591,12 @@ meta_wayland_finalize (void)
   compositor = meta_wayland_compositor_get_default ();
 
   meta_xwayland_shutdown (&compositor->xwayland_manager);
+
+  if (compositor->wayland_display)
+    wl_display_destroy_clients (compositor->wayland_display);
+
   g_clear_pointer (&compositor->display_name, g_free);
+  g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
 }
 
 void
