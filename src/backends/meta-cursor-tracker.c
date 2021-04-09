@@ -190,6 +190,13 @@ meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
   return priv->displayed_cursor;
 }
 
+void
+meta_cursor_tracker_destroy (MetaCursorTracker *tracker)
+{
+  g_object_run_dispose (G_OBJECT (tracker));
+  g_object_unref (tracker);
+}
+
 static void
 meta_cursor_tracker_init (MetaCursorTracker *tracker)
 {
@@ -244,7 +251,7 @@ meta_cursor_tracker_set_property (GObject      *object,
 }
 
 static void
-meta_cursor_tracker_finalize (GObject *object)
+meta_cursor_tracker_dispose (GObject *object)
 {
   MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
   MetaCursorTrackerPrivate *priv =
@@ -254,7 +261,7 @@ meta_cursor_tracker_finalize (GObject *object)
   g_clear_object (&priv->displayed_cursor);
   g_clear_object (&priv->root_cursor);
 
-  G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->dispose (object);
 }
 
 static void
@@ -264,7 +271,7 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 
   object_class->get_property = meta_cursor_tracker_get_property;
   object_class->set_property = meta_cursor_tracker_set_property;
-  object_class->finalize = meta_cursor_tracker_finalize;
+  object_class->dispose = meta_cursor_tracker_dispose;
 
   klass->set_force_track_position =
     meta_cursor_tracker_real_set_force_track_position;

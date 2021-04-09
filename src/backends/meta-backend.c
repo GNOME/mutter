@@ -199,6 +199,7 @@ meta_backend_dispose (GObject *object)
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
+  g_clear_pointer (&priv->cursor_tracker, meta_cursor_tracker_destroy);
   g_clear_object (&priv->current_device);
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
