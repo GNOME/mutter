@@ -219,11 +219,8 @@ notify_view_crtc_presented (MetaRendererView *view,
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
-  MetaRendererNativeGpuData *renderer_gpu_data;
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
@@ -231,23 +228,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
-
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (renderer_native,
-                                       onscreen_native->render_gpu);
-  switch (renderer_gpu_data->mode)
-    {
-    case META_RENDERER_NATIVE_MODE_GBM:
-      meta_onscreen_native_swap_drm_fb (onscreen);
-      break;
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
-      g_assert_not_reached ();
-      break;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      break;
-#endif
-    }
+  meta_onscreen_native_swap_drm_fb (onscreen);
 }
 
 static int64_t
