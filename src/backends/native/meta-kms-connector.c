@@ -498,28 +498,34 @@ void
 meta_kms_connector_predict_state (MetaKmsConnector *connector,
                                   MetaKmsUpdate    *update)
 {
+  MetaKmsConnectorState *current_state;
   GList *mode_sets;
   GList *l;
-
-  if (!connector->current_state)
+  current_state = connector->current_state;
+  if (!current_state)
     return;
 
   mode_sets = meta_kms_update_get_mode_sets (update);
   for (l = mode_sets; l; l = l->next)
     {
       MetaKmsModeSet *mode_set = l->data;
-      MetaKmsCrtc *crtc;
+      MetaKmsCrtc *crtc = mode_set->crtc;
 
-      if (!g_list_find (mode_set->connectors, connector))
-        continue;
-
-      crtc = mode_set->crtc;
-      if (crtc)
-        connector->current_state->current_crtc_id = meta_kms_crtc_get_id (crtc);
+      if (current_state->current_crtc_id == meta_kms_crtc_get_id (crtc))
+        {
+          if (g_list_find (mode_set->connectors, connector))
+            break;
+          else
+            current_state->current_crtc_id = 0;
+        }
       else
-        connector->current_state->current_crtc_id = 0;
-
-      break;
+        {
+          if (g_list_find (mode_set->connectors, connector))
+            {
+              current_state->current_crtc_id = meta_kms_crtc_get_id (crtc);
+              break;
+            }
+        }
     }
 }
 
