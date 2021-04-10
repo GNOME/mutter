@@ -751,15 +751,11 @@ schedule_retry_page_flip (MetaKmsImplDeviceSimple *impl_device_simple,
 }
 
 static void
-invoke_page_flip_datas (GList                        *page_flip_datas,
-                        MetaPageFlipDataFeedbackFunc  func)
+dispatch_page_flip_datas (GList    **page_flip_datas,
+                          GFunc      func,
+                          gpointer   user_data)
 {
-  g_list_foreach (page_flip_datas, (GFunc) func, NULL);
-}
-
-static void
-clear_page_flip_datas (GList **page_flip_datas)
-{
+  g_list_foreach (*page_flip_datas, func, user_data);
   g_clear_pointer (page_flip_datas, g_list_free);
 }
 
@@ -778,9 +774,9 @@ mode_set_fallback_feedback_idle (gpointer user_data)
     }
   else
     {
-      invoke_page_flip_datas (impl_device_simple->mode_set_fallback_page_flip_datas,
-                              meta_kms_page_flip_data_mode_set_fallback_in_impl);
-      clear_page_flip_datas (&impl_device_simple->mode_set_fallback_page_flip_datas);
+      dispatch_page_flip_datas (&impl_device_simple->mode_set_fallback_page_flip_datas,
+                                (GFunc) meta_kms_page_flip_data_mode_set_fallback_in_impl,
+                                NULL);
     }
 
   return G_SOURCE_REMOVE;
@@ -1413,13 +1409,12 @@ err:
 static void
 flush_postponed_page_flip_datas (MetaKmsImplDeviceSimple *impl_device_simple)
 {
-  invoke_page_flip_datas (impl_device_simple->postponed_page_flip_datas,
-                          meta_kms_page_flip_data_flipped_in_impl);
-  clear_page_flip_datas (&impl_device_simple->postponed_page_flip_datas);
-
-  invoke_page_flip_datas (impl_device_simple->postponed_mode_set_fallback_datas,
-                          meta_kms_page_flip_data_mode_set_fallback_in_impl);
-  clear_page_flip_datas (&impl_device_simple->postponed_mode_set_fallback_datas);
+  dispatch_page_flip_datas (&impl_device_simple->postponed_page_flip_datas,
+                            (GFunc) meta_kms_page_flip_data_flipped_in_impl,
+                            NULL);
+  dispatch_page_flip_datas (&impl_device_simple->postponed_mode_set_fallback_datas,
+                            (GFunc) meta_kms_page_flip_data_mode_set_fallback_in_impl,
+                            NULL);
 }
 
 static void
