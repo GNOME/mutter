@@ -539,42 +539,25 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   return COGL_FRAMEBUFFER (cogl_fbo);
 }
 
-static MetaKmsDevice *
-kms_device_from_view (MetaRendererView *view)
-{
-  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-
-  return meta_kms_crtc_get_device (kms_crtc);
-}
-
-static MetaGpu *
-gpu_from_view (MetaRendererView *view)
-{
-  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
-
-  return meta_crtc_get_gpu (crtc);
-}
-
 static void
-configure_disabled_crtcs (MetaGpu       *gpu,
-                          MetaKmsUpdate *kms_update)
+configure_disabled_crtcs (MetaKmsDevice *kms_device)
 {
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
   GList *l;
 
-  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+  for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
     {
-      MetaCrtc *crtc = l->data;
-      MetaKmsCrtc *kms_crtc;
+      MetaKmsCrtc *kms_crtc = l->data;
+      MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
+      MetaKmsUpdate *kms_update;
 
-      if (meta_crtc_get_config (crtc))
+      if (meta_crtc_get_config (META_CRTC (crtc_kms)))
         continue;
 
-      kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
       if (!meta_kms_crtc_is_active (kms_crtc))
         continue;
 
+      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
       meta_kms_update_mode_set (kms_update, kms_crtc, NULL, NULL);
     }
 }
@@ -628,22 +611,19 @@ meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
   MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
   GList *l;
 
-  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+  for (l = meta_kms_get_devices (kms); l; l = l->next)
     {
-      MetaRendererView *view = l->data;
-      MetaKmsDevice *kms_device;
+      MetaKmsDevice *kms_device = l->data;
       MetaKmsUpdate *kms_update;
       MetaKmsUpdateFlag flags;
       g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
       const GError *feedback_error;
 
-      kms_device = kms_device_from_view (view);
+      configure_disabled_crtcs (kms_device);
 
       kms_update = meta_kms_get_pending_update (kms, kms_device);
       if (!kms_update)
         continue;
-
-      configure_disabled_crtcs (gpu_from_view (view), kms_update);
 
       flags = META_KMS_UPDATE_FLAG_NONE;
       kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
