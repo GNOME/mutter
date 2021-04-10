@@ -20,14 +20,10 @@
 #include "tests/wayland-unit-tests.h"
 
 #include <gio/gio.h>
-#include <wayland-server.h>
 
+#include "tests/meta-wayland-test-driver.h"
 #include "wayland/meta-wayland.h"
-#include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-surface.h"
-#include "wayland/meta-wayland-private.h"
-
-#include "test-driver-server-protocol.h"
 
 typedef struct _WaylandTestClient
 {
@@ -35,6 +31,8 @@ typedef struct _WaylandTestClient
   char *path;
   GMainLoop *main_loop;
 } WaylandTestClient;
+
+static MetaWaylandTestDriver *test_driver;
 
 static char *
 get_test_client_path (const char *test_client_name)
@@ -155,57 +153,6 @@ subsurface_invalid_xdg_shell_actions (void)
   g_test_assert_expected_messages ();
 }
 
-static void
-on_actor_destroyed (ClutterActor       *actor,
-                    struct wl_resource *callback)
-{
-  wl_callback_send_done (callback, 0);
-  wl_resource_destroy (callback);
-}
-
-static void
-sync_actor_destroy (struct wl_client   *client,
-                    struct wl_resource *resource,
-                    uint32_t            id,
-                    struct wl_resource *surface_resource)
-{
-  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
-  MetaWaylandActorSurface *actor_surface;
-  MetaSurfaceActor *actor;
-  struct wl_resource *callback;
-
-  g_assert_nonnull (surface);
-
-  actor_surface = (MetaWaylandActorSurface *) surface->role;
-  g_assert_nonnull (actor_surface);
-
-  actor = meta_wayland_actor_surface_get_actor (actor_surface);
-  g_assert_nonnull (actor);
-
-  callback = wl_resource_create (client, &wl_callback_interface, 1, id);
-
-  g_signal_connect (actor, "destroy", G_CALLBACK (on_actor_destroyed),
-                    callback);
-}
-
-static const struct test_driver_interface meta_test_driver_interface = {
-  sync_actor_destroy,
-};
-
-static void
-bind_test_driver (struct wl_client *client,
-                  void             *data,
-                  uint32_t          version,
-                  uint32_t          id)
-{
-  struct wl_resource *resource;
-
-  resource = wl_resource_create (client, &test_driver_interface,
-                                 version, id);
-  wl_resource_set_implementation (resource, &meta_test_driver_interface,
-                                  NULL, NULL);
-}
-
 void
 pre_run_wayland_tests (void)
 {
@@ -214,11 +161,7 @@ pre_run_wayland_tests (void)
   compositor = meta_wayland_compositor_get_default ();
   g_assert_nonnull (compositor);
 
-  if (wl_global_create (compositor->wayland_display,
-                        &test_driver_interface,
-                        1,
-                        NULL, bind_test_driver) == NULL)
-    g_error ("Failed to register a global wl-subcompositor object");
+  test_driver = meta_wayland_test_driver_new (compositor);
 }
 
 void
