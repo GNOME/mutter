@@ -1007,6 +1007,29 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   return FALSE;
 }
 
+static CoglFramebuffer *
+create_fallback_offscreen (MetaRendererNative *renderer_native,
+                           CoglContext        *cogl_context,
+                           int                 width,
+                           int                 height)
+{
+  CoglOffscreen *fallback_offscreen;
+  GError *error = NULL;
+
+  fallback_offscreen = meta_renderer_native_create_offscreen (renderer_native,
+                                                              cogl_context,
+                                                              width,
+                                                              height,
+                                                              &error);
+  if (!fallback_offscreen)
+    {
+      g_error ("Failed to create fallback offscreen framebuffer: %s",
+               error->message);
+    }
+
+  return COGL_FRAMEBUFFER (fallback_offscreen);
+}
+
 static MetaRendererView *
 meta_renderer_native_create_view (MetaRenderer       *renderer,
                                   MetaLogicalMonitor *logical_monitor,
@@ -1041,10 +1064,12 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 
   if (META_IS_CRTC_KMS (crtc))
     {
+      MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+      MetaGpuKms *primary_gpu_kms = renderer_native->primary_gpu_kms;
       MetaOnscreenNative *onscreen_native;
 
       onscreen_native = meta_onscreen_native_new (renderer_native,
-                                                  renderer_native->primary_gpu_kms,
+                                                  primary_gpu_kms,
                                                   output,
                                                   crtc,
                                                   cogl_context,
@@ -1052,11 +1077,20 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                                   onscreen_height);
 
       if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &error))
-        g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
-
-      use_shadowfb = should_force_shadow_fb (renderer_native,
-                                             renderer_native->primary_gpu_kms);
-      framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+        {
+          g_warning ("Failed to allocate onscreen framebuffer for %s",
+                     meta_gpu_kms_get_file_path (gpu_kms));
+          framebuffer = create_fallback_offscreen (renderer_native,
+                                                   cogl_context,
+                                                   onscreen_width,
+                                                   onscreen_height);
+        }
+      else
+        {
+          use_shadowfb = should_force_shadow_fb (renderer_native,
+                                                 primary_gpu_kms);
+          framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+        }
     }
   else
     {
