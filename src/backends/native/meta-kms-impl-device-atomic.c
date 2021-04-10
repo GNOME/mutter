@@ -999,11 +999,27 @@ meta_kms_impl_device_atomic_discard_pending_page_flips (MetaKmsImplDevice *impl_
 {
 }
 
+static gboolean
+dispose_page_flip_data (gpointer key,
+                        gpointer value,
+                        gpointer user_data)
+{
+  MetaKmsPageFlipData *page_flip_data = value;
+
+  meta_kms_page_flip_data_discard_in_impl (page_flip_data, NULL);
+
+  return TRUE;
+}
+
 static void
 meta_kms_impl_device_atomic_finalize (GObject *object)
 {
   MetaKmsImplDeviceAtomic *impl_device_atomic =
     META_KMS_IMPL_DEVICE_ATOMIC (object);
+
+  g_hash_table_foreach_remove (impl_device_atomic->page_flip_datas,
+                               dispose_page_flip_data,
+                               NULL);
 
   g_hash_table_unref (impl_device_atomic->page_flip_datas);
 
