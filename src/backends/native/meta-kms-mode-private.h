@@ -22,7 +22,7 @@
 
 #include "backends/native/meta-kms-mode.h"
 
-uint32_t meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
+uint32_t meta_kms_mode_create_blob_id (MetaKmsMode  *mode,
                                        GError      **error);
 
 void meta_kms_mode_free (MetaKmsMode *mode);

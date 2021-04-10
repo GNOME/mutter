@@ -28,22 +28,22 @@ struct _MetaKmsMode
   MetaKmsImplDevice *impl_device;
   MetaKmsModeFlag flags;
   drmModeModeInfo drm_mode;
-  uint32_t blob_id;
 };
 
 uint32_t
-meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
+meta_kms_mode_create_blob_id (MetaKmsMode  *mode,
                               GError      **error)
 {
   int fd;
   int ret;
+  uint32_t blob_id;
 
   fd = meta_kms_impl_device_get_fd (mode->impl_device);
 
   ret = drmModeCreatePropertyBlob (fd,
                                    &mode->drm_mode,
                                    sizeof (mode->drm_mode),
-                                   &mode->blob_id);
+                                   &blob_id);
   if (ret < 0)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
@@ -52,7 +52,7 @@ meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
       return 0;
     }
 
-  return mode->blob_id;
+  return blob_id;
 }
 
 const char *
@@ -124,15 +124,6 @@ meta_kms_mode_hash (MetaKmsMode *mode)
 void
 meta_kms_mode_free (MetaKmsMode *mode)
 {
-  if (mode->blob_id)
-    {
-      int fd;
-
-      fd = meta_kms_impl_device_get_fd (mode->impl_device);
-
-      drmModeDestroyPropertyBlob (fd, mode->blob_id);
-    }
-
   g_free (mode);
 }
 

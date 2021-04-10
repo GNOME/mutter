@@ -264,9 +264,11 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
       uint32_t mode_id;
       GList *l;
 
-      mode_id = meta_kms_mode_ensure_blob_id (mode, error);
+      mode_id = meta_kms_mode_create_blob_id (mode, error);
       if (mode_id == 0)
         return FALSE;
+
+      g_array_append_val (blob_ids, mode_id);
 
       meta_topic (META_DEBUG_KMS,
                   "[atomic] Setting mode of CRTC %u (%s) to %s",
