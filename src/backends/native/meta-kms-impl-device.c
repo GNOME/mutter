@@ -786,19 +786,9 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   int fd;
-  int ret;
   drmModeRes *drm_resources;
 
   fd = meta_device_file_get_fd (priv->device_file);
-
-  ret = drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
-  if (ret != 0)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "Failed to activate universal planes: %s",
-                   g_strerror (-ret));
-      return FALSE;
-    }
 
   drm_resources = drmModeGetResources (fd);
   if (!drm_resources)

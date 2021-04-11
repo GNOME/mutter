@@ -1055,6 +1055,7 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
   g_autoptr (MetaDeviceFile) device_file = NULL;
+  int fd;
 
   device_file = meta_device_pool_open (device_pool, path,
                                        META_DEVICE_FILE_FLAG_TAKE_CONTROL,
@@ -1062,8 +1063,16 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
   if (!device_file)
     return NULL;
 
-  if (drmSetClientCap (meta_device_file_get_fd (device_file),
-                       DRM_CLIENT_CAP_ATOMIC, 1) != 0)
+  fd = meta_device_file_get_fd (device_file);
+
+  if (drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1) != 0)
+    {
+      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                   "DRM_CLIENT_CAP_UNIVERSAL_PLANES not supported");
+      return NULL;
+    }
+
+  if (drmSetClientCap (fd, DRM_CLIENT_CAP_ATOMIC, 1) != 0)
     {
       g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
                    "DRM_CLIENT_CAP_ATOMIC not supported");

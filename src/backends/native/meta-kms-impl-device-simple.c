@@ -1547,10 +1547,25 @@ meta_kms_impl_device_simple_open_device_file (MetaKmsImplDevice  *impl_device,
   MetaBackend *backend = meta_kms_get_backend (kms);
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
+  g_autoptr (MetaDeviceFile) device_file = NULL;
+  int fd;
 
-  return meta_device_pool_open (device_pool, path,
-                                META_DEVICE_FILE_FLAG_TAKE_CONTROL,
-                                error);
+  device_file = meta_device_pool_open (device_pool, path,
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       error);
+  if (!device_file)
+    return NULL;
+
+  fd = meta_device_file_get_fd (device_file);
+
+  if (drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1) != 0)
+    {
+      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                   "DRM_CLIENT_CAP_UNIVERSAL_PLANES not supported");
+      return NULL;
+    }
+
+  return g_steal_pointer (&device_file);
 }
 
 static gboolean
