@@ -30,12 +30,25 @@ typedef enum _MetaDeviceFileFlags
   META_DEVICE_FILE_FLAG_READ_ONLY = 1 << 1,
 } MetaDeviceFileFlags;
 
+typedef enum _MetaDeviceFileTags
+{
+  META_DEVICE_FILE_N_TAGS,
+} MetaDeviceFileTags;
+
 typedef struct _MetaDeviceFile MetaDeviceFile;
 typedef struct _MetaDevicePool MetaDevicePool;
 
 int meta_device_file_get_fd (MetaDeviceFile *device_file);
 
 const char * meta_device_file_get_path (MetaDeviceFile *device_file);
+
+void meta_device_file_tag (MetaDeviceFile     *device_file,
+                           MetaDeviceFileTags  tag,
+                           uint32_t            value);
+
+uint32_t meta_device_file_has_tag (MetaDeviceFile     *device_file,
+                                   MetaDeviceFileTags  tag,
+                                   uint32_t            value);
 
 MetaDeviceFile * meta_device_file_acquire (MetaDeviceFile *file);
 

@@ -43,6 +43,7 @@ struct _MetaDeviceFile
   int minor;
   int fd;
   MetaDeviceFileFlags flags;
+  uint32_t tags[META_DEVICE_FILE_N_TAGS];
 };
 
 struct _MetaDevicePool
@@ -105,6 +106,22 @@ const char *
 meta_device_file_get_path (MetaDeviceFile *device_file)
 {
   return device_file->path;
+}
+
+void
+meta_device_file_tag (MetaDeviceFile     *device_file,
+                      MetaDeviceFileTags  tag,
+                      uint32_t            value)
+{
+  device_file->tags[tag] |= value;
+}
+
+uint32_t
+meta_device_file_has_tag (MetaDeviceFile     *device_file,
+                          MetaDeviceFileTags  tag,
+                          uint32_t            value)
+{
+  return (device_file->tags[tag] & value) == value;
 }
 
 static MetaDeviceFile *
