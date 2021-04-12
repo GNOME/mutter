@@ -61,6 +61,8 @@
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
+#include "meta-dbus-display-config.h"
+
 #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
 
 enum

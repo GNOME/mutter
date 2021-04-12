@@ -37,8 +37,6 @@
 #include "meta/display.h"
 #include "meta/meta-monitor-manager.h"
 
-#include "meta-dbus-display-config.h"
-
 #define META_MONITOR_MANAGER_MIN_SCREEN_WIDTH 640
 #define META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT 480
 
@@ -110,6 +108,8 @@ typedef struct _MetaOutputCtm
 #define META_IS_MONITOR_MANAGER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_MONITOR_MANAGER))
 #define META_IS_MONITOR_MANAGER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_MONITOR_MANAGER))
 #define META_MONITOR_MANAGER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_MONITOR_MANAGER, MetaMonitorManagerClass))
+
+typedef struct _MetaDBusDisplayConfig MetaDBusDisplayConfig;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorManager, g_object_unref)
 
@@ -197,7 +197,7 @@ struct _MetaMonitorManager
  */
 struct _MetaMonitorManagerClass
 {
-  MetaDBusDisplayConfigSkeletonClass parent_class;
+  GObjectClass parent_class;
 
   GBytes * (* read_edid) (MetaMonitorManager *manager,
                           MetaOutput         *output);
