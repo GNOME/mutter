@@ -32,6 +32,8 @@ typedef enum _MetaDeviceFileFlags
 
 typedef enum _MetaDeviceFileTags
 {
+  META_DEVICE_FILE_TAG_KMS,
+
   META_DEVICE_FILE_N_TAGS,
 } MetaDeviceFileTags;
 

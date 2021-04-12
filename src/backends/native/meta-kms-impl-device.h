@@ -87,6 +87,12 @@ enum
   META_KMS_ERROR_NOT_SUPPORTED,
 };
 
+enum
+{
+  META_KMS_DEVICE_FILE_TAG_ATOMIC = 1 << 0,
+  META_KMS_DEVICE_FILE_TAG_SIMPLE = 1 << 1,
+};
+
 #define META_KMS_ERROR meta_kms_error_quark ()
 GQuark meta_kms_error_quark (void);
 
@@ -124,10 +130,16 @@ drmModePropertyPtr meta_kms_impl_device_find_property (MetaKmsImplDevice       *
 
 int meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device);
 
+void meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device);
+
+void meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device);
+
 void meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device);
 
 void meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                                           MetaKmsUpdate     *update);
+
+void meta_kms_impl_device_notify_modes_set (MetaKmsImplDevice *impl_device);
 
 MetaKmsPlane * meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_device,
                                                     MetaKmsPlaneType   plane_type,

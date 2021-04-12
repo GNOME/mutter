@@ -345,6 +345,24 @@ meta_kms_discard_pending_page_flips (MetaKms *kms)
                                NULL);
 }
 
+static gpointer
+meta_kms_notify_modes_set_in_impl (MetaKmsImpl  *impl,
+                                   gpointer      user_data,
+                                   GError      **error)
+{
+  meta_kms_impl_notify_modes_set (impl);
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_kms_notify_modes_set (MetaKms *kms)
+{
+  meta_kms_run_impl_task_sync (kms,
+                               meta_kms_notify_modes_set_in_impl,
+                               NULL,
+                               NULL);
+}
+
 static void
 meta_kms_callback_data_free (MetaKmsCallbackData *callback_data)
 {

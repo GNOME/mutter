@@ -602,6 +602,8 @@ process_page_flip_listener (MetaKmsImplDevice  *impl_device,
                            GUINT_TO_POINTER (crtc_id),
                            page_flip_data);
 
+      meta_kms_impl_device_hold_fd (impl_device);
+
       meta_topic (META_DEBUG_KMS,
                   "[atomic] Adding page flip data for (%u, %s): %p",
                   crtc_id,
@@ -708,6 +710,8 @@ atomic_page_flip_handler (int           fd,
 
   if (!page_flip_data)
     return;
+
+  meta_kms_impl_device_unhold_fd (impl_device);
 
   meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
                                                sequence, tv_sec, tv_usec);
@@ -1014,8 +1018,10 @@ dispose_page_flip_data (gpointer key,
                         gpointer user_data)
 {
   MetaKmsPageFlipData *page_flip_data = value;
+  MetaKmsImplDevice *impl_device = user_data;
 
   meta_kms_page_flip_data_discard_in_impl (page_flip_data, NULL);
+  meta_kms_impl_device_unhold_fd (impl_device);
 
   return TRUE;
 }
@@ -1028,7 +1034,7 @@ meta_kms_impl_device_atomic_prepare_shutdown (MetaKmsImplDevice *impl_device)
 
   g_hash_table_foreach_remove (impl_device_atomic->page_flip_datas,
                                dispose_page_flip_data,
-                               NULL);
+                               impl_device);
 }
 
 static void
@@ -1055,7 +1061,6 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
   g_autoptr (MetaDeviceFile) device_file = NULL;
-  int fd;
 
   device_file = meta_device_pool_open (device_pool, path,
                                        META_DEVICE_FILE_FLAG_TAKE_CONTROL,
@@ -1063,20 +1068,33 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
   if (!device_file)
     return NULL;
 
-  fd = meta_device_file_get_fd (device_file);
-
-  if (drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1) != 0)
+  if (!meta_device_file_has_tag (device_file,
+                                 META_DEVICE_FILE_TAG_KMS,
+                                 META_KMS_DEVICE_FILE_TAG_ATOMIC))
     {
-      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
-                   "DRM_CLIENT_CAP_UNIVERSAL_PLANES not supported");
-      return NULL;
-    }
+      int fd = meta_device_file_get_fd (device_file);
 
-  if (drmSetClientCap (fd, DRM_CLIENT_CAP_ATOMIC, 1) != 0)
-    {
-      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
-                   "DRM_CLIENT_CAP_ATOMIC not supported");
-      return NULL;
+      g_warn_if_fail (!meta_device_file_has_tag (device_file,
+                                                 META_DEVICE_FILE_TAG_KMS,
+                                                 META_KMS_DEVICE_FILE_TAG_SIMPLE));
+
+      if (drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1) != 0)
+        {
+          g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                       "DRM_CLIENT_CAP_UNIVERSAL_PLANES not supported");
+          return NULL;
+        }
+
+      if (drmSetClientCap (fd, DRM_CLIENT_CAP_ATOMIC, 1) != 0)
+        {
+          g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                       "DRM_CLIENT_CAP_ATOMIC not supported");
+          return NULL;
+        }
+
+      meta_device_file_tag (device_file,
+                            META_DEVICE_FILE_TAG_KMS,
+                            META_KMS_DEVICE_FILE_TAG_ATOMIC);
     }
 
   return g_steal_pointer (&device_file);

@@ -36,7 +36,7 @@
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
-#include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-kms-update-private.h"
 
 #include "meta-default-modes.h"
 #include "meta-private-enum-types.h"
@@ -60,10 +60,12 @@ typedef struct _MetaKmsImplDevicePrivate
   MetaKmsDevice *device;
   MetaKmsImpl *impl;
 
+  int fd_hold_count;
   MetaDeviceFile *device_file;
   GSource *fd_source;
   char *path;
   MetaKmsDeviceFlag flags;
+  gboolean has_latched_fd_hold;
 
   char *driver_name;
   char *driver_description;
@@ -619,11 +621,81 @@ init_fallback_modes (MetaKmsImplDevice *impl_device)
   priv->fallback_modes = g_list_reverse (modes);
 }
 
+static MetaDeviceFile *
+meta_kms_impl_device_open_device_file (MetaKmsImplDevice  *impl_device,
+                                       const char         *path,
+                                       GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  return klass->open_device_file (impl_device, priv->path, error);
+}
+
+static gboolean
+ensure_device_file (MetaKmsImplDevice  *impl_device,
+                    GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaDeviceFile *device_file;
+
+  if (priv->device_file)
+    return TRUE;
+
+  device_file = meta_kms_impl_device_open_device_file (impl_device,
+                                                       priv->path,
+                                                       error);
+  if (!device_file)
+    return FALSE;
+
+  priv->device_file = device_file;
+
+  if (!(priv->flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
+    {
+      priv->fd_source =
+        meta_kms_register_fd_in_impl (meta_kms_impl_get_kms (priv->impl),
+                                      meta_device_file_get_fd (device_file),
+                                      kms_event_dispatch_in_impl,
+                                      impl_device);
+    }
+
+  return TRUE;
+}
+
+static void
+ensure_latched_fd_hold (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (!priv->has_latched_fd_hold)
+    {
+      meta_kms_impl_device_hold_fd (impl_device);
+      priv->has_latched_fd_hold = TRUE;
+    }
+}
+
+static void
+clear_latched_fd_hold (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (priv->has_latched_fd_hold)
+    {
+      meta_kms_impl_device_unhold_fd (impl_device);
+      priv->has_latched_fd_hold = FALSE;
+    }
+}
+
 void
 meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  g_autoptr (GError) error = NULL;
   int fd;
   drmModeRes *drm_resources;
 
@@ -631,17 +703,21 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 
   meta_topic (META_DEBUG_KMS, "Updating device state for %s", priv->path);
 
+  if (!ensure_device_file (impl_device, &error))
+    {
+      g_warning ("Failed to reopen '%s': %s", priv->path, error->message);
+      goto err;
+    }
+
+  ensure_latched_fd_hold (impl_device);
+
   fd = meta_device_file_get_fd (priv->device_file);
   drm_resources = drmModeGetResources (fd);
   if (!drm_resources)
     {
-      g_list_free_full (priv->planes, g_object_unref);
-      g_list_free_full (priv->crtcs, g_object_unref);
-      g_list_free_full (priv->connectors, g_object_unref);
-      priv->planes = NULL;
-      priv->crtcs = NULL;
-      priv->connectors = NULL;
-      return;
+      meta_topic (META_DEBUG_KMS, "Device '%s' didn't return any resources",
+                  priv->path);
+      goto err;
     }
 
   update_connectors (impl_device, drm_resources);
@@ -651,6 +727,13 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
   g_list_foreach (priv->connectors, (GFunc) meta_kms_connector_update_state,
                   drm_resources);
   drmModeFreeResources (drm_resources);
+
+  return;
+
+err:
+  g_clear_list (&priv->planes, g_object_unref);
+  g_clear_list (&priv->crtcs, g_object_unref);
+  g_clear_list (&priv->connectors, g_object_unref);
 }
 
 void
@@ -664,6 +747,12 @@ meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                   update);
   g_list_foreach (priv->connectors, (GFunc) meta_kms_connector_predict_state,
                   update);
+}
+
+void
+meta_kms_impl_device_notify_modes_set (MetaKmsImplDevice *impl_device)
+{
+  clear_latched_fd_hold (impl_device);
 }
 
 int
@@ -683,8 +772,17 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                      MetaKmsUpdateFlag  flags)
 {
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+  MetaKmsFeedback *feedback;
+  g_autoptr (GError) error = NULL;
 
-  return klass->process_update (impl_device, update, flags);
+  if (!ensure_device_file (impl_device, &error))
+    return meta_kms_feedback_new_failed (NULL, g_steal_pointer (&error));
+
+  meta_kms_impl_device_hold_fd (impl_device);
+  feedback = klass->process_update (impl_device, update, flags);
+  meta_kms_impl_device_unhold_fd (impl_device);
+
+  return feedback;
 }
 
 void
@@ -702,6 +800,44 @@ meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
 
   klass->discard_pending_page_flips (impl_device);
+}
+
+void
+meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (priv->device);
+
+  meta_assert_in_kms_impl (kms);
+
+  g_assert (priv->device_file);
+
+  priv->fd_hold_count++;
+}
+
+void
+meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (priv->device);
+
+  meta_assert_in_kms_impl (kms);
+
+  g_return_if_fail (priv->fd_hold_count > 0);
+
+  priv->fd_hold_count--;
+  if (priv->fd_hold_count == 0)
+    {
+      g_clear_pointer (&priv->device_file, meta_device_file_release);
+
+      if (priv->fd_source)
+        {
+          g_source_destroy (priv->fd_source);
+          g_clear_pointer (&priv->fd_source, g_source_unref);
+        }
+    }
 }
 
 static void
@@ -776,7 +912,8 @@ meta_kms_impl_device_finalize (GObject *object)
   g_list_free_full (priv->fallback_modes,
                     (GDestroyNotify) meta_kms_mode_free);
 
-  g_clear_pointer (&priv->device_file, meta_device_file_release);
+  clear_latched_fd_hold (impl_device);
+  g_warn_if_fail (!priv->device_file);
 
   g_free (priv->driver_name);
   g_free (priv->driver_description);
@@ -815,12 +952,6 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
   update_connectors (impl_device, drm_resources);
 
   drmModeFreeResources (drm_resources);
-
-  priv->fd_source =
-    meta_kms_register_fd_in_impl (meta_kms_impl_get_kms (priv->impl),
-                                  fd,
-                                  kms_event_dispatch_in_impl,
-                                  impl_device);
 
   return TRUE;
 }
@@ -862,12 +993,12 @@ meta_kms_impl_device_initable_init (GInitable     *initable,
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
-  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
   int fd;
 
-  priv->device_file = klass->open_device_file (impl_device, priv->path, error);
-  if (!priv->device_file)
+  if (!ensure_device_file (impl_device, error))
     return FALSE;
+
+  ensure_latched_fd_hold (impl_device);
 
   g_clear_pointer (&priv->path, g_free);
   priv->path = g_strdup (meta_device_file_get_path (priv->device_file));

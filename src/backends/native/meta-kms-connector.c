@@ -52,6 +52,8 @@ struct _MetaKmsConnector
 
   uint32_t edid_blob_id;
   uint32_t tile_blob_id;
+
+  gboolean fd_held;
 };
 
 G_DEFINE_TYPE (MetaKmsConnector, meta_kms_connector, G_TYPE_OBJECT)
@@ -126,6 +128,25 @@ meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector)
     connector->prop_table.props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
 
   return underscan_prop_id != 0;
+}
+
+static void
+sync_fd_held (MetaKmsConnector  *connector,
+              MetaKmsImplDevice *impl_device)
+{
+  gboolean should_hold_fd;
+
+  should_hold_fd = connector->current_state->current_crtc_id != 0;
+
+  if (connector->fd_held == should_hold_fd)
+    return;
+
+  if (should_hold_fd)
+    meta_kms_impl_device_hold_fd (impl_device);
+  else
+    meta_kms_impl_device_unhold_fd (impl_device);
+
+  connector->fd_held = should_hold_fd;
 }
 
 static void
@@ -475,6 +496,8 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   state_set_crtc_state (state, drm_connector, impl_device, drm_resources);
 
   connector->current_state = state;
+
+  sync_fd_held (connector, impl_device);
 }
 
 void
@@ -498,6 +521,7 @@ void
 meta_kms_connector_predict_state (MetaKmsConnector *connector,
                                   MetaKmsUpdate    *update)
 {
+  MetaKmsImplDevice *impl_device;
   MetaKmsConnectorState *current_state;
   GList *mode_sets;
   GList *l;
@@ -527,6 +551,9 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
             }
         }
     }
+
+  impl_device = meta_kms_device_get_impl_device (connector->device);
+  sync_fd_held (connector, impl_device);
 }
 
 static void
@@ -644,6 +671,14 @@ static void
 meta_kms_connector_finalize (GObject *object)
 {
   MetaKmsConnector *connector = META_KMS_CONNECTOR (object);
+
+  if (connector->fd_held)
+    {
+      MetaKmsImplDevice *impl_device;
+
+      impl_device = meta_kms_device_get_impl_device (connector->device);
+      meta_kms_impl_device_unhold_fd (impl_device);
+    }
 
   g_clear_pointer (&connector->current_state, meta_kms_connector_state_free);
   g_free (connector->name);

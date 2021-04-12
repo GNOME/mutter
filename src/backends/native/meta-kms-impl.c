@@ -119,6 +119,16 @@ meta_kms_impl_prepare_shutdown (MetaKmsImpl *impl)
     }
 }
 
+void
+meta_kms_impl_notify_modes_set (MetaKmsImpl *impl)
+{
+  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
+
+  g_list_foreach (priv->impl_devices,
+                  (GFunc) meta_kms_impl_device_notify_modes_set,
+                  NULL);
+}
+
 MetaKmsImpl *
 meta_kms_impl_new (MetaKms *kms)
 {
