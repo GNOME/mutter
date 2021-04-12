@@ -48,9 +48,11 @@
 
 #include "backends/meta-gles3.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-virtual.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-onscreen-native.h"
@@ -127,6 +129,7 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
     meta_egl_terminate (egl, renderer_gpu_data->egl_display, NULL);
 
   g_clear_pointer (&renderer_gpu_data->gbm.device, gbm_device_destroy);
+  g_clear_pointer (&renderer_gpu_data->device_file, meta_device_file_release);
   g_free (renderer_gpu_data);
 }
 
@@ -1473,17 +1476,14 @@ init_gbm_egl_display (MetaRendererNative  *renderer_native,
 
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
-                              MetaGpuKms          *gpu_kms,
+                              MetaDeviceFile      *device_file,
                               GError             **error)
 {
   struct gbm_device *gbm_device;
-  int kms_fd;
   MetaRendererNativeGpuData *renderer_gpu_data;
   g_autoptr (GError) local_error = NULL;
 
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  gbm_device = gbm_create_device (kms_fd);
+  gbm_device = gbm_create_device (meta_device_file_get_fd (device_file));
   if (!gbm_device)
     {
       g_set_error (error, G_IO_ERROR,
@@ -1493,6 +1493,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
     }
 
   renderer_gpu_data = meta_create_renderer_native_gpu_data ();
+  renderer_gpu_data->device_file = meta_device_file_acquire (device_file);
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
@@ -1503,7 +1504,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   if (renderer_gpu_data->egl_display == EGL_NO_DISPLAY)
     {
       g_debug ("GBM EGL init for %s failed: %s",
-               meta_gpu_kms_get_file_path (gpu_kms),
+               meta_device_file_get_path (device_file),
                local_error->message);
 
       init_secondary_gpu_data_cpu (renderer_gpu_data);
@@ -1597,7 +1598,7 @@ get_drm_device_file (MetaEgl     *egl,
 
 static EGLDeviceEXT
 find_egl_device (MetaRendererNative  *renderer_native,
-                 MetaGpuKms          *gpu_kms,
+                 MetaDeviceFile      *device_file,
                  GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
@@ -1637,7 +1638,7 @@ find_egl_device (MetaRendererNative  *renderer_native,
       return EGL_NO_DEVICE_EXT;
     }
 
-  kms_file_path = meta_gpu_kms_get_file_path (gpu_kms);
+  kms_file_path = meta_device_file_get_path (device_file);
 
   device = EGL_NO_DEVICE_EXT;
   for (i = 0; i < num_devices; i++)
@@ -1672,12 +1673,12 @@ find_egl_device (MetaRendererNative  *renderer_native,
 
 static EGLDisplay
 get_egl_device_display (MetaRendererNative  *renderer_native,
-                        MetaGpuKms          *gpu_kms,
+                        MetaDeviceFile      *device_file,
                         EGLDeviceEXT         egl_device,
                         GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  int kms_fd = meta_device_file_get_fd (device_file);
   EGLint platform_attribs[] = {
     EGL_DRM_MASTER_FD_EXT, kms_fd,
     EGL_NONE
@@ -1700,7 +1701,7 @@ count_drm_devices (MetaRendererNative *renderer_native)
 
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
-                                     MetaGpuKms          *gpu_kms,
+                                     MetaDeviceFile      *device_file,
                                      GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
@@ -1717,11 +1718,11 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
       return NULL;
     }
 
-  egl_device = find_egl_device (renderer_native, gpu_kms, error);
+  egl_device = find_egl_device (renderer_native, device_file, error);
   if (egl_device == EGL_NO_DEVICE_EXT)
     return NULL;
 
-  egl_display = get_egl_device_display (renderer_native, gpu_kms,
+  egl_display = get_egl_device_display (renderer_native, device_file,
                                         egl_device, error);
   if (egl_display == EGL_NO_DISPLAY)
     return NULL;
@@ -1755,6 +1756,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
     }
 
   renderer_gpu_data = meta_create_renderer_native_gpu_data ();
+  renderer_gpu_data->device_file = meta_device_file_acquire (device_file);
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->egl.device = egl_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
@@ -1769,7 +1771,13 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
                                                MetaGpuKms          *gpu_kms,
                                                GError             **error)
 {
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
   MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaDeviceFileFlags device_file_flags = META_DEVICE_FILE_FLAG_NONE;
+  g_autoptr (MetaDeviceFile) device_file = NULL;
   GError *gbm_error = NULL;
 #ifdef HAVE_EGL_DEVICE
   GError *egl_device_error = NULL;
@@ -1778,6 +1786,17 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   if (!gpu_kms)
     return create_renderer_gpu_data_surfaceless (renderer_native, error);
 
+  if (!(meta_kms_device_get_flags (meta_gpu_kms_get_kms_device (gpu_kms)) &
+        META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
+    device_file_flags = META_DEVICE_FILE_FLAG_TAKE_CONTROL;
+
+  device_file = meta_device_pool_open (device_pool,
+                                       meta_gpu_kms_get_file_path (gpu_kms),
+                                       device_file_flags,
+                                       error);
+  if (!device_file)
+    return NULL;
+
 #ifdef HAVE_EGL_DEVICE
   /* Try to initialize the EGLDevice backend first. Whenever we use a
    * non-NVIDIA GPU, the EGLDevice enumeration function won't find a match, and
@@ -1785,14 +1804,14 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
    * rendering fallback)
    */
   renderer_gpu_data = create_renderer_gpu_data_egl_device (renderer_native,
-                                                           gpu_kms,
+                                                           device_file,
                                                            &egl_device_error);
   if (renderer_gpu_data)
     return renderer_gpu_data;
 #endif
 
   renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
-                                                    gpu_kms,
+                                                    device_file,
                                                     &gbm_error);
   if (renderer_gpu_data)
     {

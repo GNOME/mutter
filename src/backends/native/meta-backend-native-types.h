@@ -30,6 +30,7 @@ typedef struct _MetaGpuKms MetaGpuKms;
 typedef struct _MetaCrtcVirtual MetaCrtcVirtual;
 typedef struct _MetaCrtcModeVirtual MetaCrtcModeVirtual;
 typedef struct _MetaDevicePool MetaDevicePool;
+typedef struct _MetaDeviceFile MetaDeviceFile;
 
 typedef enum _MetaSeatNativeFlag
 {
