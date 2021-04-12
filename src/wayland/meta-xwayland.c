@@ -574,6 +574,16 @@ xserver_died (GObject      *source,
     }
 }
 
+static void
+meta_xwayland_terminate (MetaXWaylandManager *manager)
+{
+  MetaDisplay *display = meta_get_display ();
+
+  g_clear_handle_id (&manager->xserver_grace_period_id, g_source_remove);
+  meta_display_shutdown_x11 (display);
+  meta_xwayland_stop_xserver (manager);
+}
+
 static gboolean
 shutdown_xwayland_cb (gpointer data)
 {
@@ -591,8 +601,7 @@ shutdown_xwayland_cb (gpointer data)
 
   meta_verbose ("Shutting down Xwayland");
   manager->xserver_grace_period_id = 0;
-  meta_display_shutdown_x11 (display);
-  meta_xwayland_stop_xserver (manager);
+  meta_xwayland_terminate (manager);
   return G_SOURCE_REMOVE;
 }
 
@@ -1289,7 +1298,7 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
                           x_io_error_exit_noop, NULL);
 #endif
 
-  meta_display_shutdown_x11 (meta_get_display ());
+  meta_xwayland_terminate (manager);
 
   snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
             manager->public_connection.display_index);
