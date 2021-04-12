@@ -595,6 +595,8 @@ meta_wayland_finalize (void)
   if (compositor->wayland_display)
     wl_display_destroy_clients (compositor->wayland_display);
 
+  meta_wayland_seat_free (compositor->seat);
+
   g_clear_pointer (&compositor->display_name, g_free);
   g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
 }
