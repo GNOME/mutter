@@ -54,6 +54,8 @@ struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
 
 MetaGpuKms * meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native);
 
+MetaDeviceFile * meta_renderer_native_get_primary_device_file (MetaRendererNative *renderer_native);
+
 void meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
                                          MetaRendererView   *view,
                                          ClutterFrame       *frame);

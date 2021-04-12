@@ -28,10 +28,8 @@
 
 #include <drm_fourcc.h>
 
-#include "backends/native/meta-kms-device-private.h"
-#include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-kms-utils.h"
-#include "backends/native/meta-kms-private.h"
 
 #define INVALID_FB_ID 0U
 
@@ -39,7 +37,7 @@ enum
 {
   PROP_0,
 
-  PROP_DEVICE,
+  PROP_DEVICE_FILE,
 
   N_PROPS
 };
@@ -48,35 +46,33 @@ static GParamSpec *obj_props[N_PROPS];
 
 typedef struct _MetaDrmBufferPrivate
 {
-  MetaKmsDevice *device;
+  MetaDeviceFile *device_file;
   uint32_t fb_id;
 } MetaDrmBufferPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaDrmBuffer, meta_drm_buffer,
                                      G_TYPE_OBJECT)
 
-MetaKmsDevice *
-meta_drm_buffer_get_device (MetaDrmBuffer *buffer)
+MetaDeviceFile *
+meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
 
-  return priv->device;
+  return priv->device_file;
 }
 
 gboolean
-meta_drm_buffer_ensure_fb_in_impl (MetaDrmBuffer        *buffer,
-                                   gboolean              use_modifiers,
-                                   const MetaDrmFbArgs  *fb_args,
-                                   GError              **error)
+meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
+                              gboolean              use_modifiers,
+                              const MetaDrmFbArgs  *fb_args,
+                              GError              **error)
 {
   MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
-  MetaKmsDevice *device = priv->device;
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   int fd;
   MetaDrmFormatBuf tmp;
   uint32_t fb_id;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
+  fd = meta_device_file_get_fd (priv->device_file);
 
   if (use_modifiers && fb_args->modifiers[0] != DRM_FORMAT_MOD_INVALID)
     {
@@ -139,98 +135,21 @@ meta_drm_buffer_ensure_fb_in_impl (MetaDrmBuffer        *buffer,
     }
 
   priv->fb_id = fb_id;
-
   return TRUE;
-}
-
-typedef struct
-{
-  MetaDrmBuffer *buffer;
-  gboolean use_modifiers;
-  MetaDrmFbArgs fb_args;
-} AddFbData;
-
-static gpointer
-add_fb_in_impl (MetaKmsImpl  *impl,
-                gpointer      user_data,
-                GError      **error)
-{
-  AddFbData *data = user_data;
-
-  if (meta_drm_buffer_ensure_fb_in_impl (data->buffer,
-                                         data->use_modifiers,
-                                         &data->fb_args,
-                                         error))
-    return GINT_TO_POINTER (TRUE);
-  else
-    return GINT_TO_POINTER (FALSE);
-}
-
-gboolean
-meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
-                              gboolean              use_modifiers,
-                              const MetaDrmFbArgs  *fb_args,
-                              GError              **error)
-{
-  MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
-  AddFbData data;
-
-  data = (AddFbData) {
-    .buffer = buffer,
-    .use_modifiers = use_modifiers,
-    .fb_args = *fb_args,
-  };
-
-  if (!meta_kms_run_impl_task_sync (meta_kms_device_get_kms (priv->device),
-                                    add_fb_in_impl,
-                                    &data,
-                                    error))
-    return FALSE;
-
-  return TRUE;
-}
-
-typedef struct
-{
-  MetaKmsDevice *device;
-  uint32_t fb_id;
-} RmFbData;
-
-static gpointer
-rm_fb_in_impl (MetaKmsImpl  *impl,
-               gpointer      user_data,
-               GError      **error)
-{
-  RmFbData *data = user_data;
-  MetaKmsDevice *device = data->device;
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
-  uint32_t fb_id = data->fb_id;
-  int fd;
-  int ret;
-
-  fd = meta_kms_impl_device_get_fd (impl_device);
-  ret = drmModeRmFB (fd, fb_id);
-  if (ret != 0)
-    g_warning ("drmModeRmFB: %s", g_strerror (-ret));
-
-  return GINT_TO_POINTER (TRUE);
 }
 
 static void
 meta_drm_buffer_release_fb_id (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
-  RmFbData data;
+  int fd;
+  int ret;
 
-  data = (RmFbData) {
-    .device = priv->device,
-    .fb_id = priv->fb_id,
-  };
+  fd = meta_device_file_get_fd (priv->device_file);
+  ret = drmModeRmFB (fd, priv->fb_id);
+  if (ret != 0)
+    g_warning ("drmModeRmFB: %s", g_strerror (-ret));
 
-  meta_kms_run_impl_task_sync (meta_kms_device_get_kms (priv->device),
-                               rm_fb_in_impl,
-                               &data,
-                               NULL);
   priv->fb_id = 0;
 }
 
@@ -277,8 +196,8 @@ meta_drm_buffer_get_property (GObject    *object,
 
   switch (prop_id)
     {
-    case PROP_DEVICE:
-      g_value_set_object (value, priv->device);
+    case PROP_DEVICE_FILE:
+      g_value_set_pointer (value, priv->device_file);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -297,8 +216,8 @@ meta_drm_buffer_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_DEVICE:
-      priv->device = g_value_get_object (value);
+    case PROP_DEVICE_FILE:
+      priv->device_file = g_value_get_pointer (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -314,8 +233,20 @@ meta_drm_buffer_finalize (GObject *object)
 
   if (priv->fb_id != INVALID_FB_ID)
     meta_drm_buffer_release_fb_id (buffer);
+  meta_device_file_release (priv->device_file);
 
   G_OBJECT_CLASS (meta_drm_buffer_parent_class)->finalize (object);
+}
+
+static void
+meta_drm_buffer_constructed (GObject *object)
+{
+  MetaDrmBuffer *buffer = META_DRM_BUFFER (object);
+  MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
+
+  meta_device_file_acquire (priv->device_file);
+
+  G_OBJECT_CLASS (meta_drm_buffer_parent_class)->constructed (object);
 }
 
 static void
@@ -330,15 +261,15 @@ meta_drm_buffer_class_init (MetaDrmBufferClass *klass)
 
   object_class->get_property = meta_drm_buffer_get_property;
   object_class->set_property = meta_drm_buffer_set_property;
+  object_class->constructed = meta_drm_buffer_constructed;
   object_class->finalize = meta_drm_buffer_finalize;
 
-  obj_props[PROP_DEVICE] =
-    g_param_spec_object ("device",
-                         "device",
-                         "MetaKmsDevice",
-                         META_TYPE_KMS_DEVICE,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEVICE_FILE] =
+    g_param_spec_pointer ("device-file",
+                          "device file",
+                          "MetaDeviceFile",
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

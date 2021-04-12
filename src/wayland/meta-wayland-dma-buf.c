@@ -273,8 +273,8 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaDeviceFile *device_file;
   MetaGpuKms *gpu_kms;
-  MetaKmsDevice *kms_device;
   int n_planes;
   uint32_t drm_format;
   uint64_t drm_modifier;
@@ -299,8 +299,8 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
                                                           stride))
     return NULL;
 
+  device_file = meta_renderer_native_get_primary_device_file (renderer_native);
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
-  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   gbm_bo = import_scanout_gbm_bo (dma_buf, gpu_kms, n_planes, &use_modifier);
   if (!gbm_bo)
     {
@@ -308,7 +308,8 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
       return NULL;
     }
 
-  fb = meta_drm_buffer_gbm_new_take (kms_device, gbm_bo,
+  fb = meta_drm_buffer_gbm_new_take (device_file,
+                                     gbm_bo,
                                      use_modifier,
                                      &error);
   if (!fb)

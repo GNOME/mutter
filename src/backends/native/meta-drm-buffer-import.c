@@ -158,7 +158,7 @@ out_close:
 }
 
 MetaDrmBufferImport *
-meta_drm_buffer_import_new (MetaKmsDevice      *device,
+meta_drm_buffer_import_new (MetaDeviceFile     *device_file,
                             struct gbm_device  *gbm_device,
                             MetaDrmBufferGbm   *buffer_gbm,
                             GError            **error)
@@ -166,7 +166,7 @@ meta_drm_buffer_import_new (MetaKmsDevice      *device,
   MetaDrmBufferImport *buffer_import;
 
   buffer_import = g_object_new (META_TYPE_DRM_BUFFER_IMPORT,
-                                "device", device,
+                                "device-file", device_file,
                                 NULL);
   g_set_object (&buffer_import->importee, buffer_gbm);
 

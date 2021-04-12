@@ -166,6 +166,17 @@ meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native)
   return renderer_native->primary_gpu_kms;
 }
 
+MetaDeviceFile *
+meta_renderer_native_get_primary_device_file (MetaRendererNative *renderer_native)
+{
+  MetaGpuKms *gpu_kms = renderer_native->primary_gpu_kms;
+  MetaRendererNativeGpuData *renderer_gpu_data;
+
+  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
+                                                         gpu_kms);
+  return renderer_gpu_data->device_file;
+}
+
 static MetaRendererNativeGpuData *
 meta_create_renderer_native_gpu_data (void)
 {

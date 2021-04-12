@@ -22,8 +22,8 @@
 #ifndef META_DRM_BUFFER_DUMB_H
 #define META_DRM_BUFFER_DUMB_H
 
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer-private.h"
-#include "backends/native/meta-kms-device.h"
 
 #define META_TYPE_DRM_BUFFER_DUMB (meta_drm_buffer_dumb_get_type ())
 G_DECLARE_FINAL_TYPE (MetaDrmBufferDumb,
@@ -31,11 +31,11 @@ G_DECLARE_FINAL_TYPE (MetaDrmBufferDumb,
                       META, DRM_BUFFER_DUMB,
                       MetaDrmBuffer)
 
-MetaDrmBufferDumb * meta_drm_buffer_dumb_new (MetaKmsDevice  *device,
-                                              int             width,
-                                              int             height,
-                                              uint32_t        format,
-                                              GError        **error);
+MetaDrmBufferDumb * meta_drm_buffer_dumb_new (MetaDeviceFile  *device,
+                                              int              width,
+                                              int              height,
+                                              uint32_t         format,
+                                              GError         **error);
 
 int meta_drm_buffer_dumb_ensure_dmabuf_fd (MetaDrmBufferDumb  *buffer_dumb,
                                            GError            **error);

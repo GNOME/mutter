@@ -47,7 +47,7 @@ G_DECLARE_FINAL_TYPE (MetaDrmBufferImport,
  * The import has a high chance of failing under normal operating
  * conditions and needs to be handled with fallbacks to something else.
  */
-MetaDrmBufferImport * meta_drm_buffer_import_new (MetaKmsDevice      *device,
+MetaDrmBufferImport * meta_drm_buffer_import_new (MetaDeviceFile     *device_file,
                                                   struct gbm_device  *gbm_device,
                                                   MetaDrmBufferGbm   *buffer_gbm,
                                                   GError            **error);

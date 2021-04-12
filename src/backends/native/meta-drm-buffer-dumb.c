@@ -25,13 +25,12 @@
 
 #include "backends/native/meta-drm-buffer-dumb.h"
 
+#include <gio/gio.h>
 #include <xf86drm.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#include "backends/native/meta-kms-device-private.h"
-#include "backends/native/meta-kms-impl-device.h"
-#include "backends/native/meta-kms-private.h"
+#include "backends/native/meta-device-pool.h"
 
 struct _MetaDrmBufferDumb
 {
@@ -81,28 +80,18 @@ meta_drm_buffer_dumb_get_format (MetaDrmBuffer *buffer)
   return buffer_dumb->drm_format;
 }
 
-typedef struct
+static int
+handle_to_dmabuf_fd (MetaDrmBufferDumb  *buffer_dumb,
+                     GError            **error)
 {
-  MetaDrmBufferDumb *buffer_dumb;
-
-  int out_dmabuf_fd;
-} HandleToFdData;
-
-static gpointer
-handle_to_fd_in_impl (MetaKmsImpl  *impl,
-                      gpointer      user_data,
-                      GError      **error)
-{
-  HandleToFdData *data = user_data;
-  MetaDrmBufferDumb *buffer_dumb = data->buffer_dumb;
   MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_dumb);
-  MetaKmsDevice *device = meta_drm_buffer_get_device (buffer);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaDeviceFile *device_file;
   int fd;
   int ret;
   int dmabuf_fd;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
+  device_file = meta_drm_buffer_get_device_file (buffer);
+  fd = meta_device_file_get_fd (device_file);
 
   ret = drmPrimeHandleToFD (fd, buffer_dumb->handle, DRM_CLOEXEC,
                             &dmabuf_fd);
@@ -110,36 +99,20 @@ handle_to_fd_in_impl (MetaKmsImpl  *impl,
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
                    "drmPrimeHandleToFd: %s", g_strerror (-ret));
-      return GINT_TO_POINTER (FALSE);
+      return -1;
     }
 
-  data->out_dmabuf_fd = dmabuf_fd;
-
-  return GINT_TO_POINTER (TRUE);
+  return dmabuf_fd;
 }
 
 int
 meta_drm_buffer_dumb_ensure_dmabuf_fd (MetaDrmBufferDumb  *buffer_dumb,
                                        GError            **error)
 {
-  MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_dumb);
-  MetaKmsDevice *device = meta_drm_buffer_get_device (buffer);
-  HandleToFdData data;
-
   if (buffer_dumb->dmabuf_fd != -1)
     return buffer_dumb->dmabuf_fd;
 
-  data = (HandleToFdData) {
-    .buffer_dumb = buffer_dumb,
-  };
-
-  if (!meta_kms_run_impl_task_sync (meta_kms_device_get_kms (device),
-                                   handle_to_fd_in_impl,
-                                   &data,
-                                   error))
-    return -1;
-
-  buffer_dumb->dmabuf_fd = data.out_dmabuf_fd;
+  buffer_dumb->dmabuf_fd = handle_to_dmabuf_fd (buffer_dumb, error);
   return buffer_dumb->dmabuf_fd;
 }
 
@@ -149,24 +122,15 @@ meta_drm_buffer_dumb_get_data (MetaDrmBufferDumb *buffer_dumb)
   return buffer_dumb->map;
 }
 
-typedef struct
+static gboolean
+init_dumb_buffer (MetaDrmBufferDumb  *buffer_dumb,
+                  int                 width,
+                  int                 height,
+                  uint32_t            format,
+                  GError            **error)
 {
-  MetaDrmBufferDumb *buffer_dumb;
-  int width;
-  int height;
-  uint32_t format;
-} InitDumbData;
-
-static gpointer
-init_dumb_buffer_in_impl (MetaKmsImpl  *impl,
-                          gpointer      user_data,
-                          GError      **error)
-{
-  InitDumbData *data = user_data;
-  MetaDrmBufferDumb *buffer_dumb = data->buffer_dumb;
   MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_dumb);
-  MetaKmsDevice *device = meta_drm_buffer_get_device (buffer);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaDeviceFile *device_file;
   int fd;
   struct drm_mode_create_dumb create_arg;
   struct drm_mode_destroy_dumb destroy_arg;
@@ -174,12 +138,13 @@ init_dumb_buffer_in_impl (MetaKmsImpl  *impl,
   void *map;
   MetaDrmFbArgs fb_args;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
+  device_file = meta_drm_buffer_get_device_file (buffer);
+  fd = meta_device_file_get_fd (device_file);
 
   create_arg = (struct drm_mode_create_dumb) {
     .bpp = 32, /* RGBX8888 */
-    .width = data->width,
-    .height = data->height
+    .width = width,
+    .height = height
   };
   if (drmIoctl (fd, DRM_IOCTL_MODE_CREATE_DUMB, &create_arg) != 0)
     {
@@ -191,9 +156,9 @@ init_dumb_buffer_in_impl (MetaKmsImpl  *impl,
     }
 
   fb_args = (MetaDrmFbArgs) {
-    .width = data->width,
-    .height = data->height,
-    .format = data->format,
+    .width = width,
+    .height = height,
+    .format = format,
     .handles = { create_arg.handle },
     .strides = { create_arg.pitch },
   };
@@ -227,10 +192,10 @@ init_dumb_buffer_in_impl (MetaKmsImpl  *impl,
   buffer_dumb->handle = create_arg.handle;
   buffer_dumb->map = map;
   buffer_dumb->map_size = create_arg.size;
-  buffer_dumb->width = data->width;
-  buffer_dumb->height = data->height;
+  buffer_dumb->width = width;
+  buffer_dumb->height = height;
   buffer_dumb->stride_bytes = create_arg.pitch;
-  buffer_dumb->drm_format = data->format;
+  buffer_dumb->drm_format = format;
 
   return FALSE;
 
@@ -247,30 +212,19 @@ err_ioctl:
 }
 
 MetaDrmBufferDumb *
-meta_drm_buffer_dumb_new (MetaKmsDevice  *device,
-                          int             width,
-                          int             height,
-                          uint32_t        format,
-                          GError        **error)
+meta_drm_buffer_dumb_new (MetaDeviceFile  *device_file,
+                          int              width,
+                          int              height,
+                          uint32_t         format,
+                          GError         **error)
 {
   MetaDrmBufferDumb *buffer_dumb;
-  InitDumbData data;
 
   buffer_dumb = g_object_new (META_TYPE_DRM_BUFFER_DUMB,
-                              "device", device,
+                              "device-file", device_file,
                               NULL);
 
-  data = (InitDumbData) {
-    .buffer_dumb = buffer_dumb,
-    .width = width,
-    .height = height,
-    .format = format,
-  };
-
-  if (meta_kms_run_impl_task_sync (meta_kms_device_get_kms (device),
-                                   init_dumb_buffer_in_impl,
-                                   &data,
-                                   error))
+  if (!init_dumb_buffer (buffer_dumb, width, height, format, error))
     {
       g_object_unref (buffer_dumb);
       return NULL;
@@ -279,19 +233,16 @@ meta_drm_buffer_dumb_new (MetaKmsDevice  *device,
   return buffer_dumb;
 }
 
-static gpointer
-destroy_dumb_in_impl (MetaKmsImpl  *impl,
-                      gpointer      user_data,
-                      GError      **error)
+static void
+destroy_dumb_buffer (MetaDrmBufferDumb *buffer_dumb)
 {
-  MetaDrmBufferDumb *buffer_dumb = user_data;
   MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_dumb);
-  MetaKmsDevice *device = meta_drm_buffer_get_device (buffer);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaDeviceFile *device_file;
   int fd;
   struct drm_mode_destroy_dumb destroy_arg;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
+  device_file = meta_drm_buffer_get_device_file (buffer);
+  fd = meta_device_file_get_fd (device_file);
 
   munmap (buffer_dumb->map, buffer_dumb->map_size);
 
@@ -302,8 +253,6 @@ destroy_dumb_in_impl (MetaKmsImpl  *impl,
 
   if (buffer_dumb->dmabuf_fd != -1)
     close (buffer_dumb->dmabuf_fd);
-
-  return GINT_TO_POINTER (TRUE);
 }
 
 static void
@@ -312,15 +261,7 @@ meta_drm_buffer_dumb_finalize (GObject *object)
   MetaDrmBufferDumb *buffer_dumb = META_DRM_BUFFER_DUMB (object);
 
   if (buffer_dumb->handle)
-    {
-      MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_dumb);
-      MetaKmsDevice *device = meta_drm_buffer_get_device (buffer);
-
-      meta_kms_run_impl_task_sync (meta_kms_device_get_kms (device),
-                                   destroy_dumb_in_impl,
-                                   buffer_dumb,
-                                   NULL);
-    }
+    destroy_dumb_buffer (buffer_dumb);
 
   G_OBJECT_CLASS (meta_drm_buffer_dumb_parent_class)->finalize (object);
 }

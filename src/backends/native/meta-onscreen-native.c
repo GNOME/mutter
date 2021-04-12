@@ -560,7 +560,7 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaGpuKms *gpu_kms;
-  MetaKmsDevice *kms_device;
+  MetaDeviceFile *device_file;
   struct gbm_device *gbm_device;
   MetaDrmBufferGbm *buffer_gbm;
   MetaDrmBufferImport *buffer_import;
@@ -569,9 +569,9 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
   buffer_gbm = META_DRM_BUFFER_GBM (onscreen_native->gbm.next_fb);
 
   gpu_kms = secondary_gpu_state->gpu_kms;
-  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  device_file = secondary_gpu_state->renderer_gpu_data->device_file;
   gbm_device = meta_gbm_device_from_gpu (gpu_kms);
-  buffer_import = meta_drm_buffer_import_new (kms_device,
+  buffer_import = meta_drm_buffer_import_new (device_file,
                                               gbm_device,
                                               buffer_gbm,
                                               &error);
@@ -639,7 +639,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   MetaGles3 *gles3 = meta_renderer_native_get_gles3 (renderer_native);
   GError *error = NULL;
   gboolean use_modifiers;
-  MetaKmsDevice *kms_device;
+  MetaDeviceFile *device_file;
   MetaDrmBufferGbm *buffer_gbm;
   struct gbm_bo *bo;
 
@@ -690,9 +690,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
     }
 
   use_modifiers = meta_renderer_native_use_modifiers (renderer_native);
-  kms_device = meta_gpu_kms_get_kms_device (secondary_gpu_state->gpu_kms);
+  device_file = secondary_gpu_state->renderer_gpu_data->device_file;
   buffer_gbm =
-    meta_drm_buffer_gbm_new_lock_front (kms_device,
+    meta_drm_buffer_gbm_new_lock_front (device_file,
                                         secondary_gpu_state->gbm.surface,
                                         use_modifiers,
                                         &error);
@@ -992,7 +992,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  MetaKmsDevice *render_kms_device = meta_gpu_kms_get_kms_device (render_gpu);
+  MetaDeviceFile *render_device_file;
   ClutterFrame *frame = user_data;
   CoglOnscreenClass *parent_class;
   gboolean egl_context_changed = FALSE;
@@ -1020,6 +1020,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
+  render_device_file = renderer_gpu_data->device_file;
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
@@ -1028,7 +1029,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
       use_modifiers = meta_renderer_native_use_modifiers (renderer_native);
       buffer_gbm =
-        meta_drm_buffer_gbm_new_lock_front (render_kms_device,
+        meta_drm_buffer_gbm_new_lock_front (render_device_file,
                                             onscreen_native->gbm.surface,
                                             use_modifiers,
                                             &error);
@@ -1700,7 +1701,7 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
   int width;
   int height;
 #ifdef HAVE_EGL_DEVICE
-  MetaKmsDevice *render_kms_device;
+  MetaDeviceFile *render_device_file;
   EGLStreamKHR egl_stream;
 #endif
   CoglFramebufferClass *parent_class;
@@ -1737,10 +1738,9 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      render_kms_device =
-        meta_gpu_kms_get_kms_device (onscreen_native->render_gpu);
+      render_device_file = renderer_gpu_data->device_file;
       onscreen_native->egl.dumb_fb =
-        meta_drm_buffer_dumb_new (render_kms_device,
+        meta_drm_buffer_dumb_new (render_device_file,
                                   width, height,
                                   DRM_FORMAT_XRGB8888,
                                   error);
@@ -1896,7 +1896,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   MetaGpuKms *gpu_kms;
-  MetaKmsDevice *kms_device;
+  MetaDeviceFile *device_file;
   int width, height;
   unsigned int i;
   uint32_t drm_format;
@@ -1914,7 +1914,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   height = cogl_framebuffer_get_height (framebuffer);
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
-  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  device_file = renderer_gpu_data->device_file;
   g_debug ("Secondary GPU %s using DRM format '%s' (0x%x) for a %dx%d output.",
            meta_gpu_kms_get_file_path (gpu_kms),
            meta_drm_format_to_string (&tmp, drm_format),
@@ -1929,7 +1929,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
     {
       secondary_gpu_state->cpu.dumb_fbs[i] =
-        meta_drm_buffer_dumb_new (kms_device,
+        meta_drm_buffer_dumb_new (device_file,
                                   width, height,
                                   drm_format,
                                   error);

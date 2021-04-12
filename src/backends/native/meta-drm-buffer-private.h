@@ -21,8 +21,8 @@
 #ifndef META_DRM_BUFFER_PRIVATE_H
 #define META_DRM_BUFFER_PRIVATE_H
 
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer.h"
-#include "backends/native/meta-kms-device.h"
 
 typedef struct _MetaDrmFbArgs
 {
@@ -45,7 +45,7 @@ struct _MetaDrmBufferClass
   uint32_t (* get_format) (MetaDrmBuffer *buffer);
 };
 
-MetaKmsDevice * meta_drm_buffer_get_device (MetaDrmBuffer *buffer);
+MetaDeviceFile * meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer);
 
 gboolean meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
                                        gboolean              use_modifiers,

@@ -27,11 +27,13 @@
 
 #include <drm_fourcc.h>
 #include <errno.h>
+#include <gio/gio.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-#include "backends/native/meta-drm-buffer-private.h"
+#include "backends/meta-backend-private.h"
 #include "backends/native/meta-cogl-utils.h"
+#include "backends/native/meta-drm-buffer-private.h"
 
 struct _MetaDrmBufferGbm
 {
@@ -146,7 +148,7 @@ lock_front_buffer (MetaDrmBufferGbm  *buffer_gbm,
 }
 
 MetaDrmBufferGbm *
-meta_drm_buffer_gbm_new_lock_front (MetaKmsDevice       *device,
+meta_drm_buffer_gbm_new_lock_front (MetaDeviceFile      *device_file,
                                     struct gbm_surface  *gbm_surface,
                                     gboolean             use_modifiers,
                                     GError             **error)
@@ -154,7 +156,7 @@ meta_drm_buffer_gbm_new_lock_front (MetaKmsDevice       *device,
   MetaDrmBufferGbm *buffer_gbm;
 
   buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM,
-                             "device", device,
+                             "device-file", device_file,
                              NULL);
   buffer_gbm->surface = gbm_surface;
 
@@ -168,15 +170,15 @@ meta_drm_buffer_gbm_new_lock_front (MetaKmsDevice       *device,
 }
 
 MetaDrmBufferGbm *
-meta_drm_buffer_gbm_new_take (MetaKmsDevice  *device,
-                              struct gbm_bo  *bo,
-                              gboolean        use_modifiers,
-                              GError        **error)
+meta_drm_buffer_gbm_new_take (MetaDeviceFile  *device_file,
+                              struct gbm_bo   *bo,
+                              gboolean         use_modifiers,
+                              GError         **error)
 {
   MetaDrmBufferGbm *buffer_gbm;
 
   buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM,
-                             "device", device,
+                             "device-file", device_file,
                              NULL);
 
   if (!init_fb_id (buffer_gbm, bo, use_modifiers, error))

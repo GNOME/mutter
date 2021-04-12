@@ -38,7 +38,9 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"
+#include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
@@ -1225,6 +1227,8 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
                                        int                       rowstride,
                                        uint32_t                  gbm_format)
 {
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
   uint64_t cursor_width, cursor_height;
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   struct gbm_device *gbm_device;
@@ -1248,12 +1252,27 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
   if (gbm_device_is_format_supported (gbm_device, gbm_format,
                                       GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE))
     {
-      MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+      MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+      MetaDevicePool *device_pool =
+        meta_backend_native_get_device_pool (backend_native);
+      g_autoptr (MetaDeviceFile) device_file = NULL;
       struct gbm_bo *bo;
       uint8_t buf[4 * cursor_width * cursor_height];
       uint i;
       g_autoptr (GError) error = NULL;
       MetaDrmBufferGbm *buffer_gbm;
+
+      device_file = meta_device_pool_open (device_pool,
+                                           meta_gpu_kms_get_file_path (gpu_kms),
+                                           META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                           &error);
+      if (!device_file)
+        {
+          g_warning ("Failed to open '%s' for updating the cursor: %s",
+                     meta_gpu_kms_get_file_path (gpu_kms),
+                     error->message);
+          return;
+        }
 
       bo = gbm_bo_create (gbm_device, cursor_width, cursor_height,
                           gbm_format, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE);
@@ -1274,7 +1293,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
           return;
         }
 
-      buffer_gbm = meta_drm_buffer_gbm_new_take (kms_device, bo, FALSE, &error);
+      buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, bo, FALSE, &error);
       if (!buffer_gbm)
         {
           meta_warning ("Failed to create DRM buffer wrapper: %s",
@@ -1468,6 +1487,8 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
                                               MetaCursorSpriteWayland *sprite_wayland)
 {
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_wayland);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   uint64_t cursor_width, cursor_height;
@@ -1559,11 +1580,26 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
     }
   else
     {
-      MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+      MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+      MetaDevicePool *device_pool =
+        meta_backend_native_get_device_pool (backend_native);
+      g_autoptr (MetaDeviceFile) device_file = NULL;
       struct gbm_device *gbm_device;
       struct gbm_bo *bo;
       g_autoptr (GError) error = NULL;
       MetaDrmBufferGbm *buffer_gbm;
+
+      device_file = meta_device_pool_open (device_pool,
+                                           meta_gpu_kms_get_file_path (gpu_kms),
+                                           META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                           &error);
+      if (!device_file)
+        {
+          g_warning ("Failed to open '%s' for updating the cursor: %s",
+                     meta_gpu_kms_get_file_path (gpu_kms),
+                     error->message);
+          return;
+        }
 
       /* HW cursors have a predefined size (at least 64x64), which usually is
        * bigger than cursor theme size, so themed cursors must be padded with
@@ -1597,7 +1633,7 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
 
       unset_can_preprocess (cursor_sprite);
 
-      buffer_gbm = meta_drm_buffer_gbm_new_take (kms_device, bo, FALSE, &error);
+      buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, bo, FALSE, &error);
       if (!buffer_gbm)
         {
           meta_warning ("Failed to create DRM buffer wrapper: %s",

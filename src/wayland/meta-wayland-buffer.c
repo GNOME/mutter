@@ -688,7 +688,7 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaGpuKms *gpu_kms;
-  MetaKmsDevice *kms_device;
+  MetaDeviceFile *device_file;
   struct gbm_device *gbm_device;
   struct gbm_bo *gbm_bo;
   uint32_t drm_format;
@@ -698,7 +698,7 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
   g_autoptr (GError) error = NULL;
 
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
-  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  device_file = meta_renderer_native_get_primary_device_file (renderer_native);
   gbm_device = meta_gbm_device_from_gpu (gpu_kms);
 
   gbm_bo = gbm_bo_import (gbm_device,
@@ -719,7 +719,8 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
       return NULL;
     }
 
-  fb = meta_drm_buffer_gbm_new_take (kms_device, gbm_bo,
+  fb = meta_drm_buffer_gbm_new_take (device_file,
+                                     gbm_bo,
                                      drm_modifier != DRM_FORMAT_MOD_INVALID,
                                      &error);
   if (!fb)
