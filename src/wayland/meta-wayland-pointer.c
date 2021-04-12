@@ -121,21 +121,25 @@ meta_wayland_pointer_client_free (MetaWaylandPointerClient *pointer_client)
     {
       wl_list_remove (wl_resource_get_link (resource));
       wl_list_init (wl_resource_get_link (resource));
+      wl_resource_set_user_data (resource, NULL);
     }
   wl_resource_for_each_safe (resource, next, &pointer_client->swipe_gesture_resources)
     {
       wl_list_remove (wl_resource_get_link (resource));
       wl_list_init (wl_resource_get_link (resource));
+      wl_resource_set_user_data (resource, NULL);
     }
   wl_resource_for_each_safe (resource, next, &pointer_client->pinch_gesture_resources)
     {
       wl_list_remove (wl_resource_get_link (resource));
       wl_list_init (wl_resource_get_link (resource));
+      wl_resource_set_user_data (resource, NULL);
     }
   wl_resource_for_each_safe (resource, next, &pointer_client->relative_pointer_resources)
     {
       wl_list_remove (wl_resource_get_link (resource));
       wl_list_init (wl_resource_get_link (resource));
+      wl_resource_set_user_data (resource, NULL);
     }
 
   g_free (pointer_client);
@@ -199,6 +203,10 @@ meta_wayland_pointer_unbind_pointer_client_resource (struct wl_resource *resourc
   MetaWaylandPointer *pointer = wl_resource_get_user_data (resource);
   MetaWaylandPointerClient *pointer_client;
   struct wl_client *client = wl_resource_get_client (resource);
+
+  pointer = wl_resource_get_user_data (resource);
+  if (!pointer)
+    return;
 
   wl_list_remove (wl_resource_get_link (resource));
 
@@ -1105,8 +1113,12 @@ pointer_set_cursor (struct wl_client *client,
                     struct wl_resource *surface_resource,
                     int32_t hot_x, int32_t hot_y)
 {
-  MetaWaylandPointer *pointer = wl_resource_get_user_data (resource);
+  MetaWaylandPointer *pointer;
   MetaWaylandSurface *surface;
+
+  pointer = wl_resource_get_user_data (resource);
+  if (!pointer)
+    return;
 
   surface = (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
 
