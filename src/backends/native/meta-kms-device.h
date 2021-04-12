@@ -31,8 +31,6 @@ G_DECLARE_FINAL_TYPE (MetaKmsDevice, meta_kms_device,
 
 MetaKms * meta_kms_device_get_kms (MetaKmsDevice *device);
 
-int meta_kms_device_leak_fd (MetaKmsDevice *device);
-
 const char * meta_kms_device_get_path (MetaKmsDevice *device);
 
 const char * meta_kms_device_get_driver_name (MetaKmsDevice *device);

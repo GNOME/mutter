@@ -677,15 +677,6 @@ meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
   return meta_device_file_get_fd (priv->device_file);
 }
 
-int
-meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device)
-{
-  MetaKmsImplDevicePrivate *priv =
-    meta_kms_impl_device_get_instance_private (impl_device);
-
-  return meta_device_file_get_fd (priv->device_file);
-}
-
 MetaKmsFeedback *
 meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                      MetaKmsUpdate     *update,

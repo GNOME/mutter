@@ -74,12 +74,6 @@ meta_kms_device_get_impl_device (MetaKmsDevice *device)
   return device->impl_device;
 }
 
-int
-meta_kms_device_leak_fd (MetaKmsDevice *device)
-{
-  return meta_kms_impl_device_leak_fd (device->impl_device);
-}
-
 const char *
 meta_kms_device_get_path (MetaKmsDevice *device)
 {
