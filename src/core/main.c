@@ -367,14 +367,14 @@ meta_finalize (void)
   if (backend)
     meta_backend_prepare_shutdown (backend);
 
-  if (display)
-    meta_display_close (display,
-                        META_CURRENT_TIME); /* I doubt correct timestamps matter here */
-
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     meta_wayland_finalize ();
 #endif
+
+  if (display)
+    meta_display_close (display,
+                        META_CURRENT_TIME); /* I doubt correct timestamps matter here */
 
 #ifdef HAVE_NATIVE_BACKEND
   release_virtual_monitors ();

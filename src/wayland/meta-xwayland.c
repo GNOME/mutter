@@ -1289,6 +1289,8 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
                           x_io_error_exit_noop, NULL);
 #endif
 
+  meta_display_shutdown_x11 (meta_get_display ());
+
   snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
             manager->public_connection.display_index);
   unlink (path);
