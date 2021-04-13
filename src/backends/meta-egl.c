@@ -249,6 +249,20 @@ meta_egl_initialize (MetaEgl   *egl,
   return TRUE;
 }
 
+gboolean
+meta_egl_bind_api (MetaEgl  *egl,
+                   EGLenum   api,
+                   GError  **error)
+{
+  if (!eglBindAPI (api))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 gpointer
 meta_egl_get_proc_address (MetaEgl    *egl,
                            const char *procname,
