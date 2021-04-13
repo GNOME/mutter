@@ -549,7 +549,8 @@ secondary_gpu_release_dumb (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_s
 static void
 secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaGpu *gpu = META_GPU (secondary_gpu_state->gpu_kms);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
   MetaEgl *egl = meta_backend_get_egl (backend);
 
   if (secondary_gpu_state->egl_surface != EGL_NO_SURFACE)
