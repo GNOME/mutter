@@ -774,3 +774,11 @@ cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
 
   return NULL;
 }
+
+void
+cogl_renderer_bind_api (CoglRenderer *renderer)
+{
+  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+
+  winsys->renderer_bind_api (renderer);
+}

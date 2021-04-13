@@ -97,6 +97,9 @@ typedef struct _CoglWinsysVtable
                               int            height,
                               GError       **error);
 
+  void
+  (*renderer_bind_api) (CoglRenderer *renderer);
+
   gboolean
   (*context_init) (CoglContext *context, GError **error);
 

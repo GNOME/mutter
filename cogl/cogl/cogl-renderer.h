@@ -419,6 +419,12 @@ cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
                               int            height,
                               GError       **error);
 
+/**
+ * cogl_renderer_bind_api: (skip)
+ */
+COGL_EXPORT void
+cogl_renderer_bind_api (CoglRenderer *renderer);
+
 G_END_DECLS
 
 #endif /* __COGL_RENDERER_H__ */

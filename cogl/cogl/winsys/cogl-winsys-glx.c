@@ -297,6 +297,11 @@ _cogl_winsys_renderer_outputs_changed (CoglRenderer *renderer)
   update_all_outputs (renderer);
 }
 
+static void
+_cogl_winsys_renderer_bind_api (CoglRenderer *renderer)
+{
+}
+
 static gboolean
 resolve_core_glx_functions (CoglRenderer *renderer,
                             GError **error)
@@ -1419,6 +1424,7 @@ static CoglWinsysVtable _cogl_winsys_vtable =
     .renderer_connect = _cogl_winsys_renderer_connect,
     .renderer_disconnect = _cogl_winsys_renderer_disconnect,
     .renderer_outputs_changed = _cogl_winsys_renderer_outputs_changed,
+    .renderer_bind_api = _cogl_winsys_renderer_bind_api,
     .display_setup = _cogl_winsys_display_setup,
     .display_destroy = _cogl_winsys_display_destroy,
     .context_init = _cogl_winsys_context_init,
