@@ -156,7 +156,7 @@ meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native)
 }
 
 static MetaRendererNativeGpuData *
-meta_create_renderer_native_gpu_data (MetaGpuKms *gpu_kms)
+meta_create_renderer_native_gpu_data (void)
 {
   return g_new0 (MetaRendererNativeGpuData, 1);
 }
@@ -1469,7 +1469,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
       return NULL;
     }
 
-  renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
+  renderer_gpu_data = meta_create_renderer_native_gpu_data ();
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
@@ -1542,7 +1542,7 @@ create_renderer_gpu_data_surfaceless (MetaRendererNative  *renderer_native,
   if (egl_display == EGL_NO_DISPLAY)
     return NULL;
 
-  renderer_gpu_data = meta_create_renderer_native_gpu_data (NULL);
+  renderer_gpu_data = meta_create_renderer_native_gpu_data ();
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_SURFACELESS;
   renderer_gpu_data->egl_display = egl_display;
@@ -1731,7 +1731,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
       return NULL;
     }
 
-  renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
+  renderer_gpu_data = meta_create_renderer_native_gpu_data ();
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->egl.device = egl_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
