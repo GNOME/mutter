@@ -347,6 +347,8 @@ flush_callbacks (MetaKms *kms)
 
   meta_assert_not_in_kms_impl (kms);
 
+  g_clear_handle_id (&kms->callback_source_id, g_source_remove);
+
   for (l = kms->pending_callbacks; l; l = l->next)
     {
       MetaKmsCallbackData *callback_data = l->data;
