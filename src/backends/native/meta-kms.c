@@ -662,6 +662,22 @@ meta_kms_new (MetaBackend   *backend,
   return kms;
 }
 
+static gpointer
+prepare_shutdown_in_impl (MetaKmsImpl  *impl,
+                          gpointer      user_data,
+                          GError      **error)
+{
+  meta_kms_impl_prepare_shutdown (impl);
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_kms_prepare_shutdown (MetaKms *kms)
+{
+  meta_kms_run_impl_task_sync (kms, prepare_shutdown_in_impl, NULL, NULL);
+  flush_callbacks (kms);
+}
+
 static void
 meta_kms_finalize (GObject *object)
 {

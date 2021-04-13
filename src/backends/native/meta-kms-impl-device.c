@@ -836,6 +836,15 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
+void
+meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  if (klass->prepare_shutdown)
+    klass->prepare_shutdown (impl_device);
+}
+
 static void
 meta_kms_impl_device_init (MetaKmsImplDevice *impl_device)
 {

@@ -42,6 +42,8 @@ void meta_kms_impl_remove_impl_device (MetaKmsImpl       *impl,
 
 void meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl);
 
+void meta_kms_impl_prepare_shutdown (MetaKmsImpl *impl);
+
 MetaKmsImpl * meta_kms_impl_new (MetaKms *kms);
 
 #endif /* META_KMS_IMPL_H */

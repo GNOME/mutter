@@ -1012,14 +1012,23 @@ dispose_page_flip_data (gpointer key,
 }
 
 static void
+meta_kms_impl_device_atomic_prepare_shutdown (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDeviceAtomic *impl_device_atomic =
+    META_KMS_IMPL_DEVICE_ATOMIC (impl_device);
+
+  g_hash_table_foreach_remove (impl_device_atomic->page_flip_datas,
+                               dispose_page_flip_data,
+                               NULL);
+}
+
+static void
 meta_kms_impl_device_atomic_finalize (GObject *object)
 {
   MetaKmsImplDeviceAtomic *impl_device_atomic =
     META_KMS_IMPL_DEVICE_ATOMIC (object);
 
-  g_hash_table_foreach_remove (impl_device_atomic->page_flip_datas,
-                               dispose_page_flip_data,
-                               NULL);
+  g_assert (g_hash_table_size (impl_device_atomic->page_flip_datas) == 0);
 
   g_hash_table_unref (impl_device_atomic->page_flip_datas);
 
@@ -1039,10 +1048,7 @@ meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
 static void
 meta_kms_impl_device_atomic_init (MetaKmsImplDeviceAtomic *impl_device_atomic)
 {
-  impl_device_atomic->page_flip_datas =
-    g_hash_table_new_full (NULL, NULL,
-                           NULL,
-                           (GDestroyNotify) meta_kms_page_flip_data_unref);
+  impl_device_atomic->page_flip_datas = g_hash_table_new (NULL, NULL);
 }
 
 static void
@@ -1068,4 +1074,6 @@ meta_kms_impl_device_atomic_class_init (MetaKmsImplDeviceAtomicClass *klass)
     meta_kms_impl_device_atomic_handle_page_flip_callback;
   impl_device_class->discard_pending_page_flips =
     meta_kms_impl_device_atomic_discard_pending_page_flips;
+  impl_device_class->prepare_shutdown =
+    meta_kms_impl_device_atomic_prepare_shutdown;
 }

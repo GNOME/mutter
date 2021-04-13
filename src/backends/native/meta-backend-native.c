@@ -112,11 +112,13 @@ meta_backend_native_dispose (GObject *object)
       native->udev_device_added_handler_id = 0;
     }
 
-  g_clear_object (&native->kms);
-  g_clear_object (&native->udev);
+  if (native->kms)
+    meta_kms_prepare_shutdown (native->kms);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->dispose (object);
 
+  g_clear_object (&native->kms);
+  g_clear_object (&native->udev);
   g_clear_pointer (&native->launcher, meta_launcher_free);
 }
 

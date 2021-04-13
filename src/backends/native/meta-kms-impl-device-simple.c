@@ -1489,6 +1489,18 @@ meta_kms_impl_device_simple_discard_pending_page_flips (MetaKmsImplDevice *impl_
 }
 
 static void
+meta_kms_impl_device_simple_prepare_shutdown (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
+
+  g_list_foreach (impl_device_simple->posted_page_flip_datas,
+                  (GFunc) meta_kms_page_flip_data_discard_in_impl,
+                  impl_device);
+  g_clear_list (&impl_device_simple->posted_page_flip_datas, NULL);
+}
+
+static void
 meta_kms_impl_device_simple_finalize (GObject *object)
 {
   MetaKmsImplDeviceSimple *impl_device_simple =
@@ -1505,6 +1517,8 @@ meta_kms_impl_device_simple_finalize (GObject *object)
   dispatch_page_flip_datas (&impl_device_simple->postponed_mode_set_fallback_datas,
                             (GFunc) meta_kms_page_flip_data_discard_in_impl,
                             NULL);
+
+  g_assert (!impl_device_simple->posted_page_flip_datas);
 
   g_clear_pointer (&impl_device_simple->mode_set_fallback_feedback_source,
                    g_source_destroy);
@@ -1583,4 +1597,6 @@ meta_kms_impl_device_simple_class_init (MetaKmsImplDeviceSimpleClass *klass)
     meta_kms_impl_device_simple_handle_page_flip_callback;
   impl_device_class->discard_pending_page_flips =
     meta_kms_impl_device_simple_discard_pending_page_flips;
+  impl_device_class->prepare_shutdown =
+    meta_kms_impl_device_simple_prepare_shutdown;
 }

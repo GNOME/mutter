@@ -68,6 +68,7 @@ struct _MetaKmsImplDeviceClass
   void (* handle_page_flip_callback) (MetaKmsImplDevice   *impl_device,
                                       MetaKmsPageFlipData *page_flip_data);
   void (* discard_pending_page_flips) (MetaKmsImplDevice *impl_device);
+  void (* prepare_shutdown) (MetaKmsImplDevice *impl_device);
 };
 
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
@@ -142,5 +143,7 @@ int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 
 gboolean meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
                                                  GError            **error);
+
+void meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device);
 
 #endif /* META_KMS_IMPL_DEVICE_H */
