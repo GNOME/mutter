@@ -259,10 +259,7 @@ init_output_modes (MetaOutputInfo    *output_info,
         output_info->preferred_mode = output_info->modes[i];
     }
 
-  /* Presume that if the output supports scaling, then we have
-   * a panel fitter capable of adjusting any mode to suit.
-   */
-  if (connector_state->has_scaling)
+  if (connector_state->has_scaling && connector_state->n_modes == 1)
     add_common_modes (output_info, gpu_kms);
 
   if (!output_info->modes)
