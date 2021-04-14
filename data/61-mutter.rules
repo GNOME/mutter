@@ -1,1 +1,3 @@
 DRIVERS=="i915", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
+DRIVERS=="nouveau", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
+DRIVERS=="amdgpu", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
