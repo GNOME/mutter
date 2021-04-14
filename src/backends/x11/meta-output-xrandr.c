@@ -204,11 +204,11 @@ meta_output_xrandr_set_ctm (MetaOutputXrandr *output_xrandr,
 {
   MetaOutput *output = META_OUTPUT (output_xrandr);
   Display *xdisplay = xdisplay_from_output (output);
-  Atom atom = XInternAtom (xdisplay, "CTM", False);
+  Atom ctm_atom = XInternAtom (xdisplay, "CTM", False);
 
   xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                     (XID) meta_output_get_id (output),
-                                    atom, XCB_ATOM_INTEGER, 32,
+                                    ctm_atom, XCB_ATOM_INTEGER, 32,
                                     XCB_PROP_MODE_REPLACE,
                                     18, &ctm->matrix);
 }
