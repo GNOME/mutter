@@ -536,7 +536,7 @@ meta_wayland_xkb_info_destroy (MetaWaylandXkbInfo *xkb_info)
 {
   g_clear_pointer (&xkb_info->keymap, xkb_keymap_unref);
   g_clear_pointer (&xkb_info->state, xkb_state_unref);
-  meta_anonymous_file_free (xkb_info->keymap_rofile);
+  g_clear_pointer (&xkb_info->keymap_rofile, meta_anonymous_file_free);
 }
 
 void
