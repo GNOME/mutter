@@ -245,11 +245,14 @@ init_output_modes (MetaOutputInfo    *output_info,
         output_info->preferred_mode = output_info->modes[i];
     }
 
-  /* Presume that if the output supports scaling, then we have
-   * a panel fitter capable of adjusting any mode to suit.
-   */
-  if (connector_state->has_scaling)
-    add_common_modes (output_info, gpu_kms);
+  if (connector_state->has_scaling &&
+      g_list_length (connector_state->modes) == 1)
+    {
+      meta_topic (META_DEBUG_KMS, "Adding common modes to connector %u on %s",
+                  meta_kms_connector_get_id (kms_connector),
+                  meta_gpu_kms_get_file_path (gpu_kms));
+      add_common_modes (output_info, gpu_kms);
+    }
 
   if (!output_info->modes)
     {
