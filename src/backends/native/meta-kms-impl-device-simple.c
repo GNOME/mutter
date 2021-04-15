@@ -1477,10 +1477,12 @@ meta_kms_impl_device_simple_finalize (GObject *object)
 
   g_list_free_full (impl_device_simple->pending_page_flip_retries,
                     (GDestroyNotify) retry_page_flip_data_free);
-  g_list_free_full (impl_device_simple->postponed_page_flip_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_discard_in_impl);
-  g_list_free_full (impl_device_simple->postponed_mode_set_fallback_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_discard_in_impl);
+  dispatch_page_flip_datas (&impl_device_simple->postponed_page_flip_datas,
+                            (GFunc) meta_kms_page_flip_data_discard_in_impl,
+                            NULL);
+  dispatch_page_flip_datas (&impl_device_simple->postponed_mode_set_fallback_datas,
+                            (GFunc) meta_kms_page_flip_data_discard_in_impl,
+                            NULL);
 
   g_clear_pointer (&impl_device_simple->mode_set_fallback_feedback_source,
                    g_source_destroy);
