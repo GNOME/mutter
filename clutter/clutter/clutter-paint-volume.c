@@ -585,10 +585,10 @@ clutter_paint_volume_union (ClutterPaintVolume *pv,
 
   graphene_box_get_min (&union_box, &min);
   graphene_box_get_max (&union_box, &max);
-  graphene_point3d_init (&pv->vertices[0], min.x, max.y, min.z);
-  graphene_point3d_init (&pv->vertices[1], max.x, max.y, min.z);
-  graphene_point3d_init (&pv->vertices[3], min.x, min.y, min.z);
-  graphene_point3d_init (&pv->vertices[4], min.x, max.y, max.z);
+  graphene_point3d_init (&pv->vertices[0], min.x, min.y, min.z);
+  graphene_point3d_init (&pv->vertices[1], max.x, min.y, min.z);
+  graphene_point3d_init (&pv->vertices[3], min.x, max.y, min.z);
+  graphene_point3d_init (&pv->vertices[4], min.x, min.y, max.z);
 
   if (pv->vertices[4].z == pv->vertices[0].z)
     pv->is_2d = TRUE;
