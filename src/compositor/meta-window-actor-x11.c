@@ -1011,6 +1011,7 @@ invalidate_shadow (MetaWindowActorX11 *actor_x11)
     return;
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (actor_x11));
+  clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (actor_x11));
 }
 
 static void
