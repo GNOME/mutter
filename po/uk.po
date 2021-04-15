@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-12 17:55+0200\n"
+"POT-Creation-Date: 2021-04-15 15:51+0000\n"
+"PO-Revision-Date: 2021-04-15 18:59+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Lokalize 20.11.70\n"
+"X-Generator: Lokalize 20.12.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -51,109 +51,126 @@ msgstr "Перемістити вікно на робочий простір л�
 msgid "Move window one workspace to the right"
 msgstr "Перемістити вікно на робочий простір праворуч"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Перемістити вікно на робочий простір вище"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Перемістити вікно на робочий простір нижче"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Перемістити вікно на монітор ліворуч"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Перемістити вікно на монітор праворуч"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Перемістити вікно на монітор вище"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Перемістити вікно на монітор нижче"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Перемкнути програми"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Перемкнути до попередньої програми"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Перемкнути вікна"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Перемкнути до попереднього вікна"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Перемкнути вікна програм"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Перемкнути до попереднього вікна програми"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Перемкнути системні керування"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Перемкнути до переднього системного керування"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Перемкнути вікна напряму"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Перемкнути напряму до попереднього вікна"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Перемкнути вікна програм напряму"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Перемкнути напряму до попереднього вікна програми"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Перемкнути системні керування напряму"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Перемкнути напряму до переднього системного керування"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Сховати всі звичайні вікна"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Перейти до робочого простору 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Перейти до робочого простору 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Перейти до робочого простору 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Перейти до робочого простору 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Перейти до останнього робочого простору"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Перейти до робочого простору ліворуч"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Перейти до робочого простору праворуч"
+
+#: data/50-mutter-navigation.xml:138
+#| msgid "Move to workspace below"
+msgid "Move to workspace above"
+msgstr "Перейти до робочого простору вище"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Перейти до робочого простору нижче"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -672,14 +689,12 @@ msgid "Run as a full display server, rather than nested"
 msgstr "Запустити як повноцінний сервер, а не вкладений"
 
 #: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
 msgid "Run as a headless display server"
 msgstr "Запустити у форматі сервера без дисплея"
 
 #: src/core/main.c:305
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr ""
-"Додати сталий віртуальний монітор (ШxВ або ШxВ@Ч)"
+msgstr "Додати сталий віртуальний монітор (ШxВ або ШxВ@Ч)"
 
 #: src/core/main.c:311
 msgid "Run with X11 backend"
@@ -804,12 +819,3 @@ msgstr "%s (на %s)"
 #~ "Це — вільне програмний засіб; умови копіювання дивіться в коді програми.\n"
 #~ "Не надається НІЯКИХ гарантій; навіть ПРИДАТНОСТІ ДЛЯ ПРОДАЖУ чи "
 #~ "ВІДПОВІДНОСТІ ПЕВНІЙ МЕТІ.\n"
-
-#~ msgid "Move window one workspace up"
-#~ msgstr "Перемістити вікно на робочий простір вище"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Перемістити вікно на робочий простір нижче"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Перейти до робочого простору знизу"
