@@ -86,6 +86,7 @@ struct _ClutterFrameClock
 
   ClutterFrameClockState state;
   int64_t last_dispatch_time_us;
+  int64_t last_dispatch_lateness_us;
   int64_t last_presentation_time_us;
 
   gboolean is_next_presentation_time_valid;
@@ -378,7 +379,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     {
       *out_next_update_time_us =
         frame_clock->last_dispatch_time_us ?
-        frame_clock->last_dispatch_time_us + refresh_interval_us :
+        ((frame_clock->last_dispatch_time_us -
+          frame_clock->last_dispatch_lateness_us) + refresh_interval_us) :
         now_us;
 
       *out_next_presentation_time_us = 0;
@@ -613,8 +615,19 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 {
   int64_t frame_count;
   ClutterFrameResult result;
+  int64_t ideal_dispatch_time_us, lateness_us;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Frame Clock (dispatch)");
+
+  ideal_dispatch_time_us = (frame_clock->last_dispatch_time_us -
+                            frame_clock->last_dispatch_lateness_us) +
+                           frame_clock->refresh_interval_us;
+
+  lateness_us = time_us - ideal_dispatch_time_us;
+  if (lateness_us < 0 || lateness_us >= frame_clock->refresh_interval_us)
+    frame_clock->last_dispatch_lateness_us = 0;
+  else
+    frame_clock->last_dispatch_lateness_us = lateness_us;
 
   frame_clock->last_dispatch_time_us = time_us;
   g_source_set_ready_time (frame_clock->source, -1);
