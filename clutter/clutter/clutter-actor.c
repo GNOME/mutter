@@ -1500,9 +1500,28 @@ queue_update_stage_views (ClutterActor *actor)
     }
 }
 
+static void queue_update_paint_volume (ClutterActor *actor);
+
 static void
+queue_update_paint_volume_on_clones (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  GHashTableIter iter;
+  gpointer key;
+
+  if (priv->clones == NULL)
+    return;
+
+  g_hash_table_iter_init (&iter, priv->clones);
+  while (g_hash_table_iter_next (&iter, &key, NULL))
+    queue_update_paint_volume (key);
+}
+
+void
 queue_update_paint_volume (ClutterActor *actor)
 {
+  queue_update_paint_volume_on_clones (actor);
+
   while (actor)
     {
       actor->priv->needs_paint_volume_update = TRUE;
