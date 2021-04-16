@@ -12344,6 +12344,7 @@ clutter_actor_event (ClutterActor       *actor,
       break;
     case CLUTTER_TOUCHPAD_PINCH:
     case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
       signal_num = -1;
       detail = quark_touchpad;
       break;

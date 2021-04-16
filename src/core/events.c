@@ -43,6 +43,7 @@
 
 #define IS_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
                              (e)->type == CLUTTER_TOUCHPAD_PINCH || \
+                             (e)->type == CLUTTER_TOUCHPAD_HOLD || \
                              (e)->type == CLUTTER_TOUCH_BEGIN || \
                              (e)->type == CLUTTER_TOUCH_UPDATE || \
                              (e)->type == CLUTTER_TOUCH_END || \

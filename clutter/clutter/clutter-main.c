@@ -1139,6 +1139,7 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_SCROLL:
       case CLUTTER_TOUCHPAD_PINCH:
       case CLUTTER_TOUCHPAD_SWIPE:
+      case CLUTTER_TOUCHPAD_HOLD:
         {
           gfloat x, y;
 

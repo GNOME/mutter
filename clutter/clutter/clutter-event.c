@@ -433,6 +433,11 @@ clutter_event_get_position (const ClutterEvent *event,
       graphene_point_init (position, event->touchpad_swipe.x,
                            event->touchpad_swipe.y);
       break;
+
+    case CLUTTER_TOUCHPAD_HOLD:
+      graphene_point_init (position, event->touchpad_hold.x,
+                           event->touchpad_hold.y);
+      break;
     }
 
 }
@@ -511,6 +516,11 @@ clutter_event_set_coords (ClutterEvent *event,
     case CLUTTER_TOUCHPAD_SWIPE:
       event->touchpad_swipe.x = x;
       event->touchpad_swipe.y = y;
+      break;
+
+    case CLUTTER_TOUCHPAD_HOLD:
+      event->touchpad_hold.x = x;
+      event->touchpad_hold.y = y;
       break;
     }
 }
@@ -1067,6 +1077,7 @@ clutter_event_set_device (ClutterEvent       *event,
 
     case CLUTTER_TOUCHPAD_PINCH:
     case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
       /* Rely on priv data for these */
       break;
 
@@ -1164,6 +1175,7 @@ clutter_event_get_device (const ClutterEvent *event)
 
     case CLUTTER_TOUCHPAD_PINCH:
     case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
       /* Rely on priv data for these */
       break;
 
@@ -1628,6 +1640,7 @@ clutter_event_get_axes (const ClutterEvent *event,
 
     case CLUTTER_TOUCHPAD_PINCH:
     case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
     case CLUTTER_PAD_BUTTON_PRESS:
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_STRIP:
@@ -1873,12 +1886,15 @@ clutter_event_get_touchpad_gesture_finger_count (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, 0);
   g_return_val_if_fail (event->type == CLUTTER_TOUCHPAD_SWIPE ||
-                        event->type == CLUTTER_TOUCHPAD_PINCH, 0);
+                        event->type == CLUTTER_TOUCHPAD_PINCH ||
+                        event->type == CLUTTER_TOUCHPAD_HOLD, 0);
 
   if (event->type == CLUTTER_TOUCHPAD_SWIPE)
     return event->touchpad_swipe.n_fingers;
   else if (event->type == CLUTTER_TOUCHPAD_PINCH)
     return event->touchpad_pinch.n_fingers;
+  else if (event->type == CLUTTER_TOUCHPAD_HOLD)
+    return event->touchpad_hold.n_fingers;
 
   return 0;
 }
@@ -1937,12 +1953,15 @@ clutter_event_get_gesture_phase (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, 0);
   g_return_val_if_fail (event->type == CLUTTER_TOUCHPAD_PINCH ||
-                        event->type == CLUTTER_TOUCHPAD_SWIPE, 0);
+                        event->type == CLUTTER_TOUCHPAD_SWIPE ||
+                        event->type == CLUTTER_TOUCHPAD_HOLD, 0);
 
   if (event->type == CLUTTER_TOUCHPAD_PINCH)
     return event->touchpad_pinch.phase;
   else if (event->type == CLUTTER_TOUCHPAD_SWIPE)
     return event->touchpad_swipe.phase;
+  else if (event->type == CLUTTER_TOUCHPAD_HOLD)
+    return event->touchpad_hold.phase;
 
   /* Shouldn't ever happen */
   return CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN;
@@ -1968,7 +1987,8 @@ clutter_event_get_gesture_motion_delta (const ClutterEvent *event,
 {
   g_return_if_fail (event != NULL);
   g_return_if_fail (event->type == CLUTTER_TOUCHPAD_PINCH ||
-                    event->type == CLUTTER_TOUCHPAD_SWIPE);
+                    event->type == CLUTTER_TOUCHPAD_SWIPE ||
+                    event->type == CLUTTER_TOUCHPAD_HOLD);
 
   if (event->type == CLUTTER_TOUCHPAD_PINCH)
     {
@@ -1983,6 +2003,13 @@ clutter_event_get_gesture_motion_delta (const ClutterEvent *event,
         *dx = event->touchpad_swipe.dx;
       if (dy)
         *dy = event->touchpad_swipe.dy;
+    }
+  else if (event->type == CLUTTER_TOUCHPAD_HOLD)
+    {
+      if (dx)
+        *dx = 0;
+      if (dy)
+        *dy = 0;
     }
 }
 
@@ -2005,7 +2032,8 @@ clutter_event_get_gesture_motion_delta_unaccelerated (const ClutterEvent *event,
 {
   g_return_if_fail (event != NULL);
   g_return_if_fail (event->type == CLUTTER_TOUCHPAD_PINCH ||
-                    event->type == CLUTTER_TOUCHPAD_SWIPE);
+                    event->type == CLUTTER_TOUCHPAD_SWIPE ||
+                    event->type == CLUTTER_TOUCHPAD_HOLD);
 
   if (event->type == CLUTTER_TOUCHPAD_PINCH)
     {
@@ -2020,6 +2048,13 @@ clutter_event_get_gesture_motion_delta_unaccelerated (const ClutterEvent *event,
         *dx = event->touchpad_swipe.dx_unaccel;
       if (dy)
         *dy = event->touchpad_swipe.dy_unaccel;
+    }
+  else if (event->type == CLUTTER_TOUCHPAD_HOLD)
+    {
+      if (dx)
+        *dx = 0;
+      if (dy)
+        *dy = 0;
     }
 }
 /**
