@@ -31,7 +31,6 @@
 #include "clutter/clutter.h"
 #include "cogl/cogl-egl.h"
 #include "compositor/meta-surface-actor-wayland.h"
-#include "core/main-private.h"
 #include "core/meta-context-private.h"
 #include "wayland/meta-wayland-activation.h"
 #include "wayland/meta-wayland-buffer.h"
@@ -518,6 +517,7 @@ meta_wayland_compositor_new (MetaContext *context)
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaWaylandCompositor *compositor;
   GSource *wayland_event_source;
+  MetaX11DisplayPolicy x11_display_policy;
 
   compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   compositor->context = context;
@@ -577,7 +577,9 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_eglstream_controller_init (compositor);
 #endif
 
-  if (meta_get_x11_display_policy () != META_X11_DISPLAY_POLICY_DISABLED)
+  x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
+  if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     {
       g_autoptr (GError) error = NULL;
 
@@ -609,7 +611,7 @@ meta_wayland_compositor_new (MetaContext *context)
 
   g_message ("Using Wayland display name '%s'", compositor->display_name);
 
-  if (meta_get_x11_display_policy () != META_X11_DISPLAY_POLICY_DISABLED)
+  if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     {
       set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);
       set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);

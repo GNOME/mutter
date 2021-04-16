@@ -34,7 +34,6 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
 #include "backends/x11/cm/meta-backend-x11-cm.h"
-#include "core/main-private.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland.h"
 #include "x11/session.h"
@@ -279,11 +278,6 @@ meta_context_main_configure (MetaContext   *context,
   if (!check_configuration (context_main, error))
     return FALSE;
 
-#ifdef HAVE_WAYLAND
-  if (context_main->options.no_x11)
-    meta_override_x11_display_policy (META_X11_DISPLAY_POLICY_DISABLED);
-#endif
-
   context_main->compositor_type = determine_compositor_type (context_main,
                                                              error);
   if (context_main->compositor_type == -1)
@@ -303,6 +297,36 @@ meta_context_main_get_compositor_type (MetaContext *context)
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
 
   return context_main->compositor_type;
+}
+
+static MetaX11DisplayPolicy
+meta_context_main_get_x11_display_policy (MetaContext *context)
+{
+  MetaCompositorType compositor_type;
+#ifdef HAVE_WAYLAND
+  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+  char *unit;
+#endif
+
+  compositor_type = meta_context_get_compositor_type (context);
+  switch (compositor_type)
+    {
+    case META_COMPOSITOR_TYPE_X11:
+      return META_X11_DISPLAY_POLICY_MANDATORY;
+    case META_COMPOSITOR_TYPE_WAYLAND:
+#ifdef HAVE_WAYLAND
+      if (context_main->options.no_x11)
+        return META_X11_DISPLAY_POLICY_DISABLED;
+      else if (sd_pid_get_user_unit (0, &unit) < 0)
+        return META_X11_DISPLAY_POLICY_MANDATORY;
+      else
+        return META_X11_DISPLAY_POLICY_ON_DEMAND;
+#else /* HAVE_WAYLAND */
+      g_assert_not_reached ();
+#endif /* HAVE_WAYLAND */
+    }
+
+  g_assert_not_reached ();
 }
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -656,6 +680,8 @@ meta_context_main_class_init (MetaContextMainClass *klass)
 
   context_class->configure = meta_context_main_configure;
   context_class->get_compositor_type = meta_context_main_get_compositor_type;
+  context_class->get_x11_display_policy =
+    meta_context_main_get_x11_display_policy;
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
   context_class->notify_ready = meta_context_main_notify_ready;

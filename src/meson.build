@@ -358,8 +358,6 @@ mutter_sources = [
   'core/frame.h',
   'core/keybindings.c',
   'core/keybindings-private.h',
-  'core/main-private.h',
-  'core/main.c',
   'core/meta-accel-parse.c',
   'core/meta-accel-parse.h',
   'core/meta-anonymous-file.c',

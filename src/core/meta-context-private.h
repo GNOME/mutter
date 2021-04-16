@@ -21,6 +21,7 @@
 #ifndef META_CONTEXT_PRIVATE_H
 #define META_CONTEXT_PRIVATE_H
 
+#include "core/meta-private-enums.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "wayland/meta-wayland-types.h"
@@ -36,6 +37,8 @@ struct _MetaContextClass
 
   MetaCompositorType (* get_compositor_type) (MetaContext *context);
 
+  MetaX11DisplayPolicy (* get_x11_display_policy) (MetaContext *context);
+
   gboolean (* setup) (MetaContext  *context,
                       GError      **error);
 
@@ -50,5 +53,7 @@ const char * meta_context_get_name (MetaContext *context);
 const char * meta_context_get_gnome_wm_keybindings (MetaContext *context);
 
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
+
+MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
 
 #endif /* META_CONTEXT_PRIVATE_H */

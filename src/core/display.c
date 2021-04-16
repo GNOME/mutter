@@ -60,7 +60,6 @@
 #include "core/events.h"
 #include "core/frame.h"
 #include "core/keybindings-private.h"
-#include "core/main-private.h"
 #include "core/meta-clipboard-manager.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
@@ -890,7 +889,10 @@ meta_display_new (MetaContext  *context,
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     {
-      if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
+      MetaX11DisplayPolicy x11_display_policy;
+
+      x11_display_policy = meta_context_get_x11_display_policy (context);
+      if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
         {
           meta_display_init_x11 (display, NULL,
                                  (GAsyncReadyCallback) on_x11_initialized,

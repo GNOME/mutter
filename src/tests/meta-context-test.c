@@ -25,7 +25,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "core/main-private.h"
 #include "tests/meta-backend-test.h"
 #include "tests/test-utils.h"
 #include "wayland/meta-wayland.h"
@@ -90,6 +89,17 @@ static MetaCompositorType
 meta_context_test_get_compositor_type (MetaContext *context)
 {
   return META_COMPOSITOR_TYPE_WAYLAND;
+}
+
+static MetaX11DisplayPolicy
+meta_context_test_get_x11_display_policy (MetaContext *context)
+{
+  MetaContextTest *context_test = META_CONTEXT_TEST (context);
+
+  if (context_test->flags & META_CONTEXT_TEST_FLAG_NO_X11)
+    return META_X11_DISPLAY_POLICY_DISABLED;
+  else
+    return META_X11_DISPLAY_POLICY_ON_DEMAND;
 }
 
 static gboolean
@@ -241,11 +251,6 @@ meta_create_test_context (MetaContextTestType type,
   context_test->type = type;
   context_test->flags = flags;
 
-  /* NOTE: This will be removed in a follow up commit, but is needed
-   * until the override method is replaced. */
-  if (flags & META_CONTEXT_TEST_FLAG_NO_X11)
-    meta_override_x11_display_policy (META_X11_DISPLAY_POLICY_DISABLED);
-
   return META_CONTEXT (context_test);
 }
 
@@ -256,6 +261,8 @@ meta_context_test_class_init (MetaContextTestClass *klass)
 
   context_class->configure = meta_context_test_configure;
   context_class->get_compositor_type = meta_context_test_get_compositor_type;
+  context_class->get_x11_display_policy =
+    meta_context_test_get_x11_display_policy;
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
   context_class->notify_ready = meta_context_test_notify_ready;

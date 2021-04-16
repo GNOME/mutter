@@ -212,6 +212,12 @@ meta_context_get_compositor_type (MetaContext *context)
   return META_CONTEXT_GET_CLASS (context)->get_compositor_type (context);
 }
 
+MetaX11DisplayPolicy
+meta_context_get_x11_display_policy (MetaContext *context)
+{
+  return META_CONTEXT_GET_CLASS (context)->get_x11_display_policy (context);
+}
+
 static gboolean
 meta_context_real_configure (MetaContext   *context,
                              int           *argc,

@@ -47,7 +47,6 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-settings-private.h"
-#include "core/main-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-xwayland-surface.h"
@@ -536,10 +535,14 @@ xserver_died (GObject      *source,
               GAsyncResult *result,
               gpointer      user_data)
 {
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   GSubprocess *proc = G_SUBPROCESS (source);
   MetaDisplay *display = meta_get_display ();
   g_autoptr (GError) error = NULL;
+  MetaX11DisplayPolicy x11_display_policy;
 
+  x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
   if (!g_subprocess_wait_finish (proc, result, &error))
     {
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
@@ -549,19 +552,18 @@ xserver_died (GObject      *source,
     }
   else if (!g_subprocess_get_successful (proc))
     {
-      if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
+      if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
         g_warning ("X Wayland crashed; exiting");
       else
         g_warning ("X Wayland crashed; attempting to recover");
     }
 
-  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
+  if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
     {
       meta_exit (META_EXIT_ERROR);
     }
-  else if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_ON_DEMAND)
+  else if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
-      MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
       g_autoptr (GError) error = NULL;
 
       if (display->x11_display)
@@ -609,9 +611,14 @@ shutdown_xwayland_cb (gpointer data)
 static int
 x_io_error (Display *display)
 {
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaX11DisplayPolicy x11_display_policy;
+
   g_warning ("Connection to xwayland lost");
 
-  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_MANDATORY)
+  x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
+  if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
     meta_exit (META_EXIT_ERROR);
 
   return 0;
@@ -1143,6 +1150,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
                     struct wl_display      *wl_display,
                     GError                **error)
 {
+  MetaContext *context = compositor->context;
   MetaX11DisplayPolicy policy;
   int display = 0;
 
@@ -1186,7 +1194,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
              manager->private_connection.name);
 
   manager->wayland_display = wl_display;
-  policy = meta_get_x11_display_policy ();
+  policy = meta_context_get_x11_display_policy (context);
 
   if (policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
@@ -1253,6 +1261,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
+  MetaX11DisplayPolicy x11_display_policy;
 
   /* We install an X IO error handler in addition to the child watch,
      because after Xlib connects our child watch may not be called soon
@@ -1270,7 +1279,9 @@ meta_xwayland_complete_init (MetaDisplay *display,
   add_local_user_to_xhost (xdisplay);
   meta_xwayland_init_xrandr (manager, xdisplay);
 
-  if (meta_get_x11_display_policy () == META_X11_DISPLAY_POLICY_ON_DEMAND)
+  x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
+  if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
     {
       meta_xwayland_stop_xserver_timeout (manager);
       g_signal_connect (meta_get_display (), "window-created",
