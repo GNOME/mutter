@@ -1332,6 +1332,35 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
 }
 
 static void
+notify_hold_gesture_event (ClutterInputDevice          *input_device,
+                           ClutterTouchpadGesturePhase  phase,
+                           uint64_t                     time_us,
+                           uint32_t                     n_fingers)
+{
+  MetaSeatImpl *seat_impl;
+  ClutterEvent *event = NULL;
+
+  seat_impl = seat_impl_from_device (input_device);
+
+  event = clutter_event_new (CLUTTER_TOUCHPAD_HOLD);
+
+  event->touchpad_hold.phase = phase;
+  event->touchpad_hold.time = us2ms (time_us);
+  event->touchpad_hold.n_fingers = n_fingers;
+
+  meta_input_device_native_get_coords_in_impl (META_INPUT_DEVICE_NATIVE (seat_impl->core_pointer),
+                                               &event->touchpad_hold.x,
+                                               &event->touchpad_hold.y);
+
+  meta_xkb_translate_state (event, seat_impl->xkb, seat_impl->button_state);
+
+  clutter_event_set_device (event, seat_impl->core_pointer);
+  clutter_event_set_source_device (event, input_device);
+
+  queue_event (seat_impl, event);
+}
+
+static void
 notify_proximity (ClutterInputDevice *input_device,
                   uint64_t            time_us,
                   gboolean            in)
@@ -2365,6 +2394,28 @@ process_device_event (MetaSeatImpl          *seat_impl,
         notify_swipe_gesture_event (device,
                                     CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE,
                                     time_us, n_fingers, dx, dy, dx_unaccel, dy_unaccel);
+        break;
+      }
+    case LIBINPUT_EVENT_GESTURE_HOLD_BEGIN:
+    case LIBINPUT_EVENT_GESTURE_HOLD_END:
+      {
+        struct libinput_event_gesture *gesture_event =
+          libinput_event_get_gesture_event (event);
+        ClutterTouchpadGesturePhase phase;
+        uint32_t n_fingers;
+        uint64_t time_us;
+
+        device = libinput_device_get_user_data (libinput_device);
+        time_us = libinput_event_gesture_get_time_usec (gesture_event);
+        n_fingers = libinput_event_gesture_get_finger_count (gesture_event);
+
+        if (libinput_event_get_type (event) == LIBINPUT_EVENT_GESTURE_HOLD_BEGIN)
+          phase = CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN;
+        else
+          phase = libinput_event_gesture_get_cancelled (gesture_event) ?
+            CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL : CLUTTER_TOUCHPAD_GESTURE_PHASE_END;
+
+        notify_hold_gesture_event (device, phase, time_us, n_fingers);
         break;
       }
     case LIBINPUT_EVENT_TABLET_TOOL_AXIS:
