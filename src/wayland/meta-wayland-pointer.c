@@ -103,6 +103,7 @@ meta_wayland_pointer_client_new (void)
   wl_list_init (&pointer_client->pointer_resources);
   wl_list_init (&pointer_client->swipe_gesture_resources);
   wl_list_init (&pointer_client->pinch_gesture_resources);
+  wl_list_init (&pointer_client->hold_gesture_resources);
   wl_list_init (&pointer_client->relative_pointer_resources);
 
   return pointer_client;
@@ -135,6 +136,11 @@ meta_wayland_pointer_make_resources_inert (MetaWaylandPointerClient *pointer_cli
       wl_list_init (wl_resource_get_link (resource));
       wl_resource_set_user_data (resource, NULL);
     }
+  wl_resource_for_each_safe (resource, next, &pointer_client->hold_gesture_resources)
+    {
+      wl_list_remove (wl_resource_get_link (resource));
+      wl_list_init (wl_resource_get_link (resource));
+    }
   wl_resource_for_each_safe (resource, next, &pointer_client->relative_pointer_resources)
     {
       wl_list_remove (wl_resource_get_link (resource));
@@ -166,6 +172,7 @@ meta_wayland_pointer_client_is_empty (MetaWaylandPointerClient *pointer_client)
   return (wl_list_empty (&pointer_client->pointer_resources) &&
           wl_list_empty (&pointer_client->swipe_gesture_resources) &&
           wl_list_empty (&pointer_client->pinch_gesture_resources) &&
+          wl_list_empty (&pointer_client->hold_gesture_resources) &&
           wl_list_empty (&pointer_client->relative_pointer_resources));
 }
 
@@ -820,6 +827,10 @@ meta_wayland_pointer_handle_event (MetaWaylandPointer *pointer,
 
     case CLUTTER_TOUCHPAD_PINCH:
       meta_wayland_pointer_gesture_pinch_handle_event (pointer, event);
+      break;
+
+    case CLUTTER_TOUCHPAD_HOLD:
+      meta_wayland_pointer_gesture_hold_handle_event (pointer, event);
       break;
 
     default:

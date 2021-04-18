@@ -55,6 +55,17 @@ gestures_get_pinch (struct wl_client   *client,
 }
 
 static void
+gestures_get_hold (struct wl_client   *client,
+                   struct wl_resource *resource,
+                   uint32_t            id,
+                   struct wl_resource *pointer_resource)
+{
+  MetaWaylandPointer *pointer = wl_resource_get_user_data (pointer_resource);
+
+  meta_wayland_pointer_gesture_hold_create_new_resource (pointer, client, resource, id);
+}
+
+static void
 gestures_release (struct wl_client   *client,
                   struct wl_resource *resource)
 {
@@ -64,7 +75,8 @@ gestures_release (struct wl_client   *client,
 static const struct zwp_pointer_gestures_v1_interface pointer_gestures_interface = {
   gestures_get_swipe,
   gestures_get_pinch,
-  gestures_release
+  gestures_release,
+  gestures_get_hold
 };
 
 static void
