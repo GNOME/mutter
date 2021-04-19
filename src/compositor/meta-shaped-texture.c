@@ -290,6 +290,40 @@ get_base_pipeline (MetaShapedTexture *stex,
 
   graphene_matrix_init_identity (&matrix);
 
+  if (stex->has_viewport_src_rect)
+    {
+      float scaled_tex_width = stex->tex_width / (float) stex->buffer_scale;
+      float scaled_tex_height = stex->tex_height / (float) stex->buffer_scale;
+      graphene_point3d_t p;
+
+      graphene_point3d_init (&p,
+                             stex->viewport_src_rect.origin.x /
+                             stex->viewport_src_rect.size.width,
+                             stex->viewport_src_rect.origin.y /
+                             stex->viewport_src_rect.size.height,
+                             0);
+      graphene_matrix_translate (&matrix, &p);
+
+      if (meta_monitor_transform_is_rotated (stex->transform))
+        {
+          graphene_matrix_scale (&matrix,
+                                 stex->viewport_src_rect.size.width /
+                                 scaled_tex_height,
+                                 stex->viewport_src_rect.size.height /
+                                 scaled_tex_width,
+                                 1);
+        }
+      else
+        {
+          graphene_matrix_scale (&matrix,
+                                 stex->viewport_src_rect.size.width /
+                                 scaled_tex_width,
+                                 stex->viewport_src_rect.size.height /
+                                 scaled_tex_height,
+                                 1);
+        }
+    }
+
   if (stex->transform != META_MONITOR_TRANSFORM_NORMAL)
     {
       graphene_euler_t euler;
@@ -332,40 +366,6 @@ get_base_pipeline (MetaShapedTexture *stex,
       graphene_matrix_rotate_euler (&matrix, &euler);
       graphene_matrix_translate (&matrix,
                                  &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0.0));
-    }
-
-  if (stex->has_viewport_src_rect)
-    {
-      float scaled_tex_width = stex->tex_width / (float) stex->buffer_scale;
-      float scaled_tex_height = stex->tex_height / (float) stex->buffer_scale;
-      graphene_point3d_t p;
-
-      graphene_point3d_init (&p,
-                             stex->viewport_src_rect.origin.x /
-                             stex->viewport_src_rect.size.width,
-                             stex->viewport_src_rect.origin.y /
-                             stex->viewport_src_rect.size.height,
-                             0);
-      graphene_matrix_translate (&matrix, &p);
-
-      if (meta_monitor_transform_is_rotated (stex->transform))
-        {
-          graphene_matrix_scale (&matrix,
-                                 stex->viewport_src_rect.size.width /
-                                 scaled_tex_height,
-                                 stex->viewport_src_rect.size.height /
-                                 scaled_tex_width,
-                                 1);
-        }
-      else
-        {
-          graphene_matrix_scale (&matrix,
-                                 stex->viewport_src_rect.size.width /
-                                 scaled_tex_width,
-                                 stex->viewport_src_rect.size.height /
-                                 scaled_tex_height,
-                                 1);
-        }
     }
 
   if (!stex->is_y_inverted)
