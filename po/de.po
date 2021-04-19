@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-16 00:55+0000\n"
-"PO-Revision-Date: 2021-03-16 14:15+0100\n"
+"POT-Creation-Date: 2021-04-15 15:51+0000\n"
+"PO-Revision-Date: 2021-04-16 19:40+0200\n"
 "Last-Translator: Tim Sabsch <tim@sabsch.com>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -57,111 +57,129 @@ msgstr "Fenster eine Arbeitsfläche nach links verschieben"
 msgid "Move window one workspace to the right"
 msgstr "Fenster eine Arbeitsfläche nach rechts verschieben"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Fenster eine Arbeitsfläche nach oben verschieben"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Fenster eine Arbeitsfläche nach unten verschieben"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Fenster einen Bildschirm nach links verschieben"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Fenster einen Bildschirm nach rechts verschieben"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Fenster einen Bildschirm nach oben verschieben"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Fenster einen Bildschirm nach unten verschieben"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Anwendungen wechseln"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Zur vorherigen Anwendung wechseln"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Fenster wechseln"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Zum vorherigen Fenster wechseln"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Zwischen den Fenstern einer Anwendung wechseln"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Zum vorherigen Fenster einer Anwendung wechseln"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Systemsteuerungen umschalten"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Zur vorherigen Systemsteuerungen wechseln"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Fenster sofort wechseln"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Direkt zum vorherigen Fenster wechseln"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Sofort zwischen den Fenstern einer Anwendung wechseln"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Direkt zum vorherigen Fenster einer Anwendung wechseln"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Systemsteuerungen sofort umschalten"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Direkt zur vorherigen Systemsteuerungen wechseln"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Alle normalen Fenster verbergen"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Zur Arbeitsfläche 1 wechseln"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Zur Arbeitsfläche 2 wechseln"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Zur Arbeitsfläche 3 wechseln"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Zur Arbeitsfläche 4 wechseln"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Zur letzten Arbeitsfläche wechseln"
 
 # Wechsel der Arbeitsfläche. Es wird nichts verschoben.
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Zur Arbeitsfläche nach links wechseln"
 
 # Wechsel der Arbeitsfläche. Es wird nichts verschoben.
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Zur Arbeitsfläche nach rechts wechseln"
+
+# Wechsel der Arbeitsfläche. Es wird nichts verschoben.
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Zur Arbeitsfläche darüber wechseln"
+
+# Wechsel der Arbeitsfläche. Es wird nichts verschoben.
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Zur Arbeitsfläche darunter wechseln"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -813,16 +831,6 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (auf %s)"
-
-#~ msgid "Move window one workspace up"
-#~ msgstr "Fenster eine Arbeitsfläche nach oben verschieben"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Fenster eine Arbeitsfläche nach unten verschieben"
-
-# Wechsel der Arbeitsfläche. Es wird nichts verschoben.
-#~ msgid "Move to workspace below"
-#~ msgstr "Zur Arbeitsfläche darunter wechseln"
 
 # CHECK
 # c-format
