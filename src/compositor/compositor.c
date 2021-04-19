@@ -73,6 +73,7 @@
 #include "meta/meta-backend.h"
 #include "meta/meta-background-actor.h"
 #include "meta/meta-background-group.h"
+#include "meta/meta-context.h"
 #include "meta/meta-shadow-factory.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
@@ -477,13 +478,15 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
 static void
 redirect_windows (MetaX11Display *x11_display)
 {
+  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_backend_get_context (backend);
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   Window xroot = meta_x11_display_get_xroot (x11_display);
   int screen_number = meta_x11_display_get_screen_number (x11_display);
   guint n_retries;
   guint max_retries;
 
-  if (meta_get_replace_current_wm ())
+  if (meta_context_is_replacing (context))
     max_retries = 5;
   else
     max_retries = 1;

@@ -212,6 +212,12 @@ meta_context_get_compositor_type (MetaContext *context)
   return META_CONTEXT_GET_CLASS (context)->get_compositor_type (context);
 }
 
+gboolean
+meta_context_is_replacing (MetaContext *context)
+{
+  return META_CONTEXT_GET_CLASS (context)->is_replacing (context);
+}
+
 MetaX11DisplayPolicy
 meta_context_get_x11_display_policy (MetaContext *context)
 {

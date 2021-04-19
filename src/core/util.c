@@ -80,7 +80,6 @@ meta_topic_real_valist (MetaDebugTopic topic,
 #endif
 
 static gint verbose_topics = 0;
-static gboolean replace_current = FALSE;
 static int no_prefix = 0;
 static gboolean is_wayland_compositor = FALSE;
 static int debug_paint_flags = 0;
@@ -216,18 +215,6 @@ meta_init_debug_utils (void)
                                      G_N_ELEMENTS (meta_debug_keys));
       meta_add_verbose_topic (topics);
     }
-}
-
-gboolean
-meta_get_replace_current_wm (void)
-{
-  return replace_current;
-}
-
-void
-meta_set_replace_current_wm (gboolean setting)
-{
-  replace_current = setting;
 }
 
 gboolean

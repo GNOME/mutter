@@ -90,6 +90,9 @@ META_EXPORT
 MetaCompositorType meta_context_get_compositor_type (MetaContext *context);
 
 META_EXPORT
+gboolean meta_context_is_replacing (MetaContext *context);
+
+META_EXPORT
 MetaBackend * meta_context_get_backend (MetaContext *context);
 
 META_EXPORT

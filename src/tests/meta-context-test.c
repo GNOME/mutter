@@ -103,6 +103,12 @@ meta_context_test_get_x11_display_policy (MetaContext *context)
 }
 
 static gboolean
+meta_context_test_is_replacing (MetaContext *context)
+{
+  return FALSE;
+}
+
+static gboolean
 meta_context_test_setup (MetaContext  *context,
                          GError      **error)
 {
@@ -263,6 +269,7 @@ meta_context_test_class_init (MetaContextTestClass *klass)
   context_class->get_compositor_type = meta_context_test_get_compositor_type;
   context_class->get_x11_display_policy =
     meta_context_test_get_x11_display_policy;
+  context_class->is_replacing = meta_context_test_is_replacing;
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
   context_class->notify_ready = meta_context_test_notify_ready;

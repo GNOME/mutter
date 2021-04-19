@@ -27,9 +27,6 @@
 #include <meta/common.h>
 
 META_EXPORT
-gboolean        meta_get_replace_current_wm (void);  /* Actually defined in util.c */
-
-META_EXPORT
 void            meta_restart                (const char *message);
 
 META_EXPORT

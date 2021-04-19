@@ -329,6 +329,14 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
   g_assert_not_reached ();
 }
 
+static gboolean
+meta_context_main_is_replacing (MetaContext *context)
+{
+  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+
+  return context_main->options.x11.replace;
+}
+
 #ifdef HAVE_NATIVE_BACKEND
 static gboolean
 add_persistent_virtual_monitors (MetaContextMain  *context_main,
@@ -382,7 +390,6 @@ meta_context_main_setup (MetaContext  *context,
     return FALSE;
 
   meta_set_syncing (context_main->options.x11.sync || g_getenv ("MUTTER_SYNC"));
-  meta_set_replace_current_wm (context_main->options.x11.replace);
 
 #ifdef HAVE_NATIVE_BACKEND
   if (!add_persistent_virtual_monitors (context_main, error))
@@ -682,6 +689,7 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   context_class->get_compositor_type = meta_context_main_get_compositor_type;
   context_class->get_x11_display_policy =
     meta_context_main_get_x11_display_policy;
+  context_class->is_replacing = meta_context_main_is_replacing;
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
   context_class->notify_ready = meta_context_main_notify_ready;

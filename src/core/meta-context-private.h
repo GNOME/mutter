@@ -39,6 +39,8 @@ struct _MetaContextClass
 
   MetaX11DisplayPolicy (* get_x11_display_policy) (MetaContext *context);
 
+  gboolean (* is_replacing) (MetaContext *context);
+
   gboolean (* setup) (MetaContext  *context,
                       GError      **error);
 

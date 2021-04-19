@@ -1157,7 +1157,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   if (meta_is_syncing ())
     XSynchronize (xdisplay, True);
 
-  replace_current_wm = meta_get_replace_current_wm ();
+  replace_current_wm =
+    meta_context_is_replacing (meta_backend_get_context (backend));
 
   /* According to _gdk_x11_display_open (), this will be returned
    * by gdk_display_get_default_screen ()
