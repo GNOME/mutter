@@ -25,7 +25,7 @@
 #include "core/events.h"
 
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-idle-manager.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 #include "compositor/meta-window-actor-private.h"
@@ -102,7 +102,8 @@ get_window_for_event (MetaDisplay        *display,
 static void
 handle_idletime_for_event (const ClutterEvent *event)
 {
-  MetaIdleMonitor *core_monitor;
+  MetaBackend *backend = meta_get_backend ();
+  MetaIdleManager *idle_manager;
 
   if (clutter_event_get_device (event) == NULL)
     return;
@@ -112,8 +113,8 @@ handle_idletime_for_event (const ClutterEvent *event)
       event->type == CLUTTER_LEAVE)
     return;
 
-  core_monitor = meta_idle_monitor_get_core ();
-  meta_idle_monitor_reset_idletime (core_monitor);
+  idle_manager = meta_backend_get_idle_manager (backend);
+  meta_idle_manager_reset_idle_time (idle_manager);
 }
 
 static gboolean

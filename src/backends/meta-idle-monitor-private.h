@@ -38,22 +38,16 @@ typedef struct
   GSource                  *timeout_source;
 } MetaIdleMonitorWatch;
 
-struct _MetaIdleMonitor
-{
-  GObject parent_instance;
-
-  GDBusProxy *session_proxy;
-  gboolean inhibited;
-  GHashTable *watches;
-  ClutterInputDevice *device;
-  guint64 last_event_time;
-};
-
 struct _MetaIdleMonitorClass
 {
   GObjectClass parent_class;
 };
 
 void meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor);
+
+MetaIdleManager * meta_idle_monitor_get_manager (MetaIdleMonitor *monitor);
+
+MetaIdleMonitor * meta_idle_monitor_new (MetaIdleManager    *idle_manager,
+                                         ClutterInputDevice *device);
 
 #endif /* META_IDLE_MONITOR_PRIVATE_H */

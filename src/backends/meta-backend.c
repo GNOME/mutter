@@ -55,6 +55,7 @@
 
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-idle-manager.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
@@ -125,6 +126,7 @@ struct _MetaBackendPrivate
   MetaOrientationManager *orientation_manager;
   MetaCursorTracker *cursor_tracker;
   MetaInputMapper *input_mapper;
+  MetaIdleManager *idle_manager;
   MetaRenderer *renderer;
 #ifdef HAVE_EGL
   MetaEgl *egl;
@@ -159,8 +161,6 @@ struct _MetaBackendPrivate
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
-
-  GHashTable *device_monitors;
 
   ClutterInputDevice *current_device;
 
@@ -233,8 +233,6 @@ meta_backend_dispose (GObject *object)
 
   g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
-  g_clear_pointer (&priv->device_monitors, g_hash_table_destroy);
-
   g_clear_object (&priv->settings);
 
 #ifdef HAVE_PROFILER
@@ -244,6 +242,7 @@ meta_backend_dispose (GObject *object)
   g_clear_pointer (&priv->default_seat, clutter_seat_destroy);
   g_clear_pointer (&priv->stage, clutter_actor_destroy);
   g_clear_pointer (&priv->clutter_backend, clutter_backend_destroy);
+  g_clear_pointer (&priv->idle_manager, meta_idle_manager_free);
   g_clear_object (&priv->renderer);
   g_clear_list (&priv->gpus, g_object_unref);
 
@@ -361,63 +360,6 @@ meta_backend_monitors_changed (MetaBackend *backend)
   update_cursors (backend);
 }
 
-void
-meta_backend_foreach_device_monitor (MetaBackend *backend,
-                                     GFunc        func,
-                                     gpointer     user_data)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  GHashTableIter iter;
-  gpointer value;
-
-  g_hash_table_iter_init (&iter, priv->device_monitors);
-  while (g_hash_table_iter_next (&iter, NULL, &value))
-    {
-      MetaIdleMonitor *device_monitor = META_IDLE_MONITOR (value);
-
-      func (device_monitor, user_data);
-    }
-}
-
-static MetaIdleMonitor *
-meta_backend_create_idle_monitor (MetaBackend        *backend,
-                                  ClutterInputDevice *device)
-{
-  return g_object_new (META_TYPE_IDLE_MONITOR,
-                       "device", device,
-                       NULL);
-}
-
-static void
-create_device_monitor (MetaBackend        *backend,
-                       ClutterInputDevice *device)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaIdleMonitor *idle_monitor;
-
-  if (g_hash_table_contains (priv->device_monitors, device))
-    return;
-
-  idle_monitor = meta_backend_create_idle_monitor (backend, device);
-  g_hash_table_insert (priv->device_monitors, device, idle_monitor);
-}
-
-static void
-destroy_device_monitor (MetaBackend        *backend,
-                        ClutterInputDevice *device)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  g_hash_table_remove (priv->device_monitors, device);
-}
-
-static void
-meta_backend_monitor_device (MetaBackend        *backend,
-                             ClutterInputDevice *device)
-{
-  create_device_monitor (backend, device);
-}
-
 static inline gboolean
 check_has_pointing_device (ClutterSeat *seat)
 {
@@ -454,8 +396,6 @@ on_device_added (ClutterSeat        *seat,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterInputDeviceType device_type;
 
-  create_device_monitor (backend, device);
-
   if (clutter_input_device_get_device_mode (device) ==
       CLUTTER_INPUT_MODE_LOGICAL)
     return;
@@ -484,8 +424,6 @@ on_device_removed (ClutterSeat        *seat,
 {
   MetaBackend *backend = META_BACKEND (user_data);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  destroy_device_monitor (backend, device);
 
   if (clutter_input_device_get_device_mode (device) ==
       CLUTTER_INPUT_MODE_LOGICAL)
@@ -524,26 +462,6 @@ on_device_removed (ClutterSeat        *seat,
 
   if (priv->current_device == device)
     meta_backend_update_last_device (backend, NULL);
-}
-
-static void
-create_device_monitors (MetaBackend *backend,
-                        ClutterSeat *seat)
-{
-  GList *l, *devices;
-
-  create_device_monitor (backend, clutter_seat_get_pointer (seat));
-  create_device_monitor (backend, clutter_seat_get_keyboard (seat));
-
-  devices = clutter_seat_list_devices (seat);
-  for (l = devices; l; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-
-      meta_backend_monitor_device (backend, device);
-    }
-
-  g_list_free (devices);
 }
 
 static void
@@ -617,10 +535,7 @@ meta_backend_real_post_init (MetaBackend *backend)
 
   meta_backend_sync_screen_size (backend);
 
-  priv->device_monitors =
-    g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
-
-  create_device_monitors (backend, seat);
+  priv->idle_manager = meta_idle_manager_new (backend);
 
   g_signal_connect_object (seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
@@ -740,7 +655,7 @@ upower_properties_changed (GDBusProxy *proxy,
   if (lid_is_closed)
     return;
 
-  meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
+  meta_idle_manager_reset_idle_time (priv->idle_manager);
 }
 
 static void
@@ -935,12 +850,15 @@ prepare_for_sleep_cb (GDBusConnection *connection,
                       GVariant        *parameters,
                       gpointer         user_data)
 {
+  MetaBackend *backend = user_data;
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   gboolean suspending;
 
   g_variant_get (parameters, "(b)", &suspending);
   if (suspending)
     return;
-  meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
+
+  meta_idle_manager_reset_idle_time (priv->idle_manager);
 }
 
 static void
@@ -948,6 +866,7 @@ system_bus_gotten_cb (GObject      *object,
                       GAsyncResult *res,
                       gpointer      user_data)
 {
+  MetaBackend *backend = user_data;
   MetaBackendPrivate *priv;
   GDBusConnection *bus;
 
@@ -955,7 +874,7 @@ system_bus_gotten_cb (GObject      *object,
   if (!bus)
     return;
 
-  priv = meta_backend_get_instance_private (user_data);
+  priv = meta_backend_get_instance_private (backend);
   priv->system_bus = bus;
   priv->sleep_signal_id =
     g_dbus_connection_signal_subscribe (priv->system_bus,
@@ -966,7 +885,7 @@ system_bus_gotten_cb (GObject      *object,
                                         NULL,
                                         G_DBUS_SIGNAL_FLAGS_NONE,
                                         prepare_for_sleep_cb,
-                                        NULL,
+                                        backend,
                                         NULL);
 }
 
@@ -1170,7 +1089,32 @@ meta_backend_get_idle_monitor (MetaBackend        *backend,
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  return g_hash_table_lookup (priv->device_monitors, device);
+  return meta_idle_manager_get_monitor (priv->idle_manager, device);
+}
+
+/**
+ * meta_backend_get_core_idle_monitor:
+ *
+ * Returns: (transfer none): the #MetaIdleMonitor that tracks server-global
+ * idle time for all devices.
+ */
+MetaIdleMonitor *
+meta_backend_get_core_idle_monitor (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return meta_idle_manager_get_core_monitor (priv->idle_manager);
+}
+
+/**
+ * meta_backend_get_idle_manager: (skip)
+ */
+MetaIdleManager *
+meta_backend_get_idle_manager (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->idle_manager;
 }
 
 /**

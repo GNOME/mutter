@@ -129,9 +129,8 @@ ClutterSeat * meta_backend_get_default_seat (MetaBackend *bakcend);
 
 MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
                                                  ClutterInputDevice *device);
-void meta_backend_foreach_device_monitor (MetaBackend *backend,
-                                          GFunc        func,
-                                          gpointer     user_data);
+
+MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);

@@ -41,9 +41,6 @@ typedef void (*MetaIdleMonitorWatchFunc) (MetaIdleMonitor *monitor,
                                           gpointer         user_data);
 
 META_EXPORT
-MetaIdleMonitor *meta_idle_monitor_get_core (void);
-
-META_EXPORT
 guint         meta_idle_monitor_add_idle_watch        (MetaIdleMonitor          *monitor,
 						       guint64                   interval_msec,
 						       MetaIdleMonitorWatchFunc  callback,

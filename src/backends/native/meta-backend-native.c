@@ -42,7 +42,7 @@
 #include <stdlib.h>
 
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-idle-manager.h"
 #include "backends/meta-keymap-utils.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -726,11 +726,11 @@ void meta_backend_native_resume (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerNative *monitor_manager_native =
     META_MONITOR_MANAGER_NATIVE (monitor_manager);
-  MetaIdleMonitor *idle_monitor;
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaIdleManager *idle_manager;
   MetaInputSettings *input_settings;
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
@@ -746,8 +746,8 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 
-  idle_monitor = meta_idle_monitor_get_core ();
-  meta_idle_monitor_reset_idletime (idle_monitor);
+  idle_manager = meta_backend_get_idle_manager (backend);
+  meta_idle_manager_reset_idle_time (idle_manager);
 
   input_settings = meta_backend_get_input_settings (backend);
   meta_input_settings_maybe_restore_numlock_state (input_settings);

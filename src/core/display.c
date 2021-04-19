@@ -43,7 +43,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-idle-monitor-dbus.h"
 #include "backends/meta-input-device-private.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-stage-private.h"
@@ -959,8 +958,6 @@ meta_display_open (GError **error)
     {
       meta_display_unset_input_focus (display, timestamp);
     }
-
-  meta_idle_monitor_init_dbus ();
 
   display->sound_player = g_object_new (META_TYPE_SOUND_PLAYER, NULL);
 

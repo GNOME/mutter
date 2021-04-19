@@ -1,7 +1,7 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * Copyright 2013 Red Hat, Inc.
+ * Copyright 2013-2021 Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "backends/meta-idle-monitor-dbus.h"
+#include "backends/meta-idle-manager.h"
 
 #include "backends/meta-idle-monitor-private.h"
 #include "clutter/clutter.h"
@@ -31,6 +31,14 @@
 #include "meta/util.h"
 
 #include "meta-dbus-idle-monitor.h"
+
+typedef struct _MetaIdleManager
+{
+  MetaBackend *backend;
+  guint dbus_name_id;
+
+  GHashTable *device_monitors;
+} MetaIdleManager;
 
 static gboolean
 handle_get_idletime (MetaDBusIdleMonitor   *skeleton,
@@ -59,7 +67,7 @@ handle_reset_idletime (MetaDBusIdleMonitor   *skeleton,
       return TRUE;
     }
 
-  meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
+  meta_idle_manager_reset_idle_time (meta_idle_monitor_get_manager (monitor));
   meta_dbus_idle_monitor_complete_reset_idletime (skeleton, invocation);
 
   return TRUE;
@@ -189,16 +197,16 @@ create_monitor_skeleton (GDBusObjectManagerServer *manager,
   MetaDBusObjectSkeleton *object;
 
   skeleton = meta_dbus_idle_monitor_skeleton_new ();
-  g_signal_connect_object (skeleton, "handle-add-idle-watch",
-                           G_CALLBACK (handle_add_idle_watch), monitor, 0);
-  g_signal_connect_object (skeleton, "handle-add-user-active-watch",
-                           G_CALLBACK (handle_add_user_active_watch), monitor, 0);
-  g_signal_connect_object (skeleton, "handle-remove-watch",
-                           G_CALLBACK (handle_remove_watch), monitor, 0);
-  g_signal_connect_object (skeleton, "handle-reset-idletime",
-                           G_CALLBACK (handle_reset_idletime), monitor, 0);
-  g_signal_connect_object (skeleton, "handle-get-idletime",
-                           G_CALLBACK (handle_get_idletime), monitor, 0);
+  g_signal_connect (skeleton, "handle-add-idle-watch",
+                    G_CALLBACK (handle_add_idle_watch), monitor);
+  g_signal_connect (skeleton, "handle-add-user-active-watch",
+                    G_CALLBACK (handle_add_user_active_watch), monitor);
+  g_signal_connect (skeleton, "handle-remove-watch",
+                    G_CALLBACK (handle_remove_watch), monitor);
+  g_signal_connect (skeleton, "handle-reset-idletime",
+                    G_CALLBACK (handle_reset_idletime), monitor);
+  g_signal_connect (skeleton, "handle-get-idletime",
+                    G_CALLBACK (handle_get_idletime), monitor);
 
   object = meta_dbus_object_skeleton_new (path);
   meta_dbus_object_skeleton_set_idle_monitor (object, skeleton);
@@ -214,20 +222,21 @@ on_bus_acquired (GDBusConnection *connection,
                  const char      *name,
                  gpointer         user_data)
 {
-  GDBusObjectManagerServer *manager;
+  MetaIdleManager *manager = user_data;
+  GDBusObjectManagerServer *object_manager;
   MetaIdleMonitor *monitor;
   char *path;
 
-  manager = g_dbus_object_manager_server_new ("/org/gnome/Mutter/IdleMonitor");
+  object_manager = g_dbus_object_manager_server_new ("/org/gnome/Mutter/IdleMonitor");
 
   /* We never clear the core monitor, as that's supposed to cumulate idle times from
      all devices */
-  monitor = meta_idle_monitor_get_core ();
+  monitor = meta_idle_manager_get_core_monitor (manager);
   path = g_strdup ("/org/gnome/Mutter/IdleMonitor/Core");
-  create_monitor_skeleton (manager, monitor, path);
+  create_monitor_skeleton (object_manager, monitor, path);
   g_free (path);
 
-  g_dbus_object_manager_server_set_connection (manager, connection);
+  g_dbus_object_manager_server_set_connection (object_manager, connection);
 }
 
 static void
@@ -246,21 +255,122 @@ on_name_lost (GDBusConnection *connection,
   meta_verbose ("Lost or failed to acquire name %s", name);
 }
 
-void
-meta_idle_monitor_init_dbus (void)
+MetaIdleMonitor *
+meta_idle_manager_get_monitor (MetaIdleManager    *idle_manager,
+                               ClutterInputDevice *device)
 {
-  static int dbus_name_id;
+  return g_hash_table_lookup (idle_manager->device_monitors, device);
+}
 
-  if (dbus_name_id > 0)
+MetaIdleMonitor *
+meta_idle_manager_get_core_monitor (MetaIdleManager *idle_manager)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+  return meta_backend_get_idle_monitor (backend,
+                                        clutter_seat_get_pointer (seat));
+}
+
+void
+meta_idle_manager_reset_idle_time (MetaIdleManager *idle_manager)
+{
+  MetaIdleMonitor *core_monitor;
+
+  core_monitor = meta_idle_manager_get_core_monitor (idle_manager);
+  meta_idle_monitor_reset_idletime (core_monitor);
+}
+
+static void
+create_device_monitor (MetaIdleManager    *idle_manager,
+                       ClutterInputDevice *device)
+{
+  MetaIdleMonitor *idle_monitor;
+
+  if (g_hash_table_contains (idle_manager->device_monitors, device))
     return;
 
-  dbus_name_id = g_bus_own_name (G_BUS_TYPE_SESSION,
-                                 "org.gnome.Mutter.IdleMonitor",
-                                 G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
-                                 (meta_get_replace_current_wm () ?
-                                  G_BUS_NAME_OWNER_FLAGS_REPLACE : 0),
-                                 on_bus_acquired,
-                                 on_name_acquired,
-                                 on_name_lost,
-                                 NULL, NULL);
+  idle_monitor = meta_idle_monitor_new (idle_manager, device);
+  g_hash_table_insert (idle_manager->device_monitors, device, idle_monitor);
+}
+
+static void
+on_device_added (ClutterSeat        *seat,
+                 ClutterInputDevice *device,
+                 gpointer            user_data)
+{
+  MetaIdleManager *idle_manager = user_data;
+
+  create_device_monitor (idle_manager, device);
+}
+
+static void
+on_device_removed (ClutterSeat        *seat,
+                   ClutterInputDevice *device,
+                   gpointer            user_data)
+{
+  MetaIdleManager *idle_manager = user_data;
+
+  g_hash_table_remove (idle_manager->device_monitors, device);
+}
+
+static void
+create_device_monitors (MetaIdleManager *idle_manager,
+                        ClutterSeat     *seat)
+{
+  GList *l, *devices;
+
+  create_device_monitor (idle_manager, clutter_seat_get_pointer (seat));
+  create_device_monitor (idle_manager, clutter_seat_get_keyboard (seat));
+
+  devices = clutter_seat_list_devices (seat);
+  for (l = devices; l; l = l->next)
+    {
+      ClutterInputDevice *device = l->data;
+
+      create_device_monitor (idle_manager, device);
+    }
+
+  g_list_free (devices);
+}
+
+MetaIdleManager *
+meta_idle_manager_new (MetaBackend *backend)
+{
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  MetaIdleManager *idle_manager;
+
+  idle_manager = g_new0 (MetaIdleManager, 1);
+  idle_manager->backend = backend;
+
+  idle_manager->dbus_name_id =
+    g_bus_own_name (G_BUS_TYPE_SESSION,
+                    "org.gnome.Mutter.IdleMonitor",
+                    G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
+                    (meta_get_replace_current_wm () ?
+                     G_BUS_NAME_OWNER_FLAGS_REPLACE : 0),
+                    on_bus_acquired,
+                    on_name_acquired,
+                    on_name_lost,
+                    idle_manager,
+                    NULL);
+
+  idle_manager->device_monitors =
+    g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
+  g_signal_connect (seat, "device-added",
+                    G_CALLBACK (on_device_added), idle_manager);
+  g_signal_connect_after (seat, "device-removed",
+                          G_CALLBACK (on_device_removed), idle_manager);
+  create_device_monitors (idle_manager, seat);
+
+  return idle_manager;
+}
+
+void
+meta_idle_manager_free (MetaIdleManager *idle_manager)
+{
+  g_clear_pointer (&idle_manager->device_monitors, g_hash_table_destroy);
+  g_bus_unown_name (idle_manager->dbus_name_id);
+  g_free (idle_manager);
 }

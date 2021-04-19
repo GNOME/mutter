@@ -35,7 +35,6 @@
 #include "backends/gsm-inhibitor-flag.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-idle-monitor-private.h"
-#include "backends/meta-idle-monitor-dbus.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
 #include "meta/meta-idle-monitor.h"
@@ -51,6 +50,18 @@ enum
 };
 
 static GParamSpec *obj_props[PROP_LAST];
+
+struct _MetaIdleMonitor
+{
+  GObject parent;
+
+  MetaIdleManager *idle_manager;
+  GDBusProxy *session_proxy;
+  gboolean inhibited;
+  GHashTable *watches;
+  ClutterInputDevice *device;
+  int64_t last_event_time;
+};
 
 G_DEFINE_TYPE (MetaIdleMonitor, meta_idle_monitor, G_TYPE_OBJECT)
 
@@ -264,22 +275,6 @@ meta_idle_monitor_init (MetaIdleMonitor *monitor)
                               GSM_INHIBITOR_FLAG_IDLE);
       g_variant_unref (v);
     }
-}
-
-/**
- * meta_idle_monitor_get_core:
- *
- * Returns: (transfer none): the #MetaIdleMonitor that tracks the server-global
- * idletime for all devices.
- */
-MetaIdleMonitor *
-meta_idle_monitor_get_core (void)
-{
-  MetaBackend *backend = meta_get_backend ();
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-
-  return meta_backend_get_idle_monitor (backend, clutter_seat_get_pointer (seat));
 }
 
 static guint32
@@ -512,4 +507,24 @@ meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor)
     }
 
   g_list_free (watch_ids);
+}
+
+MetaIdleManager *
+meta_idle_monitor_get_manager (MetaIdleMonitor *monitor)
+{
+  return monitor->idle_manager;
+}
+
+MetaIdleMonitor *
+meta_idle_monitor_new (MetaIdleManager    *idle_manager,
+                       ClutterInputDevice *device)
+{
+  MetaIdleMonitor *monitor;
+
+  monitor = g_object_new (META_TYPE_IDLE_MONITOR,
+                          "device", device,
+                          NULL);
+  monitor->idle_manager = idle_manager;
+
+  return monitor;
 }
