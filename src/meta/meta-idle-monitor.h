@@ -23,18 +23,11 @@
 #include <glib-object.h>
 #include <meta/types.h>
 
-#define META_TYPE_IDLE_MONITOR            (meta_idle_monitor_get_type ())
-#define META_IDLE_MONITOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_IDLE_MONITOR, MetaIdleMonitor))
-#define META_IDLE_MONITOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_IDLE_MONITOR, MetaIdleMonitorClass))
-#define META_IS_IDLE_MONITOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_IDLE_MONITOR))
-#define META_IS_IDLE_MONITOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_IDLE_MONITOR))
-#define META_IDLE_MONITOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_IDLE_MONITOR, MetaIdleMonitorClass))
-
-typedef struct _MetaIdleMonitor        MetaIdleMonitor;
-typedef struct _MetaIdleMonitorClass   MetaIdleMonitorClass;
-
+#define META_TYPE_IDLE_MONITOR (meta_idle_monitor_get_type ())
 META_EXPORT
-GType meta_idle_monitor_get_type (void);
+G_DECLARE_FINAL_TYPE (MetaIdleMonitor, meta_idle_monitor,
+                      META, IDLE_MONITOR,
+                      GObject)
 
 typedef void (*MetaIdleMonitorWatchFunc) (MetaIdleMonitor *monitor,
                                           guint            watch_id,
