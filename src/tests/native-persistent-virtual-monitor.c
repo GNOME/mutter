@@ -24,7 +24,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-context.h"
 #include "meta/meta-backend.h"
-#include "tests/test-utils.h"
+#include "tests/meta-test-utils.h"
 
 static gboolean
 wait_for_paint (gpointer user_data)

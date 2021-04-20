@@ -27,7 +27,7 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-output.h"
-#include "tests/test-utils.h"
+#include "tests/meta-test-utils.h"
 #include "meta-backend-test.h"
 
 MetaGpu *

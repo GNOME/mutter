@@ -9,8 +9,8 @@ test_context_sources = [
   'meta-monitor-manager-test.h',
   'monitor-test-utils.c',
   'monitor-test-utils.h',
-  'test-utils.c',
-  'test-utils.h',
+  'meta-test-utils.c',
+  'meta-test-utils.h',
 ]
 
 clutter_test_utils = files (

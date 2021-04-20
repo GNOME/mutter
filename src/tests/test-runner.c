@@ -28,7 +28,7 @@
 #include "meta/util.h"
 #include "meta/window.h"
 #include "tests/meta-context-test.h"
-#include "tests/test-utils.h"
+#include "tests/meta-test-utils.h"
 #include "ui/ui.h"
 #include "wayland/meta-wayland.h"
 #include "x11/meta-x11-display-private.h"

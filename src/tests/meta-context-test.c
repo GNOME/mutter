@@ -26,7 +26,7 @@
 #include <gio/gio.h>
 
 #include "tests/meta-backend-test.h"
-#include "tests/test-utils.h"
+#include "tests/meta-test-utils.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 

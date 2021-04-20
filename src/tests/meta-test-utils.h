@@ -17,8 +17,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TEST_UTILS_H
-#define TEST_UTILS_H
+#ifndef META_TEST_UTILS_H
+#define META_TEST_UTILS_H
 
 #include <glib.h>
 #include <X11/Xlib.h>
@@ -89,4 +89,4 @@ void test_wait_for_x11_display (void);
 void meta_ensure_test_client_path (int    argc,
                                    char **argv);
 
-#endif /* TEST_UTILS_H */
+#endif /* META_TEST_UTILS_H */

@@ -32,7 +32,7 @@
 #include "meta-backend-test.h"
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/monitor-test-utils.h"
-#include "tests/test-utils.h"
+#include "tests/meta-test-utils.h"
 #include "x11/meta-x11-display-private.h"
 
 static MonitorTestCase initial_test_case = {
