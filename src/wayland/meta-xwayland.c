@@ -607,6 +607,12 @@ x_io_error (Display *display)
   return 0;
 }
 
+static int
+x_io_error_noop (Display *display)
+{
+  return 0;
+}
+
 #ifdef HAVE_XSETIOERROREXITHANDLER
 static void
 x_io_error_exit (Display *display,
@@ -618,6 +624,12 @@ x_io_error_exit (Display *display,
   g_warning ("Xwayland just died, attempting to recover");
   manager->xserver_grace_period_id =
     g_idle_add (shutdown_xwayland_cb, manager);
+}
+
+static void
+x_io_error_exit_noop (Display *display,
+                      void    *data)
+{
 }
 #endif
 
@@ -1264,9 +1276,18 @@ meta_xwayland_connection_release (MetaXWaylandConnection *connection)
 void
 meta_xwayland_shutdown (MetaXWaylandManager *manager)
 {
+#ifdef HAVE_XSETIOERROREXITHANDLER
+  MetaX11Display *x11_display = meta_get_display ()->x11_display;
+#endif
   char path[256];
 
   g_cancellable_cancel (manager->xserver_died_cancellable);
+
+  XSetIOErrorHandler (x_io_error_noop);
+#ifdef HAVE_XSETIOERROREXITHANDLER
+  XSetIOErrorExitHandler (meta_x11_display_get_xdisplay (x11_display),
+                          x_io_error_exit_noop, NULL);
+#endif
 
   snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
             manager->public_connection.display_index);
