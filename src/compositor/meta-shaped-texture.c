@@ -985,6 +985,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                  cairo_rectangle_int_t *clip)
 {
   MetaMonitorTransform inverted_transform;
+  int scaled_and_transformed_width;
+  int scaled_and_transformed_height;
 
   if (stex->texture == NULL)
     return FALSE;
@@ -1001,12 +1003,21 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                META_ROUNDING_STRATEGY_SHRINK,
                                clip);
 
+  if (meta_monitor_transform_is_rotated (stex->transform))
+    {
+      scaled_and_transformed_width = stex->tex_height / stex->buffer_scale;
+      scaled_and_transformed_height = stex->tex_width / stex->buffer_scale;
+    }
+  else
+    {
+      scaled_and_transformed_width = stex->tex_width / stex->buffer_scale;
+      scaled_and_transformed_height = stex->tex_height / stex->buffer_scale;
+    }
   inverted_transform = meta_monitor_transform_invert (stex->transform);
-  meta_shaped_texture_ensure_size_valid (stex);
   meta_rectangle_transform (clip,
                             inverted_transform,
-                            stex->dst_width,
-                            stex->dst_height,
+                            scaled_and_transformed_width,
+                            scaled_and_transformed_height,
                             clip);
 
   if (stex->has_viewport_src_rect || stex->has_viewport_dst_size)
@@ -1027,8 +1038,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
           viewport = (graphene_rect_t) {
             .origin.x = 0,
             .origin.y = 0,
-            .size.width = stex->tex_width / stex->buffer_scale,
-            .size.height = stex->tex_height / stex->buffer_scale,
+            .size.width = scaled_and_transformed_width,
+            .size.height = scaled_and_transformed_height,
           };
         }
 
