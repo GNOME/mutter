@@ -41,7 +41,8 @@ meta_xwayland_handle_xevent (XEvent *event);
 
 /* wl_data_device/X11 selection interoperation */
 void     meta_xwayland_init_dnd         (Display *xdisplay);
-void     meta_xwayland_shutdown_dnd     (Display *xdisplay);
+void meta_xwayland_shutdown_dnd (MetaXWaylandManager *manager,
+                                 Display             *xdisplay);
 gboolean meta_xwayland_dnd_handle_event (XEvent *xevent);
 
 const MetaWaylandDragDestFuncs * meta_xwayland_selection_get_drag_dest_funcs (void);

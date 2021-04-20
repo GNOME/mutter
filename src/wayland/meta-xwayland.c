@@ -1208,17 +1208,18 @@ monitors_changed_cb (MetaMonitorManager *monitor_manager)
 }
 
 static void
-on_x11_display_closing (MetaDisplay *display)
+on_x11_display_closing (MetaDisplay         *display,
+                        MetaXWaylandManager *manager)
 {
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
-  meta_xwayland_shutdown_dnd (xdisplay);
+  meta_xwayland_shutdown_dnd (manager, xdisplay);
   g_signal_handlers_disconnect_by_func (meta_monitor_manager_get (),
                                         monitors_changed_cb,
                                         NULL);
   g_signal_handlers_disconnect_by_func (display,
                                         on_x11_display_closing,
-                                        NULL);
+                                        manager);
 }
 
 static void
@@ -1262,7 +1263,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
 #endif
 
   g_signal_connect (display, "x11-display-closing",
-                    G_CALLBACK (on_x11_display_closing), NULL);
+                    G_CALLBACK (on_x11_display_closing), manager);
   meta_xwayland_init_dnd (xdisplay);
   add_local_user_to_xhost (xdisplay);
   meta_xwayland_init_xrandr (manager, xdisplay);

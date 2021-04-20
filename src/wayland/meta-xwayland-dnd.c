@@ -976,10 +976,9 @@ meta_xwayland_init_dnd (Display *xdisplay)
 }
 
 void
-meta_xwayland_shutdown_dnd (Display *xdisplay)
+meta_xwayland_shutdown_dnd (MetaXWaylandManager *manager,
+                            Display             *xdisplay)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
-  MetaXWaylandManager *manager = &compositor->xwayland_manager;
   MetaXWaylandDnd *dnd = manager->dnd;
 
   g_assert (dnd != NULL);
