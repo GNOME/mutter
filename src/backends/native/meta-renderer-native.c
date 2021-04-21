@@ -1167,12 +1167,21 @@ meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
                                     MetaRendererView   *view,
                                     ClutterFrame       *frame)
 {
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+  MetaPowerSave power_save_mode;
   MetaCrtcKms *crtc_kms;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
 
   if (!META_IS_CRTC_KMS (crtc))
+    return;
+
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+  if (power_save_mode != META_POWER_SAVE_ON)
     return;
 
   crtc_kms = META_CRTC_KMS (crtc);

@@ -153,38 +153,44 @@ meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   GList *l;
 
-  switch (mode)
-    {
-    case META_POWER_SAVE_ON:
-    case META_POWER_SAVE_UNSUPPORTED:
-      /* This will be handled on mode set. */
-      return;
-    case META_POWER_SAVE_STANDBY:
-    case META_POWER_SAVE_SUSPEND:
-    case META_POWER_SAVE_OFF:
-      break;
-    }
-
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
-      MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
-      MetaKmsUpdate *kms_update;
-      MetaKmsUpdateFlag flags;
-      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
-      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
-      meta_kms_update_set_power_save (kms_update);
-
-      flags = META_KMS_UPDATE_FLAG_NONE;
-      kms_feedback = meta_kms_post_pending_update_sync (kms,
-                                                        kms_device,
-                                                        flags);
-      if (meta_kms_feedback_get_result (kms_feedback) !=
-          META_KMS_FEEDBACK_PASSED)
+      switch (mode)
         {
-          g_warning ("Failed to enter power saving mode: %s",
-                     meta_kms_feedback_get_error (kms_feedback)->message);
+        case META_POWER_SAVE_ON:
+        case META_POWER_SAVE_UNSUPPORTED:
+          {
+            g_list_foreach (meta_gpu_get_crtcs (META_GPU (gpu_kms)),
+                            (GFunc) meta_crtc_kms_invalidate_gamma,
+                            NULL);
+            break;
+          }
+        case META_POWER_SAVE_STANDBY:
+        case META_POWER_SAVE_SUSPEND:
+        case META_POWER_SAVE_OFF:
+          {
+            MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+            MetaKmsUpdate *kms_update;
+            MetaKmsUpdateFlag flags;
+            g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+
+            kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+            meta_kms_update_set_power_save (kms_update);
+
+            flags = META_KMS_UPDATE_FLAG_NONE;
+            kms_feedback = meta_kms_post_pending_update_sync (kms,
+                                                              kms_device,
+                                                              flags);
+            if (meta_kms_feedback_get_result (kms_feedback) !=
+                META_KMS_FEEDBACK_PASSED)
+              {
+                g_warning ("Failed to enter power saving mode: %s",
+                           meta_kms_feedback_get_error (kms_feedback)->message);
+              }
+            break;
+          }
         }
     }
 }
@@ -540,7 +546,20 @@ meta_monitor_manager_native_pause (MetaMonitorManagerNative *manager_native)
 void
 meta_monitor_manager_native_resume (MetaMonitorManagerNative *manager_native)
 {
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_native);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  GList *l;
+
   meta_monitor_manager_native_connect_hotplug_handler (manager_native);
+
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+
+      g_list_foreach (meta_gpu_get_crtcs (gpu),
+                      (GFunc) meta_crtc_kms_invalidate_gamma,
+                      NULL);
+    }
 }
 
 static gboolean
