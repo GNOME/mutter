@@ -137,6 +137,7 @@ add_common_modes (MetaOutputInfo *output_info,
   unsigned max_hdisplay = 0;
   unsigned max_vdisplay = 0;
   float max_refresh_rate = 0.0;
+  float max_bandwidth = 0.0;
   MetaKmsDevice *kms_device;
   MetaKmsModeFlag flag_filter;
   GList *l;
@@ -147,11 +148,14 @@ add_common_modes (MetaOutputInfo *output_info,
       MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_mode);
       MetaKmsMode *kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
       const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
+      float bandwidth;
 
       refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+      bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
       max_hdisplay = MAX (max_hdisplay, drm_mode->hdisplay);
       max_vdisplay = MAX (max_vdisplay, drm_mode->vdisplay);
       max_refresh_rate = MAX (max_refresh_rate, refresh_rate);
+      max_bandwidth = MAX (max_bandwidth, bandwidth);
     }
 
   max_refresh_rate = MAX (max_refresh_rate, 60.0);
@@ -170,15 +174,18 @@ add_common_modes (MetaOutputInfo *output_info,
     {
       MetaKmsMode *fallback_mode = l->data;
       const drmModeModeInfo *drm_mode;
+      float bandwidth;
 
       if (!(meta_kms_mode_get_flags (fallback_mode) & flag_filter))
         continue;
 
       drm_mode = meta_kms_mode_get_drm_mode (fallback_mode);
       refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+      bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
       if (drm_mode->hdisplay > max_hdisplay ||
           drm_mode->vdisplay > max_vdisplay ||
-          refresh_rate > max_refresh_rate)
+          refresh_rate > max_refresh_rate ||
+          bandwidth > max_bandwidth)
         continue;
 
       crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, fallback_mode);
@@ -245,8 +252,7 @@ init_output_modes (MetaOutputInfo    *output_info,
         output_info->preferred_mode = output_info->modes[i];
     }
 
-  if (connector_state->has_scaling &&
-      g_list_length (connector_state->modes) == 1)
+  if (connector_state->has_scaling)
     {
       meta_topic (META_DEBUG_KMS, "Adding common modes to connector %u on %s",
                   meta_kms_connector_get_id (kms_connector),
