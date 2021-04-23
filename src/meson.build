@@ -911,6 +911,13 @@ if have_wayland
                          '@0@/@1@/@2@.xml'.format(protocol_type,
                          protocol_name,
                          output_base))
+    elif protocol_type == 'staging'
+      protocol_version = p.get(2)
+      output_base = '@0@-@1@'.format(protocol_name, protocol_version)
+      input = join_paths(protocols_dir,
+                         '@0@/@1@/@2@.xml'.format(protocol_type,
+                         protocol_name,
+                         output_base))
     elif protocol_type == 'private'
       output_base = protocol_name
       input = 'wayland/protocol/@0@.xml'.format(protocol_name)
