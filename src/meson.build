@@ -884,6 +884,7 @@ if have_wayland
     ['tablet', 'unstable', 'v2', ],
     ['text-input', 'unstable', 'v3', ],
     ['viewporter', 'stable', ],
+    ['xdg-activation', 'staging', 'v1', ],
     ['xdg-foreign', 'unstable', 'v1', ],
     ['xdg-output', 'unstable', 'v1', ],
     ['xdg-shell', 'unstable', 'v6', ],
