@@ -244,8 +244,10 @@ meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl)
   if (seat_impl->repeat_source)
     {
       g_source_destroy (seat_impl->repeat_source);
-      g_clear_object (&seat_impl->repeat_device);
+      g_clear_pointer (&seat_impl->repeat_source, g_source_unref);
     }
+
+  g_clear_object (&seat_impl->repeat_device);
 }
 
 static void
