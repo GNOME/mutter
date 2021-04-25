@@ -1016,9 +1016,19 @@ get_data_device (struct wl_client *client,
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   struct wl_resource *cr;
+  struct wl_resource *data_device_resource;
 
   cr = wl_resource_create (client, &wl_data_device_interface, wl_resource_get_version (manager_resource), id);
   wl_resource_set_implementation (cr, &data_device_interface, &seat->data_device, unbind_resource);
+
+  data_device_resource =
+    wl_resource_find_for_client (&seat->data_device.resource_list, client);
+  if (data_device_resource)
+    {
+      wl_list_remove (wl_resource_get_link (data_device_resource));
+      wl_list_init (wl_resource_get_link (data_device_resource));
+    }
+
   wl_list_insert (&seat->data_device.resource_list, wl_resource_get_link (cr));
 
   ensure_owners_changed_handler_connected (&seat->data_device);
