@@ -126,10 +126,28 @@ ray_intersects_input_region (Record                   *rec,
   if (G_LIKELY (is_axis_aligned_2d_rectangle (rec->vertices)))
     {
       graphene_box_t box;
+      graphene_box_t right_border;
+      graphene_box_t bottom_border;
+
+      /* Graphene considers both the start and end coordinates of boxes to be
+       * inclusive, while the vertices of a clutter actor are exclusive. So we
+       * need to manually exclude hits on these borders
+       */
 
       graphene_box_init_from_points (&box, 4, rec->vertices);
-      return graphene_box_contains_point (&box, point) ||
-             graphene_ray_intersects_box (ray, &box);
+      graphene_box_init_from_points (&right_border, 2, rec->vertices + 1);
+      graphene_box_init_from_points (&bottom_border, 2, rec->vertices + 2);
+
+      /* Fast path for actors without 3D transforms */
+      if (graphene_box_contains_point (&box, point))
+        {
+          return !graphene_box_contains_point (&right_border, point) &&
+                 !graphene_box_contains_point (&bottom_border, point);
+        }
+
+      return graphene_ray_intersects_box (ray, &box) &&
+             !graphene_ray_intersects_box (ray, &right_border) &&
+             !graphene_ray_intersects_box (ray, &bottom_border);
     }
   else
     {
