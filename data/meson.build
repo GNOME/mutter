@@ -61,6 +61,6 @@ install_data(['mutter-schemas.convert'],
 
 if have_libgudev
   install_data(['61-mutter.rules'],
-    install_dir: join_paths(udevdir, 'rules.d'),
+    install_dir: join_paths(udev_dir, 'rules.d'),
   )
 endif
