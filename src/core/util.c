@@ -319,6 +319,8 @@ topic_name (MetaDebugTopic topic)
       return "DBUS";
     case META_DEBUG_INPUT:
       return "INPUT";
+    case META_DEBUG_WAYLAND:
+      return "WAYLAND";
     case META_DEBUG_KMS:
       return "KMS";
     case META_DEBUG_SCREEN_CAST:
@@ -329,8 +331,6 @@ topic_name (MetaDebugTopic topic)
       return "BACKEND";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
-    case META_DEBUG_WAYLAND:
-      return "WAYLAND";
     }
 
   return "WM";
