@@ -80,6 +80,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_SCREEN_CAST: screencasting
  * @META_DEBUG_REMOTE_DESKTOP: remote desktop
  * @META_DEBUG_BACKEND: backend
+ * @META_DEBUG_RENDER: native backend rendering
  */
 typedef enum
 {
@@ -109,6 +110,7 @@ typedef enum
   META_DEBUG_SCREEN_CAST     = 1 << 22,
   META_DEBUG_REMOTE_DESKTOP  = 1 << 23,
   META_DEBUG_BACKEND         = 1 << 24,
+  META_DEBUG_RENDER          = 1 << 25,
 } MetaDebugTopic;
 
 /**
