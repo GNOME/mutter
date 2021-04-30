@@ -147,10 +147,12 @@ add_common_modes (MetaOutputInfo *output_info,
   MetaCrtcMode *crtc_mode;
   GPtrArray *array;
   float refresh_rate;
+  float bandwidth;
   unsigned i;
   unsigned max_hdisplay = 0;
   unsigned max_vdisplay = 0;
   float max_refresh_rate = 0.0;
+  float max_bandwidth = 0.0;
 
   for (i = 0; i < output_info->n_modes; i++)
     {
@@ -159,9 +161,11 @@ add_common_modes (MetaOutputInfo *output_info,
 
       drm_mode = meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms);
       refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+      bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
       max_hdisplay = MAX (max_hdisplay, drm_mode->hdisplay);
       max_vdisplay = MAX (max_vdisplay, drm_mode->vdisplay);
       max_refresh_rate = MAX (max_refresh_rate, refresh_rate);
+      max_bandwidth = MAX (max_bandwidth, bandwidth);
     }
 
   max_refresh_rate = MAX (max_refresh_rate, 60.0);
@@ -174,9 +178,11 @@ add_common_modes (MetaOutputInfo *output_info,
         {
           drm_mode = &meta_default_landscape_drm_mode_infos[i];
           refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+          bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
           if (drm_mode->hdisplay > max_hdisplay ||
               drm_mode->vdisplay > max_vdisplay ||
-              refresh_rate > max_refresh_rate)
+              refresh_rate > max_refresh_rate ||
+              bandwidth > max_bandwidth)
             continue;
 
           crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms,
@@ -190,9 +196,11 @@ add_common_modes (MetaOutputInfo *output_info,
         {
           drm_mode = &meta_default_portrait_drm_mode_infos[i];
           refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+          bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
           if (drm_mode->hdisplay > max_hdisplay ||
               drm_mode->vdisplay > max_vdisplay ||
-              refresh_rate > max_refresh_rate)
+              refresh_rate > max_refresh_rate ||
+              bandwidth > max_bandwidth)
             continue;
 
           crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms,
@@ -259,7 +267,7 @@ init_output_modes (MetaOutputInfo    *output_info,
         output_info->preferred_mode = output_info->modes[i];
     }
 
-  if (connector_state->has_scaling && connector_state->n_modes == 1)
+  if (connector_state->has_scaling)
     add_common_modes (output_info, gpu_kms);
 
   if (!output_info->modes)
