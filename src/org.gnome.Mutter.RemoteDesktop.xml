@@ -101,7 +101,12 @@
     <!--
 	NotifyPointerButton:
 
-	A pointer button was pressed or released
+	A pointer button was pressed or released.
+
+        Accepted values for button are
+          0x110: Left button
+          0x111: Right button
+          0x112: Middle button
      -->
     <method name="NotifyPointerButton">
       <arg name="button" type="i" direction="in" />
