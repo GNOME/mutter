@@ -872,6 +872,5 @@ meta_input_settings_native_new_in_impl (MetaSeatImpl *seat_impl)
 {
   return g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE,
                        "seat-impl", seat_impl,
-                       "seat", seat_impl->seat_native,
                        NULL);
 }

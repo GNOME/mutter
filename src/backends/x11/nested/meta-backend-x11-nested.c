@@ -94,13 +94,8 @@ meta_backend_x11_nested_get_input_settings (MetaBackend *backend)
 
   if (!priv->input_settings)
     {
-      ClutterSeat *seat;
-
-      seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
       priv->input_settings =
-        g_object_new (META_TYPE_INPUT_SETTINGS_DUMMY,
-                      "seat", seat,
-                      NULL);
+        g_object_new (META_TYPE_INPUT_SETTINGS_DUMMY, NULL);
     }
 
   return priv->input_settings;

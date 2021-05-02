@@ -96,8 +96,7 @@ meta_backend_x11_cm_post_init (MetaBackend *backend)
   g_signal_connect_object (seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
 
-  x11_cm->input_settings = g_object_new (META_TYPE_INPUT_SETTINGS_X11,
-                                         "seat", seat, NULL);
+  x11_cm->input_settings = g_object_new (META_TYPE_INPUT_SETTINGS_X11, NULL);
 
   parent_backend_class->post_init (backend);
   take_touch_grab (backend);
