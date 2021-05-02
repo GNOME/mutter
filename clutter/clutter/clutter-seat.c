@@ -31,6 +31,7 @@
 #include "clutter-private.h"
 #include "clutter-seat.h"
 #include "clutter-seat-private.h"
+#include "clutter-settings-private.h"
 #include "clutter-virtual-input-device.h"
 
 enum
@@ -115,12 +116,23 @@ clutter_seat_get_property (GObject    *object,
 }
 
 static void
+clutter_seat_constructed (GObject *object)
+{
+  ClutterSettings *settings = clutter_settings_get_default ();
+
+  G_OBJECT_CLASS (clutter_seat_parent_class)->constructed (object);
+  clutter_settings_ensure_pointer_a11y_settings (settings,
+                                                 CLUTTER_SEAT (object));
+}
+
+static void
 clutter_seat_class_init (ClutterSeatClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->set_property = clutter_seat_set_property;
   object_class->get_property = clutter_seat_get_property;
+  object_class->constructed = clutter_seat_constructed;
 
   signals[DEVICE_ADDED] =
     g_signal_new (I_("device-added"),

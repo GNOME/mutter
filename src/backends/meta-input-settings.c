@@ -74,7 +74,6 @@ struct _MetaInputSettingsPrivate
   GSettings *trackball_settings;
   GSettings *keyboard_settings;
   GSettings *keyboard_a11y_settings;
-  GSettings *mouse_a11y_settings;
 
   GList *devices;
   GHashTable *mappable_devices;
@@ -152,7 +151,6 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->trackball_settings);
   g_clear_object (&priv->keyboard_settings);
   g_clear_object (&priv->keyboard_a11y_settings);
-  g_clear_object (&priv->mouse_a11y_settings);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
 
@@ -1273,97 +1271,6 @@ meta_input_keyboard_a11y_settings_changed (GSettings  *settings,
   load_keyboard_a11y_settings (input_settings);
 }
 
-struct _pointer_a11y_settings_flags_pair {
-  const char *name;
-  ClutterPointerA11yFlags flag;
-} pointer_a11y_settings_flags_pair[] = {
-  { "secondary-click-enabled", CLUTTER_A11Y_SECONDARY_CLICK_ENABLED },
-  { "dwell-click-enabled",     CLUTTER_A11Y_DWELL_ENABLED },
-};
-
-static ClutterPointerA11yDwellDirection
-pointer_a11y_dwell_direction_from_setting (MetaInputSettings *input_settings,
-                                           const char        *key)
-{
-  MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
-  GDesktopMouseDwellDirection dwell_gesture_direction;
-
-  dwell_gesture_direction = g_settings_get_enum (priv->mouse_a11y_settings, key);
-  switch (dwell_gesture_direction)
-    {
-    case G_DESKTOP_MOUSE_DWELL_DIRECTION_LEFT:
-      return CLUTTER_A11Y_DWELL_DIRECTION_LEFT;
-      break;
-    case G_DESKTOP_MOUSE_DWELL_DIRECTION_RIGHT:
-      return CLUTTER_A11Y_DWELL_DIRECTION_RIGHT;
-      break;
-    case G_DESKTOP_MOUSE_DWELL_DIRECTION_UP:
-      return CLUTTER_A11Y_DWELL_DIRECTION_UP;
-      break;
-    case G_DESKTOP_MOUSE_DWELL_DIRECTION_DOWN:
-      return CLUTTER_A11Y_DWELL_DIRECTION_DOWN;
-      break;
-    default:
-      break;
-    }
-  return CLUTTER_A11Y_DWELL_DIRECTION_NONE;
-}
-
-static void
-load_pointer_a11y_settings (MetaInputSettings  *input_settings)
-{
-  MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
-  ClutterPointerA11ySettings pointer_a11y_settings;
-  GDesktopMouseDwellMode dwell_mode;
-  guint i;
-
-  clutter_seat_get_pointer_a11y_settings (CLUTTER_SEAT (priv->seat),
-                                          &pointer_a11y_settings);
-  pointer_a11y_settings.controls = 0;
-  for (i = 0; i < G_N_ELEMENTS (pointer_a11y_settings_flags_pair); i++)
-    {
-      if (g_settings_get_boolean (priv->mouse_a11y_settings, pointer_a11y_settings_flags_pair[i].name))
-        pointer_a11y_settings.controls |= pointer_a11y_settings_flags_pair[i].flag;
-    }
-
-  /* "secondary-click-time" is expressed in seconds */
-  pointer_a11y_settings.secondary_click_delay =
-    (1000 * g_settings_get_double (priv->mouse_a11y_settings, "secondary-click-time"));
-  /* "dwell-time" is expressed in seconds */
-  pointer_a11y_settings.dwell_delay =
-    (1000 * g_settings_get_double (priv->mouse_a11y_settings, "dwell-time"));
-  pointer_a11y_settings.dwell_threshold = g_settings_get_int (priv->mouse_a11y_settings,
-                                                              "dwell-threshold");
-
-  dwell_mode = g_settings_get_enum (priv->mouse_a11y_settings, "dwell-mode");
-  if (dwell_mode == G_DESKTOP_MOUSE_DWELL_MODE_WINDOW)
-    pointer_a11y_settings.dwell_mode = CLUTTER_A11Y_DWELL_MODE_WINDOW;
-  else
-    pointer_a11y_settings.dwell_mode = CLUTTER_A11Y_DWELL_MODE_GESTURE;
-
-  pointer_a11y_settings.dwell_gesture_single =
-    pointer_a11y_dwell_direction_from_setting (input_settings, "dwell-gesture-single");
-  pointer_a11y_settings.dwell_gesture_double =
-    pointer_a11y_dwell_direction_from_setting (input_settings, "dwell-gesture-double");
-  pointer_a11y_settings.dwell_gesture_drag =
-    pointer_a11y_dwell_direction_from_setting (input_settings, "dwell-gesture-drag");
-  pointer_a11y_settings.dwell_gesture_secondary =
-    pointer_a11y_dwell_direction_from_setting (input_settings, "dwell-gesture-secondary");
-
-  clutter_seat_set_pointer_a11y_settings (CLUTTER_SEAT (priv->seat),
-                                          &pointer_a11y_settings);
-}
-
-static void
-meta_input_mouse_a11y_settings_changed (GSettings  *settings,
-                                        const char *key,
-                                        gpointer    user_data)
-{
-  MetaInputSettings *input_settings = META_INPUT_SETTINGS (user_data);
-
-  load_pointer_a11y_settings (input_settings);
-}
-
 static GSettings *
 lookup_device_settings (ClutterInputDevice *device)
 {
@@ -1750,7 +1657,6 @@ meta_input_settings_constructed (GObject *object)
   check_mappable_devices (input_settings);
 
   load_keyboard_a11y_settings (input_settings);
-  load_pointer_a11y_settings (input_settings);
 }
 
 static void
@@ -1811,10 +1717,6 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->keyboard_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
   g_signal_connect (priv->keyboard_a11y_settings, "changed",
                     G_CALLBACK (meta_input_keyboard_a11y_settings_changed), settings);
-
-  priv->mouse_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.mouse");
-  g_signal_connect (priv->mouse_a11y_settings, "changed",
-                    G_CALLBACK (meta_input_mouse_a11y_settings_changed), settings);
 
   priv->mappable_devices =
     g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) device_mapping_info_free);

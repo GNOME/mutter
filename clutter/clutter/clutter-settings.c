@@ -32,6 +32,7 @@
 #include "clutter-stage-private.h"
 #include "clutter-private.h"
 
+#include <gdesktop-enums.h>
 #include <stdlib.h>
 
 #define DEFAULT_FONT_NAME       "Sans 12"
@@ -67,6 +68,7 @@ struct _ClutterSettings
   ClutterBackend *backend;
   GSettings *font_settings;
   GSettings *mouse_settings;
+  GSettings *mouse_a11y_settings;
 
   gint double_click_time;
   gint double_click_distance;
@@ -436,11 +438,110 @@ on_mouse_settings_change_event (GSettings *settings,
   return FALSE;
 }
 
+struct _pointer_a11y_settings_flags_pair {
+  const char *name;
+  ClutterPointerA11yFlags flag;
+} pointer_a11y_settings_flags_pair[] = {
+  { "secondary-click-enabled", CLUTTER_A11Y_SECONDARY_CLICK_ENABLED },
+  { "dwell-click-enabled",     CLUTTER_A11Y_DWELL_ENABLED },
+};
+
+static ClutterPointerA11yDwellDirection
+pointer_a11y_dwell_direction_from_setting (ClutterSettings *self,
+                                           const char      *key)
+{
+  GDesktopMouseDwellDirection dwell_gesture_direction;
+
+  dwell_gesture_direction = g_settings_get_enum (self->mouse_a11y_settings,
+                                                 key);
+  switch (dwell_gesture_direction)
+    {
+    case G_DESKTOP_MOUSE_DWELL_DIRECTION_LEFT:
+      return CLUTTER_A11Y_DWELL_DIRECTION_LEFT;
+      break;
+    case G_DESKTOP_MOUSE_DWELL_DIRECTION_RIGHT:
+      return CLUTTER_A11Y_DWELL_DIRECTION_RIGHT;
+      break;
+    case G_DESKTOP_MOUSE_DWELL_DIRECTION_UP:
+      return CLUTTER_A11Y_DWELL_DIRECTION_UP;
+      break;
+    case G_DESKTOP_MOUSE_DWELL_DIRECTION_DOWN:
+      return CLUTTER_A11Y_DWELL_DIRECTION_DOWN;
+      break;
+    default:
+      break;
+    }
+  return CLUTTER_A11Y_DWELL_DIRECTION_NONE;
+}
+
+static void
+sync_pointer_a11y_settings (ClutterSettings *self,
+                            ClutterSeat     *seat)
+{
+  ClutterPointerA11ySettings pointer_a11y_settings;
+  GDesktopMouseDwellMode dwell_mode;
+  int i;
+
+  clutter_seat_get_pointer_a11y_settings (seat, &pointer_a11y_settings);
+  pointer_a11y_settings.controls = 0;
+  for (i = 0; i < G_N_ELEMENTS (pointer_a11y_settings_flags_pair); i++)
+    {
+      if (!g_settings_get_boolean (self->mouse_a11y_settings,
+                                   pointer_a11y_settings_flags_pair[i].name))
+        continue;
+
+      pointer_a11y_settings.controls |=
+        pointer_a11y_settings_flags_pair[i].flag;
+    }
+
+  /* "secondary-click-time" is expressed in seconds */
+  pointer_a11y_settings.secondary_click_delay =
+    (1000 * g_settings_get_double (self->mouse_a11y_settings,
+                                   "secondary-click-time"));
+  /* "dwell-time" is expressed in seconds */
+  pointer_a11y_settings.dwell_delay =
+    (1000 * g_settings_get_double (self->mouse_a11y_settings, "dwell-time"));
+  pointer_a11y_settings.dwell_threshold =
+    g_settings_get_int (self->mouse_a11y_settings, "dwell-threshold");
+
+  dwell_mode = g_settings_get_enum (self->mouse_a11y_settings, "dwell-mode");
+  if (dwell_mode == G_DESKTOP_MOUSE_DWELL_MODE_WINDOW)
+    pointer_a11y_settings.dwell_mode = CLUTTER_A11Y_DWELL_MODE_WINDOW;
+  else
+    pointer_a11y_settings.dwell_mode = CLUTTER_A11Y_DWELL_MODE_GESTURE;
+
+  pointer_a11y_settings.dwell_gesture_single =
+    pointer_a11y_dwell_direction_from_setting (self, "dwell-gesture-single");
+  pointer_a11y_settings.dwell_gesture_double =
+    pointer_a11y_dwell_direction_from_setting (self, "dwell-gesture-double");
+  pointer_a11y_settings.dwell_gesture_drag =
+    pointer_a11y_dwell_direction_from_setting (self, "dwell-gesture-drag");
+  pointer_a11y_settings.dwell_gesture_secondary =
+    pointer_a11y_dwell_direction_from_setting (self, "dwell-gesture-secondary");
+
+  clutter_seat_set_pointer_a11y_settings (seat, &pointer_a11y_settings);
+}
+
+static gboolean
+on_mouse_a11y_settings_change_event (GSettings *settings,
+                                     gpointer   keys,
+                                     int        n_keys,
+                                     gpointer   user_data)
+{
+  ClutterSettings *self = CLUTTER_SETTINGS (user_data);
+  ClutterSeat *seat = clutter_backend_get_default_seat (self->backend);
+
+  sync_pointer_a11y_settings (self, seat);
+
+  return FALSE;
+}
+
 static void
 load_initial_settings (ClutterSettings *self)
 {
   static const gchar *font_settings_path = "org.gnome.desktop.interface";
   static const gchar *mouse_settings_path = "org.gnome.desktop.peripherals.mouse";
+  static const char *mouse_a11y_settings_path = "org.gnome.desktop.a11y.mouse";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema;
 
@@ -477,6 +578,19 @@ load_initial_settings (ClutterSettings *self)
                             self);
         }
     }
+
+  schema = g_settings_schema_source_lookup (source, mouse_a11y_settings_path, TRUE);
+  if (!schema)
+    {
+      g_warning ("Failed to find schema: %s", mouse_settings_path);
+    }
+  else
+    {
+      self->mouse_a11y_settings = g_settings_new_full (schema, NULL, NULL);
+      g_signal_connect (self->mouse_a11y_settings, "change-event",
+                        G_CALLBACK (on_mouse_a11y_settings_change_event),
+                        self);
+    }
 }
 
 static void
@@ -490,6 +604,7 @@ clutter_settings_finalize (GObject *gobject)
 
   g_clear_object (&self->font_settings);
   g_clear_object (&self->mouse_settings);
+  g_clear_object (&self->mouse_a11y_settings);
 
   G_OBJECT_CLASS (clutter_settings_parent_class)->finalize (gobject);
 }
@@ -957,4 +1072,11 @@ _clutter_settings_set_backend (ClutterSettings *settings,
   settings->backend = backend;
 
   load_initial_settings (settings);
+}
+
+void
+clutter_settings_ensure_pointer_a11y_settings (ClutterSettings *settings,
+                                               ClutterSeat     *seat)
+{
+  sync_pointer_a11y_settings (settings, seat);
 }

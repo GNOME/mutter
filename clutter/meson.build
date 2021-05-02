@@ -81,6 +81,7 @@ endif
 clutter_deps = [
   clutter_pkg_deps,
   clutter_pkg_private_deps,
+  gsettings_desktop_schemas_dep,
   libmutter_cogl_dep,
   m_dep
 ]
