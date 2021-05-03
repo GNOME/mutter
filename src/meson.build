@@ -460,6 +460,13 @@ mutter_sources = [
   'x11/xprops.h',
 ]
 
+if have_egl_device
+  mutter_sources += [
+    'backends/native/meta-render-device-egl-stream.c',
+    'backends/native/meta-render-device-egl-stream.h',
+  ]
+endif
+
 if have_egl
   mutter_sources += [
     'backends/meta-egl.c',
@@ -748,6 +755,13 @@ if have_native_backend
     'backends/native/meta-onscreen-native.h',
     'backends/native/meta-pointer-constraint-native.c',
     'backends/native/meta-pointer-constraint-native.h',
+    'backends/native/meta-render-device-gbm.c',
+    'backends/native/meta-render-device-gbm.h',
+    'backends/native/meta-render-device-private.h',
+    'backends/native/meta-render-device-surfaceless.c',
+    'backends/native/meta-render-device-surfaceless.h',
+    'backends/native/meta-render-device.c',
+    'backends/native/meta-render-device.h',
     'backends/native/meta-renderer-native-gles3.c',
     'backends/native/meta-renderer-native-gles3.h',
     'backends/native/meta-renderer-native-private.h',
