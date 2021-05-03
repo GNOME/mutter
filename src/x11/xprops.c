@@ -620,7 +620,7 @@ meta_prop_get_cardinal_with_atom_type (MetaX11Display *x11_display,
 }
 
 static char *
-text_property_to_utf8 (Display *xdisplay,
+text_property_to_utf8 (GetPropertyResults  *results,
                        const XTextProperty *prop)
 {
   char *ret = NULL;
@@ -629,7 +629,8 @@ text_property_to_utf8 (Display *xdisplay,
   int count = 0;
   int res;
 
-  res = XmbTextPropertyToTextList (xdisplay, prop, &local_list, &count);
+  res = XmbTextPropertyToTextList (results->x11_display->xdisplay, prop,
+                                   &local_list, &count);
   if (res == XNoMemory || res == XLocaleNotSupported || res == XConverterNotFound)
     goto out;
 
@@ -637,9 +638,26 @@ text_property_to_utf8 (Display *xdisplay,
     goto out;
 
   if (g_get_charset (&charset))
-    ret = g_strdup (local_list[0]);
+    {
+      if (!g_utf8_validate (local_list[0], -1, NULL))
+        {
+          char *name;
+
+          meta_x11_error_trap_push (results->x11_display);
+          name = XGetAtomName (results->x11_display->xdisplay, results->xatom);
+          meta_x11_error_trap_pop (results->x11_display);
+          meta_warning ("Property %s on window 0x%lx contained invalid UTF-8",
+                        name, results->xwindow);
+          meta_XFree (name);
+
+          goto out;
+        }
+      ret = g_strdup (local_list[0]);
+    }
   else
-    ret = g_convert (local_list[0], -1, "UTF-8", charset, NULL, NULL, NULL);
+    {
+      ret = g_convert (local_list[0], -1, "UTF-8", charset, NULL, NULL, NULL);
+    }
 
  out:
   XFreeStringList (local_list);
@@ -659,7 +677,7 @@ text_property_from_results (GetPropertyResults *results,
   tp.format = results->format;
   tp.nitems = results->n_items;
 
-  *utf8_str_p = text_property_to_utf8 (results->x11_display->xdisplay, &tp);
+  *utf8_str_p = text_property_to_utf8 (results, &tp);
 
   g_clear_pointer (&results->prop, g_free);
 
