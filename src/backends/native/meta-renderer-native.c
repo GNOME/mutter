@@ -814,7 +814,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
 
         stride = gbm_bo_get_stride (new_bo);
         offset = gbm_bo_get_offset (new_bo, 0);
-        bpp = 4;
+        bpp = gbm_bo_get_bpp (new_bo) / 8;
         dmabuf_fb =
           meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
                                                            dmabuf_fd,
