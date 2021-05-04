@@ -898,7 +898,7 @@ on_displayfd_ready (int          fd,
    * socket when it's ready. We don't care about the data
    * in the socket, just that it wrote something, since
    * that means it's ready. */
-  g_task_return_boolean (task, TRUE);
+  g_task_return_boolean (task, !!(condition & G_IO_IN));
   g_object_unref (task);
 
   return G_SOURCE_REMOVE;
