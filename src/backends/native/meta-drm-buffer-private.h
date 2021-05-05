@@ -63,9 +63,4 @@ gboolean meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
                                        const MetaDrmFbArgs  *fb_args,
                                        GError              **error);
 
-gboolean meta_drm_buffer_ensure_fb_in_impl (MetaDrmBuffer        *buffer,
-                                            gboolean              use_modifiers,
-                                            const MetaDrmFbArgs  *fb_args,
-                                            GError              **error);
-
 #endif /* META_DRM_BUFFER_PRIVATE_H */
