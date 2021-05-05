@@ -2045,7 +2045,6 @@ meta_onscreen_native_dispose (GObject *object)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
@@ -2072,6 +2071,7 @@ meta_onscreen_native_dispose (GObject *object)
       if (onscreen_native->egl.stream != EGL_NO_STREAM_KHR)
         {
           MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+          CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
           CoglRenderer *cogl_renderer = cogl_context->display->renderer;
           CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
 
