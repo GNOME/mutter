@@ -45,6 +45,16 @@ G_DEFINE_TYPE (MetaDrmBufferImport, meta_drm_buffer_import,
                META_TYPE_DRM_BUFFER)
 
 static int
+meta_drm_buffer_import_export_fd (MetaDrmBuffer  *buffer,
+                                  GError        **error)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+
+  return meta_drm_buffer_export_fd (META_DRM_BUFFER (buffer_import->importee),
+                                    error);
+}
+
+static int
 meta_drm_buffer_import_get_width (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
@@ -229,6 +239,7 @@ meta_drm_buffer_import_class_init (MetaDrmBufferImportClass *klass)
 
   object_class->finalize = meta_drm_buffer_import_finalize;
 
+  buffer_class->export_fd = meta_drm_buffer_import_export_fd;
   buffer_class->get_width = meta_drm_buffer_import_get_width;
   buffer_class->get_height = meta_drm_buffer_import_get_height;
   buffer_class->get_stride = meta_drm_buffer_import_get_stride;

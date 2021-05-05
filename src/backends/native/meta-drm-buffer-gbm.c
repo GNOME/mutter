@@ -58,6 +58,24 @@ meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm)
 }
 
 static int
+meta_drm_buffer_gbm_export_fd (MetaDrmBuffer  *buffer,
+                               GError        **error)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+  int fd;
+
+  fd = gbm_bo_get_fd (buffer_gbm->bo);
+  if (fd == -1)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to export buffer fd: %s", g_strerror (errno));
+      return -1;
+    }
+
+  return fd;
+}
+
+static int
 meta_drm_buffer_gbm_get_width (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
@@ -491,6 +509,7 @@ meta_drm_buffer_gbm_class_init (MetaDrmBufferGbmClass *klass)
 
   object_class->finalize = meta_drm_buffer_gbm_finalize;
 
+  buffer_class->export_fd = meta_drm_buffer_gbm_export_fd;
   buffer_class->get_width = meta_drm_buffer_gbm_get_width;
   buffer_class->get_height = meta_drm_buffer_gbm_get_height;
   buffer_class->get_stride = meta_drm_buffer_gbm_get_stride;

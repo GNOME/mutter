@@ -51,6 +51,15 @@ struct _MetaDrmBufferDumb
 G_DEFINE_TYPE (MetaDrmBufferDumb, meta_drm_buffer_dumb, META_TYPE_DRM_BUFFER)
 
 static int
+meta_drm_buffer_dumb_export_fd (MetaDrmBuffer  *buffer,
+                                GError        **error)
+{
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "Can't export fd for dumb buffer");
+  return -1;
+}
+
+static int
 meta_drm_buffer_dumb_get_width (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferDumb *buffer_dumb = META_DRM_BUFFER_DUMB (buffer);
@@ -362,6 +371,7 @@ meta_drm_buffer_dumb_class_init (MetaDrmBufferDumbClass *klass)
 
   object_class->finalize = meta_drm_buffer_dumb_finalize;
 
+  buffer_class->export_fd = meta_drm_buffer_dumb_export_fd;
   buffer_class->get_width = meta_drm_buffer_dumb_get_width;
   buffer_class->get_height = meta_drm_buffer_dumb_get_height;
   buffer_class->get_stride = meta_drm_buffer_dumb_get_stride;

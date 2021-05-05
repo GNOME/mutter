@@ -158,6 +158,13 @@ meta_drm_buffer_release_fb_id (MetaDrmBuffer *buffer)
   priv->fb_id = 0;
 }
 
+int
+meta_drm_buffer_export_fd (MetaDrmBuffer  *buffer,
+                           GError        **error)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->export_fd (buffer, error);
+}
+
 uint32_t
 meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer)
 {

@@ -40,6 +40,9 @@ G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
                           META, DRM_BUFFER,
                           GObject)
 
+int meta_drm_buffer_export_fd (MetaDrmBuffer  *buffer,
+                               GError        **error);
+
 uint32_t meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer);
 
 int meta_drm_buffer_get_width (MetaDrmBuffer *buffer);
