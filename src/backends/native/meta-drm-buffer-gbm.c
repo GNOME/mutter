@@ -117,7 +117,6 @@ meta_drm_buffer_gbm_get_modifier (MetaDrmBuffer *buffer)
 static gboolean
 init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
             struct gbm_bo     *bo,
-            gboolean           use_modifiers,
             GError           **error)
 {
   MetaDrmFbArgs fb_args = { 0, };
@@ -148,7 +147,7 @@ init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
   fb_args.format = gbm_bo_get_format (bo);
 
   if (!meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_gbm),
-                                     use_modifiers, &fb_args, error))
+                                     &fb_args, error))
     return FALSE;
 
   return TRUE;
@@ -156,7 +155,6 @@ init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
 
 static gboolean
 lock_front_buffer (MetaDrmBufferGbm  *buffer_gbm,
-                   gboolean           use_modifiers,
                    GError           **error)
 {
   buffer_gbm->bo = gbm_surface_lock_front_buffer (buffer_gbm->surface);
@@ -169,23 +167,24 @@ lock_front_buffer (MetaDrmBufferGbm  *buffer_gbm,
       return FALSE;
     }
 
-  return init_fb_id (buffer_gbm, buffer_gbm->bo, use_modifiers, error);
+  return init_fb_id (buffer_gbm, buffer_gbm->bo, error);
 }
 
 MetaDrmBufferGbm *
 meta_drm_buffer_gbm_new_lock_front (MetaDeviceFile      *device_file,
                                     struct gbm_surface  *gbm_surface,
-                                    gboolean             use_modifiers,
+                                    MetaDrmBufferFlags   flags,
                                     GError             **error)
 {
   MetaDrmBufferGbm *buffer_gbm;
 
   buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM,
                              "device-file", device_file,
+                             "flags", flags,
                              NULL);
   buffer_gbm->surface = gbm_surface;
 
-  if (!lock_front_buffer (buffer_gbm, use_modifiers, error))
+  if (!lock_front_buffer (buffer_gbm, error))
     {
       g_object_unref (buffer_gbm);
       return NULL;
@@ -195,18 +194,19 @@ meta_drm_buffer_gbm_new_lock_front (MetaDeviceFile      *device_file,
 }
 
 MetaDrmBufferGbm *
-meta_drm_buffer_gbm_new_take (MetaDeviceFile  *device_file,
-                              struct gbm_bo   *bo,
-                              gboolean         use_modifiers,
-                              GError         **error)
+meta_drm_buffer_gbm_new_take (MetaDeviceFile      *device_file,
+                              struct gbm_bo       *bo,
+                              MetaDrmBufferFlags   flags,
+                              GError             **error)
 {
   MetaDrmBufferGbm *buffer_gbm;
 
   buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM,
                              "device-file", device_file,
+                             "flags", flags,
                              NULL);
 
-  if (!init_fb_id (buffer_gbm, bo, use_modifiers, error))
+  if (!init_fb_id (buffer_gbm, bo, error))
     {
       g_object_unref (buffer_gbm);
       return NULL;

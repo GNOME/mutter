@@ -172,7 +172,6 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
   fb_args.handles[0] = gbm_bo_get_handle (imported_bo).u32;
 
   ret = meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_import),
-                                      FALSE /* use_modifiers */,
                                       &fb_args,
                                       error);
 
@@ -194,6 +193,7 @@ meta_drm_buffer_import_new (MetaDeviceFile     *device_file,
 
   buffer_import = g_object_new (META_TYPE_DRM_BUFFER_IMPORT,
                                 "device-file", device_file,
+                                "flags", META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS,
                                 NULL);
   g_set_object (&buffer_import->importee, buffer_gbm);
 

@@ -295,6 +295,7 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
   struct gbm_bo *gbm_bo;
   gboolean use_modifier;
   g_autoptr (GError) error = NULL;
+  MetaDrmBufferFlags flags;
   MetaDrmBufferGbm *fb;
 
   for (n_planes = 0; n_planes < META_WAYLAND_DMA_BUF_MAX_FDS; n_planes++)
@@ -321,10 +322,11 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
       return NULL;
     }
 
-  fb = meta_drm_buffer_gbm_new_take (device_file,
-                                     gbm_bo,
-                                     use_modifier,
-                                     &error);
+  flags = META_DRM_BUFFER_FLAG_NONE;
+  if (!use_modifier)
+    flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
+  fb = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, &error);
   if (!fb)
     {
       g_debug ("Failed to create scanout buffer: %s", error->message);

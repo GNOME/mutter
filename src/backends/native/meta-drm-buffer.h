@@ -28,6 +28,12 @@
 
 #include "cogl/cogl.h"
 
+typedef enum _MetaDrmBufferFlags
+{
+  META_DRM_BUFFER_FLAG_NONE = 0,
+  META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS = 1 << 0,
+} MetaDrmBufferFlags;
+
 #define META_TYPE_DRM_BUFFER (meta_drm_buffer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
                           meta_drm_buffer,

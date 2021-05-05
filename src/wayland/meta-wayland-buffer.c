@@ -694,6 +694,7 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
   uint32_t drm_format;
   uint64_t drm_modifier;
   uint32_t stride;
+  MetaDrmBufferFlags flags;
   MetaDrmBufferGbm *fb;
   g_autoptr (GError) error = NULL;
 
@@ -719,10 +720,11 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
       return NULL;
     }
 
-  fb = meta_drm_buffer_gbm_new_take (device_file,
-                                     gbm_bo,
-                                     drm_modifier != DRM_FORMAT_MOD_INVALID,
-                                     &error);
+  flags = META_DRM_BUFFER_FLAG_NONE;
+  if (drm_modifier == DRM_FORMAT_MOD_INVALID)
+    flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
+  fb = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, &error);
   if (!fb)
     {
       g_debug ("Failed to create scanout buffer: %s", error->message);

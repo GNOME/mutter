@@ -35,14 +35,14 @@ G_DECLARE_FINAL_TYPE (MetaDrmBufferGbm,
 
 MetaDrmBufferGbm * meta_drm_buffer_gbm_new_lock_front (MetaDeviceFile      *device_file,
                                                        struct gbm_surface  *gbm_surface,
-                                                       gboolean             use_modifiers,
+                                                       MetaDrmBufferFlags   flags,
                                                        GError             **error);
 
 
-MetaDrmBufferGbm * meta_drm_buffer_gbm_new_take (MetaDeviceFile  *device_file,
-                                                 struct gbm_bo   *gbm_bo,
-                                                 gboolean         use_modifiers,
-                                                 GError         **error);
+MetaDrmBufferGbm * meta_drm_buffer_gbm_new_take (MetaDeviceFile      *device_file,
+                                                 struct gbm_bo       *gbm_bo,
+                                                 MetaDrmBufferFlags   flags,
+                                                 GError             **error);
 
 struct gbm_bo * meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm);
 

@@ -242,7 +242,7 @@ init_dumb_buffer (MetaDrmBufferDumb  *buffer_dumb,
     .handles = { create_arg.handle },
     .strides = { create_arg.pitch },
   };
-  if (!meta_drm_buffer_ensure_fb_id (buffer, FALSE, &fb_args, error))
+  if (!meta_drm_buffer_ensure_fb_id (buffer, &fb_args, error))
     goto err_add_fb;
 
   map_arg = (struct drm_mode_map_dumb) {
@@ -303,6 +303,7 @@ meta_drm_buffer_dumb_new (MetaDeviceFile  *device_file,
 
   buffer_dumb = g_object_new (META_TYPE_DRM_BUFFER_DUMB,
                               "device-file", device_file,
+                              "flags", META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS,
                               NULL);
 
   if (!init_dumb_buffer (buffer_dumb, width, height, format, error))

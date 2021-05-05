@@ -654,6 +654,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   GError *error = NULL;
   gboolean use_modifiers;
   MetaDeviceFile *device_file;
+  MetaDrmBufferFlags flags;
   MetaDrmBufferGbm *buffer_gbm;
   struct gbm_bo *bo;
 
@@ -705,10 +706,15 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
 
   use_modifiers = meta_renderer_native_use_modifiers (renderer_native);
   device_file = secondary_gpu_state->renderer_gpu_data->device_file;
+
+  flags = META_DRM_BUFFER_FLAG_NONE;
+  if (!use_modifiers)
+    flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
   buffer_gbm =
     meta_drm_buffer_gbm_new_lock_front (device_file,
                                         secondary_gpu_state->gbm.surface,
-                                        use_modifiers,
+                                        flags,
                                         &error);
   if (!buffer_gbm)
     {
@@ -1016,9 +1022,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   ClutterFrame *frame = user_data;
   CoglOnscreenClass *parent_class;
   gboolean egl_context_changed = FALSE;
-  gboolean use_modifiers;
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
+  MetaDrmBufferFlags buffer_flags;
   MetaDrmBufferGbm *buffer_gbm;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
@@ -1047,11 +1053,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
       g_clear_object (&onscreen_native->gbm.next_fb);
 
-      use_modifiers = meta_renderer_native_use_modifiers (renderer_native);
+      buffer_flags = META_DRM_BUFFER_FLAG_NONE;
+      if (!meta_renderer_native_use_modifiers (renderer_native))
+        buffer_flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
       buffer_gbm =
         meta_drm_buffer_gbm_new_lock_front (render_device_file,
                                             onscreen_native->gbm.surface,
-                                            use_modifiers,
+                                            buffer_flags,
                                             &error);
       if (!buffer_gbm)
         {

@@ -804,6 +804,7 @@ endif
 if have_native_backend
   mutter_private_enum_sources += [
     'backends/native/meta-backend-native-types.h',
+    'backends/native/meta-drm-buffer.h',
     'backends/native/meta-kms-types.h',
   ]
 endif

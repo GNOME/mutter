@@ -59,7 +59,6 @@ struct _MetaDrmBufferClass
 MetaDeviceFile * meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer);
 
 gboolean meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
-                                       gboolean              use_modifiers,
                                        const MetaDrmFbArgs  *fb_args,
                                        GError              **error);
 
