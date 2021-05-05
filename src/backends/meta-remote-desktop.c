@@ -250,17 +250,31 @@ meta_remote_desktop_constructed (GObject *object)
 }
 
 static void
+on_prepare_shutdown (MetaBackend       *backend,
+                     MetaRemoteDesktop *remote_desktop)
+{
+  GHashTableIter iter;
+  gpointer value;
+
+  g_hash_table_iter_init (&iter, remote_desktop->sessions);
+  while (g_hash_table_iter_next (&iter, NULL, &value))
+    {
+      MetaRemoteDesktopSession *session = value;
+
+      g_hash_table_iter_steal (&iter);
+      meta_remote_desktop_session_close (session);
+    }
+}
+
+static void
 meta_remote_desktop_finalize (GObject *object)
 {
   MetaRemoteDesktop *remote_desktop = META_REMOTE_DESKTOP (object);
-  GList *sessions;
 
   if (remote_desktop->dbus_name_id != 0)
     g_bus_unown_name (remote_desktop->dbus_name_id);
 
-  sessions = g_list_copy (g_hash_table_get_values (remote_desktop->sessions));
-  g_list_free_full (sessions,
-                    (GDestroyNotify) meta_remote_desktop_session_close);
+  g_assert (g_hash_table_size (remote_desktop->sessions) == 0);
   g_hash_table_destroy (remote_desktop->sessions);
 
   G_OBJECT_CLASS (meta_remote_desktop_parent_class)->finalize (object);
@@ -275,6 +289,10 @@ meta_remote_desktop_new (MetaBackend            *backend,
   remote_desktop = g_object_new (META_TYPE_REMOTE_DESKTOP, NULL);
   remote_desktop->backend = backend;
   remote_desktop->session_watcher = session_watcher;
+
+  g_signal_connect (backend, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown),
+                    remote_desktop);
 
   return remote_desktop;
 }
