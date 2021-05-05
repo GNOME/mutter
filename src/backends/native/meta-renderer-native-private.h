@@ -29,6 +29,7 @@
 #define META_RENDERER_NATIVE_PRIVATE_H
 
 #include "backends/meta-gles3.h"
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-renderer-native.h"
 
 typedef enum _MetaSharedFramebufferCopyMode
@@ -49,28 +50,15 @@ typedef struct _MetaRendererNativeGpuData
 {
   MetaRendererNative *renderer_native;
 
-  MetaDeviceFile *device_file;
-
-  struct {
-    struct gbm_device *device;
-  } gbm;
-
-#ifdef HAVE_EGL_DEVICE
-  struct {
-    EGLDeviceEXT device;
-  } egl;
-#endif
+  MetaRenderDevice *render_device;
 
   MetaRendererNativeMode mode;
-
-  EGLDisplay egl_display;
 
   /*
    * Fields used for blitting iGPU framebuffer content onto dGPU framebuffers.
    */
   struct {
     MetaSharedFramebufferCopyMode copy_mode;
-    gboolean is_hardware_rendering;
     gboolean has_EGL_EXT_image_dma_buf_import_modifiers;
 
     /* For GPU blit mode */
