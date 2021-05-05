@@ -396,6 +396,9 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
         }
 
       buffer = plane_assignment->buffer;
+      if (!meta_drm_buffer_ensure_fb_id (buffer, error))
+        return FALSE;
+
       fb_id = meta_drm_buffer_get_fb_id (buffer);
 
       for (l = mode_set->connectors; l; l = l->next)
@@ -822,6 +825,9 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
       return FALSE;
     }
 
+  if (!meta_drm_buffer_ensure_fb_id (plane_assignment->buffer, error))
+    return FALSE;
+
   fill_connector_ids_array (cached_mode_set->connectors,
                             &connectors,
                             &n_connectors);
@@ -925,6 +931,10 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
 
       return TRUE;
     }
+
+  if (plane_assignment && plane_assignment->buffer &&
+      !meta_drm_buffer_ensure_fb_id (plane_assignment->buffer, error))
+    return FALSE;
 
   fd = meta_kms_impl_device_get_fd (impl_device);
   if (custom_page_flip)

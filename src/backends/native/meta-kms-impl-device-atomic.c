@@ -421,6 +421,9 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
 
   buffer = plane_assignment->buffer;
 
+  if (buffer && !meta_drm_buffer_ensure_fb_id (buffer, error))
+    return FALSE;
+
   meta_topic (META_DEBUG_KMS,
               "[atomic] Assigning %s plane (%u, %s) to %u, "
               "%hdx%hd+%hd+%hd -> %dx%d+%d+%d",

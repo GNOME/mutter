@@ -67,9 +67,21 @@ meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer)
 }
 
 gboolean
-meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
-                              const MetaDrmFbArgs  *fb_args,
-                              GError              **error)
+meta_drm_buffer_ensure_fb_id (MetaDrmBuffer  *buffer,
+                              GError        **error)
+{
+  MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
+
+  if (priv->fb_id)
+    return TRUE;
+
+  return META_DRM_BUFFER_GET_CLASS (buffer)->ensure_fb_id (buffer, error);
+}
+
+gboolean
+meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
+                                 const MetaDrmFbArgs  *fb_args,
+                                 GError              **error)
 {
   MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
   int fd;

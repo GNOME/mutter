@@ -42,6 +42,9 @@ struct _MetaDrmBufferClass
   int (* export_fd) (MetaDrmBuffer  *buffer,
                      GError        **error);
 
+  gboolean (* ensure_fb_id) (MetaDrmBuffer  *buffer,
+                             GError        **error);
+
   int (* get_width) (MetaDrmBuffer *buffer);
   int (* get_height) (MetaDrmBuffer *buffer);
   int (* get_stride) (MetaDrmBuffer *buffer);
@@ -58,8 +61,8 @@ struct _MetaDrmBufferClass
 
 MetaDeviceFile * meta_drm_buffer_get_device_file (MetaDrmBuffer *buffer);
 
-gboolean meta_drm_buffer_ensure_fb_id (MetaDrmBuffer        *buffer,
-                                       const MetaDrmFbArgs  *fb_args,
-                                       GError              **error);
+gboolean meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
+                                          const MetaDrmFbArgs  *fb_args,
+                                          GError              **error);
 
 #endif /* META_DRM_BUFFER_PRIVATE_H */

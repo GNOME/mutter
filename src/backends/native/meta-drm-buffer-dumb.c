@@ -251,7 +251,7 @@ init_dumb_buffer (MetaDrmBufferDumb  *buffer_dumb,
     .handles = { create_arg.handle },
     .strides = { create_arg.pitch },
   };
-  if (!meta_drm_buffer_ensure_fb_id (buffer, &fb_args, error))
+  if (!meta_drm_buffer_do_ensure_fb_id (buffer, &fb_args, error))
     goto err_add_fb;
 
   map_arg = (struct drm_mode_map_dumb) {

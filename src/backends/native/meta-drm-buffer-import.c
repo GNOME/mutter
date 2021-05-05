@@ -181,9 +181,9 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
 
   fb_args.handles[0] = gbm_bo_get_handle (imported_bo).u32;
 
-  ret = meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_import),
-                                      &fb_args,
-                                      error);
+  ret = meta_drm_buffer_do_ensure_fb_id (META_DRM_BUFFER (buffer_import),
+                                         &fb_args,
+                                         error);
 
   gbm_bo_destroy (imported_bo);
 

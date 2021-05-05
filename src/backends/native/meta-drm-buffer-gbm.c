@@ -133,11 +133,12 @@ meta_drm_buffer_gbm_get_modifier (MetaDrmBuffer *buffer)
 }
 
 static gboolean
-init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
-            struct gbm_bo     *bo,
-            GError           **error)
+meta_drm_buffer_gbm_ensure_fb_id (MetaDrmBuffer  *buffer,
+                                  GError        **error)
 {
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
   MetaDrmFbArgs fb_args = { 0, };
+  struct gbm_bo *bo = buffer_gbm->bo;
 
   if (gbm_bo_get_handle_for_plane (bo, 0).s32 == -1)
     {
@@ -164,8 +165,8 @@ init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
   fb_args.height = gbm_bo_get_height (bo);
   fb_args.format = gbm_bo_get_format (bo);
 
-  if (!meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_gbm),
-                                     &fb_args, error))
+  if (!meta_drm_buffer_do_ensure_fb_id (META_DRM_BUFFER (buffer_gbm),
+                                        &fb_args, error))
     return FALSE;
 
   return TRUE;
@@ -185,7 +186,7 @@ lock_front_buffer (MetaDrmBufferGbm  *buffer_gbm,
       return FALSE;
     }
 
-  return init_fb_id (buffer_gbm, buffer_gbm->bo, error);
+  return meta_drm_buffer_gbm_ensure_fb_id (META_DRM_BUFFER (buffer_gbm), error);
 }
 
 MetaDrmBufferGbm *
@@ -223,13 +224,6 @@ meta_drm_buffer_gbm_new_take (MetaDeviceFile      *device_file,
                              "device-file", device_file,
                              "flags", flags,
                              NULL);
-
-  if (!init_fb_id (buffer_gbm, bo, error))
-    {
-      g_object_unref (buffer_gbm);
-      return NULL;
-    }
-
   buffer_gbm->bo = bo;
 
   return buffer_gbm;
@@ -510,6 +504,7 @@ meta_drm_buffer_gbm_class_init (MetaDrmBufferGbmClass *klass)
   object_class->finalize = meta_drm_buffer_gbm_finalize;
 
   buffer_class->export_fd = meta_drm_buffer_gbm_export_fd;
+  buffer_class->ensure_fb_id = meta_drm_buffer_gbm_ensure_fb_id;
   buffer_class->get_width = meta_drm_buffer_gbm_get_width;
   buffer_class->get_height = meta_drm_buffer_gbm_get_height;
   buffer_class->get_stride = meta_drm_buffer_gbm_get_stride;
