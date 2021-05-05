@@ -27,6 +27,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-drm-buffer-import.h"
 
 struct _MetaRenderDeviceGbm
 {
@@ -75,6 +76,36 @@ initable_iface_init (GInitableIface *initable_iface)
   initable_parent_iface = g_type_interface_peek_parent (initable_iface);
 
   initable_iface->init = meta_render_device_gbm_initable_init;
+}
+
+static MetaDrmBuffer *
+meta_render_device_gbm_import_dma_buf (MetaRenderDevice  *render_device,
+                                       MetaDrmBuffer     *buffer,
+                                       GError           **error)
+{
+  MetaRenderDeviceGbm *render_device_gbm =
+    META_RENDER_DEVICE_GBM (render_device);
+  MetaDeviceFile *device_file;
+  MetaDrmBufferGbm *buffer_gbm;
+  MetaDrmBufferImport *buffer_import;
+
+  if (!META_IS_DRM_BUFFER_GBM (buffer))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Can only import gbm backed DMA buffers");
+      return NULL;
+    }
+
+  device_file = meta_render_device_get_device_file (render_device);
+  buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+  buffer_import = meta_drm_buffer_import_new (device_file,
+                                              render_device_gbm->gbm_device,
+                                              buffer_gbm,
+                                              error);
+  if (!buffer_import)
+    return NULL;
+
+  return META_DRM_BUFFER (buffer_import);
 }
 
 static EGLDisplay
@@ -168,6 +199,8 @@ meta_render_device_gbm_class_init (MetaRenderDeviceGbmClass *klass)
     meta_render_device_gbm_create_egl_display;
   render_device_class->allocate_dma_buf =
     meta_render_device_gbm_allocate_dma_buf;
+  render_device_class->import_dma_buf =
+    meta_render_device_gbm_import_dma_buf;
 }
 
 static void

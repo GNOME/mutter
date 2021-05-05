@@ -48,4 +48,8 @@ MetaDrmBuffer * meta_render_device_allocate_dma_buf (MetaRenderDevice    *render
                                                      MetaDrmBufferFlags   flags,
                                                      GError             **error);
 
+MetaDrmBuffer * meta_render_device_import_dma_buf (MetaRenderDevice  *render_device,
+                                                   MetaDrmBuffer     *buffer,
+                                                   GError           **error);
+
 #endif /* META_RENDER_DEVICE_H */

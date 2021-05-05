@@ -364,3 +364,20 @@ meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
 
   return NULL;
 }
+
+MetaDrmBuffer *
+meta_render_device_import_dma_buf (MetaRenderDevice  *render_device,
+                                   MetaDrmBuffer     *buffer,
+                                   GError           **error)
+{
+  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
+
+  if (klass->import_dma_buf)
+    return klass->import_dma_buf (render_device, buffer, error);
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+               "Render device '%s' doesn't importing DMA buffers",
+               meta_render_device_get_name (render_device));
+
+  return NULL;
+}

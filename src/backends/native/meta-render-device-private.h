@@ -42,6 +42,9 @@ struct _MetaRenderDeviceClass
                                         uint32_t             format,
                                         MetaDrmBufferFlags   flags,
                                         GError             **error);
+  MetaDrmBuffer * (* import_dma_buf) (MetaRenderDevice  *render_device,
+                                      MetaDrmBuffer     *buffer,
+                                      GError           **error);
 };
 
 #endif /* META_RENDER_DEVICE_PRIVATE_H */
