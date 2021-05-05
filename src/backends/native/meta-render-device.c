@@ -25,6 +25,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-egl.h"
 #include "backends/native/meta-backend-native-types.h"
+#include "backends/native/meta-drm-buffer-dumb.h"
 
 enum
 {
@@ -380,4 +381,32 @@ meta_render_device_import_dma_buf (MetaRenderDevice  *render_device,
                meta_render_device_get_name (render_device));
 
   return NULL;
+}
+
+MetaDrmBuffer *
+meta_render_device_allocate_dumb_buf (MetaRenderDevice  *render_device,
+                                      int                width,
+                                      int                height,
+                                      uint32_t           format,
+                                      GError           **error)
+{
+  MetaRenderDevicePrivate *priv =
+    meta_render_device_get_instance_private (render_device);
+  MetaDrmBufferDumb *buffer_dumb;
+
+  if (!priv->device_file)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "No device file to allocate from");
+      return NULL;
+    }
+
+  buffer_dumb = meta_drm_buffer_dumb_new (priv->device_file,
+                                          width, height,
+                                          format,
+                                          error);
+  if (!buffer_dumb)
+    return NULL;
+
+  return META_DRM_BUFFER (buffer_dumb);
 }

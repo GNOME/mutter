@@ -52,4 +52,10 @@ MetaDrmBuffer * meta_render_device_import_dma_buf (MetaRenderDevice  *render_dev
                                                    MetaDrmBuffer     *buffer,
                                                    GError           **error);
 
+MetaDrmBuffer * meta_render_device_allocate_dumb_buf (MetaRenderDevice  *render_device,
+                                                      int                width,
+                                                      int                height,
+                                                      uint32_t           format,
+                                                      GError           **error);
+
 #endif /* META_RENDER_DEVICE_H */
