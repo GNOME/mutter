@@ -26,6 +26,7 @@
 #include <gbm.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/native/meta-drm-buffer-gbm.h"
 
 struct _MetaRenderDeviceGbm
 {
@@ -115,6 +116,36 @@ meta_render_device_gbm_create_egl_display (MetaRenderDevice  *render_device,
   return egl_display;
 }
 
+static MetaDrmBuffer *
+meta_render_device_gbm_allocate_dma_buf (MetaRenderDevice    *render_device,
+                                         int                  width,
+                                         int                  height,
+                                         uint32_t             format,
+                                         MetaDrmBufferFlags   flags,
+                                         GError             **error)
+{
+  MetaRenderDeviceGbm *render_device_gbm =
+    META_RENDER_DEVICE_GBM (render_device);
+  MetaDeviceFile *device_file;
+  struct gbm_bo *gbm_bo;
+  MetaDrmBufferGbm *buffer_gbm;
+
+  gbm_bo = gbm_bo_create (render_device_gbm->gbm_device,
+                          width, height, format,
+                          GBM_BO_USE_RENDERING | GBM_BO_USE_LINEAR);
+  if (!gbm_bo)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to gbm_bo: %s", g_strerror (errno));
+      return NULL;
+    }
+
+  device_file = meta_render_device_get_device_file (render_device);
+  buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags,
+                                             error);
+  return META_DRM_BUFFER (buffer_gbm);
+}
+
 static void
 meta_render_device_gbm_finalize (GObject *object)
 {
@@ -135,6 +166,8 @@ meta_render_device_gbm_class_init (MetaRenderDeviceGbmClass *klass)
 
   render_device_class->create_egl_display =
     meta_render_device_gbm_create_egl_display;
+  render_device_class->allocate_dma_buf =
+    meta_render_device_gbm_allocate_dma_buf;
 }
 
 static void

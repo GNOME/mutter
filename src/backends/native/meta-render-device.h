@@ -24,6 +24,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "backends/native/meta-backend-native-types.h"
 
 #define META_TYPE_RENDER_DEVICE (meta_render_device_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaRenderDevice, meta_render_device,
@@ -39,5 +40,12 @@ const char * meta_render_device_get_name (MetaRenderDevice *render_device);
 gboolean meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_device);
 
 MetaDeviceFile * meta_render_device_get_device_file (MetaRenderDevice *render_device);
+
+MetaDrmBuffer * meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
+                                                     int                  width,
+                                                     int                  height,
+                                                     uint32_t             format,
+                                                     MetaDrmBufferFlags   flags,
+                                                     GError             **error);
 
 #endif /* META_RENDER_DEVICE_H */

@@ -24,6 +24,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-egl.h"
+#include "backends/native/meta-backend-native-types.h"
 
 enum
 {
@@ -337,4 +338,29 @@ meta_render_device_get_name (MetaRenderDevice *render_device)
     return meta_device_file_get_path (priv->device_file);
   else
     return "(device-less)";
+}
+
+MetaDrmBuffer *
+meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
+                                     int                  width,
+                                     int                  height,
+                                     uint32_t             format,
+                                     MetaDrmBufferFlags   flags,
+                                     GError             **error)
+{
+  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
+
+  if (klass->allocate_dma_buf)
+    {
+      return klass->allocate_dma_buf (render_device,
+                                      width, height, format,
+                                      flags,
+                                      error);
+    }
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+               "Render device '%s' doesn't support allocating DMA buffers",
+               meta_render_device_get_name (render_device));
+
+  return NULL;
 }

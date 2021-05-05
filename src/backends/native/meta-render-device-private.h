@@ -26,6 +26,7 @@
 
 #include "backends/meta-egl.h"
 #include "backends/native/meta-device-pool.h"
+#include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
 
 struct _MetaRenderDeviceClass
@@ -34,6 +35,13 @@ struct _MetaRenderDeviceClass
 
   EGLDisplay (* create_egl_display) (MetaRenderDevice  *render_device,
                                      GError           **error);
+
+  MetaDrmBuffer * (* allocate_dma_buf) (MetaRenderDevice    *render_device,
+                                        int                  width,
+                                        int                  height,
+                                        uint32_t             format,
+                                        MetaDrmBufferFlags   flags,
+                                        GError             **error);
 };
 
 #endif /* META_RENDER_DEVICE_PRIVATE_H */
