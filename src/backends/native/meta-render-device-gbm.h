@@ -32,4 +32,6 @@ MetaRenderDeviceGbm * meta_render_device_gbm_new (MetaBackend     *backend,
                                                   MetaDeviceFile  *device_file,
                                                   GError         **error);
 
+struct gbm_device * meta_render_device_gbm_get_gbm_device (MetaRenderDeviceGbm *render_device_gbm);
+
 #endif /* META_RENDER_DEVICE_GBM_H */

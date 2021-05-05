@@ -153,3 +153,9 @@ meta_render_device_gbm_new (MetaBackend     *backend,
                          "device-file", device_file,
                          NULL);
 }
+
+struct gbm_device *
+meta_render_device_gbm_get_gbm_device (MetaRenderDeviceGbm *render_device_gbm)
+{
+  return render_device_gbm->gbm_device;
+}
