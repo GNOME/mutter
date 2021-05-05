@@ -81,12 +81,37 @@ meta_drm_buffer_gbm_get_stride (MetaDrmBuffer *buffer)
   return gbm_bo_get_stride (buffer_gbm->bo);
 }
 
+static int
+meta_drm_buffer_gbm_get_bpp (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_bpp (buffer_gbm->bo);
+}
+
 static uint32_t
 meta_drm_buffer_gbm_get_format (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
 
   return gbm_bo_get_format (buffer_gbm->bo);
+}
+
+static int
+meta_drm_buffer_gbm_get_offset (MetaDrmBuffer *buffer,
+                                int            plane)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_offset (buffer_gbm->bo, plane);
+}
+
+static uint32_t
+meta_drm_buffer_gbm_get_modifier (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_modifier (buffer_gbm->bo);
 }
 
 static gboolean
@@ -469,6 +494,9 @@ meta_drm_buffer_gbm_class_init (MetaDrmBufferGbmClass *klass)
   buffer_class->get_width = meta_drm_buffer_gbm_get_width;
   buffer_class->get_height = meta_drm_buffer_gbm_get_height;
   buffer_class->get_stride = meta_drm_buffer_gbm_get_stride;
+  buffer_class->get_bpp = meta_drm_buffer_gbm_get_bpp;
   buffer_class->get_format = meta_drm_buffer_gbm_get_format;
+  buffer_class->get_offset = meta_drm_buffer_gbm_get_offset;
+  buffer_class->get_modifier = meta_drm_buffer_gbm_get_modifier;
   buffer_class->fill_timings = meta_drm_buffer_gbm_fill_timings;
 }

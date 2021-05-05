@@ -25,6 +25,7 @@
 
 #include "backends/native/meta-drm-buffer-dumb.h"
 
+#include <drm_fourcc.h>
 #include <gio/gio.h>
 #include <xf86drm.h>
 #include <fcntl.h>
@@ -44,6 +45,7 @@ struct _MetaDrmBufferDumb
   int stride_bytes;
   uint32_t drm_format;
   int dmabuf_fd;
+  int offset;
 };
 
 G_DEFINE_TYPE (MetaDrmBufferDumb, meta_drm_buffer_dumb, META_TYPE_DRM_BUFFER)
@@ -78,6 +80,84 @@ meta_drm_buffer_dumb_get_format (MetaDrmBuffer *buffer)
   MetaDrmBufferDumb *buffer_dumb = META_DRM_BUFFER_DUMB (buffer);
 
   return buffer_dumb->drm_format;
+}
+
+static int
+meta_drm_buffer_dumb_get_bpp (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferDumb *buffer_dumb = META_DRM_BUFFER_DUMB (buffer);
+
+  switch (buffer_dumb->drm_format)
+    {
+    case DRM_FORMAT_C8:
+    case DRM_FORMAT_R8:
+    case DRM_FORMAT_RGB332:
+    case DRM_FORMAT_BGR233:
+      return 8;
+    case DRM_FORMAT_GR88:
+    case DRM_FORMAT_XRGB4444:
+    case DRM_FORMAT_XBGR4444:
+    case DRM_FORMAT_RGBX4444:
+    case DRM_FORMAT_BGRX4444:
+    case DRM_FORMAT_ARGB4444:
+    case DRM_FORMAT_ABGR4444:
+    case DRM_FORMAT_RGBA4444:
+    case DRM_FORMAT_BGRA4444:
+    case DRM_FORMAT_XRGB1555:
+    case DRM_FORMAT_XBGR1555:
+    case DRM_FORMAT_RGBX5551:
+    case DRM_FORMAT_BGRX5551:
+    case DRM_FORMAT_ARGB1555:
+    case DRM_FORMAT_ABGR1555:
+    case DRM_FORMAT_RGBA5551:
+    case DRM_FORMAT_BGRA5551:
+    case DRM_FORMAT_RGB565:
+    case DRM_FORMAT_BGR565:
+      return 16;
+    case DRM_FORMAT_RGB888:
+    case DRM_FORMAT_BGR888:
+      return 24;
+    case DRM_FORMAT_XRGB8888:
+    case DRM_FORMAT_XBGR8888:
+    case DRM_FORMAT_RGBX8888:
+    case DRM_FORMAT_BGRX8888:
+    case DRM_FORMAT_ARGB8888:
+    case DRM_FORMAT_ABGR8888:
+    case DRM_FORMAT_RGBA8888:
+    case DRM_FORMAT_BGRA8888:
+    case DRM_FORMAT_XRGB2101010:
+    case DRM_FORMAT_XBGR2101010:
+    case DRM_FORMAT_RGBX1010102:
+    case DRM_FORMAT_BGRX1010102:
+    case DRM_FORMAT_ARGB2101010:
+    case DRM_FORMAT_ABGR2101010:
+    case DRM_FORMAT_RGBA1010102:
+    case DRM_FORMAT_BGRA1010102:
+      return 32;
+    case DRM_FORMAT_XBGR16161616F:
+    case DRM_FORMAT_ABGR16161616F:
+      return 64;
+    default:
+      g_warn_if_reached ();
+      return 0;
+    }
+}
+
+static int
+meta_drm_buffer_dumb_get_offset (MetaDrmBuffer *buffer,
+                                 int            plane)
+{
+  MetaDrmBufferDumb *buffer_dumb = META_DRM_BUFFER_DUMB (buffer);
+
+  g_warn_if_fail (plane == 0);
+
+  return buffer_dumb->offset;
+}
+
+static uint32_t
+meta_drm_buffer_dumb_get_modifier (MetaDrmBuffer *buffer)
+{
+  return DRM_FORMAT_MOD_LINEAR;
 }
 
 static int
@@ -196,6 +276,7 @@ init_dumb_buffer (MetaDrmBufferDumb  *buffer_dumb,
   buffer_dumb->height = height;
   buffer_dumb->stride_bytes = create_arg.pitch;
   buffer_dumb->drm_format = format;
+  buffer_dumb->offset = map_arg.offset;
 
   return TRUE;
 
@@ -283,5 +364,8 @@ meta_drm_buffer_dumb_class_init (MetaDrmBufferDumbClass *klass)
   buffer_class->get_width = meta_drm_buffer_dumb_get_width;
   buffer_class->get_height = meta_drm_buffer_dumb_get_height;
   buffer_class->get_stride = meta_drm_buffer_dumb_get_stride;
+  buffer_class->get_bpp = meta_drm_buffer_dumb_get_bpp;
   buffer_class->get_format = meta_drm_buffer_dumb_get_format;
+  buffer_class->get_offset = meta_drm_buffer_dumb_get_offset;
+  buffer_class->get_modifier = meta_drm_buffer_dumb_get_modifier;
 }

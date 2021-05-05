@@ -42,7 +42,14 @@ int meta_drm_buffer_get_height (MetaDrmBuffer *buffer);
 
 int meta_drm_buffer_get_stride (MetaDrmBuffer *buffer);
 
+int meta_drm_buffer_get_bpp (MetaDrmBuffer *buffer);
+
 uint32_t meta_drm_buffer_get_format (MetaDrmBuffer *buffer);
+
+int meta_drm_buffer_get_offset (MetaDrmBuffer *buffer,
+                                int            plane);
+
+uint32_t meta_drm_buffer_get_modifier (MetaDrmBuffer *buffer);
 
 gboolean meta_drm_buffer_supports_fill_timings (MetaDrmBuffer *buffer);
 

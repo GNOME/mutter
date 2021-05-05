@@ -39,10 +39,17 @@ struct _MetaDrmBufferClass
 {
   GObjectClass parent_class;
 
+  int (* export_fd) (MetaDrmBuffer  *buffer,
+                     GError        **error);
+
   int (* get_width) (MetaDrmBuffer *buffer);
   int (* get_height) (MetaDrmBuffer *buffer);
   int (* get_stride) (MetaDrmBuffer *buffer);
+  int (* get_bpp) (MetaDrmBuffer *buffer);
   uint32_t (* get_format) (MetaDrmBuffer *buffer);
+  int (* get_offset) (MetaDrmBuffer *buffer,
+                      int            plane);
+  uint32_t (* get_modifier) (MetaDrmBuffer *buffer);
 
   gboolean (* fill_timings) (MetaDrmBuffer  *buffer,
                              CoglFrameInfo  *info,

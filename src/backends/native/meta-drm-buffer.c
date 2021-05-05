@@ -179,10 +179,29 @@ meta_drm_buffer_get_stride (MetaDrmBuffer *buffer)
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_stride (buffer);
 }
 
+int
+meta_drm_buffer_get_bpp (MetaDrmBuffer *buffer)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->get_bpp (buffer);
+}
+
 uint32_t
 meta_drm_buffer_get_format (MetaDrmBuffer *buffer)
 {
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_format (buffer);
+}
+
+int
+meta_drm_buffer_get_offset (MetaDrmBuffer *buffer,
+                            int            plane)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->get_offset (buffer, plane);
+}
+
+uint32_t
+meta_drm_buffer_get_modifier (MetaDrmBuffer *buffer)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->get_modifier (buffer);
 }
 
 gboolean
