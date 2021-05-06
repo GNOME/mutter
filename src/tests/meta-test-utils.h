@@ -26,19 +26,19 @@
 
 #include "meta/window.h"
 
-#define TEST_RUNNER_ERROR test_runner_error_quark ()
+#define META_TEST_CLIENT_ERROR meta_test_client_error_quark ()
 
-typedef enum
+typedef enum _MetaClientError
 {
-  TEST_RUNNER_ERROR_BAD_COMMAND,
-  TEST_RUNNER_ERROR_RUNTIME_ERROR,
-  TEST_RUNNER_ERROR_ASSERTION_FAILED
-} TestRunnerError;
+  META_TEST_CLIENT_ERROR_BAD_COMMAND,
+  META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
+  META_TEST_CLIENT_ERROR_ASSERTION_FAILED
+} MetaClientError;
 
-GQuark test_runner_error_quark (void);
+GQuark meta_test_client_error_quark (void);
 
 typedef struct _AsyncWaiter AsyncWaiter;
-typedef struct _TestClient TestClient;
+typedef struct _MetaTestClient MetaTestClient;
 
 void test_init (int    *argc,
                 char ***argv);
@@ -53,34 +53,34 @@ AsyncWaiter * async_waiter_new (void);
 
 void async_waiter_destroy (AsyncWaiter *waiter);
 
-char * test_client_get_id (TestClient *client);
+char * meta_test_client_get_id (MetaTestClient *client);
 
-gboolean test_client_alarm_filter (MetaX11Display        *x11_display,
-                                   XSyncAlarmNotifyEvent *event,
-                                   gpointer               data);
+gboolean meta_test_client_process_x11_event (MetaTestClient        *client,
+                                             MetaX11Display        *x11_display,
+                                             XSyncAlarmNotifyEvent *event);
 
-gboolean test_client_wait (TestClient *client,
-                           GError    **error);
+gboolean meta_test_client_wait (MetaTestClient  *client,
+                                GError         **error);
 
-gboolean test_client_do (TestClient *client,
-                         GError   **error,
-                         ...) G_GNUC_NULL_TERMINATED;
+gboolean meta_test_client_do (MetaTestClient  *client,
+                              GError         **error,
+                              ...) G_GNUC_NULL_TERMINATED;
 
-MetaWindow * test_client_find_window (TestClient *client,
-                                      const char *window_id,
-                                      GError    **error);
+MetaWindow * meta_test_client_find_window (MetaTestClient  *client,
+                                           const char      *window_id,
+                                           GError         **error);
 
-void test_client_wait_for_window_shown (TestClient *client,
-                                        MetaWindow *window);
+void meta_test_client_wait_for_window_shown (MetaTestClient *client,
+                                             MetaWindow     *window);
 
-gboolean test_client_quit (TestClient *client,
-                           GError    **error);
+gboolean meta_test_client_quit (MetaTestClient  *client,
+                                GError         **error);
 
-TestClient * test_client_new (const char          *id,
-                              MetaWindowClientType type,
-                              GError             **error);
+MetaTestClient * meta_test_client_new (const char            *id,
+                                       MetaWindowClientType   type,
+                                       GError               **error);
 
-void test_client_destroy (TestClient *client);
+void meta_test_client_destroy (MetaTestClient *client);
 
 const char * test_get_plugin_name (void);
 
@@ -89,4 +89,4 @@ void test_wait_for_x11_display (void);
 void meta_ensure_test_client_path (int    argc,
                                    char **argv);
 
-#endif /* META_TEST_UTILS_H */
+#endif /* TEST_UTILS_H */

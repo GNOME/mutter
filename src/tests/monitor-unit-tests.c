@@ -157,8 +157,8 @@ static MonitorTestCase initial_test_case = {
   }
 };
 
-static TestClient *wayland_monitor_test_client = NULL;
-static TestClient *x11_monitor_test_client = NULL;
+static MetaTestClient *wayland_monitor_test_client = NULL;
+static MetaTestClient *x11_monitor_test_client = NULL;
 
 #define WAYLAND_TEST_CLIENT_NAME "wayland_monitor_test_client"
 #define WAYLAND_TEST_CLIENT_WINDOW "window1"
@@ -170,7 +170,8 @@ monitor_tests_alarm_filter (MetaX11Display        *x11_display,
                             XSyncAlarmNotifyEvent *event,
                             gpointer               data)
 {
-  return test_client_alarm_filter (x11_display, event, x11_monitor_test_client);
+  return meta_test_client_process_x11_event (x11_monitor_test_client,
+                                             x11_display, event);
 }
 
 static void
@@ -178,51 +179,51 @@ create_monitor_test_clients (void)
 {
   GError *error = NULL;
 
-  wayland_monitor_test_client = test_client_new (WAYLAND_TEST_CLIENT_NAME,
-                                                 META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                                 &error);
+  wayland_monitor_test_client = meta_test_client_new (WAYLAND_TEST_CLIENT_NAME,
+                                                      META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                                      &error);
   if (!wayland_monitor_test_client)
     g_error ("Failed to launch Wayland test client: %s", error->message);
 
-  x11_monitor_test_client = test_client_new (X11_TEST_CLIENT_NAME,
-                                             META_WINDOW_CLIENT_TYPE_X11,
-                                             &error);
+  x11_monitor_test_client = meta_test_client_new (X11_TEST_CLIENT_NAME,
+                                                  META_WINDOW_CLIENT_TYPE_X11,
+                                                  &error);
   if (!x11_monitor_test_client)
     g_error ("Failed to launch X11 test client: %s", error->message);
 
   meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
                                      monitor_tests_alarm_filter, NULL);
 
-  if (!test_client_do (wayland_monitor_test_client, &error,
-                       "create", WAYLAND_TEST_CLIENT_WINDOW,
-                       NULL))
+  if (!meta_test_client_do (wayland_monitor_test_client, &error,
+                            "create", WAYLAND_TEST_CLIENT_WINDOW,
+                            NULL))
     g_error ("Failed to create Wayland window: %s", error->message);
 
-  if (!test_client_do (x11_monitor_test_client, &error,
-                       "create", X11_TEST_CLIENT_WINDOW,
-                       NULL))
+  if (!meta_test_client_do (x11_monitor_test_client, &error,
+                            "create", X11_TEST_CLIENT_WINDOW,
+                            NULL))
     g_error ("Failed to create X11 window: %s", error->message);
 
-  if (!test_client_do (wayland_monitor_test_client, &error,
-                       "show", WAYLAND_TEST_CLIENT_WINDOW,
-                       NULL))
+  if (!meta_test_client_do (wayland_monitor_test_client, &error,
+                            "show", WAYLAND_TEST_CLIENT_WINDOW,
+                            NULL))
     g_error ("Failed to show the window: %s", error->message);
 
-  if (!test_client_do (x11_monitor_test_client, &error,
-                       "show", X11_TEST_CLIENT_WINDOW,
-                       NULL))
+  if (!meta_test_client_do (x11_monitor_test_client, &error,
+                            "show", X11_TEST_CLIENT_WINDOW,
+                            NULL))
     g_error ("Failed to show the window: %s", error->message);
 }
 
 static void
-check_test_client_state (TestClient *test_client)
+check_test_client_state (MetaTestClient *test_client)
 {
   GError *error = NULL;
 
-  if (!test_client_wait (test_client, &error))
+  if (!meta_test_client_wait (test_client, &error))
     {
       g_error ("Failed to sync test client '%s': %s",
-               test_client_get_id (test_client), error->message);
+               meta_test_client_get_id (test_client), error->message);
     }
 }
 
@@ -238,14 +239,14 @@ destroy_monitor_test_clients (void)
 {
   GError *error = NULL;
 
-  if (!test_client_quit (wayland_monitor_test_client, &error))
+  if (!meta_test_client_quit (wayland_monitor_test_client, &error))
     g_error ("Failed to quit Wayland test client: %s", error->message);
 
-  if (!test_client_quit (x11_monitor_test_client, &error))
+  if (!meta_test_client_quit (x11_monitor_test_client, &error))
     g_error ("Failed to quit X11 test client: %s", error->message);
 
-  test_client_destroy (wayland_monitor_test_client);
-  test_client_destroy (x11_monitor_test_client);
+  meta_test_client_destroy (wayland_monitor_test_client);
+  meta_test_client_destroy (x11_monitor_test_client);
 
   meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
                                      NULL, NULL);
@@ -2260,16 +2261,16 @@ meta_test_monitor_no_outputs (void)
   check_monitor_configuration (&test_case.expect);
   check_monitor_test_clients_state ();
 
-  if (!test_client_do (x11_monitor_test_client, &error,
-                       "resize", X11_TEST_CLIENT_WINDOW,
-                       "123", "210",
-                       NULL))
+  if (!meta_test_client_do (x11_monitor_test_client, &error,
+                            "resize", X11_TEST_CLIENT_WINDOW,
+                            "123", "210",
+                            NULL))
     g_error ("Failed to resize X11 window: %s", error->message);
 
-  if (!test_client_do (wayland_monitor_test_client, &error,
-                       "resize", WAYLAND_TEST_CLIENT_WINDOW,
-                       "123", "210",
-                       NULL))
+  if (!meta_test_client_do (wayland_monitor_test_client, &error,
+                            "resize", WAYLAND_TEST_CLIENT_WINDOW,
+                            "123", "210",
+                            NULL))
     g_error ("Failed to resize Wayland window: %s", error->message);
 
   check_monitor_test_clients_state ();
@@ -5480,23 +5481,23 @@ dispatch (void)
   g_main_loop_run (loop);
 }
 
-static TestClient *
+static MetaTestClient *
 create_test_window (const char *window_name)
 {
-  TestClient *test_client;
+  MetaTestClient *test_client;
   static int client_count = 0;
   g_autofree char *client_name = NULL;
   g_autoptr (GError) error = NULL;
 
   client_name = g_strdup_printf ("test_client_%d", client_count++);
-  test_client = test_client_new (client_name, META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                 &error);
+  test_client = meta_test_client_new (client_name, META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                      &error);
   if (!test_client)
     g_error ("Failed to launch test client: %s", error->message);
 
-  if (!test_client_do (test_client, &error,
-                       "create", window_name,
-                       NULL))
+  if (!meta_test_client_do (test_client, &error,
+                            "create", window_name,
+                            NULL))
     g_error ("Failed to create window: %s", error->message);
 
   return test_client;
@@ -5508,6 +5509,7 @@ meta_test_monitor_wm_tiling (void)
   MonitorTestCase test_case = initial_test_case;
   MetaMonitorTestSetup *test_setup;
   g_autoptr (GError) error = NULL;
+  MetaTestClient *test_client;
 
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
@@ -5521,20 +5523,20 @@ meta_test_monitor_wm_tiling (void)
    */
 
   const char *test_window_name= "window1";
-  TestClient *test_client = create_test_window (test_window_name);
+  test_client = create_test_window (test_window_name);
 
-  if (!test_client_do (test_client, &error,
-                       "show", test_window_name,
-                       NULL))
+  if (!meta_test_client_do (test_client, &error,
+                            "show", test_window_name,
+                            NULL))
     g_error ("Failed to show the window: %s", error->message);
 
   MetaWindow *test_window =
-    test_client_find_window (test_client,
-                             test_window_name,
-                             &error);
+    meta_test_client_find_window (test_client,
+                                  test_window_name,
+                                  &error);
   if (!test_window)
     g_error ("Failed to find the window: %s", error->message);
-  test_client_wait_for_window_shown (test_client, test_window);
+  meta_test_client_wait_for_window_shown (test_client, test_window);
 
   meta_window_tile (test_window, META_TILE_MAXIMIZED);
   meta_window_move_to_monitor (test_window, 1);
@@ -5574,7 +5576,7 @@ meta_test_monitor_wm_tiling (void)
 
   meta_window_tile (test_window, META_TILE_MAXIMIZED);
 
-  test_client_destroy (test_client);
+  meta_test_client_destroy (test_client);
 }
 
 static void

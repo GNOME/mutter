@@ -31,7 +31,8 @@
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
 
-struct _TestClient {
+struct _MetaTestClient
+{
   char *id;
   MetaWindowClientType type;
   GSubprocess *subprocess;
@@ -55,7 +56,7 @@ struct _AsyncWaiter {
   int counter_wait_value;
 };
 
-G_DEFINE_QUARK (test-runner-error-quark, test_runner_error)
+G_DEFINE_QUARK (meta-test-client-error-quark, meta_test_client_error)
 
 static char *test_client_path;
 
@@ -205,7 +206,7 @@ async_waiter_alarm_filter (MetaX11Display        *x11_display,
 }
 
 char *
-test_client_get_id (TestClient *client)
+meta_test_client_get_id (MetaTestClient *client)
 {
   return client->id;
 }
@@ -213,9 +214,9 @@ test_client_get_id (TestClient *client)
 static void
 test_client_line_read (GObject      *source,
                        GAsyncResult *result,
-                       gpointer      data)
+                       gpointer      user_data)
 {
-  TestClient *client = data;
+  MetaTestClient *client = user_data;
 
   client->line = g_data_input_stream_read_line_finish_utf8 (client->out,
                                                             result,
@@ -225,9 +226,9 @@ test_client_line_read (GObject      *source,
 }
 
 gboolean
-test_client_do (TestClient *client,
-                GError    **error,
-                ...)
+meta_test_client_do (MetaTestClient  *client,
+                     GError         **error,
+                     ...)
 {
   GString *command = g_string_new (NULL);
   char *line = NULL;
@@ -274,14 +275,20 @@ test_client_do (TestClient *client,
   if (!line)
     {
       if (*error == NULL)
-        g_set_error (error, TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_RUNTIME_ERROR,
-                     "test client exited");
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
+                       "test client exited");
+        }
       goto out;
     }
 
   if (strcmp (line, "OK") != 0)
     {
-      g_set_error (error, TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_RUNTIME_ERROR,
+      g_set_error (error,
+                   META_TEST_CLIENT_ERROR,
+                   META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
                    "%s", line);
       goto out;
     }
@@ -294,12 +301,12 @@ test_client_do (TestClient *client,
 }
 
 gboolean
-test_client_wait (TestClient *client,
-                  GError    **error)
+meta_test_client_wait (MetaTestClient  *client,
+                       GError         **error)
 {
   if (client->type == META_WINDOW_CLIENT_TYPE_WAYLAND)
     {
-      return test_client_do (client, error, "sync", NULL);
+      return meta_test_client_do (client, error, "sync", NULL);
     }
   else
     {
@@ -308,9 +315,9 @@ test_client_wait (TestClient *client,
       char *wait_value_str = g_strdup_printf ("%d", wait_value);
       gboolean success;
 
-      success = test_client_do (client, error,
-                                "set_counter", counter_str, wait_value_str,
-                                NULL);
+      success = meta_test_client_do (client, error,
+                                     "set_counter", counter_str, wait_value_str,
+                                     NULL);
       g_free (counter_str);
       g_free (wait_value_str);
       if (!success)
@@ -322,9 +329,9 @@ test_client_wait (TestClient *client,
 }
 
 MetaWindow *
-test_client_find_window (TestClient *client,
-                         const char *window_id,
-                         GError    **error)
+meta_test_client_find_window (MetaTestClient  *client,
+                              const char      *window_id,
+                              GError         **error)
 {
   MetaDisplay *display = meta_get_display ();
   GSList *windows;
@@ -354,8 +361,12 @@ test_client_find_window (TestClient *client,
   g_free (expected_title);
 
   if (result == NULL)
-    g_set_error (error, TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_RUNTIME_ERROR,
-                 "window %s/%s isn't known to Mutter", client->id, window_id);
+    {
+      g_set_error (error,
+                   META_TEST_CLIENT_ERROR,
+                   META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
+                   "window %s/%s isn't known to Mutter", client->id, window_id);
+    }
 
   return result;
 }
@@ -394,8 +405,8 @@ wait_for_showing_before_redraw (gpointer user_data)
 }
 
 void
-test_client_wait_for_window_shown (TestClient *client,
-                                   MetaWindow *window)
+meta_test_client_wait_for_window_shown (MetaTestClient *client,
+                                        MetaWindow     *window)
 {
   WaitForShownData data = {
     .loop = g_main_loop_new (NULL, FALSE),
@@ -411,12 +422,10 @@ test_client_wait_for_window_shown (TestClient *client,
 }
 
 gboolean
-test_client_alarm_filter (MetaX11Display        *x11_display,
-                          XSyncAlarmNotifyEvent *event,
-                          gpointer               data)
+meta_test_client_process_x11_event (MetaTestClient        *client,
+                                    MetaX11Display        *x11_display,
+                                    XSyncAlarmNotifyEvent *event)
 {
-  TestClient *client = data;
-
   if (client->waiter)
     return async_waiter_alarm_filter (x11_display, event, client->waiter);
   else
@@ -435,12 +444,12 @@ spawn_xwayland (gpointer user_data)
   return NULL;
 }
 
-TestClient *
-test_client_new (const char          *id,
-                 MetaWindowClientType type,
-                 GError             **error)
+MetaTestClient *
+meta_test_client_new (const char            *id,
+                      MetaWindowClientType   type,
+                      GError               **error)
 {
-  TestClient *client;
+  MetaTestClient *client;
   GSubprocessLauncher *launcher;
   GSubprocess *subprocess;
   MetaWaylandCompositor *compositor;
@@ -475,7 +484,7 @@ test_client_new (const char          *id,
   if (!subprocess)
     return NULL;
 
-  client = g_new0 (TestClient, 1);
+  client = g_new0 (MetaTestClient, 1);
   client->type = type;
   client->id = g_strdup (id);
   client->cancellable = g_cancellable_new ();
@@ -508,20 +517,20 @@ test_client_new (const char          *id,
 }
 
 gboolean
-test_client_quit (TestClient *client,
-                  GError    **error)
+meta_test_client_quit (MetaTestClient  *client,
+                       GError         **error)
 {
-  if (!test_client_do (client, error, "destroy_all", NULL))
+  if (!meta_test_client_do (client, error, "destroy_all", NULL))
     return FALSE;
 
-  if (!test_client_wait (client, error))
+  if (!meta_test_client_wait (client, error))
     return FALSE;
 
   return TRUE;
 }
 
 void
-test_client_destroy (TestClient *client)
+meta_test_client_destroy (MetaTestClient *client)
 {
   GError *error = NULL;
 
