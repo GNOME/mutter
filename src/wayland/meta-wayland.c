@@ -614,16 +614,20 @@ meta_wayland_get_private_xwayland_display_name (MetaWaylandCompositor *composito
 }
 
 void
+meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
+{
+  meta_xwayland_shutdown (&compositor->xwayland_manager);
+
+  if (compositor->wayland_display)
+    wl_display_destroy_clients (compositor->wayland_display);
+}
+
+void
 meta_wayland_finalize (void)
 {
   MetaWaylandCompositor *compositor;
 
   compositor = meta_wayland_compositor_get_default ();
-
-  meta_xwayland_shutdown (&compositor->xwayland_manager);
-
-  if (compositor->wayland_display)
-    wl_display_destroy_clients (compositor->wayland_display);
 
   g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
 

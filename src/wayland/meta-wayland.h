@@ -41,6 +41,8 @@ MetaWaylandCompositor * meta_wayland_compositor_new             (MetaBackend *ba
 
 void                    meta_wayland_compositor_setup           (MetaWaylandCompositor *compositor);
 
+void                    meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor);
+
 META_EXPORT_TEST
 MetaWaylandCompositor  *meta_wayland_compositor_get_default     (void);
 

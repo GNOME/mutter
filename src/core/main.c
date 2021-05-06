@@ -308,18 +308,26 @@ meta_finalize (void)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+#endif
 
   if (backend)
     meta_backend_prepare_shutdown (backend);
 
 #ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    meta_wayland_finalize ();
+  if (compositor)
+    meta_wayland_compositor_prepare_shutdown (compositor);
 #endif
 
   if (display)
     meta_display_close (display,
                         META_CURRENT_TIME); /* I doubt correct timestamps matter here */
+
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    meta_wayland_finalize ();
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
   release_virtual_monitors ();
