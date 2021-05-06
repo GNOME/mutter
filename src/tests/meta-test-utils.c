@@ -44,10 +44,10 @@ struct _MetaTestClient
   char *line;
   GError **error;
 
-  AsyncWaiter *waiter;
+  MetaAsyncWaiter *waiter;
 };
 
-struct _AsyncWaiter {
+struct _MetaAsyncWaiter {
   XSyncCounter counter;
   int counter_value;
   XSyncAlarm alarm;
@@ -100,10 +100,10 @@ test_init (int    *argc,
   meta_xwayland_override_display_number (512);
 }
 
-AsyncWaiter *
-async_waiter_new (void)
+MetaAsyncWaiter *
+meta_async_waiter_new (void)
 {
-  AsyncWaiter *waiter = g_new0 (AsyncWaiter, 1);
+  MetaAsyncWaiter *waiter = g_new0 (MetaAsyncWaiter, 1);
 
   MetaDisplay *display = meta_get_display ();
   Display *xdisplay = display->x11_display->xdisplay;
@@ -144,7 +144,7 @@ async_waiter_new (void)
 }
 
 void
-async_waiter_destroy (AsyncWaiter *waiter)
+meta_async_waiter_destroy (MetaAsyncWaiter *waiter)
 {
   MetaDisplay *display = meta_get_display ();
   Display *xdisplay = display->x11_display->xdisplay;
@@ -155,14 +155,14 @@ async_waiter_destroy (AsyncWaiter *waiter)
 }
 
 static int
-async_waiter_next_value (AsyncWaiter *waiter)
+meta_async_waiter_next_value (MetaAsyncWaiter *waiter)
 {
   return waiter->counter_value + 1;
 }
 
 static void
-async_waiter_wait (AsyncWaiter *waiter,
-                   int          wait_value)
+meta_async_waiter_wait (MetaAsyncWaiter *waiter,
+                        int              wait_value)
 {
   if (waiter->counter_value < wait_value)
     {
@@ -173,25 +173,24 @@ async_waiter_wait (AsyncWaiter *waiter,
 }
 
 void
-async_waiter_set_and_wait (AsyncWaiter *waiter)
+meta_async_waiter_set_and_wait (MetaAsyncWaiter *waiter)
 {
   MetaDisplay *display = meta_get_display ();
   Display *xdisplay = display->x11_display->xdisplay;
-  int wait_value = async_waiter_next_value (waiter);
+  int wait_value = meta_async_waiter_next_value (waiter);
 
   XSyncValue sync_value;
   XSyncIntToValue (&sync_value, wait_value);
 
   XSyncSetCounter (xdisplay, waiter->counter, sync_value);
-  async_waiter_wait (waiter, wait_value);
+  meta_async_waiter_wait (waiter, wait_value);
 }
 
 gboolean
-async_waiter_alarm_filter (MetaX11Display        *x11_display,
-                           XSyncAlarmNotifyEvent *event,
-                           gpointer               data)
+meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
+                                     MetaX11Display        *x11_display,
+                                     XSyncAlarmNotifyEvent *event)
 {
-  AsyncWaiter *waiter = data;
 
   if (event->alarm != waiter->alarm)
     return FALSE;
@@ -310,7 +309,7 @@ meta_test_client_wait (MetaTestClient  *client,
     }
   else
     {
-      int wait_value = async_waiter_next_value (client->waiter);
+      int wait_value = meta_async_waiter_next_value (client->waiter);
       char *counter_str = g_strdup_printf ("%lu", client->waiter->counter);
       char *wait_value_str = g_strdup_printf ("%d", wait_value);
       gboolean success;
@@ -323,7 +322,7 @@ meta_test_client_wait (MetaTestClient  *client,
       if (!success)
         return FALSE;
 
-      async_waiter_wait (client->waiter, wait_value);
+      meta_async_waiter_wait (client->waiter, wait_value);
       return TRUE;
     }
 }
@@ -427,9 +426,15 @@ meta_test_client_process_x11_event (MetaTestClient        *client,
                                     XSyncAlarmNotifyEvent *event)
 {
   if (client->waiter)
-    return async_waiter_alarm_filter (x11_display, event, client->waiter);
+    {
+      return meta_async_waiter_process_x11_event (client->waiter,
+                                                  x11_display,
+                                                  event);
+    }
   else
-    return FALSE;
+    {
+      return FALSE;
+    }
 }
 
 static gpointer
@@ -510,7 +515,7 @@ meta_test_client_new (const char            *id,
           g_thread_join (thread);
         }
 
-      client->waiter = async_waiter_new ();
+      client->waiter = meta_async_waiter_new ();
     }
 
   return client;
@@ -535,7 +540,7 @@ meta_test_client_destroy (MetaTestClient *client)
   GError *error = NULL;
 
   if (client->waiter)
-    async_waiter_destroy (client->waiter);
+    meta_async_waiter_destroy (client->waiter);
 
   g_output_stream_close (G_OUTPUT_STREAM (client->in), NULL, &error);
   if (error)

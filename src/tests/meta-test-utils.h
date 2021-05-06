@@ -37,21 +37,21 @@ typedef enum _MetaClientError
 
 GQuark meta_test_client_error_quark (void);
 
-typedef struct _AsyncWaiter AsyncWaiter;
+typedef struct _MetaAsyncWaiter MetaAsyncWaiter;
 typedef struct _MetaTestClient MetaTestClient;
 
 void test_init (int    *argc,
                 char ***argv);
 
-gboolean async_waiter_alarm_filter (MetaX11Display        *display,
-                                    XSyncAlarmNotifyEvent *event,
-                                    gpointer               data);
+gboolean meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
+                                              MetaX11Display        *display,
+                                              XSyncAlarmNotifyEvent *event);
 
-void async_waiter_set_and_wait (AsyncWaiter *waiter);
+void meta_async_waiter_set_and_wait (MetaAsyncWaiter *waiter);
 
-AsyncWaiter * async_waiter_new (void);
+MetaAsyncWaiter * meta_async_waiter_new (void);
 
-void async_waiter_destroy (AsyncWaiter *waiter);
+void meta_async_waiter_destroy (MetaAsyncWaiter *waiter);
 
 char * meta_test_client_get_id (MetaTestClient *client);
 

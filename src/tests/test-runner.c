@@ -35,7 +35,7 @@
 
 typedef struct {
   GHashTable *clients;
-  AsyncWaiter *waiter;
+  MetaAsyncWaiter *waiter;
   GString *warning_messages;
   GMainLoop *loop;
   gulong x11_display_opened_handler_id;
@@ -50,7 +50,7 @@ test_case_alarm_filter (MetaX11Display        *x11_display,
   GHashTableIter iter;
   gpointer key, value;
 
-  if (async_waiter_alarm_filter (x11_display, event, test->waiter))
+  if (meta_async_waiter_process_x11_event (test->waiter, x11_display, event))
     return TRUE;
 
   g_hash_table_iter_init (&iter, test->clients);
@@ -71,7 +71,7 @@ on_x11_display_opened (MetaDisplay *display,
 {
   meta_x11_display_set_alarm_filter (display->x11_display,
                                      test_case_alarm_filter, test);
-  test->waiter = async_waiter_new ();
+  test->waiter = meta_async_waiter_new ();
 }
 
 static TestCase *
@@ -154,7 +154,7 @@ test_case_wait (TestCase *test,
    * received back any X events we generated.
    */
   if (test->waiter)
-    async_waiter_set_and_wait (test->waiter);
+    meta_async_waiter_set_and_wait (test->waiter);
   return TRUE;
 }
 
@@ -937,7 +937,7 @@ test_case_destroy (TestCase *test,
   while (g_hash_table_iter_next (&iter, &key, &value))
     meta_test_client_destroy (value);
 
-  g_clear_pointer (&test->waiter, async_waiter_destroy);
+  g_clear_pointer (&test->waiter, meta_async_waiter_destroy);
 
   display = meta_get_display ();
   g_clear_signal_handler (&test->x11_display_opened_handler_id, display);
