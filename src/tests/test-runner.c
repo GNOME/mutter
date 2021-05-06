@@ -25,9 +25,9 @@
 #include <string.h>
 
 #include "core/window-private.h"
+#include "meta-test/meta-context-test.h"
 #include "meta/util.h"
 #include "meta/window.h"
-#include "tests/meta-context-test.h"
 #include "tests/meta-test-utils.h"
 #include "ui/ui.h"
 #include "wayland/meta-wayland.h"

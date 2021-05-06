@@ -23,7 +23,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-output.h"
 #include "core/display-private.h"
-#include "tests/meta-context-test.h"
+#include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-manager-test.h"
 
 static void

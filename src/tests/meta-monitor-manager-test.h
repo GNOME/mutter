@@ -46,29 +46,36 @@ struct _MetaOutputTest
 typedef MetaMonitorTestSetup * (* CreateTestSetupFunc) (void);
 
 #define META_TYPE_CRTC_TEST (meta_crtc_test_get_type ())
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaCrtcTest, meta_crtc_test,
                       META, CRTC_TEST,
                       MetaCrtc)
 
 #define META_TYPE_OUTPUT_TEST (meta_output_test_get_type ())
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaOutputTest, meta_output_test,
                       META, OUTPUT_TEST,
                       MetaOutput)
 
 #define META_TYPE_MONITOR_MANAGER_TEST (meta_monitor_manager_test_get_type ())
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
                       META, MONITOR_MANAGER_TEST, MetaMonitorManager)
 
+META_EXPORT
 void meta_monitor_manager_test_init_test_setup (CreateTestSetupFunc func);
 
 void meta_monitor_manager_test_read_current (MetaMonitorManager *manager);
 
+META_EXPORT
 void meta_monitor_manager_test_emulate_hotplug (MetaMonitorManagerTest *manager_test,
                                                 MetaMonitorTestSetup   *test_setup);
 
+META_EXPORT
 void meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *manager_test,
                                                        gboolean                handles_transforms);
 
+META_EXPORT
 int meta_monitor_manager_test_get_tiled_monitor_count (MetaMonitorManagerTest *manager_test);
 
 #endif /* META_MONITOR_MANAGER_TEST_H */

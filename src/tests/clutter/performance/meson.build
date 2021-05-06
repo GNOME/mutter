@@ -23,13 +23,11 @@ foreach test : clutter_tests_performance_tests
     ],
     include_directories: [
       clutter_includes,
-      clutter_tests_includepath,
+      clutter_tests_includes,
     ],
     c_args: clutter_tests_performance_c_args,
     dependencies: [
-      clutter_deps,
-      libmutter_clutter_dep,
-      libmutter_dep,
+      libmutter_test_dep,
     ],
     install: false,
   )

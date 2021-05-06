@@ -21,13 +21,12 @@
 #ifndef META_CONTEXT_TEST_H
 #define META_CONTEXT_TEST_H
 
-#include "meta/meta-context.h"
+#include <meta/common.h>
+#include <meta/meta-context.h>
 
 typedef enum _MetaContextTestType
 {
-#ifdef HAVE_NATIVE_BACKEND
   META_CONTEXT_TEST_TYPE_HEADLESS,
-#endif
   META_CONTEXT_TEST_TYPE_NESTED,
 } MetaContextTestType;
 
@@ -39,14 +38,16 @@ typedef enum _MetaContextTestFlag
 } MetaContextTestFlag;
 
 #define META_TYPE_CONTEXT_TEST (meta_context_test_get_type ())
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaContextTest, meta_context_test,
                           META, CONTEXT_TEST,
                           MetaContext)
 
+META_EXPORT
 MetaContext * meta_create_test_context (MetaContextTestType type,
                                         MetaContextTestFlag flags);
 
-
+META_EXPORT
 int meta_context_test_run_tests (MetaContextTest *context_test);
 
 META_EXPORT

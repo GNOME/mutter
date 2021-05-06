@@ -35,51 +35,66 @@ typedef enum _MetaClientError
   META_TEST_CLIENT_ERROR_ASSERTION_FAILED
 } MetaClientError;
 
+META_EXPORT
 GQuark meta_test_client_error_quark (void);
 
 typedef struct _MetaAsyncWaiter MetaAsyncWaiter;
 typedef struct _MetaTestClient MetaTestClient;
 
+META_EXPORT
 gboolean meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
                                               MetaX11Display        *display,
                                               XSyncAlarmNotifyEvent *event);
 
+META_EXPORT
 void meta_async_waiter_set_and_wait (MetaAsyncWaiter *waiter);
 
+META_EXPORT
 MetaAsyncWaiter * meta_async_waiter_new (void);
 
+META_EXPORT
 void meta_async_waiter_destroy (MetaAsyncWaiter *waiter);
 
+META_EXPORT
 char * meta_test_client_get_id (MetaTestClient *client);
 
+META_EXPORT
 gboolean meta_test_client_process_x11_event (MetaTestClient        *client,
                                              MetaX11Display        *x11_display,
                                              XSyncAlarmNotifyEvent *event);
 
+META_EXPORT
 gboolean meta_test_client_wait (MetaTestClient  *client,
                                 GError         **error);
 
+META_EXPORT
 gboolean meta_test_client_do (MetaTestClient  *client,
                               GError         **error,
                               ...) G_GNUC_NULL_TERMINATED;
 
+META_EXPORT
 MetaWindow * meta_test_client_find_window (MetaTestClient  *client,
                                            const char      *window_id,
                                            GError         **error);
 
+META_EXPORT
 void meta_test_client_wait_for_window_shown (MetaTestClient *client,
                                              MetaWindow     *window);
 
+META_EXPORT
 gboolean meta_test_client_quit (MetaTestClient  *client,
                                 GError         **error);
 
+META_EXPORT
 MetaTestClient * meta_test_client_new (MetaContext           *context,
                                        const char            *id,
                                        MetaWindowClientType   type,
                                        GError               **error);
 
+META_EXPORT
 void meta_test_client_destroy (MetaTestClient *client);
 
+META_EXPORT
 const char * meta_test_get_plugin_name (void);
 
 #endif /* TEST_UTILS_H */

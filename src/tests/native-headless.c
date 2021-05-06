@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "tests/meta-context-test.h"
+#include "meta-test/meta-context-test.h"
 #include "tests/native-screen-cast.h"
 #include "tests/native-virtual-monitor.h"
 

@@ -19,8 +19,8 @@
 
 #include "clutter/clutter.h"
 #include "clutter/clutter-stage-view-private.h"
+#include "meta-test/meta-context-test.h"
 #include "tests/meta-backend-test.h"
-#include "tests/meta-context-test.h"
 #include "tests/monitor-test-utils.h"
 
 static MonitorTestCaseSetup initial_test_case_setup = {

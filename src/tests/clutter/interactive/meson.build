@@ -62,16 +62,13 @@ executable('test-interactive',
   sources: clutter_tests_interactive_sources,
   include_directories: [
     clutter_includes,
-    clutter_tests_includepath,
+    clutter_tests_includes,
     clutter_tests_interactive_includepath,
   ],
   c_args: clutter_tests_interactive_c_args,
   link_args: clutter_tests_interactive_link_args,
   dependencies: [
-    clutter_deps,
-    libmutter_clutter_dep,
-    libmutter_dep,
-    gdk_pixbuf_dep,
+    libmutter_test_dep,
   ],
   install: false,
 )

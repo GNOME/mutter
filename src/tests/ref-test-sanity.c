@@ -20,7 +20,7 @@
 
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-renderer-native.h"
-#include "tests/meta-context-test.h"
+#include "meta-test/meta-context-test.h"
 #include "tests/meta-ref-test.h"
 
 static MetaVirtualMonitor *virtual_monitor;

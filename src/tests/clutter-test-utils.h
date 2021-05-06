@@ -31,7 +31,7 @@
 #include "clutter/clutter-color.h"
 #include "clutter/clutter-private.h"
 #include "meta/common.h"
-#include "tests/meta-context-test.h"
+#include "meta-test/meta-context-test.h"
 
 G_BEGIN_DECLS
 

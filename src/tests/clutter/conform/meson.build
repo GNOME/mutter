@@ -66,9 +66,7 @@ foreach test : clutter_conform_tests
     c_args: clutter_tests_conform_c_args,
     link_args: clutter_tests_conform_link_args,
     dependencies: [
-      clutter_deps,
-      libmutter_clutter_dep,
-      libmutter_dep
+      libmutter_test_dep,
     ],
     install: false,
   )

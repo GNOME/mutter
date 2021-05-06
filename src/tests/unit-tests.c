@@ -28,9 +28,9 @@
 #include <meta/util.h>
 
 #include "core/boxes-private.h"
+#include "meta-test/meta-context-test.h"
 #include "meta/meta-context.h"
 #include "tests/boxes-tests.h"
-#include "tests/meta-context-test.h"
 #include "tests/monitor-config-migration-unit-tests.h"
 #include "tests/monitor-unit-tests.h"
 #include "tests/monitor-store-unit-tests.h"

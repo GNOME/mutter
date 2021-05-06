@@ -1,8 +1,7 @@
-test_context_sources = [
+mutter_test_sources = [
   'meta-backend-test.c',
   'meta-backend-test.h',
   'meta-context-test.c',
-  'meta-context-test.h',
   'meta-gpu-test.c',
   'meta-gpu-test.h',
   'meta-monitor-manager-test.c',
@@ -13,17 +12,15 @@ test_context_sources = [
   'meta-test-utils.h',
 ]
 
+libmutter_test_name = 'mutter-test-' + libmutter_api_version
+
 clutter_test_utils = files (
-  test_context_sources,
   'clutter-test-utils.c',
   'clutter-test-utils.h',
 )
 
-if have_clutter_tests
-  subdir('clutter')
-endif
-
-tests_includepath = mutter_includes
+tests_includepath = include_directories('.')
+tests_includes = mutter_includes
 tests_c_args = mutter_c_args
 
 tests_deps = [
@@ -33,6 +30,41 @@ tests_deps = [
   libmutter_clutter_dep,
 ]
 
+libmutter_test = shared_library(libmutter_test_name,
+                                mutter_test_sources,
+                                gnu_symbol_visibility: 'hidden',
+                                include_directories: tests_includes,
+                                c_args: tests_c_args,
+                                dependencies: tests_deps,
+                                install_rpath: pkglibdir,
+                                install_dir: libdir,
+                                install: true,
+)
+
+libmutter_test_dep = declare_dependency(
+  link_with: libmutter_test,
+  include_directories: tests_includes,
+  dependencies: tests_deps,
+)
+
+pkg.generate(libmutter_test,
+  name: 'Meta (test framework)',
+  filebase: 'libmutter-test-' + libmutter_api_version,
+  description: 'Mutter test framework',
+  subdirs: pkgname,
+  requires: ['libmutter-' + libmutter_api_version],
+  version: meson.project_version(),
+  variables: [
+    'apiversion=' + libmutter_api_version,
+  ],
+  install_dir: pcdir,
+)
+
+if have_clutter_tests
+  subdir('clutter')
+endif
+
+subdir('meta-test')
 subdir('wayland-test-clients')
 
 if have_installed_tests
@@ -60,7 +92,7 @@ test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path())
 
 test_client = executable('mutter-test-client',
   sources: ['test-client.c'],
-  include_directories: tests_includepath,
+  include_directories: tests_includes,
   c_args: tests_c_args,
   dependencies: [
     gtk3_dep,
@@ -74,19 +106,17 @@ test_client = executable('mutter-test-client',
 
 test_runner = executable('mutter-test-runner',
   sources: [
-    test_context_sources,
     'test-runner.c',
   ],
-  include_directories: tests_includepath,
+  include_directories: tests_includes,
   c_args: tests_c_args,
-  dependencies: [tests_deps],
+  dependencies: libmutter_test_dep,
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
 )
 
 unit_tests = executable('mutter-test-unit-tests',
   sources: [
-    test_context_sources,
     'unit-tests.c',
     'boxes-tests.c',
     'boxes-tests.h',
@@ -107,35 +137,33 @@ unit_tests = executable('mutter-test-unit-tests',
     test_driver_server_header,
     test_driver_protocol_code,
   ],
-  include_directories: tests_includepath,
+  include_directories: tests_includes,
   c_args: tests_c_args,
-  dependencies: [tests_deps],
+  dependencies: libmutter_test_dep,
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
 )
 
 headless_start_test = executable('mutter-headless-start-test',
   sources: [
-    test_context_sources,
     'headless-start-test.c',
   ],
-  include_directories: tests_includepath,
+  include_directories: tests_includes,
   c_args: tests_c_args,
-  dependencies: [tests_deps],
+  dependencies: libmutter_test_dep,
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
 )
 
 stage_view_tests = executable('mutter-stage-view-tests',
   sources: [
-    test_context_sources,
     'monitor-test-utils.c',
     'monitor-test-utils.h',
     'stage-view-tests.c',
   ],
-  include_directories: tests_includepath,
+  include_directories: tests_includes,
   c_args: tests_c_args,
-  dependencies: [tests_deps],
+  dependencies: libmutter_test_dep,
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
 )
@@ -144,7 +172,7 @@ anonymous_file_test = executable('anonymous-file-tests',
   sources: [
     'anonymous-file.c',
   ],
-  include_directories: tests_includepath,
+  include_directories: tests_includes,
   c_args: tests_c_args,
   dependencies: [tests_deps],
   install: have_installed_tests,
@@ -170,7 +198,6 @@ if have_native_tests
 
   native_headless_tests = executable('mutter-native-headless-tests',
     sources: [
-      test_context_sources,
       'native-headless.c',
       'native-screen-cast.c',
       'native-screen-cast.h',
@@ -178,22 +205,21 @@ if have_native_tests
       'native-virtual-monitor.h',
       ref_test_sources,
     ],
-    include_directories: tests_includepath,
+    include_directories: tests_includes,
     c_args: tests_c_args,
-    dependencies: [tests_deps],
+    dependencies: libmutter_test_dep,
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
 
   ref_test_sanity = executable('mutter-ref-test-sanity',
     sources: [
-      test_context_sources,
       'ref-test-sanity.c',
       ref_test_sources,
     ],
-    include_directories: tests_includepath,
+    include_directories: tests_includes,
     c_args: tests_c_args,
-    dependencies: [tests_deps],
+    dependencies: libmutter_test_dep,
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
@@ -203,7 +229,7 @@ if have_native_tests
       'screen-cast-client.c',
       dbus_screen_cast_built_sources,
     ],
-    include_directories: tests_includepath,
+    include_directories: tests_includes,
     c_args: tests_c_args,
     dependencies: [
       gio_dep,
@@ -216,12 +242,11 @@ if have_native_tests
   native_persistent_virtual_monitor = executable(
     'mutter-persistent-virtual-monitor',
     sources: [
-      test_context_sources,
       'native-persistent-virtual-monitor.c',
     ],
-    include_directories: tests_includepath,
+    include_directories: tests_includes,
     c_args: tests_c_args,
-    dependencies: [tests_deps],
+    dependencies: libmutter_test_dep,
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )

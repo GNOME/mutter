@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "tests/meta-context-test.h"
+#include "meta-test/meta-context-test.h"
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -267,6 +267,9 @@ meta_context_test_wait_for_x11_display (MetaContextTest *context_test)
   g_assert_nonnull (meta_display_get_x11_display (display));
 }
 
+/**
+ * meta_create_test_context: (skip)
+ */
 MetaContext *
 meta_create_test_context (MetaContextTestType type,
                           MetaContextTestFlag flags)

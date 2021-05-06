@@ -27,7 +27,7 @@
 
 #include "core/display-private.h"
 #include "core/window-private.h"
-#include "tests/meta-context-test.h"
+#include "meta-test/meta-context-test.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
