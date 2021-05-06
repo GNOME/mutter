@@ -481,17 +481,6 @@ meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
   return compositor->xwayland_manager.auth_file;
 }
 
-MetaWaylandCompositor *
-meta_wayland_compositor_new (MetaContext *context)
-{
-  MetaWaylandCompositor *compositor;
-
-  compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
-  compositor->context = context;
-
-  return compositor;
-}
-
 static void
 meta_wayland_init_egl (MetaWaylandCompositor *compositor)
 {
@@ -522,12 +511,16 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
     g_warning ("Failed to bind Wayland display: %s", error->message);
 }
 
-void
-meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
+MetaWaylandCompositor *
+meta_wayland_compositor_new (MetaContext *context)
 {
-  MetaBackend *backend = meta_context_get_backend (compositor->context);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaWaylandCompositor *compositor;
   GSource *wayland_event_source;
+
+  compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
+  compositor->context = context;
 
   wayland_event_source = wayland_event_source_new (compositor->wayland_display);
 
@@ -624,6 +617,8 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
     }
 
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
+
+  return compositor;
 }
 
 const char *

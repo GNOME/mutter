@@ -34,8 +34,6 @@ void                    meta_wayland_override_display_name (const char *display_
 
 MetaWaylandCompositor * meta_wayland_compositor_new             (MetaContext *context);
 
-void                    meta_wayland_compositor_setup           (MetaWaylandCompositor *compositor);
-
 void                    meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor);
 
 META_EXPORT_TEST

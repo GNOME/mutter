@@ -317,10 +317,6 @@ meta_context_setup (MetaContext  *context,
 
   init_introspection (context);
 
-#ifdef HAVE_WAYLAND
-  priv->wayland_compositor = meta_wayland_compositor_new (context);
-#endif
-
   return META_CONTEXT_GET_CLASS (context)->setup (context, error);
 }
 
@@ -335,7 +331,7 @@ meta_context_start (MetaContext  *context,
 #ifdef HAVE_WAYLAND
   if (meta_context_get_compositor_type (context) ==
       META_COMPOSITOR_TYPE_WAYLAND)
-    meta_wayland_compositor_setup (priv->wayland_compositor);
+    priv->wayland_compositor = meta_wayland_compositor_new (context);
 #endif
 
   priv->display = meta_display_new (context, error);
