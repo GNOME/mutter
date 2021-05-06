@@ -46,6 +46,7 @@ struct _MetaEgl
   PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
   PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
 
+  PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL;
   PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL;
 
   PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT;
@@ -700,6 +701,24 @@ meta_egl_swap_buffers (MetaEgl   *egl,
 }
 
 gboolean
+meta_egl_bind_wayland_display (MetaEgl            *egl,
+                               EGLDisplay          display,
+                               struct wl_display  *wayland_display,
+                               GError            **error)
+{
+  if (!is_egl_proc_valid (egl->eglBindWaylandDisplayWL, error))
+    return FALSE;
+
+  if (!egl->eglBindWaylandDisplayWL (display, wayland_display))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
 meta_egl_query_wayland_buffer (MetaEgl            *egl,
                                EGLDisplay          display,
                                struct wl_resource *buffer,
@@ -1077,6 +1096,7 @@ meta_egl_constructed (GObject *object)
   GET_EGL_PROC_ADDR (eglCreateImageKHR);
   GET_EGL_PROC_ADDR (eglDestroyImageKHR);
 
+  GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
   GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
 
   GET_EGL_PROC_ADDR (eglQueryDevicesEXT);
