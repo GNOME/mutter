@@ -44,10 +44,6 @@ struct _CoglDisplay
   CoglRenderer *renderer;
   CoglOnscreenTemplate *onscreen_template;
 
-#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT
-  struct wl_display *wayland_compositor_display;
-#endif
-
   void *winsys;
 };
 

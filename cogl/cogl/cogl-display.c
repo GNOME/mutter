@@ -38,9 +38,6 @@
 
 #include "cogl-display-private.h"
 #include "cogl-renderer-private.h"
-#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT
-#include "cogl-wayland-server.h"
-#endif
 #include "cogl-gtype-private.h"
 #include "winsys/cogl-winsys-private.h"
 
@@ -152,14 +149,3 @@ cogl_display_setup (CoglDisplay *display,
 
   return TRUE;
 }
-
-#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT
-void
-cogl_wayland_display_set_compositor_display (CoglDisplay *display,
-                                             struct wl_display *wayland_display)
-{
-  g_return_if_fail (display->setup == FALSE);
-
-  display->wayland_compositor_display = wayland_display;
-}
-#endif
