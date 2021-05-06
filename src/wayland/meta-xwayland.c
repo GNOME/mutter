@@ -1286,7 +1286,8 @@ void
 meta_xwayland_shutdown (MetaXWaylandManager *manager)
 {
 #ifdef HAVE_XSETIOERROREXITHANDLER
-  MetaX11Display *x11_display = meta_get_display ()->x11_display;
+  MetaDisplay *display = meta_get_display ();
+  MetaX11Display *x11_display;
 #endif
   char path[256];
 
@@ -1294,8 +1295,12 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
 
   XSetIOErrorHandler (x_io_error_noop);
 #ifdef HAVE_XSETIOERROREXITHANDLER
-  XSetIOErrorExitHandler (meta_x11_display_get_xdisplay (x11_display),
-                          x_io_error_exit_noop, NULL);
+  x11_display = display->x11_display;
+  if (x11_display)
+    {
+      XSetIOErrorExitHandler (meta_x11_display_get_xdisplay (x11_display),
+                              x_io_error_exit_noop, NULL);
+    }
 #endif
 
   meta_xwayland_terminate (manager);
