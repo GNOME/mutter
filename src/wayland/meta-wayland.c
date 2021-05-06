@@ -558,6 +558,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
       g_autoptr (GError) error = NULL;
 
       if (!meta_xwayland_init (&compositor->xwayland_manager,
+                               compositor,
                                compositor->wayland_display,
                                &error))
         g_error ("Failed to start X Wayland: %s", error->message);

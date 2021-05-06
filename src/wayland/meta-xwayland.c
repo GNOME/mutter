@@ -568,6 +568,7 @@ xserver_died (GObject      *source,
         meta_display_shutdown_x11 (display);
 
       if (!meta_xwayland_init (&compositor->xwayland_manager,
+                               compositor,
                                compositor->wayland_display,
                                &error))
         g_warning ("Failed to init X sockets: %s", error->message);
@@ -1137,9 +1138,10 @@ meta_xwayland_stop_xserver (MetaXWaylandManager *manager)
 }
 
 gboolean
-meta_xwayland_init (MetaXWaylandManager  *manager,
-                    struct wl_display    *wl_display,
-                    GError              **error)
+meta_xwayland_init (MetaXWaylandManager    *manager,
+                    MetaWaylandCompositor  *compositor,
+                    struct wl_display      *wl_display,
+                    GError                **error)
 {
   MetaX11DisplayPolicy policy;
   int display = 0;
