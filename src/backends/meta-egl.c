@@ -708,7 +708,7 @@ meta_egl_query_wayland_buffer (MetaEgl            *egl,
                                GError            **error)
 {
   if (!is_egl_proc_valid (egl->eglQueryWaylandBufferWL, error))
-   return FALSE;
+    return FALSE;
 
   if (!egl->eglQueryWaylandBufferWL (display, buffer, attribute, value))
     {
