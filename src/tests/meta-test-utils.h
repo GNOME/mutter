@@ -82,7 +82,7 @@ MetaTestClient * meta_test_client_new (const char            *id,
 
 void meta_test_client_destroy (MetaTestClient *client);
 
-const char * test_get_plugin_name (void);
+const char * meta_test_get_plugin_name (void);
 
 void test_wait_for_x11_display (void);
 

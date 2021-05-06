@@ -566,7 +566,7 @@ meta_test_client_destroy (MetaTestClient *client)
 }
 
 const char *
-test_get_plugin_name (void)
+meta_test_get_plugin_name (void)
 {
   const char *name;
 

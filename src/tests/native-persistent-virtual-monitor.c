@@ -88,7 +88,7 @@ main (int    argc,
 
   context = meta_create_context ("Persistent virtual monitor test");
   g_assert (meta_context_configure (context, &fake_argc, &fake_argv, &error));
-  meta_context_set_plugin_name (context, test_get_plugin_name ());
+  meta_context_set_plugin_name (context, meta_test_get_plugin_name ());
   g_assert (meta_context_setup (context, &error));
   g_assert (meta_context_start (context, &error));
 
