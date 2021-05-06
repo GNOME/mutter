@@ -29,7 +29,7 @@
 #include <wayland-server.h>
 
 #include "clutter/clutter.h"
-#include "clutter/wayland/clutter-wayland-compositor.h"
+#include "cogl/cogl-egl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "core/main-private.h"
 #include "wayland/meta-wayland-buffer.h"
@@ -415,8 +415,6 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
   compositor->wayland_display = wl_display_create ();
   if (compositor->wayland_display == NULL)
     g_error ("Failed to create the global wl_display");
-
-  clutter_wayland_set_compositor_display (compositor->wayland_display);
 }
 
 static void
@@ -465,6 +463,36 @@ meta_wayland_compositor_new (MetaBackend *backend)
   return compositor;
 }
 
+static void
+meta_wayland_init_egl (MetaWaylandCompositor *compositor)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_egl_has_extensions (egl, egl_display, NULL,
+                                "EGL_WL_bind_wayland_display",
+                                NULL))
+    {
+      meta_topic (META_DEBUG_WAYLAND,
+                  "Not binding Wayland display, missing extension");
+      return;
+    }
+
+  meta_topic (META_DEBUG_WAYLAND,
+              "Binding Wayland EGL display");
+
+  if (!meta_egl_bind_wayland_display (egl,
+                                      egl_display,
+                                      compositor->wayland_display,
+                                      &error))
+    g_warning ("Failed to bind Wayland display: %s", error->message);
+}
+
 void
 meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
 {
@@ -493,6 +521,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
 			 compositor, compositor_bind))
     g_error ("Failed to register the global wl_compositor");
 
+  meta_wayland_init_egl (compositor);
   meta_wayland_init_shm (compositor);
 
   meta_wayland_outputs_init (compositor);
