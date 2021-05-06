@@ -50,17 +50,7 @@
 #include "clutter-stage-private.h"
 #include "clutter-stage-window.h"
 
-#ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
-#include "wayland/clutter-wayland-compositor.h"
-#endif
-
 #include <cogl/cogl.h>
-
-#ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
-#include <cogl/cogl-wayland-server.h>
-#include <wayland-server.h>
-#include "wayland/clutter-wayland-compositor.h"
-#endif
 
 #define DEFAULT_FONT_NAME       "Sans 10"
 
@@ -76,12 +66,6 @@ enum
 G_DEFINE_ABSTRACT_TYPE (ClutterBackend, clutter_backend, G_TYPE_OBJECT)
 
 static guint backend_signals[LAST_SIGNAL] = { 0, };
-
-/* Global for being able to specify a compositor side wayland display
- * pointer before clutter initialization */
-#ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
-static struct wl_display *_wayland_compositor_display;
-#endif
 
 static void
 clutter_backend_dispose (GObject *gobject)
@@ -261,11 +245,6 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
 
   if (backend->cogl_display == NULL)
     goto error;
-
-#ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
-  cogl_wayland_display_set_compositor_display (backend->cogl_display,
-                                               _wayland_compositor_display);
-#endif
 
   CLUTTER_NOTE (BACKEND, "Setting up the display");
   if (!cogl_display_setup (backend->cogl_display, &internal_error))
@@ -817,31 +796,6 @@ clutter_backend_get_cogl_context (ClutterBackend *backend)
 {
   return backend->cogl_context;
 }
-
-#ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
-/**
- * clutter_wayland_set_compositor_display:
- * @display: A compositor side struct wl_display pointer
- *
- * This informs Clutter of your compositor side Wayland display
- * object. This must be called before calling clutter_init().
- *
- * Since: 1.8
- * Stability: unstable
- */
-void
-clutter_wayland_set_compositor_display (void *display)
-{
-  if (_clutter_context_is_initialized ())
-    {
-      g_warning ("%s() can only be used before calling clutter_init()",
-                 G_STRFUNC);
-      return;
-    }
-
-  _wayland_compositor_display = display;
-}
-#endif
 
 void
 clutter_set_allowed_drivers (const char *drivers)

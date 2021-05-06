@@ -264,13 +264,6 @@ if have_x11
   clutter_backend_nonintrospected_sources += clutter_x11_nonintrospected_sources
 endif
 
-if have_wayland
-  clutter_wayland_private_headers = [
-    'wayland/clutter-wayland-compositor.h',
-  ]
-  clutter_backend_private_headers += clutter_wayland_private_headers
-endif
-
 cally_headers = [
     'cally/cally-actor.h',
     'cally/cally-clone.h',
@@ -317,9 +310,6 @@ clutter_build_config_h = configure_file(
 clutter_built_private_headers += clutter_build_config_h
 
 cdata = configuration_data()
-if have_wayland
-  cdata.set10('CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT', true)
-endif
 if have_x11
   cdata.set_quoted('CLUTTER_WINDOWING_X11', 'x11')
   cdata.set_quoted('CLUTTER_INPUT_X11', 'x11')
