@@ -120,6 +120,7 @@ meta_wayland_pointer_gesture_swipe_handle_event (MetaWaylandPointer *pointer,
       handle_swipe_update (pointer, event);
       break;
     case CLUTTER_TOUCHPAD_GESTURE_PHASE_END:
+    case CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL:
       handle_swipe_end (pointer, event);
       break;
     default:
