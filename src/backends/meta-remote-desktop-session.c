@@ -153,24 +153,29 @@ ensure_virtual_device (MetaRemoteDesktopSession *session,
   MetaBackend *backend = meta_remote_desktop_get_backend (remote_desktop);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterVirtualInputDevice **virtual_device_ptr = NULL;
 
   switch (device_type)
     {
     case CLUTTER_POINTER_DEVICE:
-      session->virtual_pointer =
-        clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+      virtual_device_ptr = &session->virtual_pointer;
       break;
     case CLUTTER_KEYBOARD_DEVICE:
-      session->virtual_keyboard =
-        clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
+      virtual_device_ptr = &session->virtual_keyboard;
       break;
     case CLUTTER_TOUCHSCREEN_DEVICE:
-      session->virtual_touchscreen =
-        clutter_seat_create_virtual_device (seat, CLUTTER_TOUCHSCREEN_DEVICE);
+      virtual_device_ptr = &session->virtual_touchscreen;
       break;
     default:
       g_assert_not_reached ();
     }
+
+  g_assert (virtual_device_ptr);
+
+  if (*virtual_device_ptr)
+    return;
+
+  *virtual_device_ptr = clutter_seat_create_virtual_device (seat, device_type);
 }
 
 static gboolean
