@@ -3272,14 +3272,13 @@ clutter_stage_capture_view_into (ClutterStage          *stage,
 void
 clutter_stage_capture_into (ClutterStage          *stage,
                             cairo_rectangle_int_t *rect,
-                            uint8_t               *data)
+                            float                  scale,
+                            uint8_t               *data,
+                            int                    stride)
 {
   ClutterStagePrivate *priv = stage->priv;
   GList *l;
   int bpp = 4;
-  int stride;
-
-  stride = rect->width * 4;
 
   for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
     {
@@ -3296,8 +3295,8 @@ clutter_stage_capture_into (ClutterStage          *stage,
       cairo_region_get_extents (region, &capture_rect);
       cairo_region_destroy (region);
 
-      x_offset = capture_rect.x - rect->x;
-      y_offset = capture_rect.y - rect->y;
+      x_offset = roundf ((capture_rect.x - rect->x) * scale);
+      y_offset = roundf ((capture_rect.y - rect->y) * scale);
 
       clutter_stage_capture_view_into (stage, view,
                                        &capture_rect,

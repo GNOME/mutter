@@ -528,11 +528,18 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   ClutterStage *stage;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
+  float scale;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   stage = get_stage (monitor_src);
-  clutter_stage_capture_into (stage, &logical_monitor->rect, data);
+
+  if (meta_is_stage_views_scaled ())
+    scale = meta_logical_monitor_get_scale (logical_monitor);
+  else
+    scale = 1.0;
+
+  clutter_stage_capture_into (stage, &logical_monitor->rect, scale, data, stride);
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
