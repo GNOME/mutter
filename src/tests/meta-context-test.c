@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include "core/meta-context-private.h"
 #include "tests/meta-backend-test.h"
 #include "tests/meta-test-utils.h"
 #include "wayland/meta-wayland.h"
@@ -44,15 +45,19 @@ enum
 
 static guint signals[N_SIGNALS];
 
-struct _MetaContextTest
+typedef struct _MetaContextTestPrivate
 {
-  GObject parent;
-
   MetaContextTestType type;
   MetaContextTestFlag flags;
+} MetaContextTestPrivate;
+
+struct _MetaContextTestClass
+{
+  MetaContextClass parent_class;
 };
 
-G_DEFINE_TYPE (MetaContextTest, meta_context_test, META_TYPE_CONTEXT)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaContextTest, meta_context_test,
+                            META_TYPE_CONTEXT)
 
 static gboolean
 meta_context_test_configure (MetaContext   *context,
@@ -61,6 +66,8 @@ meta_context_test_configure (MetaContext   *context,
                              GError       **error)
 {
   MetaContextTest *context_test = META_CONTEXT_TEST (context);
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
   MetaContextClass *context_class =
     META_CONTEXT_CLASS (meta_context_test_parent_class);
   const char *plugin_name;
@@ -71,7 +78,7 @@ meta_context_test_configure (MetaContext   *context,
   g_test_init (argc, argv, NULL);
   g_test_bug_base ("https://gitlab.gnome.org/GNOME/mutter/issues/");
 
-  if (context_test->flags & META_CONTEXT_TEST_FLAG_TEST_CLIENT)
+  if (priv->flags & META_CONTEXT_TEST_FLAG_TEST_CLIENT)
     meta_ensure_test_client_path (*argc, *argv);
 
   meta_wayland_override_display_name ("mutter-test-display");
@@ -95,8 +102,10 @@ static MetaX11DisplayPolicy
 meta_context_test_get_x11_display_policy (MetaContext *context)
 {
   MetaContextTest *context_test = META_CONTEXT_TEST (context);
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
 
-  if (context_test->flags & META_CONTEXT_TEST_FLAG_NO_X11)
+  if (priv->flags & META_CONTEXT_TEST_FLAG_NO_X11)
     return META_X11_DISPLAY_POLICY_DISABLED;
   else
     return META_X11_DISPLAY_POLICY_ON_DEMAND;
@@ -159,8 +168,10 @@ meta_context_test_create_backend (MetaContext  *context,
                                   GError      **error)
 {
   MetaContextTest *context_test = META_CONTEXT_TEST (context);
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
 
-  switch (context_test->type)
+  switch (priv->type)
     {
     case META_CONTEXT_TEST_TYPE_NESTED:
       return create_nested_backend (context, error);
@@ -250,12 +261,14 @@ meta_create_test_context (MetaContextTestType type,
                           MetaContextTestFlag flags)
 {
   MetaContextTest *context_test;
+  MetaContextTestPrivate *priv;
 
   context_test = g_object_new (META_TYPE_CONTEXT_TEST,
                                "name", "Mutter Test",
                                NULL);
-  context_test->type = type;
-  context_test->flags = flags;
+  priv = meta_context_test_get_instance_private (context_test);
+  priv->type = type;
+  priv->flags = flags;
 
   return META_CONTEXT (context_test);
 }

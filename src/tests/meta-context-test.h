@@ -21,7 +21,7 @@
 #ifndef META_CONTEXT_TEST_H
 #define META_CONTEXT_TEST_H
 
-#include "core/meta-context-private.h"
+#include "meta/meta-context.h"
 
 typedef enum _MetaContextTestType
 {
@@ -39,9 +39,9 @@ typedef enum _MetaContextTestFlag
 } MetaContextTestFlag;
 
 #define META_TYPE_CONTEXT_TEST (meta_context_test_get_type ())
-G_DECLARE_FINAL_TYPE (MetaContextTest, meta_context_test,
-                      META, CONTEXT_TEST,
-                      MetaContext)
+G_DECLARE_DERIVABLE_TYPE (MetaContextTest, meta_context_test,
+                          META, CONTEXT_TEST,
+                          MetaContext)
 
 MetaContext * meta_create_test_context (MetaContextTestType type,
                                         MetaContextTestFlag flags);
