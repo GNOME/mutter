@@ -51,7 +51,7 @@ static GParamSpec *obj_props[PROP_LAST];
 
 struct _MetaRendererView
 {
-  ClutterStageViewCogl parent;
+  MetaStageView parent;
 
   MetaMonitorTransform transform;
 
@@ -59,7 +59,7 @@ struct _MetaRendererView
 };
 
 G_DEFINE_TYPE (MetaRendererView, meta_renderer_view,
-               CLUTTER_TYPE_STAGE_VIEW_COGL)
+               META_TYPE_STAGE_VIEW)
 
 MetaMonitorTransform
 meta_renderer_view_get_transform (MetaRendererView *view)

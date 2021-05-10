@@ -30,7 +30,7 @@
 
 #define META_TYPE_STAGE_NATIVE (meta_stage_native_get_type ())
 G_DECLARE_FINAL_TYPE (MetaStageNative, meta_stage_native,
-                      META, STAGE_NATIVE, ClutterStageCogl)
+                      META, STAGE_NATIVE, MetaStageImpl)
 
 void meta_stage_native_rebuild_views (MetaStageNative *stage_native);
 

@@ -50,7 +50,7 @@ typedef enum
 
 struct _MetaStageX11
 {
-  ClutterStageCogl parent_instance;
+  MetaStageImpl parent_instance;
 
   MetaBackend *backend;
 
@@ -72,7 +72,7 @@ struct _MetaStageX11
 
 struct _MetaStageX11Class
 {
-  ClutterStageCoglClass parent_class;
+  MetaStageImplClass parent_class;
 };
 
 CLUTTER_EXPORT

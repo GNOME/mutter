@@ -38,7 +38,7 @@
 
 #define MAX_STACK_RECTS 256
 
-typedef struct _ClutterStageViewCoglPrivate
+typedef struct _MetaStageViewPrivate
 {
   /* Damage history, in stage view render target framebuffer coordinate space.
    */
@@ -47,23 +47,23 @@ typedef struct _ClutterStageViewCoglPrivate
   guint notify_presented_handle_id;
 
   CoglFrameClosure *frame_cb_closure;
-} ClutterStageViewCoglPrivate;
+} MetaStageViewPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageViewCogl, clutter_stage_view_cogl,
+G_DEFINE_TYPE_WITH_PRIVATE (MetaStageView, meta_stage_view,
                             CLUTTER_TYPE_STAGE_VIEW)
 
-typedef struct _ClutterStageCoglPrivate
+typedef struct _MetaStageImplPrivate
 {
   int64_t global_frame_counter;
-} ClutterStageCoglPrivate;
+} MetaStageImplPrivate;
 
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (ClutterStageCogl,
-                         _clutter_stage_cogl,
+G_DEFINE_TYPE_WITH_CODE (MetaStageImpl,
+                         meta_stage_impl,
                          G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (ClutterStageCogl)
+                         G_ADD_PRIVATE (MetaStageImpl)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init));
 
@@ -76,13 +76,13 @@ enum
 };
 
 static void
-clutter_stage_cogl_unrealize (ClutterStageWindow *stage_window)
+meta_stage_impl_unrealize (ClutterStageWindow *stage_window)
 {
   g_debug ("Unrealizing Cogl stage [%p]", stage_window);
 }
 
 static gboolean
-clutter_stage_cogl_realize (ClutterStageWindow *stage_window)
+meta_stage_impl_realize (ClutterStageWindow *stage_window)
 {
   ClutterBackend *backend;
 
@@ -102,42 +102,42 @@ clutter_stage_cogl_realize (ClutterStageWindow *stage_window)
 }
 
 static int64_t
-clutter_stage_cogl_get_frame_counter (ClutterStageWindow *stage_window)
+meta_stage_impl_get_frame_counter (ClutterStageWindow *stage_window)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  ClutterStageCoglPrivate *priv =
-    _clutter_stage_cogl_get_instance_private (stage_cogl);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaStageImplPrivate *priv =
+    meta_stage_impl_get_instance_private (stage_impl);
 
   return priv->global_frame_counter;
 }
 
 static ClutterActor *
-clutter_stage_cogl_get_wrapper (ClutterStageWindow *stage_window)
+meta_stage_impl_get_wrapper (ClutterStageWindow *stage_window)
 {
-  return CLUTTER_ACTOR (CLUTTER_STAGE_COGL (stage_window)->wrapper);
+  return CLUTTER_ACTOR (META_STAGE_IMPL (stage_window)->wrapper);
 }
 
 static void
-clutter_stage_cogl_show (ClutterStageWindow *stage_window,
-			 gboolean            do_raise)
+meta_stage_impl_show (ClutterStageWindow *stage_window,
+                      gboolean            do_raise)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
 
-  clutter_actor_map (CLUTTER_ACTOR (stage_cogl->wrapper));
+  clutter_actor_map (CLUTTER_ACTOR (stage_impl->wrapper));
 }
 
 static void
-clutter_stage_cogl_hide (ClutterStageWindow *stage_window)
+meta_stage_impl_hide (ClutterStageWindow *stage_window)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
 
-  clutter_actor_unmap (CLUTTER_ACTOR (stage_cogl->wrapper));
+  clutter_actor_unmap (CLUTTER_ACTOR (stage_impl->wrapper));
 }
 
 static void
-clutter_stage_cogl_resize (ClutterStageWindow *stage_window,
-                           gint                width,
-                           gint                height)
+meta_stage_impl_resize (ClutterStageWindow *stage_window,
+                        gint                width,
+                        gint                height)
 {
 }
 
@@ -150,8 +150,8 @@ paint_damage_region (ClutterStageWindow *stage_window,
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   static CoglPipeline *overlay_blue = NULL;
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  ClutterActor *actor = CLUTTER_ACTOR (stage_cogl->wrapper);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  ClutterActor *actor = CLUTTER_ACTOR (stage_impl->wrapper);
   graphene_matrix_t transform;
   int n_rects, i;
 
@@ -221,9 +221,9 @@ static gboolean
 notify_presented_idle (gpointer user_data)
 {
   NotifyPresentedClosure *closure = user_data;
-  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (closure->view);
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
+  MetaStageView *view = META_STAGE_VIEW (closure->view);
+  MetaStageViewPrivate *view_priv =
+    meta_stage_view_get_instance_private (view);
 
   view_priv->notify_presented_handle_id = 0;
   clutter_stage_view_notify_presented (closure->view, &closure->frame_info);
@@ -233,18 +233,18 @@ notify_presented_idle (gpointer user_data)
 
 static void
 swap_framebuffer (ClutterStageWindow *stage_window,
-                  ClutterStageView   *view,
+                  ClutterStageView   *stage_view,
                   cairo_region_t     *swap_region,
                   gboolean            swap_with_damage,
                   ClutterFrame       *frame)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  ClutterStageCoglPrivate *priv =
-    _clutter_stage_cogl_get_instance_private (stage_cogl);
-  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaStageImplPrivate *priv =
+    meta_stage_impl_get_instance_private (stage_impl);
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (stage_view);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
 
-  clutter_stage_view_before_swap_buffer (view, swap_region);
+  clutter_stage_view_before_swap_buffer (stage_view, swap_region);
 
   if (COGL_IS_ONSCREEN (framebuffer))
     {
@@ -291,18 +291,18 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     }
   else
     {
-      ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
-      ClutterStageViewCoglPrivate *view_priv =
-        clutter_stage_view_cogl_get_instance_private (view_cogl);
+      MetaStageView *view = META_STAGE_VIEW (stage_view);
+      MetaStageViewPrivate *view_priv =
+        meta_stage_view_get_instance_private (view);
       NotifyPresentedClosure *closure;
 
       g_debug ("fake offscreen swap (framebuffer: %p)", framebuffer);
 
       closure = g_new0 (NotifyPresentedClosure, 1);
-      closure->view = view;
+      closure->view = stage_view;
       closure->frame_info = (ClutterFrameInfo) {
         .frame_counter = priv->global_frame_counter,
-        .refresh_rate = clutter_stage_view_get_refresh_rate (view),
+        .refresh_rate = clutter_stage_view_get_refresh_rate (stage_view),
         .presentation_time = g_get_monotonic_time (),
         .flags = CLUTTER_FRAME_INFO_FLAG_NONE,
         .sequence = 0,
@@ -390,23 +390,23 @@ scale_offset_and_clamp_region (const cairo_region_t *region,
 }
 
 static void
-paint_stage (ClutterStageCogl *stage_cogl,
-             ClutterStageView *view,
+paint_stage (MetaStageImpl    *stage_impl,
+             ClutterStageView *stage_view,
              cairo_region_t   *redraw_clip)
 {
-  ClutterStage *stage = stage_cogl->wrapper;
+  ClutterStage *stage = stage_impl->wrapper;
 
-  _clutter_stage_maybe_setup_viewport (stage, view);
-  clutter_stage_paint_view (stage, view, redraw_clip);
+  _clutter_stage_maybe_setup_viewport (stage, stage_view);
+  clutter_stage_paint_view (stage, stage_view, redraw_clip);
 
-  clutter_stage_view_after_paint (view, redraw_clip);
+  clutter_stage_view_after_paint (stage_view, redraw_clip);
 }
 
 static cairo_region_t *
-transform_swap_region_to_onscreen (ClutterStageView *view,
+transform_swap_region_to_onscreen (ClutterStageView *stage_view,
                                    cairo_region_t   *swap_region)
 {
-  CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (view);
+  CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
   int n_rects, i;
   cairo_rectangle_int_t *rects;
   cairo_region_t *transformed_region;
@@ -420,7 +420,7 @@ transform_swap_region_to_onscreen (ClutterStageView *view,
   for (i = 0; i < n_rects; i++)
     {
       cairo_region_get_rectangle (swap_region, i, &rects[i]);
-      clutter_stage_view_transform_rect_to_onscreen (view,
+      clutter_stage_view_transform_rect_to_onscreen (stage_view,
                                                      &rects[i],
                                                      width,
                                                      height,
@@ -432,16 +432,16 @@ transform_swap_region_to_onscreen (ClutterStageView *view,
 }
 
 static void
-clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
-                                        ClutterStageView *view,
-                                        ClutterFrame     *frame)
+meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
+                                     ClutterStageView *stage_view,
+                                     ClutterFrame     *frame)
 {
-  ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_cogl);
-  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
-  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
-  CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (view);
+  ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_impl);
+  MetaStageView *view = META_STAGE_VIEW (stage_view);
+  MetaStageViewPrivate *view_priv =
+    meta_stage_view_get_instance_private (view);
+  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (stage_view);
+  CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
   cairo_rectangle_int_t view_rect;
   gboolean is_full_redraw;
   gboolean use_clipped_redraw = TRUE;
@@ -457,8 +457,8 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
   int fb_width, fb_height;
   int buffer_age = 0;
 
-  clutter_stage_view_get_layout (view, &view_rect);
-  fb_scale = clutter_stage_view_get_scale (view);
+  clutter_stage_view_get_layout (stage_view, &view_rect);
+  fb_scale = clutter_stage_view_get_scale (stage_view);
   fb_width = cogl_framebuffer_get_width (fb);
   fb_height = cogl_framebuffer_get_height (fb);
 
@@ -470,7 +470,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
     COGL_IS_ONSCREEN (onscreen) &&
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 
-  redraw_clip = clutter_stage_view_take_redraw_clip (view);
+  redraw_clip = clutter_stage_view_take_redraw_clip (stage_view);
 
   /* NB: a NULL redraw clip == full stage redraw */
   if (!redraw_clip)
@@ -588,14 +588,14 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
       cairo_region_t *debug_redraw_clip;
 
       debug_redraw_clip = cairo_region_create_rectangle (&view_rect);
-      paint_stage (stage_cogl, view, debug_redraw_clip);
+      paint_stage (stage_impl, stage_view, debug_redraw_clip);
       cairo_region_destroy (debug_redraw_clip);
     }
   else if (use_clipped_redraw)
     {
       cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
-      paint_stage (stage_cogl, view, redraw_clip);
+      paint_stage (stage_impl, stage_view, redraw_clip);
 
       cogl_framebuffer_pop_clip (fb);
     }
@@ -603,7 +603,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
     {
       g_debug ("Unclipped stage paint");
 
-      paint_stage (stage_cogl, view, redraw_clip);
+      paint_stage (stage_impl, stage_view, redraw_clip);
     }
 
   /* XXX: It seems there will be a race here in that the stage
@@ -622,16 +622,16 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
   g_clear_pointer (&redraw_clip, cairo_region_destroy);
   g_clear_pointer (&fb_clip_region, cairo_region_destroy);
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
+  COGL_TRACE_BEGIN_SCOPED (MetaStageImplRedrawViewSwapFramebuffer,
                            "Paint (swap framebuffer)");
 
-  if (clutter_stage_view_get_onscreen (view) !=
-      clutter_stage_view_get_framebuffer (view))
+  if (clutter_stage_view_get_onscreen (stage_view) !=
+      clutter_stage_view_get_framebuffer (stage_view))
     {
       cairo_region_t *transformed_swap_region;
 
       transformed_swap_region =
-        transform_swap_region_to_onscreen (view, swap_region);
+        transform_swap_region_to_onscreen (stage_view, swap_region);
       cairo_region_destroy (swap_region);
       swap_region = transformed_swap_region;
     }
@@ -648,7 +648,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
 
       cairo_region_subtract (swap_region_in_stage_space, queued_redraw_clip);
 
-      paint_damage_region (stage_window, view,
+      paint_damage_region (stage_window, stage_view,
                            swap_region_in_stage_space, queued_redraw_clip);
 
       cairo_region_destroy (queued_redraw_clip);
@@ -656,7 +656,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
     }
 
   swap_framebuffer (stage_window,
-                    view,
+                    stage_view,
                     swap_region,
                     swap_with_damage,
                     frame);
@@ -665,15 +665,16 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
 }
 
 static gboolean
-clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
-                                 ClutterStageView  *view,
-                                 CoglScanout       *scanout,
-                                 ClutterFrame      *frame,
-                                 GError           **error)
+meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
+                              ClutterStageView  *stage_view,
+                              CoglScanout       *scanout,
+                              ClutterFrame      *frame,
+                              GError           **error)
 {
-  ClutterStageCoglPrivate *priv =
-    _clutter_stage_cogl_get_instance_private (stage_cogl);
-  CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
+  MetaStageImplPrivate *priv =
+    meta_stage_impl_get_instance_private (stage_impl);
+  CoglFramebuffer *framebuffer =
+    clutter_stage_view_get_framebuffer (stage_view);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
@@ -700,23 +701,23 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
 }
 
 static void
-clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
-                                ClutterStageView   *view,
-                                ClutterFrame       *frame)
+meta_stage_impl_redraw_view (ClutterStageWindow *stage_window,
+                             ClutterStageView   *stage_view,
+                             ClutterFrame       *frame)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
   g_autoptr (CoglScanout) scanout = NULL;
 
-  scanout = clutter_stage_view_take_scanout (view);
+  scanout = clutter_stage_view_take_scanout (stage_view);
   if (scanout)
     {
       g_autoptr (GError) error = NULL;
 
-      if (clutter_stage_cogl_scanout_view (stage_cogl,
-                                           view,
-                                           scanout,
-                                           frame,
-                                           &error))
+      if (meta_stage_impl_scanout_view (stage_impl,
+                                        stage_view,
+                                        scanout,
+                                        frame,
+                                        &error))
         return;
 
       if (!g_error_matches (error,
@@ -725,16 +726,16 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         g_warning ("Failed to scan out client buffer: %s", error->message);
     }
 
-  clutter_stage_cogl_redraw_view_primary (stage_cogl, view, frame);
+  meta_stage_impl_redraw_view_primary (stage_impl, stage_view, frame);
 }
 
 void
-clutter_stage_cogl_add_onscreen_frame_info (ClutterStageCogl *stage_cogl,
-                                            ClutterStageView *view)
+meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
+                                         ClutterStageView *stage_view)
 {
-  ClutterStageCoglPrivate *priv =
-    _clutter_stage_cogl_get_instance_private (stage_cogl);
-  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  MetaStageImplPrivate *priv =
+    meta_stage_impl_get_instance_private (stage_impl);
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (stage_view);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglFrameInfo *frame_info;
 
@@ -747,23 +748,23 @@ clutter_stage_cogl_add_onscreen_frame_info (ClutterStageCogl *stage_cogl,
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
-  iface->realize = clutter_stage_cogl_realize;
-  iface->unrealize = clutter_stage_cogl_unrealize;
-  iface->get_wrapper = clutter_stage_cogl_get_wrapper;
-  iface->resize = clutter_stage_cogl_resize;
-  iface->show = clutter_stage_cogl_show;
-  iface->hide = clutter_stage_cogl_hide;
-  iface->get_frame_counter = clutter_stage_cogl_get_frame_counter;
-  iface->redraw_view = clutter_stage_cogl_redraw_view;
+  iface->realize = meta_stage_impl_realize;
+  iface->unrealize = meta_stage_impl_unrealize;
+  iface->get_wrapper = meta_stage_impl_get_wrapper;
+  iface->resize = meta_stage_impl_resize;
+  iface->show = meta_stage_impl_show;
+  iface->hide = meta_stage_impl_hide;
+  iface->get_frame_counter = meta_stage_impl_get_frame_counter;
+  iface->redraw_view = meta_stage_impl_redraw_view;
 }
 
 static void
-clutter_stage_cogl_set_property (GObject      *gobject,
-				 guint         prop_id,
-				 const GValue *value,
-				 GParamSpec   *pspec)
+meta_stage_impl_set_property (GObject      *gobject,
+                              guint         prop_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
 {
-  ClutterStageCogl *self = CLUTTER_STAGE_COGL (gobject);
+  MetaStageImpl *self = META_STAGE_IMPL (gobject);
 
   switch (prop_id)
     {
@@ -782,18 +783,18 @@ clutter_stage_cogl_set_property (GObject      *gobject,
 }
 
 static void
-_clutter_stage_cogl_class_init (ClutterStageCoglClass *klass)
+meta_stage_impl_class_init (MetaStageImplClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->set_property = clutter_stage_cogl_set_property;
+  gobject_class->set_property = meta_stage_impl_set_property;
 
   g_object_class_override_property (gobject_class, PROP_WRAPPER, "wrapper");
   g_object_class_override_property (gobject_class, PROP_BACKEND, "backend");
 }
 
 static void
-_clutter_stage_cogl_init (ClutterStageCogl *stage)
+meta_stage_impl_init (MetaStageImpl *stage)
 {
 }
 
@@ -803,14 +804,14 @@ frame_cb (CoglOnscreen  *onscreen,
           CoglFrameInfo *frame_info,
           void          *user_data)
 {
-  ClutterStageView *view = user_data;
+  ClutterStageView *stage_view = user_data;
 
   if (frame_event == COGL_FRAME_EVENT_SYNC)
     return;
 
   if (cogl_frame_info_get_is_symbolic (frame_info))
     {
-      clutter_stage_view_notify_ready (view);
+      clutter_stage_view_notify_ready (stage_view);
     }
   else
     {
@@ -838,17 +839,17 @@ frame_cb (CoglOnscreen  *onscreen,
         .cpu_time_before_buffer_swap_us =
           cogl_frame_info_get_time_before_buffer_swap_us (frame_info),
       };
-      clutter_stage_view_notify_presented (view, &clutter_frame_info);
+      clutter_stage_view_notify_presented (stage_view, &clutter_frame_info);
     }
 }
 
 static void
-clutter_stage_view_cogl_dispose (GObject *object)
+meta_stage_view_dispose (GObject *object)
 {
-  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
-  ClutterStageView *view = CLUTTER_STAGE_VIEW (view_cogl);
+  MetaStageView *view = META_STAGE_VIEW (object);
+  MetaStageViewPrivate *view_priv =
+    meta_stage_view_get_instance_private (view);
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
 
   g_clear_handle_id (&view_priv->notify_presented_handle_id, g_source_remove);
   g_clear_pointer (&view_priv->damage_history, clutter_damage_history_free);
@@ -857,51 +858,51 @@ clutter_stage_view_cogl_dispose (GObject *object)
     {
       CoglFramebuffer *framebuffer;
 
-      framebuffer = clutter_stage_view_get_onscreen (view);
+      framebuffer = clutter_stage_view_get_onscreen (stage_view);
       cogl_onscreen_remove_frame_callback (COGL_ONSCREEN (framebuffer),
                                            view_priv->frame_cb_closure);
       view_priv->frame_cb_closure = NULL;
     }
 
-  G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_stage_view_parent_class)->dispose (object);
 }
 
 static void
-clutter_stage_view_cogl_constructed (GObject *object)
+meta_stage_view_constructed (GObject *object)
 {
-  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
-  ClutterStageView *view = CLUTTER_STAGE_VIEW (view_cogl);
+  MetaStageView *view = META_STAGE_VIEW (object);
+  MetaStageViewPrivate *view_priv =
+    meta_stage_view_get_instance_private (view);
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer;
 
-  framebuffer = clutter_stage_view_get_onscreen (view);
+  framebuffer = clutter_stage_view_get_onscreen (stage_view);
   if (framebuffer && COGL_IS_ONSCREEN (framebuffer))
     {
       view_priv->frame_cb_closure =
         cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
                                           frame_cb,
-                                          view,
+                                          stage_view,
                                           NULL);
     }
 
-  G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->constructed (object);
+  G_OBJECT_CLASS (meta_stage_view_parent_class)->constructed (object);
 }
 
 static void
-clutter_stage_view_cogl_init (ClutterStageViewCogl *view_cogl)
+meta_stage_view_init (MetaStageView *view)
 {
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
+  MetaStageViewPrivate *view_priv =
+    meta_stage_view_get_instance_private (view);
 
   view_priv->damage_history = clutter_damage_history_new ();
 }
 
 static void
-clutter_stage_view_cogl_class_init (ClutterStageViewCoglClass *klass)
+meta_stage_view_class_init (MetaStageViewClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->constructed = clutter_stage_view_cogl_constructed;
-  object_class->dispose = clutter_stage_view_cogl_dispose;
+  object_class->constructed = meta_stage_view_constructed;
+  object_class->dispose = meta_stage_view_dispose;
 }

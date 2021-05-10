@@ -24,7 +24,7 @@
 #define META_TYPE_RENDERER_VIEW (meta_renderer_view_get_type ())
 G_DECLARE_FINAL_TYPE (MetaRendererView, meta_renderer_view,
                       META, RENDERER_VIEW,
-                      ClutterStageViewCogl)
+                      MetaStageView)
 
 MetaMonitorTransform meta_renderer_view_get_transform (MetaRendererView *view);
 

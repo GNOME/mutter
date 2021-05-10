@@ -38,7 +38,7 @@ static GQuark quark_view_frame_closure  = 0;
 
 struct _MetaStageNative
 {
-  ClutterStageCogl parent;
+  MetaStageImpl parent;
 
   CoglClosure *frame_closure;
 
@@ -52,7 +52,7 @@ static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
-                         CLUTTER_TYPE_STAGE_COGL,
+                         META_TYPE_STAGE_IMPL,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init))
 

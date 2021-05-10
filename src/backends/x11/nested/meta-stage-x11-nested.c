@@ -55,7 +55,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaStageX11Nested, meta_stage_x11_nested,
 typedef struct _MetaStageX11View
 {
   CoglTexture *texture;
-  ClutterStageViewCogl *view;
+  MetaStageView *view;
 } MetaStageX11NestedView;
 
 static void

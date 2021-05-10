@@ -32,30 +32,30 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_STAGE_COGL                  (_clutter_stage_cogl_get_type ())
-#define CLUTTER_STAGE_COGL(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_STAGE_COGL, ClutterStageCogl))
-#define CLUTTER_IS_STAGE_COGL(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_STAGE_COGL))
-#define CLUTTER_STAGE_COGL_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_STAGE_COGL, ClutterStageCoglClass))
-#define CLUTTER_IS_STAGE_COGL_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_STAGE_COGL))
-#define CLUTTER_STAGE_COGL_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_STAGE_COGL, ClutterStageCoglClass))
+#define META_TYPE_STAGE_IMPL                  (meta_stage_impl_get_type ())
+#define META_STAGE_IMPL(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_STAGE_IMPL, MetaStageImpl))
+#define META_IS_STAGE_IMPL(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_STAGE_IMPL))
+#define META_STAGE_IMPL_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_STAGE_IMPL, MetaStageImplClass))
+#define META_IS_STAGE_IMPL_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_STAGE_IMPL))
+#define META_STAGE_IMPL_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_STAGE_IMPL, MetaStageImplClass))
 
-typedef struct _ClutterStageCogl         ClutterStageCogl;
-typedef struct _ClutterStageCoglClass    ClutterStageCoglClass;
+typedef struct _MetaStageImpl         MetaStageImpl;
+typedef struct _MetaStageImplClass    MetaStageImplClass;
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterStageCogl, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaStageImpl, g_object_unref)
 
-#define CLUTTER_TYPE_STAGE_VIEW_COGL (clutter_stage_view_cogl_get_type ())
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (ClutterStageViewCogl, clutter_stage_view_cogl,
-                          CLUTTER, STAGE_VIEW_COGL,
+#define META_TYPE_STAGE_VIEW (meta_stage_view_get_type ())
+
+G_DECLARE_DERIVABLE_TYPE (MetaStageView, meta_stage_view,
+                          META, STAGE_VIEW,
                           ClutterStageView)
 
-struct _ClutterStageViewCoglClass
+struct _MetaStageViewClass
 {
   ClutterStageViewClass parent_class;
 };
 
-struct _ClutterStageCogl
+struct _MetaStageImpl
 {
   GObject parent_instance;
 
@@ -66,22 +66,19 @@ struct _ClutterStageCogl
   ClutterBackend *backend;
 };
 
-struct _ClutterStageCoglClass
+struct _MetaStageImplClass
 {
   GObjectClass parent_class;
 };
 
-CLUTTER_EXPORT
-GType _clutter_stage_cogl_get_type (void) G_GNUC_CONST;
+GType meta_stage_impl_get_type (void) G_GNUC_CONST;
 
-CLUTTER_EXPORT
-void _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
-                                    CoglFrameEvent    frame_event,
-                                    ClutterFrameInfo *frame_info);
+void meta_stage_impl_presented (MetaStageImpl    *stage_impl,
+                                CoglFrameEvent    frame_event,
+                                ClutterFrameInfo *frame_info);
 
-CLUTTER_EXPORT
-void clutter_stage_cogl_add_onscreen_frame_info (ClutterStageCogl *stage_cogl,
-                                                 ClutterStageView *view);
+void meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
+                                              ClutterStageView *view);
 
 G_END_DECLS
 

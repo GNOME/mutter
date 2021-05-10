@@ -1342,8 +1342,8 @@ add_onscreen_frame_info (MetaCrtc *crtc)
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererView *view = meta_renderer_get_view_for_crtc (renderer, crtc);
 
-  clutter_stage_cogl_add_onscreen_frame_info (CLUTTER_STAGE_COGL (stage_window),
-                                              CLUTTER_STAGE_VIEW (view));
+  meta_stage_impl_add_onscreen_frame_info (META_STAGE_IMPL (stage_window),
+                                           CLUTTER_STAGE_VIEW (view));
 }
 
 void

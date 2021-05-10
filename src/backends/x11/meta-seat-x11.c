@@ -1252,8 +1252,8 @@ translate_coords (MetaStageX11 *stage_x11,
                   float        *x_out,
                   float        *y_out)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
-  ClutterActor *stage = CLUTTER_ACTOR (stage_cogl->wrapper);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_x11);
+  ClutterActor *stage = CLUTTER_ACTOR (stage_impl->wrapper);
   float stage_width;
   float stage_height;
 
