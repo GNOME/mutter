@@ -34,7 +34,7 @@
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
 #include "clutter-stage-view.h"
-#include "cogl/clutter-stage-cogl.h"
+#include "clutter-stage-view-private.h"
 #include "clutter/x11/clutter-backend-x11.h"
 
 CLUTTER_EXPORT

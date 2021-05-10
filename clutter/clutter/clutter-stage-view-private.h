@@ -21,9 +21,11 @@
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-types.h"
 
+CLUTTER_EXPORT
 void clutter_stage_view_after_paint (ClutterStageView *view,
                                      cairo_region_t   *redraw_clip);
 
+CLUTTER_EXPORT
 void clutter_stage_view_before_swap_buffer (ClutterStageView     *view,
                                             const cairo_region_t *swap_region);
 
@@ -54,10 +56,13 @@ gboolean clutter_stage_view_has_redraw_clip (ClutterStageView *view);
 
 const cairo_region_t * clutter_stage_view_peek_redraw_clip (ClutterStageView *view);
 
+CLUTTER_EXPORT
 cairo_region_t * clutter_stage_view_take_redraw_clip (ClutterStageView *view);
 
+CLUTTER_EXPORT
 CoglScanout * clutter_stage_view_take_scanout (ClutterStageView *view);
 
+CLUTTER_EXPORT
 void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            *view,
                                                     const cairo_rectangle_int_t *src_rect,
                                                     int                          dst_width,
@@ -67,9 +72,11 @@ void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            
 CLUTTER_EXPORT
 void clutter_stage_view_schedule_update (ClutterStageView *view);
 
+CLUTTER_EXPORT
 void clutter_stage_view_notify_presented (ClutterStageView *view,
                                           ClutterFrameInfo *frame_info);
 
+CLUTTER_EXPORT
 void clutter_stage_view_notify_ready (ClutterStageView *view);
 
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

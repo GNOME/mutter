@@ -88,6 +88,7 @@ void               _clutter_stage_window_redraw_view            (ClutterStageWin
                                                                  ClutterStageView   *view,
                                                                  ClutterFrame       *frame);
 
+CLUTTER_EXPORT
 gboolean          _clutter_stage_window_can_clip_redraws        (ClutterStageWindow *window);
 
 GList *           _clutter_stage_window_get_views               (ClutterStageWindow *window);

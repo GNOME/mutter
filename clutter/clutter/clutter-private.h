@@ -214,9 +214,11 @@ void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelvie
                                               graphene_point3d_t       *vertices_out,
                                               int                       n_vertices);
 
+CLUTTER_EXPORT
 void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
                                         graphene_rect_t             *dest);
 
+CLUTTER_EXPORT
 void _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
                                           cairo_rectangle_int_t *dest);
 

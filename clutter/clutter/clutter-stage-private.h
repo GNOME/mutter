@@ -34,6 +34,7 @@ G_BEGIN_DECLS
 /* stage */
 ClutterStageWindow *_clutter_stage_get_default_window    (void);
 
+CLUTTER_EXPORT
 void                clutter_stage_paint_view             (ClutterStage          *stage,
                                                           ClutterStageView      *view,
                                                           const cairo_region_t  *redraw_clip);
@@ -61,6 +62,7 @@ void                _clutter_stage_get_viewport          (ClutterStage          
                                                           float                 *width,
                                                           float                 *height);
 void                _clutter_stage_dirty_viewport        (ClutterStage          *stage);
+CLUTTER_EXPORT
 void                _clutter_stage_maybe_setup_viewport  (ClutterStage          *stage,
                                                           ClutterStageView      *view);
 void                clutter_stage_maybe_relayout         (ClutterActor          *stage);
