@@ -102,6 +102,11 @@ CLUTTER_EXPORT
 void clutter_stage_repick_device (ClutterStage       *stage,
                                   ClutterInputDevice *device);
 
+CLUTTER_EXPORT
+void clutter_get_debug_flags (ClutterDebugFlag     *debug_flags,
+                              ClutterDrawDebugFlag *draw_flags,
+                              ClutterPickDebugFlag *pick_flags);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */
