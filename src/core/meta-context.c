@@ -469,6 +469,13 @@ meta_context_terminate_with_error (MetaContext *context,
   meta_context_terminate (context);
 }
 
+void
+meta_context_destroy (MetaContext *context)
+{
+  g_object_run_dispose (G_OBJECT (context));
+  g_object_unref (context);
+}
+
 static void
 meta_context_get_property (GObject    *object,
                            guint       prop_id,
@@ -510,7 +517,7 @@ meta_context_set_property (GObject      *object,
 }
 
 static void
-meta_context_finalize (GObject *object)
+meta_context_dispose (GObject *object)
 {
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
@@ -535,6 +542,16 @@ meta_context_finalize (GObject *object)
 
   g_clear_pointer (&priv->option_context, g_option_context_free);
   g_clear_pointer (&priv->main_loop, g_main_loop_unref);
+
+  G_OBJECT_CLASS (meta_context_parent_class)->dispose (object);
+}
+
+static void
+meta_context_finalize (GObject *object)
+{
+  MetaContext *context = META_CONTEXT (object);
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
   g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
@@ -549,6 +566,7 @@ meta_context_class_init (MetaContextClass *klass)
 
   object_class->get_property = meta_context_get_property;
   object_class->set_property = meta_context_set_property;
+  object_class->dispose = meta_context_dispose;
   object_class->finalize = meta_context_finalize;
 
   klass->configure = meta_context_real_configure;

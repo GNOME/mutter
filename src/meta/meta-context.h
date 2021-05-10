@@ -35,6 +35,9 @@ META_EXPORT
 MetaContext * meta_create_context (const char *name);
 
 META_EXPORT
+void meta_context_destroy (MetaContext *context);
+
+META_EXPORT
 void meta_context_add_option_entries (MetaContext        *context,
                                       const GOptionEntry *entries,
                                       const char         *translation_domain);
