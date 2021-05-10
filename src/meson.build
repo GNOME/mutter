@@ -236,6 +236,8 @@ mutter_sources = [
   'backends/meta-stage-impl.c',
   'backends/meta-stage-impl-private.h',
   'backends/meta-stage-private.h',
+  'backends/meta-stage-view.c',
+  'backends/meta-stage-view-private.h',
   'backends/meta-viewport-info.c',
   'backends/meta-viewport-info.h',
   'backends/meta-virtual-monitor.c',

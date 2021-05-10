@@ -46,15 +46,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaStageImpl, g_object_unref)
 
 #define META_TYPE_STAGE_VIEW (meta_stage_view_get_type ())
 
-G_DECLARE_DERIVABLE_TYPE (MetaStageView, meta_stage_view,
-                          META, STAGE_VIEW,
-                          ClutterStageView)
-
-struct _MetaStageViewClass
-{
-  ClutterStageViewClass parent_class;
-};
-
 struct _MetaStageImpl
 {
   GObject parent_instance;

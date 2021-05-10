@@ -32,25 +32,12 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "backends/meta-stage-view-private.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
 #include "core/util-private.h"
 
 #define MAX_STACK_RECTS 256
-
-typedef struct _MetaStageViewPrivate
-{
-  /* Damage history, in stage view render target framebuffer coordinate space.
-   */
-  ClutterDamageHistory *damage_history;
-
-  guint notify_presented_handle_id;
-
-  CoglFrameClosure *frame_cb_closure;
-} MetaStageViewPrivate;
-
-G_DEFINE_TYPE_WITH_PRIVATE (MetaStageView, meta_stage_view,
-                            CLUTTER_TYPE_STAGE_VIEW)
 
 typedef struct _MetaStageImplPrivate
 {
@@ -211,26 +198,6 @@ paint_damage_region (ClutterStageWindow *stage_window,
   cogl_framebuffer_pop_matrix (framebuffer);
 }
 
-typedef struct _NotifyPresentedClosure
-{
-  ClutterStageView *view;
-  ClutterFrameInfo frame_info;
-} NotifyPresentedClosure;
-
-static gboolean
-notify_presented_idle (gpointer user_data)
-{
-  NotifyPresentedClosure *closure = user_data;
-  MetaStageView *view = META_STAGE_VIEW (closure->view);
-  MetaStageViewPrivate *view_priv =
-    meta_stage_view_get_instance_private (view);
-
-  view_priv->notify_presented_handle_id = 0;
-  clutter_stage_view_notify_presented (closure->view, &closure->frame_info);
-
-  return G_SOURCE_REMOVE;
-}
-
 static void
 swap_framebuffer (ClutterStageWindow *stage_window,
                   ClutterStageView   *stage_view,
@@ -292,28 +259,10 @@ swap_framebuffer (ClutterStageWindow *stage_window,
   else
     {
       MetaStageView *view = META_STAGE_VIEW (stage_view);
-      MetaStageViewPrivate *view_priv =
-        meta_stage_view_get_instance_private (view);
-      NotifyPresentedClosure *closure;
 
       g_debug ("fake offscreen swap (framebuffer: %p)", framebuffer);
-
-      closure = g_new0 (NotifyPresentedClosure, 1);
-      closure->view = stage_view;
-      closure->frame_info = (ClutterFrameInfo) {
-        .frame_counter = priv->global_frame_counter,
-        .refresh_rate = clutter_stage_view_get_refresh_rate (stage_view),
-        .presentation_time = g_get_monotonic_time (),
-        .flags = CLUTTER_FRAME_INFO_FLAG_NONE,
-        .sequence = 0,
-      };
+      meta_stage_view_perform_fake_swap (view, priv->global_frame_counter);
       priv->global_frame_counter++;
-
-      g_warn_if_fail (view_priv->notify_presented_handle_id == 0);
-      view_priv->notify_presented_handle_id =
-        g_idle_add_full (G_PRIORITY_DEFAULT,
-                         notify_presented_idle,
-                         closure, g_free);
     }
 }
 
@@ -438,8 +387,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 {
   ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_impl);
   MetaStageView *view = META_STAGE_VIEW (stage_view);
-  MetaStageViewPrivate *view_priv =
-    meta_stage_view_get_instance_private (view);
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (stage_view);
   CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
   cairo_rectangle_int_t view_rect;
@@ -453,6 +400,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
   ClutterDrawDebugFlag paint_debug_flags;
+  ClutterDamageHistory *damage_history;
   float fb_scale;
   int fb_width, fb_height;
   int buffer_age = 0;
@@ -478,11 +426,12 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   else
     is_full_redraw = FALSE;
 
+  damage_history = meta_stage_view_get_damage_history (view);
+
   if (has_buffer_age)
     {
       buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (onscreen));
-      if (!clutter_damage_history_is_age_valid (view_priv->damage_history,
-                                                buffer_age))
+      if (!clutter_damage_history_is_age_valid (damage_history, buffer_age))
         {
           g_debug ("Invalid back buffer(age=%d): forcing full redraw",
                    buffer_age);
@@ -540,8 +489,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
-      clutter_damage_history_record (view_priv->damage_history,
-                                     fb_clip_region);
+      clutter_damage_history_record (damage_history, fb_clip_region);
 
       if (use_clipped_redraw)
         {
@@ -552,7 +500,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
               const cairo_region_t *old_damage;
 
               old_damage =
-                clutter_damage_history_lookup (view_priv->damage_history, age);
+                clutter_damage_history_lookup (damage_history, age);
               cairo_region_union (fb_clip_region, old_damage);
             }
 
@@ -563,7 +511,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
           swap_with_damage = TRUE;
         }
 
-      clutter_damage_history_step (view_priv->damage_history);
+      clutter_damage_history_step (damage_history);
     }
 
   if (use_clipped_redraw)
@@ -796,113 +744,4 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
 static void
 meta_stage_impl_init (MetaStageImpl *stage)
 {
-}
-
-static void
-frame_cb (CoglOnscreen  *onscreen,
-          CoglFrameEvent frame_event,
-          CoglFrameInfo *frame_info,
-          void          *user_data)
-{
-  ClutterStageView *stage_view = user_data;
-
-  if (frame_event == COGL_FRAME_EVENT_SYNC)
-    return;
-
-  if (cogl_frame_info_get_is_symbolic (frame_info))
-    {
-      clutter_stage_view_notify_ready (stage_view);
-    }
-  else
-    {
-      ClutterFrameInfo clutter_frame_info;
-      ClutterFrameInfoFlag flags = CLUTTER_FRAME_INFO_FLAG_NONE;
-
-      if (cogl_frame_info_is_hw_clock (frame_info))
-        flags |= CLUTTER_FRAME_INFO_FLAG_HW_CLOCK;
-
-      if (cogl_frame_info_is_zero_copy (frame_info))
-        flags |= CLUTTER_FRAME_INFO_FLAG_ZERO_COPY;
-
-      if (cogl_frame_info_is_vsync (frame_info))
-        flags |= CLUTTER_FRAME_INFO_FLAG_VSYNC;
-
-      clutter_frame_info = (ClutterFrameInfo) {
-        .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
-        .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
-        .presentation_time =
-          cogl_frame_info_get_presentation_time_us (frame_info),
-        .flags = flags,
-        .sequence = cogl_frame_info_get_sequence (frame_info),
-        .gpu_rendering_duration_ns =
-          cogl_frame_info_get_rendering_duration_ns (frame_info),
-        .cpu_time_before_buffer_swap_us =
-          cogl_frame_info_get_time_before_buffer_swap_us (frame_info),
-      };
-      clutter_stage_view_notify_presented (stage_view, &clutter_frame_info);
-    }
-}
-
-static void
-meta_stage_view_dispose (GObject *object)
-{
-  MetaStageView *view = META_STAGE_VIEW (object);
-  MetaStageViewPrivate *view_priv =
-    meta_stage_view_get_instance_private (view);
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
-
-  g_clear_handle_id (&view_priv->notify_presented_handle_id, g_source_remove);
-  g_clear_pointer (&view_priv->damage_history, clutter_damage_history_free);
-
-  if (view_priv->frame_cb_closure)
-    {
-      CoglFramebuffer *framebuffer;
-
-      framebuffer = clutter_stage_view_get_onscreen (stage_view);
-      cogl_onscreen_remove_frame_callback (COGL_ONSCREEN (framebuffer),
-                                           view_priv->frame_cb_closure);
-      view_priv->frame_cb_closure = NULL;
-    }
-
-  G_OBJECT_CLASS (meta_stage_view_parent_class)->dispose (object);
-}
-
-static void
-meta_stage_view_constructed (GObject *object)
-{
-  MetaStageView *view = META_STAGE_VIEW (object);
-  MetaStageViewPrivate *view_priv =
-    meta_stage_view_get_instance_private (view);
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
-  CoglFramebuffer *framebuffer;
-
-  framebuffer = clutter_stage_view_get_onscreen (stage_view);
-  if (framebuffer && COGL_IS_ONSCREEN (framebuffer))
-    {
-      view_priv->frame_cb_closure =
-        cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
-                                          frame_cb,
-                                          stage_view,
-                                          NULL);
-    }
-
-  G_OBJECT_CLASS (meta_stage_view_parent_class)->constructed (object);
-}
-
-static void
-meta_stage_view_init (MetaStageView *view)
-{
-  MetaStageViewPrivate *view_priv =
-    meta_stage_view_get_instance_private (view);
-
-  view_priv->damage_history = clutter_damage_history_new ();
-}
-
-static void
-meta_stage_view_class_init (MetaStageViewClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->constructed = meta_stage_view_constructed;
-  object_class->dispose = meta_stage_view_dispose;
 }
