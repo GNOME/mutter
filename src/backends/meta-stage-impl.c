@@ -25,28 +25,16 @@
  *  Emmanuele Bassi
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
-#include "clutter-config.h"
-
-#include "clutter-stage-cogl.h"
+#include "backends/meta-stage-impl-private.h"
 
 #include <stdlib.h>
 #include <math.h>
 
-#include "clutter-actor-private.h"
-#include "clutter-backend-private.h"
-#include "clutter-damage-history.h"
-#include "clutter-debug.h"
-#include "clutter-event.h"
-#include "clutter-enum-types.h"
-#include "clutter-feature.h"
-#include "clutter-frame.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-stage-private.h"
-#include "clutter-stage-view-private.h"
-#include "cogl.h"
+#include "clutter/clutter-mutter.h"
+#include "cogl/cogl.h"
+#include "core/util-private.h"
 
 #define MAX_STACK_RECTS 256
 
@@ -464,6 +452,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
   cairo_region_t *queued_redraw_clip = NULL;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
+  ClutterDrawDebugFlag paint_debug_flags;
   float fb_scale;
   int fb_width, fb_height;
   int buffer_age = 0;
@@ -501,9 +490,11 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
         }
     }
 
+  meta_get_clutter_debug_flags (NULL, &paint_debug_flags, NULL);
+
   use_clipped_redraw =
     use_clipped_redraw &&
-    !(clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
+    !(paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
     _clutter_stage_window_can_clip_redraws (stage_window) &&
     (can_blit_sub_buffer || has_buffer_age) &&
     !is_full_redraw &&
@@ -518,8 +509,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
                                                       -view_rect.y,
                                                       fb_scale);
 
-      if (G_UNLIKELY (clutter_paint_debug_flags &
-                      CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
+      if (G_UNLIKELY (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
         {
           queued_redraw_clip =
             scale_offset_and_clamp_region (fb_clip_region,
@@ -541,8 +531,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
       g_clear_pointer (&redraw_clip, cairo_region_destroy);
       redraw_clip = cairo_region_create_rectangle (&view_rect);
 
-      if (G_UNLIKELY (clutter_paint_debug_flags &
-                      CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
+      if (G_UNLIKELY (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
         queued_redraw_clip = cairo_region_reference (redraw_clip);
     }
 
@@ -594,7 +583,7 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
                                                    view_rect.y);
     }
 
-  if (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
+  if (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
     {
       cairo_region_t *debug_redraw_clip;
 

@@ -25,6 +25,7 @@
 #ifndef META_STAGE_NATIVE_H
 #define META_STAGE_NATIVE_H
 
+#include "backends/meta-stage-impl-private.h"
 #include "clutter/clutter-mutter.h"
 
 #define META_TYPE_STAGE_NATIVE (meta_stage_native_get_type ())

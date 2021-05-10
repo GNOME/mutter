@@ -232,13 +232,9 @@ clutter_deprecated_headers = [
 ]
 
 clutter_backend_sources = []
-clutter_backend_nonintrospected_sources = [
-  'cogl/clutter-stage-cogl.c',
-]
+clutter_backend_nonintrospected_sources = []
 clutter_backend_headers = []
-clutter_backend_private_headers = [
-  'cogl/clutter-stage-cogl.h',
-]
+clutter_backend_private_headers = []
 
 if have_x11
   clutter_x11_sources = [
