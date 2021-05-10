@@ -93,11 +93,6 @@ struct _ClutterBackendX11Class
 CLUTTER_EXPORT
 GType clutter_backend_x11_get_type (void) G_GNUC_CONST;
 
-ClutterBackend *clutter_backend_x11_new (void);
-
-/* Private to glx/eglx backends */
-void            _clutter_x11_select_events (Window xwin);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_BACKEND_X11_H__ */

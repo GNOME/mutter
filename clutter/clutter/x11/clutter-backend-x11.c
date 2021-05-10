@@ -534,12 +534,6 @@ clutter_backend_x11_init (ClutterBackendX11 *backend_x11)
   backend_x11->last_event_time = CurrentTime;
 }
 
-ClutterBackend *
-clutter_backend_x11_new (void)
-{
-  return g_object_new (CLUTTER_TYPE_BACKEND_X11, NULL);
-}
-
 static int
 error_handler(Display     *xdpy,
               XErrorEvent *error)
