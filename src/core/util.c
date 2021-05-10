@@ -40,7 +40,7 @@
 #include <sys/prctl.h>
 #endif
 
-#include "clutter/clutter.h"
+#include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
 #include "meta/common.h"
 #include "meta/main.h"
@@ -767,6 +767,14 @@ meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
                                  ClutterPickDebugFlag pick_flags)
 {
   clutter_remove_debug_flags (debug_flags, draw_flags, pick_flags);
+}
+
+void
+meta_get_clutter_debug_flags (ClutterDebugFlag     *debug_flags,
+                              ClutterDrawDebugFlag *draw_flags,
+                              ClutterPickDebugFlag *pick_flags)
+{
+  clutter_get_debug_flags (debug_flags, draw_flags, pick_flags);
 }
 
 void
