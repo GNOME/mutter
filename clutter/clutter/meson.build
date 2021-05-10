@@ -249,17 +249,8 @@ if have_x11
 
   clutter_x11_private_headers = [
     'x11/clutter-backend-x11.h',
-    'x11/clutter-settings-x11.h',
   ]
   clutter_backend_private_headers += clutter_x11_private_headers
-
-  clutter_x11_nonintrospected_sources = [
-    'x11/xsettings/xsettings-client.c',
-    'x11/xsettings/xsettings-client.h',
-    'x11/xsettings/xsettings-common.c',
-    'x11/xsettings/xsettings-common.h',
-  ]
-  clutter_backend_nonintrospected_sources += clutter_x11_nonintrospected_sources
 endif
 
 cally_headers = [

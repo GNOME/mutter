@@ -34,10 +34,7 @@
 #include <errno.h>
 
 #include "clutter-backend-x11.h"
-#include "clutter-settings-x11.h"
 #include "clutter-x11.h"
-
-#include "xsettings/xsettings-common.h"
 
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/XInput2.h>
@@ -111,22 +108,6 @@ static int TrappedErrorCode = 0;
 static int (* old_error_handler) (Display *, XErrorEvent *);
 
 static ClutterX11FilterReturn
-xsettings_filter (XEvent       *xevent,
-                  ClutterEvent *event,
-                  gpointer      data)
-{
-  ClutterBackendX11 *backend_x11 = data;
-
-  _clutter_xsettings_client_process_event (backend_x11->xsettings, xevent);
-
-  /* we always want the rest of the stack to get XSettings events, even
-   * if Clutter already handled them
-   */
-
-  return CLUTTER_X11_FILTER_CONTINUE;
-}
-
-static ClutterX11FilterReturn
 cogl_xlib_filter (XEvent       *xevent,
                   ClutterEvent *event,
                   gpointer      data)
@@ -149,78 +130,6 @@ cogl_xlib_filter (XEvent       *xevent,
     }
 
   return retval;
-}
-
-static void
-clutter_backend_x11_xsettings_notify (const char       *name,
-                                      XSettingsAction   action,
-                                      XSettingsSetting *setting,
-                                      void             *cb_data)
-{
-  ClutterSettings *settings = clutter_settings_get_default ();
-  gint i;
-
-  if (name == NULL || *name == '\0')
-    return;
-
-  if (setting == NULL)
-    return;
-
-  g_object_freeze_notify (G_OBJECT (settings));
-
-  for (i = 0; i < _n_clutter_settings_map; i++)
-    {
-      if (g_strcmp0 (name, CLUTTER_SETTING_X11_NAME (i)) == 0)
-        {
-          GValue value = G_VALUE_INIT;
-
-          switch (setting->type)
-            {
-            case XSETTINGS_TYPE_INT:
-              g_value_init (&value, G_TYPE_INT);
-              g_value_set_int (&value, setting->data.v_int);
-              break;
-
-            case XSETTINGS_TYPE_STRING:
-              g_value_init (&value, G_TYPE_STRING);
-              g_value_set_string (&value, setting->data.v_string);
-              break;
-
-            case XSETTINGS_TYPE_COLOR:
-              {
-                ClutterColor color;
-
-                color.red   = (guint8) ((float) setting->data.v_color.red
-                            / 65535.0 * 255);
-                color.green = (guint8) ((float) setting->data.v_color.green
-                            / 65535.0 * 255);
-                color.blue  = (guint8) ((float) setting->data.v_color.blue
-                            / 65535.0 * 255);
-                color.alpha = (guint8) ((float) setting->data.v_color.alpha
-                            / 65535.0 * 255);
-
-                g_value_init (&value, G_TYPE_BOXED);
-                clutter_value_set_color (&value, &color);
-              }
-              break;
-            }
-
-          CLUTTER_NOTE (BACKEND,
-                        "Mapping XSETTING '%s' to 'ClutterSettings:%s'",
-                        CLUTTER_SETTING_X11_NAME (i),
-                        CLUTTER_SETTING_PROPERTY (i));
-
-          clutter_settings_set_property_internal (settings,
-                                                  CLUTTER_SETTING_PROPERTY (i),
-                                                  &value);
-
-          g_value_unset (&value);
-
-          break;
-        }
-    }
-
-  g_object_thaw_notify (G_OBJECT (settings));
 }
 
 static gboolean
@@ -312,17 +221,6 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
 
   backend_x11->display_name = g_strdup (clutter_display_name);
 
-  /* create XSETTINGS client */
-  backend_x11->xsettings =
-    _clutter_xsettings_client_new (backend_x11->xdpy,
-                                   backend_x11->xscreen_num,
-                                   clutter_backend_x11_xsettings_notify,
-                                   NULL,
-                                   backend_x11);
-
-  /* add event filter for XSETTINGS events */
-  clutter_x11_add_filter (xsettings_filter, backend_x11);
-
   if (clutter_synchronise)
     XSynchronize (backend_x11->xdpy, True);
 
@@ -397,9 +295,6 @@ clutter_backend_x11_finalize (GObject *gobject)
   g_free (backend_x11->display_name);
 
   clutter_x11_remove_filter (cogl_xlib_filter, gobject);
-
-  clutter_x11_remove_filter (xsettings_filter, backend_x11);
-  _clutter_xsettings_client_destroy (backend_x11->xsettings);
 
   XCloseDisplay (backend_x11->xdpy);
 

@@ -31,8 +31,6 @@
 
 #include "clutter-backend-private.h"
 
-#include "xsettings/xsettings-client.h"
-
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BACKEND_X11                (clutter_backend_x11_get_type ())
@@ -85,9 +83,6 @@ struct _ClutterBackendX11
   Atom atom_UTF8_STRING;
 
   Time last_event_time;
-
-  XSettingsClient *xsettings;
-  Window xsettings_xwin;
 };
 
 struct _ClutterBackendX11Class
