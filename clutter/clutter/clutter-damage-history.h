@@ -22,20 +22,28 @@
 #include <cairo.h>
 #include <glib.h>
 
+#include "clutter-macros.h"
+
 typedef struct _ClutterDamageHistory ClutterDamageHistory;
 
+CLUTTER_EXPORT
 ClutterDamageHistory * clutter_damage_history_new (void);
 
+CLUTTER_EXPORT
 void clutter_damage_history_free (ClutterDamageHistory *history);
 
+CLUTTER_EXPORT
 gboolean clutter_damage_history_is_age_valid (ClutterDamageHistory *history,
                                               int                   age);
 
+CLUTTER_EXPORT
 void clutter_damage_history_record (ClutterDamageHistory *history,
                                     const cairo_region_t *damage);
 
+CLUTTER_EXPORT
 void clutter_damage_history_step (ClutterDamageHistory *history);
 
+CLUTTER_EXPORT
 const cairo_region_t * clutter_damage_history_lookup (ClutterDamageHistory *history,
                                                       int                   age);
 

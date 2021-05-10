@@ -26,6 +26,7 @@
 #define __CLUTTER_H_INSIDE__
 
 #include "clutter-backend.h"
+#include "clutter-damage-history.h"
 #include "clutter-event-private.h"
 #include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
