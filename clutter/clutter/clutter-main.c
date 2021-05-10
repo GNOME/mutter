@@ -53,7 +53,6 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
-#include "clutter-config.h"
 #include "clutter-debug.h"
 #include "clutter-event-private.h"
 #include "clutter-feature.h"

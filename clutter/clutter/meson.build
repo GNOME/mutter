@@ -231,9 +231,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-timeline.h',
 ]
 
-clutter_backend_sources = []
-clutter_backend_nonintrospected_sources = []
-clutter_backend_headers = []
 clutter_backend_private_headers = []
 
 cally_headers = [
@@ -269,8 +266,6 @@ clutter_built_private_headers = []
 cdata = configuration_data()
 cdata.set_quoted('MUTTER_VERSION', meson.project_version())
 cdata.set('CLUTTER_DRIVERS', '"*"')
-cdata.set('HAVE_EVDEV', have_native_backend)
-cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
 
 clutter_build_config_h = configure_file(
@@ -280,27 +275,6 @@ clutter_build_config_h = configure_file(
   install: false,
 )
 clutter_built_private_headers += clutter_build_config_h
-
-cdata = configuration_data()
-if have_x11
-  cdata.set_quoted('CLUTTER_WINDOWING_X11', 'x11')
-  cdata.set_quoted('CLUTTER_INPUT_X11', 'x11')
-  cdata.set_quoted('CLUTTER_WINDOWING_GLX', 'glx')
-endif
-if have_native_backend
-  cdata.set_quoted('CLUTTER_WINDOWING_EGL', 'eglnative')
-  cdata.set_quoted('CLUTTER_INPUT_EVDEV', 'evdev')
-endif
-cdata.set_quoted('CLUTTER_INPUT_NULL', 'null')
-
-clutter_config_h = configure_file(
-  input: 'clutter-config.h.in',
-  output: 'clutter-config.h',
-  configuration: cdata,
-  install: true,
-  install_dir: clutter_clutter_includedir,
-)
-clutter_built_headers += clutter_config_h
 
 clutter_enum_types = gnome.mkenums('clutter-enum-types',
   sources: [clutter_headers, clutter_deprecated_headers],
@@ -331,10 +305,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_private_headers,
     clutter_nonintrospected_sources,
     clutter_deprecated_headers,
-    clutter_backend_sources,
-    clutter_backend_nonintrospected_sources,
-    clutter_backend_headers,
-    clutter_backend_private_headers,
     clutter_built_sources,
     clutter_built_headers,
     cally_sources,

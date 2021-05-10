@@ -33,7 +33,6 @@
 
 #include <cogl/cogl.h>
 
-#include <clutter/clutter-config.h>
 #include <clutter/clutter-keymap.h>
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-seat.h>

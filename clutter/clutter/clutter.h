@@ -28,7 +28,6 @@
 
 #define __CLUTTER_H_INSIDE__
 
-#include "clutter-config.h"
 #include "clutter-types.h"
 
 #include "clutter-action.h"
