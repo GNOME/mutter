@@ -438,17 +438,3 @@ pkg.generate(libmutter_clutter,
   ],
   install_dir: pcdir,
 )
-
-pkg.generate(libmutter_clutter,
-  name: 'Mutters ClutterX11',
-  filebase: 'mutter-clutter-x11-' + libmutter_api_version,
-  description: 'Mutters ClutterX11 Private Library',
-  libraries: [m_dep],
-  subdirs: join_paths(pkgname, 'clutter'),
-  requires: [clutter_pkg_deps, libmutter_cogl_name],
-  version: meson.project_version(),
-  variables: [
-    'apiversion=' + libmutter_api_version,
-  ],
-  install_dir: pcdir,
-)
