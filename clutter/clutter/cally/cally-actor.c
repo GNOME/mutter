@@ -74,10 +74,6 @@
 
 #include "clutter/clutter-actor-private.h"
 
-#ifdef CLUTTER_WINDOWING_X11
-#include <clutter/x11/clutter-x11.h>
-#endif
-
 #include <math.h>
 
 #include "cally-actor.h"

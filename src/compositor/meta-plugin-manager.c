@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "clutter/x11/clutter-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-module.h"
 #include "core/meta-close-dialog-default-private.h"

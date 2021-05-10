@@ -30,8 +30,8 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-renderer-view.h"
 #include "backends/meta-renderer.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
-#include "clutter/x11/clutter-x11.h"
 #include "cogl/cogl-xlib.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
@@ -82,7 +82,7 @@ static CoglRenderer *
 meta_renderer_x11_create_cogl_renderer (MetaRenderer *renderer)
 {
   CoglRenderer *cogl_renderer;
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
 
   cogl_renderer = cogl_renderer_new ();
   cogl_renderer_set_custom_winsys (cogl_renderer, get_x11_cogl_winsys_vtable,

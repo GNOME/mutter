@@ -26,8 +26,8 @@
 #include <X11/extensions/Xcomposite.h>
 
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
-#include "clutter/x11/clutter-x11.h"
 #include "compositor/meta-sync-ring.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "core/display-private.h"

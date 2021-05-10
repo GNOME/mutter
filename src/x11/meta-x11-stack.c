@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include <X11/Xatom.h>
+
 #include "core/frame.h"
 #include "core/stack.h"
 #include "core/window-private.h"

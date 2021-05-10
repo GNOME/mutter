@@ -173,6 +173,7 @@ void     _clutter_threads_dispatch_free (gpointer data);
 ClutterMainContext *    _clutter_context_get_default                    (void);
 void                    _clutter_context_lock                           (void);
 void                    _clutter_context_unlock                         (void);
+CLUTTER_EXPORT
 gboolean                _clutter_context_is_initialized                 (void);
 gboolean                _clutter_context_get_show_fps                   (void);
 

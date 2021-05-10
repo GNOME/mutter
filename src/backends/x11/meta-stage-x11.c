@@ -30,12 +30,11 @@
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "backends/x11/cm/meta-renderer-x11-cm.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/nested/meta-stage-x11-nested.h"
 #include "clutter/clutter-mutter.h"
-#include "clutter/x11/clutter-x11.h"
-#include "clutter/x11/clutter-backend-x11.h"
 #include "cogl/cogl-mutter.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
@@ -85,7 +84,7 @@ meta_stage_x11_fix_window_size (MetaStageX11 *stage_x11,
 
   if (stage_x11->xwin != None)
     {
-      Display *xdisplay = clutter_x11_get_default_display ();
+      Display *xdisplay = meta_clutter_x11_get_default_display ();
       uint32_t min_width, min_height;
       XSizeHints *size_hints;
 
@@ -117,8 +116,9 @@ static void
 meta_stage_x11_set_wm_protocols (MetaStageX11 *stage_x11)
 {
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_x11);
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_impl->backend);
-  Display *xdisplay = clutter_x11_get_default_display ();
+  MetaClutterBackendX11 *backend_x11 =
+    META_CLUTTER_BACKEND_X11 (stage_impl->backend);
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   Atom protocols[2];
   int n = 0;
   
@@ -163,7 +163,7 @@ meta_stage_x11_resize (ClutterStageWindow *stage_window,
       if (width != stage_x11->xwin_width ||
           height != stage_x11->xwin_height)
         {
-          Display *xdisplay = clutter_x11_get_default_display ();
+          Display *xdisplay = meta_clutter_x11_get_default_display ();
 
           /* XXX: in this case we can rely on a subsequent
            * ConfigureNotify that will result in the stage
@@ -189,8 +189,9 @@ static inline void
 set_wm_pid (MetaStageX11 *stage_x11)
 {
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_x11);
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_impl->backend);
-  Display *xdisplay = clutter_x11_get_default_display ();
+  MetaClutterBackendX11 *backend_x11 =
+    META_CLUTTER_BACKEND_X11 (stage_impl->backend);
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   long pid;
 
   if (stage_x11->xwin == None)
@@ -215,8 +216,9 @@ static inline void
 set_wm_title (MetaStageX11 *stage_x11)
 {
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_x11);
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_impl->backend);
-  Display *xdisplay = clutter_x11_get_default_display ();
+  MetaClutterBackendX11 *backend_x11 =
+    META_CLUTTER_BACKEND_X11 (stage_impl->backend);
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
 
   if (stage_x11->xwin == None)
     return;
@@ -295,7 +297,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
   ClutterBackend *backend = CLUTTER_BACKEND (stage_impl->backend);
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (clutter_backend_get_default_seat (backend));
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   float width, height;
   GError *error = NULL;
 
@@ -345,7 +347,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
 
   /* we unconditionally select input events even with event retrieval
    * disabled because we need to guarantee that the Clutter internal
-   * state is maintained when calling clutter_x11_handle_event() without
+   * state is maintained when calling meta_clutter_x11_handle_event() without
    * requiring applications or embedding toolkits to select events
    * themselves. if we did that, we'd have to document the events to be
    * selected, and also update applications and embedding toolkits each
@@ -386,7 +388,7 @@ meta_stage_x11_set_title (ClutterStageWindow *stage_window,
 static inline void
 update_wm_hints (MetaStageX11 *stage_x11)
 {
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   XWMHints wm_hints;
 
   if (stage_x11->wm_state & STAGE_X11_WITHDRAWN)
@@ -427,7 +429,7 @@ meta_stage_x11_show (ClutterStageWindow *stage_window,
 
   if (stage_x11->xwin != None)
     {
-      Display *xdisplay = clutter_x11_get_default_display ();
+      Display *xdisplay = meta_clutter_x11_get_default_display ();
 
       if (do_raise)
         {
@@ -457,7 +459,7 @@ meta_stage_x11_hide (ClutterStageWindow *stage_window)
 
   if (stage_x11->xwin != None)
     {
-      Display *xdisplay = clutter_x11_get_default_display ();
+      Display *xdisplay = meta_clutter_x11_get_default_display ();
 
       if (STAGE_X11_IS_MAPPED (stage_x11))
         set_stage_x11_state (stage_x11, 0, STAGE_X11_WITHDRAWN);
@@ -550,13 +552,13 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 }
 
 static inline void
-set_user_time (ClutterBackendX11 *backend_x11,
-               MetaStageX11      *stage_x11,
-               long               timestamp)
+set_user_time (MetaClutterBackendX11 *backend_x11,
+               MetaStageX11          *stage_x11,
+               long                   timestamp)
 {
   if (timestamp != CLUTTER_CURRENT_TIME)
     {
-      Display *xdisplay = clutter_x11_get_default_display ();
+      Display *xdisplay = meta_clutter_x11_get_default_display ();
 
       XChangeProperty (xdisplay,
                        stage_x11->xwin,
@@ -568,9 +570,9 @@ set_user_time (ClutterBackendX11 *backend_x11,
 }
 
 static gboolean
-handle_wm_protocols_event (ClutterBackendX11 *backend_x11,
-                           MetaStageX11      *stage_x11,
-                           XEvent            *xevent)
+handle_wm_protocols_event (MetaClutterBackendX11 *backend_x11,
+                           MetaStageX11          *stage_x11,
+                           XEvent                *xevent)
 {
   Atom atom = (Atom) xevent->xclient.data.l[0];
 
@@ -585,7 +587,7 @@ handle_wm_protocols_event (ClutterBackendX11 *backend_x11,
            xevent->xany.window == stage_x11->xwin)
     {
       XClientMessageEvent xclient = xevent->xclient;
-      Display *xdisplay = clutter_x11_get_default_display ();
+      Display *xdisplay = meta_clutter_x11_get_default_display ();
 
       xclient.window = backend_x11->xwin_root;
       XSendEvent (xdisplay, xclient.window,
@@ -616,7 +618,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
 {
   MetaStageImpl *stage_impl;
   gboolean res = FALSE;
-  ClutterBackendX11 *clutter_backend_x11;
+  MetaClutterBackendX11 *clutter_backend_x11;
   ClutterStage *stage;
   MetaBackend *backend;
 
@@ -626,7 +628,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
 
   stage = stage_impl->wrapper;
   backend = stage_x11->backend;
-  clutter_backend_x11 = CLUTTER_BACKEND_X11 (stage_impl->backend);
+  clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (stage_impl->backend);
 
   switch (xevent->type)
     {
@@ -844,7 +846,8 @@ meta_stage_x11_set_user_time (MetaStageX11 *stage_x11,
                               uint32_t      user_time)
 {
   MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_x11);
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_impl->backend);
+  MetaClutterBackendX11 *backend_x11 =
+    META_CLUTTER_BACKEND_X11 (stage_impl->backend);
 
   set_user_time (backend_x11, stage_x11, user_time);
 }

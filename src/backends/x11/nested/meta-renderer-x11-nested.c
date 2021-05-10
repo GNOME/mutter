@@ -26,12 +26,12 @@
 
 #include <glib-object.h>
 
-#include "clutter/x11/clutter-x11.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-output.h"
 #include "backends/meta-renderer.h"
 #include "backends/meta-renderer-view.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "core/boxes-private.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"

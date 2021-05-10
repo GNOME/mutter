@@ -22,7 +22,7 @@
 #include <X11/extensions/XInput2.h>
 
 #include "clutter/clutter-mutter.h"
-#include "clutter/x11/clutter-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 
 struct _MetaInputDeviceX11
@@ -406,10 +406,10 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
   XIGroupState group_state;
   int result;
 
-  clutter_x11_trap_x_errors ();
-  result = XIQueryPointer (clutter_x11_get_default_display (),
+  meta_clutter_x11_trap_x_errors ();
+  result = XIQueryPointer (meta_clutter_x11_get_default_display (),
                            device_xi2->device_id,
-                           clutter_x11_get_root_window (),
+                           meta_clutter_x11_get_root_window (),
                            &xroot_window,
                            &xchild_window,
                            &xroot_x, &xroot_y,
@@ -417,7 +417,7 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
                            &button_state,
                            &mod_state,
                            &group_state);
-  clutter_x11_untrap_x_errors ();
+  meta_clutter_x11_untrap_x_errors ();
 
   g_free (button_state.mask);
 

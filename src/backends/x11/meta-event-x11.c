@@ -28,7 +28,6 @@
 
 #include "backends/x11/meta-event-x11.h"
 #include "clutter/clutter-mutter.h"
-#include "clutter/x11/clutter-x11.h"
 
 /**
  * meta_x11_handle_event:
@@ -38,44 +37,44 @@
  * into external X11 event processing (for example, a GDK filter
  * function).
  *
- * Return value: #ClutterX11FilterReturn. %CLUTTER_X11_FILTER_REMOVE
+ * Return value: #MetaX11FilterReturn. %META_X11_FILTER_REMOVE
  *  indicates that Clutter has internally handled the event and the
- *  caller should do no further processing. %CLUTTER_X11_FILTER_CONTINUE
+ *  caller should do no further processing. %META_X11_FILTER_CONTINUE
  *  indicates that Clutter is either not interested in the event,
  *  or has used the event to update internal state without taking
- *  any exclusive action. %CLUTTER_X11_FILTER_TRANSLATE will not
+ *  any exclusive action. %META_X11_FILTER_TRANSLATE will not
  *  occur.
  *
  * Since: 0.8
  */
-ClutterX11FilterReturn
+MetaX11FilterReturn
 meta_x11_handle_event (XEvent *xevent)
 {
-  ClutterX11FilterReturn result;
+  MetaX11FilterReturn result;
   ClutterBackend *backend;
   ClutterEvent *event;
   gint spin = 1;
-  ClutterBackendX11 *backend_x11;
+  MetaClutterBackendX11 *backend_x11;
   Display *xdisplay;
   gboolean allocated_event;
 
   /* The return values here are someone approximate; we return
-   * CLUTTER_X11_FILTER_REMOVE if a clutter event is
+   * META_X11_FILTER_REMOVE if a clutter event is
    * generated for the event. This mostly, but not entirely,
    * corresponds to whether other event processing should be
    * excluded. As long as the stage window is not shared with another
    * toolkit it should be safe, and never return
-   * %CLUTTER_X11_FILTER_REMOVE when more processing is needed.
+   * %META_X11_FILTER_REMOVE when more processing is needed.
    */
 
-  result = CLUTTER_X11_FILTER_CONTINUE;
+  result = META_X11_FILTER_CONTINUE;
 
   backend = clutter_get_default_backend ();
 
   event = clutter_event_new (CLUTTER_NOTHING);
 
-  backend_x11 = CLUTTER_BACKEND_X11 (backend);
-  xdisplay = backend_x11->xdpy;
+  backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  xdisplay = backend_x11->xdisplay;
 
   allocated_event = XGetEventData (xdisplay, &xevent->xcookie);
 
@@ -83,7 +82,7 @@ meta_x11_handle_event (XEvent *xevent)
     {
       _clutter_event_push (event, FALSE);
 
-      result = CLUTTER_X11_FILTER_REMOVE;
+      result = META_X11_FILTER_REMOVE;
     }
   else
     {

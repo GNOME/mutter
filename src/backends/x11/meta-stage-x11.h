@@ -26,8 +26,8 @@
 #include <X11/Xatom.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "clutter/clutter-mutter.h"
-#include "clutter/x11/clutter-x11.h"
 
 G_BEGIN_DECLS
 

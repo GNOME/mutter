@@ -25,8 +25,8 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBstr.h>
 
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-xkb-a11y-x11.h"
-#include "clutter/x11/clutter-x11.h"
 #include "core/display-private.h"
 #include "meta/meta-x11-errors.h"
 
@@ -48,14 +48,14 @@ get_xkb_desc_rec (Display *xdisplay)
   XkbDescRec *desc;
   Status      status = Success;
 
-  clutter_x11_trap_x_errors ();
+  meta_clutter_x11_trap_x_errors ();
   desc = XkbGetMap (xdisplay, XkbAllMapComponentsMask, XkbUseCoreKbd);
   if (desc != NULL)
     {
       desc->ctrls = NULL;
       status = XkbGetControls (xdisplay, XkbAllControlsMask, desc);
     }
-  clutter_x11_untrap_x_errors ();
+  meta_clutter_x11_untrap_x_errors ();
 
   g_return_val_if_fail (desc != NULL, NULL);
   g_return_val_if_fail (desc->ctrls != NULL, NULL);
@@ -68,16 +68,16 @@ static void
 set_xkb_desc_rec (Display    *xdisplay,
                   XkbDescRec *desc)
 {
-  clutter_x11_trap_x_errors ();
+  meta_clutter_x11_trap_x_errors ();
   XkbSetControls (xdisplay, DEFAULT_XKB_SET_CONTROLS_MASK, desc);
   XSync (xdisplay, FALSE);
-  clutter_x11_untrap_x_errors ();
+  meta_clutter_x11_untrap_x_errors ();
 }
 
 static void
 check_settings_changed (ClutterSeat *seat)
 {
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   MetaKbdA11ySettings kbd_a11y_settings;
   MetaKeyboardA11yFlags what_changed = 0;
   MetaInputSettings *input_settings;
@@ -131,7 +131,7 @@ check_settings_changed (ClutterSeat *seat)
   XkbFreeKeyboard (desc, XkbAllComponentsMask, TRUE);
 }
 
-static ClutterX11FilterReturn
+static MetaX11FilterReturn
 xkb_a11y_event_filter (XEvent       *xevent,
                        ClutterEvent *clutter_event,
                        gpointer      data)
@@ -151,7 +151,7 @@ xkb_a11y_event_filter (XEvent       *xevent,
       xkbev->any.xkb_type == XkbControlsNotify && xkbev->ctrls.event_type != 0)
     check_settings_changed (seat);
 
-  return CLUTTER_X11_FILTER_CONTINUE;
+  return META_X11_FILTER_CONTINUE;
 }
 
 static gboolean
@@ -205,7 +205,7 @@ void
 meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
                                        MetaKbdA11ySettings *kbd_a11y_settings)
 {
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   XkbDescRec *desc;
   gboolean enable_accessX;
 
@@ -323,7 +323,7 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
 gboolean
 meta_seat_x11_a11y_init (ClutterSeat *seat)
 {
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   guint event_mask;
 
   if (!is_xkb_available (xdisplay))
@@ -333,7 +333,7 @@ meta_seat_x11_a11y_init (ClutterSeat *seat)
 
   XkbSelectEvents (xdisplay, XkbUseCoreKbd, event_mask, event_mask);
 
-  clutter_x11_add_filter (xkb_a11y_event_filter, seat);
+  meta_clutter_x11_add_filter (xkb_a11y_event_filter, seat);
 
   return TRUE;
 }

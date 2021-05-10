@@ -52,7 +52,6 @@
 #include "backends/x11/meta-renderer-x11.h"
 #include "backends/x11/meta-xkb-a11y-x11.h"
 #include "clutter/clutter.h"
-#include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "meta/meta-cursor-tracker.h"
@@ -868,7 +867,7 @@ meta_backend_x11_initable_init (GInitable    *initable,
 
   priv->xdisplay = xdisplay;
   priv->xcb = XGetXCBConnection (priv->xdisplay);
-  clutter_x11_set_display (xdisplay);
+  meta_clutter_x11_set_display (xdisplay);
 
   init_xkb_state (x11);
 

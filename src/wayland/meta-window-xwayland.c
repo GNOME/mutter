@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include <X11/Xatom.h>
+
 #include "core/frame.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/window-x11.h"

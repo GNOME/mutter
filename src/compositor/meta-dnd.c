@@ -21,12 +21,12 @@
 
 #include <gdk/gdkx.h>
 
-#include "clutter/x11/clutter-x11.h"
 #include "meta/meta-backend.h"
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "meta/meta-dnd.h"
 #include "x11/meta-x11-display-private.h"

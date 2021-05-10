@@ -27,12 +27,70 @@
 
 #include <glib-object.h>
 
-#include "clutter/clutter.h"
-#include "clutter/x11/clutter-backend-x11.h"
+#include "clutter/clutter-mutter.h"
+
+struct _MetaClutterBackendX11
+{
+  ClutterBackend parent_instance;
+
+  Display *xdisplay;
+  char   *display_name;
+
+  Screen  *xscreen;
+  int      xscreen_num;
+  int      xscreen_width;
+  int      xscreen_height;
+
+  Window   xwin_root;
+
+  /* event source */
+  GSList  *event_filters;
+
+  /* props */
+  Atom atom_NET_WM_PID;
+  Atom atom_NET_WM_PING;
+  Atom atom_NET_WM_STATE;
+  Atom atom_NET_WM_USER_TIME;
+  Atom atom_WM_PROTOCOLS;
+  Atom atom_WM_DELETE_WINDOW;
+  Atom atom_XEMBED;
+  Atom atom_XEMBED_INFO;
+  Atom atom_NET_WM_NAME;
+  Atom atom_UTF8_STRING;
+
+  Time last_event_time;
+};
 
 #define META_TYPE_CLUTTER_BACKEND_X11 (meta_clutter_backend_x11_get_type ())
 G_DECLARE_FINAL_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
                       META, CLUTTER_BACKEND_X11,
-                      ClutterBackendX11)
+                      ClutterBackend)
+
+typedef enum
+{
+  META_X11_FILTER_CONTINUE,
+  META_X11_FILTER_TRANSLATE,
+  META_X11_FILTER_REMOVE
+} MetaX11FilterReturn;
+
+typedef MetaX11FilterReturn (*MetaX11FilterFunc) (XEvent        *xev,
+                                                  ClutterEvent  *cev,
+                                                  gpointer       data);
+
+void meta_clutter_x11_trap_x_errors (void);
+gint meta_clutter_x11_untrap_x_errors (void);
+
+Display *meta_clutter_x11_get_default_display (void);
+int meta_clutter_x11_get_default_screen (void);
+Window meta_clutter_x11_get_root_window (void);
+void meta_clutter_x11_set_display (Display * xdpy);
+
+void meta_clutter_x11_add_filter (MetaX11FilterFunc func,
+                                  gpointer          data);
+void meta_clutter_x11_remove_filter (MetaX11FilterFunc func,
+                                     gpointer          data);
+
+void meta_clutter_x11_set_use_stereo_stage (gboolean use_stereo);
+gboolean meta_clutter_x11_get_use_stereo_stage (void);
 
 #endif /* META_CLUTTER_BACKEND_X11_H */

@@ -23,8 +23,8 @@
 
 #include <X11/extensions/XTest.h>
 
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "clutter/clutter.h"
-#include "clutter/x11/clutter-x11.h"
 #include "meta-keymap-x11.h"
 #include "meta-virtual-input-device-x11.h"
 
@@ -48,7 +48,7 @@ meta_virtual_input_device_x11_notify_relative_motion (ClutterVirtualInputDevice 
                                                       double                     dx,
                                                       double                     dy)
 {
-  XTestFakeRelativeMotionEvent (clutter_x11_get_default_display (),
+  XTestFakeRelativeMotionEvent (meta_clutter_x11_get_default_display (),
                                 (int) dx,
                                 (int) dy,
                                 0);
@@ -60,8 +60,8 @@ meta_virtual_input_device_x11_notify_absolute_motion (ClutterVirtualInputDevice 
                                                       double                     x,
                                                       double                     y)
 {
-  XTestFakeMotionEvent (clutter_x11_get_default_display (),
-                        clutter_x11_get_default_screen (),
+  XTestFakeMotionEvent (meta_clutter_x11_get_default_display (),
+                        meta_clutter_x11_get_default_screen (),
                         (int) x,
                         (int) y,
                         0);
@@ -73,7 +73,7 @@ meta_virtual_input_device_x11_notify_button (ClutterVirtualInputDevice *virtual_
                                              uint32_t                   button,
                                              ClutterButtonState         button_state)
 {
-  XTestFakeButtonEvent (clutter_x11_get_default_display (),
+  XTestFakeButtonEvent (meta_clutter_x11_get_default_display (),
                         button, button_state == CLUTTER_BUTTON_STATE_PRESSED, 0);
 }
 
@@ -83,7 +83,7 @@ meta_virtual_input_device_x11_notify_discrete_scroll (ClutterVirtualInputDevice 
                                                       ClutterScrollDirection     direction,
                                                       ClutterScrollSource        scroll_source)
 {
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   int button;
 
   switch (direction)
@@ -158,7 +158,7 @@ meta_virtual_input_device_x11_notify_key (ClutterVirtualInputDevice *virtual_dev
                                           uint32_t                   key,
                                           ClutterKeyState            key_state)
 {
-  XTestFakeKeyEvent (clutter_x11_get_default_display (),
+  XTestFakeKeyEvent (meta_clutter_x11_get_default_display (),
                      key + 8, key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 }
 
@@ -188,7 +188,7 @@ meta_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtual_
       key_state == CLUTTER_KEY_STATE_PRESSED)
     meta_keymap_x11_latch_modifiers (keymap, level, TRUE);
 
-  XTestFakeKeyEvent (clutter_x11_get_default_display (),
+  XTestFakeKeyEvent (meta_clutter_x11_get_default_display (),
                      (KeyCode) keycode,
                      key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 

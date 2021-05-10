@@ -26,8 +26,8 @@
 
 #include <X11/Xlib.h>
 
-#include "clutter/x11/clutter-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 
-ClutterX11FilterReturn meta_x11_handle_event (XEvent *xevent);
+MetaX11FilterReturn meta_x11_handle_event (XEvent *xevent);
 
 #endif /* META_EVENT_X11_H */

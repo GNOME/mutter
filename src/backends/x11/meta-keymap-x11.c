@@ -28,11 +28,11 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-input-settings-private.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-keymap-private.h"
 #include "clutter/clutter-mutter.h"
-#include "clutter/x11/clutter-x11.h"
 
 typedef struct _DirectionCacheEntry     DirectionCacheEntry;
 typedef struct _ClutterKeymapKey        ClutterKeymapKey;
@@ -144,7 +144,7 @@ update_modmap (Display       *display,
 static XkbDescPtr
 get_xkb (MetaKeymapX11 *keymap_x11)
 {
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
 
   if (keymap_x11->max_keycode == 0)
     XDisplayKeycodes (xdisplay,
@@ -356,7 +356,7 @@ static void
 meta_keymap_x11_constructed (GObject *object)
 {
   MetaKeymapX11 *keymap_x11 = META_KEYMAP_X11 (object);
-  Display *xdisplay = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   int xkb_major = XkbMajorVersion;
   int xkb_minor = XkbMinorVersion;
 
@@ -420,7 +420,7 @@ meta_keymap_x11_set_property (GObject      *object,
 static void
 meta_keymap_x11_refresh_reserved_keycodes (MetaKeymapX11 *keymap_x11)
 {
-  Display *dpy = clutter_x11_get_default_display ();
+  Display *xdisplay = meta_clutter_x11_get_default_display ();
   GHashTableIter iter;
   gpointer key, value;
 
@@ -429,7 +429,7 @@ meta_keymap_x11_refresh_reserved_keycodes (MetaKeymapX11 *keymap_x11)
     {
       uint32_t reserved_keycode = GPOINTER_TO_UINT (key);
       uint32_t reserved_keysym = GPOINTER_TO_UINT (value);
-      uint32_t actual_keysym = XkbKeycodeToKeysym (dpy, reserved_keycode, 0, 0);
+      uint32_t actual_keysym = XkbKeycodeToKeysym (xdisplay, reserved_keycode, 0, 0);
 
       /* If an available keycode is no longer mapped to the stored keysym, then
        * the keycode should not be considered available anymore and should be
@@ -450,11 +450,11 @@ meta_keymap_x11_replace_keycode (MetaKeymapX11 *keymap_x11,
 {
   if (keymap_x11->use_xkb)
     {
-      Display *dpy = clutter_x11_get_default_display ();
+      Display *xdisplay = meta_clutter_x11_get_default_display ();
       XkbDescPtr xkb = get_xkb (keymap_x11);
       XkbMapChangesRec changes;
 
-      XFlush (dpy);
+      XFlush (xdisplay);
 
       xkb->device_spec = XkbUseCoreKbd;
       memset (&changes, 0, sizeof(changes));
@@ -476,9 +476,9 @@ meta_keymap_x11_replace_keycode (MetaKeymapX11 *keymap_x11,
       changes.num_key_syms = 1;
       changes.first_type = 0;
       changes.num_types = xkb->map->num_types;
-      XkbChangeMap (dpy, xkb, &changes);
+      XkbChangeMap (xdisplay, xkb, &changes);
 
-      XFlush (dpy);
+      XFlush (xdisplay);
 
       return TRUE;
     }
@@ -527,7 +527,7 @@ meta_keymap_x11_get_direction (ClutterKeymap *keymap)
         {
           XkbStateRec state_rec;
 
-          XkbGetState (clutter_x11_get_default_display (),
+          XkbGetState (meta_clutter_x11_get_default_display (),
                        XkbUseCoreKbd, &state_rec);
           update_direction (keymap_x11, XkbStateGroup (&state_rec));
         }
@@ -638,7 +638,7 @@ translate_keysym (MetaKeymapX11 *keymap,
 {
   int retval;
 
-  retval = XKeycodeToKeysym (clutter_x11_get_default_display (),
+  retval = XKeycodeToKeysym (meta_clutter_x11_get_default_display (),
                              hardware_keycode, 0);
   return retval;
 }
@@ -796,13 +796,13 @@ meta_keymap_x11_get_available_keycode (MetaKeymapX11 *keymap_x11)
 
       if (g_hash_table_size (keymap_x11->reserved_keycodes) < 5)
         {
-          Display *dpy = clutter_x11_get_default_display ();
+          Display *xdisplay = meta_clutter_x11_get_default_display ();
           XkbDescPtr xkb = get_xkb (keymap_x11);
           uint32_t i;
 
           for (i = xkb->max_key_code; i >= xkb->min_key_code; --i)
             {
-              if (XkbKeycodeToKeysym (dpy, i, 0, 0) == NoSymbol)
+              if (XkbKeycodeToKeysym (xdisplay, i, 0, 0) == NoSymbol)
                 return i;
             }
         }
@@ -878,7 +878,7 @@ meta_keymap_x11_latch_modifiers (MetaKeymapX11 *keymap_x11,
   else
     value = 0;
 
-  XkbLatchModifiers (clutter_x11_get_default_display (),
+  XkbLatchModifiers (meta_clutter_x11_get_default_display (),
                      XkbUseCoreKbd, modifiers[level],
                      value);
 }
@@ -891,7 +891,7 @@ meta_keymap_x11_get_current_group (MetaKeymapX11 *keymap_x11)
   if (keymap_x11->current_group >= 0)
     return keymap_x11->current_group;
 
-  XkbGetState (clutter_x11_get_default_display (),
+  XkbGetState (meta_clutter_x11_get_default_display (),
                XkbUseCoreKbd, &state_rec);
   return XkbStateGroup (&state_rec);
 }

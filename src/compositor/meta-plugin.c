@@ -36,7 +36,7 @@
 #include <X11/extensions/shape.h>
 
 #include "backends/meta-monitor-manager-private.h"
-#include "clutter/x11/clutter-x11.h"
+#include "backends/x11/meta-clutter-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-plugin-manager.h"

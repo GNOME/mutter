@@ -236,23 +236,6 @@ clutter_backend_nonintrospected_sources = []
 clutter_backend_headers = []
 clutter_backend_private_headers = []
 
-if have_x11
-  clutter_x11_sources = [
-    'x11/clutter-backend-x11.c',
-  ]
-  clutter_backend_sources += clutter_x11_sources
-
-  clutter_x11_headers = [
-    'x11/clutter-x11.h',
-  ]
-  clutter_backend_headers += clutter_x11_headers
-
-  clutter_x11_private_headers = [
-    'x11/clutter-backend-x11.h',
-  ]
-  clutter_backend_private_headers += clutter_x11_private_headers
-endif
-
 cally_headers = [
     'cally/cally-actor.h',
     'cally/cally-clone.h',
@@ -431,29 +414,6 @@ if have_introspection
     install_dir_typelib: pkglibdir,
     install: true
   )
-
-  if have_x11
-    libmutter_clutter_x11_gir = gnome.generate_gir(libmutter_clutter,
-      sources: [
-        clutter_x11_sources,
-        clutter_x11_headers,
-      ],
-      nsversion: libmutter_api_version,
-      namespace: 'ClutterX11',
-      export_packages: ['mutter-clutter-x11-' + libmutter_api_version],
-      includes: [
-        libmutter_cogl_gir[0],
-        libmutter_cogl_pango_gir[0],
-        libmutter_clutter_gir[0],
-        'xlib-2.0',
-      ],
-      dependencies: [],
-      extra_args: clutter_introspection_args,
-      install_dir_gir: pkglibdir,
-      install_dir_typelib: pkglibdir,
-      install: true
-    )
-  endif
 endif
 
 install_headers(clutter_headers,
@@ -464,9 +424,6 @@ install_headers(cally_headers,
 
 install_headers(clutter_deprecated_headers,
   subdir: join_paths(clutter_clutter_includesubdir, 'deprecated'))
-
-install_headers(clutter_x11_headers,
-  subdir: join_paths(clutter_clutter_includesubdir, 'x11'))
 
 pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',

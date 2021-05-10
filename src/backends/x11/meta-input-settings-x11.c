@@ -118,11 +118,11 @@ get_property (ClutterInputDevice *device,
 
   device_id = meta_input_device_x11_get_device_id (device);
 
-  clutter_x11_trap_x_errors ();
+  meta_clutter_x11_trap_x_errors ();
   rc = XIGetProperty (xdisplay, device_id, property_atom,
                       0, 10, False, type, &type_ret, &format_ret,
                       &nitems_ret, &bytes_after_ret, &data_ret);
-  clutter_x11_untrap_x_errors ();
+  meta_clutter_x11_untrap_x_errors ();
 
   if (rc == Success && type_ret == type && format_ret == format && nitems_ret >= nitems)
     {

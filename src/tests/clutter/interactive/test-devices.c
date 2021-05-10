@@ -2,10 +2,6 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
-#ifdef CLUTTER_WINDOWING_X11
-#include <clutter/x11/clutter-x11.h>
-#endif
-
 #include "test-utils.h"
 #include "tests/clutter-test-utils.h"
 
