@@ -1,3 +1,38 @@
+40.1
+====
+* Prevent clients from pasting old selection data [Carlos; !1772]
+* Fix forward_key IM functionality on wayland [Takao; !1802]
+* Ensure valid window texture size after viewport changes [Robert; !1799]
+* Only update cached paint volumes when necessary [Jonas D.; !1773, !1829]
+* Only disable KMS modifiers for drivers with known problems [Jonas Å; !1792]
+* Fix X11 client resize during moves [Olivier; !1777]
+* Fix performance drop during night light transition with Nvidia [Aaron; !1816]
+* kms: Don't add common modes that exceed the max bandwidth [Jonas Å.; !1834]
+* Create virtual input devices on demand [Jonas Å; !1800, !1858]
+* Fix wrong night light gamma when leaving power saving [Jonas Å.; !1835]
+* Fix picking edge case [Sebastian; !1842]
+* Properly tear down things when shutting down [Jonas Å.; !1822, !1856, !1853]
+* Fix monitor screencasting with fractional scaling [kirbykevinson; !1855]
+* Fixed crash [Carlos; !1849]
+* Plugged memory leak [Carlos; !1839]
+* Misc. bug fixes and cleanups [Carlos, Daniel, Jonas D., Jonas Å., Robert,
+  Aleksandr, Florian, Michel, Sebastian, Olivier; !1785, !1798, !1784,
+  !1791, !1801, !1807, !1786, !1793, !1804, !1820, !1824, !1819, !1803,
+  !1821, !1806, !1814, !1831, !1832, !1836, !1843, !1740, !1841, !1827,
+  !1844, !1852, !1850, !1851]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Jonas Dreßler, Olivier Fourdan, Takao Fujiwara,
+  Carlos Garnacho, Sebastian Keller, kirbykevinson, Robert Mader,
+  Aleksandr Mezin, Florian Müllner, Aaron Plattner, Daniel van Vugt
+
+Translators:
+  Bruce Cowan [en_GB], Ngọc Quân Trần [vi], Marek Černocký [cs],
+  Dz Chen [zh_CN], Yosef Or Boczko [he], Nathan Follens [nl],
+  Yuri Chornoivan [uk], Jordi Mas [ca], Piotr Drąg [pl], Tim Sabsch [de],
+  Luna Jernberg [sv], Hugo Carvalho [pt], Rafael Fontenelle [pt_BR],
+  Asier Sarasua Garmendia [eu], Quentin PAGÈS [oc], Matej Urbančič [sl]
+
 40.0
 ====
 * xwayland: Check permissions on /tmp/.X11-unix [Olivier; !1787]
