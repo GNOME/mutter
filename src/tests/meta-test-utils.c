@@ -87,19 +87,6 @@ meta_ensure_test_client_path (int    argc,
     g_error ("mutter-test-client executable not found");
 }
 
-void
-test_init (int    *argc,
-           char ***argv)
-{
-  g_test_init (argc, argv, NULL);
-  g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
-
-  meta_ensure_test_client_path (*argc, *argv);
-
-  meta_wayland_override_display_name ("mutter-test-display");
-  meta_xwayland_override_display_number (512);
-}
-
 MetaAsyncWaiter *
 meta_async_waiter_new (void)
 {

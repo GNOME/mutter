@@ -40,9 +40,6 @@ GQuark meta_test_client_error_quark (void);
 typedef struct _MetaAsyncWaiter MetaAsyncWaiter;
 typedef struct _MetaTestClient MetaTestClient;
 
-void test_init (int    *argc,
-                char ***argv);
-
 gboolean meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
                                               MetaX11Display        *display,
                                               XSyncAlarmNotifyEvent *event);
