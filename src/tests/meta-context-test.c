@@ -27,7 +27,7 @@
 
 #include "core/meta-context-private.h"
 #include "tests/meta-backend-test.h"
-#include "tests/meta-test-utils.h"
+#include "tests/meta-test-utils-private.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 

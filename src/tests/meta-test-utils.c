@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "tests/meta-test-utils.h"
+#include "tests/meta-test-utils-private.h"
 
 #include <gio/gio.h>
 #include <string.h>
