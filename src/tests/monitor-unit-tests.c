@@ -33,6 +33,7 @@
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/monitor-test-utils.h"
 #include "tests/meta-test-utils.h"
+#include "tests/unit-tests.h"
 #include "x11/meta-x11-display-private.h"
 
 static MonitorTestCase initial_test_case = {
@@ -175,17 +176,19 @@ monitor_tests_alarm_filter (MetaX11Display        *x11_display,
 }
 
 static void
-create_monitor_test_clients (void)
+create_monitor_test_clients (MetaContext *context)
 {
   GError *error = NULL;
 
-  wayland_monitor_test_client = meta_test_client_new (WAYLAND_TEST_CLIENT_NAME,
+  wayland_monitor_test_client = meta_test_client_new (context,
+                                                      WAYLAND_TEST_CLIENT_NAME,
                                                       META_WINDOW_CLIENT_TYPE_WAYLAND,
                                                       &error);
   if (!wayland_monitor_test_client)
     g_error ("Failed to launch Wayland test client: %s", error->message);
 
-  x11_monitor_test_client = meta_test_client_new (X11_TEST_CLIENT_NAME,
+  x11_monitor_test_client = meta_test_client_new (context,
+                                                  X11_TEST_CLIENT_NAME,
                                                   META_WINDOW_CLIENT_TYPE_X11,
                                                   &error);
   if (!x11_monitor_test_client)
@@ -5482,7 +5485,8 @@ dispatch (void)
 }
 
 static MetaTestClient *
-create_test_window (const char *window_name)
+create_test_window (MetaContext *context,
+                    const char  *window_name)
 {
   MetaTestClient *test_client;
   static int client_count = 0;
@@ -5490,7 +5494,8 @@ create_test_window (const char *window_name)
   g_autoptr (GError) error = NULL;
 
   client_name = g_strdup_printf ("test_client_%d", client_count++);
-  test_client = meta_test_client_new (client_name, META_WINDOW_CLIENT_TYPE_WAYLAND,
+  test_client = meta_test_client_new (context,
+                                      client_name, META_WINDOW_CLIENT_TYPE_WAYLAND,
                                       &error);
   if (!test_client)
     g_error ("Failed to launch test client: %s", error->message);
@@ -5506,6 +5511,7 @@ create_test_window (const char *window_name)
 static void
 meta_test_monitor_wm_tiling (void)
 {
+  MetaContext *context = test_context;
   MonitorTestCase test_case = initial_test_case;
   MetaMonitorTestSetup *test_setup;
   g_autoptr (GError) error = NULL;
@@ -5523,7 +5529,7 @@ meta_test_monitor_wm_tiling (void)
    */
 
   const char *test_window_name= "window1";
-  test_client = create_test_window (test_window_name);
+  test_client = create_test_window (context, test_window_name);
 
   if (!meta_test_client_do (test_client, &error,
                             "show", test_window_name,
@@ -5850,9 +5856,9 @@ init_monitor_tests (void)
 }
 
 void
-pre_run_monitor_tests (void)
+pre_run_monitor_tests (MetaContext *context)
 {
-  create_monitor_test_clients ();
+  create_monitor_test_clients (context);
 }
 
 void

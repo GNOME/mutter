@@ -27,6 +27,7 @@
 
 #include "core/display-private.h"
 #include "core/window-private.h"
+#include "tests/meta-context-test.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
@@ -437,7 +438,8 @@ spawn_xwayland (gpointer user_data)
 }
 
 MetaTestClient *
-meta_test_client_new (const char            *id,
+meta_test_client_new (MetaContext           *context,
+                      const char            *id,
                       MetaWindowClientType   type,
                       GError               **error)
 {
@@ -452,7 +454,7 @@ meta_test_client_new (const char            *id,
                                           G_SUBPROCESS_FLAGS_STDOUT_PIPE));
 
   g_assert (meta_is_wayland_compositor ());
-  compositor = meta_wayland_compositor_get_default ();
+  compositor = meta_context_get_wayland_compositor (context);
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
   x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
 
@@ -498,7 +500,7 @@ meta_test_client_new (const char            *id,
           thread = g_thread_new ("Mutter Spawn Xwayland Thread",
                                  spawn_xwayland,
                                  NULL);
-          test_wait_for_x11_display ();
+          meta_context_test_wait_for_x11_display (META_CONTEXT_TEST (context));
           g_thread_join (thread);
         }
 
@@ -562,18 +564,4 @@ meta_test_get_plugin_name (void)
     return name;
   else
     return "libdefault";
-}
-
-void
-test_wait_for_x11_display (void)
-{
-  MetaDisplay *display;
-
-  display = meta_get_display ();
-  g_assert_nonnull (display);
-
-  while (!display->x11_display)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_assert_nonnull (display->x11_display);
 }

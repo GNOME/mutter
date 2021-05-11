@@ -73,15 +73,14 @@ void meta_test_client_wait_for_window_shown (MetaTestClient *client,
 gboolean meta_test_client_quit (MetaTestClient  *client,
                                 GError         **error);
 
-MetaTestClient * meta_test_client_new (const char            *id,
+MetaTestClient * meta_test_client_new (MetaContext           *context,
+                                       const char            *id,
                                        MetaWindowClientType   type,
                                        GError               **error);
 
 void meta_test_client_destroy (MetaTestClient *client);
 
 const char * meta_test_get_plugin_name (void);
-
-void test_wait_for_x11_display (void);
 
 void meta_ensure_test_client_path (int    argc,
                                    char **argv);

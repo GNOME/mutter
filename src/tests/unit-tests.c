@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include "tests/unit-tests.h"
+
 #include <glib.h>
 #include <stdlib.h>
 
@@ -34,6 +36,8 @@
 #include "tests/monitor-store-unit-tests.h"
 #include "tests/monitor-transform-tests.h"
 #include "tests/wayland-unit-tests.h"
+
+MetaContext *test_context;
 
 typedef struct _MetaTestLaterOrderCallbackData
 {
@@ -238,6 +242,8 @@ main (int argc, char *argv[])
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
                                       META_CONTEXT_TEST_FLAG_TEST_CLIENT);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  test_context = context;
 
   init_tests ();
 

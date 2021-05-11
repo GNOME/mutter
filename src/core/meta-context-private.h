@@ -22,6 +22,7 @@
 #define META_CONTEXT_PRIVATE_H
 
 #include "core/meta-private-enums.h"
+#include "core/util-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "wayland/meta-wayland-types.h"
@@ -54,6 +55,7 @@ const char * meta_context_get_name (MetaContext *context);
 
 const char * meta_context_get_gnome_wm_keybindings (MetaContext *context);
 
+META_EXPORT_TEST
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
 
 MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);

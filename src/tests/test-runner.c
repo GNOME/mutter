@@ -34,6 +34,7 @@
 #include "x11/meta-x11-display-private.h"
 
 typedef struct {
+  MetaContext *context;
   GHashTable *clients;
   MetaAsyncWaiter *waiter;
   GString *warning_messages;
@@ -75,14 +76,14 @@ on_x11_display_opened (MetaDisplay *display,
 }
 
 static TestCase *
-test_case_new (void)
+test_case_new (MetaContext *context)
 {
   TestCase *test = g_new0 (TestCase, 1);
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (context);
 
   if (!meta_is_wayland_compositor ())
     {
-      test_wait_for_x11_display ();
+      meta_context_test_wait_for_x11_display (META_CONTEXT_TEST (context));
       on_x11_display_opened (display, test);
     }
   else
@@ -96,6 +97,7 @@ test_case_new (void)
                             test);
     }
 
+  test->context = context;
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
   test->loop = g_main_loop_new (NULL, FALSE);
 
@@ -485,7 +487,7 @@ test_case_do (TestCase *test,
       if (g_hash_table_lookup (test->clients, argv[1]))
         BAD_COMMAND("client %s already exists", argv[1]);
 
-      client = meta_test_client_new (argv[1], type, error);
+      client = meta_test_client_new (test->context, argv[1], type, error);
       if (!client)
         return FALSE;
 
@@ -953,10 +955,11 @@ test_case_destroy (TestCase *test,
 /**********************************************************************/
 
 static gboolean
-run_test (const char *filename,
-          int         index)
+run_test (MetaContext *context,
+          const char  *filename,
+          int          index)
 {
-  TestCase *test = test_case_new ();
+  TestCase *test = test_case_new (context);
   GError *error = NULL;
 
   GFile *file = g_file_new_for_path (filename);
@@ -1074,7 +1077,7 @@ run_tests (MetaContext  *context,
 
   for (i = 0; i < info->n_tests; i++)
     {
-      if (!run_test (info->tests[i], i + 1))
+      if (!run_test (context, info->tests[i], i + 1))
         success = FALSE;
     }
 

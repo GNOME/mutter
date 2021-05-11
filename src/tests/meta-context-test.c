@@ -256,6 +256,17 @@ meta_context_test_run_tests (MetaContextTest *context_test)
     }
 }
 
+void
+meta_context_test_wait_for_x11_display (MetaContextTest *context_test)
+{
+  MetaDisplay *display = meta_context_get_display (META_CONTEXT (context_test));
+
+  while (!meta_display_get_x11_display (display))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_nonnull (meta_display_get_x11_display (display));
+}
+
 MetaContext *
 meta_create_test_context (MetaContextTestType type,
                           MetaContextTestFlag flags)

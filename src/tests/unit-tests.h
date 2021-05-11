@@ -1,7 +1,5 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
- * Copyright (C) 2016 Red Hat, Inc.
+ * Copyright (C) 2021 Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,20 +15,11 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_UNIT_TESTS_H
-#define MONITOR_UNIT_TESTS_H
+#ifndef UNIT_TESTS_H
+#define UNIT_TESTS_H
 
-#include "core/util-private.h"
-#include "tests/monitor-test-utils.h"
+#include "meta/meta-context.h"
 
-typedef struct _MonitorTestCase MonitorTestCase;
+extern MetaContext *test_context;
 
-void init_monitor_tests (void);
-
-void pre_run_monitor_tests (MetaContext *context);
-
-void finish_monitor_tests (void);
-
-MonitorTestCase * test_get_initial_monitor_test_case (void);
-
-#endif /* MONITOR_UNIT_TESTS_H */
+#endif /* UNIT_TESTS_H */

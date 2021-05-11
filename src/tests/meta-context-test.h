@@ -49,4 +49,7 @@ MetaContext * meta_create_test_context (MetaContextTestType type,
 
 int meta_context_test_run_tests (MetaContextTest *context_test);
 
+META_EXPORT
+void meta_context_test_wait_for_x11_display (MetaContextTest *context_test);
+
 #endif /* META_CONTEXT_TEST_H */
