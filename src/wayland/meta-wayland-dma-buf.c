@@ -609,6 +609,10 @@ should_send_modifiers (MetaBackend *backend)
 {
   MetaSettings *settings = meta_backend_get_settings (backend);
 
+  if (meta_settings_is_experimental_feature_enabled (
+      settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
+    return TRUE;
+
 #ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
     {
@@ -618,8 +622,7 @@ should_send_modifiers (MetaBackend *backend)
     }
 #endif
 
-  return meta_settings_is_experimental_feature_enabled (
-           settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS);
+  return FALSE;
 }
 
 static void
