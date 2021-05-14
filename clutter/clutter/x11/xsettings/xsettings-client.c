@@ -185,7 +185,7 @@ static XSettingsList *
 parse_settings (unsigned char *data,
 		size_t         len)
 {
-  XSettingsBuffer buffer;
+  XSettingsBuffer buffer = { 0 };
   XSettingsResult result = XSETTINGS_SUCCESS;
   XSettingsList *settings = NULL;
   CARD32 serial;
