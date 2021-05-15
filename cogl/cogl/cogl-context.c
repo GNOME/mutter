@@ -491,3 +491,27 @@ cogl_context_get_named_pipeline (CoglContext     *context,
 {
   return g_hash_table_lookup (context->named_pipelines, key);
 }
+
+void
+cogl_context_free_timestamp_query (CoglContext        *context,
+                                   CoglTimestampQuery *query)
+{
+  context->driver_vtable->free_timestamp_query (context, query);
+}
+
+int64_t
+cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
+                                          CoglTimestampQuery *query)
+{
+  return context->driver_vtable->timestamp_query_get_time_ns (context, query);
+}
+
+int64_t
+cogl_context_get_gpu_time_ns (CoglContext *context)
+{
+  g_return_val_if_fail (cogl_has_feature (context,
+                                          COGL_FEATURE_ID_GET_GPU_TIME),
+                        0);
+
+  return context->driver_vtable->get_gpu_time_ns (context);
+}

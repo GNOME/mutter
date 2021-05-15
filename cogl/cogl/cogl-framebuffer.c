@@ -2656,3 +2656,28 @@ cogl_framebuffer_get_driver (CoglFramebuffer *framebuffer)
 
   return priv->driver;
 }
+
+CoglTimestampQuery *
+cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
+{
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+  const CoglDriverVtable *driver_vtable = priv->context->driver_vtable;
+
+  g_return_val_if_fail (cogl_has_feature (priv->context,
+                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
+                        NULL);
+
+  /* The timestamp query completes upon completion of all previously submitted
+   * GL commands. So make sure those commands are indeed submitted by flushing
+   * the journal.
+   */
+  _cogl_framebuffer_flush_journal (framebuffer);
+
+  cogl_context_flush_framebuffer_state (priv->context,
+                                        framebuffer,
+                                        framebuffer,
+                                        COGL_FRAMEBUFFER_STATE_BIND);
+
+  return driver_vtable->create_timestamp_query (priv->context);
+}

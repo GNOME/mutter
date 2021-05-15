@@ -539,6 +539,12 @@ _cogl_driver_update_features (CoglContext *ctx,
                     COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT,
                     TRUE);
 
+  if (ctx->glGenQueries && ctx->glQueryCounter)
+    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
+
+  if (ctx->glGetInteger64v)
+    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_GET_GPU_TIME, TRUE);
+
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     ctx->private_features[i] |= private_features[i];
@@ -591,4 +597,8 @@ _cogl_driver_gl =
     _cogl_sampler_gl_init,
     _cogl_sampler_gl_free,
     _cogl_gl_set_uniform, /* XXX name is weird... */
+    cogl_gl_create_timestamp_query,
+    cogl_gl_free_timestamp_query,
+    cogl_gl_timestamp_query_get_time_ns,
+    cogl_gl_get_gpu_time_ns,
   };

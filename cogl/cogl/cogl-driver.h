@@ -231,6 +231,20 @@ struct _CoglDriverVtable
   (* set_uniform) (CoglContext *ctx,
                    GLint location,
                    const CoglBoxedValue *value);
+
+  CoglTimestampQuery *
+  (* create_timestamp_query) (CoglContext *context);
+
+  void
+  (* free_timestamp_query) (CoglContext *context,
+                            CoglTimestampQuery *query);
+
+  int64_t
+  (* timestamp_query_get_time_ns) (CoglContext *context,
+                                   CoglTimestampQuery *query);
+
+  int64_t
+  (* get_gpu_time_ns) (CoglContext *context);
 };
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())

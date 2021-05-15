@@ -493,3 +493,63 @@ _cogl_gl_get_graphics_reset_status (CoglContext *context)
       return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
     }
 }
+
+CoglTimestampQuery *
+cogl_gl_create_timestamp_query (CoglContext *context)
+{
+  CoglTimestampQuery *query;
+
+  g_return_val_if_fail (cogl_has_feature (context,
+                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
+                        NULL);
+
+  query = g_new0 (CoglTimestampQuery, 1);
+
+  GE (context, glGenQueries (1, &query->id));
+  GE (context, glQueryCounter (query->id, GL_TIMESTAMP));
+
+  /* Flush right away so GL knows about our timestamp query.
+   *
+   * E.g. the direct scanout path doesn't call SwapBuffers or any other
+   * glFlush-inducing operation, and skipping explicit glFlush here results in
+   * the timestamp query being placed at the point of glGetQueryObject much
+   * later, resulting in a GPU timestamp much later on in time.
+   */
+  GE (context, glFlush ());
+
+  return query;
+}
+
+void
+cogl_gl_free_timestamp_query (CoglContext        *context,
+                              CoglTimestampQuery *query)
+{
+  GE (context, glDeleteQueries (1, &query->id));
+  g_free (query);
+}
+
+int64_t
+cogl_gl_timestamp_query_get_time_ns (CoglContext        *context,
+                                     CoglTimestampQuery *query)
+{
+  int64_t query_time_ns;
+
+  GE (context, glGetQueryObjecti64v (query->id,
+                                     GL_QUERY_RESULT,
+                                     &query_time_ns));
+
+  return query_time_ns;
+}
+
+int64_t
+cogl_gl_get_gpu_time_ns (CoglContext *context)
+{
+  int64_t gpu_time_ns;
+
+  g_return_val_if_fail (cogl_has_feature (context,
+                                          COGL_FEATURE_ID_GET_GPU_TIME),
+                        0);
+
+  GE (context, glGetInteger64v (GL_TIMESTAMP, &gpu_time_ns));
+  return gpu_time_ns;
+}

@@ -146,6 +146,20 @@ _cogl_gl_util_parse_gl_version (const char *version_string,
 CoglGraphicsResetStatus
 _cogl_gl_get_graphics_reset_status (CoglContext *context);
 
+CoglTimestampQuery *
+cogl_gl_create_timestamp_query (CoglContext *context);
+
+void
+cogl_gl_free_timestamp_query (CoglContext        *context,
+                              CoglTimestampQuery *query);
+
+int64_t
+cogl_gl_timestamp_query_get_time_ns (CoglContext        *context,
+                                     CoglTimestampQuery *query);
+
+int64_t
+cogl_gl_get_gpu_time_ns (CoglContext *context);
+
 #ifndef GL_FRAMEBUFFER
 #define GL_FRAMEBUFFER		0x8D40
 #endif
@@ -227,6 +241,13 @@ _cogl_gl_get_graphics_reset_status (CoglContext *context);
 #endif
 #ifndef GL_STENCIL
 #define GL_STENCIL 0x1802
+#endif
+
+#ifndef GL_TIMESTAMP
+#define GL_TIMESTAMP 0x8E28
+#endif
+#ifndef GL_QUERY_RESULT
+#define GL_QUERY_RESULT 0x8866
 #endif
 
 #endif /* _COGL_UTIL_GL_PRIVATE_H_ */
