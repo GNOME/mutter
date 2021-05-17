@@ -438,7 +438,7 @@ create_headless_backend (MetaContext  *context,
   return g_initable_new (META_TYPE_BACKEND_NATIVE,
                          NULL, error,
                          "context", context,
-                         "headless", TRUE,
+                         "mode", META_BACKEND_NATIVE_MODE_HEADLESS,
                          NULL);
 }
 

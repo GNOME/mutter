@@ -39,4 +39,10 @@ typedef enum _MetaSeatNativeFlag
   META_SEAT_NATIVE_FLAG_NO_LIBINPUT = 1 << 0,
 } MetaSeatNativeFlag;
 
+typedef enum _MetaBackendNativeMode
+{
+  META_BACKEND_NATIVE_MODE_DEFAULT = 0,
+  META_BACKEND_NATIVE_MODE_HEADLESS,
+} MetaBackendNativeMode;
+
 #endif /* META_BACKEND_NATIVE_TYPES_H */
