@@ -127,10 +127,19 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
                                          GError      **error)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  const char *seat_id;
+  const char *seat_id = NULL;
   MetaSeatNativeFlag flags;
 
-  seat_id = meta_backend_native_get_seat_id (backend_native);
+  switch (backend_native->mode)
+    {
+    case META_BACKEND_NATIVE_MODE_DEFAULT:
+    case META_BACKEND_NATIVE_MODE_HEADLESS:
+      seat_id = meta_backend_native_get_seat_id (backend_native);
+      break;
+    case META_BACKEND_NATIVE_MODE_TEST:
+      seat_id = META_BACKEND_TEST_INPUT_SEAT;
+      break;
+    }
 
   if (meta_backend_is_headless (backend))
     flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
@@ -379,6 +388,7 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
   switch (backend_native->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
+    case META_BACKEND_NATIVE_MODE_TEST:
       return meta_launcher_get_seat_id (backend_native->launcher);
     case META_BACKEND_NATIVE_MODE_HEADLESS:
       return "seat0";
@@ -459,6 +469,21 @@ create_gpu_from_udev_device (MetaBackendNative  *native,
   return meta_gpu_kms_new (native, kms_device, error);
 }
 
+static gboolean
+should_ignore_device (MetaBackendNative *backend_native,
+                      GUdevDevice       *device)
+{
+  switch (backend_native->mode)
+    {
+    case META_BACKEND_NATIVE_MODE_DEFAULT:
+    case META_BACKEND_NATIVE_MODE_HEADLESS:
+      return meta_is_udev_device_ignore (device);
+    case META_BACKEND_NATIVE_MODE_TEST:
+      return !meta_is_udev_test_device (device);
+    }
+  g_assert_not_reached ();
+}
+
 static void
 on_udev_device_added (MetaUdev          *udev,
                       GUdevDevice       *device,
@@ -488,9 +513,9 @@ on_udev_device_added (MetaUdev          *udev,
         }
     }
 
-  if (meta_is_udev_device_ignore (device))
+  if (should_ignore_device (native, device))
     {
-      g_message ("Ignoring DRM device '%s' (from udev rule)", device_path);
+      g_message ("Ignoring DRM device '%s'", device_path);
       return;
     }
 
@@ -524,9 +549,9 @@ init_gpus (MetaBackendNative  *native,
       MetaGpuKms *gpu_kms;
       GError *local_error = NULL;
 
-      if (meta_is_udev_device_ignore (device))
+      if (should_ignore_device (native, device))
         {
-          g_message ("Ignoring DRM device '%s' (from udev rule)",
+          g_message ("Ignoring DRM device '%s'",
                      g_udev_device_get_device_file (device));
           continue;
         }

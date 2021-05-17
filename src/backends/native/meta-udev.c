@@ -109,6 +109,13 @@ meta_is_udev_device_ignore (GUdevDevice *device)
 }
 
 gboolean
+meta_is_udev_test_device (GUdevDevice *device)
+{
+  return g_strcmp0 (g_udev_device_get_property (device, "ID_PATH"),
+                    "platform-vkms") == 0;
+}
+
+gboolean
 meta_is_udev_device_preferred_primary (GUdevDevice *device)
 {
   const char * const * tags;

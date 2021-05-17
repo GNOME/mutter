@@ -27,6 +27,7 @@
 typedef enum _MetaContextTestType
 {
   META_CONTEXT_TEST_TYPE_HEADLESS,
+  META_CONTEXT_TEST_TYPE_VKMS,
   META_CONTEXT_TEST_TYPE_NESTED,
 } MetaContextTestType;
 
@@ -40,6 +41,7 @@ typedef enum _MetaContextTestFlag
 typedef enum _MetaTestRunFlags
 {
   META_TEST_RUN_FLAG_NONE = 0,
+  META_TEST_RUN_FLAG_CAN_SKIP = 1 << 0,
 } MetaTestRunFlags;
 
 #define META_TYPE_CONTEXT_TEST (meta_context_test_get_type ())

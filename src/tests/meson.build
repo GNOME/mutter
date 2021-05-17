@@ -273,6 +273,17 @@ if have_native_tests
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
+
+  native_kms_render_tests = executable('mutter-native-kms-render',
+    sources: [
+      'native-kms-render.c',
+    ],
+    include_directories: tests_includes,
+    c_args: tests_c_args,
+    dependencies: libmutter_test_dep,
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
 endif
 
 stacking_tests = [
@@ -376,6 +387,13 @@ if have_native_tests
 
   test('wayland', wayland_tests,
     suite: ['core', 'mutter/unit'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
+  test('native-kms-render', native_kms_render_tests,
+    suite: ['core', 'mutter/native/kms/render'],
     env: test_env,
     is_parallel: false,
     timeout: 60,

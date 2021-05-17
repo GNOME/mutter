@@ -43,6 +43,7 @@ typedef enum _MetaBackendNativeMode
 {
   META_BACKEND_NATIVE_MODE_DEFAULT = 0,
   META_BACKEND_NATIVE_MODE_HEADLESS,
+  META_BACKEND_NATIVE_MODE_TEST,
 } MetaBackendNativeMode;
 
 #endif /* META_BACKEND_NATIVE_TYPES_H */
