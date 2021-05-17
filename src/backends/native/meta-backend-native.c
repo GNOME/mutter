@@ -520,6 +520,13 @@ init_gpus (MetaBackendNative  *native,
       MetaGpuKms *gpu_kms;
       GError *local_error = NULL;
 
+      if (meta_is_udev_device_ignore (device))
+        {
+          g_message ("Ignoring DRM device '%s' (from udev rule)",
+                     g_udev_device_get_device_file (device));
+          continue;
+        }
+
       gpu_kms = create_gpu_from_udev_device (native, device, &local_error);
 
       if (!gpu_kms)
