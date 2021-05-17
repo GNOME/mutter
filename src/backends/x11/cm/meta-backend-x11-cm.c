@@ -475,6 +475,8 @@ meta_backend_x11_cm_finalize (GObject *object)
   MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (object);
 
   g_clear_pointer (&x11_cm->display_name, g_free);
+
+  G_OBJECT_CLASS (meta_backend_x11_cm_parent_class)->finalize (object);
 }
 
 static void
