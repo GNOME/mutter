@@ -255,5 +255,6 @@ main (int argc, char *argv[])
   g_signal_connect (context, "after-tests",
                     G_CALLBACK (finish_monitor_tests), NULL);
 
-  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                      META_TEST_RUN_FLAG_NONE);
 }

@@ -1270,5 +1270,6 @@ main (int argc, char **argv)
   info.n_tests = tests->len;
   g_signal_connect (context, "run-tests", G_CALLBACK (run_tests), &info);
 
-  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                      META_TEST_RUN_FLAG_NONE);
 }

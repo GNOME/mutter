@@ -225,7 +225,8 @@ run_tests_idle (gpointer user_data)
 }
 
 int
-meta_context_test_run_tests (MetaContextTest *context_test)
+meta_context_test_run_tests (MetaContextTest  *context_test,
+                             MetaTestRunFlags  flags)
 {
   MetaContext *context = META_CONTEXT (context_test);
   g_autoptr (GError) error = NULL;

@@ -176,5 +176,6 @@ main (int argc, char *argv[])
 
   init_tests ();
 
-  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                      META_TEST_RUN_FLAG_NONE);
 }
