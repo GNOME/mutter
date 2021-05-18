@@ -425,7 +425,9 @@ meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
     }
 
   meta_wayland_data_source_send (source, mimetype, p[1]);
+  close (p[1]);
   channel = g_io_channel_unix_new (p[0]);
+  g_io_channel_set_close_on_unref (channel, TRUE);
   g_io_add_watch (channel, G_IO_HUP, on_fake_read_hup, source);
 }
 
