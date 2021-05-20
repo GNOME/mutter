@@ -189,3 +189,9 @@ OPT (TEXTURES,
      "textures",
      N_("Debug texture management"),
      N_("Logs information about texture management"))
+OPT (STENCILLING,
+     N_("Root Cause"),
+     "stencilling",
+     N_("Stencil every clip entry"),
+     N_("Disables optimizations that usually avoid stencilling when it's not "
+        "needed. This exercises more of the stencilling logic than usual."))

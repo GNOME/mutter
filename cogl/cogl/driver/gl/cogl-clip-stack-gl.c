@@ -500,7 +500,8 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
 
               /* We don't need to do anything extra if the clip for this
                  rectangle was entirely described by its scissor bounds */
-              if (!rect->can_be_scissor)
+              if (!rect->can_be_scissor ||
+                  G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_STENCILLING)))
                 {
                   COGL_NOTE (CLIPPING, "Adding stencil clip for rectangle");
 
@@ -522,7 +523,8 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
               /* If nrectangles <= 1, it can be fully represented with the
                * scissor clip.
                */
-              if (cairo_region_num_rectangles (region->region) > 1)
+              if (cairo_region_num_rectangles (region->region) > 1 ||
+                  G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_STENCILLING)))
                 {
                   COGL_NOTE (CLIPPING, "Adding stencil clip for region");
 
