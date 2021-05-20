@@ -42,15 +42,6 @@
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-clip-stack-gl-private.h"
 
-#ifndef GL_CLIP_PLANE0
-#define GL_CLIP_PLANE0 0x3000
-#define GL_CLIP_PLANE1 0x3001
-#define GL_CLIP_PLANE2 0x3002
-#define GL_CLIP_PLANE3 0x3003
-#define GL_CLIP_PLANE4 0x3004
-#define GL_CLIP_PLANE5 0x3005
-#endif
-
 static void
 add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
                             CoglMatrixEntry *modelview_entry,
