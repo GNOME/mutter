@@ -158,6 +158,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
 
   GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
   GE( ctx, glDepthMask (FALSE) );
+  GE( ctx, glStencilMask (0x3) );
 
   if (merge)
     {
@@ -167,7 +168,6 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   else
     {
       GE( ctx, glEnable (GL_STENCIL_TEST) );
-      GE( ctx, glStencilMask (0x1) );
 
       /* Initially disallow everything */
       GE( ctx, glClearStencil (0) );
@@ -240,6 +240,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   /* Restore the stencil mode */
   GE (ctx, glDepthMask (TRUE));
   GE (ctx, glColorMask (TRUE, TRUE, TRUE, TRUE));
+  GE( ctx, glStencilMask (0x0) );
   GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
   GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
 }
