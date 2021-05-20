@@ -85,6 +85,7 @@ static const GDebugKey cogl_behavioural_debug_keys[] = {
   { "disable-fast-read-pixel", COGL_DEBUG_DISABLE_FAST_READ_PIXEL},
   { "sync-primitive", COGL_DEBUG_SYNC_PRIMITIVE },
   { "sync-frame", COGL_DEBUG_SYNC_FRAME},
+  { "stencilling", COGL_DEBUG_STENCILLING },
 };
 static const int n_cogl_behavioural_debug_keys =
   G_N_ELEMENTS (cogl_behavioural_debug_keys);
