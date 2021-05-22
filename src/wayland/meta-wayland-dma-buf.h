@@ -52,6 +52,9 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
                                     GError            **error);
 
 MetaWaylandDmaBufBuffer *
+meta_wayland_dma_buf_fds_for_wayland_buffer (MetaWaylandBuffer *buffer);
+
+MetaWaylandDmaBufBuffer *
 meta_wayland_dma_buf_from_buffer (MetaWaylandBuffer *buffer);
 
 CoglScanout *

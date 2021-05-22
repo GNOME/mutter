@@ -690,6 +690,56 @@ static const struct wl_buffer_interface dma_buf_buffer_impl =
 };
 
 /**
+ * meta_wayland_dma_buf_fds_for_wayland_buffer:
+ * @buffer: A #MetaWaylandBuffer object
+ *
+ * Creates an associated #MetaWaylandDmaBufBuffer for the wayland buffer, which
+ * contains just the dma-buf file descriptors.
+ *
+ * Returns: The new #MetaWaylandDmaBufBuffer (or
+ * %NULL if it couldn't be created)
+ */
+MetaWaylandDmaBufBuffer *
+meta_wayland_dma_buf_fds_for_wayland_buffer (MetaWaylandBuffer *buffer)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaBackend *backend = meta_get_backend ();
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaGpuKms *gpu_kms;
+  struct gbm_device *gbm_device;
+  struct gbm_bo *gbm_bo;
+  MetaWaylandDmaBufBuffer *dma_buf;
+  uint32_t i, n_planes;
+
+  gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
+  if (!gpu_kms)
+    return NULL;
+
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+
+  gbm_bo = gbm_bo_import (gbm_device,
+                          GBM_BO_IMPORT_WL_BUFFER, buffer->resource,
+                          GBM_BO_USE_RENDERING);
+  if (!gbm_bo)
+    return NULL;
+
+  dma_buf = g_object_new (META_TYPE_WAYLAND_DMA_BUF_BUFFER, NULL);
+
+  n_planes = gbm_bo_get_plane_count (gbm_bo);
+  for (i = 0; i < n_planes; i++)
+    dma_buf->fds[i] = gbm_bo_get_fd_for_plane (gbm_bo, i);
+  while (i < META_WAYLAND_DMA_BUF_MAX_FDS)
+    dma_buf->fds[i++] = -1;
+
+  gbm_bo_destroy (gbm_bo);
+  return dma_buf;
+#else
+  return NULL;
+#endif
+}
+
+/**
  * meta_wayland_dma_buf_from_buffer:
  * @buffer: A #MetaWaylandBuffer object
  *
@@ -710,7 +760,7 @@ meta_wayland_dma_buf_from_buffer (MetaWaylandBuffer *buffer)
                                &dma_buf_buffer_impl))
     return wl_resource_get_user_data (buffer->resource);
 
-  return NULL;
+  return buffer->dma_buf.dma_buf;
 }
 
 static void

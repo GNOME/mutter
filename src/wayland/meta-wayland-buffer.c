@@ -184,6 +184,8 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
                                          NULL))
         {
           buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_IMAGE;
+          buffer->dma_buf.dma_buf =
+            meta_wayland_dma_buf_fds_for_wayland_buffer (buffer);
           return TRUE;
         }
     }
