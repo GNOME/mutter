@@ -666,8 +666,6 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
   wl_list_insert_list (&to->presentation_feedback_list,
                        &from->presentation_feedback_list);
   wl_list_init (&from->presentation_feedback_list);
-
-  meta_wayland_surface_state_reset (from);
 }
 
 static void
@@ -981,8 +979,6 @@ cleanup:
 
   if (surface->role)
     meta_wayland_surface_role_post_apply_state (surface->role, state);
-
-  meta_wayland_surface_state_reset (state);
 }
 
 static void
@@ -998,6 +994,7 @@ meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface)
 {
   ensure_cached_state (surface);
   meta_wayland_surface_apply_state (surface, surface->cached_state);
+  meta_wayland_surface_state_reset (surface->cached_state);
 }
 
 MetaWaylandSurfaceState *
@@ -1036,6 +1033,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
     {
       meta_wayland_surface_apply_state (surface, surface->pending_state);
     }
+
+  meta_wayland_surface_state_reset (pending);
 }
 
 static void
