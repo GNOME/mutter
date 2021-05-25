@@ -1467,6 +1467,47 @@ handle_selection_write_done (MetaDBusRemoteDesktopSession *skeleton,
   return TRUE;
 }
 
+static gboolean
+is_pipe_broken (int fd)
+{
+  GPollFD poll_fd = {0};
+  int poll_ret;
+  int errsv;
+
+  poll_fd.fd = fd;
+  poll_fd.events = G_IO_OUT;
+
+  do
+    {
+      poll_ret = g_poll (&poll_fd, 1, 0);
+      errsv = errno;
+    }
+  while (poll_ret == -1 && errsv == EINTR);
+
+  if (poll_ret < 0)
+    return FALSE;
+
+  return !!(poll_fd.revents & G_IO_ERR);
+}
+
+static gboolean
+has_pending_read_operation (SelectionReadData *read_data)
+{
+  int fd;
+
+  if (!read_data)
+    return FALSE;
+
+  fd = g_unix_output_stream_get_fd (G_UNIX_OUTPUT_STREAM (read_data->stream));
+  if (is_pipe_broken (fd))
+    {
+      cancel_selection_read (read_data->session);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 transfer_cb (MetaSelection     *selection,
              GAsyncResult      *res,
@@ -1544,7 +1585,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
-  if (session->read_data)
+  if (has_pending_read_operation (session->read_data))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_LIMITS_EXCEEDED,
