@@ -658,6 +658,11 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
       from->subsurface_placement_ops = NULL;
     }
 
+  /*
+   * A new commit indicates a new content update, so any previous
+   * content update did not go on screen and needs to be discarded.
+   */
+  meta_wayland_surface_state_discard_presentation_feedback (to);
   wl_list_insert_list (&to->presentation_feedback_list,
                        &from->presentation_feedback_list);
   wl_list_init (&from->presentation_feedback_list);
@@ -1024,12 +1029,6 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
   if (meta_wayland_surface_should_cache_state (surface))
     {
       ensure_cached_state (surface);
-
-      /*
-       * A new commit indicates a new content update, so any previous
-       * cached content update did not go on screen and needs to be discarded.
-       */
-      meta_wayland_surface_state_discard_presentation_feedback (surface->cached_state);
 
       meta_wayland_surface_state_merge_into (pending, surface->cached_state);
     }
