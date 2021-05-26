@@ -40,6 +40,7 @@ typedef struct {
   AsyncWaiter *waiter;
   GString *warning_messages;
   GMainLoop *loop;
+  gulong x11_display_opened_handler_id;
 } TestCase;
 
 static gboolean
@@ -87,9 +88,10 @@ test_case_new (void)
       if (display->x11_display)
         on_x11_display_opened (display, test);
       else
-        g_signal_connect (meta_get_display (), "x11-display-opened",
-                          G_CALLBACK (on_x11_display_opened),
-                          test);
+        test->x11_display_opened_handler_id =
+          g_signal_connect (meta_get_display (), "x11-display-opened",
+                            G_CALLBACK (on_x11_display_opened),
+                            test);
     }
 
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
@@ -885,6 +887,7 @@ test_case_destroy (TestCase *test,
    */
   GHashTableIter iter;
   gpointer key, value;
+  MetaDisplay *display;
 
   g_hash_table_iter_init (&iter, test->clients);
   while (g_hash_table_iter_next (&iter, &key, &value))
@@ -906,11 +909,10 @@ test_case_destroy (TestCase *test,
 
   g_clear_pointer (&test->waiter, async_waiter_destroy);
 
-  if (meta_get_display ()->x11_display)
-    {
-      meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
-                                         NULL, NULL);
-    }
+  display = meta_get_display ();
+  g_clear_signal_handler (&test->x11_display_opened_handler_id, display);
+  if (display->x11_display)
+    meta_x11_display_set_alarm_filter (display->x11_display, NULL, NULL);
 
   g_hash_table_destroy (test->clients);
   g_free (test);
