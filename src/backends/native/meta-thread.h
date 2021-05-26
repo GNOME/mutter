@@ -23,10 +23,12 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "core/util-private.h"
 
 typedef struct _MetaThreadImpl MetaThreadImpl;
 
 #define META_TYPE_THREAD (meta_thread_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaThread, meta_thread,
                           META, THREAD,
                           GObject)
@@ -43,30 +45,37 @@ typedef gpointer (* MetaThreadTaskFunc) (MetaThreadImpl  *thread_impl,
                                          gpointer         user_data,
                                          GError         **error);
 
+META_EXPORT_TEST
 void meta_thread_queue_callback (MetaThread         *thread,
                                  MetaThreadCallback  callback,
                                  gpointer            user_data,
                                  GDestroyNotify      user_data_destroy);
 
+META_EXPORT_TEST
 int meta_thread_flush_callbacks (MetaThread *thread);
 
+META_EXPORT_TEST
 gpointer meta_thread_run_impl_task_sync (MetaThread          *thread,
                                          MetaThreadTaskFunc   func,
                                          gpointer             user_data,
                                          GError             **error);
 
+META_EXPORT_TEST
 GSource * meta_thread_add_source_in_impl (MetaThread     *thread,
                                           GSourceFunc     func,
                                           gpointer        user_data,
                                           GDestroyNotify  user_data_destroy);
 
+META_EXPORT_TEST
 GSource * meta_thread_register_fd_in_impl (MetaThread         *thread,
                                            int                 fd,
                                            MetaThreadTaskFunc  dispatch,
                                            gpointer            user_data);
 
+META_EXPORT_TEST
 MetaBackend * meta_thread_get_backend (MetaThread *thread);
 
+META_EXPORT_TEST
 gboolean meta_thread_is_in_impl_task (MetaThread *thread);
 
 gboolean meta_thread_is_waiting_for_impl_task (MetaThread *thread);

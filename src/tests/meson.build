@@ -370,6 +370,17 @@ if have_native_tests
       'suite': 'backends/native',
       'sources': [ 'input-capture-tests.c' ],
     },
+    {
+      'name': 'thread',
+      'suite': 'backends/native',
+      'sources': [
+        'native-thread.c',
+        'meta-thread-test.c',
+        'meta-thread-test.h',
+        'meta-thread-impl-test.c',
+        'meta-thread-impl-test.h',
+      ],
+    },
   ]
 
   # KMS tests

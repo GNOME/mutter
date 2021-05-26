@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2020 Red Hat
+ * Copyright (C) 2021 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,30 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
+ *
  */
 
-#ifndef META_THREAD_IMPL_H
-#define META_THREAD_IMPL_H
+#ifndef META_THREAD_TEST_H
+#define META_THREAD_TEST_H
 
-#include <glib-object.h>
+#include "backends/native/meta-thread.h"
 
-#include "core/util-private.h"
+#define META_TYPE_THREAD_TEST (meta_thread_test_get_type ())
+G_DECLARE_FINAL_TYPE (MetaThreadTest, meta_thread_test,
+                      META, THREAD_TEST,
+                      MetaThread)
 
-typedef struct _MetaThread MetaThread;
-
-#define META_TYPE_THREAD_IMPL (meta_thread_impl_get_type ())
-META_EXPORT_TEST
-G_DECLARE_DERIVABLE_TYPE (MetaThreadImpl, meta_thread_impl,
-                          META, THREAD_IMPL, GObject)
-
-struct _MetaThreadImplClass
-{
-  GObjectClass parent_class;
-};
-
-META_EXPORT_TEST
-MetaThread * meta_thread_impl_get_thread (MetaThreadImpl *thread_impl);
-
-GMainContext * meta_thread_impl_get_main_context (MetaThreadImpl *thread_impl);
-
-#endif /* META_THREAD_IMPL_H */
+#endif /* META_THREAD_TEST_H */
