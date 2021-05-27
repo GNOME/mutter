@@ -239,29 +239,6 @@ meta_kms_run_impl_task_sync (MetaKms             *kms,
   return meta_thread_run_impl_task_sync (thread, func, user_data, error);
 }
 
-GSource *
-meta_kms_add_source_in_impl (MetaKms        *kms,
-                             GSourceFunc     func,
-                             gpointer        user_data,
-                             GDestroyNotify  user_data_destroy)
-{
-  MetaThread *thread = META_THREAD (kms);
-
-  return meta_thread_add_source_in_impl (thread, func,
-                                         user_data, user_data_destroy);
-}
-
-GSource *
-meta_kms_register_fd_in_impl (MetaKms            *kms,
-                              int                 fd,
-                              MetaThreadTaskFunc  dispatch,
-                              gpointer            user_data)
-{
-  MetaThread *thread = META_THREAD (kms);
-
-  return meta_thread_register_fd_in_impl (thread, fd, dispatch, user_data);
-}
-
 gboolean
 meta_kms_in_impl_task (MetaKms *kms)
 {

@@ -761,8 +761,8 @@ schedule_retry_page_flip (MetaKmsImplDeviceSimple *impl_device_simple,
       MetaKms *kms = meta_kms_device_get_kms (device);
       GSource *source;
 
-      source = meta_kms_add_source_in_impl (kms, retry_page_flips,
-                                            impl_device_simple, NULL);
+      source = meta_thread_add_source_in_impl (META_THREAD (kms), retry_page_flips,
+                                               impl_device_simple, NULL);
       g_source_set_ready_time (source, retry_time_us);
 
       impl_device_simple->retry_page_flips_source = source;
@@ -884,10 +884,10 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
     {
       GSource *source;
 
-      source = meta_kms_add_source_in_impl (kms,
-                                            mode_set_fallback_feedback_idle,
-                                            impl_device_simple,
-                                            NULL);
+      source = meta_thread_add_source_in_impl (META_THREAD (kms),
+                                               mode_set_fallback_feedback_idle,
+                                               impl_device_simple,
+                                               NULL);
       impl_device_simple->mode_set_fallback_feedback_source = source;
     }
 
@@ -947,10 +947,10 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
 
       meta_kms_page_flip_data_make_symbolic (page_flip_data);
 
-      source = meta_kms_add_source_in_impl (kms,
-                                            symbolic_page_flip_idle,
-                                            page_flip_data,
-                                            NULL);
+      source = meta_thread_add_source_in_impl (META_THREAD (kms),
+                                               symbolic_page_flip_idle,
+                                               page_flip_data,
+                                               NULL);
 
       g_source_set_ready_time (source, 0);
       g_source_unref (source);

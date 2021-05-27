@@ -43,16 +43,6 @@ gpointer meta_kms_run_impl_task_sync (MetaKms             *kms,
                                       gpointer             user_data,
                                       GError             **error);
 
-GSource * meta_kms_add_source_in_impl (MetaKms        *kms,
-                                       GSourceFunc     func,
-                                       gpointer        user_data,
-                                       GDestroyNotify  user_data_destroy);
-
-GSource * meta_kms_register_fd_in_impl (MetaKms            *kms,
-                                        int                 fd,
-                                        MetaThreadTaskFunc  dispatch,
-                                        gpointer            user_data);
-
 META_EXPORT_TEST
 MetaKmsResourceChanges meta_kms_update_states_sync (MetaKms     *kms,
                                                     GUdevDevice *udev_device);

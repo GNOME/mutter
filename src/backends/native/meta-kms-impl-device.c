@@ -856,11 +856,13 @@ ensure_device_file (MetaKmsImplDevice  *impl_device,
 
   if (!(priv->flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
     {
+      MetaKms *kms = meta_kms_impl_get_kms (priv->impl);
+
       priv->fd_source =
-        meta_kms_register_fd_in_impl (meta_kms_impl_get_kms (priv->impl),
-                                      meta_device_file_get_fd (device_file),
-                                      kms_event_dispatch_in_impl,
-                                      impl_device);
+        meta_thread_register_fd_in_impl (META_THREAD (kms),
+                                         meta_device_file_get_fd (device_file),
+                                         kms_event_dispatch_in_impl,
+                                         impl_device);
     }
 
   return TRUE;
