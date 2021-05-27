@@ -61,18 +61,6 @@ gpointer meta_thread_run_impl_task_sync (MetaThread          *thread,
                                          GError             **error);
 
 META_EXPORT_TEST
-GSource * meta_thread_add_source_in_impl (MetaThread     *thread,
-                                          GSourceFunc     func,
-                                          gpointer        user_data,
-                                          GDestroyNotify  user_data_destroy);
-
-META_EXPORT_TEST
-GSource * meta_thread_register_fd_in_impl (MetaThread         *thread,
-                                           int                 fd,
-                                           MetaThreadTaskFunc  dispatch,
-                                           gpointer            user_data);
-
-META_EXPORT_TEST
 MetaBackend * meta_thread_get_backend (MetaThread *thread);
 
 META_EXPORT_TEST

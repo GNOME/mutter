@@ -125,11 +125,10 @@ register_fd_func (MetaThreadImpl  *thread_impl,
 {
   PipeData *pipe_data = user_data;
 
-  pipe_data->source =
-    meta_thread_register_fd_in_impl (meta_thread_impl_get_thread (thread_impl),
-                                     pipe_data->fd,
-                                     dispatch_pipe,
-                                     pipe_data);
+  pipe_data->source = meta_thread_impl_register_fd (thread_impl,
+                                                    pipe_data->fd,
+                                                    dispatch_pipe,
+                                                    pipe_data);
 
   return GINT_TO_POINTER (TRUE);
 }
@@ -185,11 +184,10 @@ add_idle_func (MetaThreadImpl  *thread_impl,
 
   meta_assert_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
 
-  source =
-    meta_thread_add_source_in_impl (meta_thread_impl_get_thread (thread_impl),
-                                    idle_cb,
-                                    idle_data,
-                                    idle_data_destroy);
+  source = meta_thread_impl_add_source (thread_impl,
+                                        idle_cb,
+                                        idle_data,
+                                        idle_data_destroy);
   g_source_unref (source);
 
   return GINT_TO_POINTER (TRUE);

@@ -30,6 +30,7 @@ enum
   PROP_0,
 
   PROP_THREAD,
+  PROP_MAIN_CONTEXT,
 
   N_PROPS
 };
@@ -39,8 +40,20 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MetaThreadImplPrivate
 {
   MetaThread *thread;
+
+  gboolean in_impl_task;
+
   GMainContext *thread_context;
+  GAsyncQueue *task_queue;
 } MetaThreadImplPrivate;
+
+struct _MetaThreadTask
+{
+  MetaThreadTaskFunc func;
+  gpointer user_data;
+  MetaThreadTaskFeedbackFunc feedback_func;
+  gpointer feedback_user_data;
+};
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaThreadImpl, meta_thread_impl, G_TYPE_OBJECT)
 
@@ -58,6 +71,9 @@ meta_thread_impl_get_property (GObject    *object,
     {
     case PROP_THREAD:
       g_value_set_object (value, priv->thread);
+      break;
+    case PROP_MAIN_CONTEXT:
+      g_value_set_boxed (value, priv->thread_context);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -80,6 +96,9 @@ meta_thread_impl_set_property (GObject      *object,
     case PROP_THREAD:
       priv->thread = g_value_get_object (value);
       break;
+    case PROP_MAIN_CONTEXT:
+      priv->thread_context = g_value_dup_boxed (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -93,9 +112,22 @@ meta_thread_impl_constructed (GObject *object)
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
-  G_OBJECT_CLASS (meta_thread_impl_parent_class)->constructed (object);
+  priv->task_queue = g_async_queue_new ();
 
-  priv->thread_context = g_main_context_get_thread_default ();
+  G_OBJECT_CLASS (meta_thread_impl_parent_class)->constructed (object);
+}
+
+static void
+meta_thread_impl_finalize (GObject *object)
+{
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (object);
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  g_clear_pointer (&priv->task_queue, g_async_queue_unref);
+  g_clear_pointer (&priv->thread_context, g_main_context_unref);
+
+  G_OBJECT_CLASS (meta_thread_impl_parent_class)->finalize (object);
 }
 
 static void
@@ -106,6 +138,7 @@ meta_thread_impl_class_init (MetaThreadImplClass *klass)
   object_class->get_property = meta_thread_impl_get_property;
   object_class->set_property = meta_thread_impl_set_property;
   object_class->constructed = meta_thread_impl_constructed;
+  object_class->finalize = meta_thread_impl_finalize;
 
   obj_props[PROP_THREAD] =
     g_param_spec_object ("thread",
@@ -115,6 +148,14 @@ meta_thread_impl_class_init (MetaThreadImplClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_MAIN_CONTEXT] =
+    g_param_spec_boxed ("main-context",
+                        "main-context",
+                        "GMainContext",
+                        G_TYPE_MAIN_CONTEXT,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
@@ -139,4 +180,220 @@ meta_thread_impl_get_main_context (MetaThreadImpl *thread_impl)
     meta_thread_impl_get_instance_private (thread_impl);
 
   return priv->thread_context;
+}
+
+MetaThreadTask *
+meta_thread_task_new (MetaThreadTaskFunc         func,
+                      gpointer                   user_data,
+                      MetaThreadTaskFeedbackFunc feedback_func,
+                      gpointer                   feedback_user_data)
+{
+  MetaThreadTask *task;
+
+  task = g_new0 (MetaThreadTask, 1);
+  *task = (MetaThreadTask) {
+    .func = func,
+    .user_data = user_data,
+    .feedback_func = feedback_func,
+    .feedback_user_data = feedback_user_data,
+  };
+
+  return task;
+}
+
+void
+meta_thread_task_free (MetaThreadTask *task)
+{
+  g_free (task);
+}
+
+typedef struct _MetaThreadImplIdleSource
+{
+  GSource source;
+  MetaThreadImpl *thread_impl;
+} MetaThreadImplIdleSource;
+
+static gboolean
+impl_idle_source_dispatch (GSource     *source,
+                           GSourceFunc  callback,
+                           gpointer     user_data)
+{
+  MetaThreadImplIdleSource *impl_idle_source =
+    (MetaThreadImplIdleSource *) source;
+  MetaThreadImpl *thread_impl = impl_idle_source->thread_impl;
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+  gboolean ret;
+
+  priv->in_impl_task = TRUE;
+  ret = callback (user_data);
+  priv->in_impl_task = FALSE;
+
+  return ret;
+}
+
+static GSourceFuncs impl_idle_source_funcs = {
+  .dispatch = impl_idle_source_dispatch,
+};
+
+GSource *
+meta_thread_impl_add_source (MetaThreadImpl *thread_impl,
+                             GSourceFunc     func,
+                             gpointer        user_data,
+                             GDestroyNotify  user_data_destroy)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+  GSource *source;
+  MetaThreadImplIdleSource *impl_idle_source;
+
+  meta_assert_in_thread_impl (priv->thread);
+
+  source = g_source_new (&impl_idle_source_funcs,
+                         sizeof (MetaThreadImplIdleSource));
+  g_source_set_name (source, "[mutter] MetaThreadImpl idle source");
+  impl_idle_source = (MetaThreadImplIdleSource *) source;
+  impl_idle_source->thread_impl = thread_impl;
+
+  g_source_set_callback (source, func, user_data, user_data_destroy);
+  g_source_set_ready_time (source, 0);
+  g_source_attach (source, priv->thread_context);
+
+  return source;
+}
+
+typedef struct _MetaThreadImplFdSource
+{
+  GSource source;
+
+  gpointer fd_tag;
+  MetaThreadImpl *thread_impl;
+
+  MetaThreadTaskFunc dispatch;
+  gpointer user_data;
+} MetaThreadImplFdSource;
+
+static gboolean
+meta_thread_impl_fd_source_check (GSource *source)
+{
+  MetaThreadImplFdSource *impl_fd_source = (MetaThreadImplFdSource *) source;
+
+  return g_source_query_unix_fd (source, impl_fd_source->fd_tag) & G_IO_IN;
+}
+
+static gpointer
+dispatch_task_func (MetaThreadImpl      *thread_impl,
+                    MetaThreadTaskFunc   dispatch,
+                    gpointer             user_data,
+                    GError             **error)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+  gpointer retval = NULL;
+
+  priv->in_impl_task = TRUE;
+  retval = dispatch (thread_impl, user_data, error);
+  priv->in_impl_task = FALSE;
+
+  return retval;
+}
+
+static gboolean
+meta_thread_impl_fd_source_dispatch (GSource     *source,
+                                     GSourceFunc  callback,
+                                     gpointer     user_data)
+{
+  MetaThreadImplFdSource *impl_fd_source = (MetaThreadImplFdSource *) source;
+  MetaThreadImpl *thread_impl = impl_fd_source->thread_impl;
+  gpointer retval;
+  GError *error = NULL;
+
+  retval = dispatch_task_func (thread_impl,
+                               impl_fd_source->dispatch,
+                               impl_fd_source->user_data,
+                               &error);
+
+  if (!GPOINTER_TO_INT (retval))
+    {
+      g_warning ("Failed to dispatch fd source: %s", error->message);
+      g_error_free (error);
+    }
+
+  return G_SOURCE_CONTINUE;
+}
+
+static GSourceFuncs impl_fd_source_funcs = {
+  NULL,
+  meta_thread_impl_fd_source_check,
+  meta_thread_impl_fd_source_dispatch
+};
+
+GSource *
+meta_thread_impl_register_fd (MetaThreadImpl     *thread_impl,
+                              int                 fd,
+                              MetaThreadTaskFunc  dispatch,
+                              gpointer            user_data)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+  GSource *source;
+  MetaThreadImplFdSource *impl_fd_source;
+
+  meta_assert_in_thread_impl (priv->thread);
+
+  source = g_source_new (&impl_fd_source_funcs,
+                         sizeof (MetaThreadImplFdSource));
+  g_source_set_name (source, "[mutter] MetaThreadImpl fd source");
+  impl_fd_source = (MetaThreadImplFdSource *) source;
+  impl_fd_source->dispatch = dispatch;
+  impl_fd_source->user_data = user_data;
+  impl_fd_source->thread_impl = thread_impl;
+  impl_fd_source->fd_tag = g_source_add_unix_fd (source, fd,
+                                                 G_IO_IN | G_IO_ERR);
+
+  g_source_attach (source, priv->thread_context);
+
+  return source;
+}
+
+gboolean
+meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  return priv->in_impl_task;
+}
+
+void
+meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+  MetaThreadTask *task;
+  gpointer retval;
+  g_autoptr (GError) error = NULL;
+
+  task = g_async_queue_pop (priv->task_queue);
+
+  priv->in_impl_task = TRUE;
+  retval = task->func (thread_impl, task->user_data, &error);
+
+  if (task->feedback_func)
+    task->feedback_func (retval, error, task->feedback_user_data);
+
+  meta_thread_task_free (task);
+
+  priv->in_impl_task = FALSE;
+}
+
+void
+meta_thread_impl_queue_task (MetaThreadImpl *thread_impl,
+                             MetaThreadTask *task)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  g_async_queue_push (priv->task_queue, task);
+  g_main_context_wakeup (priv->thread_context);
 }

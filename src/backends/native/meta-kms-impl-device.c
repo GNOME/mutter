@@ -89,6 +89,15 @@ G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
 
 G_DEFINE_QUARK (-meta-kms-error-quark, meta_kms_error)
 
+MetaKmsImpl *
+meta_kms_impl_device_get_impl (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  return priv->impl;
+}
+
 MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
 {
@@ -856,13 +865,11 @@ ensure_device_file (MetaKmsImplDevice  *impl_device,
 
   if (!(priv->flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
     {
-      MetaKms *kms = meta_kms_impl_get_kms (priv->impl);
-
       priv->fd_source =
-        meta_thread_register_fd_in_impl (META_THREAD (kms),
-                                         meta_device_file_get_fd (device_file),
-                                         kms_event_dispatch_in_impl,
-                                         impl_device);
+        meta_thread_impl_register_fd (META_THREAD_IMPL (priv->impl),
+                                      meta_device_file_get_fd (device_file),
+                                      kms_event_dispatch_in_impl,
+                                      impl_device);
     }
 
   return TRUE;

@@ -116,6 +116,8 @@ enum
 #define META_KMS_ERROR meta_kms_error_quark ()
 GQuark meta_kms_error_quark (void);
 
+MetaKmsImpl * meta_kms_impl_device_get_impl (MetaKmsImplDevice *impl_device);
+
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_copy_connectors (MetaKmsImplDevice *impl_device);

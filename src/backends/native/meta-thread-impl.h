@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 
+#include "backends/native/meta-thread.h"
 #include "core/util-private.h"
 
 typedef struct _MetaThread MetaThread;
@@ -36,9 +37,41 @@ struct _MetaThreadImplClass
   GObjectClass parent_class;
 };
 
+typedef struct _MetaThreadTask MetaThreadTask;
+
+typedef void (* MetaThreadTaskFeedbackFunc) (gpointer      retval,
+                                             const GError *error,
+                                             gpointer      user_data);
+
 META_EXPORT_TEST
 MetaThread * meta_thread_impl_get_thread (MetaThreadImpl *thread_impl);
 
 GMainContext * meta_thread_impl_get_main_context (MetaThreadImpl *thread_impl);
+
+META_EXPORT_TEST
+GSource * meta_thread_impl_add_source (MetaThreadImpl *thread_impl,
+                                       GSourceFunc     func,
+                                       gpointer        user_data,
+                                       GDestroyNotify  user_data_destroy);
+
+META_EXPORT_TEST
+GSource * meta_thread_impl_register_fd (MetaThreadImpl     *thread_impl,
+                                        int                 fd,
+                                        MetaThreadTaskFunc  dispatch,
+                                        gpointer            user_data);
+
+void meta_thread_impl_queue_task (MetaThreadImpl *thread_impl,
+                                  MetaThreadTask *task);
+
+void meta_thread_impl_dispatch (MetaThreadImpl *thread_impl);
+
+gboolean meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl);
+
+MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc         func,
+                                       gpointer                   user_data,
+                                       MetaThreadTaskFeedbackFunc feedback_func,
+                                       gpointer                   feedback_user_data);
+
+void meta_thread_task_free (MetaThreadTask *task);
 
 #endif /* META_THREAD_IMPL_H */

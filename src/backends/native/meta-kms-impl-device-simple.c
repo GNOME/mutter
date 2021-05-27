@@ -31,6 +31,7 @@
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-kms-utils.h"
+#include "backends/native/meta-thread-impl.h"
 
 typedef gboolean (* MetaKmsSimpleProcessFunc) (MetaKmsImplDevice  *impl_device,
                                                MetaKmsUpdate      *update,
@@ -757,12 +758,12 @@ schedule_retry_page_flip (MetaKmsImplDeviceSimple *impl_device_simple,
     {
       MetaKmsImplDevice *impl_device =
         META_KMS_IMPL_DEVICE (impl_device_simple);
-      MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
-      MetaKms *kms = meta_kms_device_get_kms (device);
+      MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
+      MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
       GSource *source;
 
-      source = meta_thread_add_source_in_impl (META_THREAD (kms), retry_page_flips,
-                                               impl_device_simple, NULL);
+      source = meta_thread_impl_add_source (thread_impl, retry_page_flips,
+                                            impl_device_simple, NULL);
       g_source_set_ready_time (source, retry_time_us);
 
       impl_device_simple->retry_page_flips_source = source;
@@ -831,8 +832,6 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
                    GError                  **error)
 {
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (impl_device_simple);
-  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
-  MetaKms *kms = meta_kms_device_get_kms (device);
   MetaKmsCrtc *crtc = meta_kms_page_flip_data_get_crtc (page_flip_data);
   CachedModeSet *cached_mode_set;
   g_autofree uint32_t *connectors = NULL;
@@ -882,12 +881,14 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
 
   if (!impl_device_simple->mode_set_fallback_feedback_source)
     {
+      MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
+      MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
       GSource *source;
 
-      source = meta_thread_add_source_in_impl (META_THREAD (kms),
-                                               mode_set_fallback_feedback_idle,
-                                               impl_device_simple,
-                                               NULL);
+      source = meta_thread_impl_add_source (thread_impl,
+                                            mode_set_fallback_feedback_idle,
+                                            impl_device_simple,
+                                            NULL);
       impl_device_simple->mode_set_fallback_feedback_source = source;
     }
 
@@ -941,16 +942,16 @@ dispatch_page_flip (MetaKmsImplDevice    *impl_device,
 
   if (!plane_assignment && !custom_page_flip)
     {
-      MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
-      MetaKms *kms = meta_kms_device_get_kms (device);
+      MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
+      MetaThreadImpl *thread_impl = META_THREAD_IMPL (impl);
       GSource *source;
 
       meta_kms_page_flip_data_make_symbolic (page_flip_data);
 
-      source = meta_thread_add_source_in_impl (META_THREAD (kms),
-                                               symbolic_page_flip_idle,
-                                               page_flip_data,
-                                               NULL);
+      source = meta_thread_impl_add_source (thread_impl,
+                                            symbolic_page_flip_idle,
+                                            page_flip_data,
+                                            NULL);
 
       g_source_set_ready_time (source, 0);
       g_source_unref (source);
