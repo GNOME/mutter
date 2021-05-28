@@ -41,6 +41,11 @@ struct _MetaWaylandTransaction
 typedef struct _MetaWaylandTransactionEntry
 {
   MetaWaylandSurfaceState *state;
+
+  /* Sub-surface position */
+  gboolean has_sub_pos;
+  int x;
+  int y;
 } MetaWaylandTransactionEntry;
 
 static MetaWaylandTransactionEntry *
@@ -64,6 +69,17 @@ meta_wayland_transaction_sync_child_states (MetaWaylandSurface *surface)
       actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface);
       meta_wayland_actor_surface_sync_actor_state (actor_surface);
     }
+}
+
+static void
+meta_wayland_transaction_apply_subsurface_position (MetaWaylandSurface          *surface,
+                                                    MetaWaylandTransactionEntry *entry)
+{
+  if (!entry->has_sub_pos)
+    return;
+
+  surface->sub.x = entry->x;
+  surface->sub.y = entry->y;
 }
 
 static gboolean
@@ -149,11 +165,13 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
                                 MetaWaylandTransaction **first_candidate)
 {
   g_autofree MetaWaylandSurface **surfaces = NULL;
+  g_autofree MetaWaylandSurfaceState **states = NULL;
   unsigned int num_surfaces;
   int i;
 
   surfaces = (MetaWaylandSurface **)
     g_hash_table_get_keys_as_array (transaction->entries, &num_surfaces);
+  states = g_new (MetaWaylandSurfaceState *, num_surfaces);
 
   /* Sort surfaces from ancestors to descendants */
   qsort (surfaces, num_surfaces, sizeof (MetaWaylandSurface *),
@@ -166,7 +184,10 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
       MetaWaylandTransactionEntry *entry;
 
       entry = meta_wayland_transaction_get_entry (transaction, surface);
-      meta_wayland_surface_apply_state (surface, entry->state);
+      states[i] = entry->state;
+      meta_wayland_transaction_apply_subsurface_position (surface, entry);
+      if (entry->state)
+        meta_wayland_surface_apply_state (surface, entry->state);
 
       if (surface->transaction.last_committed == transaction)
         {
@@ -188,7 +209,10 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
 
   /* Synchronize child states from descendants to ancestors */
   for (i = num_surfaces - 1; i >= 0; i--)
-    meta_wayland_transaction_sync_child_states (surfaces[i]);
+    {
+      if (states[i])
+        meta_wayland_transaction_sync_child_states (surfaces[i]);
+    }
 
   meta_wayland_transaction_free (transaction);
 }
@@ -294,6 +318,58 @@ meta_wayland_transaction_add_state (MetaWaylandTransaction  *transaction,
   entry = meta_wayland_transaction_ensure_entry (transaction, surface);
   g_assert (!entry->state);
   entry->state = state;
+}
+
+void
+meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *transaction,
+                                                  MetaWaylandSurface     *surface)
+{
+  MetaWaylandTransactionEntry *entry;
+
+  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
+  entry->x = surface->sub.pending_x;
+  entry->y = surface->sub.pending_y;
+  entry->has_sub_pos = TRUE;
+  surface->sub.pending_pos = FALSE;
+}
+
+static gboolean
+meta_wayland_transaction_add_cached_state (MetaWaylandTransaction *transaction,
+                                           MetaWaylandSurface     *surface)
+{
+  MetaWaylandSurfaceState *cached = surface->cached_state;
+  gboolean is_synchronized;
+
+  is_synchronized = meta_wayland_surface_is_synchronized (surface);
+
+  if (is_synchronized && cached)
+    {
+      meta_wayland_transaction_add_state (transaction, surface, cached);
+      surface->cached_state = NULL;
+    }
+
+  if (surface->sub.pending_pos)
+    meta_wayland_transaction_add_subsurface_position (transaction, surface);
+
+  return is_synchronized;
+}
+
+void
+meta_wayland_transaction_add_cached_child_states (MetaWaylandTransaction *transaction,
+                                                  MetaWaylandSurface     *surface)
+{
+  MetaWaylandSurface *subsurface_surface;
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+    meta_wayland_transaction_add_cached_states (transaction, subsurface_surface);
+}
+
+void
+meta_wayland_transaction_add_cached_states (MetaWaylandTransaction *transaction,
+                                            MetaWaylandSurface     *surface)
+{
+  if (meta_wayland_transaction_add_cached_state (transaction, surface))
+    meta_wayland_transaction_add_cached_child_states (transaction, surface);
 }
 
 static void

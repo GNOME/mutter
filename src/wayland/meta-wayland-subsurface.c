@@ -28,6 +28,7 @@
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-window-wayland.h"
 
 struct _MetaWaylandSubsurface
@@ -103,28 +104,6 @@ is_sibling (MetaWaylandSurface *surface,
             MetaWaylandSurface *sibling)
 {
   return surface != sibling && surface->sub.parent == sibling->sub.parent;
-}
-
-void
-meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
-{
-  MetaWaylandSurfaceRole *surface_role = META_WAYLAND_SURFACE_ROLE (subsurface);
-  MetaWaylandActorSurface *actor_surface =
-    META_WAYLAND_ACTOR_SURFACE (subsurface);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-
-  if (surface->sub.pending_pos)
-    {
-      surface->sub.x = surface->sub.pending_x;
-      surface->sub.y = surface->sub.pending_y;
-      surface->sub.pending_pos = FALSE;
-    }
-
-  if (meta_wayland_surface_is_synchronized (surface))
-    meta_wayland_surface_apply_cached_state (surface);
-
-  meta_wayland_actor_surface_sync_actor_state (actor_surface);
 }
 
 void
@@ -452,7 +431,13 @@ wl_subsurface_set_desync (struct wl_client   *client,
     meta_wayland_surface_is_synchronized (surface->sub.parent);
 
   if (!is_parent_effectively_synchronized)
-    meta_wayland_surface_apply_cached_state (surface);
+    {
+      MetaWaylandTransaction *transaction;
+
+      transaction = meta_wayland_transaction_new (surface->compositor);
+      meta_wayland_transaction_add_cached_states (transaction, surface);
+      meta_wayland_transaction_commit (transaction);
+    }
 
   surface->sub.synchronous = FALSE;
 }

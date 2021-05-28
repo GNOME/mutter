@@ -44,8 +44,6 @@ typedef struct
   struct wl_listener sibling_destroy_listener;
 } MetaWaylandSubsurfacePlacementOp;
 
-void meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface);
-
 void meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
                                              int                    parent_x,
                                              int                    parent_y,

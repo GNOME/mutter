@@ -48,6 +48,7 @@
 #include "wayland/meta-wayland-region.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-subsurface.h"
+#include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-wayland-viewporter.h"
 #include "wayland/meta-wayland-xdg-shell.h"
 #include "wayland/meta-window-wayland.h"
@@ -717,7 +718,6 @@ void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
 {
-  MetaWaylandSurface *subsurface_surface;
   gboolean had_damage = FALSE;
   int old_width, old_height;
 
@@ -956,14 +956,6 @@ cleanup:
                  surface_state_signals[SURFACE_STATE_SIGNAL_APPLIED],
                  0);
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
-    {
-      MetaWaylandSubsurface *subsurface;
-
-      subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
-      meta_wayland_subsurface_parent_state_applied (subsurface);
-    }
-
   if (had_damage)
     {
       MetaWindow *toplevel_window;
@@ -982,22 +974,6 @@ cleanup:
 
   if (surface->role)
     meta_wayland_surface_role_post_apply_state (surface->role, state);
-}
-
-static void
-ensure_cached_state (MetaWaylandSurface *surface)
-{
-  if (!surface->cached_state)
-    surface->cached_state = g_object_new (META_TYPE_WAYLAND_SURFACE_STATE,
-                                          NULL);
-}
-
-void
-meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface)
-{
-  ensure_cached_state (surface);
-  meta_wayland_surface_apply_state (surface, surface->cached_state);
-  meta_wayland_surface_state_reset (surface->cached_state);
 }
 
 MetaWaylandSurfaceState *
@@ -1028,16 +1004,30 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    */
   if (meta_wayland_surface_is_synchronized (surface))
     {
-      ensure_cached_state (surface);
-
-      meta_wayland_surface_state_merge_into (pending, surface->cached_state);
+      if (surface->cached_state)
+        {
+          meta_wayland_surface_state_merge_into (pending, surface->cached_state);
+          meta_wayland_surface_state_reset (pending);
+        }
+      else
+        {
+          surface->cached_state = pending;
+          surface->pending_state = meta_wayland_surface_state_new ();
+        }
     }
   else
     {
-      meta_wayland_surface_apply_state (surface, surface->pending_state);
-    }
+      MetaWaylandTransaction *transaction;
 
-  meta_wayland_surface_state_reset (pending);
+      transaction = meta_wayland_transaction_new (surface->compositor);
+      meta_wayland_transaction_add_state (transaction, surface, pending);
+      if (surface->sub.pending_pos)
+          meta_wayland_transaction_add_subsurface_position (transaction, surface);
+      meta_wayland_transaction_add_cached_child_states (transaction, surface);
+      meta_wayland_transaction_commit (transaction);
+
+      surface->pending_state = meta_wayland_surface_state_new ();
+    }
 }
 
 static void
@@ -1745,7 +1735,7 @@ meta_wayland_surface_get_absolute_coordinates (MetaWaylandSurface *surface,
 static void
 meta_wayland_surface_init (MetaWaylandSurface *surface)
 {
-  surface->pending_state = g_object_new (META_TYPE_WAYLAND_SURFACE_STATE, NULL);
+  surface->pending_state = meta_wayland_surface_state_new ();
 
   surface->buffer_ref = meta_wayland_buffer_ref_new ();
 

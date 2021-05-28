@@ -276,7 +276,8 @@ void                meta_wayland_surface_apply_state (MetaWaylandSurface      *s
 MetaWaylandSurfaceState *
                     meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
-void                meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface);
+MetaWaylandSurfaceState *
+                    meta_wayland_surface_ensure_cached_state (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
                                                       GType               role_type,
@@ -385,6 +386,12 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                                                 int                 geometry_scale);
 
 int meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface);
+
+static inline MetaWaylandSurfaceState *
+meta_wayland_surface_state_new (void)
+{
+  return g_object_new (META_TYPE_WAYLAND_SURFACE_STATE, NULL);
+}
 
 static inline GNode *
 meta_get_next_subsurface_sibling (GNode *n)
