@@ -5728,6 +5728,287 @@ meta_test_monitor_migrated_wiggle (void)
 }
 
 static void
+meta_test_monitor_supported_integer_scales (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .n_modes = 21,
+      .modes = {
+        {
+          .width = 800,
+          .height = 600,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 1280,
+          .height = 720,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1280,
+          .height = 800,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1280,
+          .height = 1024,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1366,
+          .height = 768,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1440,
+          .height = 900,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1400,
+          .height = 1050,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1600,
+          .height = 900,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1920,
+          .height = 1080,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1920,
+          .height = 1200,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 2650,
+          .height = 1440,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 2880,
+          .height = 1800,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 3200,
+          .height = 1800,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 3200,
+          .height = 2048,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 3840,
+          .height = 2160,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 3840,
+          .height = 2400,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 4096,
+          .height = 2160,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 4096,
+          .height = 3072,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 5120,
+          .height = 2880,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 7680,
+          .height = 4320,
+          .refresh_rate = 60.0,
+        },
+      },
+      .outputs = {
+        {
+          .crtc = -1,
+          .modes = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                     17, 18, 19, 20 },
+          .n_modes = 21,
+          .preferred_mode = 5,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125
+        }
+      },
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0
+        }
+      },
+      .n_crtcs = 1
+    },
+
+    .expect = {
+      .n_monitors = 1,
+      .monitors = {
+        {
+          .n_modes = 21,
+          .modes = {
+            {
+              .width = 800,
+              .height = 600,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1024,
+              .height = 768,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1280,
+              .height = 720,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1280,
+              .height = 800,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1280,
+              .height = 1024,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1366,
+              .height = 768,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1440,
+              .height = 900,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1400,
+              .height = 1050,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1600,
+              .height = 900,
+              .n_scales = 1,
+              .scales = { 1.0 },
+            },
+            {
+              .width = 1920,
+              .height = 1080,
+              .n_scales = 2,
+              .scales = { 1.0, 2.0 },
+            },
+            {
+              .width = 1920,
+              .height = 1200,
+              .n_scales = 2,
+              .scales = { 1.0, 2.0 },
+            },
+            {
+              .width = 2650,
+              .height = 1440,
+              .n_scales = 3,
+              .scales = { 1.0, 2.0, 3.0 },
+            },
+            {
+              .width = 2880,
+              .height = 1800,
+              .n_scales = 3,
+              .scales = { 1.0, 2.0, 3.0 },
+            },
+            {
+              .width = 3200,
+              .height = 1800,
+              .n_scales = 3,
+              .scales = { 1.0, 2.0, 3.0 },
+            },
+            {
+              .width = 3200,
+              .height = 2048,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+            {
+              .width = 3840,
+              .height = 2160,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+            {
+              .width = 3840,
+              .height = 2400,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+            {
+              .width = 4096,
+              .height = 2160,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+            {
+              .width = 4096,
+              .height = 3072,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+            {
+              .width = 5120,
+              .height = 2880,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+            {
+              .width = 7680,
+              .height = 4320,
+              .n_scales = 4,
+              .scales = { 1.0, 2.0, 3.0, 4.0 },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  MetaMonitorTestSetup *test_setup;
+  test_setup = create_monitor_test_setup (&test_case.setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+  check_monitor_scales (&test_case.expect,
+                        META_MONITOR_SCALES_CONSTRAINT_NO_FRAC);
+}
+
+static void
 meta_test_monitor_supported_fractional_scales (void)
 {
   MonitorTestCase test_case = {
@@ -6164,6 +6445,8 @@ init_monitor_tests (void)
   add_monitor_test ("/backends/monitor/wm/tiling",
                     meta_test_monitor_wm_tiling);
 
+  add_monitor_test ("/backends/monitor/suppported_scales/integer",
+                    meta_test_monitor_supported_integer_scales);
   add_monitor_test ("/backends/monitor/suppported_scales/fractional",
                     meta_test_monitor_supported_fractional_scales);
 }
