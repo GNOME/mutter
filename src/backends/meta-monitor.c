@@ -1841,28 +1841,27 @@ meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
        i <= ceilf (MAXIMUM_SCALE_FACTOR);
        i++)
     {
-      for (j = 0; j < SCALE_FACTORS_PER_INTEGER; j++)
+      if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
         {
-          float scale;
-          float scale_value = i + j * SCALE_FACTORS_STEPS;
-
-          if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
+          if (is_scale_valid_for_size (width, height, i))
             {
-              if (fmodf (scale_value, 1.0) != 0.0 ||
-                  !is_scale_valid_for_size (width, height, scale_value))
-                continue;
-
-              scale = scale_value;
+              float scale = i;
+              g_array_append_val (supported_scales, scale);
             }
-          else
+        }
+      else
+        {
+          for (j = 0; j < SCALE_FACTORS_PER_INTEGER; j++)
             {
-              scale = get_closest_scale_factor_for_resolution (width,
-                                                               height,
+              float scale;
+              float scale_value = i + j * SCALE_FACTORS_STEPS;
+
+              scale = get_closest_scale_factor_for_resolution (width, height,
                                                                scale_value);
-            }
 
-          if (scale > 0.0f)
-            g_array_append_val (supported_scales, scale);
+              if (scale > 0.0)
+                g_array_append_val (supported_scales, scale);
+            }
         }
     }
 
