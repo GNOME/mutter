@@ -811,6 +811,13 @@ check_expected_scales (MetaMonitor                 *monitor,
           g_assert_cmpfloat (fmodf (width / scales[i], 1.0), ==, 0.0);
           g_assert_cmpfloat (fmodf (height / scales[i], 1.0), ==, 0.0);
         }
+
+      if (i > 0)
+        {
+          /* And that scales are sorted and unique */
+          g_assert_cmpfloat (scales[i], >, scales[i-1]);
+          g_assert_false (G_APPROX_VALUE (scales[i], scales[i-1], 0.000001));
+        }
     }
 }
 
