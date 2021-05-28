@@ -24,13 +24,15 @@
 
 #include "tests/meta-monitor-manager-test.h"
 #include "backends/meta-crtc.h"
+#include "backends/meta-monitor.h"
 #include "backends/meta-output.h"
 
-#define MAX_N_MODES 10
+#define MAX_N_MODES 25
 #define MAX_N_OUTPUTS 10
 #define MAX_N_CRTCS 10
 #define MAX_N_MONITORS 10
 #define MAX_N_LOGICAL_MONITORS 10
+#define MAX_N_SCALES 20
 
 /*
  * The following structures are used to define test cases.
@@ -138,6 +140,8 @@ typedef struct _MonitorTestCaseMonitorMode
   int width;
   int height;
   float refresh_rate;
+  int n_scales;
+  float scales[MAX_N_SCALES];
   MetaCrtcModeFlag flags;
   MetaTestCaseMonitorCrtcMode crtc_modes[MAX_N_CRTCS];
 } MetaMonitorTestCaseMonitorMode;
@@ -199,6 +203,8 @@ void set_custom_monitor_config (const char *filename);
 char * read_file (const char *file_path);
 
 void check_monitor_configuration (MonitorTestCaseExpect *expect);
+void check_monitor_scales (MonitorTestCaseExpect       *expect,
+                           MetaMonitorScalesConstraint  scales_constraints);
 
 MetaMonitorTestSetup * create_monitor_test_setup (MonitorTestCaseSetup *setup,
                                                   MonitorTestFlag       flags);
