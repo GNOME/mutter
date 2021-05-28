@@ -1672,7 +1672,7 @@ calculate_scale (MetaMonitor                *monitor,
                                     &resolution_height);
 
   if (resolution_height < HIDPI_MIN_HEIGHT)
-    goto out;
+    return scale;
 
   /* 4K TV */
   switch (meta_monitor_get_connector_type (monitor))
@@ -1680,7 +1680,7 @@ calculate_scale (MetaMonitor                *monitor,
     case META_CONNECTOR_TYPE_HDMIA:
     case META_CONNECTOR_TYPE_HDMIB:
       if (resolution_width < SMALLEST_4K_WIDTH)
-        goto out;
+        return scale;
       break;
     default:
       break;
@@ -1693,7 +1693,7 @@ calculate_scale (MetaMonitor                *monitor,
    * size.
    */
   if (meta_monitor_has_aspect_as_size (monitor))
-    goto out;
+    return scale;
 
   if (width_mm > 0 && height_mm > 0)
     {
@@ -1710,7 +1710,6 @@ calculate_scale (MetaMonitor                *monitor,
         scale = 2.0;
     }
 
-out:
   return scale;
 }
 
@@ -1780,7 +1779,7 @@ get_closest_scale_factor_for_resolution (float width,
   best_scale = 0;
 
   if (!is_scale_valid_for_size (width, height, scale))
-    goto out;
+    return best_scale;
 
   if (fmodf (width, scale) == 0.0 && fmodf (height, scale) == 0.0)
     return scale;
@@ -1805,7 +1804,7 @@ get_closest_scale_factor_for_resolution (float width,
               current_scale < MINIMUM_SCALE_FACTOR ||
               current_scale > MAXIMUM_SCALE_FACTOR)
             {
-              goto out;
+              return best_scale;
             }
 
           if (floorf (scaled_h) == scaled_h)
@@ -1821,7 +1820,6 @@ get_closest_scale_factor_for_resolution (float width,
     }
   while (!found_one);
 
-out:
   return best_scale;
 }
 
