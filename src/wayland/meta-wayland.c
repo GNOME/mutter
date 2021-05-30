@@ -46,6 +46,7 @@
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-subsurface.h"
 #include "wayland/meta-wayland-tablet-manager.h"
+#include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-wayland-xdg-foreign.h"
 #include "wayland/meta-xwayland-grab-keyboard.h"
 #include "wayland/meta-xwayland-private.h"
@@ -375,6 +376,12 @@ meta_wayland_compositor_remove_presentation_feedback_surface (MetaWaylandComposi
     g_list_remove (compositor->presentation_time.feedback_surfaces, surface);
 }
 
+GQueue *
+meta_wayland_compositor_get_committed_transactions (MetaWaylandCompositor *compositor)
+{
+  return &compositor->committed_transactions;
+}
+
 static void
 set_gnome_env (const char *name,
 	       const char *value)
@@ -461,6 +468,8 @@ meta_wayland_compositor_finalize (GObject *object)
 
   g_signal_handlers_disconnect_by_func (stage, on_after_update, compositor);
   g_signal_handlers_disconnect_by_func (stage, on_presented, compositor);
+
+  meta_wayland_transaction_finalize (compositor);
 
   g_clear_object (&compositor->dma_buf_manager);
 
@@ -637,6 +646,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_text_input_init (compositor);
   meta_wayland_init_presentation_time (compositor);
   meta_wayland_activation_init (compositor);
+  meta_wayland_transaction_init (compositor);
 
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   if (meta_xwayland_grab_keyboard_init (compositor))

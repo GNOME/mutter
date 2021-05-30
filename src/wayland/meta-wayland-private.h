@@ -100,6 +100,12 @@ struct _MetaWaylandCompositor
 
   MetaWaylandPresentationTime presentation_time;
   MetaWaylandDmaBufManager *dma_buf_manager;
+
+  /*
+   * Queue of transactions which have been committed but not applied yet, in the
+   * order they were committed.
+   */
+  GQueue committed_transactions;
 };
 
 #define META_TYPE_WAYLAND_COMPOSITOR (meta_wayland_compositor_get_type ())

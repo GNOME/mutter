@@ -28,8 +28,12 @@ void meta_wayland_transaction_add_state (MetaWaylandTransaction  *transaction,
                                          MetaWaylandSurface      *surface,
                                          MetaWaylandSurfaceState *state);
 
-MetaWaylandTransaction *meta_wayland_transaction_new (void);
+MetaWaylandTransaction *meta_wayland_transaction_new (MetaWaylandCompositor *compositor);
 
 void meta_wayland_transaction_free (MetaWaylandTransaction *transaction);
+
+void meta_wayland_transaction_finalize (MetaWaylandCompositor *compositor);
+
+void meta_wayland_transaction_init (MetaWaylandCompositor *compositor);
 
 #endif

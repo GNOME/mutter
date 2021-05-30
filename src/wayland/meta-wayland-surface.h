@@ -254,6 +254,13 @@ struct _MetaWaylandSurface
 
   /* dma-buf feedback */
   MetaCrtc *scanout_candidate;
+
+  /* Transactions */
+  struct {
+    /* First & last committed transaction which has an entry for this surface */
+    MetaWaylandTransaction *first_committed;
+    MetaWaylandTransaction *last_committed;
+  } transaction;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);

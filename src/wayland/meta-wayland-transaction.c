@@ -23,10 +23,18 @@
 
 #include "wayland/meta-wayland-transaction.h"
 
+#include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-subsurface.h"
+
+#define META_WAYLAND_TRANSACTION_NONE ((void *)(uintptr_t) G_MAXSIZE)
 
 struct _MetaWaylandTransaction
 {
+  GList node;
+  MetaWaylandCompositor *compositor;
+  MetaWaylandTransaction *next_candidate;
+  uint64_t committed_sequence;
+
   GHashTable *entries;
 };
 
@@ -99,8 +107,46 @@ meta_wayland_transaction_compare (const void *key1,
           meta_wayland_surface_get_toplevel (surface2)) ? -1 : 1;
 }
 
-void
-meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
+static MetaWaylandTransaction *
+find_next_transaction_for_surface (MetaWaylandTransaction *transaction,
+                                   MetaWaylandSurface     *surface)
+{
+  GList *node;
+
+  for (node = transaction->node.next; node; node = node->next)
+    {
+      MetaWaylandTransaction *next = node->data;
+
+      if (surface->transaction.last_committed == next ||
+          g_hash_table_contains (next->entries, surface))
+        return next;
+    }
+
+  return NULL;
+}
+
+static void
+ensure_next_candidate (MetaWaylandTransaction  *transaction,
+                       MetaWaylandTransaction **first_candidate)
+{
+  MetaWaylandTransaction **candidate;
+
+  if (transaction->next_candidate)
+    return;
+
+  candidate = first_candidate;
+  while (*candidate != META_WAYLAND_TRANSACTION_NONE &&
+         (*candidate)->committed_sequence <
+         transaction->committed_sequence)
+    candidate = &(*candidate)->next_candidate;
+
+  transaction->next_candidate = *candidate;
+  *candidate = transaction;
+}
+
+static void
+meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
+                                MetaWaylandTransaction **first_candidate)
 {
   g_autofree MetaWaylandSurface **surfaces = NULL;
   unsigned int num_surfaces;
@@ -121,6 +167,23 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
 
       entry = meta_wayland_transaction_get_entry (transaction, surface);
       meta_wayland_surface_apply_state (surface, entry->state);
+
+      if (surface->transaction.last_committed == transaction)
+        {
+          surface->transaction.first_committed = NULL;
+          surface->transaction.last_committed = NULL;
+        }
+      else
+        {
+          MetaWaylandTransaction *next_transaction;
+
+          next_transaction = find_next_transaction_for_surface (transaction, surface);
+          if (next_transaction)
+            {
+              surface->transaction.first_committed = next_transaction;
+              ensure_next_candidate (next_transaction, first_candidate);
+            }
+        }
     }
 
   /* Synchronize child states from descendants to ancestors */
@@ -128,6 +191,81 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
     meta_wayland_transaction_sync_child_states (surfaces[i]);
 
   meta_wayland_transaction_free (transaction);
+}
+
+static gboolean
+has_unapplied_dependencies (MetaWaylandTransaction *transaction)
+{
+  GHashTableIter iter;
+  MetaWaylandSurface *surface;
+
+  g_hash_table_iter_init (&iter, transaction->entries);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &surface, NULL))
+    {
+      if (surface->transaction.first_committed != transaction)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static void
+meta_wayland_transaction_maybe_apply_one (MetaWaylandTransaction  *transaction,
+                                          MetaWaylandTransaction **first_candidate)
+{
+  if (has_unapplied_dependencies (transaction))
+    return;
+
+  meta_wayland_transaction_apply (transaction, first_candidate);
+}
+
+static void
+meta_wayland_transaction_maybe_apply (MetaWaylandTransaction *transaction)
+{
+  MetaWaylandTransaction *first_candidate = META_WAYLAND_TRANSACTION_NONE;
+
+  while (TRUE)
+    {
+      meta_wayland_transaction_maybe_apply_one (transaction, &first_candidate);
+
+      if (first_candidate == META_WAYLAND_TRANSACTION_NONE)
+        return;
+
+      transaction = first_candidate;
+      first_candidate = transaction->next_candidate;
+      transaction->next_candidate = NULL;
+    }
+}
+
+void
+meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
+{
+  static uint64_t committed_sequence;
+  GQueue *committed_queue;
+  gboolean maybe_apply = TRUE;
+  GHashTableIter iter;
+  MetaWaylandSurface *surface;
+
+  transaction->committed_sequence = ++committed_sequence;
+  transaction->node.data = transaction;
+
+  committed_queue =
+    meta_wayland_compositor_get_committed_transactions (transaction->compositor);
+  g_queue_push_tail_link (committed_queue, &transaction->node);
+
+  g_hash_table_iter_init (&iter, transaction->entries);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &surface, NULL))
+    {
+      surface->transaction.last_committed = transaction;
+
+      if (!surface->transaction.first_committed)
+        surface->transaction.first_committed = transaction;
+      else
+        maybe_apply = FALSE;
+    }
+
+  if (maybe_apply)
+    meta_wayland_transaction_maybe_apply (transaction);
 }
 
 static MetaWaylandTransactionEntry *
@@ -166,12 +304,13 @@ meta_wayland_transaction_entry_free (MetaWaylandTransactionEntry *entry)
 }
 
 MetaWaylandTransaction *
-meta_wayland_transaction_new (void)
+meta_wayland_transaction_new (MetaWaylandCompositor *compositor)
 {
   MetaWaylandTransaction *transaction;
 
   transaction = g_new0 (MetaWaylandTransaction, 1);
 
+  transaction->compositor = compositor;
   transaction->entries = g_hash_table_new_full (NULL, NULL, NULL,
                                                 (GDestroyNotify) meta_wayland_transaction_entry_free);
 
@@ -181,6 +320,35 @@ meta_wayland_transaction_new (void)
 void
 meta_wayland_transaction_free (MetaWaylandTransaction *transaction)
 {
+  if (transaction->node.data)
+    {
+      GQueue *committed_queue =
+        meta_wayland_compositor_get_committed_transactions (transaction->compositor);
+
+      g_queue_unlink (committed_queue, &transaction->node);
+    }
+
   g_hash_table_destroy (transaction->entries);
   g_free (transaction);
+}
+
+void
+meta_wayland_transaction_finalize (MetaWaylandCompositor *compositor)
+{
+  GQueue *transactions;
+  MetaWaylandTransaction *transaction;
+
+  transactions = meta_wayland_compositor_get_committed_transactions (compositor);
+
+  while ((transaction = g_queue_pop_head (transactions)))
+    meta_wayland_transaction_free (transaction);
+}
+
+void
+meta_wayland_transaction_init (MetaWaylandCompositor *compositor)
+{
+  GQueue *transactions;
+
+  transactions = meta_wayland_compositor_get_committed_transactions (compositor);
+  g_queue_init (transactions);
 }
