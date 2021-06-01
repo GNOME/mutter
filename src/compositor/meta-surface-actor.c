@@ -331,7 +331,7 @@ meta_surface_actor_is_untransformed (MetaCullable *cullable)
   return meta_actor_vertices_are_untransformed (verts,
                                                 width * geometry_scale,
                                                 height * geometry_scale,
-                                                NULL, NULL);
+                                                NULL);
 }
 
 static void

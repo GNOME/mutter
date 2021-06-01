@@ -92,6 +92,7 @@ meta_window_group_paint (ClutterActor        *actor,
     {
       CoglFramebuffer *fb;
       ClutterStageView *view;
+      MetaTransforms trans;
 
       fb = clutter_paint_context_get_framebuffer (paint_context);
       view = clutter_paint_context_get_stage_view (paint_context);
@@ -102,13 +103,15 @@ meta_window_group_paint (ClutterActor        *actor,
                                               screen_height,
                                               screen_width,
                                               screen_height,
-                                              &paint_x_origin,
-                                              &paint_y_origin) ||
+                                              &trans) ||
           !meta_cullable_is_untransformed (META_CULLABLE (actor)))
         {
           parent_actor_class->paint (actor, paint_context);
           return;
         }
+
+      paint_x_origin = trans.x_origin;
+      paint_y_origin = trans.y_origin;
     }
   else
     {

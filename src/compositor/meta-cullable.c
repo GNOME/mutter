@@ -175,7 +175,7 @@ meta_cullable_default_is_untransformed (MetaCullable *cullable)
   clutter_actor_get_abs_allocation_vertices (CLUTTER_ACTOR (cullable), verts);
 
   return meta_actor_vertices_are_untransformed (verts, width, height,
-                                                NULL, NULL);
+                                                NULL);
 }
 
 static void

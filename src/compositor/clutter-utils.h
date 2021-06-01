@@ -23,18 +23,21 @@
 
 #include "clutter/clutter.h"
 
+typedef struct {
+  int x_origin, y_origin;
+  float x_scale, y_scale;
+} MetaTransforms;
+
 gboolean meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
                                                 float               widthf,
                                                 float               heightf,
-                                                int                *x_origin,
-                                                int                *y_origin);
+                                                MetaTransforms     *out_transforms);
 
 gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                             int              paint_width,
                                             int              paint_height,
                                             int              sample_widthf,
                                             int              sample_heightf,
-                                            int             *x_origin,
-                                            int             *y_origin);
+                                            MetaTransforms  *out_transforms);
 
 #endif /* __META_CLUTTER_UTILS_H__ */

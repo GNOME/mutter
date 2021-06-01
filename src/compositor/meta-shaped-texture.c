@@ -712,7 +712,7 @@ do_paint_content (MetaShapedTexture   *stex,
   if (meta_actor_painting_untransformed (framebuffer,
                                          dst_width, dst_height,
                                          sample_width, sample_height,
-                                         NULL, NULL))
+                                         NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
   else
     filter = COGL_PIPELINE_FILTER_LINEAR;

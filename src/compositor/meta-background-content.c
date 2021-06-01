@@ -548,7 +548,7 @@ setup_pipeline (MetaBackgroundContent *self,
                                          actor_pixel_rect->height,
                                          self->texture_width,
                                          self->texture_height,
-                                         NULL, NULL))
+                                         NULL))
     {
       min_filter = COGL_PIPELINE_FILTER_NEAREST;
       mag_filter = COGL_PIPELINE_FILTER_NEAREST;

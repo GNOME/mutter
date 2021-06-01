@@ -69,8 +69,7 @@ gboolean
 meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
                                        float               widthf,
                                        float               heightf,
-                                       int                *x_origin,
-                                       int                *y_origin)
+                                       MetaTransforms     *out_transforms)
 {
   int width, height;
   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
@@ -90,6 +89,14 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
   x = v0x >> 8;
   y = v0y >> 8;
 
+  if (out_transforms)
+    {
+      out_transforms->x_origin = x;
+      out_transforms->y_origin = y;
+      out_transforms->x_scale = (v1x - v0x) / (float) width;
+      out_transforms->y_scale = (v2y - v0y) / (float) height;
+    }
+
   /* At integral coordinates? */
   if (x * 256 != v0x || y * 256 != v0y)
     return FALSE;
@@ -102,11 +109,6 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
   if (v0x != v2x || v0y != v1y ||
       v3x != v1x || v3y != v2y)
     return FALSE;
-
-  if (x_origin)
-    *x_origin = x;
-  if (y_origin)
-    *y_origin = y;
 
   return TRUE;
 }
@@ -137,8 +139,7 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                    int              paint_height,
                                    int              sample_width,
                                    int              sample_height,
-                                   int             *x_origin,
-                                   int             *y_origin)
+                                   MetaTransforms  *out_transforms)
 {
   graphene_matrix_t modelview, projection, modelview_projection;
   graphene_point3d_t vertices[4];
@@ -183,6 +184,6 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
 
   return meta_actor_vertices_are_untransformed (vertices,
                                                 sample_width, sample_height,
-                                                x_origin, y_origin);
+                                                out_transforms);
 }
 
