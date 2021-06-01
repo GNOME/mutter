@@ -41,7 +41,6 @@
 
 #include "cogl/cogl.h"
 #include "compositor/clutter-utils.h"
-#include "compositor/meta-texture-tower.h"
 #include "compositor/region-utils.h"
 #include "core/boxes-private.h"
 #include "meta/meta-shaped-texture.h"
@@ -82,8 +81,6 @@ struct _MetaShapedTexture
 {
   GObject parent;
 
-  MetaTextureTower *paint_tower;
-
   CoglTexture *texture;
   CoglTexture *mask_texture;
   CoglSnippet *snippet;
@@ -95,6 +92,11 @@ struct _MetaShapedTexture
   CoglPipeline *masked_tower_pipeline;
   CoglPipeline *unblended_pipeline;
   CoglPipeline *unblended_tower_pipeline;
+
+  CoglTexture *mipmap_texture;
+  gboolean mipmap_texture_out_of_date;
+  CoglFramebuffer *mipmap_fb;
+  CoglPipeline *mipmap_pipeline;
 
   gboolean is_y_inverted;
 
@@ -154,8 +156,6 @@ invalidate_size (MetaShapedTexture *stex)
 static void
 meta_shaped_texture_init (MetaShapedTexture *stex)
 {
-  stex->paint_tower = meta_texture_tower_new ();
-
   stex->buffer_scale = 1;
   stex->texture = NULL;
   stex->mask_texture = NULL;
@@ -253,15 +253,21 @@ meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 }
 
 static void
+free_mipmaps (MetaShapedTexture *stex)
+{
+  g_clear_object (&stex->mipmap_fb);
+  cogl_clear_object (&stex->mipmap_texture);
+}
+
+static void
 meta_shaped_texture_dispose (GObject *object)
 {
   MetaShapedTexture *stex = (MetaShapedTexture *) object;
 
   g_clear_handle_id (&stex->remipmap_timeout_id, g_source_remove);
 
-  if (stex->paint_tower)
-    meta_texture_tower_free (stex->paint_tower);
-  stex->paint_tower = NULL;
+  free_mipmaps (stex);
+  cogl_clear_object (&stex->mipmap_pipeline);
 
   g_clear_pointer (&stex->texture, cogl_object_unref);
 
@@ -618,13 +624,7 @@ set_cogl_texture (MetaShapedTexture *stex,
       update_size (stex);
     }
 
-  /* NB: We don't queue a redraw of the actor here because we don't
-   * know how much of the buffer has changed with respect to the
-   * previous buffer. We only queue a redraw in response to surface
-   * damage. */
-
-  if (stex->create_mipmaps)
-    meta_texture_tower_set_base_texture (stex->paint_tower, cogl_tex);
+  stex->mipmap_texture_out_of_date = TRUE;
 }
 
 static gboolean
@@ -652,11 +652,14 @@ flip_ints (int *x,
   *y = tmp;
 }
 
+static CoglTexture *
+select_texture_for_paint (MetaShapedTexture   *stex,
+                          ClutterPaintContext *paint_context);
+
 static void
 do_paint_content (MetaShapedTexture   *stex,
                   ClutterPaintNode    *root_node,
                   ClutterPaintContext *paint_context,
-                  CoglTexture         *paint_tex,
                   ClutterActorBox     *alloc,
                   uint8_t              opacity)
 {
@@ -665,7 +668,9 @@ do_paint_content (MetaShapedTexture   *stex,
   gboolean use_opaque_region;
   cairo_region_t *blended_tex_region;
   CoglContext *ctx;
-  CoglPipelineFilter filter;
+  CoglPipelineFilter min_filter, mag_filter;
+  MetaTransforms transforms;
+  CoglTexture *paint_tex = stex->texture;
   CoglFramebuffer *framebuffer;
   int sample_width, sample_height;
   gboolean debug_paint_opaque_region;
@@ -712,10 +717,33 @@ do_paint_content (MetaShapedTexture   *stex,
   if (meta_actor_painting_untransformed (framebuffer,
                                          dst_width, dst_height,
                                          sample_width, sample_height,
-                                         NULL))
-    filter = COGL_PIPELINE_FILTER_NEAREST;
+                                         &transforms))
+    {
+      min_filter = COGL_PIPELINE_FILTER_NEAREST;
+      mag_filter = COGL_PIPELINE_FILTER_NEAREST;
+
+      /* Back to normal desktop viewing. Save some memory */
+      free_mipmaps (stex);
+    }
   else
-    filter = COGL_PIPELINE_FILTER_LINEAR;
+    {
+      min_filter = COGL_PIPELINE_FILTER_LINEAR;
+      mag_filter = COGL_PIPELINE_FILTER_LINEAR;
+
+      /* If we're painting a texture below half its native resolution
+       * then mipmapping is required to avoid aliasing. If it's above
+       * half then sticking with COGL_PIPELINE_FILTER_LINEAR will look
+       * and perform better.
+       */
+      if (stex->create_mipmaps &&
+          transforms.x_scale < 0.5 &&
+          transforms.y_scale < 0.5)
+        {
+          paint_tex = select_texture_for_paint (stex, paint_context);
+          if (paint_tex == stex->mipmap_texture)
+            min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
+        }
+    }
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
@@ -777,7 +805,7 @@ do_paint_content (MetaShapedTexture   *stex,
 
           opaque_pipeline = get_unblended_pipeline (stex, ctx, paint_tex);
           cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
-          cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
+          cogl_pipeline_set_layer_filters (opaque_pipeline, 0, min_filter, mag_filter);
 
           n_rects = cairo_region_num_rectangles (region);
           for (i = 0; i < n_rects; i++)
@@ -825,11 +853,11 @@ do_paint_content (MetaShapedTexture   *stex,
         {
           blended_pipeline = get_masked_pipeline (stex, ctx, paint_tex);
           cogl_pipeline_set_layer_texture (blended_pipeline, 1, stex->mask_texture);
-          cogl_pipeline_set_layer_filters (blended_pipeline, 1, filter, filter);
+          cogl_pipeline_set_layer_filters (blended_pipeline, 1, min_filter, mag_filter);
         }
 
       cogl_pipeline_set_layer_texture (blended_pipeline, 0, paint_tex);
-      cogl_pipeline_set_layer_filters (blended_pipeline, 0, filter, filter);
+      cogl_pipeline_set_layer_filters (blended_pipeline, 0, min_filter, mag_filter);
 
       CoglColor color;
       cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
@@ -894,6 +922,94 @@ do_paint_content (MetaShapedTexture   *stex,
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
 }
 
+static void
+ensure_mipmap_texture (MetaShapedTexture *stex)
+{
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  int width, height;
+
+  /* Let's avoid spending any texture memory copying the base level texture
+   * because we'll never need that one and it would have used most of the
+   * memory;
+   *    S(0) = W x H
+   *    S(n) = S(n-1) / 4
+   *    sum to infinity of S(n) = 4/3 * S(0)
+   * So subtracting S(0) means even infinite mipmap levels only need one third
+   * of the original texture's memory. Finite levels need less.
+   *
+   * The fact that mipmap level 0 of stex->mipmap_texture is half the
+   * resolution of stex->texture makes no visual difference, so long as you're
+   * never trying to view a level of detail higher than half. If you need that
+   * then just use stex->texture instead of stex->mipmap_texture, which is
+   * faster anyway.
+   */
+  width = cogl_texture_get_width (stex->texture) / 2;
+  height = cogl_texture_get_height (stex->texture) / 2;
+
+  if (!width || !height)
+    {
+      free_mipmaps (stex);
+      return;
+    }
+
+  if (!stex->mipmap_texture ||
+      cogl_texture_get_width (stex->mipmap_texture) != width ||
+      cogl_texture_get_height (stex->mipmap_texture) != height)
+    {
+      CoglOffscreen *offscreen;
+      CoglTexture2D *tex2d;
+
+      free_mipmaps (stex);
+
+      tex2d = cogl_texture_2d_new_with_size (ctx, width, height);
+      if (!tex2d)
+        return;
+
+      stex->mipmap_texture = COGL_TEXTURE (tex2d);
+
+      offscreen = cogl_offscreen_new_with_texture (stex->mipmap_texture);
+      if (!offscreen)
+        {
+          free_mipmaps (stex);
+          return;
+        }
+
+      stex->mipmap_fb = COGL_FRAMEBUFFER (offscreen);
+
+      if (!cogl_framebuffer_allocate (stex->mipmap_fb, NULL))
+        {
+          free_mipmaps (stex);
+          return;
+        }
+
+      cogl_framebuffer_orthographic (stex->mipmap_fb,
+                                     0, 0, width, height, -1.0, 1.0);
+
+      stex->mipmap_texture_out_of_date = TRUE;
+    }
+
+  if (stex->mipmap_texture_out_of_date)
+    {
+      if (!stex->mipmap_pipeline)
+        {
+          stex->mipmap_pipeline = cogl_pipeline_new (ctx);
+          cogl_pipeline_set_blend (stex->mipmap_pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
+          cogl_pipeline_set_layer_filters (stex->mipmap_pipeline, 0,
+                                           COGL_PIPELINE_FILTER_LINEAR,
+                                           COGL_PIPELINE_FILTER_LINEAR);
+        }
+
+      cogl_pipeline_set_layer_texture (stex->mipmap_pipeline, 0, stex->texture);
+      cogl_framebuffer_draw_textured_rectangle (stex->mipmap_fb,
+                                                stex->mipmap_pipeline,
+                                                0, 0, width, height,
+                                                0.0, 0.0, 1.0, 1.0);
+
+      stex->mipmap_texture_out_of_date = FALSE;
+    }
+}
+
 static CoglTexture *
 select_texture_for_paint (MetaShapedTexture   *stex,
                           ClutterPaintContext *paint_context)
@@ -913,8 +1029,8 @@ select_texture_for_paint (MetaShapedTexture   *stex,
       if (age >= MIN_MIPMAP_AGE_USEC ||
           stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
         {
-          texture = meta_texture_tower_get_paint_texture (stex->paint_tower,
-                                                          paint_context);
+          ensure_mipmap_texture (stex);
+          texture = stex->mipmap_texture;
         }
     }
 
@@ -946,7 +1062,6 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
   ClutterActorBox alloc;
-  CoglTexture *paint_tex = NULL;
   uint8_t opacity;
 
   if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
@@ -967,14 +1082,13 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
    * Setting the texture quality to high without SGIS_generate_mipmap
    * support for TFP textures will result in fallbacks to XGetImage.
    */
-  paint_tex = select_texture_for_paint (stex, paint_context);
-  if (!paint_tex)
+  if (stex->texture == NULL)
     return;
 
   opacity = clutter_actor_get_paint_opacity (actor);
   clutter_actor_get_content_box (actor, &alloc);
 
-  do_paint_content (stex, root_node, paint_context, paint_tex, &alloc, opacity);
+  do_paint_content (stex, root_node, paint_context, &alloc, opacity);
 }
 
 static gboolean
@@ -1012,10 +1126,10 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
 
   if (create_mipmaps != stex->create_mipmaps)
     {
-      CoglTexture *base_texture;
       stex->create_mipmaps = create_mipmaps;
-      base_texture = create_mipmaps ? stex->texture : NULL;
-      meta_texture_tower_set_base_texture (stex->paint_tower, base_texture);
+
+      if (!stex->create_mipmaps)
+        free_mipmaps (stex);
     }
 }
 
@@ -1144,12 +1258,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                      clip);
     }
 
-  meta_texture_tower_update_area (stex->paint_tower,
-                                  x,
-                                  y,
-                                  width,
-                                  height);
-
+  stex->mipmap_texture_out_of_date = TRUE;
   stex->prev_invalidation = stex->last_invalidation;
   stex->last_invalidation = g_get_monotonic_time ();
 
@@ -1214,8 +1323,6 @@ meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
   g_clear_pointer (&stex->snippet, cogl_object_unref);
   if (snippet)
     stex->snippet = cogl_object_ref (snippet);
-
-  meta_texture_tower_set_snippet (stex->paint_tower, snippet);
 }
 
 /**
