@@ -14584,6 +14584,9 @@ _clutter_actor_set_has_key_focus (ClutterActor *self,
     {
       priv->has_key_focus = has_key_focus;
 
+      if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
+        return;
+
       if (has_key_focus)
         g_signal_emit (self, actor_signals[KEY_FOCUS_IN], 0);
       else
