@@ -309,13 +309,16 @@ meta_finalize (void)
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
 #ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = NULL;
 #endif
 
   if (backend)
     meta_backend_prepare_shutdown (backend);
 
 #ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    compositor = meta_wayland_compositor_get_default ();
+
   if (compositor)
     meta_wayland_compositor_prepare_shutdown (compositor);
 #endif
