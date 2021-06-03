@@ -7,7 +7,5 @@
 
 	<KeyListEntry name="panel-run-dialog" description="Show the run command prompt"/>
 
-	<KeyListEntry name="panel-main-menu" description="Show the activities overview"/>
-
 </KeyListEntries>
 
