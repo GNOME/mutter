@@ -113,15 +113,12 @@ popup_grab_focus (MetaWaylandPointerGrab *grab,
   if (!meta_wayland_seat_has_pointer (seat))
     return;
 
-  if (pointer->button_count > 0)
-    return;
-
   /* Popup grabs are in owner-events mode (ie, events for the same client
      are reported as normal) */
   if (surface &&
       wl_resource_get_client (surface->resource) == popup_grab->grab_client)
     meta_wayland_pointer_set_focus (grab->pointer, surface);
-  else
+  else if (pointer->button_count == 0)
     meta_wayland_pointer_set_focus (grab->pointer, NULL);
 }
 
