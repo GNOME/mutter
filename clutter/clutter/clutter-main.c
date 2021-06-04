@@ -136,10 +136,6 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "max-render-time", CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME },
 };
 
-static ClutterActor * update_device_for_event (ClutterStage *stage,
-                                               ClutterEvent *event,
-                                               gboolean      emit_crossing);
-
 gboolean
 _clutter_context_get_show_fps (void)
 {
@@ -765,6 +761,36 @@ process_key_event (ClutterEvent       *event,
     emit_event_chain (event);
 }
 
+static ClutterActor *
+update_device_for_event (ClutterStage *stage,
+                         ClutterEvent *event,
+                         gboolean      emit_crossing)
+{
+  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterActor *new_actor;
+  graphene_point_t point;
+  uint32_t time_ms;
+
+  clutter_event_get_coords (event, &point.x, &point.y);
+  time_ms = clutter_event_get_time (event);
+
+  new_actor =
+    _clutter_stage_do_pick (stage, point.x, point.y, CLUTTER_PICK_REACTIVE);
+
+  /* Picking should never fail, but if it does, we bail out here */
+  g_return_val_if_fail (new_actor != NULL, NULL);
+
+  clutter_stage_update_device (stage,
+                               device, sequence,
+                               point,
+                               time_ms,
+                               new_actor,
+                               emit_crossing);
+
+  return new_actor;
+}
+
 /**
  * clutter_do_event:
  * @event: a #ClutterEvent.
@@ -968,36 +994,6 @@ clutter_stage_repick_device (ClutterStage       *stage,
                                CLUTTER_CURRENT_TIME,
                                new_actor,
                                TRUE);
-}
-
-static ClutterActor *
-update_device_for_event (ClutterStage *stage,
-                         ClutterEvent *event,
-                         gboolean      emit_crossing)
-{
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterActor *new_actor;
-  graphene_point_t point;
-  uint32_t time;
-
-  clutter_event_get_coords (event, &point.x, &point.y);
-  time = clutter_event_get_time (event);
-
-  new_actor =
-    _clutter_stage_do_pick (stage, point.x, point.y, CLUTTER_PICK_REACTIVE);
-
-  /* Picking should never fail, but if it does, we bail out here */
-  g_return_val_if_fail (new_actor != NULL, NULL);
-
-  clutter_stage_update_device (stage,
-                               device, sequence,
-                               point,
-                               time,
-                               new_actor,
-                               emit_crossing);
-
-  return new_actor;
 }
 
 static void
