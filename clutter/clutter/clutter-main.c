@@ -1141,6 +1141,8 @@ _clutter_process_event_details (ClutterActor        *stage,
                                                              event->type == CLUTTER_BUTTON_PRESS);
               }
           }
+
+        G_GNUC_FALLTHROUGH;
       case CLUTTER_SCROLL:
       case CLUTTER_TOUCHPAD_PINCH:
       case CLUTTER_TOUCHPAD_SWIPE:
