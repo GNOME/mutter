@@ -63,7 +63,7 @@ struct _MetaWaylandSurfaceRoleClass
   gboolean (*is_on_logical_monitor) (MetaWaylandSurfaceRole *surface_role,
                                      MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
-  gboolean (*should_cache_state) (MetaWaylandSurfaceRole *surface_role);
+  gboolean (*is_synchronized) (MetaWaylandSurfaceRole *surface_role);
   void (*notify_subsurface_state_changed) (MetaWaylandSurfaceRole *surface_role);
   void (*get_relative_coordinates) (MetaWaylandSurfaceRole *surface_role,
                                     float                   abs_x,
@@ -268,8 +268,6 @@ MetaWaylandSurfaceState *
 
 void                meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface);
 
-gboolean            meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface);
-
 gboolean            meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
                                                       GType               role_type,
                                                       const char         *first_property_name,
@@ -307,7 +305,7 @@ MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surfa
 META_EXPORT_TEST
 MetaWindow *        meta_wayland_surface_get_window (MetaWaylandSurface *surface);
 
-gboolean            meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface);
+gboolean            meta_wayland_surface_is_synchronized (MetaWaylandSurface *surface);
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
 

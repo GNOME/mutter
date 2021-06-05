@@ -1023,7 +1023,7 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    *  2) Its mode changes from synchronized to desynchronized and its parent
    *     surface is in effective desynchronized mode.
    */
-  if (meta_wayland_surface_should_cache_state (surface))
+  if (meta_wayland_surface_is_synchronized (surface))
     {
       ensure_cached_state (surface);
 
@@ -1985,24 +1985,24 @@ meta_wayland_surface_get_window (MetaWaylandSurface *surface)
 }
 
 static gboolean
-meta_wayland_surface_role_should_cache_state (MetaWaylandSurfaceRole *surface_role)
+meta_wayland_surface_role_is_synchronized (MetaWaylandSurfaceRole *surface_role)
 {
   MetaWaylandSurfaceRoleClass *klass;
 
   klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
-  if (klass->should_cache_state)
-    return klass->should_cache_state (surface_role);
+  if (klass->is_synchronized)
+    return klass->is_synchronized (surface_role);
   else
     return FALSE;
 }
 
 gboolean
-meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface)
+meta_wayland_surface_is_synchronized (MetaWaylandSurface *surface)
 {
   if (!surface->role)
     return FALSE;
 
-  return meta_wayland_surface_role_should_cache_state (surface->role);
+  return meta_wayland_surface_role_is_synchronized (surface->role);
 }
 
 static void
