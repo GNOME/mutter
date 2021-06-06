@@ -1411,6 +1411,60 @@ meta_window_actor_notify_damaged (MetaWindowActor *window_actor)
   g_signal_emit (window_actor, signals[DAMAGED], 0);
 }
 
+static CoglFramebuffer *
+create_framebuffer_from_window_actor (MetaWindowActor  *self,
+                                      MetaRectangle    *clip,
+                                      GError          **error)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (self);
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglTexture2D *texture;
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *framebuffer;
+  CoglColor clear_color;
+  ClutterPaintContext *paint_context;
+  float resource_scale;
+
+  resource_scale = clutter_actor_get_resource_scale (actor);
+
+  texture = cogl_texture_2d_new_with_size (cogl_context,
+                                           clip->width * resource_scale,
+                                           clip->height * resource_scale);
+  if (!texture)
+    return NULL;
+
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
+                                          FALSE);
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  framebuffer = COGL_FRAMEBUFFER (offscreen);
+
+  cogl_object_unref (texture);
+
+  if (!cogl_framebuffer_allocate (framebuffer, error))
+    {
+      g_object_unref (framebuffer);
+      return NULL;
+    }
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
+  cogl_framebuffer_orthographic (framebuffer, 0, 0, clip->width, clip->height,
+                                 0, 1.0);
+  cogl_framebuffer_translate (framebuffer, -clip->x, -clip->y, 0);
+
+  paint_context =
+    clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
+                                               CLUTTER_PAINT_FLAG_NONE);
+  clutter_actor_paint (actor, paint_context);
+  clutter_paint_context_destroy (paint_context);
+
+  return framebuffer;
+}
+
 /**
  * meta_window_actor_get_image:
  * @self: A #MetaWindowActor
@@ -1430,21 +1484,11 @@ meta_window_actor_get_image (MetaWindowActor *self,
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
-  MetaBackend *backend = meta_get_backend ();
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  float resource_scale;
-  float width, height;
-  CoglTexture2D *texture;
-  g_autoptr (GError) error = NULL;
-  CoglOffscreen *offscreen;
-  CoglFramebuffer *framebuffer;
-  CoglColor clear_color;
-  float x, y;
-  MetaRectangle scaled_clip;
-  ClutterPaintContext *paint_context;
   cairo_surface_t *surface = NULL;
+  CoglFramebuffer *framebuffer;
+  MetaRectangle framebuffer_clip;
+  float resource_scale;
+  float x, y, width, height;
 
   if (!priv->surface)
     return NULL;
@@ -1458,7 +1502,6 @@ meta_window_actor_get_image (MetaWindowActor *self,
 
       if (clip)
         {
-
           int geometry_scale;
 
           geometry_scale =
@@ -1476,76 +1519,51 @@ meta_window_actor_get_image (MetaWindowActor *self,
       goto out;
     }
 
+  clutter_actor_get_position (actor, &x, &y);
   clutter_actor_get_size (actor, &width, &height);
 
   if (width == 0 || height == 0)
     goto out;
 
-  resource_scale = clutter_actor_get_resource_scale (actor);
-
-  width = ceilf (width * resource_scale);
-  height = ceilf (height * resource_scale);
-
-  texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
-  if (!texture)
-    goto out;
-
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
-                                          FALSE);
-
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
-  framebuffer = COGL_FRAMEBUFFER (offscreen);
-
-  cogl_object_unref (texture);
-
-  if (!cogl_framebuffer_allocate (framebuffer, &error))
-    {
-      g_warning ("Failed to allocate framebuffer for screenshot: %s",
-                 error->message);
-      g_object_unref (framebuffer);
-      cogl_object_unref (texture);
-      goto out;
-    }
-
-  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
-  clutter_actor_get_position (actor, &x, &y);
-
-  cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
-  cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
-  cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
-  cogl_framebuffer_translate (framebuffer, -x, -y, 0);
-
-  paint_context =
-    clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
-                                               CLUTTER_PAINT_FLAG_NONE);
-  clutter_actor_paint (actor, paint_context);
-  clutter_paint_context_destroy (paint_context);
+  framebuffer_clip = (MetaRectangle) {
+    .x = floorf (x),
+    .y = floorf (y),
+    .width = ceilf (width),
+    .height = ceilf (height),
+  };
 
   if (clip)
     {
-      meta_rectangle_scale_double (clip, resource_scale,
-                                   META_ROUNDING_STRATEGY_GROW,
-                                   &scaled_clip);
-      meta_rectangle_intersect (&scaled_clip,
-                                &(MetaRectangle) {
-                                  .width = width,
-                                  .height = height,
-                                },
-                                &scaled_clip);
-    }
-  else
-    {
-      scaled_clip = (MetaRectangle) {
-        .width = width,
-        .height = height,
-      };
+      MetaRectangle tmp_clip;
+      MetaRectangle intersected_clip;
+
+      tmp_clip = *clip;
+      tmp_clip.x += floorf (x);
+      tmp_clip.y += floorf (y);
+      if (!meta_rectangle_intersect (&framebuffer_clip,
+                                     &tmp_clip,
+                                     &intersected_clip))
+        goto out;
+
+      framebuffer_clip = intersected_clip;
     }
 
+  framebuffer = create_framebuffer_from_window_actor (self,
+                                                      &framebuffer_clip,
+                                                      NULL);
+  if (!framebuffer)
+    goto out;
+
+  resource_scale = clutter_actor_get_resource_scale (actor);
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        scaled_clip.width, scaled_clip.height);
+                                        framebuffer_clip.width *
+                                        resource_scale,
+                                        framebuffer_clip.height *
+                                        resource_scale);
   cogl_framebuffer_read_pixels (framebuffer,
-                                scaled_clip.x, scaled_clip.y,
-                                scaled_clip.width, scaled_clip.height,
+                                0, 0,
+                                framebuffer_clip.width * resource_scale,
+                                framebuffer_clip.height * resource_scale,
                                 CLUTTER_CAIRO_FORMAT_ARGB32,
                                 cairo_image_surface_get_data (surface));
 
