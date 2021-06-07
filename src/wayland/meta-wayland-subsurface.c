@@ -290,10 +290,10 @@ wl_subsurface_set_position (struct wl_client   *client,
                             int32_t             y)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  MetaWaylandTransaction *transaction;
 
-  surface->sub.pending_x = x;
-  surface->sub.pending_y = y;
-  surface->sub.pending_pos = TRUE;
+  transaction = meta_wayland_surface_ensure_transaction (surface);
+  meta_wayland_transaction_add_subsurface_position (transaction, surface, x, y);
 }
 
 static gboolean
@@ -418,28 +418,33 @@ wl_subsurface_set_sync (struct wl_client   *client,
 }
 
 static void
+meta_wayland_subsurface_parent_desynced (MetaWaylandSurface *surface)
+{
+  MetaWaylandSurface *subsurface_surface;
+
+  if (surface->sub.synchronous)
+    return;
+
+  if (surface->sub.transaction)
+    meta_wayland_transaction_commit (g_steal_pointer (&surface->sub.transaction));
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+    meta_wayland_subsurface_parent_desynced (subsurface_surface);
+}
+
+static void
 wl_subsurface_set_desync (struct wl_client   *client,
                           struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  gboolean is_parent_effectively_synchronized;
 
   if (!surface->sub.synchronous)
     return;
 
-  is_parent_effectively_synchronized =
-    meta_wayland_surface_is_synchronized (surface->sub.parent);
-
-  if (!is_parent_effectively_synchronized)
-    {
-      MetaWaylandTransaction *transaction;
-
-      transaction = meta_wayland_transaction_new (surface->compositor);
-      meta_wayland_transaction_add_cached_states (transaction, surface);
-      meta_wayland_transaction_commit (transaction);
-    }
-
   surface->sub.synchronous = FALSE;
+
+  if (!meta_wayland_surface_is_synchronized (surface))
+    meta_wayland_subsurface_parent_desynced (surface);
 }
 
 static const struct wl_subsurface_interface meta_wayland_wl_subsurface_interface = {

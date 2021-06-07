@@ -24,18 +24,16 @@
 
 void meta_wayland_transaction_commit (MetaWaylandTransaction *transaction);
 
-void meta_wayland_transaction_add_state (MetaWaylandTransaction  *transaction,
-                                         MetaWaylandSurface      *surface,
-                                         MetaWaylandSurfaceState *state);
-
 void meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *transaction,
-                                                       MetaWaylandSurface     *surface);
+                                                       MetaWaylandSurface     *surface,
+                                                       int                     x,
+                                                       int                     y);
 
-void meta_wayland_transaction_add_cached_states (MetaWaylandTransaction *transaction,
-                                                 MetaWaylandSurface     *surface);
+void meta_wayland_transaction_merge_into (MetaWaylandTransaction *from,
+                                          MetaWaylandTransaction *to);
 
-void meta_wayland_transaction_add_cached_child_states (MetaWaylandTransaction *transaction,
-                                                       MetaWaylandSurface     *surface);
+void meta_wayland_transaction_merge_pending_state (MetaWaylandTransaction *transaction,
+                                                   MetaWaylandSurface *surface);
 
 MetaWaylandTransaction *meta_wayland_transaction_new (MetaWaylandCompositor *compositor);
 

@@ -191,8 +191,6 @@ struct _MetaWaylandSurface
 
   /* All the pending state that wl_surface.commit will apply. */
   MetaWaylandSurfaceState *pending_state;
-  /* State cached due to inter-surface synchronization such. */
-  MetaWaylandSurfaceState *cached_state;
 
   /* Extension resources. */
   struct wl_resource *wl_subsurface;
@@ -215,9 +213,10 @@ struct _MetaWaylandSurface
      */
     gboolean synchronous;
 
-    int32_t pending_x;
-    int32_t pending_y;
-    gboolean pending_pos;
+    /* Transaction which contains all synchronized state for this sub-surface.
+     * This can include state for nested sub-surfaces.
+     */
+    MetaWaylandTransaction *transaction;
   } sub;
 
   /* wp_viewport */
@@ -270,14 +269,19 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
                                                  struct wl_resource    *compositor_resource,
                                                  guint32                id);
 
+void                meta_wayland_surface_state_reset (MetaWaylandSurfaceState *state);
+
+void                meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
+                                                           MetaWaylandSurfaceState *to);
+
 void                meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                                       MetaWaylandSurfaceState *state);
 
 MetaWaylandSurfaceState *
                     meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
-MetaWaylandSurfaceState *
-                    meta_wayland_surface_ensure_cached_state (MetaWaylandSurface *surface);
+MetaWaylandTransaction *
+                    meta_wayland_surface_ensure_transaction (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
                                                       GType               role_type,

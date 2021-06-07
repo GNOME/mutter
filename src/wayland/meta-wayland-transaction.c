@@ -308,75 +308,93 @@ meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,
   return entry;
 }
 
-void
-meta_wayland_transaction_add_state (MetaWaylandTransaction  *transaction,
-                                    MetaWaylandSurface      *surface,
-                                    MetaWaylandSurfaceState *state)
-{
-  MetaWaylandTransactionEntry *entry;
-
-  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
-  g_assert (!entry->state);
-  entry->state = state;
-}
-
-void
-meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *transaction,
-                                                  MetaWaylandSurface     *surface)
-{
-  MetaWaylandTransactionEntry *entry;
-
-  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
-  entry->x = surface->sub.pending_x;
-  entry->y = surface->sub.pending_y;
-  entry->has_sub_pos = TRUE;
-  surface->sub.pending_pos = FALSE;
-}
-
-static gboolean
-meta_wayland_transaction_add_cached_state (MetaWaylandTransaction *transaction,
-                                           MetaWaylandSurface     *surface)
-{
-  MetaWaylandSurfaceState *cached = surface->cached_state;
-  gboolean is_synchronized;
-
-  is_synchronized = meta_wayland_surface_is_synchronized (surface);
-
-  if (is_synchronized && cached)
-    {
-      meta_wayland_transaction_add_state (transaction, surface, cached);
-      surface->cached_state = NULL;
-    }
-
-  if (surface->sub.pending_pos)
-    meta_wayland_transaction_add_subsurface_position (transaction, surface);
-
-  return is_synchronized;
-}
-
-void
-meta_wayland_transaction_add_cached_child_states (MetaWaylandTransaction *transaction,
-                                                  MetaWaylandSurface     *surface)
-{
-  MetaWaylandSurface *subsurface_surface;
-
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
-    meta_wayland_transaction_add_cached_states (transaction, subsurface_surface);
-}
-
-void
-meta_wayland_transaction_add_cached_states (MetaWaylandTransaction *transaction,
-                                            MetaWaylandSurface     *surface)
-{
-  if (meta_wayland_transaction_add_cached_state (transaction, surface))
-    meta_wayland_transaction_add_cached_child_states (transaction, surface);
-}
-
 static void
 meta_wayland_transaction_entry_free (MetaWaylandTransactionEntry *entry)
 {
   g_clear_object (&entry->state);
   g_free (entry);
+}
+
+void
+meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *transaction,
+                                                  MetaWaylandSurface     *surface,
+                                                  int                     x,
+                                                  int                     y)
+{
+  MetaWaylandTransactionEntry *entry;
+
+  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
+  entry->x = x;
+  entry->y = y;
+  entry->has_sub_pos = TRUE;
+}
+
+static void
+meta_wayland_transaction_entry_merge_into (MetaWaylandTransactionEntry *from,
+                                           MetaWaylandTransactionEntry *to)
+{
+  if (from->has_sub_pos)
+    {
+      to->x = from->x;
+      to->y = from->y;
+      to->has_sub_pos = TRUE;
+    }
+
+  if (to->state)
+    {
+      meta_wayland_surface_state_merge_into (from->state, to->state);
+      g_clear_object (&from->state);
+      return;
+    }
+
+  to->state = from->state;
+}
+
+void
+meta_wayland_transaction_merge_into (MetaWaylandTransaction *from,
+                                     MetaWaylandTransaction *to)
+{
+  GHashTableIter iter;
+  MetaWaylandSurface *surface;
+  MetaWaylandTransactionEntry *from_entry, *to_entry;
+
+  g_hash_table_iter_init (&iter, from->entries);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &surface,
+                                 (gpointer *) &from_entry))
+    {
+      g_hash_table_iter_steal (&iter);
+      to_entry = meta_wayland_transaction_get_entry (to, surface);
+      if (!to_entry)
+        {
+          g_hash_table_insert (to->entries, surface, from_entry);
+          continue;
+        }
+
+      meta_wayland_transaction_entry_merge_into (from_entry, to_entry);
+      meta_wayland_transaction_entry_free (from_entry);
+    }
+
+  meta_wayland_transaction_free (from);
+}
+
+void
+meta_wayland_transaction_merge_pending_state (MetaWaylandTransaction *transaction,
+                                              MetaWaylandSurface     *surface)
+{
+  MetaWaylandSurfaceState *pending = surface->pending_state;
+  MetaWaylandTransactionEntry *entry;
+
+  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
+
+  if (!entry->state)
+    {
+      entry->state = pending;
+      surface->pending_state = meta_wayland_surface_state_new ();
+      return;
+    }
+
+  meta_wayland_surface_state_merge_into (pending, entry->state);
+  meta_wayland_surface_state_reset (pending);
 }
 
 MetaWaylandTransaction *

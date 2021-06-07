@@ -535,14 +535,14 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
   meta_wayland_surface_state_discard_presentation_feedback (state);
 }
 
-static void
+void
 meta_wayland_surface_state_reset (MetaWaylandSurfaceState *state)
 {
   meta_wayland_surface_state_clear (state);
   meta_wayland_surface_state_set_default (state);
 }
 
-static void
+void
 meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
                                        MetaWaylandSurfaceState *to)
 {
@@ -982,10 +982,21 @@ meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface)
   return surface->pending_state;
 }
 
+MetaWaylandTransaction *
+meta_wayland_surface_ensure_transaction (MetaWaylandSurface *surface)
+{
+  if (!surface->sub.transaction)
+      surface->sub.transaction = meta_wayland_transaction_new (surface->compositor);
+
+  return surface->sub.transaction;
+}
+
 static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
   MetaWaylandSurfaceState *pending = surface->pending_state;
+  MetaWaylandTransaction *transaction;
+  MetaWaylandSurface *subsurface_surface;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
                            "WaylandSurface (commit)");
@@ -993,6 +1004,23 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
   if (pending->buffer &&
       !meta_wayland_buffer_is_realized (pending->buffer))
     meta_wayland_buffer_realize (pending->buffer);
+
+  if (meta_wayland_surface_is_synchronized (surface))
+    transaction = meta_wayland_surface_ensure_transaction (surface);
+  else
+    transaction = meta_wayland_transaction_new (surface->compositor);
+
+  meta_wayland_transaction_merge_pending_state (transaction, surface);
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+    {
+      if (!subsurface_surface->sub.transaction)
+        continue;
+
+      meta_wayland_transaction_merge_into (subsurface_surface->sub.transaction,
+                                           transaction);
+      subsurface_surface->sub.transaction = NULL;
+    }
 
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only
@@ -1002,32 +1030,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    *  2) Its mode changes from synchronized to desynchronized and its parent
    *     surface is in effective desynchronized mode.
    */
-  if (meta_wayland_surface_is_synchronized (surface))
-    {
-      if (surface->cached_state)
-        {
-          meta_wayland_surface_state_merge_into (pending, surface->cached_state);
-          meta_wayland_surface_state_reset (pending);
-        }
-      else
-        {
-          surface->cached_state = pending;
-          surface->pending_state = meta_wayland_surface_state_new ();
-        }
-    }
-  else
-    {
-      MetaWaylandTransaction *transaction;
-
-      transaction = meta_wayland_transaction_new (surface->compositor);
-      meta_wayland_transaction_add_state (transaction, surface, pending);
-      if (surface->sub.pending_pos)
-          meta_wayland_transaction_add_subsurface_position (transaction, surface);
-      meta_wayland_transaction_add_cached_child_states (transaction, surface);
-      meta_wayland_transaction_commit (transaction);
-
-      surface->pending_state = meta_wayland_surface_state_new ();
-    }
+  if (!meta_wayland_surface_is_synchronized (surface))
+    meta_wayland_transaction_commit (transaction);
 }
 
 static void
@@ -1478,8 +1482,8 @@ wl_surface_destructor (struct wl_resource *resource)
   g_clear_pointer (&surface->texture, cogl_object_unref);
   g_clear_pointer (&surface->buffer_ref, meta_wayland_buffer_ref_unref);
 
-  g_clear_object (&surface->cached_state);
   g_clear_object (&surface->pending_state);
+  g_clear_pointer (&surface->sub.transaction, meta_wayland_transaction_free);
 
   if (surface->opaque_region)
     cairo_region_destroy (surface->opaque_region);
