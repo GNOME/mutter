@@ -44,6 +44,9 @@ typedef void (* MetaThreadCallback) (MetaThread *thread,
 typedef gpointer (* MetaThreadTaskFunc) (MetaThreadImpl  *thread_impl,
                                          gpointer         user_data,
                                          GError         **error);
+typedef void (* MetaThreadTaskFeedbackFunc) (gpointer      retval,
+                                             const GError *error,
+                                             gpointer      user_data);
 
 META_EXPORT_TEST
 void meta_thread_queue_callback (MetaThread         *thread,
@@ -59,6 +62,13 @@ gpointer meta_thread_run_impl_task_sync (MetaThread          *thread,
                                          MetaThreadTaskFunc   func,
                                          gpointer             user_data,
                                          GError             **error);
+
+META_EXPORT_TEST
+void meta_thread_post_impl_task (MetaThread                 *thread,
+                                 MetaThreadTaskFunc          func,
+                                 gpointer                    user_data,
+                                 MetaThreadTaskFeedbackFunc  feedback_func,
+                                 gpointer                    feedback_user_data);
 
 META_EXPORT_TEST
 MetaBackend * meta_thread_get_backend (MetaThread *thread);

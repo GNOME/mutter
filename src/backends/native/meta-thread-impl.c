@@ -37,6 +37,12 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
+typedef struct _MetaThreadImplSource
+{
+  GSource base;
+  MetaThreadImpl *thread_impl;
+} MetaThreadImplSource;
+
 typedef struct _MetaThreadImplPrivate
 {
   MetaThread *thread;
@@ -44,6 +50,7 @@ typedef struct _MetaThreadImplPrivate
   gboolean in_impl_task;
 
   GMainContext *thread_context;
+  GSource *impl_source;
   GAsyncQueue *task_queue;
 } MetaThreadImplPrivate;
 
@@ -51,8 +58,13 @@ struct _MetaThreadTask
 {
   MetaThreadTaskFunc func;
   gpointer user_data;
+
   MetaThreadTaskFeedbackFunc feedback_func;
   gpointer feedback_user_data;
+  MetaThreadTaskFeedbackType feedback_type;
+
+  gpointer retval;
+  GError *error;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaThreadImpl, meta_thread_impl, G_TYPE_OBJECT)
@@ -105,12 +117,74 @@ meta_thread_impl_set_property (GObject      *object,
     }
 }
 
+static gboolean
+impl_source_prepare (GSource *source,
+                     int     *timeout)
+{
+  MetaThreadImplSource *impl_source = (MetaThreadImplSource *) source;
+  MetaThreadImpl *thread_impl = impl_source->thread_impl;
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  g_assert (g_source_get_context (source) == priv->thread_context);
+
+  *timeout = -1;
+
+  return g_async_queue_length (priv->task_queue) > 0;
+}
+
+static gboolean
+impl_source_check (GSource *source)
+{
+  MetaThreadImplSource *impl_source = (MetaThreadImplSource *) source;
+  MetaThreadImpl *thread_impl = impl_source->thread_impl;
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  g_assert (g_source_get_context (source) == priv->thread_context);
+
+  return g_async_queue_length (priv->task_queue) > 0;
+}
+
+static gboolean
+impl_source_dispatch (GSource     *source,
+                      GSourceFunc  callback,
+                      gpointer     user_data)
+{
+  MetaThreadImplSource *impl_source = (MetaThreadImplSource *) source;
+  MetaThreadImpl *thread_impl = impl_source->thread_impl;
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  g_assert (g_source_get_context (source) == priv->thread_context);
+
+  meta_thread_impl_dispatch (thread_impl);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static GSourceFuncs impl_source_funcs = {
+  .prepare = impl_source_prepare,
+  .check = impl_source_check,
+  .dispatch = impl_source_dispatch,
+};
+
 static void
 meta_thread_impl_constructed (GObject *object)
 {
   MetaThreadImpl *thread_impl = META_THREAD_IMPL (object);
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
+  GSource *source;
+  MetaThreadImplSource *impl_source;
+
+  source = g_source_new (&impl_source_funcs, sizeof (MetaThreadImplSource));
+  impl_source = (MetaThreadImplSource *) source;
+  impl_source->thread_impl = thread_impl;
+  g_source_attach (source, priv->thread_context);
+  g_source_unref (source);
+
+  priv->impl_source = source;
 
   priv->task_queue = g_async_queue_new ();
 
@@ -124,6 +198,7 @@ meta_thread_impl_finalize (GObject *object)
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
+  g_clear_pointer (&priv->impl_source, g_source_destroy);
   g_clear_pointer (&priv->task_queue, g_async_queue_unref);
   g_clear_pointer (&priv->thread_context, g_main_context_unref);
 
@@ -186,7 +261,8 @@ MetaThreadTask *
 meta_thread_task_new (MetaThreadTaskFunc         func,
                       gpointer                   user_data,
                       MetaThreadTaskFeedbackFunc feedback_func,
-                      gpointer                   feedback_user_data)
+                      gpointer                   feedback_user_data,
+                      MetaThreadTaskFeedbackType feedback_type)
 {
   MetaThreadTask *task;
 
@@ -196,6 +272,7 @@ meta_thread_task_new (MetaThreadTaskFunc         func,
     .user_data = user_data,
     .feedback_func = feedback_func,
     .feedback_user_data = feedback_user_data,
+    .feedback_type = feedback_type,
   };
 
   return task;
@@ -204,6 +281,7 @@ meta_thread_task_new (MetaThreadTaskFunc         func,
 void
 meta_thread_task_free (MetaThreadTask *task)
 {
+  g_clear_error (&task->error);
   g_free (task);
 }
 
@@ -365,6 +443,17 @@ meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl)
   return priv->in_impl_task;
 }
 
+static void
+invoke_task_feedback (MetaThread *thread,
+                      gpointer    user_data)
+{
+  MetaThreadTask *task = user_data;
+
+  meta_assert_not_in_thread_impl (thread);
+
+  task->feedback_func (task->retval, task->error, task->feedback_user_data);
+}
+
 void
 meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
 {
@@ -380,9 +469,24 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
   retval = task->func (thread_impl, task->user_data, &error);
 
   if (task->feedback_func)
-    task->feedback_func (retval, error, task->feedback_user_data);
+    {
+      switch (task->feedback_type)
+        {
+        case META_THREAD_TASK_FEEDBACK_TYPE_IMPL:
+          task->feedback_func (retval, error, task->feedback_user_data);
+          break;
+        case META_THREAD_TASK_FEEDBACK_TYPE_CALLBACK:
+          task->retval = retval;
+          task->error = g_steal_pointer (&error);
+          meta_thread_queue_callback (priv->thread,
+                                      invoke_task_feedback,
+                                      g_steal_pointer (&task),
+                                      (GDestroyNotify) meta_thread_task_free);
+          break;
+        }
+    }
 
-  meta_thread_task_free (task);
+  g_clear_pointer (&task, meta_thread_task_free);
 
   priv->in_impl_task = FALSE;
 }

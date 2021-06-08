@@ -193,6 +193,48 @@ add_idle_func (MetaThreadImpl  *thread_impl,
   return GINT_TO_POINTER (TRUE);
 }
 
+typedef struct
+{
+  MetaThread *thread;
+  GMainLoop *loop;
+
+  GMutex mutex;
+  int state;
+} AsyncData;
+
+static gpointer
+async_func (MetaThreadImpl  *thread_impl,
+            gpointer         user_data,
+            GError         **error)
+{
+  AsyncData *async_data = user_data;
+
+  meta_assert_in_thread_impl (async_data->thread);
+
+  g_mutex_lock (&async_data->mutex);
+  g_assert_cmpint (async_data->state, ==, 0);
+  async_data->state = 1;
+  g_mutex_unlock (&async_data->mutex);
+
+  return GINT_TO_POINTER (TRUE);
+}
+
+static void
+async_feedback_func (gpointer      retval,
+                     const GError *error,
+                     gpointer      user_data)
+{
+  AsyncData *async_data = user_data;
+
+  meta_assert_not_in_thread_impl (async_data->thread);
+
+  g_mutex_lock (&async_data->mutex);
+  g_assert_cmpint (async_data->state, ==, 1);
+  async_data->state = 2;
+  g_main_loop_quit (async_data->loop);
+  g_mutex_unlock (&async_data->mutex);
+}
+
 static void
 run_thread_tests (MetaThread *thread)
 {
@@ -204,6 +246,7 @@ run_thread_tests (MetaThread *thread)
   int buf;
   PipeData pipe_data;
   IdleData idle_data;
+  AsyncData async_data;
 
   meta_assert_not_in_thread_impl (thread);
 
@@ -254,6 +297,24 @@ run_thread_tests (MetaThread *thread)
   g_main_loop_run (idle_data.loop);
   g_assert_cmpint (idle_data.state, ==, 3);
   g_main_loop_unref (idle_data.loop);
+
+  /* Test async tasks */
+  g_debug ("Test async task");
+  async_data = (AsyncData) { 0 };
+  g_mutex_init (&async_data.mutex);
+  async_data.thread = thread;
+  async_data.loop = g_main_loop_new (NULL, FALSE);
+  g_mutex_lock (&async_data.mutex);
+  meta_thread_post_impl_task (thread, async_func, &async_data,
+                              async_feedback_func, &async_data);
+  g_assert_cmpint (async_data.state, ==, 0);
+  g_mutex_unlock (&async_data.mutex);
+  g_main_loop_run (async_data.loop);
+  g_mutex_lock (&async_data.mutex);
+  g_assert_cmpint (async_data.state, ==, 2);
+  g_mutex_unlock (&async_data.mutex);
+  g_main_loop_unref (async_data.loop);
+  g_mutex_clear (&async_data.mutex);
 }
 
 static void

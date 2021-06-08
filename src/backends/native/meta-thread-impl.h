@@ -37,11 +37,13 @@ struct _MetaThreadImplClass
   GObjectClass parent_class;
 };
 
-typedef struct _MetaThreadTask MetaThreadTask;
+typedef enum _MetaThreadTaskFeedbackType
+{
+  META_THREAD_TASK_FEEDBACK_TYPE_CALLBACK,
+  META_THREAD_TASK_FEEDBACK_TYPE_IMPL,
+} MetaThreadTaskFeedbackType;
 
-typedef void (* MetaThreadTaskFeedbackFunc) (gpointer      retval,
-                                             const GError *error,
-                                             gpointer      user_data);
+typedef struct _MetaThreadTask MetaThreadTask;
 
 META_EXPORT_TEST
 MetaThread * meta_thread_impl_get_thread (MetaThreadImpl *thread_impl);
@@ -70,7 +72,8 @@ gboolean meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl);
 MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc         func,
                                        gpointer                   user_data,
                                        MetaThreadTaskFeedbackFunc feedback_func,
-                                       gpointer                   feedback_user_data);
+                                       gpointer                   feedback_user_data,
+                                       MetaThreadTaskFeedbackType feedback_type);
 
 void meta_thread_task_free (MetaThreadTask *task);
 

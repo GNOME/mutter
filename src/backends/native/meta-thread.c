@@ -298,7 +298,8 @@ meta_thread_run_impl_task_sync (MetaThread          *thread,
   MetaSyncTaskData data = { 0 };
 
   task = meta_thread_task_new (func, user_data,
-                               sync_task_done_in_impl, &data);
+                               sync_task_done_in_impl, &data,
+                               META_THREAD_TASK_FEEDBACK_TYPE_IMPL);
   meta_thread_impl_queue_task (priv->impl, task);
 
   priv->waiting_for_impl_task = TRUE;
@@ -312,6 +313,22 @@ meta_thread_run_impl_task_sync (MetaThread          *thread,
     g_clear_error (&data.error);
 
   return data.retval;
+}
+
+void
+meta_thread_post_impl_task (MetaThread                 *thread,
+                            MetaThreadTaskFunc          func,
+                            gpointer                    user_data,
+                            MetaThreadTaskFeedbackFunc  feedback_func,
+                            gpointer                    feedback_user_data)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  MetaThreadTask *task;
+
+  task = meta_thread_task_new (func, user_data,
+                               feedback_func, feedback_user_data,
+                               META_THREAD_TASK_FEEDBACK_TYPE_CALLBACK);
+  meta_thread_impl_queue_task (priv->impl, task);
 }
 
 MetaBackend *
