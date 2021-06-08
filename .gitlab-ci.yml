@@ -12,13 +12,17 @@ stages:
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-07-09.1'
+    BASE_TAG: '2021-07-19.1'
     FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang'
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
 
+      # For docs
+      dnf install -y python3-markdown python3-toml python3-typogrify &&
+
+      # GNOME Shell
       dnf builddep -y mutter --setopt=install_weak_deps=False &&
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
 
