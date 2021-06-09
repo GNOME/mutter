@@ -49,6 +49,8 @@ char * meta_screen_cast_session_get_object_path (MetaScreenCastSession *session)
 
 char * meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session);
 
+MetaScreenCastSessionType meta_screen_cast_session_get_session_type (MetaScreenCastSession *session);
+
 MetaScreenCastSession * meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
                                                       MetaScreenCastSessionType   session_type,
                                                       const char                 *peer_name,
