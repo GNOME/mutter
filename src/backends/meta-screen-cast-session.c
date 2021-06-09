@@ -194,6 +194,12 @@ meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session)
   return session->peer_name;
 }
 
+MetaScreenCastSessionType
+meta_screen_cast_session_get_session_type (MetaScreenCastSession *session)
+{
+  return session->session_type;
+}
+
 static gboolean
 check_permission (MetaScreenCastSession *session,
                   GDBusMethodInvocation *invocation)

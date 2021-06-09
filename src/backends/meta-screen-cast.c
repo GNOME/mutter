@@ -323,14 +323,23 @@ meta_screen_cast_finalize (GObject *object)
   if (screen_cast->dbus_name_id)
     g_bus_unown_name (screen_cast->dbus_name_id);
 
+  g_assert (!screen_cast->sessions);
+
+  G_OBJECT_CLASS (meta_screen_cast_parent_class)->finalize (object);
+}
+
+static void
+on_prepare_shutdown (MetaBackend    *backend,
+                     MetaScreenCast *screen_cast)
+{
   while (screen_cast->sessions)
     {
       MetaScreenCastSession *session = screen_cast->sessions->data;
 
-      meta_screen_cast_session_close (session);
+      if (meta_screen_cast_session_get_session_type (session) !=
+          META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP)
+        meta_screen_cast_session_close (session);
     }
-
-  G_OBJECT_CLASS (meta_screen_cast_parent_class)->finalize (object);
 }
 
 MetaScreenCast *
@@ -342,6 +351,10 @@ meta_screen_cast_new (MetaBackend            *backend,
   screen_cast = g_object_new (META_TYPE_SCREEN_CAST, NULL);
   screen_cast->backend = backend;
   screen_cast->session_watcher = session_watcher;
+
+  g_signal_connect (backend, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown),
+                    screen_cast);
 
   return screen_cast;
 }
