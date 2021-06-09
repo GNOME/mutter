@@ -829,10 +829,22 @@ static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
+  GList *l;
 
   g_list_free (renderer_native->pending_mode_set_views);
-  renderer_native->pending_mode_set_views =
-    g_list_copy (meta_renderer_get_views (renderer));
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      CoglFramebuffer *framebuffer =
+        clutter_stage_view_get_onscreen (stage_view);
+
+      if (COGL_IS_ONSCREEN (framebuffer))
+        {
+          renderer_native->pending_mode_set_views =
+            g_list_prepend (renderer_native->pending_mode_set_views,
+                            stage_view);
+        }
+    }
   renderer_native->pending_mode_set = TRUE;
 
   meta_topic (META_DEBUG_KMS, "Queue mode set");
