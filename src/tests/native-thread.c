@@ -330,6 +330,68 @@ multiple_async_feedback_func3 (gpointer      retval,
   g_main_loop_quit (async_data->loop);
 }
 
+typedef struct
+{
+  MetaThread *thread;
+
+  GMutex mutex;
+  int state;
+} MixedData;
+
+static gpointer
+mixed_async_func (MetaThreadImpl  *thread_impl,
+                  gpointer         user_data,
+                  GError         **error)
+{
+  MixedData *mixed_data = user_data;
+
+  meta_assert_in_thread_impl (mixed_data->thread);
+
+  g_mutex_lock (&mixed_data->mutex);
+  g_assert_cmpint (mixed_data->state, ==, 0);
+  mixed_data->state = 1;
+  g_mutex_unlock (&mixed_data->mutex);
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED, "Sample error");
+  return GINT_TO_POINTER (1);
+}
+
+static void
+mixed_async_feedback_func (gpointer      retval,
+                           const GError *error,
+                           gpointer      user_data)
+{
+  MixedData *mixed_data = user_data;
+
+  meta_assert_not_in_thread_impl (mixed_data->thread);
+
+  g_assert_true (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED));
+  g_assert_cmpint (GPOINTER_TO_INT (retval), ==, 1);
+
+  g_mutex_lock (&mixed_data->mutex);
+  g_assert_cmpint (mixed_data->state, ==, 2);
+  mixed_data->state = 3;
+  g_mutex_unlock (&mixed_data->mutex);
+}
+
+static gpointer
+mixed_sync_func (MetaThreadImpl  *thread_impl,
+                 gpointer         user_data,
+                 GError         **error)
+{
+  MixedData *mixed_data = user_data;
+
+  meta_assert_in_thread_impl (mixed_data->thread);
+
+  g_mutex_lock (&mixed_data->mutex);
+  g_assert_cmpint (mixed_data->state, ==, 1);
+  mixed_data->state = 2;
+  g_mutex_unlock (&mixed_data->mutex);
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK, "Sample error");
+  return GINT_TO_POINTER (2);
+}
+
 static void
 run_thread_tests (MetaThread *thread)
 {
@@ -342,6 +404,7 @@ run_thread_tests (MetaThread *thread)
   PipeData pipe_data;
   IdleData idle_data;
   AsyncData async_data;
+  MixedData mixed_data;
 
   meta_assert_not_in_thread_impl (thread);
 
@@ -432,6 +495,30 @@ run_thread_tests (MetaThread *thread)
   g_mutex_unlock (&async_data.mutex);
   g_main_loop_unref (async_data.loop);
   g_mutex_clear (&async_data.mutex);
+
+  /* Async task followed by sync task */
+  g_debug ("Test mixed async and sync tasks");
+  mixed_data = (MixedData) { 0 };
+  g_mutex_init (&mixed_data.mutex);
+  mixed_data.thread = thread;
+  g_mutex_lock (&mixed_data.mutex);
+  meta_thread_post_impl_task (thread, mixed_async_func, &mixed_data,
+                              mixed_async_feedback_func, &mixed_data);
+  g_assert_cmpint (mixed_data.state, ==, 0);
+  g_mutex_unlock (&mixed_data.mutex);
+  retval = meta_thread_run_impl_task_sync (thread, mixed_sync_func, &mixed_data,
+                                           &error);
+  g_mutex_lock (&mixed_data.mutex);
+  g_assert_cmpint (mixed_data.state, ==, 2);
+  g_assert_cmpint (GPOINTER_TO_INT (retval), ==, 2);
+  g_assert_true (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK));
+  g_clear_error (&error);
+  g_mutex_unlock (&mixed_data.mutex);
+  meta_thread_flush_callbacks (thread);
+  g_mutex_lock (&mixed_data.mutex);
+  g_assert_cmpint (mixed_data.state, ==, 3);
+  g_mutex_unlock (&mixed_data.mutex);
+  g_mutex_clear (&mixed_data.mutex);
 }
 
 static void
