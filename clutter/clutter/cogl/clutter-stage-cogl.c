@@ -541,12 +541,12 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
       };
       fb_clip_region = cairo_region_create_rectangle (&fb_rect);
 
+      g_clear_pointer (&redraw_clip, cairo_region_destroy);
+      redraw_clip = cairo_region_create_rectangle (&view_rect);
+
       if (G_UNLIKELY (clutter_paint_debug_flags &
                       CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
         queued_redraw_clip = cairo_region_reference (redraw_clip);
-
-      g_clear_pointer (&redraw_clip, cairo_region_destroy);
-      redraw_clip = cairo_region_create_rectangle (&view_rect);
     }
 
   g_return_if_fail (!cairo_region_is_empty (fb_clip_region));
