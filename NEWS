@@ -1,3 +1,20 @@
+40.2
+====
+* Fix mouse position in remote desktop with fractional scaling [Pascal; !1867]
+* Fix fd leak [Carlos; !1875]
+* Disable KMS modifiers on radeon driver [Carlos; !1872]
+* Fix adding virtual monitor to physical session [Jonas; !1891]
+* Unbreak press-drag-release to pop up and select right click menus
+  [Carlos; !1885]
+* Fix VKMS detection [Jonas; !1892]
+* Misc. bug fixes [Jonas, Daniel, Florian; !1876, !1873, !1890, !1884]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Florian Müllner, Pascal Nowack, Daniel van Vugt
+
+Translators:
+  Pawan Chitrakar [ne], Charles Monzat [fr]
+
 40.1
 ====
 * Prevent clients from pasting old selection data [Carlos; !1772]
