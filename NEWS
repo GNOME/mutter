@@ -1,3 +1,14 @@
+3.38.5
+======
+* xwayland: Check permissions on /tmp/.X11-unix [Jonas, Olivier; !1788]
+* Ensure valid window texture size after viewport changes [Robert; !1808]
+* kms: Don't add common modes that exceed the max bandwidth [Robert; !1834]
+* Misc. bug fixes [Jonas, Robert; !1825, !1837]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Robert Mader
+
+
 3.38.4
 ======
 * Do not ping unmanaging windows [Florian; gnome-shell#2467]
