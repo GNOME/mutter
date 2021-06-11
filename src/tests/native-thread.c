@@ -32,6 +32,27 @@
 static MetaContext *test_context;
 static MetaThread *test_thread;
 
+static gboolean
+quit_main_loop (gpointer user_data)
+{
+  GMainLoop *loop = user_data;
+
+  g_main_loop_quit (loop);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+quit_main_loop_in_idle (GMainLoop *loop)
+{
+  GSource *idle_source;
+
+  idle_source = g_idle_source_new ();
+  g_source_set_callback (idle_source, quit_main_loop, loop, NULL);
+  g_source_attach (idle_source, g_main_loop_get_context (loop));
+  g_source_unref (idle_source);
+}
+
 static gpointer
 impl_func (MetaThreadImpl  *thread_impl,
            gpointer         user_data,
@@ -111,7 +132,7 @@ dispatch_pipe (MetaThreadImpl  *thread_impl,
                          sizeof (pipe_data->read_value)),
                    ==,
                    sizeof (pipe_data->read_value));
-  g_main_loop_quit (pipe_data->loop);
+  quit_main_loop_in_idle (pipe_data->loop);
   g_source_destroy (pipe_data->source);
   g_source_unref (pipe_data->source);
 
@@ -171,7 +192,7 @@ idle_data_destroy (gpointer user_data)
   g_assert_cmpint (idle_data->state, ==, 2);
   idle_data->state = 3;
 
-  g_main_loop_quit (idle_data->loop);
+  quit_main_loop_in_idle (idle_data->loop);
 }
 
 static gpointer
