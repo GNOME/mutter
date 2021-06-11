@@ -74,6 +74,9 @@ META_EXPORT_TEST
 MetaBackend * meta_thread_get_backend (MetaThread *thread);
 
 META_EXPORT_TEST
+const char * meta_thread_get_name (MetaThread *thread);
+
+META_EXPORT_TEST
 gboolean meta_thread_is_in_impl_task (MetaThread *thread);
 
 gboolean meta_thread_is_waiting_for_impl_task (MetaThread *thread);

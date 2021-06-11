@@ -176,9 +176,13 @@ meta_thread_impl_constructed (GObject *object)
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
   GSource *source;
+  g_autofree char *source_name = NULL;
   MetaThreadImplSource *impl_source;
 
   source = g_source_new (&impl_source_funcs, sizeof (MetaThreadImplSource));
+  source_name = g_strdup_printf ("MetaThreadImpl '%s' task source",
+                                 meta_thread_get_name (priv->thread));
+  g_source_set_name (source, source_name);
   impl_source = (MetaThreadImplSource *) source;
   impl_source->thread_impl = thread_impl;
   g_source_attach (source, priv->thread_context);
@@ -323,13 +327,16 @@ meta_thread_impl_add_source (MetaThreadImpl *thread_impl,
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
   GSource *source;
+  g_autofree char *source_name = NULL;
   MetaThreadImplIdleSource *impl_idle_source;
 
   meta_assert_in_thread_impl (priv->thread);
 
   source = g_source_new (&impl_idle_source_funcs,
                          sizeof (MetaThreadImplIdleSource));
-  g_source_set_name (source, "[mutter] MetaThreadImpl idle source");
+  source_name = g_strdup_printf ("[mutter] MetaThreadImpl '%s' idle source",
+                                 meta_thread_get_name (priv->thread));
+  g_source_set_name (source, source_name);
   impl_idle_source = (MetaThreadImplIdleSource *) source;
   impl_idle_source->thread_impl = thread_impl;
 
@@ -415,13 +422,16 @@ meta_thread_impl_register_fd (MetaThreadImpl     *thread_impl,
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
   GSource *source;
+  g_autofree char *source_name = NULL;
   MetaThreadImplFdSource *impl_fd_source;
 
   meta_assert_in_thread_impl (priv->thread);
 
   source = g_source_new (&impl_fd_source_funcs,
                          sizeof (MetaThreadImplFdSource));
-  g_source_set_name (source, "[mutter] MetaThreadImpl fd source");
+  source_name = g_strdup_printf ("[mutter] MetaThreadImpl '%s' fd source",
+                                 meta_thread_get_name (priv->thread));
+  g_source_set_name (source, source_name);
   impl_fd_source = (MetaThreadImplFdSource *) source;
   impl_fd_source->dispatch = dispatch;
   impl_fd_source->user_data = user_data;

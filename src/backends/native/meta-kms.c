@@ -435,6 +435,7 @@ meta_kms_new (MetaBackend   *backend,
   kms = g_initable_new (META_TYPE_KMS,
                         NULL, error,
                         "backend", backend,
+                        "name", "KMS thread",
                         NULL);
   kms->flags = flags;
 

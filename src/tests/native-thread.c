@@ -552,11 +552,13 @@ meta_test_thread_user_common (void)
   thread = g_initable_new (META_TYPE_THREAD_TEST,
                            NULL, &error,
                            "backend", backend,
+                           "name", "test user thread",
                            NULL);
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
   g_assert_null (error);
   g_assert (meta_thread_get_backend (thread) == backend);
+  g_assert_cmpstr (meta_thread_get_name (thread), ==, "test user thread");
   test_thread = thread;
 
   run_thread_tests (thread);
@@ -589,6 +591,7 @@ meta_test_thread_user_late_callbacks (void)
   thread = g_initable_new (META_TYPE_THREAD_TEST,
                            NULL, &error,
                            "backend", backend,
+                           "name", "test late callback",
                            NULL);
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);

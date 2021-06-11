@@ -30,6 +30,7 @@ enum
   PROP_0,
 
   PROP_BACKEND,
+  PROP_NAME,
 
   N_PROPS
 };
@@ -46,6 +47,7 @@ typedef struct _MetaThreadCallbackData
 typedef struct _MetaThreadPrivate
 {
   MetaBackend *backend;
+  char *name;
 
   GMainContext *main_context;
 
@@ -92,6 +94,9 @@ meta_thread_get_property (GObject    *object,
     case PROP_BACKEND:
       g_value_set_object (value, priv->backend);
       break;
+    case PROP_NAME:
+      g_value_set_string (value, priv->name);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -111,6 +116,9 @@ meta_thread_set_property (GObject      *object,
     {
     case PROP_BACKEND:
       priv->backend = g_value_get_object (value);
+      break;
+    case PROP_NAME:
+      priv->name = g_value_dup_string (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -161,6 +169,7 @@ meta_thread_finalize (GObject *object)
   g_clear_handle_id (&priv->callbacks_source_id, g_source_remove);
 
   g_clear_object (&priv->impl);
+  g_clear_pointer (&priv->name, g_free);
 
   G_OBJECT_CLASS (meta_thread_parent_class)->finalize (object);
 }
@@ -179,6 +188,15 @@ meta_thread_class_init (MetaThreadClass *klass)
                          "backend",
                          "MetaBackend",
                          META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_NAME] =
+    g_param_spec_string ("name",
+                         "name",
+                         "Name of thread",
+                         NULL,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -337,6 +355,14 @@ meta_thread_get_backend (MetaThread *thread)
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
 
   return priv->backend;
+}
+
+const char *
+meta_thread_get_name (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  return priv->name;
 }
 
 gboolean
