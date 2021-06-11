@@ -54,6 +54,7 @@ typedef struct _MetaThreadPrivate
   MetaThreadImpl *impl;
   gboolean waiting_for_impl_task;
 
+  GMutex callbacks_mutex;
   GList *pending_callbacks;
   guint callbacks_source_id;
 } MetaThreadPrivate;
@@ -166,10 +167,11 @@ meta_thread_finalize (GObject *object)
 
   while (meta_thread_impl_dispatch (priv->impl) > 0);
   meta_thread_flush_callbacks (thread);
-  g_clear_handle_id (&priv->callbacks_source_id, g_source_remove);
 
   g_clear_object (&priv->impl);
   g_clear_pointer (&priv->name, g_free);
+
+  g_mutex_clear (&priv->callbacks_mutex);
 
   G_OBJECT_CLASS (meta_thread_parent_class)->finalize (object);
 }
@@ -207,6 +209,9 @@ meta_thread_class_init (MetaThreadClass *klass)
 static void
 meta_thread_init (MetaThread *thread)
 {
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  g_mutex_init (&priv->callbacks_mutex);
 }
 
 void
@@ -221,16 +226,14 @@ meta_thread_class_register_impl_type (MetaThreadClass *thread_class,
   class_priv->impl_type = impl_type;
 }
 
-int
-meta_thread_flush_callbacks (MetaThread *thread)
+static int
+dispatch_callbacks (MetaThread *thread,
+                    GList      *pending_callbacks)
 {
-  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
-  GList *l;
   int callback_count = 0;
+  GList *l;
 
-  meta_assert_not_in_thread_impl (thread);
-
-  for (l = priv->pending_callbacks; l; l = l->next)
+  for (l = pending_callbacks; l; l = l->next)
     {
       MetaThreadCallbackData *callback_data = l->data;
 
@@ -239,10 +242,23 @@ meta_thread_flush_callbacks (MetaThread *thread)
       callback_count++;
     }
 
-  g_list_free (priv->pending_callbacks);
-  priv->pending_callbacks = NULL;
-
   return callback_count;
+}
+
+int
+meta_thread_flush_callbacks (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (GList) pending_callbacks = NULL;
+
+  meta_assert_not_in_thread_impl (thread);
+
+  g_mutex_lock (&priv->callbacks_mutex);
+  pending_callbacks = g_steal_pointer (&priv->pending_callbacks);
+  g_clear_handle_id (&priv->callbacks_source_id, g_source_remove);
+  g_mutex_unlock (&priv->callbacks_mutex);
+
+  return dispatch_callbacks (thread, pending_callbacks);
 }
 
 static gboolean
@@ -250,10 +266,17 @@ callback_idle (gpointer user_data)
 {
   MetaThread *thread = user_data;
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (GList) pending_callbacks = NULL;
 
-  meta_thread_flush_callbacks (thread);
+  meta_assert_not_in_thread_impl (thread);
 
+  g_mutex_lock (&priv->callbacks_mutex);
+  pending_callbacks = g_steal_pointer (&priv->pending_callbacks);
   priv->callbacks_source_id = 0;
+  g_mutex_unlock (&priv->callbacks_mutex);
+
+  dispatch_callbacks (thread, pending_callbacks);
+
   return G_SOURCE_REMOVE;
 }
 
@@ -272,6 +295,8 @@ meta_thread_queue_callback (MetaThread         *thread,
     .user_data = user_data,
     .user_data_destroy = user_data_destroy,
   };
+
+  g_mutex_lock (&priv->callbacks_mutex);
   priv->pending_callbacks = g_list_append (priv->pending_callbacks,
                                            callback_data);
   if (!priv->callbacks_source_id)
@@ -284,6 +309,7 @@ meta_thread_queue_callback (MetaThread         *thread,
                                                    priv->main_context);
       g_source_unref (idle_source);
     }
+  g_mutex_unlock (&priv->callbacks_mutex);
 }
 
 typedef struct _MetaSyncTaskData
