@@ -23,7 +23,9 @@
 
 #include <glib-object.h>
 
-#include "backends/native/meta-thread.h"
+#include "backends/native/meta-thread-private.h"
+
+#define META_THREAD_IMPL_TERMINATE ((gpointer) 1)
 
 enum
 {
@@ -46,6 +48,8 @@ typedef struct _MetaThreadImplSource
 typedef struct _MetaThreadImplPrivate
 {
   MetaThread *thread;
+
+  GMainLoop *loop;
 
   gboolean in_impl_task;
 
@@ -202,6 +206,7 @@ meta_thread_impl_finalize (GObject *object)
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
+  g_clear_pointer (&priv->loop, g_main_loop_unref);
   g_clear_pointer (&priv->impl_source, g_source_destroy);
   g_clear_pointer (&priv->task_queue, g_async_queue_unref);
   g_clear_pointer (&priv->thread_context, g_main_context_unref);
@@ -444,13 +449,31 @@ meta_thread_impl_register_fd (MetaThreadImpl     *thread_impl,
   return source;
 }
 
+void
+meta_thread_impl_terminate (MetaThreadImpl *thread_impl)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  g_async_queue_push (priv->task_queue, META_THREAD_IMPL_TERMINATE);
+  g_main_context_wakeup (priv->thread_context);
+}
+
 gboolean
 meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl)
 {
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
-  return priv->in_impl_task;
+  switch (meta_thread_get_thread_type (priv->thread))
+    {
+    case META_THREAD_TYPE_USER:
+      return priv->in_impl_task;
+    case META_THREAD_TYPE_KERNEL:
+      return meta_thread_get_thread (priv->thread) == g_thread_self ();
+    }
+
+  g_assert_not_reached ();
 }
 
 static void
@@ -476,6 +499,13 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
   task = g_async_queue_try_pop (priv->task_queue);
   if (!task)
     return 0;
+
+  if (task == META_THREAD_IMPL_TERMINATE)
+    {
+      if (priv->loop)
+        g_main_loop_quit (priv->loop);
+      return 0;
+    }
 
   priv->in_impl_task = TRUE;
   retval = task->func (thread_impl, task->user_data, &error);
@@ -503,6 +533,18 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
   priv->in_impl_task = FALSE;
 
   return 1;
+}
+
+void
+meta_thread_impl_run (MetaThreadImpl *thread_impl)
+{
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  meta_assert_in_thread_impl (priv->thread);
+
+  priv->loop = g_main_loop_new (priv->thread_context, FALSE);
+  g_main_loop_run (priv->loop);
 }
 
 void

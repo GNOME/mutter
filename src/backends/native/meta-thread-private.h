@@ -28,4 +28,9 @@ META_EXPORT_TEST
 void meta_thread_class_register_impl_type (MetaThreadClass *thread_class,
                                            GType            impl_type);
 
+META_EXPORT_TEST
+MetaThreadType meta_thread_get_thread_type (MetaThread *thread);
+
+GThread * meta_thread_get_thread (MetaThread *thread);
+
 #endif /* META_THREAD_PRIVATE_H */

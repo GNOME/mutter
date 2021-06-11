@@ -27,6 +27,12 @@
 
 typedef struct _MetaThreadImpl MetaThreadImpl;
 
+typedef enum _MetaThreadType
+{
+  META_THREAD_TYPE_KERNEL,
+  META_THREAD_TYPE_USER,
+} MetaThreadType;
+
 #define META_TYPE_THREAD (meta_thread_get_type ())
 META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaThread, meta_thread,

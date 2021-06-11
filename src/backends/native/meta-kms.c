@@ -436,6 +436,7 @@ meta_kms_new (MetaBackend   *backend,
                         NULL, error,
                         "backend", backend,
                         "name", "KMS thread",
+                        "thread-type", META_THREAD_TYPE_USER,
                         NULL);
   kms->flags = flags;
 

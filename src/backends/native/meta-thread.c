@@ -25,12 +25,15 @@
 #include "backends/meta-backend-types.h"
 #include "backends/native/meta-thread-impl.h"
 
+#include "meta-private-enum-types.h"
+
 enum
 {
   PROP_0,
 
   PROP_BACKEND,
   PROP_NAME,
+  PROP_THREAD_TYPE,
 
   N_PROPS
 };
@@ -57,6 +60,13 @@ typedef struct _MetaThreadPrivate
   GMutex callbacks_mutex;
   GList *pending_callbacks;
   guint callbacks_source_id;
+
+  MetaThreadType thread_type;
+
+  struct {
+    GThread *thread;
+    GMutex init_mutex;
+  } kernel;
 } MetaThreadPrivate;
 
 typedef struct _MetaThreadClassPrivate
@@ -98,6 +108,9 @@ meta_thread_get_property (GObject    *object,
     case PROP_NAME:
       g_value_set_string (value, priv->name);
       break;
+    case PROP_THREAD_TYPE:
+      g_value_set_enum (value, priv->thread_type);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -121,10 +134,27 @@ meta_thread_set_property (GObject      *object,
     case PROP_NAME:
       priv->name = g_value_dup_string (value);
       break;
+    case PROP_THREAD_TYPE:
+      priv->thread_type = g_value_get_enum (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
+}
+
+static gpointer
+thread_impl_func (gpointer user_data)
+{
+  MetaThread *thread = META_THREAD (user_data);
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  g_mutex_lock (&priv->kernel.init_mutex);
+  g_mutex_unlock (&priv->kernel.init_mutex);
+
+  meta_thread_impl_run (priv->impl);
+
+  return GINT_TO_POINTER (TRUE);
 }
 
 static gboolean
@@ -142,13 +172,35 @@ meta_thread_initable_init (GInitable     *initable,
 
   priv->main_context = g_main_context_default ();
 
-  thread_context = g_main_context_ref (priv->main_context);
+  switch (priv->thread_type)
+    {
+    case META_THREAD_TYPE_USER:
+      thread_context = g_main_context_ref (priv->main_context);
+      break;
+    case META_THREAD_TYPE_KERNEL:
+      thread_context = g_main_context_new ();
+      break;
+    }
 
   g_assert (g_type_is_a (class_priv->impl_type, META_TYPE_THREAD_IMPL));
   priv->impl = g_object_new (class_priv->impl_type,
                              "thread", thread,
                              "main-context", thread_context,
                              NULL);
+
+  switch (priv->thread_type)
+    {
+    case META_THREAD_TYPE_USER:
+      break;
+    case META_THREAD_TYPE_KERNEL:
+      g_mutex_init (&priv->kernel.init_mutex);
+      g_mutex_lock (&priv->kernel.init_mutex);
+      priv->kernel.thread = g_thread_new (priv->name,
+                                          thread_impl_func,
+                                          thread);
+      g_mutex_unlock (&priv->kernel.init_mutex);
+      break;
+    }
 
   return TRUE;
 }
@@ -160,12 +212,41 @@ initable_iface_init (GInitableIface *initable_iface)
 }
 
 static void
+finalize_thread_user (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  while (meta_thread_impl_dispatch (priv->impl) > 0);
+}
+
+static void
+finalize_thread_kernel (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  meta_thread_impl_terminate (priv->impl);
+  g_thread_join (priv->kernel.thread);
+  priv->kernel.thread = NULL;
+  g_mutex_clear (&priv->kernel.init_mutex);
+}
+
+
+static void
 meta_thread_finalize (GObject *object)
 {
   MetaThread *thread = META_THREAD (object);
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
 
-  while (meta_thread_impl_dispatch (priv->impl) > 0);
+  switch (priv->thread_type)
+    {
+    case META_THREAD_TYPE_USER:
+      finalize_thread_user (thread);
+      break;
+    case META_THREAD_TYPE_KERNEL:
+      finalize_thread_kernel (thread);
+      break;
+    }
+
   meta_thread_flush_callbacks (thread);
 
   g_clear_object (&priv->impl);
@@ -202,6 +283,16 @@ meta_thread_class_init (MetaThreadClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_THREAD_TYPE] =
+    g_param_spec_enum ("thread-type",
+                       "thread-type",
+                       "Type of thread",
+                       META_TYPE_THREAD_TYPE,
+                       META_THREAD_TYPE_KERNEL,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
@@ -317,12 +408,16 @@ typedef struct _MetaSyncTaskData
   gboolean done;
   GError *error;
   gpointer retval;
+  struct {
+    GMutex mutex;
+    GCond cond;
+  } kernel;
 } MetaSyncTaskData;
 
 static void
-sync_task_done_in_impl (gpointer      retval,
-                        const GError *error,
-                        gpointer      user_data)
+sync_task_done_user_in_impl (gpointer        retval,
+                             const GError   *error,
+                             gpointer        user_data)
 {
   MetaSyncTaskData *data = user_data;
 
@@ -331,18 +426,18 @@ sync_task_done_in_impl (gpointer      retval,
   data->error = error ? g_error_copy (error) : NULL;
 }
 
-gpointer
-meta_thread_run_impl_task_sync (MetaThread          *thread,
-                                MetaThreadTaskFunc   func,
-                                gpointer             user_data,
-                                GError             **error)
+static gpointer
+run_impl_task_sync_user (MetaThread          *thread,
+                         MetaThreadTaskFunc   func,
+                         gpointer             user_data,
+                         GError             **error)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   MetaThreadTask *task;
   MetaSyncTaskData data = { 0 };
 
   task = meta_thread_task_new (func, user_data,
-                               sync_task_done_in_impl, &data,
+                               sync_task_done_user_in_impl, &data,
                                META_THREAD_TASK_FEEDBACK_TYPE_IMPL);
   meta_thread_impl_queue_task (priv->impl, task);
 
@@ -357,6 +452,77 @@ meta_thread_run_impl_task_sync (MetaThread          *thread,
     g_clear_error (&data.error);
 
   return data.retval;
+}
+
+static void
+sync_task_done_kernel_in_impl (gpointer      retval,
+                               const GError *error,
+                               gpointer      user_data)
+{
+  MetaSyncTaskData *data = user_data;
+
+  g_mutex_lock (&data->kernel.mutex);
+  data->done = TRUE;
+  data->retval = retval;
+  data->error = error ? g_error_copy (error) : NULL;
+  g_cond_signal (&data->kernel.cond);
+  g_mutex_unlock (&data->kernel.mutex);
+}
+
+static gpointer
+run_impl_task_sync_kernel (MetaThread          *thread,
+                           MetaThreadTaskFunc   func,
+                           gpointer             user_data,
+                           GError             **error)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  MetaThreadTask *task;
+  MetaSyncTaskData data = { 0 };
+
+  g_mutex_init (&data.kernel.mutex);
+  g_cond_init (&data.kernel.cond);
+
+  g_mutex_lock (&data.kernel.mutex);
+  priv->waiting_for_impl_task = TRUE;
+
+  task = meta_thread_task_new (func, user_data,
+                               sync_task_done_kernel_in_impl, &data,
+                               META_THREAD_TASK_FEEDBACK_TYPE_IMPL);
+  meta_thread_impl_queue_task (priv->impl, task);
+
+  while (!data.done)
+    g_cond_wait (&data.kernel.cond, &data.kernel.mutex);
+  priv->waiting_for_impl_task = FALSE;
+  g_mutex_unlock (&data.kernel.mutex);
+
+  g_mutex_clear (&data.kernel.mutex);
+  g_cond_clear (&data.kernel.cond);
+
+  if (error)
+    *error = data.error;
+  else
+    g_clear_error (&data.error);
+
+  return data.retval;
+}
+
+gpointer
+meta_thread_run_impl_task_sync (MetaThread          *thread,
+                                MetaThreadTaskFunc   func,
+                                gpointer             user_data,
+                                GError             **error)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  switch (priv->thread_type)
+    {
+    case META_THREAD_TYPE_USER:
+      return run_impl_task_sync_user (thread, func, user_data, error);
+    case META_THREAD_TYPE_KERNEL:
+      return run_impl_task_sync_kernel (thread, func, user_data, error);
+    }
+
+  g_assert_not_reached ();
 }
 
 void
@@ -389,6 +555,24 @@ meta_thread_get_name (MetaThread *thread)
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
 
   return priv->name;
+}
+
+MetaThreadType
+meta_thread_get_thread_type (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  return priv->thread_type;
+}
+
+GThread *
+meta_thread_get_thread (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  g_assert (priv->thread_type == META_THREAD_TYPE_KERNEL);
+
+  return priv->kernel.thread;
 }
 
 gboolean

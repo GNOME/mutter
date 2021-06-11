@@ -23,8 +23,8 @@
 #include <glib.h>
 #include <glib-unix.h>
 
-#include "backends/native/meta-thread.h"
 #include "backends/native/meta-thread-impl.h"
+#include "backends/native/meta-thread-private.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-thread-impl-test.h"
 #include "tests/meta-thread-test.h"
@@ -156,6 +156,7 @@ register_fd_func (MetaThreadImpl  *thread_impl,
 
 typedef struct
 {
+  MetaThread *thread;
   GMainLoop *loop;
 
   int state;
@@ -186,8 +187,9 @@ idle_data_destroy (gpointer user_data)
 {
   IdleData *idle_data = user_data;
 
-  /* XXX: This can only be checked on kernel type threads. */
-  /* meta_assert_in_thread_impl (test_thread); */
+  if (meta_thread_get_thread_type (idle_data->thread) ==
+      META_THREAD_TYPE_KERNEL)
+    meta_assert_in_thread_impl (test_thread);
 
   g_assert_cmpint (idle_data->state, ==, 2);
   idle_data->state = 3;
@@ -471,6 +473,7 @@ run_thread_tests (MetaThread *thread)
   /* Test idle source */
   g_debug ("Test idle source");
   idle_data = (IdleData) { 0 };
+  idle_data.thread = thread;
   idle_data.loop = g_main_loop_new (NULL, FALSE);
   meta_thread_run_impl_task_sync (thread, add_idle_func, &idle_data, NULL);
   g_main_loop_run (idle_data.loop);
@@ -553,12 +556,40 @@ meta_test_thread_user_common (void)
                            NULL, &error,
                            "backend", backend,
                            "name", "test user thread",
+                           "thread-type", META_THREAD_TYPE_USER,
                            NULL);
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
   g_assert_null (error);
   g_assert (meta_thread_get_backend (thread) == backend);
   g_assert_cmpstr (meta_thread_get_name (thread), ==, "test user thread");
+  test_thread = thread;
+
+  run_thread_tests (thread);
+
+  g_object_unref (thread);
+  g_assert_null (thread);
+  test_thread = NULL;
+}
+
+static void
+meta_test_thread_kernel_common (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaThread *thread;
+  g_autoptr (GError) error = NULL;
+
+  thread = g_initable_new (META_TYPE_THREAD_TEST,
+                           NULL, &error,
+                           "backend", backend,
+                           "name", "test kernel thread",
+                           "thread-type", META_THREAD_TYPE_KERNEL,
+                           NULL);
+  g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
+  g_assert_nonnull (thread);
+  g_assert_null (error);
+  g_assert (meta_thread_get_backend (thread) == backend);
+  g_assert_cmpstr (meta_thread_get_name (thread), ==, "test kernel thread");
   test_thread = thread;
 
   run_thread_tests (thread);
@@ -581,7 +612,7 @@ late_callback (MetaThreadImpl  *thread_impl,
 }
 
 static void
-meta_test_thread_user_late_callbacks (void)
+meta_test_thread_late_callbacks_common (MetaThreadType thread_type)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaThread *thread;
@@ -592,6 +623,7 @@ meta_test_thread_user_late_callbacks (void)
                            NULL, &error,
                            "backend", backend,
                            "name", "test late callback",
+                           "thread-type", thread_type,
                            NULL);
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
@@ -605,12 +637,28 @@ meta_test_thread_user_late_callbacks (void)
 }
 
 static void
+meta_test_thread_user_late_callbacks (void)
+{
+  meta_test_thread_late_callbacks_common (META_THREAD_TYPE_USER);
+}
+
+static void
+meta_test_thread_kernel_late_callbacks (void)
+{
+  meta_test_thread_late_callbacks_common (META_THREAD_TYPE_KERNEL);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/thread/user/common",
                    meta_test_thread_user_common);
+  g_test_add_func ("/backends/native/thread/kernel/common",
+                   meta_test_thread_kernel_common);
   g_test_add_func ("/backends/native/thread/user/late-callbacks",
                    meta_test_thread_user_late_callbacks);
+  g_test_add_func ("/backends/native/thread/kernel/late-callbacks",
+                   meta_test_thread_kernel_late_callbacks);
 }
 
 int
