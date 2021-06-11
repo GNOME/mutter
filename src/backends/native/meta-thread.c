@@ -156,8 +156,8 @@ meta_thread_finalize (GObject *object)
   MetaThread *thread = META_THREAD (object);
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
 
-  g_clear_list (&priv->pending_callbacks,
-                (GDestroyNotify) meta_thread_callback_data_free);
+  while (meta_thread_impl_dispatch (priv->impl) > 0);
+  meta_thread_flush_callbacks (thread);
   g_clear_handle_id (&priv->callbacks_source_id, g_source_remove);
 
   g_clear_object (&priv->impl);

@@ -566,11 +566,48 @@ meta_test_thread_user_common (void)
   test_thread = NULL;
 }
 
+static gpointer
+late_callback (MetaThreadImpl  *thread_impl,
+               gpointer         user_data,
+               GError         **error)
+{
+  gboolean *done = user_data;
+
+  *done = TRUE;
+
+  return NULL;
+}
+
+static void
+meta_test_thread_user_late_callbacks (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaThread *thread;
+  g_autoptr (GError) error = NULL;
+  gboolean done = FALSE;
+
+  thread = g_initable_new (META_TYPE_THREAD_TEST,
+                           NULL, &error,
+                           "backend", backend,
+                           NULL);
+  g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
+  g_assert_nonnull (thread);
+  g_assert_null (error);
+
+  meta_thread_post_impl_task (thread, late_callback, &done, NULL, NULL);
+
+  g_object_unref (thread);
+  g_assert_null (thread);
+  g_assert_true (done);
+}
+
 static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/thread/user/common",
                    meta_test_thread_user_common);
+  g_test_add_func ("/backends/native/thread/user/late-callbacks",
+                   meta_test_thread_user_late_callbacks);
 }
 
 int

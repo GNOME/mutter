@@ -454,7 +454,7 @@ invoke_task_feedback (MetaThread *thread,
   task->feedback_func (task->retval, task->error, task->feedback_user_data);
 }
 
-void
+int
 meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
 {
   MetaThreadImplPrivate *priv =
@@ -463,7 +463,9 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
   gpointer retval;
   g_autoptr (GError) error = NULL;
 
-  task = g_async_queue_pop (priv->task_queue);
+  task = g_async_queue_try_pop (priv->task_queue);
+  if (!task)
+    return 0;
 
   priv->in_impl_task = TRUE;
   retval = task->func (thread_impl, task->user_data, &error);
@@ -489,6 +491,8 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
   g_clear_pointer (&task, meta_thread_task_free);
 
   priv->in_impl_task = FALSE;
+
+  return 1;
 }
 
 void

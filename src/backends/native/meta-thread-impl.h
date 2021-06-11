@@ -65,7 +65,7 @@ GSource * meta_thread_impl_register_fd (MetaThreadImpl     *thread_impl,
 void meta_thread_impl_queue_task (MetaThreadImpl *thread_impl,
                                   MetaThreadTask *task);
 
-void meta_thread_impl_dispatch (MetaThreadImpl *thread_impl);
+int meta_thread_impl_dispatch (MetaThreadImpl *thread_impl);
 
 gboolean meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl);
 
