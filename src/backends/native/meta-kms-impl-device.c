@@ -852,6 +852,19 @@ meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device)
   priv->fd_hold_count++;
 }
 
+static void
+clear_fd_source (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (!priv->fd_source)
+    return;
+
+  g_source_destroy (priv->fd_source);
+  g_clear_pointer (&priv->fd_source, g_source_unref);
+}
+
 void
 meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device)
 {
@@ -867,12 +880,7 @@ meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device)
   if (priv->fd_hold_count == 0)
     {
       g_clear_pointer (&priv->device_file, meta_device_file_release);
-
-      if (priv->fd_source)
-        {
-          g_source_destroy (priv->fd_source);
-          g_clear_pointer (&priv->fd_source, g_source_unref);
-        }
+      clear_fd_source (impl_device);
     }
 }
 
@@ -999,6 +1007,8 @@ meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device)
 
   if (klass->prepare_shutdown)
     klass->prepare_shutdown (impl_device);
+
+  clear_fd_source (impl_device);
 }
 
 static gboolean
