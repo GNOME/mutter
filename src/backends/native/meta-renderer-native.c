@@ -831,7 +831,7 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   GList *l;
 
-  g_list_free (renderer_native->pending_mode_set_views);
+  g_clear_list (&renderer_native->pending_mode_set_views, NULL);
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       ClutterStageView *stage_view = l->data;
