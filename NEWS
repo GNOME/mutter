@@ -1,3 +1,10 @@
+40.2.1
+======
+* Fixed crash [Jonas; !1895]
+
+Contributors:
+  Jonas Ådahl
+
 40.2
 ====
 * Fix mouse position in remote desktop with fractional scaling [Pascal; !1867]
