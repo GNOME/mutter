@@ -379,12 +379,28 @@ meta_monitor_manager_native_get_crtc_gamma (MetaMonitorManager  *manager,
                                             unsigned short     **green,
                                             unsigned short     **blue)
 {
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (manager);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtcGamma *crtc_gamma;
   MetaKmsCrtc *kms_crtc;
   const MetaKmsCrtcState *crtc_state;
 
   g_return_if_fail (META_IS_CRTC_KMS (crtc));
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  crtc_gamma =
+    meta_monitor_manager_native_get_cached_crtc_gamma (manager_native,
+                                                       crtc_kms);
+  if (crtc_gamma)
+    {
+      *size = crtc_gamma->size;
+      *red = g_memdup2 (crtc_gamma->red, *size * sizeof **red);
+      *green = g_memdup2 (crtc_gamma->green, *size * sizeof **green);
+      *blue = g_memdup2 (crtc_gamma->blue, *size * sizeof **blue);
+      return;
+    }
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
   *size = crtc_state->gamma.size;
