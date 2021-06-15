@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-03-30 20:11+0000\n"
-"PO-Revision-Date: 2020-04-05 22:21+0200\n"
+"POT-Creation-Date: 2021-05-14 16:19+0000\n"
+"PO-Revision-Date: 2021-06-15 08:07+0200\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
 "Language: sk\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -55,143 +55,163 @@ msgstr "Presunúť okno na posledný pracovný priestor"
 
 # description
 #: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Presunúť okno o jeden pracovný priestor vľavo"
+
+# description
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Presunúť okno o jeden pracovný priestor vpravo"
+
+# description
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "Presunúť okno o jeden pracovný priestor hore"
 
 # description
-#: data/50-mutter-navigation.xml:27
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "Presunúť okno o jeden pracovný priestor dolu"
 
 # description
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Presunúť okno o jeden monitor vľavo"
 
 # description
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Presunúť okno o jeden monitor vpravo"
 
 # description
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Presunúť okno o jeden monitor hore"
 
 # description
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Presunúť okno o jeden monitor dolu"
 
 # description
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Prepnúť aplikácie"
 
 # description
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Prepnúť na predchádzajúcu aplikáciu"
 
 # description
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Prepnúť okná"
 
 # description
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Prepnúť na predchádzajúce okno"
 
 # description
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Prepnúť okná aplikácie"
 
 # description
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Prepnúť na predchádzajúce okno aplikácie"
 
 # PK: predpokladam ze to prepisane medzi tlacidlami
 # description
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Prepnúť medzi ovládacími prvkami systému"
 
 # PK: predpokladam ze to prepisane medzi tlacidlami
 # description
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Prepnúť na predchádzajúci ovládací prvok systému"
 
 # description
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Prepnúť okná priamo"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Priamo prepnúť na predchádzajúce okno"
 
 # description
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Prepnúť okná aplikácie priamo"
 
 # description
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Priamo prepnúť na predchádzajúce okno aplikácie"
 
 # description
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Prepnúť medzi ovládacími prvkami systému priamo"
 
 # PK: predpokladam ze to prepisane medzi tlacidlami
 # description
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Priamo prepnúť na predchádzajúci ovládací prvok systému"
 
 # description
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Skryť všetky normálne okná"
 
 # description
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Prepnúť na pracovný priestor č. 1"
 
 # description
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Prepnúť na pracovný priestor č. 2"
 
 # description
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Prepnúť na pracovný priestor č. 3"
 
 # description
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Prepnúť na pracovný priestor č. 4"
 
 # description
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Prepnúť na posledný pracovný priestor"
 
 # description
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
+msgid "Move to workspace on the left"
+msgstr "Presunúť na pracovný priestor vľavo"
+
+# description
+#: data/50-mutter-navigation.xml:134
+msgid "Move to workspace on the right"
+msgstr "Presunúť na pracovný priestor vpravo"
+
+# description
+#: data/50-mutter-navigation.xml:138
 msgid "Move to workspace above"
 msgstr "Presunúť na pracovný priestor hore"
 
 # description
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:142
 msgid "Move to workspace below"
 msgstr "Presunúť na pracovný priestor dole"
 
@@ -293,12 +313,12 @@ msgid "Maximize window horizontally"
 msgstr "Maximalizovať okno vodorovne"
 
 # Description
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Zobraziť rozdelenie naľavo"
 
 # Description
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Zobraziť rozdelenie napravo"
 
@@ -470,112 +490,115 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:134
-msgid "Modifier to use to locate the pointer"
-msgstr "Modifikátor použitý na lokalizovanie ukazovateľa"
-
-#: data/org.gnome.mutter.gschema.xml.in:135
-msgid "This key will initiate the “locate pointer” action."
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:142
-msgid "Timeout for check-alive ping"
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:143
+msgid "Modifier to use to locate the pointer"
+msgstr "Modifikátor použitý na lokalizovanie ukazovateľa"
+
+#: data/org.gnome.mutter.gschema.xml.in:144
+msgid "This key will initiate the “locate pointer” action."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:151
+msgid "Timeout for check-alive ping"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Vybrať okno z rozbaľovacej ponuky tabulátora"
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Zrušit rozbaľovaciu ponuku tabulátora"
 
 # PK: predpokladam ze to prepisane medzi tlacidlami
 # description
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Prepnúť nastavenia monitorov"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Otočí nastavenie vstavaného monitora"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Prepnúť na VT č. 1"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Prepnúť na VT č. 2"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Prepnúť na VT č. 3"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Prepnúť na VT č. 4"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Prepnúť na VT č. 5"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Prepnúť na VT č. 6"
 
 # description
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Prepnúť na VT č. 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Prepnúť na VT č. 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Prepnúť na VT č. 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Prepnúť na VT č. 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Prepnúť na VT č. 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Prepnúť na VT č. 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Znovu povoliť klávesové skratky"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -585,71 +608,60 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2631
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Prepínač režimu (skupina č. %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr ""
 
-# PK: predpokladam ze to prepisane medzi tlacidlami
-# description
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2654
-msgid "Switch monitor"
-msgstr "Prepnúť monitor"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
 
-#: src/backends/meta-input-settings.c:2656
-msgid "Show on-screen help"
-msgstr "Zobraziť pomocníka na obrazovke"
-
-#: src/backends/meta-monitor.c:226
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Vstavaný displej"
 
-#: src/backends/meta-monitor.c:255
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Neznámy"
 
-#: src/backends/meta-monitor.c:257
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Neznámy displej"
 
-#: src/backends/meta-monitor.c:265
+#: src/backends/meta-monitor.c:274
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:273
+#: src/backends/meta-monitor.c:282
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
@@ -663,7 +675,7 @@ msgstr "Kompozítor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -675,53 +687,67 @@ msgid "Bell event"
 msgstr "Udalosť zvončeka"
 
 # cmd desc
-#: src/core/main.c:190
+#: src/core/main.c:233
 msgid "Disable connection to session manager"
 msgstr "Zakáže pripojenia k správcovi relácií"
 
 # cmd desc
-#: src/core/main.c:196
+#: src/core/main.c:239
 msgid "Replace the running window manager"
 msgstr "Nahradí bežiaceho správcu okien"
 
 # cmd desc
-#: src/core/main.c:202
+#: src/core/main.c:245
 msgid "Specify session management ID"
 msgstr "Zadá identifikátor správy relácií"
 
-#: src/core/main.c:207
+#: src/core/main.c:250
 msgid "X Display to use"
 msgstr "X displej, ktorý bude použitý"
 
 # cmd desc
-#: src/core/main.c:213
+#: src/core/main.c:256
 msgid "Initialize session from savefile"
 msgstr "Inicializuje reláciu z uloženého súboru"
 
 # cmd desc
-#: src/core/main.c:219
+#: src/core/main.c:262
 msgid "Make X calls synchronous"
 msgstr "Použije synchrónne volania X"
 
 # cmd desc
-#: src/core/main.c:226
+#: src/core/main.c:269
 msgid "Run as a wayland compositor"
 msgstr "Spustí ako kompozitor protokolu wayland"
 
 # cmd desc
-#: src/core/main.c:232
+#: src/core/main.c:275
 msgid "Run as a nested compositor"
 msgstr "Spustí ako kompozitor s vnoreným režimom"
 
-#: src/core/main.c:238
+#: src/core/main.c:281
 msgid "Run wayland compositor without starting Xwayland"
 msgstr ""
 
-#: src/core/main.c:246
+#: src/core/main.c:287
+msgid "Specify Wayland display name to use"
+msgstr ""
+
+#: src/core/main.c:295
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustí ako plnohodnotný zobrazovací server, namiesto vnoreného režimu"
 
-#: src/core/main.c:252
+#: src/core/main.c:300
+#, fuzzy
+#| msgid "Run as a full display server, rather than nested"
+msgid "Run as a headless display server"
+msgstr "Spustí ako plnohodnotný zobrazovací server, namiesto vnoreného režimu"
+
+#: src/core/main.c:305
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr ""
+
+#: src/core/main.c:311
 msgid "Run with X11 backend"
 msgstr "Spustí s obslužným programom X11"
 
@@ -751,41 +777,47 @@ msgstr "_Vynútiť ukončenie"
 msgid "_Wait"
 msgstr "_Počkať"
 
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:780
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Autorské práva © 2001-%d Havoc Pennington, Red Hat, Inc., a ostatní\n"
-"Toto je slobodný softvér; pozrite podmienky kopírovania v zdrojových "
-"kódoch.\n"
-"Záruka sa NEPOSKYTUJE; ani na PREDAJNOSŤ alebo VHODNOSŤ PRE URČITÝ ÚČEL.\n"
+msgid "Mode Switch (Group %d)"
+msgstr "Prepínač režimu (skupina č. %d)"
+
+# PK: predpokladam ze to prepisane medzi tlacidlami
+# description
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:803
+msgid "Switch monitor"
+msgstr "Prepnúť monitor"
+
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Show on-screen help"
+msgstr "Zobraziť pomocníka na obrazovke"
 
 # cmd desc
-#: src/core/mutter.c:52
+#: src/core/mutter.c:46
 msgid "Print version"
 msgstr "Zobrazí verziu"
 
 # cmd desc
-#: src/core/mutter.c:58
+#: src/core/mutter.c:52
 msgid "Mutter plugin to use"
 msgstr "Použije zásuvný modul Mutter"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1912
 #, c-format
 msgid "Workspace %d"
 msgstr "Pracovný priestor č. %d"
 
-#: src/core/util.c:122
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu\n"
+#: src/core/util.c:117
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Prepínač režimu: Režim č. %d"
@@ -799,27 +831,27 @@ msgstr ""
 "Displej „%s“ už má správcu okien. Skúste použiť prepínač --replace, aby sa "
 "aktuálny správca nahradil."
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Zlyhala inicializácia GDK\n"
+#: src/x11/meta-x11-display.c:1097
+msgid "Failed to initialize GDK"
+msgstr "Zlyhala inicializácia GDK"
 
 # X window system preloz, napr. system na spravu okien X
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1121
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1204
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Obrazovka č. %d na displeji „%s“ nie je platná\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Obrazovka č. %d na displeji „%s“ nie je platná"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formát %s nie je podporovaný"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1822
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -828,26 +860,23 @@ msgstr ""
 "prihlásení ich budete musieť znovu spustiť ručne."
 
 # window title; wm_client_machine
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
 
-# description
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Presunúť okno o jeden pracovný priestor vľavo"
-
-# description
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Presunúť okno o jeden pracovný priestor vpravo"
-
-# description
-#~ msgid "Move to workspace left"
-#~ msgstr "Presunúť na pracovný priestor vľavo"
-
-# description
-#~ msgid "Move to workspace right"
-#~ msgstr "Presunúť na pracovný priestor vpravo"
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Autorské práva © 2001-%d Havoc Pennington, Red Hat, Inc., a ostatní\n"
+#~ "Toto je slobodný softvér; pozrite podmienky kopírovania v zdrojových "
+#~ "kódoch.\n"
+#~ "Záruka sa NEPOSKYTUJE; ani na PREDAJNOSŤ alebo VHODNOSŤ PRE URČITÝ ÚČEL.\n"
 
 # description
 #~ msgid "Toggle shaded state"
