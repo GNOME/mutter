@@ -28,6 +28,7 @@
 #include "backends/native/meta-kms-types.h"
 
 #define META_TYPE_KMS_CONNECTOR (meta_kms_connector_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsConnector, meta_kms_connector,
                       META, KMS_CONNECTOR, GObject)
 
@@ -71,6 +72,7 @@ const char * meta_kms_connector_get_name (MetaKmsConnector *connector);
 gboolean meta_kms_connector_can_clone (MetaKmsConnector *connector,
                                        MetaKmsConnector *other_connector);
 
+META_EXPORT_TEST
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector);

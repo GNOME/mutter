@@ -23,6 +23,8 @@
 #include <glib-object.h>
 #include <stdint.h>
 
+#include "core/util-private.h"
+
 typedef enum _MetaDeviceFileFlags
 {
   META_DEVICE_FILE_FLAG_NONE = 0,
@@ -54,10 +56,12 @@ uint32_t meta_device_file_has_tag (MetaDeviceFile     *device_file,
 
 MetaDeviceFile * meta_device_file_acquire (MetaDeviceFile *file);
 
+META_EXPORT_TEST
 void meta_device_file_release (MetaDeviceFile *device_file);
 
 MetaDevicePool * meta_device_file_get_pool (MetaDeviceFile *device_file);
 
+META_EXPORT_TEST
 MetaDeviceFile * meta_device_pool_open (MetaDevicePool       *pool,
                                         const char           *path,
                                         MetaDeviceFileFlags   flags,

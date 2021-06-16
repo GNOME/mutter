@@ -89,8 +89,10 @@ GList * meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback);
 
 const GError * meta_kms_feedback_get_error (const MetaKmsFeedback *feedback);
 
+META_EXPORT_TEST
 MetaKmsUpdate * meta_kms_update_new (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 void meta_kms_update_free (MetaKmsUpdate *update);
 
 void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
@@ -123,6 +125,7 @@ void meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assi
                                               const int              *rectangles,
                                               int                     n_rectangles);
 
+META_EXPORT_TEST
 MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                                                        MetaKmsCrtc            *crtc,
                                                        MetaKmsPlane           *plane,
@@ -146,6 +149,7 @@ void meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
                                            MetaKmsCustomPageFlipFunc  func,
                                            gpointer                   user_data);
 
+META_EXPORT_TEST
 void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
                                                    int                     x,
                                                    int                     y);

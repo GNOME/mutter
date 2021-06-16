@@ -297,6 +297,17 @@ if have_native_tests
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
+
+  native_kms_update_tests = executable('mutter-native-kms-update-tests',
+    sources: [
+      'native-kms-updates.c',
+    ],
+    include_directories: tests_includes,
+    c_args: tests_c_args,
+    dependencies: libmutter_test_dep,
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
 endif
 
 stacking_tests = [
@@ -416,6 +427,7 @@ endif
 if have_kvm_tests or have_tty_tests
   privileged_tests = [
     [ 'kms-render', native_kms_render_tests ],
+    [ 'kms-update', native_kms_update_tests ],
   ]
 
   if have_kvm_tests

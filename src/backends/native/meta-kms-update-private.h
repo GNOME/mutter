@@ -124,33 +124,43 @@ void meta_kms_update_lock (MetaKmsUpdate *update);
 
 void meta_kms_update_unlock (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 gboolean meta_kms_update_is_locked (MetaKmsUpdate *update);
 
 uint64_t meta_kms_update_get_sequence_number (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
 
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                              uint64_t                rotation);
 
+META_EXPORT_TEST
 MetaKmsPlaneAssignment * meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
                                                                        MetaKmsCrtc   *crtc);
 
+META_EXPORT_TEST
 MetaKmsPlaneAssignment * meta_kms_update_get_cursor_plane_assignment (MetaKmsUpdate *update,
                                                                       MetaKmsCrtc   *crtc);
 
+META_EXPORT_TEST
 GList * meta_kms_update_get_plane_assignments (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 GList * meta_kms_update_get_page_flip_listeners (MetaKmsUpdate *update);
 
 void meta_kms_update_drop_defunct_page_flip_listeners (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 gboolean meta_kms_update_is_power_save (MetaKmsUpdate *update);
 
 MetaKmsCustomPageFlip * meta_kms_update_take_custom_page_flip_func (MetaKmsUpdate *update);

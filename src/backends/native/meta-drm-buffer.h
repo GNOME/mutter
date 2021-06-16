@@ -27,6 +27,7 @@
 #include <stdint.h>
 
 #include "cogl/cogl.h"
+#include "core/util-private.h"
 
 typedef enum _MetaDrmBufferFlags
 {
@@ -35,6 +36,7 @@ typedef enum _MetaDrmBufferFlags
 } MetaDrmBufferFlags;
 
 #define META_TYPE_DRM_BUFFER (meta_drm_buffer_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
                           meta_drm_buffer,
                           META, DRM_BUFFER,

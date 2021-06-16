@@ -30,6 +30,7 @@
 
 MetaBarrierManagerNative *meta_backend_native_get_barrier_manager (MetaBackendNative *native);
 
+META_EXPORT_TEST
 MetaDevicePool * meta_backend_native_get_device_pool (MetaBackendNative *native);
 
 #endif /* META_BACKEND_NATIVE_PRIVATE_H */

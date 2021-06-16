@@ -25,6 +25,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-types.h"
+#include "core/util-private.h"
 #include "meta/boxes.h"
 
 typedef struct _MetaKmsCrtcState
@@ -54,6 +55,7 @@ typedef struct _MetaKmsCrtcGamma
 } MetaKmsCrtcGamma;
 
 #define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
                       META, KMS_CRTC,
                       GObject)

@@ -25,6 +25,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-types.h"
+#include "core/util-private.h"
 
 typedef enum _MetaKmsModeFlag
 {
@@ -37,6 +38,7 @@ const char * meta_kms_mode_get_name (MetaKmsMode *mode);
 
 MetaKmsModeFlag meta_kms_mode_get_flags (MetaKmsMode *mode);
 
+META_EXPORT_TEST
 const drmModeModeInfo * meta_kms_mode_get_drm_mode (MetaKmsMode *mode);
 
 gboolean meta_kms_mode_equal (MetaKmsMode *mode,

@@ -60,8 +60,10 @@ void meta_kms_discard_pending_page_flips (MetaKms *kms);
 
 void meta_kms_notify_modes_set (MetaKms *kms);
 
+META_EXPORT_TEST
 MetaBackend * meta_kms_get_backend (MetaKms *kms);
 
+META_EXPORT_TEST
 GList * meta_kms_get_devices (MetaKms *kms);
 
 void meta_kms_resume (MetaKms *kms);

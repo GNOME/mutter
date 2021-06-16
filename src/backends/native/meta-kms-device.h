@@ -23,14 +23,18 @@
 #include <glib-object.h>
 
 #include "backends/native/meta-kms-types.h"
+#include "core/util-private.h"
 
 #define META_TYPE_KMS_DEVICE (meta_kms_device_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsDevice, meta_kms_device,
                       META, KMS_DEVICE,
                       GObject)
 
+META_EXPORT_TEST
 MetaKms * meta_kms_device_get_kms (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 const char * meta_kms_device_get_path (MetaKmsDevice *device);
 
 const char * meta_kms_device_get_driver_name (MetaKmsDevice *device);
@@ -47,15 +51,19 @@ gboolean meta_kms_device_prefers_shadow_buffer (MetaKmsDevice *device);
 
 gboolean meta_kms_device_uses_monotonic_clock (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
 
 GList * meta_kms_device_get_planes (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 MetaKmsPlane * meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
                                                       MetaKmsCrtc   *crtc);
 
+META_EXPORT_TEST
 MetaKmsPlane * meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
                                                      MetaKmsCrtc   *crtc);
 

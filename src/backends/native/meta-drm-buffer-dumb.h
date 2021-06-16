@@ -31,6 +31,7 @@ G_DECLARE_FINAL_TYPE (MetaDrmBufferDumb,
                       META, DRM_BUFFER_DUMB,
                       MetaDrmBuffer)
 
+META_EXPORT_TEST
 MetaDrmBufferDumb * meta_drm_buffer_dumb_new (MetaDeviceFile  *device,
                                               int              width,
                                               int              height,
