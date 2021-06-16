@@ -595,9 +595,10 @@ meta_kms_result_listener_free (MetaKmsResultListener *listener)
   g_free (listener);
 }
 
-MetaKmsPlaneAssignment *
-meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
-                                              MetaKmsCrtc   *crtc)
+static MetaKmsPlaneAssignment *
+get_first_plane_assignment (MetaKmsUpdate    *update,
+                            MetaKmsCrtc      *crtc,
+                            MetaKmsPlaneType  plane_type)
 {
   GList *l;
 
@@ -606,7 +607,7 @@ meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
       MetaKmsPlaneAssignment *plane_assignment = l->data;
 
       if (meta_kms_plane_get_plane_type (plane_assignment->plane) !=
-          META_KMS_PLANE_TYPE_PRIMARY)
+          plane_type)
         continue;
 
       if (plane_assignment->crtc != crtc)
@@ -616,6 +617,20 @@ meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
     }
 
   return NULL;
+}
+
+MetaKmsPlaneAssignment *
+meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
+                                              MetaKmsCrtc   *crtc)
+{
+  return get_first_plane_assignment (update, crtc, META_KMS_PLANE_TYPE_PRIMARY);
+}
+
+MetaKmsPlaneAssignment *
+meta_kms_update_get_cursor_plane_assignment (MetaKmsUpdate *update,
+                                             MetaKmsCrtc   *crtc)
+{
+  return get_first_plane_assignment (update, crtc, META_KMS_PLANE_TYPE_CURSOR);
 }
 
 GList *

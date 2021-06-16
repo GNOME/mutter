@@ -136,6 +136,9 @@ void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assig
 MetaKmsPlaneAssignment * meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
                                                                        MetaKmsCrtc   *crtc);
 
+MetaKmsPlaneAssignment * meta_kms_update_get_cursor_plane_assignment (MetaKmsUpdate *update,
+                                                                      MetaKmsCrtc   *crtc);
+
 GList * meta_kms_update_get_plane_assignments (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
