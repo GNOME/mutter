@@ -3269,6 +3269,61 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
   return TRUE;
 }
 
+/**
+ * clutter_stage_paint_to_content:
+ * @stage: a #ClutterStage actor
+ * @rect: a #cairo_rectangle_int_t
+ * @scale: the scale
+ * @paint_flags: the #ClutterPaintFlag
+ * @error: the error
+ *
+ * Take a snapshot of the stage to a #ClutterContent.
+ *
+ * Returns: (transfer full): the #ClutterContent or %NULL on error.
+ */
+ClutterContent *
+clutter_stage_paint_to_content (ClutterStage                 *stage,
+                                const cairo_rectangle_int_t  *rect,
+                                float                         scale,
+                                ClutterPaintFlag              paint_flags,
+                                GError                      **error)
+{
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  int texture_width, texture_height;
+  CoglTexture2D *texture;
+  CoglOffscreen *offscreen;
+  g_autoptr (CoglFramebuffer) framebuffer = NULL;
+
+  texture_width = (int) roundf (rect->width * scale);
+  texture_height = (int) roundf (rect->height * scale);
+  texture = cogl_texture_2d_new_with_size (cogl_context,
+                                           texture_width,
+                                           texture_height);
+  if (!texture)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create %dx%d texture",
+                   texture_width, texture_height);
+      return NULL;
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  framebuffer = COGL_FRAMEBUFFER (offscreen);
+
+  cogl_object_unref (texture);
+
+  if (!cogl_framebuffer_allocate (framebuffer, error))
+    return NULL;
+
+  clutter_stage_paint_to_framebuffer (stage, framebuffer,
+                                      rect, scale, paint_flags);
+
+  return clutter_texture_content_new_from_texture (cogl_offscreen_get_texture (offscreen),
+                                                   NULL);
+}
+
 void
 clutter_stage_capture_view_into (ClutterStage          *stage,
                                  ClutterStageView      *view,
