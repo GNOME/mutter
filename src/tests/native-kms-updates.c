@@ -210,6 +210,39 @@ meta_test_kms_update_fixed16 (void)
 }
 
 static void
+meta_test_kms_update_mode_sets (void)
+{
+  MetaKmsDevice *device;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+  GList *mode_sets;
+  MetaKmsModeSet *mode_set;
+
+  device = meta_get_test_kms_device (test_context);
+  update = meta_kms_update_new (device);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = get_preferred_mode (connector);
+
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+
+  mode_sets = meta_kms_update_get_mode_sets (update);
+  g_assert_cmpuint (g_list_length (mode_sets), ==, 1);
+  mode_set = mode_sets->data;
+
+  g_assert (mode_set->crtc == crtc);
+  g_assert_cmpuint (g_list_length (mode_set->connectors), ==, 1);
+  g_assert (mode_set->connectors->data == connector);
+  g_assert (mode_set->mode == mode);
+
+  meta_kms_update_free (update);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/update/sanity",
@@ -218,6 +251,8 @@ init_tests (void)
                    meta_test_kms_update_fixed16);
   g_test_add_func ("/backends/native/kms/update/plane-assignments",
                    meta_test_kms_update_plane_assignments);
+  g_test_add_func ("/backends/native/kms/update/mode-sets",
+                   meta_test_kms_update_mode_sets);
 }
 
 int

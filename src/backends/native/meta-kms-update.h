@@ -109,6 +109,7 @@ void meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
 
 void meta_kms_update_set_power_save (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
 void meta_kms_update_mode_set (MetaKmsUpdate *update,
                                MetaKmsCrtc   *crtc,
                                GList         *connectors,
