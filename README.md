@@ -31,53 +31,7 @@ It can be useful to look at the documentation available at the
 
 ## Coding style and conventions
 
-The coding style used is primarily the GNU flavor of the [GNOME coding
-style](https://developer.gnome.org/programming-guidelines/stable/c-coding-style.html.en)
-with some additions:
-
- - Use regular C types and `stdint.h` types instead of GLib fundamental
-   types, except for `gboolean`, and `guint`/`gulong` for GSource ids and
-   signal handler ids. That means e.g. `uint64_t` instead of `guint64`, `int`
-   instead of `gint`, `unsigned int` instead of `guint` if unsignedness
-   is of importance, `uint8_t` instead of `guchar`, and so on.
-
- - Try to to limit line length to 80 characters, although it's not a
-   strict limit.
-
- - Usage of g_autofree and g_autoptr are encouraged. The style used is
-
-    ```c
-      g_autofree char *text = NULL;
-      g_autoptr (MetaSomeThing) thing = NULL;
-
-      text = g_strdup_printf ("The text: %d", a_number);
-      thing = g_object_new (META_TYPE_SOME_THING,
-                            "text", text,
-                            NULL);
-      thinger_use_thing (rocket, thing);
-    ```
-
- - Declare variables at the top of the block they are used, but avoid
-   non-trivial logic among variable declarations. Non-trivial logic can be
-   getting a pointer that may be `NULL`, any kind of math, or anything
-   that may have side effects.
-
- - Instead of boolean arguments in functions, prefer enums or flags when
-   they're more expressive. The naming convention for flags is
-
-    ```c
-    typedef _MetaSomeThingFlags
-    {
-      META_SOME_THING_FLAG_NONE = 0,
-      META_SOME_THING_FLAG_ALTER_REALITY = 1 << 0,
-      META_SOME_THING_FLAG_MANIPULATE_PERCEPTION = 1 << 1,
-    } MetaSomeThingFlags;
-    ```
-
- - Use `g_new0()` etc instead of `g_slice_new0()`.
-
- - Initialize and assign floating point variables (i.e. `float` or
-   `double`) using the form `floating_point = 3.14159` or `ratio = 2.0`.
+See [HACKING.md](./HACKING.md).
 
 ## Git messages
 
