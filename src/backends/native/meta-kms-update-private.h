@@ -143,8 +143,6 @@ void meta_kms_update_unlock (MetaKmsUpdate *update);
 META_EXPORT_TEST
 gboolean meta_kms_update_is_locked (MetaKmsUpdate *update);
 
-uint64_t meta_kms_update_get_sequence_number (MetaKmsUpdate *update);
-
 META_EXPORT_TEST
 MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
 

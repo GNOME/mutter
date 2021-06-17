@@ -1504,9 +1504,7 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
   GError *error = NULL;
   GList *failed_planes = NULL;
 
-  meta_topic (META_DEBUG_KMS,
-              "[simple] Processing update %" G_GUINT64_FORMAT,
-              meta_kms_update_get_sequence_number (update));
+  meta_topic (META_DEBUG_KMS, "[simple] Processing update");
 
   if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
     return perform_update_test (impl_device, update);

@@ -33,7 +33,6 @@ struct _MetaKmsUpdate
   MetaKmsDevice *device;
 
   gboolean is_locked;
-  uint64_t sequence_number;
 
   GList *mode_sets;
   GList *plane_assignments;
@@ -672,21 +671,13 @@ meta_kms_custom_page_flip_free (MetaKmsCustomPageFlip *custom_page_flip)
   g_free (custom_page_flip);
 }
 
-uint64_t
-meta_kms_update_get_sequence_number (MetaKmsUpdate *update)
-{
-  return update->sequence_number;
-}
-
 MetaKmsUpdate *
 meta_kms_update_new (MetaKmsDevice *device)
 {
   MetaKmsUpdate *update;
-  static uint64_t sequence_number = 0;
 
   update = g_new0 (MetaKmsUpdate, 1);
   update->device = device;
-  update->sequence_number = sequence_number++;
 
   return update;
 }

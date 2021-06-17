@@ -947,9 +947,7 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
 
   blob_ids = g_array_new (FALSE, TRUE, sizeof (uint32_t));
 
-  meta_topic (META_DEBUG_KMS,
-              "[atomic] Processing update %" G_GUINT64_FORMAT,
-              meta_kms_update_get_sequence_number (update));
+  meta_topic (META_DEBUG_KMS, "[atomic] Processing update");
 
   req = drmModeAtomicAlloc ();
   if (!req)
@@ -1018,8 +1016,7 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
     commit_flags |= DRM_MODE_ATOMIC_TEST_ONLY;
 
   meta_topic (META_DEBUG_KMS,
-              "[atomic] Committing update %" G_GUINT64_FORMAT ", flags: %s",
-              meta_kms_update_get_sequence_number (update),
+              "[atomic] Committing update flags: %s",
               commit_flags_string (commit_flags));
 
   fd = meta_kms_impl_device_get_fd (impl_device);
