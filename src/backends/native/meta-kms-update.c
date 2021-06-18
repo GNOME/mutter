@@ -671,6 +671,154 @@ meta_kms_custom_page_flip_free (MetaKmsCustomPageFlip *custom_page_flip)
   g_free (custom_page_flip);
 }
 
+static GList *
+find_plane_assignment_link_for (MetaKmsUpdate *update,
+                                MetaKmsPlane  *plane)
+{
+  GList *l;
+
+  for (l = update->plane_assignments; l; l = l->next)
+    {
+      MetaKmsPlaneAssignment *plane_assignment = l->data;
+
+      if (plane_assignment->plane == plane)
+        return l;
+    }
+
+  return NULL;
+}
+
+static void
+merge_plane_assignments_from (MetaKmsUpdate *update,
+                              MetaKmsUpdate *other_update)
+{
+  while (other_update->plane_assignments)
+    {
+      GList *l = other_update->plane_assignments;
+      MetaKmsPlaneAssignment *other_plane_assignment = l->data;
+      MetaKmsPlane *plane = other_plane_assignment->plane;
+      GList *el;
+
+      other_update->plane_assignments =
+        g_list_remove_link (other_update->plane_assignments, l);
+
+      el = find_plane_assignment_link_for (update, plane);
+      if (el)
+        {
+          meta_kms_plane_assignment_free (el->data);
+          update->plane_assignments =
+            g_list_insert_before_link (update->plane_assignments, el, l);
+          update->plane_assignments =
+            g_list_delete_link (update->plane_assignments, el);
+        }
+      else
+        {
+          update->plane_assignments =
+            g_list_insert_before_link (update->plane_assignments,
+                                       update->plane_assignments,
+                                       l);
+        }
+      other_plane_assignment->update = update;
+    }
+}
+
+static GList *
+find_color_update_link_for (MetaKmsUpdate *update,
+                            MetaKmsCrtc   *crtc)
+{
+  GList *l;
+
+  for (l = update->crtc_color_updates; l; l = l->next)
+    {
+      MetaKmsCrtcColorUpdate *color_update = l->data;
+
+      if (color_update->crtc == crtc)
+        return l;
+    }
+
+  return NULL;
+}
+
+static void
+merge_crtc_color_updates_from (MetaKmsUpdate *update,
+                               MetaKmsUpdate *other_update)
+{
+  while (other_update->crtc_color_updates)
+    {
+      GList *l = other_update->crtc_color_updates;
+      MetaKmsCrtcColorUpdate *other_crtc_color_update = l->data;
+      MetaKmsCrtc *crtc = other_crtc_color_update->crtc;
+      GList *el;
+
+      other_update->crtc_color_updates =
+        g_list_remove_link (other_update->crtc_color_updates, l);
+
+      el = find_color_update_link_for (update, crtc);
+      if (el)
+        {
+          meta_kms_crtc_color_updates_free (el->data);
+          update->crtc_color_updates =
+            g_list_insert_before_link (update->crtc_color_updates, el, l);
+          update->crtc_color_updates =
+            g_list_delete_link (update->crtc_color_updates, el);
+        }
+      else
+        {
+          update->crtc_color_updates =
+            g_list_insert_before_link (update->crtc_color_updates,
+                                       update->crtc_color_updates,
+                                       l);
+        }
+    }
+}
+
+static void
+merge_custom_page_flip_from (MetaKmsUpdate *update,
+                             MetaKmsUpdate *other_update)
+{
+  g_warn_if_fail ((!update->custom_page_flip &&
+                   !other_update->custom_page_flip) ||
+                  ((!!update->custom_page_flip) ^
+                   (!!other_update->custom_page_flip)));
+
+  g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
+  update->custom_page_flip = g_steal_pointer (&other_update->custom_page_flip);
+}
+
+static void
+merge_page_flip_listeners_from (MetaKmsUpdate *update,
+                                MetaKmsUpdate *other_update)
+{
+  update->page_flip_listeners =
+    g_list_concat (update->page_flip_listeners,
+                   g_steal_pointer (&other_update->page_flip_listeners));
+}
+
+static void
+merge_result_listeners_from (MetaKmsUpdate *update,
+                             MetaKmsUpdate *other_update)
+{
+  update->result_listeners =
+    g_list_concat (update->result_listeners,
+                   g_steal_pointer (&other_update->result_listeners));
+}
+
+void
+meta_kms_update_merge_from (MetaKmsUpdate *update,
+                            MetaKmsUpdate *other_update)
+{
+  g_return_if_fail (update->device == other_update->device);
+  g_return_if_fail (!update->mode_sets && !other_update->mode_sets);
+  g_return_if_fail (!update->connector_updates &&
+                    !other_update->connector_updates);
+
+  merge_plane_assignments_from (update, other_update);
+  merge_crtc_color_updates_from (update, other_update);
+  merge_custom_page_flip_from (update, other_update);
+  merge_page_flip_listeners_from (update, other_update);
+  merge_result_listeners_from (update, other_update);
+}
+
 MetaKmsUpdate *
 meta_kms_update_new (MetaKmsDevice *device)
 {

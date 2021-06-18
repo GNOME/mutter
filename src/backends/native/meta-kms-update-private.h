@@ -181,6 +181,10 @@ void meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
 
 GList * meta_kms_update_take_result_listeners (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
+void meta_kms_update_merge_from (MetaKmsUpdate *update,
+                                 MetaKmsUpdate *other_update);
+
 void meta_kms_result_listener_notify (MetaKmsResultListener *listener,
                                       const MetaKmsFeedback *feedback);
 

@@ -94,6 +94,7 @@ void meta_crtc_set_gamma_lut (MetaCrtc           *crtc,
 META_EXPORT_TEST
 void meta_gamma_lut_free (MetaGammaLut *lut);
 
+META_EXPORT_TEST
 MetaGammaLut * meta_gamma_lut_new (int             size,
                                    const uint16_t *red,
                                    const uint16_t *green,
