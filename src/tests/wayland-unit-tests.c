@@ -21,6 +21,8 @@
 
 #include <gio/gio.h>
 
+#include "core/display-private.h"
+#include "core/window-private.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-surface.h"
@@ -118,6 +120,25 @@ wayland_test_client_finish (WaylandTestClient *wayland_test_client)
   g_free (wayland_test_client);
 }
 
+static MetaWindow *
+find_client_window (const char *title)
+{
+  MetaDisplay *display = meta_get_display ();
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      if (g_strcmp0 (meta_window_get_title (window), title) == 0)
+        return window;
+    }
+
+  return NULL;
+}
+
 static void
 subsurface_remap_toplevel (void)
 {
@@ -153,6 +174,71 @@ subsurface_invalid_xdg_shell_actions (void)
   g_test_assert_expected_messages ();
 }
 
+typedef enum _ApplyLimitState
+{
+  APPLY_LIMIT_STATE_INIT,
+  APPLY_LIMIT_STATE_RESET,
+  APPLY_LIMIT_STATE_FINISH,
+} ApplyLimitState;
+
+typedef struct _ApplyLimitData
+{
+  GMainLoop *loop;
+  WaylandTestClient *wayland_test_client;
+  ApplyLimitState state;
+} ApplyLimitData;
+
+static void
+on_sync_point (MetaWaylandTestDriver *test_driver,
+               unsigned int           sequence,
+               struct wl_client      *wl_client,
+               ApplyLimitData        *data)
+{
+  MetaWindow *window;
+
+  if (sequence == 0)
+    g_assert (data->state == APPLY_LIMIT_STATE_INIT);
+  else if (sequence == 0)
+    g_assert (data->state == APPLY_LIMIT_STATE_RESET);
+
+  window = find_client_window ("toplevel-limits-test");
+
+  if (sequence == 0)
+    {
+      g_assert_nonnull (window);
+      g_assert_cmpint (window->size_hints.max_width, ==, 700);
+      g_assert_cmpint (window->size_hints.max_height, ==, 500);
+      g_assert_cmpint (window->size_hints.min_width, ==, 700);
+      g_assert_cmpint (window->size_hints.min_height, ==, 500);
+
+      data->state = APPLY_LIMIT_STATE_RESET;
+    }
+  else if (sequence == 1)
+    {
+      g_assert_null (window);
+      data->state = APPLY_LIMIT_STATE_FINISH;
+      g_main_loop_quit (data->loop);
+    }
+  else
+    {
+      g_assert_not_reached ();
+    }
+}
+
+static void
+toplevel_apply_limits (void)
+{
+  ApplyLimitData data = {};
+
+  data.loop = g_main_loop_new (NULL, FALSE);
+  data.wayland_test_client = wayland_test_client_new ("xdg-apply-limits");
+  g_signal_connect (test_driver, "sync-point", G_CALLBACK (on_sync_point), &data);
+  g_main_loop_run (data.loop);
+  g_assert_cmpint (data.state, ==, APPLY_LIMIT_STATE_FINISH);
+  wayland_test_client_finish (data.wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
 void
 pre_run_wayland_tests (void)
 {
@@ -173,4 +259,6 @@ init_wayland_tests (void)
                    subsurface_invalid_subsurfaces);
   g_test_add_func ("/wayland/subsurface/invalid-xdg-shell-actions",
                    subsurface_invalid_xdg_shell_actions);
+  g_test_add_func ("/wayland/toplevel/apply-limits",
+                   toplevel_apply_limits);
 }
