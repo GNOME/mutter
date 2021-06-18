@@ -5,5 +5,9 @@
       <arg name="callback" type="new_id" interface="wl_callback"/>
       <arg name="surface" type="object" interface="wl_surface"/>
     </request>
+
+    <request name="sync_point">
+      <arg name="sequence" type="uint"/>
+    </request>
   </interface>
 </protocol>
