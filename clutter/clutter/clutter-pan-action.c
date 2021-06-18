@@ -348,25 +348,6 @@ gesture_end (ClutterGestureAction *gesture,
     }
 }
 
-static gboolean
-clutter_pan_action_real_pan (ClutterPanAction *self,
-                             ClutterActor     *actor,
-                             gboolean          is_interpolated)
-{
-  gfloat dx, dy;
-  graphene_matrix_t transform;
-  graphene_matrix_t translate;
-
-  clutter_pan_action_get_constrained_motion_delta (self, 0, &dx, &dy);
-
-  clutter_actor_get_child_transform (actor, &transform);
-  graphene_matrix_init_translate (&translate,
-                                  &GRAPHENE_POINT3D_INIT (dx, dy, 0.0f));
-  graphene_matrix_multiply (&translate, &transform, &transform);
-  clutter_actor_set_child_transform (actor, &transform);
-  return TRUE;
-}
-
 static void
 clutter_pan_action_set_property (GObject      *gobject,
                                  guint         prop_id,
@@ -483,8 +464,6 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
   ClutterGestureActionClass *gesture_class =
       CLUTTER_GESTURE_ACTION_CLASS (klass);
 
-  klass->pan = clutter_pan_action_real_pan;
-
   gesture_class->gesture_prepare = gesture_prepare;
   gesture_class->gesture_begin = gesture_begin;
   gesture_class->gesture_progress = gesture_progress;
@@ -586,8 +565,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
     g_signal_new (I_("pan"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterPanActionClass, pan),
-                  _clutter_boolean_continue_accumulator, NULL,
+                  0, g_signal_accumulator_true_handled, NULL,
                   _clutter_marshal_BOOLEAN__OBJECT_BOOLEAN,
                   G_TYPE_BOOLEAN, 2,
                   CLUTTER_TYPE_ACTOR,

@@ -84,9 +84,6 @@ struct _ClutterPanActionClass
   ClutterGestureActionClass parent_class;
 
   /*< public >*/
-  gboolean (* pan)               (ClutterPanAction    *action,
-                                  ClutterActor        *actor,
-                                  gboolean             is_interpolated);
   void     (* pan_stopped)       (ClutterPanAction    *action,
                                   ClutterActor        *actor);
 
