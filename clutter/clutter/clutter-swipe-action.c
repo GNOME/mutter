@@ -172,15 +172,6 @@ gesture_end (ClutterGestureAction *action,
     g_signal_emit (action, swipe_signals[SWEPT], 0, actor, direction);
 }
 
-/* XXX:2.0 remove */
-static gboolean
-clutter_swipe_action_real_swipe (ClutterSwipeAction    *action,
-                                 ClutterActor          *actor,
-                                 ClutterSwipeDirection  direction)
-{
-  return TRUE;
-}
-
 static void
 clutter_swipe_action_constructed (GObject *object)
 {
@@ -201,9 +192,6 @@ clutter_swipe_action_class_init (ClutterSwipeActionClass *klass)
   gesture_class->gesture_begin = gesture_begin;
   gesture_class->gesture_progress = gesture_progress;
   gesture_class->gesture_end = gesture_end;
-
-  /* XXX:2.0 remove */
-  klass->swipe = clutter_swipe_action_real_swipe;
 
   /**
    * ClutterSwipeAction::swept:
@@ -248,8 +236,7 @@ clutter_swipe_action_class_init (ClutterSwipeActionClass *klass)
     g_signal_new (I_("swipe"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterSwipeActionClass, swipe),
-                  _clutter_boolean_continue_accumulator, NULL,
+                  0, g_signal_accumulator_true_handled, NULL,
                   _clutter_marshal_BOOLEAN__OBJECT_FLAGS,
                   G_TYPE_BOOLEAN, 2,
                   CLUTTER_TYPE_ACTOR,
