@@ -235,51 +235,6 @@ clutter_zoom_action_gesture_cancel (ClutterGestureAction *action,
   clutter_actor_set_scale (actor, priv->initial_scale_x, priv->initial_scale_y);
 }
 
-static gboolean
-clutter_zoom_action_real_zoom (ClutterZoomAction *action,
-                               ClutterActor      *actor,
-                               graphene_point_t  *focal_point,
-                               gdouble            factor)
-{
-  ClutterZoomActionPrivate *priv = action->priv;
-  gfloat x, y, z;
-  gdouble scale_x, scale_y;
-  graphene_point3d_t out, in;
-
-  in.x = priv->transformed_focal_point.x;
-  in.y = priv->transformed_focal_point.y;
-  in.z = 0;
-
-  clutter_actor_apply_transform_to_point (actor, &in, &out);
-
-  clutter_actor_get_scale (actor, &scale_x, &scale_y);
-
-  switch (priv->zoom_axis)
-    {
-    case CLUTTER_ZOOM_BOTH:
-      clutter_actor_set_scale (actor, factor, factor);
-      break;
-
-    case CLUTTER_ZOOM_X_AXIS:
-      clutter_actor_set_scale (actor, factor, scale_y);
-      break;
-
-    case CLUTTER_ZOOM_Y_AXIS:
-      clutter_actor_set_scale (actor, scale_x, factor);
-      break;
-
-    default:
-      break;
-    }
-
-  x = priv->initial_x + priv->focal_point.x - priv->initial_focal_point.x;
-  y = priv->initial_y + priv->focal_point.y - priv->initial_focal_point.y;
-  clutter_actor_get_translation (actor, NULL, NULL, &z);
-  clutter_actor_set_translation (actor, x, y, z);
-
-  return TRUE;
-}
-
 static void
 clutter_zoom_action_set_property (GObject      *gobject,
                                   guint         prop_id,
@@ -349,8 +304,6 @@ clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
   gesture_class->gesture_progress = clutter_zoom_action_gesture_progress;
   gesture_class->gesture_cancel = clutter_zoom_action_gesture_cancel;
 
-  klass->zoom = clutter_zoom_action_real_zoom;
-
   /**
    * ClutterZoomAction:zoom-axis:
    *
@@ -395,8 +348,7 @@ clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
     g_signal_new (I_("zoom"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterZoomActionClass, zoom),
-                  _clutter_boolean_continue_accumulator, NULL,
+                  0, g_signal_accumulator_true_handled, NULL,
                   _clutter_marshal_BOOLEAN__OBJECT_BOXED_DOUBLE,
                   G_TYPE_BOOLEAN, 3,
                   CLUTTER_TYPE_ACTOR,
