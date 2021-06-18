@@ -26,6 +26,15 @@
 
 #include "test-driver-server-protocol.h"
 
+enum
+{
+  SYNC_POINT,
+
+  N_SIGNALS
+};
+
+static int signals[N_SIGNALS];
+
 struct _MetaWaylandTestDriver
 {
   GObject parent;
@@ -69,8 +78,21 @@ sync_actor_destroy (struct wl_client   *client,
                     callback);
 }
 
+static void
+sync_point (struct wl_client   *client,
+            struct wl_resource *resource,
+            uint32_t            sequence)
+{
+  MetaWaylandTestDriver *test_driver = wl_resource_get_user_data (resource);
+
+  g_signal_emit (test_driver, signals[SYNC_POINT], 0,
+                 sequence,
+                 client);
+}
+
 static const struct test_driver_interface meta_test_driver_interface = {
   sync_actor_destroy,
+  sync_point,
 };
 
 static void
@@ -104,6 +126,16 @@ meta_wayland_test_driver_class_init (MetaWaylandTestDriverClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_wayland_test_driver_finalize;
+
+  signals[SYNC_POINT] =
+    g_signal_new ("sync-point",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_UINT,
+                  G_TYPE_POINTER);
 }
 
 static void
