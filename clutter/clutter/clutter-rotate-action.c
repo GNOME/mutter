@@ -64,18 +64,6 @@ static guint rotate_signals[LAST_SIGNAL] = { 0, };
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterRotateAction, clutter_rotate_action, CLUTTER_TYPE_GESTURE_ACTION)
 
 static gboolean
-clutter_rotate_action_real_rotate (ClutterRotateAction *action,
-                                   ClutterActor        *actor,
-                                   gdouble              angle)
-{
-  clutter_actor_set_rotation_angle (actor,
-                                    CLUTTER_Z_AXIS,
-                                    action->priv->initial_rotation + angle);
-
-  return TRUE;
-}
-
-static gboolean
 clutter_rotate_action_gesture_begin (ClutterGestureAction  *action,
                                      ClutterActor          *actor)
 {
@@ -187,8 +175,6 @@ clutter_rotate_action_class_init (ClutterRotateActionClass *klass)
   GObjectClass *object_class =
     G_OBJECT_CLASS (klass);
 
-  klass->rotate = clutter_rotate_action_real_rotate;
-
   object_class->constructed = clutter_rotate_action_constructed;
 
   gesture_class->gesture_begin = clutter_rotate_action_gesture_begin;
@@ -215,8 +201,7 @@ clutter_rotate_action_class_init (ClutterRotateActionClass *klass)
     g_signal_new (I_("rotate"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterRotateActionClass, rotate),
-                  _clutter_boolean_continue_accumulator, NULL,
+                  0, g_signal_accumulator_true_handled, NULL,
                   _clutter_marshal_BOOLEAN__OBJECT_DOUBLE,
                   G_TYPE_BOOLEAN, 2,
                   CLUTTER_TYPE_ACTOR,

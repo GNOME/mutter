@@ -74,12 +74,6 @@ struct _ClutterRotateActionClass
   /*< private >*/
   ClutterGestureActionClass parent_class;
 
-  /*< public >*/
-  gboolean (* rotate)  (ClutterRotateAction *action,
-                        ClutterActor        *actor,
-                        gdouble              angle);
-
-  /*< private >*/
   void (* _clutter_rotate_action1) (void);
   void (* _clutter_rotate_action2) (void);
   void (* _clutter_rotate_action3) (void);
