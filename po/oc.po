@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-04-15 15:51+0000\n"
+"POT-Creation-Date: 2021-05-11 18:46+0000\n"
 "PO-Revision-Date: 2021-05-11 20:45+0200\n"
 "Last-Translator: Quentin PAGÈS\n"
 "Language-Team: Tot En Òc\n"
@@ -275,7 +275,7 @@ msgid ""
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
 msgstr ""
-"Aquesta tòca inicia l'« overlay », una combinason d'apercebut de las "
+"Aquesta tòca inicia l'« overlay », una combinason d'apercebut de las "
 "fenèstras e d'un sistèma d'aviada d'aplicacions. La tòca per defaut sul "
 "material PC es la tòca Windows. En principi, aqueste acorchi es configurat "
 "sul reglatge per defaut o sus la cadena voida."
@@ -358,7 +358,7 @@ msgid ""
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
-"Se definit a true e que lo mòde de focus es siá « sloppy » o « mirga », "
+"Se definit a true e que lo mòde de focus es siá « sloppy » o « mirga », "
 "alara lo focus serà pas cambiat immediatament en passant sus una fenèstra, "
 "mas solament aprèp que lo puntador s'arrèste."
 
@@ -598,7 +598,7 @@ msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
 "Un autre gestionari de composicion es ja aviat sus l'ecran %i de l'afichatge "
-"« %s »."
+"« %s »."
 
 #: src/core/bell.c:192
 msgid "Bell event"
@@ -656,7 +656,7 @@ msgstr "Aviar coma un servidor d'afichatge complet, puslèu qu'imbricat"
 
 #: src/core/main.c:305
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Apondre un monitor virtual persistant  (WxH o WxH@R)"
+msgstr "Apondre un monitor virtual persistant (WxH o WxH@R)"
 
 #: src/core/main.c:311
 msgid "Run with X11 backend"
@@ -666,7 +666,7 @@ msgstr "Lançar amb lo motor X11"
 #: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
-msgstr "« %s » respond pas."
+msgstr "« %s » respond pas."
 
 #: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
@@ -735,7 +735,7 @@ msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"L'afichatge « %s » a ja un gestionari de fenèstras ; ensajatz d'utilizar "
+"L'afichatge « %s » a ja un gestionari de fenèstras ; ensajatz d'utilizar "
 "l'opcion --replace per remplaçar lo gestionari de fenèstras actual."
 
 #: src/x11/meta-x11-display.c:1097
@@ -745,12 +745,12 @@ msgstr "Impossible d'inicializar GDK"
 #: src/x11/meta-x11-display.c:1121
 #, c-format
 msgid "Failed to open X Window System display “%s”"
-msgstr "Impossible de dobrir l'afichatge « %s » del sistèma X Window"
+msgstr "Impossible de dobrir l'afichatge « %s » del sistèma X Window"
 
 #: src/x11/meta-x11-display.c:1204
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
-msgstr "L'ecran %d sus l'afichatge « %s » es pas valid"
+msgstr "L'ecran %d sus l'afichatge « %s » es pas valid"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
@@ -762,8 +762,8 @@ msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 msgstr ""
-"Aquestas fenèstras prenon pas en carga « l'enregistrament de la "
-"configuracion actuala » e deuràn èsser reaviadas manualament a la connexion "
+"Aquestas fenèstras prenon pas en carga « l'enregistrament de la "
+"configuracion actuala » e deuràn èsser reaviadas manualament a la connexion "
 "que ven."
 
 #: src/x11/window-props.c:548
