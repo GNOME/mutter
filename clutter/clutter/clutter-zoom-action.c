@@ -76,8 +76,6 @@ struct _ClutterZoomActionPrivate
 {
   ClutterStage *stage;
 
-  ClutterZoomAxis zoom_axis;
-
   ZoomPoint points[2];
 
   graphene_point_t initial_focal_point;
@@ -93,17 +91,6 @@ struct _ClutterZoomActionPrivate
 
   gdouble zoom_initial_distance;
 };
-
-enum
-{
-  PROP_0,
-
-  PROP_ZOOM_AXIS,
-
-  PROP_LAST
-};
-
-static GParamSpec *zoom_props[PROP_LAST] = { NULL, };
 
 enum
 {
@@ -236,44 +223,6 @@ clutter_zoom_action_gesture_cancel (ClutterGestureAction *action,
 }
 
 static void
-clutter_zoom_action_set_property (GObject      *gobject,
-                                  guint         prop_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
-{
-  ClutterZoomAction *action = CLUTTER_ZOOM_ACTION (gobject);
-
-  switch (prop_id)
-    {
-    case PROP_ZOOM_AXIS:
-      clutter_zoom_action_set_zoom_axis (action, g_value_get_enum (value));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-    }
-}
-
-static void
-clutter_zoom_action_get_property (GObject    *gobject,
-                                  guint       prop_id,
-                                  GValue     *value,
-                                  GParamSpec *pspec)
-{
-  ClutterZoomActionPrivate *priv = CLUTTER_ZOOM_ACTION (gobject)->priv;
-
-  switch (prop_id)
-    {
-    case PROP_ZOOM_AXIS:
-      g_value_set_enum (value, priv->zoom_axis);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-    }
-}
-
-static void
 clutter_zoom_action_dispose (GObject *gobject)
 {
   G_OBJECT_CLASS (clutter_zoom_action_parent_class)->dispose (gobject);
@@ -296,32 +245,11 @@ clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->constructed = clutter_zoom_action_constructed;
-  gobject_class->set_property = clutter_zoom_action_set_property;
-  gobject_class->get_property = clutter_zoom_action_get_property;
   gobject_class->dispose = clutter_zoom_action_dispose;
 
   gesture_class->gesture_begin = clutter_zoom_action_gesture_begin;
   gesture_class->gesture_progress = clutter_zoom_action_gesture_progress;
   gesture_class->gesture_cancel = clutter_zoom_action_gesture_cancel;
-
-  /**
-   * ClutterZoomAction:zoom-axis:
-   *
-   * Constraints the zooming action to the specified axis
-   *
-   * Since: 1.12
-   */
-  zoom_props[PROP_ZOOM_AXIS] =
-    g_param_spec_enum ("zoom-axis",
-                       P_("Zoom Axis"),
-                       P_("Constraints the zoom to an axis"),
-                       CLUTTER_TYPE_ZOOM_AXIS,
-                       CLUTTER_ZOOM_BOTH,
-                       CLUTTER_PARAM_READWRITE);
-
-  g_object_class_install_properties  (gobject_class,
-                                      PROP_LAST,
-                                      zoom_props);
 
   /**
    * ClutterZoomAction::zoom:
@@ -362,7 +290,6 @@ clutter_zoom_action_init (ClutterZoomAction *self)
   ClutterGestureAction *gesture;
 
   self->priv = clutter_zoom_action_get_instance_private (self);
-  self->priv->zoom_axis = CLUTTER_ZOOM_BOTH;
 
   gesture = CLUTTER_GESTURE_ACTION (self);
   clutter_gesture_action_set_n_touch_points (gesture, 2);
@@ -381,50 +308,6 @@ ClutterAction *
 clutter_zoom_action_new (void)
 {
   return g_object_new (CLUTTER_TYPE_ZOOM_ACTION, NULL);
-}
-
-/**
- * clutter_zoom_action_set_zoom_axis:
- * @action: a #ClutterZoomAction
- * @axis: the axis to constraint the zooming to
- *
- * Restricts the zooming action to a specific axis
- *
- * Since: 1.12
- */
-void
-clutter_zoom_action_set_zoom_axis (ClutterZoomAction *action,
-                                   ClutterZoomAxis    axis)
-{
-  g_return_if_fail (CLUTTER_IS_ZOOM_ACTION (action));
-  g_return_if_fail (axis >= CLUTTER_ZOOM_X_AXIS &&
-                    axis <= CLUTTER_ZOOM_BOTH);
-
-  if (action->priv->zoom_axis == axis)
-    return;
-
-  action->priv->zoom_axis = axis;
-
-  g_object_notify_by_pspec (G_OBJECT (action), zoom_props[PROP_ZOOM_AXIS]);
-}
-
-/**
- * clutter_zoom_action_get_zoom_axis:
- * @action: a #ClutterZoomAction
- *
- * Retrieves the axis constraint set by clutter_zoom_action_set_zoom_axis()
- *
- * Return value: the axis constraint
- *
- * Since: 1.12
- */
-ClutterZoomAxis
-clutter_zoom_action_get_zoom_axis (ClutterZoomAction *action)
-{
-  g_return_val_if_fail (CLUTTER_IS_ZOOM_ACTION (action),
-                        CLUTTER_ZOOM_BOTH);
-
-  return action->priv->zoom_axis;
 }
 
 /**

@@ -1430,24 +1430,6 @@ typedef enum
 } ClutterStepMode;
 
 /**
- * ClutterZoomAxis:
- * @CLUTTER_ZOOM_X_AXIS: Scale only on the X axis
- * @CLUTTER_ZOOM_Y_AXIS: Scale only on the Y axis
- * @CLUTTER_ZOOM_BOTH: Scale on both axis
- *
- * The axis of the constraint that should be applied by the
- * zooming action.
- *
- * Since: 1.12
- */
-typedef enum /*< prefix=CLUTTER_ZOOM >*/
-{
-  CLUTTER_ZOOM_X_AXIS,
-  CLUTTER_ZOOM_Y_AXIS,
-  CLUTTER_ZOOM_BOTH
-} ClutterZoomAxis;
-
-/**
  * ClutterGestureTriggerEdge:
  * @CLUTTER_GESTURE_TRIGGER_EDGE_NONE: Tell #ClutterGestureAction that
  * the gesture must begin immediately and there's no drag limit that

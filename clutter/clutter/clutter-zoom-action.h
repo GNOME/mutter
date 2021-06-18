@@ -90,12 +90,6 @@ CLUTTER_EXPORT
 ClutterAction * clutter_zoom_action_new                         (void);
 
 CLUTTER_EXPORT
-void            clutter_zoom_action_set_zoom_axis               (ClutterZoomAction *action,
-                                                                 ClutterZoomAxis    axis);
-CLUTTER_EXPORT
-ClutterZoomAxis clutter_zoom_action_get_zoom_axis               (ClutterZoomAction *action);
-
-CLUTTER_EXPORT
 void            clutter_zoom_action_get_focal_point             (ClutterZoomAction *action,
                                                                  graphene_point_t  *point);
 CLUTTER_EXPORT
