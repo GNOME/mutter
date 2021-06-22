@@ -54,6 +54,14 @@ typedef struct _MetaRectangle MetaRectangle;
 typedef cairo_rectangle_int_t MetaRectangle;
 #endif
 
+#define META_RECTANGLE_INIT(_x, _y, _width, _height) \
+  (MetaRectangle) { \
+    .x = (_x), \
+    .y = (_y), \
+    .width = (_width), \
+    .height = (_height) \
+  }
+
 /**
  * MetaStrut:
  * @rect: #MetaRectangle the #MetaStrut is on

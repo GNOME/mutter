@@ -104,6 +104,18 @@ new_monitor_edge (int x, int y, int width, int height, int side_type)
 }
 
 static void
+test_init_rect (void)
+{
+  MetaRectangle rect;
+
+  rect = META_RECTANGLE_INIT (1, 2, 3, 4);
+  g_assert_cmpint (rect.x, ==, 1);
+  g_assert_cmpint (rect.y, ==, 2);
+  g_assert_cmpint (rect.width, ==, 3);
+  g_assert_cmpint (rect.height, ==, 4);
+}
+
+static void
 test_area (void)
 {
   MetaRectangle temp;
@@ -1364,6 +1376,7 @@ init_boxes_tests (void)
 {
   init_random_ness ();
 
+  g_test_add_func ("/util/boxes/init", test_init_rect);
   g_test_add_func ("/util/boxes/area", test_area);
   g_test_add_func ("/util/boxes/intersect", test_intersect);
   g_test_add_func ("/util/boxes/equal", test_equal);
