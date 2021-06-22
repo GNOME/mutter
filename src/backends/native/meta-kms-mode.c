@@ -30,6 +30,18 @@ struct _MetaKmsMode
   drmModeModeInfo drm_mode;
 };
 
+int
+meta_kms_mode_get_width (MetaKmsMode *mode)
+{
+  return mode->drm_mode.hdisplay;
+}
+
+int
+meta_kms_mode_get_height (MetaKmsMode *mode)
+{
+  return mode->drm_mode.vdisplay;
+}
+
 uint32_t
 meta_kms_mode_create_blob_id (MetaKmsMode  *mode,
                               GError      **error)
