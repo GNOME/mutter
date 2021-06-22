@@ -34,8 +34,10 @@ typedef enum _MetaKmsModeFlag
   META_KMS_MODE_FLAG_FALLBACK_PORTRAIT = 1 << 1,
 } MetaKmsModeFlag;
 
+META_EXPORT_TEST
 int meta_kms_mode_get_width (MetaKmsMode *mode);
 
+META_EXPORT_TEST
 int meta_kms_mode_get_height (MetaKmsMode *mode);
 
 const char * meta_kms_mode_get_name (MetaKmsMode *mode);

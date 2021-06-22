@@ -20,11 +20,6 @@
 
 #include "config.h"
 
-#include <gbm.h>
-
-#include "backends/native/meta-backend-native-private.h"
-#include "backends/native/meta-device-pool.h"
-#include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
@@ -32,33 +27,9 @@
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-kms.h"
 #include "meta-test/meta-context-test.h"
-#include "meta/meta-backend.h"
+#include "tests/meta-kms-test-utils.h"
 
 static MetaContext *test_context;
-
-static MetaKmsDevice *
-get_test_kms_device (void)
-{
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  GList *devices;
-
-  devices = meta_kms_get_devices (kms);
-  g_assert_cmpuint (g_list_length (devices), ==, 1);
-  return META_KMS_DEVICE (devices->data);
-}
-
-static MetaKmsCrtc *
-get_test_crtc (MetaKmsDevice *device)
-{
-  GList *crtcs;
-
-  crtcs = meta_kms_device_get_crtcs (device);
-  g_assert_cmpuint (g_list_length (crtcs), ==, 1);
-
-  return META_KMS_CRTC (crtcs->data);
-}
 
 static void
 meta_test_kms_update_sanity (void)
@@ -67,8 +38,8 @@ meta_test_kms_update_sanity (void)
   MetaKmsCrtc *crtc;
   MetaKmsUpdate *update;
 
-  device = get_test_kms_device ();
-  crtc = get_test_crtc (device);
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
 
   update = meta_kms_update_new (device);
   g_assert (meta_kms_update_get_device (update) == device);
@@ -80,6 +51,144 @@ meta_test_kms_update_sanity (void)
   g_assert_null (meta_kms_update_get_page_flip_listeners (update));
   g_assert_null (meta_kms_update_get_connector_updates (update));
   g_assert_null (meta_kms_update_get_crtc_gammas (update));
+  meta_kms_update_free (update);
+}
+
+static MetaKmsMode *
+get_preferred_mode (MetaKmsConnector *connector)
+{
+  const MetaKmsConnectorState *state;
+  GList *l;
+
+  state = meta_kms_connector_get_current_state (connector);
+  for (l = state->modes; l; l = l->next)
+    {
+      MetaKmsMode *mode = l->data;
+      const drmModeModeInfo *drm_mode;
+
+      drm_mode = meta_kms_mode_get_drm_mode (mode);
+      if (drm_mode->type & DRM_MODE_TYPE_PREFERRED)
+        return mode;
+    }
+
+  g_assert_not_reached ();
+}
+
+static void
+meta_test_kms_update_plane_assignments (void)
+{
+  MetaKmsDevice *device;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsPlane *primary_plane;
+  MetaKmsPlane *cursor_plane;
+  MetaKmsMode *mode;
+  int mode_width, mode_height;
+  g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
+  g_autoptr (MetaDrmBuffer) cursor_buffer = NULL;
+  MetaKmsPlaneAssignment *primary_plane_assignment;
+  MetaKmsPlaneAssignment *cursor_plane_assignment;
+  GList *plane_assignments;
+
+  device = meta_get_test_kms_device (test_context);
+  update = meta_kms_update_new (device);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+
+  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  g_assert_nonnull (primary_plane);
+
+  cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+  g_assert_nonnull (cursor_plane);
+
+  mode = get_preferred_mode (connector);
+
+  mode_width = meta_kms_mode_get_width (mode);
+  mode_height = meta_kms_mode_get_height (mode);
+  primary_buffer = meta_create_test_dumb_buffer (device,
+                                                 mode_width, mode_height);
+
+  primary_plane_assignment =
+    meta_kms_update_assign_plane (update,
+                                  crtc,
+                                  primary_plane,
+                                  primary_buffer,
+                                  META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
+                                                                    mode_width,
+                                                                    mode_height),
+                                  META_RECTANGLE_INIT (0, 0,
+                                                       mode_width, mode_height),
+                                  META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  g_assert_nonnull (primary_plane_assignment);
+  g_assert_cmpint (primary_plane_assignment->src_rect.x, ==, 0);
+  g_assert_cmpint (primary_plane_assignment->src_rect.y, ==, 0);
+  g_assert_cmpint (primary_plane_assignment->src_rect.width,
+                   ==,
+                   meta_fixed_16_from_int (mode_width));
+  g_assert_cmpint (primary_plane_assignment->src_rect.height,
+                   ==,
+                   meta_fixed_16_from_int (mode_height));
+  g_assert_cmpint (primary_plane_assignment->dst_rect.x, ==, 0);
+  g_assert_cmpint (primary_plane_assignment->dst_rect.y, ==, 0);
+  g_assert_cmpint (primary_plane_assignment->dst_rect.width, ==, mode_width);
+  g_assert_cmpint (primary_plane_assignment->dst_rect.height, ==, mode_height);
+
+  cursor_buffer = meta_create_test_dumb_buffer (device, 64, 64);
+
+  cursor_plane_assignment =
+    meta_kms_update_assign_plane (update,
+                                  crtc,
+                                  cursor_plane,
+                                  cursor_buffer,
+                                  META_FIXED_16_RECTANGLE_INIT_INT (0, 0, 64, 64),
+                                  META_RECTANGLE_INIT (24, 48, 64, 64),
+                                  META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  g_assert_nonnull (cursor_plane_assignment);
+  g_assert_cmpint (cursor_plane_assignment->src_rect.x, ==, 0);
+  g_assert_cmpint (cursor_plane_assignment->src_rect.y, ==, 0);
+  g_assert_cmpint (cursor_plane_assignment->src_rect.width,
+                   ==,
+                   meta_fixed_16_from_int (64));
+  g_assert_cmpint (cursor_plane_assignment->src_rect.height,
+                   ==,
+                   meta_fixed_16_from_int (64));
+  g_assert_cmpint (cursor_plane_assignment->dst_rect.x, ==, 24);
+  g_assert_cmpint (cursor_plane_assignment->dst_rect.y, ==, 48);
+  g_assert_cmpint (cursor_plane_assignment->dst_rect.width, ==, 64);
+  g_assert_cmpint (cursor_plane_assignment->dst_rect.height, ==, 64);
+
+  meta_kms_plane_assignment_set_cursor_hotspot (cursor_plane_assignment,
+                                                10, 11);
+
+  g_assert (meta_kms_update_get_primary_plane_assignment (update, crtc) ==
+            primary_plane_assignment);
+
+  g_assert (primary_plane_assignment->crtc == crtc);
+  g_assert (primary_plane_assignment->update == update);
+  g_assert (primary_plane_assignment->plane == primary_plane);
+  g_assert (primary_plane_assignment->buffer == primary_buffer);
+  g_assert_cmpuint (primary_plane_assignment->rotation, ==, 0);
+  g_assert_false (primary_plane_assignment->cursor_hotspot.is_valid);
+
+  g_assert (meta_kms_update_get_cursor_plane_assignment (update, crtc) ==
+            cursor_plane_assignment);
+
+  g_assert (cursor_plane_assignment->crtc == crtc);
+  g_assert (cursor_plane_assignment->update == update);
+  g_assert (cursor_plane_assignment->plane == cursor_plane);
+  g_assert (cursor_plane_assignment->buffer == cursor_buffer);
+  g_assert_cmpuint (cursor_plane_assignment->rotation, ==, 0);
+  g_assert_true (cursor_plane_assignment->cursor_hotspot.is_valid);
+  g_assert_cmpint (cursor_plane_assignment->cursor_hotspot.x, ==, 10);
+  g_assert_cmpint (cursor_plane_assignment->cursor_hotspot.y, ==, 11);
+
+  plane_assignments = meta_kms_update_get_plane_assignments (update);
+  g_assert_cmpuint (g_list_length (plane_assignments), ==, 2);
+
+  g_assert_nonnull (g_list_find (plane_assignments, primary_plane_assignment));
+  g_assert_nonnull (g_list_find (plane_assignments, cursor_plane_assignment));
+
   meta_kms_update_free (update);
 }
 
@@ -107,6 +216,8 @@ init_tests (void)
                    meta_test_kms_update_sanity);
   g_test_add_func ("/backends/native/kms/update/fixed16",
                    meta_test_kms_update_fixed16);
+  g_test_add_func ("/backends/native/kms/update/plane-assignments",
+                   meta_test_kms_update_plane_assignments);
 }
 
 int
