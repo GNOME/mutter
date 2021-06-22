@@ -84,10 +84,29 @@ meta_test_kms_update_sanity (void)
 }
 
 static void
+meta_test_kms_update_fixed16 (void)
+{
+  MetaFixed16Rectangle rect16;
+
+  g_assert_cmpint (meta_fixed_16_from_int (12345), ==, 809041920);
+  g_assert_cmpint (meta_fixed_16_to_int (809041920), ==, 12345);
+  g_assert_cmpint (meta_fixed_16_from_int (-12345), ==, -809041920);
+  g_assert_cmpint (meta_fixed_16_to_int (-809041920), ==, -12345);
+
+  rect16 = META_FIXED_16_RECTANGLE_INIT_INT (100, 200, 300, 400);
+  g_assert_cmpint (rect16.x, ==, 6553600);
+  g_assert_cmpint (rect16.y, ==, 13107200);
+  g_assert_cmpint (rect16.width, ==, 19660800);
+  g_assert_cmpint (rect16.height, ==, 26214400);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/update/sanity",
                    meta_test_kms_update_sanity);
+  g_test_add_func ("/backends/native/kms/update/fixed16",
+                   meta_test_kms_update_fixed16);
 }
 
 int

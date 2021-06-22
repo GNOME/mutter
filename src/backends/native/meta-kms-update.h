@@ -191,6 +191,15 @@ meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
   };
 }
 
+#define META_FIXED_16_RECTANGLE_INIT(_x,_y,_w,_h) \
+  (MetaFixed16Rectangle) { .x = (_x), .y = (_y), .width = (_w), .height = (_h) }
+
+#define META_FIXED_16_RECTANGLE_INIT_INT(_x,_y,_w,_h) \
+  META_FIXED_16_RECTANGLE_INIT (meta_fixed_16_from_int (_x), \
+                                meta_fixed_16_from_int (_y), \
+                                meta_fixed_16_from_int (_w), \
+                                meta_fixed_16_from_int (_h))
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsFeedback, meta_kms_feedback_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsUpdate, meta_kms_update_free)
 
