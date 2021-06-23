@@ -38,10 +38,12 @@ enum _MetaKmsPlaneType
 G_DECLARE_FINAL_TYPE (MetaKmsPlane, meta_kms_plane,
                       META, KMS_PLANE, GObject)
 
+META_EXPORT_TEST
 MetaKmsDevice * meta_kms_plane_get_device (MetaKmsPlane *plane);
 
 uint32_t meta_kms_plane_get_id (MetaKmsPlane *plane);
 
+META_EXPORT_TEST
 MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
 
 gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
@@ -55,6 +57,7 @@ GArray * meta_kms_plane_copy_drm_format_list (MetaKmsPlane *plane);
 gboolean meta_kms_plane_is_format_supported (MetaKmsPlane *plane,
                                              uint32_t      format);
 
+META_EXPORT_TEST
 gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
                                         MetaKmsCrtc  *crtc);
 

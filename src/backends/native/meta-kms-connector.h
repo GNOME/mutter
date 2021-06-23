@@ -61,6 +61,7 @@ typedef struct _MetaKmsConnectorState
   MetaMonitorTransform panel_orientation_transform;
 } MetaKmsConnectorState;
 
+META_EXPORT_TEST
 MetaKmsDevice * meta_kms_connector_get_device (MetaKmsConnector *connector);
 
 uint32_t meta_kms_connector_get_connector_type (MetaKmsConnector *connector);

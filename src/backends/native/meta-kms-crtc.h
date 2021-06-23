@@ -60,6 +60,7 @@ G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
                       META, KMS_CRTC,
                       GObject)
 
+META_EXPORT_TEST
 MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
 
 const MetaKmsCrtcState * meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc);

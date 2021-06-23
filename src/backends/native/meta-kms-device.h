@@ -37,6 +37,7 @@ MetaKms * meta_kms_device_get_kms (MetaKmsDevice *device);
 META_EXPORT_TEST
 const char * meta_kms_device_get_path (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 const char * meta_kms_device_get_driver_name (MetaKmsDevice *device);
 
 const char * meta_kms_device_get_driver_description (MetaKmsDevice *device);
@@ -49,6 +50,7 @@ gboolean meta_kms_device_get_cursor_size (MetaKmsDevice *device,
 
 gboolean meta_kms_device_prefers_shadow_buffer (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 gboolean meta_kms_device_uses_monotonic_clock (MetaKmsDevice *device);
 
 META_EXPORT_TEST
@@ -57,6 +59,7 @@ GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
 META_EXPORT_TEST
 GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
 
+META_EXPORT_TEST
 GList * meta_kms_device_get_planes (MetaKmsDevice *device);
 
 META_EXPORT_TEST
