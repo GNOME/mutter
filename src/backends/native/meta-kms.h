@@ -31,13 +31,6 @@ typedef enum _MetaKmsFlags
   META_KMS_FLAG_NO_MODE_SETTING = 1 << 0,
 } MetaKmsFlags;
 
-typedef enum _MetaKmsUpdateFlag
-{
-  META_KMS_UPDATE_FLAG_NONE = 0,
-  META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR = 1 << 0,
-  META_KMS_UPDATE_FLAG_TEST_ONLY = 1 << 1,
-} MetaKmsUpdateFlag;
-
 #define META_TYPE_KMS (meta_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, GObject)
 

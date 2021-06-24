@@ -139,9 +139,6 @@ MetaKmsUpdateChanges meta_kms_impl_device_update_states (MetaKmsImplDevice *impl
                                                          uint32_t           crtc_id,
                                                          uint32_t           connector_id);
 
-void meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
-                                          MetaKmsUpdate     *update);
-
 void meta_kms_impl_device_notify_modes_set (MetaKmsImplDevice *impl_device);
 
 MetaKmsPlane * meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_device,

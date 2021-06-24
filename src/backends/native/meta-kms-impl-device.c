@@ -772,7 +772,7 @@ err:
   return META_KMS_UPDATE_CHANGE_FULL;
 }
 
-void
+static void
 meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                                      MetaKmsUpdate     *update)
 {
@@ -816,6 +816,8 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
 
   meta_kms_impl_device_hold_fd (impl_device);
   feedback = klass->process_update (impl_device, update, flags);
+  if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
+    meta_kms_impl_device_predict_states (impl_device, update);
   meta_kms_impl_device_unhold_fd (impl_device);
 
   return feedback;

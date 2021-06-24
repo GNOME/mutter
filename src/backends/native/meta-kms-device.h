@@ -72,6 +72,10 @@ MetaKmsPlane * meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
 
 GList * meta_kms_device_get_fallback_modes (MetaKmsDevice *device);
 
+MetaKmsFeedback * meta_kms_device_process_update_sync (MetaKmsDevice     *device,
+                                                       MetaKmsUpdate     *update,
+                                                       MetaKmsUpdateFlag  flags);
+
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,

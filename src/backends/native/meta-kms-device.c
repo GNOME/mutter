@@ -39,6 +39,7 @@
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
+#include "backends/native/meta-kms-update-private.h"
 
 struct _MetaKmsDevice
 {
@@ -259,15 +260,39 @@ meta_kms_device_update_states_in_impl (MetaKmsDevice *device,
   return changes;
 }
 
-void
-meta_kms_device_predict_states_in_impl (MetaKmsDevice *device,
-                                        MetaKmsUpdate *update)
+typedef struct
 {
+  MetaKmsUpdate *update;
+  MetaKmsUpdateFlag flags;
+} PostUpdateData;
+
+static gpointer
+process_update_in_impl (MetaKmsImpl  *impl,
+                        gpointer      user_data,
+                        GError      **error)
+{
+  PostUpdateData *data = user_data;
+  MetaKmsUpdate *update = data->update;
+  MetaKmsDevice *device = meta_kms_update_get_device (update);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
 
-  meta_assert_in_kms_impl (device->kms);
+  return meta_kms_impl_device_process_update (impl_device, update, data->flags);
+}
 
-  meta_kms_impl_device_predict_states (impl_device, update);
+MetaKmsFeedback *
+meta_kms_device_process_update_sync (MetaKmsDevice     *device,
+                                     MetaKmsUpdate     *update,
+                                     MetaKmsUpdateFlag  flags)
+{
+  MetaKms *kms = META_KMS (meta_kms_device_get_kms (device));
+  PostUpdateData data;
+
+  data = (PostUpdateData) {
+    .update = update,
+    .flags = flags,
+  };
+  return meta_kms_run_impl_task_sync (kms, process_update_in_impl,
+                                      &data, NULL);
 }
 
 void
