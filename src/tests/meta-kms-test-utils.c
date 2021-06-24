@@ -30,6 +30,8 @@
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-mode.h"
+#include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 
 MetaKmsDevice *
@@ -102,4 +104,29 @@ meta_create_test_dumb_buffer (MetaKmsDevice *device,
   g_assert_nonnull (dumb_buffer);
 
   return META_DRM_BUFFER (dumb_buffer);
+}
+
+MetaDrmBuffer *
+meta_create_test_mode_dumb_buffer (MetaKmsDevice *device,
+                                   MetaKmsMode   *mode)
+{
+  return meta_create_test_dumb_buffer (device,
+                                       meta_kms_mode_get_width (mode),
+                                       meta_kms_mode_get_height (mode));
+}
+
+MetaFixed16Rectangle
+meta_get_mode_fixed_rect_16 (MetaKmsMode *mode)
+{
+  return META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
+                                           meta_kms_mode_get_width (mode),
+                                           meta_kms_mode_get_height (mode));
+}
+
+MetaRectangle
+meta_get_mode_rect (MetaKmsMode *mode)
+{
+  return META_RECTANGLE_INIT (0, 0,
+                              meta_kms_mode_get_width (mode),
+                              meta_kms_mode_get_height (mode));
 }

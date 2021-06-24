@@ -106,19 +106,15 @@ meta_test_kms_update_plane_assignments (void)
 
   mode_width = meta_kms_mode_get_width (mode);
   mode_height = meta_kms_mode_get_height (mode);
-  primary_buffer = meta_create_test_dumb_buffer (device,
-                                                 mode_width, mode_height);
+  primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
 
   primary_plane_assignment =
     meta_kms_update_assign_plane (update,
                                   crtc,
                                   primary_plane,
                                   primary_buffer,
-                                  META_FIXED_16_RECTANGLE_INIT_INT (0, 0,
-                                                                    mode_width,
-                                                                    mode_height),
-                                  META_RECTANGLE_INIT (0, 0,
-                                                       mode_width, mode_height),
+                                  meta_get_mode_fixed_rect_16 (mode),
+                                  meta_get_mode_rect (mode),
                                   META_KMS_ASSIGN_PLANE_FLAG_NONE);
   g_assert_nonnull (primary_plane_assignment);
   g_assert_cmpint (primary_plane_assignment->src_rect.x, ==, 0);

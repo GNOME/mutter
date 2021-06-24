@@ -24,6 +24,7 @@
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-kms-types.h"
 #include "meta/meta-context.h"
+#include "meta/boxes.h"
 
 MetaKmsDevice * meta_get_test_kms_device (MetaContext *context);
 
@@ -34,5 +35,12 @@ MetaKmsConnector * meta_get_test_kms_connector (MetaKmsDevice *device);
 MetaDrmBuffer * meta_create_test_dumb_buffer (MetaKmsDevice *device,
                                               int            width,
                                               int            height);
+
+MetaDrmBuffer * meta_create_test_mode_dumb_buffer (MetaKmsDevice *device,
+                                                   MetaKmsMode   *mode);
+
+MetaFixed16Rectangle meta_get_mode_fixed_rect_16 (MetaKmsMode *mode);
+
+MetaRectangle meta_get_mode_rect (MetaKmsMode *mode);
 
 #endif /* META_KMS_TEST_UTILS_H */
