@@ -123,6 +123,26 @@ meta_kms_connector_can_clone (MetaKmsConnector *connector,
   return TRUE;
 }
 
+MetaKmsMode *
+meta_kms_connector_get_preferred_mode (MetaKmsConnector *connector)
+{
+  const MetaKmsConnectorState *state;
+  GList *l;
+
+  state = meta_kms_connector_get_current_state (connector);
+  for (l = state->modes; l; l = l->next)
+    {
+      MetaKmsMode *mode = l->data;
+      const drmModeModeInfo *drm_mode;
+
+      drm_mode = meta_kms_mode_get_drm_mode (mode);
+      if (drm_mode->type & DRM_MODE_TYPE_PREFERRED)
+        return mode;
+    }
+
+  return NULL;
+}
+
 const MetaKmsConnectorState *
 meta_kms_connector_get_current_state (MetaKmsConnector *connector)
 {

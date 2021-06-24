@@ -58,6 +58,7 @@ meta_test_kms_device_sanity (void)
   g_assert_cmpuint (g_list_length (connectors), ==, 1);
   connector = META_KMS_CONNECTOR (connectors->data);
   g_assert (meta_kms_connector_get_device (connector) == device);
+  g_assert_nonnull (meta_kms_connector_get_preferred_mode (connector));
 
   crtcs = meta_kms_device_get_crtcs (device);
   g_assert_cmpuint (g_list_length (crtcs), ==, 1);

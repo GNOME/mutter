@@ -54,26 +54,6 @@ meta_test_kms_update_sanity (void)
   meta_kms_update_free (update);
 }
 
-static MetaKmsMode *
-get_preferred_mode (MetaKmsConnector *connector)
-{
-  const MetaKmsConnectorState *state;
-  GList *l;
-
-  state = meta_kms_connector_get_current_state (connector);
-  for (l = state->modes; l; l = l->next)
-    {
-      MetaKmsMode *mode = l->data;
-      const drmModeModeInfo *drm_mode;
-
-      drm_mode = meta_kms_mode_get_drm_mode (mode);
-      if (drm_mode->type & DRM_MODE_TYPE_PREFERRED)
-        return mode;
-    }
-
-  g_assert_not_reached ();
-}
-
 static void
 meta_test_kms_update_plane_assignments (void)
 {
@@ -102,7 +82,7 @@ meta_test_kms_update_plane_assignments (void)
   cursor_plane = meta_kms_device_get_cursor_plane_for (device, crtc);
   g_assert_nonnull (cursor_plane);
 
-  mode = get_preferred_mode (connector);
+  mode = meta_kms_connector_get_preferred_mode (connector);
 
   mode_width = meta_kms_mode_get_width (mode);
   mode_height = meta_kms_mode_get_height (mode);
@@ -220,7 +200,7 @@ meta_test_kms_update_mode_sets (void)
   update = meta_kms_update_new (device);
   crtc = meta_get_test_kms_crtc (device);
   connector = meta_get_test_kms_connector (device);
-  mode = get_preferred_mode (connector);
+  mode = meta_kms_connector_get_preferred_mode (connector);
 
   meta_kms_update_mode_set (update, crtc,
                             g_list_append (NULL, connector),
