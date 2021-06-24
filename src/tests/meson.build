@@ -300,6 +300,8 @@ if have_native_tests
 
   native_kms_device_tests = executable('mutter-native-kms-device',
     sources: [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
       'native-kms-device.c',
     ],
     include_directories: tests_includes,

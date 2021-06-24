@@ -25,8 +25,10 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "meta-test/meta-context-test.h"
+#include "tests/meta-kms-test-utils.h"
 
 static MetaContext *test_context;
 
@@ -87,10 +89,65 @@ meta_test_kms_device_sanity (void)
 }
 
 static void
+meta_test_kms_device_mode_set (void)
+{
+  MetaKmsDevice *device;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+  MetaKmsPlane *primary_plane;
+  g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
+  const MetaKmsCrtcState *crtc_state;
+  const MetaKmsConnectorState *connector_state;
+  MetaRectangle mode_rect;
+
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = meta_kms_connector_get_preferred_mode (connector);
+
+  update = meta_kms_update_new (device);
+
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+
+  primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
+
+  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_device_process_update_sync (device, update,
+                                       META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_update_free (update);
+
+  crtc_state = meta_kms_crtc_get_current_state (crtc);
+  g_assert_nonnull (crtc_state);
+  g_assert_true (crtc_state->is_active);
+  g_assert_true (crtc_state->is_drm_mode_valid);
+  mode_rect = meta_get_mode_rect (mode);
+  g_assert (meta_rectangle_equal (&crtc_state->rect, &mode_rect));
+
+  connector_state = meta_kms_connector_get_current_state (connector);
+  g_assert_nonnull (connector_state);
+  g_assert_cmpuint (connector_state->current_crtc_id,
+                    ==,
+                    meta_kms_crtc_get_id (crtc));
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/device/sanity",
                    meta_test_kms_device_sanity);
+  g_test_add_func ("/backends/native/kms/device/mode-set",
+                   meta_test_kms_device_mode_set);
 }
 
 int
