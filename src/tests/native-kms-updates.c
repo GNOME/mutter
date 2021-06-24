@@ -217,6 +217,157 @@ meta_test_kms_update_mode_sets (void)
   meta_kms_update_free (update);
 }
 
+typedef enum _PageFlipState
+{
+  INIT,
+  PAGE_FLIPPED,
+  DESTROYED,
+} PageFlipState;
+
+typedef struct _PageFlipData
+{
+  GMainLoop *loop;
+  GThread *thread;
+
+  PageFlipState state;
+} PageFlipData;
+
+static void
+page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
+                            unsigned int  sequence,
+                            unsigned int  tv_sec,
+                            unsigned int  tv_usec,
+                            gpointer      user_data)
+{
+  PageFlipData *data = user_data;
+
+  g_assert (data->thread == g_thread_self ());
+  g_assert_cmpint (data->state, ==, INIT);
+  data->state = PAGE_FLIPPED;
+}
+
+static void
+page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
+                          gpointer     user_data)
+{
+  g_assert_not_reached ();
+}
+
+static void
+page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
+                                      gpointer     user_data)
+{
+  g_assert_not_reached ();
+}
+
+static void
+page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
+                              gpointer      user_data,
+                              const GError *error)
+{
+  g_assert_not_reached ();
+}
+
+static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
+  .flipped = page_flip_feedback_flipped,
+  .ready = page_flip_feedback_ready,
+  .mode_set_fallback = page_flip_feedback_mode_set_fallback,
+  .discarded = page_flip_feedback_discarded,
+};
+
+static void
+page_flip_data_destroy (gpointer user_data)
+{
+  PageFlipData *data = user_data;
+
+  g_assert (data->thread == g_thread_self ());
+  g_assert_cmpint (data->state, ==, PAGE_FLIPPED);
+  data->state = DESTROYED;
+
+  g_main_loop_quit (data->loop);
+}
+
+static void
+meta_test_kms_update_page_flip (void)
+{
+  MetaKmsDevice *device;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+  g_autoptr (MetaDrmBuffer) primary_buffer1 = NULL;
+  g_autoptr (MetaDrmBuffer) primary_buffer2 = NULL;
+  MetaKmsPlane *primary_plane;
+  PageFlipData data = {};
+  MetaKmsFeedback *feedback;
+
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = meta_kms_connector_get_preferred_mode (connector);
+
+  update = meta_kms_update_new (device);
+
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+
+  primary_buffer1 = meta_create_test_mode_dumb_buffer (device, mode);
+
+  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer1,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+
+  data.loop = g_main_loop_new (NULL, FALSE);
+  data.thread = g_thread_self ();
+  meta_kms_update_add_page_flip_listener (update, crtc,
+                                          &page_flip_listener_vtable,
+                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                          &data,
+                                          page_flip_data_destroy);
+
+  feedback =
+    meta_kms_device_process_update_sync (device, update,
+                                         META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_feedback_free (feedback);
+  meta_kms_update_free (update);
+
+  g_main_loop_run (data.loop);
+  g_assert_cmpint (data.state, ==, DESTROYED);
+
+  data.state = INIT;
+  update = meta_kms_update_new (device);
+  primary_buffer2 = meta_create_test_mode_dumb_buffer (device, mode);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer2,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_update_add_page_flip_listener (update, crtc,
+                                          &page_flip_listener_vtable,
+                                          META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                          &data,
+                                          page_flip_data_destroy);
+
+  feedback =
+    meta_kms_device_process_update_sync (device, update,
+                                         META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_feedback_free (feedback);
+  meta_kms_update_free (update);
+
+  g_main_loop_run (data.loop);
+  g_assert_cmpint (data.state, ==, DESTROYED);
+
+  g_main_loop_unref (data.loop);
+}
+
 static void
 init_tests (void)
 {
@@ -228,6 +379,8 @@ init_tests (void)
                    meta_test_kms_update_plane_assignments);
   g_test_add_func ("/backends/native/kms/update/mode-sets",
                    meta_test_kms_update_mode_sets);
+  g_test_add_func ("/backends/native/kms/update/page-flip",
+                   meta_test_kms_update_page_flip);
 }
 
 int

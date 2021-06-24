@@ -145,6 +145,7 @@ MetaKmsPlaneAssignment * meta_kms_update_unassign_plane (MetaKmsUpdate *update,
                                                          MetaKmsCrtc   *crtc,
                                                          MetaKmsPlane  *plane);
 
+META_EXPORT_TEST
 void meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *update,
                                              MetaKmsCrtc                         *crtc,
                                              const MetaKmsPageFlipListenerVtable *vtable,
