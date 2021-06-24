@@ -39,6 +39,10 @@ struct TransferRequest
   GInputStream  *istream;
   GOutputStream *ostream;
   gssize len;
+  GSource *timeout_source;
+  GCancellable *cancellable;
+  GCancellable *external_cancellable;
+  gulong cancellable_signal_handler;
 };
 
 enum
@@ -174,10 +178,39 @@ meta_selection_get_mimetypes (MetaSelection     *selection,
   return meta_selection_source_get_mimetypes (selection->owners[selection_type]);
 }
 
+static gboolean
+cancel_transfer_request (gpointer user_data)
+{
+  TransferRequest *request = user_data;
+
+  g_cancellable_cancel (request->cancellable);
+  if (request->cancellable_signal_handler)
+    {
+      g_assert (request->external_cancellable);
+      g_cancellable_disconnect (request->external_cancellable,
+                                request->cancellable_signal_handler);
+      request->cancellable_signal_handler = 0;
+      g_object_unref (request->external_cancellable);
+    }
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+on_external_cancellable_cancelled (GCancellable    *external_cancellable,
+                                   TransferRequest *request)
+{
+  g_cancellable_cancel (request->cancellable);
+
+  g_source_destroy (request->timeout_source);
+  g_clear_pointer (&request->timeout_source, g_source_unref);
+}
+
 static TransferRequest *
 transfer_request_new (GOutputStream     *ostream,
                       MetaSelectionType  selection_type,
-                      gssize             len)
+                      ssize_t            len,
+                      GCancellable      *external_cancellable)
 {
   TransferRequest *request;
 
@@ -185,12 +218,44 @@ transfer_request_new (GOutputStream     *ostream,
   request->ostream = g_object_ref (ostream);
   request->selection_type = selection_type;
   request->len = len;
+  request->cancellable = g_cancellable_new ();
+  request->timeout_source = g_timeout_source_new_seconds (15);
+
+  g_source_set_callback (request->timeout_source, cancel_transfer_request,
+                         request, NULL);
+  g_source_attach (request->timeout_source, NULL);
+
+  if (external_cancellable)
+    {
+      request->external_cancellable = g_object_ref (external_cancellable);
+      request->cancellable_signal_handler =
+        g_cancellable_connect (external_cancellable,
+                               G_CALLBACK (on_external_cancellable_cancelled),
+                               request, NULL);
+    }
+
   return request;
 }
 
 static void
 transfer_request_free (TransferRequest *request)
 {
+  if (request->cancellable_signal_handler)
+    {
+      g_assert (request->external_cancellable);
+      g_cancellable_disconnect (request->external_cancellable,
+                                request->cancellable_signal_handler);
+      request->cancellable_signal_handler = 0;
+      g_object_unref (request->external_cancellable);
+    }
+
+  if (request->timeout_source)
+    {
+      g_source_destroy (request->timeout_source);
+      g_clear_pointer (&request->timeout_source, g_source_unref);
+    }
+
+  g_clear_object (&request->cancellable);
   g_clear_object (&request->istream);
   g_clear_object (&request->ostream);
   g_free (request);
@@ -362,6 +427,7 @@ meta_selection_transfer_async (MetaSelection        *selection,
                                GAsyncReadyCallback   callback,
                                gpointer              user_data)
 {
+  TransferRequest *transfer_request;
   GTask *task;
 
   g_return_if_fail (META_IS_SELECTION (selection));
@@ -372,12 +438,14 @@ meta_selection_transfer_async (MetaSelection        *selection,
   task = g_task_new (selection, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_transfer_async);
 
-  g_task_set_task_data (task,
-                        transfer_request_new (output, selection_type, size),
+  transfer_request = transfer_request_new (output, selection_type, size,
+                                           cancellable);
+
+  g_task_set_task_data (task, transfer_request,
                         (GDestroyNotify) transfer_request_free);
   meta_selection_source_read_async (selection->owners[selection_type],
                                     mimetype,
-                                    cancellable,
+                                    transfer_request->cancellable,
                                     (GAsyncReadyCallback) source_read_cb,
                                     task);
 }
