@@ -170,10 +170,6 @@ static void clutter_stage_update_view_perspective (ClutterStage *stage);
 static void clutter_stage_set_viewport (ClutterStage *stage,
                                         float         width,
                                         float         height);
-static ClutterActor * _clutter_stage_do_pick (ClutterStage   *stage,
-                                              float           x,
-                                              float           y,
-                                              ClutterPickMode mode);
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStage, clutter_stage, CLUTTER_TYPE_ACTOR)
 
@@ -914,22 +910,16 @@ clutter_stage_update_devices (ClutterStage *stage,
     {
       ClutterInputDevice *device = l->data;
       PointerDeviceEntry *entry = NULL;
-      ClutterActor *new_actor;
 
       entry = g_hash_table_lookup (priv->pointer_devices, device);
       g_assert (entry != NULL);
 
-      new_actor = _clutter_stage_do_pick (stage,
-                                          entry->coords.x,
-                                          entry->coords.y,
-                                          CLUTTER_PICK_REACTIVE);
-
-      clutter_stage_update_device (stage,
-                                   device, NULL,
-                                   entry->coords,
-                                   CLUTTER_CURRENT_TIME,
-                                   new_actor,
-                                   TRUE);
+      clutter_stage_pick_and_update_device (stage,
+                                            device,
+                                            NULL,
+                                            CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                            entry->coords,
+                                            CLUTTER_CURRENT_TIME);
     }
 }
 
@@ -3256,22 +3246,15 @@ on_device_actor_reactive_changed (ClutterActor       *actor,
                                   PointerDeviceEntry *entry)
 {
   ClutterStage *self = entry->stage;
-  ClutterActor *new_device_actor;
 
   g_assert (!clutter_actor_get_reactive (actor));
 
-  new_device_actor =
-    _clutter_stage_do_pick (self,
-                            entry->coords.x,
-                            entry->coords.y,
-                            CLUTTER_PICK_REACTIVE);
-
-  clutter_stage_update_device (self,
-                               entry->device, entry->sequence,
-                               entry->coords,
-                               CLUTTER_CURRENT_TIME,
-                               new_device_actor,
-                               TRUE);
+  clutter_stage_pick_and_update_device (self,
+                                        entry->device,
+                                        entry->sequence,
+                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                        entry->coords,
+                                        CLUTTER_CURRENT_TIME);
 }
 
 static void
@@ -3444,4 +3427,32 @@ clutter_stage_get_device_coords (ClutterStage         *stage,
 
   if (entry && coords)
     *coords = entry->coords;
+}
+
+ClutterActor *
+clutter_stage_pick_and_update_device (ClutterStage             *stage,
+                                      ClutterInputDevice       *device,
+                                      ClutterEventSequence     *sequence,
+                                      ClutterDeviceUpdateFlags  flags,
+                                      graphene_point_t          point,
+                                      uint32_t                  time_ms)
+{
+  ClutterActor *new_actor;
+
+  new_actor = _clutter_stage_do_pick (stage,
+                                      point.x,
+                                      point.y,
+                                      CLUTTER_PICK_REACTIVE);
+
+  /* Picking should never fail, but if it does, we bail out here */
+  g_return_val_if_fail (new_actor != NULL, NULL);
+
+  clutter_stage_update_device (stage,
+                               device, sequence,
+                               point,
+                               time_ms,
+                               new_actor,
+                               !!(flags & CLUTTER_DEVICE_UPDATE_EMIT_CROSSING));
+
+  return new_actor;
 }

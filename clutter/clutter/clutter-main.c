@@ -768,28 +768,22 @@ update_device_for_event (ClutterStage *stage,
 {
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterActor *new_actor;
+  ClutterDeviceUpdateFlags flags = CLUTTER_DEVICE_UPDATE_NONE;
   graphene_point_t point;
   uint32_t time_ms;
 
   clutter_event_get_coords (event, &point.x, &point.y);
   time_ms = clutter_event_get_time (event);
 
-  new_actor =
-    clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_REACTIVE,
-                                    point.x, point.y);
+  if (emit_crossing)
+    flags |= CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
 
-  /* Picking should never fail, but if it does, we bail out here */
-  g_return_val_if_fail (new_actor != NULL, NULL);
-
-  clutter_stage_update_device (stage,
-                               device, sequence,
-                               point,
-                               time_ms,
-                               new_actor,
-                               emit_crossing);
-
-  return new_actor;
+  return clutter_stage_pick_and_update_device (stage,
+                                               device,
+                                               sequence,
+                                               flags,
+                                               point,
+                                               time_ms);
 }
 
 /**
@@ -982,19 +976,14 @@ clutter_stage_repick_device (ClutterStage       *stage,
                              ClutterInputDevice *device)
 {
   graphene_point_t point;
-  ClutterActor *new_actor;
 
   clutter_stage_get_device_coords (stage, device, NULL, &point);
-  new_actor =
-    clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_REACTIVE,
-                                    point.x, point.y);
-
-  clutter_stage_update_device (stage,
-                               device, NULL,
-                               point,
-                               CLUTTER_CURRENT_TIME,
-                               new_actor,
-                               TRUE);
+  clutter_stage_pick_and_update_device (stage,
+                                        device,
+                                        NULL,
+                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                        point,
+                                        CLUTTER_CURRENT_TIME);
 }
 
 static void
