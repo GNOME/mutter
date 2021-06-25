@@ -81,11 +81,6 @@ void     _clutter_stage_process_queued_events             (ClutterStage *stage);
 void     _clutter_stage_update_input_devices              (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
-ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
-                                      float            x,
-                                      float            y,
-                                      ClutterPickMode  mode);
-
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
 void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);
 

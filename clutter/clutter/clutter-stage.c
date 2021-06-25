@@ -1119,7 +1119,7 @@ clutter_stage_get_view_at (ClutterStage *stage,
   return NULL;
 }
 
-ClutterActor *
+static ClutterActor *
 _clutter_stage_do_pick (ClutterStage   *stage,
                         float           x,
                         float           y,
