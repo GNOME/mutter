@@ -395,7 +395,6 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                     MetaCursorSprite   *cursor_sprite)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
-  gboolean handled_by_backend;
 
   if (cursor_sprite)
     {
@@ -407,11 +406,9 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                      (int) priv->current_y);
     }
 
-  handled_by_backend =
+  priv->handled_by_backend =
     META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer,
                                                               cursor_sprite);
-  if (handled_by_backend != priv->handled_by_backend)
-    priv->handled_by_backend = handled_by_backend;
 
   meta_cursor_renderer_update_stage_overlay (renderer, cursor_sprite);
 }
