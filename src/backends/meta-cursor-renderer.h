@@ -66,8 +66,6 @@ void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
 MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
 
-gboolean meta_cursor_renderer_is_overlay_visible (MetaCursorRenderer *renderer);
-
 graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                                      MetaCursorSprite   *cursor_sprite);
 
