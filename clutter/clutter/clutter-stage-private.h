@@ -31,6 +31,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+  CLUTTER_DEVICE_UPDATE_NONE = 0,
+  CLUTTER_DEVICE_UPDATE_EMIT_CROSSING = 1 << 0,
+} ClutterDeviceUpdateFlags;
+
 /* stage */
 ClutterStageWindow *_clutter_stage_get_default_window    (void);
 
@@ -134,6 +140,12 @@ void clutter_stage_update_device_entry (ClutterStage         *self,
 void clutter_stage_remove_device_entry (ClutterStage         *self,
                                         ClutterInputDevice   *device,
                                         ClutterEventSequence *sequence);
+ClutterActor * clutter_stage_pick_and_update_device (ClutterStage             *stage,
+                                                     ClutterInputDevice       *device,
+                                                     ClutterEventSequence     *sequence,
+                                                     ClutterDeviceUpdateFlags  flags,
+                                                     graphene_point_t          point,
+                                                     uint32_t                  time_ms);
 
 G_END_DECLS
 
