@@ -3429,6 +3429,109 @@ clutter_stage_get_device_coords (ClutterStage         *stage,
     *coords = entry->coords;
 }
 
+static void
+create_crossing_event (ClutterStage         *stage,
+                       ClutterInputDevice   *device,
+                       ClutterEventSequence *sequence,
+                       ClutterEventType      event_type,
+                       ClutterActor         *source,
+                       ClutterActor         *related,
+                       graphene_point_t      coords,
+                       uint32_t              time_ms)
+{
+  ClutterEvent *event;
+
+  event = clutter_event_new (event_type);
+  event->crossing.time = time_ms;
+  event->crossing.flags = 0;
+  event->crossing.stage = stage;
+  event->crossing.source = source;
+  event->crossing.x = coords.x;
+  event->crossing.y = coords.y;
+  event->crossing.related = related;
+  event->crossing.sequence = sequence;
+  clutter_event_set_device (event, device);
+
+  /* we need to make sure that this event is processed
+   * before any other event we might have queued up until
+   * now, so we go on, and synthesize the event emission
+   * ourselves
+   */
+  _clutter_process_event (event);
+
+  clutter_event_free (event);
+}
+
+void
+clutter_stage_update_device (ClutterStage         *stage,
+                             ClutterInputDevice   *device,
+                             ClutterEventSequence *sequence,
+                             graphene_point_t      point,
+                             uint32_t              time_ms,
+                             ClutterActor         *new_actor,
+                             gboolean              emit_crossing)
+{
+  ClutterInputDeviceType device_type;
+  ClutterActor *old_actor;
+  gboolean device_actor_changed;
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
+            device_type != CLUTTER_PAD_DEVICE);
+
+  old_actor = clutter_stage_get_device_actor (stage, device, sequence);
+  device_actor_changed = new_actor != old_actor;
+
+  clutter_stage_update_device_entry (stage,
+                                     device, sequence,
+                                     point,
+                                     new_actor);
+
+  if (device_actor_changed)
+    {
+      CLUTTER_NOTE (EVENT,
+                    "Updating actor under cursor (device %s, at %.2f, %.2f): %s",
+                    clutter_input_device_get_device_name (device),
+                    point.x,
+                    point.y,
+                    _clutter_actor_get_debug_name (new_actor));
+
+      if (old_actor && emit_crossing)
+        {
+          create_crossing_event (stage,
+                                 device, sequence,
+                                 CLUTTER_LEAVE,
+                                 old_actor, new_actor,
+                                 point, time_ms);
+        }
+
+      if (new_actor && emit_crossing)
+        {
+          create_crossing_event (stage,
+                                 device, sequence,
+                                 CLUTTER_ENTER,
+                                 new_actor, old_actor,
+                                 point, time_ms);
+        }
+    }
+}
+
+void
+clutter_stage_repick_device (ClutterStage       *stage,
+                             ClutterInputDevice *device)
+{
+  graphene_point_t point;
+
+  clutter_stage_get_device_coords (stage, device, NULL, &point);
+  clutter_stage_pick_and_update_device (stage,
+                                        device,
+                                        NULL,
+                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                        point,
+                                        CLUTTER_CURRENT_TIME);
+}
+
 ClutterActor *
 clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       ClutterInputDevice       *device,
