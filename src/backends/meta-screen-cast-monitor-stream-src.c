@@ -48,6 +48,8 @@ struct _MetaScreenCastMonitorStreamSrc
 
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
+
+  guint maybe_record_idle_id;
 };
 
 static void
@@ -116,17 +118,39 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   return TRUE;
 }
 
+static gboolean
+maybe_record_frame_on_idle (gpointer user_data)
+{
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastRecordFlag flags;
+
+  monitor_src->maybe_record_idle_id = 0;
+
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+
+  return G_SOURCE_REMOVE;
+}
+
 static void
 stage_painted (MetaStage           *stage,
                ClutterStageView    *view,
                ClutterPaintContext *paint_context,
                gpointer             user_data)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
-  MetaScreenCastRecordFlag flags;
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+  if (monitor_src->maybe_record_idle_id)
+    return;
+
+  monitor_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle,
+                                                  src);
+  g_source_set_name_by_id (monitor_src->maybe_record_idle_id,
+                           "[mutter] maybe_record_frame_on_idle [monitor-src]");
 }
 
 static void
@@ -135,17 +159,20 @@ before_stage_painted (MetaStage           *stage,
                       ClutterPaintContext *paint_context,
                       gpointer             user_data)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
-  CoglScanout *scanout;
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
 
-  scanout = clutter_stage_view_peek_scanout (view);
-  if (scanout)
-    {
-      MetaScreenCastRecordFlag flags;
+  if (monitor_src->maybe_record_idle_id)
+    return;
 
-      flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-      meta_screen_cast_stream_src_maybe_record_frame (src, flags);
-    }
+  if (!clutter_stage_view_peek_scanout (view))
+    return;
+
+  monitor_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle,
+                                                  src);
+  g_source_set_name_by_id (monitor_src->maybe_record_idle_id,
+                           "[mutter] maybe_record_frame_on_idle [monitor-src]");
 }
 
 static MetaBackend *
@@ -440,6 +467,8 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
   g_clear_signal_handler (&monitor_src->cursor_changed_handler_id,
                           cursor_tracker);
 
+  g_clear_handle_id (&monitor_src->maybe_record_idle_id, g_source_remove);
+
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
@@ -449,70 +478,6 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       break;
     }
-}
-
-static void
-maybe_paint_cursor_sprite (MetaScreenCastMonitorStreamSrc *monitor_src,
-                           int                             width,
-                           int                             height,
-                           int                             stride,
-                           uint8_t                        *data)
-{
-  MetaBackend *backend = get_backend (monitor_src);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
-  MetaCursorSprite *cursor_sprite;
-  CoglTexture *sprite_texture;
-  int sprite_width, sprite_height, sprite_stride;
-  float sprite_scale;
-  uint8_t *sprite_data;
-  cairo_surface_t *sprite_surface;
-  graphene_rect_t sprite_rect;
-  cairo_surface_t *surface;
-  cairo_t *cr;
-
-  if (!is_cursor_in_stream (monitor_src))
-    return;
-
-  cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
-  if (!cursor_sprite)
-    return;
-
-  if (meta_cursor_renderer_is_overlay_visible (cursor_renderer))
-    return;
-
-  sprite_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
-                                                     cursor_sprite);
-  sprite_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
-  sprite_width = cogl_texture_get_width (sprite_texture);
-  sprite_height = cogl_texture_get_height (sprite_texture);
-  sprite_stride = sprite_width * 4;
-  sprite_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
-  sprite_data = g_new0 (uint8_t, sprite_stride * sprite_height);
-  cogl_texture_get_data (sprite_texture,
-                         CLUTTER_CAIRO_FORMAT_ARGB32,
-                         sprite_stride,
-                         sprite_data);
-  sprite_surface = cairo_image_surface_create_for_data (sprite_data,
-                                                        CAIRO_FORMAT_ARGB32,
-                                                        sprite_width,
-                                                        sprite_height,
-                                                        sprite_stride);
-  cairo_surface_set_device_scale (sprite_surface, sprite_scale, sprite_scale);
-
-  surface = cairo_image_surface_create_for_data (data,
-                                                 CAIRO_FORMAT_ARGB32,
-                                                 width, height, stride);
-
-  cr = cairo_create (surface);
-  cairo_set_source_surface (cr, sprite_surface,
-                            sprite_rect.origin.x,
-                            sprite_rect.origin.y);
-  cairo_paint (cr);
-  cairo_destroy (cr);
-  cairo_surface_destroy (sprite_surface);
-  cairo_surface_destroy (surface);
-  g_free (sprite_data);
 }
 
 static gboolean
@@ -530,6 +495,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   float scale;
+  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -540,17 +506,24 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   else
     scale = 1.0;
 
-  clutter_stage_capture_into (stage, &logical_monitor->rect, scale, data, stride);
-
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      maybe_paint_cursor_sprite (monitor_src, width, height, stride, data);
-      break;
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
+      break;
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
       break;
     }
+
+  if (!clutter_stage_paint_to_buffer (stage, &logical_monitor->rect, scale,
+                                      data,
+                                      stride,
+                                      CLUTTER_CAIRO_FORMAT_ARGB32,
+                                      paint_flags,
+                                      error))
+    return FALSE;
 
   return TRUE;
 }
@@ -635,6 +608,8 @@ meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
   MetaLogicalMonitor *logical_monitor;
   MetaRectangle logical_monitor_layout;
   GList *l;
+
+  g_clear_handle_id (&monitor_src->maybe_record_idle_id, g_source_remove);
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
