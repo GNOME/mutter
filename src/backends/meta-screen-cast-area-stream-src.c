@@ -232,6 +232,25 @@ maybe_record_frame_on_idle (gpointer user_data)
 }
 
 static void
+before_stage_painted (MetaStage           *stage,
+                      ClutterStageView    *view,
+                      ClutterPaintContext *paint_context,
+                      gpointer             user_data)
+{
+  MetaScreenCastAreaStreamSrc *area_src =
+    META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
+
+  if (area_src->maybe_record_idle_id)
+    return;
+
+  if (!clutter_stage_view_peek_scanout (view))
+    return;
+
+  area_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle, src);
+}
+
+static void
 stage_painted (MetaStage           *stage,
                ClutterStageView    *view,
                ClutterPaintContext *paint_context,
@@ -292,6 +311,14 @@ add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src)
       if (meta_rectangle_overlap (area, &view_layout))
         {
           MetaStageWatch *watch;
+
+          watch = meta_stage_watch_view (meta_stage,
+                                         CLUTTER_STAGE_VIEW (view),
+                                         META_STAGE_WATCH_BEFORE_PAINT,
+                                         before_stage_painted,
+                                         area_src);
+
+          area_src->watches = g_list_prepend (area_src->watches, watch);
 
           watch = meta_stage_watch_view (meta_stage,
                                          CLUTTER_STAGE_VIEW (view),
