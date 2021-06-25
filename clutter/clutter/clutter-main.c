@@ -776,7 +776,8 @@ update_device_for_event (ClutterStage *stage,
   time_ms = clutter_event_get_time (event);
 
   new_actor =
-    _clutter_stage_do_pick (stage, point.x, point.y, CLUTTER_PICK_REACTIVE);
+    clutter_stage_get_actor_at_pos (stage, CLUTTER_PICK_REACTIVE,
+                                    point.x, point.y);
 
   /* Picking should never fail, but if it does, we bail out here */
   g_return_val_if_fail (new_actor != NULL, NULL);
