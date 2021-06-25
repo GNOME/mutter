@@ -52,13 +52,6 @@ CLUTTER_EXPORT
 int64_t clutter_stage_get_frame_counter (ClutterStage *stage);
 
 CLUTTER_EXPORT
-void clutter_stage_capture_into (ClutterStage          *stage,
-                                 cairo_rectangle_int_t *rect,
-                                 float                  scale,
-                                 uint8_t               *data,
-                                 int                    stride);
-
-CLUTTER_EXPORT
 void clutter_stage_capture_view_into (ClutterStage          *stage,
                                       ClutterStageView      *view,
                                       cairo_rectangle_int_t *rect,
