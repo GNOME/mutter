@@ -344,7 +344,7 @@ clutter_pick_stack_log_pick (ClutterPickStack       *pick_stack,
 
   rec.actor = actor;
   rec.clip_index = pick_stack->current_clip_stack_top;
-    rec.base.rect = *box;
+  rec.base.rect = *box;
   rec.base.projected = FALSE;
   rec.base.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
   cogl_matrix_entry_ref (rec.base.matrix_entry);
