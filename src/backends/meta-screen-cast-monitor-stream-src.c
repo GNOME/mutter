@@ -340,13 +340,14 @@ reattach_watches (MetaScreenCastMonitorStreamSrc *monitor_src)
     meta_stage_remove_watch (META_STAGE (stage), l->data);
   g_clear_pointer (&monitor_src->watches, g_list_free);
 
+  add_view_watches (monitor_src,
+                    META_STAGE_WATCH_BEFORE_PAINT,
+                    before_stage_painted);
+
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      add_view_watches (monitor_src,
-                        META_STAGE_WATCH_BEFORE_PAINT,
-                        before_stage_painted);
       add_view_watches (monitor_src,
                         META_STAGE_WATCH_AFTER_ACTOR_PAINT,
                         stage_painted);
