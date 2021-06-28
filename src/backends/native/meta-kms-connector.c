@@ -761,6 +761,7 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
   MetaKmsConnectorState *current_state;
   GList *mode_sets;
   GList *l;
+
   current_state = connector->current_state;
   if (!current_state)
     return;
