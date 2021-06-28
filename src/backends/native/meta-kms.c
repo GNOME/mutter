@@ -431,12 +431,25 @@ meta_kms_new (MetaBackend   *backend,
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
+  const char *thread_type_string;
+  MetaThreadType thread_type = META_THREAD_TYPE_USER;
+
+  thread_type_string = g_getenv ("MUTTER_DEBUG_KMS_THREAD_TYPE");
+  if (thread_type_string)
+    {
+      if (g_strcmp0 (thread_type_string, "user") == 0)
+        thread_type = META_THREAD_TYPE_USER;
+      else if (g_strcmp0 (thread_type_string, "kernel") == 0)
+        thread_type = META_THREAD_TYPE_KERNEL;
+      else
+        g_assert_not_reached ();
+    }
 
   kms = g_initable_new (META_TYPE_KMS,
                         NULL, error,
                         "backend", backend,
                         "name", "KMS thread",
-                        "thread-type", META_THREAD_TYPE_USER,
+                        "thread-type", thread_type,
                         NULL);
   kms->flags = flags;
 
