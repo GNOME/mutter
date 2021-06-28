@@ -325,12 +325,102 @@ meta_test_kms_device_mode_set (void)
 }
 
 static void
+meta_test_kms_device_power_save (void)
+{
+  MetaKmsDevice *device;
+  MetaKmsUpdate *update;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+  MetaKmsPlane *primary_plane;
+  g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
+  const MetaKmsCrtcState *crtc_state;
+  const MetaKmsConnectorState *connector_state;
+
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = meta_kms_connector_get_preferred_mode (connector);
+  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+  primary_buffer = meta_create_test_mode_dumb_buffer (device, mode);
+
+  /*
+   * Set mode and assign primary plane.
+   */
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_device_process_update_sync (device, update,
+                                       META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_update_free (update);
+
+  g_assert_true (meta_kms_crtc_is_active (crtc));
+
+  /*
+   * Enable power saving mode.
+   */
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_set_power_save (update);
+  meta_kms_device_process_update_sync (device, update,
+                                       META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_update_free (update);
+
+  g_assert_false (meta_kms_crtc_is_active (crtc));
+  crtc_state = meta_kms_crtc_get_current_state (crtc);
+  g_assert_nonnull (crtc_state);
+  g_assert_false (crtc_state->is_active);
+  g_assert_false (crtc_state->is_drm_mode_valid);
+
+  connector_state = meta_kms_connector_get_current_state (connector);
+  g_assert_nonnull (connector_state);
+  g_assert_cmpuint (connector_state->current_crtc_id, ==, 0);
+
+  /*
+   * Disable power saving mode by mode setting again.
+   */
+
+  update = meta_kms_update_new (device);
+  meta_kms_update_mode_set (update, crtc,
+                            g_list_append (NULL, connector),
+                            mode);
+  meta_kms_update_assign_plane (update,
+                                crtc,
+                                primary_plane,
+                                primary_buffer,
+                                meta_get_mode_fixed_rect_16 (mode),
+                                meta_get_mode_rect (mode),
+                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  meta_kms_device_process_update_sync (device, update,
+                                       META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_update_free (update);
+
+  g_assert_true (meta_kms_crtc_is_active (crtc));
+  connector_state = meta_kms_connector_get_current_state (connector);
+  g_assert_nonnull (connector_state);
+  g_assert_cmpuint (connector_state->current_crtc_id,
+                    ==,
+                    meta_kms_crtc_get_id (crtc));
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/kms/device/sanity",
                    meta_test_kms_device_sanity);
   g_test_add_func ("/backends/native/kms/device/mode-set",
                    meta_test_kms_device_mode_set);
+  g_test_add_func ("/backends/native/kms/device/power-save",
+                   meta_test_kms_device_power_save);
 }
 
 int
