@@ -14,11 +14,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity ru\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2017-02-28 06:20+0000\n"
-"PO-Revision-Date: 2017-03-18 10:56+0400\n"
-"Last-Translator: Yuri Myasoedov <ymyasoedov@yandex.ru>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+"POT-Creation-Date: 2020-10-06 15:26+0000\n"
+"PO-Revision-Date: 2021-06-27 19:42+0300\n"
+"Last-Translator: Alexey Rubtsov <rushills@gmail.com>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 3.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -53,134 +52,118 @@ msgid "Move window to last workspace"
 msgstr "Переместить окно на последнее рабочее место"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace to the left"
-msgstr "Переместить окно на одно рабочее место влево"
-
-#: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace to the right"
-msgstr "Переместить окно на одно рабочее место вправо"
-
-#: data/50-mutter-navigation.xml:30
 msgid "Move window one workspace up"
 msgstr "Переместить окно на одно рабочее место вверх"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace down"
 msgstr "Переместить окно на одно рабочее место вниз"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
 msgstr "Переместить окно на один монитор влево"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:33
 msgid "Move window one monitor to the right"
 msgstr "Переместить окно на один монитор вправо"
 
-#: data/50-mutter-navigation.xml:42
+#: data/50-mutter-navigation.xml:36
 msgid "Move window one monitor up"
 msgstr "Переместить окно на один монитор вверх"
 
-#: data/50-mutter-navigation.xml:45
+#: data/50-mutter-navigation.xml:39
 msgid "Move window one monitor down"
 msgstr "Переместить окно на один монитор вниз"
 
-#: data/50-mutter-navigation.xml:49
+#: data/50-mutter-navigation.xml:43
 msgid "Switch applications"
 msgstr "Переключить приложения"
 
-#: data/50-mutter-navigation.xml:54
+#: data/50-mutter-navigation.xml:48
 msgid "Switch to previous application"
 msgstr "Переключить на предыдущее приложение"
 
-#: data/50-mutter-navigation.xml:58
+#: data/50-mutter-navigation.xml:52
 msgid "Switch windows"
 msgstr "Переключить окна"
 
-#: data/50-mutter-navigation.xml:63
+#: data/50-mutter-navigation.xml:57
 msgid "Switch to previous window"
 msgstr "Переключить на предыдущее окно"
 
-#: data/50-mutter-navigation.xml:67
+#: data/50-mutter-navigation.xml:61
 msgid "Switch windows of an application"
 msgstr "Переключить окна приложения"
 
-#: data/50-mutter-navigation.xml:72
+#: data/50-mutter-navigation.xml:66
 msgid "Switch to previous window of an application"
 msgstr "Переключить на окно приложения"
 
-#: data/50-mutter-navigation.xml:76
+#: data/50-mutter-navigation.xml:70
 msgid "Switch system controls"
 msgstr "Переключить элементы управления"
 
-#: data/50-mutter-navigation.xml:81
+#: data/50-mutter-navigation.xml:75
 msgid "Switch to previous system control"
 msgstr "Переключить на предыдущий элемент управления"
 
-#: data/50-mutter-navigation.xml:85
+#: data/50-mutter-navigation.xml:79
 msgid "Switch windows directly"
 msgstr "Немедленно переключить окна"
 
-#: data/50-mutter-navigation.xml:90
+#: data/50-mutter-navigation.xml:84
 msgid "Switch directly to previous window"
 msgstr "Немедленно переключить на предыдущее окно"
 
-#: data/50-mutter-navigation.xml:94
+#: data/50-mutter-navigation.xml:88
 msgid "Switch windows of an app directly"
 msgstr "Немедленно переключить окна приложения"
 
-#: data/50-mutter-navigation.xml:99
+#: data/50-mutter-navigation.xml:93
 msgid "Switch directly to previous window of an app"
 msgstr "Немедленно переключить на предыдущее окно приложения"
 
-#: data/50-mutter-navigation.xml:103
+#: data/50-mutter-navigation.xml:97
 msgid "Switch system controls directly"
 msgstr "Немедленно переключить элементы управления"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:102
 msgid "Switch directly to previous system control"
 msgstr "Немедленно переключить на предыдущий элемент управления"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:105
 msgid "Hide all normal windows"
 msgstr "Скрыть все обычные окна"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:108
 msgid "Switch to workspace 1"
 msgstr "Переключиться на рабочее место 1"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:111
 msgid "Switch to workspace 2"
 msgstr "Переключиться на рабочее место 2"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:114
 msgid "Switch to workspace 3"
 msgstr "Переключиться на рабочее место 3"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:117
 msgid "Switch to workspace 4"
 msgstr "Переключиться на рабочее место 4"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:120
 msgid "Switch to last workspace"
 msgstr "Переключиться на последнее рабочее место"
 
-#: data/50-mutter-navigation.xml:129
-msgid "Move to workspace left"
-msgstr "Переместить на рабочее место влево"
-
-#: data/50-mutter-navigation.xml:132
-msgid "Move to workspace right"
-msgstr "Переместить на рабочее место вправо"
-
-#: data/50-mutter-navigation.xml:135
+#: data/50-mutter-navigation.xml:123
 msgid "Move to workspace above"
 msgstr "Переместить на рабочее место вверх"
 
-#: data/50-mutter-navigation.xml:138
+#: data/50-mutter-navigation.xml:126
 msgid "Move to workspace below"
 msgstr "Переместить на рабочее место вниз"
 
-#: data/50-mutter-system.xml:6
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
 msgstr "Система"
 
@@ -191,6 +174,10 @@ msgstr "Показать командную строку"
 #: data/50-mutter-system.xml:10
 msgid "Show the activities overview"
 msgstr "Открыть обзор"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Восстановление сочетаний клавиш"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -217,54 +204,50 @@ msgid "Restore window"
 msgstr "Восстановить окно"
 
 #: data/50-mutter-windows.xml:18
-msgid "Toggle shaded state"
-msgstr "Переключить затенённое состояние"
-
-#: data/50-mutter-windows.xml:20
 msgid "Close window"
 msgstr "Закрыть окно"
 
-#: data/50-mutter-windows.xml:22
+#: data/50-mutter-windows.xml:20
 msgid "Hide window"
 msgstr "Скрыть окно"
 
-#: data/50-mutter-windows.xml:24
+#: data/50-mutter-windows.xml:22
 msgid "Move window"
 msgstr "Переместить окно"
 
-#: data/50-mutter-windows.xml:26
+#: data/50-mutter-windows.xml:24
 msgid "Resize window"
 msgstr "Изменить размер окна"
 
-#: data/50-mutter-windows.xml:29
+#: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
 msgstr "Переключить окно на все рабочие места или на одно"
 
-#: data/50-mutter-windows.xml:31
+#: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
 msgstr "Поднять окно, если оно закрыто другими окнами, иначе — опустить его"
 
-#: data/50-mutter-windows.xml:33
+#: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
 msgstr "Поместить окно поверх всех окон"
 
-#: data/50-mutter-windows.xml:35
+#: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
 msgstr "Поместить окно под другими окнами"
 
-#: data/50-mutter-windows.xml:37
+#: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
 msgstr "Развернуть окно на весь экран вертикально"
 
-#: data/50-mutter-windows.xml:39
+#: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
 msgstr "Развернуть окно на весь экран горизонтально"
 
-#: data/50-mutter-windows.xml:43
+#: data/50-mutter-windows.xml:41
 msgid "View split on left"
 msgstr "Разделитель слева"
 
-#: data/50-mutter-windows.xml:47
+#: data/50-mutter-windows.xml:45
 msgid "View split on right"
 msgstr "Разделитель справа"
 
@@ -405,66 +388,204 @@ msgstr ""
 "Если выбрано, то новые окна всегда будут помещаться в центр активного экрана "
 "монитора."
 
-#: data/org.gnome.mutter.gschema.xml.in:120
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "Включить экспериментальные функции"
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
+msgstr ""
+"Чтобы включить экспериментальные функции, добавьте в список ключевое слово "
+"feature. Требует ли функция перезапуска композитора, зависит от данной "
+"функции. Любая экспериментальная функция не обязана оставаться доступной или "
+"настраиваемой. Не ожидайте, что добавление чего-либо в этой настройке будет "
+"иметь будущее. В настоящее время возможные ключевые слова: - \"scale-monitor-"
+"framebuffer\" - заставляет mutter по умолчанию компоновать логические "
+"мониторы в логическом пиксельном координатном пространстве, при этом "
+"масштабируя фреймбуферы мониторов, а не содержимое окна, для управления "
+"мониторами HiDPI. Не требует перезапуска. - \"rt-scheduler\" - заставляет "
+"mutter запрашивать низкоприоритетное планирование реального времени. "
+"Исполняемый файл или пользователь должны иметь CAP_SYS_NICE. Требует "
+"перезапуска. - \"autostart-xwayland\" - лениво инициализирует Xwayland, если "
+"есть клиенты X11. Требуется перезапуск."
+
+#: data/org.gnome.mutter.gschema.xml.in:134
+msgid "Modifier to use to locate the pointer"
+msgstr "Модификатор, используемый для определения местоположения указателя"
+
+#: data/org.gnome.mutter.gschema.xml.in:135
+msgid "This key will initiate the “locate pointer” action."
+msgstr ""
+"Эта клавиша инициирует действие \"определить местоположение указателя\"."
+
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Тайм-аут для пинга с проверкой работоспособности"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Количество миллисекунд, в течение которых клиент должен ответить на запрос "
+"ping, чтобы не быть определенным как \"замороженный\". Использование "
+"значения 0 полностью отключает проверку \"живого\" клиента."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Выбор окна из всплывающей табуляции"
 
-#: data/org.gnome.mutter.gschema.xml.in:125
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Отменить всплывающую табуляцию"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.gschema.xml.in:175
+msgid "Switch monitor configurations"
+msgstr "Переключить конфигурации монитора"
+
+#: data/org.gnome.mutter.gschema.xml.in:180
+msgid "Rotates the built-in monitor configuration"
+msgstr "Перебирает встроенные конфигурации монитора"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Переключиться на виртуальный терминал 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Переключиться на виртуальный терминал 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Переключиться на виртуальный терминал 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Переключиться на виртуальный терминал 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Переключиться на виртуальный терминал 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Переключиться на виртуальный терминал 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Переключиться на виртуальный терминал 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Переключиться на виртуальный терминал 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Переключиться на виртуальный терминал 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Переключиться на виртуальный терминал 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Переключиться на виртуальный терминал 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Переключиться на виртуальный терминал 12"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+msgid "Re-enable shortcuts"
+msgstr "Разрешить комбинации клавиш снова"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr ""
+"Разрешить X11-грабберам блокировать фокус клавиатуры с помощью Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+msgid ""
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
+msgstr ""
+"Позволяет направлять все события клавиатуры на окна X11 \"override redirect"
+"\" с захватом при запуске в Xwayland. Эта опция предназначена для поддержки "
+"клиентов X11, которые отображают окно \"override redirect\" (которое не "
+"получает фокус клавиатуры) и выдают захват клавиатуры для перенаправления "
+"всех событий клавиатуры в это окно. Эта опция используется редко и не влияет "
+"на обычные окна X11, которые могут получать фокус клавиатуры при нормальных "
+"обстоятельствах. Чтобы захват X11 был принят во внимание в Wayland, клиент "
+"также должен либо послать определенное сообщение X11 ClientMessage корневому "
+"окну, либо быть среди приложений, разрешенных в ключевых \"xwayland-grab-"
+"access-rules\"."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr "Приложениям Xwayland разрешено производить захват клавиатуры"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr ""
+"Список имен ресурсов или классов ресурсов окон X11, которым разрешено или "
+"запрещено выдавать клавиатурные захваты X11 под Xwayland. Имя ресурса или "
+"класс ресурса данного окна X11 можно получить с помощью команды \"xprop "
+"WM_CLASS\". Поддерживаются символы подстановки \"*\" и джокеры \"?\" в "
+"значениях. Значения, начинающиеся с \"!\", запрещены, что имеет приоритет "
+"над списком разрешенных значений, для отзыва приложений из системного списка "
+"по умолчанию. Список системы по умолчанию включает следующие приложения: "
+"\"@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@\" Пользователи могут нарушить "
+"существующий захват, используя конкретное сочетание клавиш, определенное "
+"клавишей привязки \"restore-shortcuts\"."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Отключение выбранных расширений X в Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Эта опция отключает выбранные X-расширения в Xwayland, если Xwayland был "
+"создан с поддержкой этих X-расширений. Эта опция не имеет эффекта, если "
+"Xwayland был создан без поддержки выбранных расширений. Чтобы эта настройка "
+"вступила в силу, Xwayland необходимо перезапустить."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:1800
+#: src/backends/meta-input-settings.c:2683
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Переключатель режима: группа %d"
@@ -472,112 +593,127 @@ msgstr "Переключатель режима: группа %d"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:1822
+#: src/backends/meta-input-settings.c:2706
 msgid "Switch monitor"
 msgstr "Переключить монитор"
 
-#: src/backends/meta-input-settings.c:1824
+#: src/backends/meta-input-settings.c:2708
 msgid "Show on-screen help"
 msgstr "Показать справку на экране"
 
-#: src/backends/meta-monitor-manager.c:675
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Встроенный дисплей"
 
-#: src/backends/meta-monitor-manager.c:698
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Неизвестный"
 
-#: src/backends/meta-monitor-manager.c:700
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Неизвестный дисплей"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:708
+#: src/backends/meta-monitor.c:274
 #, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
+#: src/backends/meta-monitor.c:282
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:79
+msgid "Compositor"
+msgstr "Композитор"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:471
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "На экране %i дисплея «%s» уже запущен другой композитный менеджер."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Событие звонка"
 
+#: src/core/main.c:190
+msgid "Disable connection to session manager"
+msgstr "Запретить подключение к менеджеру сеансов"
+
+#: src/core/main.c:196
+msgid "Replace the running window manager"
+msgstr "Заменить запущенный оконный менеджер"
+
+#: src/core/main.c:202
+msgid "Specify session management ID"
+msgstr "Указать идентификатор управления сеансом"
+
+#: src/core/main.c:207
+msgid "X Display to use"
+msgstr "Используемый дисплей X"
+
+#: src/core/main.c:213
+msgid "Initialize session from savefile"
+msgstr "Инициализировать сеанс из сохранённого файла"
+
+#: src/core/main.c:219
+msgid "Make X calls synchronous"
+msgstr "Сделать X-вызовы синхронными"
+
+#: src/core/main.c:226
+msgid "Run as a wayland compositor"
+msgstr "Запустить в качестве композитора wayland"
+
+#: src/core/main.c:232
+msgid "Run as a nested compositor"
+msgstr "Запустить в качестве встроенного композитора"
+
+#: src/core/main.c:238
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Запуск wayland compositor без запуска Xwayland"
+
+#: src/core/main.c:246
+msgid "Run as a full display server, rather than nested"
+msgstr "Запустить в качестве полноэкранного сервера вместо встроенного"
+
+#: src/core/main.c:252
+msgid "Run with X11 backend"
+msgstr "Запуск с бэкендом X11"
+
 #. Translators: %s is a window title
-#: src/core/delete.c:127
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "«%s» не отвечает."
 
-#: src/core/delete.c:129
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "Приложение не отвечает."
 
-#: src/core/delete.c:134
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr "Можно немного подождать или принудительно завершить работу приложения."
 
-#: src/core/delete.c:141
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "Завер_шить"
 
-#: src/core/delete.c:141
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "_Подождать"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Не удалось открыть дисплей «%s» системы X Window\n"
-
-#: src/core/main.c:189
-msgid "Disable connection to session manager"
-msgstr "Запретить подключение к менеджеру сеансов"
-
-#: src/core/main.c:195
-msgid "Replace the running window manager"
-msgstr "Заменить запущенный оконный менеджер"
-
-#: src/core/main.c:201
-msgid "Specify session management ID"
-msgstr "Указать идентификатор управления сеансом"
-
-#: src/core/main.c:206
-msgid "X Display to use"
-msgstr "Используемый дисплей X"
-
-#: src/core/main.c:212
-msgid "Initialize session from savefile"
-msgstr "Инициализировать сеанс из сохранённого файла"
-
-#: src/core/main.c:218
-msgid "Make X calls synchronous"
-msgstr "Сделать X-вызовы синхронными"
-
-#: src/core/main.c:225
-msgid "Run as a wayland compositor"
-msgstr "Запустить в качестве композитора wayland"
-
-#: src/core/main.c:231
-msgid "Run as a nested compositor"
-msgstr "Запустить в качестве встроенного композитора"
-
-#: src/core/main.c:239
-msgid "Run as a full display server, rather than nested"
-msgstr "Запустить в качестве полноэкранного сервера вместо встроенного"
-
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -594,20 +730,29 @@ msgstr ""
 "потребительской стоимости и пригодности для выполнения каких бы то ни было "
 "определённых задач.\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Вывести версию"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Использовать модуль mutter"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "Рабочее место %d"
 
-#: src/core/screen.c:580
+#: src/core/util.c:118
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter собран без поддержки режима подробных сообщений\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:568
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Переключатель режима: режим %d"
+
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -616,21 +761,26 @@ msgstr ""
 "Дисплей «%s» уже использует менеджер окон; попробуйте использовать параметр "
 "--replace, чтобы заменить текущий менеджер окон."
 
-#: src/core/screen.c:665
+#: src/x11/meta-x11-display.c:1089
+msgid "Failed to initialize GDK\n"
+msgstr "Не удалось инициализировать GDK\n"
+
+#: src/x11/meta-x11-display.c:1113
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Не удалось открыть дисплей «%s» системы X Window\n"
+
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Недопустимый экран %d дисплея «%s»\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter собран без поддержки режима подробных сообщений\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "Переключатель режима: режим %d"
+msgid "Format %s not supported"
+msgstr "Формат %s не поддерживается"
 
-#: src/x11/session.c:1815
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -638,10 +788,25 @@ msgstr ""
 "Эти окна не поддерживают команду «Сохранить текущую настройку». При "
 "следующем входе в систему их придётся перезапустить вручную."
 
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "Move window one workspace to the left"
+#~ msgstr "Переместить окно на одно рабочее место влево"
+
+#~ msgid "Move window one workspace to the right"
+#~ msgstr "Переместить окно на одно рабочее место вправо"
+
+#~ msgid "Move to workspace left"
+#~ msgstr "Переместить на рабочее место влево"
+
+#~ msgid "Move to workspace right"
+#~ msgstr "Переместить на рабочее место вправо"
+
+#~ msgid "Toggle shaded state"
+#~ msgstr "Переключить затенённое состояние"
 
 #~ msgid "Failed to scan themes directory: %s\n"
 #~ msgstr "Не удалось прочитать каталог тем: %s\n"
