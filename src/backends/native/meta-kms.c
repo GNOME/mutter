@@ -618,7 +618,7 @@ update_states_in_impl (MetaKmsImpl  *impl,
   return GUINT_TO_POINTER (meta_kms_update_states_in_impl (kms, data));
 }
 
-static MetaKmsUpdateChanges
+MetaKmsUpdateChanges
 meta_kms_update_states_sync (MetaKms     *kms,
                              GUdevDevice *udev_device)
 {

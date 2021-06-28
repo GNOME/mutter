@@ -40,6 +40,7 @@ int meta_kms_mode_get_width (MetaKmsMode *mode);
 META_EXPORT_TEST
 int meta_kms_mode_get_height (MetaKmsMode *mode);
 
+META_EXPORT_TEST
 const char * meta_kms_mode_get_name (MetaKmsMode *mode);
 
 MetaKmsModeFlag meta_kms_mode_get_flags (MetaKmsMode *mode);

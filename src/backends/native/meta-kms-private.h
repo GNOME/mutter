@@ -22,6 +22,8 @@
 
 #include "backends/native/meta-kms.h"
 
+#include <gudev/gudev.h>
+
 #include "backends/native/meta-kms-types.h"
 
 typedef void (* MetaKmsCallback) (MetaKms  *kms,
@@ -50,6 +52,10 @@ GSource * meta_kms_register_fd_in_impl (MetaKms             *kms,
                                         int                  fd,
                                         MetaKmsImplTaskFunc  dispatch,
                                         gpointer             user_data);
+
+META_EXPORT_TEST
+MetaKmsUpdateChanges meta_kms_update_states_sync (MetaKms     *kms,
+                                                  GUdevDevice *udev_device);
 
 gboolean meta_kms_in_impl_task (MetaKms *kms);
 

@@ -25,6 +25,10 @@
 uint32_t meta_kms_mode_create_blob_id (MetaKmsMode  *mode,
                                        GError      **error);
 
+META_EXPORT_TEST
+MetaKmsMode * meta_kms_mode_clone (MetaKmsMode *mode);
+
+META_EXPORT_TEST
 void meta_kms_mode_free (MetaKmsMode *mode);
 
 MetaKmsMode * meta_kms_mode_new (MetaKmsImplDevice     *impl_device,

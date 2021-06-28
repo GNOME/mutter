@@ -107,6 +107,7 @@ void meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
                                          MetaKmsConnector *connector,
                                          gboolean          enabled);
 
+META_EXPORT_TEST
 void meta_kms_update_set_power_save (MetaKmsUpdate *update);
 
 META_EXPORT_TEST

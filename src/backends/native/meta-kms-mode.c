@@ -133,6 +133,17 @@ meta_kms_mode_hash (MetaKmsMode *mode)
   return hash;
 }
 
+MetaKmsMode *
+meta_kms_mode_clone (MetaKmsMode *mode)
+{
+  MetaKmsMode *new_mode;
+
+  new_mode = g_new0 (MetaKmsMode, 1);
+  *new_mode = *mode;
+
+  return new_mode;
+}
+
 void
 meta_kms_mode_free (MetaKmsMode *mode)
 {

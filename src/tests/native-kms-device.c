@@ -24,9 +24,10 @@
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update.h"
-#include "backends/native/meta-kms.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-kms-test-utils.h"
 
@@ -89,6 +90,178 @@ meta_test_kms_device_sanity (void)
 }
 
 static void
+assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
+                          const MetaKmsCrtcState *crtc_state2)
+{
+  g_assert_cmpint (crtc_state1->is_active, ==, crtc_state2->is_active);
+  g_assert (meta_rectangle_equal (&crtc_state1->rect, &crtc_state2->rect));
+  g_assert_cmpint (crtc_state1->is_drm_mode_valid,
+                   ==,
+                   crtc_state2->is_drm_mode_valid);
+  if (crtc_state1->is_drm_mode_valid)
+    {
+      g_assert_cmpstr (crtc_state1->drm_mode.name,
+                       ==,
+                       crtc_state2->drm_mode.name);
+    }
+
+  g_assert_cmpint (crtc_state1->gamma.size, ==, crtc_state1->gamma.size);
+  g_assert_cmpmem (crtc_state1->gamma.red,
+                   crtc_state1->gamma.size * sizeof (uint16_t),
+                   crtc_state2->gamma.red,
+                   crtc_state2->gamma.size * sizeof (uint16_t));
+  g_assert_cmpmem (crtc_state1->gamma.green,
+                   crtc_state1->gamma.size * sizeof (uint16_t),
+                   crtc_state2->gamma.green,
+                   crtc_state2->gamma.size * sizeof (uint16_t));
+  g_assert_cmpmem (crtc_state1->gamma.blue,
+                   crtc_state1->gamma.size * sizeof (uint16_t),
+                   crtc_state2->gamma.blue,
+                   crtc_state2->gamma.size * sizeof (uint16_t));
+}
+
+static int
+compare_modes (gconstpointer a,
+               gconstpointer b)
+{
+  MetaKmsMode *mode_a = (MetaKmsMode *) a;
+  MetaKmsMode *mode_b = (MetaKmsMode *) b;
+
+  return g_strcmp0 (meta_kms_mode_get_name (mode_a),
+                    meta_kms_mode_get_name (mode_b));
+}
+
+static void
+assert_list_equals_unsorted (GList        *list1,
+                             GList        *list2,
+                             GCompareFunc  compare)
+{
+  list1 = g_list_copy (list1);
+  list2 = g_list_copy (list2);
+
+  while (list1)
+    {
+      GList *l;
+
+      l = g_list_find_custom (list2, list1->data, compare);
+      g_assert_nonnull (l);
+      list2 = g_list_delete_link (list2, l);
+      list1 = g_list_delete_link (list1, list1);
+    }
+
+  g_assert_null (list2);
+}
+
+static void
+assert_connector_state_equals (const MetaKmsConnectorState *connector_state1,
+                               const MetaKmsConnectorState *connector_state2)
+{
+  g_assert_cmpuint (connector_state1->current_crtc_id,
+                    ==,
+                    connector_state2->current_crtc_id);
+  g_assert_cmpuint (connector_state1->common_possible_crtcs,
+                    ==,
+                    connector_state2->common_possible_crtcs);
+  g_assert_cmpuint (connector_state1->common_possible_clones,
+                    ==,
+                    connector_state2->common_possible_clones);
+  g_assert_cmpuint (connector_state1->encoder_device_idxs,
+                    ==,
+                    connector_state2->encoder_device_idxs);
+  g_assert_cmpuint (g_list_length (connector_state1->modes),
+                    ==,
+                    g_list_length (connector_state2->modes));
+
+  assert_list_equals_unsorted (connector_state1->modes,
+                               connector_state2->modes,
+                               compare_modes);
+
+  if (connector_state1->edid_data || connector_state2->edid_data)
+    {
+      g_assert_cmpint (g_bytes_compare (connector_state1->edid_data,
+                                        connector_state2->edid_data),
+                       ==,
+                       0);
+    }
+
+  g_assert_cmpint (connector_state1->has_scaling,
+                   ==,
+                   connector_state2->has_scaling);
+  g_assert_cmpint (connector_state1->non_desktop,
+                   ==,
+                   connector_state2->non_desktop);
+
+  g_assert_cmpint (connector_state1->subpixel_order,
+                   ==,
+                   connector_state2->subpixel_order);
+  g_assert_cmpint (connector_state1->suggested_x,
+                   ==,
+                   connector_state2->suggested_x);
+  g_assert_cmpint (connector_state1->hotplug_mode_update,
+                   ==,
+                   connector_state2->hotplug_mode_update);
+  g_assert_cmpint (connector_state1->panel_orientation_transform,
+                   ==,
+                   connector_state2->panel_orientation_transform);
+}
+
+static MetaKmsCrtcState
+copy_crtc_state (const MetaKmsCrtcState *crtc_state)
+{
+  MetaKmsCrtcState new_state;
+
+  g_assert_nonnull (crtc_state);
+
+  new_state = *crtc_state;
+  new_state.gamma.red = g_memdup2 (new_state.gamma.red,
+                                   new_state.gamma.size * sizeof (uint16_t));
+  new_state.gamma.green = g_memdup2 (new_state.gamma.green,
+                                     new_state.gamma.size * sizeof (uint16_t));
+  new_state.gamma.blue = g_memdup2 (new_state.gamma.blue,
+                                    new_state.gamma.size * sizeof (uint16_t));
+
+  return new_state;
+}
+
+static MetaKmsConnectorState
+copy_connector_state (const MetaKmsConnectorState *connector_state)
+{
+  MetaKmsConnectorState new_state;
+
+  g_assert_nonnull (connector_state);
+
+  new_state = *connector_state;
+  new_state.modes = g_list_copy_deep (new_state.modes,
+                                      (GCopyFunc) meta_kms_mode_clone,
+                                      NULL);
+  if (new_state.edid_data)
+    {
+      new_state.edid_data =
+        g_bytes_new_from_bytes (new_state.edid_data,
+                                0,
+                                g_bytes_get_size (new_state.edid_data));
+    }
+
+  return new_state;
+}
+
+static void
+release_crtc_state (const MetaKmsCrtcState *crtc_state)
+{
+  g_free (crtc_state->gamma.red);
+  g_free (crtc_state->gamma.green);
+  g_free (crtc_state->gamma.blue);
+}
+
+static void
+release_connector_state (const MetaKmsConnectorState *connector_state)
+{
+  g_list_free_full (connector_state->modes,
+                    (GDestroyNotify) meta_kms_mode_free);
+  g_bytes_unref (connector_state->edid_data);
+}
+
+static void
 meta_test_kms_device_mode_set (void)
 {
   MetaKmsDevice *device;
@@ -98,8 +271,8 @@ meta_test_kms_device_mode_set (void)
   MetaKmsMode *mode;
   MetaKmsPlane *primary_plane;
   g_autoptr (MetaDrmBuffer) primary_buffer = NULL;
-  const MetaKmsCrtcState *crtc_state;
-  const MetaKmsConnectorState *connector_state;
+  MetaKmsCrtcState crtc_state;
+  MetaKmsConnectorState connector_state;
   MetaRectangle mode_rect;
 
   device = meta_get_test_kms_device (test_context);
@@ -127,18 +300,28 @@ meta_test_kms_device_mode_set (void)
                                        META_KMS_UPDATE_FLAG_NONE);
   meta_kms_update_free (update);
 
-  crtc_state = meta_kms_crtc_get_current_state (crtc);
-  g_assert_nonnull (crtc_state);
-  g_assert_true (crtc_state->is_active);
-  g_assert_true (crtc_state->is_drm_mode_valid);
+  g_assert_nonnull (meta_kms_crtc_get_current_state (crtc));
+  crtc_state = copy_crtc_state (meta_kms_crtc_get_current_state (crtc));
+  g_assert_true (crtc_state.is_active);
+  g_assert_true (crtc_state.is_drm_mode_valid);
   mode_rect = meta_get_mode_rect (mode);
-  g_assert (meta_rectangle_equal (&crtc_state->rect, &mode_rect));
+  g_assert (meta_rectangle_equal (&crtc_state.rect, &mode_rect));
 
-  connector_state = meta_kms_connector_get_current_state (connector);
-  g_assert_nonnull (connector_state);
-  g_assert_cmpuint (connector_state->current_crtc_id,
+  g_assert_nonnull (meta_kms_connector_get_current_state (connector));
+  connector_state =
+    copy_connector_state (meta_kms_connector_get_current_state (connector));
+  g_assert_cmpuint (connector_state.current_crtc_id,
                     ==,
                     meta_kms_crtc_get_id (crtc));
+
+  meta_kms_update_states_sync (meta_kms_device_get_kms (device), NULL);
+  assert_crtc_state_equals (&crtc_state,
+                            meta_kms_crtc_get_current_state (crtc));
+  assert_connector_state_equals (&connector_state,
+                                 meta_kms_connector_get_current_state (connector));
+
+  release_crtc_state (&crtc_state);
+  release_connector_state (&connector_state);
 }
 
 static void
