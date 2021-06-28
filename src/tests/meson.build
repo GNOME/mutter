@@ -263,8 +263,40 @@ if have_native_tests
     },
   ]
 
-  # Privileged tests
-  privileged_test_cases += [
+  # KMS tests
+  kms_test_variants = []
+  kms_atomic_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'atomic'}
+  kms_simple_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'simple'}
+  kms_variants = [
+    ['atomic', kms_atomic_variables],
+    ['simple', kms_simple_variables],
+  ]
+  foreach variant: kms_variants
+    name = variant[0]
+    variables = variant[1]
+    suffix = '-@0@'.format(name)
+
+    kms_test_env_variables = test_env_variables + variables
+    kms_test_variants += [[suffix, kms_test_env_variables]]
+  endforeach
+
+  kms_test_cases = [
+    {
+      'name': 'kms-force-atomic-sanity',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'native-kms-force-atomic-sanity.c',
+      ],
+      'variants': [['', test_env_variables + kms_atomic_variables]],
+    },
+    {
+      'name': 'kms-force-simple-sanity',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'native-kms-force-simple-sanity.c',
+      ],
+      'variants': [['', test_env_variables + kms_simple_variables]],
+    },
     {
       'name': 'kms-render',
       'suite': 'backends/native/kms',
@@ -272,6 +304,7 @@ if have_native_tests
         'native-kms-render.c',
         wayland_test_utils,
       ],
+      'variants': kms_test_variants,
     },
     {
       'name': 'kms-device',
@@ -281,6 +314,7 @@ if have_native_tests
         'meta-kms-test-utils.h',
         'native-kms-device.c',
       ],
+      'variants': kms_test_variants,
     },
     {
       'name': 'kms-update',
@@ -290,8 +324,11 @@ if have_native_tests
         'meta-kms-test-utils.h',
         'native-kms-updates.c',
       ],
+      'variants': kms_test_variants,
     },
   ]
+
+  privileged_test_cases += kms_test_cases
 
   # Wayland tests
   test_cases += [
@@ -379,6 +416,12 @@ endforeach
 if have_kvm_tests or have_tty_tests
   privileged_tests = []
   foreach test_case: privileged_test_cases
+    if test_case.has_key('variants')
+      variants = test_case['variants']
+    else
+      variants = [['', test_env_variables, []]]
+    endif
+
     test_executable = executable('mutter-' + test_case['name'],
       sources: test_case['sources'],
       include_directories: tests_includes,
@@ -390,13 +433,22 @@ if have_kvm_tests or have_tty_tests
       install: have_installed_tests,
       install_dir: mutter_installed_tests_libexecdir,
     )
-    privileged_tests += [
-      {
-        'name': test_case['name'],
-        'suite': test_case['suite'],
-        'executable': test_executable,
-      },
-    ]
+
+    foreach variant: variants
+      variant_env = environment()
+      foreach name, value: variant[1]
+        variant_env.set(name, value)
+      endforeach
+      privileged_tests += [
+        {
+          'name': '@0@@1@'.format(test_case['name'], variant[0]),
+          'suite': test_case['suite'],
+          'executable': test_executable,
+          'variables': variant[1],
+          'env': variant_env,
+        },
+      ]
+    endforeach
   endforeach
 
   if have_kvm_tests
@@ -407,7 +459,7 @@ if have_kvm_tests or have_tty_tests
     foreach test_case: privileged_tests
       test('tty-' + test_case['name'], test_case['executable'],
         suite: ['core', 'mutter/tty', 'mutter/tty/' + test_case['suite']],
-        env: test_env,
+        env: test_case['env'],
         is_parallel: false,
         timeout: 60,
       )

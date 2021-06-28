@@ -20,6 +20,10 @@ XDG_DATA_DIRS=$XDG_DATA_DIRS \
 $VM_ENV \
 "
 
+if [ ! -v $MUTTER_DEBUG_FORCE_KMS_MODE ]; then
+  VIRTME_ENV="$VIRTME_ENV MUTTER_DEBUG_FORCE_KMS_MODE=$MUTTER_DEBUG_FORCE_KMS_MODE"
+fi
+
 if [[ "$(stat -c '%t:%T' -L /proc/$$/fd/0)" == "0:0" ]]; then
   mkfifo $XDG_RUNTIME_DIR/fake-stdin.$$
   exec 0<> $XDG_RUNTIME_DIR/fake-stdin.$$

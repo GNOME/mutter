@@ -371,17 +371,51 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
 {
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
-  if (flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
+  const char *env_kms_mode;
+  enum {
+    KMS_MODE_AUTO,
+    KMS_MODE_ATOMIC,
+    KMS_MODE_SIMPLE,
+    KMS_MODE_HEADLESS,
+  } kms_mode;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
+
+  env_kms_mode = g_getenv ("MUTTER_DEBUG_FORCE_KMS_MODE");
+  if (env_kms_mode)
     {
-      return g_initable_new (META_TYPE_KMS_IMPL_DEVICE_DUMMY,
-                             NULL, error,
-                             "device", device,
-                             "impl", impl,
-                             "path", path,
-                             "flags", flags,
-                             NULL);
+      if (g_strcmp0 (env_kms_mode, "auto") == 0)
+        {
+          kms_mode = KMS_MODE_AUTO;
+        }
+      else if (g_strcmp0 (env_kms_mode, "atomic") == 0)
+        {
+          kms_mode = KMS_MODE_ATOMIC;
+        }
+      else if (g_strcmp0 (env_kms_mode, "simple") == 0)
+        {
+          kms_mode = KMS_MODE_SIMPLE;
+        }
+      else if (g_strcmp0 (env_kms_mode, "headless") == 0)
+        {
+          kms_mode = KMS_MODE_HEADLESS;
+        }
+      else
+        {
+          g_warning ("Attempted to force invalid mode setting mode '%s",
+                     env_kms_mode);
+          kms_mode = KMS_MODE_AUTO;
+        }
     }
   else
+    {
+      if (flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
+        kms_mode = KMS_MODE_HEADLESS;
+      else
+        kms_mode = KMS_MODE_AUTO;
+    }
+
+  if (kms_mode == KMS_MODE_AUTO)
     {
       GType impl_device_types[] = {
         META_TYPE_KMS_IMPL_DEVICE_ATOMIC,
@@ -416,6 +450,32 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
                    "No suitable mode setting backend found");
 
       return NULL;
+    }
+  else
+    {
+      GType type;
+
+      switch (kms_mode)
+        {
+        case KMS_MODE_ATOMIC:
+          type = META_TYPE_KMS_IMPL_DEVICE_ATOMIC;
+          break;
+        case KMS_MODE_SIMPLE:
+          type = META_TYPE_KMS_IMPL_DEVICE_SIMPLE;
+          break;
+        case KMS_MODE_HEADLESS:
+          type = META_TYPE_KMS_IMPL_DEVICE_DUMMY;
+          break;
+        default:
+          g_assert_not_reached ();
+        };
+
+      return g_initable_new (type, NULL, error,
+                             "device", device,
+                             "impl", impl,
+                             "path", path,
+                             "flags", flags,
+                             NULL);
     }
 }
 

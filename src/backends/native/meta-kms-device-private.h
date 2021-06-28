@@ -23,6 +23,7 @@
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update-private.h"
 
+META_EXPORT_TEST
 MetaKmsImplDevice * meta_kms_device_get_impl_device (MetaKmsDevice *device);
 
 MetaKmsResourceChanges meta_kms_device_update_states_in_impl (MetaKmsDevice *device,

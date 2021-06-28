@@ -1212,15 +1212,6 @@ meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
                                            GError       **error)
 {
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
-  const char *atomic_kms_enable_env;
-
-  atomic_kms_enable_env = getenv ("MUTTER_DEBUG_ENABLE_ATOMIC_KMS");
-  if (atomic_kms_enable_env && g_strcmp0 (atomic_kms_enable_env, "1") != 0)
-    {
-      g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_USER_INHIBITED,
-                   "Atomic mode setting disable via env var");
-      return FALSE;
-    }
 
   if (!initable_parent_iface->init (initable, cancellable, error))
     return FALSE;

@@ -23,6 +23,7 @@
 #include "backends/native/meta-kms-impl-device.h"
 
 #define META_TYPE_KMS_IMPL_DEVICE_SIMPLE (meta_kms_impl_device_simple_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKmsImplDeviceSimple, meta_kms_impl_device_simple,
                       META, KMS_IMPL_DEVICE_SIMPLE, MetaKmsImplDevice)
 
