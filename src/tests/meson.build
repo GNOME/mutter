@@ -385,19 +385,34 @@ if have_native_tests
 
   # KMS tests
   kms_test_variants = []
-  kms_atomic_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'atomic'}
-  kms_simple_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'simple'}
-  kms_variants = [
-    ['atomic', kms_atomic_variables],
-    ['simple', kms_simple_variables],
+  kms_mode_atomic_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'atomic'}
+  kms_mode_simple_variables = {'MUTTER_DEBUG_FORCE_KMS_MODE': 'simple'}
+  kms_thread_kernel_variables = {'MUTTER_DEBUG_KMS_THREAD_TYPE': 'kernel'}
+  kms_thread_user_variables = {'MUTTER_DEBUG_KMS_THREAD_TYPE': 'user'}
+  kms_mode_variants = [
+    ['atomic', kms_mode_atomic_variables],
+    ['simple', kms_mode_simple_variables],
   ]
-  foreach variant: kms_variants
-    name = variant[0]
-    variables = variant[1]
-    suffix = '-@0@'.format(name)
+  kms_thread_variants = [
+    ['kernel-thread', kms_thread_kernel_variables],
+    ['user-thread', kms_thread_user_variables],
+  ]
 
-    kms_test_env_variables = test_env_variables + variables
-    kms_test_variants += [[suffix, kms_test_env_variables]]
+  foreach kms_mode_variant: kms_mode_variants
+    kms_mode_name = kms_mode_variant[0]
+    kms_mode_variables = kms_mode_variant[1]
+
+    foreach kms_thread_variant: kms_thread_variants
+      kms_thread_name = kms_thread_variant[0]
+      kms_thread_variables = kms_thread_variant[1]
+      suffix = '-@0@-@1@'.format(kms_thread_name, kms_mode_name)
+
+      kms_test_env_variables = \
+        test_env_variables + \
+        kms_mode_variables + \
+        kms_thread_variables
+      kms_test_variants += [[suffix, kms_test_env_variables]]
+    endforeach
   endforeach
 
   kms_test_cases = [
@@ -407,7 +422,7 @@ if have_native_tests
       'sources': [
         'native-kms-force-atomic-sanity.c',
       ],
-      'variants': [['', test_env_variables + kms_atomic_variables]],
+      'variants': [['', test_env_variables + kms_mode_atomic_variables]],
     },
     {
       'name': 'kms-force-simple-sanity',
@@ -415,7 +430,23 @@ if have_native_tests
       'sources': [
         'native-kms-force-simple-sanity.c',
       ],
-      'variants': [['', test_env_variables + kms_simple_variables]],
+      'variants': [['', test_env_variables + kms_mode_simple_variables]],
+    },
+    {
+      'name': 'kms-force-kernel-thread-sanity',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'native-kms-force-kernel-thread-sanity.c',
+      ],
+      'variants': [['', test_env_variables + kms_thread_kernel_variables]],
+    },
+    {
+      'name': 'kms-force-user-thread-sanity',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'native-kms-force-user-thread-sanity.c',
+      ],
+      'variants': [['', test_env_variables + kms_thread_user_variables]],
     },
     {
       'name': 'kms-render',
