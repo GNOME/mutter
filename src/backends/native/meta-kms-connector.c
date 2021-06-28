@@ -766,6 +766,9 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
   if (!current_state)
     return;
 
+  if (meta_kms_update_is_power_save (update))
+    current_state->current_crtc_id = 0;
+
   mode_sets = meta_kms_update_get_mode_sets (update);
   for (l = mode_sets; l; l = l->next)
     {
