@@ -824,6 +824,23 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
 }
 
 void
+meta_kms_impl_device_disable (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  if (!priv->device_file)
+    return;
+
+  meta_kms_impl_device_hold_fd (impl_device);
+  klass->disable (impl_device);
+  g_list_foreach (priv->crtcs, (GFunc) meta_kms_crtc_disable, NULL);
+  g_list_foreach (priv->connectors, (GFunc) meta_kms_connector_disable, NULL);
+  meta_kms_impl_device_unhold_fd (impl_device);
+}
+
+void
 meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
                                                 MetaKmsPageFlipData *page_flip_data)
 {

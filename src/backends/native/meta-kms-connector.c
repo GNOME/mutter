@@ -754,6 +754,18 @@ meta_kms_connector_update_state (MetaKmsConnector *connector,
 }
 
 void
+meta_kms_connector_disable (MetaKmsConnector *connector)
+{
+  MetaKmsConnectorState *current_state;
+
+  current_state = connector->current_state;
+  if (!current_state)
+    return;
+
+  current_state->current_crtc_id = 0;
+}
+
+void
 meta_kms_connector_predict_state (MetaKmsConnector *connector,
                                   MetaKmsUpdate    *update)
 {
@@ -765,9 +777,6 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
   current_state = connector->current_state;
   if (!current_state)
     return;
-
-  if (meta_kms_update_is_power_save (update))
-    current_state->current_crtc_id = 0;
 
   mode_sets = meta_kms_update_get_mode_sets (update);
   for (l = mode_sets; l; l = l->next)

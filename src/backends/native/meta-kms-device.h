@@ -77,6 +77,9 @@ MetaKmsFeedback * meta_kms_device_process_update_sync (MetaKmsDevice     *device
                                                        MetaKmsUpdate     *update,
                                                        MetaKmsUpdateFlag  flags);
 
+META_EXPORT_TEST
+void meta_kms_device_disable (MetaKmsDevice *device);
+
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,

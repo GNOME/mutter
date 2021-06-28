@@ -904,21 +904,6 @@ disable_planes_and_connectors (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
-static gboolean
-process_power_save (MetaKmsImplDevice *impl_device,
-                   drmModeAtomicReq   *req,
-                   GError            **error)
-{
-  if (!disable_connectors (impl_device, req, error))
-    return FALSE;
-  if (!disable_planes (impl_device, req, error))
-    return FALSE;
-  if (!disable_crtcs (impl_device, req, error))
-    return FALSE;
-
-  return TRUE;
-}
-
 static MetaKmsFeedback *
 meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
                                             MetaKmsUpdate     *update,
@@ -951,19 +936,6 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
     {
       if (!disable_planes_and_connectors (impl_device, req, &error))
         goto err;
-    }
-
-  if (meta_kms_update_is_power_save (update))
-    {
-      meta_topic (META_DEBUG_KMS,
-                  "[atomic] Entering power save mode for %s",
-                  meta_kms_impl_device_get_path (impl_device));
-
-      if (!process_power_save (impl_device, req, &error))
-        goto err;
-
-      commit_flags = DRM_MODE_ATOMIC_ALLOW_MODESET;
-      goto commit;
     }
 
   if (!process_entries (impl_device,
@@ -1017,7 +989,6 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
   if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
     commit_flags |= DRM_MODE_ATOMIC_TEST_ONLY;
 
-commit:
   meta_topic (META_DEBUG_KMS,
               "[atomic] Committing update %" G_GUINT64_FORMAT ", flags: %s",
               meta_kms_update_get_sequence_number (update),
@@ -1064,6 +1035,53 @@ err:
   release_blob_ids (impl_device, blob_ids);
 
   return meta_kms_feedback_new_failed (failed_planes, error);
+}
+
+static void
+meta_kms_impl_device_atomic_disable (MetaKmsImplDevice *impl_device)
+{
+  g_autoptr (GError) error = NULL;
+  drmModeAtomicReq *req;
+  int fd;
+  int ret;
+
+  meta_topic (META_DEBUG_KMS, "[atomic] Disabling '%s'",
+              meta_kms_impl_device_get_path (impl_device));
+
+  req = drmModeAtomicAlloc ();
+  if (!req)
+    {
+      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create atomic transaction request: %s",
+                   g_strerror (errno));
+      goto err;
+    }
+
+  if (!disable_connectors (impl_device, req, &error))
+    goto err;
+  if (!disable_planes (impl_device, req, &error))
+    goto err;
+  if (!disable_crtcs (impl_device, req, &error))
+    goto err;
+
+  meta_topic (META_DEBUG_KMS, "[atomic] Committing disable-device transaction");
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  ret = drmModeAtomicCommit (fd, req, DRM_MODE_ATOMIC_ALLOW_MODESET, impl_device);
+  drmModeAtomicFree (req);
+  if (ret < 0)
+    {
+      g_set_error (&error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "drmModeAtomicCommit: %s", g_strerror (-ret));
+      goto err;
+    }
+
+  return;
+
+err:
+  g_warning ("[atomic] Failed to disable device '%s': %s",
+             meta_kms_impl_device_get_path (impl_device),
+             error->message);
 }
 
 static void
@@ -1246,6 +1264,8 @@ meta_kms_impl_device_atomic_class_init (MetaKmsImplDeviceAtomicClass *klass)
     meta_kms_impl_device_atomic_setup_drm_event_context;
   impl_device_class->process_update =
     meta_kms_impl_device_atomic_process_update;
+  impl_device_class->disable =
+    meta_kms_impl_device_atomic_disable;
   impl_device_class->handle_page_flip_callback =
     meta_kms_impl_device_atomic_handle_page_flip_callback;
   impl_device_class->discard_pending_page_flips =

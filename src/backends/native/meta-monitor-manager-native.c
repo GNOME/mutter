@@ -52,8 +52,6 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-device.h"
-#include "backends/native/meta-kms-types.h"
-#include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
@@ -150,8 +148,6 @@ meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
                                                  MetaPowerSave       mode)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   GList *l;
 
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
@@ -172,24 +168,7 @@ meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
         case META_POWER_SAVE_SUSPEND:
         case META_POWER_SAVE_OFF:
           {
-            MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
-            MetaKmsUpdate *kms_update;
-            MetaKmsUpdateFlag flags;
-            g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-
-            kms_update = meta_kms_ensure_pending_update (kms, kms_device);
-            meta_kms_update_set_power_save (kms_update);
-
-            flags = META_KMS_UPDATE_FLAG_NONE;
-            kms_feedback = meta_kms_post_pending_update_sync (kms,
-                                                              kms_device,
-                                                              flags);
-            if (meta_kms_feedback_get_result (kms_feedback) !=
-                META_KMS_FEEDBACK_PASSED)
-              {
-                g_warning ("Failed to enter power saving mode: %s",
-                           meta_kms_feedback_get_error (kms_feedback)->message);
-              }
+            meta_kms_device_disable (meta_gpu_kms_get_kms_device (gpu_kms));
             break;
           }
         }

@@ -231,6 +231,28 @@ meta_kms_device_get_fallback_modes (MetaKmsDevice *device)
   return device->fallback_modes;
 }
 
+static gpointer
+disable_device_in_impl (MetaKmsImpl  *impl,
+                        gpointer      user_data,
+                        GError      **error)
+{
+  MetaKmsImplDevice *impl_device = user_data;
+
+  meta_kms_impl_device_disable (impl_device);
+
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_kms_device_disable (MetaKmsDevice *device)
+{
+  meta_assert_not_in_kms_impl (device->kms);
+
+  meta_kms_run_impl_task_sync (device->kms, disable_device_in_impl,
+                               device->impl_device,
+                               NULL);
+}
+
 MetaKmsUpdateChanges
 meta_kms_device_update_states_in_impl (MetaKmsDevice *device,
                                        uint32_t       crtc_id,

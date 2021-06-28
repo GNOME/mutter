@@ -181,32 +181,6 @@ set_connector_property (MetaKmsImplDevice     *impl_device,
 }
 
 static gboolean
-process_power_save (MetaKmsImplDevice  *impl_device,
-                    GError            **error)
-{
-  GList *l;
-
-  for (l = meta_kms_impl_device_peek_connectors (impl_device); l; l = l->next)
-    {
-      MetaKmsConnector *connector = l->data;
-
-      meta_topic (META_DEBUG_KMS,
-                  "[simple] Setting DPMS of connector %u (%s) to OFF",
-                  meta_kms_connector_get_id (connector),
-                  meta_kms_impl_device_get_path (impl_device));
-
-      if (!set_connector_property (impl_device,
-                                   connector,
-                                   META_KMS_CONNECTOR_PROP_DPMS,
-                                   DRM_MODE_DPMS_OFF,
-                                   error))
-        return FALSE;
-    }
-
-  return TRUE;
-}
-
-static gboolean
 process_connector_update (MetaKmsImplDevice  *impl_device,
                           MetaKmsUpdate      *update,
                           gpointer            update_entry,
@@ -1508,13 +1482,6 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
   if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
     return perform_update_test (impl_device, update);
 
-  if (meta_kms_update_is_power_save (update))
-    {
-      if (!process_power_save (impl_device, &error))
-        goto err;
-      goto out;
-    }
-
   if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_mode_sets (update),
@@ -1543,11 +1510,52 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
                                   &error))
     goto err;
 
-out:
   return meta_kms_feedback_new_passed (failed_planes);
 
 err:
   return meta_kms_feedback_new_failed (failed_planes, error);
+}
+
+static gboolean
+set_dpms_to_off (MetaKmsImplDevice  *impl_device,
+                 GError            **error)
+{
+  GList *l;
+
+  for (l = meta_kms_impl_device_peek_connectors (impl_device); l; l = l->next)
+    {
+      MetaKmsConnector *connector = l->data;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[simple] Setting DPMS of connector %u (%s) to OFF",
+                  meta_kms_connector_get_id (connector),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!set_connector_property (impl_device,
+                                   connector,
+                                   META_KMS_CONNECTOR_PROP_DPMS,
+                                   DRM_MODE_DPMS_OFF,
+                                   error))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static void
+meta_kms_impl_device_simple_disable (MetaKmsImplDevice *impl_device)
+{
+  g_autoptr (GError) error = NULL;
+
+  meta_topic (META_DEBUG_KMS, "[simple] Disabling '%s'",
+              meta_kms_impl_device_get_path (impl_device));
+
+  if (!set_dpms_to_off (impl_device, &error))
+    {
+      g_warning ("Failed to set DPMS to off on device '%s': %s",
+                 meta_kms_impl_device_get_path (impl_device),
+                 error->message);
+    }
 }
 
 static void
@@ -1778,6 +1786,8 @@ meta_kms_impl_device_simple_class_init (MetaKmsImplDeviceSimpleClass *klass)
     meta_kms_impl_device_simple_setup_drm_event_context;
   impl_device_class->process_update =
     meta_kms_impl_device_simple_process_update;
+  impl_device_class->disable =
+    meta_kms_impl_device_simple_disable;
   impl_device_class->handle_page_flip_callback =
     meta_kms_impl_device_simple_handle_page_flip_callback;
   impl_device_class->discard_pending_page_flips =

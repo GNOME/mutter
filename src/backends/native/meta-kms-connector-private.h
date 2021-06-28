@@ -43,6 +43,8 @@ const char * meta_kms_connector_get_prop_name (MetaKmsConnector     *connector,
 MetaKmsUpdateChanges meta_kms_connector_update_state (MetaKmsConnector *connector,
                                                       drmModeRes       *drm_resources);
 
+void meta_kms_connector_disable (MetaKmsConnector *connector);
+
 void meta_kms_connector_predict_state (MetaKmsConnector *connector,
                                        MetaKmsUpdate    *update);
 

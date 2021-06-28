@@ -369,11 +369,7 @@ meta_test_kms_device_power_save (void)
    * Enable power saving mode.
    */
 
-  update = meta_kms_update_new (device);
-  meta_kms_update_set_power_save (update);
-  meta_kms_device_process_update_sync (device, update,
-                                       META_KMS_UPDATE_FLAG_NONE);
-  meta_kms_update_free (update);
+  meta_kms_device_disable (device);
 
   g_assert_false (meta_kms_crtc_is_active (crtc));
   crtc_state = meta_kms_crtc_get_current_state (crtc);

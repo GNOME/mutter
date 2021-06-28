@@ -75,6 +75,7 @@ struct _MetaKmsImplDeviceClass
   MetaKmsFeedback * (* process_update) (MetaKmsImplDevice *impl_device,
                                         MetaKmsUpdate     *update,
                                         MetaKmsUpdateFlag  flags);
+  void (* disable) (MetaKmsImplDevice *impl_device);
   void (* handle_page_flip_callback) (MetaKmsImplDevice   *impl_device,
                                       MetaKmsPageFlipData *page_flip_data);
   void (* discard_pending_page_flips) (MetaKmsImplDevice *impl_device);
@@ -123,6 +124,8 @@ const char * meta_kms_impl_device_get_path (MetaKmsImplDevice *impl_device);
 
 gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                         GError            **error);
+
+void meta_kms_impl_device_disable (MetaKmsImplDevice *impl_device);
 
 drmModePropertyPtr meta_kms_impl_device_find_property (MetaKmsImplDevice       *impl_device,
                                                        drmModeObjectProperties *props,
