@@ -15,7 +15,7 @@ libmutter_api_version = '@0@'.format(api_version)
 
 # generic version requirements
 fribidi_req = '>= 1.0.0'
-glib_req = '>= 2.61.1'
+glib_req = '>= 2.64.0'
 gi_req = '>= 0.9.5'
 graphene_req = '>= 1.9.3'
 gtk3_req = '>= 3.19.8'
