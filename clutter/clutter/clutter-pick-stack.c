@@ -32,6 +32,7 @@ typedef struct
   Record base;
   ClutterActor *actor;
   int clip_index;
+  gboolean is_overlap;
 } PickRecord;
 
 typedef struct
@@ -342,12 +343,28 @@ clutter_pick_stack_log_pick (ClutterPickStack       *pick_stack,
 
   g_assert (!pick_stack->sealed);
 
+  rec.is_overlap = FALSE;
   rec.actor = actor;
   rec.clip_index = pick_stack->current_clip_stack_top;
   rec.base.rect = *box;
   rec.base.projected = FALSE;
   rec.base.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
   cogl_matrix_entry_ref (rec.base.matrix_entry);
+
+  g_array_append_val (pick_stack->vertices_stack, rec);
+}
+
+void
+clutter_pick_stack_log_overlap (ClutterPickStack *pick_stack,
+                                ClutterActor     *actor)
+{
+  PickRecord rec = { 0 };
+
+  g_assert (!pick_stack->sealed);
+
+  rec.is_overlap = TRUE;
+  rec.actor = actor;
+  rec.clip_index = pick_stack->current_clip_stack_top;
 
   g_array_append_val (pick_stack->vertices_stack, rec);
 }
@@ -428,7 +445,8 @@ clutter_pick_stack_search_actor (ClutterPickStack         *pick_stack,
       PickRecord *rec =
         &g_array_index (pick_stack->vertices_stack, PickRecord, i);
 
-      if (rec->actor && ray_intersects_record (pick_stack, rec, point, ray))
+      if (!rec->is_overlap && rec->actor &&
+          ray_intersects_record (pick_stack, rec, point, ray))
         return rec->actor;
     }
 

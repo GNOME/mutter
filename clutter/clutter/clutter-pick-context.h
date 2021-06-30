@@ -50,6 +50,9 @@ CLUTTER_EXPORT
 void clutter_pick_context_log_pick (ClutterPickContext    *pick_context,
                                     const ClutterActorBox *box,
                                     ClutterActor          *actor);
+CLUTTER_EXPORT
+void clutter_pick_context_log_overlap (ClutterPickContext *pick_context,
+                                       ClutterActor       *actor);
 
 CLUTTER_EXPORT
 void clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
