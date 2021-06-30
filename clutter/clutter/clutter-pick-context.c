@@ -119,6 +119,20 @@ clutter_pick_context_log_pick (ClutterPickContext    *pick_context,
 }
 
 /**
+ * clutter_pick_context_log_overlap:
+ * @pick_context: a #ClutterPickContext
+ * @actor: a #ClutterActor
+ *
+ * Logs an overlapping actor into the pick stack.
+ */
+void
+clutter_pick_context_log_overlap (ClutterPickContext *pick_context,
+                                  ClutterActor       *actor)
+{
+  clutter_pick_stack_log_overlap (pick_context->pick_stack, actor);
+}
+
+/**
  * clutter_pick_context_push_clip:
  * @pick_context: a #ClutterPickContext
  * @box: a #ClutterActorBox

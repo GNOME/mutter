@@ -3960,7 +3960,10 @@ clutter_actor_pick (ClutterActor       *actor,
 
       clutter_paint_volume_to_box (&priv->last_paint_volume, &box);
       if (!clutter_pick_context_intersects_box (pick_context, &box))
-        goto out;
+        {
+          clutter_pick_context_log_overlap (pick_context, actor);
+          goto out;
+        }
     }
 
   if (priv->enable_model_view_transform)
