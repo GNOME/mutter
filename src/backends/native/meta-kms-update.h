@@ -46,7 +46,7 @@ typedef enum _MetaKmsAssignPlaneFlag
 enum _MetaKmsPageFlipListenerFlag
 {
   META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE = 0,
-  META_KMS_PAGE_FLIP_LISTENER_FLAG_NO_DISCARD = 1 << 0,
+  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR = 1 << 0,
 };
 
 struct _MetaKmsPageFlipListenerVtable

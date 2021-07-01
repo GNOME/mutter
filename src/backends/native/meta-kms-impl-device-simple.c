@@ -1085,6 +1085,7 @@ static gboolean
 maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
                            MetaKmsUpdate      *update,
                            GList             **failed_planes,
+                           MetaKmsUpdateFlag   flags,
                            GError            **error)
 {
   g_autoptr (GList) page_flip_datas = NULL;
@@ -1122,7 +1123,8 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
               *failed_planes = g_list_prepend (*failed_planes, plane_feedback);
             }
 
-          meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
+          if (!(flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR))
+            meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
 
           goto err;
         }
@@ -1131,11 +1133,14 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
   return TRUE;
 
 err:
-  for (l = page_flip_datas; l; l = l->next)
+  if (!(flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR))
     {
-      MetaKmsPageFlipData *page_flip_data = l->data;
+      for (l = page_flip_datas; l; l = l->next)
+        {
+          MetaKmsPageFlipData *page_flip_data = l->data;
 
-      meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
+          meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
+        }
     }
   g_list_free (page_flip_datas);
 
@@ -1375,7 +1380,8 @@ meta_kms_impl_device_simple_setup_drm_event_context (MetaKmsImplDevice *impl_dev
 
 static MetaKmsFeedback *
 meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
-                                            MetaKmsUpdate     *update)
+                                            MetaKmsUpdate     *update,
+                                            MetaKmsUpdateFlag  flags)
 {
   GError *error = NULL;
   GList *failed_planes = NULL;
@@ -1415,7 +1421,8 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
   if (!process_plane_assignments (impl_device, update, &failed_planes, &error))
     goto err;
 
-  if (!maybe_dispatch_page_flips (impl_device, update, &failed_planes, &error))
+  if (!maybe_dispatch_page_flips (impl_device, update, &failed_planes, flags,
+                                  &error))
     goto err;
 
 out:

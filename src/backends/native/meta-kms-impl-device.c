@@ -651,11 +651,12 @@ meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device)
 
 MetaKmsFeedback *
 meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
-                                     MetaKmsUpdate     *update)
+                                     MetaKmsUpdate     *update,
+                                     MetaKmsUpdateFlag  flags)
 {
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
 
-  return klass->process_update (impl_device, update);
+  return klass->process_update (impl_device, update, flags);
 }
 
 void

@@ -1259,7 +1259,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   meta_onscreen_native_flip_crtc (onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
-                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_NO_DISCARD);
+                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR);
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);

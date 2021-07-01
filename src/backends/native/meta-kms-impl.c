@@ -78,8 +78,9 @@ meta_kms_impl_remove_impl_device (MetaKmsImpl       *impl,
 }
 
 MetaKmsFeedback *
-meta_kms_impl_process_update (MetaKmsImpl   *impl,
-                              MetaKmsUpdate *update)
+meta_kms_impl_process_update (MetaKmsImpl       *impl,
+                              MetaKmsUpdate     *update,
+                              MetaKmsUpdateFlag  flags)
 {
   MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
   MetaKmsDevice *device;
@@ -90,7 +91,7 @@ meta_kms_impl_process_update (MetaKmsImpl   *impl,
   device = meta_kms_update_get_device (update);
   impl_device = meta_kms_device_get_impl_device (device);
 
-  return meta_kms_impl_device_process_update (impl_device, update);
+  return meta_kms_impl_device_process_update (impl_device, update, flags);
 }
 
 void

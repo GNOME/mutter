@@ -29,6 +29,7 @@
 #include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-kms.h"
 
 typedef struct _MetaKmsDeviceCaps
 {
@@ -64,7 +65,8 @@ struct _MetaKmsImplDeviceClass
   void (* setup_drm_event_context) (MetaKmsImplDevice *impl_device,
                                     drmEventContext   *drm_event_context);
   MetaKmsFeedback * (* process_update) (MetaKmsImplDevice *impl_device,
-                                        MetaKmsUpdate     *update);
+                                        MetaKmsUpdate     *update,
+                                        MetaKmsUpdateFlag  flags);
   void (* handle_page_flip_callback) (MetaKmsImplDevice   *impl_device,
                                       MetaKmsPageFlipData *page_flip_data);
   void (* discard_pending_page_flips) (MetaKmsImplDevice *impl_device);
@@ -132,7 +134,8 @@ void meta_kms_impl_device_reload_prop_values (MetaKmsImplDevice *impl_device,
                                               ...);
 
 MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
-                                                       MetaKmsUpdate     *update);
+                                                       MetaKmsUpdate     *update,
+                                                       MetaKmsUpdateFlag  flags);
 
 void meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
                                                      MetaKmsPageFlipData *page_flip_data);
