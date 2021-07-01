@@ -1503,7 +1503,7 @@ meta_kms_impl_device_simple_prepare_shutdown (MetaKmsImplDevice *impl_device)
 
   g_list_foreach (impl_device_simple->posted_page_flip_datas,
                   (GFunc) meta_kms_page_flip_data_discard_in_impl,
-                  impl_device);
+                  NULL);
   g_clear_list (&impl_device_simple->posted_page_flip_datas, NULL);
 }
 
