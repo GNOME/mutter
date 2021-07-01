@@ -342,7 +342,7 @@ clear_blur_pass (BlurPass *pass)
  */
 ClutterBlur *
 clutter_blur_new (CoglTexture *texture,
-                  float        sigma)
+                  float        radius)
 {
   ClutterBlur *blur;
   unsigned int height;
@@ -351,17 +351,19 @@ clutter_blur_new (CoglTexture *texture,
   BlurPass *vpass;
 
   g_return_val_if_fail (texture != NULL, NULL);
-  g_return_val_if_fail (sigma >= 0.0, NULL);
+  g_return_val_if_fail (radius >= 0.0, NULL);
 
   width = cogl_texture_get_width (texture);
   height = cogl_texture_get_height (texture);
 
   blur = g_new0 (ClutterBlur, 1);
-  blur->sigma = sigma;
+  blur->sigma = radius / 2.0;
   blur->source_texture = g_object_ref (texture);
-  blur->downscale_factor = calculate_downscale_factor (width, height, sigma);
+  blur->downscale_factor = calculate_downscale_factor (width,
+                                                       height,
+                                                       blur->sigma);
 
-  if (G_APPROX_VALUE (sigma, 0.0, FLT_EPSILON))
+  if (G_APPROX_VALUE (blur->sigma, 0.0, FLT_EPSILON))
     goto out;
 
   vpass = &blur->pass[VERTICAL];

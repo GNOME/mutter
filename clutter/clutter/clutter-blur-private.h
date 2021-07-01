@@ -26,7 +26,7 @@ G_BEGIN_DECLS
 typedef struct _ClutterBlur ClutterBlur;
 
 ClutterBlur * clutter_blur_new (CoglTexture *texture,
-                                float        sigma);
+                                float        radius);
 
 void clutter_blur_apply (ClutterBlur *blur);
 

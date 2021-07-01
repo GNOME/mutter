@@ -1492,7 +1492,7 @@ struct _ClutterBlurNode
   ClutterLayerNode parent_instance;
 
   ClutterBlur *blur;
-  unsigned int sigma;
+  unsigned int radius;
 };
 
 G_DEFINE_TYPE (ClutterBlurNode, clutter_blur_node, CLUTTER_TYPE_LAYER_NODE)
@@ -1539,7 +1539,7 @@ clutter_blur_node_init (ClutterBlurNode *blur_node)
  * clutter_blur_node_new:
  * @width width of the blur layer
  * @height: height of the blur layer
- * @sigma: sigma value of the blur
+ * @radius: radius (in pixels) of the blur
  *
  * Creates a new #ClutterBlurNode.
  *
@@ -1552,7 +1552,7 @@ clutter_blur_node_init (ClutterBlurNode *blur_node)
 ClutterPaintNode *
 clutter_blur_node_new (unsigned int width,
                        unsigned int height,
-                       float        sigma)
+                       float        radius)
 {
   g_autoptr (CoglOffscreen) offscreen = NULL;
   g_autoptr (GError) error = NULL;
@@ -1562,10 +1562,10 @@ clutter_blur_node_new (unsigned int width,
   CoglTexture *texture;
   ClutterBlur *blur;
 
-  g_return_val_if_fail (sigma >= 0.0, NULL);
+  g_return_val_if_fail (radius >= 0.0, NULL);
 
   blur_node = _clutter_paint_node_create (CLUTTER_TYPE_BLUR_NODE);
-  blur_node->sigma = sigma;
+  blur_node->radius = radius;
   context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   texture = cogl_texture_2d_new_with_size (context, width, height);
 
@@ -1580,7 +1580,7 @@ clutter_blur_node_new (unsigned int width,
       goto out;
     }
 
-  blur = clutter_blur_new (texture, sigma);
+  blur = clutter_blur_new (texture, radius);
   blur_node->blur = blur;
 
   if (!blur)
