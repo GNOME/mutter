@@ -116,6 +116,9 @@ enum
 
 static guint signals[N_SIGNALS] = { 0, };
 
+static void mapper_output_info_remove_input (MetaMapperOutputInfo *output,
+                                             MetaMapperInputInfo  *input);
+
 static void mapper_recalculate_input (MetaInputMapper     *mapper,
                                       MetaMapperInputInfo *input);
 
@@ -166,6 +169,9 @@ settings_output_changed_cb (GSettings           *settings,
                             const char          *key,
                             MetaMapperInputInfo *info)
 {
+  if (info->output != NULL)
+    mapper_output_info_remove_input (info->output, info);
+
   mapper_recalculate_input (info->mapper, info);
 }
 
@@ -491,10 +497,6 @@ guess_candidates (MetaInputMapper     *mapper,
       if (wacom_device)
         {
           flags = libwacom_get_integration_flags (wacom_device);
-
-          if ((flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
-                        WACOM_DEVICE_INTEGRATED_DISPLAY)) == 0)
-            return;
 
           integrated = (flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
                                  WACOM_DEVICE_INTEGRATED_DISPLAY)) != 0;
