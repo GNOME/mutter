@@ -31,8 +31,9 @@ G_DECLARE_FINAL_TYPE (MetaKmsImpl, meta_kms_impl,
 
 MetaKms * meta_kms_impl_get_kms (MetaKmsImpl *impl);
 
-MetaKmsFeedback * meta_kms_impl_process_update (MetaKmsImpl   *impl,
-                                                MetaKmsUpdate *update);
+MetaKmsFeedback * meta_kms_impl_process_update (MetaKmsImpl       *impl,
+                                                MetaKmsUpdate     *update,
+                                                MetaKmsUpdateFlag  flags);
 
 void meta_kms_impl_add_impl_device (MetaKmsImpl       *impl,
                                     MetaKmsImplDevice *impl_device);

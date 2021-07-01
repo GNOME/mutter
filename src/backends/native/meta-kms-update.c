@@ -418,6 +418,28 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
 }
 
 void
+meta_kms_update_drop_defunct_page_flip_listeners (MetaKmsUpdate *update)
+{
+  GList *l;
+
+  l = update->page_flip_listeners;
+  while (l)
+    {
+      MetaKmsPageFlipListener *listener = l->data;
+      GList *l_next = l->next;
+
+      if (listener->flags & META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR)
+        {
+          meta_kms_page_flip_listener_free (listener);
+          update->page_flip_listeners =
+            g_list_delete_link (update->page_flip_listeners, l);
+        }
+
+      l = l_next;
+    }
+}
+
+void
 meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
                                       MetaKmsCustomPageFlipFunc  func,
                                       gpointer                   user_data)

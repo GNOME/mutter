@@ -239,15 +239,22 @@ meta_kms_take_pending_update (MetaKms       *kms,
   return NULL;
 }
 
+typedef struct
+{
+  MetaKmsUpdate *update;
+  MetaKmsUpdateFlag flags;
+} PostUpdateData;
+
 static gpointer
 meta_kms_process_update_in_impl (MetaKmsImpl  *impl,
                                  gpointer      user_data,
                                  GError      **error)
 {
+  PostUpdateData *data = user_data;
+  MetaKmsUpdate *update = data->update;
   MetaKmsFeedback *feedback;
-  MetaKmsUpdate *update = user_data;
 
-  feedback = meta_kms_impl_process_update (impl, update);
+  feedback = meta_kms_impl_process_update (impl, data->update, data->flags);
   meta_kms_device_predict_states_in_impl (meta_kms_update_get_device (update),
                                           update);
 
@@ -260,6 +267,7 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
                                    MetaKmsUpdateFlag  flags)
 {
   MetaKmsUpdate *update;
+  PostUpdateData data;
   MetaKmsFeedback *feedback;
   GList *result_listeners;
   GList *l;
@@ -273,9 +281,13 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
 
   meta_kms_update_lock (update);
 
+  data = (PostUpdateData) {
+    .update = update,
+    .flags = flags,
+  };
   feedback = meta_kms_run_impl_task_sync (kms,
                                           meta_kms_process_update_in_impl,
-                                          update,
+                                          &data,
                                           NULL);
 
   result_listeners = meta_kms_update_take_result_listeners (update);
@@ -293,6 +305,8 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
 
           meta_kms_update_drop_plane_assignment (update, plane);
         }
+
+      meta_kms_update_drop_defunct_page_flip_listeners (update);
 
       meta_kms_add_pending_update (kms, update);
     }

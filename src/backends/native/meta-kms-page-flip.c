@@ -255,9 +255,6 @@ meta_kms_page_flip_data_discard (MetaKms  *kms,
     {
       MetaKmsPageFlipClosure *closure = l->data;
 
-      if (closure->flags & META_KMS_PAGE_FLIP_LISTENER_FLAG_NO_DISCARD)
-        continue;
-
       closure->vtable->discarded (page_flip_data->crtc,
                                   closure->user_data,
                                   page_flip_data->error);
