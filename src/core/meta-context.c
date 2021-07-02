@@ -22,7 +22,6 @@
 
 #include "core/meta-context-private.h"
 
-#include <glib-unix.h>
 #include <locale.h>
 
 #include "backends/meta-backend-private.h"
@@ -277,49 +276,6 @@ meta_context_configure (MetaContext   *context,
   return TRUE;
 }
 
-static gboolean
-on_sigterm (gpointer user_data)
-{
-  MetaContext *context = META_CONTEXT (user_data);
-
-  meta_context_terminate (context);
-
-  return G_SOURCE_REMOVE;
-}
-
-static void
-init_signal_handlers (MetaContext *context)
-{
-  struct sigaction act = { 0 };
-  sigset_t empty_mask;
-
-  sigemptyset (&empty_mask);
-  act.sa_handler = SIG_IGN;
-  act.sa_mask = empty_mask;
-  act.sa_flags = 0;
-  if (sigaction (SIGPIPE,  &act, NULL) < 0)
-    g_warning ("Failed to register SIGPIPE handler: %s", g_strerror (errno));
-#ifdef SIGXFSZ
-  if (sigaction (SIGXFSZ,  &act, NULL) < 0)
-    g_warning ("Failed to register SIGXFSZ handler: %s", g_strerror (errno));
-#endif
-
-  g_unix_signal_add (SIGTERM, on_sigterm, context);
-}
-
-static void
-change_to_home_directory (void)
-{
-  const char *home_dir;
-
-  home_dir = g_get_home_dir ();
-  if (!home_dir)
-    return;
-
-  if (chdir (home_dir) < 0)
-    g_warning ("Could not change to home directory %s", home_dir);
-}
-
 static const char *
 compositor_type_to_description (MetaCompositorType compositor_type)
 {
@@ -375,9 +331,6 @@ meta_context_setup (MetaContext  *context,
     }
 
   meta_init_debug_utils ();
-  init_signal_handlers (context);
-
-  change_to_home_directory ();
 
   compositor_type = meta_context_get_compositor_type (context);
   g_message ("Running %s (using mutter %s) as a %s",
