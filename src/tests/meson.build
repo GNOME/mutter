@@ -250,6 +250,7 @@ stacking_tests = [
   'restore-position',
   'default-size',
   'modals',
+  'map-fixed-size',
 ]
 
 foreach stacking_test: stacking_tests

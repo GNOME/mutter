@@ -1,0 +1,75 @@
+# Map an initially maximized window
+
+# Map a Wayland window initially maximized
+
+new_client w wayland
+create w/1 csd
+maximize w/1
+
+wait
+
+assert_stacking
+
+show w/1
+
+wait
+
+assert_stacking w/1
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+hide w/1
+
+# Map a Wayland window initially fullscreen
+
+create w/2 csd
+fullscreen w/2
+
+wait
+
+assert_stacking
+
+show w/2
+
+wait
+
+assert_stacking w/2
+assert_size w/2 MONITOR_WIDTH MONITOR_HEIGHT
+
+hide w/2
+
+# Map a X11 window initially maximized
+
+new_client x x11
+create x/1 csd
+maximize x/1
+
+wait
+
+assert_stacking
+
+show x/1
+
+wait
+
+assert_stacking x/1
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+hide x/1
+
+# Map a X11 window initially fullscreen
+
+create x/2 csd
+fullscreen x/2
+
+wait
+
+assert_stacking
+
+show x/2
+
+wait
+
+assert_stacking x/2
+assert_size x/2 MONITOR_WIDTH MONITOR_HEIGHT
+
+hide x/2
