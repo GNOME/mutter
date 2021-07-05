@@ -81,17 +81,6 @@ CLUTTER_EXPORT
 gboolean                clutter_input_device_get_has_cursor     (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
-guint                   clutter_input_device_get_n_axes         (ClutterInputDevice  *device);
-CLUTTER_EXPORT
-ClutterInputAxis        clutter_input_device_get_axis           (ClutterInputDevice  *device,
-                                                                 guint                index_);
-CLUTTER_EXPORT
-gboolean                clutter_input_device_get_axis_value     (ClutterInputDevice  *device,
-                                                                 gdouble             *axes,
-                                                                 ClutterInputAxis     axis,
-                                                                 gdouble             *value);
-
-CLUTTER_EXPORT
 void                    clutter_input_device_grab               (ClutterInputDevice  *device,
                                                                  ClutterActor        *actor);
 CLUTTER_EXPORT
