@@ -187,10 +187,10 @@ meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
   g_signal_emit (sprite, signals[PREPARE_AT], 0, best_scale, x, y);
 }
 
-void
+gboolean
 meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite)
 {
-  META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite);
+  return META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite);
 }
 
 static void

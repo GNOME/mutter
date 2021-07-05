@@ -31,9 +31,10 @@ G_DEFINE_TYPE (MetaCursorSpriteWayland,
                meta_cursor_sprite_wayland,
                META_TYPE_CURSOR_SPRITE)
 
-static void
+static gboolean
 meta_cursor_sprite_wayland_realize_texture (MetaCursorSprite *sprite)
 {
+  return TRUE;
 }
 
 static gboolean

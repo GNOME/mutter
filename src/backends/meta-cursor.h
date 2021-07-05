@@ -36,7 +36,7 @@ struct _MetaCursorSpriteClass
 {
   GObjectClass parent_class;
 
-  void (* realize_texture) (MetaCursorSprite *sprite);
+  gboolean (* realize_texture) (MetaCursorSprite *sprite);
   gboolean (* is_animated) (MetaCursorSprite *sprite);
   void (* tick_frame) (MetaCursorSprite *sprite);
   unsigned int (* get_current_frame_time) (MetaCursorSprite *sprite);
@@ -47,7 +47,7 @@ void meta_cursor_sprite_prepare_at (MetaCursorSprite *sprite,
                                     int               x,
                                     int               y);
 
-void meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite);
+gboolean meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite);
 
 void meta_cursor_sprite_clear_texture (MetaCursorSprite *sprite);
 
