@@ -237,7 +237,7 @@ typedef enum /*< prefix=COGL_BLEND_STRING_ERROR >*/
   COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR
 } CoglBlendStringError;
 
-uint32_t
+COGL_EXPORT uint32_t
 cogl_blend_string_error_quark (void);
 
 #define COGL_SYSTEM_ERROR (_cogl_system_error_quark ())
