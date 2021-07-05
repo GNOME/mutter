@@ -32,4 +32,6 @@ MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *su
 
 MetaWaylandBuffer * meta_cursor_sprite_wayland_get_buffer (MetaCursorSpriteWayland *sprite_wayland);
 
+void meta_cursor_sprite_wayland_invalidate (MetaCursorSpriteWayland *sprite_wayland);
+
 #endif /* META_CURSOR_SPRITE_WAYLAND_H */
