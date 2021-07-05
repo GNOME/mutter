@@ -55,6 +55,7 @@
 #include "cogl/cogl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "meta/meta-cursor-tracker.h"
+#include "wayland/meta-cursor-sprite-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-cursor-surface.h"
 #include "wayland/meta-wayland-pointer.h"
@@ -1223,12 +1224,16 @@ pointer_set_cursor (struct wl_client *client,
         meta_backend_get_cursor_renderer_for_device (meta_get_backend (),
                                                      device);
       MetaWaylandCursorSurface *cursor_surface;
+      MetaCursorSprite *cursor_sprite;
 
       cursor_surface = META_WAYLAND_CURSOR_SURFACE (surface->role);
       meta_wayland_cursor_surface_set_renderer (cursor_surface,
                                                 cursor_renderer);
       meta_wayland_cursor_surface_set_hotspot (cursor_surface,
                                                hot_x, hot_y);
+
+      cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
+      meta_cursor_sprite_invalidate (cursor_sprite);
     }
 
   meta_wayland_pointer_set_cursor_surface (pointer, surface);
