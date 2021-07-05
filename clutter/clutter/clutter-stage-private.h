@@ -35,6 +35,7 @@ typedef enum
 {
   CLUTTER_DEVICE_UPDATE_NONE = 0,
   CLUTTER_DEVICE_UPDATE_EMIT_CROSSING = 1 << 0,
+  CLUTTER_DEVICE_UPDATE_IGNORE_CACHE = 1 << 1,
 } ClutterDeviceUpdateFlags;
 
 /* stage */
@@ -135,7 +136,8 @@ void clutter_stage_update_device_entry (ClutterStage         *self,
                                         ClutterInputDevice   *device,
                                         ClutterEventSequence *sequence,
                                         graphene_point_t      coords,
-                                        ClutterActor         *actor);
+                                        ClutterActor         *actor,
+                                        cairo_region_t       *clear_area);
 
 void clutter_stage_remove_device_entry (ClutterStage         *self,
                                         ClutterInputDevice   *device,
