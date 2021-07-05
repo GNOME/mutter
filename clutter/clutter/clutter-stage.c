@@ -1082,7 +1082,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   pick_stack = clutter_pick_context_steal_stack (pick_context);
   clutter_pick_context_destroy (pick_context);
 
-  actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray);
+  actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray, NULL);
   return actor ? actor : CLUTTER_ACTOR (stage);
 }
 
