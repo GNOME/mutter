@@ -1692,11 +1692,9 @@ static void
 manage_root_cursor_sprite_scale (MetaDisplay             *display,
                                  MetaCursorSpriteXcursor *sprite_xcursor)
 {
-  g_signal_connect_object (sprite_xcursor,
-                           "prepare-at",
-                           G_CALLBACK (root_cursor_prepare_at),
-                           display,
-                           0);
+  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (sprite_xcursor),
+                                       (MetaCursorPrepareFunc) root_cursor_prepare_at,
+                                       display);
 }
 
 void

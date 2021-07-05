@@ -45,6 +45,9 @@ typedef struct _MetaCursorSpritePrivate
   float texture_scale;
   MetaMonitorTransform texture_transform;
   int hot_x, hot_y;
+
+  MetaCursorPrepareFunc prepare_func;
+  gpointer prepare_func_data;
 } MetaCursorSpritePrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCursorSprite,
@@ -179,12 +182,27 @@ meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite)
 }
 
 void
+meta_cursor_sprite_set_prepare_func (MetaCursorSprite      *sprite,
+                                     MetaCursorPrepareFunc  func,
+                                     gpointer               user_data)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->prepare_func = func;
+  priv->prepare_func_data = user_data;
+}
+
+void
 meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
                                float               best_scale,
                                int                 x,
                                int                 y)
 {
-  g_signal_emit (sprite, signals[PREPARE_AT], 0, best_scale, x, y);
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->prepare_func (sprite, best_scale, x, y, priv->prepare_func_data);
 }
 
 gboolean
