@@ -108,6 +108,7 @@ void clutter_stage_update_device (ClutterStage         *stage,
                                   graphene_point_t      point,
                                   uint32_t              time,
                                   ClutterActor         *new_actor,
+                                  cairo_region_t       *region,
                                   gboolean              emit_crossing);
 
 CLUTTER_EXPORT

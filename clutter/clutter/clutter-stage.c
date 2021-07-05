@@ -96,6 +96,7 @@ typedef struct _PointerDeviceEntry
   ClutterEventSequence *sequence;
   graphene_point_t coords;
   ClutterActor *current_actor;
+  cairo_region_t *clear_area;
 } PointerDeviceEntry;
 
 struct _ClutterStagePrivate
@@ -917,6 +918,7 @@ clutter_stage_update_devices (ClutterStage *stage,
       clutter_stage_pick_and_update_device (stage,
                                             device,
                                             NULL,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                             entry->coords,
                                             CLUTTER_CURRENT_TIME);
@@ -993,11 +995,12 @@ setup_ray_for_coordinates (ClutterStage       *stage,
 }
 
 static ClutterActor *
-_clutter_stage_do_pick_on_view (ClutterStage     *stage,
-                                float             x,
-                                float             y,
-                                ClutterPickMode   mode,
-                                ClutterStageView *view)
+_clutter_stage_do_pick_on_view (ClutterStage      *stage,
+                                float              x,
+                                float              y,
+                                ClutterPickMode    mode,
+                                ClutterStageView  *view,
+                                cairo_region_t   **clear_area)
 {
   g_autoptr (ClutterPickStack) pick_stack = NULL;
   ClutterPickContext *pick_context;
@@ -1015,7 +1018,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   pick_stack = clutter_pick_context_steal_stack (pick_context);
   clutter_pick_context_destroy (pick_context);
 
-  actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray, NULL);
+  actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray, clear_area);
   return actor ? actor : CLUTTER_ACTOR (stage);
 }
 
@@ -1047,10 +1050,11 @@ clutter_stage_get_view_at (ClutterStage *stage,
 }
 
 static ClutterActor *
-_clutter_stage_do_pick (ClutterStage   *stage,
-                        float           x,
-                        float           y,
-                        ClutterPickMode mode)
+_clutter_stage_do_pick (ClutterStage     *stage,
+                        float             x,
+                        float             y,
+                        ClutterPickMode   mode,
+                        cairo_region_t  **clear_area)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
   ClutterStagePrivate *priv = stage->priv;
@@ -1074,7 +1078,7 @@ _clutter_stage_do_pick (ClutterStage   *stage,
 
   view = clutter_stage_get_view_at (stage, x, y);
   if (view)
-    return _clutter_stage_do_pick_on_view (stage, x, y, mode, view);
+    return _clutter_stage_do_pick_on_view (stage, x, y, mode, view, clear_area);
 
   return actor;
 }
@@ -1914,7 +1918,7 @@ clutter_stage_get_actor_at_pos (ClutterStage    *stage,
 {
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 
-  return _clutter_stage_do_pick (stage, x, y, pick_mode);
+  return _clutter_stage_do_pick (stage, x, y, pick_mode, NULL);
 }
 
 /**
@@ -3252,6 +3256,7 @@ on_device_actor_reactive_changed (ClutterActor       *actor,
   clutter_stage_pick_and_update_device (self,
                                         entry->device,
                                         entry->sequence,
+                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                         CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                         entry->coords,
                                         CLUTTER_CURRENT_TIME);
@@ -3269,6 +3274,7 @@ on_device_actor_destroyed (ClutterActor       *actor,
    * trigger a repick here.
    */
   entry->current_actor = NULL;
+  g_clear_pointer (&entry->clear_area, cairo_region_destroy);
 }
 
 static void
@@ -3288,6 +3294,8 @@ free_pointer_device_entry (PointerDeviceEntry *entry)
       _clutter_actor_set_has_pointer (actor, FALSE);
    }
 
+  g_clear_pointer (&entry->clear_area, cairo_region_destroy);
+
   g_free (entry);
 }
 
@@ -3296,7 +3304,8 @@ clutter_stage_update_device_entry (ClutterStage         *self,
                                    ClutterInputDevice   *device,
                                    ClutterEventSequence *sequence,
                                    graphene_point_t      coords,
-                                   ClutterActor         *actor)
+                                   ClutterActor         *actor,
+                                   cairo_region_t       *clear_area)
 {
   ClutterStagePrivate *priv = self->priv;
   PointerDeviceEntry *entry = NULL;
@@ -3352,6 +3361,10 @@ clutter_stage_update_device_entry (ClutterStage         *self,
           _clutter_actor_set_has_pointer (actor, TRUE);
         }
     }
+
+  g_clear_pointer (&entry->clear_area, cairo_region_destroy);
+  if (clear_area)
+    entry->clear_area = cairo_region_reference (clear_area);
 }
 
 void
@@ -3469,6 +3482,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                              graphene_point_t      point,
                              uint32_t              time_ms,
                              ClutterActor         *new_actor,
+                             cairo_region_t       *clear_area,
                              gboolean              emit_crossing)
 {
   ClutterInputDeviceType device_type;
@@ -3486,7 +3500,8 @@ clutter_stage_update_device (ClutterStage         *stage,
   clutter_stage_update_device_entry (stage,
                                      device, sequence,
                                      point,
-                                     new_actor);
+                                     new_actor,
+                                     clear_area);
 
   if (device_actor_changed)
     {
@@ -3527,9 +3542,36 @@ clutter_stage_repick_device (ClutterStage       *stage,
   clutter_stage_pick_and_update_device (stage,
                                         device,
                                         NULL,
+                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                         CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                         point,
                                         CLUTTER_CURRENT_TIME);
+}
+
+static gboolean
+clutter_stage_check_in_clear_area (ClutterStage         *stage,
+                                   ClutterInputDevice   *device,
+                                   ClutterEventSequence *sequence,
+                                   graphene_point_t      point)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  PointerDeviceEntry *entry = NULL;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
+  g_return_val_if_fail (device != NULL, FALSE);
+
+  if (sequence != NULL)
+    entry = g_hash_table_lookup (priv->touch_sequences, sequence);
+  else
+    entry = g_hash_table_lookup (priv->pointer_devices, device);
+
+  if (!entry)
+    return FALSE;
+  if (!entry->clear_area)
+    return FALSE;
+
+  return cairo_region_contains_point (entry->clear_area,
+                                      point.x, point.y);
 }
 
 ClutterActor *
@@ -3541,11 +3583,20 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       uint32_t                  time_ms)
 {
   ClutterActor *new_actor;
+  cairo_region_t *clear_area = NULL;
+
+  if ((flags & CLUTTER_DEVICE_UPDATE_IGNORE_CACHE) == 0)
+    {
+      if (clutter_stage_check_in_clear_area (stage, device,
+                                             sequence, point))
+        return clutter_stage_get_device_actor (stage, device, sequence);
+    }
 
   new_actor = _clutter_stage_do_pick (stage,
                                       point.x,
                                       point.y,
-                                      CLUTTER_PICK_REACTIVE);
+                                      CLUTTER_PICK_REACTIVE,
+                                      &clear_area);
 
   /* Picking should never fail, but if it does, we bail out here */
   g_return_val_if_fail (new_actor != NULL, NULL);
@@ -3555,7 +3606,10 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                point,
                                time_ms,
                                new_actor,
+                               clear_area,
                                !!(flags & CLUTTER_DEVICE_UPDATE_EMIT_CROSSING));
+
+  g_clear_pointer (&clear_area, cairo_region_destroy);
 
   return new_actor;
 }
