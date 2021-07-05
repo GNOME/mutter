@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-13 11:52+0100\n"
+"POT-Creation-Date: 2021-06-29 19:06+0000\n"
+"PO-Revision-Date: 2021-07-05 21:31+0300\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
 "sourceforge.net>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && n"
 "%100<=19) ? 1 : 2);\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.0\n"
 "X-Project-Style: gnome\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -56,109 +56,125 @@ msgstr "Mută fereastra pe spațiul de lucru de la stânga"
 msgid "Move window one workspace to the right"
 msgstr "Mută fereastra pe spațiul de lucru de la dreapta"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Mută fereastra pe spațiul de lucru de mai sus"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Mută fereastra pe spațiul de lucru de mai jos"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Mută fereastra cu un monitor la stânga"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Mută fereastra un monitor la dreapta"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Mută fereastra cu un monitor mai sus"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Mută fereastra cu un monitor mai jos"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Comută aplicațiile"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Schimbă la aplicația anterioară"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Schimbă ferestre"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Schimbă la fereastra anterioară"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Schimbă ferestrele unei aplicații"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Schimbă la fereastra anterioară a unei aplicații"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Schimbă comenzile de sistem"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Schimbă la comanda de control anterioară"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Schimbă ferestrele în mod direct"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Schimbă la fereastra anterioară în mod direct"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Comută direct ferestrele unei aplicații"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Schimbă în mod direct la fereastra anterioară a unei aplicații"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Schimbă comenzile de sistem în mod direct"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Schimbă în mod direct la o comandă de sistem anterioară"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Ascunde toate ferestrele normale"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Comută la spațiul de lucru 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Comută la spațiul de lucru 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Comută la spațiul de lucru 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Comută la spațiul de lucru 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Comută la ultimul spațiu de lucru"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Mută pe spațiul de lucru din stânga"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Mută pe spațiul de lucru din dreapta"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Mută pe spațiul de lucru deasupra"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Mută pe spațiul de lucru de jos"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -637,59 +653,59 @@ msgstr ""
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
-#: src/core/main.c:233
+#: src/core/main.c:200
 msgid "Disable connection to session manager"
 msgstr "Dezactivează conexiunea la administratorul de sesiune"
 
-#: src/core/main.c:239
+#: src/core/main.c:206
 msgid "Replace the running window manager"
 msgstr "Înlocuiește administratorul de ferestre curent"
 
-#: src/core/main.c:245
+#: src/core/main.c:212
 msgid "Specify session management ID"
 msgstr "Specifică ID-ul administrării de sesiune"
 
-#: src/core/main.c:250
+#: src/core/main.c:217
 msgid "X Display to use"
 msgstr "Ecranul X ce va fi folosit"
 
-#: src/core/main.c:256
+#: src/core/main.c:223
 msgid "Initialize session from savefile"
 msgstr "Inițializează sesiunea din fișierul salvat"
 
-#: src/core/main.c:262
+#: src/core/main.c:229
 msgid "Make X calls synchronous"
 msgstr "Realizează apelurile X sincron"
 
-#: src/core/main.c:269
+#: src/core/main.c:236
 msgid "Run as a wayland compositor"
 msgstr "Rulează ca un compunător wayland"
 
-#: src/core/main.c:275
+#: src/core/main.c:242
 msgid "Run as a nested compositor"
 msgstr "Rulează ca un compunător imbricat"
 
-#: src/core/main.c:281
+#: src/core/main.c:248
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Rulează compunătorul wayland fără a porni Xwayland"
 
-#: src/core/main.c:287
+#: src/core/main.c:254
 msgid "Specify Wayland display name to use"
 msgstr "Specificați numele de afișaj Wayland de utilizat"
 
-#: src/core/main.c:295
+#: src/core/main.c:262
 msgid "Run as a full display server, rather than nested"
 msgstr "Rulează ca server de afișare și nu ca server imbricat"
 
-#: src/core/main.c:300
+#: src/core/main.c:267
 msgid "Run as a headless display server"
 msgstr "Rulează ca server de afișare"
 
-#: src/core/main.c:305
+#: src/core/main.c:272
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitor virtual persistent (WxH sau WxH@R)"
 
-#: src/core/main.c:311
+#: src/core/main.c:278
 msgid "Run with X11 backend"
 msgstr "Rulează cu backend X11"
 
@@ -746,12 +762,12 @@ msgstr "Afișează versiunea"
 msgid "Mutter plugin to use"
 msgstr "Modul Mutter de utilizat"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a fost compilat fără suport pentru modul detaliat"
 
@@ -789,7 +805,7 @@ msgstr "Ecranul %d pe afișajul „%s” nu este valid"
 msgid "Format %s not supported"
 msgstr "Formatul %s nu este suportat"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1828
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -815,18 +831,6 @@ msgstr "%s (pe %s)"
 #~ "copiere.\n"
 #~ "Nu există NICIO garanție; nici pentru COMERCIALIZARE sau UTILIZAREA ÎNTR-"
 #~ "UN SCOP ANUME.\n"
-
-#~ msgid "Move window one workspace up"
-#~ msgstr "Mută fereastra pe spațiul de lucru de mai sus"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Mută fereastra pe spațiul de lucru de mai jos"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "Mută pe spațiul de lucru deasupra"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Mută pe spațiul de lucru de jos"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Comută starea de umbrire"
