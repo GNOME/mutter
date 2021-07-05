@@ -223,7 +223,13 @@ meta_wayland_cursor_surface_dispose (GObject *object)
                                         cursor_sprite_prepare_at, cursor_surface);
 
   g_clear_object (&priv->cursor_renderer);
-  g_clear_object (&priv->cursor_sprite);
+
+  if (priv->cursor_sprite)
+    {
+      meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (priv->cursor_sprite),
+                                           NULL, NULL);
+      g_clear_object (&priv->cursor_sprite);
+    }
 
   if (priv->buffer)
     {
@@ -258,11 +264,9 @@ meta_wayland_cursor_surface_constructed (GObject *object)
     }
 
   priv->cursor_sprite = meta_cursor_sprite_wayland_new (surface);
-  g_signal_connect_object (priv->cursor_sprite,
-                           "prepare-at",
-                           G_CALLBACK (cursor_sprite_prepare_at),
-                           cursor_surface,
-                           0);
+  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (priv->cursor_sprite),
+                                       (MetaCursorPrepareFunc) cursor_sprite_prepare_at,
+                                       cursor_surface);
 }
 
 static void

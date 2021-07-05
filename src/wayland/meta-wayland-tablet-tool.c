@@ -398,9 +398,9 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
   tool->cursor_surface_destroy_listener.notify = tablet_tool_handle_cursor_surface_destroy;
 
   tool->default_sprite = meta_cursor_sprite_xcursor_new (META_CURSOR_CROSSHAIR);
-  tool->prepare_at_signal_id =
-    g_signal_connect (tool->default_sprite, "prepare-at",
-                      G_CALLBACK (tool_cursor_prepare_at), tool);
+  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (tool->default_sprite),
+                                       (MetaCursorPrepareFunc) tool_cursor_prepare_at,
+                                       tool);
 
   return tool;
 }
@@ -421,7 +421,8 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
       wl_list_init (wl_resource_get_link (resource));
     }
 
-  g_clear_signal_handler (&tool->prepare_at_signal_id, tool->default_sprite);
+  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (tool->default_sprite),
+                                       NULL, NULL);
   g_object_unref (tool->default_sprite);
 
   g_free (tool);

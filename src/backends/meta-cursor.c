@@ -29,7 +29,6 @@
 
 enum
 {
-  PREPARE_AT,
   TEXTURE_CHANGED,
 
   LAST_SIGNAL
@@ -45,6 +44,9 @@ typedef struct _MetaCursorSpritePrivate
   float texture_scale;
   MetaMonitorTransform texture_transform;
   int hot_x, hot_y;
+
+  MetaCursorPrepareFunc prepare_func;
+  gpointer prepare_func_data;
 } MetaCursorSpritePrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCursorSprite,
@@ -188,12 +190,28 @@ meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite)
 }
 
 void
+meta_cursor_sprite_set_prepare_func (MetaCursorSprite      *sprite,
+                                     MetaCursorPrepareFunc  func,
+                                     gpointer               user_data)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->prepare_func = func;
+  priv->prepare_func_data = user_data;
+}
+
+void
 meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
                                float               best_scale,
                                int                 x,
                                int                 y)
 {
-  g_signal_emit (sprite, signals[PREPARE_AT], 0, best_scale, x, y);
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  if (priv->prepare_func)
+    priv->prepare_func (sprite, best_scale, x, y, priv->prepare_func_data);
 }
 
 gboolean
@@ -240,15 +258,6 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
 
   object_class->finalize = meta_cursor_sprite_finalize;
 
-  signals[PREPARE_AT] = g_signal_new ("prepare-at",
-                                      G_TYPE_FROM_CLASS (object_class),
-                                      G_SIGNAL_RUN_LAST,
-                                      0,
-                                      NULL, NULL, NULL,
-                                      G_TYPE_NONE, 3,
-                                      G_TYPE_FLOAT,
-                                      G_TYPE_INT,
-                                      G_TYPE_INT);
   signals[TEXTURE_CHANGED] = g_signal_new ("texture-changed",
                                            G_TYPE_FROM_CLASS (object_class),
                                            G_SIGNAL_RUN_LAST,

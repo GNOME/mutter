@@ -43,6 +43,16 @@ struct _MetaCursorSpriteClass
   unsigned int (* get_current_frame_time) (MetaCursorSprite *sprite);
 };
 
+typedef void (* MetaCursorPrepareFunc) (MetaCursorSprite *sprite,
+                                        float             scale,
+                                        int               x,
+                                        int               y,
+                                        gpointer          user_data);
+
+void meta_cursor_sprite_set_prepare_func (MetaCursorSprite      *sprite,
+                                          MetaCursorPrepareFunc  func,
+                                          gpointer               user_data);
+
 void meta_cursor_sprite_prepare_at (MetaCursorSprite *sprite,
                                     float             best_scale,
                                     int               x,
