@@ -81,6 +81,7 @@ meta_cursor_sprite_clear_texture (MetaCursorSprite *sprite)
     meta_cursor_sprite_get_instance_private (sprite);
 
   g_clear_pointer (&priv->texture, cogl_object_unref);
+  meta_cursor_sprite_invalidate (sprite);
 }
 
 void
@@ -98,6 +99,8 @@ meta_cursor_sprite_set_texture (MetaCursorSprite *sprite,
   priv->hot_x = hot_x;
   priv->hot_y = hot_y;
 
+  meta_cursor_sprite_invalidate (sprite);
+
   g_signal_emit (sprite, signals[TEXTURE_CHANGED], 0);
 }
 
@@ -108,6 +111,9 @@ meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
 
+  if (priv->texture_scale != scale)
+    meta_cursor_sprite_invalidate (sprite);
+
   priv->texture_scale = scale;
 }
 
@@ -117,6 +123,9 @@ meta_cursor_sprite_set_texture_transform (MetaCursorSprite     *sprite,
 {
   MetaCursorSpritePrivate *priv =
     meta_cursor_sprite_get_instance_private (sprite);
+
+  if (priv->texture_transform != transform)
+    meta_cursor_sprite_invalidate (sprite);
 
   priv->texture_transform = transform;
 }
@@ -187,10 +196,19 @@ meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
   g_signal_emit (sprite, signals[PREPARE_AT], 0, best_scale, x, y);
 }
 
-void
+gboolean
 meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite)
 {
-  META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite);
+  return META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite);
+}
+
+void
+meta_cursor_sprite_invalidate (MetaCursorSprite *sprite)
+{
+  MetaCursorSpriteClass *sprite_class = META_CURSOR_SPRITE_GET_CLASS (sprite);
+
+  if (sprite_class->invalidate)
+    sprite_class->invalidate (sprite);
 }
 
 static void

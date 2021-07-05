@@ -1074,9 +1074,13 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
 
   if (cursor_sprite)
     {
-      meta_cursor_sprite_realize_texture (cursor_sprite);
+      gboolean realized;
+
+      realized = meta_cursor_sprite_realize_texture (cursor_sprite);
       gpus = calculate_cursor_sprite_gpus (renderer, cursor_sprite);
-      realize_cursor_sprite (renderer, cursor_sprite, gpus);
+
+      if (realized)
+        realize_cursor_sprite (renderer, cursor_sprite, gpus);
     }
 
   maybe_schedule_cursor_sprite_animation_frame (native, cursor_sprite);

@@ -316,13 +316,15 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
   load_from_current_xcursor_image (sprite_xcursor);
 }
 
-static void
+static gboolean
 meta_cursor_sprite_xcursor_realize_texture (MetaCursorSprite *sprite)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
 
   if (sprite_xcursor->theme_dirty)
     load_cursor_from_theme (sprite);
+
+  return TRUE;
 }
 
 MetaCursorSpriteXcursor *

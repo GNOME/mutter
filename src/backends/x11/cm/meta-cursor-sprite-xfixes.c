@@ -52,9 +52,10 @@ G_DEFINE_TYPE_WITH_CODE (MetaCursorSpriteXfixes,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 meta_screen_cast_xfixes_init_initable_iface))
 
-static void
+static gboolean
 meta_cursor_sprite_xfixes_realize_texture (MetaCursorSprite *sprite)
 {
+  return TRUE;
 }
 
 static gboolean
