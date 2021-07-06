@@ -227,13 +227,6 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   int dmabuf_fd = -1;
   uint32_t i;
 
-  if (!buffer_gbm->bo)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                   "No gbm_bo available");
-      return FALSE;
-    }
-
   dmabuf_fd = gbm_bo_get_fd (buffer_gbm->bo);
   if (dmabuf_fd == -1)
     {
