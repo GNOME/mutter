@@ -333,6 +333,7 @@ if have_introspection
     nsversion: libmutter_api_version,
     header: 'cally/cally.h',
     namespace: 'Cally',
+    export_packages: [libmutter_clutter_name],
     includes: [
       libmutter_mtk_gir[0],
       libmutter_cogl_gir[0],

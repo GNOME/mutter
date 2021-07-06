@@ -1,6 +1,18 @@
 cogl_cogl_includesubdir = cogl_includesubdir / 'cogl'
 cogl_cogl_includedir = cogl_includedir / 'cogl'
 
+cogl_gir_includes = [
+  'GL-1.0',
+  'GObject-2.0',
+  'Graphene-1.0',
+]
+
+if have_introspection
+  cogl_gir_includes += [
+    libmutter_mtk_gir[0],
+  ]
+endif
+
 cogl_deprecated_headers = [
   'deprecated/cogl-program.h',
   'deprecated/cogl-shader.h',
@@ -293,6 +305,7 @@ cogl_sources = [
 ]
 
 if have_x11
+  cogl_gir_includes += ['xlib-2.0']
   cogl_nonintrospected_headers += [
     'cogl-xlib.h',
     'winsys/cogl-texture-pixmap-x11.h',
@@ -403,14 +416,9 @@ if have_introspection
     sources: cogl_introspected_headers,
     nsversion: libmutter_api_version,
     namespace: 'Cogl',
-    includes: [
-      libmutter_mtk_gir[0],
-      'GL-1.0',
-      'GObject-2.0',
-      'Graphene-1.0', 
-    ],
+    export_packages: [libmutter_cogl_name],
+    includes: cogl_gir_includes,
     dependencies: [cogl_deps],
-    export_packages: 'mutter-cogl-@0@'.format(libmutter_api_version),
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-D__COGL_H_INSIDE__',

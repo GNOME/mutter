@@ -1279,7 +1279,7 @@ if have_introspection
       libmutter_dep,
       mutter_deps,
     ],
-    export_packages: 'libmutter-@0@'.format(libmutter_api_version),
+    export_packages: ['libmutter-@0@'.format(libmutter_api_version)],
     extra_args: mutter_c_args + introspection_args,
     kwargs: introspection_common,
   )

@@ -21,7 +21,8 @@ cogl_pango_deps = [
   libmutter_cogl_dep,
 ]
 
-libmutter_cogl_pango = shared_library('mutter-cogl-pango-' + libmutter_api_version,
+libmutter_cogl_pango_name = 'mutter-cogl-pango-' + libmutter_api_version
+libmutter_cogl_pango = shared_library(libmutter_cogl_pango_name,
   sources: [cogl_pango_sources, cogl_pango_public_headers],
   version: '0.0.0',
   soversion: 0,
@@ -56,7 +57,7 @@ if have_introspection
       pango_dep,
       libmutter_cogl_pango_dep,
     ],
-    export_packages: 'mutter-cogl-pango-@0@'.format(libmutter_api_version),
+    export_packages: [libmutter_cogl_pango_name],
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-DG_LOG_DOMAIN="CoglPango"',
@@ -70,7 +71,7 @@ install_headers(cogl_pango_public_headers, subdir: cogl_pango_includesubdir)
 
 pkg.generate(libmutter_cogl_pango,
   name: 'CoglPango',
-  filebase: 'mutter-cogl-pango-' + libmutter_api_version,
+  filebase: libmutter_cogl_pango_name,
   description: 'A text rendering for Cogl in mutter',
   subdirs: pkgname / 'cogl',
   requires: [cogl_pkg_deps, libmutter_cogl_name, pango_dep, pangocairo_dep],
