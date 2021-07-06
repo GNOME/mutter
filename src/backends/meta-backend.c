@@ -805,7 +805,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   /**
    * MetaBackend::gpu-added: (skip)
    * @backend: the #MetaBackend
-   * @gpu: the #MetaGpu
+   * @gpu: (type gpointer): the #MetaGpu
    */
   signals[GPU_ADDED] =
     g_signal_new ("gpu-added",
