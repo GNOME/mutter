@@ -123,7 +123,7 @@ struct _CallyActorClass
 
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[32];
+  gpointer padding[32];
 };
 
 CLUTTER_EXPORT
