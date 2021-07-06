@@ -300,7 +300,7 @@ struct _ClutterActorClass
 
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[25];
+  gpointer padding[25];
 };
 
 /**
