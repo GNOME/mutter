@@ -447,7 +447,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
 /**
  * cogl_pipeline_set_depth_state: (skip)
  * @pipeline: A #CoglPipeline object
- * @state: A #CoglDepthState struct
+ * @state: (type gpointer): A #CoglDepthState struct
  * @error: A #GError to report failures to setup the given @state.
  *
  * This commits all the depth state configured in @state struct to the
@@ -472,7 +472,7 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
 /**
  * cogl_pipeline_get_depth_state: (skip)
  * @pipeline: A #CoglPipeline object
- * @state_out: (out): A destination #CoglDepthState struct
+ * @state_out: (type gpointer) (out): A destination #CoglDepthState struct
  *
  * Retrieves the current depth state configuration for the given
  * @pipeline as previously set using cogl_pipeline_set_depth_state().
@@ -733,7 +733,7 @@ cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
 /**
  * cogl_pipeline_add_snippet: (skip)
  * @pipeline: A #CoglPipeline
- * @snippet: The #CoglSnippet to add to the vertex processing hook
+ * @snippet: (type gpointer): The #CoglSnippet to add to the vertex processing hook
  *
  * Adds a shader snippet to @pipeline. The snippet will wrap around or
  * replace some part of the pipeline as defined by the hook point in

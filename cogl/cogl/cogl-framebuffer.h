@@ -588,7 +588,7 @@ cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
 /**
  * cogl_framebuffer_push_primitive_clip: (skip)
  * @framebuffer: A #CoglFramebuffer pointer
- * @primitive: A #CoglPrimitive describing a flat 2D shape
+ * @primitive: (type gpointer): A #CoglPrimitive describing a flat 2D shape
  * @bounds_x1: x coordinate for the top-left corner of the primitives
  *             bounds
  * @bounds_y1: y coordinate for the top-left corner of the primitives
@@ -1050,7 +1050,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  * cogl_framebuffer_draw_primitive: (skip)
  * @framebuffer: A destination #CoglFramebuffer
  * @pipeline: A #CoglPipeline state object
- * @primitive: A #CoglPrimitive geometry object
+ * @primitive: (type gpointer): A #CoglPrimitive geometry object
  *
  * Draws the given @primitive geometry to the specified destination
  * @framebuffer using the graphics processing state described by @pipeline.

@@ -551,7 +551,7 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline        *pipeline,
  * cogl_pipeline_add_layer_snippet: (skip)
  * @pipeline: A #CoglPipeline
  * @layer: The layer to hook the snippet to
- * @snippet: A #CoglSnippet
+ * @snippet: (type gpointer): A #CoglSnippet
  *
  * Adds a shader snippet that will hook on to the given layer of the
  * pipeline. The exact part of the pipeline that the snippet wraps

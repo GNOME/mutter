@@ -87,7 +87,7 @@ cogl_bitmap_new_from_file (const char *filename,
 
 /**
  * cogl_bitmap_new_from_buffer: (skip)
- * @buffer: A #CoglBuffer containing image data
+ * @buffer: (type gpointer): A #CoglBuffer containing image data
  * @format: The #CoglPixelFormat defining the format of the image data
  *          in the given @buffer.
  * @width: The width of the image data in the given @buffer.
@@ -225,7 +225,7 @@ cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
  * cogl_bitmap_get_buffer: (skip)
  * @bitmap: A #CoglBitmap
  *
- * Return value: (transfer none): the #CoglPixelBuffer that this
+ * Returns: (transfer none) (type gpointer): the #CoglPixelBuffer that this
  *   buffer uses for storage. Note that if the bitmap was created with
  *   cogl_bitmap_new_from_file() then it will not actually be using a
  *   pixel buffer and this function will return %NULL.
