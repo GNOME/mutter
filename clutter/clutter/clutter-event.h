@@ -364,7 +364,7 @@ struct _ClutterScrollEvent
  * @x: the X coordinate of the pointer, relative to the stage
  * @y: the Y coordinate of the pointer, relative to the stage
  * @sequence: the event sequence that this event belongs to
- * @modifier_state: (type ClutterModifierType): a bit-mask representing the state
+ * @modifier_state: a bit-mask representing the state
  *   of modifier keys (e.g. Control, Shift, and Alt) and the pointer
  *   buttons. See #ClutterModifierType
  * @axes: reserved 

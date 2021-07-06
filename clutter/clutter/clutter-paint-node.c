@@ -1034,7 +1034,7 @@ clutter_paint_node_add_texture_rectangles (ClutterPaintNode *node,
 /**
  * clutter_paint_node_add_primitive: (skip)
  * @node: a #ClutterPaintNode
- * @primitive: a Cogl primitive
+ * @primitive: (type gpointer): a Cogl primitive
  *
  * Adds a region described by a Cogl primitive to the @node.
  *
