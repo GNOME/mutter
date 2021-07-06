@@ -64,6 +64,8 @@ cogl_egl_defines_h = configure_file(
 )
 built_headers += [cogl_gl_header_h]
 
+cogl_gir_includes = ['cairo-1.0', 'GL-1.0', 'GObject-2.0', 'Graphene-1.0']
+
 cogl_deprecated_headers = [
   'deprecated/cogl-material-compat.h',
   'deprecated/cogl-shader.h',
@@ -364,6 +366,7 @@ cogl_sources = [
 ]
 
 if have_x11
+  cogl_gir_includes += ['xlib-2.0']
   cogl_nonintrospected_headers += [
     'winsys/cogl-texture-pixmap-x11.h',
     'cogl-xlib.h',
@@ -468,7 +471,8 @@ if have_introspection
     sources: cogl_introspected_headers,
     nsversion: libmutter_api_version,
     namespace: 'Cogl',
-    includes: ['cairo-1.0', 'GL-1.0', 'GObject-2.0', 'Graphene-1.0'],
+    export_packages: [libmutter_cogl_name],
+    includes: cogl_gir_includes,
     dependencies: [cogl_deps],
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',

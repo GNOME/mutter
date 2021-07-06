@@ -1050,6 +1050,7 @@ if have_introspection
     ],
     nsversion: libmutter_api_version,
     namespace: 'Meta',
+    export_packages: ['libmutter-' + libmutter_api_version],
     symbol_prefix: 'meta',
     includes: [
       'GObject-2.0',

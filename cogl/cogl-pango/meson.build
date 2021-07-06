@@ -42,6 +42,7 @@ if have_introspection
     sources: cogl_pango_public_headers,
     nsversion: libmutter_api_version,
     namespace: 'CoglPango',
+    export_packages: ['mutter-cogl-pango-' + libmutter_api_version],
     symbol_prefix: 'cogl_pango',
     header: 'cogl-pango.h',
     includes: [

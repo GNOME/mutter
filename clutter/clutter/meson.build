@@ -433,6 +433,7 @@ if have_introspection
     ],
     nsversion: libmutter_api_version,
     namespace: 'Cally',
+    export_packages: [libmutter_clutter_name],
     includes: [
       libmutter_cogl_gir[0],
       libmutter_cogl_pango_gir[0],
