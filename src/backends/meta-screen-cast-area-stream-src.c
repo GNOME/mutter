@@ -267,8 +267,7 @@ stage_painted (MetaStage           *stage,
 }
 
 static void
-add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src,
-                          MetaStageWatchPhase          watch_phase)
+add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
@@ -296,7 +295,7 @@ add_view_painted_watches (MetaScreenCastAreaStreamSrc *area_src,
 
           watch = meta_stage_watch_view (meta_stage,
                                          CLUTTER_STAGE_VIEW (view),
-                                         watch_phase,
+                                         META_STAGE_WATCH_AFTER_ACTOR_PAINT,
                                          stage_painted,
                                          area_src);
 
@@ -316,8 +315,7 @@ on_monitors_changed (MetaMonitorManager          *monitor_manager,
     meta_stage_remove_watch (stage, l->data);
   g_clear_pointer (&area_src->watches, g_list_free);
 
-  add_view_painted_watches (area_src,
-                            META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+  add_view_painted_watches (area_src);
 }
 
 static void
@@ -349,14 +347,12 @@ meta_screen_cast_area_stream_src_enable (MetaScreenCastStreamSrc *src)
       meta_cursor_tracker_track_position (cursor_tracker);
       G_GNUC_FALLTHROUGH;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      add_view_painted_watches (area_src,
-                                META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+      add_view_painted_watches (area_src);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
       inhibit_hw_cursor (area_src);
       meta_cursor_tracker_track_position (cursor_tracker);
-      add_view_painted_watches (area_src,
-                                META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+      add_view_painted_watches (area_src);
       break;
     }
 
