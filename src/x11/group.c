@@ -206,7 +206,7 @@ meta_group_get_startup_id (MetaGroup *group)
 /**
  * meta_group_property_notify: (skip)
  * @group: a #MetaGroup
- * @event: a X event
+ * @event: (type xlib.XEvent): a X event
  *
  */
 gboolean
