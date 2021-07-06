@@ -217,6 +217,8 @@ cogl_texture_2d_new_from_bitmap (CoglBitmap *bitmap);
  * cogl_egl_texture_2d_new_from_image: (skip)
  */
 #if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
+
+#ifndef __GI_SCANNER__
 /* NB: The reason we require the width, height and format to be passed
  * even though they may seem redundant is because GLES 1/2 don't
  * provide a way to query these properties. */
@@ -228,6 +230,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     EGLImageKHR image,
                                     CoglEglImageFlags flags,
                                     GError **error);
+#endif
 
 typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
                                                         gpointer user_data,

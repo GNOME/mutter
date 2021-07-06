@@ -35,10 +35,14 @@
 
 G_BEGIN_DECLS
 
+#ifndef __GI_SCANNER__
+
 #define cogl_clutter_winsys_has_feature cogl_clutter_winsys_has_feature_CLUTTER
 COGL_DEPRECATED_FOR (cogl_has_feature)
 COGL_EXPORT gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature);
+
+#endif
 
 G_END_DECLS
 
