@@ -373,7 +373,9 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
-  if (event->type == CLUTTER_SCROLL && meta_prefs_get_mouse_button_mods () > 0)
+  if (meta_is_wayland_compositor () &&
+      event->type == CLUTTER_SCROLL &&
+      meta_prefs_get_mouse_button_mods () > 0)
     {
       ClutterModifierType grab_mods;
 
