@@ -517,7 +517,7 @@ meta_pad_action_mapper_handle_button (MetaPadActionMapper         *mapper,
                                       const ClutterPadButtonEvent *event)
 {
   GDesktopPadButtonAction action;
-  int button, group, mode;
+  int button, group, mode, n_modes = 0;
   gboolean is_press;
   GSettings *settings;
   char *accel;
@@ -531,9 +531,11 @@ meta_pad_action_mapper_handle_button (MetaPadActionMapper         *mapper,
   group = clutter_input_device_get_mode_switch_button_group (pad, button);
   is_press = event->type == CLUTTER_PAD_BUTTON_PRESS;
 
-  if (is_press && group >= 0)
+  if (group >= 0)
+    n_modes = clutter_input_device_get_group_n_modes (pad, group);
+
+  if (is_press && n_modes > 0)
     {
-      guint n_modes = clutter_input_device_get_group_n_modes (pad, group);
       const char *pretty_name = NULL;
       PadMappingInfo *info;
 #ifdef HAVE_LIBWACOM
