@@ -348,13 +348,14 @@ init_outputs (MetaGpuKms *gpu_kms)
   for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
     {
       MetaKmsConnector *kms_connector = l->data;
-      const MetaKmsConnectorState *connector_state;
       MetaOutputKms *output_kms;
       MetaOutput *old_output;
       GError *error = NULL;
 
-      connector_state = meta_kms_connector_get_current_state (kms_connector);
-      if (!connector_state || connector_state->non_desktop)
+      if (!meta_kms_connector_get_current_state (kms_connector))
+        continue;
+
+      if (meta_kms_connector_is_for_lease (kms_connector))
         continue;
 
       old_output =

@@ -164,6 +164,12 @@ meta_kms_connector_get_current_state (MetaKmsConnector *connector)
   return connector->current_state;
 }
 
+gboolean
+meta_kms_connector_is_for_lease (MetaKmsConnector *connector)
+{
+  return connector->current_state && connector->current_state->non_desktop;
+}
+
 static gboolean
 has_privacy_screen_software_toggle (MetaKmsConnector *connector)
 {
