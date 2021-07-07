@@ -161,7 +161,7 @@ meta_input_device_native_get_group_n_modes (ClutterInputDevice *device,
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
 
-  if (!device_native->modes || group < device_native->modes->len)
+  if (!device_native->modes || group >= device_native->modes->len)
     return -1;
 
   return g_array_index (device_native->modes, int, group);
