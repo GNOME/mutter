@@ -17,7 +17,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-01-25'
+    BASE_TAG: '2022-01-26.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -30,6 +30,7 @@ variables:
       uncrustify
       xorg-x11-server-Xvfb
       mesa-dri-drivers
+      xorg-x11-proto-devel
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -39,6 +40,26 @@ variables:
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
       dnf builddep -y libinput --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
+
+      # For Xwayland
+      dnf builddep -y xorg-x11-server-Xwayland --setopt=install_weak_deps=False &&
+      dnf install -y 'pkgconfig(fontutil)' &&
+      dnf install -y 'pkgconfig(libxcvt)' &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        -Dxwayland=true \
+        -Dxwayland_eglstream=true \
+        -D{xorg,xnest,xvfb}=false \
+        -Dvendor_name="Mutter CI" \
+        -D{xdmcp,udev,udev_kms}=false \
+        -Dxcsecurity=true \
+        -Dglamor=true \
+        -D{dri1,dri2}=false \
+        -Ddri3=true \
+        https://gitlab.freedesktop.org/xorg/xserver.git \
+        xwayland-22.1 \
+        . \
+        xwayland-22.0.99.901 &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gjs.git \
