@@ -5,6 +5,7 @@ include:
 stages:
  - review
  - prepare
+ - code-review
  - build
  - test
  - analyze
@@ -15,8 +16,8 @@ variables:
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-08-01.0'
-    FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang'
+    BASE_TAG: '2021-08-22.0'
+    FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang uncrustify'
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -139,6 +140,24 @@ build-fedora-container@aarch64:
     - check-merge-request
   variables:
     GIT_STRATEGY: none
+
+check-code-style:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:34@x86_64
+  stage: code-review
+  needs:
+    - build-fedora-container@x86_64
+  script:
+    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
+      then
+        git fetch origin master;
+        export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-${CI_DEFAULT_BRANCH}}") <(git rev-list --first-parent HEAD) | head -1) ;
+        python3 -u ./check-style.py --dry-run --sha $common_parent_sha ;
+      else
+        echo "Not a merge request" ;
+      fi
+  allow_failure: true
 
 .build-mutter:
   extends:
