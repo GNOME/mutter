@@ -312,6 +312,9 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
             }
         }
 
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No suitable mode setting backend found");
+
       return NULL;
     }
 }
