@@ -76,8 +76,6 @@ unit_tests = executable('mutter-test-unit-tests',
     'unit-tests.c',
     'boxes-tests.c',
     'boxes-tests.h',
-    'kms-utils-unit-tests.c',
-    'kms-utils-unit-tests.h',
     'meta-backend-test.c',
     'meta-backend-test.h',
     'meta-gpu-test.c',
@@ -165,6 +163,17 @@ ref_test_sources = [
 ]
 
 if have_native_tests
+  native_kms_utils_tests = executable('mutter-native-kms-utils-tests',
+    sources: [
+      'kms-utils-unit-tests.c',
+    ],
+    include_directories: tests_includepath,
+    c_args: tests_c_args,
+    dependencies: [tests_deps],
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+
   native_headless_tests = executable('mutter-native-headless-tests',
     sources: [
       'native-headless.c',
@@ -296,6 +305,13 @@ test('anonymous-file', anonymous_file_test,
 )
 
 if have_native_tests
+  test('native-kms-utils', native_kms_utils_tests,
+    suite: ['core', 'mutter/native/kms'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
   test('native-headless', native_headless_tests,
     suite: ['core', 'mutter/native/headless'],
     env: test_env,

@@ -18,9 +18,8 @@
 
 #include "config.h"
 
-#include "tests/kms-utils-unit-tests.h"
+#include <glib.h>
 
-#include "tests/test-utils.h"
 #include "backends/native/meta-kms-utils.h"
 
 typedef struct {
@@ -121,7 +120,7 @@ static const ModeInfoTestCase test_cases[] = {
 };
 
 static void
-refresh_rate (void)
+meta_test_kms_refresh_rate (void)
 {
   size_t index;
 
@@ -138,8 +137,18 @@ refresh_rate (void)
     }
 }
 
-void
+static void
 init_kms_utils_tests (void)
 {
-  g_test_add_func ("/kms-utils/refresh-rate", refresh_rate);
+  g_test_add_func ("/backends/native/kms/refresh-rate",
+                   meta_test_kms_refresh_rate);
+}
+
+int
+main (int    argc,
+      char **argv)
+{
+  g_test_init (&argc, &argv, NULL);
+  init_kms_utils_tests ();
+  return g_test_run ();
 }
