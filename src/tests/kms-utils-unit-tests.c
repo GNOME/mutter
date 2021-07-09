@@ -21,6 +21,7 @@
 #include <glib.h>
 
 #include "backends/native/meta-kms-utils.h"
+#include "backends/native/meta-kms-update.h"
 
 typedef struct {
   drmModeModeInfo drm_mode;
@@ -138,10 +139,21 @@ meta_test_kms_refresh_rate (void)
 }
 
 static void
+meta_test_kms_update_fixed16 (void)
+{
+  g_assert_cmpint (meta_fixed_16_from_int (12345), ==, 809041920);
+  g_assert_cmpint (meta_fixed_16_to_int (809041920), ==, 12345);
+  g_assert_cmpint (meta_fixed_16_from_int (-12345), ==, -809041920);
+  g_assert_cmpint (meta_fixed_16_to_int (-809041920), ==, -12345);
+}
+
+static void
 init_kms_utils_tests (void)
 {
   g_test_add_func ("/backends/native/kms/refresh-rate",
                    meta_test_kms_refresh_rate);
+  g_test_add_func ("/backends/native/kms/update/fixed16",
+                   meta_test_kms_update_fixed16);
 }
 
 int
