@@ -170,6 +170,7 @@ meta_kms_queue_result_callback (MetaKms               *kms,
                                 MetaKmsResultListener *listener)
 {
   meta_kms_queue_callback  (kms,
+                            NULL,
                             invoke_result_listener,
                             listener,
                             (GDestroyNotify) meta_kms_result_listener_free);
@@ -219,6 +220,7 @@ meta_kms_notify_modes_set (MetaKms *kms)
 
 void
 meta_kms_queue_callback (MetaKms            *kms,
+                         GMainContext       *main_context,
                          MetaThreadCallback  callback,
                          gpointer            user_data,
                          GDestroyNotify      user_data_destroy)
@@ -226,7 +228,7 @@ meta_kms_queue_callback (MetaKms            *kms,
   MetaThread *thread = META_THREAD (kms);
 
   meta_thread_queue_callback (thread,
-                              NULL,
+                              main_context,
                               callback,
                               user_data,
                               user_data_destroy);

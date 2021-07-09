@@ -755,6 +755,7 @@ process_page_flip_listener (MetaKmsImplDevice  *impl_device,
   meta_kms_page_flip_data_add_listener (page_flip_data,
                                         listener->vtable,
                                         listener->flags,
+                                        listener->main_context,
                                         listener_user_data,
                                         listener_destroy_notify);
 

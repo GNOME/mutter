@@ -31,6 +31,7 @@ typedef void (* MetaKmsCallback) (MetaKms  *kms,
                                   gpointer  user_data);
 
 void meta_kms_queue_callback (MetaKms            *kms,
+                              GMainContext       *main_context,
                               MetaThreadCallback  callback,
                               gpointer            user_data,
                               GDestroyNotify      user_data_destroy);

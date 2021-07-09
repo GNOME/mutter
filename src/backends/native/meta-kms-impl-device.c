@@ -1064,6 +1064,7 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
       MetaKms *kms = meta_kms_device_get_kms (priv->device);
 
       meta_kms_queue_callback (kms,
+                               NULL,
                                emit_resources_changed_callback,
                                GUINT_TO_POINTER (changes), NULL);
     }

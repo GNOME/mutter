@@ -30,8 +30,11 @@ typedef struct _MetaKmsPageFlipClosure
 {
   const MetaKmsPageFlipListenerVtable *vtable;
   MetaKmsPageFlipListenerFlag flags;
+  GMainContext *main_context;
   gpointer user_data;
   GDestroyNotify destroy_notify;
+
+  MetaKmsPageFlipData *page_flip_data;
 } MetaKmsPageFlipClosure;
 
 struct _MetaKmsPageFlipData
@@ -55,6 +58,7 @@ struct _MetaKmsPageFlipData
 static MetaKmsPageFlipClosure *
 meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
                                 MetaKmsPageFlipListenerFlag          flags,
+                                GMainContext                        *main_context,
                                 gpointer                             user_data,
                                 GDestroyNotify                       destroy_notify)
 {
@@ -64,6 +68,7 @@ meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
   *closure = (MetaKmsPageFlipClosure) {
     .vtable = vtable,
     .flags = flags,
+    .main_context = main_context,
     .user_data = user_data,
     .destroy_notify = destroy_notify,
   };
@@ -74,8 +79,18 @@ meta_kms_page_flip_closure_new (const MetaKmsPageFlipListenerVtable *vtable,
 static void
 meta_kms_page_flip_closure_free (MetaKmsPageFlipClosure *closure)
 {
+  g_clear_pointer (&closure->page_flip_data, meta_kms_page_flip_data_unref);
   g_clear_pointer (&closure->user_data, closure->destroy_notify);
   g_free (closure);
+}
+
+static void
+meta_kms_page_closure_set_data (MetaKmsPageFlipClosure *closure,
+                                MetaKmsPageFlipData    *page_flip_data)
+{
+  g_return_if_fail (!closure->page_flip_data);
+
+  closure->page_flip_data = meta_kms_page_flip_data_ref (page_flip_data);
 }
 
 MetaKmsPageFlipData *
@@ -118,12 +133,14 @@ void
 meta_kms_page_flip_data_add_listener (MetaKmsPageFlipData                 *page_flip_data,
                                       const MetaKmsPageFlipListenerVtable *vtable,
                                       MetaKmsPageFlipListenerFlag          flags,
+                                      GMainContext                        *main_context,
                                       gpointer                             user_data,
                                       GDestroyNotify                       destroy_notify)
 {
   MetaKmsPageFlipClosure *closure;
 
   closure = meta_kms_page_flip_closure_new (vtable, flags,
+                                            main_context,
                                             user_data,
                                             destroy_notify);
   page_flip_data->closures = g_list_append (page_flip_data->closures, closure);
@@ -142,31 +159,26 @@ meta_kms_page_flip_data_get_crtc (MetaKmsPageFlipData *page_flip_data)
 }
 
 static void
-meta_kms_page_flip_data_flipped (MetaThread *thread,
-                                 gpointer    user_data)
+invoke_page_flip_closure_flipped (MetaThread *thread,
+                                  gpointer    user_data)
 {
-  MetaKmsPageFlipData *page_flip_data = user_data;
-  GList *l;
+  MetaKmsPageFlipClosure *closure = user_data;
+  MetaKmsPageFlipData *page_flip_data = closure->page_flip_data;
 
   meta_assert_not_in_kms_impl (META_KMS (thread));
 
-  for (l = page_flip_data->closures; l; l = l->next)
+  if (page_flip_data->is_symbolic)
     {
-      MetaKmsPageFlipClosure *closure = l->data;
-
-      if (page_flip_data->is_symbolic)
-        {
-          closure->vtable->ready (page_flip_data->crtc,
-                                  closure->user_data);
-        }
-      else
-        {
-          closure->vtable->flipped (page_flip_data->crtc,
-                                    page_flip_data->sequence,
-                                    page_flip_data->sec,
-                                    page_flip_data->usec,
-                                    closure->user_data);
-        }
+      closure->vtable->ready (page_flip_data->crtc,
+                              closure->user_data);
+    }
+  else
+    {
+      closure->vtable->flipped (page_flip_data->crtc,
+                                page_flip_data->sequence,
+                                page_flip_data->sec,
+                                page_flip_data->usec,
+                                closure->user_data);
     }
 }
 
@@ -209,63 +221,78 @@ void
 meta_kms_page_flip_data_flipped_in_impl (MetaKmsPageFlipData *page_flip_data)
 {
   MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
+  g_autoptr (GList) closures = NULL;
+  GList *l;
 
   meta_assert_in_kms_impl (kms);
 
-  meta_kms_queue_callback (kms,
-                           meta_kms_page_flip_data_flipped,
-                           page_flip_data,
-                           (GDestroyNotify) meta_kms_page_flip_data_unref);
-}
-
-static void
-meta_kms_page_flip_data_mode_set_fallback (MetaThread *thread,
-                                           gpointer    user_data)
-{
-  MetaKmsPageFlipData *page_flip_data = user_data;
-  GList *l;
-
-  meta_assert_not_in_kms_impl (META_KMS (thread));
-
-  for (l = page_flip_data->closures; l; l = l->next)
+  closures = g_steal_pointer (&page_flip_data->closures);
+  for (l = closures; l; l = l->next)
     {
       MetaKmsPageFlipClosure *closure = l->data;
 
-      closure->vtable->mode_set_fallback (page_flip_data->crtc,
-                                          closure->user_data);
+      meta_kms_page_closure_set_data (closure, page_flip_data);
+      meta_kms_queue_callback (kms,
+                               closure->main_context,
+                               invoke_page_flip_closure_flipped,
+                               closure,
+                               (GDestroyNotify) meta_kms_page_flip_closure_free);
+
     }
+
+  meta_kms_page_flip_data_unref (page_flip_data);
+}
+
+static void
+invoke_page_flip_closure_mode_set_fallback (MetaThread *thread,
+                                            gpointer    user_data)
+{
+  MetaKmsPageFlipClosure *closure = user_data;
+  MetaKmsPageFlipData *page_flip_data = closure->page_flip_data;
+
+  meta_assert_not_in_kms_impl (META_KMS (thread));
+
+  closure->vtable->mode_set_fallback (page_flip_data->crtc,
+                                      closure->user_data);
 }
 
 void
 meta_kms_page_flip_data_mode_set_fallback_in_impl (MetaKmsPageFlipData *page_flip_data)
 {
   MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
+  g_autoptr (GList) closures = NULL;
+  GList *l;
 
   meta_assert_in_kms_impl (kms);
 
-  meta_kms_queue_callback (kms,
-                           meta_kms_page_flip_data_mode_set_fallback,
-                           page_flip_data,
-                           (GDestroyNotify) meta_kms_page_flip_data_unref);
-}
-
-static void
-meta_kms_page_flip_data_discard (MetaThread *thread,
-                                 gpointer    user_data)
-{
-  MetaKmsPageFlipData *page_flip_data = user_data;
-  GList *l;
-
-  meta_assert_not_in_kms_impl (META_KMS (thread));
-
-  for (l = page_flip_data->closures; l; l = l->next)
+  closures = g_steal_pointer (&page_flip_data->closures);
+  for (l = closures; l; l = l->next)
     {
       MetaKmsPageFlipClosure *closure = l->data;
 
-      closure->vtable->discarded (page_flip_data->crtc,
-                                  closure->user_data,
-                                  page_flip_data->error);
+      meta_kms_page_closure_set_data (closure, page_flip_data);
+      meta_kms_queue_callback (kms,
+                               closure->main_context,
+                               invoke_page_flip_closure_mode_set_fallback,
+                               closure,
+                               (GDestroyNotify) meta_kms_page_flip_closure_free);
     }
+
+  meta_kms_page_flip_data_unref (page_flip_data);
+}
+
+static void
+invoke_page_flip_closure_discarded (MetaThread *thread,
+                                    gpointer    user_data)
+{
+  MetaKmsPageFlipClosure *closure = user_data;
+  MetaKmsPageFlipData *page_flip_data = closure->page_flip_data;
+
+  meta_assert_not_in_kms_impl (META_KMS (thread));
+
+  closure->vtable->discarded (page_flip_data->crtc,
+                              closure->user_data,
+                              page_flip_data->error);
 }
 
 void
@@ -282,14 +309,27 @@ meta_kms_page_flip_data_discard_in_impl (MetaKmsPageFlipData *page_flip_data,
                                          const GError        *error)
 {
   MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
+  g_autoptr (GList) closures = NULL;
+  GList *l;
 
   meta_assert_in_kms_impl (kms);
 
   if (error)
     meta_kms_page_flip_data_take_error (page_flip_data, g_error_copy (error));
 
-  meta_kms_queue_callback (kms,
-                           meta_kms_page_flip_data_discard,
-                           page_flip_data,
-                           (GDestroyNotify) meta_kms_page_flip_data_unref);
+  closures = g_steal_pointer (&page_flip_data->closures);
+  for (l = closures; l; l = l->next)
+    {
+      MetaKmsPageFlipClosure *closure = l->data;
+
+      meta_kms_page_closure_set_data (closure, page_flip_data);
+
+      meta_kms_queue_callback (kms,
+                               closure->main_context,
+                               invoke_page_flip_closure_discarded,
+                               closure,
+                               (GDestroyNotify) meta_kms_page_flip_closure_free);
+    }
+
+  meta_kms_page_flip_data_unref (page_flip_data);
 }

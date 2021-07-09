@@ -474,6 +474,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
                                           flags,
+                                          NULL,
                                           g_object_ref (view),
                                           g_object_unref);
 }
@@ -1548,6 +1549,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
                                           kms_crtc,
                                           &page_flip_listener_vtable,
                                           META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                          NULL,
                                           g_object_ref (onscreen_native->view),
                                           g_object_unref);
   add_onscreen_frame_info (crtc);

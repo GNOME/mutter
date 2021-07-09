@@ -1091,6 +1091,7 @@ generate_page_flip_datas (MetaKmsImplDevice  *impl_device,
       meta_kms_page_flip_data_add_listener (page_flip_data,
                                             listener->vtable,
                                             listener->flags,
+                                            listener->main_context,
                                             user_data,
                                             destroy_notify);
 
@@ -1113,6 +1114,7 @@ generate_page_flip_datas (MetaKmsImplDevice  *impl_device,
               meta_kms_page_flip_data_add_listener (page_flip_data,
                                                     other_listener->vtable,
                                                     other_listener->flags,
+                                                    other_listener->main_context,
                                                     other_user_data,
                                                     other_destroy_notify);
               listeners = g_list_delete_link (listeners, l);

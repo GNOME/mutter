@@ -193,14 +193,35 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
+static gboolean
+noop_callback (gpointer user_data)
+{
+  return G_SOURCE_REMOVE;
+}
+
 static void
 meta_kms_page_flip_listener_unref (MetaKmsPageFlipListener *listener)
 {
   if (!g_atomic_ref_count_dec (&listener->ref_count))
     return;
 
-  g_clear_pointer (&listener->user_data, listener->destroy_notify);
-  g_free (listener);
+  if (listener->main_context == g_main_context_get_thread_default ())
+    {
+      g_clear_pointer (&listener->user_data, listener->destroy_notify);
+      g_free (listener);
+    }
+  else
+    {
+      GSource *source;
+
+      source = g_idle_source_new ();
+      g_source_set_callback (source, noop_callback,
+                             g_steal_pointer (&listener->user_data),
+                             g_steal_pointer (&listener->destroy_notify));
+      g_source_attach (source, listener->main_context);
+      g_source_unref (source);
+      g_free (listener);
+    }
 }
 
 static gboolean
@@ -497,6 +518,7 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
                                         MetaKmsCrtc                         *crtc,
                                         const MetaKmsPageFlipListenerVtable *vtable,
                                         MetaKmsPageFlipListenerFlag          flags,
+                                        GMainContext                        *main_context,
                                         gpointer                             user_data,
                                         GDestroyNotify                       destroy_notify)
 {
@@ -510,6 +532,7 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
     .crtc = crtc,
     .vtable = vtable,
     .flags = flags,
+    .main_context = main_context,
     .user_data = user_data,
     .destroy_notify = destroy_notify,
   };
