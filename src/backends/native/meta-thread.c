@@ -21,6 +21,8 @@
 
 #include "backends/native/meta-thread-private.h"
 
+#include <glib.h>
+
 #include "backends/meta-backend-private.h"
 #include "backends/meta-backend-types.h"
 #include "backends/native/meta-thread-impl.h"
@@ -47,6 +49,19 @@ typedef struct _MetaThreadCallbackData
   GDestroyNotify user_data_destroy;
 } MetaThreadCallbackData;
 
+typedef struct _MetaThreadCallbackSource
+{
+  GSource base;
+
+  GMutex mutex;
+  GCond cond;
+
+  MetaThread *thread;
+  GMainContext *main_context;
+  GList *callbacks;
+  gboolean needs_flush;
+} MetaThreadCallbackSource;
+
 typedef struct _MetaThreadPrivate
 {
   MetaBackend *backend;
@@ -58,8 +73,7 @@ typedef struct _MetaThreadPrivate
   gboolean waiting_for_impl_task;
 
   GMutex callbacks_mutex;
-  GList *pending_callbacks;
-  guint callbacks_source_id;
+  GHashTable *callback_sources;
 
   MetaThreadType thread_type;
 
@@ -172,6 +186,11 @@ meta_thread_initable_init (GInitable     *initable,
 
   priv->main_context = g_main_context_default ();
 
+  priv->callback_sources =
+    g_hash_table_new_full (NULL, NULL,
+                           NULL, (GDestroyNotify) g_source_destroy);
+  meta_thread_register_callback_context (thread, priv->main_context);
+
   switch (priv->thread_type)
     {
     case META_THREAD_TYPE_USER:
@@ -248,7 +267,9 @@ meta_thread_finalize (GObject *object)
     }
 
   meta_thread_flush_callbacks (thread);
+  meta_thread_unregister_callback_context (thread, priv->main_context);
 
+  g_warn_if_fail (g_hash_table_size (priv->callback_sources) == 0);
   g_clear_object (&priv->impl);
   g_clear_pointer (&priv->name, g_free);
 
@@ -336,49 +357,184 @@ dispatch_callbacks (MetaThread *thread,
   return callback_count;
 }
 
-int
+void
 meta_thread_flush_callbacks (MetaThread *thread)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   g_autoptr (GList) pending_callbacks = NULL;
+  MetaThreadCallbackSource *main_callback_source;
+  g_autoptr (GList) callback_sources = NULL;
+  GList *l;
 
-  meta_assert_not_in_thread_impl (thread);
+  g_assert (!g_main_context_get_thread_default ());
 
-  g_mutex_lock (&priv->callbacks_mutex);
-  pending_callbacks = g_steal_pointer (&priv->pending_callbacks);
-  g_clear_handle_id (&priv->callbacks_source_id, g_source_remove);
-  g_mutex_unlock (&priv->callbacks_mutex);
+  while (TRUE)
+    {
+      gboolean needs_reflush = FALSE;
 
-  return dispatch_callbacks (thread, pending_callbacks);
+      g_mutex_lock (&priv->callbacks_mutex);
+      main_callback_source = g_hash_table_lookup (priv->callback_sources,
+                                                  priv->main_context);
+      pending_callbacks = g_steal_pointer (&main_callback_source->callbacks);
+      callback_sources = g_hash_table_get_values (priv->callback_sources);
+      g_mutex_unlock (&priv->callbacks_mutex);
+
+      if (dispatch_callbacks (thread, pending_callbacks) > 0)
+        needs_reflush = TRUE;
+
+      g_list_foreach (callback_sources, (GFunc) g_source_ref, NULL);
+      for (l = callback_sources; l; l = l->next)
+        {
+          MetaThreadCallbackSource *callback_source = l->data;
+
+          if (callback_source == main_callback_source)
+            continue;
+
+          g_mutex_lock (&callback_source->mutex);
+          while (callback_source->needs_flush)
+            {
+              needs_reflush = TRUE;
+              g_cond_wait (&callback_source->cond, &callback_source->mutex);
+            }
+          g_mutex_unlock (&callback_source->mutex);
+        }
+      g_list_foreach (callback_sources, (GFunc) g_source_unref, NULL);
+
+      if (!needs_reflush)
+        break;
+    }
 }
 
 static gboolean
-callback_idle (gpointer user_data)
+callback_source_prepare (GSource *source,
+                         int     *timeout)
 {
-  MetaThread *thread = user_data;
+  MetaThreadCallbackSource *callback_source =
+    (MetaThreadCallbackSource *) source;
+  MetaThread *thread = callback_source->thread;
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  gboolean retval;
+
+  *timeout = -1;
+
+  g_mutex_lock (&priv->callbacks_mutex);
+  retval = !!callback_source->callbacks;
+  g_mutex_unlock (&priv->callbacks_mutex);
+
+  return retval;
+}
+
+static gboolean
+callback_source_dispatch (GSource     *source,
+                          GSourceFunc  callback,
+                          gpointer     user_data)
+{
+  MetaThreadCallbackSource *callback_source =
+    (MetaThreadCallbackSource *) source;
+  MetaThread *thread = callback_source->thread;
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   g_autoptr (GList) pending_callbacks = NULL;
 
-  meta_assert_not_in_thread_impl (thread);
-
   g_mutex_lock (&priv->callbacks_mutex);
-  pending_callbacks = g_steal_pointer (&priv->pending_callbacks);
-  priv->callbacks_source_id = 0;
+  pending_callbacks = g_steal_pointer (&callback_source->callbacks);
   g_mutex_unlock (&priv->callbacks_mutex);
 
   dispatch_callbacks (thread, pending_callbacks);
 
-  return G_SOURCE_REMOVE;
+  g_mutex_lock (&priv->callbacks_mutex);
+
+  if (callback_source->callbacks)
+    {
+      g_source_set_ready_time (source, 0);
+    }
+  else
+    {
+      g_source_set_ready_time (source, -1);
+
+      g_mutex_lock (&callback_source->mutex);
+      callback_source->needs_flush = FALSE;
+      g_cond_signal (&callback_source->cond);
+      g_mutex_unlock (&callback_source->mutex);
+    }
+
+  g_mutex_unlock (&priv->callbacks_mutex);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+callback_source_finalize (GSource *source)
+{
+  MetaThreadCallbackSource *callback_source =
+    (MetaThreadCallbackSource *) source;
+
+  g_list_free_full (callback_source->callbacks,
+                    (GDestroyNotify) meta_thread_callback_data_free);
+
+  g_cond_clear (&callback_source->cond);
+  g_mutex_clear (&callback_source->mutex);
+}
+
+static GSourceFuncs callback_source_funcs = {
+  .prepare = callback_source_prepare,
+  .dispatch = callback_source_dispatch,
+  .finalize = callback_source_finalize,
+};
+
+void
+meta_thread_register_callback_context (MetaThread   *thread,
+                                       GMainContext *main_context)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  GSource *source;
+  MetaThreadCallbackSource *callback_source;
+
+  source = g_source_new (&callback_source_funcs,
+                         sizeof (MetaThreadCallbackSource));
+  callback_source = (MetaThreadCallbackSource *) source;
+  g_mutex_init (&callback_source->mutex);
+  g_cond_init (&callback_source->cond);
+  callback_source->thread = thread;
+  callback_source->main_context = main_context;
+
+  g_source_set_ready_time (&callback_source->base, -1);
+  g_source_set_priority (source, G_PRIORITY_HIGH + 1);
+  g_source_attach (source, main_context);
+  g_source_unref (source);
+
+  g_hash_table_insert (priv->callback_sources,
+                       main_context,
+                       callback_source);
+}
+
+void
+meta_thread_unregister_callback_context (MetaThread   *thread,
+                                         GMainContext *main_context)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  g_hash_table_remove (priv->callback_sources, main_context);
 }
 
 void
 meta_thread_queue_callback (MetaThread         *thread,
+                            GMainContext       *main_context,
                             MetaThreadCallback  callback,
                             gpointer            user_data,
                             GDestroyNotify      user_data_destroy)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (GMutexLocker) locker;
+  MetaThreadCallbackSource *callback_source;
   MetaThreadCallbackData *callback_data;
+
+  if (!main_context)
+    main_context = g_main_context_default ();
+
+  locker = g_mutex_locker_new (&priv->callbacks_mutex);
+
+  callback_source = g_hash_table_lookup (priv->callback_sources, main_context);
+  g_return_if_fail (callback_source);
 
   callback_data = g_new0 (MetaThreadCallbackData, 1);
   *callback_data = (MetaThreadCallbackData) {
@@ -387,20 +543,12 @@ meta_thread_queue_callback (MetaThread         *thread,
     .user_data_destroy = user_data_destroy,
   };
 
-  g_mutex_lock (&priv->callbacks_mutex);
-  priv->pending_callbacks = g_list_append (priv->pending_callbacks,
-                                           callback_data);
-  if (!priv->callbacks_source_id)
-    {
-      GSource *idle_source;
-
-      idle_source = g_idle_source_new ();
-      g_source_set_callback (idle_source, callback_idle, thread, NULL);
-      priv->callbacks_source_id = g_source_attach (idle_source,
-                                                   priv->main_context);
-      g_source_unref (idle_source);
-    }
-  g_mutex_unlock (&priv->callbacks_mutex);
+  g_mutex_lock (&callback_source->mutex);
+  callback_source->needs_flush = TRUE;
+  callback_source->callbacks = g_list_append (callback_source->callbacks,
+                                              callback_data);
+  g_source_set_ready_time (&callback_source->base, 0);
+  g_mutex_unlock (&callback_source->mutex);
 }
 
 typedef struct _MetaSyncTaskData
@@ -438,7 +586,7 @@ run_impl_task_sync_user (MetaThread          *thread,
 
   task = meta_thread_task_new (func, user_data,
                                sync_task_done_user_in_impl, &data,
-                               META_THREAD_TASK_FEEDBACK_TYPE_IMPL);
+                               meta_thread_impl_get_main_context (priv->impl));
   meta_thread_impl_queue_task (priv->impl, task);
 
   priv->waiting_for_impl_task = TRUE;
@@ -487,7 +635,7 @@ run_impl_task_sync_kernel (MetaThread          *thread,
 
   task = meta_thread_task_new (func, user_data,
                                sync_task_done_kernel_in_impl, &data,
-                               META_THREAD_TASK_FEEDBACK_TYPE_IMPL);
+                               meta_thread_impl_get_main_context (priv->impl));
   meta_thread_impl_queue_task (priv->impl, task);
 
   while (!data.done)
@@ -537,7 +685,7 @@ meta_thread_post_impl_task (MetaThread                 *thread,
 
   task = meta_thread_task_new (func, user_data,
                                feedback_func, feedback_user_data,
-                               META_THREAD_TASK_FEEDBACK_TYPE_CALLBACK);
+                               g_main_context_get_thread_default ());
   meta_thread_impl_queue_task (priv->impl, task);
 }
 

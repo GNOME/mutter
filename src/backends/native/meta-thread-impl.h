@@ -73,11 +73,11 @@ int meta_thread_impl_dispatch (MetaThreadImpl *thread_impl);
 
 gboolean meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl);
 
-MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc         func,
-                                       gpointer                   user_data,
-                                       MetaThreadTaskFeedbackFunc feedback_func,
-                                       gpointer                   feedback_user_data,
-                                       MetaThreadTaskFeedbackType feedback_type);
+MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc          func,
+                                       gpointer                    user_data,
+                                       MetaThreadTaskFeedbackFunc  feedback_func,
+                                       gpointer                    feedback_user_data,
+                                       GMainContext               *feedback_main_context);
 
 void meta_thread_task_free (MetaThreadTask *task);
 

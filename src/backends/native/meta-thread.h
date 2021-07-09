@@ -55,13 +55,22 @@ typedef void (* MetaThreadTaskFeedbackFunc) (gpointer      retval,
                                              gpointer      user_data);
 
 META_EXPORT_TEST
+void meta_thread_register_callback_context (MetaThread   *thread,
+                                            GMainContext *main_context);
+
+META_EXPORT_TEST
+void meta_thread_unregister_callback_context (MetaThread   *thread,
+                                              GMainContext *main_context);
+
+META_EXPORT_TEST
 void meta_thread_queue_callback (MetaThread         *thread,
+                                 GMainContext       *main_context,
                                  MetaThreadCallback  callback,
                                  gpointer            user_data,
                                  GDestroyNotify      user_data_destroy);
 
 META_EXPORT_TEST
-int meta_thread_flush_callbacks (MetaThread *thread);
+void meta_thread_flush_callbacks (MetaThread *thread);
 
 META_EXPORT_TEST
 gpointer meta_thread_run_impl_task_sync (MetaThread          *thread,

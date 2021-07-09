@@ -225,7 +225,11 @@ meta_kms_queue_callback (MetaKms            *kms,
 {
   MetaThread *thread = META_THREAD (kms);
 
-  meta_thread_queue_callback (thread, callback, user_data, user_data_destroy);
+  meta_thread_queue_callback (thread,
+                              NULL,
+                              callback,
+                              user_data,
+                              user_data_destroy);
 }
 
 gpointer

@@ -65,7 +65,7 @@ struct _MetaThreadTask
 
   MetaThreadTaskFeedbackFunc feedback_func;
   gpointer feedback_user_data;
-  MetaThreadTaskFeedbackType feedback_type;
+  GMainContext *feedback_main_context;
 
   gpointer retval;
   GError *error;
@@ -267,11 +267,11 @@ meta_thread_impl_get_main_context (MetaThreadImpl *thread_impl)
 }
 
 MetaThreadTask *
-meta_thread_task_new (MetaThreadTaskFunc         func,
-                      gpointer                   user_data,
-                      MetaThreadTaskFeedbackFunc feedback_func,
-                      gpointer                   feedback_user_data,
-                      MetaThreadTaskFeedbackType feedback_type)
+meta_thread_task_new (MetaThreadTaskFunc          func,
+                      gpointer                    user_data,
+                      MetaThreadTaskFeedbackFunc  feedback_func,
+                      gpointer                    feedback_user_data,
+                      GMainContext               *feedback_main_context)
 {
   MetaThreadTask *task;
 
@@ -281,7 +281,7 @@ meta_thread_task_new (MetaThreadTaskFunc         func,
     .user_data = user_data,
     .feedback_func = feedback_func,
     .feedback_user_data = feedback_user_data,
-    .feedback_type = feedback_type,
+    .feedback_main_context = feedback_main_context,
   };
 
   return task;
@@ -512,19 +512,21 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
 
   if (task->feedback_func)
     {
-      switch (task->feedback_type)
+      if (task->feedback_main_context == priv->thread_context)
         {
-        case META_THREAD_TASK_FEEDBACK_TYPE_IMPL:
           task->feedback_func (retval, error, task->feedback_user_data);
-          break;
-        case META_THREAD_TASK_FEEDBACK_TYPE_CALLBACK:
+        }
+      else
+        {
+          GMainContext *feedback_main_context = task->feedback_main_context;
+
           task->retval = retval;
           task->error = g_steal_pointer (&error);
           meta_thread_queue_callback (priv->thread,
+                                      feedback_main_context,
                                       invoke_task_feedback,
                                       g_steal_pointer (&task),
                                       (GDestroyNotify) meta_thread_task_free);
-          break;
         }
     }
 
