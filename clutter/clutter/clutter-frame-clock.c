@@ -761,7 +761,7 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
   source = g_source_new (&frame_clock_source_funcs, sizeof (ClutterClockSource));
   clock_source = (ClutterClockSource *) source;
 
-  name = g_strdup_printf ("Clutter frame clock (%p)", frame_clock);
+  name = g_strdup_printf ("[mutter] Clutter frame clock (%p)", frame_clock);
   g_source_set_name (source, name);
   g_source_set_priority (source, CLUTTER_PRIORITY_REDRAW);
   g_source_set_can_recurse (source, FALSE);

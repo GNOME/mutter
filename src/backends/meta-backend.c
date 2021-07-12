@@ -1136,6 +1136,7 @@ init_clutter (MetaBackend  *backend,
     return FALSE;
 
   source = g_source_new (&clutter_source_funcs, sizeof (MetaBackendSource));
+  g_source_set_name (source, "[mutter] Backend");
   backend_source = (MetaBackendSource *) source;
   backend_source->backend = backend;
   g_source_attach (source, NULL);

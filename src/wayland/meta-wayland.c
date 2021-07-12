@@ -117,17 +117,20 @@ static GSourceFuncs wayland_event_source_funcs =
 static GSource *
 wayland_event_source_new (struct wl_display *display)
 {
-  WaylandEventSource *source;
+  GSource *source;
+  WaylandEventSource *wayland_source;
   struct wl_event_loop *loop = wl_display_get_event_loop (display);
 
-  source = (WaylandEventSource *) g_source_new (&wayland_event_source_funcs,
-                                                sizeof (WaylandEventSource));
-  source->display = display;
-  g_source_add_unix_fd (&source->source,
+  source = g_source_new (&wayland_event_source_funcs,
+                         sizeof (WaylandEventSource));
+  g_source_set_name (source, "[mutter] Wayland events");
+  wayland_source = (WaylandEventSource *) source;
+  wayland_source->display = display;
+  g_source_add_unix_fd (&wayland_source->source,
                         wl_event_loop_get_fd (loop),
                         G_IO_IN | G_IO_ERR);
 
-  return &source->source;
+  return &wayland_source->source;
 }
 
 void

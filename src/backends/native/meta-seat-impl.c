@@ -1509,6 +1509,7 @@ meta_event_source_new (MetaSeatImpl *seat_impl)
   int fd;
 
   source = g_source_new (&event_funcs, sizeof (MetaEventSource));
+  g_source_set_name (source, "[mutter] Events");
   event_source = (MetaEventSource *) source;
 
   /* setup the source */

@@ -476,6 +476,7 @@ x_event_source_new (MetaBackend *backend)
   XEventSource *x_source;
 
   source = g_source_new (&x_event_funcs, sizeof (XEventSource));
+  g_source_set_name (source, "[mutter] X events");
   x_source = (XEventSource *) source;
   x_source->backend = backend;
   x_source->event_poll_fd.fd = ConnectionNumber (priv->xdisplay);

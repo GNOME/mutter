@@ -171,6 +171,7 @@ cogl_glib_renderer_source_new (CoglRenderer *renderer,
 
   source = g_source_new (&cogl_glib_source_funcs,
                          sizeof (CoglGLibSource));
+  g_source_set_name (source, "[mutter] Cogl");
   cogl_source = (CoglGLibSource *) source;
 
   cogl_source->renderer = renderer;

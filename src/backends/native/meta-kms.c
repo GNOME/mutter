@@ -473,6 +473,7 @@ meta_kms_add_source_in_impl (MetaKms        *kms,
 
   source = g_source_new (&simple_impl_source_funcs,
                          sizeof (MetaKmsSimpleImplSource));
+  g_source_set_name (source, "[mutter] KMS simple impl");
   simple_impl_source = (MetaKmsSimpleImplSource *) source;
   simple_impl_source->kms = kms;
 
@@ -534,6 +535,7 @@ meta_kms_register_fd_in_impl (MetaKms             *kms,
   meta_assert_in_kms_impl (kms);
 
   source = g_source_new (&fd_impl_source_funcs, sizeof (MetaKmsFdImplSource));
+  g_source_set_name (source, "[mutter] KMS fd impl");
   fd_impl_source = (MetaKmsFdImplSource *) source;
   fd_impl_source->dispatch = dispatch;
   fd_impl_source->user_data = user_data;

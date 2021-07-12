@@ -1194,11 +1194,12 @@ static GSourceFuncs pipewire_source_funcs =
 static MetaPipeWireSource *
 create_pipewire_source (MetaScreenCastStreamSrc *src)
 {
+  GSource *source;
   MetaPipeWireSource *pipewire_source;
 
-  pipewire_source =
-    (MetaPipeWireSource *) g_source_new (&pipewire_source_funcs,
-                                         sizeof (MetaPipeWireSource));
+  source = g_source_new (&pipewire_source_funcs, sizeof (MetaPipeWireSource));
+  g_source_set_name (source, "[mutter] PipeWire");
+  pipewire_source = (MetaPipeWireSource *) source;
   pipewire_source->src = src;
   pipewire_source->pipewire_loop = pw_loop_new (NULL);
   if (!pipewire_source->pipewire_loop)

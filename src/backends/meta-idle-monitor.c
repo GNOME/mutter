@@ -337,6 +337,7 @@ make_watch (MetaIdleMonitor           *monitor,
     {
       GSource *source = g_source_new (&idle_monitor_source_funcs,
                                       sizeof (GSource));
+      g_source_set_name (source, "[mutter] Idle monitor");
 
       g_source_set_callback (source, NULL, watch, NULL);
       if (!monitor->inhibited)
