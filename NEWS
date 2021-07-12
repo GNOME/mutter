@@ -1,3 +1,16 @@
+40.3
+====
+* Fix area screencasts when window is unredirected [Michel; #1707]
+* Fix mapping tablet to monitor [Christoph; #1712]
+* Fixed crash [Jonas; !1910]
+* Misc. bug fixes [Jonas, Carlos; !1911, !1920]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Carlos Garnacho, Christoph Trassl
+
+Translators:
+  Dušan Kazik [sk], Chao-Hsiung Liao [zh_TW]
+
 40.2.1
 ======
 * Fixed crash [Jonas; !1895]
