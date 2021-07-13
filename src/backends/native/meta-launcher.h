@@ -34,13 +34,6 @@ gboolean          meta_launcher_activate_vt             (MetaLauncher  *self,
 
 const char *      meta_launcher_get_seat_id             (MetaLauncher *launcher);
 
-int               meta_launcher_open_restricted         (MetaLauncher *launcher,
-                                                         const char   *path,
-                                                         GError      **error);
-
-void              meta_launcher_close_restricted        (MetaLauncher *launcher,
-                                                         int           fd);
-
 MetaDbusLogin1Session * meta_launcher_get_session_proxy (MetaLauncher *launcher);
 
 
