@@ -97,6 +97,13 @@ meta_kms_plane_get_prop_name (MetaKmsPlane     *plane,
   return plane->prop_table.props[prop].name;
 }
 
+MetaKmsPropType
+meta_kms_plane_get_prop_internal_type (MetaKmsPlane     *plane,
+                                       MetaKmsPlaneProp  prop)
+{
+  return plane->prop_table.props[prop].internal_type;
+}
+
 void
 meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                     MetaKmsPlaneAssignment *plane_assignment,
@@ -389,21 +396,25 @@ init_properties (MetaKmsPlane            *plane,
         {
           .name = "SRC_X",
           .type = DRM_MODE_PROP_RANGE,
+          .internal_type = META_KMS_PROP_TYPE_FIXED_16,
         },
       [META_KMS_PLANE_PROP_SRC_Y] =
         {
           .name = "SRC_Y",
           .type = DRM_MODE_PROP_RANGE,
+          .internal_type = META_KMS_PROP_TYPE_FIXED_16,
         },
       [META_KMS_PLANE_PROP_SRC_W] =
         {
           .name = "SRC_W",
           .type = DRM_MODE_PROP_RANGE,
+          .internal_type = META_KMS_PROP_TYPE_FIXED_16,
         },
       [META_KMS_PLANE_PROP_SRC_H] =
         {
           .name = "SRC_H",
           .type = DRM_MODE_PROP_RANGE,
+          .internal_type = META_KMS_PROP_TYPE_FIXED_16,
         },
       [META_KMS_PLANE_PROP_CRTC_X] =
         {

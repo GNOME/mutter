@@ -66,4 +66,10 @@ typedef enum _MetaKmsDeviceFlag
 
 typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
 
+typedef enum _MetaKmsPropType
+{
+  META_KMS_PROP_TYPE_RAW = 0,
+  META_KMS_PROP_TYPE_FIXED_16,
+} MetaKmsPropType;
+
 #endif /* META_KMS_IMPL_TYPES_H */

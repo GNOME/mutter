@@ -48,6 +48,7 @@ struct _MetaKmsProp
 {
   const char *name;
   uint32_t type;
+  MetaKmsPropType internal_type;
   void (* parse) (MetaKmsImplDevice  *impl_device,
                   MetaKmsProp        *prop,
                   drmModePropertyPtr  drm_prop,
