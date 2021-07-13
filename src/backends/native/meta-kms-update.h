@@ -158,6 +158,12 @@ meta_fixed_16_to_int (MetaFixed16 fixed)
   return fixed / 65536;
 }
 
+static inline double
+meta_fixed_16_to_double (MetaFixed16 fixed)
+{
+  return fixed / 65536.0;
+}
+
 static inline MetaRectangle
 meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
 {
