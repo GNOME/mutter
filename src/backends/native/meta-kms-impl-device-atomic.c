@@ -348,14 +348,28 @@ add_plane_property (MetaKmsImplDevice  *impl_device,
       return FALSE;
     }
 
-  meta_topic (META_DEBUG_KMS,
-              "[atomic] Setting plane %u (%s) property '%s' (%u) to %"
-              G_GUINT64_FORMAT,
-              meta_kms_plane_get_id (plane),
-              meta_kms_impl_device_get_path (impl_device),
-              meta_kms_plane_get_prop_name (plane, prop),
-              meta_kms_plane_get_prop_id (plane, prop),
-              value);
+  switch (meta_kms_plane_get_prop_internal_type (plane, prop))
+    {
+    case META_KMS_PROP_TYPE_RAW:
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting plane %u (%s) property '%s' (%u) to %"
+                  G_GUINT64_FORMAT,
+                  meta_kms_plane_get_id (plane),
+                  meta_kms_impl_device_get_path (impl_device),
+                  meta_kms_plane_get_prop_name (plane, prop),
+                  meta_kms_plane_get_prop_id (plane, prop),
+                  value);
+      break;
+    case META_KMS_PROP_TYPE_FIXED_16:
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting plane %u (%s) property '%s' (%u) to %.2f",
+                  meta_kms_plane_get_id (plane),
+                  meta_kms_impl_device_get_path (impl_device),
+                  meta_kms_plane_get_prop_name (plane, prop),
+                  meta_kms_plane_get_prop_id (plane, prop),
+                  meta_fixed_16_to_double (value));
+      break;
+    }
   ret = drmModeAtomicAddProperty (req,
                                   meta_kms_plane_get_id (plane),
                                   prop_id,
