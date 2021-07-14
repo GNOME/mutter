@@ -47,7 +47,7 @@ if [ -z "$gnome_shell_target" ]; then
     gnome_shell_target=FETCH_HEAD
   else
     echo \ not found
-    gnome_shell_target=origin/master
+    gnome_shell_target=HEAD
     echo Using $gnome_shell_target instead
   fi
 fi
