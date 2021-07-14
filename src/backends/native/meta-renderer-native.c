@@ -1114,8 +1114,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                                  gpu_kms,
                                                  &error))
         {
-          g_warning ("Failed to create secondary GPU data for %s",
-                      meta_gpu_kms_get_file_path (gpu_kms));
+          g_warning ("Failed to create secondary GPU data for %s: %s",
+                      meta_gpu_kms_get_file_path (gpu_kms),
+                      error->message);
           use_shadowfb = FALSE;
           framebuffer = create_fallback_offscreen (renderer_native,
                                                    cogl_context,
@@ -1136,8 +1137,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 
           if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen_native), &error))
             {
-              g_warning ("Failed to allocate onscreen framebuffer for %s",
-                         meta_gpu_kms_get_file_path (gpu_kms));
+              g_warning ("Failed to allocate onscreen framebuffer for %s: %s",
+                         meta_gpu_kms_get_file_path (gpu_kms),
+                         error->message);
               use_shadowfb = FALSE;
               framebuffer = create_fallback_offscreen (renderer_native,
                                                        cogl_context,
