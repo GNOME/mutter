@@ -138,7 +138,7 @@ typedef enum
 /* The ellipsis_dist(), ellipsis_coverage() and rounded_rect_coverage() are
  * copied from GSK, see gsk_ellipsis_dist(), gsk_ellipsis_coverage(), and
  * gsk_rounded_rect_coverage() here:
- * https://gitlab.gnome.org/GNOME/gtk/-/blob/master/gsk/resources/glsl/preamble.fs.glsl
+ * https://gitlab.gnome.org/GNOME/gtk/-/blob/4.3.1/gsk/gl/resources/preamble.fs.glsl
  */
 #define ROUNDED_CLIP_FRAGMENT_SHADER_DECLARATIONS                            \
 "uniform vec4 bounds;           // x, y: top left; w, v: bottom right     \n"\
