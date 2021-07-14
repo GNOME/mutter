@@ -460,6 +460,13 @@ _cogl_driver_gl_is_hardware_accelerated (CoglContext *ctx)
   const char *renderer = (const char *) ctx->glGetString (GL_RENDERER);
   gboolean software;
 
+  if (!renderer)
+    {
+      g_warning ("OpenGL driver returned NULL as the renderer, "
+                 "something is wrong");
+      return TRUE;
+    }
+
   software = strstr (renderer, "llvmpipe") != NULL ||
              strstr (renderer, "softpipe") != NULL ||
              strstr (renderer, "software rasterizer") != NULL ||
