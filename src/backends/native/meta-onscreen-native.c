@@ -34,6 +34,7 @@
 #include "backends/meta-egl-ext.h"
 #include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-drm-buffer-import.h"
@@ -577,9 +578,11 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
                                               &error);
   if (!buffer_import)
     {
-      g_debug ("Zero-copy disabled for %s, meta_drm_buffer_import_new failed: %s",
-               meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms),
-               error->message);
+      meta_topic (META_DEBUG_KMS,
+                  "Zero-copy disabled for %s, "
+                  "meta_drm_buffer_import_new failed: %s",
+                  meta_device_file_get_path (device_file),
+                  error->message);
 
       g_warn_if_fail (secondary_gpu_state->import_status ==
                       META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE);
@@ -618,8 +621,9 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
        */
       secondary_gpu_release_dumb (secondary_gpu_state);
 
-      g_debug ("Using zero-copy for %s succeeded once.",
-               meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+      meta_topic (META_DEBUG_KMS,
+                  "Using zero-copy for %s succeeded once.",
+                  meta_device_file_get_path (device_file));
     }
 
   secondary_gpu_state->import_status =
@@ -766,7 +770,8 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   dmabuf_fd = meta_drm_buffer_dumb_ensure_dmabuf_fd (buffer_dumb, &error);
   if (!dmabuf_fd)
     {
-      g_debug ("Failed to create DMA buffer: %s", error->message);
+      meta_topic (META_DEBUG_KMS,
+                  "Failed to create DMA buffer: %s", error->message);
       return FALSE;
     }
 
@@ -782,8 +787,9 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
 
   if (error)
     {
-      g_debug ("%s: Failed to blit DMA buffer image: %s",
-               G_STRFUNC, error->message);
+      meta_topic (META_DEBUG_KMS,
+                  "Failed to create DMA buffer for blitting: %s",
+                  error->message);
       return FALSE;
     }
 
@@ -874,8 +880,10 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
   if (secondary_gpu_state)
     {
       MetaRendererNativeGpuData *renderer_gpu_data;
+      MetaDeviceFile *device_file;
 
       renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
+      device_file = renderer_gpu_data->device_file;
       switch (renderer_gpu_data->secondary.copy_mode)
         {
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
@@ -894,8 +902,9 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
             {
               if (!secondary_gpu_state->noted_primary_gpu_copy_failed)
                 {
-                  g_debug ("Using primary GPU to copy for %s failed once.",
-                           meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+                  meta_topic (META_DEBUG_KMS,
+                              "Using primary GPU to copy for %s failed once.",
+                              meta_device_file_get_path (device_file));
                   secondary_gpu_state->noted_primary_gpu_copy_failed = TRUE;
                 }
 
@@ -905,8 +914,9 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
             }
           else if (!secondary_gpu_state->noted_primary_gpu_copy_ok)
             {
-              g_debug ("Using primary GPU to copy for %s succeeded once.",
-                       meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+              meta_topic (META_DEBUG_KMS,
+                          "Using primary GPU to copy for %s succeeded once.",
+                          meta_device_file_get_path (device_file));
               secondary_gpu_state->noted_primary_gpu_copy_ok = TRUE;
             }
           break;
@@ -1035,7 +1045,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                             &error);
       if (!buffer_gbm)
         {
-          g_warning ("meta_drm_buffer_gbm_new_lock_front failed: %s",
+          g_warning ("Failed to lock front buffer on %s: %s",
+                     meta_device_file_get_path (render_device_file),
                      error->message);
           return;
         }
@@ -1944,11 +1955,12 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
   device_file = renderer_gpu_data->device_file;
-  g_debug ("Secondary GPU %s using DRM format '%s' (0x%x) for a %dx%d output.",
-           meta_gpu_kms_get_file_path (gpu_kms),
-           meta_drm_format_to_string (&tmp, drm_format),
-           drm_format,
-           width, height);
+  meta_topic (META_DEBUG_KMS,
+              "Secondary GPU %s using DRM format '%s' (0x%x) for a %dx%d output.",
+              meta_device_file_get_path (device_file),
+              meta_drm_format_to_string (&tmp, drm_format),
+              drm_format,
+              width, height);
 
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
