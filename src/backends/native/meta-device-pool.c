@@ -29,6 +29,7 @@
 #include <sys/types.h>
 
 #include "backends/native/meta-launcher.h"
+#include "meta/util.h"
 
 #include "meta-dbus-login1.h"
 
@@ -135,6 +136,7 @@ MetaDeviceFile *
 meta_device_file_acquire (MetaDeviceFile *file)
 {
   g_mutex_lock (&file->pool->mutex);
+  meta_topic (META_DEBUG_BACKEND, "Acquiring device file '%s'", file->path);
   meta_device_file_acquire_locked (file);
   g_mutex_unlock (&file->pool->mutex);
 
@@ -243,6 +245,10 @@ meta_device_pool_open (MetaDevicePool       *pool,
 
   if (flags & META_DEVICE_FILE_FLAG_TAKE_CONTROL)
     {
+      meta_topic (META_DEBUG_BACKEND,
+                  "Opening and taking control of device file '%s'",
+                  path);
+
       if (!pool->session_proxy)
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
@@ -265,6 +271,10 @@ meta_device_pool_open (MetaDevicePool       *pool,
   else
     {
       int open_flags;
+
+      meta_topic (META_DEBUG_BACKEND,
+                  "Opening device file '%s'",
+                  path);
 
       if (flags & META_DEVICE_FILE_FLAG_READ_ONLY)
         open_flags = O_RDONLY;
@@ -302,6 +312,8 @@ release_device_file (MetaDevicePool *pool,
 
   locker = g_mutex_locker_new (&pool->mutex);
 
+  meta_topic (META_DEBUG_BACKEND, "Releasing device file '%s'", file->path);
+
   if (!g_ref_count_dec (&file->ref_count))
     return;
 
@@ -310,6 +322,10 @@ release_device_file (MetaDevicePool *pool,
   if (file->flags & META_DEVICE_FILE_FLAG_TAKE_CONTROL)
     {
       MetaDbusLogin1Session *session_proxy;
+
+      meta_topic (META_DEBUG_BACKEND,
+                  "Releasing control of and closing device file '%s'",
+                  file->path);
 
       session_proxy = pool->session_proxy;
       if (!meta_dbus_login1_session_call_release_device_sync (session_proxy,
@@ -322,6 +338,12 @@ release_device_file (MetaDevicePool *pool,
                      file->major, file->minor,
                      error->message);
         }
+    }
+  else
+    {
+      meta_topic (META_DEBUG_BACKEND,
+                  "Closing device file '%s'",
+                  file->path);
     }
 
   close (file->fd);
