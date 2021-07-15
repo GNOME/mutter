@@ -79,6 +79,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_KMS: kernel mode setting
  * @META_DEBUG_SCREEN_CAST: screencasting
  * @META_DEBUG_REMOTE_DESKTOP: remote desktop
+ * @META_DEBUG_BACKEND: backend
  */
 typedef enum
 {
@@ -107,6 +108,7 @@ typedef enum
   META_DEBUG_KMS             = 1 << 21,
   META_DEBUG_SCREEN_CAST     = 1 << 22,
   META_DEBUG_REMOTE_DESKTOP  = 1 << 23,
+  META_DEBUG_BACKEND         = 1 << 24,
 } MetaDebugTopic;
 
 /**

@@ -70,6 +70,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "kms", META_DEBUG_KMS },
   { "screen-cast", META_DEBUG_SCREEN_CAST },
   { "remote-desktop", META_DEBUG_REMOTE_DESKTOP },
+  { "backend", META_DEBUG_BACKEND },
 };
 
 #ifdef WITH_VERBOSE_MODE
@@ -324,6 +325,8 @@ topic_name (MetaDebugTopic topic)
       return "SCREEN_CAST";
     case META_DEBUG_REMOTE_DESKTOP:
       return "REMOTE_DESKTOP";
+    case META_DEBUG_BACKEND:
+      return "BACKEND";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
     case META_DEBUG_WAYLAND:
