@@ -704,12 +704,18 @@ compose_directional_action_label (GSettings *direction1,
                                   GSettings *direction2)
 {
   char *accel1, *accel2, *str = NULL;
+  /* TRANSLATORS: This is a (non) action on an input device gadget */
+  const char *none_label = N_("None");
 
   accel1 = g_settings_get_string (direction1, "keybinding");
   accel2 = g_settings_get_string (direction2, "keybinding");
 
-  if (accel1 && *accel1 && accel2 && *accel2)
-    str = g_strdup_printf ("%s / %s", accel1, accel2);
+  if ((accel1 && *accel1) || (accel2 && *accel2))
+    {
+      str = g_strdup_printf ("%s / %s",
+                             (accel1 && *accel1) ? accel1 : _(none_label),
+                             (accel2 && *accel2) ? accel2 : _(none_label));
+    }
 
   g_free (accel1);
   g_free (accel2);
