@@ -582,34 +582,6 @@ meta_pad_action_mapper_handle_button (MetaPadActionMapper         *mapper,
 }
 
 static gboolean
-meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
-                                      ClutterInputDevice  *pad,
-                                      MetaPadActionType    action,
-                                      guint                number,
-                                      MetaPadDirection     direction,
-                                      guint                mode)
-{
-  GSettings *settings;
-  gboolean handled = FALSE;
-  char *accel;
-
-  settings = lookup_pad_action_settings (pad, action, number, direction, mode);
-  accel = g_settings_get_string (settings, "keybinding");
-
-  if (accel && *accel)
-    {
-      meta_pad_action_mapper_emulate_keybinding (mapper, accel, TRUE);
-      meta_pad_action_mapper_emulate_keybinding (mapper, accel, FALSE);
-      handled = TRUE;
-    }
-
-  g_object_unref (settings);
-  g_free (accel);
-
-  return handled;
-}
-
-static gboolean
 meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
                                              const ClutterEvent  *event,
                                              MetaPadDirection    *direction)
@@ -660,12 +632,44 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   return has_direction;
 }
 
+static gboolean
+meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
+                                      ClutterInputDevice  *pad,
+                                      const ClutterEvent  *event,
+                                      MetaPadActionType    action,
+                                      guint                number,
+                                      guint                mode)
+{
+  MetaPadDirection direction =  = META_PAD_DIRECTION_NONE;
+  GSettings *settings;
+  gboolean handled = FALSE;
+  char *accel;
+
+  if (!meta_pad_action_mapper_get_action_direction (mapper,
+                                                    event, &direction))
+    return FALSE;
+
+  settings = lookup_pad_action_settings (pad, action, number, direction, mode);
+  accel = g_settings_get_string (settings, "keybinding");
+
+  if (accel && *accel)
+    {
+      meta_pad_action_mapper_emulate_keybinding (mapper, accel, TRUE);
+      meta_pad_action_mapper_emulate_keybinding (mapper, accel, FALSE);
+      handled = TRUE;
+    }
+
+  g_object_unref (settings);
+  g_free (accel);
+
+  return handled;
+}
+
 gboolean
 meta_pad_action_mapper_handle_event (MetaPadActionMapper *mapper,
                                      const ClutterEvent  *event)
 {
   ClutterInputDevice *pad;
-  MetaPadDirection direction = META_PAD_DIRECTION_NONE;
 
   pad = clutter_event_get_source_device ((ClutterEvent *) event);
 
@@ -676,22 +680,14 @@ meta_pad_action_mapper_handle_event (MetaPadActionMapper *mapper,
       return meta_pad_action_mapper_handle_button (mapper, pad,
                                                    &event->pad_button);
     case CLUTTER_PAD_RING:
-      if (!meta_pad_action_mapper_get_action_direction (mapper,
-                                                        event, &direction))
-        return FALSE;
-      return meta_pad_action_mapper_handle_action (mapper, pad,
+      return meta_pad_action_mapper_handle_action (mapper, pad, event,
                                                    META_PAD_ACTION_RING,
                                                    event->pad_ring.ring_number,
-                                                   direction,
                                                    event->pad_ring.mode);
     case CLUTTER_PAD_STRIP:
-      if (!meta_pad_action_mapper_get_action_direction (mapper,
-                                                        event, &direction))
-        return FALSE;
-      return meta_pad_action_mapper_handle_action (mapper, pad,
+      return meta_pad_action_mapper_handle_action (mapper, pad, event,
                                                    META_PAD_ACTION_STRIP,
                                                    event->pad_strip.strip_number,
-                                                   direction,
                                                    event->pad_strip.mode);
     default:
       return FALSE;
