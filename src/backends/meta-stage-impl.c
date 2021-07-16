@@ -65,7 +65,7 @@ enum
 static void
 meta_stage_impl_unrealize (ClutterStageWindow *stage_window)
 {
-  g_debug ("Unrealizing Cogl stage [%p]", stage_window);
+  meta_topic (META_DEBUG_BACKEND, "Unrealizing Cogl stage [%p]", stage_window);
 }
 
 static gboolean
@@ -73,9 +73,10 @@ meta_stage_impl_realize (ClutterStageWindow *stage_window)
 {
   ClutterBackend *backend;
 
-  g_debug ("Realizing stage '%s' [%p]",
-           G_OBJECT_TYPE_NAME (stage_window),
-           stage_window);
+  meta_topic (META_DEBUG_BACKEND,
+              "Realizing stage '%s' [%p]",
+              G_OBJECT_TYPE_NAME (stage_window),
+              stage_window);
 
   backend = clutter_get_default_backend ();
 
@@ -239,7 +240,9 @@ swap_framebuffer (ClutterStageWindow *stage_window,
       /* push on the screen */
       if (n_rects > 0 && !swap_with_damage)
         {
-          g_debug ("cogl_onscreen_swap_region (onscreen: %p)", onscreen);
+          meta_topic (META_DEBUG_BACKEND,
+                      "cogl_onscreen_swap_region (onscreen: %p)",
+                      onscreen);
 
           cogl_onscreen_swap_region (onscreen,
                                      damage, n_rects,
@@ -248,7 +251,9 @@ swap_framebuffer (ClutterStageWindow *stage_window,
         }
       else
         {
-          g_debug ("cogl_onscreen_swap_buffers (onscreen: %p)", onscreen);
+          meta_topic (META_DEBUG_BACKEND,
+                      "cogl_onscreen_swap_buffers (onscreen: %p)",
+                      onscreen);
 
           cogl_onscreen_swap_buffers_with_damage (onscreen,
                                                   damage, n_rects,
@@ -260,7 +265,9 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     {
       MetaStageView *view = META_STAGE_VIEW (stage_view);
 
-      g_debug ("fake offscreen swap (framebuffer: %p)", framebuffer);
+      meta_topic (META_DEBUG_BACKEND,
+                  "fake offscreen swap (framebuffer: %p)",
+                  framebuffer);
       meta_stage_view_perform_fake_swap (view, priv->global_frame_counter);
       priv->global_frame_counter++;
     }
@@ -433,8 +440,9 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (onscreen));
       if (!clutter_damage_history_is_age_valid (damage_history, buffer_age))
         {
-          g_debug ("Invalid back buffer(age=%d): forcing full redraw",
-                   buffer_age);
+          meta_topic (META_DEBUG_BACKEND,
+                      "Invalid back buffer(age=%d): forcing full redraw",
+                      buffer_age);
           use_clipped_redraw = FALSE;
         }
     }
@@ -504,9 +512,10 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
               cairo_region_union (fb_clip_region, old_damage);
             }
 
-          g_debug ("Reusing back buffer(age=%d) - repairing region: num rects: %d",
-                   buffer_age,
-                   cairo_region_num_rectangles (fb_clip_region));
+          meta_topic (META_DEBUG_BACKEND,
+                      "Reusing back buffer(age=%d) - repairing region: num rects: %d",
+                      buffer_age,
+                      cairo_region_num_rectangles (fb_clip_region));
 
           swap_with_damage = TRUE;
         }
@@ -549,7 +558,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     }
   else
     {
-      g_debug ("Unclipped stage paint");
+      meta_topic (META_DEBUG_BACKEND, "Unclipped stage paint");
 
       paint_stage (stage_impl, stage_view, redraw_clip);
     }
