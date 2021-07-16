@@ -1616,6 +1616,12 @@ typedef enum
   CLUTTER_PREEDIT_RESET_COMMIT,
 } ClutterPreeditResetMode;
 
+typedef enum
+{
+  CLUTTER_PHASE_CAPTURE,
+  CLUTTER_PHASE_BUBBLE,
+} ClutterEventPhase;
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ENUMS_H__ */

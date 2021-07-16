@@ -44,11 +44,19 @@
 #include "clutter-build-config.h"
 
 #include "clutter-action.h"
-
+#include "clutter-action-private.h"
 #include "clutter-debug.h"
 #include "clutter-private.h"
 
-G_DEFINE_ABSTRACT_TYPE (ClutterAction, clutter_action, CLUTTER_TYPE_ACTOR_META);
+typedef struct _ClutterActionPrivate ClutterActionPrivate;
+
+struct _ClutterActionPrivate
+{
+  ClutterEventPhase phase;
+};
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterAction, clutter_action,
+                                     CLUTTER_TYPE_ACTOR_META)
 
 static void
 clutter_action_class_init (ClutterActionClass *klass)
@@ -58,4 +66,26 @@ clutter_action_class_init (ClutterActionClass *klass)
 static void
 clutter_action_init (ClutterAction *self)
 {
+}
+
+void
+clutter_action_set_phase (ClutterAction     *action,
+                          ClutterEventPhase  phase)
+{
+  ClutterActionPrivate *priv;
+
+  priv = clutter_action_get_instance_private (action);
+  priv->phase = phase;
+}
+
+ClutterEventPhase
+clutter_action_get_phase (ClutterAction *action)
+{
+  ClutterActionPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTION (action), CLUTTER_PHASE_CAPTURE);
+
+  priv = clutter_action_get_instance_private (action);
+
+  return priv->phase;
 }

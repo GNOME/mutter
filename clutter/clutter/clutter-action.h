@@ -70,6 +70,11 @@ void           clutter_actor_add_action_with_name  (ClutterActor  *self,
                                                     const gchar   *name,
                                                     ClutterAction *action);
 CLUTTER_EXPORT
+void           clutter_actor_add_action_full       (ClutterActor      *self,
+                                                    const char        *name,
+                                                    ClutterEventPhase  phase,
+                                                    ClutterAction     *action);
+CLUTTER_EXPORT
 void           clutter_actor_remove_action         (ClutterActor  *self,
                                                     ClutterAction *action);
 CLUTTER_EXPORT
@@ -85,6 +90,8 @@ void           clutter_actor_clear_actions         (ClutterActor  *self);
 
 CLUTTER_EXPORT
 gboolean       clutter_actor_has_actions           (ClutterActor  *self);
+
+ClutterEventPhase clutter_action_get_phase (ClutterAction *action);
 
 G_END_DECLS
 

@@ -613,6 +613,7 @@
 #include "clutter-actor-private.h"
 
 #include "clutter-action.h"
+#include "clutter-action-private.h"
 #include "clutter-actor-meta-private.h"
 #include "clutter-animatable.h"
 #include "clutter-color-static.h"
@@ -14665,6 +14666,27 @@ clutter_actor_has_allocation (ClutterActor *self)
          !priv->needs_allocation;
 }
 
+static void
+clutter_actor_add_action_internal (ClutterActor      *self,
+                                   ClutterAction     *action,
+                                   ClutterEventPhase  phase)
+{
+  ClutterActorPrivate *priv;
+
+  priv = self->priv;
+
+  if (priv->actions == NULL)
+    {
+      priv->actions = g_object_new (CLUTTER_TYPE_META_GROUP, NULL);
+      priv->actions->actor = self;
+    }
+
+  clutter_action_set_phase (action, phase);
+  _clutter_meta_group_add_meta (priv->actions, CLUTTER_ACTOR_META (action));
+
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ACTIONS]);
+}
+
 /**
  * clutter_actor_add_action:
  * @self: a #ClutterActor
@@ -14684,22 +14706,10 @@ void
 clutter_actor_add_action (ClutterActor  *self,
                           ClutterAction *action)
 {
-  ClutterActorPrivate *priv;
-
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (CLUTTER_IS_ACTION (action));
 
-  priv = self->priv;
-
-  if (priv->actions == NULL)
-    {
-      priv->actions = g_object_new (CLUTTER_TYPE_META_GROUP, NULL);
-      priv->actions->actor = self;
-    }
-
-  _clutter_meta_group_add_meta (priv->actions, CLUTTER_ACTOR_META (action));
-
-  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_ACTIONS]);
+  clutter_actor_add_action_internal (self, action, CLUTTER_PHASE_BUBBLE);
 }
 
 /**
@@ -14731,6 +14741,22 @@ clutter_actor_add_action_with_name (ClutterActor  *self,
 
   clutter_actor_meta_set_name (CLUTTER_ACTOR_META (action), name);
   clutter_actor_add_action (self, action);
+}
+
+void
+clutter_actor_add_action_full (ClutterActor      *self,
+                               const char        *name,
+                               ClutterEventPhase  phase,
+                               ClutterAction     *action)
+{
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (name != NULL);
+  g_return_if_fail (CLUTTER_IS_ACTION (action));
+  g_return_if_fail (phase == CLUTTER_PHASE_BUBBLE ||
+                    phase == CLUTTER_PHASE_CAPTURE);
+
+  clutter_actor_meta_set_name (CLUTTER_ACTOR_META (action), name);
+  clutter_actor_add_action_internal (self, action, phase);
 }
 
 /**
