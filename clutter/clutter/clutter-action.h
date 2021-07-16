@@ -51,6 +51,9 @@ struct _ClutterActionClass
   /*< private >*/
   ClutterActorMetaClass parent_class;
 
+  gboolean (* handle_event) (ClutterAction      *action,
+                             const ClutterEvent *event);
+
   void (* _clutter_action1) (void);
   void (* _clutter_action2) (void);
   void (* _clutter_action3) (void);

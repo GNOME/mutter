@@ -36,6 +36,9 @@ G_BEGIN_DECLS
 void clutter_action_set_phase (ClutterAction     *action,
                                ClutterEventPhase  phase);
 
+gboolean clutter_action_handle_event (ClutterAction      *action,
+                                      const ClutterEvent *event);
+
 G_END_DECLS
 
 #endif /* CLUTTER_ACTION_PRIVATE_H */
