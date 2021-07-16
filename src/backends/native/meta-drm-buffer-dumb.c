@@ -197,7 +197,7 @@ init_dumb_buffer (MetaDrmBufferDumb  *buffer_dumb,
   buffer_dumb->stride_bytes = create_arg.pitch;
   buffer_dumb->drm_format = format;
 
-  return FALSE;
+  return TRUE;
 
 err_mmap:
 err_map_dumb:
