@@ -473,7 +473,7 @@ static int
 sort_by_score (DeviceMatch *match1,
                DeviceMatch *match2)
 {
-  return (int) match1->score - match2->score;
+  return (int) match2->score - match1->score;
 }
 
 static void
