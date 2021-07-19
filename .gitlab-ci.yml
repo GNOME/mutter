@@ -9,11 +9,13 @@ stages:
  - test
  - analyze
 
+variables:
+  FDO_UPSTREAM_REPO: GNOME/mutter
+
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
     BASE_TAG: '2021-07-09.1'
-    FDO_UPSTREAM_REPO: GNOME/mutter
     FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang'
 
     FDO_DISTRIBUTION_EXEC: |
