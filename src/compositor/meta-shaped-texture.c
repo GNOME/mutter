@@ -368,15 +368,15 @@ get_base_pipeline (MetaShapedTexture *stex,
                                  &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0.0));
     }
 
+  cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
+
   if (!stex->is_y_inverted)
     {
       graphene_matrix_translate (&matrix, &GRAPHENE_POINT3D_INIT (0, -1, 0));
       graphene_matrix_scale (&matrix, 1, -1, 1);
-      cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
     }
 
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
-  cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
 
   if (stex->snippet)
     cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
