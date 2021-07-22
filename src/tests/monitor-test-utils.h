@@ -23,6 +23,7 @@
 #include <glib.h>
 
 #include "tests/meta-monitor-manager-test.h"
+#include "tests/meta-test-utils.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor.h"
 #include "backends/meta-output.h"

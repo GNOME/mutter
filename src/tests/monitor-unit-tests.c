@@ -258,7 +258,8 @@ destroy_monitor_test_clients (void)
 static void
 meta_test_monitor_initial_linear_config (void)
 {
-  check_monitor_configuration (&initial_test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&initial_test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -335,7 +336,8 @@ meta_test_monitor_one_disconnected_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -454,7 +456,8 @@ meta_test_monitor_one_off_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -575,7 +578,8 @@ meta_test_monitor_preferred_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -705,7 +709,8 @@ meta_test_monitor_tiled_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -879,7 +884,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -1029,7 +1035,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -1176,7 +1183,8 @@ meta_test_monitor_hidpi_linear_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -1327,7 +1335,8 @@ meta_test_monitor_suggested_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
 
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -1485,7 +1494,8 @@ meta_test_monitor_suggested_config_overlapping (void)
   emulate_hotplug (test_setup);
   g_test_assert_expected_messages ();
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
 }
 
 static void
@@ -1641,7 +1651,8 @@ meta_test_monitor_suggested_config_not_adjacent (void)
   emulate_hotplug (test_setup);
   g_test_assert_expected_messages ();
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
 }
 
 static void
@@ -1796,7 +1807,8 @@ meta_test_monitor_suggested_config_multi_dpi (void)
   emulate_hotplug (test_setup);
   g_test_assert_expected_messages();
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
 }
 
 static void
@@ -1922,7 +1934,8 @@ meta_test_monitor_limited_crtcs (void)
   emulate_hotplug (test_setup);
   g_test_assert_expected_messages ();
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2060,7 +2073,8 @@ meta_test_monitor_lid_switch_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
@@ -2078,7 +2092,8 @@ meta_test_monitor_lid_switch_config (void)
   test_case.expect.crtcs[0].current_mode = -1;
   test_case.expect.crtcs[1].x = 0;
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
@@ -2099,7 +2114,8 @@ meta_test_monitor_lid_switch_config (void)
   test_case.expect.crtcs[1].current_mode = 0;
   test_case.expect.crtcs[1].x = 1024;
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2238,7 +2254,8 @@ meta_test_monitor_lid_opened_config (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
 
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
@@ -2252,7 +2269,8 @@ meta_test_monitor_lid_opened_config (void)
   test_case.expect.crtcs[1].current_mode = 0;
   test_case.expect.crtcs[1].x = 0;
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2346,7 +2364,8 @@ meta_test_monitor_lid_closed_no_external (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
 
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2490,7 +2509,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
 
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* External monitor connected */
@@ -2506,7 +2526,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* Lid closed */
@@ -2522,7 +2543,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /*
@@ -2547,7 +2569,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* External monitor disconnected */
@@ -2562,7 +2585,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* Lid closed */
@@ -2575,7 +2599,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* Lid opened */
@@ -2584,7 +2609,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2685,19 +2711,22 @@ meta_test_monitor_lid_scaled_closed_opened (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("lid-scale.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2729,7 +2758,8 @@ meta_test_monitor_no_outputs (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
 
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   if (!meta_test_client_do (x11_monitor_test_client, &error,
@@ -2751,7 +2781,8 @@ meta_test_monitor_no_outputs (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
 
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2842,7 +2873,8 @@ meta_test_monitor_underscanning_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2938,7 +2970,8 @@ meta_test_monitor_preferred_non_first_mode (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -2972,7 +3005,8 @@ meta_test_monitor_non_upright_panel (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3111,11 +3145,13 @@ meta_test_monitor_switch_external_without_external (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_EXTERNAL);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
 
   check_monitor_test_clients_state ();
 }
@@ -3257,7 +3293,8 @@ meta_test_monitor_custom_vertical_config (void)
   set_custom_monitor_config ("vertical.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3398,7 +3435,8 @@ meta_test_monitor_custom_primary_config (void)
   set_custom_monitor_config ("primary.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3491,7 +3529,8 @@ meta_test_monitor_custom_underscanning_config (void)
   set_custom_monitor_config ("underscanning.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3589,7 +3628,8 @@ meta_test_monitor_custom_scale_config (void)
   set_custom_monitor_config ("scale.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3687,7 +3727,8 @@ meta_test_monitor_custom_fractional_scale_config (void)
   set_custom_monitor_config ("fractional-scale.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3785,7 +3826,8 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
   set_custom_monitor_config ("high-precision-fractional-scale.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -3923,7 +3965,8 @@ meta_test_monitor_custom_tiled_config (void)
   set_custom_monitor_config ("tiled.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -4081,7 +4124,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
   set_custom_monitor_config ("tiled-custom-resolution.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -4256,7 +4300,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
   set_custom_monitor_config ("non-preferred-tiled-custom-resolution.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -4385,7 +4430,8 @@ meta_test_monitor_custom_mirrored_config (void)
   set_custom_monitor_config ("mirrored.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -4521,7 +4567,8 @@ meta_test_monitor_custom_first_rotated_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("first-rotated.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -4658,7 +4705,8 @@ meta_test_monitor_custom_second_rotated_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("second-rotated.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -4851,7 +4899,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("second-rotated-tiled.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -5044,7 +5093,8 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("second-rotated-tiled.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -5195,7 +5245,8 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("second-rotated.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -5306,7 +5357,8 @@ meta_test_monitor_custom_interlaced_config (void)
   set_custom_monitor_config ("interlaced.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -5436,7 +5488,8 @@ meta_test_monitor_custom_oneoff (void)
   set_custom_monitor_config ("oneoff.xml");
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -5573,7 +5626,8 @@ meta_test_monitor_custom_lid_switch_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   set_custom_monitor_config ("lid-switch.xml");
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* External monitor connected */
@@ -5595,7 +5649,8 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* Lid was closed */
@@ -5615,7 +5670,8 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   /* Lid was opened */
@@ -5638,7 +5694,8 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 }
 
@@ -5764,7 +5821,8 @@ meta_test_monitor_migrated_rotated (void)
 
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
@@ -5909,7 +5967,8 @@ meta_test_monitor_migrated_wiggle_discard (void)
   emulate_hotplug (test_setup);
   g_test_assert_expected_messages ();
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
@@ -6175,7 +6234,8 @@ meta_test_monitor_migrated_wiggle (void)
 
   emulate_hotplug (test_setup);
 
-  check_monitor_configuration (&test_case.expect);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      check_monitor_configuration (&test_case.expect));
   check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
@@ -6472,8 +6532,9 @@ meta_test_monitor_supported_integer_scales (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_scales (&test_case.expect,
-                        META_MONITOR_SCALES_CONSTRAINT_NO_FRAC);
+  META_TEST_LOG_CALL ("Checking monitor scaling values",
+                      check_monitor_scales (&test_case.expect,
+                                            META_MONITOR_SCALES_CONSTRAINT_NO_FRAC));
 }
 
 static void
@@ -6783,7 +6844,9 @@ meta_test_monitor_supported_fractional_scales (void)
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
-  check_monitor_scales (&test_case.expect, META_MONITOR_SCALES_CONSTRAINT_NONE);
+  META_TEST_LOG_CALL ("Checking monitor scaling values",
+                      check_monitor_scales (&test_case.expect,
+                                            META_MONITOR_SCALES_CONSTRAINT_NONE));
 }
 
 static void

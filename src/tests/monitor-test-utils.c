@@ -380,6 +380,7 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
       MetaMonitorMode *expected_current_mode;
 
       outputs = meta_monitor_get_outputs (monitor);
+      g_debug ("Checking monitor %d", i);
 
       g_assert_cmpint ((int) g_list_length (outputs),
                        ==,
@@ -434,6 +435,8 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
           meta_monitor_mode_get_resolution (mode, &width, &height);
           refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
           flags = meta_monitor_mode_get_flags (mode);
+
+          g_debug ("Checking mode %dx%d @ %f", width, height, refresh_rate);
 
           g_assert_cmpint (width,
                            ==,
@@ -553,6 +556,8 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
       MetaCrtc *crtc = l->data;
       const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
 
+      g_debug ("Checking CRTC %d", i);
+
       if (expect->crtcs[i].current_mode == -1)
         {
           g_assert_null (meta_crtc_get_outputs (crtc));
@@ -561,15 +566,19 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
       else
         {
           MetaCrtcMode *expected_current_mode;
+          const GList *outputs = meta_crtc_get_outputs (crtc);
           const GList *l_output;
           MetaRendererView *view;
           cairo_rectangle_int_t view_layout;
 
-          for (l_output = meta_crtc_get_outputs (crtc);
+          for (l_output = outputs;
                l_output;
                l_output = l_output->next)
             {
               MetaOutput *output = l_output->data;
+
+              g_debug ("Checking CRTC Output %d",
+                       g_list_index ((GList *) outputs, output));
 
               g_assert (meta_output_get_assigned_crtc (output) == crtc);
               g_assert_null (g_list_find (l_output->next, output));

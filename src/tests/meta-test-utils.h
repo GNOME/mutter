@@ -28,6 +28,12 @@
 
 #define META_TEST_CLIENT_ERROR meta_test_client_error_quark ()
 
+#define META_TEST_LOG_CALL(description, call) \
+  G_STMT_START { \
+    g_debug ("%s: %s: %s", G_STRFUNC, G_STRLOC, description); \
+    call; \
+  } G_STMT_END
+
 typedef enum _MetaClientError
 {
   META_TEST_CLIENT_ERROR_BAD_COMMAND,
