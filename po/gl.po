@@ -16,17 +16,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-19 07:12+0000\n"
-"PO-Revision-Date: 2021-03-19 21:00+0100\n"
+"POT-Creation-Date: 2021-07-19 15:55+0000\n"
+"PO-Revision-Date: 2021-07-22 08:21+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Galician <proxecto@trasno.gal>\n"
+"Language-Team: Galician <Proxecto Trasno <proxecto@trasno.gal>>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 3.38.0\n"
+"X-Generator: Gtranslator 40.0\n"
 "X-Project-Style: gnome\n"
+"X-DL-Team: gl\n"
+"X-DL-Module: mutter\n"
+"X-DL-Branch: main\n"
+"X-DL-Domain: po\n"
+"X-DL-State: Translating\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -60,109 +65,126 @@ msgstr "Mover xanela un espazo de traballo á esquerda"
 msgid "Move window one workspace to the right"
 msgstr "Mover xanela un espazo de traballo á dereita"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Mover xanela un espazo de traballo cara a arriba"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Mover xanela un espazo de traballo cara a abaixo"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Mover xanela un monitor á esquerda"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Mover xanela un monitor á dereita"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Mover xanela un monitor arriba"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Mover xanela un espazo de traballo abaixo"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Cambiar entre aplicacións"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Cambiar á anterior aplicación"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Cambiar xanelas"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Cambiar á xanela anterior"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Cambiar entre as xanelas dunha aplicación"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Cambia á xanela anterior dunha aplicación"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Cambiar entre os controis do sistema"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Cambia ao control do sistema anterior"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Cambiar xanelas directamente"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Cambia directamente á xanela anterior"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Cambiar entre as xanelas dunha aplicación directamente"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Cambia directamente á xanela anterior dunha aplicación"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Cambiar entre os controis do sistema directamente"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Cambiar directamente ao control do sistema anterior"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Ocultar todas as xanelas normais"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Cambiar ao espazo de traballo 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Cambiar ao espazo de traballo 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Cambiar ao espazo de traballo 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Cambiar ao espazo de traballo 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Cambiar ao último espazo de traballo"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Mover ao espazo de traballo da esquerda"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Mover ao espazo de traballo da dereita"
+
+#: data/50-mutter-navigation.xml:138
+#| msgid "Move to workspace below"
+msgid "Move to workspace above"
+msgstr "Mover ao espazo de traballo de arriba"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Mover ao espazo de traballo de abaixo"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -622,9 +644,28 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Compositor"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+#| msgid "X Display to use"
+msgid "X display to use"
+msgstr "Pantalla X a usar"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+#| msgid "X Display to use"
+msgid "X screen to use"
+msgstr "Monitor X a usar"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "Facer que as chamadas a X sexan sincrónicas"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Desactivar a compatibilidade de XInput"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -635,62 +676,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Evento de campá"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Desactivar a conexión ao xestor de sesión"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Substituír o xestor de xanelas en execución"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Especificar o ID de xestión de sesión"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Pantalla X que se vai usar"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Inicializar sesión desde o ficheiro de salvagarda"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Facer que as chamadas a X sexan sincrónicas"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Executar como compositor de wayland"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Executar como compositor aniñado"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Executar o compositor de wayland sen iniciar Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Especifique o nome de pantalla Wayland a usar"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Executar como un servidor de pantalla sen interface"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Engadir un monitor virtual persistente (WxH or WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Executar coa infraestrutura de X11"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -718,10 +703,62 @@ msgstr "_Forzar a saída"
 msgid "_Wait"
 msgstr "Espe_rar"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "Substituír o xestor de xanelas en execución"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "Pantalla X que se vai usar"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "Desactivar a conexión ao xestor de sesión"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "Especificar o ID de xestión de sesión"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "Inicializar sesión desde o ficheiro de salvagarda"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "Executar como compositor de wayland"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "Executar como compositor aniñado"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Executar o compositor de wayland sen iniciar Xwayland"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "Especifique o nome de pantalla Wayland a usar"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "Executar como un servidor de pantalla sen interface"
+
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Engadir un monitor virtual persistente (WxH or WxH@R)"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "Executar coa infraestrutura de X11"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modo conmutador (Grupo %d)"
@@ -729,28 +766,28 @@ msgstr "Modo conmutador (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Mostrar axuda en pantalla"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Imprimir versión"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Engadido de mutter que usar"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter foi compilado sen compatibilidade para o modo detallado"
 
@@ -759,7 +796,7 @@ msgstr "Mutter foi compilado sen compatibilidade para o modo detallado"
 msgid "Mode Switch: Mode %d"
 msgstr "Modo conmutador: Modo %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -768,16 +805,16 @@ msgstr ""
 "A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
 "para substituír o xestor de xanelas."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Produciuse un fallo ao inicializar GDK"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A pantalla %d na visualización «%s» non é válida"
@@ -787,7 +824,7 @@ msgstr "A pantalla %d na visualización «%s» non é válida"
 msgid "Format %s not supported"
 msgstr "O formato %s non se admite"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -812,12 +849,3 @@ msgstr "%s (en %s)"
 #~ "This is free software; see the source for copying conditions.\n"
 #~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
 #~ "PARTICULAR PURPOSE.\n"
-
-#~ msgid "Move window one workspace up"
-#~ msgstr "Mover xanela un espazo de traballo cara a arriba"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Mover xanela un espazo de traballo cara a abaixo"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Mover ao espazo de traballo de abaixo"
