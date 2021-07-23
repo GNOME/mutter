@@ -21,8 +21,13 @@
 #define META_WAYLAND_TRANSACTION_H
 
 #include "wayland/meta-wayland-types.h"
+#include "wayland/meta-wayland-subsurface.h"
 
 void meta_wayland_transaction_commit (MetaWaylandTransaction *transaction);
+
+void meta_wayland_transaction_add_placement_op (MetaWaylandTransaction           *transaction,
+                                                MetaWaylandSurface               *surface,
+                                                MetaWaylandSubsurfacePlacementOp *op);
 
 void meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *transaction,
                                                        MetaWaylandSurface     *surface,

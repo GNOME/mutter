@@ -24,7 +24,6 @@
 #include "wayland/meta-wayland-transaction.h"
 
 #include "wayland/meta-wayland.h"
-#include "wayland/meta-wayland-subsurface.h"
 
 #define META_WAYLAND_TRANSACTION_NONE ((void *)(uintptr_t) G_MAXSIZE)
 
@@ -67,7 +66,7 @@ meta_wayland_transaction_sync_child_states (MetaWaylandSurface *surface)
 {
   MetaWaylandSurface *subsurface_surface;
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state, subsurface_surface)
     {
       MetaWaylandSubsurface *subsurface;
       MetaWaylandActorSurface *actor_surface;
@@ -95,7 +94,9 @@ is_ancestor (MetaWaylandSurface *candidate,
 {
   MetaWaylandSurface *ancestor;
 
-  for (ancestor = reference->sub.parent; ancestor; ancestor = ancestor->sub.parent)
+  for (ancestor = reference->output_state.parent;
+       ancestor;
+       ancestor = ancestor->output_state.parent)
     {
       if (ancestor == candidate)
         return TRUE;
@@ -112,7 +113,7 @@ meta_wayland_transaction_compare (const void *key1,
   MetaWaylandSurface *surface2 = *(MetaWaylandSurface **) key2;
 
   /* Order of siblings doesn't matter */
-  if (surface1->sub.parent == surface2->sub.parent)
+  if (surface1->output_state.parent == surface2->output_state.parent)
     return 0;
 
   /* Ancestor surfaces come before descendant surfaces */
@@ -156,11 +157,24 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
   g_autofree MetaWaylandSurface **surfaces = NULL;
   g_autofree MetaWaylandSurfaceState **states = NULL;
   unsigned int num_surfaces;
+  MetaWaylandSurface *surface;
+  MetaWaylandTransactionEntry *entry;
   int i;
 
   surfaces = (MetaWaylandSurface **)
     g_hash_table_get_keys_as_array (transaction->entries, &num_surfaces);
   states = g_new (MetaWaylandSurfaceState *, num_surfaces);
+
+  /* Apply sub-surface states to ensure output surface hierarchy is up to date */
+  for (i = 0; i < num_surfaces; i++)
+    {
+      surface = surfaces[i];
+      entry = meta_wayland_transaction_get_entry (transaction, surface);
+      meta_wayland_transaction_apply_subsurface_position (surface, entry);
+
+      if (entry->state && entry->state->subsurface_placement_ops)
+        meta_wayland_surface_apply_placement_ops (surface, entry->state);
+    }
 
   /* Sort surfaces from ancestors to descendants */
   qsort (surfaces, num_surfaces, sizeof (MetaWaylandSurface *),
@@ -169,12 +183,10 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
   /* Apply states from ancestors to descendants */
   for (i = 0; i < num_surfaces; i++)
     {
-      MetaWaylandSurface *surface = surfaces[i];
-      MetaWaylandTransactionEntry *entry;
-
+      surface = surfaces[i];
       entry = meta_wayland_transaction_get_entry (transaction, surface);
+
       states[i] = entry->state;
-      meta_wayland_transaction_apply_subsurface_position (surface, entry);
       if (entry->state)
         meta_wayland_surface_apply_state (surface, entry->state);
 
@@ -314,7 +326,6 @@ meta_wayland_transaction_entry_free (MetaWaylandTransactionEntry *entry)
 
 static void
 meta_wayland_transaction_add_placement_surfaces (MetaWaylandTransaction  *transaction,
-                                                 MetaWaylandSurface      *surface,
                                                  MetaWaylandSurfaceState *state)
 {
   GSList *l;
@@ -323,8 +334,7 @@ meta_wayland_transaction_add_placement_surfaces (MetaWaylandTransaction  *transa
     {
       MetaWaylandSubsurfacePlacementOp *op = l->data;
 
-      if (op->surface)
-        meta_wayland_transaction_ensure_entry (transaction, op->surface);
+      meta_wayland_transaction_ensure_entry (transaction, op->surface);
 
       if (op->sibling)
         meta_wayland_transaction_ensure_entry (transaction, op->sibling);
@@ -339,10 +349,27 @@ meta_wayland_transaction_add_entry (MetaWaylandTransaction      *transaction,
   g_hash_table_insert (transaction->entries, g_object_ref (surface), entry);
 
   if (entry->state)
-    {
-      meta_wayland_transaction_add_placement_surfaces (transaction, surface,
-                                                       entry->state);
-    }
+    meta_wayland_transaction_add_placement_surfaces (transaction, entry->state);
+}
+
+void
+meta_wayland_transaction_add_placement_op (MetaWaylandTransaction           *transaction,
+                                           MetaWaylandSurface               *surface,
+                                           MetaWaylandSubsurfacePlacementOp *op)
+{
+  MetaWaylandTransactionEntry *entry;
+  MetaWaylandSurfaceState *state;
+
+  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
+
+  if (!entry->state)
+    entry->state = meta_wayland_surface_state_new ();
+
+  state = entry->state;
+  state->subsurface_placement_ops =
+    g_slist_append (state->subsurface_placement_ops, op);
+
+  meta_wayland_transaction_add_placement_surfaces (transaction, state);
 }
 
 void
@@ -402,10 +429,7 @@ meta_wayland_transaction_merge_into (MetaWaylandTransaction *from,
         }
 
       if (from_entry->state)
-        {
-          meta_wayland_transaction_add_placement_surfaces (to, surface,
-                                                           from_entry->state);
-        }
+        meta_wayland_transaction_add_placement_surfaces (to, from_entry->state);
 
       meta_wayland_transaction_entry_merge_into (from_entry, to_entry);
       g_hash_table_iter_remove (&iter);

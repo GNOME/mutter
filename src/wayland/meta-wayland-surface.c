@@ -526,11 +526,7 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
     wl_resource_destroy (cb->resource);
 
   if (state->subsurface_placement_ops)
-    {
-      g_slist_free_full (
-        state->subsurface_placement_ops,
-        (GDestroyNotify) meta_wayland_subsurface_placement_op_free);
-    }
+    g_slist_free_full (state->subsurface_placement_ops, g_free);
 
   meta_wayland_surface_state_discard_presentation_feedback (state);
 }
@@ -711,6 +707,49 @@ meta_wayland_surface_discard_presentation_feedback (MetaWaylandSurface *surface)
                          feedback, link);
 
       meta_wayland_presentation_feedback_discard (feedback);
+    }
+}
+
+void
+meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
+                                          MetaWaylandSurfaceState *state)
+{
+  GSList *l;
+
+  for (l = state->subsurface_placement_ops; l; l = l->next)
+    {
+      MetaWaylandSubsurfacePlacementOp *op = l->data;
+      MetaWaylandSurface *surface = op->surface;
+      GNode *sibling_node;
+
+      g_node_unlink (surface->output_state.subsurface_branch_node);
+
+      if (!op->sibling)
+        {
+          surface->output_state.parent = NULL;
+          continue;
+        }
+
+      surface->output_state.parent = parent;
+
+      if (op->sibling == parent)
+        sibling_node = parent->output_state.subsurface_leaf_node;
+      else
+        sibling_node = op->sibling->output_state.subsurface_branch_node;
+
+      switch (op->placement)
+        {
+        case META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE:
+          g_node_insert_after (parent->output_state.subsurface_branch_node,
+                               sibling_node,
+                               surface->output_state.subsurface_branch_node);
+          break;
+        case META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW:
+          g_node_insert_before (parent->output_state.subsurface_branch_node,
+                                sibling_node,
+                                surface->output_state.subsurface_branch_node);
+          break;
+        }
     }
 }
 
@@ -908,41 +947,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
     }
 
   if (state->subsurface_placement_ops)
-    {
-      GSList *l;
-
-      for (l = state->subsurface_placement_ops; l; l = l->next)
-        {
-          MetaWaylandSubsurfacePlacementOp *op = l->data;
-          GNode *sibling_node;
-
-          if (!op->surface || !op->sibling)
-            continue;
-
-          if (op->sibling == surface)
-            sibling_node = surface->subsurface_leaf_node;
-          else
-            sibling_node = op->sibling->subsurface_branch_node;
-
-          g_node_unlink (op->surface->subsurface_branch_node);
-
-          switch (op->placement)
-            {
-            case META_WAYLAND_SUBSURFACE_PLACEMENT_ABOVE:
-              g_node_insert_after (surface->subsurface_branch_node,
-                                   sibling_node,
-                                   op->surface->subsurface_branch_node);
-              break;
-            case META_WAYLAND_SUBSURFACE_PLACEMENT_BELOW:
-              g_node_insert_before (surface->subsurface_branch_node,
-                                    sibling_node,
-                                    op->surface->subsurface_branch_node);
-              break;
-            }
-        }
-
-      meta_wayland_surface_notify_subsurface_state_changed (surface);
-    }
+    meta_wayland_surface_notify_subsurface_state_changed (surface);
 
 cleanup:
   /* If we have a buffer that we are not using, decrease the use count so it may
@@ -1012,7 +1017,8 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
 
   meta_wayland_transaction_merge_pending_state (transaction, surface);
 
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->protocol_state,
+                                           subsurface_surface)
     {
       if (!subsurface_surface->sub.transaction)
         continue;
@@ -1501,7 +1507,7 @@ meta_wayland_surface_finalize (GObject *object)
 
   meta_wayland_surface_discard_presentation_feedback (surface);
 
-  g_clear_pointer (&surface->subsurface_branch_node, g_node_destroy);
+  g_clear_pointer (&surface->output_state.subsurface_branch_node, g_node_destroy);
 
   g_hash_table_destroy (surface->shortcut_inhibited_seats);
 
@@ -1512,6 +1518,7 @@ static void
 wl_surface_destructor (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *subsurface_surface;
 
   g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
 
@@ -1521,7 +1528,12 @@ wl_surface_destructor (struct wl_resource *resource)
   if (surface->resource)
     wl_resource_set_user_data (g_steal_pointer (&surface->resource), NULL);
 
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->protocol_state,
+                                           subsurface_surface)
+    meta_wayland_subsurface_parent_destroyed (subsurface_surface);
+
   g_clear_pointer (&surface->wl_subsurface, wl_resource_destroy);
+  g_clear_pointer (&surface->protocol_state.subsurface_branch_node, g_node_destroy);
 
   /*
    * Any transactions referencing this surface will keep it alive until they get
@@ -1758,9 +1770,13 @@ meta_wayland_surface_init (MetaWaylandSurface *surface)
 
   surface->buffer_ref = meta_wayland_buffer_ref_new ();
 
-  surface->subsurface_branch_node = g_node_new (surface);
-  surface->subsurface_leaf_node =
-    g_node_prepend_data (surface->subsurface_branch_node, surface);
+  surface->output_state.subsurface_branch_node = g_node_new (surface);
+  surface->output_state.subsurface_leaf_node =
+    g_node_prepend_data (surface->output_state.subsurface_branch_node, surface);
+
+  surface->protocol_state.subsurface_branch_node = g_node_new (surface);
+  surface->protocol_state.subsurface_leaf_node =
+    g_node_prepend_data (surface->protocol_state.subsurface_branch_node, surface);
 }
 
 static void

@@ -166,8 +166,6 @@ struct _MetaWaylandSurface
   cairo_region_t *opaque_region;
   int scale;
   int32_t offset_x, offset_y;
-  GNode *subsurface_branch_node;
-  GNode *subsurface_leaf_node;
   GHashTable *outputs;
   MetaMonitorTransform buffer_transform;
 
@@ -192,14 +190,17 @@ struct _MetaWaylandSurface
   /* All the pending state that wl_surface.commit will apply. */
   MetaWaylandSurfaceState *pending_state;
 
+  struct MetaWaylandSurfaceSubState {
+    MetaWaylandSurface *parent;
+    GNode *subsurface_branch_node;
+    GNode *subsurface_leaf_node;
+  } output_state, protocol_state;
+
   /* Extension resources. */
   struct wl_resource *wl_subsurface;
 
   /* wl_subsurface stuff. */
   struct {
-    MetaWaylandSurface *parent;
-    struct wl_listener parent_destroy_listener;
-
     int x;
     int y;
 
@@ -273,6 +274,9 @@ void                meta_wayland_surface_state_reset (MetaWaylandSurfaceState *s
 
 void                meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
                                                            MetaWaylandSurfaceState *to);
+
+void                meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *surface,
+                                                              MetaWaylandSurfaceState *state);
 
 void                meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                                       MetaWaylandSurfaceState *state);
@@ -415,11 +419,11 @@ meta_get_next_subsurface_sibling (GNode *n)
 }
 
 static inline GNode *
-meta_get_first_subsurface_node (MetaWaylandSurface *surface)
+meta_get_first_subsurface_node (struct MetaWaylandSurfaceSubState *sub)
 {
   GNode *n;
 
-  n = g_node_first_child (surface->subsurface_branch_node);
+  n = g_node_first_child (sub->subsurface_branch_node);
   if (!n)
     return NULL;
   else if (!G_NODE_IS_LEAF (n))
@@ -428,9 +432,11 @@ meta_get_first_subsurface_node (MetaWaylandSurface *surface)
     return meta_get_next_subsurface_sibling (n);
 }
 
-#define META_WAYLAND_SURFACE_FOREACH_SUBSURFACE(surface, subsurface) \
-  for (GNode *G_PASTE(__n, __LINE__) = meta_get_first_subsurface_node ((surface)); \
+#define META_WAYLAND_SURFACE_FOREACH_SUBSURFACE(state, subsurface) \
+  for (GNode *G_PASTE(__n, __LINE__) = meta_get_first_subsurface_node (state), \
+       *G_PASTE(__next, __LINE__) = meta_get_next_subsurface_sibling (G_PASTE (__n, __LINE__)); \
        (subsurface = (G_PASTE (__n, __LINE__) ? G_PASTE (__n, __LINE__)->data : NULL)); \
-       G_PASTE (__n, __LINE__) = meta_get_next_subsurface_sibling (G_PASTE (__n, __LINE__)))
+       G_PASTE (__n, __LINE__) = G_PASTE (__next, __LINE__), \
+       G_PASTE (__next, __LINE__) = meta_get_next_subsurface_sibling (G_PASTE (__n, __LINE__)))
 
 #endif
