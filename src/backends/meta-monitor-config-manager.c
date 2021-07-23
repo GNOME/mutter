@@ -704,7 +704,8 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
   MetaOrientationManager *orientation_manager;
   MetaBackend *backend;
 
-  if (!meta_monitor_is_laptop_panel (monitor))
+  if (!meta_monitor_is_laptop_panel (monitor) ||
+      !meta_monitor_manager_get_panel_orientation_managed (monitor_manager))
     return META_MONITOR_TRANSFORM_NORMAL;
 
   backend = meta_monitor_manager_get_backend (monitor_manager);
