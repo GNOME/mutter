@@ -1460,13 +1460,11 @@ meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface)
 }
 
 static void
-wl_surface_destructor (struct wl_resource *resource)
+meta_wayland_surface_finalize (GObject *object)
 {
-  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *surface = META_WAYLAND_SURFACE (object);
   MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandFrameCallback *cb, *next;
-
-  g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
 
   g_clear_object (&surface->scanout_candidate);
   g_clear_object (&surface->role);
@@ -1481,9 +1479,6 @@ wl_surface_destructor (struct wl_resource *resource)
     meta_wayland_surface_unref_buffer_use_count (surface);
   g_clear_pointer (&surface->texture, cogl_object_unref);
   g_clear_pointer (&surface->buffer_ref, meta_wayland_buffer_ref_unref);
-
-  g_clear_object (&surface->pending_state);
-  g_clear_pointer (&surface->sub.transaction, meta_wayland_transaction_free);
 
   if (surface->opaque_region)
     cairo_region_destroy (surface->opaque_region);
@@ -1506,13 +1501,33 @@ wl_surface_destructor (struct wl_resource *resource)
 
   meta_wayland_surface_discard_presentation_feedback (surface);
 
-  if (surface->wl_subsurface)
-    wl_resource_destroy (surface->wl_subsurface);
-
   g_clear_pointer (&surface->subsurface_branch_node, g_node_destroy);
 
   g_hash_table_destroy (surface->shortcut_inhibited_seats);
 
+  G_OBJECT_CLASS (meta_wayland_surface_parent_class)->finalize (object);
+}
+
+static void
+wl_surface_destructor (struct wl_resource *resource)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+
+  g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
+
+  g_clear_object (&surface->pending_state);
+  g_clear_pointer (&surface->sub.transaction, meta_wayland_transaction_free);
+
+  if (surface->resource)
+    wl_resource_set_user_data (g_steal_pointer (&surface->resource), NULL);
+
+  g_clear_pointer (&surface->wl_subsurface, wl_resource_destroy);
+
+  /*
+   * Any transactions referencing this surface will keep it alive until they get
+   * applied/destroyed. The last reference will be dropped in
+   * meta_wayland_transaction_free.
+   */
   g_object_unref (surface);
 }
 
@@ -1772,6 +1787,7 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->finalize = meta_wayland_surface_finalize;
   object_class->get_property = meta_wayland_surface_get_property;
 
   obj_props[PROP_SCANOUT_CANDIDATE] =
