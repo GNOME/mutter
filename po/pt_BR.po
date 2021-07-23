@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-05-03 14:53+0000\n"
-"PO-Revision-Date: 2021-05-04 08:10-0300\n"
+"POT-Creation-Date: 2021-07-19 15:55+0000\n"
+"PO-Revision-Date: 2021-07-23 12:10-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -647,9 +647,28 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Compositor"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+#| msgid "X Display to use"
+msgid "X display to use"
+msgstr "Exibição X para usar"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+#| msgid "X Display to use"
+msgid "X screen to use"
+msgstr "Tela X para usar"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "Faz X chamadas síncronas"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Desabilita suporte a XInput"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -660,62 +679,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Evento de som"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Desabilita a conexão com o gerenciador de sessões"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Substitui o gerenciador de janelas em execução"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Especifica o ID do gerenciador de sessões"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Tela X para usar"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Inicializa a sessão a partir do arquivo salvo"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Faz X chamadas síncronas"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Executa como um compositor wayland"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Executa como um compositor aninhado"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Executa o compositor wayland sem iniciar o Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Especifica o nome da tela Wayland para usar"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Executa como um servidor de tela cheia, ao invés de aninhado"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Executa como um servidor de tela sem periféricos"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Executa com backend X11"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -743,10 +706,62 @@ msgstr "_Forçar sair"
 msgid "_Wait"
 msgstr "_Esperar"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "Substitui o gerenciador de janelas em execução"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "Tela X para usar"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "Desabilita a conexão com o gerenciador de sessões"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "Especifica o ID do gerenciador de sessões"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "Inicializa a sessão a partir do arquivo salvo"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "Executa como um compositor wayland"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "Executa como um compositor aninhado"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Executa o compositor wayland sem iniciar o Xwayland"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "Especifica o nome da tela Wayland para usar"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "Executa como um servidor de tela cheia, ao invés de aninhado"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "Executa como um servidor de tela sem periféricos"
+
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "Executa com backend X11"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alternador de modo (Grupo %d)"
@@ -754,28 +769,28 @@ msgstr "Alternador de modo (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Trocar monitor"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda na tela"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Versão impressa"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Plug-in do Mutter para usar"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Espaço de trabalho %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "O Mutter foi compilado sem suporte para modo detalhado"
 
@@ -784,7 +799,7 @@ msgstr "O Mutter foi compilado sem suporte para modo detalhado"
 msgid "Mode Switch: Mode %d"
 msgstr "Alternador de modo: Modo %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -793,16 +808,16 @@ msgstr ""
 "A exibição “%s” já possui um gerenciador de janelas; tente usar a opção --"
 "replace para substituir o gerenciador de janelas atual."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Falha ao inicializar GDK"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falha ao abrir a exibição “%s” do sistema de janelas X"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A tela %d na exibição “%s” é inválida"
@@ -812,7 +827,7 @@ msgstr "A tela %d na exibição “%s” é inválida"
 msgid "Format %s not supported"
 msgstr "Sem suporte ao formato %s"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
