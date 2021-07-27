@@ -182,8 +182,8 @@ application_is_in_pattern_array (MetaWindow *window,
     {
       GPatternSpec *pattern = (GPatternSpec *) g_ptr_array_index (pattern_array, i);
 
-      if (g_pattern_match_string (pattern, class) ||
-          g_pattern_match_string (pattern, name))
+      if (g_pattern_spec_match_string (pattern, class) ||
+          g_pattern_spec_match_string (pattern, name))
         return TRUE;
     }
 
