@@ -277,6 +277,160 @@ emulate_hotplug (MetaMonitorTestSetup *test_setup)
 }
 
 static void
+meta_test_monitor_config_store_set_current_on_empty (void)
+{
+  g_autoptr (MetaMonitorsConfig) linear_config = NULL;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorsConfig *old_current;
+
+  linear_config = meta_monitor_config_manager_create_linear (config_manager);
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+
+  g_assert_null (old_current);
+  g_assert_nonnull (linear_config);
+
+  meta_monitor_config_manager_set_current (config_manager, linear_config);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+}
+
+static void
+meta_test_monitor_config_store_set_current (void)
+{
+  g_autoptr (MetaMonitorsConfig) linear_config = NULL;
+  g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorsConfig *old_current;
+
+  fallback_config =
+    meta_monitor_config_manager_create_fallback (config_manager);
+  linear_config = meta_monitor_config_manager_create_linear (config_manager);
+
+  g_assert_nonnull (linear_config);
+  g_assert_nonnull (fallback_config);
+
+  meta_monitor_config_manager_set_current (config_manager, fallback_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            fallback_config);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  meta_monitor_config_manager_set_current (config_manager, linear_config);
+
+  g_assert (old_current != linear_config);
+  g_assert_nonnull (old_current);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            old_current);
+  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
+            old_current);
+
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+}
+
+static void
+meta_test_monitor_config_store_set_current_max_size (void)
+{
+  /* Keep this in sync with CONFIG_HISTORY_MAX_SIZE */
+  const unsigned int config_history_max_size = 3;
+  g_autolist (MetaMonitorsConfig) added = NULL;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorsConfig *previous = NULL;
+  MetaMonitorsConfig *config;
+  unsigned int i;
+
+  for (i = 0; i < config_history_max_size; i++)
+    {
+      g_autoptr (MetaMonitorsConfig) linear_config = NULL;
+
+      linear_config = meta_monitor_config_manager_create_linear (config_manager);
+      g_assert_nonnull (linear_config);
+      g_assert (!g_list_find (added, linear_config));
+
+      if (i > 0)
+        {
+          g_assert (previous !=
+                    meta_monitor_config_manager_get_current (config_manager));
+        }
+
+      previous = meta_monitor_config_manager_get_current (config_manager);
+      meta_monitor_config_manager_set_current (config_manager, linear_config);
+      added = g_list_prepend (added, g_object_ref (linear_config));
+
+      g_assert (meta_monitor_config_manager_get_current (config_manager)
+                == linear_config);
+
+      g_assert (meta_monitor_config_manager_get_previous (config_manager)
+                == previous);
+    }
+
+  for (i = 0; i < config_history_max_size - 1; i++)
+    {
+      g_autoptr (MetaMonitorsConfig) fallback = NULL;
+
+      fallback = meta_monitor_config_manager_create_fallback (config_manager);
+      g_assert_nonnull (fallback);
+
+      meta_monitor_config_manager_set_current (config_manager, fallback);
+      added = g_list_prepend (added, g_steal_pointer (&fallback));
+    }
+
+  g_assert_cmpuint (g_list_length (added), >, config_history_max_size);
+
+  config = meta_monitor_config_manager_get_current (config_manager);
+  g_assert (config == g_list_nth_data (added, 0));
+
+  for (i = 0; i < config_history_max_size; i++)
+    {
+      config = meta_monitor_config_manager_get_previous (config_manager);
+      g_assert_nonnull (config);
+      g_assert (meta_monitor_config_manager_pop_previous (config_manager)
+                == config);
+      g_assert (config == g_list_nth_data (added, i + 1));
+    }
+
+  config = meta_monitor_config_manager_get_previous (config_manager);
+  g_assert_null (config);
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+  g_assert (config != g_list_nth_data (added, config_history_max_size));
+  g_assert_nonnull (g_list_nth_data (added, config_history_max_size + 1));
+}
+
+static void
+meta_test_monitor_config_store_set_current_null (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorsConfig *previous;
+
+  previous = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_null (previous);
+
+  meta_monitor_config_manager_set_current (config_manager, NULL);
+
+  g_assert_null (meta_monitor_config_manager_get_current (config_manager));
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+}
+
+static void
 meta_test_monitor_one_disconnected_linear_config (void)
 {
   MonitorTestCase test_case = initial_test_case;
@@ -6887,6 +7041,15 @@ void
 init_monitor_tests (void)
 {
   meta_monitor_manager_test_init_test_setup (create_initial_test_setup);
+
+  add_monitor_test ("/backends/monitor/config-store/set_current-on-empty",
+                    meta_test_monitor_config_store_set_current_on_empty);
+  add_monitor_test ("/backends/monitor/config-store/set_current",
+                    meta_test_monitor_config_store_set_current);
+  add_monitor_test ("/backends/monitor/config-store/set_current-max-size",
+                    meta_test_monitor_config_store_set_current_max_size);
+  add_monitor_test ("/backends/monitor/config-store/set_current-null",
+                    meta_test_monitor_config_store_set_current_null);
 
   add_monitor_test ("/backends/monitor/initial-linear-config",
                     meta_test_monitor_initial_linear_config);
