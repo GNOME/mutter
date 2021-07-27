@@ -871,7 +871,7 @@ handle_initial_orientation_change (MetaOrientationManager *orientation_manager,
   clutter_backend = meta_backend_get_clutter_backend (manager->backend);
   seat = clutter_backend_get_default_seat (clutter_backend);
 
-  /* 
+  /*
    * This is a workaround to ignore the tablet mode switch on the initial config
    * of devices with a native portrait mode panel. The touchscreen and
    * accelerometer requirements for applying the orientation must still be met.
@@ -896,7 +896,7 @@ handle_initial_orientation_change (MetaOrientationManager *orientation_manager,
 
 static void
 orientation_changed (MetaOrientationManager *orientation_manager,
-                     MetaMonitorManager     *manager)                     
+                     MetaMonitorManager     *manager)
 {
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
