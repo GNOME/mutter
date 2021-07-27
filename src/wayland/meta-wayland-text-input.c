@@ -753,6 +753,8 @@ gboolean
 meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
                                       const ClutterEvent   *event)
 {
+  gboolean retval;
+
   if (!text_input->surface ||
       !clutter_input_focus_is_focused (text_input->input_focus))
     return FALSE;
@@ -762,5 +764,11 @@ meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
       clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD)
     meta_wayland_text_input_focus_flush_done (text_input->input_focus);
 
-  return clutter_input_focus_filter_event (text_input->input_focus, event);
+  retval = clutter_input_focus_filter_event (text_input->input_focus, event);
+
+  if (event->type == CLUTTER_BUTTON_PRESS ||
+      event->type == CLUTTER_TOUCH_BEGIN)
+    meta_wayland_text_input_focus_flush_done (text_input->input_focus);
+
+  return retval;
 }
