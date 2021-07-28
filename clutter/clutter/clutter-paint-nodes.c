@@ -1551,7 +1551,7 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
                         float                    height,
                         guint8                   opacity)
 {
-  ClutterLayerNode *res;
+  ClutterLayerNode *lnode;
   CoglContext *context;
   CoglTexture2D *tex_2d;
   CoglTexture *texture;
@@ -1559,21 +1559,21 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
   CoglOffscreen *offscreen;
   g_autoptr (GError) error = NULL;
 
-  res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
+  lnode = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
 
-  res->needs_fbo_setup = TRUE;
-  res->projection = *projection;
-  res->viewport = *viewport;
-  res->fbo_width = width;
-  res->fbo_height = height;
-  res->opacity = opacity;
+  lnode->needs_fbo_setup = TRUE;
+  lnode->projection = *projection;
+  lnode->viewport = *viewport;
+  lnode->fbo_width = width;
+  lnode->fbo_height = height;
+  lnode->opacity = opacity;
 
   /* the texture backing the FBO */
   context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
   tex_2d = cogl_texture_2d_new_with_size (context,
-                                          MAX (res->fbo_width, 1),
-                                          MAX (res->fbo_height, 1));
+                                          MAX (lnode->fbo_width, 1),
+                                          MAX (lnode->fbo_height, 1));
   texture = COGL_TEXTURE (tex_2d);
   cogl_texture_set_premultiplied (texture, TRUE);
 
@@ -1586,7 +1586,7 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
       goto out;
     }
 
-  res->offscreen = COGL_FRAMEBUFFER (offscreen);
+  lnode->offscreen = COGL_FRAMEBUFFER (offscreen);
 
   cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
 
@@ -1594,17 +1594,17 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
    * interpolation filters because the texture is always
    * going to be painted at a 1:1 texel:pixel ratio
    */
-  res->pipeline = cogl_pipeline_copy (default_texture_pipeline);
-  cogl_pipeline_set_layer_filters (res->pipeline, 0,
+  lnode->pipeline = cogl_pipeline_copy (default_texture_pipeline);
+  cogl_pipeline_set_layer_filters (lnode->pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
-  cogl_pipeline_set_layer_texture (res->pipeline, 0, texture);
-  cogl_pipeline_set_color (res->pipeline, &color);
+  cogl_pipeline_set_layer_texture (lnode->pipeline, 0, texture);
+  cogl_pipeline_set_color (lnode->pipeline, &color);
 
 out:
   cogl_object_unref (texture);
 
-  return (ClutterPaintNode *) res;
+  return (ClutterPaintNode *) lnode;
 }
 
 /**
