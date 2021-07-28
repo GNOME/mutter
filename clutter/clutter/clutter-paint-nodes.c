@@ -1556,7 +1556,7 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
   CoglTexture2D *tex_2d;
   CoglTexture *texture;
   CoglColor color;
-  CoglOffscreen *offscreen;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
   g_autoptr (GError) error = NULL;
 
   lnode = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
@@ -1582,11 +1582,11 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
     {
       g_warning ("Unable to create an allocate paint node offscreen: %s",
                  error->message);
-      g_object_unref (offscreen);
-      goto out;
+      cogl_object_unref (texture);
+      return NULL;
     }
 
-  lnode->offscreen = COGL_FRAMEBUFFER (offscreen);
+  lnode->offscreen = COGL_FRAMEBUFFER (g_steal_pointer (&offscreen));
 
   cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
 
@@ -1601,7 +1601,6 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
   cogl_pipeline_set_layer_texture (lnode->pipeline, 0, texture);
   cogl_pipeline_set_color (lnode->pipeline, &color);
 
-out:
   cogl_object_unref (texture);
 
   return (ClutterPaintNode *) lnode;
