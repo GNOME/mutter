@@ -824,14 +824,14 @@ if mutter_private_enum_sources.length() > 0
 endif
 
 dbus_display_config_built_sources = gnome.gdbus_codegen('meta-dbus-display-config',
-    'org.gnome.Mutter.DisplayConfig.xml',
+    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.DisplayConfig.xml'),
     interface_prefix: 'org.gnome.Mutter.',
     namespace: 'MetaDBus',
   )
 mutter_built_sources += dbus_display_config_built_sources
 
 dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
-    'org.gnome.Mutter.IdleMonitor.xml',
+    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.IdleMonitor.xml'),
     interface_prefix: 'org.gnome.Mutter.',
     namespace: 'MetaDBus',
     object_manager: true,
@@ -870,7 +870,7 @@ if have_native_backend
   mutter_built_sources += default_modes_h
 
   dbus_login1_built_sources = gnome.gdbus_codegen('meta-dbus-login1',
-    'org.freedesktop.login1.xml',
+    join_paths(dbus_interfaces_dir, 'org.freedesktop.login1.xml'),
     interface_prefix: 'org.freedesktop.login1.',
     namespace: 'MetaDbusLogin1',
   )
@@ -879,14 +879,14 @@ endif
 
 if have_remote_desktop
   dbus_remote_desktop_built_sources = gnome.gdbus_codegen('meta-dbus-remote-desktop',
-      'org.gnome.Mutter.RemoteDesktop.xml',
+      join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.RemoteDesktop.xml'),
       interface_prefix: 'org.gnome.Mutter.',
       namespace: 'MetaDBus',
     )
   mutter_built_sources += dbus_remote_desktop_built_sources
 
   dbus_screen_cast_built_sources = gnome.gdbus_codegen('meta-dbus-screen-cast',
-      'org.gnome.Mutter.ScreenCast.xml',
+      join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.ScreenCast.xml'),
       interface_prefix: 'org.gnome.Mutter.',
       namespace: 'MetaDBus',
     )
@@ -894,7 +894,7 @@ if have_remote_desktop
 endif
 
 dbus_rtkit_built_sources = gnome.gdbus_codegen('meta-dbus-rtkit1',
-    'org.freedesktop.RealtimeKit1.xml',
+    join_paths(dbus_interfaces_dir, 'org.freedesktop.RealtimeKit1.xml'),
     interface_prefix: 'org.freedesktop.',
     namespace: 'MetaDbus',
 )

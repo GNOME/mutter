@@ -64,3 +64,5 @@ if have_libgudev
     install_dir: join_paths(udev_dir, 'rules.d'),
   )
 endif
+
+subdir('dbus-interfaces')
