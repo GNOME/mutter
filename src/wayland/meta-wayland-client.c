@@ -298,7 +298,7 @@ meta_wayland_client_owns_window (MetaWaylandClient *client,
   g_return_val_if_fail (client->process_running, FALSE);
 
   surface = meta_window_get_wayland_surface (window);
-  if (surface == NULL)
+  if (surface == NULL || surface->resource == NULL)
     return FALSE;
 
   return wl_resource_get_client (surface->resource) == client->wayland_client;

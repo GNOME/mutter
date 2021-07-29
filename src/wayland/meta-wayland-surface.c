@@ -769,10 +769,13 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                            &error))
             {
               g_warning ("Could not import pending buffer: %s", error->message);
-              wl_resource_post_error (surface->resource, WL_DISPLAY_ERROR_NO_MEMORY,
-                                      "Failed to attach buffer to surface %i: %s",
-                                      wl_resource_get_id (surface->resource),
-                                      error->message);
+              if (surface->resource)
+                {
+                  wl_resource_post_error (surface->resource, WL_DISPLAY_ERROR_NO_MEMORY,
+                                          "Failed to attach buffer to surface %i: %s",
+                                          wl_resource_get_id (surface->resource),
+                                          error->message);
+                }
               g_error_free (error);
               goto cleanup;
             }
@@ -1330,21 +1333,24 @@ static void
 surface_entered_output (MetaWaylandSurface *surface,
                         MetaWaylandOutput *wayland_output)
 {
-  const GList *l;
-
   g_signal_connect (wayland_output, "output-destroyed",
                     G_CALLBACK (handle_output_destroyed),
                     surface);
 
-  for (l = meta_wayland_output_get_resources (wayland_output); l; l = l->next)
+  if (surface->resource)
     {
-      struct wl_resource *resource = l->data;
+      const GList *l;
 
-      if (wl_resource_get_client (resource) !=
-          wl_resource_get_client (surface->resource))
-        continue;
+      for (l = meta_wayland_output_get_resources (wayland_output); l; l = l->next)
+        {
+          struct wl_resource *resource = l->data;
 
-      wl_surface_send_enter (surface->resource, resource);
+          if (wl_resource_get_client (resource) !=
+              wl_resource_get_client (surface->resource))
+            continue;
+
+          wl_surface_send_enter (surface->resource, resource);
+        }
     }
 
   g_signal_connect (wayland_output, "output-bound",
@@ -1365,6 +1371,9 @@ surface_left_output (MetaWaylandSurface *surface,
   g_signal_handlers_disconnect_by_func (wayland_output,
                                         G_CALLBACK (handle_output_bound),
                                         surface);
+
+  if (!surface->resource)
+    return;
 
   for (l = meta_wayland_output_get_resources (wayland_output); l; l = l->next)
     {

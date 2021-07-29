@@ -391,6 +391,14 @@ xdg_toplevel_set_max_size (struct wl_client   *client,
 
 
   pending = meta_wayland_surface_get_pending_state (surface);
+  if (!pending)
+    {
+      wl_resource_post_error (resource,
+                              XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                              "underlying wl_surface already destroyed");
+      return;
+    }
+
   pending->has_new_max_size = TRUE;
   pending->new_max_width = width;
   pending->new_max_height = height;
@@ -416,6 +424,14 @@ xdg_toplevel_set_min_size (struct wl_client   *client,
 
 
   pending = meta_wayland_surface_get_pending_state (surface);
+  if (!pending)
+    {
+      wl_resource_post_error (resource,
+                              XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                              "underlying wl_surface already destroyed");
+      return;
+    }
+
   pending->has_new_min_size = TRUE;
   pending->new_min_width = width;
   pending->new_min_height = height;
@@ -873,9 +889,12 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
         }
       else
         {
-          wl_resource_post_error (surface->resource,
-                                  XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
-                                  "Invalid min/max size");
+          if (surface->resource)
+            {
+              wl_resource_post_error (surface->resource,
+                                      XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                                      "Invalid min/max size");
+            }
         }
     }
 }
@@ -1556,6 +1575,14 @@ xdg_surface_set_window_geometry (struct wl_client   *client,
     }
 
   pending = meta_wayland_surface_get_pending_state (surface);
+  if (!pending)
+    {
+      wl_resource_post_error (resource,
+                              XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                              "underlying wl_surface already destroyed");
+      return;
+    }
+
   pending->has_new_geometry = TRUE;
   pending->new_geometry.x = x;
   pending->new_geometry.y = y;
@@ -1572,6 +1599,14 @@ xdg_surface_ack_configure (struct wl_client   *client,
   MetaWaylandSurfaceState *pending;
 
   pending = meta_wayland_surface_get_pending_state (surface);
+  if (!pending)
+    {
+      wl_resource_post_error (resource,
+                              XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
+                              "underlying wl_surface already destroyed");
+      return;
+    }
+
   pending->has_acked_configure_serial = TRUE;
   pending->acked_configure_serial = serial;
 }
