@@ -1357,6 +1357,9 @@ clutter_stage_view_constructed (GObject *object)
                                                &frame_clock_listener_iface,
                                                view);
 
+  clutter_stage_view_add_redraw_clip (view, NULL);
+  clutter_stage_view_schedule_update (view);
+
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->constructed (object);
 }
 
