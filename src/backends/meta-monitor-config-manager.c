@@ -998,8 +998,8 @@ clone_logical_monitor_config_list (GList *logical_monitor_configs_in)
 }
 
 static MetaLogicalMonitorConfig *
-find_logical_config_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
-                                                  GList                    *logical_monitor_configs)
+find_logical_config_for_builtin_monitor (MetaMonitorConfigManager *config_manager,
+                                         GList                    *logical_monitor_configs)
 {
   MetaLogicalMonitorConfig *logical_monitor_config;
   MetaMonitorConfig *monitor_config;
@@ -1053,8 +1053,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
 
   current_configs = base_config->logical_monitor_configs;
   current_logical_monitor_config =
-    find_logical_config_for_builtin_display_rotation (config_manager,
-                                                      current_configs);
+    find_logical_config_for_builtin_monitor (config_manager, current_configs);
   if (!current_logical_monitor_config)
     return NULL;
 
@@ -1081,7 +1080,8 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
   logical_monitor_configs =
     clone_logical_monitor_config_list (base_config->logical_monitor_configs);
   logical_monitor_config =
-    find_logical_config_for_builtin_display_rotation (config_manager, logical_monitor_configs);
+    find_logical_config_for_builtin_monitor (config_manager,
+                                             logical_monitor_configs);
   logical_monitor_config->transform = transform;
 
   if (meta_monitor_transform_is_rotated (current_logical_monitor_config->transform) !=
