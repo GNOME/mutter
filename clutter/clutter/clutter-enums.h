@@ -1638,6 +1638,12 @@ typedef enum
   CLUTTER_INPUT_PANEL_STATE_TOGGLE,
 } ClutterInputPanelState;
 
+typedef enum
+{
+  CLUTTER_PREEDIT_RESET_CLEAR,
+  CLUTTER_PREEDIT_RESET_COMMIT,
+} ClutterPreeditResetMode;
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ENUMS_H__ */

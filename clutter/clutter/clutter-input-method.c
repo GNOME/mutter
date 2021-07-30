@@ -278,11 +278,12 @@ clutter_input_method_get_focus (ClutterInputMethod *im)
 }
 
 static void
-clutter_input_method_put_im_event (ClutterInputMethod *im,
-                                   ClutterEventType    event_type,
-                                   const char         *text,
-                                   int32_t             offset,
-                                   uint32_t            len)
+clutter_input_method_put_im_event (ClutterInputMethod      *im,
+                                   ClutterEventType         event_type,
+                                   const char              *text,
+                                   int32_t                  offset,
+                                   uint32_t                 len,
+                                   ClutterPreeditResetMode  mode)
 {
   ClutterInputDevice *keyboard;
   ClutterSeat *seat;
@@ -299,6 +300,7 @@ clutter_input_method_put_im_event (ClutterInputMethod *im,
   event->im.text = g_strdup (text);
   event->im.offset = offset;
   event->im.len = len;
+  event->im.mode = mode;
   clutter_event_set_device (event, keyboard);
   clutter_event_set_source_device (event, keyboard);
   clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_INPUT_METHOD);
@@ -315,7 +317,8 @@ clutter_input_method_commit (ClutterInputMethod *im,
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  clutter_input_method_put_im_event (im, CLUTTER_IM_COMMIT, text, 0, 0);
+  clutter_input_method_put_im_event (im, CLUTTER_IM_COMMIT, text, 0, 0,
+                                     CLUTTER_PREEDIT_RESET_CLEAR);
 }
 
 void
@@ -325,7 +328,8 @@ clutter_input_method_delete_surrounding (ClutterInputMethod *im,
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  clutter_input_method_put_im_event (im, CLUTTER_IM_DELETE, NULL, offset, len);
+  clutter_input_method_put_im_event (im, CLUTTER_IM_DELETE, NULL, offset, len,
+                                     CLUTTER_PREEDIT_RESET_CLEAR);
 }
 
 void
@@ -349,13 +353,15 @@ clutter_input_method_request_surrounding (ClutterInputMethod *im)
  * Sets the preedit text on the current input focus.
  **/
 void
-clutter_input_method_set_preedit_text (ClutterInputMethod *im,
-                                       const gchar        *preedit,
-                                       guint               cursor)
+clutter_input_method_set_preedit_text (ClutterInputMethod      *im,
+                                       const gchar             *preedit,
+                                       unsigned int             cursor,
+                                       ClutterPreeditResetMode  mode)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  clutter_input_method_put_im_event (im, CLUTTER_IM_PREEDIT, preedit, cursor, 0);
+  clutter_input_method_put_im_event (im, CLUTTER_IM_PREEDIT, preedit,
+                                     cursor, 0, mode);
 }
 
 void

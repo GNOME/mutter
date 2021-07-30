@@ -30,6 +30,8 @@ typedef struct _ClutterInputFocusPrivate ClutterInputFocusPrivate;
 struct _ClutterInputFocusPrivate
 {
   ClutterInputMethod *im;
+  char *preedit;
+  ClutterPreeditResetMode mode;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterInputFocus, clutter_input_focus, G_TYPE_OBJECT)
@@ -54,8 +56,24 @@ clutter_input_focus_real_focus_out (ClutterInputFocus  *focus)
 }
 
 static void
+clutter_input_focus_finalize (GObject *object)
+{
+  ClutterInputFocus *focus = CLUTTER_INPUT_FOCUS (object);
+  ClutterInputFocusPrivate *priv =
+    clutter_input_focus_get_instance_private (focus);
+
+  g_clear_pointer (&priv->preedit, g_free);
+
+  G_OBJECT_CLASS (clutter_input_focus_parent_class)->finalize (object);
+}
+
+static void
 clutter_input_focus_class_init (ClutterInputFocusClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = clutter_input_focus_finalize;
+
   klass->focus_in = clutter_input_focus_real_focus_in;
   klass->focus_out = clutter_input_focus_real_focus_out;
 }
@@ -84,6 +102,14 @@ clutter_input_focus_reset (ClutterInputFocus *focus)
   g_return_if_fail (clutter_input_focus_is_focused (focus));
 
   priv = clutter_input_focus_get_instance_private (focus);
+
+  if (priv->preedit &&
+      priv->mode == CLUTTER_PREEDIT_RESET_COMMIT)
+    clutter_input_focus_commit (focus, priv->preedit);
+
+  clutter_input_focus_set_preedit_text (focus, NULL, 0);
+  g_clear_pointer (&priv->preedit, g_free);
+  priv->mode = CLUTTER_PREEDIT_RESET_CLEAR;
 
   clutter_input_method_reset (priv->im);
 }
@@ -175,13 +201,16 @@ clutter_input_focus_filter_event (ClutterInputFocus  *focus,
     }
   else if (event->type == CLUTTER_IM_PREEDIT)
     {
+      g_clear_pointer (&priv->preedit, g_free);
+      priv->preedit = g_strdup (event->im.text);
+      priv->mode = event->im.mode;
       clutter_input_focus_set_preedit_text (focus, event->im.text,
                                             event->im.offset);
       return TRUE;
     }
   else if (event->type == CLUTTER_TOUCH_BEGIN ||
-	   (event->type == CLUTTER_BUTTON_PRESS &&
-	    event->button.button == CLUTTER_BUTTON_PRIMARY))
+           (event->type == CLUTTER_BUTTON_PRESS &&
+            event->button.button == CLUTTER_BUTTON_PRIMARY))
     {
       clutter_input_focus_reset (focus);
       /* pointing events are not consumed by IMs */

@@ -74,9 +74,10 @@ CLUTTER_EXPORT
 void clutter_input_method_request_surrounding (ClutterInputMethod *im);
 
 CLUTTER_EXPORT
-void clutter_input_method_set_preedit_text (ClutterInputMethod *im,
-                                            const gchar        *preedit,
-                                            guint               cursor);
+void clutter_input_method_set_preedit_text (ClutterInputMethod      *im,
+                                            const gchar             *preedit,
+                                            unsigned int             cursor,
+                                            ClutterPreeditResetMode  mode);
 
 CLUTTER_EXPORT
 void clutter_input_method_notify_key_event (ClutterInputMethod *im,

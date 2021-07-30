@@ -561,6 +561,7 @@ struct _ClutterIMEvent
   char *text;
   int32_t offset;
   uint32_t len;
+  ClutterPreeditResetMode mode;
 };
 
 /**
