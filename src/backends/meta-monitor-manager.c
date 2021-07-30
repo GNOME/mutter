@@ -955,7 +955,8 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
 
   panel_orientation_managed =
     (clutter_seat_get_touch_mode (seat) &&
-     meta_orientation_manager_has_accelerometer (orientation_manager));
+     meta_orientation_manager_has_accelerometer (orientation_manager) &&
+     meta_monitor_manager_get_laptop_panel (manager));
 
   if (manager->panel_orientation_managed == panel_orientation_managed)
     return;
@@ -3076,6 +3077,8 @@ rebuild_monitors (MetaMonitorManager *manager)
                                          monitor_normal);
 
     }
+
+  update_panel_orientation_managed (manager);
 }
 
 void
