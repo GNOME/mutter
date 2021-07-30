@@ -70,6 +70,8 @@ void     meta_window_actor_update_opacity      (MetaWindowActor *self);
 void     meta_window_actor_mapped              (MetaWindowActor *self);
 void     meta_window_actor_unmapped            (MetaWindowActor *self);
 void     meta_window_actor_sync_updates_frozen (MetaWindowActor *self);
+
+META_EXPORT_TEST
 void     meta_window_actor_queue_frame_drawn   (MetaWindowActor *self,
                                                 gboolean         no_delay_frame);
 
@@ -81,6 +83,7 @@ MetaSurfaceActor *meta_window_actor_get_surface (MetaWindowActor *self);
 void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
                                              MetaSurfaceActor *surface_actor);
 
+META_EXPORT_TEST
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
 MetaWindowActor *meta_window_actor_from_actor (ClutterActor *actor);
 

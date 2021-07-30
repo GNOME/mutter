@@ -19,9 +19,18 @@
 
 #include "clutter/clutter.h"
 #include "clutter/clutter-stage-view-private.h"
+#include "compositor/meta-window-actor-private.h"
 #include "meta-test/meta-context-test.h"
+#include "meta/meta-window-actor.h"
 #include "tests/meta-backend-test.h"
+#include "tests/meta-test-utils.h"
 #include "tests/monitor-test-utils.h"
+#include "x11/meta-x11-display-private.h"
+
+#define X11_TEST_CLIENT_NAME "x11_test_client"
+#define X11_TEST_CLIENT_WINDOW "window1"
+
+static MetaContext *test_context;
 
 static MonitorTestCaseSetup initial_test_case_setup = {
   .modes = {
@@ -1069,6 +1078,122 @@ ensure_view_count (int n_views)
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 }
 
+static gboolean
+tests_alarm_filter (MetaX11Display        *x11_display,
+                    XSyncAlarmNotifyEvent *event,
+                    gpointer               user_data)
+{
+  MetaTestClient *test_client = user_data;
+  return meta_test_client_process_x11_event (test_client,
+                                             x11_display, event);
+}
+
+static void
+check_test_client_state (MetaTestClient *test_client)
+{
+  GError *error = NULL;
+
+  if (!meta_test_client_wait (test_client, &error))
+    {
+      g_error ("Failed to sync test client '%s': %s",
+               meta_test_client_get_id (test_client), error->message);
+    }
+}
+
+static void
+meta_test_actor_stage_views_queue_frame_drawn (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaDisplay *display;
+  MetaX11Display *x11_display;
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaTestClient *x11_test_client;
+  MonitorTestCaseSetup hotplug_test_case_setup = initial_test_case_setup;
+  MetaMonitorTestSetup *test_setup;
+  GError *error = NULL;
+  MetaWindow *test_window;
+  ClutterActor *window_actor;
+
+  x11_test_client = meta_test_client_new (test_context,
+                                          X11_TEST_CLIENT_NAME,
+                                          META_WINDOW_CLIENT_TYPE_X11,
+                                          &error);
+  if (!x11_test_client)
+    g_error ("Failed to launch X11 test client: %s", error->message);
+  display = meta_context_get_display (test_context);
+  x11_display = meta_display_get_x11_display (display);
+  meta_x11_display_set_alarm_filter (x11_display,
+                                     tests_alarm_filter,
+                                     x11_test_client);
+
+  if (!meta_test_client_do (x11_test_client, &error,
+                            "create", X11_TEST_CLIENT_WINDOW,
+                            NULL))
+    g_error ("Failed to create X11 window: %s", error->message);
+  if (!meta_test_client_do (x11_test_client, &error,
+                            "show", X11_TEST_CLIENT_WINDOW,
+                            NULL))
+    g_error ("Failed to show the window: %s", error->message);
+  check_test_client_state (x11_test_client);
+
+  /* Make sure we have a single output. */
+  hotplug_test_case_setup.n_outputs = 1;
+  hotplug_test_case_setup.n_crtcs = 1;
+  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  wait_for_paint (stage);
+  g_assert_cmpint (g_list_length (clutter_actor_peek_stage_views (stage)),
+                   ==,
+                   1);
+
+  /* Find client window actor and ensure it's on a stage view. */
+  test_window = meta_test_client_find_window (x11_test_client,
+                                              X11_TEST_CLIENT_WINDOW,
+                                              &error);
+  if (!test_window)
+    g_error ("Failed to find the window: %s", error->message);
+  window_actor = CLUTTER_ACTOR (meta_window_actor_from_window (test_window));
+  g_assert_nonnull (clutter_actor_peek_stage_views (window_actor));
+
+  /* Queue an X11 _NET_WM_FRAME_DRAWN event; this will find the frame clock via
+   * the actor stage view list.
+   */
+  meta_window_actor_queue_frame_drawn (META_WINDOW_ACTOR (window_actor), TRUE);
+
+  /* Hotplug to rebuild the views, will clear the window actor view list. */
+  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  g_assert_null (clutter_actor_peek_stage_views (window_actor));
+
+  /* Queue an X11 _NET_WM_FRAME_DRAWN event; this will find the frame clock via
+   * the stage's frame clock, as the actor hasn't been been through relayout.
+   */
+  meta_window_actor_queue_frame_drawn (META_WINDOW_ACTOR (window_actor), TRUE);
+
+  /* Hotplug again to re-rebuild the views, will again clear the window actor
+   * view list, which will be a no-op. */
+  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  /* Make sure we're not using some old frame clock when queuing another
+   * _NET_WM_FRAME_DRAWN event. */
+  meta_window_actor_queue_frame_drawn (META_WINDOW_ACTOR (window_actor), TRUE);
+
+  wait_for_paint (stage);
+
+  if (!meta_test_client_quit (x11_test_client, &error))
+    g_error ("Failed to quit X11 test client: %s", error->message);
+  meta_test_client_destroy (x11_test_client);
+  meta_x11_display_set_alarm_filter (x11_display, NULL, NULL);
+}
+
 static void
 meta_test_timeline_actor_destroyed (void)
 {
@@ -1152,6 +1277,8 @@ init_tests (void)
                    meta_test_actor_stage_views_parent_views_changed);
   g_test_add_func ("/stage-views/actor-stage-views-and-frame-clocks-freed",
                    meta_test_actor_stage_views_and_frame_clocks_freed);
+  g_test_add_func ("/stage-views/actor-stage-viwes-queue-frame-drawn",
+                   meta_test_actor_stage_views_queue_frame_drawn);
   g_test_add_func ("/stage-views/timeline/actor-destroyed",
                    meta_test_timeline_actor_destroyed);
 }
@@ -1162,8 +1289,10 @@ main (int argc, char *argv[])
   g_autoptr (MetaContext) context = NULL;
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
-                                      META_CONTEXT_TEST_FLAG_NO_X11);
+                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  test_context = context;
 
   init_tests ();
 
