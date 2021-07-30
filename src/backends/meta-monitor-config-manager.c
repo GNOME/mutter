@@ -1007,7 +1007,7 @@ find_logical_config_for_builtin_display_rotation (MetaMonitorConfigManager *conf
   GList *l;
 
   panel = meta_monitor_manager_get_laptop_panel (config_manager->monitor_manager);
-  if (panel && meta_monitor_is_active (panel))
+  if (panel)
     {
       for (l = logical_monitor_configs; l; l = l->next)
         {
@@ -1022,7 +1022,14 @@ find_logical_config_for_builtin_display_rotation (MetaMonitorConfigManager *conf
           monitor_config = logical_monitor_config->monitor_configs->data;
           if (meta_monitor_spec_equals (meta_monitor_get_spec (panel),
                                         monitor_config->monitor_spec))
-            return logical_monitor_config;
+            {
+              MetaMonitorMode *mode;
+
+              mode = meta_monitor_get_mode_from_spec (panel,
+                                                      monitor_config->mode_spec);
+              if (mode)
+                return logical_monitor_config;
+            }
         }
     }
 
