@@ -60,7 +60,6 @@ struct _MetaWindowActorX11
   guint send_frame_messages_timer;
   int64_t frame_drawn_time;
   gboolean pending_schedule_update_now;
-  ClutterFrameClock *frame_clock;
 
   gulong repaint_scheduled_id;
   gulong size_changed_id;
@@ -461,8 +460,12 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
 
   if (skip_sync_delay)
     {
-      if (actor_x11->frame_clock)
-        clutter_frame_clock_schedule_update_now (actor_x11->frame_clock);
+      ClutterFrameClock *frame_clock;
+
+      frame_clock = clutter_actor_pick_frame_clock (CLUTTER_ACTOR (actor),
+                                                    NULL);
+      if (frame_clock)
+        clutter_frame_clock_schedule_update_now (frame_clock);
       else
         actor_x11->pending_schedule_update_now = TRUE;
     }
@@ -1246,11 +1249,16 @@ handle_stage_views_changed (MetaWindowActorX11 *actor_x11)
 {
   ClutterActor *actor = CLUTTER_ACTOR (actor_x11);
 
-  actor_x11->frame_clock = clutter_actor_pick_frame_clock (actor, NULL);
-  if (actor_x11->frame_clock && actor_x11->pending_schedule_update_now)
+  if (actor_x11->pending_schedule_update_now)
     {
-      clutter_frame_clock_schedule_update_now (actor_x11->frame_clock);
-      actor_x11->pending_schedule_update_now = FALSE;
+      ClutterFrameClock *frame_clock;
+
+      frame_clock = clutter_actor_pick_frame_clock (actor, NULL);
+      if (frame_clock)
+        {
+          clutter_frame_clock_schedule_update_now (frame_clock);
+          actor_x11->pending_schedule_update_now = FALSE;
+        }
     }
 }
 
