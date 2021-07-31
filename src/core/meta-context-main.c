@@ -74,13 +74,11 @@ typedef struct _MetaContextMainOptions
 #ifdef HAVE_NATIVE_BACKEND
   gboolean display_server;
   gboolean headless;
-#endif
-  gboolean unsafe_mode;
-#ifdef HAVE_NATIVE_BACKEND
   GList *virtual_monitor_infos;
 #endif
   char *trace_file;
   gboolean debug_control;
+  gboolean unsafe_mode;
 } MetaContextMainOptions;
 
 struct _MetaContextMain
