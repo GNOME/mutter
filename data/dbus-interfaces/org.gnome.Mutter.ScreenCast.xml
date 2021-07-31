@@ -191,6 +191,14 @@
   <interface name="org.gnome.Mutter.ScreenCast.Stream">
 
     <!--
+	Start:
+	@short_description: Start new stream
+
+	Start a stream of an already started session.
+    -->
+    <method name="Start"/>
+
+    <!--
 	PipeWireStreamAdded:
 	@short_description: Pipewire stream added
 

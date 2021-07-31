@@ -64,11 +64,16 @@ typedef struct _MetaScreenCastStreamPrivate
 } MetaScreenCastStreamPrivate;
 
 static void
+meta_screen_cast_stream_init_iface (MetaDBusScreenCastStreamIface *iface);
+
+static void
 meta_screen_cast_stream_init_initable_iface (GInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStream,
                          meta_screen_cast_stream,
                          META_DBUS_TYPE_SCREEN_CAST_STREAM_SKELETON,
+                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SCREEN_CAST_STREAM,
+                                                meta_screen_cast_stream_init_iface)
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 meta_screen_cast_stream_init_initable_iface)
                          G_ADD_PRIVATE (MetaScreenCastStream))
@@ -136,6 +141,13 @@ meta_screen_cast_stream_start (MetaScreenCastStream  *stream,
   MetaScreenCastStreamPrivate *priv =
     meta_screen_cast_stream_get_instance_private (stream);
   MetaScreenCastStreamSrc *src;
+
+  if (priv->src)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Stream already started");
+      return FALSE;
+    }
 
   src = meta_screen_cast_stream_create_src (stream, error);
   if (!src)
@@ -278,6 +290,65 @@ meta_screen_cast_stream_finalize (GObject *object)
   g_clear_pointer (&priv->object_path, g_free);
 
   G_OBJECT_CLASS (meta_screen_cast_stream_parent_class)->finalize (object);
+}
+
+static gboolean
+check_permission (MetaScreenCastStream  *stream,
+                  GDBusMethodInvocation *invocation)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+  char *peer_name;
+
+  peer_name = meta_screen_cast_session_get_peer_name (priv->session);
+  return g_strcmp0 (peer_name,
+                    g_dbus_method_invocation_get_sender (invocation)) == 0;
+}
+
+static gboolean
+handle_start (MetaDBusScreenCastStream *skeleton,
+              GDBusMethodInvocation    *invocation)
+{
+  MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (skeleton);
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+  g_autoptr (GError) error = NULL;
+
+  if (!check_permission (stream, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return TRUE;
+    }
+
+  if (!meta_screen_cast_session_is_active (priv->session))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to start stream: "
+                                             "session not started");
+      return TRUE;
+    }
+
+  if (!meta_screen_cast_stream_start (stream, &error))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to start stream: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  meta_dbus_screen_cast_stream_complete_start (skeleton, invocation);
+
+  return TRUE;
+}
+
+static void
+meta_screen_cast_stream_init_iface (MetaDBusScreenCastStreamIface *iface)
+{
+  iface->handle_start = handle_start;
 }
 
 static gboolean
