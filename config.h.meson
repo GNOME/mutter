@@ -72,6 +72,9 @@
 /* Defined if screen cast and remote desktop support is enabled */
 #mesondefine HAVE_REMOTE_DESKTOP
 
+/* Defined if the devkit is enabled */
+#mesondefine HAVE_DEVKIT
+
 /* Defined if gnome-desktop is enabled */
 #mesondefine HAVE_GNOME_DESKTOP
 

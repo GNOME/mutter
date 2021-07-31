@@ -45,6 +45,10 @@
 #include "backends/native/meta-backend-native-types.h"
 #endif
 
+#ifdef HAVE_DEVKIT
+#include "core/meta-mdk.h"
+#endif
+
 #if defined (HAVE_X11) && defined (HAVE_WAYLAND)
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #endif
@@ -75,6 +79,7 @@ typedef struct _MetaContextMainOptions
 #ifdef HAVE_NATIVE_BACKEND
   gboolean display_server;
   gboolean headless;
+  gboolean devkit;
   GList *virtual_monitor_infos;
 #endif
   char *trace_file;
@@ -92,7 +97,13 @@ struct _MetaContextMain
 
   MetaCompositorType compositor_type;
 
+#ifdef HAVE_NATIVE_BACKEND
   GList *persistent_virtual_monitors;
+#endif
+
+#ifdef HAVE_DEVKIT
+  MetaMdk *mdk;
+#endif
 };
 
 G_DEFINE_TYPE (MetaContextMain, meta_context_main, META_TYPE_CONTEXT)
@@ -130,14 +141,23 @@ check_configuration (MetaContextMain  *context_main,
       return FALSE;
     }
 
-  if (context_main->options.x11.force && context_main->options.headless)
+  if (context_main->options.headless && context_main->options.devkit)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
+                   "Can't run in both MDK and headless mode");
+      return FALSE;
+    }
+
+  if (context_main->options.x11.force &&
+      (context_main->options.headless || context_main->options.devkit))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
                    "Can't run in X11 mode headlessly");
       return FALSE;
     }
 
-  if (context_main->options.display_server && context_main->options.headless)
+  if (context_main->options.display_server &&
+      (context_main->options.headless || context_main->options.devkit))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
                    "Can't run in display server mode headlessly");
@@ -250,6 +270,7 @@ determine_compositor_type (MetaContextMain  *context_main,
 #ifdef HAVE_NATIVE_BACKEND
       context_main->options.display_server ||
       context_main->options.headless ||
+      context_main->options.devkit ||
 #endif /* HAVE_NATIVE_BACKEND */
       context_main->options.nested)
     return META_COMPOSITOR_TYPE_WAYLAND;
@@ -414,6 +435,21 @@ add_persistent_virtual_monitors (MetaContextMain  *context_main,
 }
 #endif
 
+#ifdef HAVE_DEVKIT
+static gboolean
+initialize_mdk (MetaContext  *context,
+                GError      **error)
+{
+  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+
+  context_main->mdk = meta_mdk_new (context, error);
+  if (!context_main->mdk)
+    return FALSE;
+
+  return TRUE;
+}
+#endif
+
 static gboolean
 meta_context_main_setup (MetaContext  *context,
                          GError      **error)
@@ -429,6 +465,14 @@ meta_context_main_setup (MetaContext  *context,
 #ifdef HAVE_NATIVE_BACKEND
   if (!add_persistent_virtual_monitors (context_main, error))
     return FALSE;
+#endif
+
+#ifdef HAVE_DEVKIT
+  if (context_main->options.devkit)
+    {
+      if (!initialize_mdk (context, error))
+        return FALSE;
+    }
 #endif
 
   return TRUE;
@@ -514,7 +558,8 @@ meta_context_main_create_backend (MetaContext  *context,
         return create_nested_backend (context, error);
 #endif
 #ifdef HAVE_NATIVE_BACKEND
-      if (context_main->options.headless)
+      if (context_main->options.headless ||
+          context_main->options.devkit)
         return create_headless_backend (context, error);
 
       return create_native_backend (context, error);
@@ -697,6 +742,13 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Add persistent virtual monitor (WxH or WxH@R)")
     },
 #endif
+#ifdef HAVE_DEVKIT
+    {
+      "devkit", 0, 0, G_OPTION_ARG_NONE,
+      &context_main->options.devkit,
+      N_("Run development kit")
+    },
+#endif
     {
       "unsafe-mode", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE,
       &context_main->options.unsafe_mode,
@@ -754,6 +806,10 @@ meta_context_main_finalize (GObject *object)
   if (context_main->session_manager)
     meta_session_manager_save_sync (context_main->session_manager, NULL);
   g_clear_object (&context_main->session_manager);
+#endif
+
+#ifdef HAVE_DEVKIT
+  g_clear_object (&context_main->mdk);
 #endif
 
   G_OBJECT_CLASS (meta_context_main_parent_class)->finalize (object);

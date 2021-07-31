@@ -911,6 +911,13 @@ if have_native_backend
   ]
 endif
 
+if have_devkit
+  mutter_sources += [
+    'core/meta-mdk.c',
+    'core/meta-mdk.h',
+  ]
+endif
+
 if have_wayland or have_native_backend
   mutter_sources += [
     'common/meta-cogl-drm-formats.c',
