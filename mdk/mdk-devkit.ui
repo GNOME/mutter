@@ -10,8 +10,6 @@
   </menu>
   <object class="GtkApplicationWindow" id="window">
     <property name="title" translatable="yes">Mutter Development Kit</property>
-    <property name="default-width">800</property>
-    <property name="default-height">600</property>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="headerbar">
         <child type="end">

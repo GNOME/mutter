@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/ui">
     <file preprocess="xml-stripblanks">mdk-devkit.ui</file>
+    <file>mdk-devkit.css</file>
   </gresource>
 </gresources>
