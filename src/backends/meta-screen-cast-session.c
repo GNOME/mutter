@@ -51,6 +51,7 @@ struct _MetaScreenCastSession
 
   MetaScreenCastSessionHandle *handle;
 
+  gboolean is_active;
   gboolean disable_animations;
 };
 
@@ -117,13 +118,23 @@ meta_screen_cast_session_start (MetaScreenCastSession  *session,
 
   init_remote_access_handle (session);
 
+  session->is_active = TRUE;
+
   return TRUE;
+}
+
+gboolean
+meta_screen_cast_session_is_active (MetaScreenCastSession *session)
+{
+  return session->is_active;
 }
 
 void
 meta_screen_cast_session_close (MetaScreenCastSession *session)
 {
   MetaDBusScreenCastSession *skeleton = META_DBUS_SCREEN_CAST_SESSION (session);
+
+  session->is_active = FALSE;
 
   g_list_free_full (session->streams, g_object_unref);
 

@@ -59,6 +59,8 @@ MetaScreenCastSession * meta_screen_cast_session_new (MetaScreenCast            
 gboolean meta_screen_cast_session_start (MetaScreenCastSession  *session,
                                          GError                **error);
 
+gboolean meta_screen_cast_session_is_active (MetaScreenCastSession *session);
+
 void meta_screen_cast_session_close (MetaScreenCastSession *session);
 
 MetaScreenCastStream * meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
