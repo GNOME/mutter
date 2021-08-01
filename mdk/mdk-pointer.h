@@ -30,6 +30,8 @@ MdkPointer * mdk_pointer_new (MdkSession                  *session,
                               MdkDBusRemoteDesktopSession *session_proxy,
                               MdkMonitor                  *monitor);
 
+void mdk_pointer_release_all (MdkPointer *pointer);
+
 void mdk_pointer_notify_motion (MdkPointer *pointer,
                                 double      x,
                                 double      y);

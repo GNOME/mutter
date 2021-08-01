@@ -19,10 +19,18 @@
 
 #include "mdk-pointer.h"
 
+#include <linux/input-event-codes.h>
+
 #include "mdk-monitor.h"
 #include "mdk-stream.h"
 
 #include "mdk-dbus-remote-desktop.h"
+
+typedef struct _MdkSessionPointer
+{
+  grefcount ref_count;
+  int button_count[KEY_CNT];
+} MdkSessionPointer;
 
 struct _MdkPointer
 {
@@ -31,14 +39,71 @@ struct _MdkPointer
   MdkSession *session;
   MdkDBusRemoteDesktopSession *session_proxy;
 
+  MdkSessionPointer *session_pointer;
+
+  gboolean button_pressed[KEY_CNT];
+
   MdkMonitor *monitor;
 };
 
+static GQuark quark_session_pointer = 0;
+
 G_DEFINE_FINAL_TYPE (MdkPointer, mdk_pointer, G_TYPE_OBJECT)
+
+static MdkSessionPointer *
+mdk_pointer_ensure_session_pointer (MdkPointer *pointer)
+{
+  MdkSessionPointer *session_pointer;
+
+  if (pointer->session_pointer)
+    return pointer->session_pointer;
+
+  session_pointer = g_object_get_qdata (G_OBJECT (pointer->session),
+                                        quark_session_pointer);
+
+  if (session_pointer)
+    {
+      pointer->session_pointer = session_pointer;
+      g_ref_count_inc (&session_pointer->ref_count);
+      return session_pointer;
+    }
+
+  session_pointer = g_new0 (MdkSessionPointer, 1);
+  g_ref_count_init (&session_pointer->ref_count);
+  pointer->session_pointer = session_pointer;
+  g_object_set_qdata (G_OBJECT (pointer->session),
+                      quark_session_pointer,
+                      session_pointer);
+  return session_pointer;
+}
+
+static void
+mdk_pointer_finalize (GObject *object)
+{
+  MdkPointer *pointer = MDK_POINTER (object);
+
+  if (pointer->session_pointer)
+    {
+      if (g_ref_count_dec (&pointer->session_pointer->ref_count))
+        {
+          g_object_set_qdata (G_OBJECT (pointer->session),
+                              quark_session_pointer,
+                              NULL);
+          g_clear_pointer (&pointer->session_pointer, g_free);
+        }
+    }
+
+  G_OBJECT_CLASS (mdk_pointer_parent_class)->finalize (object);
+}
 
 static void
 mdk_pointer_class_init (MdkPointerClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = mdk_pointer_finalize;
+
+  quark_session_pointer = g_quark_from_static_string ("-mdk-session-pointer");
 }
 
 static void
@@ -62,6 +127,20 @@ mdk_pointer_new (MdkSession                  *session,
 }
 
 void
+mdk_pointer_release_all (MdkPointer *pointer)
+{
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (pointer->button_pressed); i++)
+    {
+      if (!pointer->button_pressed[i])
+        continue;
+
+      mdk_pointer_notify_button (pointer, i, 0);
+    }
+}
+
+void
 mdk_pointer_notify_motion (MdkPointer *pointer,
                            double      x,
                            double      y)
@@ -80,6 +159,46 @@ mdk_pointer_notify_button (MdkPointer *pointer,
                            int32_t     button,
                            int         state)
 {
+  MdkSessionPointer *session_pointer;
+
+  if (button > G_N_ELEMENTS (pointer->button_pressed))
+    {
+      g_warning ("Unknown button key code 0x%x, ignoring", button);
+      return;
+    }
+
+  if (state)
+    {
+      g_return_if_fail (!pointer->button_pressed[button]);
+      pointer->button_pressed[button] = TRUE;
+    }
+  else
+    {
+      if (!pointer->button_pressed[button])
+        return;
+
+      pointer->button_pressed[button] = FALSE;
+    }
+
+  session_pointer = mdk_pointer_ensure_session_pointer (pointer);
+
+  if (state)
+    {
+      session_pointer->button_count[button]++;
+    }
+  else
+    {
+      g_return_if_fail (session_pointer->button_count[button] > 0);
+      session_pointer->button_count[button]--;
+    }
+
+  if (session_pointer->button_count[button] > 1)
+    return;
+
+  g_debug ("Emit pointer button 0x%x %s",
+           button,
+           state ? "pressed" : "released");
+
   mdk_dbus_remote_desktop_session_call_notify_pointer_button (
     pointer->session_proxy,
     button, state,
