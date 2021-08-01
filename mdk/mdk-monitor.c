@@ -31,6 +31,8 @@
 #define DEFAULT_MONITOR_WIDTH 1280
 #define DEFAULT_MONITOR_HEIGHT 800
 
+#define BUTTON_BASE (BTN_LEFT - 1)
+
 struct _MdkMonitor
 {
   GtkBox parent;
@@ -70,19 +72,42 @@ on_pointer_motion (GtkEventControllerMotion *controller,
   mdk_pointer_notify_motion (pointer, x, y);
 }
 
+static uint32_t
+gdk_button_code_to_evdev (unsigned int gtk_button_code)
+{
+  switch (gtk_button_code)
+    {
+    case GDK_BUTTON_PRIMARY:
+      return BTN_LEFT;
+    case GDK_BUTTON_MIDDLE:
+      return BTN_MIDDLE;
+    case GDK_BUTTON_SECONDARY:
+      return BTN_RIGHT;
+    default:
+      return gtk_button_code + BUTTON_BASE - 4;
+    }
+}
+
 static void
 click_pressed_cb (GtkGestureClick *gesture,
                   unsigned int     n_press,
                   double           x,
                   double           y,
-                  GtkWidget       *widget)
+                  MdkMonitor      *monitor)
 {
-  MdkMonitor *monitor = MDK_MONITOR (widget);
   MdkPointer *pointer;
+  unsigned int gtk_button_code;
+  uint32_t evdev_button_code;
+
+  gtk_button_code =
+    gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture));
+  evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
 
   pointer = ensure_pointer (monitor);
 
-  mdk_pointer_notify_button (pointer, BTN_LEFT, 1);
+  mdk_pointer_notify_button (pointer,
+                             evdev_button_code,
+                             1);
 }
 
 static void
@@ -90,14 +115,21 @@ click_released_cb (GtkGestureClick *gesture,
                    unsigned int     n_press,
                    double           x,
                    double           y,
-                   GtkWidget       *widget)
+                   MdkMonitor      *monitor)
 {
-  MdkMonitor *monitor = MDK_MONITOR (widget);
   MdkPointer *pointer;
+  unsigned int gtk_button_code;
+  uint32_t evdev_button_code;
+
+  gtk_button_code =
+    gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture));
+  evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
 
   pointer = ensure_pointer (monitor);
 
-  mdk_pointer_notify_button (pointer, BTN_LEFT, 0);
+  mdk_pointer_notify_button (pointer,
+                             evdev_button_code,
+                             0);
 
   gtk_gesture_set_state (GTK_GESTURE (gesture), GTK_EVENT_SEQUENCE_CLAIMED);
 }
@@ -178,8 +210,7 @@ mdk_monitor_init (MdkMonitor *monitor)
   gtk_widget_add_controller (GTK_WIDGET (monitor), motion_controller);
 
   click_gesture = gtk_gesture_click_new ();
-  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (click_gesture),
-                                 GDK_BUTTON_PRIMARY);
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (click_gesture), 0);
   g_signal_connect (click_gesture, "pressed",
                     G_CALLBACK (click_pressed_cb), monitor);
   g_signal_connect (click_gesture, "released",
