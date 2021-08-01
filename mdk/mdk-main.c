@@ -53,14 +53,18 @@ on_context_ready (MdkContext   *context,
 {
   GList *windows;
   GtkWindow *window;
+  MdkMonitor *monitor;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
   g_warn_if_fail (g_list_length (windows) == 1);
 
   window = windows->data;
 
-  gtk_window_set_child (window, GTK_WIDGET (mdk_monitor_new (context)));
   gtk_widget_set_visible (GTK_WIDGET (window), TRUE);
+
+  monitor = mdk_monitor_new (context);
+  gtk_window_set_child (window, GTK_WIDGET (monitor));
+  gtk_window_set_focus (window, GTK_WIDGET (monitor));
 }
 
 static void

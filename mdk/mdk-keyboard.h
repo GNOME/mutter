@@ -17,12 +17,20 @@
 
 #pragma once
 
-typedef struct _MdkContext MdkContext;
-typedef struct _MdkKeyboard MdkKeyboard;
-typedef struct _MdkMonitor MdkMonitor;
-typedef struct _MdkPipewire MdkPipewire;
-typedef struct _MdkPointer MdkPointer;
-typedef struct _MdkSession MdkSession;
-typedef struct _MdkStream MdkStream;
+#include <glib-object.h>
 
-typedef struct _MdkDBusRemoteDesktopSession MdkDBusRemoteDesktopSession;
+#include "mdk-types.h"
+
+#define MDK_TYPE_KEYBOARD (mdk_keyboard_get_type ())
+G_DECLARE_FINAL_TYPE (MdkKeyboard, mdk_keyboard,
+                      MDK, KEYBOARD,
+                      GObject)
+
+MdkKeyboard * mdk_keyboard_new (MdkSession                  *session,
+                                MdkDBusRemoteDesktopSession *session_proxy);
+
+void mdk_keyboard_release_all (MdkKeyboard *keyboard);
+
+void mdk_keyboard_notify_key (MdkKeyboard *keyboard,
+                              int32_t     key,
+                              int         state);

@@ -23,6 +23,7 @@
 #include <glib/gi18n-lib.h>
 
 #include "mdk-context.h"
+#include "mdk-keyboard.h"
 #include "mdk-pointer.h"
 #include "mdk-stream.h"
 
@@ -422,4 +423,11 @@ mdk_session_create_pointer (MdkSession *session,
   return mdk_pointer_new (session,
                           session->remote_desktop_session_proxy,
                           monitor);
+}
+
+MdkKeyboard *
+mdk_session_create_keyboard (MdkSession *session)
+{
+  return mdk_keyboard_new (session,
+                           session->remote_desktop_session_proxy);
 }
