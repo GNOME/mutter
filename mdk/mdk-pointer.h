@@ -19,15 +19,21 @@
 
 #include <glib-object.h>
 
-#include <gtk/gtk.h>
-
 #include "mdk-types.h"
 
-#define MDK_TYPE_MONITOR (mdk_monitor_get_type ())
-G_DECLARE_FINAL_TYPE (MdkMonitor, mdk_monitor,
-                      MDK, MONITOR,
-                      GtkBox)
+#define MDK_TYPE_POINTER (mdk_pointer_get_type ())
+G_DECLARE_FINAL_TYPE (MdkPointer, mdk_pointer,
+                      MDK, POINTER,
+                      GObject)
 
-MdkMonitor * mdk_monitor_new (MdkContext *context);
+MdkPointer * mdk_pointer_new (MdkSession                  *session,
+                              MdkDBusRemoteDesktopSession *session_proxy,
+                              MdkMonitor                  *monitor);
 
-MdkStream * mdk_monitor_get_stream (MdkMonitor *monitor);
+void mdk_pointer_notify_motion (MdkPointer *pointer,
+                                double      x,
+                                double      y);
+
+void mdk_pointer_notify_button (MdkPointer *pointer,
+                                int32_t     button,
+                                int         state);

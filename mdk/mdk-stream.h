@@ -33,6 +33,8 @@ MdkStream * mdk_stream_new (MdkSession *session,
 
 MdkSession * mdk_stream_get_session (MdkStream *stream);
 
+const char * mdk_stream_get_path (MdkStream *stream);
+
 void mdk_stream_realize (MdkStream  *stream);
 
 void mdk_stream_unrealize (MdkStream  *stream);

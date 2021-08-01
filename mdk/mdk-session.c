@@ -23,6 +23,7 @@
 #include <glib/gi18n-lib.h>
 
 #include "mdk-context.h"
+#include "mdk-pointer.h"
 #include "mdk-stream.h"
 
 #include "mdk-dbus-remote-desktop.h"
@@ -412,4 +413,13 @@ MdkContext *
 mdk_session_get_context (MdkSession *session)
 {
   return session->context;
+}
+
+MdkPointer *
+mdk_session_create_pointer (MdkSession *session,
+                            MdkMonitor *monitor)
+{
+  return mdk_pointer_new (session,
+                          session->remote_desktop_session_proxy,
+                          monitor);
 }

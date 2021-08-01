@@ -976,6 +976,12 @@ mdk_stream_get_session (MdkStream *stream)
   return stream->session;
 }
 
+const char *
+mdk_stream_get_path (MdkStream *stream)
+{
+  return g_dbus_proxy_get_object_path (G_DBUS_PROXY (stream->proxy));
+}
+
 void
 mdk_stream_realize (MdkStream *stream)
 {

@@ -21,8 +21,10 @@
 
 #include <glib/gi18n-lib.h>
 #include <gtk/gtk.h>
+#include <linux/input-event-codes.h>
 
 #include "mdk-context.h"
+#include "mdk-pointer.h"
 #include "mdk-session.h"
 #include "mdk-stream.h"
 
@@ -37,9 +39,68 @@ struct _MdkMonitor
 
   MdkContext *context;
   MdkStream *stream;
+
+  MdkPointer *pointer;
 };
 
 G_DEFINE_FINAL_TYPE (MdkMonitor, mdk_monitor, GTK_TYPE_BOX)
+
+static MdkPointer *
+ensure_pointer (MdkMonitor *monitor)
+{
+  MdkSession *session = mdk_context_get_session (monitor->context);
+
+  if (monitor->pointer)
+    return monitor->pointer;
+
+  monitor->pointer = mdk_session_create_pointer (session, monitor);
+  return monitor->pointer;
+}
+
+static void
+on_pointer_motion (GtkEventControllerMotion *controller,
+                   double                    x,
+                   double                    y,
+                   MdkMonitor               *monitor)
+{
+  MdkPointer *pointer;
+
+  pointer = ensure_pointer (monitor);
+
+  mdk_pointer_notify_motion (pointer, x, y);
+}
+
+static void
+click_pressed_cb (GtkGestureClick *gesture,
+                  unsigned int     n_press,
+                  double           x,
+                  double           y,
+                  GtkWidget       *widget)
+{
+  MdkMonitor *monitor = MDK_MONITOR (widget);
+  MdkPointer *pointer;
+
+  pointer = ensure_pointer (monitor);
+
+  mdk_pointer_notify_button (pointer, BTN_LEFT, 1);
+}
+
+static void
+click_released_cb (GtkGestureClick *gesture,
+                   unsigned int     n_press,
+                   double           x,
+                   double           y,
+                   GtkWidget       *widget)
+{
+  MdkMonitor *monitor = MDK_MONITOR (widget);
+  MdkPointer *pointer;
+
+  pointer = ensure_pointer (monitor);
+
+  mdk_pointer_notify_button (pointer, BTN_LEFT, 0);
+
+  gtk_gesture_set_state (GTK_GESTURE (gesture), GTK_EVENT_SEQUENCE_CLAIMED);
+}
 
 static void
 mdk_monitor_realize (GtkWidget *widget)
@@ -79,6 +140,7 @@ mdk_monitor_finalize (GObject *object)
 {
   MdkMonitor *monitor = MDK_MONITOR (object);
 
+  g_clear_object (&monitor->pointer);
   g_clear_object (&monitor->stream);
 
   G_OBJECT_CLASS (mdk_monitor_parent_class)->finalize (object);
@@ -100,6 +162,33 @@ mdk_monitor_class_init (MdkMonitorClass *klass)
 static void
 mdk_monitor_init (MdkMonitor *monitor)
 {
+  GtkEventController *motion_controller;
+  GtkGesture *click_gesture;
+  g_autoptr (GdkCursor) none_cursor = NULL;
+
+  motion_controller = gtk_event_controller_motion_new ();
+  g_signal_connect (motion_controller,
+                    "enter",
+                    G_CALLBACK (on_pointer_motion),
+                    monitor);
+  g_signal_connect (motion_controller,
+                    "motion",
+                    G_CALLBACK (on_pointer_motion),
+                    monitor);
+  gtk_widget_add_controller (GTK_WIDGET (monitor), motion_controller);
+
+  click_gesture = gtk_gesture_click_new ();
+  gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (click_gesture),
+                                 GDK_BUTTON_PRIMARY);
+  g_signal_connect (click_gesture, "pressed",
+                    G_CALLBACK (click_pressed_cb), monitor);
+  g_signal_connect (click_gesture, "released",
+                    G_CALLBACK (click_released_cb), monitor);
+  gtk_widget_add_controller (GTK_WIDGET (monitor),
+                             GTK_EVENT_CONTROLLER (click_gesture));
+
+  none_cursor = gdk_cursor_new_from_name ("none", NULL);
+  gtk_widget_set_cursor (GTK_WIDGET (monitor), none_cursor);
 }
 
 static void
@@ -130,6 +219,7 @@ mdk_monitor_new (MdkContext *context)
                           "orientation", GTK_ORIENTATION_VERTICAL,
                           "vexpand", TRUE,
                           "hexpand", TRUE,
+                          "focusable", TRUE,
                           NULL);
   monitor->context = context;
   monitor->stream = mdk_stream_new (session,
@@ -147,4 +237,10 @@ mdk_monitor_new (MdkContext *context)
   gtk_box_append (GTK_BOX (monitor), GTK_WIDGET (monitor->picture));
 
   return monitor;
+}
+
+MdkStream *
+mdk_monitor_get_stream (MdkMonitor *monitor)
+{
+  return monitor->stream;
 }

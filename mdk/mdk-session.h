@@ -37,3 +37,6 @@ const char * mdk_session_create_monitor_finish (MdkSession    *session,
                                                 GError       **error);
 
 MdkContext * mdk_session_get_context (MdkSession *session);
+
+MdkPointer * mdk_session_create_pointer (MdkSession *session,
+                                         MdkMonitor *monitor);
