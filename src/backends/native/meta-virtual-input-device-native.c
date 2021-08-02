@@ -738,7 +738,7 @@ notify_scroll_continuous_in_impl (GTask *task)
                                                        event->time_us,
                                                        event->dx, event->dy,
                                                        event->scroll_source,
-                                                       CLUTTER_SCROLL_FINISHED_NONE);
+                                                       event->finish_flags);
     }
 
   g_task_return_boolean (task, TRUE);
