@@ -4074,6 +4074,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
     meta_compositor_queue_frame_drawn (window->display->compositor, window,
                                        no_delay_frame);
 
+#ifdef COGL_HAS_TRACING
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
     {
       g_autofree char *description = NULL;
@@ -4086,6 +4087,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
       COGL_TRACE_DESCRIBE (MetaWindowSyncRequestCounter, description);
       COGL_TRACE_END (MetaWindowSyncRequestCounter);
     }
+#endif
 }
 
 Window
