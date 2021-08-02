@@ -40,12 +40,8 @@
 #include "backends/native/meta-monitor-manager-native.h"
 
 #include <drm.h>
-#include <errno.h>
-#include <gudev/gudev.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
 #include <unistd.h>
 
 #include "backends/meta-backend-private.h"

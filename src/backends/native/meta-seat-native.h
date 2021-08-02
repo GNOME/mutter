@@ -23,7 +23,6 @@
 #ifndef META_SEAT_NATIVE_H
 #define META_SEAT_NATIVE_H
 
-#include <gudev/gudev.h>
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 

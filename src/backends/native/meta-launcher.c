@@ -32,7 +32,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <systemd/sd-login.h>
-#include <gudev/gudev.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/dbus-utils.h"
