@@ -478,6 +478,18 @@ meta_settings_is_privacy_screen_enabled (MetaSettings *settings)
   return settings->privacy_screen;
 }
 
+void
+meta_settings_set_privacy_screen_enabled (MetaSettings *settings,
+                                          gboolean      enabled)
+{
+  if (settings->privacy_screen == enabled)
+    return;
+
+  settings->privacy_screen = enabled;
+  g_settings_set_boolean (settings->privacy_settings, "privacy-screen",
+                          enabled);
+}
+
 MetaSettings *
 meta_settings_new (MetaBackend *backend)
 {

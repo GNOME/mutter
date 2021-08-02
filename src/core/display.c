@@ -196,6 +196,12 @@ static int mru_cmp (gconstpointer a,
                     gconstpointer b);
 
 static void
+meta_display_show_osd (MetaDisplay *display,
+                       gint         monitor_idx,
+                       const gchar *icon_name,
+                       const gchar *message);
+
+static void
 meta_display_get_property(GObject         *object,
                           guint            prop_id,
                           GValue          *value,
@@ -655,6 +661,19 @@ on_ui_scaling_factor_changed (MetaSettings *settings,
   meta_display_reload_cursor (display);
 }
 
+static void
+on_monitor_privacy_screen_changed (MetaDisplay        *display,
+                                   MetaLogicalMonitor *logical_monitor,
+                                   gboolean            enabled)
+{
+  meta_display_show_osd (display,
+                         logical_monitor->number,
+                         enabled ? "screen-privacy-symbolic"
+                                 : "screen-privacy-disabled-symbolic",
+                         enabled ? _("Privacy Screen Enabled")
+                                 : _("Privacy Screen Disabled"));
+}
+
 static gboolean
 meta_display_init_x11_display (MetaDisplay  *display,
                                GError      **error)
@@ -863,6 +882,9 @@ meta_display_new (MetaContext  *context,
   monitor_manager = meta_backend_get_monitor_manager (backend);
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed_internal), display);
+  g_signal_connect_object (monitor_manager, "monitor-privacy-screen-changed",
+                           G_CALLBACK (on_monitor_privacy_screen_changed),
+                           display, G_CONNECT_SWAPPED);
 
   display->pad_action_mapper = meta_pad_action_mapper_new (monitor_manager);
 

@@ -83,6 +83,7 @@ enum
   MONITORS_CHANGED_INTERNAL,
   POWER_SAVE_MODE_CHANGED,
   CONFIRM_DISPLAY_CHANGE,
+  MONITOR_PRIVACY_SCREEN_CHANGED,
   SIGNALS_LAST
 };
 
@@ -1092,7 +1093,11 @@ apply_privacy_screen_settings (MetaMonitorManager *manager)
       meta_settings_is_privacy_screen_enabled (settings))
     return;
 
-  ensure_monitors_settings (manager);
+  if (ensure_monitors_settings (manager))
+    {
+      manager->privacy_screen_change_state =
+        META_PRIVACY_SCREEN_CHANGE_STATE_PENDING_SETTING;
+    }
 }
 
 static void
@@ -1354,6 +1359,14 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
                   NULL, NULL, NULL,
 		  G_TYPE_NONE, 0);
 
+  signals[MONITOR_PRIVACY_SCREEN_CHANGED] =
+    g_signal_new ("monitor-privacy-screen-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2, META_TYPE_LOGICAL_MONITOR, G_TYPE_BOOLEAN);
+
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
                          "backend",
@@ -1444,6 +1457,55 @@ combine_gpu_lists (MetaMonitorManager    *manager,
     }
 
   return list;
+}
+
+static void
+emit_privacy_screen_change (MetaMonitorManager *manager)
+{
+  GList *l;
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+      MetaPrivacyScreenState privacy_screen_state;
+      gboolean enabled;
+
+      if (!meta_monitor_is_active (monitor))
+        continue;
+
+      privacy_screen_state = meta_monitor_get_privacy_screen_state (monitor);
+      if (privacy_screen_state == META_PRIVACY_SCREEN_UNAVAILABLE)
+        continue;
+
+      enabled = !!(privacy_screen_state & META_PRIVACY_SCREEN_ENABLED);
+
+      g_signal_emit (manager, signals[MONITOR_PRIVACY_SCREEN_CHANGED], 0,
+                     meta_monitor_get_logical_monitor (monitor), enabled);
+    }
+}
+
+void
+meta_monitor_manager_maybe_emit_privacy_screen_change (MetaMonitorManager *manager)
+{
+  MetaPrivacyScreenChangeState reason = manager->privacy_screen_change_state;
+
+  if (reason == META_PRIVACY_SCREEN_CHANGE_STATE_NONE)
+    return;
+
+  if (reason == META_PRIVACY_SCREEN_CHANGE_STATE_PENDING_HOTKEY)
+    emit_privacy_screen_change (manager);
+
+  if (reason != META_PRIVACY_SCREEN_CHANGE_STATE_PENDING_SETTING)
+    {
+      MetaSettings *settings = meta_backend_get_settings (manager->backend);
+
+      meta_settings_set_privacy_screen_enabled (settings,
+        get_global_privacy_screen_state (manager) ==
+        META_PRIVACY_SCREEN_ENABLED);
+    }
+
+  meta_dbus_display_config_emit_monitors_changed (manager->display_config);
+  manager->privacy_screen_change_state = META_PRIVACY_SCREEN_CHANGE_STATE_NONE;
 }
 
 static gboolean

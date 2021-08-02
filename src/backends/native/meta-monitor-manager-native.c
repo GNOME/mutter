@@ -520,8 +520,23 @@ on_kms_resources_changed (MetaKms              *kms,
       return;
     }
 
-  if (changes == META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
-    return;
+  if (changes & META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
+    {
+      if (manager->privacy_screen_change_state ==
+          META_PRIVACY_SCREEN_CHANGE_STATE_NONE)
+        {
+          /* Privacy screen has been changed by "something", the best guess
+           * we can do is that has been triggered by an hotkey.
+           */
+          manager->privacy_screen_change_state =
+            META_PRIVACY_SCREEN_CHANGE_STATE_PENDING_HOTKEY;
+        }
+
+      meta_monitor_manager_maybe_emit_privacy_screen_change (manager);
+
+      if (changes == META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
+        return;
+    }
 
   handle_hotplug_event (manager);
 }
@@ -710,7 +725,11 @@ on_kms_privacy_screen_update_result (const MetaKmsFeedback *kms_feedback,
   MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
 
   if (meta_kms_feedback_get_result (kms_feedback) == META_KMS_FEEDBACK_FAILED)
-    return;
+    {
+      manager->privacy_screen_change_state =
+        META_PRIVACY_SCREEN_CHANGE_STATE_NONE;
+      return;
+    }
 
   on_kms_resources_changed (kms,
                             META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN,
