@@ -3651,6 +3651,7 @@ clutter_actor_paint (ClutterActor        *self,
   if (!CLUTTER_ACTOR_IS_MAPPED (self))
     return;
 
+#ifdef COGL_HAS_TRACING
   COGL_TRACE_SCOPED_ANCHOR (ClutterActorPaint);
 
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
@@ -3660,6 +3661,7 @@ clutter_actor_paint (ClutterActor        *self,
       COGL_TRACE_DESCRIBE (ClutterActorPaint,
                            _clutter_actor_get_debug_name (self));
     }
+#endif
 
   actor_node = clutter_actor_node_new (self, -1);
   root_node = clutter_paint_node_ref (actor_node);
@@ -9203,6 +9205,7 @@ clutter_actor_allocate (ClutterActor          *self,
       !clutter_actor_has_mapped_clones (self))
     return;
 
+#ifdef COGL_HAS_TRACING
   COGL_TRACE_SCOPED_ANCHOR (ClutterActorAllocate);
 
   if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_DETAILED_TRACE))
@@ -9212,6 +9215,7 @@ clutter_actor_allocate (ClutterActor          *self,
       COGL_TRACE_DESCRIBE (ClutterActorAllocate,
                            _clutter_actor_get_debug_name (self));
     }
+#endif
 
   old_allocation = priv->allocation;
   real_allocation = *box;
