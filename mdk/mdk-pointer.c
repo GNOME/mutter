@@ -204,3 +204,62 @@ mdk_pointer_notify_button (MdkPointer *pointer,
     button, state,
     NULL, NULL, NULL);
 }
+
+void
+mdk_pointer_notify_scroll (MdkPointer *pointer,
+                           double      dx,
+                           double      dy)
+{
+  mdk_dbus_remote_desktop_session_call_notify_pointer_axis (
+    pointer->session_proxy,
+    dx, dy,
+    MDK_SCROLL_FLAG_SOURCE_FINGER,
+    NULL, NULL, NULL);
+}
+
+void
+mdk_pointer_notify_scroll_end (MdkPointer *pointer)
+{
+  mdk_dbus_remote_desktop_session_call_notify_pointer_axis (
+    pointer->session_proxy,
+    0, 0,
+    MDK_SCROLL_FLAG_FINISH | MDK_SCROLL_FLAG_SOURCE_FINGER,
+    NULL, NULL, NULL);
+}
+
+void
+mdk_pointer_notify_scroll_discrete (MdkPointer         *pointer,
+                                    GdkScrollDirection  direction)
+{
+  unsigned int axis;
+  int steps;
+
+  switch (direction)
+    {
+    case GDK_SCROLL_UP:
+      axis = 0;
+      steps = -1;
+      break;
+    case GDK_SCROLL_DOWN:
+      axis = 0;
+      steps = 1;
+      break;
+    case GDK_SCROLL_LEFT:
+      axis = 1;
+      steps = -1;
+      break;
+    case GDK_SCROLL_RIGHT:
+      axis = 1;
+      steps = 1;
+      break;
+    case GDK_SCROLL_SMOOTH:
+    default:
+      g_assert_not_reached ();
+    }
+
+  mdk_dbus_remote_desktop_session_call_notify_pointer_axis_discrete (
+    pointer->session_proxy,
+    axis,
+    steps,
+    NULL, NULL, NULL);
+}

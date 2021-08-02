@@ -18,8 +18,17 @@
 #pragma once
 
 #include <glib-object.h>
+#include <gdk/gdk.h>
 
 #include "mdk-types.h"
+
+typedef enum _MdkScrollFlags
+{
+  MDK_SCROLL_FLAG_FINISH = 1 << 0,
+  MDK_SCROLL_FLAG_SOURCE_WHEEL = 1 << 1,
+  MDK_SCROLL_FLAG_SOURCE_FINGER = 1 << 2,
+  MDK_SCROLL_FLAG_SOURCE_CONTINUOUS = 1 << 3,
+} MdkScrollFlags;
 
 #define MDK_TYPE_POINTER (mdk_pointer_get_type ())
 G_DECLARE_FINAL_TYPE (MdkPointer, mdk_pointer,
@@ -39,3 +48,12 @@ void mdk_pointer_notify_motion (MdkPointer *pointer,
 void mdk_pointer_notify_button (MdkPointer *pointer,
                                 int32_t     button,
                                 int         state);
+
+void mdk_pointer_notify_scroll (MdkPointer *pointer,
+                                double      dx,
+                                double      dy);
+
+void mdk_pointer_notify_scroll_end (MdkPointer *pointer);
+
+void mdk_pointer_notify_scroll_discrete (MdkPointer         *pointer,
+                                         GdkScrollDirection  direction);
