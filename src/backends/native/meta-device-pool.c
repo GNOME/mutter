@@ -24,7 +24,6 @@
 #include <fcntl.h>
 #include <gio/gunixfdlist.h>
 #include <sys/stat.h>
-#include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 
