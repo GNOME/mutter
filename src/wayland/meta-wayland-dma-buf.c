@@ -66,6 +66,11 @@
 
 #define META_WAYLAND_DMA_BUF_MAX_FDS 4
 
+struct _MetaWaylandDmaBufManager
+{
+  MetaWaylandCompositor *compositor;
+};
+
 struct _MetaWaylandDmaBufBuffer
 {
   GObject parent;
@@ -713,17 +718,17 @@ send_modifiers (struct wl_resource *resource,
 
 static void
 dma_buf_bind (struct wl_client *client,
-              void             *data,
+              void             *user_data,
               uint32_t          version,
               uint32_t          id)
 {
-  MetaWaylandCompositor *compositor = data;
+  MetaWaylandDmaBufManager *dma_buf_manager = user_data;
   struct wl_resource *resource;
 
   resource = wl_resource_create (client, &zwp_linux_dmabuf_v1_interface,
                                  version, id);
   wl_resource_set_implementation (resource, &dma_buf_implementation,
-                                  compositor, NULL);
+                                  dma_buf_manager, NULL);
   send_modifiers (resource, DRM_FORMAT_ARGB8888);
   send_modifiers (resource, DRM_FORMAT_ABGR8888);
   send_modifiers (resource, DRM_FORMAT_XRGB8888);
@@ -740,38 +745,58 @@ dma_buf_bind (struct wl_client *client,
 }
 
 /**
- * meta_wayland_dma_buf_init:
+ * meta_wayland_dma_buf_manager_new:
  * @compositor: The #MetaWaylandCompositor
  *
  * Creates the global Wayland object that exposes the linux-dmabuf protocol.
  *
- * Returns: Whether the initialization was successful. If this is %FALSE,
- * clients won't be able to use the linux-dmabuf protocol to pass buffers.
+ * Returns: (transfer full): The MetaWaylandDmaBufManager instance.
  */
-gboolean
-meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor)
+MetaWaylandDmaBufManager *
+meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
+                                  GError                **error)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+  g_autoptr (GError) local_error = NULL;
+  g_autofree MetaWaylandDmaBufManager *dma_buf_manager = NULL;
 
   g_assert (backend && egl && clutter_backend && cogl_context && egl_display);
 
   if (!meta_egl_has_extensions (egl, egl_display, NULL,
                                 "EGL_EXT_image_dma_buf_import_modifiers",
                                 NULL))
-    return FALSE;
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Missing 'EGL_EXT_image_dma_buf_import_modifiers'");
+      return NULL;
+    }
+
+  dma_buf_manager = g_new0 (MetaWaylandDmaBufManager, 1);
 
   if (!wl_global_create (compositor->wayland_display,
                          &zwp_linux_dmabuf_v1_interface,
                          META_ZWP_LINUX_DMABUF_V1_VERSION,
-                         compositor,
+                         dma_buf_manager,
                          dma_buf_bind))
-    return FALSE;
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create zwp_linux_dmabuf_v1 global");
+      return NULL;
+    }
 
-  return TRUE;
+  dma_buf_manager->compositor = compositor;
+
+  return g_steal_pointer (&dma_buf_manager);
+}
+
+void
+meta_wayland_dma_buf_manager_free (MetaWaylandDmaBufManager *dma_buf_manager)
+{
+  g_free (dma_buf_manager);
 }
 
 static void

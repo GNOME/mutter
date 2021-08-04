@@ -437,6 +437,9 @@ meta_wayland_compositor_finalize (GObject *object)
 {
   MetaWaylandCompositor *compositor = META_WAYLAND_COMPOSITOR (object);
 
+  g_clear_pointer (&compositor->dma_buf_manager,
+                   meta_wayland_dma_buf_manager_free);
+
   g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
 
   g_clear_pointer (&compositor->display_name, g_free);
@@ -526,6 +529,29 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
     g_warning ("Failed to bind Wayland display: %s", error->message);
 }
 
+static void
+init_dma_buf_support (MetaWaylandCompositor *compositor)
+{
+  g_autoptr (GError) error = NULL;
+
+  compositor->dma_buf_manager = meta_wayland_dma_buf_manager_new (compositor,
+                                                                  &error);
+  if (!compositor->dma_buf_manager)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+        {
+          meta_topic (META_DEBUG_WAYLAND,
+                      "Wayland DMA buffer protocol support not enabled: %s",
+                      error->message);
+        }
+      else
+        {
+          g_warning ("Wayland DMA buffer protocol support not enabled: %s",
+                     error->message);
+        }
+    }
+}
+
 MetaWaylandCompositor *
 meta_wayland_compositor_new (MetaContext *context)
 {
@@ -577,7 +603,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_relative_pointer_init (compositor);
   meta_wayland_pointer_constraints_init (compositor);
   meta_wayland_xdg_foreign_init (compositor);
-  meta_wayland_dma_buf_init (compositor);
+  init_dma_buf_support (compositor);
   meta_wayland_keyboard_shortcuts_inhibit_init (compositor);
   meta_wayland_surface_inhibit_shortcuts_dialog_init ();
   meta_wayland_text_input_init (compositor);

@@ -39,7 +39,10 @@ G_DECLARE_FINAL_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer,
 
 typedef struct _MetaWaylandDmaBufBuffer MetaWaylandDmaBufBuffer;
 
-gboolean meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor);
+MetaWaylandDmaBufManager * meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
+                                                             GError                **error);
+
+void meta_wayland_dma_buf_manager_free (MetaWaylandDmaBufManager *dma_buf_manager);
 
 gboolean
 meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
