@@ -705,19 +705,15 @@ meta_keymap_x11_get_is_modifier (MetaKeymapX11 *keymap,
 }
 
 static gboolean
-meta_keymap_x11_get_entries_for_keyval (MetaKeymapX11     *keymap_x11,
-                                        uint32_t           keyval,
-                                        ClutterKeymapKey **keys,
-                                        int               *n_keys)
+meta_keymap_x11_get_entry_for_keyval (MetaKeymapX11     *keymap_x11,
+                                      uint32_t           keyval,
+                                      uint32_t           target_group,
+                                      ClutterKeymapKey  *key)
 {
   if (keymap_x11->use_xkb)
     {
       XkbDescRec *xkb = get_xkb (keymap_x11);
-      GArray *retval;
-      int keycode;
-
-      keycode = keymap_x11->min_keycode;
-      retval = g_array_new (FALSE, FALSE, sizeof (ClutterKeymapKey));
+      int keycode = keymap_x11->min_keycode;
 
       while (keycode <= keymap_x11->max_keycode)
         {
@@ -738,18 +734,16 @@ meta_keymap_x11_get_entries_for_keyval (MetaKeymapX11     *keymap_x11,
             {
               g_assert (i == (group * max_shift_levels + level));
 
-              if (entry[i] == keyval)
+              if (entry[i] == keyval && group == target_group)
                 {
-                  ClutterKeymapKey key;
-
-                  key.keycode = keycode;
-                  key.group = group;
-                  key.level = level;
-
-                  g_array_append_val (retval, key);
+                  key->keycode = keycode;
+                  key->group = group;
+                  key->level = level;
 
                   g_assert (XkbKeySymEntry (xkb, keycode, level, group) ==
                             keyval);
+
+                  return TRUE;
                 }
 
               ++level;
@@ -766,20 +760,7 @@ meta_keymap_x11_get_entries_for_keyval (MetaKeymapX11     *keymap_x11,
           ++keycode;
         }
 
-      if (retval->len > 0)
-        {
-          *keys = (ClutterKeymapKey*) retval->data;
-          *n_keys = retval->len;
-        }
-      else
-        {
-          *keys = NULL;
-          *n_keys = 0;
-        }
-
-      g_array_free (retval, retval->len > 0 ? FALSE : TRUE);
-
-      return *n_keys > 0;
+      return FALSE;
     }
   else
     {
@@ -902,8 +883,8 @@ meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
                                     uint32_t      *keycode_out,
                                     uint32_t      *level_out)
 {
-  ClutterKeymapKey *keys;
-  int i, n_keys, group;
+  ClutterKeymapKey key;
+  int group;
   gboolean found = FALSE;
 
   g_return_val_if_fail (keycode_out != NULL, FALSE);
@@ -911,20 +892,13 @@ meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
 
   group = meta_keymap_x11_get_current_group (keymap_x11);
 
-  if (!meta_keymap_x11_get_entries_for_keyval (keymap_x11, keyval, &keys, &n_keys))
-    return FALSE;
-
-  for (i = 0; i < n_keys && !found; i++)
+  if (meta_keymap_x11_get_entry_for_keyval (keymap_x11, keyval, group, &key))
     {
-      if (keys[i].group == group)
-        {
-          *keycode_out = keys[i].keycode;
-          *level_out = keys[i].level;
-          found = TRUE;
-        }
+      *keycode_out = key.keycode;
+      *level_out = key.level;
+      found = TRUE;
     }
-
-  if (!found)
+  else
     {
       GHashTableIter iter;
       gpointer key, value;
@@ -944,6 +918,5 @@ meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
         }
     }
 
-  g_free (keys);
   return found;
 }
