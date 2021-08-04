@@ -705,6 +705,42 @@ meta_keymap_x11_get_is_modifier (MetaKeymapX11 *keymap,
 }
 
 static gboolean
+matches_group (XkbDescRec *xkb,
+               uint32_t    keycode,
+               uint32_t    group,
+               uint32_t    target_group)
+{
+  unsigned char group_info = XkbKeyGroupInfo (xkb, keycode);
+  unsigned char action = XkbOutOfRangeGroupAction (group_info);
+  unsigned char num_groups = XkbNumGroups (group_info);
+
+  if (num_groups == 0)
+    return FALSE;
+
+  if (target_group >= num_groups)
+    {
+      switch (action)
+        {
+        case XkbRedirectIntoRange:
+          target_group = XkbOutOfRangeGroupNumber (group_info);
+          if (target_group >= num_groups)
+            target_group = 0;
+          break;
+
+        case XkbClampIntoRange:
+          target_group = num_groups - 1;
+          break;
+
+        default:
+          target_group %= num_groups;
+          break;
+        }
+    }
+
+  return group == target_group;
+}
+
+static gboolean
 meta_keymap_x11_get_entry_for_keyval (MetaKeymapX11     *keymap_x11,
                                       uint32_t           keyval,
                                       uint32_t           target_group,
@@ -734,7 +770,8 @@ meta_keymap_x11_get_entry_for_keyval (MetaKeymapX11     *keymap_x11,
             {
               g_assert (i == (group * max_shift_levels + level));
 
-              if (entry[i] == keyval && group == target_group)
+              if (entry[i] == keyval &&
+                  matches_group (xkb, keycode, group, target_group))
                 {
                   key->keycode = keycode;
                   key->group = group;
