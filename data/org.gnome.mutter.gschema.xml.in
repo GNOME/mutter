@@ -134,7 +134,7 @@
         • “kms-modifiers”             — makes mutter always advertise valid
                                         buffer modifiers on Wayland. This is
                                         currently not the case when using the
-                                        i915 driver. Does not require a restart.
+                                        i915 driver. Requires a restart.
 
         • “rt-scheduler”              — makes mutter request a low priority
                                         real-time scheduling. Requires a restart.

@@ -66,9 +66,17 @@
 
 #define META_WAYLAND_DMA_BUF_MAX_FDS 4
 
+typedef struct _MetaWaylandDmaBufFormat
+{
+  uint32_t drm_format;
+  uint64_t drm_modifier;
+} MetaWaylandDmaBufFormat;
+
 struct _MetaWaylandDmaBufManager
 {
   MetaWaylandCompositor *compositor;
+
+  GArray *formats;
 };
 
 struct _MetaWaylandDmaBufBuffer
@@ -650,70 +658,19 @@ should_send_modifiers (MetaBackend *backend)
 }
 
 static void
-send_modifiers (struct wl_resource *resource,
-                uint32_t            format)
+send_modifiers (struct wl_resource      *resource,
+                MetaWaylandDmaBufFormat *format)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaEgl *egl = meta_backend_get_egl (backend);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
-  EGLint num_modifiers;
-  EGLuint64KHR *modifiers;
-  GError *error = NULL;
-  gboolean ret;
-  int i;
+  zwp_linux_dmabuf_v1_send_format (resource, format->drm_format);
 
-  zwp_linux_dmabuf_v1_send_format (resource, format);
-
-  /* The modifier event was only added in v3; v1 and v2 only have the format
-   * event. */
-  if (wl_resource_get_version (resource) < ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
+  if (wl_resource_get_version (resource) <
+      ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
     return;
 
-  if (!should_send_modifiers (backend))
-    {
-      zwp_linux_dmabuf_v1_send_modifier (resource, format,
-                                         DRM_FORMAT_MOD_INVALID >> 32,
-                                         DRM_FORMAT_MOD_INVALID & 0xffffffff);
-      return;
-    }
-
-  /* First query the number of available modifiers, then allocate an array,
-   * then fill the array. */
-  ret = meta_egl_query_dma_buf_modifiers (egl, egl_display, format, 0, NULL,
-                                          NULL, &num_modifiers, NULL);
-  if (!ret)
-    return;
-
-  if (num_modifiers == 0)
-    {
-      zwp_linux_dmabuf_v1_send_modifier (resource, format,
-                                         DRM_FORMAT_MOD_INVALID >> 32,
-                                         DRM_FORMAT_MOD_INVALID & 0xffffffff);
-      return;
-    }
-
-  modifiers = g_new0 (uint64_t, num_modifiers);
-  ret = meta_egl_query_dma_buf_modifiers (egl, egl_display, format,
-                                          num_modifiers, modifiers, NULL,
-                                          &num_modifiers, &error);
-  if (!ret)
-    {
-      g_warning ("Failed to query modifiers for format 0x%" PRIu32 ": %s",
-                 format, error ? error->message : "unknown error");
-      g_free (modifiers);
-      return;
-    }
-
-  for (i = 0; i < num_modifiers; i++)
-    {
-      zwp_linux_dmabuf_v1_send_modifier (resource, format,
-                                         modifiers[i] >> 32,
-                                         modifiers[i] & 0xffffffff);
-    }
-
-  g_free (modifiers);
+  zwp_linux_dmabuf_v1_send_modifier (resource,
+                                     format->drm_format,
+                                     format->drm_modifier >> 32,
+                                     format->drm_modifier & 0xffffffff);
 }
 
 static void
@@ -724,24 +681,100 @@ dma_buf_bind (struct wl_client *client,
 {
   MetaWaylandDmaBufManager *dma_buf_manager = user_data;
   struct wl_resource *resource;
+  unsigned int i;
 
   resource = wl_resource_create (client, &zwp_linux_dmabuf_v1_interface,
                                  version, id);
   wl_resource_set_implementation (resource, &dma_buf_implementation,
                                   dma_buf_manager, NULL);
-  send_modifiers (resource, DRM_FORMAT_ARGB8888);
-  send_modifiers (resource, DRM_FORMAT_ABGR8888);
-  send_modifiers (resource, DRM_FORMAT_XRGB8888);
-  send_modifiers (resource, DRM_FORMAT_XBGR8888);
-  send_modifiers (resource, DRM_FORMAT_ARGB2101010);
-  send_modifiers (resource, DRM_FORMAT_ABGR2101010);
-  send_modifiers (resource, DRM_FORMAT_XRGB2101010);
-  send_modifiers (resource, DRM_FORMAT_ABGR2101010);
-  send_modifiers (resource, DRM_FORMAT_RGB565);
-  send_modifiers (resource, DRM_FORMAT_ABGR16161616F);
-  send_modifiers (resource, DRM_FORMAT_XBGR16161616F);
-  send_modifiers (resource, DRM_FORMAT_XRGB16161616F);
-  send_modifiers (resource, DRM_FORMAT_ARGB16161616F);
+
+
+  for (i = 0; i < dma_buf_manager->formats->len; i++)
+    {
+      MetaWaylandDmaBufFormat *format =
+        &g_array_index (dma_buf_manager->formats,
+                        MetaWaylandDmaBufFormat,
+                        i);
+
+      send_modifiers (resource, format);
+    }
+}
+
+static void
+add_format (MetaWaylandDmaBufManager *dma_buf_manager,
+            EGLDisplay                egl_display,
+            uint32_t                  drm_format)
+{
+  MetaContext *context = dma_buf_manager->compositor->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  EGLint num_modifiers;
+  g_autofree EGLuint64KHR *modifiers = NULL;
+  g_autoptr (GError) error = NULL;
+  int i;
+  MetaWaylandDmaBufFormat format;
+
+  if (!should_send_modifiers (backend))
+    goto add_fallback;
+
+  /* First query the number of available modifiers, then allocate an array,
+   * then fill the array. */
+  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display, drm_format, 0, NULL,
+                                         NULL, &num_modifiers, NULL))
+    goto add_fallback;
+
+  if (num_modifiers == 0)
+    goto add_fallback;
+
+  modifiers = g_new0 (uint64_t, num_modifiers);
+  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display, drm_format,
+                                         num_modifiers, modifiers, NULL,
+                                         &num_modifiers, &error))
+    {
+      g_warning ("Failed to query modifiers for format 0x%" PRIu32 ": %s",
+                 drm_format, error ? error->message : "unknown error");
+      goto add_fallback;
+    }
+
+  for (i = 0; i < num_modifiers; i++)
+    {
+      format = (MetaWaylandDmaBufFormat) {
+        .drm_format = drm_format,
+        .drm_modifier = modifiers[i],
+      };
+      g_array_append_val (dma_buf_manager->formats, format);
+    }
+
+  return;
+
+add_fallback:
+  format = (MetaWaylandDmaBufFormat) {
+    .drm_format = drm_format,
+    .drm_modifier = DRM_FORMAT_MOD_INVALID,
+  };
+  g_array_append_val (dma_buf_manager->formats, format);
+}
+
+static void
+init_formats (MetaWaylandDmaBufManager *dma_buf_manager,
+              EGLDisplay                egl_display)
+{
+  dma_buf_manager->formats = g_array_new (FALSE, FALSE,
+                                          sizeof (MetaWaylandDmaBufFormat));
+
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ARGB8888);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ABGR8888);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XRGB8888);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XBGR8888);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ARGB2101010);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ABGR2101010);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XRGB2101010);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XBGR2101010);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_RGB565);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ABGR16161616F);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XBGR16161616F);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XRGB16161616F);
+  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ARGB16161616F);
 }
 
 /**
@@ -790,12 +823,15 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
 
   dma_buf_manager->compositor = compositor;
 
+  init_formats (dma_buf_manager, egl_display);
+
   return g_steal_pointer (&dma_buf_manager);
 }
 
 void
 meta_wayland_dma_buf_manager_free (MetaWaylandDmaBufManager *dma_buf_manager)
 {
+  g_clear_pointer (&dma_buf_manager->formats, g_array_unref);
   g_free (dma_buf_manager);
 }
 
