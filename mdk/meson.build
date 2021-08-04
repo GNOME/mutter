@@ -13,6 +13,8 @@ mdk_sources = [
   'mdk-session.h',
   'mdk-stream.c',
   'mdk-stream.h',
+  'mdk-touch.c',
+  'mdk-touch.h',
   'mdk-types.h',
   'mdk-main.c',
 ]

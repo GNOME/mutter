@@ -24,5 +24,6 @@ typedef struct _MdkPipewire MdkPipewire;
 typedef struct _MdkPointer MdkPointer;
 typedef struct _MdkSession MdkSession;
 typedef struct _MdkStream MdkStream;
+typedef struct _MdkTouch MdkTouch;
 
 typedef struct _MdkDBusRemoteDesktopSession MdkDBusRemoteDesktopSession;

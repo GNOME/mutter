@@ -26,6 +26,7 @@
 #include "mdk-keyboard.h"
 #include "mdk-pointer.h"
 #include "mdk-stream.h"
+#include "mdk-touch.h"
 
 #include "mdk-dbus-remote-desktop.h"
 #include "mdk-dbus-screen-cast.h"
@@ -430,4 +431,13 @@ mdk_session_create_keyboard (MdkSession *session)
 {
   return mdk_keyboard_new (session,
                            session->remote_desktop_session_proxy);
+}
+
+MdkTouch *
+mdk_session_create_touch (MdkSession *session,
+                          MdkMonitor *monitor)
+{
+  return mdk_touch_new (session,
+                        session->remote_desktop_session_proxy,
+                        monitor);
 }

@@ -28,6 +28,7 @@
 #include "mdk-pointer.h"
 #include "mdk-session.h"
 #include "mdk-stream.h"
+#include "mdk-touch.h"
 
 #define DEFAULT_MONITOR_WIDTH 1280
 #define DEFAULT_MONITOR_HEIGHT 800
@@ -45,6 +46,7 @@ struct _MdkMonitor
 
   MdkPointer *pointer;
   MdkKeyboard *keyboard;
+  MdkTouch *touch;
 };
 
 G_DEFINE_FINAL_TYPE (MdkMonitor, mdk_monitor, GTK_TYPE_BOX)
@@ -71,6 +73,18 @@ ensure_keyboard (MdkMonitor *monitor)
 
   monitor->keyboard = mdk_session_create_keyboard (session);
   return monitor->keyboard;
+}
+
+static MdkTouch *
+ensure_touch (MdkMonitor *monitor)
+{
+  MdkSession *session = mdk_context_get_session (monitor->context);
+
+  if (monitor->touch)
+    return monitor->touch;
+
+  monitor->touch = mdk_session_create_touch (session, monitor);
+  return monitor->touch;
 }
 
 static void
@@ -234,6 +248,109 @@ on_key_released (GtkEventControllerKey *controller,
   return TRUE;
 }
 
+static GtkWidget *
+get_event_widget (GdkEvent *event)
+{
+  GdkSurface *surface;
+
+  surface = gdk_event_get_surface (event);
+  if (surface && !gdk_surface_is_destroyed (surface))
+    return GTK_WIDGET (gtk_native_get_for_surface (surface));
+
+  return NULL;
+}
+
+static gboolean
+calc_event_widget_coordinates (GdkEvent  *event,
+                               double    *x,
+                               double    *y,
+                               GtkWidget *widget)
+{
+  GtkWidget *event_widget;
+  double event_x, event_y;
+  GtkNative *native;
+  double nx, ny;
+  graphene_point_t point;
+
+  *x = *y = 0;
+
+  if (!gdk_event_get_position (event, &event_x, &event_y))
+    return FALSE;
+
+  event_widget = get_event_widget (event);
+  native = gtk_widget_get_native (event_widget);
+  gtk_native_get_surface_transform (native, &nx, &ny);
+  event_x -= nx;
+  event_y -= ny;
+
+  if (gtk_widget_compute_point (event_widget,
+                                widget,
+                                &GRAPHENE_POINT_INIT ((float) event_x,
+                                                      (float) event_y),
+                                &point))
+    {
+      *x = point.x;
+      *y = point.y;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
+static gboolean
+is_touch_event (GdkEvent *event)
+{
+  switch (gdk_event_get_event_type (event))
+    {
+    case GDK_TOUCH_BEGIN:
+    case GDK_TOUCH_UPDATE:
+    case GDK_TOUCH_END:
+    case GDK_TOUCH_CANCEL:
+      return TRUE;
+    default:
+      return FALSE;
+    }
+}
+
+static void
+touch_event (GtkEventControllerLegacy *controller,
+             GdkEvent                 *event,
+             MdkMonitor               *monitor)
+{
+  GdkEventType event_type;
+  MdkTouch *touch;
+  double x, y;
+  int slot;
+
+  if (!is_touch_event (event))
+    return;
+
+  touch = ensure_touch (monitor);
+
+  slot = GPOINTER_TO_INT (gdk_event_get_event_sequence (event)) - 1;
+
+  event_type = gdk_event_get_event_type (event);
+  switch (event_type)
+    {
+    case GDK_TOUCH_BEGIN:
+      if (calc_event_widget_coordinates (event, &x, &y, GTK_WIDGET (monitor)))
+        mdk_touch_notify_down (touch, slot, x, y);
+      break;
+    case GDK_TOUCH_UPDATE:
+      if (calc_event_widget_coordinates (event, &x, &y, GTK_WIDGET (monitor)))
+        mdk_touch_notify_motion (touch, slot, x, y);
+      break;
+    case GDK_TOUCH_END:
+    case GDK_TOUCH_CANCEL:
+      mdk_touch_notify_up (touch, slot);
+      break;
+    default:
+      break;
+    }
+}
+
 static void
 maybe_release_all_keys_and_buttons (MdkMonitor *monitor)
 {
@@ -329,6 +446,7 @@ mdk_monitor_finalize (GObject *object)
 {
   MdkMonitor *monitor = MDK_MONITOR (object);
 
+  g_clear_object (&monitor->touch);
   g_clear_object (&monitor->keyboard);
   g_clear_object (&monitor->pointer);
   g_clear_object (&monitor->stream);
@@ -358,6 +476,7 @@ mdk_monitor_init (MdkMonitor *monitor)
   GtkGesture *click_gesture;
   GtkEventController *scroll_controller;
   GtkEventController *key_controller;
+  GtkEventController *touch_controller;
   g_autoptr (GdkCursor) none_cursor = NULL;
 
   motion_controller = gtk_event_controller_motion_new ();
@@ -395,6 +514,11 @@ mdk_monitor_init (MdkMonitor *monitor)
   g_signal_connect (key_controller, "key-released",
                     G_CALLBACK (on_key_released), monitor);
   gtk_widget_add_controller (GTK_WIDGET (monitor), key_controller);
+
+  touch_controller = gtk_event_controller_legacy_new ();
+  g_signal_connect (touch_controller, "event",
+                    G_CALLBACK (touch_event), monitor);
+  gtk_widget_add_controller (GTK_WIDGET (monitor), touch_controller);
 
   g_signal_connect (monitor, "notify::has-focus",
                     G_CALLBACK (has_focus_changed),
