@@ -922,7 +922,6 @@ meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
 {
   ClutterKeymapKey key;
   int group;
-  gboolean found = FALSE;
 
   g_return_val_if_fail (keycode_out != NULL, FALSE);
   g_return_val_if_fail (level_out != NULL, FALSE);
@@ -933,27 +932,8 @@ meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
     {
       *keycode_out = key.keycode;
       *level_out = key.level;
-      found = TRUE;
-    }
-  else
-    {
-      GHashTableIter iter;
-      gpointer key, value;
-
-      g_hash_table_iter_init (&iter, keymap_x11->reserved_keycodes);
-      while (!found && g_hash_table_iter_next (&iter, &key, &value))
-        {
-          uint32_t reserved_keycode = GPOINTER_TO_UINT (key);
-          uint32_t reserved_keysym = GPOINTER_TO_UINT (value);
-
-          if (keyval == reserved_keysym)
-            {
-              *keycode_out = reserved_keycode;
-              *level_out = 0;
-              found = TRUE;
-            }
-        }
+      return TRUE;
     }
 
-  return found;
+  return FALSE;
 }
