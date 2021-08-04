@@ -363,6 +363,25 @@ meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 }
 
 /**
+ * meta_cursor_tracker_get_scale:
+ * @tracker:
+ *
+ * Returns:
+ */
+float
+meta_cursor_tracker_get_scale (MetaCursorTracker *tracker)
+{
+  MetaCursorSprite *cursor_sprite;
+
+  cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
+
+  if (!cursor_sprite)
+    return 1.0;
+
+  return meta_cursor_sprite_get_texture_scale (cursor_sprite);
+}
+
+/**
  * meta_cursor_tracker_get_hot:
  * @tracker:
  * @x: (out):
