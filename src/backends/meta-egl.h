@@ -269,4 +269,10 @@ gboolean meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
                                            EGLint       *num_formats,
                                            GError      **error);
 
+gboolean meta_egl_query_display_attrib (MetaEgl     *egl,
+                                        EGLDisplay   display,
+                                        EGLint       attribute,
+                                        EGLAttrib   *value,
+                                        GError     **error);
+
 #endif /* META_EGL_H */
