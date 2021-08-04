@@ -4797,16 +4797,21 @@ static void
 clutter_text_queue_redraw_or_relayout (ClutterText *self)
 {
   ClutterActor *actor = CLUTTER_ACTOR (self);
-  gfloat preferred_width;
-  gfloat preferred_height;
+  float preferred_width = -1.;
+  float preferred_height = -1.;
 
   clutter_text_dirty_cache (self);
 
-  /* we're using our private implementations here to avoid the caching done by ClutterActor */
-  clutter_text_get_preferred_width (actor, -1, NULL, &preferred_width);
-  clutter_text_get_preferred_height (actor, preferred_width, NULL, &preferred_height);
+  if (clutter_actor_has_allocation (actor))
+    {
+      /* we're using our private implementations here to avoid the caching done by ClutterActor */
+      clutter_text_get_preferred_width (actor, -1, NULL, &preferred_width);
+      clutter_text_get_preferred_height (actor, preferred_width, NULL,
+                                         &preferred_height);
+    }
 
-  if (clutter_actor_has_allocation (actor) &&
+  if (preferred_width > 0 &&
+      preferred_height > 0 &&
       fabsf (preferred_width - clutter_actor_get_width (actor)) <= 0.001 &&
       fabsf (preferred_height - clutter_actor_get_height (actor)) <= 0.001)
     clutter_text_queue_redraw (actor);
