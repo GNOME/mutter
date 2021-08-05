@@ -191,13 +191,15 @@ if have_libgudev
   endif
 endif
 
+have_libsystemd = get_option('systemd')
+libsystemd_dep = dependency('libsystemd', required: have_libsystemd)
+
 have_native_backend = get_option('native_backend')
 if have_native_backend
   libdrm_dep = dependency('libdrm')
   libgbm_dep = dependency('gbm', version: gbm_req)
   libinput_dep = dependency('libinput', version: libinput_req)
 
-  libsystemd_dep = dependency('libsystemd', required: false)
   if libsystemd_dep.found()
     logind_provider_dep = libsystemd_dep
   else
@@ -389,6 +391,7 @@ cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 
 cdata.set('HAVE_EGL', have_egl)
 cdata.set('HAVE_WAYLAND', have_wayland)
+cdata.set('HAVE_LIBSYSTEMD', have_libsystemd)
 cdata.set('HAVE_NATIVE_BACKEND', have_native_backend)
 cdata.set('HAVE_REMOTE_DESKTOP', have_remote_desktop)
 cdata.set('HAVE_EGL_DEVICE', have_egl_device)

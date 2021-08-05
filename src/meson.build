@@ -118,6 +118,12 @@ if have_wayland
   ]
 endif
 
+if have_libsystemd
+  mutter_pkg_private_deps += [
+    libsystemd_dep,
+  ]
+endif
+
 if have_native_backend
   mutter_pkg_private_deps += [
     libdrm_dep,

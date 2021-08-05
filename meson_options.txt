@@ -39,6 +39,12 @@ option('wayland',
   description: 'Enable Wayland support'
 )
 
+option('systemd',
+  type: 'boolean',
+  value: true,
+  description: 'Enable systemd support'
+)
+
 option('native_backend',
   type: 'boolean',
   value: true,

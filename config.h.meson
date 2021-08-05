@@ -34,6 +34,9 @@
 /* Building with libwacom for advanced tablet management */
 #mesondefine HAVE_LIBWACOM
 
+/* Building with libsystemd */
+#mesondefine HAVE_LIBSYSTEMD
+
 /* Define if you want to enable the native (KMS) backend based on systemd */
 #mesondefine HAVE_NATIVE_BACKEND
 
