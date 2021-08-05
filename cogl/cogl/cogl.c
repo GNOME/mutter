@@ -214,10 +214,6 @@ _cogl_init (void)
 
   if (initialized == FALSE)
     {
-#if !GLIB_CHECK_VERSION (2, 36, 0)
-      g_type_init ();
-#endif
-
       _cogl_debug_check_environment ();
       initialized = TRUE;
     }
