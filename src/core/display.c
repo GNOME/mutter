@@ -1404,17 +1404,41 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
 #endif
 }
 
+static void
+meta_window_set_inactive_since (MetaWindow  *window,
+                                int64_t      inactive_since_us)
+{
+  GFile *file = NULL;
+  g_autoptr (GFileInfo) file_info = NULL;
+  g_autofree char *timestamp = NULL;
+
+  timestamp = g_strdup_printf ("%" G_GINT64_FORMAT, inactive_since_us);
+
+  file = meta_window_get_unit_cgroup (window);
+  if (!file)
+    return;
+
+  file_info = g_file_info_new ();
+  g_file_info_set_attribute_string (file_info,
+                                    "xattr::xdg.inactive-since", timestamp);
+
+  if (!g_file_set_attributes_from_info (file, file_info,
+                                        G_FILE_QUERY_INFO_NONE,
+                                        NULL, NULL))
+    return;
+}
+
 void
 meta_display_update_focus_window (MetaDisplay *display,
                                   MetaWindow  *window)
 {
+  MetaWindow *previous = NULL;
+
   if (display->focus_window == window)
     return;
 
   if (display->focus_window)
     {
-      MetaWindow *previous;
-
       meta_topic (META_DEBUG_FOCUS,
                   "%s is now the previous focus window due to being focused out or unmapped",
                   display->focus_window->desc);
@@ -1439,6 +1463,15 @@ meta_display_update_focus_window (MetaDisplay *display,
     }
   else
     meta_topic (META_DEBUG_FOCUS, "* Focus --> NULL");
+
+  if (!previous || !display->focus_window ||
+      !meta_window_unit_cgroup_equal (previous, display->focus_window))
+    {
+      if (previous)
+        meta_window_set_inactive_since (previous, g_get_monotonic_time ());
+      if (display->focus_window)
+        meta_window_set_inactive_since (display->focus_window, -1);
+    }
 
   if (meta_is_wayland_compositor ())
     meta_display_sync_wayland_input_focus (display);
