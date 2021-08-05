@@ -1,6 +1,6 @@
 project('mutter', 'c',
   version: '41.beta',
-  meson_version: '>= 0.51.0',
+  meson_version: '>= 0.53.0',
   license: 'GPLv2+'
 )
 
@@ -511,51 +511,33 @@ subdir('doc/man')
 
 meson.add_install_script('meson/meson-postinstall.sh')
 
-output = [
-  '',
-  '',
-  '   Mutter ' + meson.project_version(),
-  '  ===============',
-  '',
-  '    Prefix....................... ' + prefix,
-  '    libexecdir................... ' + libexecdir,
-  '    pkgdatadir................... ' + pkgdatadir,
-  '',
-  '    Rendering APIs:',
-  '',
-  '        OpenGL................... ' + have_gl.to_string(),
-  '        GLES2.................... ' + have_gles2.to_string(),
-  '        EGL...................... ' + have_egl.to_string(),
-  '        GLX...................... ' + have_glx.to_string(),
-  '',
-  '    Options:',
-  '',
-  '        Wayland.................. ' + have_wayland.to_string(),
-  '        Wayland EGLStream........ ' + have_wayland_eglstream.to_string(),
-  '        Native Backend........... ' + have_native_backend.to_string(),
-  '        EGL Device............... ' + have_egl_device.to_string(),
-  '        Remote desktop........... ' + have_remote_desktop.to_string(),
-  '        gudev.................... ' + have_libgudev.to_string(),
-  '        Wacom.................... ' + have_libwacom.to_string(),
-  '        SM....................... ' + have_sm.to_string(),
-  '        Startup notification..... ' + have_startup_notification.to_string(),
-  '        Introspection............ ' + have_introspection.to_string(),
-  '        Profiler................. ' + have_profiler.to_string(),
-  '        Xwayland initfd.......... ' + have_xwayland_initfd.to_string(),
-  '        Xwayland listenfd........ ' + have_xwayland_listenfd.to_string(),
-  '        Safe X11 I/O errors...... ' + have_xsetioerrorexithandler.to_string(),
-  '',
-  '    Tests:',
-  '',
-  '        Enabled.................. ' + have_tests.to_string(),
-  '        Core tests............... ' + have_core_tests.to_string(),
-  '        Cogl tests............... ' + have_cogl_tests.to_string(),
-  '        Clutter tests............ ' + have_clutter_tests.to_string(),
-  '        Installed tests.......... ' + have_installed_tests.to_string(),
-  '        Coverage................. ' + get_option('b_coverage').to_string(),
-  '',
-  '  Now type \'ninja -C ' + meson.build_root() + '\' to build ' + meson.project_name(),
-  '',
-  '',
-]
-message('\n'.join(output))
+summary('prefix', prefix)
+summary('libexecdir', libexecdir)
+summary('pkgdatadir', pkgdatadir)
+
+summary('OpenGL', have_gl, section: 'Rendering APIs')
+summary('GLES2', have_gles2, section: 'Rendering APIs')
+summary('EGL', have_egl, section: 'Rendering APIs')
+summary('GLX', have_glx, section: 'Rendering APIs')
+
+summary('Wayland', have_wayland, section: 'Options')
+summary('Wayland EGLStream', have_wayland_eglstream, section: 'Options')
+summary('Native Backend', have_native_backend, section: 'Options')
+summary('EGL Device', have_egl_device, section: 'Options')
+summary('Remote desktop', have_remote_desktop, section: 'Options')
+summary('gudev', have_libgudev, section: 'Options')
+summary('Wacom', have_libwacom, section: 'Options')
+summary('SM', have_sm, section: 'Options')
+summary('Startup notification', have_startup_notification, section: 'Options')
+summary('Introspection', have_introspection, section: 'Options')
+summary('Profiler', have_profiler, section: 'Options')
+summary('Xwayland initfd', have_xwayland_initfd, section: 'Options')
+summary('Xwayland listenfd', have_xwayland_listenfd, section: 'Options')
+summary('Safe X11 I/O errors', have_xsetioerrorexithandler, section: 'Options')
+
+summary('Enabled', have_tests, section: 'Tests')
+summary('Core tests', have_core_tests, section: 'Tests')
+summary('Cogl tests', have_cogl_tests, section: 'Tests')
+summary('Clutter tests', have_clutter_tests, section: 'Tests')
+summary('Installed tests', have_installed_tests, section: 'Tests')
+summary('Coverage', get_option('b_coverage'), section: 'Tests')
