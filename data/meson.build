@@ -7,7 +7,7 @@ custom_target('mutter.desktop',
     msgfmt,
     '--desktop', '--template',
     '@INPUT@',
-    '-d', join_paths(meson.source_root(), 'po'),
+    '-d', join_paths(mutter_srcdir, 'po'),
     '-o', '@OUTPUT@'
   ],
   install: true,

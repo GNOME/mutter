@@ -11,6 +11,9 @@ split_version = meson.project_version().split('.')
 api_version = split_version[0].to_int() - 32
 libmutter_api_version = '@0@'.format(api_version)
 
+mutter_srcdir = meson.current_source_dir()
+mutter_builddir = meson.current_build_dir()
+
 # generic version requirements
 fribidi_req = '>= 1.0.0'
 glib_req = '>= 2.69.0'

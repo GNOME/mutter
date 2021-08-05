@@ -824,7 +824,7 @@ if have_profiler
   if sysprof_dep.type_name() == 'pkgconfig'
     sysprof_dbus_interfaces_dir = join_paths(sysprof_dep.get_pkgconfig_variable('datadir'), 'dbus-1', 'interfaces')
   else
-    sysprof_dbus_interfaces_dir = join_paths(meson.source_root(), 'subprojects', 'sysprof', 'src')
+    sysprof_dbus_interfaces_dir = join_paths(mutter_srcdir, 'subprojects', 'sysprof', 'src')
   endif
 
   sysprof3_dbus_file = join_paths(sysprof_dbus_interfaces_dir, 'org.gnome.Sysprof3.Profiler.xml')
