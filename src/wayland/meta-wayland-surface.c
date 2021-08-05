@@ -1028,10 +1028,6 @@ wl_surface_attach (struct wl_client   *client,
   MetaWaylandSurfaceState *pending = surface->pending_state;
   MetaWaylandBuffer *buffer;
 
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
-
   if (buffer_resource)
     buffer = meta_wayland_buffer_from_resource (buffer_resource);
   else
@@ -1069,10 +1065,6 @@ wl_surface_damage (struct wl_client   *client,
   MetaWaylandSurfaceState *pending = surface->pending_state;
   cairo_rectangle_int_t rectangle;
 
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
-
   rectangle = (cairo_rectangle_int_t) {
     .x = x,
     .y = y,
@@ -1101,10 +1093,6 @@ wl_surface_frame (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurfaceState *pending = surface->pending_state;
 
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
-
   callback = g_new0 (MetaWaylandFrameCallback, 1);
   callback->surface = surface;
   callback->resource = wl_resource_create (client,
@@ -1125,10 +1113,6 @@ wl_surface_set_opaque_region (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurfaceState *pending = surface->pending_state;
 
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
-
   g_clear_pointer (&pending->opaque_region, cairo_region_destroy);
   if (region_resource)
     {
@@ -1147,10 +1131,6 @@ wl_surface_set_input_region (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurfaceState *pending = surface->pending_state;
 
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
-
   g_clear_pointer (&pending->input_region, cairo_region_destroy);
   if (region_resource)
     {
@@ -1166,10 +1146,6 @@ wl_surface_commit (struct wl_client   *client,
                    struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
 
   meta_wayland_surface_commit (surface);
 }
@@ -1257,10 +1233,6 @@ wl_surface_damage_buffer (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandSurfaceState *pending = surface->pending_state;
   cairo_rectangle_int_t rectangle;
-
-  /* X11 unmanaged window */
-  if (!surface)
-    return;
 
   rectangle = (cairo_rectangle_int_t) {
     .x = x,
