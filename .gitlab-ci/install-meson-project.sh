@@ -33,7 +33,7 @@ if [ ! -z "$COMMIT" ]; then
 fi
 
 meson --prefix=/usr _build "${MESON_OPTIONS[@]}"
-ninja -C _build install
+meson install -C _build
 popd
 popd
 rm -rf "$REPO_DIR"

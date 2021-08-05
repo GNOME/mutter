@@ -146,8 +146,8 @@ build-fedora-container@aarch64:
   stage: build
   script:
     - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
-    - ninja -C build
-    - ninja -C build install
+    - meson compile -C build
+    - meson install -C build
   artifacts:
     expire_in: 1 day
     paths:
@@ -176,8 +176,8 @@ build-without-opengl-and-glx@x86_64:
     - build-fedora-container@x86_64
   script:
     - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
-    - ninja -C build
-    - ninja -C build install
+    - meson compile -C build
+    - meson install -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -191,8 +191,8 @@ build-without-native-backend-and-wayland@x86_64:
     - build-fedora-container@x86_64
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false -Dnative_tests=false --werror --prefix /usr
-    - ninja -C build
-    - ninja -C build install
+    - meson compile -C build
+    - meson install -C build
   artifacts:
     paths:
       - build/meson-logs
@@ -271,7 +271,7 @@ can-build-gnome-shell@x86_64:
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
-    - ninja -C gnome-shell/build install
+    - meson install -C gnome-shell/build
 
 test-mutter-coverity:
   rules:
@@ -288,7 +288,7 @@ test-mutter-coverity:
   script:
     - .gitlab-ci/download-coverity-tarball.sh
     - CC=clang meson coverity-build -Dprofiler=false
-    - ./coverity/cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja -C coverity-build
+    - ./coverity/cov-analysis-linux64-*/bin/cov-build --dir cov-int meson compile -C coverity-build
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=mutter
       --form token=$COVERITY_TOKEN --form email=carlosg@gnome.org
