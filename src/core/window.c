@@ -97,6 +97,10 @@
 #include "wayland/meta-window-xwayland.h"
 #endif
 
+#ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-login.h>
+#endif
+
 /* Windows that unmaximize to a size bigger than that fraction of the workarea
  * will be scaled down to that size (while maintaining aspect ratio).
  * Windows that cover an area greater then this size are automaximized on map.
@@ -331,6 +335,9 @@ meta_window_finalize (GObject *object)
 
   if (window->transient_for)
     g_object_unref (window->transient_for);
+
+  if (window->cgroup_path)
+    g_object_unref (window->cgroup_path);
 
   g_free (window->sm_client_id);
   g_free (window->wm_client_machine);
@@ -1156,6 +1163,9 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->startup_id = NULL;
 
   window->client_pid = 0;
+
+  window->has_valid_cgroup = TRUE;
+  window->cgroup_path = NULL;
 
   window->xtransient_for = None;
   window->xclient_leader = None;
@@ -7734,6 +7744,75 @@ meta_window_get_pid (MetaWindow *window)
     window->client_pid = META_WINDOW_GET_CLASS (window)->get_client_pid (window);
 
   return window->client_pid;
+}
+
+/**
+ * meta_window_get_unit_cgroup:
+ * @window: a #MetaWindow
+ *
+ * Return value: a GFile for the cgroup path, or NULL.
+ */
+GFile *
+meta_window_get_unit_cgroup (MetaWindow *window)
+{
+#ifdef HAVE_LIBSYSTEMD
+  g_autofree char *contents = NULL;
+  g_autofree char *complete_path = NULL;
+  g_autofree char *unit_name = NULL;
+  g_autofree char *unit_path = NULL;
+  char *unit_end;
+  pid_t pid;
+
+  if (!window->has_valid_cgroup)
+    return NULL;
+
+  if (window->cgroup_path)
+    return window->cgroup_path;
+
+  pid = meta_window_get_pid (window);
+  if (pid < 1)
+    return NULL;
+
+  if (sd_pid_get_cgroup (pid, &contents) < 0)
+    {
+      window->has_valid_cgroup = FALSE;
+      return NULL;
+    }
+  g_strstrip (contents);
+
+  complete_path = g_strdup_printf ("%s%s", "/sys/fs/cgroup", contents);
+
+  if (sd_pid_get_user_unit (pid, &unit_name) < 0)
+    {
+      window->has_valid_cgroup = FALSE;
+      return NULL;
+    }
+  g_strstrip (unit_name);
+
+  unit_end = strstr (complete_path, unit_name) + strlen (unit_name);
+  *unit_end = '\0';
+
+  window->cgroup_path = g_file_new_for_path (complete_path);
+
+  return window->cgroup_path;
+#else
+  return NULL;
+#endif
+}
+
+gboolean
+meta_window_unit_cgroup_equal (MetaWindow *window1,
+                               MetaWindow *window2)
+{
+  GFile *window1_file, *window2_file;
+
+  window1_file = meta_window_get_unit_cgroup (window1);
+  window2_file = meta_window_get_unit_cgroup (window2);
+
+  if (!window1_file || !window2_file)
+    return FALSE;
+
+  return g_file_equal (window1_file, window2_file);
 }
 
 /**

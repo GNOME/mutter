@@ -565,6 +565,9 @@ struct _MetaWindow
   guint unmanage_idle_id;
 
   pid_t client_pid;
+
+  gboolean has_valid_cgroup;
+  GFile *cgroup_path;
 };
 
 struct _MetaWindowClass
@@ -890,4 +893,8 @@ gboolean meta_window_shortcuts_inhibited (MetaWindow         *window,
                                           ClutterInputDevice *source);
 gboolean meta_window_is_stackable (MetaWindow *window);
 gboolean meta_window_is_focus_async (MetaWindow *window);
+
+GFile *meta_window_get_unit_cgroup (MetaWindow *window);
+gboolean meta_window_unit_cgroup_equal (MetaWindow *window1,
+                                        MetaWindow *window2);
 #endif
