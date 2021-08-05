@@ -213,7 +213,7 @@ build-without-native-backend-and-wayland@x86_64:
   artifacts:
     expire_in: 1 day
     reports:
-      junit: "build/${CI_JOB_NAME}-report.xml"
+      junit: "build/meson-logs/testlog-catchsegv.junit.xml"
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
     when: always
     paths:

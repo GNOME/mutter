@@ -20,10 +20,4 @@ xvfb-run -s '+iglx -noreset' \
 
 exit_code=$?
 
-python3 .gitlab-ci/meson-junit-report.py \
-        --project-name=mutter \
-        --job-id "${CI_JOB_NAME}" \
-        --output "build/${CI_JOB_NAME}-report.xml" \
-        build/meson-logs/testlog-catchsegv.json
-
 exit $exit_code
