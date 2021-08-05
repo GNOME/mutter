@@ -1476,9 +1476,6 @@ wl_surface_destructor (struct wl_resource *resource)
 
   meta_wayland_surface_discard_presentation_feedback (surface);
 
-  if (surface->resource)
-    wl_resource_set_user_data (surface->resource, NULL);
-
   if (surface->wl_subsurface)
     wl_resource_destroy (surface->wl_subsurface);
 
