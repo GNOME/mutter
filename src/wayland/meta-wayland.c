@@ -437,8 +437,7 @@ meta_wayland_compositor_finalize (GObject *object)
 {
   MetaWaylandCompositor *compositor = META_WAYLAND_COMPOSITOR (object);
 
-  g_clear_pointer (&compositor->dma_buf_manager,
-                   meta_wayland_dma_buf_manager_free);
+  g_clear_object (&compositor->dma_buf_manager);
 
   g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
 

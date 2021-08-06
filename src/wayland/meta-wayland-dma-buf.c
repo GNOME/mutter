@@ -98,6 +98,8 @@ typedef struct _MetaWaylandDmaBufFeedback
 
 struct _MetaWaylandDmaBufManager
 {
+  GObject parent;
+
   MetaWaylandCompositor *compositor;
   dev_t main_device_id;
 
@@ -121,6 +123,9 @@ struct _MetaWaylandDmaBufBuffer
 };
 
 G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJECT);
+
+G_DEFINE_TYPE (MetaWaylandDmaBufManager, meta_wayland_dma_buf_manager,
+               G_TYPE_OBJECT)
 
 static MetaWaylandDmaBufTranche *
 meta_wayland_dma_buf_tranche_new (dev_t                          device_id,
@@ -1084,7 +1089,7 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
   EGLDeviceEXT egl_device;
   EGLAttrib attrib;
   g_autoptr (GError) local_error = NULL;
-  g_autofree MetaWaylandDmaBufManager *dma_buf_manager = NULL;
+  g_autoptr (MetaWaylandDmaBufManager) dma_buf_manager = NULL;
   const char *device_path = NULL;
   struct stat device_stat;
 
@@ -1159,7 +1164,7 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
 
 initialize:
 
-  dma_buf_manager = g_new0 (MetaWaylandDmaBufManager, 1);
+  dma_buf_manager = g_object_new (META_TYPE_WAYLAND_DMA_BUF_MANAGER, NULL);
 
   if (!wl_global_create (compositor->wayland_display,
                          &zwp_linux_dmabuf_v1_interface,
@@ -1179,17 +1184,6 @@ initialize:
   init_default_feedback (dma_buf_manager);
 
   return g_steal_pointer (&dma_buf_manager);
-}
-
-void
-meta_wayland_dma_buf_manager_free (MetaWaylandDmaBufManager *dma_buf_manager)
-{
-  g_clear_pointer (&dma_buf_manager->format_table_file,
-                   meta_anonymous_file_free);
-  g_clear_pointer (&dma_buf_manager->formats, g_array_unref);
-  g_clear_pointer (&dma_buf_manager->default_feedback,
-                   meta_wayland_dma_buf_feedback_free);
-  g_free (dma_buf_manager);
 }
 
 static void
@@ -1224,4 +1218,32 @@ meta_wayland_dma_buf_buffer_class_init (MetaWaylandDmaBufBufferClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_wayland_dma_buf_buffer_finalize;
+}
+
+static void
+meta_wayland_dma_buf_manager_finalize (GObject *object)
+{
+  MetaWaylandDmaBufManager *dma_buf_manager =
+    META_WAYLAND_DMA_BUF_MANAGER (object);
+
+  g_clear_pointer (&dma_buf_manager->format_table_file,
+                   meta_anonymous_file_free);
+  g_clear_pointer (&dma_buf_manager->formats, g_array_unref);
+  g_clear_pointer (&dma_buf_manager->default_feedback,
+                   meta_wayland_dma_buf_feedback_free);
+
+  G_OBJECT_CLASS (meta_wayland_dma_buf_manager_parent_class)->finalize (object);
+}
+
+static void
+meta_wayland_dma_buf_manager_class_init (MetaWaylandDmaBufManagerClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_wayland_dma_buf_manager_finalize;
+}
+
+static void
+meta_wayland_dma_buf_manager_init (MetaWaylandDmaBufManager *dma_buf)
+{
 }
