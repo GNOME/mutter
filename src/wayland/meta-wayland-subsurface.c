@@ -303,7 +303,8 @@ unparent_actor (MetaWaylandSurface *surface)
     return;
 
   parent_actor = clutter_actor_get_parent (actor);
-  clutter_actor_remove_child (parent_actor, actor);
+  if (parent_actor)
+    clutter_actor_remove_child (parent_actor, actor);
 }
 
 static void
