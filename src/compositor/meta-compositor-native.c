@@ -23,11 +23,14 @@
 #include "compositor/meta-compositor-native.h"
 
 #include "backends/meta-logical-monitor.h"
+#include "backends/native/meta-crtc-kms.h"
 #include "compositor/meta-surface-actor-wayland.h"
 
 struct _MetaCompositorNative
 {
   MetaCompositorServer parent;
+
+  MetaWaylandSurface *current_scanout_candidate;
 };
 
 G_DEFINE_TYPE (MetaCompositorNative, meta_compositor_native,
@@ -62,57 +65,88 @@ get_window_view (MetaRenderer *renderer,
 static void
 maybe_assign_primary_plane (MetaCompositor *compositor)
 {
+  MetaCompositorNative *compositor_native = META_COMPOSITOR_NATIVE (compositor);
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaWindowActor *window_actor;
   MetaWindow *window;
   MetaRendererView *view;
+  MetaCrtc *crtc;
   CoglFramebuffer *framebuffer;
   CoglOnscreen *onscreen;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
+  MetaWaylandSurface *surface;
+  MetaWaylandSurface *old_candidate =
+    compositor_native->current_scanout_candidate;
+  MetaWaylandSurface *new_candidate = NULL;
   g_autoptr (CoglScanout) scanout = NULL;
 
   if (meta_compositor_is_unredirect_inhibited (compositor))
-    return;
+    goto done;
 
   window_actor = meta_compositor_get_top_window_actor (compositor);
   if (!window_actor)
-    return;
+    goto done;
 
   if (meta_window_actor_effect_in_progress (window_actor))
-    return;
+    goto done;
 
   if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
-    return;
+    goto done;
 
   if (clutter_actor_get_n_children (CLUTTER_ACTOR (window_actor)) != 1)
-    return;
+    goto done;
 
   window = meta_window_actor_get_meta_window (window_actor);
   if (!window)
-    return;
+    goto done;
 
   view = get_window_view (renderer, window);
   if (!view)
-    return;
+    goto done;
+
+  crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (view));
+  if (!META_IS_CRTC_KMS (crtc))
+    goto done;
 
   framebuffer = clutter_stage_view_get_framebuffer (CLUTTER_STAGE_VIEW (view));
   if (!COGL_IS_ONSCREEN (framebuffer))
-    return;
+    goto done;
 
   surface_actor = meta_window_actor_get_surface (window_actor);
   if (!META_IS_SURFACE_ACTOR_WAYLAND (surface_actor))
-    return;
-
+    goto done;
   surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);
+
+  surface = meta_surface_actor_wayland_get_surface (surface_actor_wayland);
+  if (!surface)
+    goto done;
+
+  new_candidate = surface;
+
   onscreen = COGL_ONSCREEN (framebuffer);
   scanout = meta_surface_actor_wayland_try_acquire_scanout (surface_actor_wayland,
                                                             onscreen);
   if (!scanout)
-    return;
+    goto done;
 
   clutter_stage_view_assign_next_scanout (CLUTTER_STAGE_VIEW (view), scanout);
+
+done:
+
+  if (old_candidate && old_candidate != new_candidate)
+    {
+      meta_wayland_surface_set_scanout_candidate (old_candidate, NULL);
+      g_clear_weak_pointer (&compositor_native->current_scanout_candidate);
+    }
+
+  if (new_candidate)
+    {
+      meta_wayland_surface_set_scanout_candidate (surface, crtc);
+      g_set_weak_pointer (&compositor_native->current_scanout_candidate,
+                          surface);
+    }
 }
 
 static void
@@ -138,6 +172,16 @@ meta_compositor_native_new (MetaDisplay *display,
 }
 
 static void
+meta_compositor_native_finalize (GObject *object)
+{
+  MetaCompositorNative *compositor_native = META_COMPOSITOR_NATIVE (object);
+
+  g_clear_weak_pointer (&compositor_native->current_scanout_candidate);
+
+  G_OBJECT_CLASS (meta_compositor_native_parent_class)->finalize (object);
+}
+
+static void
 meta_compositor_native_init (MetaCompositorNative *compositor_native)
 {
 }
@@ -145,7 +189,10 @@ meta_compositor_native_init (MetaCompositorNative *compositor_native)
 static void
 meta_compositor_native_class_init (MetaCompositorNativeClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaCompositorClass *compositor_class = META_COMPOSITOR_CLASS (klass);
+
+  object_class->finalize = meta_compositor_native_finalize;
 
   compositor_class->before_paint = meta_compositor_native_before_paint;
 }

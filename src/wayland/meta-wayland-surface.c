@@ -77,6 +77,17 @@ typedef struct _MetaWaylandSurfaceRolePrivate
   MetaWaylandSurface *surface;
 } MetaWaylandSurfaceRolePrivate;
 
+enum
+{
+  PROP_0,
+
+  PROP_SCANOUT_CANDIDATE,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 G_DEFINE_TYPE (MetaWaylandSurface, meta_wayland_surface, G_TYPE_OBJECT);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandSurfaceRole,
@@ -1412,6 +1423,7 @@ wl_surface_destructor (struct wl_resource *resource)
 
   g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
 
+  g_clear_object (&surface->scanout_candidate);
   g_clear_object (&surface->role);
 
   if (surface->unassigned.buffer)
@@ -1694,9 +1706,39 @@ meta_wayland_surface_init (MetaWaylandSurface *surface)
 }
 
 static void
+meta_wayland_surface_get_property (GObject    *object,
+                                   guint       prop_id,
+                                   GValue     *value,
+                                   GParamSpec *pspec)
+{
+  MetaWaylandSurface *surface = META_WAYLAND_SURFACE (object);
+
+  switch (prop_id)
+    {
+    case PROP_SCANOUT_CANDIDATE:
+      g_value_set_object (value, surface->scanout_candidate);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->get_property = meta_wayland_surface_get_property;
+
+  obj_props[PROP_SCANOUT_CANDIDATE] =
+    g_param_spec_object ("scanout-candidate",
+                         "scanout-candidate",
+                         "Scanout candidate for given CRTC",
+                         META_TYPE_CRTC,
+                         G_PARAM_READABLE |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   surface_signals[SURFACE_DESTROY] =
     g_signal_new ("destroy",
@@ -2099,4 +2141,22 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   g_object_weak_ref (G_OBJECT (scanout), scanout_destroyed, buffer_ref);
 
   return scanout;
+}
+
+MetaCrtc *
+meta_wayland_surface_get_scanout_candidate (MetaWaylandSurface *surface)
+{
+  return surface->scanout_candidate;
+}
+
+void
+meta_wayland_surface_set_scanout_candidate (MetaWaylandSurface *surface,
+                                            MetaCrtc           *crtc)
+{
+  if (surface->scanout_candidate == crtc)
+    return;
+
+  g_set_object (&surface->scanout_candidate, crtc);
+  g_object_notify_by_pspec (G_OBJECT (surface),
+                            obj_props[PROP_SCANOUT_CANDIDATE]);
 }
