@@ -95,6 +95,7 @@ typedef struct _MetaWaylandDmaBufTranche
   dev_t target_device_id;
   GArray *formats;
   MetaWaylandDmaBufTrancheFlags flags;
+  uint64_t scanout_crtc_id;
 } MetaWaylandDmaBufTranche;
 
 typedef struct _MetaWaylandDmaBufFeedback
@@ -102,6 +103,15 @@ typedef struct _MetaWaylandDmaBufFeedback
   dev_t main_device_id;
   GList *tranches;
 } MetaWaylandDmaBufFeedback;
+
+typedef struct _MetaWaylandDmaBufSurfaceFeedback
+{
+  MetaWaylandDmaBufManager *dma_buf_manager;
+  MetaWaylandSurface *surface;
+  MetaWaylandDmaBufFeedback *feedback;
+  GList *resources;
+  gulong scanout_candidate_changed_id;
+} MetaWaylandDmaBufSurfaceFeedback;
 
 struct _MetaWaylandDmaBufManager
 {
@@ -133,6 +143,8 @@ G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJE
 
 G_DEFINE_TYPE (MetaWaylandDmaBufManager, meta_wayland_dma_buf_manager,
                G_TYPE_OBJECT)
+
+static GQuark quark_dma_buf_surface_feedback;
 
 static gboolean
 should_send_modifiers (MetaBackend *backend)
@@ -192,6 +204,15 @@ meta_wayland_dma_buf_tranche_free (MetaWaylandDmaBufTranche *tranche)
 {
   g_clear_pointer (&tranche->formats, g_array_unref);
   g_free (tranche);
+}
+
+static MetaWaylandDmaBufTranche *
+meta_wayland_dma_buf_tranche_copy (MetaWaylandDmaBufTranche *tranche)
+{
+  return meta_wayland_dma_buf_tranche_new (tranche->target_device_id,
+                                           tranche->formats,
+                                           tranche->priority,
+                                           tranche->flags);
 }
 
 static void
@@ -283,6 +304,20 @@ meta_wayland_dma_buf_feedback_free (MetaWaylandDmaBufFeedback *feedback)
   g_clear_list (&feedback->tranches,
                 (GDestroyNotify) meta_wayland_dma_buf_tranche_free);
   g_free (feedback);
+}
+
+static MetaWaylandDmaBufFeedback *
+meta_wayland_dma_buf_feedback_copy (MetaWaylandDmaBufFeedback *feedback)
+{
+  MetaWaylandDmaBufFeedback *new_feedback;
+
+  new_feedback = meta_wayland_dma_buf_feedback_new (feedback->main_device_id);
+  new_feedback->tranches =
+    g_list_copy_deep (feedback->tranches,
+                      (GCopyFunc) meta_wayland_dma_buf_tranche_copy,
+                      NULL);
+
+  return new_feedback;
 }
 
 static gboolean
@@ -862,6 +897,242 @@ dma_buf_handle_get_default_feedback (struct wl_client   *client,
                                       feedback_resource);
 }
 
+#ifdef HAVE_NATIVE_BACKEND
+static int
+find_scanout_tranche_func (gconstpointer a,
+                           gconstpointer b)
+{
+  const MetaWaylandDmaBufTranche *tranche = a;
+
+  if (tranche->scanout_crtc_id)
+    return 0;
+  else
+    return -1;
+}
+
+static gboolean
+has_modifier (GArray   *modifiers,
+              uint64_t  drm_modifier)
+{
+  int i;
+
+  for (i = 0; i < modifiers->len; i++)
+    {
+      if (drm_modifier == g_array_index (modifiers, uint64_t, i))
+        return TRUE;
+    }
+  return FALSE;
+}
+
+static gboolean
+crtc_supports_modifier (MetaCrtcKms *crtc_kms,
+                        uint32_t     drm_format,
+                        uint64_t     drm_modifier)
+{
+  GArray *crtc_modifiers;
+
+  crtc_modifiers = meta_crtc_kms_get_modifiers (crtc_kms, drm_format);
+  if (!crtc_modifiers)
+    return FALSE;
+
+  return has_modifier (crtc_modifiers, drm_modifier);
+}
+
+static void
+ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
+                        MetaCrtc                         *crtc)
+{
+  MetaWaylandDmaBufManager *dma_buf_manager = surface_feedback->dma_buf_manager;
+  MetaWaylandDmaBufFeedback *feedback = surface_feedback->feedback;
+  MetaCrtcKms *crtc_kms;
+  MetaWaylandDmaBufTranche *tranche;
+  GList *el;
+  int i;
+  g_autoptr (GArray) formats = NULL;
+  MetaWaylandDmaBufTranchePriority priority;
+  MetaWaylandDmaBufTrancheFlags flags;
+
+  g_return_if_fail (META_IS_CRTC_KMS (crtc));
+  crtc_kms = META_CRTC_KMS (crtc);
+
+  el = g_list_find_custom (feedback->tranches, NULL, find_scanout_tranche_func);
+  if (el)
+    {
+      tranche = el->data;
+
+      if (tranche->scanout_crtc_id == meta_crtc_get_id (crtc))
+        return;
+
+      meta_wayland_dma_buf_tranche_free (tranche);
+      feedback->tranches = g_list_delete_link (feedback->tranches, el);
+    }
+
+  formats = g_array_new (FALSE, FALSE, sizeof (MetaWaylandDmaBufFormat));
+  if (should_send_modifiers (meta_get_backend ()))
+    {
+      for (i = 0; i < dma_buf_manager->formats->len; i++)
+        {
+          MetaWaylandDmaBufFormat format =
+            g_array_index (dma_buf_manager->formats,
+                           MetaWaylandDmaBufFormat,
+                           i);
+
+          if (!crtc_supports_modifier (crtc_kms,
+                                       format.drm_format,
+                                       format.drm_modifier))
+            continue;
+
+          g_array_append_val (formats, format);
+        }
+
+      if (formats->len == 0)
+        return;
+    }
+  else
+    {
+      for (i = 0; i < dma_buf_manager->formats->len; i++)
+        {
+          MetaWaylandDmaBufFormat format =
+            g_array_index (dma_buf_manager->formats,
+                           MetaWaylandDmaBufFormat,
+                           i);
+
+          if (format.drm_modifier != DRM_FORMAT_MOD_INVALID)
+            continue;
+
+          if (!meta_crtc_kms_get_modifiers (crtc_kms, format.drm_format))
+            continue;
+
+          g_array_append_val (formats, format);
+        }
+
+      if (formats->len == 0)
+        return;
+    }
+
+  priority = META_WAYLAND_DMA_BUF_TRANCHE_PRIORITY_HIGH;
+  flags = META_WAYLAND_DMA_BUF_TRANCHE_FLAG_SCANOUT;
+  tranche = meta_wayland_dma_buf_tranche_new (feedback->main_device_id,
+                                              formats,
+                                              priority,
+                                              flags);
+  tranche->scanout_crtc_id = meta_crtc_get_id (crtc);
+  meta_wayland_dma_buf_feedback_add_tranche (feedback, tranche);
+}
+
+static void
+clear_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback)
+{
+  MetaWaylandDmaBufFeedback *feedback = surface_feedback->feedback;
+  MetaWaylandDmaBufTranche *tranche;
+  GList *el;
+
+  el = g_list_find_custom (feedback->tranches, NULL, find_scanout_tranche_func);
+  if (!el)
+    return;
+
+  tranche = el->data;
+  meta_wayland_dma_buf_tranche_free (tranche);
+  feedback->tranches = g_list_delete_link (feedback->tranches, el);
+}
+#endif /* HAVE_NATIVE_BACKEND */
+
+static void
+update_surface_feedback_tranches (MetaWaylandDmaBufSurfaceFeedback *surface_feedback)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaCrtc *crtc;
+
+  crtc = meta_wayland_surface_get_scanout_candidate (surface_feedback->surface);
+  if (crtc)
+    ensure_scanout_tranche (surface_feedback, crtc);
+  else
+    clear_scanout_tranche (surface_feedback);
+#endif /* HAVE_NATIVE_BACKEND */
+}
+
+static void
+on_scanout_candidate_changed (MetaWaylandSurface               *surface,
+                              GParamSpec                       *pspec,
+                              MetaWaylandDmaBufSurfaceFeedback *surface_feedback)
+{
+  GList *l;
+
+  update_surface_feedback_tranches (surface_feedback);
+
+  for (l = surface_feedback->resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      meta_wayland_dma_buf_feedback_send (surface_feedback->feedback,
+                                          surface_feedback->dma_buf_manager,
+                                          resource);
+    }
+}
+
+static void
+surface_feedback_surface_destroyed_cb (gpointer user_data)
+{
+  MetaWaylandDmaBufSurfaceFeedback *surface_feedback = user_data;
+
+  g_list_foreach (surface_feedback->resources,
+                  (GFunc) wl_resource_set_user_data,
+                  NULL);
+  g_list_free (surface_feedback->resources);
+
+  g_free (surface_feedback);
+}
+
+static MetaWaylandDmaBufSurfaceFeedback *
+ensure_surface_feedback (MetaWaylandDmaBufManager *dma_buf_manager,
+                         MetaWaylandSurface       *surface)
+{
+  MetaWaylandDmaBufSurfaceFeedback *surface_feedback;
+
+  surface_feedback = g_object_get_qdata (G_OBJECT (surface),
+                                         quark_dma_buf_surface_feedback);
+  if (surface_feedback)
+    return surface_feedback;
+
+  surface_feedback = g_new0 (MetaWaylandDmaBufSurfaceFeedback, 1);
+  surface_feedback->dma_buf_manager = dma_buf_manager;
+  surface_feedback->surface = surface;
+  surface_feedback->feedback =
+    meta_wayland_dma_buf_feedback_copy (dma_buf_manager->default_feedback);
+
+  surface_feedback->scanout_candidate_changed_id =
+    g_signal_connect (surface, "notify::scanout-candidate",
+                      G_CALLBACK (on_scanout_candidate_changed),
+                      surface_feedback);
+
+  g_object_set_qdata_full (G_OBJECT (surface),
+                           quark_dma_buf_surface_feedback,
+                           surface_feedback,
+                           surface_feedback_surface_destroyed_cb);
+
+  return surface_feedback;
+}
+
+static void
+surface_feedback_destructor (struct wl_resource *resource)
+{
+  MetaWaylandDmaBufSurfaceFeedback *surface_feedback =
+
+  surface_feedback = wl_resource_get_user_data (resource);
+  if (!surface_feedback)
+    return;
+
+  surface_feedback->resources = g_list_remove (surface_feedback->resources,
+                                               resource);
+  if (!surface_feedback->resources)
+    {
+      g_clear_signal_handler (&surface_feedback->scanout_candidate_changed_id,
+                              surface_feedback->surface);
+      g_object_set_qdata (G_OBJECT (surface_feedback->surface),
+                          quark_dma_buf_surface_feedback, NULL);
+    }
+}
+
 static void
 dma_buf_handle_get_surface_feedback (struct wl_client   *client,
                                      struct wl_resource *dma_buf_resource,
@@ -870,7 +1141,12 @@ dma_buf_handle_get_surface_feedback (struct wl_client   *client,
 {
   MetaWaylandDmaBufManager *dma_buf_manager =
     wl_resource_get_user_data (dma_buf_resource);
+  MetaWaylandSurface *surface =
+    wl_resource_get_user_data (surface_resource);
+  MetaWaylandDmaBufSurfaceFeedback *surface_feedback;
   struct wl_resource *feedback_resource;
+
+  surface_feedback = ensure_surface_feedback (dma_buf_manager, surface);
 
   feedback_resource =
     wl_resource_create (client,
@@ -880,10 +1156,12 @@ dma_buf_handle_get_surface_feedback (struct wl_client   *client,
 
   wl_resource_set_implementation (feedback_resource,
                                   &feedback_implementation,
-                                  NULL,
-                                  feedback_destructor);
+                                  surface_feedback,
+                                  surface_feedback_destructor);
+  surface_feedback->resources = g_list_prepend (surface_feedback->resources,
+                                                feedback_resource);
 
-  meta_wayland_dma_buf_feedback_send (dma_buf_manager->default_feedback,
+  meta_wayland_dma_buf_feedback_send (surface_feedback->feedback,
                                       dma_buf_manager,
                                       feedback_resource);
 }
@@ -1269,6 +1547,9 @@ meta_wayland_dma_buf_manager_class_init (MetaWaylandDmaBufManagerClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_wayland_dma_buf_manager_finalize;
+
+  quark_dma_buf_surface_feedback =
+    g_quark_from_static_string ("-meta-wayland-dma-buf-surface-feedback");
 }
 
 static void
