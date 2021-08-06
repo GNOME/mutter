@@ -502,6 +502,7 @@ surface_handle_parent_surface_destroyed (struct wl_listener *listener,
                                                  surface,
                                                  sub.parent_destroy_listener);
 
+  g_node_unlink (surface->subsurface_branch_node);
   surface->sub.parent = NULL;
 }
 
