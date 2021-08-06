@@ -134,6 +134,27 @@ G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJE
 G_DEFINE_TYPE (MetaWaylandDmaBufManager, meta_wayland_dma_buf_manager,
                G_TYPE_OBJECT)
 
+static gboolean
+should_send_modifiers (MetaBackend *backend)
+{
+  MetaSettings *settings = meta_backend_get_settings (backend);
+
+  if (meta_settings_is_experimental_feature_enabled (
+        settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
+    return TRUE;
+
+#ifdef HAVE_NATIVE_BACKEND
+  if (META_IS_BACKEND_NATIVE (backend))
+    {
+      MetaRenderer *renderer = meta_backend_get_renderer (backend);
+      MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+      return meta_renderer_native_use_modifiers (renderer_native);
+    }
+#endif
+
+  return FALSE;
+}
+
 static gint
 compare_tranches (gconstpointer a,
                   gconstpointer b)
@@ -874,27 +895,6 @@ static const struct zwp_linux_dmabuf_v1_interface dma_buf_implementation =
   dma_buf_handle_get_default_feedback,
   dma_buf_handle_get_surface_feedback,
 };
-
-static gboolean
-should_send_modifiers (MetaBackend *backend)
-{
-  MetaSettings *settings = meta_backend_get_settings (backend);
-
-  if (meta_settings_is_experimental_feature_enabled (
-      settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
-    return TRUE;
-
-#ifdef HAVE_NATIVE_BACKEND
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      MetaRenderer *renderer = meta_backend_get_renderer (backend);
-      MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-      return meta_renderer_native_use_modifiers (renderer_native);
-    }
-#endif
-
-  return FALSE;
-}
 
 static void
 send_modifiers (struct wl_resource      *resource,
