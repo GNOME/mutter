@@ -76,6 +76,12 @@ typedef enum _MetaWaylandDmaBufTrancheFlags
   META_WAYLAND_DMA_BUF_TRANCHE_FLAG_SCANOUT = 1,
 } MetaWaylandDmaBufTrancheFlags;
 
+typedef enum _MetaWaylandDmaBufTranchePriority
+{
+  META_WAYLAND_DMA_BUF_TRANCHE_PRIORITY_HIGH = 0,
+  META_WAYLAND_DMA_BUF_TRANCHE_PRIORITY_DEFAULT = 10,
+} MetaWaylandDmaBufTranchePriority;
+
 typedef struct _MetaWaylandDmaBufFormat
 {
   uint32_t drm_format;
@@ -85,6 +91,7 @@ typedef struct _MetaWaylandDmaBufFormat
 
 typedef struct _MetaWaylandDmaBufTranche
 {
+  MetaWaylandDmaBufTranchePriority priority;
   dev_t target_device_id;
   GArray *formats;
   MetaWaylandDmaBufTrancheFlags flags;
@@ -127,16 +134,33 @@ G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJE
 G_DEFINE_TYPE (MetaWaylandDmaBufManager, meta_wayland_dma_buf_manager,
                G_TYPE_OBJECT)
 
+static gint
+compare_tranches (gconstpointer a,
+                  gconstpointer b)
+{
+  const MetaWaylandDmaBufTranche *tranche_a = a;
+  const MetaWaylandDmaBufTranche *tranche_b = b;
+
+  if (tranche_a->priority > tranche_b->priority)
+    return 1;
+  if (tranche_a->priority < tranche_b->priority)
+    return -1;
+  else
+    return 0;
+}
+
 static MetaWaylandDmaBufTranche *
-meta_wayland_dma_buf_tranche_new (dev_t                          device_id,
-                                  GArray                        *formats,
-                                  MetaWaylandDmaBufTrancheFlags  flags)
+meta_wayland_dma_buf_tranche_new (dev_t                             device_id,
+                                  GArray                           *formats,
+                                  MetaWaylandDmaBufTranchePriority  priority,
+                                  MetaWaylandDmaBufTrancheFlags     flags)
 {
   MetaWaylandDmaBufTranche *tranche;
 
   tranche = g_new0 (MetaWaylandDmaBufTranche, 1);
   tranche->target_device_id = device_id;
   tranche->formats = g_array_copy (formats);
+  tranche->priority = priority;
   tranche->flags = flags;
 
   return tranche;
@@ -217,7 +241,8 @@ static void
 meta_wayland_dma_buf_feedback_add_tranche (MetaWaylandDmaBufFeedback *feedback,
                                            MetaWaylandDmaBufTranche  *tranche)
 {
-  feedback->tranches = g_list_append (feedback->tranches, tranche);
+  feedback->tranches = g_list_insert_sorted (feedback->tranches, tranche,
+                                             compare_tranches);
 }
 
 static MetaWaylandDmaBufFeedback *
@@ -1053,15 +1078,18 @@ init_formats (MetaWaylandDmaBufManager *dma_buf_manager,
 static void
 init_default_feedback (MetaWaylandDmaBufManager *dma_buf_manager)
 {
+  MetaWaylandDmaBufTranchePriority priority;
   MetaWaylandDmaBufTrancheFlags flags;
   MetaWaylandDmaBufTranche *tranche;
 
   dma_buf_manager->default_feedback =
     meta_wayland_dma_buf_feedback_new (dma_buf_manager->main_device_id);
 
+  priority = META_WAYLAND_DMA_BUF_TRANCHE_PRIORITY_DEFAULT;
   flags = META_WAYLAND_DMA_BUF_TRANCHE_FLAG_NONE;
   tranche = meta_wayland_dma_buf_tranche_new (dma_buf_manager->main_device_id,
                                               dma_buf_manager->formats,
+                                              priority,
                                               flags);
   meta_wayland_dma_buf_feedback_add_tranche (dma_buf_manager->default_feedback,
                                              tranche);
