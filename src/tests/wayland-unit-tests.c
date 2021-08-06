@@ -149,6 +149,15 @@ subsurface_remap_toplevel (void)
 }
 
 static void
+subsurface_reparenting (void)
+{
+  WaylandTestClient *wayland_test_client;
+
+  wayland_test_client = wayland_test_client_new ("subsurface-reparenting");
+  wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 subsurface_invalid_subsurfaces (void)
 {
   WaylandTestClient *wayland_test_client;
@@ -255,6 +264,8 @@ init_wayland_tests (void)
 {
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
                    subsurface_remap_toplevel);
+  g_test_add_func ("/wayland/subsurface/reparent",
+                   subsurface_reparenting);
   g_test_add_func ("/wayland/subsurface/invalid-subsurfaces",
                    subsurface_invalid_subsurfaces);
   g_test_add_func ("/wayland/subsurface/invalid-xdg-shell-actions",
