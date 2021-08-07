@@ -10,16 +10,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-19 07:12+0000\n"
-"PO-Revision-Date: 2021-03-29 00:19+0300\n"
-"Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
+"POT-Creation-Date: 2021-07-27 14:35+0000\n"
+"PO-Revision-Date: 2021-08-07 19:58+0300\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator 3.38.0\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Poedit 3.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -53,111 +53,125 @@ msgstr "העברת החלון למרחב העבודה שמשמאל"
 msgid "Move window one workspace to the right"
 msgstr "העברת החלון למרחב העבודה שמימין"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "העברת החלון למרחב העבודה שמלמעלה"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "העברת החלון למרחב העבודה שמלמטה"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "העברת החלון לצג שמשמאל"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "העברת החלון לצג שמימין"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "העברת החלון לצג שמלמעלה"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "העברת החלון לצג שמלמטה"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "החלפה בין יישומים"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "החלפה ליישום הקודם"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "החלפת חלונות"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "החלפה לחלון הקודם"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "החלפה בין חלונות של יישום"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "החלפה לחלון הקודם של היישום"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "החלפה בין פקדי המערכת"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "החלפה לפקד המערכת הקודם"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "החלפת החלונות באופן ישיר"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "החלפה לחלון הקודם באופן ישיר"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "החלפת חלונות של יישום באופן ישיר"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "החלפה לחלון הקודם של היישום באופן ישיר"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "החלפת פקדי המערכת באופן ישיר"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "החלפה לפקד המערכת הקודם באופן ישיר"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "הסתרת כל החלונות הרגילים"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "מעבר למרחב עבודה 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "מעבר למרחב עבודה 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "מעבר למרחב עבודה 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "מעבר למרחב עבודה 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "מעבר למרחב העבודה האחרון"
 
-#: data/50-mutter-navigation.xml:123
-#| msgid "Move to workspace left"
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "מעבר למרחב העבודה משמאל"
 
-#: data/50-mutter-navigation.xml:126
-#| msgid "Move to workspace right"
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "מעבר למרחב העבודה מימין"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "העברה למרחב העבודה שמלמעלה"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "העברה למרחב העבודה שמלמטה"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -388,19 +402,6 @@ msgid "Enable experimental features"
 msgstr "Enable experimental features"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
-#| "are X11 clients. Requires restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -518,7 +519,7 @@ msgstr "מעבר ל־VT ‏12"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr "לאפשר מחדש צירופי מקשים"
+msgstr "לאפשר צירופי מקשים מחדש"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
@@ -622,9 +623,26 @@ msgstr "‏%s ‏%s"
 msgid "Compositor"
 msgstr "תצוגת חלונות"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "תצוגת X לשימוש"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "מסך X לשימוש"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "להפוך את הקריאות ל־X לסינכרוניות"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "השבתת תמיכה ב־XInput"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -633,63 +651,6 @@ msgstr "מנהל תצוגת חלונות אחר כבר פועל במסך %i בת
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "אירוע פעמון"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Disable connection to session manager"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Replace the running window manager"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Specify session management ID"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "X Display to use"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Initialize session from savefile"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Make X calls synchronous"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Run as a wayland compositor"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Run as a nested compositor"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Run wayland compositor without starting Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Specify Wayland display name to use"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Run as a full display server, rather than nested"
-
-#: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
-msgid "Run as a headless display server"
-msgstr "Run as a headless display server"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Add persistent virtual monitor (WxH or WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Run with X11 backend"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -716,10 +677,62 @@ msgstr "_אילוץ סגירה"
 msgid "_Wait"
 msgstr "ה_מתנה"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "החלפת מנהל החלונות הפעיל"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "תצוגת X לשימוש"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "השבתת החיבור למנהל ההפעלות"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "Specify session management ID"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "Initialize session from savefile"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "Run as a wayland compositor"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "Run as a nested compositor"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Run wayland compositor without starting Xwayland"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "Specify Wayland display name to use"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "Run as a full display server, rather than nested"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "Run as a headless display server"
+
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Add persistent virtual monitor (WxH or WxH@R)"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "הפעלה עם מנגנון X11"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "מצב העברה (קבוצה %d)"
@@ -727,29 +740,28 @@ msgstr "מצב העברה (קבוצה %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "החלפה בין צגים"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "הצגת עזרה על המסך"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
-msgstr "Print version"
+msgstr "הצגת הגרסה"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "תוסף ה־mutter לשימוש"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "מרחב עבודה %d"
 
-#: src/core/util.c:117
-#| msgid "Mutter was compiled without support for verbose mode\n"
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter was compiled without support for verbose mode"
 
@@ -758,7 +770,7 @@ msgstr "Mutter was compiled without support for verbose mode"
 msgid "Mode Switch: Mode %d"
 msgstr "מצב העברה: מצב %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -767,20 +779,17 @@ msgstr ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 
-#: src/x11/meta-x11-display.c:1097
-#| msgid "Failed to initialize GDK\n"
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Failed to initialize GDK"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
-#| msgid "Failed to open X Window System display “%s”\n"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Failed to open X Window System display “%s”"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
-#| msgid "Screen %d on display “%s” is invalid\n"
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Screen %d on display “%s” is invalid"
 
@@ -789,7 +798,7 @@ msgstr "Screen %d on display “%s” is invalid"
 msgid "Format %s not supported"
 msgstr "Format %s not supported"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -801,18 +810,6 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (מעל %s)"
-
-#~ msgid "Move window one workspace up"
-#~ msgstr "העברת החלון למרחב העבודה שמלמעלה"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "העברת החלון למרחב העבודה שמלמטה"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "העברה למרחב העבודה שמלמעלה"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "העברה למרחב העבודה שמלמטה"
 
 #~ msgid ""
 #~ "mutter %s\n"
