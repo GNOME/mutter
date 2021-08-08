@@ -10,10 +10,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: mutter\n"
+"Project-Id-Version: mutter gnome-40\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-13 11:52+0100\n"
+"POT-Creation-Date: 2021-07-29 13:30+0000\n"
+"PO-Revision-Date: 2021-08-08 20:31+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -56,109 +56,125 @@ msgstr "Přesunout okno o jednu pracovní plochu doleva"
 msgid "Move window one workspace to the right"
 msgstr "Přesunout okno o jednu pracovní plochu doprava"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Přesunout okno o jednu pracovní plochu výš"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Přesunout okno o jednu pracovní plochu níž"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Přesunout okno o jeden monitor doleva"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Přesunout okno o jeden monitor doprava"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Přesunout okno o jeden monitor nahoru"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Přesunout okno o jeden monitor dolů"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Přepnout do jiné aplikace"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Přepnout do předchozí aplikaci"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Přepnout do jiného okna"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Přepnout do minulého okna"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Přepnout do jiného okna aplikace"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Přepnout do předchozího okna aplikace"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Přepnout na systémový ovládací prvek"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Přepnout na minulý systémový ovládací prvek"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Přepnout přímo do okna"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Přepnout přímo do předchozího okna"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Přepnout přímo do jiného okna aplikace"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Přepnout přímo do předchozího okna aplikace"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Přepnout přímo na systémový ovládací prvek"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Přepnout přímo na předchozí systémový ovládací prvek"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Skrýt všechna běžná okna"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Přepnout na pracovní plochu 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Přepnout na pracovní plochu 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Přepnout na pracovní plochu 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Přepnout na pracovní plochu 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Přepnout na poslední pracovní plochu"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Přepnout na pracovní plochu vlevo"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Přepnout na pracovní plochu vpravo"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Přepnout na pracovní plochu nad"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Přepnout na pracovní plochu pod"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -710,7 +726,7 @@ msgstr "_Počkat"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Přepínač režimu (skupina %d)"
@@ -718,11 +734,11 @@ msgstr "Přepínač režimu (skupina %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Přepnout monitor"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Zobrazit nápovědu na obrazovce"
 
