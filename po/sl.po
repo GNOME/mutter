@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-05-11 22:26+0000\n"
-"PO-Revision-Date: 2021-05-13 10:20+0200\n"
+"POT-Creation-Date: 2021-08-08 18:38+0000\n"
+"PO-Revision-Date: 2021-08-09 21:07+0200\n"
 "Last-Translator: Matej Urbančič <mateju@src.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -625,9 +625,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Sestavljalnik"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "Zaslon X za uporabo"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "Zaslon X za uporabo"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "Uskladi klice X"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Onemogoči podporo XInput"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -637,62 +654,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Onemogoči povezavo z upravljalnikom sej"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Zamenjaj trenutni upravljalnik oken"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Navedite ID upravljanja seje"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Zaslon X za uporabo"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Začni sejo iz shranjene datoteke"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Uskladi klice X"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Zaženi izbirnik wayland"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Zaženi kot gnezden vpisovalnik"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Določilo prikazno ime Wayland za uporabo"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Zaženi kot polni zaslonski strežnik in ne vstavljeno"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Zaženi kot zaslonski strežni"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Dodaj navidezni monitor (WxH ali WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Zaženi z zaledjem X11"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -720,10 +681,62 @@ msgstr "_Vsili končanje"
 msgid "_Wait"
 msgstr "_Počakaj"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "Zamenjaj trenutni upravljalnik oken"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "Zaslon X za uporabo"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "Onemogoči povezavo z upravljalnikom sej"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "Navedite ID upravljanja seje"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "Začni sejo iz shranjene datoteke"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "Zaženi izbirnik wayland"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "Zaženi kot gnezden vpisovalnik"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "Določilo prikazno ime Wayland za uporabo"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "Zaženi kot polni zaslonski strežnik in ne vstavljeno"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "Zaženi kot zaslonski strežni"
+
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Dodaj navidezni monitor (WxH ali WxH@R)"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "Zaženi z zaledjem X11"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Preklop načina (skupina %d)"
@@ -731,29 +744,29 @@ msgstr "Preklop načina (skupina %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Nadzornik preklopa"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Pokaži zaslonsko pomoč"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Izpiši različico"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Vstavek Mutter za uporabo"
 
 # G:1 K:0 O:0
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Delovna površina %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr ""
 "Program Mutter je kodno preveden brez podpore za podrobni način izpisovanja"
@@ -763,7 +776,7 @@ msgstr ""
 msgid "Mode Switch: Mode %d"
 msgstr "Način preklopa: način %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -772,16 +785,16 @@ msgstr ""
 "Zaslon »%s« že ima določen upravljalnik oken; poskušajte uporabiti možnost --"
 "replace za zamenjavo trenutnega upravljalnika zaslona."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Začenjanje okolja GDK je spodletelo"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Odpiranje zaslona »%s« okenskega sistema X je spodletelo"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Zaslon %d na prikazu »%s« ni veljaven"
@@ -792,7 +805,7 @@ msgid "Format %s not supported"
 msgstr "Zapis %s ni podprt."
 
 # G:2 K:6 O:0
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
