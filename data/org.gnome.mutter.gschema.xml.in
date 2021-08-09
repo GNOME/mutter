@@ -1,4 +1,13 @@
 <schemalist>
+
+  <flags id="org.gnome.mutter.MetaExperimentalFeature">
+    <value nick="scale-monitor-framebuffer" value="1"/>
+    <value nick="kms-modifiers" value="2"/>
+    <value nick="rt-scheduler" value="4"/>
+    <value nick="dma-buf-screen-sharing" value="8"/>
+    <value nick="autoclose-xwayland" value="16"/>
+  </flags>
+
   <schema id="org.gnome.mutter" path="/org/gnome/mutter/"
           gettext-domain="@GETTEXT_DOMAIN@">
 
@@ -102,7 +111,8 @@
       </description>
     </key>
 
-    <key name="experimental-features" type="as">
+    <key name="experimental-features"
+        flags='org.gnome.mutter.MetaExperimentalFeature'>
       <default>[]</default>
       <summary>Enable experimental features</summary>
       <description>
