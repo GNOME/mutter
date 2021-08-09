@@ -121,10 +121,15 @@
                                         to manage HiDPI monitors. Does not
                                         require a restart.
 
+        • “kms-modifiers”             — makes mutter always advertise valid
+                                        buffer modifiers on Wayland. This is
+                                        currently not the case when using the
+                                        i915 driver. Does not require a restart.
+
         • “rt-scheduler”              — makes mutter request a low priority
                                         real-time scheduling. Requires a restart.
 
-        • “dma-buf-screen-sharing"    — enables DMA buffered screen sharing. This
+        • “dma-buf-screen-sharing”    — enables DMA buffered screen sharing. This
                                         is already enabled by default when using
                                         the i915 driver, but disabled for 
                                         everything else. Requires a restart.
