@@ -20,16 +20,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-28 00:04+0800\n"
-"Last-Translator: Dingzhong Chen <wsxy162@gmail.com>\n"
+"POT-Creation-Date: 2021-07-27 14:35+0000\n"
+"PO-Revision-Date: 2021-08-09 15:49-0400\n"
+"Last-Translator: Boyuan Yang <073plan@gmail.com>\n"
 "Language-Team: Chinese - China <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Gtranslator 3.38.0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -63,111 +63,125 @@ msgstr "将窗口左移一个工作区"
 msgid "Move window one workspace to the right"
 msgstr "将窗口右移一个工作区"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "将窗口上移一个工作区"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "将窗口下移一个工作区"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "将窗口左移一个显示器"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "将窗口右移一个显示器"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "将窗口上移一个显示器"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "将窗口下移一个显示器"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "切换应用程序"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "切换到前一个应用程序"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "切换窗口"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "切换到前一个窗口"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "在应用程序的窗口之间切换窗口"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "切换到一个应用程序的前一个窗口"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "切换系统控制"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "切换到前一个系统控制"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "直接切换窗口"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "直接切换到前一个窗口"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "在应用程序窗口间直接移动焦点"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "直接切换到一个应用程序的前一个窗口"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "直接切换系统控制"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "直接切换到前一个系统控制"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "隐藏所有正常窗口"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "切换到工作区 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "切换到工作区 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "切换到工作区 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "切换到工作区 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "切换到最后一个工作区"
 
-#: data/50-mutter-navigation.xml:123
-#| msgid "Move to workspace left"
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "移动到左侧工作区"
 
-#: data/50-mutter-navigation.xml:126
-#| msgid "Move to workspace right"
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "移动到右侧工作区"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "移动到上层工作区"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "移动到下层工作区"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -593,9 +607,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "合成器"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "要使用的 X 显示"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "要使用的 X 屏幕"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "使 X 调用同步"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "禁用 XInput 支持"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -604,63 +635,6 @@ msgstr "显示“%2$s”的屏幕 %1$i 上已有另外一个合成管理器正�
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "响铃事件"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "禁止连接到会话管理器"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "替换正在运行的窗口管理器"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "指定会话管理 ID"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "要使用的 X 显示"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "从保存文件中初始化会话"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "使 X 调用同步"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "以 wayland 合成器运行"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "以嵌套合成器运行"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "运行 wayland 合成器但不启动 Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "指定要使用的 Wayland 显示的名称"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
-
-#: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
-msgid "Run as a headless display server"
-msgstr "以无外设显示服务器运行"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "以 X11 后端运行"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -686,10 +660,62 @@ msgstr "强制退出(_F)"
 msgid "_Wait"
 msgstr "等待(_W)"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "替换正在运行的窗口管理器"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "要使用的 X 显示"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "禁止连接到会话管理器"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "指定会话管理 ID"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "从保存文件中初始化会话"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "以 wayland 合成器运行"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "以嵌套合成器运行"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "运行 wayland 合成器但不启动 Xwayland"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "指定要使用的 Wayland 显示的名称"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "以无外设显示服务器运行"
+
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "以 X11 后端运行"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切换（组别 %d）"
@@ -697,28 +723,28 @@ msgstr "模式切换（组别 %d）"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "切换显示器"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "显示在屏帮助"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "打印版本"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter 编译的时候没有加入详细模式的支持"
 
@@ -727,7 +753,7 @@ msgstr "Mutter 编译的时候没有加入详细模式的支持"
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -735,16 +761,16 @@ msgid ""
 msgstr ""
 "显示“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理器。"
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "初始化 GDK 失败"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "无法打开 X 窗口系统显示“%s”"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效"
@@ -754,7 +780,7 @@ msgstr "显示“%2$s”上的屏幕 %1$d 无效"
 msgid "Format %s not supported"
 msgstr "不支持 %s 格式"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -764,18 +790,6 @@ msgstr "这些窗口不支持“保存当前设置”，并且在您下次登录
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
-
-#~ msgid "Move window one workspace up"
-#~ msgstr "将窗口上移一个工作区"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "将窗口下移一个工作区"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "移动到上层工作区"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "移动到下层工作区"
 
 #~ msgid ""
 #~ "mutter %s\n"
