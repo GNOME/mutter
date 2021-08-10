@@ -1182,7 +1182,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
                              frame_clock->refresh_interval_us;
 
   lateness_us = time_us - ideal_dispatch_time_us;
-  if (lateness_us < 0 || lateness_us >= frame_clock->refresh_interval_us)
+  if (lateness_us < 0 || lateness_us >= frame_clock->refresh_interval_us / 4)
     this_dispatch->dispatch_lateness_us = 0;
   else
     this_dispatch->dispatch_lateness_us = lateness_us;
