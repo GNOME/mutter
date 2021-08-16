@@ -35,6 +35,7 @@
 
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-dbus-session-manager.h"
+#include "backends/meta-eis.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/x11/meta-backend-x11.h"
@@ -224,6 +225,8 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
 {
   MetaRemoteDesktopSession *session =
     META_REMOTE_DESKTOP_SESSION (dbus_session);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
   MetaDBusRemoteDesktopSession *skeleton =
     META_DBUS_REMOTE_DESKTOP_SESSION (session);
 
@@ -255,6 +258,8 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
 
       meta_remote_access_handle_notify_stopped (remote_access_handle);
     }
+
+  meta_eis_remove_all_clients (meta_backend_get_eis (backend));
 
   g_object_unref (session);
 }

@@ -79,6 +79,9 @@
 #include "meta/util.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
+#include "backends/meta-dbus-session-watcher.h"
+#include "backends/meta-eis.h"
+#include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-remote-desktop.h"
 #include "backends/meta-screen-cast.h"
 #endif
@@ -139,6 +142,7 @@ struct _MetaBackendPrivate
 #ifdef HAVE_REMOTE_DESKTOP
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
+  MetaEis *eis;
 #endif
   MetaInputCapture *input_capture;
 
@@ -208,6 +212,7 @@ meta_backend_dispose (GObject *object)
 #ifdef HAVE_REMOTE_DESKTOP
   g_clear_object (&priv->remote_desktop);
   g_clear_object (&priv->screen_cast);
+  g_clear_object (&priv->eis);
 #endif
   g_clear_object (&priv->input_capture);
   g_clear_object (&priv->dbus_session_watcher);
@@ -581,6 +586,7 @@ meta_backend_real_post_init (MetaBackend *backend)
   meta_remote_access_controller_add (
     priv->remote_access_controller,
     META_DBUS_SESSION_MANAGER (priv->remote_desktop));
+  priv->eis = meta_eis_new (backend);
 #endif /* HAVE_REMOTE_DESKTOP */
 
   priv->input_capture = meta_input_capture_new (backend);
@@ -1439,6 +1445,16 @@ meta_backend_get_screen_cast (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->screen_cast;
+}
+
+/**
+ * meta_backend_get_eis: (skip)
+ */
+MetaEis *
+meta_backend_get_eis (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  return priv->eis;
 }
 #endif /* HAVE_REMOTE_DESKTOP */
 

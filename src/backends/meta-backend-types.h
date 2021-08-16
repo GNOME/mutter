@@ -95,4 +95,7 @@ typedef struct _MetaGammaLut
 typedef struct _MetaInputCapture MetaInputCapture;
 typedef struct _MetaInputCaptureSession MetaInputCaptureSession;
 
+typedef struct _MetaEis MetaEis;
+typedef struct _MetaEisClient MetaEisClient;
+
 #endif /* META_BACKEND_TYPE_H */

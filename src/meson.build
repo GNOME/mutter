@@ -88,6 +88,7 @@ endif
 if have_remote_desktop
   mutter_pkg_private_deps += [
     libpipewire_dep,
+    libeis_dep,
   ]
 endif
 
@@ -531,6 +532,10 @@ endif
 
 if have_remote_desktop
   mutter_sources += [
+    'backends/meta-eis.c',
+    'backends/meta-eis.h',
+    'backends/meta-eis-client.c',
+    'backends/meta-eis-client.h',
     'backends/meta-remote-desktop.c',
     'backends/meta-remote-desktop.h',
     'backends/meta-remote-desktop-session.c',
