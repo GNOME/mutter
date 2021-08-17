@@ -1,3 +1,13 @@
+3.38.6
+======
+* Misc. bug fixes [James; !1907]
+
+Contributors:
+  James Dominic P. Guana
+
+Translators:
+  Alexey Rubtsov [ru]
+
 3.38.5
 ======
 * xwayland: Check permissions on /tmp/.X11-unix [Jonas, Olivier; !1788]
