@@ -105,8 +105,6 @@ struct _ClutterClickActionPrivate
 {
   ClutterActor *stage;
 
-  gulong event_id;
-  gulong capture_id;
   guint long_press_id;
 
   gint long_press_threshold;
@@ -149,11 +147,6 @@ enum
 static guint click_signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterClickAction, clutter_click_action, CLUTTER_TYPE_ACTION)
-
-/* forward declaration */
-static gboolean on_captured_event (ClutterActor       *stage,
-                                   ClutterEvent       *event,
-                                   ClutterClickAction *action);
 
 static inline void
 click_action_set_pressed (ClutterClickAction *action,
@@ -204,8 +197,6 @@ click_action_emit_long_press (gpointer data)
                  actor,
                  CLUTTER_LONG_PRESS_ACTIVATE,
                  &result);
-
-  g_clear_signal_handler (&priv->capture_id, priv->stage);
 
   click_action_set_pressed (action, FALSE);
   click_action_set_held (action, FALSE);
@@ -274,7 +265,7 @@ click_action_cancel_long_press (ClutterClickAction *action)
 
 static inline gboolean
 event_within_drag_threshold (ClutterClickAction *click_action,
-                             ClutterEvent       *event)
+                             const ClutterEvent *event)
 {
   ClutterClickActionPrivate *priv =
     clutter_click_action_get_instance_private (click_action);
@@ -290,16 +281,27 @@ event_within_drag_threshold (ClutterClickAction *click_action,
 }
 
 static gboolean
-on_event (ClutterActor       *actor,
-          ClutterEvent       *event,
-          ClutterClickAction *action)
+clutter_click_action_handle_event (ClutterAction      *action,
+                                   const ClutterEvent *event)
 {
+  ClutterClickAction *click_action = CLUTTER_CLICK_ACTION (action);
   ClutterClickActionPrivate *priv =
-    clutter_click_action_get_instance_private (action);
+    clutter_click_action_get_instance_private (click_action);
+  ClutterActor *actor =
+    clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
   gboolean has_button = TRUE;
+  ClutterModifierType modifier_state;
 
   if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)))
     return CLUTTER_EVENT_PROPAGATE;
+
+  if (priv->press_sequence != NULL &&
+      clutter_event_get_event_sequence (event) != priv->press_sequence)
+    {
+      click_action_set_held (click_action, FALSE);
+      click_action_cancel_long_press (click_action);
+      return CLUTTER_EVENT_PROPAGATE;
+    }
 
   switch (clutter_event_type (event))
     {
@@ -335,48 +337,22 @@ on_event (ClutterActor       *actor,
       if (priv->stage == NULL)
         priv->stage = clutter_actor_get_stage (actor);
 
-      priv->capture_id = g_signal_connect_after (priv->stage, "captured-event",
-                                                 G_CALLBACK (on_captured_event),
-                                                 action);
-
-      click_action_set_pressed (action, TRUE);
-      click_action_set_held (action, TRUE);
-      click_action_query_long_press (action);
+      click_action_set_pressed (click_action, TRUE);
+      click_action_set_held (click_action, TRUE);
+      click_action_query_long_press (click_action);
       break;
 
     case CLUTTER_ENTER:
-      click_action_set_pressed (action, priv->is_held);
+      click_action_set_pressed (click_action, priv->is_held);
       break;
 
     case CLUTTER_LEAVE:
-      click_action_set_pressed (action, priv->is_held);
-      click_action_cancel_long_press (action);
+      click_action_set_pressed (click_action, priv->is_held);
+      click_action_cancel_long_press (click_action);
       break;
 
-    default:
-      break;
-    }
-
-  return CLUTTER_EVENT_PROPAGATE;
-}
-
-static gboolean
-on_captured_event (ClutterActor       *stage,
-                   ClutterEvent       *event,
-                   ClutterClickAction *action)
-{
-  ClutterClickActionPrivate *priv =
-    clutter_click_action_get_instance_private (action);
-  ClutterActor *actor;
-  ClutterModifierType modifier_state;
-  gboolean has_button = TRUE;
-
-  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
-
-  switch (clutter_event_type (event))
-    {
     case CLUTTER_TOUCH_CANCEL:
-      clutter_click_action_release (action);
+      clutter_click_action_release (click_action);
       break;
 
     case CLUTTER_TOUCH_END:
@@ -391,11 +367,8 @@ on_captured_event (ClutterActor       *stage,
           clutter_event_get_event_sequence (event) != priv->press_sequence)
         return CLUTTER_EVENT_PROPAGATE;
 
-      click_action_set_held (action, FALSE);
-      click_action_cancel_long_press (action);
-
-      /* disconnect the capture */
-      g_clear_signal_handler (&priv->capture_id, priv->stage);
+      click_action_set_held (click_action, FALSE);
+      click_action_cancel_long_press (click_action);
 
       g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
@@ -418,10 +391,10 @@ on_captured_event (ClutterActor       *stage,
       if (modifier_state != priv->modifier_state)
         priv->modifier_state = 0;
 
-      click_action_set_pressed (action, FALSE);
+      click_action_set_pressed (click_action, FALSE);
 
-      if (event_within_drag_threshold (action, event))
-        g_signal_emit (action, click_signals[CLICKED], 0, actor);
+      if (event_within_drag_threshold (click_action, event))
+        g_signal_emit (click_action, click_signals[CLICKED], 0, actor);
       break;
 
     case CLUTTER_MOTION:
@@ -434,8 +407,8 @@ on_captured_event (ClutterActor       *stage,
         if (!priv->is_held)
           return CLUTTER_EVENT_PROPAGATE;
 
-        if (!event_within_drag_threshold (action, event))
-          clutter_click_action_release (action);
+        if (!event_within_drag_threshold (click_action, event))
+          clutter_click_action_release (click_action);
       }
       break;
 
@@ -443,7 +416,7 @@ on_captured_event (ClutterActor       *stage,
       break;
     }
 
-  return CLUTTER_EVENT_STOP;
+  return priv->is_held ? CLUTTER_EVENT_STOP : CLUTTER_EVENT_PROPAGATE;
 }
 
 static void
@@ -454,34 +427,10 @@ clutter_click_action_set_actor (ClutterActorMeta *meta,
   ClutterClickActionPrivate *priv =
     clutter_click_action_get_instance_private (action);
 
-  if (priv->event_id != 0)
-    {
-      ClutterActor *old_actor = clutter_actor_meta_get_actor (meta);
-
-      if (old_actor != NULL)
-        g_clear_signal_handler (&priv->event_id, old_actor);
-
-      priv->event_id = 0;
-    }
-
-  if (priv->capture_id != 0)
-    {
-      if (priv->stage != NULL)
-        g_clear_signal_handler (&priv->capture_id, priv->stage);
-
-      priv->capture_id = 0;
-      priv->stage = NULL;
-    }
-
   g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
   click_action_set_pressed (action, FALSE);
   click_action_set_held (action, FALSE);
-
-  if (actor != NULL)
-    priv->event_id = g_signal_connect (actor, "event",
-                                       G_CALLBACK (on_event),
-                                       action);
 
   CLUTTER_ACTOR_META_CLASS (clutter_click_action_parent_class)->set_actor (meta, actor);
 }
@@ -564,22 +513,19 @@ clutter_click_action_dispose (GObject *gobject)
   ClutterClickActionPrivate *priv =
     clutter_click_action_get_instance_private (CLUTTER_CLICK_ACTION (gobject));
 
-  g_clear_signal_handler (&priv->event_id,
-                          clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (gobject)));
-
-  g_clear_signal_handler (&priv->capture_id, priv->stage);
-
   g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
   G_OBJECT_CLASS (clutter_click_action_parent_class)->dispose (gobject);
 }
-
 
 static void
 clutter_click_action_class_init (ClutterClickActionClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   ClutterActorMetaClass *meta_class = CLUTTER_ACTOR_META_CLASS (klass);
+  ClutterActionClass *action_class = CLUTTER_ACTION_CLASS (klass);
+
+  action_class->handle_event = clutter_click_action_handle_event;
 
   meta_class->set_actor = clutter_click_action_set_actor;
   meta_class->set_enabled = clutter_click_action_set_enabled;
@@ -768,9 +714,6 @@ clutter_click_action_release (ClutterClickAction *action)
 
   if (!priv->is_held)
     return;
-
-  /* disconnect the capture */
-  g_clear_signal_handler (&priv->capture_id, priv->stage);
 
   click_action_cancel_long_press (action);
   click_action_set_held (action, FALSE);
