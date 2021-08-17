@@ -1,3 +1,55 @@
+41.beta
+=======
+* Fix mouse position in remote desktop with fractional scaling [Pascal; !1867]
+* Manage idle monitors via MetaIdleManager [Jonas Å.; !1859]
+* Disable KMS modifiers on radeon driver [Carlos; !1872]
+* Fix fd leak [Carlos; !1870]
+* Fix adding virtual monitor to physical session [Jonas Å.; !1891]
+* Unbreak press-drag-release to pop up and select right click menus
+  [Carlos; !1885]
+* Fix VKMS detection [Jonas Å.; !1892]
+* Fix swipe cancellation [JoseExposito; !1857]
+* Add ClutterTextureContent [Robert; !1888]
+* Fix mapping tablet to monitor [Christoph; !1887]
+* Fix area screencasts when window is unredirected [Michel; !1902]
+* Don't require a newly attached buffer to apply state [Christian, Jonas; !1795]
+* Close unused mode setting and rendering devices [Jonas Å.; !1828]
+* Only support super+scroll on wayland [Florian; !1922]
+* Implement the xdg-activation protocol [Carlos; !1845]
+* Reduce input latency by computing max render time heuristically [Ivan; !1762]
+* Apply dithering to dispatch time when needed [Daniel; !1826]
+* Introduce MetaContext [Jonas Å.; !1861]
+* x11: Compute monitor scale per output [Marco; !336]
+* Shrink and optimize the rounded-background-clip shader [Daniel; !1860]
+* remote-desktop: Handle non-responding selection owners [Pascal; !1874]
+* Improve sysprof support [Jonas Å.; !1700]
+* Allow clients to delegate titlebar gestures to the compositor [Florian; !1944]
+* Fix upside-down Xshape surface with EGLstream [Robert; !1937]
+* Fix 'kms-modifiers' experimental setting [Robert; !1953]
+* Make default focus window on each workspace appear focused [Alexander; !850]
+* Plugged memory leaks [Jonas Å.; !1869]
+* Fixed crashes crash [Daniel, Jonas Å., Florian; !1883, !1895,
+  !1910, !1925, !1956]
+* Misc. bug fixes and cleanups [Jonas Å., Marco, Daniel, Florian, Georges,
+  Zander, Carlos, Robert; !1833, !1863, !1876, !1873, !1884, !1890, !1900,
+  !1912, !1916, !1911, !1920, !1865, !1927, !1923, !1929, !1100, !1932, !1931,
+  !1862, !1933, !1930, !1935, !1936, !1878, !1938, !1942, !1951, !522, !1941]
+
+Contributors:
+  Marco Trevisan (Treviño), Zander Brown, Piotr Drąg, Michel Dänzer,
+  Carlos Garnacho, JoseExposito, Robert Mader, Alexander Mikhaylenko,
+  Ivan Molodetskikh, Florian Müllner, Georges Basile Stavracas Neto,
+  Pascal Nowack, Christian Rauch, Christoph Trassl, Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Pawan Chitrakar [ne], Charles Monzat [fr], Dušan Kazik [sk],
+  Quentin PAGÈS [oc], Alexey Rubtsov [ru], Alexander Shopov [bg],
+  Florentina Mușat [ro], Chao-Hsiung Liao [zh_TW], Yuri Chornoivan [uk],
+  Fran Dieguez [gl], Hugo Carvalho [pt], Rafael Fontenelle [pt_BR],
+  Fabio Tomat [fur], Kukuh Syafaat [id], Yaron Shahrabani [he],
+  Marek Černocký [cs], Matej Urbančič [sl], Boyuan Yang [zh_CN],
+  Daniel Mustieles [es]
+
 40.1
 ====
 * Prevent clients from pasting old selection data [Carlos; !1772]
