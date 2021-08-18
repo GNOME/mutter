@@ -3154,55 +3154,6 @@ handle_show_desktop (MetaDisplay     *display,
 }
 
 static void
-handle_panel (MetaDisplay     *display,
-              MetaWindow      *window,
-              ClutterKeyEvent *event,
-              MetaKeyBinding  *binding,
-              gpointer         dummy)
-{
-  MetaKeyBindingAction action = binding->handler->data;
-  MetaX11Display *x11_display = display->x11_display;
-  Atom action_atom;
-  XClientMessageEvent ev;
-
-  action_atom = None;
-  switch (action)
-    {
-      /* FIXME: The numbers are wrong */
-    case META_KEYBINDING_ACTION_PANEL_RUN_DIALOG:
-      action_atom = x11_display->atom__GNOME_PANEL_ACTION_RUN_DIALOG;
-      break;
-    default:
-      return;
-    }
-
-  ev.type = ClientMessage;
-  ev.window = x11_display->xroot;
-  ev.message_type = x11_display->atom__GNOME_PANEL_ACTION;
-  ev.format = 32;
-  ev.data.l[0] = action_atom;
-  ev.data.l[1] = event->time;
-
-  meta_topic (META_DEBUG_KEYBINDINGS,
-              "Sending panel message with timestamp %u, and turning mouse_mode "
-              "off due to keybinding press", event->time);
-  display->mouse_mode = FALSE;
-
-  meta_x11_error_trap_push (x11_display);
-
-  /* Release the grab for the panel before sending the event */
-  XUngrabKeyboard (x11_display->xdisplay, event->time);
-
-  XSendEvent (x11_display->xdisplay,
-              x11_display->xroot,
-	      False,
-	      StructureNotifyMask,
-	      (XEvent*) &ev);
-
-  meta_x11_error_trap_pop (x11_display);
-}
-
-static void
 handle_activate_window_menu (MetaDisplay     *display,
                              MetaWindow      *event_window,
                              ClutterKeyEvent *event,
@@ -3973,7 +3924,7 @@ init_builtin_key_bindings (MetaDisplay *display)
                           common_keybindings,
                           META_KEY_BINDING_NONE,
                           META_KEYBINDING_ACTION_PANEL_RUN_DIALOG,
-                          handle_panel, META_KEYBINDING_ACTION_PANEL_RUN_DIALOG);
+                          NULL, META_KEYBINDING_ACTION_PANEL_RUN_DIALOG);
 
   add_builtin_keybinding (display,
                           "set-spew-mark",
