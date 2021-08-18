@@ -27,6 +27,7 @@
 #include "backends/meta-eis.h"
 #include "backends/meta-eis-client.h"
 #include "clutter/clutter-mutter.h"
+#include "meta/util.h"
 
 typedef struct _MetaEventSource MetaEventSource;
 
@@ -214,6 +215,30 @@ static GSourceFuncs eis_event_funcs = {
   NULL
 };
 
+static void
+eis_logger (struct eis             *eis,
+            enum eis_log_priority   priority,
+            const char             *message,
+            struct eis_log_context *ctx)
+{
+  switch (priority)
+    {
+    case EIS_LOG_PRIORITY_DEBUG:
+      meta_topic (META_DEBUG_EIS, "%s", message);
+      break;
+    case EIS_LOG_PRIORITY_WARNING:
+      g_warning ("%s", message);
+      break;
+    case EIS_LOG_PRIORITY_ERROR:
+      g_error ("%s", message);
+      break;
+    case EIS_LOG_PRIORITY_INFO:
+    default:
+      g_info ("%s", message);
+      break;
+    }
+}
+
 static int
 try_and_find_free_eis_socket (MetaEis *meta_eis)
 {
@@ -253,6 +278,9 @@ meta_eis_new (MetaBackend *backend)
       g_clear_pointer (&meta_eis->eis, eis_unref);
       return NULL;
     }
+
+  eis_log_set_handler (meta_eis->eis, eis_logger);
+  eis_log_set_priority (meta_eis->eis, EIS_LOG_PRIORITY_DEBUG);
 
   fd = eis_get_fd (meta_eis->eis);
   meta_eis->event_source = meta_event_source_new (meta_eis, fd, &eis_event_funcs);
