@@ -29,6 +29,7 @@
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-keysyms.h"
+#include "clutter/clutter-input-device-tool.h"
 #include "clutter/clutter-private.h"
 
 #include <math.h>
@@ -2175,4 +2176,622 @@ clutter_event_get_name (const ClutterEvent *event)
       break;
     }
   g_assert_not_reached ();
+}
+
+ClutterEvent *
+clutter_event_key_new (ClutterEventType     type,
+                       ClutterEventFlags    flags,
+                       int64_t              timestamp_us,
+                       ClutterInputDevice  *source_device,
+                       ClutterModifierType  modifiers,
+                       uint32_t             keyval,
+                       uint32_t             evcode,
+                       uint32_t             keycode,
+                       gunichar             unicode_value)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+  ClutterSeat *seat;
+
+  g_return_val_if_fail (type == CLUTTER_KEY_PRESS ||
+                        type == CLUTTER_KEY_RELEASE, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  seat = clutter_input_device_get_seat (source_device);
+
+  event = clutter_event_new (type);
+  private = (ClutterEventPrivate *) event;
+
+  event->key.time = us2ms (timestamp_us);
+  event->key.flags = flags;
+  event->key.modifier_state = modifiers;
+  event->key.keyval = keyval;
+  event->key.hardware_keycode = keycode;
+  event->key.unicode_value = unicode_value;
+  event->key.evdev_code = evcode;
+  event->key.device = clutter_seat_get_keyboard (seat);
+
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_button_new (ClutterEventType        type,
+                          ClutterEventFlags       flags,
+                          int64_t                 timestamp_us,
+                          ClutterInputDevice     *source_device,
+                          ClutterInputDeviceTool *tool,
+                          ClutterModifierType     modifiers,
+                          graphene_point_t        coords,
+			  int                     button,
+                          uint32_t                evcode,
+                          double                 *axes)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (type == CLUTTER_BUTTON_PRESS ||
+                        type == CLUTTER_BUTTON_RELEASE, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (!tool || CLUTTER_IS_INPUT_DEVICE_TOOL (tool), NULL);
+
+  event = clutter_event_new (type);
+  private = (ClutterEventPrivate *) event;
+
+  event->button.time = us2ms (timestamp_us);
+  event->button.flags = flags;
+  event->button.x = coords.x;
+  event->button.y = coords.y;
+  event->button.modifier_state = modifiers;
+  event->button.button = button;
+  event->button.axes = axes;
+  event->button.evdev_code = evcode;
+
+  g_set_object (&private->source_device, source_device);
+  private->tool = tool;
+
+  if (tool)
+    {
+      event->button.device = source_device;
+    }
+  else
+    {
+      ClutterSeat *seat;
+
+      seat = clutter_input_device_get_seat (source_device);
+      event->button.device = clutter_seat_get_pointer (seat);
+    }
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_motion_new (ClutterEventFlags       flags,
+                          int64_t                 timestamp_us,
+                          ClutterInputDevice     *source_device,
+                          ClutterInputDeviceTool *tool,
+                          ClutterModifierType     modifiers,
+                          graphene_point_t        coords,
+                          graphene_point_t        delta,
+                          graphene_point_t        delta_unaccel,
+                          graphene_point_t        delta_constrained,
+                          double                 *axes)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (!tool || CLUTTER_IS_INPUT_DEVICE_TOOL (tool), NULL);
+
+  event = clutter_event_new (CLUTTER_MOTION);
+  private = (ClutterEventPrivate *) event;
+
+  event->motion.time = us2ms (timestamp_us);
+  event->motion.flags = flags;
+  event->motion.x = coords.x;
+  event->motion.y = coords.y;
+  event->motion.modifier_state = modifiers;
+  event->motion.axes = axes;
+  event->motion.time_us = timestamp_us;
+  event->motion.dx = delta.x;
+  event->motion.dy = delta.y;
+  event->motion.dx_unaccel = delta_unaccel.x;
+  event->motion.dy_unaccel = delta_unaccel.y;
+  event->motion.dx_constrained = delta_constrained.x;
+  event->motion.dy_constrained = delta_constrained.y;
+
+  g_set_object (&private->source_device, source_device);
+  private->tool = tool;
+
+  if (tool)
+    {
+      event->motion.device = source_device;
+    }
+  else
+    {
+      ClutterSeat *seat;
+
+      seat = clutter_input_device_get_seat (source_device);
+      event->motion.device = clutter_seat_get_pointer (seat);
+    }
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
+                                 int64_t                   timestamp_us,
+                                 ClutterInputDevice       *source_device,
+                                 ClutterInputDeviceTool   *tool,
+                                 ClutterModifierType       modifiers,
+                                 graphene_point_t          coords,
+                                 graphene_point_t          delta,
+                                 ClutterScrollSource       scroll_source,
+                                 ClutterScrollFinishFlags  finish_flags)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (!tool || CLUTTER_IS_INPUT_DEVICE_TOOL (tool), NULL);
+
+  event = clutter_event_new (CLUTTER_SCROLL);
+  private = (ClutterEventPrivate *) event;
+
+  event->scroll.time = us2ms (timestamp_us);
+  event->scroll.flags = flags;
+  event->scroll.x = coords.x;
+  event->scroll.y = coords.y;
+  event->scroll.direction = CLUTTER_SCROLL_SMOOTH;
+  event->scroll.modifier_state = modifiers;
+  event->scroll.scroll_source = scroll_source;
+  event->scroll.finish_flags = finish_flags;
+
+  g_set_object (&private->source_device, source_device);
+  private->tool = tool;
+  private->delta_x = delta.x;
+  private->delta_y = delta.y;
+
+  if (tool)
+    {
+      event->scroll.device = source_device;
+    }
+  else
+    {
+      ClutterSeat *seat;
+
+      seat = clutter_input_device_get_seat (source_device);
+      event->scroll.device = clutter_seat_get_pointer (seat);
+    }
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
+                                   int64_t                 timestamp_us,
+                                   ClutterInputDevice     *source_device,
+                                   ClutterInputDeviceTool *tool,
+                                   ClutterModifierType     modifiers,
+                                   graphene_point_t        coords,
+                                   ClutterScrollDirection  direction)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (!tool || CLUTTER_IS_INPUT_DEVICE_TOOL (tool), NULL);
+
+  event = clutter_event_new (CLUTTER_SCROLL);
+  private = (ClutterEventPrivate *) event;
+
+  event->scroll.time = us2ms (timestamp_us);
+  event->scroll.flags = flags;
+  event->scroll.x = coords.x;
+  event->scroll.y = coords.y;
+  event->scroll.direction = direction;
+  event->scroll.modifier_state = modifiers;
+
+  g_set_object (&private->source_device, source_device);
+  private->tool = tool;
+
+  if (tool)
+    {
+      event->scroll.device = source_device;
+    }
+  else
+    {
+      ClutterSeat *seat;
+
+      seat = clutter_input_device_get_seat (source_device);
+      event->scroll.device = clutter_seat_get_pointer (seat);
+    }
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_crossing_new (ClutterEventType      type,
+                            ClutterEventFlags     flags,
+                            int64_t               timestamp_us,
+                            ClutterInputDevice   *device,
+                            ClutterEventSequence *sequence,
+                            graphene_point_t      coords,
+                            ClutterActor         *source,
+                            ClutterActor         *related)
+{
+  ClutterEvent *event;
+
+  g_return_val_if_fail (type == CLUTTER_ENTER ||
+                        type == CLUTTER_LEAVE, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+
+  event = clutter_event_new (type);
+
+  event->crossing.time = us2ms (timestamp_us);
+  event->crossing.flags = flags;
+  event->crossing.x = coords.x;
+  event->crossing.y = coords.y;
+  event->crossing.device = device;
+  event->crossing.sequence = sequence;
+  event->crossing.source = source;
+  event->crossing.related = related;
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_touch_new (ClutterEventType      type,
+                         ClutterEventFlags     flags,
+                         int64_t               timestamp_us,
+                         ClutterInputDevice   *source_device,
+                         ClutterEventSequence *sequence,
+                         ClutterModifierType   modifiers,
+                         graphene_point_t      coords)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+  ClutterSeat *seat;
+
+  g_return_val_if_fail (type == CLUTTER_TOUCH_BEGIN ||
+                        type == CLUTTER_TOUCH_UPDATE ||
+                        type == CLUTTER_TOUCH_END, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (sequence != NULL, NULL);
+
+  seat = clutter_input_device_get_seat (source_device);
+
+  event = clutter_event_new (type);
+  private = (ClutterEventPrivate *) event;
+
+  event->touch.time = us2ms (timestamp_us);
+  event->touch.flags = flags;
+  event->touch.x = coords.x;
+  event->touch.y = coords.y;
+  event->touch.modifier_state = modifiers;
+  /* This has traditionally been the virtual pointer device */
+  event->touch.device = clutter_seat_get_pointer (seat);
+  event->touch.sequence = sequence;
+
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_touch_cancel_new (ClutterEventFlags     flags,
+                                int64_t               timestamp_us,
+                                ClutterInputDevice   *source_device,
+                                ClutterEventSequence *sequence)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+  ClutterSeat *seat;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (sequence != NULL, NULL);
+
+  seat = clutter_input_device_get_seat (source_device);
+
+  event = clutter_event_new (CLUTTER_TOUCH_CANCEL);
+  private = (ClutterEventPrivate *) event;
+
+  event->touch.time = us2ms (timestamp_us);
+  event->touch.flags = flags;
+  /* This has traditionally been the virtual pointer device */
+  event->touch.device = clutter_seat_get_pointer (seat);
+  event->touch.sequence = sequence;
+
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_proximity_new (ClutterEventType        type,
+                             ClutterEventFlags       flags,
+                             int64_t                 timestamp_us,
+                             ClutterInputDevice     *source_device,
+                             ClutterInputDeviceTool *tool)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (type == CLUTTER_PROXIMITY_IN ||
+                        type == CLUTTER_PROXIMITY_OUT, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), NULL);
+
+  event = clutter_event_new (type);
+  private = (ClutterEventPrivate *) event;
+
+  event->proximity.time = us2ms (timestamp_us);
+  event->proximity.flags = flags;
+  event->proximity.device = source_device;
+
+  g_set_object (&private->source_device, source_device);
+  private->tool = tool;
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_touchpad_pinch_new (ClutterEventFlags            flags,
+                                  int64_t                      timestamp_us,
+                                  ClutterInputDevice          *source_device,
+                                  ClutterTouchpadGesturePhase  phase,
+                                  uint32_t                     fingers,
+                                  graphene_point_t             coords,
+                                  graphene_point_t             delta,
+                                  graphene_point_t             delta_unaccel,
+                                  float                        angle,
+                                  float                        scale)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+  ClutterSeat *seat;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  seat = clutter_input_device_get_seat (source_device);
+
+  event = clutter_event_new (CLUTTER_TOUCHPAD_PINCH);
+  private = (ClutterEventPrivate *) event;
+
+  event->touchpad_pinch.time = us2ms (timestamp_us);
+  event->touchpad_pinch.flags = flags;
+  event->touchpad_pinch.phase = phase;
+  event->touchpad_pinch.x = coords.x;
+  event->touchpad_pinch.y = coords.y;
+  event->touchpad_pinch.dx = delta.x;
+  event->touchpad_pinch.dy = delta.y;
+  event->touchpad_pinch.dx_unaccel = delta_unaccel.x;
+  event->touchpad_pinch.dy_unaccel = delta_unaccel.y;
+  event->touchpad_pinch.angle_delta = angle;
+  event->touchpad_pinch.scale = scale;
+  event->touchpad_pinch.n_fingers = fingers;
+
+  g_set_object (&private->device, clutter_seat_get_pointer (seat));
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_touchpad_swipe_new (ClutterEventFlags            flags,
+                                  int64_t                      timestamp_us,
+                                  ClutterInputDevice          *source_device,
+                                  ClutterTouchpadGesturePhase  phase,
+                                  uint32_t                     fingers,
+                                  graphene_point_t             coords,
+                                  graphene_point_t             delta,
+                                  graphene_point_t             delta_unaccel)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+  ClutterSeat *seat;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  seat = clutter_input_device_get_seat (source_device);
+
+  event = clutter_event_new (CLUTTER_TOUCHPAD_SWIPE);
+  private = (ClutterEventPrivate *) event;
+
+  event->touchpad_swipe.time = us2ms (timestamp_us);
+  event->touchpad_swipe.flags = flags;
+  event->touchpad_swipe.phase = phase;
+  event->touchpad_swipe.x = coords.x;
+  event->touchpad_swipe.y = coords.y;
+  event->touchpad_swipe.dx = delta.x;
+  event->touchpad_swipe.dy = delta.y;
+  event->touchpad_swipe.dx_unaccel = delta_unaccel.x;
+  event->touchpad_swipe.dy_unaccel = delta_unaccel.y;
+  event->touchpad_swipe.n_fingers = fingers;
+
+  g_set_object (&private->device, clutter_seat_get_pointer (seat));
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_touchpad_hold_new (ClutterEventFlags            flags,
+                                 int64_t                      timestamp_us,
+                                 ClutterInputDevice          *source_device,
+                                 ClutterTouchpadGesturePhase  phase,
+                                 uint32_t                     fingers,
+                                 graphene_point_t             coords)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+  ClutterSeat *seat;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  seat = clutter_input_device_get_seat (source_device);
+
+  event = clutter_event_new (CLUTTER_TOUCHPAD_HOLD);
+  private = (ClutterEventPrivate *) event;
+
+  event->touchpad_hold.time = us2ms (timestamp_us);
+  event->touchpad_hold.flags = flags;
+  event->touchpad_hold.phase = phase;
+  event->touchpad_hold.x = coords.x;
+  event->touchpad_hold.y = coords.y;
+  event->touchpad_hold.n_fingers = fingers;
+
+  g_set_object (&private->device, clutter_seat_get_pointer (seat));
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_pad_button_new (ClutterEventType    type,
+                              ClutterEventFlags   flags,
+                              int64_t             timestamp_us,
+                              ClutterInputDevice *source_device,
+                              uint32_t            button,
+                              uint32_t            group,
+                              uint32_t            mode)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (type == CLUTTER_PAD_BUTTON_PRESS ||
+                        type == CLUTTER_PAD_BUTTON_RELEASE, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  event = clutter_event_new (type);
+  private = (ClutterEventPrivate *) event;
+
+  event->pad_button.time = us2ms (timestamp_us);
+  event->pad_button.flags = flags;
+  event->pad_button.button = button;
+  event->pad_button.group = group;
+  event->pad_button.device = source_device;
+  event->pad_button.mode = mode;
+
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_pad_strip_new (ClutterEventFlags            flags,
+                             int64_t                      timestamp_us,
+                             ClutterInputDevice          *source_device,
+                             ClutterInputDevicePadSource  strip_source,
+                             uint32_t                     strip,
+                             uint32_t                     group,
+                             double                       value,
+                             uint32_t                     mode)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  event = clutter_event_new (CLUTTER_PAD_STRIP);
+  private = (ClutterEventPrivate *) event;
+
+  event->pad_strip.time = us2ms (timestamp_us);
+  event->pad_strip.flags = flags;
+  event->pad_strip.device = source_device;
+  event->pad_strip.strip_source = strip_source;
+  event->pad_strip.strip_number = strip;
+  event->pad_strip.group = group;
+  event->pad_strip.value = value;
+  event->pad_strip.mode = mode;
+
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_pad_ring_new (ClutterEventFlags            flags,
+                            int64_t                      timestamp_us,
+                            ClutterInputDevice          *source_device,
+                            ClutterInputDevicePadSource  ring_source,
+                            uint32_t                     ring,
+                            uint32_t                     group,
+                            double                       angle,
+                            uint32_t                     mode)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  event = clutter_event_new (CLUTTER_PAD_RING);
+  private = (ClutterEventPrivate *) event;
+
+  event->pad_ring.time = us2ms (timestamp_us);
+  event->pad_ring.flags = flags;
+  event->pad_ring.device = source_device;
+  event->pad_ring.ring_source = ring_source;
+  event->pad_ring.ring_number = ring;
+  event->pad_ring.group = group;
+  event->pad_ring.angle = angle;
+  event->pad_ring.mode = mode;
+
+  g_set_object (&private->source_device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_device_notify_new (ClutterEventType    type,
+                                 ClutterEventFlags   flags,
+                                 int64_t             timestamp_us,
+                                 ClutterInputDevice *source_device)
+{
+  ClutterEventPrivate *private;
+  ClutterEvent *event;
+
+  g_return_val_if_fail (type == CLUTTER_DEVICE_ADDED ||
+                        type == CLUTTER_DEVICE_REMOVED, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
+
+  event = clutter_event_new (type);
+  private = (ClutterEventPrivate *) event;
+
+  event->device.time = us2ms (timestamp_us);
+  event->device.flags = flags;
+
+  g_set_object (&private->device, source_device);
+
+  return event;
+}
+
+ClutterEvent *
+clutter_event_im_new (ClutterEventType         type,
+                      ClutterEventFlags        flags,
+                      int64_t                  timestamp_us,
+                      const char              *text,
+                      int32_t                  offset,
+                      int32_t                  anchor,
+                      uint32_t                 len,
+                      ClutterPreeditResetMode  mode)
+{
+  ClutterEvent *event;
+
+  g_return_val_if_fail (type == CLUTTER_IM_COMMIT ||
+                        type == CLUTTER_IM_DELETE ||
+                        type == CLUTTER_IM_PREEDIT, NULL);
+
+  event = clutter_event_new (type);
+
+  event->im.time = us2ms (timestamp_us);
+  event->im.flags = flags;
+  event->im.text = g_strdup (text);
+  event->im.offset = offset;
+  event->im.anchor = anchor;
+  event->im.len = len;
+  event->im.mode = mode;
+
+  return event;
 }
