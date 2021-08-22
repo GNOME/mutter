@@ -52,6 +52,11 @@ cairo_surface_t * meta_window_actor_get_image (MetaWindowActor       *self,
                                                cairo_rectangle_int_t *clip);
 
 META_EXPORT
+ClutterContent * meta_window_actor_paint_to_content (MetaWindowActor  *self,
+                                                     MetaRectangle    *clip,
+                                                     GError          **error);
+
+META_EXPORT
 void meta_window_actor_freeze (MetaWindowActor *self);
 
 META_EXPORT

@@ -1575,3 +1575,71 @@ out:
   clutter_actor_uninhibit_culling (actor);
   return surface;
 }
+
+/**
+ * meta_window_actor_paint_to_content:
+ * @self: A #MetaWindowActor
+ * @clip: (nullable): A clipping rectangle, in actor coordinates, to help
+ * prevent extra processing.
+ * In the case that the clipping rectangle is partially or fully
+ * outside the bounds of the actor, the rectangle will be clipped.
+ * @error: A #GError to catch exceptional errors or %NULL.
+ *
+ * Returns: (nullable) (transfer full): a new #ClutterContent
+ */
+ClutterContent *
+meta_window_actor_paint_to_content (MetaWindowActor  *self,
+                                    MetaRectangle    *clip,
+                                    GError          **error)
+{
+  MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
+  ClutterActor *actor = CLUTTER_ACTOR (self);
+  ClutterContent *content = NULL;
+  CoglFramebuffer *framebuffer;
+  CoglTexture *texture;
+  MetaRectangle framebuffer_clip;
+  float x, y, width, height;
+
+  if (!priv->surface)
+    return NULL;
+
+  clutter_actor_inhibit_culling (actor);
+
+  clutter_actor_get_position (actor, &x, &y);
+  clutter_actor_get_size (actor, &width, &height);
+
+  if (width == 0 || height == 0)
+    goto out;
+
+  framebuffer_clip = (MetaRectangle) {
+    .x = floorf (x),
+    .y = floorf (y),
+    .width = ceilf (width),
+    .height = ceilf (height),
+  };
+
+  if (clip)
+    {
+      MetaRectangle tmp_clip;
+
+      if (!meta_rectangle_intersect (&framebuffer_clip, clip, &tmp_clip))
+        goto out;
+
+      framebuffer_clip = tmp_clip;
+    }
+
+  framebuffer = create_framebuffer_from_window_actor (self,
+                                                      &framebuffer_clip,
+                                                      error);
+  if (!framebuffer)
+    goto out;
+
+  texture = cogl_offscreen_get_texture (COGL_OFFSCREEN (framebuffer));
+  content = clutter_texture_content_new_from_texture (texture, NULL);
+
+  g_object_unref (framebuffer);
+
+out:
+  clutter_actor_uninhibit_culling (actor);
+  return content;
+}
