@@ -27,9 +27,6 @@ struct _MetaSurfaceActorClass
   gboolean (* is_opaque)         (MetaSurfaceActor *actor);
 };
 
-cairo_surface_t *meta_surface_actor_get_image (MetaSurfaceActor      *self,
-                                               cairo_rectangle_int_t *clip);
-
 MetaShapedTexture *meta_surface_actor_get_texture (MetaSurfaceActor *self);
 
 void meta_surface_actor_update_area (MetaSurfaceActor *self,
