@@ -1484,6 +1484,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
+  MetaShapedTexture *stex;
   cairo_surface_t *surface = NULL;
   CoglFramebuffer *framebuffer;
   MetaRectangle framebuffer_clip;
@@ -1495,9 +1496,10 @@ meta_window_actor_get_image (MetaWindowActor *self,
 
   clutter_actor_inhibit_culling (actor);
 
-  if (clutter_actor_get_n_children (actor) == 1)
+  stex = meta_surface_actor_get_texture (priv->surface);
+  if (!meta_shaped_texture_should_get_via_offscreen (stex) &&
+      clutter_actor_get_n_children (actor) == 1)
     {
-      MetaShapedTexture *stex;
       MetaRectangle *surface_clip = NULL;
 
       if (clip)
@@ -1514,7 +1516,6 @@ meta_window_actor_get_image (MetaWindowActor *self,
           surface_clip->height = clip->height / geometry_scale;
         }
 
-      stex = meta_surface_actor_get_texture (priv->surface);
       surface = meta_shaped_texture_get_image (stex, surface_clip);
       goto out;
     }

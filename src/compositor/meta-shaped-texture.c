@@ -1343,8 +1343,8 @@ meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex)
   invalidate_size (stex);
 }
 
-static gboolean
-should_get_via_offscreen (MetaShapedTexture *stex)
+gboolean
+meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
 {
   if (!cogl_texture_is_get_data_supported (stex->texture))
     return TRUE;
@@ -1367,104 +1367,6 @@ should_get_via_offscreen (MetaShapedTexture *stex)
     }
 
   return FALSE;
-}
-
-static cairo_surface_t *
-get_image_via_offscreen (MetaShapedTexture     *stex,
-                         cairo_rectangle_int_t *clip,
-                         int                    image_width,
-                         int                    image_height)
-{
-  g_autoptr (ClutterPaintNode) root_node = NULL;
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  CoglTexture *image_texture;
-  GError *error = NULL;
-  CoglOffscreen *offscreen;
-  CoglFramebuffer *fb;
-  graphene_matrix_t projection_matrix;
-  cairo_rectangle_int_t fallback_clip;
-  ClutterColor clear_color;
-  ClutterPaintContext *paint_context;
-  cairo_surface_t *surface;
-
-  if (!clip)
-    {
-      fallback_clip = (cairo_rectangle_int_t) {
-        .width = image_width,
-        .height = image_height,
-      };
-      clip = &fallback_clip;
-    }
-
-  image_texture =
-    COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
-                                                 image_width,
-                                                 image_height));
-  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
-                                          FALSE);
-  if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
-    {
-      g_error_free (error);
-      cogl_object_unref (image_texture);
-      return FALSE;
-    }
-
-  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));
-  fb = COGL_FRAMEBUFFER (offscreen);
-  cogl_object_unref (image_texture);
-  if (!cogl_framebuffer_allocate (fb, &error))
-    {
-      g_error_free (error);
-      g_object_unref (fb);
-      return FALSE;
-    }
-
-  cogl_framebuffer_push_matrix (fb);
-  graphene_matrix_init_translate (&projection_matrix,
-                                  &GRAPHENE_POINT3D_INIT (-(image_width / 2.0),
-                                                          -(image_height / 2.0),
-                                                          0));
-  graphene_matrix_scale (&projection_matrix,
-                         1.0 / (image_width / 2.0),
-                         -1.0 / (image_height / 2.0), 0);
-
-  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
-
-  clear_color = (ClutterColor) { 0, 0, 0, 0 };
-
-  root_node = clutter_root_node_new (fb, &clear_color, COGL_BUFFER_BIT_COLOR);
-  clutter_paint_node_set_static_name (root_node, "MetaShapedTexture.offscreen");
-
-  paint_context =
-    clutter_paint_context_new_for_framebuffer (fb, NULL,
-                                               CLUTTER_PAINT_FLAG_NONE);
-
-  do_paint_content (stex, root_node, paint_context,
-                    stex->texture,
-                    &(ClutterActorBox) {
-                      0, 0,
-                      image_width,
-                      image_height,
-                    },
-                    255);
-
-  clutter_paint_node_paint (root_node, paint_context);
-  clutter_paint_context_destroy (paint_context);
-
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        clip->width, clip->height);
-  cogl_framebuffer_read_pixels (fb,
-                                clip->x, clip->y,
-                                clip->width, clip->height,
-                                CLUTTER_CAIRO_FORMAT_ARGB32,
-                                cairo_image_surface_get_data (surface));
-  g_object_unref (fb);
-
-  cairo_surface_mark_dirty (surface);
-
-  return surface;
 }
 
 /**
@@ -1496,6 +1398,9 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   if (texture == NULL)
     return NULL;
 
+  if (meta_shaped_texture_should_get_via_offscreen (stex))
+    return NULL;
+
   meta_shaped_texture_ensure_size_valid (stex);
 
   if (stex->dst_width == 0 || stex->dst_height == 0)
@@ -1521,19 +1426,6 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
         .width = image_clip->width * stex->buffer_scale,
         .height = image_clip->height * stex->buffer_scale,
       };
-    }
-
-  if (should_get_via_offscreen (stex))
-    {
-      int image_width;
-      int image_height;
-
-      image_width = stex->dst_width * stex->buffer_scale;
-      image_height = stex->dst_height * stex->buffer_scale;
-      return get_image_via_offscreen (stex,
-                                      image_clip,
-                                      image_width,
-                                      image_height);
     }
 
   if (image_clip)
