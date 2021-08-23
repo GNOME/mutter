@@ -76,11 +76,11 @@ def reformat_chunks(chunks, rewrite):
 
         # uncrustify chunk
         proc = subprocess.Popen(["uncrustify", "-c", uncrustify_cfg, "-f", tmp.name], stdout=subprocess.PIPE)
+        reindented = proc.stdout.readlines()
         proc.wait()
         if proc.returncode != 0:
             continue
 
-        reindented = proc.stdout.readlines()
         tmp.close()
 
         # Remove INDENT-ON/OFF comments
