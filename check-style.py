@@ -75,7 +75,11 @@ def reformat_chunks(chunks, rewrite):
         tmp = create_temp_file(chunk['file'], chunk['start'], chunk['end'])
 
         # uncrustify chunk
-        proc = subprocess.Popen(["uncrustify", "-c", uncrustify_cfg, "-f", tmp.name], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        proc = subprocess.Popen(["uncrustify", "-c", uncrustify_cfg, "-f", tmp.name], stdout=subprocess.PIPE)
+        proc.wait()
+        if proc.returncode != 0:
+            continue
+
         reindented = proc.stdout.readlines()
         tmp.close()
 
@@ -128,7 +132,7 @@ if dry_run is not True and rewrite is True:
     proc = subprocess.Popen(["git", "commit", "--all", "--amend", "-C", "HEAD"], stdout=subprocess.DEVNULL)
     os._exit(0)
 elif dry_run is True and changed is True:
-    print ("\nIssue the following command in your local tree to apply the suggested changes (needs uncrustify installed):\n\n $ git rebase origin/master --exec \"./check-style.py -r\" \n")
+    print ("\nIssue the following command in your local tree to apply the suggested changes (needs uncrustify installed):\n\n $ git rebase origin/main --exec \"./check-style.py -r\" \n")
     os._exit(-1)
 
 os._exit(0)
