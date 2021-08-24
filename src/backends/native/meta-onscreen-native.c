@@ -1134,7 +1134,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
           meta_renderer_native_post_mode_set_updates (renderer_native);
           clutter_frame_set_result (frame,
                                     CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
-	  return;
+          return;
         }
       break;
 #endif
