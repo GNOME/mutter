@@ -132,10 +132,10 @@ COGL_EXT_FUNCTION (void, glEGLImageTargetTexture2D,
                     GLeglImageOES    image))
 COGL_EXT_END ()
 
-COGL_EXT_BEGIN (framebuffer_discard, 255, 255,
+COGL_EXT_BEGIN (discard_framebuffer, 255, 255,
                 0, /* not in either GLES */
                 "EXT\0",
-                "framebuffer_discard\0")
+                "discard_framebuffer\0")
 COGL_EXT_FUNCTION (void, glDiscardFramebuffer,
                    (GLenum           target,
                     GLsizei          numAttachments,
