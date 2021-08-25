@@ -16,7 +16,7 @@ variables:
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-08-22.0'
+    BASE_TAG: '2021-08-25.0'
     FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang uncrustify'
 
     FDO_DISTRIBUTION_EXEC: |
@@ -32,6 +32,10 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
         41.alpha . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/gjs.git \
+        1.69.2 . &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
