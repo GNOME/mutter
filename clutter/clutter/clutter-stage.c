@@ -3486,7 +3486,8 @@ create_crossing_event (ClutterStage         *stage,
    * now, so we go on, and synthesize the event emission
    * ourselves
    */
-  _clutter_process_event (event);
+  if (!_clutter_event_process_filters (event))
+    _clutter_process_event (event);
 
   clutter_event_free (event);
 }
