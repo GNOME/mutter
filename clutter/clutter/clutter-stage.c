@@ -3441,6 +3441,24 @@ clutter_stage_get_device_coords (ClutterStage         *stage,
 }
 
 static void
+clutter_stage_set_device_coords (ClutterStage         *stage,
+                                 ClutterInputDevice   *device,
+                                 ClutterEventSequence *sequence,
+                                 graphene_point_t      coords)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  PointerDeviceEntry *entry = NULL;
+
+  if (sequence != NULL)
+    entry = g_hash_table_lookup (priv->touch_sequences, sequence);
+  else
+    entry = g_hash_table_lookup (priv->pointer_devices, device);
+
+  if (entry)
+    entry->coords = coords;
+}
+
+static void
 create_crossing_event (ClutterStage         *stage,
                        ClutterInputDevice   *device,
                        ClutterEventSequence *sequence,
@@ -3587,7 +3605,11 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
     {
       if (clutter_stage_check_in_clear_area (stage, device,
                                              sequence, point))
-        return clutter_stage_get_device_actor (stage, device, sequence);
+        {
+          clutter_stage_set_device_coords (stage, device,
+                                           sequence, point);
+          return clutter_stage_get_device_actor (stage, device, sequence);
+        }
     }
 
   new_actor = _clutter_stage_do_pick (stage,
