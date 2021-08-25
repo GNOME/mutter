@@ -1196,6 +1196,9 @@ clutter_stage_dispose (GObject *object)
   stage_manager = clutter_stage_manager_get_default ();
   _clutter_stage_manager_remove_stage (stage_manager, stage);
 
+  g_hash_table_remove_all (priv->pointer_devices);
+  g_hash_table_remove_all (priv->touch_sequences);
+
   G_OBJECT_CLASS (clutter_stage_parent_class)->dispose (object);
 }
 
