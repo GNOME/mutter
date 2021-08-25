@@ -3269,12 +3269,10 @@ on_device_actor_destroyed (ClutterActor       *actor,
   /* Simply unset the current_actor pointer here, there's no need to
    * unset has_pointer or to disconnect any signals because the actor
    * is gone anyway.
-   * Also, as soon as the next repaint happens, a repick should be triggered
-   * and the PointerDeviceEntry will get updated again, so no need to
-   * trigger a repick here.
    */
   entry->current_actor = NULL;
   g_clear_pointer (&entry->clear_area, cairo_region_destroy);
+  clutter_stage_repick_device (entry->stage, entry->device);
 }
 
 static void
