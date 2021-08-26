@@ -396,8 +396,7 @@ init_keymap (MetaDefaultPlugin *self)
                                          &error);
   if (!proxy)
     {
-      g_message ("Failed to acquire org.freedesktop.locale1 proxy: %s, "
-                 "probably running in CI",
+      g_warning ("Failed to acquire org.freedesktop.locale1 proxy: %s",
                  error->message);
       return;
     }

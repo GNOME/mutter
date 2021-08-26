@@ -39,6 +39,7 @@ class MutterDBusTestCase(DBusTestCase):
             'meta-mocks-manager', {'templates-dir': get_templates_dir()})
 
         klass.start_from_template('logind')
+        klass.start_from_local_template('localed')
 
         klass.system_bus_con = klass.get_dbus(system_bus=True)
         klass.session_bus_con = klass.get_dbus(system_bus=False)
