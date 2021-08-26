@@ -81,6 +81,14 @@ typedef struct _MetaContextPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContext, meta_context, G_TYPE_OBJECT)
 
+/**
+ * meta_context_add_option_entries:
+ * @context: a #MetaContext
+ * @entries: (array zero-terminated=1): a %NULL-terminated array of #GOptionEntrys
+ * @translation_domain: (nullable): a translation domain to use, or %NULL
+ *
+ * See g_option_context_add_main_entries() for more details.
+ **/
 void
 meta_context_add_option_entries (MetaContext        *context,
                                  const GOptionEntry *entries,
@@ -95,6 +103,13 @@ meta_context_add_option_entries (MetaContext        *context,
                                      translation_domain);
 }
 
+/**
+ * meta_context_add_option_group:
+ * @context: a #MetaContext
+ * @group: (transfer full): the group to add
+ *
+ * See g_option_context_add_group() for more details.
+ **/
 void
 meta_context_add_option_group (MetaContext  *context,
                                GOptionGroup *group)
@@ -246,6 +261,18 @@ meta_context_real_configure (MetaContext   *context,
   return g_option_context_parse (option_context, argc, argv, error);
 }
 
+/**
+ * meta_context_configure:
+ * @context: a #MetaContext
+ * @argc: (inout): Address of the `argc` parameter of your main() function (or 0
+ * if @argv is %NULL).
+ * @argv: (array length=argc) (inout) (nullable): Address of the`argv` parameter
+ * of main(), or %NULL.
+ * @error: a return location for errors
+ *
+ * Returns: %TRUE if the commandline arguments (if any) were valid and if the
+ * configuration has been successfull, %FALSE otherwise
+ */
 gboolean
 meta_context_configure (MetaContext   *context,
                         int           *argc,
