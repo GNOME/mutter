@@ -38,6 +38,7 @@ struct _MetaCursorSpriteXcursor
 
   int theme_scale;
   gboolean theme_dirty;
+  gboolean invalidated;
 };
 
 G_DEFINE_TYPE (MetaCursorSpriteXcursor, meta_cursor_sprite_xcursor,
@@ -320,11 +321,25 @@ static gboolean
 meta_cursor_sprite_xcursor_realize_texture (MetaCursorSprite *sprite)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
+  gboolean retval = sprite_xcursor->invalidated;
 
   if (sprite_xcursor->theme_dirty)
-    load_cursor_from_theme (sprite);
+    {
+      load_cursor_from_theme (sprite);
+      retval = TRUE;
+    }
 
-  return TRUE;
+  sprite_xcursor->invalidated = FALSE;
+
+  return retval;
+}
+
+static void
+meta_cursor_sprite_xcursor_invalidate (MetaCursorSprite *sprite)
+{
+  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
+
+  sprite_xcursor->invalidated = TRUE;
 }
 
 MetaCursorSpriteXcursor *
@@ -366,6 +381,8 @@ meta_cursor_sprite_xcursor_class_init (MetaCursorSpriteXcursorClass *klass)
 
   cursor_sprite_class->realize_texture =
     meta_cursor_sprite_xcursor_realize_texture;
+  cursor_sprite_class->invalidate =
+    meta_cursor_sprite_xcursor_invalidate;
   cursor_sprite_class->is_animated = meta_cursor_sprite_xcursor_is_animated;
   cursor_sprite_class->tick_frame = meta_cursor_sprite_xcursor_tick_frame;
   cursor_sprite_class->get_current_frame_time =
