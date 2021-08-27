@@ -13,10 +13,7 @@ PIPEWIRE_DEBUG=2 PIPEWIRE_LOG="$CI_PROJECT_DIR/build/meson-logs/pipewire.log" \
 
 sleep 2
 
-export MUTTER_DEBUG_DUMMY_MODE_SPECS="800x600@10.0"
-
-xvfb-run -s '+iglx -noreset' \
-    meson test -C build --no-rebuild -t 10 --wrap catchsegv
+meson test -C build --no-rebuild --setup CI
 
 exit_code=$?
 

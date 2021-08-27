@@ -294,6 +294,17 @@ if have_tests
   have_cogl_tests = get_option('cogl_tests')
   have_clutter_tests = get_option('clutter_tests')
   have_installed_tests = get_option('installed_tests')
+
+  add_test_setup('CI',
+    env: [
+      'MUTTER_DEBUG_DUMMY_MODE_SPECS=800x600@10.0',
+    ],
+    exe_wrapper: [
+      find_program('catchsegv'),
+      find_program('xvfb-run'), '-a', '-s', '+iglx -noreset',
+    ],
+    timeout_multiplier: 10,
+  )
 endif
 
 have_profiler = get_option('profiler')
