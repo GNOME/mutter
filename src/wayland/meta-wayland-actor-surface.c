@@ -248,27 +248,27 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
         }
     }
 
-  meta_surface_actor_set_transform (surface_actor, surface->buffer_transform);
+  meta_shaped_texture_set_transform (stex, surface->buffer_transform);
 
   if (surface->viewport.has_src_rect)
     {
-      meta_surface_actor_set_viewport_src_rect (surface_actor,
-                                                &surface->viewport.src_rect);
+      meta_shaped_texture_set_viewport_src_rect (stex,
+                                                 &surface->viewport.src_rect);
     }
   else
     {
-      meta_surface_actor_reset_viewport_src_rect (surface_actor);
+      meta_shaped_texture_reset_viewport_src_rect (stex);
     }
 
   if (surface->viewport.has_dst_size)
     {
-      meta_surface_actor_set_viewport_dst_size (surface_actor,
-                                                surface->viewport.dst_width,
-                                                surface->viewport.dst_height);
+      meta_shaped_texture_set_viewport_dst_size (stex,
+                                                 surface->viewport.dst_width,
+                                                 surface->viewport.dst_height);
     }
   else
     {
-      meta_surface_actor_reset_viewport_dst_size (surface_actor);
+      meta_shaped_texture_reset_viewport_dst_size (stex);
     }
 
   meta_shaped_texture_ensure_size_valid (stex);
