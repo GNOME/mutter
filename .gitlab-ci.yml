@@ -230,19 +230,32 @@ build-without-native-backend-and-wayland@x86_64:
     paths:
       - build/meson-logs
 
-.test-mutter:
-  extends:
-    - .fdo.distribution-image@fedora
-  stage: test
+.test-setup: &test-setup
   variables:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
+    MUTTER_DEBUG_DUMMY_MODE_SPECS: "800x600@10.0"
+    PIPEWIRE_DEBUG: 2
+    PIPEWIRE_LOG: "$CI_PROJECT_DIR/build/meson-logs/pipewire.log"
+    XVFB_SERVER_ARGS: "+iglx -noreset"
     G_SLICE: "always-malloc"
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
-  script:
+  before_script:
+    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
+    # Disable e.g. audio support to not dead lock screen cast tests
+    - rm -f /usr/share/pipewire/media-session.d/with-*
     - mkdir -m 700 $XDG_RUNTIME_DIR
-    - dbus-run-session -- bash -x ./.gitlab-ci/run-tests.sh
+    - pipewire & sleep 2
+
+.test-mutter:
+  extends:
+    - .fdo.distribution-image@fedora
+  <<: *test-setup
+  stage: test
+  script:
+    - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
+        catchsegv meson test -C build --no-rebuild -t 10
   artifacts:
     expire_in: 1 day
     reports:
