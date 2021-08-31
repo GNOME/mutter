@@ -199,8 +199,9 @@ file_loaded (GObject      *source_object,
                               pixels, 0,
                               &local_error))
     {
-      g_warning ("Failed to create texture for background");
-      cogl_object_unref (texture);
+      g_warning ("Failed to create texture for background: %s",
+                 local_error->message);
+      cogl_clear_object (&texture);
     }
 
   image->texture = texture;
