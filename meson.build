@@ -538,6 +538,7 @@ subdir('po')
 subdir('doc/man')
 
 meson.add_install_script('meson/meson-postinstall.sh')
+meson.add_dist_script('meson/check-version.py', meson.project_version(), 'NEWS')
 
 summary('prefix', prefix)
 summary('libexecdir', libexecdir)
