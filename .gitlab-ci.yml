@@ -16,8 +16,9 @@ variables:
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-09-04.0'
+    BASE_TAG: '2021-09-04.1'
     FDO_DISTRIBUTION_PACKAGES:
+      asciidoc
       clang
       gcovr
       gdm
