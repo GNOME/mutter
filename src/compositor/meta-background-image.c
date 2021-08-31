@@ -155,8 +155,8 @@ file_loaded (GObject      *source_object,
              gpointer      user_data)
 {
   MetaBackgroundImage *image = META_BACKGROUND_IMAGE (source_object);
-  GError *error = NULL;
-  GError *catch_error = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GError) local_error = NULL;
   GTask *task;
   CoglTexture *texture;
   GdkPixbuf *pixbuf, *rotated;
@@ -172,7 +172,6 @@ file_loaded (GObject      *source_object,
       char *uri = g_file_get_uri (image->file);
       g_warning ("Failed to load background '%s': %s",
                  uri, error->message);
-      g_clear_error (&error);
       g_free (uri);
       goto out;
     }
@@ -198,10 +197,9 @@ file_loaded (GObject      *source_object,
                               has_alpha ? COGL_PIXEL_FORMAT_RGBA_8888 : COGL_PIXEL_FORMAT_RGB_888,
                               row_stride,
                               pixels, 0,
-                              &catch_error))
+                              &local_error))
     {
       g_warning ("Failed to create texture for background");
-      g_error_free (catch_error);
       cogl_object_unref (texture);
     }
 
