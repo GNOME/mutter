@@ -9,6 +9,7 @@ stages:
  - build
  - test
  - analyze
+ - deploy
 
 variables:
   FDO_UPSTREAM_REPO: GNOME/mutter
@@ -344,3 +345,28 @@ test-mutter-coverity:
     key: coverity-tarball
     paths:
       - coverity
+
+dist-mutter:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:34@x86_64
+  <<: *test-setup
+  stage: deploy
+  needs:
+    - build-mutter@x86_64
+  script:
+    - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS" meson dist -C build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "**/meson.build"
+        - meson/*
+
+dist-mutter-tarball:
+  extends: dist-mutter
+  artifacts:
+    expose_as: 'Get tarball here'
+    paths:
+      - build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz
+  rules:
+    - if: '$CI_COMMIT_TAG'
