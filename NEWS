@@ -1,3 +1,27 @@
+41.rc
+=====
+* Add clutter_stage_paint_to_content() [Ivan; !1899]
+* Add meta_cursor_tracker_get_scale() [Ivan; !1967]
+* wayland: Make each wl_output correspond to one monitor [Jonas; !1712]
+* Expose 'inactive-since' timestamp to uresourced [Nishal; !1960]
+* Pass dirty rects to secondary GPU [Piotr; !1879]
+* Support commiting preedit string on focus loss [Carlos; !1940]
+* Improve auto-rotation support [Marco; !1233]
+* Add meta_window_actor_paint_to_content() [Robert; !1893]
+* Fixed crashes [Jonas, Ray, Robert; !1947, !1979, !1965, !1958]
+* Misc. bug fixes and cleanups [Florian, Carlos, Robert, Daniel, Erico, Dor;
+  !1957, !1924, !1970, !1971, !1972, !1973, !1974, !1977, !1978, !1975, !1886,
+  !1983, !1990, !1980]
+
+Contributors:
+  Marco Trevisan (Treviño), Dor Askayo, Carlos Garnacho, Nishal Kulkarni,
+  Piotr Lopatka, Robert Mader, Ivan Molodetskikh, Florian Müllner, Erico Nunes,
+  Ray Strode, Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Asier Sarasua Garmendia [eu], Claude Paroz [fr], Jiri Grönroos [fi],
+  Baurzhan Muftakhidinov [kk], Aurimas Černius [lt]
+
 41.beta
 =======
 * Fix mouse position in remote desktop with fractional scaling [Pascal; !1867]
