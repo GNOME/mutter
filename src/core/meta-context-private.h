@@ -55,6 +55,10 @@ const char * meta_context_get_name (MetaContext *context);
 
 const char * meta_context_get_gnome_wm_keybindings (MetaContext *context);
 
+gboolean meta_context_get_unsafe_mode (MetaContext *context);
+void meta_context_set_unsafe_mode (MetaContext *context,
+                                   gboolean     enable);
+
 META_EXPORT_TEST
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
 

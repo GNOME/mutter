@@ -39,6 +39,7 @@ enum
   PROP_0,
 
   PROP_NAME,
+  PROP_UNSAFE_MODE,
 
   N_PROPS
 };
@@ -61,6 +62,8 @@ typedef struct _MetaContextPrivate
   char *plugin_name;
   GType plugin_gtype;
   char *gnome_wm_keybindings;
+
+  gboolean unsafe_mode;
 
   MetaContextState state;
 
@@ -441,6 +444,27 @@ meta_context_destroy (MetaContext *context)
   g_object_unref (context);
 }
 
+gboolean
+meta_context_get_unsafe_mode (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->unsafe_mode;
+}
+
+void
+meta_context_set_unsafe_mode (MetaContext *context,
+                              gboolean     enable)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  if (priv->unsafe_mode == enable)
+    return;
+
+  priv->unsafe_mode = enable;
+  g_object_notify_by_pspec (G_OBJECT (context), obj_props[PROP_UNSAFE_MODE]);
+}
+
 static void
 meta_context_get_property (GObject    *object,
                            guint       prop_id,
@@ -454,6 +478,9 @@ meta_context_get_property (GObject    *object,
     {
     case PROP_NAME:
       g_value_set_string (value, priv->name);
+      break;
+    case PROP_UNSAFE_MODE:
+      g_value_set_boolean (value, priv->unsafe_mode);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -474,6 +501,10 @@ meta_context_set_property (GObject      *object,
     {
     case PROP_NAME:
       priv->name = g_value_dup_string (value);
+      break;
+    case PROP_UNSAFE_MODE:
+      meta_context_set_unsafe_mode (META_CONTEXT (object),
+                                    g_value_get_boolean (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -545,6 +576,14 @@ meta_context_class_init (MetaContextClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_UNSAFE_MODE] =
+    g_param_spec_boolean ("unsafe-mode",
+                          "unsafe mode",
+                          "Unsafe mode",
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_EXPLICIT_NOTIFY |
+                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
