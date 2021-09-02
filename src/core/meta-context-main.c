@@ -69,6 +69,7 @@ typedef struct _MetaContextMainOptions
   gboolean display_server;
   gboolean headless;
 #endif
+  gboolean unsafe_mode;
 #ifdef HAVE_NATIVE_BACKEND
   GList *virtual_monitor_infos;
 #endif
@@ -389,6 +390,7 @@ meta_context_main_setup (MetaContext  *context,
                                                                    error))
     return FALSE;
 
+  meta_context_set_unsafe_mode (context, context_main->options.unsafe_mode);
   meta_set_syncing (context_main->options.x11.sync || g_getenv ("MUTTER_SYNC"));
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -626,6 +628,11 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Add persistent virtual monitor (WxH or WxH@R)")
     },
 #endif
+    {
+      "unsafe-mode", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE,
+      &context_main->options.unsafe_mode,
+      "Run in unsafe mode"
+    },
     {
       "x11", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.x11.force,
