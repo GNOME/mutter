@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lt\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-14 12:31+0200\n"
+"POT-Creation-Date: 2021-08-30 22:01+0000\n"
+"PO-Revision-Date: 2021-09-02 15:58+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2)\n"
-"X-Generator: Gtranslator 3.38.0\n"
+"X-Generator: Gtranslator 40.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -56,109 +56,125 @@ msgstr "Perkelti langą į kairiau esančią darbo sritį"
 msgid "Move window one workspace to the right"
 msgstr "Perkelti langą į dešiniau esančią darbo sritį"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Perkelti langą į aukščiau esančią darbo sritį"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Perkelti langą į žemiau esančią darbo sritį"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Perkelti langą į kairiau esantį monitorių"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Perkelti langą į dešiniau esantį monitorių"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Perkelti langą į aukščiau esantį monitorių"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Perkelti langą į žemiau esantį monitorių"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Pereiti tarp programų"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Pereiti į ankstesnę programą"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Pereiti tarp langų"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Pereiti į ankstesnį langą"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Pereiti tarp programos langų"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Pereiti į ankstesnį programos langą"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Pereiti tarp sistemos valdiklių"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Pereiti prie ankstesnio sistemos valdiklio"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Tiesiogiai pereiti tarp langų"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Tiesiogiai pereiti į ankstesnį langą"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Tiesiogiai pereiti tarp programos langų"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Tiesiogiai pereiti prie ankstesnio programos lango"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Tiesiogiai pereiti tarp sistemos valdiklių"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Tiesiogiai pereiti prie ankstesnio sistemos valdiklio"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Paslėpti visus įprastinius langus"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Persijungti į darbo sritį Nr.1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Persijungti į darbo sritį Nr.2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Persijungti į darbo sritį Nr.3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Persijungti į darbo sritį Nr.4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Persijungti į pastarąją darbo sritį"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Perkelti į darbo sritį kairėje"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Perkelti į darbo sritį dešinėje"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Perkelti į darbo sritį viršuje"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Perkelti į darbo sritį apačioje"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -167,10 +183,6 @@ msgstr "Sistema"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Rodyti komandų paleidimo langelį"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Rodyti veiklų apžvalgą"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -579,26 +591,26 @@ msgstr ""
 "jei Xwayland buvo sukurtas be pažymėtų plėtinių. Kad paketimai įsigaliotų, "
 "Xwayland reikia paleisti iš naujo."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Integruotas vaizduoklis"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Nežinomas"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Nežinomas vaizduoklis"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -611,9 +623,28 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Komponuotojas"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+#| msgid "X Display to use"
+msgid "X display to use"
+msgstr "Naudotinas X vaizduoklis"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+#| msgid "X Display to use"
+msgid "X screen to use"
+msgstr "Naudotinas X ekranas"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "Sinchronizuoti X iškvietimus"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Išjungti XInput palaikymą"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -622,63 +653,6 @@ msgstr "Kita kompozicijos tvarkytuvė jau veikia ekrane %i vaizduoklyje „%s“
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Skambučio įvykis"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Išjungti susijungimą su sesijos tvarkytuve"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Pakeisti veikiančią langų tvarkytuvę"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Nurodyti sesijos tvarkymo ID"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Naudotinas X ekranas"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Inicializuoti sesiją iš išsaugojimo failo"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Sinchronizuoti X iškvietimus"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Vykdyti kaip wayland kompozitorių"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Vykdyti kaip įdėtinį kompozitorių"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Paleisti wayland kompozitorių nepaleidžiant Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Nurodo naudotiną Waylant vaizduoklio pavadinimą"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Vykdyti kaip visą vaizduoklio serverį, o ne įdėtinį"
-
-#: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
-msgid "Run as a headless display server"
-msgstr "Vykdyti kaip vaizduoklio serverį be vaizdo"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Pridėti nuolatinį virtualų monitorių (WxH arba WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Paleisti su X11 realizacija"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -704,10 +678,62 @@ msgstr "_Priverstinai išeiti"
 msgid "_Wait"
 msgstr "_Laukti"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "Pakeisti veikiančią langų tvarkytuvę"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "Naudotinas X ekranas"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "Išjungti susijungimą su sesijos tvarkytuve"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "Nurodyti sesijos tvarkymo ID"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "Inicializuoti sesiją iš išsaugojimo failo"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "Vykdyti kaip wayland kompozitorių"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "Vykdyti kaip įdėtinį kompozitorių"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Paleisti wayland kompozitorių nepaleidžiant Xwayland"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "Nurodo naudotiną Waylant vaizduoklio pavadinimą"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "Vykdyti kaip visą vaizduoklio serverį, o ne įdėtinį"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "Vykdyti kaip vaizduoklio serverį be vaizdo"
+
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Pridėti nuolatinį virtualų monitorių (WxH arba WxH@R)"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "Paleisti su X11 realizacija"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Veiksenos perjungimas (Grupė %d)"
@@ -715,28 +741,28 @@ msgstr "Veiksenos perjungimas (Grupė %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Perjungti monitorių"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Rodyti pagalbą ekrane"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Parodyti versiją"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Naudojamas Mutter įskiepis"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Darbo sritis %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter buvo sukompiliuota be išsamaus veikimo veiksenos"
 
@@ -745,7 +771,7 @@ msgstr "Mutter buvo sukompiliuota be išsamaus veikimo veiksenos"
 msgid "Mode Switch: Mode %d"
 msgstr "Veiksenos perjungimas: veiksena %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -754,16 +780,16 @@ msgstr ""
 "Vaizduoklis „%s“ jau turi langų tvarkytuvę; pabandykite pakeisti esamą langų "
 "tvarkytuvę, naudodami parametrą --replace."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Nepavyko inicializuoti GDK"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nepavyko atverti X Window sistemos vaizduoklio „%s“"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ekranas %d vaizduoklyje „%s“ yra netinkamas"
@@ -773,7 +799,7 @@ msgstr "Ekranas %d vaizduoklyje „%s“ yra netinkamas"
 msgid "Format %s not supported"
 msgstr "Formatas %s nepalaikomas"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -786,17 +812,8 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (kompiuteryje %s)"
 
-#~ msgid "Move window one workspace up"
-#~ msgstr "Perkelti langą į aukščiau esančią darbo sritį"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Perkelti langą į žemiau esančią darbo sritį"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "Perkelti į darbo sritį viršuje"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Perkelti į darbo sritį apačioje"
+#~ msgid "Show the activities overview"
+#~ msgstr "Rodyti veiklų apžvalgą"
 
 #~ msgid ""
 #~ "mutter %s\n"
