@@ -248,6 +248,18 @@ meta_wayland_pointer_unbind_pointer_client_resource (struct wl_resource *resourc
                                                client);
 }
 
+static MetaWindow *
+surface_get_effective_window (MetaWaylandSurface *surface)
+{
+  MetaWaylandSurface *toplevel;
+
+  toplevel = meta_wayland_surface_get_toplevel (surface);
+  if (!toplevel)
+    return NULL;
+
+  return meta_wayland_surface_get_window (toplevel);
+}
+
 static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
@@ -451,6 +463,17 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
     case META_EVENT_ROUTE_NORMAL:
     case META_EVENT_ROUTE_WAYLAND_POPUP:
       break;
+    }
+
+  if (surface)
+    {
+      MetaWindow *window = NULL;
+
+      window = surface_get_effective_window (surface);
+
+      /* Avoid focusing a non-alive surface */
+      if (!window || !meta_window_get_alive (window))
+        surface = NULL;
     }
 
   meta_wayland_pointer_set_focus (pointer, surface);
@@ -901,6 +924,16 @@ focus_surface_destroyed (MetaWaylandSurface *surface,
   meta_wayland_pointer_set_focus (pointer, NULL);
 }
 
+static void
+focus_surface_alive_notify (MetaWindow         *window,
+                            GParamSpec         *pspec,
+                            MetaWaylandPointer *pointer)
+{
+  if (!meta_window_get_alive (window))
+    meta_wayland_pointer_set_focus (pointer, NULL);
+  sync_focus_surface (pointer);
+}
+
 void
 meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                 MetaWaylandSurface *surface)
@@ -910,6 +943,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
+  MetaWindow *toplevel_window;
 
   g_return_if_fail (meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
                     clutter_seat_is_unfocus_inhibited (clutter_seat) ||
@@ -930,6 +964,13 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                                 serial,
                                                 pointer->focus_surface);
           pointer->focus_client = NULL;
+        }
+
+      toplevel_window = surface_get_effective_window (pointer->focus_surface);
+      if (toplevel_window)
+        {
+          g_clear_signal_handler (&pointer->focus_surface_alive_notify_id,
+                                  toplevel_window);
         }
 
       g_clear_signal_handler (&pointer->focus_surface_destroyed_handler_id,
@@ -959,6 +1000,15 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                   /* XXX -- can we reliably get a timestamp for setting focus? */
                                   clutter_get_current_event_time (),
                                   pos.x, pos.y);
+
+      toplevel_window = surface_get_effective_window (pointer->focus_surface);
+      if (toplevel_window)
+        {
+          pointer->focus_surface_alive_notify_id =
+            g_signal_connect (toplevel_window, "notify::is-alive",
+                              G_CALLBACK (focus_surface_alive_notify),
+                              pointer);
+        }
 
       pointer->focus_client =
         meta_wayland_pointer_get_pointer_client (pointer, client);

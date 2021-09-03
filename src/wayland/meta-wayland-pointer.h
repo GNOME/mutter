@@ -72,6 +72,7 @@ struct _MetaWaylandPointer
 
   MetaWaylandSurface *focus_surface;
   gulong focus_surface_destroyed_handler_id;
+  gulong focus_surface_alive_notify_id;
   guint32 focus_serial;
   guint32 click_serial;
 
