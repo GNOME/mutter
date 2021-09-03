@@ -241,6 +241,18 @@ meta_wayland_pointer_unbind_pointer_client_resource (struct wl_resource *resourc
                                                client);
 }
 
+static MetaWindow *
+surface_get_effective_window (MetaWaylandSurface *surface)
+{
+  MetaWaylandSurface *toplevel;
+
+  toplevel = meta_wayland_surface_get_toplevel (surface);
+  if (!toplevel)
+    return NULL;
+
+  return meta_wayland_surface_get_window (toplevel);
+}
+
 static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
@@ -270,7 +282,15 @@ sync_focus_surface (MetaWaylandPointer *pointer)
     case META_EVENT_ROUTE_WAYLAND_POPUP:
       {
         const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-        interface->focus (pointer->grab, pointer->current);
+        MetaWindow *window = NULL;
+
+        if (pointer->current)
+          window = surface_get_effective_window (pointer->current);
+
+        if (window && meta_window_get_alive (window))
+          interface->focus (pointer->grab, pointer->current);
+        else
+          meta_wayland_pointer_set_focus (pointer, NULL);
       }
       break;
 
@@ -577,22 +597,47 @@ current_surface_destroyed (MetaWaylandSurface *surface,
 }
 
 static void
+current_surface_alive_notify (MetaWindow         *window,
+                              GParamSpec         *pspec,
+                              MetaWaylandPointer *pointer)
+{
+  sync_focus_surface (pointer);
+}
+
+static void
 meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
                                   MetaWaylandSurface *surface)
 {
+  MetaWindow *window;
+
   if (pointer->current)
     {
+      window = surface_get_effective_window (pointer->current);
+
       g_clear_signal_handler (&pointer->current_surface_destroyed_handler_id,
                               pointer->current);
+
+      if (window)
+        {
+          g_clear_signal_handler (&pointer->current_surface_alive_notify_id,
+                                  window);
+        }
+
       pointer->current = NULL;
     }
 
   if (surface)
     {
+      window = surface_get_effective_window (surface);
+
       pointer->current = surface;
       pointer->current_surface_destroyed_handler_id =
         g_signal_connect (surface, "destroy",
                           G_CALLBACK (current_surface_destroyed),
+                          pointer);
+      pointer->current_surface_alive_notify_id =
+        g_signal_connect (window, "notify::is-alive",
+                          G_CALLBACK (current_surface_alive_notify),
                           pointer);
     }
 }

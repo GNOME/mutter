@@ -86,6 +86,7 @@ struct _MetaWaylandPointer
   ClutterInputDevice *device;
   MetaWaylandSurface *current;
   gulong current_surface_destroyed_handler_id;
+  gulong current_surface_alive_notify_id;
 
   guint32 button_count;
 };
