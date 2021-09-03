@@ -39,6 +39,8 @@ close_dialog_response_cb (MetaCloseDialog         *dialog,
 {
   if (response == META_CLOSE_DIALOG_RESPONSE_FORCE_CLOSE)
     meta_window_kill (window);
+  else
+    meta_window_ensure_close_dialog_timeout (window);
 }
 
 static void
@@ -57,23 +59,22 @@ meta_window_ensure_close_dialog (MetaWindow *window)
 }
 
 void
-meta_window_set_alive (MetaWindow *window,
-                       gboolean    is_alive)
+meta_window_show_close_dialog (MetaWindow *window)
 {
-  if (is_alive && window->close_dialog)
-    {
-      meta_close_dialog_hide (window->close_dialog);
-    }
-  else if (!is_alive)
-    {
-      meta_window_ensure_close_dialog (window);
-      meta_close_dialog_show (window->close_dialog);
+  meta_window_ensure_close_dialog (window);
+  meta_close_dialog_show (window->close_dialog);
 
-      if (window->display &&
-          window->display->event_route == META_EVENT_ROUTE_NORMAL &&
-          window == window->display->focus_window)
-        meta_close_dialog_focus (window->close_dialog);
-    }
+  if (window->display &&
+      window->display->event_route == META_EVENT_ROUTE_NORMAL &&
+      window == window->display->focus_window)
+    meta_close_dialog_focus (window->close_dialog);
+}
+
+void
+meta_window_hide_close_dialog (MetaWindow *window)
+{
+  if (window->close_dialog)
+    meta_close_dialog_hide (window->close_dialog);
 }
 
 void

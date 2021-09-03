@@ -178,6 +178,8 @@ static guint display_signals [LAST_SIGNAL] = { 0 };
 
 #define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
 
+#define CHECK_ALIVE_TIMEOUT_MS 400
+
 /*
  * The display we're managing.  This is a singleton object.  (Historically,
  * this was a list of displays, but there was never any way to add more
@@ -2223,7 +2225,7 @@ meta_display_ping_window (MetaWindow *window,
   ping_data->window = window;
   ping_data->serial = serial;
   ping_data->ping_timeout_id =
-    g_timeout_add (check_alive_timeout,
+    g_timeout_add (CHECK_ALIVE_TIMEOUT_MS,
                    meta_display_ping_timeout,
                    ping_data);
   g_source_set_name_by_id (ping_data->ping_timeout_id, "[mutter] meta_display_ping_timeout");

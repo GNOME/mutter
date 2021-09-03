@@ -214,6 +214,7 @@ enum
   PROP_GTK_APP_MENU_OBJECT_PATH,
   PROP_GTK_MENUBAR_OBJECT_PATH,
   PROP_ON_ALL_WORKSPACES,
+  PROP_IS_ALIVE,
 
   PROP_LAST,
 };
@@ -633,6 +634,13 @@ meta_window_class_init (MetaWindowClass *klass)
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  obj_props[PROP_IS_ALIVE] =
+    g_param_spec_boolean ("is-alive",
+                          "Is alive",
+                          "Whether the window responds to pings",
+                          FALSE,
+                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
   window_signals[WORKSPACE_CHANGED] =
@@ -729,6 +737,7 @@ meta_window_init (MetaWindow *self)
 {
   self->stamp = next_window_stamp++;
   meta_prefs_add_listener (prefs_changed_callback, self);
+  self->is_alive = TRUE;
 }
 
 static gboolean
@@ -8807,4 +8816,60 @@ MetaWindowClientType
 meta_window_get_client_type (MetaWindow *window)
 {
   return window->client_type;
+}
+
+static gboolean
+meta_window_close_dialog_timeout (MetaWindow *window)
+{
+  meta_window_show_close_dialog (window);
+  window->close_dialog_timeout_id = 0;
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_window_ensure_close_dialog_timeout (MetaWindow *window)
+{
+  guint check_alive_timeout = meta_prefs_get_check_alive_timeout ();
+
+  if (window->is_alive)
+    return;
+  if (window->close_dialog_timeout_id != 0)
+    return;
+  if (check_alive_timeout == 0)
+    return;
+
+  window->close_dialog_timeout_id =
+    g_timeout_add (check_alive_timeout,
+                   (GSourceFunc) meta_window_close_dialog_timeout,
+                   window);
+  g_source_set_name_by_id (window->close_dialog_timeout_id,
+                           "[mutter] meta_window_close_dialog_timeout");
+}
+
+void
+meta_window_set_alive (MetaWindow *window,
+                       gboolean    is_alive)
+{
+  if (window->is_alive == is_alive)
+    return;
+
+  window->is_alive = is_alive;
+  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_IS_ALIVE]);
+
+  if (is_alive)
+    {
+      g_clear_handle_id (&window->close_dialog_timeout_id, g_source_remove);
+      meta_window_hide_close_dialog (window);
+    }
+  else
+    {
+      meta_window_ensure_close_dialog_timeout (window);
+    }
+}
+
+gboolean
+meta_window_get_alive (MetaWindow *window)
+{
+  return window->is_alive;
 }
