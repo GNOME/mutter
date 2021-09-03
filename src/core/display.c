@@ -2146,6 +2146,7 @@ meta_display_ping_timeout (gpointer data)
   MetaDisplay *display = window->display;
 
   meta_window_set_alive (window, FALSE);
+  meta_window_show_close_dialog (window);
 
   ping_data->ping_timeout_id = 0;
 
@@ -2235,6 +2236,8 @@ meta_display_ping_window (MetaWindow *window,
               serial, window->desc);
 
   META_WINDOW_GET_CLASS (window)->ping (window, serial);
+
+  window->events_during_ping = 0;
 }
 
 /**

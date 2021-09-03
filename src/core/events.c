@@ -202,7 +202,7 @@ meta_display_handle_event (MetaDisplay        *display,
                            const ClutterEvent *event)
 {
   MetaBackend *backend = meta_get_backend ();
-  MetaWindow *window;
+  MetaWindow *window = NULL;
   gboolean bypass_clutter = FALSE;
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
   MetaGestureTracker *gesture_tracker;
@@ -475,6 +475,10 @@ meta_display_handle_event (MetaDisplay        *display,
 #ifdef HAVE_WAYLAND
   if (compositor && !bypass_wayland)
     {
+      if (window && event->type == CLUTTER_MOTION &&
+          event->any.time != CLUTTER_CURRENT_TIME)
+        meta_window_check_alive_on_event (window, event->any.time);
+
       if (meta_wayland_compositor_handle_event (compositor, event))
         bypass_clutter = TRUE;
     }

@@ -437,6 +437,9 @@ struct _MetaWindow
   /* whether focus should be restored on map */
   guint restore_focus_on_map : 1;
 
+  /* Whether the window is alive */
+  guint is_alive : 1;
+
   /* if non-NULL, the bounds of the window frame */
   cairo_region_t *frame_bounds;
 
@@ -564,11 +567,14 @@ struct _MetaWindow
   } placement;
 
   guint unmanage_idle_id;
+  guint close_dialog_timeout_id;
 
   pid_t client_pid;
 
   gboolean has_valid_cgroup;
   GFile *cgroup_path;
+
+  unsigned int events_during_ping;
 };
 
 struct _MetaWindowClass
@@ -877,6 +883,11 @@ void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);
 
 void meta_window_set_alive (MetaWindow *window, gboolean is_alive);
+gboolean meta_window_get_alive (MetaWindow *window);
+
+void meta_window_show_close_dialog (MetaWindow *window);
+void meta_window_hide_close_dialog (MetaWindow *window);
+void meta_window_ensure_close_dialog_timeout (MetaWindow *window);
 
 gboolean meta_window_has_pointer (MetaWindow *window);
 
@@ -898,4 +909,8 @@ gboolean meta_window_is_focus_async (MetaWindow *window);
 GFile *meta_window_get_unit_cgroup (MetaWindow *window);
 gboolean meta_window_unit_cgroup_equal (MetaWindow *window1,
                                         MetaWindow *window2);
+
+void meta_window_check_alive_on_event (MetaWindow *window,
+                                       uint32_t    timestamp);
+
 #endif
