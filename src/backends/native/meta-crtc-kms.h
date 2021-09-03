@@ -48,9 +48,9 @@ void meta_crtc_kms_set_cursor_renderer_private (MetaCrtcKms    *crtc_kms,
 void meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
                                     MetaKmsPlaneAssignment *kms_plane_assignment);
 
-void meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
-                                         MetaDrmBuffer *buffer,
-                                         MetaKmsUpdate *kms_update);
+MetaKmsPlaneAssignment * meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
+                                                             MetaDrmBuffer *buffer,
+                                                             MetaKmsUpdate *kms_update);
 
 void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
                              MetaKmsUpdate *kms_update);

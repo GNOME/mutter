@@ -416,7 +416,9 @@ static void
 meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
                                 MetaRendererView            *view,
                                 MetaCrtc                    *crtc,
-                                MetaKmsPageFlipListenerFlag  flags)
+                                MetaKmsPageFlipListenerFlag  flags,
+                                const int                   *rectangles,
+                                int                          n_rectangles)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
@@ -430,6 +432,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
   MetaKmsUpdate *kms_update;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
   MetaDrmBuffer *buffer;
+  MetaKmsPlaneAssignment *plane_assignment;
 
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
                            "Onscreen (flip CRTCs)");
@@ -456,8 +459,15 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
           buffer = secondary_gpu_state->gbm.next_fb;
         }
 
-      meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update);
+      plane_assignment = meta_crtc_kms_assign_primary_plane (crtc_kms,
+                                                             buffer,
+                                                             kms_update);
 
+      if (rectangles != NULL && n_rectangles != 0)
+        {
+          meta_kms_plane_assignment_set_fb_damage (plane_assignment,
+                                                   rectangles, n_rectangles);
+        }
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
@@ -1081,7 +1091,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       meta_onscreen_native_flip_crtc (onscreen,
                                       onscreen_native->view,
                                       onscreen_native->crtc,
-                                      META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE);
+                                      META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                      rectangles,
+                                      n_rectangles);
     }
   else
     {
@@ -1299,7 +1311,9 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   meta_onscreen_native_flip_crtc (onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
-                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR);
+                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR,
+                                  NULL,
+                                  0);
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);

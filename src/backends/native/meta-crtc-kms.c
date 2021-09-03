@@ -115,7 +115,7 @@ meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
                                       hw_transform);
 }
 
-void
+MetaKmsPlaneAssignment *
 meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
                                     MetaDrmBuffer *buffer,
                                     MetaKmsUpdate *kms_update)
@@ -161,6 +161,8 @@ meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
                                                    dst_rect,
                                                    flags);
   meta_crtc_kms_apply_transform (crtc_kms, plane_assignment);
+
+  return plane_assignment;
 }
 
 static GList *
