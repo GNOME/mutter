@@ -13267,6 +13267,22 @@ clutter_actor_set_animatable_property (ClutterActor *actor,
 }
 
 static void
+clutter_actor_update_pointer (ClutterActor *self)
+{
+  ClutterInputDevice *pointer;
+  ClutterStage *stage;
+  ClutterSeat *seat;
+
+  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+  if (!stage)
+    return;
+
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  pointer = clutter_seat_get_pointer (seat);
+  clutter_stage_repick_device (stage, pointer);
+}
+
+static void
 clutter_actor_set_final_state (ClutterAnimatable *animatable,
                                const gchar       *property_name,
                                const GValue      *final)
@@ -13315,6 +13331,8 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
             g_object_set_property (G_OBJECT (animatable), pspec->name, final);
         }
     }
+
+  clutter_actor_update_pointer (actor);
 
   g_free (p_name);
 }
