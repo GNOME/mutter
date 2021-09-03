@@ -446,6 +446,11 @@ init_properties (MetaKmsPlane            *plane,
           .name = "CRTC_ID",
           .type = DRM_MODE_PROP_OBJECT,
         },
+      [META_KMS_PLANE_PROP_FB_DAMAGE_CLIPS_ID] =
+        {
+          .name = "FB_DAMAGE_CLIPS",
+          .type = DRM_MODE_PROP_BLOB,
+        },
     }
   };
 

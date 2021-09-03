@@ -115,6 +115,10 @@ void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
                                      const uint16_t *green,
                                      const uint16_t *blue);
 
+void meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
+                                              const int              *rectangles,
+                                              int                     n_rectangles);
+
 MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                                                        MetaKmsCrtc            *crtc,
                                                        MetaKmsPlane           *plane,

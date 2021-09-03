@@ -130,8 +130,16 @@ meta_kms_feedback_get_error (const MetaKmsFeedback *feedback)
 }
 
 static void
+meta_kms_fb_damage_free (MetaKmsFbDamage *fb_damage)
+{
+  g_free (fb_damage->rects);
+  g_free (fb_damage);
+}
+
+static void
 meta_kms_plane_assignment_free (MetaKmsPlaneAssignment *plane_assignment)
 {
+  g_clear_pointer (&plane_assignment->fb_damage, meta_kms_fb_damage_free);
   g_free (plane_assignment);
 }
 
@@ -454,6 +462,33 @@ meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
   custom_page_flip->user_data = user_data;
 
   update->custom_page_flip = custom_page_flip;
+}
+
+void
+meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
+                                         const int              *rectangles,
+                                         int                     n_rectangles)
+{
+  MetaKmsFbDamage *fb_damage;
+  struct drm_mode_rect *mode_rects;
+  int i;
+
+  mode_rects = g_new0 (struct drm_mode_rect, n_rectangles);
+  for (i = 0; i < n_rectangles; ++i)
+    {
+      mode_rects[i].x1 = rectangles[i * 4];
+      mode_rects[i].y1 = rectangles[i * 4 + 1];
+      mode_rects[i].x2 = mode_rects[i].x1 + rectangles[i * 4 + 2];
+      mode_rects[i].y2 = mode_rects[i].y1 + rectangles[i * 4 + 3];
+    }
+
+  fb_damage = g_new0 (MetaKmsFbDamage, 1);
+  *fb_damage = (MetaKmsFbDamage) {
+    .rects = mode_rects,
+    .n_rects = n_rectangles,
+  };
+
+  plane_assignment->fb_damage = fb_damage;
 }
 
 void

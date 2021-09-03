@@ -416,6 +416,8 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
   MetaKmsPlaneAssignment *plane_assignment = update_entry;
   MetaKmsPlane *plane = plane_assignment->plane;
   MetaDrmBuffer *buffer;
+  MetaKmsFbDamage *fb_damage;
+  uint32_t prop_id;
 
   buffer = plane_assignment->buffer;
 
@@ -539,6 +541,32 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
+  fb_damage = plane_assignment->fb_damage;
+  if (fb_damage &&
+      meta_kms_plane_get_prop_id (plane,
+                                  META_KMS_PLANE_PROP_FB_DAMAGE_CLIPS_ID))
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting %d damage clips on %u",
+                  fb_damage->n_rects,
+                  meta_kms_plane_get_id (plane));
+
+      prop_id = store_new_blob (impl_device,
+                                blob_ids,
+                                fb_damage->rects,
+                                fb_damage->n_rects *
+                                sizeof (struct drm_mode_rect),
+                                error);
+      if (!prop_id)
+        return FALSE;
+
+      if (!add_plane_property (impl_device,
+                               plane, req,
+                               META_KMS_PLANE_PROP_FB_DAMAGE_CLIPS_ID,
+                               prop_id,
+                               error))
+        return FALSE;
+    }
   return TRUE;
 }
 

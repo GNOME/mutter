@@ -34,6 +34,12 @@ typedef struct _MetaKmsFeedback
   GError *error;
 } MetaKmsFeedback;
 
+typedef struct _MetaKmsFbDamage
+{
+  struct drm_mode_rect *rects;
+  int n_rects;
+} MetaKmsFbDamage;
+
 typedef struct _MetaKmsPlaneAssignment
 {
   MetaKmsUpdate *update;
@@ -43,6 +49,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaFixed16Rectangle src_rect;
   MetaRectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
+  MetaKmsFbDamage *fb_damage;
 
   uint64_t rotation;
 
