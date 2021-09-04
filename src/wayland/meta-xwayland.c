@@ -140,7 +140,7 @@ meta_xwayland_is_xwayland_surface (MetaWaylandSurface *surface)
 static char *
 meta_xwayland_get_exe_from_proc_entry (const char *proc_entry)
 {
-  g_autofree char *exepath;
+  g_autofree char *exepath = NULL;
   char *executable;
   char *p;
 
@@ -160,7 +160,7 @@ meta_xwayland_get_exe_from_proc_entry (const char *proc_entry)
 static char *
 meta_xwayland_get_exe_from_pid (uint32_t pid)
 {
-  g_autofree char *proc_entry;
+  g_autofree char *proc_entry = NULL;
   char *executable;
 
   proc_entry = g_strdup_printf ("/proc/%i/exe", pid);
@@ -172,7 +172,7 @@ meta_xwayland_get_exe_from_pid (uint32_t pid)
 static char *
 meta_xwayland_get_self_exe (void)
 {
-  g_autofree char *proc_entry;
+  g_autofree char *proc_entry = NULL;
   char *executable;
 
   proc_entry = g_strdup_printf ("/proc/self/exe");
