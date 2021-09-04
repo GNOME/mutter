@@ -924,7 +924,7 @@ set_workspace_work_area_hint (MetaWorkspace  *workspace,
   int num_monitors;
   unsigned long *data;
   unsigned long *tmp;
-  g_autofree char *workarea_name;
+  g_autofree char *workarea_name = NULL;
   Atom workarea_atom;
 
   monitor_manager = meta_backend_get_monitor_manager (meta_get_backend ());
