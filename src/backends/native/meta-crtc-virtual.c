@@ -45,6 +45,12 @@ meta_crtc_virtual_is_transform_handled (MetaCrtcNative       *crtc_native,
   return transform == META_MONITOR_TRANSFORM_NORMAL;
 }
 
+static gboolean
+meta_crtc_virtual_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
+{
+  return TRUE;
+}
+
 static void
 meta_crtc_virtual_init (MetaCrtcVirtual *crtc_virtual)
 {
@@ -57,4 +63,6 @@ meta_crtc_virtual_class_init (MetaCrtcVirtualClass *klass)
 
   crtc_native_class->is_transform_handled =
     meta_crtc_virtual_is_transform_handled;
+  crtc_native_class->is_hw_cursor_supported =
+    meta_crtc_virtual_is_hw_cursor_supported;
 }

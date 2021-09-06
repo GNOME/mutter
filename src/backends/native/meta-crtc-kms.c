@@ -94,6 +94,16 @@ meta_crtc_kms_is_transform_handled (MetaCrtcNative       *crtc_native,
   return is_transform_handled (crtc_kms, transform);
 }
 
+static gboolean
+meta_crtc_kms_is_hw_cursor_supported (MetaCrtcNative *crtc_native)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc_native);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+  return !!meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
+}
+
 void
 meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
                                MetaKmsPlaneAssignment *kms_plane_assignment)
@@ -385,4 +395,5 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
   object_class->dispose = meta_crtc_kms_dispose;
 
   crtc_native_class->is_transform_handled = meta_crtc_kms_is_transform_handled;
+  crtc_native_class->is_hw_cursor_supported = meta_crtc_kms_is_hw_cursor_supported;
 }
