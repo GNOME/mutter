@@ -666,24 +666,21 @@ get_current_relative_transform (MetaCursorSprite *cursor_sprite)
 }
 
 static void
-has_cursor_plane (MetaLogicalMonitor *logical_monitor,
-                  MetaMonitor        *monitor,
-                  MetaOutput         *output,
-                  MetaCrtc           *crtc,
-                  gpointer            user_data)
+crtc_supports_hw_cursor (MetaLogicalMonitor *logical_monitor,
+                         MetaMonitor        *monitor,
+                         MetaOutput         *output,
+                         MetaCrtc           *crtc,
+                         gpointer            user_data)
 {
-  gboolean *has_cursor_planes = user_data;
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  gboolean *supports_hw_cursor = user_data;
+  MetaCrtcNative *crtc_native = META_CRTC_NATIVE (crtc);
 
-  *has_cursor_planes &= !!meta_kms_device_get_cursor_plane_for (kms_device,
-                                                                kms_crtc);
+  *supports_hw_cursor &= meta_crtc_native_is_hw_cursor_supported (crtc_native);
 }
 
 static gboolean
-crtcs_has_cursor_planes (MetaCursorRenderer *renderer,
-                         MetaCursorSprite   *cursor_sprite)
+crtcs_supports_hw_cursor (MetaCursorRenderer *renderer,
+                          MetaCursorSprite   *cursor_sprite)
 {
   MetaCursorRendererNative *cursor_renderer_native =
     META_CURSOR_RENDERER_NATIVE (renderer);
@@ -705,7 +702,7 @@ crtcs_has_cursor_planes (MetaCursorRenderer *renderer,
       MetaLogicalMonitor *logical_monitor = l->data;
       MetaRectangle logical_monitor_layout;
       graphene_rect_t logical_monitor_rect;
-      gboolean has_cursor_planes;
+      gboolean supports_hw_cursor;
 
       logical_monitor_layout =
         meta_logical_monitor_get_layout (logical_monitor);
@@ -716,11 +713,11 @@ crtcs_has_cursor_planes (MetaCursorRenderer *renderer,
                                        NULL))
         continue;
 
-      has_cursor_planes = TRUE;
+      supports_hw_cursor = TRUE;
       meta_logical_monitor_foreach_crtc (logical_monitor,
-                                         has_cursor_plane,
-                                         &has_cursor_planes);
-      if (!has_cursor_planes)
+                                         crtc_supports_hw_cursor,
+                                         &supports_hw_cursor);
+      if (!supports_hw_cursor)
         return FALSE;
     }
 
@@ -880,7 +877,7 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
         return FALSE;
     }
 
-  if (!crtcs_has_cursor_planes (renderer, cursor_sprite))
+  if (!crtcs_supports_hw_cursor (renderer, cursor_sprite))
     return FALSE;
 
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
