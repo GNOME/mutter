@@ -33,9 +33,12 @@ struct _MetaCrtcNativeClass
 
   gboolean (* is_transform_handled) (MetaCrtcNative       *crtc_native,
                                      MetaMonitorTransform  monitor_transform);
+  gboolean (* is_hw_cursor_supported) (MetaCrtcNative *crtc_native);
 };
 
 gboolean meta_crtc_native_is_transform_handled (MetaCrtcNative       *crtc_native,
                                                 MetaMonitorTransform  transform);
+
+gboolean meta_crtc_native_is_hw_cursor_supported (MetaCrtcNative *crtc_native);
 
 #endif /* META_CRTC_NATIVE_H */
