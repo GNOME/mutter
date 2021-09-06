@@ -616,7 +616,7 @@ do_paint_content (MetaShapedTexture   *stex,
   };
 
   debug_paint_opaque_region =
-    meta_get_debug_paint_flags() & META_DEBUG_PAINT_OPAQUE_REGION;
+    meta_get_debug_paint_flags () & META_DEBUG_PAINT_OPAQUE_REGION;
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
@@ -934,7 +934,7 @@ clutter_content_iface_init (ClutterContentInterface *iface)
 
 void
 meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
-					gboolean           create_mipmaps)
+                                        gboolean           create_mipmaps)
 {
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
