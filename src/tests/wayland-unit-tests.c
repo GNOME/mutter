@@ -19,6 +19,7 @@
 
 #include <gio/gio.h>
 
+#include "backends/meta-virtual-monitor.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
@@ -33,7 +34,9 @@ typedef struct _WaylandTestClient
   GMainLoop *main_loop;
 } WaylandTestClient;
 
+static MetaContext *test_context;
 static MetaWaylandTestDriver *test_driver;
+static MetaVirtualMonitor *virtual_monitor;
 
 static char *
 get_test_client_path (const char *test_client_name)
@@ -259,14 +262,33 @@ toplevel_activation (void)
 }
 
 static void
-pre_run_wayland_tests (void)
+on_before_tests (void)
 {
-  MetaWaylandCompositor *compositor;
-
-  compositor = meta_wayland_compositor_get_default ();
-  g_assert_nonnull (compositor);
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (test_context);
+  g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
+  g_autoptr (GError) error = NULL;
 
   test_driver = meta_wayland_test_driver_new (compositor);
+
+  monitor_info = meta_virtual_monitor_info_new (400, 400, 60.0,
+                                                "MetaTestVendor",
+                                                "MetaVirtualMonitor",
+                                                "0x1234");
+  virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                                 monitor_info,
+                                                                 &error);
+  if (!virtual_monitor)
+    g_error ("Failed to create virtual monitor: %s", error->message);
+  meta_monitor_manager_reload (monitor_manager);
+}
+
+static void
+on_after_tests (void)
+{
+  g_clear_object (&virtual_monitor);
 }
 
 static void
@@ -291,14 +313,18 @@ main (int argc, char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
-                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  test_context = context;
 
   init_wayland_tests ();
 
   g_signal_connect (context, "before-tests",
-                    G_CALLBACK (pre_run_wayland_tests), NULL);
+                    G_CALLBACK (on_before_tests), NULL);
+  g_signal_connect (context, "after-tests",
+                    G_CALLBACK (on_after_tests), NULL);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context));
 }

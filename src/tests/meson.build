@@ -176,21 +176,6 @@ stage_view_tests = executable('mutter-stage-view-tests',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
-wayland_tests = executable('mutter-wayland-tests',
-  sources: [
-    'meta-wayland-test-driver.c',
-    'meta-wayland-test-driver.h',
-    'wayland-unit-tests.c',
-    test_driver_server_header,
-    test_driver_protocol_code,
-  ],
-  include_directories: tests_includes,
-  c_args: tests_c_args,
-  dependencies: libmutter_test_dep,
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
-
 anonymous_file_test = executable('anonymous-file-tests',
   sources: [
     'anonymous-file.c',
@@ -273,6 +258,21 @@ if have_native_tests
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
   )
+
+  wayland_tests = executable('mutter-wayland-tests',
+    sources: [
+      'meta-wayland-test-driver.c',
+      'meta-wayland-test-driver.h',
+      'wayland-unit-tests.c',
+      test_driver_server_header,
+      test_driver_protocol_code,
+    ],
+    include_directories: tests_includes,
+    c_args: tests_c_args,
+    dependencies: libmutter_test_dep,
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
 endif
 
 stacking_tests = [
@@ -338,13 +338,6 @@ test('stage-view', stage_view_tests,
   timeout: 60,
 )
 
-test('wayland', wayland_tests,
-  suite: ['core', 'mutter/unit'],
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
 test('anonymous-file', anonymous_file_test,
   suite: ['core', 'mutter/unit'],
   env: test_env,
@@ -376,6 +369,13 @@ if have_native_tests
 
   test('native-persistent-virtual-monitor', native_persistent_virtual_monitor,
     suite: ['core', 'mutter/native/persistent-virtual-monitor'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
+  test('wayland', wayland_tests,
+    suite: ['core', 'mutter/unit'],
     env: test_env,
     is_parallel: false,
     timeout: 60,
