@@ -202,6 +202,7 @@ typedef struct _ApplyLimitData
 static void
 on_sync_point (MetaWaylandTestDriver *test_driver,
                unsigned int           sequence,
+               struct wl_resource    *surface_resource,
                struct wl_client      *wl_client,
                ApplyLimitData        *data)
 {

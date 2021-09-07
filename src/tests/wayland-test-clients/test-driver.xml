@@ -8,6 +8,7 @@
 
     <request name="sync_point">
       <arg name="sequence" type="uint"/>
+      <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
     </request>
   </interface>
 </protocol>

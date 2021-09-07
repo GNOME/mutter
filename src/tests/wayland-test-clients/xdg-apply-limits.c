@@ -236,7 +236,7 @@ handle_frame_callback (void               *data,
     {
     case STATE_WAIT_FOR_FRAME_1:
       reset_surface ();
-      test_driver_sync_point (test_driver, 1);
+      test_driver_sync_point (test_driver, 1, NULL);
       break;
     case STATE_WAIT_FOR_FRAME_2:
       exit (EXIT_SUCCESS);
@@ -395,7 +395,7 @@ main (int    argc,
   xdg_toplevel_set_max_size(xdg_toplevel, 700, 500);
   wl_surface_commit (surface);
 
-  test_driver_sync_point (test_driver, 0);
+  test_driver_sync_point (test_driver, 0, NULL);
 
   running = TRUE;
   while (running)

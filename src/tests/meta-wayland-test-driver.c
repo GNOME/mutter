@@ -81,12 +81,14 @@ sync_actor_destroy (struct wl_client   *client,
 static void
 sync_point (struct wl_client   *client,
             struct wl_resource *resource,
-            uint32_t            sequence)
+            uint32_t            sequence,
+            struct wl_resource *surface_resource)
 {
   MetaWaylandTestDriver *test_driver = wl_resource_get_user_data (resource);
 
   g_signal_emit (test_driver, signals[SYNC_POINT], 0,
                  sequence,
+                 surface_resource,
                  client);
 }
 
@@ -133,8 +135,9 @@ meta_wayland_test_driver_class_init (MetaWaylandTestDriverClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 2,
+                  G_TYPE_NONE, 3,
                   G_TYPE_UINT,
+                  G_TYPE_POINTER,
                   G_TYPE_POINTER);
 }
 
