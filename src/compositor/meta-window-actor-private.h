@@ -85,6 +85,8 @@ void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
 
 META_EXPORT_TEST
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
+
+META_EXPORT_TEST
 MetaWindowActor *meta_window_actor_from_actor (ClutterActor *actor);
 
 void meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,

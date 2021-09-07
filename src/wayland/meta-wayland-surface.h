@@ -348,6 +348,7 @@ gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurf
 
 CoglTexture *       meta_wayland_surface_get_texture (MetaWaylandSurface *surface);
 
+META_EXPORT_TEST
 MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);

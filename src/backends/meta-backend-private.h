@@ -117,6 +117,7 @@ void meta_backend_prepare_shutdown (MetaBackend *backend);
 META_EXPORT_TEST
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
+META_EXPORT_TEST
 ClutterSeat * meta_backend_get_default_seat (MetaBackend *bakcend);
 
 MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,

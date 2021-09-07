@@ -48,6 +48,7 @@ common_sources = [
 wayland_test_clients = [
   'subsurface-remap-toplevel',
   'subsurface-reparenting',
+  'subsurface-parent-unmapped',
   'invalid-subsurfaces',
   'invalid-xdg-shell-actions',
   'xdg-apply-limits',
