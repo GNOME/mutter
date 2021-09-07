@@ -239,10 +239,12 @@ int
 main (int argc, char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
+  g_autoptr (GError) error = NULL;
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
                                       META_CONTEXT_TEST_FLAG_TEST_CLIENT);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  if (!meta_context_configure (context, &argc, &argv, &error))
+    g_error ("Failed to configure test context: %s", error->message);
 
   test_context = context;
 
