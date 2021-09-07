@@ -49,6 +49,7 @@
 #include "cogl-gtype-private.h"
 #include "winsys/cogl-winsys-private.h"
 
+#include <gio/gio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -98,6 +99,7 @@ cogl_context_new (CoglDisplay *display,
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
   const CoglWinsysVtable *winsys;
   int i;
+  GError *local_error = NULL;
 
   _cogl_init ();
 
@@ -188,6 +190,8 @@ cogl_context_new (CoglDisplay *display,
     {
       cogl_object_unref (display);
       g_free (context);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to initialize context");
       return NULL;
     }
 
@@ -298,7 +302,15 @@ cogl_context_new (CoglDisplay *display,
                                    COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                    0, /* rowstride */
                                    white_pixel,
-                                   NULL); /* abort on error */
+                                   &local_error);
+  if (!context->default_gl_texture_2d_tex)
+    {
+      cogl_object_unref (display);
+      g_free (context);
+      g_propagate_prefixed_error (error, local_error,
+                                  "Failed to create 1x1 fallback texture: ");
+      return NULL;
+    }
 
   context->atlases = NULL;
   g_hook_list_init (&context->atlas_reorganize_callbacks, sizeof (GHook));
