@@ -241,14 +241,17 @@ static void
 toplevel_apply_limits (void)
 {
   ApplyLimitData data = {};
+  gulong handler_id;
 
   data.loop = g_main_loop_new (NULL, FALSE);
   data.wayland_test_client = wayland_test_client_new ("xdg-apply-limits");
-  g_signal_connect (test_driver, "sync-point", G_CALLBACK (on_sync_point), &data);
+  handler_id = g_signal_connect (test_driver, "sync-point",
+                                 G_CALLBACK (on_sync_point), &data);
   g_main_loop_run (data.loop);
   g_assert_cmpint (data.state, ==, APPLY_LIMIT_STATE_FINISH);
   wayland_test_client_finish (data.wayland_test_client);
   g_test_assert_expected_messages ();
+  g_signal_handler_disconnect (test_driver, handler_id);
 }
 
 static void
