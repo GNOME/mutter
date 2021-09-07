@@ -189,22 +189,20 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
 {
   ClutterBackendClass *klass;
   CoglSwapChain *swap_chain;
-  GError *internal_error;
 
   klass = CLUTTER_BACKEND_GET_CLASS (backend);
 
   swap_chain = NULL;
-  internal_error = NULL;
 
   CLUTTER_NOTE (BACKEND, "Creating Cogl renderer");
-  backend->cogl_renderer = klass->get_renderer (backend, &internal_error);
+  backend->cogl_renderer = klass->get_renderer (backend, error);
 
   if (backend->cogl_renderer == NULL)
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Connecting the renderer");
   cogl_renderer_set_driver (backend->cogl_renderer, driver_id);
-  if (!cogl_renderer_connect (backend->cogl_renderer, &internal_error))
+  if (!cogl_renderer_connect (backend->cogl_renderer, error))
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Creating Cogl swap chain");
@@ -216,7 +214,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
       backend->cogl_display = klass->get_display (backend,
                                                   backend->cogl_renderer,
                                                   swap_chain,
-                                                  &internal_error);
+                                                  error);
     }
   else
     {
@@ -232,7 +230,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
        */
       res = cogl_renderer_check_onscreen_template (backend->cogl_renderer,
                                                    tmpl,
-                                                   &internal_error);
+                                                   error);
 
       if (!res)
         goto error;
@@ -247,11 +245,11 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Setting up the display");
-  if (!cogl_display_setup (backend->cogl_display, &internal_error))
+  if (!cogl_display_setup (backend->cogl_display, error))
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Creating the Cogl context");
-  backend->cogl_context = cogl_context_new (backend->cogl_display, &internal_error);
+  backend->cogl_context = cogl_context_new (backend->cogl_display, error);
   if (backend->cogl_context == NULL)
     goto error;
 
