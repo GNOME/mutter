@@ -27,4 +27,7 @@ G_DECLARE_FINAL_TYPE (MetaWaylandTestDriver, meta_wayland_test_driver,
 
 MetaWaylandTestDriver * meta_wayland_test_driver_new (MetaWaylandCompositor *compositor);
 
+void meta_wayland_test_driver_emit_sync_event (MetaWaylandTestDriver *test_driver,
+                                               uint32_t               serial);
+
 #endif /* META_WAYLAND_TEST_DRIVER_H */

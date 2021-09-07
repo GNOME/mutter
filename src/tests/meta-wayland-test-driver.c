@@ -40,6 +40,8 @@ struct _MetaWaylandTestDriver
   GObject parent;
 
   struct wl_global *test_driver;
+
+  GList *resources;
 };
 
 G_DEFINE_TYPE (MetaWaylandTestDriver, meta_wayland_test_driver,
@@ -98,6 +100,14 @@ static const struct test_driver_interface meta_test_driver_interface = {
 };
 
 static void
+test_driver_destructor (struct wl_resource *resource)
+{
+  MetaWaylandTestDriver *test_driver = wl_resource_get_user_data (resource);
+
+  test_driver->resources = g_list_remove (test_driver->resources, resource);
+}
+
+static void
 bind_test_driver (struct wl_client *client,
                   void             *user_data,
                   uint32_t          version,
@@ -109,7 +119,9 @@ bind_test_driver (struct wl_client *client,
   resource = wl_resource_create (client, &test_driver_interface,
                                  version, id);
   wl_resource_set_implementation (resource, &meta_test_driver_interface,
-                                  test_driver, NULL);
+                                  test_driver, test_driver_destructor);
+
+  test_driver->resources = g_list_prepend (test_driver->resources, resource);
 }
 
 static void
@@ -160,4 +172,18 @@ meta_wayland_test_driver_new (MetaWaylandCompositor *compositor)
     g_error ("Failed to register a global wl-subcompositor object");
 
   return test_driver;
+}
+
+void
+meta_wayland_test_driver_emit_sync_event (MetaWaylandTestDriver *test_driver,
+                                          uint32_t               serial)
+{
+  GList *l;
+
+  for (l = test_driver->resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      test_driver_send_sync_event (resource, serial);
+    }
 }

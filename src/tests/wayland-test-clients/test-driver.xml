@@ -10,5 +10,9 @@
       <arg name="sequence" type="uint"/>
       <arg name="surface" type="object" interface="wl_surface" allow-null="true"/>
     </request>
+
+    <event name="sync_event">
+      <arg name="sequence" type="uint"/>
+    </event>
   </interface>
 </protocol>
