@@ -72,10 +72,11 @@ meta_context_test_configure (MetaContext   *context,
     META_CONTEXT_CLASS (meta_context_test_parent_class);
   const char *plugin_name;
 
+  g_test_init (argc, argv, NULL);
+
   if (!context_class->configure (context, argc, argv, error))
     return FALSE;
 
-  g_test_init (argc, argv, NULL);
   g_test_bug_base ("https://gitlab.gnome.org/GNOME/mutter/issues/");
 
   if (priv->flags & META_CONTEXT_TEST_FLAG_TEST_CLIENT)
