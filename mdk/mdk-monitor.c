@@ -47,6 +47,8 @@ struct _MdkMonitor
   MdkPointer *pointer;
   MdkKeyboard *keyboard;
   MdkTouch *touch;
+
+  gboolean emulated_touch_down;
 };
 
 G_DEFINE_FINAL_TYPE (MdkMonitor, mdk_monitor, GTK_TYPE_BOX)
@@ -93,11 +95,31 @@ on_pointer_motion (GtkEventControllerMotion *controller,
                    double                    y,
                    MdkMonitor               *monitor)
 {
-  MdkPointer *pointer;
+  MdkContext *context = monitor->context;
+  GdkEvent *event;
 
-  pointer = ensure_pointer (monitor);
+  event =
+    gtk_event_controller_get_current_event (GTK_EVENT_CONTROLLER (controller));
+  if (!event)
+    return;
 
-  mdk_pointer_notify_motion (pointer, x, y);
+  if (mdk_context_get_emulate_touch (context))
+    {
+      if (monitor->emulated_touch_down)
+        {
+          MdkTouch *touch;
+
+          touch = ensure_touch (monitor);
+          mdk_touch_notify_motion (touch, 0, x, y);
+        }
+    }
+  else
+    {
+      MdkPointer *pointer;
+
+      pointer = ensure_pointer (monitor);
+      mdk_pointer_notify_motion (pointer, x, y);
+    }
 }
 
 static uint32_t
@@ -123,19 +145,36 @@ click_pressed_cb (GtkGestureClick *gesture,
                   double           y,
                   MdkMonitor      *monitor)
 {
-  MdkPointer *pointer;
   unsigned int gtk_button_code;
-  uint32_t evdev_button_code;
+
+  if (gtk_gesture_single_get_current_sequence (GTK_GESTURE_SINGLE (gesture)))
+    return;
 
   gtk_button_code =
     gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture));
-  evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
 
-  pointer = ensure_pointer (monitor);
+  if (mdk_context_get_emulate_touch (monitor->context))
+    {
+      if (gtk_button_code == GDK_BUTTON_PRIMARY)
+        {
+          MdkTouch *touch;
 
-  mdk_pointer_notify_button (pointer,
-                             evdev_button_code,
-                             1);
+          touch = ensure_touch (monitor);
+          mdk_touch_notify_down (touch, 0, x, y);
+          monitor->emulated_touch_down = TRUE;
+        }
+    }
+  else
+    {
+      MdkPointer *pointer;
+      uint32_t evdev_button_code;
+
+      evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
+      pointer = ensure_pointer (monitor);
+      mdk_pointer_notify_button (pointer,
+                                 evdev_button_code,
+                                 1);
+    }
 }
 
 static void
@@ -145,19 +184,36 @@ click_released_cb (GtkGestureClick *gesture,
                    double           y,
                    MdkMonitor      *monitor)
 {
-  MdkPointer *pointer;
   unsigned int gtk_button_code;
-  uint32_t evdev_button_code;
+
+  if (gtk_gesture_single_get_current_sequence (GTK_GESTURE_SINGLE (gesture)))
+    return;
 
   gtk_button_code =
     gtk_gesture_single_get_current_button (GTK_GESTURE_SINGLE (gesture));
-  evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
 
-  pointer = ensure_pointer (monitor);
+  if (mdk_context_get_emulate_touch (monitor->context))
+    {
+      if (gtk_button_code == GDK_BUTTON_PRIMARY)
+        {
+          MdkTouch *touch;
 
-  mdk_pointer_notify_button (pointer,
-                             evdev_button_code,
-                             0);
+          touch = ensure_touch (monitor);
+          mdk_touch_notify_up (touch, 0);
+          monitor->emulated_touch_down = FALSE;
+        }
+    }
+  else
+    {
+      MdkPointer *pointer;
+      uint32_t evdev_button_code;
+
+      evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
+      pointer = ensure_pointer (monitor);
+      mdk_pointer_notify_button (pointer,
+                                 evdev_button_code,
+                                 0);
+    }
 
   gtk_gesture_set_state (GTK_GESTURE (gesture), GTK_EVENT_SEQUENCE_CLAIMED);
 }
@@ -171,6 +227,9 @@ on_scroll (GtkEventControllerScroll *controller,
   MdkPointer *pointer;
   GdkEvent *event;
   GdkScrollDirection direction;
+
+  if (mdk_context_get_emulate_touch (monitor->context))
+    return TRUE;
 
   event =
     gtk_event_controller_get_current_event (GTK_EVENT_CONTROLLER (controller));
@@ -325,6 +384,9 @@ touch_event (GtkEventControllerLegacy *controller,
   int slot;
 
   if (!is_touch_event (event))
+    return;
+
+  if (monitor->emulated_touch_down)
     return;
 
   touch = ensure_touch (monitor);

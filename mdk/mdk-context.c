@@ -27,6 +27,17 @@
 
 enum
 {
+  PROP_0,
+
+  PROP_EMULATE_TOUCH,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
+enum
+{
   READY,
   ERROR,
   CLOSED,
@@ -42,9 +53,49 @@ struct _MdkContext
 
   MdkPipewire *pipewire;
   MdkSession *session;
+
+  gboolean emulate_touch;
 };
 
 G_DEFINE_FINAL_TYPE (MdkContext, mdk_context, G_TYPE_OBJECT)
+
+static void
+mdk_context_set_property (GObject      *object,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+  MdkContext *context = MDK_CONTEXT (object);
+
+  switch (prop_id)
+    {
+    case PROP_EMULATE_TOUCH:
+      context->emulate_touch = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+mdk_context_get_property (GObject    *object,
+                           guint       prop_id,
+                           GValue     *value,
+                           GParamSpec *pspec)
+{
+  MdkContext *context = MDK_CONTEXT (object);
+
+  switch (prop_id)
+    {
+    case PROP_EMULATE_TOUCH:
+      g_value_set_boolean (value, context->emulate_touch);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
 
 static void
 mdk_context_finalize (GObject *object)
@@ -61,7 +112,16 @@ mdk_context_class_init (MdkContextClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->set_property = mdk_context_set_property;
+  object_class->get_property = mdk_context_get_property;
   object_class->finalize = mdk_context_finalize;
+
+  obj_props[PROP_EMULATE_TOUCH] =
+    g_param_spec_boolean ("emulate-touch", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[READY] = g_signal_new ("ready",
                                  G_TYPE_FROM_CLASS (klass),
@@ -169,4 +229,10 @@ MdkPipewire *
 mdk_context_get_pipewire (MdkContext *context)
 {
   return context->pipewire;
+}
+
+gboolean
+mdk_context_get_emulate_touch (MdkContext *context)
+{
+  return context->emulate_touch;
 }
