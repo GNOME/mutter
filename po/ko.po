@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-14 21:12+0000\n"
+"POT-Creation-Date: 2021-09-03 21:08+0000\n"
 "PO-Revision-Date: 2021-03-15 11:58+0200\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
@@ -61,109 +61,125 @@ msgstr "창을 한칸 왼쪽 작업 공간으로 옮기기"
 msgid "Move window one workspace to the right"
 msgstr "창을 한칸 오른쪽 작업 공간으로 옮기기"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "창을 한칸 위 작업 공간으로 옮기기"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "창을 한칸 아래 작업 공간으로 옮기기"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "창을 한칸 왼쪽 모니터로 옮기기"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "창을 한칸 오른쪽 모니터로 옮기기"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "창을 한칸 위 모니터로 옮기기"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "창을 한칸 아래 모니터로 옮기기"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "프로그램 전환"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "이전 프로그램으로 전환"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "창 전환"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "이전 창으로 전환"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "한 프로그램의 창 전환"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "한 프로그램의 이전 창으로 전환"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "시스템 조작 전환"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "이전 시스템 조작으로 전환"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "직접 창 전환"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "직접 이전 창으로 전환"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "직접 한 앱의 창 전환"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "직접 한 앱의 이전 창으로 전환"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "직접 시스템 조작 전환"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "직접 이전 시스템 조작으로 전환"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "모든 일반 창 감추기"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "작업 공간 1로 이동"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "작업 공간 2로 이동"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "작업 공간 3으로 이동"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "작업 공간 4로 이동"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "최근 작업 공간으로 이동"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "왼쪽 작업 공간으로 옮기기"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "오른쪽 작업 공간으로 옮기기"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "위 작업 공간으로 옮기기"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "아래 작업 공간으로 옮기기"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -172,10 +188,6 @@ msgstr "시스템"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "실행 명령 프롬프트 보이기"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "현재 활동 보이기"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -571,26 +583,26 @@ msgstr ""
 "록 빌드하지 않은 경우에는 효과가 없습니다. 이 설정을 적용하려면 X웨일랜드를 "
 "다시 시작해야 합니다."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -603,9 +615,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "컴포지터"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "사용할 X 디스플레이"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "사용할 X 화면"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "동기 X 호출을 합니다"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "XInput 지원 비활성화"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -616,62 +645,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "삑소리 이벤트"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "세션 관리자와 연결 하지 않습니다"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "실행 중인 창 관리자를 바꿉니다"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "세션 관리 ID를 지정합니다"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "사용할 X 디스플레이"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "저장 파일에서 세션을 초기화 합니다"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "동기 X 호출을 합니다"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "웨일랜드 컴포지터로 실행합니다"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "중첩 컴포지터로 실행합니다"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "사용할 웨일랜드 디스플레이 이름 지정"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "헤드리스 디스플레이 서버로 실행"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "X11 백 엔드로 실행 합니다"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -697,10 +670,62 @@ msgstr "강제로 끝내기(_F)"
 msgid "_Wait"
 msgstr "기다리기(_W)"
 
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "실행 중인 창 관리자를 바꿉니다"
+
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "사용할 X 디스플레이"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "세션 관리자와 연결 하지 않습니다"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "세션 관리 ID를 지정합니다"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "저장 파일에서 세션을 초기화 합니다"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "웨일랜드 컴포지터로 실행합니다"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "중첩 컴포지터로 실행합니다"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "사용할 웨일랜드 디스플레이 이름 지정"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "헤드리스 디스플레이 서버로 실행"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "X11 백 엔드로 실행 합니다"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -708,28 +733,28 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "버전을 출력합니다"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
@@ -738,7 +763,7 @@ msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파�
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -747,16 +772,16 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "GDK 초기화에 실패했습니다"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
@@ -766,7 +791,7 @@ msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -780,17 +805,8 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
 
-#~ msgid "Move window one workspace up"
-#~ msgstr "창을 한칸 위 작업 공간으로 옮기기"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "창을 한칸 아래 작업 공간으로 옮기기"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "위 작업 공간으로 옮기기"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "아래 작업 공간으로 옮기기"
+#~ msgid "Show the activities overview"
+#~ msgstr "현재 활동 보이기"
 
 #~ msgid ""
 #~ "mutter %s\n"
