@@ -1,5 +1,6 @@
 # German Mutter translation.
 # Copyright (C) 2002-2004 Free Software Foundation, Inc.
+#
 # Matthias Warkus <mawarkus@gnome.org>, 2002.
 # Christian Neumair <chris@gnome-de.org>, 2002-2004.
 # Hendrik Richter <hendrikr@gnome.org>, 2005-2008.
@@ -10,20 +11,21 @@
 # Tim Sabsch <tim@sabsch.com>, 2018-2021.
 # Philipp Kiemle <philipp.kiemle@gmail.com>, 2021.
 #
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-04-15 15:51+0000\n"
-"PO-Revision-Date: 2021-04-16 19:40+0200\n"
-"Last-Translator: Tim Sabsch <tim@sabsch.com>\n"
+"POT-Creation-Date: 2021-08-30 22:01+0000\n"
+"PO-Revision-Date: 2021-09-01 18:20+0200\n"
+"Last-Translator: Philipp Kiemle <philipp.kiemle@gmail.com>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -188,10 +190,6 @@ msgstr "System"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Den »Befehl ausführen«-Dialog anzeigen"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Aktivitäten-Übersicht anzeigen"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -620,26 +618,26 @@ msgstr ""
 "die ausgewählten X-Erweiterungen gebaut wurde. Damit diese Einstellung "
 "wirksam werden kann, muss Xwayland neu gestartet werden."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Eingebaute Anzeige"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Unbekannte Anzeige"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -653,9 +651,30 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Compositor"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+#, fuzzy
+#| msgid "X Display to use"
+msgid "X display to use"
+msgstr "Zu verwendende X-Anzeige"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+#, fuzzy
+#| msgid "X Display to use"
+msgid "X screen to use"
+msgstr "Zu verwendende X-Anzeige"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:583
+msgid "Make X calls synchronous"
+msgstr "X-Aufrufe abgleichen"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "XInput-Unterstützung deaktivieren"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -666,63 +685,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Klangereignis"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Verbindung zur Sitzungsverwaltung deaktivieren"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Den aktuellen Fensterverwalter ersetzen"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Kennung der Sitzungsverwaltung angeben"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Zu verwendende X-Anzeige"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Sitzung anhand gespeicherter Datei starten"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "X-Aufrufe abgleichen"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Als Wayland-Compositor ausführen"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Als eingebetteten Compositor ausführen"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Wayland-Compositor ausführen, ohne Xwayland zu starten"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Name der Wayland-Anzeige festlegen"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Als vollwertigen Display-Server verwenden (nicht eingebettet)"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Als Display-Server ohne grafische Oberfläche verwenden"
-
-# Für WxH@R siehe https://gitlab.gnome.org/GNOME/mutter/-/blob/master/src/core/main.c#L498
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Einen persistenten virtuellen Monitor hinzufügen (BxH oder BxH@W)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Mit X11-Backend ausführen"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -750,10 +712,63 @@ msgstr "_Beenden erzwingen"
 msgid "_Wait"
 msgstr "_Warten"
 
+#: src/core/meta-context-main.c:553
+msgid "Replace the running window manager"
+msgstr "Den aktuellen Fensterverwalter ersetzen"
+
+#: src/core/meta-context-main.c:559
+msgid "X Display to use"
+msgstr "Zu verwendende X-Anzeige"
+
+#: src/core/meta-context-main.c:565
+msgid "Disable connection to session manager"
+msgstr "Verbindung zur Sitzungsverwaltung deaktivieren"
+
+#: src/core/meta-context-main.c:571
+msgid "Specify session management ID"
+msgstr "Kennung der Sitzungsverwaltung angeben"
+
+#: src/core/meta-context-main.c:577
+msgid "Initialize session from savefile"
+msgstr "Sitzung anhand gespeicherter Datei starten"
+
+#: src/core/meta-context-main.c:590
+msgid "Run as a wayland compositor"
+msgstr "Als Wayland-Compositor ausführen"
+
+#: src/core/meta-context-main.c:596
+msgid "Run as a nested compositor"
+msgstr "Als eingebetteten Compositor ausführen"
+
+#: src/core/meta-context-main.c:602
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Wayland-Compositor ausführen, ohne Xwayland zu starten"
+
+#: src/core/meta-context-main.c:608
+msgid "Specify Wayland display name to use"
+msgstr "Name der Wayland-Anzeige festlegen"
+
+#: src/core/meta-context-main.c:616
+msgid "Run as a full display server, rather than nested"
+msgstr "Als vollwertigen Display-Server verwenden (nicht eingebettet)"
+
+#: src/core/meta-context-main.c:621
+msgid "Run as a headless display server"
+msgstr "Als Display-Server ohne grafische Oberfläche verwenden"
+
+# Für WxH@R siehe https://gitlab.gnome.org/GNOME/mutter/-/blob/master/src/core/main.c#L498
+#: src/core/meta-context-main.c:626
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Einen persistenten virtuellen Monitor hinzufügen (BxH oder BxH@W)"
+
+#: src/core/meta-context-main.c:632
+msgid "Run with X11 backend"
+msgstr "Mit X11-Backend ausführen"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Moduswechsel (Gruppe %d)"
@@ -761,28 +776,28 @@ msgstr "Moduswechsel (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Bildschirm wechseln"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Bildschirmhilfe anzeigen"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Version ausgeben"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Zu benutzendes Mutter-Plugin"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbeitsfläche %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter wurde ohne Unterstützung für den ausführlichen Modus kompiliert"
 
@@ -791,7 +806,7 @@ msgstr "Mutter wurde ohne Unterstützung für den ausführlichen Modus kompilier
 msgid "Mode Switch: Mode %d"
 msgstr "Moduswechsel: Modus %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -800,16 +815,16 @@ msgstr ""
 "Bildschirm »%s« hat bereits einen Fensterverwalter. Versuchen Sie die Option "
 "»--replace«, um den aktuellen Fensterverwalter zu ersetzen."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "GDK konnte nicht initialisiert werden"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X-Window-Systemanzeige »%s« konnte nicht geöffnet werden"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Bildschirm %d auf Anzeige »%s« ist ungültig"
@@ -819,7 +834,7 @@ msgstr "Bildschirm %d auf Anzeige »%s« ist ungültig"
 msgid "Format %s not supported"
 msgstr "Format %s wird nicht unterstützt"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -831,6 +846,9 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (auf %s)"
+
+#~ msgid "Show the activities overview"
+#~ msgstr "Aktivitäten-Übersicht anzeigen"
 
 # CHECK
 # c-format
