@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-13 12:26+0300\n"
+"POT-Creation-Date: 2021-09-03 21:08+0000\n"
+"PO-Revision-Date: 2021-09-09 22:25+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-DamnedLies-Scope: partial\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 2.4.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -58,109 +58,125 @@ msgstr "Pencereyi soldaki çalışma alanına taşı"
 msgid "Move window one workspace to the right"
 msgstr "Pencereyi sağdaki çalışma alanına taşı"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Pencereyi üstteki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Pencereyi alttaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Pencereyi soldaki monitöre taşı"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Pencereyi sağdaki monitöre taşı"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Pencereyi üstteki monitöre taşı"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Pencereyi alttaki monitöre taşı"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Uygulamalar arası geçiş yap"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Önceki uygulamaya geç"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Pencereler arası geçiş yap"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Önceki pencereye geç"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Uygulamanın pencereleri arası geçiş yap"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Uygulamanın bir önceki penceresine geç"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Sistem denetimleri arası geçiş yap"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Önceki sistem denetimine geç"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Pencereler arası doğrudan geçiş yap"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Önceki pencereye doğrudan geç"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Uygulamanın pencereleri arası anında geçiş yap"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Bir uygulamanın önceki penceresine doğrudan geç"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Sistem denetimleri arası doğrudan geçiş yap"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Önceki sistem denetimine doğrudan geç"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Tüm olağan pencereleri sakla"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Çalışma alanı 1’e geç"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Çalışma alanı 2’ye geç"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Çalışma alanı 3’e geç"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Çalışma alanı 4’e geç"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Son çalışma alanına geç"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Soldaki çalışma alanına taşı"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Sağdaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Üstteki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Alttaki çalışma alanına taşı"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -169,10 +185,6 @@ msgstr "Sistem"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Komut çalıştırma istemini göster"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Etkinlik genel görünümünü göster"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -588,26 +600,26 @@ msgstr ""
 "eklentileri desteklemeksizin inşa edildiyse bu seçenek etkisizdir. Bu ayarın "
 "etkili olması için Xwayland yeniden başlatılmalıdır."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
-msgstr "Yerleşik ekran"
+msgstr "Yerleşik monitör"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Bilinmeyen"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
-msgstr "Bilinmeyen Ekran"
+msgstr "Bilinmeyen Monitör"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -620,9 +632,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Dizgici"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "Kullanılacak X monitörü"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "Kullanılacak X ekranı"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "X çağrılarını eşzamanlı yap"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "XInput desteğini devre dışı bırak"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -633,62 +662,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Etkinlik zili"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Ortam yöneticisine olan bağlantıyı kapat"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Çalışan pencere yöneticisinin yerini al"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Ortam yönetim ID’sini belirt"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Kullanılacak X Ekranı"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Ortamı kayıtlı dosyadan başlat"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "X çağrılarını eşzamanlı yap"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Wayland dizgici olarak çalıştır"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Yuvalanmış dizgici olarak çalıştır"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Kullanılacak Wayland monitör adını belirt"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "İç içe değil, tam ekran sunucusu olarak çalıştır"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Başsız görüntü sunucusu olarak çalıştır"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "X11 arkayüzüyle çalıştır"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -715,10 +688,62 @@ msgstr "_Zorla Çık"
 msgid "_Wait"
 msgstr "_Bekle"
 
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "Çalışan pencere yöneticisinin yerini al"
+
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "Kullanılacak X Ekranı"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "Ortam yöneticisine olan bağlantıyı kapat"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "Ortam yönetim ID’sini belirt"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "Ortamı kayıtlı dosyadan başlat"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Wayland dizgici olarak çalıştır"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "Yuvalanmış dizgici olarak çalıştır"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "Kullanılacak Wayland monitör adını belirt"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "Başsız monitör sunucusu olarak çalıştır"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "X11 arkayüzüyle çalıştır"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Kip Anahtarı (Küme %d)"
@@ -726,28 +751,28 @@ msgstr "Kip Anahtarı (Küme %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Monitör değiştir"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Ekranda yardımı göster"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Sürümü yazdır"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Kullanılacak Mutter eklentisi"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 
@@ -756,26 +781,26 @@ msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 msgid "Mode Switch: Mode %d"
 msgstr "Kip Anahtarı: Kip %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"“%s” ekranının halihazırda pencere yöneticisi var; geçerli pencere "
+"“%s” monitörünün halihazırda pencere yöneticisi var; geçerli pencere "
 "yöneticisinin yerine başkasını koymak için --replace seçeneğini kullanmayı "
 "deneyin."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "GDK ilklendirilemedi"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Pencere Sistemi monitörü “%s” açılamadı"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
@@ -785,7 +810,7 @@ msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 msgid "Format %s not supported"
 msgstr "%s biçimi desteklenmiyor"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -798,17 +823,8 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
 
-#~ msgid "Move window one workspace up"
-#~ msgstr "Pencereyi üstteki çalışma alanına taşı"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Pencereyi alttaki çalışma alanına taşı"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "Üstteki çalışma alanına taşı"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Alttaki çalışma alanına taşı"
+#~ msgid "Show the activities overview"
+#~ msgstr "Etkinlik genel görünümünü göster"
 
 #~ msgid ""
 #~ "mutter %s\n"
