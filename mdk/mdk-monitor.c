@@ -90,6 +90,27 @@ ensure_touch (MdkMonitor *monitor)
 }
 
 static void
+update_cursor (MdkMonitor *monitor)
+{
+  g_autoptr (GdkCursor) cursor = NULL;
+
+  if (mdk_context_get_emulate_touch (monitor->context))
+    cursor = gdk_cursor_new_from_name ("pointer", NULL);
+  else
+    cursor = gdk_cursor_new_from_name ("default", NULL);
+
+  gtk_widget_set_cursor (GTK_WIDGET (monitor), cursor);
+}
+
+static void
+on_emulate_touch_changed (MdkContext *context,
+                          GParamSpec *pspec,
+                          MdkMonitor *monitor)
+{
+  update_cursor (monitor);
+}
+
+static void
 on_pointer_motion (GtkEventControllerMotion *controller,
                    double                    x,
                    double                    y,
@@ -539,7 +560,6 @@ mdk_monitor_init (MdkMonitor *monitor)
   GtkEventController *scroll_controller;
   GtkEventController *key_controller;
   GtkEventController *touch_controller;
-  g_autoptr (GdkCursor) none_cursor = NULL;
 
   motion_controller = gtk_event_controller_motion_new ();
   g_signal_connect (motion_controller,
@@ -585,9 +605,6 @@ mdk_monitor_init (MdkMonitor *monitor)
   g_signal_connect (monitor, "notify::has-focus",
                     G_CALLBACK (has_focus_changed),
                     NULL);
-
-  none_cursor = gdk_cursor_new_from_name ("none", NULL);
-  gtk_widget_set_cursor (GTK_WIDGET (monitor), none_cursor);
 }
 
 static void
@@ -634,6 +651,11 @@ mdk_monitor_new (MdkContext *context)
   gtk_widget_add_css_class (GTK_WIDGET (monitor->picture), "monitor");
   gtk_widget_set_sensitive (GTK_WIDGET (monitor->picture), FALSE);
   gtk_box_append (GTK_BOX (monitor), GTK_WIDGET (monitor->picture));
+
+  update_cursor (monitor);
+  g_signal_connect_object (context, "notify::emulate-touch",
+                           G_CALLBACK (on_emulate_touch_changed),
+                           monitor, 0);
 
   return monitor;
 }
