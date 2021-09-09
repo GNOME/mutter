@@ -1346,6 +1346,9 @@ meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex)
 gboolean
 meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
 {
+  if (stex->mask_texture != NULL)
+    return TRUE;
+
   if (!cogl_texture_is_get_data_supported (stex->texture))
     return TRUE;
 
@@ -1388,7 +1391,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
   cairo_rectangle_int_t *image_clip = NULL;
-  CoglTexture *texture, *mask_texture;
+  CoglTexture *texture;
   cairo_surface_t *surface;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
@@ -1447,42 +1450,6 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
   if (image_clip)
     cogl_object_unref (texture);
-
-  mask_texture = stex->mask_texture;
-  if (mask_texture != NULL)
-    {
-      cairo_t *cr;
-      cairo_surface_t *mask_surface;
-
-      if (image_clip)
-        mask_texture =
-          cogl_texture_new_from_sub_texture (mask_texture,
-                                             image_clip->x,
-                                             image_clip->y,
-                                             image_clip->width,
-                                             image_clip->height);
-
-      mask_surface = cairo_image_surface_create (CAIRO_FORMAT_A8,
-                                                 cogl_texture_get_width (mask_texture),
-                                                 cogl_texture_get_height (mask_texture));
-
-      cogl_texture_get_data (mask_texture, COGL_PIXEL_FORMAT_A_8,
-                             cairo_image_surface_get_stride (mask_surface),
-                             cairo_image_surface_get_data (mask_surface));
-
-      cairo_surface_mark_dirty (mask_surface);
-
-      cr = cairo_create (surface);
-      cairo_set_source_surface (cr, mask_surface, 0, 0);
-      cairo_set_operator (cr, CAIRO_OPERATOR_DEST_IN);
-      cairo_paint (cr);
-      cairo_destroy (cr);
-
-      cairo_surface_destroy (mask_surface);
-
-      if (image_clip)
-        cogl_object_unref (mask_texture);
-    }
 
   return surface;
 }
