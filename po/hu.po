@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-14 08:13+0100\n"
+"POT-Creation-Date: 2021-09-03 21:08+0000\n"
+"PO-Revision-Date: 2021-09-10 21:06+0200\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
 "Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
@@ -55,109 +55,129 @@ msgstr "Ablak áthelyezése a balra lévő munkaterületre"
 msgid "Move window one workspace to the right"
 msgstr "Ablak áthelyezése a jobbra lévő munkaterületre"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+#| msgid "Move window to workspace 1"
+msgid "Move window one workspace up"
+msgstr "Ablak áthelyezése a fentebb lévő munkaterületre"
+
+#: data/50-mutter-navigation.xml:35
+#| msgid "Move window to workspace 1"
+msgid "Move window one workspace down"
+msgstr "Ablak áthelyezése a lentebb lévő munkaterületre"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Ablak áthelyezése a balra lévő monitorra"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Ablak áthelyezése a jobbra lévő monitorra"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Ablak áthelyezése egy monitorral feljebb"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Ablak áthelyezése egy monitorral lejjebb"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Alkalmazásváltás"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Váltás az előző alkalmazásra"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Ablakváltás"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Váltás az előző ablakra"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Váltás egy alkalmazás ablakai között"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Váltás egy alkalmazás előző ablakára"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Váltás a rendszer vezérlői közt"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Váltás az előző rendszervezérlőre"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Váltás az ablakok közt közvetlenül"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Váltás közvetlenül az előző ablakra"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Váltás egy alkalmazás ablakai között közvetlenül"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Váltás közvetlenül egy alkalmazás előző ablakára"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Váltás a rendszer vezérlői közt közvetlenül"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Váltás közvetlenül az előző rendszervezérlőre"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Minden normál ablak elrejtése"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Váltás az 1. munkaterületre"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Váltás a 2. munkaterületre"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Váltás a 3. munkaterületre"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Váltás a 4. munkaterületre"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Váltás az utolsó munkaterületre"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Áthelyezés a bal oldali munkaterületre"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Áthelyezés a jobb oldali munkaterületre"
+
+#: data/50-mutter-navigation.xml:138
+#| msgid "Move to workspace on the left"
+msgid "Move to workspace above"
+msgstr "Áthelyezés a fenti munkaterületre"
+
+#: data/50-mutter-navigation.xml:142
+#| msgid "Move to workspace on the left"
+msgid "Move to workspace below"
+msgstr "Áthelyezés a lenti munkaterületre"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -166,10 +186,6 @@ msgstr "Rendszer"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "A parancs futtatása ablak megjelenítése"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "A tevékenységek áttekintés megjelenítése"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -587,26 +603,26 @@ msgstr ""
 "összeállítva. A beállítás érvénybe lépéséhez újra kell indítani az "
 "Xwaylandet."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Beépített kijelző"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Ismeretlen kijelző"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -619,9 +635,28 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Kompozitáló"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+#| msgid "X Display to use"
+msgid "X display to use"
+msgstr "A használandó X megjelenítő"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+#| msgid "X Display to use"
+msgid "X screen to use"
+msgstr "A használandó X képernyő"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Az X-hívások szinkronná tétele"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "XInput támogatás letiltása"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -632,66 +667,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Csengetés esemény"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "A munkamenet-kezelőhöz való csatlakozás tiltása"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "A futó ablakkezelő helyettesítése"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "A munkamenet-kezelő azonosítójának megadása"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "A használandó X megjelenítő"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "A munkamenet előkészítése a mentési fájlból"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Az X-hívások szinkronná tétele"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Futtatás wayland kompozitálóként"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Futtatás beágyazott kompozitálóként"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Wayland kompozitáló futtatása az Xwayland elindítása nélkül"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Adja meg a használandó Wayland megjelenítőnevet"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr ""
-"Futtatás teljes megjelenítő kiszolgálóként az egymásba ágyazott helyett"
-
-#: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
-msgid "Run as a headless display server"
-msgstr "Futtatás grafikus felület nélküli megjelenítő kiszolgálóként"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr ""
-"Állandó virtuális monitor hozzáadása (SZÉLESSÉGxMAGASSÁG vagy"
-" SZÉLESSÉGxMAGASSÁG@FELBONTÁS)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Futtatás X11 háttérprogrammal"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -719,10 +694,65 @@ msgstr "_Erőltetett kilépés"
 msgid "_Wait"
 msgstr "Vá_rakozás"
 
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "A futó ablakkezelő helyettesítése"
+
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "A használandó X megjelenítő"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "A munkamenet-kezelőhöz való csatlakozás tiltása"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "A munkamenet-kezelő azonosítójának megadása"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "A munkamenet előkészítése a mentési fájlból"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Futtatás wayland kompozitálóként"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "Futtatás beágyazott kompozitálóként"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Wayland kompozitáló futtatása az Xwayland elindítása nélkül"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "Adja meg a használandó Wayland megjelenítőnevet"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr ""
+"Futtatás teljes megjelenítő kiszolgálóként az egymásba ágyazott helyett"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "Futtatás grafikus felület nélküli megjelenítő kiszolgálóként"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr ""
+"Állandó virtuális monitor hozzáadása (SZÉLESSÉGxMAGASSÁG vagy "
+"SZÉLESSÉGxMAGASSÁG@FELBONTÁS)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "Futtatás X11 háttérprogrammal"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Módkapcsoló (%d. csoport)"
@@ -730,28 +760,28 @@ msgstr "Módkapcsoló (%d. csoport)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Monitorváltás"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Verzió kiírása"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Használandó Mutter bővítmény"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. munkaterület"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "A Muttert a részletes mód támogatása nélkül fordították"
 
@@ -760,7 +790,7 @@ msgstr "A Muttert a részletes mód támogatása nélkül fordították"
 msgid "Mode Switch: Mode %d"
 msgstr "Módkapcsoló: %d. mód"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -769,16 +799,16 @@ msgstr ""
 "A(z) „%s” kijelző már rendelkezik ablakkezelővel; próbálja a --replace "
 "kapcsolóval helyettesíteni a jelenlegi ablakkezelőt."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "A GDK előkészítése sikertelen"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nem sikerült megnyitni a(z) „%s” X Window rendszer megjelenítőt"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A(z) %d. képernyő a(z) „%s” megjelenítőn érvénytelen"
@@ -788,7 +818,7 @@ msgstr "A(z) %d. képernyő a(z) „%s” megjelenítőn érvénytelen"
 msgid "Format %s not supported"
 msgstr "A(z) %s formátum nem támogatott"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
