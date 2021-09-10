@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-12 15:44+0000\n"
-"PO-Revision-Date: 2021-03-14 08:13+0100\n"
+"POT-Creation-Date: 2021-09-03 09:44+0000\n"
+"PO-Revision-Date: 2021-09-10 21:04+0200\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
 "Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
@@ -55,109 +55,129 @@ msgstr "Ablak áthelyezése a balra lévő munkaterületre"
 msgid "Move window one workspace to the right"
 msgstr "Ablak áthelyezése a jobbra lévő munkaterületre"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+#| msgid "Move window to workspace 1"
+msgid "Move window one workspace up"
+msgstr "Ablak áthelyezése a fentebb lévő munkaterületre"
+
+#: data/50-mutter-navigation.xml:35
+#| msgid "Move window to workspace 1"
+msgid "Move window one workspace down"
+msgstr "Ablak áthelyezése a lentebb lévő munkaterületre"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Ablak áthelyezése a balra lévő monitorra"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Ablak áthelyezése a jobbra lévő monitorra"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Ablak áthelyezése egy monitorral feljebb"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Ablak áthelyezése egy monitorral lejjebb"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Alkalmazásváltás"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Váltás az előző alkalmazásra"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Ablakváltás"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Váltás az előző ablakra"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Váltás egy alkalmazás ablakai között"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Váltás egy alkalmazás előző ablakára"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Váltás a rendszer vezérlői közt"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Váltás az előző rendszervezérlőre"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Váltás az ablakok közt közvetlenül"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Váltás közvetlenül az előző ablakra"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Váltás egy alkalmazás ablakai között közvetlenül"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Váltás közvetlenül egy alkalmazás előző ablakára"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Váltás a rendszer vezérlői közt közvetlenül"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Váltás közvetlenül az előző rendszervezérlőre"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Minden normál ablak elrejtése"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Váltás az 1. munkaterületre"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Váltás a 2. munkaterületre"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Váltás a 3. munkaterületre"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Váltás a 4. munkaterületre"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Váltás az utolsó munkaterületre"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Áthelyezés a bal oldali munkaterületre"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Áthelyezés a jobb oldali munkaterületre"
+
+#: data/50-mutter-navigation.xml:138
+#| msgid "Move to workspace on the left"
+msgid "Move to workspace above"
+msgstr "Áthelyezés a fenti munkaterületre"
+
+#: data/50-mutter-navigation.xml:142
+#| msgid "Move to workspace on the left"
+msgid "Move to workspace below"
+msgstr "Áthelyezés a lenti munkaterületre"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -679,15 +699,14 @@ msgstr ""
 "Futtatás teljes megjelenítő kiszolgálóként az egymásba ágyazott helyett"
 
 #: src/core/main.c:300
-#| msgid "Run as a full display server, rather than nested"
 msgid "Run as a headless display server"
 msgstr "Futtatás grafikus felület nélküli megjelenítő kiszolgálóként"
 
 #: src/core/main.c:305
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr ""
-"Állandó virtuális monitor hozzáadása (SZÉLESSÉGxMAGASSÁG vagy"
-" SZÉLESSÉGxMAGASSÁG@FELBONTÁS)"
+"Állandó virtuális monitor hozzáadása (SZÉLESSÉGxMAGASSÁG vagy "
+"SZÉLESSÉGxMAGASSÁG@FELBONTÁS)"
 
 #: src/core/main.c:311
 msgid "Run with X11 backend"
@@ -722,7 +741,7 @@ msgstr "Vá_rakozás"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Módkapcsoló (%d. csoport)"
@@ -730,11 +749,11 @@ msgstr "Módkapcsoló (%d. csoport)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Monitorváltás"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
