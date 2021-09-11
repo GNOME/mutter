@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-04-15 15:51+0000\n"
-"PO-Revision-Date: 2021-04-17 14:52+0200\n"
+"POT-Creation-Date: 2021-09-03 21:08+0000\n"
+"PO-Revision-Date: 2021-09-11 15:19+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -183,10 +183,6 @@ msgstr "System"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Wyświetlenie okna wykonania polecenia"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Wyświetlenie podglądu aktywności"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -609,26 +605,26 @@ msgstr ""
 "został zbudowany bez obsługi wybranych rozszerzeń. Xwayland musi zostać "
 "ponownie uruchomiony, aby to ustawienie zostało uwzględnione."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Wbudowany ekran"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Nieznany"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Nieznany ekran"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -641,9 +637,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Menedżer składania"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "Używany ekran X"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "Używany podekran X"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Synchroniczne wywołania X"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Wyłącza obsługę XInput"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -653,62 +666,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Zdarzenie sygnału dźwiękowego"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Rozłącza połączenie z menedżerem sesji"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Zastępuje uruchomionego menedżera okien"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Podaje identyfikator zarządzania sesją"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Używany ekran X"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Inicjuje sesję z zapisanego pliku"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Synchroniczne wywołania X"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Uruchamia jako menedżer składania Wayland"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Uruchamia jako osadzony menedżer składania"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Uruchamia menedżer składania Wayland bez uruchamiania Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Podaje używaną nazwę ekranu Wayland"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Uruchamia jako serwer wyświetlania bez monitora"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Dodaje trwały wirtualny monitor (SzxW lub SzxW@O)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Uruchamia za pomocą mechanizmu X11"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -734,10 +691,62 @@ msgstr "_Zakończ"
 msgid "_Wait"
 msgstr "_Czekaj"
 
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "Zastępuje uruchomionego menedżera okien"
+
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "Używany ekran X"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "Rozłącza połączenie z menedżerem sesji"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "Podaje identyfikator zarządzania sesją"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "Inicjuje sesję z zapisanego pliku"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Uruchamia jako menedżer składania Wayland"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "Uruchamia jako osadzony menedżer składania"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Uruchamia menedżer składania Wayland bez uruchamiania Xwayland"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "Podaje używaną nazwę ekranu Wayland"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "Uruchamia jako serwer wyświetlania bez monitora"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Dodaje trwały wirtualny monitor (SzxW lub SzxW@O)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "Uruchamia za pomocą mechanizmu X11"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Przełącznik trybu (%d. grupa)"
@@ -745,28 +754,28 @@ msgstr "Przełącznik trybu (%d. grupa)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Przełączenie monitora"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Ekran pomocy"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Wyświetla wersję"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Używana wtyczka menedżera Mutter"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. obszar roboczy"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr ""
 "Menedżer Mutter został skompilowany bez obsługi trybu z obszerną informacją"
@@ -776,7 +785,7 @@ msgstr ""
 msgid "Mode Switch: Mode %d"
 msgstr "Przełącznik trybu: %d. tryb"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -785,16 +794,16 @@ msgstr ""
 "Na ekranie „%s” działa już menedżer okien. Aby zastąpić działającego "
 "menedżera okien, należy użyć opcji „--replace”."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Zainicjowanie biblioteki GDK się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Otwarcie ekranu „%s” systemu X Window się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Podekran %d ekranu „%s” jest nieprawidłowy"
@@ -804,7 +813,7 @@ msgstr "Podekran %d ekranu „%s” jest nieprawidłowy"
 msgid "Format %s not supported"
 msgstr "Format %s jest nieobsługiwany"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
