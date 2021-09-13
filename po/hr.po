@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 0\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-09-03 09:44+0000\n"
-"PO-Revision-Date: 2021-09-05 23:02+0200\n"
+"POT-Creation-Date: 2021-09-10 19:05+0000\n"
+"PO-Revision-Date: 2021-09-13 14:46+0200\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
 "Language: hr\n"
@@ -398,20 +398,6 @@ msgid "Enable experimental features"
 msgstr "Omogući eksperimentalne značajke"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “autostart-xwayland” — initializes Xwayland lazily if there "
-#| "are X11 clients. Requires restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -439,8 +425,12 @@ msgstr ""
 "zaslonima visoke razlučivosti. Ne zahtijeva ponovno pokretanje. • “rt-"
 "scheduler” — čini zahtjeve muttera zakazanima u niskom prioritetu i "
 "stvaranom vremenu. Izvršitelj ili korisnik mora imati CAP_SYS_NICE. "
-"Zahtijeva ponovno pokretanje. • “autostart-xwayland” — pokreće Xwayland "
-"lijeno ako je dostupan X11 klijent. Zahtijeva ponovno pokretanje."
+"Zahtijeva ponovno pokretanje. • “dma-buf-screen-sharing\" — omogućuje DMA "
+"međuspremljeno dijeljenje zaslona. To je omogućeno po zadanome pri "
+"korištenju i915 upravljačkog programa, a onemogućeno je za sve ostalo. "
+"Zahtijeva ponovno pokretanje. • “autoclose-xwayland” — automatski zatvara "
+"Xwayland ako su svi dostupni X11 klijenti nestali. Zahtijeva ponovno "
+"pokretanje."
 
 #: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
@@ -691,14 +681,12 @@ msgid "Run as a full display server, rather than nested"
 msgstr "Pokreni kao potpuni poslužitelj zaslona, radije nego ugrađeni"
 
 #: src/core/main.c:300
-#, fuzzy
-#| msgid "Run as a full display server, rather than nested"
 msgid "Run as a headless display server"
-msgstr "Pokreni kao potpuni poslužitelj zaslona, radije nego ugrađeni"
+msgstr "Pokreni kao poslužitelj bez zaslona"
 
 #: src/core/main.c:305
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr ""
+msgstr "Dodaj trajni virtualni zaslon (ŠxV ili ŠxV@F)"
 
 #: src/core/main.c:311
 msgid "Run with X11 backend"
