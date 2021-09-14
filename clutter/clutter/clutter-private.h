@@ -154,7 +154,6 @@ struct _ClutterMainContext
 
   /* boolean flags */
   guint is_initialized          : 1;
-  guint defer_display_setup     : 1;
   guint options_parsed          : 1;
   guint show_fps                : 1;
 };

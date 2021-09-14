@@ -66,16 +66,12 @@ struct _ClutterBackendClass
   GObjectClass parent_class;
 
   /* vfuncs */
-  gboolean              (* pre_parse)          (ClutterBackend  *backend,
-                                                GError         **error);
-  gboolean              (* post_parse)         (ClutterBackend  *backend,
+  gboolean              (* finish_init)        (ClutterBackend  *backend,
                                                 GError         **error);
   ClutterStageWindow *  (* create_stage)       (ClutterBackend  *backend,
                                                 ClutterStage    *wrapper,
                                                 GError         **error);
   void                  (* init_features)      (ClutterBackend  *backend);
-  void                  (* add_options)        (ClutterBackend  *backend,
-                                                GOptionGroup    *group);
   ClutterFeatureFlags   (* get_features)       (ClutterBackend  *backend);
   CoglRenderer *        (* get_renderer)       (ClutterBackend  *backend,
                                                 GError         **error);
@@ -108,11 +104,7 @@ ClutterStageWindow *    _clutter_backend_create_stage                   (Clutter
 gboolean                _clutter_backend_create_context                 (ClutterBackend         *backend,
                                                                          GError                **error);
 
-void                    _clutter_backend_add_options                    (ClutterBackend         *backend,
-                                                                         GOptionGroup           *group);
-gboolean                _clutter_backend_pre_parse                      (ClutterBackend         *backend,
-                                                                         GError                **error);
-gboolean                _clutter_backend_post_parse                     (ClutterBackend         *backend,
+gboolean                _clutter_backend_finish_init                    (ClutterBackend         *backend,
                                                                          GError                **error);
 
 CLUTTER_EXPORT

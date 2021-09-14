@@ -489,45 +489,17 @@ clutter_backend_init (ClutterBackend *self)
   self->fallback_resource_scale = 1.f;
 }
 
-void
-_clutter_backend_add_options (ClutterBackend *backend,
-                              GOptionGroup   *group)
-{
-  ClutterBackendClass *klass;
-
-  g_assert (CLUTTER_IS_BACKEND (backend));
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->add_options)
-    klass->add_options (backend, group);
-}
-
 gboolean
-_clutter_backend_pre_parse (ClutterBackend  *backend,
-                            GError         **error)
+_clutter_backend_finish_init (ClutterBackend  *backend,
+                              GError         **error)
 {
   ClutterBackendClass *klass;
 
   g_assert (CLUTTER_IS_BACKEND (backend));
 
   klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->pre_parse)
-    return klass->pre_parse (backend, error);
-
-  return TRUE;
-}
-
-gboolean
-_clutter_backend_post_parse (ClutterBackend  *backend,
-                             GError         **error)
-{
-  ClutterBackendClass *klass;
-
-  g_assert (CLUTTER_IS_BACKEND (backend));
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->post_parse)
-    return klass->post_parse (backend, error);
+  if (klass->finish_init)
+    return klass->finish_init (backend, error);
 
   return TRUE;
 }

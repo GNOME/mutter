@@ -1061,12 +1061,8 @@ init_clutter (MetaBackend  *backend,
 
   clutter_set_custom_backend_func (meta_get_clutter_backend);
 
-  if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Unable to initialize Clutter");
-      return FALSE;
-    }
+  if (clutter_init (error) != CLUTTER_INIT_SUCCESS)
+    return FALSE;
 
   priv->default_seat = meta_backend_create_default_seat (backend, error);
   if (!priv->default_seat)

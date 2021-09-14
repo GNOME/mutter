@@ -75,8 +75,6 @@ static gboolean clutter_enable_stereo = FALSE;
 static Display  *_foreign_dpy = NULL;
 
 /* options */
-static gchar *clutter_display_name = NULL;
-static gint clutter_screen = -1;
 static gboolean clutter_synchronise = FALSE;
 
 /* X error trap */
@@ -109,27 +107,8 @@ cogl_xlib_filter (XEvent       *xevent,
 }
 
 static gboolean
-meta_clutter_backend_x11_pre_parse (ClutterBackend  *backend,
-                                    GError         **error)
-{
-  const gchar *env_string;
-
-  /* we don't fail here if DISPLAY is not set, as the user
-   * might pass the --display command line switch
-   */
-  env_string = g_getenv ("DISPLAY");
-  if (env_string)
-    {
-      clutter_display_name = g_strdup (env_string);
-      env_string = NULL;
-    }
-
-  return TRUE;
-}
-
-static gboolean
-meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
-                                     GError         **error)
+meta_clutter_backend_x11_finish_init (ClutterBackend  *backend,
+                                      GError         **error)
 {
   MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
   Atom atoms[N_ATOM_NAMES];
@@ -142,18 +121,20 @@ meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
    */
   if (backend_x11->xdisplay == NULL)
     {
-      if (clutter_display_name != NULL &&
-          *clutter_display_name != '\0')
-	{
-	  g_debug ("XOpenDisplay on '%s'", clutter_display_name);
+      const char *display_name;
 
-	  backend_x11->xdisplay = XOpenDisplay (clutter_display_name);
+      display_name = g_getenv ("DISPLAY");
+      if (display_name && *display_name != '\0')
+	{
+	  g_debug ("XOpenDisplay on '%s'", display_name);
+
+	  backend_x11->xdisplay = XOpenDisplay (display_name);
           if (backend_x11->xdisplay == NULL)
             {
               g_set_error (error, CLUTTER_INIT_ERROR,
                            CLUTTER_INIT_ERROR_BACKEND,
                            "Unable to open display '%s'",
-                           clutter_display_name);
+                           display_name);
               return FALSE;
             }
 	}
@@ -175,12 +156,7 @@ meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
   /* add event filter for Cogl events */
   meta_clutter_x11_add_filter (cogl_xlib_filter, backend);
 
-  if (clutter_screen == -1)
-    backend_x11->xscreen = DefaultScreenOfDisplay (backend_x11->xdisplay);
-  else
-    backend_x11->xscreen = ScreenOfDisplay (backend_x11->xdisplay,
-                                            clutter_screen);
-
+  backend_x11->xscreen = DefaultScreenOfDisplay (backend_x11->xdisplay);
   backend_x11->xscreen_num = XScreenNumberOfScreen (backend_x11->xscreen);
   backend_x11->xscreen_width = WidthOfScreen (backend_x11->xscreen);
   backend_x11->xscreen_height = HeightOfScreen (backend_x11->xscreen);
@@ -206,8 +182,6 @@ meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
   backend_x11->atom_NET_WM_NAME = atoms[8];
   backend_x11->atom_UTF8_STRING = atoms[9];
 
-  g_free (clutter_display_name);
-
   g_debug ("X Display '%s'[%p] opened (screen:%d, root:%u, dpi:%f)",
            g_getenv ("DISPLAY"),
            backend_x11->xdisplay,
@@ -216,35 +190,6 @@ meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
            clutter_backend_get_resolution (backend));
 
   return TRUE;
-}
-
-static const GOptionEntry entries[] =
-{
-  {
-    "display", 0,
-    G_OPTION_FLAG_IN_MAIN,
-    G_OPTION_ARG_STRING, &clutter_display_name,
-    N_("X display to use"), "DISPLAY"
-  },
-  {
-    "screen", 0,
-    G_OPTION_FLAG_IN_MAIN,
-    G_OPTION_ARG_INT, &clutter_screen,
-    N_("X screen to use"), "SCREEN"
-  },
-  { "synch", 0,
-    0,
-    G_OPTION_ARG_NONE, &clutter_synchronise,
-    N_("Make X calls synchronous"), NULL
-  },
-  { NULL }
-};
-
-static void
-meta_clutter_backend_x11_add_options (ClutterBackend *backend,
-                                      GOptionGroup   *group)
-{
-  g_option_group_add_entries (group, entries);
 }
 
 static void
@@ -515,9 +460,7 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 
   gobject_class->finalize = meta_clutter_backend_x11_finalize;
 
-  clutter_backend_class->pre_parse = meta_clutter_backend_x11_pre_parse;
-  clutter_backend_class->post_parse = meta_clutter_backend_x11_post_parse;
-  clutter_backend_class->add_options = meta_clutter_backend_x11_add_options;
+  clutter_backend_class->finish_init = meta_clutter_backend_x11_finish_init;
   clutter_backend_class->get_features = meta_clutter_backend_x11_get_features;
 
   clutter_backend_class->get_display = meta_clutter_backend_x11_get_display;

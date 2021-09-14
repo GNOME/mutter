@@ -125,8 +125,7 @@ GQuark clutter_init_error_quark (void);
 CLUTTER_EXPORT
 void                    clutter_base_init                       (void);
 CLUTTER_EXPORT
-ClutterInitError        clutter_init                            (int          *argc,
-                                                                 char       ***argv) G_GNUC_WARN_UNUSED_RESULT;
+ClutterInitError        clutter_init                            (GError **error) G_GNUC_WARN_UNUSED_RESULT;
 
 CLUTTER_EXPORT
 GOptionGroup *          clutter_get_option_group                (void);
