@@ -71,7 +71,6 @@ static const gchar *atom_names[] = {
 #define N_ATOM_NAMES G_N_ELEMENTS (atom_names)
 
 /* various flags corresponding to pre init setup calls */
-static gboolean clutter_enable_xinput = TRUE;
 static gboolean clutter_enable_stereo = FALSE;
 static Display  *_foreign_dpy = NULL;
 
@@ -122,13 +121,6 @@ meta_clutter_backend_x11_pre_parse (ClutterBackend  *backend,
   if (env_string)
     {
       clutter_display_name = g_strdup (env_string);
-      env_string = NULL;
-    }
-
-  env_string = g_getenv ("CLUTTER_DISABLE_XINPUT");
-  if (env_string)
-    {
-      clutter_enable_xinput = FALSE;
       env_string = NULL;
     }
 
@@ -246,12 +238,6 @@ static const GOptionEntry entries[] =
     0,
     G_OPTION_ARG_NONE, &clutter_synchronise,
     N_("Make X calls synchronous"), NULL
-  },
-  {
-    "disable-xinput", 0,
-    G_OPTION_FLAG_REVERSE,
-    G_OPTION_ARG_NONE, &clutter_enable_xinput,
-    N_("Disable XInput support"), NULL
   },
   { NULL }
 };
