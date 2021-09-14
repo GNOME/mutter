@@ -188,8 +188,6 @@ meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
   backend_x11->xwin_root = RootWindow (backend_x11->xdisplay,
                                        backend_x11->xscreen_num);
 
-  backend_x11->display_name = g_strdup (clutter_display_name);
-
   if (clutter_synchronise)
     XSynchronize (backend_x11->xdisplay, True);
 
@@ -211,7 +209,7 @@ meta_clutter_backend_x11_post_parse (ClutterBackend  *backend,
   g_free (clutter_display_name);
 
   g_debug ("X Display '%s'[%p] opened (screen:%d, root:%u, dpi:%f)",
-           backend_x11->display_name,
+           g_getenv ("DISPLAY"),
            backend_x11->xdisplay,
            backend_x11->xscreen_num,
            (unsigned int) backend_x11->xwin_root,
@@ -253,8 +251,6 @@ static void
 meta_clutter_backend_x11_finalize (GObject *gobject)
 {
   MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (gobject);
-
-  g_free (backend_x11->display_name);
 
   meta_clutter_x11_remove_filter (cogl_xlib_filter, gobject);
 

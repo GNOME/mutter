@@ -34,7 +34,6 @@ struct _MetaClutterBackendX11
   ClutterBackend parent_instance;
 
   Display *xdisplay;
-  char   *display_name;
 
   Screen  *xscreen;
   int      xscreen_num;
