@@ -114,6 +114,7 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   MetaClutterBackendX11 *clutter_backend_x11 =
     META_CLUTTER_BACKEND_X11 (clutter_backend);
   Atom atoms[N_ATOM_NAMES];
+  Screen *xscreen;
 
   if (_foreign_dpy)
     backend_x11->xdisplay = _foreign_dpy;
@@ -157,10 +158,10 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   /* add event filter for Cogl events */
   meta_clutter_x11_add_filter (cogl_xlib_filter, clutter_backend);
 
-  clutter_backend_x11->xscreen = DefaultScreenOfDisplay (clutter_backend_x11->xdisplay);
-  clutter_backend_x11->xscreen_num = XScreenNumberOfScreen (clutter_backend_x11->xscreen);
-  clutter_backend_x11->xscreen_width = WidthOfScreen (clutter_backend_x11->xscreen);
-  clutter_backend_x11->xscreen_height = HeightOfScreen (clutter_backend_x11->xscreen);
+  xscreen = DefaultScreenOfDisplay (clutter_backend_x11->xdisplay);
+  clutter_backend_x11->xscreen_num = XScreenNumberOfScreen (xscreen);
+  clutter_backend_x11->xscreen_width = WidthOfScreen (xscreen);
+  clutter_backend_x11->xscreen_height = HeightOfScreen (xscreen);
 
   clutter_backend_x11->xwin_root = RootWindow (clutter_backend_x11->xdisplay,
                                                clutter_backend_x11->xscreen_num);

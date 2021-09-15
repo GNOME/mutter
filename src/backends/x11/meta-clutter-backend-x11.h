@@ -35,7 +35,6 @@ struct _MetaClutterBackendX11
 
   Display *xdisplay;
 
-  Screen  *xscreen;
   int      xscreen_num;
   int      xscreen_width;
   int      xscreen_height;
