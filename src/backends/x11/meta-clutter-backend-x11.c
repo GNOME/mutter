@@ -160,8 +160,6 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
 
   xscreen = DefaultScreenOfDisplay (clutter_backend_x11->xdisplay);
   clutter_backend_x11->xscreen_num = XScreenNumberOfScreen (xscreen);
-  clutter_backend_x11->xscreen_width = WidthOfScreen (xscreen);
-  clutter_backend_x11->xscreen_height = HeightOfScreen (xscreen);
 
   clutter_backend_x11->xwin_root = RootWindow (clutter_backend_x11->xdisplay,
                                                clutter_backend_x11->xscreen_num);
