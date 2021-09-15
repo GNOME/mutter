@@ -17,7 +17,7 @@ variables:
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-09-04.1'
+    BASE_TAG: '2021-09-15.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -34,6 +34,8 @@ variables:
 
       dnf builddep -y mutter --setopt=install_weak_deps=False &&
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
+      dnf builddep -y libinput --setopt=install_weak_deps=False &&
+      dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/glib.git \
@@ -46,6 +48,14 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gjs.git \
         1.69.2 . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.freedesktop.org/libinput/libinput.git \
+        1.19.0 . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
+        1.23 . &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
