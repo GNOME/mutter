@@ -110,7 +110,7 @@ static gboolean
 meta_clutter_backend_x11_finish_init (ClutterBackend  *backend,
                                       GError         **error)
 {
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  MetaClutterBackendX11 *clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
   Atom atoms[N_ATOM_NAMES];
 
   if (_foreign_dpy)
@@ -119,7 +119,7 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *backend,
   /* Only open connection if not already set by prior call to
    * clutter_x11_set_display()
    */
-  if (backend_x11->xdisplay == NULL)
+  if (clutter_backend_x11->xdisplay == NULL)
     {
       const char *display_name;
 
@@ -128,8 +128,8 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *backend,
 	{
 	  g_debug ("XOpenDisplay on '%s'", display_name);
 
-	  backend_x11->xdisplay = XOpenDisplay (display_name);
-          if (backend_x11->xdisplay == NULL)
+          clutter_backend_x11->xdisplay = XOpenDisplay (display_name);
+          if (clutter_backend_x11->xdisplay == NULL)
             {
               g_set_error (error, CLUTTER_INIT_ERROR,
                            CLUTTER_INIT_ERROR_BACKEND,
@@ -149,44 +149,43 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *backend,
 	}
     }
 
-  g_assert (backend_x11->xdisplay != NULL);
 
   g_debug ("Getting the X screen");
 
   /* add event filter for Cogl events */
   meta_clutter_x11_add_filter (cogl_xlib_filter, backend);
 
-  backend_x11->xscreen = DefaultScreenOfDisplay (backend_x11->xdisplay);
-  backend_x11->xscreen_num = XScreenNumberOfScreen (backend_x11->xscreen);
-  backend_x11->xscreen_width = WidthOfScreen (backend_x11->xscreen);
-  backend_x11->xscreen_height = HeightOfScreen (backend_x11->xscreen);
+  clutter_backend_x11->xscreen = DefaultScreenOfDisplay (clutter_backend_x11->xdisplay);
+  clutter_backend_x11->xscreen_num = XScreenNumberOfScreen (clutter_backend_x11->xscreen);
+  clutter_backend_x11->xscreen_width = WidthOfScreen (clutter_backend_x11->xscreen);
+  clutter_backend_x11->xscreen_height = HeightOfScreen (clutter_backend_x11->xscreen);
 
-  backend_x11->xwin_root = RootWindow (backend_x11->xdisplay,
-                                       backend_x11->xscreen_num);
+  clutter_backend_x11->xwin_root = RootWindow (clutter_backend_x11->xdisplay,
+                                               clutter_backend_x11->xscreen_num);
 
   if (clutter_synchronise)
-    XSynchronize (backend_x11->xdisplay, True);
+    XSynchronize (clutter_backend_x11->xdisplay, True);
 
-  XInternAtoms (backend_x11->xdisplay,
+  XInternAtoms (clutter_backend_x11->xdisplay,
                 (char **) atom_names, N_ATOM_NAMES,
                 False, atoms);
 
-  backend_x11->atom_NET_WM_PID = atoms[0];
-  backend_x11->atom_NET_WM_PING = atoms[1];
-  backend_x11->atom_NET_WM_STATE = atoms[2];
-  backend_x11->atom_NET_WM_USER_TIME = atoms[3];
-  backend_x11->atom_WM_PROTOCOLS = atoms[4];
-  backend_x11->atom_WM_DELETE_WINDOW = atoms[5];
-  backend_x11->atom_XEMBED = atoms[6];
-  backend_x11->atom_XEMBED_INFO = atoms[7];
-  backend_x11->atom_NET_WM_NAME = atoms[8];
-  backend_x11->atom_UTF8_STRING = atoms[9];
+  clutter_backend_x11->atom_NET_WM_PID = atoms[0];
+  clutter_backend_x11->atom_NET_WM_PING = atoms[1];
+  clutter_backend_x11->atom_NET_WM_STATE = atoms[2];
+  clutter_backend_x11->atom_NET_WM_USER_TIME = atoms[3];
+  clutter_backend_x11->atom_WM_PROTOCOLS = atoms[4];
+  clutter_backend_x11->atom_WM_DELETE_WINDOW = atoms[5];
+  clutter_backend_x11->atom_XEMBED = atoms[6];
+  clutter_backend_x11->atom_XEMBED_INFO = atoms[7];
+  clutter_backend_x11->atom_NET_WM_NAME = atoms[8];
+  clutter_backend_x11->atom_UTF8_STRING = atoms[9];
 
   g_debug ("X Display '%s'[%p] opened (screen:%d, root:%u, dpi:%f)",
            g_getenv ("DISPLAY"),
-           backend_x11->xdisplay,
-           backend_x11->xscreen_num,
-           (unsigned int) backend_x11->xwin_root,
+           clutter_backend_x11->xdisplay,
+           clutter_backend_x11->xscreen_num,
+           (unsigned int) clutter_backend_x11->xwin_root,
            clutter_backend_get_resolution (backend));
 
   return TRUE;
@@ -195,11 +194,11 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *backend,
 static void
 meta_clutter_backend_x11_finalize (GObject *gobject)
 {
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (gobject);
+  MetaClutterBackendX11 *clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (gobject);
 
   meta_clutter_x11_remove_filter (cogl_xlib_filter, gobject);
 
-  XCloseDisplay (backend_x11->xdisplay);
+  XCloseDisplay (clutter_backend_x11->xdisplay);
 
   G_OBJECT_CLASS (meta_clutter_backend_x11_parent_class)->finalize (gobject);
 }
@@ -216,11 +215,11 @@ meta_clutter_backend_x11_get_features (ClutterBackend *backend)
 }
 
 static void
-update_last_event_time (MetaClutterBackendX11 *backend_x11,
+update_last_event_time (MetaClutterBackendX11 *clutter_backend_x11,
                         XEvent                *xevent)
 {
   Time current_time = CurrentTime;
-  Time last_time = backend_x11->last_event_time;
+  Time last_time = clutter_backend_x11->last_event_time;
 
   switch (xevent->type)
     {
@@ -257,7 +256,7 @@ update_last_event_time (MetaClutterBackendX11 *backend_x11,
    */
   if ((current_time != CurrentTime) &&
       (current_time > last_time || (last_time - current_time > (30 * 1000))))
-    backend_x11->last_event_time = current_time;
+    clutter_backend_x11->last_event_time = current_time;
 }
 
 static gboolean
@@ -362,16 +361,16 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
 }
 
 static gboolean
-meta_clutter_backend_x11_process_event_filters (MetaClutterBackendX11 *backend_x11,
+meta_clutter_backend_x11_process_event_filters (MetaClutterBackendX11 *clutter_backend_x11,
                                                 gpointer               native,
                                                 ClutterEvent          *event)
 {
   XEvent *xevent = native;
 
   /* X11 filter functions have a higher priority */
-  if (backend_x11->event_filters != NULL)
+  if (clutter_backend_x11->event_filters != NULL)
     {
-      GSList *node = backend_x11->event_filters;
+      GSList *node = clutter_backend_x11->event_filters;
 
       while (node != NULL)
         {
@@ -404,13 +403,13 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
                                           gpointer        native,
                                           ClutterEvent   *event)
 {
-  MetaClutterBackendX11 *backend_x11 =
+  MetaClutterBackendX11 *clutter_backend_x11 =
     META_CLUTTER_BACKEND_X11 (clutter_backend);
   MetaBackend *backend = meta_get_backend ();
   MetaStageX11 *stage_x11;
   ClutterSeat *seat;
 
-  if (meta_clutter_backend_x11_process_event_filters (backend_x11,
+  if (meta_clutter_backend_x11_process_event_filters (clutter_backend_x11,
                                                       native,
                                                       event))
     return TRUE;
@@ -418,7 +417,7 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
   /* we update the event time only for events that can
    * actually reach Clutter's event queue
    */
-  update_last_event_time (backend_x11, native);
+  update_last_event_time (clutter_backend_x11, native);
 
   stage_x11 =
     META_STAGE_X11 (clutter_backend_get_stage_window (clutter_backend));
@@ -573,7 +572,7 @@ meta_clutter_x11_add_filter (MetaX11FilterFunc func,
 {
   MetaX11EventFilter *filter;
   ClutterBackend *backend = clutter_get_default_backend ();
-  MetaClutterBackendX11 *backend_x11;
+  MetaClutterBackendX11 *clutter_backend_x11;
 
   g_return_if_fail (func != NULL);
 
@@ -589,14 +588,14 @@ meta_clutter_x11_add_filter (MetaX11FilterFunc func,
       return;
     }
 
-  backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
 
   filter = g_new0 (MetaX11EventFilter, 1);
   filter->func = func;
   filter->data = data;
 
-  backend_x11->event_filters =
-    g_slist_append (backend_x11->event_filters, filter);
+  clutter_backend_x11->event_filters =
+    g_slist_append (clutter_backend_x11->event_filters, filter);
 
   return;
 }
@@ -608,7 +607,7 @@ meta_clutter_x11_remove_filter (MetaX11FilterFunc func,
   GSList *tmp_list, *this;
   MetaX11EventFilter *filter;
   ClutterBackend *backend = clutter_get_default_backend ();
-  MetaClutterBackendX11 *backend_x11;
+  MetaClutterBackendX11 *clutter_backend_x11;
 
   g_return_if_fail (func != NULL);
 
@@ -624,9 +623,9 @@ meta_clutter_x11_remove_filter (MetaX11FilterFunc func,
       return;
     }
 
-  backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
 
-  tmp_list = backend_x11->event_filters;
+  tmp_list = clutter_backend_x11->event_filters;
 
   while (tmp_list)
     {
@@ -636,8 +635,8 @@ meta_clutter_x11_remove_filter (MetaX11FilterFunc func,
 
       if (filter->func == func && filter->data == data)
         {
-          backend_x11->event_filters =
-            g_slist_remove_link (backend_x11->event_filters, this);
+          clutter_backend_x11->event_filters =
+            g_slist_remove_link (clutter_backend_x11->event_filters, this);
 
           g_slist_free_1 (this);
           g_free (filter);
