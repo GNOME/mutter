@@ -140,11 +140,6 @@ container_real_lower (ClutterContainer *container,
 }
 
 static void
-container_real_sort_depth_order (ClutterContainer *container)
-{
-}
-
-static void
 clutter_container_default_init (ClutterContainerInterface *iface)
 {
   GType iface_type = G_TYPE_FROM_INTERFACE (iface);
@@ -215,7 +210,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
   iface->remove = container_real_remove;
   iface->raise = container_real_raise;
   iface->lower = container_real_lower;
-  iface->sort_depth_order = container_real_sort_depth_order;
 
   iface->child_meta_type = G_TYPE_INVALID;
   iface->create_child_meta = create_child_meta;
@@ -606,42 +600,6 @@ clutter_container_lower_child (ClutterContainer *container,
 #endif /* CLUTTER_ENABLE_DEBUG */
 
   iface->lower (container, actor, sibling);
-}
-
-/**
- * clutter_container_sort_depth_order:
- * @container: a #ClutterContainer
- *
- * Sorts a container's children using their depth. This function should not
- * be normally used by applications.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: The #ClutterContainerIface.sort_depth_order() virtual
- *   function should not be used any more; the default implementation in
- *   #ClutterContainer does not do anything.
- */
-void
-clutter_container_sort_depth_order (ClutterContainer *container)
-{
-  ClutterContainerIface *iface;
-
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-
-  iface = CLUTTER_CONTAINER_GET_IFACE (container);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (G_UNLIKELY (_clutter_diagnostic_enabled ()))
-    {
-      if (iface->sort_depth_order != container_real_sort_depth_order)
-        _clutter_diagnostic_message ("The ClutterContainer::sort_depth_order() "
-                                     "virtual function has been deprecated "
-                                     "and it should not be overridden by "
-                                     "newly written code");
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
-  iface->sort_depth_order (container);
 }
 
 /**

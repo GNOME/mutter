@@ -65,9 +65,6 @@ void            clutter_container_lower_child                   (ClutterContaine
                                                                  ClutterActor     *actor,
                                                                  ClutterActor     *sibling);
 
-CLUTTER_DEPRECATED
-void            clutter_container_sort_depth_order              (ClutterContainer *container);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_CONTAINER_DEPRECATED_H__ */
