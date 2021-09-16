@@ -127,14 +127,6 @@ struct _ClutterMainContext
    * ordered from least recently added to most recently added */
   GList *event_filters;
 
-  /* fb bit masks for col<->id mapping in picking */
-  gint fb_r_mask;
-  gint fb_g_mask;
-  gint fb_b_mask;
-  gint fb_r_mask_used;
-  gint fb_g_mask_used;
-  gint fb_b_mask_used;
-
   CoglPangoFontMap *font_map;   /* Global font map */
 
   /* stack of #ClutterEvent */
