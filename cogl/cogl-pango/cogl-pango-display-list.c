@@ -446,8 +446,9 @@ _cogl_pango_display_list_render (CoglFramebuffer *fb,
           break;
 
         case COGL_PANGO_DISPLAY_LIST_TRAPEZOID:
-          cogl_framebuffer_draw_primitive (fb, node->pipeline,
-                                           node->d.trapezoid.primitive);
+          cogl_primitive_draw (node->d.trapezoid.primitive, 
+                               fb,
+                               node->pipeline);
           break;
         }
     }

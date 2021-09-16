@@ -484,9 +484,9 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
           break;
 
         case PAINT_OP_PRIMITIVE:
-          cogl_framebuffer_draw_primitive (fb,
-                                           pnode->pipeline,
-                                           op->op.primitive);
+          cogl_primitive_draw (op->op.primitive,
+                               fb,
+                               pnode->pipeline);
           break;
         }
     }
@@ -1467,9 +1467,9 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
           break;
 
         case PAINT_OP_PRIMITIVE:
-          cogl_framebuffer_draw_primitive (fb,
-                                           lnode->pipeline,
-                                           op->op.primitive);
+          cogl_primitive_draw (op->op.primitive,
+                               fb,
+                               lnode->pipeline);
           break;
         }
     }
