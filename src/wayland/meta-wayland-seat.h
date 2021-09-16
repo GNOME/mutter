@@ -33,7 +33,6 @@
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-tablet-tool.h"
 #include "wayland/meta-wayland-text-input.h"
-#include "wayland/meta-wayland-text-input-legacy.h"
 #include "wayland/meta-wayland-touch.h"
 #include "wayland/meta-wayland-types.h"
 
@@ -50,7 +49,6 @@ struct _MetaWaylandSeat
   MetaWaylandDataDevicePrimary primary_data_device;
   MetaWaylandDataDevicePrimaryLegacy primary_legacy_data_device;
 
-  MetaWaylandGtkTextInput *gtk_text_input;
   MetaWaylandTextInput *text_input;
 
   guint capabilities;

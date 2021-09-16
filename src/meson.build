@@ -628,8 +628,6 @@ if have_wayland
     'wayland/meta-wayland-tablet-tool.h',
     'wayland/meta-wayland-text-input.c',
     'wayland/meta-wayland-text-input.h',
-    'wayland/meta-wayland-text-input-legacy.c',
-    'wayland/meta-wayland-text-input-legacy.h',
     'wayland/meta-wayland-touch.c',
     'wayland/meta-wayland-touch.h',
     'wayland/meta-wayland-types.h',
@@ -910,7 +908,6 @@ if have_wayland
   wayland_protocols = [
     ['gtk-primary-selection', 'private', ],
     ['gtk-shell', 'private', ],
-    ['gtk-text-input', 'private', ],
     ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
     ['linux-dmabuf', 'unstable', 'v1', ],
     ['pointer-constraints', 'unstable', 'v1', ],
