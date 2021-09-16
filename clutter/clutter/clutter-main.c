@@ -489,38 +489,11 @@ _clutter_context_is_initialized (void)
 ClutterMainContext *
 _clutter_context_get_default (void)
 {
-  if (G_UNLIKELY (ClutterCntx == NULL))
-    {
-      ClutterMainContext *ctx;
-
-      ClutterCntx = ctx = g_new0 (ClutterMainContext, 1);
-
-      ctx->is_initialized = FALSE;
-
-      /* create the windowing system backend */
-      ctx->backend = _clutter_create_backend ();
-
-      /* create the default settings object, and store a back pointer to
-       * the backend singleton
-       */
-      ctx->settings = clutter_settings_get_default ();
-      _clutter_settings_set_backend (ctx->settings, ctx->backend);
-
-      ctx->events_queue = g_async_queue_new ();
-
-      ctx->last_repaint_id = 1;
-    }
-
+  g_assert (ClutterCntx);
   return ClutterCntx;
 }
 
-GQuark
-clutter_init_error_quark (void)
-{
-  return g_quark_from_static_string ("clutter-init-error-quark");
-}
-
-static ClutterInitError
+static gboolean
 clutter_init_real (ClutterMainContext  *clutter_context,
                    GError             **error)
 {
@@ -532,7 +505,7 @@ clutter_init_real (ClutterMainContext  *clutter_context,
   backend = clutter_context->backend;
 
   if (!_clutter_backend_finish_init (backend, error))
-    return CLUTTER_INIT_ERROR_BACKEND;
+    return FALSE;
 
   /* If we are displaying the regions that would get redrawn with clipped
    * redraws enabled we actually have to disable the clipped redrawing
@@ -554,8 +527,8 @@ clutter_init_real (ClutterMainContext  *clutter_context,
   /* this will take care of initializing Cogl's state and
    * query the GL machinery for features
    */
-  if (!_clutter_feature_init (error))
-    return CLUTTER_INIT_ERROR_BACKEND;
+  if (!clutter_feature_init (clutter_context, error))
+    return FALSE;
 
   clutter_text_direction = clutter_get_text_direction ();
 
@@ -567,9 +540,9 @@ clutter_init_real (ClutterMainContext  *clutter_context,
     cally_accessibility_init ();
 
   /* Initialize types required for paint nodes */
-  _clutter_paint_node_init_types ();
+  clutter_paint_node_init_types (clutter_context->backend);
 
-  return CLUTTER_INIT_SUCCESS;
+  return TRUE;
 }
 
 static void
@@ -626,27 +599,57 @@ init_clutter_debug (ClutterMainContext *clutter_context)
     clutter_disable_mipmap_text = TRUE;
 }
 
-/**
- * clutter_init: (skip)
- */
-ClutterInitError
-clutter_init (GError **error)
+ClutterContext *
+clutter_context_new (ClutterBackendConstructor   backend_constructor,
+                     gpointer                    user_data,
+                     GError                    **error)
 {
   ClutterMainContext *clutter_context;
 
-  if (clutter_is_initialized)
-    return CLUTTER_INIT_SUCCESS;
+  if (ClutterCntx)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Currently only creating one clutter context is supported");
+      return NULL;
+    }
 
-  clutter_base_init ();
+  clutter_graphene_init ();
 
-  clutter_context = _clutter_context_get_default ();
-
+  clutter_context = g_new0 (ClutterMainContext, 1);
   init_clutter_debug (clutter_context);
-
   clutter_context->frame_rate = clutter_default_fps;
   clutter_context->show_fps = clutter_show_fps;
+  clutter_context->is_initialized = FALSE;
 
-  return clutter_init_real (clutter_context, error);
+  clutter_context->backend = backend_constructor (user_data);
+  clutter_context->settings = clutter_settings_get_default ();
+  _clutter_settings_set_backend (clutter_context->settings,
+                                 clutter_context->backend);
+
+  clutter_context->events_queue = g_async_queue_new ();
+  clutter_context->last_repaint_id = 1;
+
+  if (!clutter_init_real (clutter_context, error))
+    return NULL;
+
+  ClutterCntx = clutter_context;
+
+  return clutter_context;
+}
+
+void
+clutter_context_free (ClutterMainContext *clutter_context)
+{
+  g_clear_pointer (&clutter_context->events_queue, g_async_queue_unref);
+  g_clear_pointer (&clutter_context->backend, clutter_backend_destroy);
+  ClutterCntx = NULL;
+  g_free (clutter_context);
+}
+
+ClutterBackend *
+clutter_context_get_backend (ClutterContext *clutter_context)
+{
+  return clutter_context->backend;
 }
 
 gboolean
@@ -1504,24 +1507,6 @@ _clutter_process_event (ClutterEvent *event)
   _clutter_process_event_details (stage, context, event);
 
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
-}
-
-void
-clutter_base_init (void)
-{
-  static gboolean initialised = FALSE;
-
-  if (!initialised)
-    {
-      initialised = TRUE;
-
-#if !GLIB_CHECK_VERSION (2, 35, 1)
-      /* initialise GLib type system */
-      g_type_init ();
-#endif
-
-      clutter_graphene_init ();
-    }
 }
 
 /**

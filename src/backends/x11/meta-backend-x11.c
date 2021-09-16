@@ -867,7 +867,6 @@ meta_backend_x11_initable_init (GInitable    *initable,
 
   priv->xdisplay = xdisplay;
   priv->xcb = XGetXCBConnection (priv->xdisplay);
-  meta_clutter_x11_set_display (xdisplay);
 
   init_xkb_state (x11);
 

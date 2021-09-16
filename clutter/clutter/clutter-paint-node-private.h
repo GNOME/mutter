@@ -27,6 +27,7 @@
 
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
+#include <clutter/clutter-backend.h>
 #include <clutter/clutter-paint-context.h>
 #include <clutter/clutter-paint-node.h>
 
@@ -109,7 +110,7 @@ void                    _clutter_paint_operation_paint_path             (const C
 void                    _clutter_paint_operation_clip_path              (const ClutterPaintOperation *op);
 void                    _clutter_paint_operation_paint_primitive        (const ClutterPaintOperation *op);
 
-void                    _clutter_paint_node_init_types                  (void);
+void                    clutter_paint_node_init_types                   (ClutterBackend *clutter_backend);
 gpointer                _clutter_paint_node_create                      (GType gtype);
 
 ClutterPaintNode *      _clutter_transform_node_new                     (const graphene_matrix_t     *matrix);

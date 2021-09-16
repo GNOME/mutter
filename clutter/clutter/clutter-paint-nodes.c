@@ -51,30 +51,30 @@ static CoglPipeline *default_color_pipeline   = NULL;
 static CoglPipeline *default_texture_pipeline = NULL;
 
 /*< private >
- * _clutter_paint_node_init_types:
+ * clutter_paint_node_init_types:
  *
  * Initializes the required types for ClutterPaintNode subclasses
  */
 void
-_clutter_paint_node_init_types (void)
+clutter_paint_node_init_types (ClutterBackend *clutter_backend)
 {
-  CoglContext *ctx;
+  CoglContext *cogl_context;
   CoglColor cogl_color;
   GType node_type G_GNUC_UNUSED;
 
   if (G_LIKELY (default_color_pipeline != NULL))
     return;
 
-  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
   node_type = clutter_paint_node_get_type ();
 
   cogl_color_init_from_4f (&cogl_color, 1.0, 1.0, 1.0, 1.0);
 
-  default_color_pipeline = cogl_pipeline_new (ctx);
+  default_color_pipeline = cogl_pipeline_new (cogl_context);
   cogl_pipeline_set_color (default_color_pipeline, &cogl_color);
 
-  default_texture_pipeline = cogl_pipeline_new (ctx);
+  default_texture_pipeline = cogl_pipeline_new (cogl_context);
   cogl_pipeline_set_layer_null_texture (default_texture_pipeline, 0);
   cogl_pipeline_set_color (default_texture_pipeline, &cogl_color);
   cogl_pipeline_set_layer_wrap_mode (default_texture_pipeline, 0,

@@ -154,7 +154,6 @@ struct _ClutterMainContext
 
   /* boolean flags */
   guint is_initialized          : 1;
-  guint options_parsed          : 1;
   guint show_fps                : 1;
 };
 
@@ -176,7 +175,8 @@ CLUTTER_EXPORT
 gboolean                _clutter_context_is_initialized                 (void);
 gboolean                _clutter_context_get_show_fps                   (void);
 
-gboolean      _clutter_feature_init (GError **error);
+gboolean clutter_feature_init (ClutterMainContext  *clutter_context,
+                               GError             **error);
 
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);

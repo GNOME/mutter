@@ -78,37 +78,6 @@ typedef enum
 } ClutterDrawDebugFlag;
 
 /**
- * CLUTTER_INIT_ERROR:
- *
- * #GError domain for #ClutterInitError
- */
-#define CLUTTER_INIT_ERROR      (clutter_init_error_quark ())
-
-/**
- * ClutterInitError:
- * @CLUTTER_INIT_SUCCESS: Initialisation successful
- * @CLUTTER_INIT_ERROR_UNKNOWN: Unknown error
- * @CLUTTER_INIT_ERROR_THREADS: Thread initialisation failed
- * @CLUTTER_INIT_ERROR_BACKEND: Backend initialisation failed
- * @CLUTTER_INIT_ERROR_INTERNAL: Internal error
- *
- * Error conditions returned by clutter_init().
- *
- * Since: 0.2
- */
-typedef enum
-{
-  CLUTTER_INIT_SUCCESS        =  1,
-  CLUTTER_INIT_ERROR_UNKNOWN  =  0,
-  CLUTTER_INIT_ERROR_THREADS  = -1,
-  CLUTTER_INIT_ERROR_BACKEND  = -2,
-  CLUTTER_INIT_ERROR_INTERNAL = -3
-} ClutterInitError;
-
-CLUTTER_EXPORT
-GQuark clutter_init_error_quark (void);
-
-/**
  * CLUTTER_PRIORITY_REDRAW:
  *
  * Priority of the redraws. This is chosen to be lower than the GTK+
@@ -120,17 +89,6 @@ GQuark clutter_init_error_quark (void);
  * Since: 0.8
  */
 #define CLUTTER_PRIORITY_REDRAW         (G_PRIORITY_HIGH_IDLE + 50)
-
-/* Initialisation */
-CLUTTER_EXPORT
-void                    clutter_base_init                       (void);
-CLUTTER_EXPORT
-ClutterInitError        clutter_init                            (GError **error) G_GNUC_WARN_UNUSED_RESULT;
-
-CLUTTER_EXPORT
-GOptionGroup *          clutter_get_option_group                (void);
-CLUTTER_EXPORT
-GOptionGroup *          clutter_get_option_group_without_init   (void);
 
 CLUTTER_EXPORT
 void                    clutter_do_event                        (ClutterEvent *event);

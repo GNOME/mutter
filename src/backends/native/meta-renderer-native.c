@@ -485,7 +485,11 @@ cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterBackend *clutter_backend;
+
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  if (!clutter_backend)
+    return NULL;
 
   return clutter_backend_get_cogl_context (clutter_backend);
 }

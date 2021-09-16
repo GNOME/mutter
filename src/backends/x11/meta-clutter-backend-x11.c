@@ -28,6 +28,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
+#include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-seat-x11.h"
@@ -76,7 +77,6 @@ static const gchar *atom_names[] = {
 
 /* various flags corresponding to pre init setup calls */
 static gboolean clutter_enable_stereo = FALSE;
-static Display  *_foreign_dpy = NULL;
 
 /* options */
 static gboolean clutter_synchronise = FALSE;
@@ -117,47 +117,13 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
 {
   MetaClutterBackendX11 *clutter_backend_x11 =
     META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (priv->backend);
   Atom atoms[N_ATOM_NAMES];
   Screen *xscreen;
 
-  if (_foreign_dpy)
-    backend_x11->xdisplay = _foreign_dpy;
-
-  /* Only open connection if not already set by prior call to
-   * clutter_x11_set_display()
-   */
-  if (clutter_backend_x11->xdisplay == NULL)
-    {
-      const char *display_name;
-
-      display_name = g_getenv ("DISPLAY");
-      if (display_name && *display_name != '\0')
-	{
-	  g_debug ("XOpenDisplay on '%s'", display_name);
-
-          clutter_backend_x11->xdisplay = XOpenDisplay (display_name);
-          if (clutter_backend_x11->xdisplay == NULL)
-            {
-              g_set_error (error, CLUTTER_INIT_ERROR,
-                           CLUTTER_INIT_ERROR_BACKEND,
-                           "Unable to open display '%s'",
-                           display_name);
-              return FALSE;
-            }
-	}
-      else
-	{
-	  g_set_error_literal (error, CLUTTER_INIT_ERROR,
-                               CLUTTER_INIT_ERROR_BACKEND,
-                               "Unable to open display. You have to set the "
-                               "DISPLAY environment variable, or use the "
-                               "--display command line argument");
-	  return FALSE;
-	}
-    }
-
-
-  g_debug ("Getting the X screen");
+  clutter_backend_x11->xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   /* add event filter for Cogl events */
   meta_clutter_backend_x11_add_filter (clutter_backend_x11,
@@ -297,8 +263,7 @@ check_onscreen_template (CoglRenderer         *renderer,
     }
   else
     {
-      g_set_error_literal (error, CLUTTER_INIT_ERROR,
-                           CLUTTER_INIT_ERROR_BACKEND,
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                            internal_error != NULL
                            ? internal_error->message
                            : "Creation of a CoglDisplay failed");
@@ -541,19 +506,6 @@ meta_clutter_x11_get_default_display (void)
     }
 
   return META_CLUTTER_BACKEND_X11 (clutter_backend)->xdisplay;
-}
-
-void
-meta_clutter_x11_set_display (Display *xdisplay)
-{
-  if (_clutter_context_is_initialized ())
-    {
-      g_warning ("%s() can only be used before calling clutter_init()",
-                 G_STRFUNC);
-      return;
-    }
-
-  _foreign_dpy= xdisplay;
 }
 
 int

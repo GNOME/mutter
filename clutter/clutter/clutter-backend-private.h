@@ -96,8 +96,6 @@ struct _ClutterBackendClass
   void (* settings_changed)   (ClutterBackend *backend);
 };
 
-ClutterBackend *        _clutter_create_backend                         (void);
-
 ClutterStageWindow *    _clutter_backend_create_stage                   (ClutterBackend         *backend,
                                                                          ClutterStage           *wrapper,
                                                                          GError                **error);

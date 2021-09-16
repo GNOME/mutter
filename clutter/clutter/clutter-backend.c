@@ -353,8 +353,7 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
       if (internal_error != NULL)
         g_propagate_error (error, internal_error);
       else
-        g_set_error_literal (error, CLUTTER_INIT_ERROR,
-                             CLUTTER_INIT_ERROR_BACKEND,
+        g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                              "Unable to initialize the Clutter backend: no available drivers found.");
 
       return FALSE;
@@ -389,28 +388,6 @@ clutter_backend_real_get_features (ClutterBackend *backend)
     }
 
   return flags;
-}
-
-static ClutterBackend * (* custom_backend_func) (void);
-
-void
-clutter_set_custom_backend_func (ClutterBackend *(* func) (void))
-{
-  custom_backend_func = func;
-}
-
-ClutterBackend *
-_clutter_create_backend (void)
-{
-  ClutterBackend *retval;
-
-  g_return_val_if_fail (custom_backend_func, NULL);
-
-  retval = custom_backend_func ();
-  if (!retval)
-    g_error ("Failed to create custom backend.");
-
-  return retval;
 }
 
 static void

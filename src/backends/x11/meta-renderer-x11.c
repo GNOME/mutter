@@ -30,6 +30,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-renderer-view.h"
 #include "backends/meta-renderer.h"
+#include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
 #include "cogl/cogl-xlib.h"
@@ -81,8 +82,10 @@ get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
 static CoglRenderer *
 meta_renderer_x11_create_cogl_renderer (MetaRenderer *renderer)
 {
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
   CoglRenderer *cogl_renderer;
-  Display *xdisplay = meta_clutter_x11_get_default_display ();
 
   cogl_renderer = cogl_renderer_new ();
   cogl_renderer_set_custom_winsys (cogl_renderer, get_x11_cogl_winsys_vtable,

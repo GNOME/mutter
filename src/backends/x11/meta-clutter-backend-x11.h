@@ -82,7 +82,6 @@ gint meta_clutter_x11_untrap_x_errors (void);
 Display *meta_clutter_x11_get_default_display (void);
 int meta_clutter_x11_get_default_screen (void);
 Window meta_clutter_x11_get_root_window (void);
-void meta_clutter_x11_set_display (Display * xdpy);
 
 void meta_clutter_backend_x11_add_filter (MetaClutterBackendX11 *clutter_backend_x11,
                                           MetaX11FilterFunc      func,
