@@ -52,9 +52,6 @@ CLUTTER_DEPRECATED_FOR(clutter_actor_remove_child)
 void            clutter_container_remove_actor                  (ClutterContainer *container,
                                                                  ClutterActor     *actor);
 
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_children)
-GList *         clutter_container_get_children                  (ClutterContainer *container);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_CONTAINER_DEPRECATED_H__ */

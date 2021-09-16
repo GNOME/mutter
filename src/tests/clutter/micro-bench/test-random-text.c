@@ -29,7 +29,7 @@ on_idle (gpointer data)
   static int frame_count = 0;
 
   /* Remove all of the children of the stage */
-  children = clutter_container_get_children (CLUTTER_CONTAINER (stage));
+  children = clutter_actor_get_children (stage);
   for (node = children; node; node = node->next)
     clutter_container_remove_actor (CLUTTER_CONTAINER (stage),
                                     CLUTTER_ACTOR (node->data));

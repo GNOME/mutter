@@ -421,28 +421,6 @@ clutter_container_remove_actor (ClutterContainer *container,
 }
 
 /**
- * clutter_container_get_children:
- * @container: a #ClutterContainer
- *
- * Retrieves all the children of @container.
- *
- * Return value: (element-type Clutter.Actor) (transfer container): a list
- *   of #ClutterActor<!-- -->s. Use g_list_free() on the returned
- *   list when done.
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: Use clutter_actor_get_children() instead.
- */
-GList *
-clutter_container_get_children (ClutterContainer *container)
-{
-  g_return_val_if_fail (CLUTTER_IS_CONTAINER (container), NULL);
-
-  return clutter_actor_get_children (CLUTTER_ACTOR (container));
-}
-
-/**
  * clutter_container_find_child_by_name:
  * @container: a #ClutterContainer
  * @child_name: the name of the requested child.
@@ -466,7 +444,7 @@ clutter_container_find_child_by_name (ClutterContainer *container,
   g_return_val_if_fail (CLUTTER_IS_CONTAINER (container), NULL);
   g_return_val_if_fail (child_name != NULL, NULL);
 
-  children = clutter_container_get_children (container);
+  children = clutter_actor_get_children (CLUTTER_ACTOR (container));
 
   for (iter = children; iter; iter = g_list_next (iter))
     {
