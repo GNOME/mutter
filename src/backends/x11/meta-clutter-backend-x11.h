@@ -84,10 +84,13 @@ int meta_clutter_x11_get_default_screen (void);
 Window meta_clutter_x11_get_root_window (void);
 void meta_clutter_x11_set_display (Display * xdpy);
 
-void meta_clutter_x11_add_filter (MetaX11FilterFunc func,
-                                  gpointer          data);
-void meta_clutter_x11_remove_filter (MetaX11FilterFunc func,
-                                     gpointer          data);
+void meta_clutter_backend_x11_add_filter (MetaClutterBackendX11 *clutter_backend_x11,
+                                          MetaX11FilterFunc      func,
+                                          gpointer               data);
+
+void meta_clutter_backend_x11_remove_filter (MetaClutterBackendX11 *clutter_backend_x11,
+                                             MetaX11FilterFunc      func,
+                                             gpointer               data);
 
 void meta_clutter_x11_set_use_stereo_stage (gboolean use_stereo);
 gboolean meta_clutter_x11_get_use_stereo_stage (void);

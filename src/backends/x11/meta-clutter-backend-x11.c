@@ -160,7 +160,9 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   g_debug ("Getting the X screen");
 
   /* add event filter for Cogl events */
-  meta_clutter_x11_add_filter (cogl_xlib_filter, clutter_backend);
+  meta_clutter_backend_x11_add_filter (clutter_backend_x11,
+                                       cogl_xlib_filter,
+                                       clutter_backend);
 
   xscreen = DefaultScreenOfDisplay (clutter_backend_x11->xdisplay);
   clutter_backend_x11->xscreen_num = XScreenNumberOfScreen (xscreen);
@@ -201,7 +203,9 @@ meta_clutter_backend_x11_finalize (GObject *gobject)
 {
   MetaClutterBackendX11 *clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (gobject);
 
-  meta_clutter_x11_remove_filter (cogl_xlib_filter, gobject);
+  meta_clutter_backend_x11_remove_filter (clutter_backend_x11,
+                                          cogl_xlib_filter,
+                                          clutter_backend_x11);
 
   XCloseDisplay (clutter_backend_x11->xdisplay);
 
@@ -593,28 +597,13 @@ meta_clutter_x11_get_root_window (void)
 }
 
 void
-meta_clutter_x11_add_filter (MetaX11FilterFunc func,
-                             gpointer             data)
+meta_clutter_backend_x11_add_filter (MetaClutterBackendX11 *clutter_backend_x11,
+                                     MetaX11FilterFunc      func,
+                                     gpointer               data)
 {
   MetaX11EventFilter *filter;
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
-  MetaClutterBackendX11 *clutter_backend_x11;
 
   g_return_if_fail (func != NULL);
-
-  if (clutter_backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return;
-    }
-
-  if (!META_IS_CLUTTER_BACKEND_X11 (clutter_backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend");
-      return;
-    }
-
-  clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (clutter_backend);
 
   filter = g_new0 (MetaX11EventFilter, 1);
   filter->func = func;
@@ -627,29 +616,14 @@ meta_clutter_x11_add_filter (MetaX11FilterFunc func,
 }
 
 void
-meta_clutter_x11_remove_filter (MetaX11FilterFunc func,
-                                gpointer          data)
+meta_clutter_backend_x11_remove_filter (MetaClutterBackendX11 *clutter_backend_x11,
+                                        MetaX11FilterFunc      func,
+                                        gpointer               data)
 {
   GSList *tmp_list, *this;
   MetaX11EventFilter *filter;
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
-  MetaClutterBackendX11 *clutter_backend_x11;
 
   g_return_if_fail (func != NULL);
-
-  if (clutter_backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return;
-    }
-
-  if (!META_IS_CLUTTER_BACKEND_X11 (clutter_backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend");
-      return;
-    }
-
-  clutter_backend_x11 = META_CLUTTER_BACKEND_X11 (clutter_backend);
 
   tmp_list = clutter_backend_x11->event_filters;
 

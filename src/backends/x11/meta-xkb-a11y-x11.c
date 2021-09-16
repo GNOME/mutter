@@ -323,6 +323,10 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
 gboolean
 meta_seat_x11_a11y_init (ClutterSeat *seat)
 {
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
   Display *xdisplay = meta_clutter_x11_get_default_display ();
   guint event_mask;
 
@@ -333,7 +337,9 @@ meta_seat_x11_a11y_init (ClutterSeat *seat)
 
   XkbSelectEvents (xdisplay, XkbUseCoreKbd, event_mask, event_mask);
 
-  meta_clutter_x11_add_filter (xkb_a11y_event_filter, seat);
+  meta_clutter_backend_x11_add_filter (clutter_backend_x11,
+                                       xkb_a11y_event_filter,
+                                       seat);
 
   return TRUE;
 }
