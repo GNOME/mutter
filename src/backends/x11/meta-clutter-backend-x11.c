@@ -47,9 +47,13 @@ struct _MetaX11EventFilter
   gpointer data;
 };
 
-G_DEFINE_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
-               CLUTTER_TYPE_BACKEND)
+typedef struct _MetaClutterBackendX11Private
+{
+  MetaBackend *backend;
+} MetaClutterBackendX11Private;
 
+G_DEFINE_TYPE_WITH_PRIVATE (MetaClutterBackendX11, meta_clutter_backend_x11,
+                            CLUTTER_TYPE_BACKEND)
 
 /* atoms; remember to add the code that assigns the atom value to
  * the member of the MetaClutterBackendX11 structure if you add an
@@ -336,8 +340,11 @@ static CoglRenderer *
 meta_clutter_backend_x11_get_renderer (ClutterBackend  *clutter_backend,
                                        GError         **error)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+  MetaRenderer *renderer = meta_backend_get_renderer (priv->backend);
 
   return meta_renderer_create_cogl_renderer (renderer);
 }
@@ -407,7 +414,8 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
 {
   MetaClutterBackendX11 *clutter_backend_x11 =
     META_CLUTTER_BACKEND_X11 (clutter_backend);
-  MetaBackend *backend = meta_get_backend ();
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   MetaStageX11 *stage_x11;
   ClutterSeat *seat;
 
@@ -426,7 +434,7 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
   if (meta_stage_x11_translate_event (stage_x11, native, event))
     return TRUE;
 
-  seat = meta_backend_get_default_seat (backend);
+  seat = meta_backend_get_default_seat (priv->backend);
   if (meta_seat_x11_translate_event (META_SEAT_X11 (seat), native, event))
     return TRUE;
 
@@ -436,9 +444,12 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *clutter_backend,
 static ClutterSeat *
 meta_clutter_backend_x11_get_default_seat (ClutterBackend *clutter_backend)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
 
-  return meta_backend_get_default_seat (backend);
+  return meta_backend_get_default_seat (priv->backend);
 }
 
 static gboolean
@@ -470,6 +481,19 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_x11_is_display_server;
+}
+
+MetaClutterBackendX11 *
+meta_clutter_backend_x11_new (MetaBackend *backend)
+{
+  MetaClutterBackendX11 *clutter_backend_x11;
+  MetaClutterBackendX11Private *priv;
+
+  clutter_backend_x11 = g_object_new (META_TYPE_CLUTTER_BACKEND_X11, NULL);
+  priv = meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+  priv->backend = backend;
+
+  return clutter_backend_x11;
 }
 
 static int
