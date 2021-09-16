@@ -4989,6 +4989,9 @@ static void
 meta_window_change_workspace_without_transients (MetaWindow    *window,
                                                  MetaWorkspace *workspace)
 {
+  if (window->unmanaging)
+    return;
+
   /* Try to unstick the window if it's stuck. This doesn't
    * have any guarantee that we'll actually unstick the
    * window, since it could be stuck for other reasons. */
