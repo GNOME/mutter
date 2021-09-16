@@ -130,16 +130,6 @@ container_real_raise (ClutterContainer *container,
 }
 
 static void
-container_real_lower (ClutterContainer *container,
-                      ClutterActor     *child,
-                      ClutterActor     *sibling)
-{
-  ClutterActor *self = CLUTTER_ACTOR (container);
-
-  clutter_actor_set_child_below_sibling (self, child, sibling);
-}
-
-static void
 clutter_container_default_init (ClutterContainerInterface *iface)
 {
   GType iface_type = G_TYPE_FROM_INTERFACE (iface);
@@ -209,7 +199,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
   iface->add = container_real_add;
   iface->remove = container_real_remove;
   iface->raise = container_real_raise;
-  iface->lower = container_real_lower;
 
   iface->child_meta_type = G_TYPE_INVALID;
   iface->create_child_meta = create_child_meta;
@@ -531,75 +520,6 @@ clutter_container_raise_child (ClutterContainer *container,
 #endif /* CLUTTER_ENABLE_DEBUG */
 
   iface->raise (container, actor, sibling);
-}
-
-/**
- * clutter_container_lower_child: (virtual lower)
- * @container: a #ClutterContainer
- * @actor: the actor to raise
- * @sibling: (allow-none): the sibling to lower to, or %NULL to lower
- *   to the bottom
- *
- * Lowers @actor to @sibling level, in the depth ordering.
- *
- * This function calls the #ClutterContainerIface.lower() virtual function,
- * which has been deprecated. The default implementation will call
- * clutter_actor_set_child_below_sibling().
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: Use clutter_actor_set_child_below_sibling() instead.
- */
-void
-clutter_container_lower_child (ClutterContainer *container,
-                               ClutterActor     *actor,
-                               ClutterActor     *sibling)
-{
-  ClutterContainerIface *iface;
-  ClutterActor *self;
-
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
-  g_return_if_fail (sibling == NULL || CLUTTER_IS_ACTOR (sibling));
-
-  if (actor == sibling)
-    return;
-
-  self = CLUTTER_ACTOR (container);
-
-  if (clutter_actor_get_parent (actor) != self)
-    {
-      g_warning ("Actor of type '%s' is not a child of the container "
-                 "of type '%s'",
-                 g_type_name (G_OBJECT_TYPE (actor)),
-                 g_type_name (G_OBJECT_TYPE (container)));
-      return;
-    }
-
-  if (sibling != NULL&&
-      clutter_actor_get_parent (sibling) != self)
-    {
-      g_warning ("Actor of type '%s' is not a child of the container "
-                 "of type '%s'",
-                 g_type_name (G_OBJECT_TYPE (sibling)),
-                 g_type_name (G_OBJECT_TYPE (container)));
-      return;
-    }
-
-  iface = CLUTTER_CONTAINER_GET_IFACE (container);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (G_UNLIKELY (_clutter_diagnostic_enabled ()))
-    {
-      if (iface->lower != container_real_lower)
-        _clutter_diagnostic_message ("The ClutterContainer::lower() "
-                                     "virtual function has been deprecated "
-                                     "and it should not be overridden by "
-                                     "newly written code");
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
-  iface->lower (container, actor, sibling);
 }
 
 /**
