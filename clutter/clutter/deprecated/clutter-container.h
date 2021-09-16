@@ -55,11 +55,6 @@ void            clutter_container_remove_actor                  (ClutterContaine
 CLUTTER_DEPRECATED_FOR(clutter_actor_get_children)
 GList *         clutter_container_get_children                  (ClutterContainer *container);
 
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_child_above_sibling)
-void            clutter_container_raise_child                   (ClutterContainer *container,
-                                                                 ClutterActor     *actor,
-                                                                 ClutterActor     *sibling);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_CONTAINER_DEPRECATED_H__ */

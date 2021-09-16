@@ -59,8 +59,6 @@ typedef struct _ClutterContainerIface   ClutterContainerIface;
  *   function is deprecated, and it should not be overridden.
  * @remove: virtual function for removing an actor from the container. This
  *   virtual function is deprecated, and it should not be overridden.
- * @raise: virtual function for raising a child. This virtual function is
- *   deprecated and it should not be overridden.
  * @child_meta_type: The GType used for storing auxiliary information about
  *   each of the containers children.
  * @create_child_meta: virtual function that gets called for each added
@@ -91,11 +89,6 @@ struct _ClutterContainerIface
                              ClutterActor     *actor);
   void (* remove)           (ClutterContainer *container,
                              ClutterActor     *actor);
-
-  /* child stacking */
-  void (* raise)            (ClutterContainer *container,
-                             ClutterActor     *actor,
-                             ClutterActor     *sibling);
 
   /* ClutterChildMeta management */
   GType                child_meta_type;
