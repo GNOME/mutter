@@ -84,8 +84,6 @@ static gboolean clutter_disable_mipmap_text  = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;
 static gboolean clutter_sync_to_vblank       = TRUE;
 
-static guint clutter_default_fps             = 60;
-
 static ClutterTextDirection clutter_text_direction = CLUTTER_TEXT_DIRECTION_LTR;
 
 /* debug flags */
@@ -586,14 +584,6 @@ init_clutter_debug (ClutterMainContext *clutter_context)
   if (env_string)
     clutter_show_fps = TRUE;
 
-  env_string = g_getenv ("CLUTTER_DEFAULT_FPS");
-  if (env_string)
-    {
-      gint default_fps = g_ascii_strtoll (env_string, NULL, 10);
-
-      clutter_default_fps = CLAMP (default_fps, 1, 1000);
-    }
-
   env_string = g_getenv ("CLUTTER_DISABLE_MIPMAPPED_TEXT");
   if (env_string)
     clutter_disable_mipmap_text = TRUE;
@@ -617,7 +607,6 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
 
   clutter_context = g_new0 (ClutterMainContext, 1);
   init_clutter_debug (clutter_context);
-  clutter_context->frame_rate = clutter_default_fps;
   clutter_context->show_fps = clutter_show_fps;
   clutter_context->is_initialized = FALSE;
 
@@ -1507,25 +1496,6 @@ _clutter_process_event (ClutterEvent *event)
   _clutter_process_event_details (stage, context, event);
 
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
-}
-
-/**
- * clutter_get_default_frame_rate:
- *
- * Retrieves the default frame rate. See clutter_set_default_frame_rate().
- *
- * Return value: the default frame rate
- *
- * Since: 0.6
- */
-guint
-clutter_get_default_frame_rate (void)
-{
-  ClutterMainContext *context;
-
-  context = _clutter_context_get_default ();
-
-  return context->frame_rate;
 }
 
 /**

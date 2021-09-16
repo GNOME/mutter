@@ -127,9 +127,6 @@ struct _ClutterMainContext
    * ordered from least recently added to most recently added */
   GList *event_filters;
 
-  /* default FPS; this is only used if we cannot sync to vblank */
-  guint frame_rate;
-
   /* fb bit masks for col<->id mapping in picking */
   gint fb_r_mask;
   gint fb_g_mask;
