@@ -224,8 +224,6 @@ cogl_context_new (CoglDisplay *display,
   context->current_clip_stack_valid = FALSE;
   context->current_clip_stack = NULL;
 
-  context->legacy_backface_culling_enabled = FALSE;
-
   graphene_matrix_init_identity (&context->identity_matrix);
   graphene_matrix_init_identity (&context->y_flip_matrix);
   graphene_matrix_scale (&context->y_flip_matrix, 1, -1, 1);

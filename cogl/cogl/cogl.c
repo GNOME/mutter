@@ -73,25 +73,6 @@ _cogl_check_extension (const char *name, char * const *ext)
   return FALSE;
 }
 
-void
-cogl_set_backface_culling_enabled (gboolean setting)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (ctx->legacy_backface_culling_enabled == setting)
-    return;
-
-  ctx->legacy_backface_culling_enabled = setting;
-}
-
-gboolean
-cogl_get_backface_culling_enabled (void)
-{
-  _COGL_GET_CONTEXT (ctx, FALSE);
-
-  return ctx->legacy_backface_culling_enabled;
-}
-
 gboolean
 cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
 {

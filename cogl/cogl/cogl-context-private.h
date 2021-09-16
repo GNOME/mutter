@@ -114,8 +114,6 @@ struct _CoglContext
   CoglBitmask       enable_custom_attributes_tmp;
   CoglBitmask       changed_bits_tmp;
 
-  gboolean          legacy_backface_culling_enabled;
-
   /* A few handy matrix constants */
   graphene_matrix_t identity_matrix;
   graphene_matrix_t y_flip_matrix;

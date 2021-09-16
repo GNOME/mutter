@@ -80,36 +80,6 @@ COGL_EXPORT GCallback
 cogl_get_proc_address (const char *name);
 
 /**
- * cogl_set_backface_culling_enabled:
- * @setting: %TRUE to enable backface culling or %FALSE to disable.
- *
- * Sets whether textures positioned so that their backface is showing
- * should be hidden. This can be used to efficiently draw two-sided
- * textures or fully closed cubes without enabling depth testing. This
- * only affects calls to the cogl_rectangle* family of functions and
- * cogl_vertex_buffer_draw*. Backface culling is disabled by default.
- *
- * Deprecated: 1.16: Use cogl_pipeline_set_cull_face_mode() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_cull_face_mode)
-COGL_EXPORT void
-cogl_set_backface_culling_enabled (gboolean setting);
-
-/**
- * cogl_get_backface_culling_enabled:
- *
- * Queries if backface culling has been enabled via
- * cogl_set_backface_culling_enabled()
- *
- * Return value: %TRUE if backface culling is enabled, and %FALSE otherwise
- *
- * Deprecated: 1.16: Use cogl_pipeline_get_cull_face_mode() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_get_cull_face_mode)
-COGL_EXPORT gboolean
-cogl_get_backface_culling_enabled (void);
-
-/**
  * cogl_flush:
  *
  * This function should only need to be called in exceptional circumstances.
