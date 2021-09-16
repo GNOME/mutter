@@ -286,7 +286,7 @@ reset_pointer_position (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaMonitorManager *monitor_manager = priv->monitor_manager;
-  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterSeat *seat = priv->default_seat;
   MetaLogicalMonitor *primary;
 
   primary =
@@ -321,7 +321,7 @@ static void
 update_cursors (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterSeat *seat = priv->default_seat;
   MetaCursorRenderer *cursor_renderer;
   ClutterInputDevice *pointer, *device;
   GList *devices, *l;
@@ -352,7 +352,7 @@ meta_backend_monitors_changed (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterSeat *seat = priv->default_seat;
   ClutterInputDevice *device = clutter_seat_get_pointer (seat);
   graphene_point_t point;
 
@@ -509,7 +509,7 @@ static void
 on_stage_shown_cb (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterSeat *seat = priv->default_seat;
   g_autoptr (GList) devices = NULL;
   const GList *l;
 
@@ -535,7 +535,7 @@ static void
 meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterSeat *seat = priv->default_seat;
   MetaInputSettings *input_settings;
 
   priv->stage = meta_stage_new (backend);
@@ -1221,10 +1221,8 @@ meta_backend_get_cursor_renderer (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterInputDevice *pointer;
-  ClutterSeat *seat;
 
-  seat = clutter_backend_get_default_seat (priv->clutter_backend);
-  pointer = clutter_seat_get_pointer (seat);
+  pointer = clutter_seat_get_pointer (priv->default_seat);
 
   return meta_backend_get_cursor_renderer_for_device (backend, pointer);
 }
