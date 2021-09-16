@@ -54,6 +54,8 @@
 struct _MetaClutterBackendNative
 {
   ClutterBackend parent;
+
+  MetaBackend *backend;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
@@ -63,7 +65,9 @@ static CoglRenderer *
 meta_clutter_backend_native_get_renderer (ClutterBackend  *clutter_backend,
                                           GError         **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaClutterBackendNative *clutter_backend_nativen =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  MetaBackend *backend = clutter_backend_nativen->backend;
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   return meta_renderer_create_cogl_renderer (renderer);
@@ -83,7 +87,9 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *clutter_backend,
 static ClutterSeat *
 meta_clutter_backend_native_get_default_seat (ClutterBackend *clutter_backend)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaClutterBackendNative *clutter_backend_nativen =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  MetaBackend *backend = clutter_backend_nativen->backend;
 
   return meta_backend_get_default_seat (backend);
 }
@@ -108,4 +114,16 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
+}
+
+MetaClutterBackendNative *
+meta_clutter_backend_native_new (MetaBackend *backend)
+{
+  MetaClutterBackendNative *clutter_backend_native;
+
+  clutter_backend_native = g_object_new (META_TYPE_CLUTTER_BACKEND_NATIVE,
+                                         NULL);
+  clutter_backend_native->backend = backend;
+
+  return clutter_backend_native;
 }

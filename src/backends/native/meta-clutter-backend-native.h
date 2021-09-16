@@ -27,6 +27,7 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-backend-types.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
 
@@ -34,5 +35,7 @@
 G_DECLARE_FINAL_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
                       META, CLUTTER_BACKEND_NATIVE,
                       ClutterBackend)
+
+MetaClutterBackendNative * meta_clutter_backend_native_new (MetaBackend *backend);
 
 #endif /* META_CLUTTER_BACKEND_NATIVE_H */
