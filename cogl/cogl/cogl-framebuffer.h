@@ -1061,10 +1061,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  * a GPU such as #CoglTexture2D are associated with layers of the given
  * @pipeline.
  *
- * <note>This api doesn't support any of the legacy global state options such
- * as cogl_set_depth_test_enabled() or
- * cogl_set_backface_culling_enabled().</note>
- *
  * Stability: unstable
  * Since: 1.10
  * Deprecated: 1.16: Use #CoglPrimitive<!-- -->s and

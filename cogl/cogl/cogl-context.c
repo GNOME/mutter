@@ -277,8 +277,6 @@ cogl_context_new (CoglDisplay *display,
   context->depth_range_near_cache = 0;
   context->depth_range_far_cache = 1;
 
-  context->legacy_depth_test_enabled = FALSE;
-
   context->pipeline_cache = _cogl_pipeline_cache_new ();
 
   for (i = 0; i < COGL_BUFFER_BIND_TARGET_COUNT; i++)
