@@ -55,7 +55,6 @@
 #include "clutter-backend-private.h"
 #include "clutter-debug.h"
 #include "clutter-event-private.h"
-#include "clutter-feature.h"
 #include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-graphene.h"
@@ -522,10 +521,7 @@ clutter_init_real (ClutterMainContext  *clutter_context,
   if (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
     g_message ("Enabling damaged region");
 
-  /* this will take care of initializing Cogl's state and
-   * query the GL machinery for features
-   */
-  if (!clutter_feature_init (clutter_context, error))
+  if (!_clutter_backend_create_context (clutter_context->backend, error))
     return FALSE;
 
   clutter_text_direction = clutter_get_text_direction ();

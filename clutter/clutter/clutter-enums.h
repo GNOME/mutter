@@ -904,20 +904,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
 } ClutterScrollDirection;
 
 /**
- * ClutterFeatureFlags:
- * @CLUTTER_FEATURE_SHADERS_GLSL: Set if the backend supports GLSL shaders.
- *
- * Runtime flags indicating specific features available via Clutter window
- * system and graphics backend.
- *
- * Since: 0.4
- */
-typedef enum
-{
-  CLUTTER_FEATURE_SHADERS_GLSL           = (1 << 9),
-} ClutterFeatureFlags;
-
-/**
  * ClutterFlowOrientation:
  * @CLUTTER_FLOW_HORIZONTAL: Arrange the children of the flow layout
  *   horizontally first

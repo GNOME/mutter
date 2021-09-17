@@ -119,7 +119,6 @@
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-feature.h"
 #include "clutter-private.h"
 #include "clutter-shader-types.h"
 

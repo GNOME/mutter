@@ -34,7 +34,6 @@
 #include "clutter-backend.h"
 #include "clutter-effect.h"
 #include "clutter-event.h"
-#include "clutter-feature.h"
 #include "clutter-id-pool.h"
 #include "clutter-layout-manager.h"
 #include "clutter-settings.h"
@@ -166,9 +165,6 @@ void                    _clutter_context_unlock                         (void);
 CLUTTER_EXPORT
 gboolean                _clutter_context_is_initialized                 (void);
 gboolean                _clutter_context_get_show_fps                   (void);
-
-gboolean clutter_feature_init (ClutterMainContext  *clutter_context,
-                               GError             **error);
 
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);

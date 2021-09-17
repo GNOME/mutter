@@ -71,7 +71,6 @@ struct _ClutterBackendClass
   ClutterStageWindow *  (* create_stage)       (ClutterBackend  *backend,
                                                 ClutterStage    *wrapper,
                                                 GError         **error);
-  void                  (* init_features)      (ClutterBackend  *backend);
   CoglRenderer *        (* get_renderer)       (ClutterBackend  *backend,
                                                 GError         **error);
   CoglDisplay *         (* get_display)        (ClutterBackend  *backend,
