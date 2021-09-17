@@ -71,10 +71,6 @@ test_stage_sizing_main (int argc, char *argv[])
   clutter_actor_add_child (rect, label);
   clutter_actor_add_child (box, rect);
 
-  clutter_stage_set_minimum_size (CLUTTER_STAGE (stage),
-                                  clutter_actor_get_width (box),
-                                  clutter_actor_get_height (box));
-
   clutter_actor_show (stage);
 
   clutter_test_main ();

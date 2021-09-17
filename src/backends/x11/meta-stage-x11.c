@@ -80,25 +80,15 @@ meta_stage_x11_fix_window_size (MetaStageX11 *stage_x11,
                                 int           new_width,
                                 int           new_height)
 {
-  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_x11);
+  g_return_if_fail (new_width > 0);
+  g_return_if_fail (new_height > 0);
 
   if (stage_x11->xwin != None)
     {
       Display *xdisplay = meta_clutter_x11_get_default_display ();
-      uint32_t min_width, min_height;
       XSizeHints *size_hints;
 
       size_hints = XAllocSizeHints();
-
-      clutter_stage_get_minimum_size (stage_impl->wrapper,
-                                      &min_width,
-                                      &min_height);
-
-      if (new_width <= 0)
-        new_width = min_width;
-
-      if (new_height <= 0)
-        new_height = min_height;
 
       size_hints->min_width = new_width;
       size_hints->min_height = new_height;

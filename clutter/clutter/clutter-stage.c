@@ -128,7 +128,6 @@ struct _ClutterStagePrivate
   GHashTable *touch_sequences;
 
   guint throttle_motion_events : 1;
-  guint min_size_changed       : 1;
   guint motion_events_enabled  : 1;
   guint actor_needs_immediate_relayout : 1;
 };
@@ -298,32 +297,6 @@ clutter_stage_allocate (ClutterActor           *self,
   clutter_layout_manager_allocate (layout_manager,
                                    CLUTTER_CONTAINER (self),
                                    &children_box);
-
-  /* Ensure the window is sized correctly */
-  if (priv->min_size_changed)
-    {
-      gfloat min_width, min_height;
-      gboolean min_width_set, min_height_set;
-
-      g_object_get (G_OBJECT (self),
-                    "min-width", &min_width,
-                    "min-width-set", &min_width_set,
-                    "min-height", &min_height,
-                    "min-height-set", &min_height_set,
-                    NULL);
-
-      if (!min_width_set)
-        min_width = 1;
-      if (!min_height_set)
-        min_height = 1;
-
-      if (width < min_width)
-        width = min_width;
-      if (height < min_height)
-        height = min_height;
-
-      priv->min_size_changed = FALSE;
-    }
 
   if (window_size.width != CLUTTER_NEARBYINT (width) ||
       window_size.height != CLUTTER_NEARBYINT (height))
@@ -1533,12 +1506,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
 }
 
 static void
-clutter_stage_notify_min_size (ClutterStage *self)
-{
-  self->priv->min_size_changed = TRUE;
-}
-
-static void
 clutter_stage_init (ClutterStage *self)
 {
   cairo_rectangle_int_t geom = { 0, };
@@ -1578,7 +1545,6 @@ clutter_stage_init (ClutterStage *self)
   priv->event_queue = g_queue_new ();
 
   priv->throttle_motion_events = TRUE;
-  priv->min_size_changed = FALSE;
   priv->motion_events_enabled = TRUE;
 
   priv->pointer_devices =
@@ -1596,12 +1562,6 @@ clutter_stage_init (ClutterStage *self)
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
   clutter_stage_set_title (self, g_get_prgname ());
   clutter_stage_set_key_focus (self, NULL);
-
-  g_signal_connect (self, "notify::min-width",
-                    G_CALLBACK (clutter_stage_notify_min_size), NULL);
-  g_signal_connect (self, "notify::min-height",
-                    G_CALLBACK (clutter_stage_notify_min_size), NULL);
-
   clutter_stage_set_viewport (self, geom.width, geom.height);
 
   priv->pending_queue_redraws =
@@ -2483,87 +2443,6 @@ clutter_stage_get_throttle_motion_events (ClutterStage *stage)
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
 
   return stage->priv->throttle_motion_events;
-}
-
-/**
- * clutter_stage_set_minimum_size:
- * @stage: a #ClutterStage
- * @width: width, in pixels
- * @height: height, in pixels
- *
- * Sets the minimum size for a stage window, if the default backend
- * uses #ClutterStage inside a window
- *
- * This is a convenience function, and it is equivalent to setting the
- * #ClutterActor:min-width and #ClutterActor:min-height on @stage
- *
- * If the current size of @stage is smaller than the minimum size, the
- * @stage will be resized to the new @width and @height
- *
- * Since: 1.2
- */
-void
-clutter_stage_set_minimum_size (ClutterStage *stage,
-                                guint         width,
-                                guint         height)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail ((width > 0) && (height > 0));
-
-  g_object_set (G_OBJECT (stage),
-                "min-width", (gfloat) width,
-                "min-height", (gfloat )height,
-                NULL);
-}
-
-/**
- * clutter_stage_get_minimum_size:
- * @stage: a #ClutterStage
- * @width: (out): return location for the minimum width, in pixels,
- *   or %NULL
- * @height: (out): return location for the minimum height, in pixels,
- *   or %NULL
- *
- * Retrieves the minimum size for a stage window as set using
- * clutter_stage_set_minimum_size().
- *
- * The returned size may not correspond to the actual minimum size and
- * it is specific to the #ClutterStage implementation inside the
- * Clutter backend
- *
- * Since: 1.2
- */
-void
-clutter_stage_get_minimum_size (ClutterStage *stage,
-                                guint        *width_p,
-                                guint        *height_p)
-{
-  gfloat width, height;
-  gboolean width_set, height_set;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  g_object_get (G_OBJECT (stage),
-                "min-width", &width,
-                "min-width-set", &width_set,
-                "min-height", &height,
-                "min-height-set", &height_set,
-                NULL);
-
-  /* if not width or height have been set, then the Stage
-   * minimum size is defined to be 1x1
-   */
-  if (!width_set)
-    width = 1;
-
-  if (!height_set)
-    height = 1;
-
-  if (width_p)
-    *width_p = (guint) width;
-
-  if (height_p)
-    *height_p = (guint) height;
 }
 
 /**
