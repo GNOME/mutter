@@ -61,6 +61,7 @@ struct _MetaBackendX11Private
 {
   /* The host X11 display */
   Display *xdisplay;
+  Screen *xscreen;
   xcb_connection_t *xcb;
   GSource *source;
   Window root_window;
@@ -868,6 +869,7 @@ meta_backend_x11_initable_init (GInitable    *initable,
     }
 
   priv->xdisplay = xdisplay;
+  priv->xscreen = DefaultScreenOfDisplay (xdisplay);
   priv->xcb = XGetXCBConnection (priv->xdisplay);
   priv->root_window = DefaultRootWindow (xdisplay);
 
@@ -953,6 +955,14 @@ meta_backend_x11_get_xdisplay (MetaBackendX11 *x11)
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
 
   return priv->xdisplay;
+}
+
+Screen *
+meta_backend_x11_get_xscreen (MetaBackendX11 *x11)
+{
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+
+  return priv->xscreen;
 }
 
 Window

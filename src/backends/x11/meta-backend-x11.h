@@ -49,6 +49,8 @@ struct _MetaBackendX11Class
 
 Display * meta_backend_x11_get_xdisplay (MetaBackendX11 *backend);
 
+Screen * meta_backend_x11_get_xscreen (MetaBackendX11 *backend);
+
 Window meta_backend_x11_get_root_xwindow (MetaBackendX11 *backend_x11);
 
 Window meta_backend_x11_get_xwindow (MetaBackendX11 *backend);
