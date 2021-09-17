@@ -22,8 +22,10 @@
 #include <X11/extensions/XInput2.h>
 
 #include "clutter/clutter-mutter.h"
+#include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
+#include "backends/x11/meta-seat-x11.h"
 
 struct _MetaInputDeviceX11
 {
@@ -399,6 +401,11 @@ meta_input_device_x11_get_current_tool (ClutterInputDevice *device)
 static gboolean
 meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
 {
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_xi2);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackendX11 *backend_x11 =
+    META_BACKEND_X11 (meta_seat_x11_get_backend (seat_x11));
   Window xroot_window, xchild_window;
   double xroot_x, xroot_y, xwin_x, xwin_y;
   XIButtonState button_state = { 0 };
@@ -407,9 +414,9 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
   int result;
 
   meta_clutter_x11_trap_x_errors ();
-  result = XIQueryPointer (meta_clutter_x11_get_default_display (),
+  result = XIQueryPointer (meta_backend_x11_get_xdisplay (backend_x11),
                            device_xi2->device_id,
-                           meta_clutter_x11_get_root_window (),
+                           meta_backend_x11_get_root_xwindow (backend_x11),
                            &xroot_window,
                            &xchild_window,
                            &xroot_x, &xroot_y,
