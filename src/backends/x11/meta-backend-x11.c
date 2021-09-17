@@ -653,7 +653,8 @@ meta_backend_x11_create_default_seat (MetaBackend  *backend,
       return NULL;
     }
 
-  seat_x11 = meta_seat_x11_new (event_base,
+  seat_x11 = meta_seat_x11_new (backend,
+                                event_base,
                                 META_VIRTUAL_CORE_POINTER_ID,
                                 META_VIRTUAL_CORE_KEYBOARD_ID);
   return CLUTTER_SEAT (seat_x11);
