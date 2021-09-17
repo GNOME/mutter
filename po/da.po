@@ -8,7 +8,7 @@
 # Lasse Bang Mikkelsen <lbm@fatalerror.dk>, 2006.
 # Kenneth Nielsen <k.nielsen81@gmail.com>, 2008.
 # Joe Hansen <joedalton2@yahoo.dk>, 2011.
-# Ask Hjorth Larsen <asklarsen@gmail.com>, 2007, 09, 10, 12, 13, 14, 15, 16, 17, 18, 19.
+# Ask Hjorth Larsen <asklarsen@gmail.com>, 2007, 09, 10, 12, 13, 14, 15, 16, 17, 18, 19, 21.
 #
 # Ordliste:
 #
@@ -20,9 +20,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-29 10:31+0000\n"
-"PO-Revision-Date: 2020-09-16 00:00+0200\n"
-"Last-Translator: scootergrisen\n"
+"POT-Creation-Date: 2021-09-03 21:08+0000\n"
+"PO-Revision-Date: 2021-09-17 15:22+0200\n"
+"Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
@@ -54,114 +54,130 @@ msgid "Move window to last workspace"
 msgstr "Flyt vindue til sidste arbejdsområde"
 
 #: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Flyt vindue et arbejdsområde til venstre"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Flyt vindue et arbejdsområde til højre"
+
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "Flyt vindue et arbejdsområde op"
 
-#: data/50-mutter-navigation.xml:27
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "Flyt vindue et arbejdsområde ned"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Flyt vindue en skærm til venstre"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Flyt vindue en skærm til højre"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Flyt vindue en skærm op"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Flyt vindue en skærm ned"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Skift mellem programmer"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Skift til forrige program"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Skift mellem vinduer"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Skift til forrige vindue"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Skift mellem vinduer i et program"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Skift til forrige vindue af et program"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Skift mellem systemkontroller"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Skift til forrige systemkontrol"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Skift direkte mellem vinduer"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Skift direkte til forrige vindue"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Skift direkte mellem vinduer i et program"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Skift direkte til forrige vindue af et program"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Skift direkte mellem systemkontroller"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Skift direkte til forrige systemkontrol"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Skjul alle normale vinduer"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Skift til arbejdsområde 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Skift til arbejdsområde 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Skift til arbejdsområde 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Skift til arbejdsområde 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Skift til sidste arbejdsområde"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
+msgid "Move to workspace on the left"
+msgstr "Flyt til arbejdsområdet til venstre"
+
+#: data/50-mutter-navigation.xml:134
+msgid "Move to workspace on the right"
+msgstr "Flyt til arbejdsområdet til højre"
+
+#: data/50-mutter-navigation.xml:138
 msgid "Move to workspace above"
 msgstr "Flyt til arbejdsområdet ovenover"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:142
 msgid "Move to workspace below"
 msgstr "Flyt til arbejdsområdet nedenunder"
 
@@ -172,10 +188,6 @@ msgstr "System"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Vis “kør kommando”-prompten"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Vis aktivitetsoversigten"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -245,11 +257,11 @@ msgstr "Maksimér vindue lodret"
 msgid "Maximize window horizontally"
 msgstr "Maksimér vindue vandret"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Delt visning venstre"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Delt visning højre"
 
@@ -405,37 +417,26 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
-msgstr ""
-"For at slå eksperimentelle funktioner til, skal du tilføje "
-"funktionsnøgleordet til listen. Om funktionen kræver genstart af "
-"kompositoren afhænger af den givne funktion. Der er ingen garanti for, at "
-"eksperimentelle funktioner forbliver tilgængelige eller mulige at "
-"konfigurere. Forvent ikke at noget i denne indstilling nødvendigvis fungerer "
-"i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — "
-"får mutter til som standard at arrangere logiske skærme i et logisk "
-"pixelkoordinatrum, mens skærmes framebuffere skaleres frem for "
-"vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart. • “rt-"
-"scheduler” — får mutter til at anmode om en lav prioritet til realtids-"
-"prioritetstildeling. Den eksekverbare fil eller brugeren skal have "
-"CAP_SYS_NICE. Kræver genstart. • “autostart-xwayland” — venter med at "
-"initialisere Xwayland indtil det er nødvendigt, hvis der er X11-klienter. "
-"Kræver genstart."
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
+msgstr "For at slå eksperimentelle funktioner til skal du tilføje funktionsnøgleordet til listen. Om funktionen kræver genstart af kompositoren afhænger af den givne funktion. Der er ingen garanti for, at eksperimentelle funktioner forbliver tilgængelige eller mulige at konfigurere. Forvent ikke at noget i denne indstilling nødvendigvis fungerer i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — får mutter til som standard at arrangere logiske skærme i et logisk pixelkoordinatrum, mens skærmes framebuffere skaleres frem for vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart. • “rt-scheduler” — får mutter til at anmode om en lav prioritet ved prioritetstildeling i realtid. Den eksekverbare fil eller brugeren skal have CAP_SYS_NICE. Kræver genstart. • “dma-buf-screen-sharing” — slår DMA-bufret skærmdeling til. Dette slås allerede til som standard ved brug af i915-driveren, men deaktiveres i alle andre tilfælde. Kræver genstart. • “autostart-xwayland” — afslutter automatisk Xwayland, hvis alle relevante X11-klienter er væk. Kræver ikke genstart."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifikationstast til at finde markøren"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Denne tast starter handlingen “find markør”."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
 msgstr "Tidsudløb for kontrolping"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -444,20 +445,20 @@ msgstr ""
 "ikke at blive registreret som frosset. Med 0 vil forespørgslen være helt "
 "deaktiveret."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "Vælg vindue fra tab-pop-op"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr "Annullér faneblads-pop-op"
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr "Skift skærmkonfiguration"
 
 # Mærkelig ting at rotere.  De mener nok at skifte cyclisk mellem nogle stykker, men "built-in"?
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterer den indbyggede skærmkonfiguration"
 
@@ -518,17 +519,6 @@ msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "Tillad X11-indfangelse at låse tastaturfokus med Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
-#, fuzzy
-#| msgid ""
-#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
-#| "with a grab when running in Xwayland. This option is to support X11 "
-#| "clients which map an “override redirect” window (which do not receive "
-#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
-#| "that window. This option is seldom used and has no effect on regular X11 "
-#| "windows which can receive keyboard focus under normal circumstances. For "
-#| "a X11 grab to be taken into account under Wayland, the client must also "
-#| "either send a specific X11 ClientMessage to the root window or be among "
-#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -556,18 +546,6 @@ msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland-programmer, som må indfange tastatur"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
-#, fuzzy
-#| msgid ""
-#| "List the resource names or resource class of X11 windows either allowed "
-#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
-#| "name or resource class of a given X11 window can be obtained using the "
-#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
-#| "supported. Values starting with “!” are blacklisted, which has precedence "
-#| "over the whitelist, to revoke applications from the default system list. "
-#| "The default system list includes the following applications: "
-#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
-#| "by using the specific keyboard shortcut defined by the keybinding key "
-#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -579,21 +557,11 @@ msgid ""
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
-msgstr ""
-"Anfør navne på ressourcer eller ressourceklasser for X11-vinduer som "
-"tillades eller ikke tillades at udføre X11-tastaturindfangelse under "
-"Xwayland. Ressourcenavnet eller ressourceklassen for et givent X11-vindue "
-"kan findes med kommandoen “xprop WM_CLASS”. Værdierne understøtter "
-"jokertegnene “*” og “?”. Værdier som begynder med “!” forbydes, hvilket har "
-"præcedens over godkendelse, og dette tillader at fjerne programmer som "
-"ellers findes i systemets standardliste. Denne liste inkluderer følgende "
-"programmer: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”. Brugere kan afbryde en "
-"eksisterende indfangelse ved hjælp af den særlige tastaturgenvej defineret "
-"ved nøglen “restore-shortcuts”."
+msgstr "Anfør navne på ressourcer eller ressourceklasser for X11-vinduer som tillades eller ikke tillades at udføre X11-tastaturindfangelse under Xwayland. Ressourcenavnet eller ressourceklassen for et givent X11-vindue kan findes med kommandoen “xprop WM_CLASS”. Værdierne understøtter jokertegnene “*” og “?”. Værdier som begynder med “!” forbydes, hvilket har forrang over godkendelse, og dette tillader at fjerne programmer, som ellers findes i systemets standardliste. Denne liste inkluderer følgende programmer: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”. Brugere kan afbryde en eksisterende indfangelse ved hjælp af den særlige tastaturgenvej defineret ved nøglen “restore-shortcuts”."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
-msgstr ""
+msgstr "Deaktivér valgte X-udvidelser i Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:117
 msgid ""
@@ -601,47 +569,28 @@ msgid ""
 "built with support for those X extensions. This option has no effect if "
 "Xwayland was built without support for the selected extensions. Xwayland "
 "needs to be restarted for this setting to take effect."
-msgstr ""
+msgstr "Denne indstilling deaktiverer de valgte X-udvidelser i Xwayland, hvis Xwayland blev kompileret med understøttelse af disse X-udvidelser. Denne indstilling har ingen virkning, hvis Xwayland blev kompileret uden understøttelse for disse udvidelser. Xwayland skal genstartes, for at denne indstilling træder i kraft."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2698
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Tilstandsskift (Gruppe %d)"
-
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2721
-msgid "Switch monitor"
-msgstr "Skift skærm"
-
-#: src/backends/meta-input-settings.c:2723
-msgid "Show on-screen help"
-msgstr "Vis integreret hjælp"
-
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Indbygget skærm"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Ukendt"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Ukendt skærm"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -654,9 +603,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Kompositor"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "X-terminal som bruges"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "X-skærm som bruges"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Gør kald til X synkrone"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Deaktivér understøttelse af XInput"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -665,50 +631,6 @@ msgstr "Der kører allerede en anden kompositor på skærm %i på terminal “%s
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Bip-hændelse"
-
-#: src/core/main.c:190
-msgid "Disable connection to session manager"
-msgstr "Deaktivér forbindelse til sessionshåndtering"
-
-#: src/core/main.c:196
-msgid "Replace the running window manager"
-msgstr "Erstat den kørende vindueshåndtering"
-
-#: src/core/main.c:202
-msgid "Specify session management ID"
-msgstr "Angiv sessionhåndterings-id"
-
-#: src/core/main.c:207
-msgid "X Display to use"
-msgstr "X-terminal som bruges"
-
-#: src/core/main.c:213
-msgid "Initialize session from savefile"
-msgstr "Initialisér session fra gemt fil"
-
-#: src/core/main.c:219
-msgid "Make X calls synchronous"
-msgstr "Gør kald til X synkrone"
-
-#: src/core/main.c:226
-msgid "Run as a wayland compositor"
-msgstr "Kør som en wayland-kompositor"
-
-#: src/core/main.c:232
-msgid "Run as a nested compositor"
-msgstr "Kør som en indlejret kompositor"
-
-#: src/core/main.c:238
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Kør wayland-kompositoren uden at starte Xwayland"
-
-#: src/core/main.c:246
-msgid "Run as a full display server, rather than nested"
-msgstr "Kør som fuld terminalserver, frem for indlejret"
-
-#: src/core/main.c:252
-msgid "Run with X11 backend"
-msgstr "Kør med X11-motor"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -736,44 +658,100 @@ msgstr "_Tving til at afslutte"
 msgid "_Wait"
 msgstr "_Vent"
 
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001–%d Havoc Pennington, Red Hat, Inc., og andre\n"
-"Dette er frit programmel; se kildekoden for kopieringsbetingelser.\n"
-"Der er INGEN garanti; ikke engang for SALGBARHED eller EGNETHED TIL ET "
-"BESTEMT FORMÅL.\n"
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/mutter.c:52
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "X-terminal som bruges"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "Deaktivér forbindelse til sessionshåndtering"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "Angiv sessionhåndterings-id"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "Initialisér session fra gemt fil"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Kør som en wayland-kompositor"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "Kør som en indlejret kompositor"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Kør wayland-kompositoren uden at starte Xwayland"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "Angiv Wayland-visningsnavnet, der skal bruges"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr "Kør som fuld terminalserver, frem for indlejret"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "Kør som headless terminalserver"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Tilføj persistent virtuel skærm (WxH eller WxH@R)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "Kør med X11-motor"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:782
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Tilstandsskift (Gruppe %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Switch monitor"
+msgstr "Skift skærm"
+
+#: src/core/meta-pad-action-mapper.c:807
+msgid "Show on-screen help"
+msgstr "Vis integreret hjælp"
+
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Vis version"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Mutter-udvidelsesmodul der skal bruges"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbejdsområde %d"
 
-#: src/core/util.c:119
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand\n"
+#: src/core/util.c:148
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tilstandsskift: Tilstand %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -782,26 +760,26 @@ msgstr ""
 "Terminalen “%s” har allerede en vindueshåndtering; prøv tilvalget --replace "
 "for at erstatte den aktuelle vindueshåndtering."
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Kunne ikke klargøre GDK\n"
+#: src/x11/meta-x11-display.c:1067
+msgid "Failed to initialize GDK"
+msgstr "Kunne ikke klargøre GDK"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1091
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Kunne ikke åbne X Window System-terminalen “%s”\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "Kunne ikke åbne X Window System-terminalen “%s”"
 
-#: src/x11/meta-x11-display.c:1196
+#: src/x11/meta-x11-display.c:1175
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Skærm %d på terminal “%s” er ugyldig\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "Skærm %d på terminal “%s” er ugyldig"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatet %s understøttes ikke"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -815,17 +793,21 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Flyt vindue et arbejdsområde til venstre"
+#~ msgid "Show the activities overview"
+#~ msgstr "Vis aktivitetsoversigten"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Flyt vindue et arbejdsområde til højre"
-
-#~ msgid "Move to workspace left"
-#~ msgstr "Flyt til arbejdsområdet til venstre"
-
-#~ msgid "Move to workspace right"
-#~ msgstr "Flyt til arbejdsområdet til højre"
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001–%d Havoc Pennington, Red Hat, Inc., og andre\n"
+#~ "Dette er frit programmel; se kildekoden for kopieringsbetingelser.\n"
+#~ "Der er INGEN garanti; ikke engang for SALGBARHED eller EGNETHED TIL ET "
+#~ "BESTEMT FORMÅL.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "Slå vinduesoprulning til/fra"
