@@ -19,14 +19,15 @@
 
 #include "config.h"
 
+#include "backends/x11/meta-virtual-input-device-x11.h"
+
 #include <glib-object.h>
 
 #include <X11/extensions/XTest.h>
 
 #include "backends/x11/meta-clutter-backend-x11.h"
+#include "backends/x11/meta-keymap-x11.h"
 #include "clutter/clutter.h"
-#include "meta-keymap-x11.h"
-#include "meta-virtual-input-device-x11.h"
 
 #define DISCRETE_SCROLL_STEP 10.0
 
