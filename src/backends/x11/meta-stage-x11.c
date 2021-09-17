@@ -84,6 +84,15 @@ clutter_backend_x11_from_stage (MetaStageX11 *stage_x11)
   return META_CLUTTER_BACKEND_X11 (meta_backend_get_clutter_backend (backend));
 }
 
+static Display *
+xdisplay_from_stage (MetaStageX11 *stage_x11)
+{
+  MetaBackend *backend =
+    meta_stage_impl_get_backend (META_STAGE_IMPL (stage_x11));
+
+  return meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+}
+
 static void
 meta_stage_x11_fix_window_size (MetaStageX11 *stage_x11,
                                 int           new_width,
@@ -94,7 +103,7 @@ meta_stage_x11_fix_window_size (MetaStageX11 *stage_x11,
 
   if (stage_x11->xwin != None)
     {
-      Display *xdisplay = meta_clutter_x11_get_default_display ();
+      Display *xdisplay = xdisplay_from_stage (stage_x11);
       XSizeHints *size_hints;
 
       size_hints = XAllocSizeHints();
@@ -116,7 +125,7 @@ meta_stage_x11_set_wm_protocols (MetaStageX11 *stage_x11)
 {
   MetaClutterBackendX11 *clutter_backend_x11 =
     clutter_backend_x11_from_stage (stage_x11);
-  Display *xdisplay = meta_clutter_x11_get_default_display ();
+  Display *xdisplay = xdisplay_from_stage (stage_x11);
   Atom protocols[2];
   int n = 0;
   
@@ -161,7 +170,7 @@ meta_stage_x11_resize (ClutterStageWindow *stage_window,
       if (width != stage_x11->xwin_width ||
           height != stage_x11->xwin_height)
         {
-          Display *xdisplay = meta_clutter_x11_get_default_display ();
+          Display *xdisplay = xdisplay_from_stage (stage_x11);
 
           /* XXX: in this case we can rely on a subsequent
            * ConfigureNotify that will result in the stage
@@ -217,7 +226,7 @@ set_wm_title (MetaStageX11 *stage_x11)
 {
   MetaClutterBackendX11 *clutter_backend_x11 =
     clutter_backend_x11_from_stage (stage_x11);
-  Display *xdisplay = meta_clutter_x11_get_default_display ();
+  Display *xdisplay = xdisplay_from_stage (stage_x11);
 
   if (stage_x11->xwin == None)
     return;
@@ -391,7 +400,7 @@ meta_stage_x11_set_title (ClutterStageWindow *stage_window,
 static inline void
 update_wm_hints (MetaStageX11 *stage_x11)
 {
-  Display *xdisplay = meta_clutter_x11_get_default_display ();
+  Display *xdisplay = xdisplay_from_stage (stage_x11);
   XWMHints wm_hints;
 
   if (stage_x11->wm_state & STAGE_X11_WITHDRAWN)
@@ -432,7 +441,7 @@ meta_stage_x11_show (ClutterStageWindow *stage_window,
 
   if (stage_x11->xwin != None)
     {
-      Display *xdisplay = meta_clutter_x11_get_default_display ();
+      Display *xdisplay = xdisplay_from_stage (stage_x11);
 
       if (do_raise)
         {
@@ -462,7 +471,7 @@ meta_stage_x11_hide (ClutterStageWindow *stage_window)
 
   if (stage_x11->xwin != None)
     {
-      Display *xdisplay = meta_clutter_x11_get_default_display ();
+      Display *xdisplay = xdisplay_from_stage (stage_x11);
 
       if (STAGE_X11_IS_MAPPED (stage_x11))
         set_stage_x11_state (stage_x11, 0, STAGE_X11_WITHDRAWN);
@@ -563,7 +572,7 @@ set_user_time (MetaStageX11 *stage_x11,
 
   if (timestamp != CLUTTER_CURRENT_TIME)
     {
-      Display *xdisplay = meta_clutter_x11_get_default_display ();
+      Display *xdisplay = xdisplay_from_stage (stage_x11);
 
       XChangeProperty (xdisplay,
                        stage_x11->xwin,
@@ -593,7 +602,7 @@ handle_wm_protocols_event (MetaStageX11 *stage_x11,
            xevent->xany.window == stage_x11->xwin)
     {
       XClientMessageEvent xclient = xevent->xclient;
-      Display *xdisplay = meta_clutter_x11_get_default_display ();
+      Display *xdisplay = xdisplay_from_stage (stage_x11);
 
       xclient.window = clutter_backend_x11->xwin_root;
       XSendEvent (xdisplay, xclient.window,
