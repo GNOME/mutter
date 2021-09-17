@@ -22,11 +22,12 @@
 
 #include "config.h"
 
+#include "backends/x11/meta-xkb-a11y-x11.h"
+
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBstr.h>
 
 #include "backends/x11/meta-clutter-backend-x11.h"
-#include "backends/x11/meta-xkb-a11y-x11.h"
 #include "core/display-private.h"
 #include "meta/meta-x11-errors.h"
 
