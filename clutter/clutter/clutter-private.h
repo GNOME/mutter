@@ -40,7 +40,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ClutterMainContext      ClutterMainContext;
+typedef struct _ClutterContext      ClutterContext;
 
 #define CLUTTER_REGISTER_VALUE_TRANSFORM_TO(TYPE_TO,func)             { \
   g_value_register_transform_func (g_define_type_id, TYPE_TO, func);    \
@@ -108,11 +108,11 @@ typedef enum
 } ClutterPrivateFlags;
 
 /*
- * ClutterMainContext:
+ * ClutterContext:
  *
  * The shared state of Clutter
  */
-struct _ClutterMainContext
+struct _ClutterContext
 {
   /* the main windowing system backend */
   ClutterBackend *backend;
@@ -157,7 +157,7 @@ typedef struct
 gboolean _clutter_threads_dispatch      (gpointer data);
 void     _clutter_threads_dispatch_free (gpointer data);
 
-ClutterMainContext *    _clutter_context_get_default                    (void);
+ClutterContext *        _clutter_context_get_default                    (void);
 void                    _clutter_context_lock                           (void);
 void                    _clutter_context_unlock                         (void);
 CLUTTER_EXPORT

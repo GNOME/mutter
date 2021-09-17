@@ -241,7 +241,7 @@ settings_update_fontmap (ClutterSettings *self,
 
   if (self->last_fontconfig_timestamp != stamp)
     {
-      ClutterMainContext *context;
+      ClutterContext *context;
       gboolean update_needed = FALSE;
 
       context = _clutter_context_get_default ();

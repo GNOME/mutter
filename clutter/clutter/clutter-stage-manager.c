@@ -162,7 +162,7 @@ clutter_stage_manager_init (ClutterStageManager *stage_manager)
 ClutterStageManager *
 clutter_stage_manager_get_default (void)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
 
   if (G_UNLIKELY (context->stage_manager == NULL))
     context->stage_manager = g_object_new (CLUTTER_TYPE_STAGE_MANAGER, NULL);

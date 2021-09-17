@@ -3933,7 +3933,7 @@ clutter_stage_grab_full (ClutterStage *stage,
 
   if (!priv->topmost_grab)
     {
-      ClutterMainContext *context;
+      ClutterContext *context;
       ClutterSeat *seat;
 
       /* First grab in the chain, trigger a backend grab too */
@@ -4048,7 +4048,7 @@ clutter_stage_unlink_grab (ClutterStage *stage,
 
   if (!priv->topmost_grab)
     {
-      ClutterMainContext *context;
+      ClutterContext *context;
       ClutterSeat *seat;
 
       /* This was the last remaining grab, trigger a backend ungrab */

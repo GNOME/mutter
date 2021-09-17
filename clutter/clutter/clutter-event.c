@@ -962,7 +962,7 @@ clutter_event_free (ClutterEvent *event)
 ClutterEvent *
 clutter_event_get (void)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
   ClutterEvent *event;
 
   event = g_async_queue_try_pop (context->events_queue);
@@ -974,7 +974,7 @@ void
 _clutter_event_push (const ClutterEvent *event,
                      gboolean            do_copy)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
 
   g_assert (context != NULL);
 
@@ -1016,7 +1016,7 @@ clutter_event_put (const ClutterEvent *event)
 gboolean
 clutter_events_pending (void)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
 
   g_return_val_if_fail (context != NULL, FALSE);
 
@@ -1058,7 +1058,7 @@ clutter_get_current_event_time (void)
 const ClutterEvent *
 clutter_get_current_event (void)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
 
   g_return_val_if_fail (context != NULL, NULL);
 
@@ -1269,7 +1269,7 @@ gboolean
 _clutter_event_process_filters (ClutterEvent *event,
                                 ClutterActor *event_actor)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
   GList *l, *next;
 
   /* Event filters are handled in order from least recently added to
@@ -1312,7 +1312,7 @@ clutter_event_add_filter (ClutterStage          *stage,
                           GDestroyNotify         notify,
                           gpointer               user_data)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
   ClutterEventFilter *event_filter = g_new0 (ClutterEventFilter, 1);
   static guint event_filter_id = 0;
 
@@ -1339,7 +1339,7 @@ clutter_event_add_filter (ClutterStage          *stage,
 void
 clutter_event_remove_filter (guint id)
 {
-  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterContext *context = _clutter_context_get_default ();
   GList *l;
 
   for (l = context->event_filters; l; l = l->next)

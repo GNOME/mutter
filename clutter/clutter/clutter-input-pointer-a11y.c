@@ -732,7 +732,7 @@ clutter_input_pointer_a11y_update (ClutterInputDevice *device,
                                    const ClutterEvent *event)
 {
 
-  ClutterMainContext *clutter_context;
+  ClutterContext *clutter_context;
   ClutterBackend *backend;
   ClutterEventType event_type;
 

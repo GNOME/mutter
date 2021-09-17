@@ -44,8 +44,6 @@
  * various matrix calculations. */
 #define CLUTTER_COORDINATE_EPSILON (1.0 / 256.0)
 
-typedef struct _ClutterMainContext ClutterContext;
-
 typedef ClutterBackend * (* ClutterBackendConstructor) (gpointer user_data);
 
 /**
@@ -63,9 +61,7 @@ CLUTTER_EXPORT
 void clutter_context_free (ClutterContext *clutter_context);
 
 /**
- * clutter_context_get_backend:
- *
- * Returns: (transfer none): The corresponding %ClutterBackend
+ * clutter_context_get_backend: (skip)
  */
 CLUTTER_EXPORT
 ClutterBackend * clutter_context_get_backend (ClutterContext *clutter_context);
