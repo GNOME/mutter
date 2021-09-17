@@ -28,14 +28,6 @@
  * #ClutterStage is a top level 'window' on which child actors are placed
  * and manipulated.
  *
- * Backends might provide support for multiple stages. The support for this
- * feature can be checked at run-time using the clutter_feature_available()
- * function and the %CLUTTER_FEATURE_STAGE_MULTIPLE flag. If the backend used
- * supports multiple stages, new #ClutterStage instances can be created
- * using clutter_stage_new(). These stages must be managed by the developer
- * using clutter_actor_destroy(), which will take care of destroying all the
- * actors contained inside them.
- *
  * #ClutterStage is a proxy actor, wrapping the backend-specific implementation
  * (a #StageWindow) of the windowing system. It is possible to subclass
  * #ClutterStage, as long as every overridden virtual function chains up to the
@@ -281,6 +273,7 @@ clutter_stage_allocate (ClutterActor           *self,
   float new_width, new_height;
   float width, height;
   cairo_rectangle_int_t window_size;
+  ClutterActorBox children_box;
   ClutterLayoutManager *layout_manager = clutter_actor_get_layout_manager (self);
 
   if (priv->impl == NULL)
@@ -292,85 +285,52 @@ clutter_stage_allocate (ClutterActor           *self,
   /* the current Stage implementation size */
   _clutter_stage_window_get_geometry (priv->impl, &window_size);
 
-  /* if the stage is fixed size (for instance, it's using a EGL framebuffer)
-   * then we simply ignore any allocation request and override the
-   * allocation chain - because we cannot forcibly change the size of the
-   * stage window.
-   */
-  if (!clutter_feature_available (CLUTTER_FEATURE_STAGE_STATIC))
+  children_box.x1 = children_box.y1 = 0.f;
+  children_box.x2 = box->x2 - box->x1;
+  children_box.y2 = box->y2 - box->y1;
+
+  CLUTTER_NOTE (LAYOUT,
+                "Following allocation to %.2fx%.2f",
+                width, height);
+
+  clutter_actor_set_allocation (self, box);
+
+  clutter_layout_manager_allocate (layout_manager,
+                                   CLUTTER_CONTAINER (self),
+                                   &children_box);
+
+  /* Ensure the window is sized correctly */
+  if (priv->min_size_changed)
     {
-      ClutterActorBox children_box;
+      gfloat min_width, min_height;
+      gboolean min_width_set, min_height_set;
 
-      children_box.x1 = children_box.y1 = 0.f;
-      children_box.x2 = box->x2 - box->x1;
-      children_box.y2 = box->y2 - box->y1;
+      g_object_get (G_OBJECT (self),
+                    "min-width", &min_width,
+                    "min-width-set", &min_width_set,
+                    "min-height", &min_height,
+                    "min-height-set", &min_height_set,
+                    NULL);
 
-      CLUTTER_NOTE (LAYOUT,
-                    "Following allocation to %.2fx%.2f",
-                    width, height);
+      if (!min_width_set)
+        min_width = 1;
+      if (!min_height_set)
+        min_height = 1;
 
-      clutter_actor_set_allocation (self, box);
+      if (width < min_width)
+        width = min_width;
+      if (height < min_height)
+        height = min_height;
 
-      clutter_layout_manager_allocate (layout_manager,
-                                       CLUTTER_CONTAINER (self),
-                                       &children_box);
-
-      /* Ensure the window is sized correctly */
-      if (priv->min_size_changed)
-        {
-          gfloat min_width, min_height;
-          gboolean min_width_set, min_height_set;
-
-          g_object_get (G_OBJECT (self),
-                        "min-width", &min_width,
-                        "min-width-set", &min_width_set,
-                        "min-height", &min_height,
-                        "min-height-set", &min_height_set,
-                        NULL);
-
-          if (!min_width_set)
-            min_width = 1;
-          if (!min_height_set)
-            min_height = 1;
-
-          if (width < min_width)
-            width = min_width;
-          if (height < min_height)
-            height = min_height;
-
-          priv->min_size_changed = FALSE;
-        }
-
-      if (window_size.width != CLUTTER_NEARBYINT (width) ||
-          window_size.height != CLUTTER_NEARBYINT (height))
-        {
-          _clutter_stage_window_resize (priv->impl,
-                                        CLUTTER_NEARBYINT (width),
-                                        CLUTTER_NEARBYINT (height));
-        }
+      priv->min_size_changed = FALSE;
     }
-  else
+
+  if (window_size.width != CLUTTER_NEARBYINT (width) ||
+      window_size.height != CLUTTER_NEARBYINT (height))
     {
-      ClutterActorBox override = { 0, };
-
-      /* override the passed allocation */
-      override.x1 = 0;
-      override.y1 = 0;
-      override.x2 = window_size.width;
-      override.y2 = window_size.height;
-
-      CLUTTER_NOTE (LAYOUT,
-                    "Overriding original allocation of %.2fx%.2f "
-                    "with %.2fx%.2f",
-                    width, height,
-                    override.x2, override.y2);
-
-      /* and store the overridden allocation */
-      clutter_actor_set_allocation (self, &override);
-
-      clutter_layout_manager_allocate (layout_manager,
-                                       CLUTTER_CONTAINER (self),
-                                       &override);
+      _clutter_stage_window_resize (priv->impl,
+                                    CLUTTER_NEARBYINT (width),
+                                    CLUTTER_NEARBYINT (height));
     }
 
   /* set the viewport to the new allocation */
@@ -1173,25 +1133,6 @@ clutter_stage_constructed (GObject *gobject)
 
   /* this will take care to sinking the floating reference */
   _clutter_stage_manager_add_stage (stage_manager, self);
-
-  /* if this stage has been created on a backend that does not
-   * support multiple stages then it becomes the default stage
-   * as well; any other attempt at creating a ClutterStage will
-   * fail.
-   */
-  if (!clutter_feature_available (CLUTTER_FEATURE_STAGE_MULTIPLE))
-    {
-      if (G_UNLIKELY (clutter_stage_manager_get_default_stage (stage_manager) != NULL))
-        {
-          g_error ("Unable to create another stage: the backend of "
-                   "type '%s' does not support multiple stages. Use "
-                   "clutter_stage_manager_get_default_stage() instead "
-                   "to access the stage singleton.",
-                   G_OBJECT_TYPE_NAME (clutter_get_default_backend ()));
-        }
-
-      _clutter_stage_manager_set_default_stage (stage_manager, self);
-    }
 
   G_OBJECT_CLASS (clutter_stage_parent_class)->constructed (gobject);
 }

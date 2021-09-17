@@ -72,7 +72,6 @@ struct _ClutterBackendClass
                                                 ClutterStage    *wrapper,
                                                 GError         **error);
   void                  (* init_features)      (ClutterBackend  *backend);
-  ClutterFeatureFlags   (* get_features)       (ClutterBackend  *backend);
   CoglRenderer *        (* get_renderer)       (ClutterBackend  *backend,
                                                 GError         **error);
   CoglDisplay *         (* get_display)        (ClutterBackend  *backend,
@@ -109,8 +108,6 @@ CLUTTER_EXPORT
 gboolean                _clutter_backend_translate_event                (ClutterBackend         *backend,
                                                                          gpointer                native,
                                                                          ClutterEvent           *event);
-
-ClutterFeatureFlags     _clutter_backend_get_features                   (ClutterBackend         *backend);
 
 gfloat                  _clutter_backend_get_units_per_em               (ClutterBackend         *backend,
                                                                          PangoFontDescription   *font_desc);

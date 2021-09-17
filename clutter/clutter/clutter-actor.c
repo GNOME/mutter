@@ -9454,14 +9454,11 @@ clutter_actor_set_min_width (ClutterActor *self,
   ClutterActorBox old = { 0, };
   ClutterLayoutInfo *info;
 
-  /* if we are setting the size on a top-level actor and the
-   * backend only supports static top-levels (e.g. framebuffers)
-   * then we ignore the passed value and we override it with
-   * the stage implementation's preferred size.
-   */
-  if (CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
-      clutter_feature_available (CLUTTER_FEATURE_STAGE_STATIC))
-    return;
+  if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
+    {
+      g_warning ("Can't set the minimal width of a stage");
+      return;
+    }
 
   info = _clutter_actor_get_layout_info (self);
 
@@ -9492,14 +9489,11 @@ clutter_actor_set_min_height (ClutterActor *self,
   ClutterActorBox old = { 0, };
   ClutterLayoutInfo *info;
 
-  /* if we are setting the size on a top-level actor and the
-   * backend only supports static top-levels (e.g. framebuffers)
-   * then we ignore the passed value and we override it with
-   * the stage implementation's preferred size.
-   */
-  if (CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
-      clutter_feature_available (CLUTTER_FEATURE_STAGE_STATIC))
-    return;
+  if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
+    {
+      g_warning ("Can't set the minimal height of a stage");
+      return;
+    }
 
   info = _clutter_actor_get_layout_info (self);
 
@@ -9529,15 +9523,6 @@ clutter_actor_set_natural_width (ClutterActor *self,
   ClutterActorBox old = { 0, };
   ClutterLayoutInfo *info;
 
-  /* if we are setting the size on a top-level actor and the
-   * backend only supports static top-levels (e.g. framebuffers)
-   * then we ignore the passed value and we override it with
-   * the stage implementation's preferred size.
-   */
-  if (CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
-      clutter_feature_available (CLUTTER_FEATURE_STAGE_STATIC))
-    return;
-
   info = _clutter_actor_get_layout_info (self);
 
   if (priv->natural_width_set && natural_width == info->natural.width)
@@ -9565,15 +9550,6 @@ clutter_actor_set_natural_height (ClutterActor *self,
   ClutterActorPrivate *priv = self->priv;
   ClutterActorBox old = { 0, };
   ClutterLayoutInfo *info;
-
-  /* if we are setting the size on a top-level actor and the
-   * backend only supports static top-levels (e.g. framebuffers)
-   * then we ignore the passed value and we override it with
-   * the stage implementation's preferred size.
-   */
-  if (CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
-      clutter_feature_available (CLUTTER_FEATURE_STAGE_STATIC))
-    return;
 
   info = _clutter_actor_get_layout_info (self);
 

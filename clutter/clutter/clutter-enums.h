@@ -898,9 +898,7 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
 
 /**
  * ClutterFeatureFlags:
- * @CLUTTER_FEATURE_STAGE_STATIC: Set if stage size if fixed (i.e framebuffer)
  * @CLUTTER_FEATURE_SHADERS_GLSL: Set if the backend supports GLSL shaders.
- * @CLUTTER_FEATURE_STAGE_MULTIPLE: Set if multiple stages are supported.
  *
  * Runtime flags indicating specific features available via Clutter window
  * system and graphics backend.
@@ -909,9 +907,7 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  */
 typedef enum
 {
-  CLUTTER_FEATURE_STAGE_STATIC           = (1 << 6),
   CLUTTER_FEATURE_SHADERS_GLSL           = (1 << 9),
-  CLUTTER_FEATURE_STAGE_MULTIPLE         = (1 << 11),
 } ClutterFeatureFlags;
 
 /**

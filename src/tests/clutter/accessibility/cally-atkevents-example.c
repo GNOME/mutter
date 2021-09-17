@@ -178,15 +178,12 @@ main (int argc, char *argv[])
 
   clutter_actor_show (stage_main);
 
-  if (clutter_feature_available (CLUTTER_FEATURE_STAGE_MULTIPLE))
-    {
-      stage = clutter_test_get_stage ();
-      clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkEvents/2");
-      g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
+  stage = clutter_test_get_stage ();
+  clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkEvents/2");
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
-      make_ui (stage);
-      clutter_actor_show (stage);
-    }
+  make_ui (stage);
+  clutter_actor_show (stage);
 
   clutter_test_main ();
 

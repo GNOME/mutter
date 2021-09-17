@@ -87,8 +87,7 @@ clutter_feature_init (ClutterMainContext  *context,
   if (!_clutter_backend_create_context (context->backend, error))
     return FALSE;
 
-  __features->flags = (clutter_features_from_cogl ()
-                    | _clutter_backend_get_features (context->backend));
+  __features->flags = clutter_features_from_cogl ();
 
   __features->features_set = TRUE;
 

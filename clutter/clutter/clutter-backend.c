@@ -365,25 +365,6 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
   return TRUE;
 }
 
-static ClutterFeatureFlags
-clutter_backend_real_get_features (ClutterBackend *backend)
-{
-  ClutterFeatureFlags flags = 0;
-
-  if (cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN))
-    {
-      CLUTTER_NOTE (BACKEND, "Cogl supports multiple onscreen framebuffers");
-      flags |= CLUTTER_FEATURE_STAGE_MULTIPLE;
-    }
-  else
-    {
-      CLUTTER_NOTE (BACKEND, "Cogl only supports one onscreen framebuffer");
-      flags |= CLUTTER_FEATURE_STAGE_STATIC;
-    }
-
-  return flags;
-}
-
 static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
@@ -446,7 +427,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->font_changed = clutter_backend_real_font_changed;
 
   klass->create_context = clutter_backend_real_create_context;
-  klass->get_features = clutter_backend_real_get_features;
 }
 
 static void
@@ -513,46 +493,6 @@ _clutter_backend_create_context (ClutterBackend  *backend,
   klass = CLUTTER_BACKEND_GET_CLASS (backend);
 
   return klass->create_context (backend, error);
-}
-
-ClutterFeatureFlags
-_clutter_backend_get_features (ClutterBackend *backend)
-{
-  ClutterBackendClass *klass;
-  GError *error;
-
-  g_assert (CLUTTER_IS_BACKEND (backend));
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-
-  /* we need to have a context here; so we create the
-   * GL context first and the ask for features. if the
-   * context already exists this should be a no-op
-   */
-  error = NULL;
-  if (klass->create_context != NULL)
-    {
-      gboolean res;
-
-      res = klass->create_context (backend, &error);
-      if (!res)
-        {
-          if (error)
-            {
-              g_critical ("Unable to create a context: %s", error->message);
-              g_error_free (error);
-            }
-          else
-            g_critical ("Unable to create a context: unknown error");
-
-          return 0;
-        }
-    }
-
-  if (klass->get_features)
-    return klass->get_features (backend);
-  
-  return 0;
 }
 
 gfloat
