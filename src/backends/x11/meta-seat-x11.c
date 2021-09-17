@@ -132,6 +132,14 @@ xdisplay_from_seat (MetaSeatX11 *seat_x11)
   return meta_backend_x11_get_xdisplay (META_BACKEND_X11 (seat_x11->backend));
 }
 
+static Window
+root_xwindow_from_seat (MetaSeatX11 *seat_x11)
+{
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (seat_x11->backend);
+
+  return meta_backend_x11_get_root_xwindow (backend_x11);
+}
+
 static void
 translate_valuator_class (Display             *xdisplay,
                           ClutterInputDevice  *device,
@@ -588,6 +596,7 @@ pad_passive_button_grab (MetaSeatX11        *seat_x11,
                          ClutterInputDevice *device)
 {
   Display *xdisplay = xdisplay_from_seat (seat_x11);
+  Window root_xwindow = root_xwindow_from_seat (seat_x11);
   XIGrabModifiers xi_grab_mods = { XIAnyModifier, };
   XIEventMask xi_event_mask;
   int device_id, rc;
@@ -605,7 +614,7 @@ pad_passive_button_grab (MetaSeatX11        *seat_x11,
   meta_clutter_x11_trap_x_errors ();
   rc = XIGrabButton (xdisplay,
                      device_id, XIAnyButton,
-                     meta_clutter_x11_get_root_window (), None,
+                     root_xwindow, None,
                      XIGrabModeSync, XIGrabModeSync,
                      True, &xi_event_mask, 1, &xi_grab_mods);
   if (rc != 0)
@@ -1394,6 +1403,7 @@ meta_seat_x11_constructed (GObject *object)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
   Display *xdisplay = xdisplay_from_seat (seat_x11);
+  Window root_xwindow = root_xwindow_from_seat (seat_x11);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (seat_x11->backend);
   XIDeviceInfo *info;
@@ -1423,7 +1433,7 @@ meta_seat_x11_constructed (GObject *object)
   event_mask.mask_len = sizeof (mask);
   event_mask.mask = mask;
 
-  XISelectEvents (xdisplay, meta_clutter_x11_get_root_window (),
+  XISelectEvents (xdisplay, root_xwindow,
                   &event_mask, 1);
 
   memset(mask, 0, sizeof (mask));
@@ -1435,7 +1445,7 @@ meta_seat_x11_constructed (GObject *object)
   event_mask.mask_len = sizeof (mask);
   event_mask.mask = mask;
 
-  XISelectEvents (xdisplay, meta_clutter_x11_get_root_window (),
+  XISelectEvents (xdisplay, root_xwindow,
                   &event_mask, 1);
 
   XSync (xdisplay, False);
@@ -1529,12 +1539,13 @@ meta_seat_x11_warp_pointer (ClutterSeat *seat,
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
   Display *xdisplay = xdisplay_from_seat (seat_x11);
+  Window root_xwindow = root_xwindow_from_seat (seat_x11);
 
   meta_clutter_x11_trap_x_errors ();
   XIWarpPointer (xdisplay,
                  seat_x11->pointer_id,
                  None,
-                 meta_clutter_x11_get_root_window (),
+                 root_xwindow,
                  0, 0, 0, 0,
                  x, y);
   meta_clutter_x11_untrap_x_errors ();
