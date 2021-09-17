@@ -60,14 +60,14 @@ on_paint (ClutterActor        *actor,
 
   /* Render a 1x1 pixel quad without mipmaps */
   cogl_set_source (material);
-  cogl_material_set_layer_filters (material, 0,
-                                   COGL_MATERIAL_FILTER_NEAREST,
-                                   COGL_MATERIAL_FILTER_NEAREST);
+  cogl_pipeline_set_layer_filters (material, 0,
+                                   COGL_PIPELINE_FILTER_NEAREST,
+                                   COGL_PIPELINE_FILTER_NEAREST);
   cogl_rectangle (0, 0, 1, 1);
   /* Then with mipmaps */
-  cogl_material_set_layer_filters (material, 0,
-                                   COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST,
-                                   COGL_MATERIAL_FILTER_NEAREST);
+  cogl_pipeline_set_layer_filters (material, 0,
+                                   COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST,
+                                   COGL_PIPELINE_FILTER_NEAREST);
   cogl_rectangle (1, 0, 2, 1);
 
   cogl_object_unref (material);

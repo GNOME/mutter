@@ -152,14 +152,14 @@ on_after_paint (ClutterActor        *actor,
     {
       const CoglMaterialFilter min_filter =
         COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST;
-      cogl_material_set_layer_filters (material, 0,
+      cogl_pipeline_set_layer_filters (material, 0,
                                        min_filter,
-                                       COGL_MATERIAL_FILTER_NEAREST);
+                                       COGL_PIPELINE_FILTER_NEAREST);
     }
   else
-    cogl_material_set_layer_filters (material, 0,
-                                     COGL_MATERIAL_FILTER_NEAREST,
-                                     COGL_MATERIAL_FILTER_NEAREST);
+    cogl_pipeline_set_layer_filters (material, 0,
+                                     COGL_PIPELINE_FILTER_NEAREST,
+                                     COGL_PIPELINE_FILTER_NEAREST);
   cogl_set_source (material);
 
   cogl_rectangle (0, 0, PIXMAP_WIDTH, PIXMAP_HEIGHT);

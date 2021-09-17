@@ -136,18 +136,6 @@ cogl_material_set_layer_matrix (CoglMaterial            *material,
                                   layer_index, matrix);
 }
 
-void
-cogl_material_set_layer_filters (CoglMaterial      *material,
-                                 int                layer_index,
-                                 CoglMaterialFilter min_filter,
-                                 CoglMaterialFilter mag_filter)
-{
-  cogl_pipeline_set_layer_filters (COGL_PIPELINE (material),
-                                   layer_index,
-                                   min_filter,
-                                   mag_filter);
-}
-
 gboolean
 cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index,

@@ -62,44 +62,6 @@ GType cogl_material_get_type (void);
 #define COGL_MATERIAL(OBJECT) ((CoglMaterial *)OBJECT)
 
 /**
- * CoglMaterialFilter:
- * @COGL_MATERIAL_FILTER_NEAREST: Measuring in manhatten distance from the,
- *   current pixel center, use the nearest texture texel
- * @COGL_MATERIAL_FILTER_LINEAR: Use the weighted average of the 4 texels
- *   nearest the current pixel center
- * @COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST: Select the mimap level whose
- *   texel size most closely matches the current pixel, and use the
- *   %COGL_MATERIAL_FILTER_NEAREST criterion
- * @COGL_MATERIAL_FILTER_LINEAR_MIPMAP_NEAREST: Select the mimap level whose
- *   texel size most closely matches the current pixel, and use the
- *   %COGL_MATERIAL_FILTER_LINEAR criterion
- * @COGL_MATERIAL_FILTER_NEAREST_MIPMAP_LINEAR: Select the two mimap levels
- *   whose texel size most closely matches the current pixel, use
- *   the %COGL_MATERIAL_FILTER_NEAREST criterion on each one and take
- *   their weighted average
- * @COGL_MATERIAL_FILTER_LINEAR_MIPMAP_LINEAR: Select the two mimap levels
- *   whose texel size most closely matches the current pixel, use
- *   the %COGL_MATERIAL_FILTER_LINEAR criterion on each one and take
- *   their weighted average
- *
- * Texture filtering is used whenever the current pixel maps either to more
- * than one texture element (texel) or less than one. These filter enums
- * correspond to different strategies used to come up with a pixel color, by
- * possibly referring to multiple neighbouring texels and taking a weighted
- * average or simply using the nearest texel.
- */
-typedef enum
-{
-  COGL_MATERIAL_FILTER_NEAREST = 0x2600,
-  COGL_MATERIAL_FILTER_LINEAR = 0x2601,
-  COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST = 0x2700,
-  COGL_MATERIAL_FILTER_LINEAR_MIPMAP_NEAREST = 0x2701,
-  COGL_MATERIAL_FILTER_NEAREST_MIPMAP_LINEAR = 0x2702,
-  COGL_MATERIAL_FILTER_LINEAR_MIPMAP_LINEAR = 0x2703
-} CoglMaterialFilter;
-/* NB: these values come from the equivalents in gl.h */
-
-/**
  * CoglMaterialWrapMode:
  * @COGL_MATERIAL_WRAP_MODE_REPEAT: The texture will be repeated. This
  *   is useful for example to draw a tiled background.
@@ -592,24 +554,6 @@ COGL_EXPORT void
 cogl_material_set_layer_matrix (CoglMaterial            *material,
                                 int                      layer_index,
                                 const graphene_matrix_t *matrix);
-
-/**
- * cogl_material_set_layer_filters:
- * @material: A #CoglMaterial object
- * @layer_index: the layer number to change.
- * @min_filter: the filter used when scaling a texture down.
- * @mag_filter: the filter used when magnifying a texture.
- *
- * Changes the decimation and interpolation filters used when a texture is
- * drawn at other scales than 100%.
- * Deprecated: 1.16: Use cogl_pipeline_set_layer_filters() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_filters)
-COGL_EXPORT void
-cogl_material_set_layer_filters (CoglMaterial      *material,
-                                 int                layer_index,
-                                 CoglMaterialFilter min_filter,
-                                 CoglMaterialFilter mag_filter);
 
 /**
  * cogl_material_set_layer_point_sprite_coords_enabled:

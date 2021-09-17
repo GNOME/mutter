@@ -201,17 +201,17 @@ test_coglbox_paint (ClutterActor        *self,
   int tex_height = cogl_texture_get_height (tex_handle);
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
-  CoglHandle material = cogl_material_new ();
+  CoglHandle material = cogl_pipeline_new ();
 
-  cogl_material_set_layer (material, 0, tex_handle);
+  cogl_pipeline_set_layer (material, 0, tex_handle);
 
-  cogl_material_set_layer_filters (material, 0,
+  cogl_pipeline_set_layer_filters (material, 0,
                                    priv->use_linear_filtering
-                                   ? COGL_MATERIAL_FILTER_LINEAR :
-                                   COGL_MATERIAL_FILTER_NEAREST,
+                                   ? COGL_PIPELINE_FILTER_LINEAR :
+                                   COGL_PIPELINE_FILTER_NEAREST,
                                    priv->use_linear_filtering
-                                   ? COGL_MATERIAL_FILTER_LINEAR :
-                                   COGL_MATERIAL_FILTER_NEAREST);
+                                   ? COGL_PIPELINE_FILTER_LINEAR :
+                                   COGL_PIPELINE_FILTER_NEAREST);
 
   cogl_framebuffer_push_matrix (framebuffer);
   cogl_framebuffer_translate (framebuffer, tex_width / 2, 0, 0);

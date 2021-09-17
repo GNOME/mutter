@@ -48,12 +48,12 @@ frame_cb (ClutterTimeline  *timeline,
   graphene_matrix_multiply (&state->rot_matrix0,
                             &state->tex_matrix0,
                             &state->tex_matrix0);
-  cogl_material_set_layer_matrix (state->material0, 2, &state->tex_matrix0);
+  cogl_pipeline_set_layer_matrix (state->material0, 2, &state->tex_matrix0);
 
   graphene_matrix_multiply (&state->rot_matrix1,
                             &state->tex_matrix1,
                             &state->tex_matrix1);
-  cogl_material_set_layer_matrix (state->material1, 2, &state->tex_matrix1);
+  cogl_pipeline_set_layer_matrix (state->material1, 2, &state->tex_matrix1);
 }
 
 static void
