@@ -25,8 +25,10 @@
 
 #include <X11/extensions/XTest.h>
 
+#include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
+#include "backends/x11/meta-seat-x11.h"
 #include "clutter/clutter.h"
 
 #define DISCRETE_SCROLL_STEP 10.0
@@ -43,16 +45,25 @@ G_DEFINE_TYPE (MetaVirtualInputDeviceX11,
                meta_virtual_input_device_x11,
                CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE)
 
+static Display *
+xdisplay_from_virtual_input_device (ClutterVirtualInputDevice *virtual_device)
+{
+  ClutterSeat *seat = clutter_virtual_input_device_get_seat (virtual_device);
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackend *backend = meta_seat_x11_get_backend (seat_x11);
+
+  return meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+}
+
 static void
 meta_virtual_input_device_x11_notify_relative_motion (ClutterVirtualInputDevice *virtual_device,
                                                       uint64_t                   time_us,
                                                       double                     dx,
                                                       double                     dy)
 {
-  XTestFakeRelativeMotionEvent (meta_clutter_x11_get_default_display (),
-                                (int) dx,
-                                (int) dy,
-                                0);
+  Display *xdisplay = xdisplay_from_virtual_input_device (virtual_device);
+
+  XTestFakeRelativeMotionEvent (xdisplay, (int) dx, (int) dy, 0);
 }
 
 static void
@@ -61,11 +72,17 @@ meta_virtual_input_device_x11_notify_absolute_motion (ClutterVirtualInputDevice 
                                                       double                     x,
                                                       double                     y)
 {
-  XTestFakeMotionEvent (meta_clutter_x11_get_default_display (),
-                        meta_clutter_x11_get_default_screen (),
-                        (int) x,
-                        (int) y,
-                        0);
+  ClutterSeat *seat = clutter_virtual_input_device_get_seat (virtual_device);
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackend *backend = meta_seat_x11_get_backend (seat_x11);
+  Display *xdisplay;
+  Screen *xscreen;
+
+  xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  xscreen = meta_backend_x11_get_xscreen (META_BACKEND_X11 (backend));
+
+  XTestFakeMotionEvent (xdisplay, XScreenNumberOfScreen (xscreen),
+                        (int) x, (int) y, 0);
 }
 
 static void
@@ -74,7 +91,9 @@ meta_virtual_input_device_x11_notify_button (ClutterVirtualInputDevice *virtual_
                                              uint32_t                   button,
                                              ClutterButtonState         button_state)
 {
-  XTestFakeButtonEvent (meta_clutter_x11_get_default_display (),
+  Display *xdisplay = xdisplay_from_virtual_input_device (virtual_device);
+
+  XTestFakeButtonEvent (xdisplay,
                         button, button_state == CLUTTER_BUTTON_STATE_PRESSED, 0);
 }
 
@@ -84,7 +103,7 @@ meta_virtual_input_device_x11_notify_discrete_scroll (ClutterVirtualInputDevice 
                                                       ClutterScrollDirection     direction,
                                                       ClutterScrollSource        scroll_source)
 {
-  Display *xdisplay = meta_clutter_x11_get_default_display ();
+  Display *xdisplay = xdisplay_from_virtual_input_device (virtual_device);
   int button;
 
   switch (direction)
@@ -159,7 +178,9 @@ meta_virtual_input_device_x11_notify_key (ClutterVirtualInputDevice *virtual_dev
                                           uint32_t                   key,
                                           ClutterKeyState            key_state)
 {
-  XTestFakeKeyEvent (meta_clutter_x11_get_default_display (),
+  Display *xdisplay = xdisplay_from_virtual_input_device (virtual_device);
+
+  XTestFakeKeyEvent (xdisplay,
                      key + 8, key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 }
 
@@ -172,6 +193,7 @@ meta_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtual_
   ClutterBackend *backend = clutter_get_default_backend ();
   ClutterSeat *seat = clutter_backend_get_default_seat (backend);
   MetaKeymapX11 *keymap = META_KEYMAP_X11 (clutter_seat_get_keymap (seat));
+  Display *xdisplay = xdisplay_from_virtual_input_device (virtual_device);
   uint32_t keycode, level;
 
   if (!meta_keymap_x11_keycode_for_keyval (keymap, keyval, &keycode, &level))
@@ -189,7 +211,7 @@ meta_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtual_
       key_state == CLUTTER_KEY_STATE_PRESSED)
     meta_keymap_x11_lock_modifiers (keymap, level, TRUE);
 
-  XTestFakeKeyEvent (meta_clutter_x11_get_default_display (),
+  XTestFakeKeyEvent (xdisplay,
                      (KeyCode) keycode,
                      key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 
