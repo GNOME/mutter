@@ -29,7 +29,6 @@
 
 #include "clutter/clutter-types.h"
 #include "clutter/clutter-keymap.h"
-#include "clutter/clutter-virtual-input-device.h"
 
 #define CLUTTER_TYPE_SEAT (clutter_seat_get_type ())
 

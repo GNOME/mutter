@@ -202,6 +202,20 @@ clutter_virtual_input_device_get_device_type (ClutterVirtualInputDevice *virtual
   return priv->device_type;
 }
 
+/**
+ * clutter_virtual_input_device_get_seat:
+ *
+ * Returns: (transfer none): The seat of the virtual input device
+ */
+ClutterSeat *
+clutter_virtual_input_device_get_seat (ClutterVirtualInputDevice *virtual_device)
+{
+  ClutterVirtualInputDevicePrivate *priv =
+    clutter_virtual_input_device_get_instance_private (virtual_device);
+
+  return priv->seat;
+}
+
 static void
 clutter_virtual_input_device_get_property (GObject    *object,
                                            guint       prop_id,
