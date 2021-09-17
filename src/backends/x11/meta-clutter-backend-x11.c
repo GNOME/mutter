@@ -121,7 +121,6 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
     meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (priv->backend);
   Atom atoms[N_ATOM_NAMES];
-  Screen *xscreen;
 
   clutter_backend_x11->xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
@@ -129,12 +128,6 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   meta_clutter_backend_x11_add_filter (clutter_backend_x11,
                                        cogl_xlib_filter,
                                        clutter_backend);
-
-  xscreen = DefaultScreenOfDisplay (clutter_backend_x11->xdisplay);
-  clutter_backend_x11->xscreen_num = XScreenNumberOfScreen (xscreen);
-
-  clutter_backend_x11->xwin_root = RootWindow (clutter_backend_x11->xdisplay,
-                                               clutter_backend_x11->xscreen_num);
 
   if (clutter_synchronise)
     XSynchronize (clutter_backend_x11->xdisplay, True);
@@ -153,13 +146,6 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   clutter_backend_x11->atom_XEMBED_INFO = atoms[7];
   clutter_backend_x11->atom_NET_WM_NAME = atoms[8];
   clutter_backend_x11->atom_UTF8_STRING = atoms[9];
-
-  g_debug ("X Display '%s'[%p] opened (screen:%d, root:%u, dpi:%f)",
-           g_getenv ("DISPLAY"),
-           clutter_backend_x11->xdisplay,
-           clutter_backend_x11->xscreen_num,
-           (unsigned int) clutter_backend_x11->xwin_root,
-           clutter_backend_get_resolution (clutter_backend));
 
   return TRUE;
 }
@@ -477,66 +463,6 @@ meta_clutter_x11_untrap_x_errors (void)
   XSetErrorHandler (old_error_handler);
 
   return TrappedErrorCode;
-}
-
-Display *
-meta_clutter_x11_get_default_display (void)
-{
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
-
-  if (clutter_backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return NULL;
-    }
-
-  if (!META_IS_CLUTTER_BACKEND_X11 (clutter_backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend");
-      return NULL;
-    }
-
-  return META_CLUTTER_BACKEND_X11 (clutter_backend)->xdisplay;
-}
-
-int
-meta_clutter_x11_get_default_screen (void)
-{
- ClutterBackend *clutter_backend = clutter_get_default_backend ();
-
-  if (clutter_backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return 0;
-    }
-
-  if (!META_IS_CLUTTER_BACKEND_X11 (clutter_backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend");
-      return 0;
-    }
-
-  return META_CLUTTER_BACKEND_X11 (clutter_backend)->xscreen_num;
-}
-
-Window
-meta_clutter_x11_get_root_window (void)
-{
- ClutterBackend *clutter_backend = clutter_get_default_backend ();
-
-  if (clutter_backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return None;
-    }
-
-  if (!META_IS_CLUTTER_BACKEND_X11 (clutter_backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend");
-      return None;
-    }
-
-  return META_CLUTTER_BACKEND_X11 (clutter_backend)->xwin_root;
 }
 
 void

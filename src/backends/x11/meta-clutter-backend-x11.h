@@ -36,10 +36,6 @@ struct _MetaClutterBackendX11
 
   Display *xdisplay;
 
-  int      xscreen_num;
-
-  Window   xwin_root;
-
   /* event source */
   GSList  *event_filters;
 
@@ -79,8 +75,6 @@ MetaClutterBackendX11 * meta_clutter_backend_x11_new (MetaBackend *backend);
 void meta_clutter_x11_trap_x_errors (void);
 gint meta_clutter_x11_untrap_x_errors (void);
 
-Display *meta_clutter_x11_get_default_display (void);
-int meta_clutter_x11_get_default_screen (void);
 Window meta_clutter_x11_get_root_window (void);
 
 void meta_clutter_backend_x11_add_filter (MetaClutterBackendX11 *clutter_backend_x11,
