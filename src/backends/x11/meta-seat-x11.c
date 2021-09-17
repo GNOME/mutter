@@ -1821,6 +1821,12 @@ meta_seat_x11_new (MetaBackend *backend,
   return seat_x11;
 }
 
+MetaBackend *
+meta_seat_x11_get_backend (MetaSeatX11 *seat_x11)
+{
+  return seat_x11->backend;
+}
+
 static ClutterInputDevice *
 get_source_device_checked (MetaSeatX11   *seat,
                            XIDeviceEvent *xev)
