@@ -78,8 +78,11 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *clutter_backend,
                                           ClutterStage    *wrapper,
                                           GError         **error)
 {
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
   return g_object_new (META_TYPE_STAGE_NATIVE,
-                       "backend", clutter_backend,
+                       "backend", clutter_backend_native->backend,
                        "wrapper", wrapper,
                        NULL);
 }

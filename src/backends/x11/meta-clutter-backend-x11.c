@@ -311,6 +311,10 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *clutter_backend,
                                        ClutterStage    *wrapper,
                                        GError         **error)
 {
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   ClutterStageWindow *stage;
   GType stage_type;
 
@@ -320,7 +324,7 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *clutter_backend,
     stage_type  = META_TYPE_STAGE_X11;
 
   stage = g_object_new (stage_type,
-			"backend", clutter_backend,
+			"backend", priv->backend,
 			"wrapper", wrapper,
 			NULL);
   return stage;

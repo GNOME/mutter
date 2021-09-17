@@ -36,11 +36,13 @@
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
 #include "core/util-private.h"
+#include "meta/meta-backend.h"
 
 #define MAX_STACK_RECTS 256
 
 typedef struct _MetaStageImplPrivate
 {
+  MetaBackend *backend;
   int64_t global_frame_counter;
 } MetaStageImplPrivate;
 
@@ -770,6 +772,7 @@ meta_stage_impl_set_property (GObject      *gobject,
                               GParamSpec   *pspec)
 {
   MetaStageImpl *self = META_STAGE_IMPL (gobject);
+  MetaStageImplPrivate *priv = meta_stage_impl_get_instance_private (self);
 
   switch (prop_id)
     {
@@ -778,7 +781,7 @@ meta_stage_impl_set_property (GObject      *gobject,
       break;
 
     case PROP_BACKEND:
-      self->backend = g_value_get_object (value);
+      priv->backend = g_value_get_object (value);
       break;
 
     default:
@@ -804,9 +807,9 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
-                         "ClutterBackend",
-                         "ClutterBackend",
-                         CLUTTER_TYPE_BACKEND,
+                         "MetaBackend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -816,4 +819,13 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
 static void
 meta_stage_impl_init (MetaStageImpl *stage)
 {
+}
+
+MetaBackend *
+meta_stage_impl_get_backend (MetaStageImpl *stage_impl)
+{
+  MetaStageImplPrivate *priv =
+    meta_stage_impl_get_instance_private (stage_impl);
+
+  return priv->backend;
 }
