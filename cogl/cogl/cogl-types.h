@@ -423,10 +423,6 @@ typedef enum _CoglFilterReturn { /*< prefix=COGL_FILTER >*/
 
 typedef enum _CoglWinsysFeature
 {
-  /* Available if the window system can support multiple onscreen
-   * framebuffers at the same time. */
-  COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN,
-
   /* Available if its possible to query a counter that
    * increments at each vblank. */
   COGL_WINSYS_FEATURE_VBLANK_COUNTER,

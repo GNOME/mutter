@@ -379,11 +379,6 @@ update_base_winsys_features (CoglRenderer *renderer)
                   COGL_WINSYS_FEATURE_VBLANK_COUNTER,
                   FALSE);
 
-
-  COGL_FLAGS_SET (glx_renderer->base_winsys_features,
-                  COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN,
-                  TRUE);
-
   /* Because of the direct-context dependency, the VBLANK_WAIT feature
    * doesn't reflect the presence of GLX_SGI_video_sync.
    */
