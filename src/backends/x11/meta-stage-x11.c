@@ -601,10 +601,14 @@ handle_wm_protocols_event (MetaStageX11 *stage_x11,
   else if (atom == clutter_backend_x11->atom_NET_WM_PING &&
            xevent->xany.window == stage_x11->xwin)
     {
+      MetaBackend *backend =
+        meta_stage_impl_get_backend (META_STAGE_IMPL (stage_x11));
+      MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+      Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
+      Window root_xwindow = meta_backend_x11_get_root_xwindow (backend_x11);
       XClientMessageEvent xclient = xevent->xclient;
-      Display *xdisplay = xdisplay_from_stage (stage_x11);
 
-      xclient.window = clutter_backend_x11->xwin_root;
+      xclient.window = root_xwindow;
       XSendEvent (xdisplay, xclient.window,
                   False,
                   SubstructureRedirectMask | SubstructureNotifyMask,
