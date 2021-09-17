@@ -57,10 +57,14 @@ G_DEFINE_TYPE_WITH_CODE (MetaStageImpl,
 enum
 {
   PROP_0,
+
   PROP_WRAPPER,
   PROP_BACKEND,
-  PROP_LAST
+
+  N_PROPS
 };
+
+static GParamSpec *obj_props[N_PROPS];
 
 static void
 meta_stage_impl_unrealize (ClutterStageWindow *stage_window)
@@ -790,8 +794,23 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
 
   gobject_class->set_property = meta_stage_impl_set_property;
 
-  g_object_class_override_property (gobject_class, PROP_WRAPPER, "wrapper");
-  g_object_class_override_property (gobject_class, PROP_BACKEND, "backend");
+  obj_props[PROP_WRAPPER] =
+    g_param_spec_object ("wrapper",
+                         "Wrapper",
+                         "Back pointer to the Stage actor",
+                         CLUTTER_TYPE_STAGE,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "ClutterBackend",
+                         "ClutterBackend",
+                         CLUTTER_TYPE_BACKEND,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (gobject_class, N_PROPS, obj_props);
 }
 
 static void
