@@ -92,9 +92,6 @@ on_timeout (gpointer data)
         }
       else if (test_num == 3)
         {
-          if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-            continue;
-
           clutter_actor_hide (over_actor);
 
           clutter_actor_add_effect_with_name (CLUTTER_ACTOR (state->stage),

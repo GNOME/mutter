@@ -110,29 +110,6 @@ clutter_colorize_effect_create_pipeline (ClutterOffscreenEffect *effect,
   return cogl_object_ref (colorize_effect->pipeline);
 }
 
-static gboolean
-clutter_colorize_effect_pre_paint (ClutterEffect       *effect,
-                                   ClutterPaintNode    *node,
-                                   ClutterPaintContext *paint_context)
-{
-  ClutterEffectClass *parent_class;
-
-  if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-    {
-      /* if we don't have support for GLSL shaders then we
-       * forcibly disable the ActorMeta
-       */
-      g_warning ("Unable to use the ShaderEffect: the graphics hardware "
-                 "or the current GL driver does not implement support "
-                 "for the GLSL shading language.");
-      clutter_actor_meta_set_enabled (CLUTTER_ACTOR_META (effect), FALSE);
-      return FALSE;
-    }
-
-  parent_class = CLUTTER_EFFECT_CLASS (clutter_colorize_effect_parent_class);
-  return parent_class->pre_paint (effect, node, paint_context);
-}
-
 static void
 clutter_colorize_effect_dispose (GObject *gobject)
 {
@@ -191,14 +168,11 @@ clutter_colorize_effect_get_property (GObject    *gobject,
 static void
 clutter_colorize_effect_class_init (ClutterColorizeEffectClass *klass)
 {
-  ClutterEffectClass *effect_class = CLUTTER_EFFECT_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   ClutterOffscreenEffectClass *offscreen_class;
 
   offscreen_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (klass);
   offscreen_class->create_pipeline = clutter_colorize_effect_create_pipeline;
-
-  effect_class->pre_paint = clutter_colorize_effect_pre_paint;
 
   gobject_class->set_property = clutter_colorize_effect_set_property;
   gobject_class->get_property = clutter_colorize_effect_get_property;

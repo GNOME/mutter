@@ -123,29 +123,6 @@ clutter_blur_effect_create_pipeline (ClutterOffscreenEffect *effect,
 }
 
 static gboolean
-clutter_blur_effect_pre_paint (ClutterEffect       *effect,
-                               ClutterPaintNode    *node,
-                               ClutterPaintContext *paint_context)
-{
-  ClutterEffectClass *parent_class;
-
-  if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-    {
-      /* if we don't have support for GLSL shaders then we
-       * forcibly disable the ActorMeta
-       */
-      g_warning ("Unable to use the ShaderEffect: the graphics hardware "
-                 "or the current GL driver does not implement support "
-                 "for the GLSL shading language.");
-      clutter_actor_meta_set_enabled (CLUTTER_ACTOR_META (effect), FALSE);
-      return FALSE;
-    }
-
-  parent_class = CLUTTER_EFFECT_CLASS (clutter_blur_effect_parent_class);
-  return parent_class->pre_paint (effect, node, paint_context);
-}
-
-static gboolean
 clutter_blur_effect_modify_paint_volume (ClutterEffect      *effect,
                                          ClutterPaintVolume *volume)
 {
@@ -190,7 +167,6 @@ clutter_blur_effect_class_init (ClutterBlurEffectClass *klass)
 
   gobject_class->dispose = clutter_blur_effect_dispose;
 
-  effect_class->pre_paint = clutter_blur_effect_pre_paint;
   effect_class->modify_paint_volume = clutter_blur_effect_modify_paint_volume;
 
   offscreen_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (klass);

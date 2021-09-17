@@ -147,19 +147,6 @@ clutter_brightness_contrast_effect_pre_paint (ClutterEffect       *effect,
   if (will_have_no_effect (self))
     return FALSE;
 
-  if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-    {
-      /* if we don't have support for GLSL shaders then we
-       * forcibly disable the ActorMeta
-       */
-      g_warning ("Unable to use the ClutterBrightnessContrastEffect: the "
-                 "graphics hardware or the current GL driver does not "
-                 "implement support for the GLSL shading language. The "
-                 "effect will be disabled.");
-      clutter_actor_meta_set_enabled (CLUTTER_ACTOR_META (effect), FALSE);
-      return FALSE;
-    }
-
   parent_class =
     CLUTTER_EFFECT_CLASS (clutter_brightness_contrast_effect_parent_class);
 

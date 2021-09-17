@@ -259,9 +259,6 @@ actor_shader_effect (void)
   gboolean was_painted;
   GList *actors = NULL;
 
-  if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-    return;
-
   stage = clutter_test_get_stage ();
 
   rect = make_actor (foo_old_shader_effect_get_type ());

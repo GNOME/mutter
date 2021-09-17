@@ -400,11 +400,11 @@ setup_pipeline (MetaBackgroundContent *self,
   opacity = clutter_actor_get_paint_opacity (actor);
   if (opacity < 255)
     pipeline_flags |= PIPELINE_BLEND;
-  if (self->vignette && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (self->vignette)
     pipeline_flags |= PIPELINE_VIGNETTE;
-  if (self->gradient && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (self->gradient)
     pipeline_flags |= PIPELINE_GRADIENT;
-  if (self->has_rounded_clip && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (self->has_rounded_clip)
     pipeline_flags |= PIPELINE_ROUNDED_CLIP | PIPELINE_BLEND;
 
   if (pipeline_flags != self->pipeline_flags)
@@ -532,22 +532,9 @@ setup_pipeline (MetaBackgroundContent *self,
     }
 
   if (self->vignette)
-    {
-      color_component = self->vignette_brightness * opacity / 255.;
-
-      if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-        {
-          /* Darken everything to match the average brightness that would
-           * be there if we were drawing the vignette, which is
-           * (1 - (pi/12.) * vignette_sharpness) [exercise for the reader :]
-           */
-          color_component *= (1 - 0.74 * self->vignette_sharpness);
-        }
-    }
+    color_component = self->vignette_brightness * opacity / 255.;
   else
-    {
-      color_component = opacity / 255.;
-    }
+    color_component = opacity / 255.;
 
   cogl_pipeline_set_color4f (self->pipeline,
                              color_component,
