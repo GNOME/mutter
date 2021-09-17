@@ -178,18 +178,6 @@ meta_clutter_backend_x11_finalize (GObject *gobject)
   G_OBJECT_CLASS (meta_clutter_backend_x11_parent_class)->finalize (gobject);
 }
 
-static ClutterFeatureFlags
-meta_clutter_backend_x11_get_features (ClutterBackend *clutter_backend)
-{
-  ClutterBackendClass *parent_class =
-    CLUTTER_BACKEND_CLASS (meta_clutter_backend_x11_parent_class);
-  ClutterFeatureFlags flags = CLUTTER_FEATURE_STAGE_CURSOR;
-
-  flags |= parent_class->get_features (clutter_backend);
-
-  return flags;
-}
-
 static void
 update_last_event_time (MetaClutterBackendX11 *clutter_backend_x11,
                         XEvent                *xevent)
@@ -442,7 +430,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   gobject_class->finalize = meta_clutter_backend_x11_finalize;
 
   clutter_backend_class->finish_init = meta_clutter_backend_x11_finish_init;
-  clutter_backend_class->get_features = meta_clutter_backend_x11_get_features;
 
   clutter_backend_class->get_display = meta_clutter_backend_x11_get_display;
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
