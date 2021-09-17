@@ -381,12 +381,6 @@ clutter_backend_real_get_features (ClutterBackend *backend)
       flags |= CLUTTER_FEATURE_STAGE_STATIC;
     }
 
-  if (cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_BUFFERS_EVENT))
-    {
-      CLUTTER_NOTE (BACKEND, "Cogl supports swap buffers complete events");
-      flags |= CLUTTER_FEATURE_SWAP_EVENTS;
-    }
-
   return flags;
 }
 
