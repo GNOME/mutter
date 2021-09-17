@@ -232,7 +232,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
   cogl_material_set_layer (data.material, 0, tex);
   cogl_object_unref (tex);
 
-  if (!cogl_material_set_layer_point_sprite_coords_enabled (data.material,
+  if (!cogl_pipeline_set_layer_point_sprite_coords_enabled (data.material,
                                                             0, TRUE,
                                                             &error))
     {

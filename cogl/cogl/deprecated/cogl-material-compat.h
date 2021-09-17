@@ -555,32 +555,6 @@ cogl_material_set_layer_matrix (CoglMaterial            *material,
                                 int                      layer_index,
                                 const graphene_matrix_t *matrix);
 
-/**
- * cogl_material_set_layer_point_sprite_coords_enabled:
- * @material: a #CoglHandle to a material.
- * @layer_index: the layer number to change.
- * @enable: whether to enable point sprite coord generation.
- * @error: A return location for a GError, or NULL to ignore errors.
- *
- * When rendering points, if @enable is %TRUE then the texture
- * coordinates for this layer will be replaced with coordinates that
- * vary from 0.0 to 1.0 across the primitive. The top left of the
- * point will have the coordinates 0.0,0.0 and the bottom right will
- * have 1.0,1.0. If @enable is %FALSE then the coordinates will be
- * fixed for the entire point.
- *
- * Return value: %TRUE if the function succeeds, %FALSE otherwise.
- * Since: 1.4
- * Deprecated: 1.16: Use cogl_pipeline_set_layer_point_sprite_coords_enabled()
- *                  instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_point_sprite_coords_enabled)
-COGL_EXPORT gboolean
-cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
-                                                     int           layer_index,
-                                                     gboolean      enable,
-                                                     GError      **error);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */

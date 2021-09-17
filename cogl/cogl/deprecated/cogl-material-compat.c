@@ -135,16 +135,3 @@ cogl_material_set_layer_matrix (CoglMaterial            *material,
   cogl_pipeline_set_layer_matrix (COGL_PIPELINE (material),
                                   layer_index, matrix);
 }
-
-gboolean
-cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
-                                                     int           layer_index,
-                                                     gboolean      enable,
-                                                     GError      **error)
-{
-  CoglPipeline *pipeline = COGL_PIPELINE (material);
-  return cogl_pipeline_set_layer_point_sprite_coords_enabled (pipeline,
-                                                              layer_index,
-                                                              enable,
-                                                              error);
-}
