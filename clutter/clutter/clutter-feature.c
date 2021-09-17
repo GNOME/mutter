@@ -64,8 +64,6 @@ clutter_features_from_cogl (void)
   
   clutter_flags |= CLUTTER_FEATURE_SHADERS_GLSL;
   
-  clutter_flags |= CLUTTER_FEATURE_OFFSCREEN;
-  
   return clutter_flags;
 }
 

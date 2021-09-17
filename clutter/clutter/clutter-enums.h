@@ -900,7 +900,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  * ClutterFeatureFlags:
  * @CLUTTER_FEATURE_STAGE_STATIC: Set if stage size if fixed (i.e framebuffer)
  * @CLUTTER_FEATURE_SHADERS_GLSL: Set if the backend supports GLSL shaders.
- * @CLUTTER_FEATURE_OFFSCREEN: Set if the backend supports offscreen rendering.
  * @CLUTTER_FEATURE_STAGE_MULTIPLE: Set if multiple stages are supported.
  * @CLUTTER_FEATURE_SWAP_EVENTS: Set if the GLX_INTEL_swap_event is supported.
  *
@@ -913,7 +912,6 @@ typedef enum
 {
   CLUTTER_FEATURE_STAGE_STATIC           = (1 << 6),
   CLUTTER_FEATURE_SHADERS_GLSL           = (1 << 9),
-  CLUTTER_FEATURE_OFFSCREEN              = (1 << 10),
   CLUTTER_FEATURE_STAGE_MULTIPLE         = (1 << 11),
   CLUTTER_FEATURE_SWAP_EVENTS            = (1 << 12)
 } ClutterFeatureFlags;
