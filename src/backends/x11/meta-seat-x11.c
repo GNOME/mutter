@@ -1441,7 +1441,7 @@ meta_seat_x11_constructed (GObject *object)
   XSync (xdisplay, False);
 
   seat_x11->keymap = g_object_new (META_TYPE_KEYMAP_X11,
-                                   "backend", clutter_backend,
+                                   "backend", seat_x11->backend,
                                    NULL);
   g_signal_connect (seat_x11->keymap,
                     "state-changed",
