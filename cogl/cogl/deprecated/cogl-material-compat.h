@@ -160,64 +160,6 @@ cogl_material_set_color4ub (CoglMaterial *material,
                             uint8_t blue,
                             uint8_t alpha);
 
-/**
- * CoglMaterialAlphaFunc:
- * @COGL_MATERIAL_ALPHA_FUNC_NEVER: Never let the fragment through.
- * @COGL_MATERIAL_ALPHA_FUNC_LESS: Let the fragment through if the incoming
- *   alpha value is less than the reference alpha value
- * @COGL_MATERIAL_ALPHA_FUNC_EQUAL: Let the fragment through if the incoming
- *   alpha value equals the reference alpha value
- * @COGL_MATERIAL_ALPHA_FUNC_LEQUAL: Let the fragment through if the incoming
- *   alpha value is less than or equal to the reference alpha value
- * @COGL_MATERIAL_ALPHA_FUNC_GREATER: Let the fragment through if the incoming
- *   alpha value is greater than the reference alpha value
- * @COGL_MATERIAL_ALPHA_FUNC_NOTEQUAL: Let the fragment through if the incoming
- *   alpha value does not equal the reference alpha value
- * @COGL_MATERIAL_ALPHA_FUNC_GEQUAL: Let the fragment through if the incoming
- *   alpha value is greater than or equal to the reference alpha value.
- * @COGL_MATERIAL_ALPHA_FUNC_ALWAYS: Always let the fragment through.
- *
- * Alpha testing happens before blending primitives with the framebuffer and
- * gives an opportunity to discard fragments based on a comparison with the
- * incoming alpha value and a reference alpha value. The #CoglMaterialAlphaFunc
- * determines how the comparison is done.
- */
-typedef enum
-{
-  COGL_MATERIAL_ALPHA_FUNC_NEVER    = 0x0200,
-  COGL_MATERIAL_ALPHA_FUNC_LESS	    = 0x0201,
-  COGL_MATERIAL_ALPHA_FUNC_EQUAL    = 0x0202,
-  COGL_MATERIAL_ALPHA_FUNC_LEQUAL   = 0x0203,
-  COGL_MATERIAL_ALPHA_FUNC_GREATER  = 0x0204,
-  COGL_MATERIAL_ALPHA_FUNC_NOTEQUAL = 0x0205,
-  COGL_MATERIAL_ALPHA_FUNC_GEQUAL   = 0x0206,
-  COGL_MATERIAL_ALPHA_FUNC_ALWAYS   = 0x0207
-} CoglMaterialAlphaFunc;
-
-/**
- * cogl_material_set_alpha_test_function:
- * @material: A #CoglMaterial object
- * @alpha_func: A @CoglMaterialAlphaFunc constant
- * @alpha_reference: A reference point that the chosen alpha function uses
- *   to compare incoming fragments to.
- *
- * Before a primitive is blended with the framebuffer, it goes through an
- * alpha test stage which lets you discard fragments based on the current
- * alpha value. This function lets you change the function used to evaluate
- * the alpha channel, and thus determine which fragments are discarded
- * and which continue on to the blending stage.
- *
- * The default is %COGL_MATERIAL_ALPHA_FUNC_ALWAYS
- *
- * Since: 1.0
- * Deprecated: 1.16: Use cogl_pipeline_set_alpha_test_function() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_alpha_test_function)
-COGL_EXPORT void
-cogl_material_set_alpha_test_function (CoglMaterial         *material,
-				       CoglMaterialAlphaFunc alpha_func,
-				       float                 alpha_reference);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */
