@@ -440,7 +440,7 @@ G_DEFINE_TYPE_WITH_CODE (ClutterText,
                                                 clutter_animatable_iface_init));
 
 static inline void
-clutter_text_dirty_paint_volume (ClutterText *text)
+clutter_text_free_paint_volume (ClutterText *text)
 {
   ClutterTextPrivate *priv = text->priv;
 
@@ -448,6 +448,18 @@ clutter_text_dirty_paint_volume (ClutterText *text)
     {
       clutter_paint_volume_free (&priv->paint_volume);
       priv->paint_volume_valid = FALSE;
+    }
+}
+
+static inline void
+clutter_text_dirty_paint_volume (ClutterText *text)
+{
+  ClutterTextPrivate *priv = text->priv;
+
+  if (priv->paint_volume_valid)
+    {
+      clutter_text_free_paint_volume (text);
+      clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (text));
     }
 }
 
@@ -1785,7 +1797,7 @@ clutter_text_finalize (GObject *gobject)
   if (priv->preedit_attrs)
     pango_attr_list_unref (priv->preedit_attrs);
 
-  clutter_text_dirty_paint_volume (self);
+  clutter_text_free_paint_volume (self);
 
   clutter_text_set_buffer (self, NULL);
   g_free (priv->font_name);
