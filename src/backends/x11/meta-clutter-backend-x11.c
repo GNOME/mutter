@@ -69,37 +69,6 @@ static const gchar *atom_names[] = {
 static gboolean clutter_enable_stereo = FALSE;
 
 static gboolean
-meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
-                                      GError         **error)
-{
-  MetaClutterBackendX11 *clutter_backend_x11 =
-    META_CLUTTER_BACKEND_X11 (clutter_backend);
-  MetaClutterBackendX11Private *priv =
-    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
-  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (priv->backend);
-  Atom atoms[N_ATOM_NAMES];
-
-  clutter_backend_x11->xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
-
-  XInternAtoms (clutter_backend_x11->xdisplay,
-                (char **) atom_names, N_ATOM_NAMES,
-                False, atoms);
-
-  clutter_backend_x11->atom_NET_WM_PID = atoms[0];
-  clutter_backend_x11->atom_NET_WM_PING = atoms[1];
-  clutter_backend_x11->atom_NET_WM_STATE = atoms[2];
-  clutter_backend_x11->atom_NET_WM_USER_TIME = atoms[3];
-  clutter_backend_x11->atom_WM_PROTOCOLS = atoms[4];
-  clutter_backend_x11->atom_WM_DELETE_WINDOW = atoms[5];
-  clutter_backend_x11->atom_XEMBED = atoms[6];
-  clutter_backend_x11->atom_XEMBED_INFO = atoms[7];
-  clutter_backend_x11->atom_NET_WM_NAME = atoms[8];
-  clutter_backend_x11->atom_UTF8_STRING = atoms[9];
-
-  return TRUE;
-}
-
-static gboolean
 check_onscreen_template (CoglRenderer         *renderer,
                          CoglOnscreenTemplate *onscreen_template,
                          gboolean              enable_stereo,
@@ -233,8 +202,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 {
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
 
-  clutter_backend_class->finish_init = meta_clutter_backend_x11_finish_init;
-
   clutter_backend_class->get_display = meta_clutter_backend_x11_get_display;
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
@@ -245,12 +212,31 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 MetaClutterBackendX11 *
 meta_clutter_backend_x11_new (MetaBackend *backend)
 {
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  Atom atoms[N_ATOM_NAMES];
   MetaClutterBackendX11 *clutter_backend_x11;
   MetaClutterBackendX11Private *priv;
 
   clutter_backend_x11 = g_object_new (META_TYPE_CLUTTER_BACKEND_X11, NULL);
   priv = meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   priv->backend = backend;
+
+  clutter_backend_x11->xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
+
+  XInternAtoms (clutter_backend_x11->xdisplay,
+                (char **) atom_names, N_ATOM_NAMES,
+                False, atoms);
+
+  clutter_backend_x11->atom_NET_WM_PID = atoms[0];
+  clutter_backend_x11->atom_NET_WM_PING = atoms[1];
+  clutter_backend_x11->atom_NET_WM_STATE = atoms[2];
+  clutter_backend_x11->atom_NET_WM_USER_TIME = atoms[3];
+  clutter_backend_x11->atom_WM_PROTOCOLS = atoms[4];
+  clutter_backend_x11->atom_WM_DELETE_WINDOW = atoms[5];
+  clutter_backend_x11->atom_XEMBED = atoms[6];
+  clutter_backend_x11->atom_XEMBED_INFO = atoms[7];
+  clutter_backend_x11->atom_NET_WM_NAME = atoms[8];
+  clutter_backend_x11->atom_UTF8_STRING = atoms[9];
 
   return clutter_backend_x11;
 }

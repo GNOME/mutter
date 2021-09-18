@@ -499,16 +499,6 @@ static gboolean
 clutter_init_real (ClutterContext  *clutter_context,
                    GError         **error)
 {
-  ClutterBackend *backend;
-
-  /* Note, creates backend if not already existing, though parse args will
-   * have likely created it
-   */
-  backend = clutter_context->backend;
-
-  if (!_clutter_backend_finish_init (backend, error))
-    return FALSE;
-
   /* If we are displaying the regions that would get redrawn with clipped
    * redraws enabled we actually have to disable the clipped redrawing
    * because otherwise we end up with nasty trails of rectangles everywhere.

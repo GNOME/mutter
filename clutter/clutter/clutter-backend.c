@@ -337,21 +337,6 @@ clutter_backend_init (ClutterBackend *self)
   self->fallback_resource_scale = 1.f;
 }
 
-gboolean
-_clutter_backend_finish_init (ClutterBackend  *backend,
-                              GError         **error)
-{
-  ClutterBackendClass *klass;
-
-  g_assert (CLUTTER_IS_BACKEND (backend));
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->finish_init)
-    return klass->finish_init (backend, error);
-
-  return TRUE;
-}
-
 ClutterStageWindow *
 _clutter_backend_create_stage (ClutterBackend  *backend,
                                ClutterStage    *wrapper,
