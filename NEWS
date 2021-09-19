@@ -1,3 +1,17 @@
+41.0
+====
+* Avoid race in wl_seat capabilities [Olivier; !77]
+* Expose option groups/entries to introspection [Corentin; !1976]
+
+Contributors:
+  Olivier Fourdan, Corentin Noël
+
+Translators:
+  Daniel Șerbănescu [ro], Goran Vidović [hr], Luna Jernberg [sv],
+  eshagh shahidani [fa], Gwan-gyeong Mun [ko], Emin Tufan Çetin [tr],
+  Philipp Kiemle [de], Balázs Úr [hu], Piotr Drąg [pl], Nathan Follens [nl],
+  Jordi Mas [ca], Ask Hjorth Larsen [da]
+
 41.rc
 =====
 * Add clutter_stage_paint_to_content() [Ivan; !1899]
