@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-16 00:55+0000\n"
-"PO-Revision-Date: 2021-03-19 08:11+0100\n"
+"POT-Creation-Date: 2021-09-03 21:08+0000\n"
+"PO-Revision-Date: 2021-09-20 20:55+0200\n"
 "Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
 "Language-Team: Serbian <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -57,109 +57,125 @@ msgstr "Премешта прозор један радни простор на 
 msgid "Move window one workspace to the right"
 msgstr "Премешта прозор један радни простор на десно"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Премешта прозор један радни простор на горе"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Премешта прозор један радни простор на доле"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Премешта прозор један монитор на лево"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Премешта прозор један монитор на десно"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Премешта прозор један монитор на горе"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Премешта прозор један монитор на доле"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Пребацује програме"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Пребацује на претходни програм"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Пребацује прозоре"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Пребацује на претходни прозор"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Пребацује прозоре програма"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Пребацује на претходни прозор програма"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Пребацује контроле система"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Пребацује на претходну контролу система"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Пребацује прозоре директно"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Пребацује непосредно на претходни прозор"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Пребацује прозоре програма директно"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Пребацује непосредно на претходни прозор програма"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Пребацује контроле система директно"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Пребацује непосредно на претходну контролу система"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Скрива све обичне прозоре"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Пребацује се на радни простор 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Пребацује се на радни простор 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Пребацује се на радни простор 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Пребацује се на радни простор 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Пребацује се на последњи радни простор"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Премести на радни простор лево"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Премести на радни простор десно"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Премешта на радни простор изнад"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Премешта на радни простор испод"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -168,10 +184,6 @@ msgstr "Систем"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Приказује упит за извршавање наредбе"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Приказује преглед активности"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -585,26 +597,26 @@ msgstr ""
 "Икс-Вејленд изграђен без подршке за изабрана проширења. Икс-Вејленд мора "
 "бити поново покренут да би ово подешавање ступило на снагу."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Уграђени дисплеј"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Непознато"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Непознат дисплеј"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -617,9 +629,26 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Састављач"
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "Икс приказ који ће бити коришћен"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "Икс екран који ће бити коришћен"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Чини Икс позиве усклађеним"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Онемогући XInput подршку"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -629,62 +658,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Звонца"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Искључује везу са управником сесије"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Мења текућег управника прозорима"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Наводи ИБ управника сесије"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Икс екран који ће бити коришћен"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Покреће сесију из датотеке чувања"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Чини Икс позиве усклађеним"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Ради као вејлендов композитор"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Ради као угнежђени композитор"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Ради као вејлендов композитор без покретања Икс-вејленда"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Наведите Вејленд приказ за коришћење"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Ради као пуни сервер приказа, уместо као угнеждени"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Ради као безглави сервер приказа"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Додај трајни виртуелни екран (ШхВ, ШхВ@Р)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Покрени на Икс11 позадинцу"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -712,10 +685,62 @@ msgstr "_Приморај излаз"
 msgid "_Wait"
 msgstr "_Сачекај"
 
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "Мења текућег управника прозорима"
+
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "Икс екран који ће бити коришћен"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "Искључује везу са управником сесије"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "Наводи ИБ управника сесије"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "Покреће сесију из датотеке чувања"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Ради као вејлендов композитор"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "Ради као угнежђени композитор"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Ради као вејлендов композитор без покретања Икс-вејленда"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "Наведите Вејленд приказ за коришћење"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr "Ради као пуни сервер приказа, уместо као угнеждени"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "Ради као безглави сервер приказа"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Додај трајни виртуелни екран (ШхВ, ШхВ@Р)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "Покрени на Икс11 позадинцу"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Режим прекидача (група %d)"
@@ -723,28 +748,28 @@ msgstr "Режим прекидача (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Промени монитор"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Прикажи помоћ на екрану"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:47
 msgid "Print version"
 msgstr "Исписује издање"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:53
 msgid "Mutter plugin to use"
 msgstr "Прикључци Матера за коришћење"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. радни простор"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Матер је преведен без подршке за опширан режим"
 
@@ -753,7 +778,7 @@ msgstr "Матер је преведен без подршке за опшира
 msgid "Mode Switch: Mode %d"
 msgstr "Режим прекидача: Режим %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -762,16 +787,16 @@ msgstr ""
 "Приказ „%s“ већ има управника прозора; пробајте да користите опцију „--"
 "replace“ да замените тренутног управника прозора."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Нисам успео да покренем ГДК"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Нисам успео да отворим екран „%s“ Икс система прозора"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Приказ „%d“ на екрану „%s“ није исправан"
@@ -781,7 +806,7 @@ msgstr "Приказ „%d“ на екрану „%s“ није исправа
 msgid "Format %s not supported"
 msgstr "Формат %s није подржан"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -794,17 +819,8 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
 
-#~ msgid "Move window one workspace up"
-#~ msgstr "Премешта прозор један радни простор на горе"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Премешта прозор један радни простор на доле"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "Премешта на радни простор изнад"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Премешта на радни простор испод"
+#~ msgid "Show the activities overview"
+#~ msgstr "Приказује преглед активности"
 
 #~ msgid ""
 #~ "mutter %s\n"
