@@ -721,8 +721,13 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   wl_fixed_t x_value = 0, y_value = 0;
   int x_discrete = 0, y_discrete = 0;
   enum wl_pointer_axis_source source = -1;
+  MetaWaylandPointerClient *client;
 
   if (clutter_event_is_pointer_emulated (event))
+    return;
+
+  client = pointer->focus_client;
+  if (!client)
     return;
 
   switch (event->scroll.scroll_source)
@@ -780,51 +785,48 @@ handle_scroll_event (MetaWaylandPointer *pointer,
       return;
     }
 
-  if (pointer->focus_client)
+  wl_resource_for_each (resource, &client->pointer_resources)
     {
-      wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
-        {
-          int client_version = wl_resource_get_version (resource);
+      int client_version = wl_resource_get_version (resource);
 
-          if (client_version >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
-            wl_pointer_send_axis_source (resource, source);
+      if (client_version >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
+        wl_pointer_send_axis_source (resource, source);
 
-          /* X axis */
-          if (x_discrete != 0 &&
-              client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
-            wl_pointer_send_axis_discrete (resource,
-                                           WL_POINTER_AXIS_HORIZONTAL_SCROLL,
-                                           x_discrete);
+      /* X axis */
+      if (x_discrete != 0 &&
+          client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
+        wl_pointer_send_axis_discrete (resource,
+                                       WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+                                       x_discrete);
 
-          if (x_value)
-            wl_pointer_send_axis (resource, clutter_event_get_time (event),
-                                  WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
+      if (x_value)
+        wl_pointer_send_axis (resource, clutter_event_get_time (event),
+                              WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
 
-          if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL) &&
-              client_version >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
-            wl_pointer_send_axis_stop (resource,
-                                       clutter_event_get_time (event),
-                                       WL_POINTER_AXIS_HORIZONTAL_SCROLL);
-          /* Y axis */
-          if (y_discrete != 0 &&
-              client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
-            wl_pointer_send_axis_discrete (resource,
-                                           WL_POINTER_AXIS_VERTICAL_SCROLL,
-                                           y_discrete);
+      if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL) &&
+          client_version >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
+        wl_pointer_send_axis_stop (resource,
+                                   clutter_event_get_time (event),
+                                   WL_POINTER_AXIS_HORIZONTAL_SCROLL);
+      /* Y axis */
+      if (y_discrete != 0 &&
+          client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
+        wl_pointer_send_axis_discrete (resource,
+                                       WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                       y_discrete);
 
-          if (y_value)
-            wl_pointer_send_axis (resource, clutter_event_get_time (event),
-                                  WL_POINTER_AXIS_VERTICAL_SCROLL, y_value);
+      if (y_value)
+        wl_pointer_send_axis (resource, clutter_event_get_time (event),
+                              WL_POINTER_AXIS_VERTICAL_SCROLL, y_value);
 
-          if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_VERTICAL) &&
-              client_version >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
-            wl_pointer_send_axis_stop (resource,
-                                       clutter_event_get_time (event),
-                                       WL_POINTER_AXIS_VERTICAL_SCROLL);
-        }
-
-      meta_wayland_pointer_broadcast_frame (pointer);
+      if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_VERTICAL) &&
+          client_version >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
+        wl_pointer_send_axis_stop (resource,
+                                   clutter_event_get_time (event),
+                                   WL_POINTER_AXIS_VERTICAL_SCROLL);
     }
+
+  meta_wayland_pointer_broadcast_frame (pointer);
 }
 
 gboolean
