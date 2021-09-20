@@ -88,6 +88,19 @@ struct _MetaInputDeviceNative
   float pointer_x;
   float pointer_y;
 
+  /* When the client doesn't support high-resolution scroll, accumulate deltas
+   * until we can notify a discrete event.
+   * Some mice have a free spinning wheel, making possible to lock the wheel
+   * when the accumulator value is not 0. To avoid synchronization issues
+   * between the mouse wheel and the accumulators, store the last delta and when
+   * the scroll direction changes, reset the accumulator. */
+  struct {
+    int32_t acc_dx;
+    int32_t acc_dy;
+    int32_t last_dx;
+    int32_t last_dy;
+  } value120;
+
   /* Keyboard a11y */
   MetaKeyboardA11yFlags a11y_flags;
   GList *slow_keys_list;

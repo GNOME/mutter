@@ -176,8 +176,8 @@ void meta_seat_impl_notify_scroll_continuous_in_impl (MetaSeatImpl             *
 void meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
                                                     ClutterInputDevice  *input_device,
                                                     uint64_t             time_us,
-                                                    double               discrete_dx,
-                                                    double               discrete_dy,
+                                                    double               dx_value120,
+                                                    double               dy_value120,
                                                     ClutterScrollSource  source);
 
 void meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,

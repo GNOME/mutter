@@ -699,7 +699,8 @@ notify_discrete_scroll_in_impl (GTask *task)
   meta_seat_impl_notify_discrete_scroll_in_impl (seat,
                                                  virtual_evdev->impl_state->device,
                                                  event->time_us,
-                                                 discrete_dx, discrete_dy,
+                                                 discrete_dx * 120.0,
+                                                 discrete_dy * 120.0,
                                                  event->scroll_source);
 
   g_task_return_boolean (task, TRUE);

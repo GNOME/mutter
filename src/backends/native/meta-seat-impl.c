@@ -895,23 +895,78 @@ discrete_to_direction (double discrete_dx,
   return 0;
 }
 
+static gboolean
+should_reset_discrete_acc (double current_delta,
+                           double last_delta)
+{
+  if (last_delta == 0)
+    return TRUE;
+
+  return (current_delta < 0 && last_delta > 0) ||
+         (current_delta > 0 && last_delta < 0);
+}
+
 void
 meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
                                                ClutterInputDevice  *input_device,
                                                uint64_t             time_us,
-                                               double               discrete_dx,
-                                               double               discrete_dy,
+                                               double               dx_value120,
+                                               double               dy_value120,
                                                ClutterScrollSource  scroll_source)
 {
-  notify_scroll (input_device, time_us,
-                 discrete_dx * DISCRETE_SCROLL_STEP,
-                 discrete_dy * DISCRETE_SCROLL_STEP,
-                 scroll_source, CLUTTER_SCROLL_FINISHED_NONE,
-                 TRUE);
-  notify_discrete_scroll (input_device, time_us,
-                          discrete_to_direction (discrete_dx, discrete_dy),
-                          scroll_source, FALSE);
+  MetaInputDeviceNative *evdev_device;
+  double dx = 0, dy = 0;
+  int discrete_dx = 0, discrete_dy = 0;
 
+  /* Convert into DISCRETE_SCROLL_STEP range. 120/DISCRETE_SCROLL_STEP = 12.0 */
+  dx = dx_value120 / 12.0;
+  dy = dy_value120 / 12.0;
+
+  notify_scroll (input_device, time_us,
+                 dx,
+                 dy,
+                 scroll_source, CLUTTER_SCROLL_FINISHED_NONE,
+                 FALSE);
+
+  /* Notify discrete scroll only when the accumulated value reach 120 */
+  evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
+
+  if (dx_value120 != 0)
+    {
+      if (should_reset_discrete_acc (dx_value120, evdev_device->value120.last_dx))
+        evdev_device->value120.acc_dx = 0;
+
+      evdev_device->value120.last_dx = dx_value120;
+    }
+
+  if (dy_value120 != 0)
+    {
+      if (should_reset_discrete_acc (dy_value120, evdev_device->value120.last_dy))
+        evdev_device->value120.acc_dy = 0;
+
+      evdev_device->value120.last_dy = dy_value120;
+    }
+
+  evdev_device->value120.acc_dx += dx_value120;
+  evdev_device->value120.acc_dy += dy_value120;
+  discrete_dx = (evdev_device->value120.acc_dx / 120);
+  discrete_dy = (evdev_device->value120.acc_dy / 120);
+
+  if (discrete_dx != 0)
+    {
+      evdev_device->value120.acc_dx -= (discrete_dx * 120);
+      notify_discrete_scroll (input_device, time_us,
+                              discrete_to_direction (discrete_dx, 0),
+                              scroll_source, FALSE);
+    }
+
+  if (discrete_dy != 0)
+    {
+      evdev_device->value120.acc_dy -= (discrete_dy * 120);
+      notify_discrete_scroll (input_device, time_us,
+                              discrete_to_direction (0, discrete_dy),
+                              scroll_source, FALSE);
+    }
 }
 
 void
@@ -1923,24 +1978,24 @@ notify_discrete_axis (MetaSeatImpl                  *seat_impl,
                       ClutterScrollSource            scroll_source,
                       struct libinput_event_pointer *axis_event)
 {
-  double discrete_dx = 0.0, discrete_dy = 0.0;
+  double dx_value120 = 0.0, dy_value120 = 0.0;
 
   if (libinput_event_pointer_has_axis (axis_event,
                                        LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
     {
-      discrete_dx = libinput_event_pointer_get_axis_value_discrete (
+      dx_value120 = libinput_event_pointer_get_scroll_value_v120 ( 
           axis_event, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
     }
   if (libinput_event_pointer_has_axis (axis_event,
                                        LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
     {
-      discrete_dy = libinput_event_pointer_get_axis_value_discrete (
+      dy_value120 = libinput_event_pointer_get_scroll_value_v120 (
           axis_event, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
     }
 
   meta_seat_impl_notify_discrete_scroll_in_impl (seat_impl, device,
                                                  time_us,
-                                                 discrete_dx, discrete_dy,
+                                                 dx_value120, dy_value120,
                                                  scroll_source);
 }
 
