@@ -1756,22 +1756,6 @@ process_base_event (MetaSeatImpl          *seat_impl,
   return FALSE;
 }
 
-static ClutterScrollSource
-translate_scroll_source (enum libinput_pointer_axis_source source)
-{
-  switch (source)
-    {
-    case LIBINPUT_POINTER_AXIS_SOURCE_WHEEL:
-      return CLUTTER_SCROLL_SOURCE_WHEEL;
-    case LIBINPUT_POINTER_AXIS_SOURCE_FINGER:
-      return CLUTTER_SCROLL_SOURCE_FINGER;
-    case LIBINPUT_POINTER_AXIS_SOURCE_CONTINUOUS:
-      return CLUTTER_SCROLL_SOURCE_CONTINUOUS;
-    default:
-      return CLUTTER_SCROLL_SOURCE_UNKNOWN;
-    }
-}
-
 static ClutterInputDeviceToolType
 translate_tool_type (struct libinput_tablet_tool *libinput_tool)
 {
@@ -1962,21 +1946,17 @@ notify_discrete_axis (MetaSeatImpl                  *seat_impl,
 
 static void
 handle_pointer_scroll (MetaSeatImpl          *seat_impl,
-                       struct libinput_event *event)
+                       struct libinput_event *event,
+                       ClutterScrollSource    scroll_source)
 {
   struct libinput_device *libinput_device = libinput_event_get_device (event);
   ClutterInputDevice *device;
   uint64_t time_us;
-  enum libinput_pointer_axis_source source;
   struct libinput_event_pointer *axis_event =
     libinput_event_get_pointer_event (event);
-  ClutterScrollSource scroll_source;
 
   device = libinput_device_get_user_data (libinput_device);
-
   time_us = libinput_event_pointer_get_time_usec (axis_event);
-  source = libinput_event_pointer_get_axis_source (axis_event);
-  scroll_source = translate_scroll_source (source);
 
   /* libinput < 0.8 sent wheel click events with value 10. Since 0.8
    * the value is the angle of the click in degrees. To keep
@@ -2174,10 +2154,22 @@ process_device_event (MetaSeatImpl          *seat_impl,
       }
 
     case LIBINPUT_EVENT_POINTER_AXIS:
-      {
-        handle_pointer_scroll (seat_impl, event);
-        break;
-      }
+      /* This event must be ignored in favor of the SCROLL_* events */
+      handled = FALSE;
+      break;
+
+    case LIBINPUT_EVENT_POINTER_SCROLL_WHEEL:
+      handle_pointer_scroll (seat_impl, event, CLUTTER_SCROLL_SOURCE_WHEEL);
+      break;
+
+    case LIBINPUT_EVENT_POINTER_SCROLL_FINGER:
+      handle_pointer_scroll (seat_impl, event, CLUTTER_SCROLL_SOURCE_FINGER);
+      break;
+
+    case LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS:
+      handle_pointer_scroll (seat_impl, event,
+                             CLUTTER_SCROLL_SOURCE_CONTINUOUS);
+      break;
 
     case LIBINPUT_EVENT_TOUCH_DOWN:
       {
