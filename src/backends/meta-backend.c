@@ -251,7 +251,7 @@ meta_backend_dispose (GObject *object)
   g_clear_pointer (&priv->stage, clutter_actor_destroy);
   g_clear_pointer (&priv->idle_manager, meta_idle_manager_free);
   g_clear_object (&priv->renderer);
-  g_clear_pointer (&priv->clutter_context, clutter_context_free);
+  g_clear_pointer (&priv->clutter_context, clutter_context_destroy);
   g_clear_list (&priv->gpus, g_object_unref);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);
@@ -1181,9 +1181,10 @@ init_clutter (MetaBackend  *backend,
   MetaBackendSource *backend_source;
   GSource *source;
 
-  priv->clutter_context = clutter_context_new (meta_clutter_backend_constructor,
-                                               backend,
-                                               error);
+  priv->clutter_context = clutter_create_context (CLUTTER_CONTEXT_FLAG_NONE,
+                                                  meta_clutter_backend_constructor,
+                                                  backend,
+                                                  error);
   if (!priv->clutter_context)
     return FALSE;
 

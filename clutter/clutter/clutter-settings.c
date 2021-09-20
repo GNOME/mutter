@@ -25,6 +25,7 @@
 #include <pango/pangofc-fontmap.h>
 #endif /* HAVE_PANGO_FT2 */
 
+#include "clutter/clutter-context-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-settings-private.h"
 #include "clutter/clutter-stage-private.h"

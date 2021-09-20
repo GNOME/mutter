@@ -40,6 +40,7 @@
 #include "config.h"
 
 #include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-context-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-marshal.h"

@@ -31,6 +31,7 @@
 #include "cogl-pango/cogl-pango.h"
 
 #include "clutter/clutter-backend.h"
+#include "clutter/clutter-context.h"
 #include "clutter/clutter-effect.h"
 #include "clutter/clutter-event.h"
 #include "clutter/clutter-layout-manager.h"
@@ -106,45 +107,6 @@ typedef enum
 
   CLUTTER_IN_MAP_UNMAP   = 1 << 8,
 } ClutterPrivateFlags;
-
-/*
- * ClutterContext:
- *
- * The shared state of Clutter
- */
-struct _ClutterContext
-{
-  /* the main windowing system backend */
-  ClutterBackend *backend;
-
-  /* the object holding all the stage instances */
-  ClutterStageManager *stage_manager;
-
-  /* the main event queue */
-  GAsyncQueue *events_queue;
-
-  /* the event filters added via clutter_event_add_filter. these are
-   * ordered from least recently added to most recently added */
-  GList *event_filters;
-
-  CoglPangoFontMap *font_map;   /* Global font map */
-
-  /* stack of #ClutterEvent */
-  GSList *current_event;
-
-  /* list of repaint functions installed through
-   * clutter_threads_add_repaint_func()
-   */
-  GList *repaint_funcs;
-  guint last_repaint_id;
-
-  /* main settings singleton */
-  ClutterSettings *settings;
-
-  /* boolean flags */
-  guint is_initialized          : 1;
-  guint show_fps                : 1;
-};
 
 /* shared between clutter-main.c and clutter-frame-source.c */
 typedef struct
