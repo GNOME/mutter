@@ -1960,6 +1960,45 @@ notify_discrete_axis (MetaSeatImpl                  *seat_impl,
 }
 
 static void
+handle_pointer_scroll (MetaSeatImpl          *seat_impl,
+                       struct libinput_event *event)
+{
+  struct libinput_device *libinput_device = libinput_event_get_device (event);
+  ClutterInputDevice *device;
+  uint64_t time_us;
+  enum libinput_pointer_axis_source source;
+  struct libinput_event_pointer *axis_event =
+    libinput_event_get_pointer_event (event);
+  ClutterScrollSource scroll_source;
+
+  device = libinput_device_get_user_data (libinput_device);
+
+  time_us = libinput_event_pointer_get_time_usec (axis_event);
+  source = libinput_event_pointer_get_axis_source (axis_event);
+  scroll_source = translate_scroll_source (source);
+
+  /* libinput < 0.8 sent wheel click events with value 10. Since 0.8
+   * the value is the angle of the click in degrees. To keep
+   * backwards-compat with existing clients, we just send multiples of
+   * the click count.
+   */
+
+  switch (scroll_source)
+    {
+    case CLUTTER_SCROLL_SOURCE_WHEEL:
+      notify_discrete_axis (seat_impl, device, time_us, scroll_source,
+                            axis_event);
+      break;
+    case CLUTTER_SCROLL_SOURCE_FINGER:
+    case CLUTTER_SCROLL_SOURCE_CONTINUOUS:
+    case CLUTTER_SCROLL_SOURCE_UNKNOWN:
+      notify_continuous_axis (seat_impl, device, time_us, scroll_source,
+                              axis_event);
+      break;
+    }
+}
+
+static void
 process_tablet_axis (MetaSeatImpl          *seat_impl,
                      struct libinput_event *event)
 {
@@ -2135,36 +2174,7 @@ process_device_event (MetaSeatImpl          *seat_impl,
 
     case LIBINPUT_EVENT_POINTER_AXIS:
       {
-        uint64_t time_us;
-        enum libinput_pointer_axis_source source;
-        struct libinput_event_pointer *axis_event =
-          libinput_event_get_pointer_event (event);
-        ClutterScrollSource scroll_source;
-
-        device = libinput_device_get_user_data (libinput_device);
-
-        time_us = libinput_event_pointer_get_time_usec (axis_event);
-        source = libinput_event_pointer_get_axis_source (axis_event);
-        scroll_source = translate_scroll_source (source);
-
-        /* libinput < 0.8 sent wheel click events with value 10. Since 0.8
-           the value is the angle of the click in degrees. To keep
-           backwards-compat with existing clients, we just send multiples of
-           the click count. */
-
-        switch (scroll_source)
-          {
-          case CLUTTER_SCROLL_SOURCE_WHEEL:
-            notify_discrete_axis (seat_impl, device, time_us, scroll_source,
-                                  axis_event);
-            break;
-          case CLUTTER_SCROLL_SOURCE_FINGER:
-          case CLUTTER_SCROLL_SOURCE_CONTINUOUS:
-          case CLUTTER_SCROLL_SOURCE_UNKNOWN:
-            notify_continuous_axis (seat_impl, device, time_us, scroll_source,
-                                    axis_event);
-            break;
-          }
+        handle_pointer_scroll (seat_impl, event);
         break;
       }
 
