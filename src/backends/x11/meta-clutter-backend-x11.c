@@ -307,7 +307,7 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *clutter_backend,
   if (meta_is_wayland_compositor ())
     stage_type = META_TYPE_STAGE_X11_NESTED;
   else
-    stage_type  = META_TYPE_STAGE_X11;
+    stage_type = META_TYPE_STAGE_X11;
 
   stage = g_object_new (stage_type,
 			"backend", priv->backend,
