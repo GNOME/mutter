@@ -122,5 +122,7 @@ if __name__ == '__main__':
     MutterDBusTestCase.setUpClass()
     test_case = MutterDBusTestCase()
     test_case.assertGreater(len(sys.argv), 1)
-    test_case.wrap_call(sys.argv[1:])
-    MutterDBusTestCase.tearDownClass()
+    try:
+        test_case.wrap_call(sys.argv[1:])
+    finally:
+        MutterDBusTestCase.tearDownClass()
