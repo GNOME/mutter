@@ -784,12 +784,14 @@ handle_scroll_event (MetaWaylandPointer *pointer,
     {
       wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
         {
-          if (wl_resource_get_version (resource) >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
+          int client_version = wl_resource_get_version (resource);
+
+          if (client_version >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
             wl_pointer_send_axis_source (resource, source);
 
           /* X axis */
           if (x_discrete != 0 &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
+              client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
             wl_pointer_send_axis_discrete (resource,
                                            WL_POINTER_AXIS_HORIZONTAL_SCROLL,
                                            x_discrete);
@@ -799,13 +801,13 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                   WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
 
           if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL) &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
+              client_version >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
             wl_pointer_send_axis_stop (resource,
                                        clutter_event_get_time (event),
                                        WL_POINTER_AXIS_HORIZONTAL_SCROLL);
           /* Y axis */
           if (y_discrete != 0 &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
+              client_version >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
             wl_pointer_send_axis_discrete (resource,
                                            WL_POINTER_AXIS_VERTICAL_SCROLL,
                                            y_discrete);
@@ -815,7 +817,7 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                   WL_POINTER_AXIS_VERTICAL_SCROLL, y_value);
 
           if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_VERTICAL) &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
+              client_version >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
             wl_pointer_send_axis_stop (resource,
                                        clutter_event_get_time (event),
                                        WL_POINTER_AXIS_VERTICAL_SCROLL);
