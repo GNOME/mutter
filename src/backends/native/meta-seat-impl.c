@@ -1895,7 +1895,7 @@ notify_continuous_axis (MetaSeatImpl                  *seat_impl,
   if (libinput_event_pointer_has_axis (axis_event,
                                        LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
     {
-      dx = libinput_event_pointer_get_axis_value (
+      dx = libinput_event_pointer_get_scroll_value (
           axis_event, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
 
       if (fabs (dx) < DBL_EPSILON)
@@ -1904,7 +1904,7 @@ notify_continuous_axis (MetaSeatImpl                  *seat_impl,
   if (libinput_event_pointer_has_axis (axis_event,
                                        LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
     {
-      dy = libinput_event_pointer_get_axis_value (
+      dy = libinput_event_pointer_get_scroll_value (
           axis_event, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
 
       if (fabs (dy) < DBL_EPSILON)
