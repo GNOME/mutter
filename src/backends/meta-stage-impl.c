@@ -841,9 +841,9 @@ meta_stage_impl_set_property (GObject      *gobject,
 static void
 meta_stage_impl_class_init (MetaStageImplClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->set_property = meta_stage_impl_set_property;
+  object_class->set_property = meta_stage_impl_set_property;
 
   obj_props[PROP_WRAPPER] =
     g_param_spec_object ("wrapper", NULL, NULL,
@@ -857,7 +857,7 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
-  g_object_class_install_properties (gobject_class, N_PROPS, obj_props);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void
