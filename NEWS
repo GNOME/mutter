@@ -1,3 +1,15 @@
+40.5
+====
+* Fix monitor screencast scanouts [Michel; !1914]
+* Fix middle-click emulation support on X11 [José; !2000]
+* Fixed crashes [Robert, Jonas; !1958, !1979, !1947]
+
+Contributors:
+  Michel Dänzer, José Expósito, Robert Mader, Jonas Ådahl
+
+Translators:
+  Goran Vidović [hr], Balázs Úr [hu], Fran Dieguez [gl]
+
 40.4
 ====
 * Don't require a newly attached buffer to apply state [Christian, Jonas; !1795]
