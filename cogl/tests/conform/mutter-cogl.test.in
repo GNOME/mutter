@@ -3,4 +3,4 @@ Type=session
 # Can't use TestEnvironment for COGL_TEST_VERBOSE until there's a solution
 # for https://gitlab.gnome.org/GNOME/gnome-desktop-testing/-/issues/1,
 # and anyway we'd still need to use the shell to 'cd'
-Exec=sh -c "export COGL_TEST_VERBOSE=1; cd @libexecdir@/installed-tests/mutter-@apiversion@/cogl/conform; xvfb-run -a -s '+iglx -noreset' ./run-tests.sh ./config.env ./test-conformance ./unit-tests"
+Exec=sh -ec "export COGL_TEST_VERBOSE=1; cd @libexecdir@/installed-tests/mutter-@apiversion@/cogl/conform; xvfb-run -a -s '+iglx -noreset' ./run-tests.sh ./config.env ./test-conformance ./unit-tests"

@@ -4,6 +4,6 @@ Description=All Mutter tests
 # a solution for
 # https://gitlab.gnome.org/GNOME/gnome-desktop-testing/-/issues/1,
 # and anyway that wouldn't be sufficient to handle XDG_RUNTIME_DIR
-Exec=sh -c 'env GSETTINGS_BACKEND=memory XDG_RUNTIME_DIR="$(mktemp -d -t mutter-@apiversion@-all-tests-XXXXXX)" @libexecdir@/installed-tests/mutter-@apiversion@/meta-dbus-runner.py xvfb-run -a -s "+iglx -noreset" -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner --all'
+Exec=sh -ec 'env GSETTINGS_BACKEND=memory XDG_RUNTIME_DIR="$(mktemp -d -t mutter-@apiversion@-all-tests-XXXXXX)" @libexecdir@/installed-tests/mutter-@apiversion@/meta-dbus-runner.py xvfb-run -a -s "+iglx -noreset" -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner --all'
 Type=session
 Output=TAP
