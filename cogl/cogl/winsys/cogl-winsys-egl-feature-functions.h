@@ -116,6 +116,17 @@ COGL_WINSYS_FEATURE_FUNCTION (EGLBoolean, eglSwapBuffersWithDamage,
                                EGLint n_rects))
 COGL_WINSYS_FEATURE_END ()
 
+COGL_WINSYS_FEATURE_BEGIN (partial_update,
+                           "KHR\0",
+                           "partial_update\0",
+                           COGL_EGL_WINSYS_FEATURE_BUFFER_AGE)
+COGL_WINSYS_FEATURE_FUNCTION (EGLBoolean, eglSetDamageRegion,
+                              (EGLDisplay dpy,
+                               EGLSurface surface,
+                               const EGLint *rects,
+                               EGLint n_rects))
+COGL_WINSYS_FEATURE_END ()
+
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
 COGL_WINSYS_FEATURE_BEGIN (fence_sync,
                            "KHR\0",

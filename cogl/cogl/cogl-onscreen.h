@@ -74,6 +74,10 @@ struct _CoglOnscreenClass
                         CoglFrameInfo *info,
                         gpointer       user_data);
 
+  void (* queue_damage_region) (CoglOnscreen *onscreen,
+                                const int    *rectangles,
+                                int           n_rectangles);
+
   gboolean (* direct_scanout) (CoglOnscreen   *onscreen,
                                CoglScanout    *scanout,
                                CoglFrameInfo  *info,
@@ -226,6 +230,23 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
  */
 COGL_EXPORT int
 cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
+
+/**
+ * cogl_onscreen_queue_damage_region:
+ * @onscreen: A #CoglOnscreen framebuffer
+ * @rectangles: An array of integer 4-tuples representing damaged
+ *              rectangles as (x, y, width, height) tuples.
+ * @n_rectangles: The number of 4-tuples to be read from @rectangles
+ *
+ * Implementation for https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_partial_update.txt
+ * This immediately queues state to OpenGL that will be used for the
+ * next swap.
+ * This needs to be called every frame.
+ */
+COGL_EXPORT void
+cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
+                                   const int    *rectangles,
+                                   int           n_rectangles);
 
 /**
  * cogl_onscreen_swap_buffers_with_damage:

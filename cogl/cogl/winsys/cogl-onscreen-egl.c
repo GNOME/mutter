@@ -243,6 +243,31 @@ cogl_onscreen_egl_swap_region (CoglOnscreen  *onscreen,
 }
 
 static void
+cogl_onscreen_egl_queue_damage_region (CoglOnscreen *onscreen,
+                                       const int    *rectangles,
+                                       int           n_rectangles)
+{
+  CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
+  CoglOnscreenEglPrivate *priv =
+    cogl_onscreen_egl_get_instance_private (onscreen_egl);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  CoglRenderer *renderer = context->display->renderer;
+  CoglRendererEGL *egl_renderer = renderer->winsys;
+
+  g_return_if_fail (n_rectangles > 0);
+
+  if (!egl_renderer->pf_eglSetDamageRegion)
+    return;
+
+  if (egl_renderer->pf_eglSetDamageRegion (egl_renderer->edpy,
+                                           priv->egl_surface,
+                                           rectangles,
+                                           n_rectangles) == EGL_FALSE)
+    g_warning ("Error reported by eglSetDamageRegion");
+}
+
+static void
 cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                             const int     *rectangles,
                                             int            n_rectangles,
@@ -345,6 +370,8 @@ cogl_onscreen_egl_class_init (CoglOnscreenEglClass *klass)
   object_class->dispose = cogl_onscreen_egl_dispose;
 
   onscreen_class->bind = cogl_onscreen_egl_bind;
+  onscreen_class->queue_damage_region =
+    cogl_onscreen_egl_queue_damage_region;
   onscreen_class->swap_buffers_with_damage =
     cogl_onscreen_egl_swap_buffers_with_damage;
   onscreen_class->swap_region = cogl_onscreen_egl_swap_region;

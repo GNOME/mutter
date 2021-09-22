@@ -301,6 +301,19 @@ cogl_onscreen_bind (CoglOnscreen *onscreen)
 }
 
 void
+cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
+                                   const int    *rectangles,
+                                   int           n_rectangles)
+{
+  CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
+
+  if (!klass->queue_damage_region)
+    return;
+
+  klass->queue_damage_region (onscreen, rectangles, n_rectangles);
+}
+
+void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         const int *rectangles,
                                         int n_rectangles,
