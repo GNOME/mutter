@@ -200,6 +200,48 @@ paint_damage_region (ClutterStageWindow *stage_window,
 }
 
 static void
+queue_damage_region (ClutterStageWindow *stage_window,
+                     ClutterStageView   *stage_view,
+                     cairo_region_t     *damage_region)
+{
+  int *damage, n_rects, i;
+  g_autofree int *freeme = NULL;
+  CoglFramebuffer *framebuffer;
+  CoglOnscreen *onscreen;
+
+  if (cairo_region_is_empty (damage_region))
+    return;
+
+  framebuffer = clutter_stage_view_get_onscreen (stage_view);
+  if (!COGL_IS_ONSCREEN (framebuffer))
+    return;
+
+  onscreen = COGL_ONSCREEN (framebuffer);
+
+  n_rects = cairo_region_num_rectangles (damage_region);
+
+  if (n_rects < MAX_STACK_RECTS)
+    damage = g_newa (int, n_rects * 4);
+  else
+    damage = freeme = g_new (int, n_rects * 4);
+
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_rectangle_int_t rect;
+      int height = cogl_framebuffer_get_height (framebuffer);
+
+      cairo_region_get_rectangle (damage_region, i, &rect);
+      damage[i * 4] = rect.x;
+      /* y coordinate needs to be flipped for OpenGL */
+      damage[i * 4 + 1] = height - rect.y - rect.height;
+      damage[i * 4 + 2] = rect.width;
+      damage[i * 4 + 3] = rect.height;
+    }
+
+  cogl_onscreen_queue_damage_region (onscreen, damage, n_rects);
+}
+
+static void
 swap_framebuffer (ClutterStageWindow *stage_window,
                   ClutterStageView   *stage_view,
                   cairo_region_t     *swap_region,
@@ -550,6 +592,8 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     }
   else if (use_clipped_redraw)
     {
+      queue_damage_region (stage_window, stage_view, fb_clip_region);
+
       cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
       paint_stage (stage_impl, stage_view, redraw_clip);
