@@ -1,0 +1,12 @@
+<monitors version="2">
+  <policy>
+    <stores>
+      <store>user</store>
+      <store>system</store>
+    </stores>
+    <stores>
+      <store>system</store>
+      <store>user</store>
+    </stores>
+  </policy>
+</monitors>

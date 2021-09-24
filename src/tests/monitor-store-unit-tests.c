@@ -919,6 +919,42 @@ meta_test_monitor_store_policy (void)
                    META_CONFIG_STORE_SYSTEM);
 }
 
+static void
+meta_test_monitor_store_policy_empty (void)
+{
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "*Invalid store*");
+  set_custom_monitor_system_config ("policy-empty.xml");
+  g_test_assert_expected_messages ();
+}
+
+static void
+meta_test_monitor_store_policy_duplicate (void)
+{
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "*Multiple identical stores*");
+  set_custom_monitor_system_config ("policy-duplicate.xml");
+  g_test_assert_expected_messages ();
+}
+
+static void
+meta_test_monitor_store_policy_invalid (void)
+{
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "*Invalid store*");
+  set_custom_monitor_system_config ("policy-invalid.xml");
+  g_test_assert_expected_messages ();
+}
+
+static void
+meta_test_monitor_store_policy_multiple (void)
+{
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "*Multiple stores elements under policy*");
+  set_custom_monitor_system_config ("policy-multiple.xml");
+  g_test_assert_expected_messages ();
+}
+
 void
 init_monitor_store_tests (void)
 {
@@ -950,4 +986,12 @@ init_monitor_store_tests (void)
                    meta_test_monitor_store_policy_not_allowed);
   g_test_add_func ("/backends/monitor-store/policy",
                    meta_test_monitor_store_policy);
+  g_test_add_func ("/backends/monitor-store/policy-empty",
+                   meta_test_monitor_store_policy_empty);
+  g_test_add_func ("/backends/monitor-store/policy-duplicate",
+                   meta_test_monitor_store_policy_duplicate);
+  g_test_add_func ("/backends/monitor-store/policy-invalid",
+                   meta_test_monitor_store_policy_invalid);
+  g_test_add_func ("/backends/monitor-store/policy-multiple",
+                   meta_test_monitor_store_policy_multiple);
 }

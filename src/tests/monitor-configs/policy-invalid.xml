@@ -1,0 +1,8 @@
+<monitors version="2">
+  <policy>
+    <stores>
+      <store>user</store>
+      <store>not-a-store</store>
+    </stores>
+  </policy>
+</monitors>
