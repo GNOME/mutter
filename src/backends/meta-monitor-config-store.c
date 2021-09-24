@@ -190,6 +190,17 @@ typedef struct
 G_DEFINE_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
                G_TYPE_OBJECT)
 
+static gboolean
+text_equals (const char *text,
+             int         len,
+             const char *expect)
+{
+  if (strlen (expect) != len)
+    return FALSE;
+
+  return strncmp (text, expect, len) == 0;
+}
+
 static void
 enter_unknown_element (ConfigParser *parser,
                        const char   *element_name,
@@ -904,12 +915,12 @@ read_bool (const char  *text,
            gboolean    *out_value,
            GError     **error)
 {
-  if (strncmp (text, "no", text_len) == 0)
+  if (text_equals (text, text_len, "no"))
     {
       *out_value = FALSE;
       return TRUE;
     }
-  else if (strncmp (text, "yes", text_len) == 0)
+  else if (text_equals (text, text_len, "yes"))
     {
       *out_value = TRUE;
       return TRUE;
@@ -1039,13 +1050,13 @@ handle_text (GMarkupParseContext *context,
 
     case STATE_TRANSFORM_ROTATION:
       {
-        if (strncmp (text, "normal", text_len) == 0)
+        if (text_equals (text, text_len, "normal"))
           parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
-        else if (strncmp (text, "left", text_len) == 0)
+        else if (text_equals (text, text_len, "left"))
           parser->current_transform = META_MONITOR_TRANSFORM_90;
-        else if (strncmp (text, "upside_down", text_len) == 0)
+        else if (text_equals (text, text_len, "upside_down"))
           parser->current_transform = META_MONITOR_TRANSFORM_180;
-        else if (strncmp (text, "right", text_len) == 0)
+        else if (text_equals (text, text_len, "right"))
           parser->current_transform = META_MONITOR_TRANSFORM_270;
         else
           g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
@@ -1088,7 +1099,7 @@ handle_text (GMarkupParseContext *context,
 
     case STATE_MONITOR_MODE_FLAG:
       {
-        if (strncmp (text, "interlace", text_len) == 0)
+        if (text_equals (text, text_len, "interlace"))
           {
             parser->current_monitor_mode_spec->flags |=
               META_CRTC_MODE_FLAG_INTERLACE;
