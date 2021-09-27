@@ -427,13 +427,6 @@ clutter_input_device_init (ClutterInputDevice *self)
     clutter_input_device_get_instance_private (self);
 
   priv->device_type = CLUTTER_POINTER_DEVICE;
-
-  self->click_count = 0;
-
-  self->previous_time = CLUTTER_CURRENT_TIME;
-  self->previous_x = -1;
-  self->previous_y = -1;
-  self->current_button_number = self->previous_button_number = -1;
 }
 
 /**

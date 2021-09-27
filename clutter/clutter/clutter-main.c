@@ -674,107 +674,6 @@ _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
   return continue_emission;
 }
 
-static void
-event_click_count_generate (ClutterEvent *event)
-{
-  /* multiple button click detection */
-  static gint    click_count            = 0;
-  static gint    previous_x             = -1;
-  static gint    previous_y             = -1;
-  static guint32 previous_time          = 0;
-  static gint    previous_button_number = -1;
-
-  ClutterInputDevice *device = NULL;
-  ClutterSettings *settings;
-  guint double_click_time;
-  guint double_click_distance;
-
-  settings = clutter_settings_get_default ();
-
-  g_object_get (settings,
-                "double-click-distance", &double_click_distance,
-                "double-click-time", &double_click_time,
-                NULL);
-
-  device = clutter_event_get_device (event);
-  if (device != NULL)
-    {
-      click_count = device->click_count;
-      previous_x = device->previous_x;
-      previous_y = device->previous_y;
-      previous_time = device->previous_time;
-      previous_button_number = device->previous_button_number;
-
-      CLUTTER_NOTE (EVENT,
-                    "Restoring previous click count:%d (device:%s, time:%u)",
-                    click_count,
-                    clutter_input_device_get_device_name (device),
-                    previous_time);
-    }
-  else
-    {
-      CLUTTER_NOTE (EVENT,
-                    "Restoring previous click count:%d (time:%u)",
-                    click_count,
-                    previous_time);
-    }
-
-  switch (clutter_event_type (event))
-    {
-      case CLUTTER_BUTTON_PRESS:
-        /* check if we are in time and within distance to increment an
-         * existing click count
-         */
-        if (event->button.button == previous_button_number &&
-            event->button.time < (previous_time + double_click_time) &&
-            (ABS (event->button.x - previous_x) <= double_click_distance) &&
-            (ABS (event->button.y - previous_y) <= double_click_distance))
-          {
-            CLUTTER_NOTE (EVENT, "Increase click count (button: %d, time: %u)",
-                          event->button.button,
-                          event->button.time);
-
-            click_count += 1;
-          }
-        else /* start a new click count*/
-          {
-            CLUTTER_NOTE (EVENT, "Reset click count (button: %d, time: %u)",
-                          event->button.button,
-                          event->button.time);
-
-            click_count = 1;
-            previous_button_number = event->button.button;
-          }
-
-        previous_x = event->button.x;
-        previous_y = event->button.y;
-        previous_time = event->button.time;
-
-        G_GNUC_FALLTHROUGH;
-      case CLUTTER_BUTTON_RELEASE:
-        event->button.click_count = click_count;
-        break;
-
-      default:
-        g_assert_not_reached ();
-        break;
-    }
-
-  if (event->type == CLUTTER_BUTTON_PRESS && device != NULL)
-    {
-      CLUTTER_NOTE (EVENT, "Storing click count: %d (device:%s, time:%u)",
-                    click_count,
-                    clutter_input_device_get_device_name (device),
-                    previous_time);
-
-      device->click_count = click_count;
-      device->previous_x = previous_x;
-      device->previous_y = previous_y;
-      device->previous_time = previous_time;
-      device->previous_button_number = previous_button_number;
-    }
-}
-
 static inline void
 emit_event_chain (ClutterEvent *event)
 {
@@ -789,7 +688,7 @@ emit_event_chain (ClutterEvent *event)
 
 /*
  * Emits a pointer event after having prepared the event for delivery (setting
- * source, computing click_count, generating enter/leave etc.).
+ * source, generating enter/leave etc.).
  */
 
 static inline void
@@ -1266,7 +1165,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                                     x, y);
 
                       event->button.source = stage;
-                      event->button.click_count = 1;
 
                       emit_pointer_event (event, device);
                     }
@@ -1310,14 +1208,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                         "Reactive event received at %.2f, %.2f - actor: %p",
                         x, y,
                         event->any.source);
-
-          /* button presses and releases need a click count */
-          if (event->type == CLUTTER_BUTTON_PRESS ||
-              event->type == CLUTTER_BUTTON_RELEASE)
-            {
-              /* Generate click count */
-              event_click_count_generate (event);
-            }
 
           emit_pointer_event (event, device);
           break;

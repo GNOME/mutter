@@ -59,16 +59,6 @@ struct _ClutterInputDevice
   GHashTable   *sequence_grab_actors;
   GHashTable   *inv_sequence_grab_actors;
 
-  /* the current click count */
-  int click_count;
-  int current_button_number;
-
-  /* the previous state, used for click count generation */
-  int previous_x;
-  int previous_y;
-  uint32_t previous_time;
-  int previous_button_number;
-
   /* Accessiblity */
   ClutterVirtualInputDevice *accessibility_virtual_device;
   ClutterPtrA11yData *ptr_a11y_data;

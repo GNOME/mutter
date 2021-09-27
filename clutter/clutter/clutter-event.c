@@ -823,27 +823,6 @@ clutter_event_set_button (ClutterEvent *event,
   event->button.button = button;
 }
 
-/**
- * clutter_event_get_click_count:
- * @event: a #ClutterEvent of type %CLUTTER_BUTTON_PRESS or
- *   of type %CLUTTER_BUTTON_RELEASE
- *
- * Retrieves the number of clicks of @event
- *
- * Return value: the click count
- *
- * Since: 1.0
- */
-guint32
-clutter_event_get_click_count (const ClutterEvent *event)
-{
-  g_return_val_if_fail (event != NULL, 0);
-  g_return_val_if_fail (event->type == CLUTTER_BUTTON_PRESS ||
-                        event->type == CLUTTER_BUTTON_RELEASE, 0);
-
-  return event->button.click_count;
-}
-
 /* keys */
 
 /**

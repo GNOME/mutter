@@ -188,8 +188,6 @@ struct _ClutterKeyEvent
  * @y: event Y coordinate, relative to the stage
  * @modifier_state: button modifiers
  * @button: event button
- * @click_count: number of button presses within the default time
- *   and radius
  * @axes: reserved for future use
  * @device: the device that originated the event. If you want the physical
  * device the event originated from, use clutter_event_get_source_device()
@@ -214,7 +212,6 @@ struct _ClutterButtonEvent
   gfloat y;
   ClutterModifierType modifier_state;
   guint32 button;
-  guint click_count;
   gdouble *axes; /* Future use */
   ClutterInputDevice *device;
   uint32_t evdev_code;
@@ -739,8 +736,6 @@ void                    clutter_event_set_button                (ClutterEvent   
                                                                  guint32                 button);
 CLUTTER_EXPORT
 guint32                 clutter_event_get_button                (const ClutterEvent     *event);
-CLUTTER_EXPORT
-guint                   clutter_event_get_click_count           (const ClutterEvent     *event);
 CLUTTER_EXPORT
 void                    clutter_event_set_related               (ClutterEvent           *event,
                                                                  ClutterActor           *actor);
