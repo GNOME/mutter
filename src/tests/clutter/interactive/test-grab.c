@@ -41,8 +41,7 @@ debug_event_cb (ClutterActor *actor,
       printf("[%s] LEAVE", source);
       break;
     case CLUTTER_BUTTON_PRESS:
-      printf("[%s] BUTTON PRESS (click count:%i)", 
-	     source, event->button.click_count);
+      printf("[%s] BUTTON PRESS", source);
       break;
     case CLUTTER_BUTTON_RELEASE:
       printf("[%s] BUTTON RELEASE", source);
