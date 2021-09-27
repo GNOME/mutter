@@ -972,8 +972,42 @@ grab_op_from_resize_control (MetaFrameControl control)
     }
 }
 
+static int
+meta_ui_frame_update_click_count (MetaUIFrame        *frame,
+                                  const ClutterEvent *event)
+{
+  MetaFrames *frames = frame->frames;
+  ClutterSettings *settings;
+  int double_click_time, double_click_distance;
+  uint32_t evtime;
+  float x, y;
+
+  settings = clutter_settings_get_default ();
+  clutter_event_get_coords (event, &x, &y);
+  evtime = clutter_event_get_time (event);
+
+  g_object_get (settings,
+                "double-click-distance", &double_click_distance,
+                "double-click-time", &double_click_time,
+                NULL);
+
+  if (evtime > (frames->last_click_time + double_click_time) ||
+      (ABS (x - frames->last_click_x) > double_click_distance) ||
+      (ABS (y - frames->last_click_y) > double_click_distance))
+    frames->click_count = 0;
+
+  frames->last_click_time = evtime;
+  frames->last_click_x = x;
+  frames->last_click_y = y;
+
+  frames->click_count = (frames->click_count % 2) + 1;
+
+  return frames->click_count;
+}
+
 static guint
-get_action (const ClutterEvent *event)
+get_action (MetaUIFrame        *frame,
+            const ClutterEvent *event)
 {
   if (event->type == CLUTTER_BUTTON_PRESS ||
       event->type == CLUTTER_BUTTON_RELEASE)
@@ -981,7 +1015,7 @@ get_action (const ClutterEvent *event)
       switch (event->button.button)
         {
         case CLUTTER_BUTTON_PRIMARY:
-          if (clutter_event_get_click_count (event) == 2)
+          if (meta_ui_frame_update_click_count (frame, event) == 2)
             return META_ACTION_DOUBLE_CLICK;
           else
             return META_ACTION_CLICK;
@@ -1138,7 +1172,7 @@ handle_press_event (MetaUIFrame        *frame,
   g_assert (event->type == CLUTTER_BUTTON_PRESS ||
             event->type == CLUTTER_TOUCH_BEGIN);
 
-  action = get_action (event);
+  action = get_action (frame, event);
   if (action == META_ACTION_IGNORE)
     return FALSE;
 

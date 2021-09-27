@@ -105,6 +105,11 @@ struct _MetaFrames
   gdouble grab_y;
 
   ClutterEventSequence *grab_touch;
+
+  float last_click_x;
+  float last_click_y;
+  uint32_t last_click_time;
+  int click_count;
 };
 
 struct _MetaFramesClass
