@@ -843,6 +843,7 @@ struct _ClutterActorPrivate
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_update_stage_views    : 1;
+  guint clear_stage_views_needs_stage_views_changed : 1;
 };
 
 enum
@@ -15708,7 +15709,21 @@ clear_stage_views_cb (ClutterActor *actor,
   old_stage_views = g_steal_pointer (&actor->priv->stage_views);
 
   if (old_stage_views)
-    g_signal_emit (actor, actor_signals[STAGE_VIEWS_CHANGED], 0);
+    actor->priv->clear_stage_views_needs_stage_views_changed = TRUE;
+
+  return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
+}
+
+static ClutterActorTraverseVisitFlags
+maybe_emit_stage_views_changed_cb (ClutterActor *actor,
+                                   int           depth,
+                                   gpointer      user_data)
+{
+  if (actor->priv->clear_stage_views_needs_stage_views_changed)
+    {
+      actor->priv->clear_stage_views_needs_stage_views_changed = FALSE;
+      g_signal_emit (actor, actor_signals[STAGE_VIEWS_CHANGED], 0);
+    }
 
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
@@ -15719,6 +15734,11 @@ clutter_actor_clear_stage_views_recursive (ClutterActor *self)
   _clutter_actor_traverse (self,
                            CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
                            clear_stage_views_cb,
+                           NULL,
+                           NULL);
+  _clutter_actor_traverse (self,
+                           CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
+                           maybe_emit_stage_views_changed_cb,
                            NULL,
                            NULL);
 }
@@ -16033,7 +16053,7 @@ clutter_actor_pick_frame_clock (ClutterActor  *self,
 
   for (l = stage_views_list; l; l = l->next)
     {
-      ClutterStageView *view = l->data;
+      ClutterStageView *view = CLUTTER_STAGE_VIEW (l->data);
       float refresh_rate;
 
       refresh_rate = clutter_stage_view_get_refresh_rate (view);
