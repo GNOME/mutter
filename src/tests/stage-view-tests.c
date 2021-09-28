@@ -1194,6 +1194,7 @@ main (int argc, char *argv[])
   meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
                                           META_TYPE_BACKEND_TEST,
                                           NULL);
+  g_setenv ("MUTTER_DEBUG_DISABLE_ANIMATIONS", "1", TRUE);
 
   meta_init ();
   meta_register_with_session ();
