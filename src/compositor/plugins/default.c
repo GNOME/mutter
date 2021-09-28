@@ -37,10 +37,20 @@
 #include "meta/util.h"
 #include "meta/window.h"
 
-#define DESTROY_TIMEOUT   100
-#define MINIMIZE_TIMEOUT  250
-#define MAP_TIMEOUT       250
-#define SWITCH_TIMEOUT    500
+typedef enum
+{
+  ANIMATION_DESTROY,
+  ANIMATION_MINIMIZE,
+  ANIMATION_MAP,
+  ANIMATION_SWITCH,
+} Animation;
+
+static unsigned int animation_durations[] = {
+  100, /* destroy */
+  250, /* minimize */
+  250, /* map */
+  500, /* switch */
+};
 
 #define ACTOR_DATA_KEY "MCCP-Default-actor-data"
 #define DISPLAY_TILE_PREVIEW_DATA_KEY "MCCP-Default-display-tile-preview-data"
@@ -256,10 +266,38 @@ get_actor_private (MetaWindowActor *actor)
   return priv;
 }
 
+static gboolean
+is_animations_disabled (void)
+{
+  static gboolean is_animations_disabled_set;
+  static gboolean is_animations_disabled;
+
+  if (!is_animations_disabled_set)
+    {
+      if (g_strcmp0 (getenv ("MUTTER_DEBUG_DISABLE_ANIMATIONS"), "1") == 0)
+        is_animations_disabled = TRUE;
+      else
+        is_animations_disabled = FALSE;
+
+      is_animations_disabled_set = TRUE;
+    }
+
+  return is_animations_disabled;
+}
+
+static unsigned int
+get_animation_duration (Animation animation)
+{
+  if (is_animations_disabled ())
+    return 0;
+
+  return animation_durations[animation];
+}
+
 static ClutterTimeline *
 actor_animate (ClutterActor         *actor,
                ClutterAnimationMode  mode,
-               guint                 duration,
+               Animation             animation,
                const gchar          *first_property,
                ...)
 {
@@ -268,7 +306,7 @@ actor_animate (ClutterActor         *actor,
 
   clutter_actor_save_easing_state (actor);
   clutter_actor_set_easing_mode (actor, mode);
-  clutter_actor_set_easing_duration (actor, duration);
+  clutter_actor_set_easing_duration (actor, get_animation_duration (animation));
 
   va_start (args, first_property);
   g_object_set_valist (G_OBJECT (actor), first_property, args);
@@ -537,7 +575,7 @@ switch_workspace (MetaPlugin *plugin,
   priv->desktop2 = workspace1;
 
   priv->tml_switch_workspace1 = actor_animate (workspace0, CLUTTER_EASE_IN_SINE,
-                                               SWITCH_TIMEOUT,
+                                               ANIMATION_SWITCH,
                                                "scale-x", 1.0,
                                                "scale-y", 1.0,
                                                NULL);
@@ -547,7 +585,7 @@ switch_workspace (MetaPlugin *plugin,
                     plugin);
 
   priv->tml_switch_workspace2 = actor_animate (workspace1, CLUTTER_EASE_IN_SINE,
-                                               SWITCH_TIMEOUT,
+                                               ANIMATION_SWITCH,
                                                "scale-x", 0.0,
                                                "scale-y", 0.0,
                                                NULL);
@@ -610,7 +648,7 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
     {
       timeline = actor_animate (actor,
                                 CLUTTER_EASE_IN_SINE,
-                                MINIMIZE_TIMEOUT,
+                                ANIMATION_MINIMIZE,
                                 "scale-x", 0.0,
                                 "scale-y", 0.0,
                                 "x", (double)icon_geometry.x,
@@ -677,16 +715,24 @@ map (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
       apriv->tml_map = actor_animate (actor,
                                       CLUTTER_EASE_OUT_QUAD,
-                                      MAP_TIMEOUT,
+                                      ANIMATION_MAP,
                                       "opacity", 255,
                                       "scale-x", 1.0,
                                       "scale-y", 1.0,
                                       NULL);
-      data->actor = actor;
-      data->plugin = plugin;
-      g_signal_connect (apriv->tml_map, "completed",
-                        G_CALLBACK (on_map_effect_complete),
-                        data);
+      if (apriv->tml_map)
+        {
+          data->actor = actor;
+          data->plugin = plugin;
+          g_signal_connect (apriv->tml_map, "completed",
+                            G_CALLBACK (on_map_effect_complete),
+                            data);
+        }
+      else
+        {
+          g_free (data);
+          meta_plugin_map_completed (plugin, window_actor);
+        }
     }
   else
     meta_plugin_map_completed (plugin, window_actor);
@@ -725,7 +771,7 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
     {
       timeline = actor_animate (actor,
                                 CLUTTER_EASE_OUT_QUAD,
-                                DESTROY_TIMEOUT,
+                                ANIMATION_DESTROY,
                                 "opacity", 0,
                                 "scale-x", 0.8,
                                 "scale-y", 0.8,
