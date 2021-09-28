@@ -1081,12 +1081,14 @@ static void
 ensure_view_count (int n_views)
 {
   MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
     META_MONITOR_MANAGER_TEST (monitor_manager);
   MonitorTestCaseSetup test_case_setup;
   MetaMonitorTestSetup *test_setup;
+  GList *stage_views;
 
   test_case_setup = initial_test_case_setup;
   test_case_setup.n_outputs = n_views;
@@ -1094,6 +1096,9 @@ ensure_view_count (int n_views)
   test_setup = create_monitor_test_setup (&test_case_setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpuint (g_list_length (stage_views), ==, n_views);
 }
 
 static void
