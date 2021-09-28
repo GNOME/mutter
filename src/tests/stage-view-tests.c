@@ -1158,6 +1158,57 @@ meta_test_timeline_actor_destroyed (void)
 }
 
 static void
+meta_test_timeline_actor_tree_clear (void)
+{
+  ClutterActor *stage;
+  ClutterActor *container1;
+  ClutterActor *container2;
+  g_autoptr (ClutterActor) floating = NULL;
+  g_autoptr (ClutterTimeline) timeline = NULL;
+  GList *stage_views;
+
+  stage = meta_backend_get_stage (meta_get_backend ());
+
+  ensure_view_count (1);
+
+  container1 = clutter_actor_new ();
+  clutter_actor_set_size (container1, 100, 100);
+  clutter_actor_add_child (stage, container1);
+
+  wait_for_paint (stage);
+
+  container2 = clutter_actor_new ();
+  clutter_actor_set_size (container2, 100, 100);
+  clutter_actor_add_child (stage, container2);
+
+  floating = g_object_ref_sink (clutter_actor_new ());
+  clutter_actor_set_size (floating, 100, 100);
+
+  clutter_actor_add_child (container2, floating);
+  timeline = clutter_timeline_new_for_actor (floating, 100);
+  clutter_actor_remove_child (container2, floating);
+
+  clutter_actor_add_child (container1, floating);
+
+  ensure_view_count (1);
+
+  is_on_stage_views (container1, 0);
+  is_on_stage_views (container2, 0);
+  is_on_stage_views (floating, 0);
+
+  wait_for_paint (stage);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  is_on_stage_views (container1, 1, stage_views->data);
+  is_on_stage_views (container2, 1, stage_views->data);
+  is_on_stage_views (floating, 1, stage_views->data);
+
+  clutter_actor_destroy (floating);
+  clutter_actor_destroy (container1);
+  clutter_actor_destroy (container2);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -1186,6 +1237,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_and_frame_clocks_freed);
   g_test_add_func ("/stage-views/timeline/actor-destroyed",
                    meta_test_timeline_actor_destroyed);
+  g_test_add_func ("/stage-views/timeline/tree-clear",
+                   meta_test_timeline_actor_tree_clear);
 }
 
 int
