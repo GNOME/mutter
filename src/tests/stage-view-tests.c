@@ -1288,6 +1288,8 @@ main (int argc, char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
 
+  g_setenv ("MUTTER_DEBUG_DISABLE_ANIMATIONS", "1", TRUE);
+
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
                                       META_CONTEXT_TEST_FLAG_TEST_CLIENT);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
