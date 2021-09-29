@@ -3199,7 +3199,7 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
  * @stage: a #ClutterStage actor
  * @rect: a #cairo_rectangle_int_t
  * @scale: the scale
- * @data: (inout) (array) (element-type guint8): a pointer to the data
+ * @data: (array) (element-type guint8): a pointer to the data
  * @stride: stride of the image surface
  * @format: the pixel format
  * @paint_flags: the #ClutterPaintFlag
