@@ -7,10 +7,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: metacity master\n"
+"Project-Id-Version: mutter main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-03-21 20:23+0000\n"
-"PO-Revision-Date: 2021-03-22 08:29+0700\n"
+"POT-Creation-Date: 2021-09-28 11:09+0000\n"
+"PO-Revision-Date: 2021-09-29 13:37+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <gnome-vi-list@gnome.org>\n"
 "Language: vi\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Gtranslator 3.38.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -52,109 +52,125 @@ msgstr "Chuyển cửa sổ sang không gian làm việc bên trái"
 msgid "Move window one workspace to the right"
 msgstr "Chuyển cửa sổ sang không gian làm việc bên phải"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Chuyển cửa sổ lên một không gian làm việc"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Chuyển cửa sổ xuống một không gian làm việc"
+
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "Chuyển cửa sổ sang trái một màn hình"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "Chuyển cửa sổ sang phải một màn hình"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "Chuyển cửa sổ lên một màn hình"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "Chuyển cửa sổ xuống một màn hình"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Chuyển ứng dụng"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Chuyển sang ứng dụng kế trước"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Chuyển cửa sổ"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Chuyển sang cửa sổ kế trước"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Chuyển cửa sổ của một ứng dụng"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Chuyển sang cửa sổ kế trước của một ứng dụng"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Chuyển điều khiển hệ thống"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Chuyển đến điều khiển hệ thống kế trước"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Chuyển cửa sổ trực tiếp"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Chuyển trực tiếp đến cửa sổ kế trước"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Chuyển trực tiếp cửa sổ của một ứng dụng"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Chuyển trực tiếp đến cửa sổ kế trước của một ứng dụng"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Chuyển điều khiển hệ thống trực tiếp"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Chuyển trực tiếp đến điều khiển hệ thống kế trước"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Ẩn mọi cửa sổ thường"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "Chuyển sang không gian làm việc 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "Chuyển sang không gian làm việc 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "Chuyển sang không gian làm việc 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "Chuyển sang không gian làm việc 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "Chuyển sang không gian làm việc cuối"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
 msgstr "Chuyển sang không gian làm việc bên trái"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
 msgstr "Chuyển sang không gian làm việc bên phải"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace above"
+msgstr "Chuyển sang không gian làm việc trên"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Move to workspace below"
+msgstr "Chuyển sang không gian làm việc dưới"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -163,10 +179,6 @@ msgstr "Hệ thống"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Hiện dấu nhắc dòng lệnh"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Hiện tổng quan hoạt động"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -414,11 +426,11 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:143
 msgid "Modifier to use to locate the pointer"
-msgstr "Chỉnh sửa để dùng để địa phương con trỏ"
+msgstr "Chỉnh sửa để dùng để định vị con trỏ"
 
 #: data/org.gnome.mutter.gschema.xml.in:144
 msgid "This key will initiate the “locate pointer” action."
-msgstr "Khóa này sẽ khởi tạo thao tác “locate pointer”."
+msgstr "Khóa này sẽ khởi tạo thao tác “định vị con trỏ”."
 
 #: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Timeout for check-alive ping"
@@ -429,8 +441,8 @@ msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
-"Số mili giây mà máy khách phải trả lời yêu cầu ping để không bị phát hiện là "
-"đang ngủ đông. Sử dụng 0 sẽ vô hiệu hóa kiểm tra sống."
+"Số mili giây mà máy khách phải trả lời yêu cầu ping để không bị cho là đang "
+"ngủ đông. Sử dụng 0 sẽ vô hiệu hóa kiểm tra sống."
 
 #: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
@@ -571,26 +583,26 @@ msgstr ""
 "không có tác dụng nếu Xwayland được biên dịch mà không hỗ trợ các phần mở "
 "rộng đã chọn. Xwayland cần được khởi động lại để cài đặt này có hiệu lực."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Màn hình tích hợp"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Không rõ"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Không hiểu màn hình"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -601,75 +613,36 @@ msgstr "%s %s"
 #. Translators: this string will appear in Sysprof
 #: src/backends/meta-profiler.c:79
 msgid "Compositor"
-msgstr "Compositor"
+msgstr "Bộ tổng hợp"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+msgid "X display to use"
+msgstr "Màn hình X cần dùng"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+msgid "X screen to use"
+msgstr "Màn ảnh X cần dùng"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Khiến các cú gọi X đồng bộ"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr "Tắt hỗ trợ XInput"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
-msgstr "Bộ quản lý cửa sổ đã đang chạy trên màn hình %i trên bộ hiển thị “%s”."
+msgstr "Bộ quản lý cửa sổ đã đang chạy trên màn ảnh %i trên màn hình “%s”."
 
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Sự kiện chuông"
-
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "Vô hiệu hóa kết nối với bộ quản lý phiên làm việc"
-
-#: src/core/main.c:239
-msgid "Replace the running window manager"
-msgstr "Thay thế bộ quản lý cửa sổ đang chạy"
-
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "Ghi rõ mã số quản lý phiên làm việc"
-
-#: src/core/main.c:250
-msgid "X Display to use"
-msgstr "Màn hình X cần dùng"
-
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "Khởi động phiên làm việc từ tập tin lưu"
-
-#: src/core/main.c:262
-msgid "Make X calls synchronous"
-msgstr "Khiến các cú gọi X đồng bộ với nhau"
-
-#: src/core/main.c:269
-msgid "Run as a wayland compositor"
-msgstr "Chạy như là một “wayland compositor”"
-
-#: src/core/main.c:275
-msgid "Run as a nested compositor"
-msgstr "Chạy như là một “nested compositor”"
-
-#: src/core/main.c:281
-msgid "Run wayland compositor without starting Xwayland"
-msgstr "Chạy bộ sắp xếp wayland mà không khởi chạy Xwayland"
-
-#: src/core/main.c:287
-msgid "Specify Wayland display name to use"
-msgstr "Chỉ định tên thiết bị hiển thị Wayland muốn dùng"
-
-#: src/core/main.c:295
-msgid "Run as a full display server, rather than nested"
-msgstr "Chạy như là một dịch vụ hiển thị đầy đủ, thay cho lồng nhau"
-
-#: src/core/main.c:300
-msgid "Run as a headless display server"
-msgstr "Chạy như là một dịch vụ hiển thị không có đầu"
-
-#: src/core/main.c:305
-msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr "Thêm màn hình ảo lâu dài (WxH hoặc WxH@R)"
-
-#: src/core/main.c:311
-msgid "Run with X11 backend"
-msgstr "Chạy với ứng dụng chạy phía sau X11"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -697,10 +670,62 @@ msgstr "_Buộc thoát"
 msgid "_Wait"
 msgstr "_Chờ"
 
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "Thay thế bộ quản lý cửa sổ đang chạy"
+
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "Màn hình X cần dùng"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "Vô hiệu hóa kết nối với bộ quản lý phiên làm việc"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "Ghi rõ mã số quản lý phiên làm việc"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "Khởi động phiên làm việc từ tập tin lưu"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Chạy như là một “bộ tổng hợp wayland”"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr "Chạy như là một “bộ tổng hợp lồng nhau”"
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Chạy bộ tổng hợp wayland mà không khởi chạy Xwayland"
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr "Chỉ định tên thiết bị hiển thị Wayland muốn dùng"
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr "Chạy như là một dịch vụ hiển thị đầy đủ, thay cho lồng nhau"
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr "Chạy như là một dịch vụ hiển thị không có đầu"
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Thêm màn hình ảo lâu dài (WxH hoặc WxH@R)"
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr "Chạy với ứng dụng chạy phía sau X11"
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:782
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Chuyển chế độ (Nhóm %d)"
@@ -708,28 +733,28 @@ msgstr "Chuyển chế độ (Nhóm %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:805
 msgid "Switch monitor"
 msgstr "Chuyển màn hình"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:807
 msgid "Show on-screen help"
 msgstr "Hiển thị trợ giúp trên-màn-hình"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:48
 msgid "Print version"
 msgstr "Hiển thị phiên bản"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:54
 msgid "Mutter plugin to use"
 msgstr "Phần bổ sung Mutter cần dùng"
 
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Không gian làm việc %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:148
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter đã được biên dịch không hỗ trợ chế độ chi tiết"
 
@@ -738,7 +763,7 @@ msgstr "Mutter đã được biên dịch không hỗ trợ chế độ chi ti�
 msgid "Mode Switch: Mode %d"
 msgstr "Chuyển chế độ: Chế độ %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -747,16 +772,16 @@ msgstr ""
 "Màn hình “%s” đã có bộ quản lý cửa sổ rồi; hãy thử dùng tùy chọn --replace "
 "để thay thế bộ quản lý cửa sổ đang dùng."
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
 msgstr "Gặp lỗi khi khởi tạo GDK"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gặp lỗi khi mở bộ hiển thị Hệ thống Cửa sổ X “%s”"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1175
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Màn hình %d trên bộ hiển thị “%s” là không hợp lệ"
@@ -766,7 +791,7 @@ msgstr "Màn hình %d trên bộ hiển thị “%s” là không hợp lệ"
 msgid "Format %s not supported"
 msgstr "Không hỗ trợ định dạng %s"
 
-#: src/x11/session.c:1822
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -779,17 +804,8 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (trên %s)"
 
-#~ msgid "Move window one workspace up"
-#~ msgstr "Chuyển cửa sổ lên một không gian làm việc"
-
-#~ msgid "Move window one workspace down"
-#~ msgstr "Chuyển cửa sổ xuống một không gian làm việc"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "Chuyển sang không gian làm việc trên"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Chuyển sang không gian làm việc dưới"
+#~ msgid "Show the activities overview"
+#~ msgstr "Hiện tổng quan hoạt động"
 
 #~ msgid ""
 #~ "mutter %s\n"
