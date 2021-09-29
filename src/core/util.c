@@ -772,6 +772,12 @@ meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
   clutter_remove_debug_flags (debug_flags, draw_flags, pick_flags);
 }
 
+/**
+ * meta_get_clutter_debug_flags:
+ * @debug_flags: (out) (optional): return location for debug flags
+ * @draw_flags: (out) (optional): return location for draw debug flags
+ * @pick_flags: (out) (optional): return location for pick debug flags
+ */
 void
 meta_get_clutter_debug_flags (ClutterDebugFlag     *debug_flags,
                               ClutterDrawDebugFlag *draw_flags,

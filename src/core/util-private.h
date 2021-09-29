@@ -54,8 +54,4 @@ void meta_init_debug_utils (void);
    (ycoord) >= (rect).y &&                   \
    (ycoord) <  ((rect).y + (rect).height))
 
-void     meta_get_clutter_debug_flags (ClutterDebugFlag     *debug_flags,
-                                       ClutterDrawDebugFlag *draw_flags,
-                                       ClutterPickDebugFlag *pick_flags);
-
 #endif
