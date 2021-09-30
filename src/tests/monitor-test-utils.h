@@ -191,11 +191,11 @@ typedef struct _MonitorTestCaseExpect
   int screen_height;
 } MonitorTestCaseExpect;
 
-struct _MonitorTestCase
+typedef struct _MonitorTestCase
 {
   MonitorTestCaseSetup setup;
   MonitorTestCaseExpect expect;
-};
+} MonitorTestCase;
 
 MetaGpu * test_get_gpu (void);
 

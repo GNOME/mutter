@@ -143,9 +143,20 @@ unit_tests = executable('mutter-test-unit-tests',
     'monitor-test-utils.h',
     'monitor-transform-tests.c',
     'monitor-transform-tests.h',
-    'monitor-unit-tests.c',
     'orientation-manager-unit-tests.c',
-    'monitor-unit-tests.h',
+  ],
+  include_directories: tests_includes,
+  c_args: tests_c_args,
+  dependencies: libmutter_test_dep,
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+)
+
+monitor_unit_tests = executable('mutter-monitor-unit-tests',
+  sources: [
+    'monitor-test-utils.c',
+    'monitor-test-utils.h',
+    'monitor-unit-tests.c',
   ],
   include_directories: tests_includes,
   c_args: tests_c_args,
@@ -368,6 +379,13 @@ foreach stacking_test: stacking_tests
 endforeach
 
 test('normal', unit_tests,
+  suite: ['core', 'mutter/unit'],
+  env: test_env,
+  is_parallel: false,
+  timeout: 60,
+)
+
+test('monitors', monitor_unit_tests,
   suite: ['core', 'mutter/unit'],
   env: test_env,
   is_parallel: false,

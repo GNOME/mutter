@@ -19,8 +19,6 @@
 
 #include "config.h"
 
-#include "tests/monitor-unit-tests.h"
-
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
@@ -31,12 +29,14 @@
 #include "backends/meta-output.h"
 #include "core/window-private.h"
 #include "meta-backend-test.h"
+#include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/meta-sensors-proxy-mock.h"
 #include "tests/monitor-test-utils.h"
 #include "tests/meta-test-utils.h"
-#include "tests/unit-tests.h"
 #include "x11/meta-x11-display-private.h"
+
+static MetaContext *test_context;
 
 static MonitorTestCase initial_test_case = {
   .setup = {
@@ -8776,7 +8776,7 @@ create_initial_test_setup (void)
                                     MONITOR_TEST_FLAG_NO_STORED);
 }
 
-void
+static void
 init_monitor_tests (void)
 {
   meta_monitor_manager_test_init_test_setup (create_initial_test_setup);
@@ -8911,14 +8911,37 @@ init_monitor_tests (void)
                     meta_test_monitor_supported_fractional_scales);
 }
 
-void
+static void
 pre_run_monitor_tests (MetaContext *context)
 {
   create_monitor_test_clients (context);
 }
 
-void
+static void
 finish_monitor_tests (void)
 {
   destroy_monitor_test_clients ();
+}
+
+int
+main (int   argc,
+      char *argv[])
+{
+  g_autoptr (MetaContext) context = NULL;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  test_context = context;
+
+  init_monitor_tests ();
+
+  g_signal_connect (context, "before-tests",
+                    G_CALLBACK (pre_run_monitor_tests), NULL);
+  g_signal_connect (context, "after-tests",
+                    G_CALLBACK (finish_monitor_tests), NULL);
+
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                      META_TEST_RUN_FLAG_NONE);
 }

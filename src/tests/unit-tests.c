@@ -32,7 +32,6 @@
 #include "meta/meta-context.h"
 #include "tests/boxes-tests.h"
 #include "tests/monitor-config-migration-unit-tests.h"
-#include "tests/monitor-unit-tests.h"
 #include "tests/monitor-store-unit-tests.h"
 #include "tests/monitor-transform-tests.h"
 #include "tests/meta-test-utils.h"
@@ -229,7 +228,6 @@ init_tests (void)
 
   init_monitor_store_tests ();
   init_monitor_config_migration_tests ();
-  init_monitor_tests ();
   init_boxes_tests ();
   init_monitor_transform_tests ();
   init_orientation_manager_tests ();
@@ -249,11 +247,6 @@ main (int argc, char *argv[])
   test_context = context;
 
   init_tests ();
-
-  g_signal_connect (context, "before-tests",
-                    G_CALLBACK (pre_run_monitor_tests), NULL);
-  g_signal_connect (context, "after-tests",
-                    G_CALLBACK (finish_monitor_tests), NULL);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);
