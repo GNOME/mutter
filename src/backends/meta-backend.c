@@ -181,6 +181,7 @@ struct _MetaBackendPrivate
   guint upower_watch_id;
   GDBusProxy *upower_proxy;
   gboolean lid_is_closed;
+  gboolean on_battery;
 
   guint sleep_signal_id;
   GCancellable *cancellable;
@@ -670,6 +671,23 @@ upower_properties_changed (GDBusProxy *proxy,
         }
     }
 
+  v = g_variant_lookup_value (changed_properties,
+                              "OnBattery",
+                              G_VARIANT_TYPE_BOOLEAN);
+  if (v)
+    {
+      gboolean on_battery;
+
+      on_battery = g_variant_get_boolean (v);
+      g_variant_unref (v);
+
+      if (on_battery != priv->on_battery)
+        {
+          priv->on_battery = on_battery;
+          reset_idle_time = TRUE;
+        }
+    }
+
   if (reset_idle_time)
     meta_idle_manager_reset_idle_time (priv->idle_manager);
 }
@@ -712,6 +730,13 @@ upower_ready_cb (GObject      *source_object,
           g_signal_emit (backend, signals[LID_IS_CLOSED_CHANGED], 0,
                          priv->lid_is_closed);
         }
+    }
+
+  v = g_dbus_proxy_get_cached_property (proxy, "OnBattery");
+  if (v)
+    {
+      priv->on_battery = g_variant_get_boolean (v);
+      g_variant_unref (v);
     }
 }
 
