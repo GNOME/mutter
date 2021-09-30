@@ -212,4 +212,13 @@ void check_monitor_scales (MonitorTestCaseExpect       *expect,
 MetaMonitorTestSetup * create_monitor_test_setup (MonitorTestCaseSetup *setup,
                                                   MonitorTestFlag       flags);
 
+const char * meta_orientation_to_string (MetaOrientation orientation);
+
+void meta_wait_for_orientation (MetaOrientationManager *orientation_manager,
+                                MetaOrientation         orientation,
+                                unsigned int           *times_signalled_out);
+
+void meta_wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
+                                                unsigned int           *times_signalled_out);
+
 #endif /* MONITOR_TEST_UTILS_H */

@@ -25,12 +25,4 @@
 
 void init_orientation_manager_tests (void);
 
-void wait_for_orientation (MetaOrientationManager *orientation_manager,
-                           MetaOrientation         orientation,
-                           unsigned int           *times_signalled_out);
-void wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
-                                           unsigned int           *times_signalled_out);
-
-const char * orientation_to_string (MetaOrientation orientation);
-
 #endif /* ORIENTATION_MANAGER_UNIT_TESTS_H */

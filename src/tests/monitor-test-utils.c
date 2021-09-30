@@ -874,3 +874,149 @@ void check_monitor_scales (MonitorTestCaseExpect       *expect,
         }
     }
 }
+
+const char *
+meta_orientation_to_string (MetaOrientation orientation)
+{
+  switch (orientation)
+    {
+    case META_ORIENTATION_UNDEFINED:
+      return "(undefined)";
+    case META_ORIENTATION_NORMAL:
+      return "normal";
+    case META_ORIENTATION_BOTTOM_UP:
+      return "bottom-up";
+    case META_ORIENTATION_LEFT_UP:
+      return "left-up";
+    case META_ORIENTATION_RIGHT_UP:
+      return "right-up";
+    default:
+      return "(invalid)";
+    }
+}
+
+typedef struct
+{
+  MetaOrientation expected;
+  MetaOrientation orientation;
+  gulong connection_id;
+  guint timeout_id;
+  unsigned int times_signalled;
+} WaitForOrientation;
+
+static void
+on_orientation_changed (WaitForOrientation     *wfo,
+                        MetaOrientationManager *orientation_manager)
+{
+  wfo->orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  wfo->times_signalled++;
+
+  g_test_message ("wait_for_orientation_changes: Orientation changed to %d: %s",
+                  wfo->orientation, meta_orientation_to_string (wfo->orientation));
+}
+
+static gboolean
+on_max_wait_timeout (gpointer data)
+{
+  WaitForOrientation *wfo = data;
+
+  wfo->timeout_id = 0;
+  return G_SOURCE_REMOVE;
+}
+
+/*
+ * Assert that the orientation eventually changes to @orientation.
+ */
+void
+meta_wait_for_orientation (MetaOrientationManager *orientation_manager,
+                           MetaOrientation         orientation,
+                           unsigned int           *times_signalled_out)
+{
+  WaitForOrientation wfo = {
+    .expected = orientation,
+  };
+
+  wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%s: Waiting for orientation to change from "
+                  "%d: %s to %d: %s...",
+                  G_STRFUNC, wfo.orientation,
+                  meta_orientation_to_string (wfo.orientation),
+                  orientation, meta_orientation_to_string (orientation));
+
+  /* This timeout can be relatively generous because we don't expect to
+   * reach it: if we do, that's a test failure. */
+  wfo.timeout_id = g_timeout_add_seconds (10, on_max_wait_timeout, &wfo);
+  wfo.connection_id = g_signal_connect_swapped (orientation_manager,
+                                                "orientation-changed",
+                                                G_CALLBACK (on_orientation_changed),
+                                                &wfo);
+
+  while (wfo.orientation != orientation && wfo.timeout_id != 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  if (wfo.orientation != orientation)
+    {
+      g_error ("Timed out waiting for orientation to change from %s to %s "
+               "(received %u orientation-changed signal(s) while waiting)",
+               meta_orientation_to_string (wfo.orientation),
+               meta_orientation_to_string (orientation),
+               wfo.times_signalled);
+    }
+
+  g_test_message ("%s: Orientation is now %d: %s",
+                  G_STRFUNC, orientation,
+                  meta_orientation_to_string (orientation));
+
+  g_clear_handle_id (&wfo.timeout_id, g_source_remove);
+  g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
+
+  if (times_signalled_out != NULL)
+    *times_signalled_out = wfo.times_signalled;
+}
+
+/*
+ * Wait for a possible orientation change, but don't assert that one occurs.
+ */
+void
+meta_wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
+                                           unsigned int           *times_signalled_out)
+{
+  WaitForOrientation wfo = {
+    .expected = META_ORIENTATION_UNDEFINED,
+  };
+
+  wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%s: Waiting for orientation to maybe change from %d: %s...",
+                  G_STRFUNC, wfo.orientation,
+                  meta_orientation_to_string (wfo.orientation));
+
+  /* This can't be as long as the timeout for meta_wait_for_orientation(),
+   * because in the usual case we expect to reach this timeout: we're
+   * only waiting so that if the orientation (incorrectly?) changed here,
+   * we'd have a chance to detect that. */
+  wfo.timeout_id = g_timeout_add (1000, on_max_wait_timeout, &wfo);
+  wfo.connection_id = g_signal_connect_swapped (orientation_manager,
+                                                "orientation-changed",
+                                                G_CALLBACK (on_orientation_changed),
+                                                &wfo);
+
+  while (wfo.times_signalled == 0 && wfo.timeout_id != 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  if (wfo.timeout_id == 0)
+    {
+      g_test_message ("%s: Orientation didn't change", G_STRFUNC);
+    }
+  else
+    {
+      g_test_message ("%s: Orientation is now %d: %s",
+                      G_STRFUNC, wfo.orientation,
+                      meta_orientation_to_string (wfo.orientation));
+    }
+
+  g_clear_handle_id (&wfo.timeout_id, g_source_remove);
+  g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
+
+  if (times_signalled_out != NULL)
+    *times_signalled_out = wfo.times_signalled;
+}
