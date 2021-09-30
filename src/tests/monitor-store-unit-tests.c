@@ -26,6 +26,7 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "tests/monitor-test-utils.h"
+#include "tests/unit-tests.h"
 
 #define MAX_N_MONITORS 10
 #define MAX_N_LOGICAL_MONITORS 10
@@ -955,6 +956,51 @@ meta_test_monitor_store_policy_multiple (void)
   g_test_assert_expected_messages ();
 }
 
+static void
+meta_test_monitor_store_policy_dbus (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaMonitorConfigStore *config_store =
+    meta_monitor_config_manager_get_store (config_manager);
+  const MetaMonitorConfigPolicy *policy;
+
+  policy = meta_monitor_config_store_get_policy (config_store);
+  g_assert_nonnull (policy);
+  g_assert_cmpint (policy->enable_dbus, ==, TRUE);
+
+  set_custom_monitor_system_config ("policy-dbus.xml");
+
+  policy = meta_monitor_config_store_get_policy (config_store);
+  g_assert_nonnull (policy);
+  g_assert_cmpint (policy->enable_dbus, ==, FALSE);
+}
+
+static void
+meta_test_monitor_store_policy_dbus_invalid (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaMonitorConfigStore *config_store =
+    meta_monitor_config_manager_get_store (config_manager);
+  const MetaMonitorConfigPolicy *policy;
+
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "*Multiple dbus elements under policy*");
+  set_custom_monitor_system_config ("policy-dbus-invalid.xml");
+  g_test_assert_expected_messages ();
+
+  policy = meta_monitor_config_store_get_policy (config_store);
+  g_assert_nonnull (policy);
+  g_assert_cmpint (policy->enable_dbus, ==, FALSE);
+}
+
 void
 init_monitor_store_tests (void)
 {
@@ -994,4 +1040,8 @@ init_monitor_store_tests (void)
                    meta_test_monitor_store_policy_invalid);
   g_test_add_func ("/backends/monitor-store/policy-multiple",
                    meta_test_monitor_store_policy_multiple);
+  g_test_add_func ("/backends/monitor-store/dbus",
+                   meta_test_monitor_store_policy_dbus);
+  g_test_add_func ("/backends/monitor-store/dbus-invalid",
+                   meta_test_monitor_store_policy_dbus_invalid);
 }

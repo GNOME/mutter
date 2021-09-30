@@ -1,0 +1,6 @@
+<monitors version="2">
+  <policy>
+    <dbus>no</dbus>
+    <dbus>yes</dbus>
+  </policy>
+</monitors>

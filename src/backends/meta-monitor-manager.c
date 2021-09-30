@@ -51,6 +51,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
+#include "backends/meta-monitor-config-store.h"
 #include "backends/meta-orientation-manager.h"
 #include "backends/meta-output.h"
 #include "backends/meta-virtual-monitor.h"
@@ -1163,9 +1164,18 @@ update_has_builtin_panel (MetaMonitorManager *manager)
 void
 meta_monitor_manager_setup (MetaMonitorManager *manager)
 {
+  MetaMonitorConfigStore *config_store;
+  const MetaMonitorConfigPolicy *policy;
+
   manager->in_init = TRUE;
 
   manager->config_manager = meta_monitor_config_manager_new (manager);
+  config_store =
+    meta_monitor_config_manager_get_store (manager->config_manager);
+  policy = meta_monitor_config_store_get_policy (config_store);
+  meta_dbus_display_config_set_apply_monitors_config_allowed (manager->display_config,
+                                                              policy->enable_dbus);
+
 
   meta_monitor_manager_read_current_state (manager);
 
@@ -2545,6 +2555,8 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
                                                    GVariant              *properties_variant,
                                                    MetaMonitorManager    *manager)
 {
+  MetaMonitorConfigStore *config_store;
+  const MetaMonitorConfigPolicy *policy;
   MetaMonitorManagerCapability capabilities;
   GVariant *layout_mode_variant = NULL;
   MetaLogicalMonitorLayoutMode layout_mode;
@@ -2558,6 +2570,18 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_ACCESS_DENIED,
                                              "The requested configuration is based on stale information");
+      return TRUE;
+    }
+
+  config_store =
+    meta_monitor_config_manager_get_store (manager->config_manager);
+  policy = meta_monitor_config_store_get_policy (config_store);
+
+  if (!policy->enable_dbus)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Monitor configuration via D-Bus is disabled");
       return TRUE;
     }
 

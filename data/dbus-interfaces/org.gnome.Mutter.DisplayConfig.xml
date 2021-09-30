@@ -291,6 +291,13 @@
     <property name="PanelOrientationManaged" type="b" access="read" />
 
     <!--
+        ApplyMonitorsConfigAllowed:
+
+        Whether calling the ApplyMonitorsConfig method is allowed.
+    -->
+    <property name="ApplyMonitorsConfigAllowed" type="b" access="read" />
+
+    <!--
         MonitorsChanged:
 
 	The signal is emitted every time the screen configuration

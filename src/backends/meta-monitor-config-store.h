@@ -32,6 +32,11 @@ typedef enum _MetaConfigStore
   META_CONFIG_STORE_USER,
 } MetaConfigStore;
 
+typedef struct _MetaMonitorConfigPolicy
+{
+  gboolean enable_dbus;
+} MetaMonitorConfigPolicy;
+
 #define META_TYPE_MONITOR_CONFIG_STORE (meta_monitor_config_store_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
                       META, MONITOR_CONFIG_STORE, GObject)
@@ -69,5 +74,8 @@ MetaMonitorManager * meta_monitor_config_store_get_monitor_manager (MetaMonitorC
 
 META_EXPORT_TEST
 void meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store);
+
+META_EXPORT_TEST
+const MetaMonitorConfigPolicy * meta_monitor_config_store_get_policy (MetaMonitorConfigStore *config_store);
 
 #endif /* META_MONITOR_CONFIG_STORE_H */

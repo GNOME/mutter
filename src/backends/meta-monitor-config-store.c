@@ -123,6 +123,9 @@ struct _MetaMonitorConfigStore
 
   gboolean has_stores_policy;
   GList *stores_policy;
+
+  gboolean has_dbus_policy;
+  MetaMonitorConfigPolicy policy;
 };
 
 #define META_MONITOR_CONFIG_STORE_ERROR (meta_monitor_config_store_error_quark ())
@@ -168,6 +171,7 @@ typedef enum
   STATE_POLICY,
   STATE_STORES,
   STATE_STORE,
+  STATE_DBUS,
 } ParserState;
 
 typedef struct
@@ -191,8 +195,12 @@ typedef struct
   GList *current_disabled_monitor_specs;
   gboolean seen_policy;
   gboolean seen_stores;
+  gboolean seen_dbus;
   MetaConfigStore pending_store;
   GList *stores;
+
+  gboolean enable_dbus_set;
+  gboolean enable_dbus;
 
   ParserState unknown_state_root;
   int unknown_level;
@@ -574,6 +582,19 @@ handle_start_element (GMarkupParseContext  *context,
             parser->seen_stores = TRUE;
             parser->state = STATE_STORES;
           }
+        else if (g_str_equal (element_name, "dbus"))
+          {
+            if (parser->seen_dbus)
+              {
+                g_set_error (error,
+                             G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                             "Multiple dbus elements under policy");
+                return;
+              }
+
+            parser->seen_dbus = TRUE;
+            parser->state = STATE_DBUS;
+          }
         else
           {
             enter_unknown_element (parser, element_name,
@@ -602,6 +623,13 @@ handle_start_element (GMarkupParseContext  *context,
       {
         g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
                      "Invalid store sub element '%s'", element_name);
+        return;
+      }
+
+    case STATE_DBUS:
+      {
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                     "Invalid dbus sub element '%s'", element_name);
         return;
       }
     }
@@ -953,6 +981,23 @@ handle_end_element (GMarkupParseContext  *context,
         parser->state = STATE_POLICY;
         return;
 
+    case STATE_DBUS:
+        if (!parser->config_store->has_dbus_policy)
+          {
+            parser->config_store->has_dbus_policy = TRUE;
+            parser->config_store->policy.enable_dbus = parser->enable_dbus;
+            parser->enable_dbus_set = FALSE;
+          }
+        else
+          {
+            g_warning ("Policy for monitor configuration via D-Bus "
+                       "has already been set, ignoring policy from '%s'",
+                       g_file_get_path (parser->file));
+          }
+        parser->state = STATE_POLICY;
+
+        return;
+
     case STATE_POLICY:
         g_assert (g_str_equal (element_name, "policy"));
 
@@ -1283,6 +1328,15 @@ handle_text (GMarkupParseContext *context,
           }
 
         parser->pending_store = store;
+        return;
+      }
+
+    case STATE_DBUS:
+      {
+        parser->enable_dbus_set = TRUE;
+        read_bool (text, text_len,
+                   &parser->enable_dbus,
+                   error);
         return;
       }
     }
@@ -1643,6 +1697,11 @@ meta_monitor_config_store_save (MetaMonitorConfigStore *config_store)
       return;
     }
 
+  if (config_store->has_stores_policy &&
+      !g_list_find (config_store->stores_policy,
+                    GINT_TO_POINTER (META_CONFIG_STORE_USER)))
+    return;
+
   config_store->save_cancellable = g_cancellable_new ();
 
   buffer = generate_config_xml (config_store);
@@ -1719,6 +1778,8 @@ meta_monitor_config_store_set_custom (MetaMonitorConfigStore  *config_store,
 
   g_clear_pointer (&config_store->stores_policy, g_list_free);
   config_store->has_stores_policy = FALSE;
+  config_store->policy.enable_dbus = TRUE;
+  config_store->has_dbus_policy = FALSE;
 
   if (!read_config_file (config_store,
                          config_store->custom_read_file,
@@ -1834,6 +1895,7 @@ meta_monitor_config_store_init (MetaMonitorConfigStore *config_store)
                                                  meta_monitors_config_key_equal,
                                                  NULL,
                                                  g_object_unref);
+  config_store->policy.enable_dbus = TRUE;
 }
 
 static void
@@ -1986,4 +2048,10 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
 
 
   g_free (user_file_path);
+}
+
+const MetaMonitorConfigPolicy *
+meta_monitor_config_store_get_policy (MetaMonitorConfigStore *config_store)
+{
+  return &config_store->policy;
 }
