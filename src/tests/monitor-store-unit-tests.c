@@ -836,6 +836,60 @@ meta_test_monitor_store_interlaced (void)
   check_monitor_store_configurations (&expect);
 }
 
+static void
+meta_test_monitor_store_unknown_elements (void)
+{
+  MonitorStoreTestExpect expect = {
+    .configurations = {
+      {
+        .logical_monitors = {
+          {
+            .layout = {
+              .x = 0,
+              .y = 0,
+              .width = 1920,
+              .height = 1080
+            },
+            .scale = 1,
+            .is_primary = TRUE,
+            .is_presentation = FALSE,
+            .monitors = {
+              {
+                .connector = "DP-1",
+                .vendor = "MetaProduct's Inc.",
+                .product = "MetaMonitor",
+                .serial = "0x123456",
+                .mode = {
+                  .width = 1920,
+                  .height = 1080,
+                  .refresh_rate = 60.000495910644531
+                }
+              }
+            },
+            .n_monitors = 1,
+          }
+        },
+        .n_logical_monitors = 1
+      }
+    },
+    .n_configurations = 1
+  };
+
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "Unknown element <unknownundermonitors> "
+                         "under <monitors>, ignoring");
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "Unknown element <unknownunderconfiguration> "
+                         "under <configuration>, ignoring");
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "Unknown element <unknownunderlogicalmonitor> "
+                         "under <logicalmonitor>, ignoring");
+  set_custom_monitor_config ("unknown-elements.xml");
+  g_test_assert_expected_messages ();
+
+  check_monitor_store_configurations (&expect);
+}
+
 void
 init_monitor_store_tests (void)
 {
@@ -861,4 +915,6 @@ init_monitor_store_tests (void)
                    meta_test_monitor_store_second_rotated);
   g_test_add_func ("/backends/monitor-store/interlaced",
                    meta_test_monitor_store_interlaced);
+  g_test_add_func ("/backends/monitor-store/unknown-elements",
+                   meta_test_monitor_store_unknown_elements);
 }

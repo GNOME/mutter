@@ -136,6 +136,7 @@ G_DEFINE_QUARK (meta-monitor-config-store-error-quark,
 typedef enum
 {
   STATE_INITIAL,
+  STATE_UNKNOWN,
   STATE_MONITORS,
   STATE_CONFIGURATION,
   STATE_MIGRATED,
@@ -180,11 +181,27 @@ typedef struct
   MetaLogicalMonitorConfig *current_logical_monitor_config;
   GList *current_disabled_monitor_specs;
 
+  ParserState unknown_state_root;
+  int unknown_level;
+
   MetaMonitorsConfigFlag extra_config_flags;
 } ConfigParser;
 
 G_DEFINE_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
                G_TYPE_OBJECT)
+
+static void
+enter_unknown_element (ConfigParser *parser,
+                       const char   *element_name,
+                       const char   *root_element_name,
+                       ParserState   root_state)
+{
+  parser->state = STATE_UNKNOWN;
+  parser->unknown_level = 1;
+  parser->unknown_state_root = root_state;
+  g_warning ("Unknown element <%s> under <%s>, ignoring",
+             element_name, root_element_name);
+}
 
 static void
 handle_start_element (GMarkupParseContext  *context,
@@ -242,13 +259,20 @@ handle_start_element (GMarkupParseContext  *context,
       {
         if (!g_str_equal (element_name, "configuration"))
           {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid toplevel element '%s'", element_name);
+            enter_unknown_element (parser, element_name,
+                                   "monitors", STATE_MONITORS);
             return;
           }
 
         parser->state = STATE_CONFIGURATION;
         parser->current_was_migrated = FALSE;
+
+        return;
+      }
+
+    case STATE_UNKNOWN:
+      {
+        parser->unknown_level++;
 
         return;
       }
@@ -274,9 +298,8 @@ handle_start_element (GMarkupParseContext  *context,
           }
         else
           {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid configuration element '%s'", element_name);
-            return;
+            enter_unknown_element (parser, element_name,
+                                   "configuration", STATE_CONFIGURATION);
           }
 
         return;
@@ -323,9 +346,8 @@ handle_start_element (GMarkupParseContext  *context,
           }
         else
           {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid monitor logicalmonitor element '%s'", element_name);
-            return;
+            enter_unknown_element (parser, element_name,
+                                   "logicalmonitor", STATE_LOGICAL_MONITOR);
           }
 
         return;
@@ -793,6 +815,18 @@ handle_end_element (GMarkupParseContext  *context,
         return;
       }
 
+    case STATE_UNKNOWN:
+      {
+        parser->unknown_level--;
+        if (parser->unknown_level == 0)
+          {
+            g_assert (parser->unknown_state_root >= 0);
+            parser->state = parser->unknown_state_root;
+            parser->unknown_state_root = -1;
+          }
+        return;
+      }
+
     case STATE_MONITORS:
       {
         g_assert (g_str_equal (element_name, "monitors"));
@@ -912,6 +946,9 @@ handle_text (GMarkupParseContext *context,
 
   switch (parser->state)
     {
+    case STATE_UNKNOWN:
+      return;
+
     case STATE_INITIAL:
     case STATE_MONITORS:
     case STATE_CONFIGURATION:
@@ -1099,6 +1136,7 @@ read_config_file (MetaMonitorConfigStore  *config_store,
     .state = STATE_INITIAL,
     .config_store = config_store,
     .extra_config_flags = extra_config_flags,
+    .unknown_state_root = -1,
   };
 
   parse_context = g_markup_parse_context_new (&config_parser,
