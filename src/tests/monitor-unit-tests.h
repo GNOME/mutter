@@ -31,6 +31,4 @@ void pre_run_monitor_tests (MetaContext *context);
 
 void finish_monitor_tests (void);
 
-MonitorTestCase * test_get_initial_monitor_test_case (void);
-
 #endif /* MONITOR_UNIT_TESTS_H */
