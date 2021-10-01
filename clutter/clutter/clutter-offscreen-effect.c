@@ -336,17 +336,23 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
       _clutter_paint_volume_copy_static (volume, &mutable_volume);
       _clutter_paint_volume_get_bounding_box (&mutable_volume, &raw_box);
       clutter_paint_volume_free (&mutable_volume);
+
+      box = raw_box;
+      _clutter_actor_box_enlarge_for_effects (&box);
+
+      priv->fbo_offset_x = box.x1;
+      priv->fbo_offset_y = box.y1;
     }
   else
     {
       clutter_actor_get_allocation_box (priv->actor, &raw_box);
+
+      box = raw_box;
+      _clutter_actor_box_enlarge_for_effects (&box);
+
+      priv->fbo_offset_x = box.x1 - raw_box.x1;
+      priv->fbo_offset_y = box.y1 - raw_box.y1;
     }
-
-  box = raw_box;
-  _clutter_actor_box_enlarge_for_effects (&box);
-
-  priv->fbo_offset_x = box.x1 - raw_box.x1;
-  priv->fbo_offset_y = box.y1 - raw_box.y1;
 
   clutter_actor_box_scale (&box, ceiled_resource_scale);
   clutter_actor_box_get_size (&box, &target_width, &target_height);
