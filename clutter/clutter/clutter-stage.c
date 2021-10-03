@@ -2849,37 +2849,41 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
     {
       ClutterActor *redraw_actor = key;
       QueueRedrawEntry *entry = value;
-      ClutterPaintVolume old_actor_pv, new_actor_pv;
 
       g_hash_table_iter_steal (&iter);
 
-      _clutter_paint_volume_init_static (&old_actor_pv, NULL);
-      _clutter_paint_volume_init_static (&new_actor_pv, NULL);
+      if (clutter_actor_is_mapped (redraw_actor))
+        {
+          ClutterPaintVolume old_actor_pv, new_actor_pv;
 
-      if (entry->has_clip)
-        {
-          add_to_stage_clip (stage, &entry->clip);
-        }
-      else if (clutter_actor_get_redraw_clip (redraw_actor,
-                                              &old_actor_pv,
-                                              &new_actor_pv))
-        {
-          /* Add both the old paint volume of the actor (which is
-           * currently visible on the screen) and the new paint volume
-           * (which will be visible on the screen after this redraw)
-           * to the redraw clip.
-           * The former we do to ensure the old texture on the screen
-           * will be fully painted over in case the actor was moved.
-           */
-          add_to_stage_clip (stage, &old_actor_pv);
-          add_to_stage_clip (stage, &new_actor_pv);
-        }
-      else
-        {
-          /* If there's no clip we can use, we have to trigger an
-           * unclipped full stage redraw.
-           */
-          add_to_stage_clip (stage, NULL);
+          _clutter_paint_volume_init_static (&old_actor_pv, NULL);
+          _clutter_paint_volume_init_static (&new_actor_pv, NULL);
+
+          if (entry->has_clip)
+            {
+              add_to_stage_clip (stage, &entry->clip);
+            }
+          else if (clutter_actor_get_redraw_clip (redraw_actor,
+                                                  &old_actor_pv,
+                                                  &new_actor_pv))
+            {
+              /* Add both the old paint volume of the actor (which is
+               * currently visible on the screen) and the new paint volume
+               * (which will be visible on the screen after this redraw)
+               * to the redraw clip.
+               * The former we do to ensure the old texture on the screen
+               * will be fully painted over in case the actor was moved.
+               */
+              add_to_stage_clip (stage, &old_actor_pv);
+              add_to_stage_clip (stage, &new_actor_pv);
+            }
+          else
+            {
+              /* If there's no clip we can use, we have to trigger an
+               * unclipped full stage redraw.
+               */
+              add_to_stage_clip (stage, NULL);
+            }
         }
 
       g_object_unref (redraw_actor);
