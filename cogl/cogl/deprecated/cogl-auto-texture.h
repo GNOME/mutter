@@ -36,29 +36,6 @@ G_BEGIN_DECLS
 #include <cogl/cogl-texture.h>
 
 /**
- * cogl_texture_new_with_size:
- * @width: width of texture in pixels.
- * @height: height of texture in pixels.
- * @flags: Optional flags for the texture, or %COGL_TEXTURE_NONE
- * @internal_format: the #CoglPixelFormat to use for the GPU storage of the
- *    texture.
- *
- * Creates a new #CoglTexture with the specified dimensions and pixel format.
- *
- * Return value: (transfer full): A newly created #CoglTexture or %NULL on failure
- *
- * Since: 0.8
- * Deprecated: 1.18: Use specific constructors such as
- *                   cogl_texture_2d_new_with_size()
- */
-COGL_DEPRECATED_FOR (cogl_texture_2d_new_with_size__OR__cogl_texture_2d_sliced_new_with_size)
-COGL_EXPORT CoglTexture *
-cogl_texture_new_with_size (unsigned int width,
-                            unsigned int height,
-                            CoglTextureFlags flags,
-                            CoglPixelFormat internal_format);
-
-/**
  * cogl_texture_new_from_file:
  * @filename: the file to load
  * @flags: Optional flags for the texture, or %COGL_TEXTURE_NONE

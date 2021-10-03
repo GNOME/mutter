@@ -359,9 +359,11 @@ texture_tower_create_texture (MetaTextureTower *tower,
                               int               width,
                               int               height)
 {
-  tower->textures[level] = cogl_texture_new_with_size (width, height,
-                                                       COGL_TEXTURE_NO_AUTO_MIPMAP,
-                                                       TEXTURE_FORMAT);
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+
+  tower->textures[level] =
+    COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
 
   tower->invalid[level].x1 = 0;
   tower->invalid[level].y1 = 0;

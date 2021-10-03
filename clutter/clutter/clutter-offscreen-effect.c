@@ -153,9 +153,10 @@ clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
                                               gfloat                  width,
                                               gfloat                  height)
 {
-  return cogl_texture_new_with_size (MAX (width, 1), MAX (height, 1),
-                                     COGL_TEXTURE_NO_SLICING,
-                                     COGL_PIXEL_FORMAT_RGBA_8888_PRE);
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+
+  return cogl_texture_2d_new_with_size (ctx, MAX (width, 1), MAX (height, 1));
 }
 
 static void

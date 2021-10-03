@@ -68,66 +68,6 @@ set_auto_mipmap_cb (CoglTexture *sub_texture,
                                           FALSE);
 }
 
-CoglTexture *
-cogl_texture_new_with_size (unsigned int width,
-			    unsigned int height,
-                            CoglTextureFlags flags,
-			    CoglPixelFormat internal_format)
-{
-  CoglTexture *tex;
-  GError *skip_error = NULL;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  /* First try creating a fast-path non-sliced texture */
-  tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
-
-  _cogl_texture_set_internal_format (tex, internal_format);
-
-  if (!cogl_texture_allocate (tex, &skip_error))
-    {
-      g_error_free (skip_error);
-      skip_error = NULL;
-      cogl_object_unref (tex);
-      tex = NULL;
-    }
-
-  if (!tex)
-    {
-      /* If it fails resort to sliced textures */
-      int max_waste = flags & COGL_TEXTURE_NO_SLICING ? -1 : COGL_TEXTURE_MAX_WASTE;
-      tex = COGL_TEXTURE (cogl_texture_2d_sliced_new_with_size (ctx,
-                                                                width,
-                                                                height,
-                                                                max_waste));
-
-      _cogl_texture_set_internal_format (tex, internal_format);
-    }
-
-  /* NB: This api existed before Cogl introduced lazy allocation of
-   * textures and so we maintain its original synchronous allocation
-   * semantics and return NULL if allocation fails... */
-  if (!cogl_texture_allocate (tex, &skip_error))
-    {
-      g_error_free (skip_error);
-      cogl_object_unref (tex);
-      return NULL;
-    }
-
-  if (tex &&
-      flags & COGL_TEXTURE_NO_AUTO_MIPMAP)
-    {
-      cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (tex),
-                                           0, 0, 1, 1,
-                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
-                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
-                                           set_auto_mipmap_cb,
-                                           NULL);
-    }
-
-  return tex;
-}
-
 static CoglTexture *
 _cogl_texture_new_from_data (CoglContext *ctx,
                              int width,

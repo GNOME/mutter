@@ -281,6 +281,8 @@ static void
 test_coglbox_init (TestCoglbox *self)
 {
   TestCoglboxPrivate *priv;
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   gchar *file;
 
   self->priv = priv = TEST_COGLBOX_GET_PRIVATE(self);
@@ -294,9 +296,7 @@ test_coglbox_init (TestCoglbox *self)
   g_free (file);
 
   printf ("Creating texture with size\n");
-  priv->texture_id = cogl_texture_new_with_size (200, 200,
-                                                 COGL_TEXTURE_NONE,
-						 COGL_PIXEL_FORMAT_RGB_888);
+  priv->texture_id = cogl_texture_2d_new_with_size (ctx, 200, 200);
 
   if (priv->texture_id == NULL)
     printf ("Failed creating texture with size!\n");
