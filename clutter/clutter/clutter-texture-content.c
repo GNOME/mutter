@@ -126,6 +126,8 @@ clutter_texture_content_new_from_texture (CoglTexture           *texture,
                                           cairo_rectangle_int_t *clip)
 {
   ClutterTextureContent *texture_content;
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
   g_return_val_if_fail (texture != NULL, NULL);
 
@@ -134,11 +136,12 @@ clutter_texture_content_new_from_texture (CoglTexture           *texture,
   if (clip)
     {
       texture_content->texture =
-        cogl_texture_new_from_sub_texture (texture,
-                                           clip->x,
-                                           clip->y,
-                                           clip->width,
-                                           clip->height);
+        COGL_TEXTURE (cogl_sub_texture_new (cogl_context,
+                                            texture,
+                                            clip->x,
+                                            clip->y,
+                                            clip->width,
+                                            clip->height));
     }
   else
     {

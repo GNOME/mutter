@@ -147,38 +147,6 @@ cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                               CoglTextureFlags flags,
                               CoglPixelFormat internal_format);
 
-/**
- * cogl_texture_new_from_sub_texture:
- * @full_texture: a #CoglTexture pointer
- * @sub_x: X coordinate of the top-left of the subregion
- * @sub_y: Y coordinate of the top-left of the subregion
- * @sub_width: Width in pixels of the subregion
- * @sub_height: Height in pixels of the subregion
- *
- * Creates a new texture which represents a subregion of another
- * texture. The GL resources will be shared so that no new texture
- * data is actually allocated.
- *
- * Sub textures have undefined behaviour texture coordinates outside
- * of the range [0,1] are used.
- *
- * The sub texture will keep a reference to the full texture so you do
- * not need to keep one separately if you only want to use the sub
- * texture.
- *
- * Return value: (transfer full): A newly created #CoglTexture or
- *               %NULL on failure
- * Since: 1.2
- * Deprecated: 1.18: Use cogl_sub_texture_new()
- */
-COGL_DEPRECATED_FOR (cogl_sub_texture_new)
-COGL_EXPORT CoglTexture *
-cogl_texture_new_from_sub_texture (CoglTexture *full_texture,
-                                   int sub_x,
-                                   int sub_y,
-                                   int sub_width,
-                                   int sub_height);
-
 G_END_DECLS
 
 #endif /* __COGL_AUTO_TEXTURE_H__ */

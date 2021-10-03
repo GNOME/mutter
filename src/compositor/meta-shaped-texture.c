@@ -1392,6 +1392,8 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 {
   cairo_rectangle_int_t *image_clip = NULL;
   CoglTexture *texture;
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   cairo_surface_t *surface;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
@@ -1432,11 +1434,12 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
     }
 
   if (image_clip)
-    texture = cogl_texture_new_from_sub_texture (texture,
-                                                 image_clip->x,
-                                                 image_clip->y,
-                                                 image_clip->width,
-                                                 image_clip->height);
+    texture = COGL_TEXTURE (cogl_sub_texture_new (cogl_context,
+                                                  texture,
+                                                  image_clip->x,
+                                                  image_clip->y,
+                                                  image_clip->width,
+                                                  image_clip->height));
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                         cogl_texture_get_width (texture),

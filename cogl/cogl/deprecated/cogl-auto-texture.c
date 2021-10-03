@@ -333,16 +333,3 @@ cogl_texture_new_from_file (const char        *filename,
 
   return texture;
 }
-
-CoglTexture *
-cogl_texture_new_from_sub_texture (CoglTexture *full_texture,
-                                   int sub_x,
-                                   int sub_y,
-                                   int sub_width,
-                                   int sub_height)
-{
-  _COGL_GET_CONTEXT (ctx, NULL);
-  return COGL_TEXTURE (cogl_sub_texture_new (ctx,
-                                             full_texture, sub_x, sub_y,
-                                             sub_width, sub_height));
-}
