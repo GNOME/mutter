@@ -471,11 +471,6 @@ meta_keymap_x11_replace_keycode (MetaKeymapX11 *keymap_x11,
           XkbChangeTypesOfKey (xkb, keycode, 0, XkbGroup1Mask, NULL, &changes);
         }
 
-      changes.changed = XkbKeySymsMask | XkbKeyTypesMask;
-      changes.first_key_sym = keycode;
-      changes.num_key_syms = 1;
-      changes.first_type = 0;
-      changes.num_types = xkb->map->num_types;
       XkbChangeMap (xdisplay, xkb, &changes);
 
       XFlush (xdisplay);
