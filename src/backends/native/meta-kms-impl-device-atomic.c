@@ -1150,6 +1150,7 @@ is_atomic_allowed (const char *driver_name)
     "vmwgfx",
     "vboxvideo",
     "nvidia-drm",
+    "virtio_gpu",
     NULL,
   };
 
