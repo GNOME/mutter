@@ -77,6 +77,8 @@ typedef struct _MetaThreadPrivate
 
   MetaThreadType thread_type;
 
+  GThread *main_thread;
+
   struct {
     GThread *thread;
     GMutex init_mutex;
@@ -324,6 +326,7 @@ meta_thread_init (MetaThread *thread)
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
 
   g_mutex_init (&priv->callbacks_mutex);
+  priv->main_thread = g_thread_self ();
 }
 
 void
@@ -665,7 +668,10 @@ meta_thread_run_impl_task_sync (MetaThread          *thread,
   switch (priv->thread_type)
     {
     case META_THREAD_TYPE_USER:
-      return run_impl_task_sync_user (thread, func, user_data, error);
+      if (priv->main_thread == g_thread_self ())
+        return run_impl_task_sync_user (thread, func, user_data, error);
+      else
+        return run_impl_task_sync_kernel (thread, func, user_data, error);
     case META_THREAD_TYPE_KERNEL:
       return run_impl_task_sync_kernel (thread, func, user_data, error);
     }

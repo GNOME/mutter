@@ -937,6 +937,108 @@ meta_test_thread_kernel_late_callbacks (void)
   meta_test_thread_late_callbacks_common (META_THREAD_TYPE_KERNEL);
 }
 
+typedef struct
+{
+  GThread *main_thread;
+  GMainLoop *main_thread_loop;
+  MetaThread *thread;
+  GThread *gthread;
+  GMutex init_mutex;
+
+  gboolean done;
+
+  GMainContext *main_context;
+} RunTaskOffThreadData;
+
+static gpointer
+run_task_off_thread_in_impl (MetaThreadImpl  *thread_impl,
+                             gpointer         user_data,
+                             GError         **error)
+{
+  RunTaskOffThreadData *data = user_data;
+
+  g_assert (data->gthread != g_thread_self ());
+
+  g_assert_false (data->done);
+  data->done = TRUE;
+
+  return GINT_TO_POINTER (42);
+}
+
+static gpointer
+run_task_off_thread_thread_func (gpointer user_data)
+{
+  RunTaskOffThreadData *data = user_data;
+  gpointer result;
+
+  g_mutex_lock (&data->init_mutex);
+  g_mutex_unlock (&data->init_mutex);
+
+  g_assert (data->gthread == g_thread_self ());
+
+  result = meta_thread_run_impl_task_sync (data->thread,
+                                           run_task_off_thread_in_impl,
+                                           data,
+                                           NULL);
+  g_assert_cmpint (GPOINTER_TO_INT (result), ==, 42);
+  g_assert_true (data->done);
+
+  g_idle_add (quit_main_loop, data->main_thread_loop);
+
+  return NULL;
+}
+
+static void
+meta_test_thread_run_task_off_thread_common (MetaThreadType thread_type)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  g_autoptr (GError) error = NULL;
+  RunTaskOffThreadData data = { 0 };
+
+  g_mutex_init (&data.init_mutex);
+  g_mutex_lock (&data.init_mutex);
+
+  data.thread = g_initable_new (META_TYPE_THREAD_TEST,
+                                NULL, &error,
+                                "backend", backend,
+                                "name", "test run task off thread",
+                                "thread-type", thread_type,
+                                NULL);
+  g_object_add_weak_pointer (G_OBJECT (data.thread), (gpointer *) &data.thread);
+  g_assert_nonnull (data.thread);
+  g_assert_null (error);
+
+  data.main_thread = g_thread_self ();
+  data.main_thread_loop = g_main_loop_new (NULL, FALSE);
+  data.gthread = g_thread_new ("run task off thread test",
+                               run_task_off_thread_thread_func,
+                               &data);
+  g_assert (data.main_thread != data.gthread);
+
+  g_mutex_unlock (&data.init_mutex);
+
+  g_main_loop_run (data.main_thread_loop);
+  g_main_loop_unref (data.main_thread_loop);
+
+  g_thread_join (data.gthread);
+  g_mutex_clear (&data.init_mutex);
+
+  g_object_unref (data.thread);
+  g_assert_null (data.thread);
+}
+
+static void
+meta_test_thread_user_run_task_off_thread (void)
+{
+  meta_test_thread_run_task_off_thread_common (META_THREAD_TYPE_USER);
+}
+
+static void
+meta_test_thread_kernel_run_task_off_thread (void)
+{
+  meta_test_thread_run_task_off_thread_common (META_THREAD_TYPE_KERNEL);
+}
+
 static void
 init_tests (void)
 {
@@ -948,6 +1050,10 @@ init_tests (void)
                    meta_test_thread_user_late_callbacks);
   g_test_add_func ("/backends/native/thread/kernel/late-callbacks",
                    meta_test_thread_kernel_late_callbacks);
+  g_test_add_func ("/backends/native/thread/user/run-task-off-thread",
+                   meta_test_thread_user_run_task_off_thread);
+  g_test_add_func ("/backends/native/thread/kernel/run-task-off-thread",
+                   meta_test_thread_kernel_run_task_off_thread);
 }
 
 int
