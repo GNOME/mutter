@@ -44,9 +44,9 @@ gboolean meta_keymap_x11_keycode_for_keyval       (MetaKeymapX11    *keymap_x11,
                                                    guint             keyval,
                                                    guint            *keycode_out,
                                                    guint            *level_out);
-void     meta_keymap_x11_latch_modifiers          (MetaKeymapX11 *keymap_x11,
-                                                   uint32_t          level,
-                                                   gboolean          enable);
+void     meta_keymap_x11_lock_modifiers           (MetaKeymapX11 *keymap_x11,
+                                                   uint32_t       level,
+                                                   gboolean       enable);
 gboolean meta_keymap_x11_reserve_keycode           (MetaKeymapX11 *keymap_x11,
                                                     guint             keyval,
                                                     guint            *keycode_out);

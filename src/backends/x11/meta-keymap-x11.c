@@ -869,9 +869,9 @@ meta_keymap_x11_release_keycode_if_needed (MetaKeymapX11 *keymap_x11,
 }
 
 void
-meta_keymap_x11_latch_modifiers (MetaKeymapX11 *keymap_x11,
-                                 uint32_t       level,
-                                 gboolean       enable)
+meta_keymap_x11_lock_modifiers (MetaKeymapX11 *keymap_x11,
+                                uint32_t       level,
+                                gboolean       enable)
 {
   uint32_t modifiers[] = {
     0,
@@ -891,9 +891,9 @@ meta_keymap_x11_latch_modifiers (MetaKeymapX11 *keymap_x11,
   else
     value = 0;
 
-  XkbLatchModifiers (meta_clutter_x11_get_default_display (),
-                     XkbUseCoreKbd, modifiers[level],
-                     value);
+  XkbLockModifiers (meta_clutter_x11_get_default_display (),
+                    XkbUseCoreKbd, modifiers[level],
+                    value);
 }
 
 static uint32_t

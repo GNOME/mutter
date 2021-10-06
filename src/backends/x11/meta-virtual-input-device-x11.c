@@ -186,7 +186,7 @@ meta_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtual_
 
   if (!meta_keymap_x11_get_is_modifier (keymap, keycode) &&
       key_state == CLUTTER_KEY_STATE_PRESSED)
-    meta_keymap_x11_latch_modifiers (keymap, level, TRUE);
+    meta_keymap_x11_lock_modifiers (keymap, level, TRUE);
 
   XTestFakeKeyEvent (meta_clutter_x11_get_default_display (),
                      (KeyCode) keycode,
@@ -196,7 +196,7 @@ meta_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtual_
   if (key_state == CLUTTER_KEY_STATE_RELEASED)
     {
       if (!meta_keymap_x11_get_is_modifier (keymap, keycode))
-        meta_keymap_x11_latch_modifiers (keymap, level, FALSE);
+        meta_keymap_x11_lock_modifiers (keymap, level, FALSE);
       meta_keymap_x11_release_keycode_if_needed (keymap, keycode);
     }
 }
