@@ -39,7 +39,33 @@ print_version (const gchar    *option_name,
   exit (0);
 }
 
+static void
+command_exited_cb (GPid     command_pid,
+                   int      status,
+                   gpointer user_data)
+{
+  MetaContext *context = user_data;
+
+  g_spawn_close_pid (command_pid);
+
+  if (status)
+    {
+      GError *error;
+
+      error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED,
+                           "The command exited with a nonzero status: %d\n",
+                           status);
+
+      meta_context_terminate_with_error (context, error);
+    }
+  else
+    {
+      meta_context_terminate (context);
+    }
+}
+
 static const char *plugin = "libdefault";
+static char **argv_ignored = NULL;
 
 GOptionEntry mutter_options[] = {
   {
@@ -53,6 +79,12 @@ GOptionEntry mutter_options[] = {
     &plugin,
     N_("Mutter plugin to use"),
     "PLUGIN",
+  },
+  {
+    G_OPTION_REMAINING,
+    .arg = G_OPTION_ARG_STRING_ARRAY,
+    &argv_ignored,
+    .arg_description = "[[--] COMMAND [ARGUMENT…]]"
   },
   { NULL }
 };
@@ -120,6 +152,23 @@ main (int argc, char **argv)
     }
 
   meta_context_notify_ready (context);
+  if (argv_ignored)
+    {
+      GPid command_pid;
+      g_auto (GStrv) command_argv = NULL;
+
+      command_argv = g_steal_pointer (&argv_ignored);
+
+      if (!g_spawn_async (NULL, command_argv, NULL,
+                          G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
+                          NULL, NULL, &command_pid, &error))
+        {
+          g_printerr ("Failed to run the command: %s", error->message);
+          return EXIT_FAILURE;
+        }
+
+      g_child_watch_add (command_pid, command_exited_cb, context);
+    }
 
   if (!meta_context_run_main_loop (context, &error))
     {
