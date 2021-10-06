@@ -540,9 +540,12 @@ subdir('doc/man')
 meson.add_install_script('meson/meson-postinstall.sh')
 meson.add_dist_script('meson/check-version.py', meson.project_version(), 'NEWS')
 
-summary('prefix', prefix)
-summary('libexecdir', libexecdir)
-summary('pkgdatadir', pkgdatadir)
+summary('prefix', prefix, section: 'Directories')
+summary('libexecdir', libexecdir, section: 'Directories')
+summary('pkgdatadir', pkgdatadir, section: 'Directories')
+
+summary('buildtype', get_option('buildtype'), section: 'Build Configuration')
+summary('debug', get_option('debug'), section: 'Build Configuration')
 
 summary('OpenGL', have_gl, section: 'Rendering APIs')
 summary('GLES2', have_gles2, section: 'Rendering APIs')
