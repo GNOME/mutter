@@ -276,7 +276,9 @@ data_offer_choose_action (MetaWaylandDataOffer *offer)
     return WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE;
 
   /* If the user is forcing an action, go for it */
-  if ((user_action & available_actions) != 0)
+  if ((user_action & available_actions) != 0 &&
+      !(user_action == WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK &&
+        meta_wayland_data_source_get_drop_performed (source)))
     return user_action;
 
   /* If the dest side has a preferred DnD action, use it */
