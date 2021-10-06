@@ -125,7 +125,7 @@ data_offer_destroy (struct wl_client   *client,
 
 static void
 data_offer_finish (struct wl_client   *client,
-		   struct wl_resource *resource)
+                   struct wl_resource *resource)
 {
   MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
   enum wl_data_device_manager_dnd_action current_action;
