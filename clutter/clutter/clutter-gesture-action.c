@@ -120,6 +120,7 @@ struct _ClutterGestureActionPrivate
 
   gulong actor_capture_id;
   gulong stage_capture_id;
+  guint  event_filter_id;
 
   ClutterGestureTriggerEdge edge;
   float distance_x, distance_y;
@@ -312,6 +313,7 @@ cancel_gesture (ClutterGestureAction *action)
 
   priv->in_gesture = FALSE;
 
+  g_clear_handle_id (&priv->event_filter_id, clutter_event_remove_filter);
   g_clear_signal_handler (&priv->stage_capture_id, priv->stage);
 
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
@@ -354,6 +356,26 @@ begin_gesture (ClutterGestureAction *action,
 }
 
 static gboolean
+event_filter_cb (const ClutterEvent   *event,
+                 ClutterGestureAction *action)
+{
+  ClutterInputDevice *device = NULL;
+  ClutterActor *grabbed_actor;
+
+  device = clutter_event_get_device (event);
+
+  if (device == NULL)
+    return CLUTTER_EVENT_PROPAGATE;
+
+  grabbed_actor = clutter_input_device_get_grabbed_actor (device);
+
+  if (grabbed_actor != NULL)
+    cancel_gesture (action);
+
+  return CLUTTER_EVENT_PROPAGATE;
+}
+
+static gboolean
 stage_captured_event_cb (ClutterActor         *stage,
                          ClutterEvent         *event,
                          ClutterGestureAction *action)
@@ -383,21 +405,7 @@ stage_captured_event_cb (ClutterActor         *stage,
   switch (clutter_event_type (event))
     {
     case CLUTTER_MOTION:
-      {
-        ClutterModifierType mods = clutter_event_get_state (event);
-
-        /* we might miss a button-release event in case of grabs,
-         * so we need to check whether the button is still down
-         * during a motion event
-         */
-        if (!(mods & CLUTTER_BUTTON1_MASK))
-          {
-            cancel_gesture (action);
-            return CLUTTER_EVENT_PROPAGATE;
-          }
-      }
       /* Follow same code path as a touch event update */
-
     case CLUTTER_TOUCH_UPDATE:
       if (!priv->in_gesture)
         {
@@ -482,7 +490,10 @@ stage_captured_event_cb (ClutterActor         *stage,
     }
 
   if (priv->points->len == 0)
-    g_clear_signal_handler (&priv->stage_capture_id, priv->stage);
+    {
+      g_clear_handle_id (&priv->event_filter_id, clutter_event_remove_filter);
+      g_clear_signal_handler (&priv->stage_capture_id, priv->stage);
+    }
 
   return CLUTTER_EVENT_PROPAGATE;
 }
@@ -507,6 +518,12 @@ actor_captured_event_cb (ClutterActor *actor,
 
   if (priv->stage == NULL)
     priv->stage = clutter_actor_get_stage (actor);
+
+  if (priv->event_filter_id == 0)
+    priv->event_filter_id = clutter_event_add_filter (priv->stage,
+                                                      (ClutterEventFilterFunc) event_filter_cb,
+                                                      NULL,
+                                                      action);
 
   if (priv->stage_capture_id == 0)
     priv->stage_capture_id =
@@ -542,12 +559,11 @@ clutter_gesture_action_set_actor (ClutterActorMeta *meta,
       priv->actor_capture_id = 0;
     }
 
-  if (priv->stage_capture_id != 0)
+  if (priv->stage != NULL)
     {
-      if (priv->stage != NULL)
-        g_clear_signal_handler (&priv->stage_capture_id, priv->stage);
+      g_clear_handle_id (&priv->event_filter_id, clutter_event_remove_filter);
+      g_clear_signal_handler (&priv->stage_capture_id, priv->stage);
 
-      priv->stage_capture_id = 0;
       priv->stage = NULL;
     }
 
