@@ -8494,12 +8494,25 @@ meta_test_monitor_supported_fractional_scales (void)
 }
 
 static void
+on_orientation_changed (MetaOrientationManager *orientation_manager,
+                        gpointer unused)
+{
+  MetaOrientation orientation;
+
+  orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%p: Orientation changed to %d: %s",
+                  orientation_manager, orientation, orientation_to_string (orientation));
+}
+
+static void
 test_case_setup (void       **fixture,
                  const void   *data)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaOrientationManager *orientation_manager =
+    meta_backend_get_orientation_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
     META_MONITOR_MANAGER_TEST (monitor_manager);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -8508,6 +8521,19 @@ test_case_setup (void       **fixture,
                                                     TRUE);
   meta_monitor_config_manager_set_current (config_manager, NULL);
   meta_monitor_config_manager_clear_history (config_manager);
+
+  if (g_object_get_data (G_OBJECT (orientation_manager), "monitor-unit-tests-watching-orientation") != NULL)
+    {
+      g_test_message ("reusing existing orientation manager %p", orientation_manager);
+    }
+  else
+    {
+      g_signal_connect (orientation_manager, "orientation-changed",
+                        G_CALLBACK (on_orientation_changed), NULL);
+      g_object_set_data (G_OBJECT (orientation_manager),
+                         "monitor-unit-tests-watching-orientation",
+                         (void *) "yes");
+    }
 }
 
 static void

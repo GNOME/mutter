@@ -27,4 +27,6 @@ void init_orientation_manager_tests (void);
 
 void wait_for_orientation_changes (MetaOrientationManager *orientation_manager);
 
+const char *orientation_to_string (MetaOrientation orientation);
+
 #endif /* ORIENTATION_MANAGER_UNIT_TESTS_H */

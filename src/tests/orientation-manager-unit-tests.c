@@ -24,10 +24,36 @@
 
 #include "tests/meta-sensors-proxy-mock.h"
 
+const char *
+orientation_to_string (MetaOrientation orientation)
+{
+  switch (orientation)
+    {
+      case META_ORIENTATION_UNDEFINED:
+        return "(undefined)";
+      case META_ORIENTATION_NORMAL:
+        return "normal";
+      case META_ORIENTATION_BOTTOM_UP:
+        return "bottom-up";
+      case META_ORIENTATION_LEFT_UP:
+        return "left-up";
+      case META_ORIENTATION_RIGHT_UP:
+        return "right-up";
+      default:
+        return "(invalid)";
+    }
+}
+
 static void
-on_orientation_changed (gpointer data)
+on_orientation_changed (gpointer data,
+                        MetaOrientationManager *orientation_manager)
 {
   gboolean *changed = data;
+  MetaOrientation orientation;
+
+  orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("wait_for_orientation_changes: Orientation changed to %d: %s",
+                  orientation, orientation_to_string (orientation));
 
   *changed = TRUE;
 }
@@ -37,6 +63,7 @@ on_max_wait_timeout (gpointer data)
 {
   guint *timeout_id = data;
 
+  g_test_message ("wait_for_orientation_changes: Timed out waiting for orientation change");
   *timeout_id = 0;
 
   return G_SOURCE_REMOVE;
@@ -48,6 +75,11 @@ wait_for_orientation_changes (MetaOrientationManager *orientation_manager)
   gboolean changed = FALSE;
   gulong connection_id;
   guint timeout_id;
+  MetaOrientation orientation;
+
+  orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%s: Waiting for orientation to change from %d: %s...",
+                  G_STRFUNC, orientation, orientation_to_string (orientation));
 
   timeout_id = g_timeout_add (300, on_max_wait_timeout, &timeout_id);
   connection_id = g_signal_connect_swapped (orientation_manager,
@@ -60,6 +92,10 @@ wait_for_orientation_changes (MetaOrientationManager *orientation_manager)
 
   g_clear_handle_id (&timeout_id, g_source_remove);
   g_signal_handler_disconnect (orientation_manager, connection_id);
+
+  orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%s: Orientation is now %d: %s",
+                  G_STRFUNC, orientation, orientation_to_string (orientation));
 }
 
 static void
