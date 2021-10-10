@@ -59,6 +59,9 @@ on_orientation_changed (WaitForOrientation     *wfo,
 {
   wfo->orientation = meta_orientation_manager_get_orientation (orientation_manager);
   wfo->times_signalled++;
+
+  g_test_message ("wait_for_orientation_changes: Orientation changed to %d: %s",
+                  wfo->orientation, orientation_to_string (wfo->orientation));
 }
 
 static gboolean
@@ -83,6 +86,11 @@ wait_for_orientation (MetaOrientationManager *orientation_manager,
   };
 
   wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%s: Waiting for orientation to change from "
+                  "%d: %s to %d: %s...",
+                  G_STRFUNC, wfo.orientation,
+                  orientation_to_string (wfo.orientation),
+                  orientation, orientation_to_string (orientation));
 
   /* This timeout can be relatively generous because we don't expect to
    * reach it: if we do, that's a test failure. */
@@ -104,6 +112,9 @@ wait_for_orientation (MetaOrientationManager *orientation_manager,
                wfo.times_signalled);
     }
 
+  g_test_message ("%s: Orientation is now %d: %s",
+                  G_STRFUNC, orientation, orientation_to_string (orientation));
+
   g_clear_handle_id (&wfo.timeout_id, g_source_remove);
   g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
 
@@ -123,6 +134,9 @@ wait_for_possible_orientation_change (MetaOrientationManager *orientation_manage
   };
 
   wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  g_test_message ("%s: Waiting for orientation to maybe change from %d: %s...",
+                  G_STRFUNC, wfo.orientation,
+                  orientation_to_string (wfo.orientation));
 
   /* This can't be as long as the timeout for wait_for_orientation(),
    * because in the usual case we expect to reach this timeout: we're
@@ -136,6 +150,17 @@ wait_for_possible_orientation_change (MetaOrientationManager *orientation_manage
 
   while (wfo.times_signalled == 0 && wfo.timeout_id != 0)
     g_main_context_iteration (NULL, TRUE);
+
+  if (wfo.timeout_id == 0)
+    {
+      g_test_message ("%s: Orientation didn't change", G_STRFUNC);
+    }
+  else
+    {
+      g_test_message ("%s: Orientation is now %d: %s",
+                      G_STRFUNC, wfo.orientation,
+                      orientation_to_string (wfo.orientation));
+    }
 
   g_clear_handle_id (&wfo.timeout_id, g_source_remove);
   g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
