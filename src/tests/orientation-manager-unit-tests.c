@@ -24,42 +24,124 @@
 
 #include "tests/meta-sensors-proxy-mock.h"
 
-static void
-on_orientation_changed (gpointer data)
+const char *
+orientation_to_string (MetaOrientation orientation)
 {
-  gboolean *changed = data;
+  switch (orientation)
+    {
+    case META_ORIENTATION_UNDEFINED:
+      return "(undefined)";
+    case META_ORIENTATION_NORMAL:
+      return "normal";
+    case META_ORIENTATION_BOTTOM_UP:
+      return "bottom-up";
+    case META_ORIENTATION_LEFT_UP:
+      return "left-up";
+    case META_ORIENTATION_RIGHT_UP:
+      return "right-up";
+    default:
+      return "(invalid)";
+    }
+}
 
-  *changed = TRUE;
+typedef struct
+{
+  MetaOrientation expected;
+  MetaOrientation orientation;
+  gulong connection_id;
+  guint timeout_id;
+  unsigned int times_signalled;
+} WaitForOrientation;
+
+static void
+on_orientation_changed (WaitForOrientation     *wfo,
+                        MetaOrientationManager *orientation_manager)
+{
+  wfo->orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  wfo->times_signalled++;
 }
 
 static gboolean
 on_max_wait_timeout (gpointer data)
 {
-  guint *timeout_id = data;
+  WaitForOrientation *wfo = data;
 
-  *timeout_id = 0;
-
+  wfo->timeout_id = 0;
   return G_SOURCE_REMOVE;
 }
 
+/*
+ * Assert that the orientation eventually changes to @orientation.
+ */
 void
-wait_for_orientation_changes (MetaOrientationManager *orientation_manager)
+wait_for_orientation (MetaOrientationManager *orientation_manager,
+                      MetaOrientation         orientation,
+                      unsigned int           *times_signalled_out)
 {
-  gboolean changed = FALSE;
-  gulong connection_id;
-  guint timeout_id;
+  WaitForOrientation wfo = {
+    .expected = orientation,
+  };
 
-  timeout_id = g_timeout_add (300, on_max_wait_timeout, &timeout_id);
-  connection_id = g_signal_connect_swapped (orientation_manager,
-                                            "orientation-changed",
-                                            G_CALLBACK (on_orientation_changed),
-                                            &changed);
+  wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
 
-  while (!changed && timeout_id)
+  /* This timeout can be relatively generous because we don't expect to
+   * reach it: if we do, that's a test failure. */
+  wfo.timeout_id = g_timeout_add_seconds (10, on_max_wait_timeout, &wfo);
+  wfo.connection_id = g_signal_connect_swapped (orientation_manager,
+                                                "orientation-changed",
+                                                G_CALLBACK (on_orientation_changed),
+                                                &wfo);
+
+  while (wfo.orientation != orientation && wfo.timeout_id != 0)
     g_main_context_iteration (NULL, TRUE);
 
-  g_clear_handle_id (&timeout_id, g_source_remove);
-  g_signal_handler_disconnect (orientation_manager, connection_id);
+  if (wfo.orientation != orientation)
+    {
+      g_error ("Timed out waiting for orientation to change from %s to %s "
+               "(received %u orientation-changed signal(s) while waiting)",
+               orientation_to_string (wfo.orientation),
+               orientation_to_string (orientation),
+               wfo.times_signalled);
+    }
+
+  g_clear_handle_id (&wfo.timeout_id, g_source_remove);
+  g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
+
+  if (times_signalled_out != NULL)
+    *times_signalled_out = wfo.times_signalled;
+}
+
+/*
+ * Wait for a possible orientation change, but don't assert that one occurs.
+ */
+void
+wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
+                                      unsigned int           *times_signalled_out)
+{
+  WaitForOrientation wfo = {
+    .expected = META_ORIENTATION_UNDEFINED,
+  };
+
+  wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
+
+  /* This can't be as long as the timeout for wait_for_orientation(),
+   * because in the usual case we expect to reach this timeout: we're
+   * only waiting so that if the orientation (incorrectly?) changed here,
+   * we'd have a chance to detect that. */
+  wfo.timeout_id = g_timeout_add (1000, on_max_wait_timeout, &wfo);
+  wfo.connection_id = g_signal_connect_swapped (orientation_manager,
+                                                "orientation-changed",
+                                                G_CALLBACK (on_orientation_changed),
+                                                &wfo);
+
+  while (wfo.times_signalled == 0 && wfo.timeout_id != 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_clear_handle_id (&wfo.timeout_id, g_source_remove);
+  g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
+
+  if (times_signalled_out != NULL)
+    *times_signalled_out = wfo.times_signalled;
 }
 
 static void
@@ -90,25 +172,40 @@ meta_test_orientation_manager_no_device (void)
   g_object_unref (orientation_mock);
 }
 
+static gboolean
+on_wait_for_accel_timeout (gpointer data)
+{
+  guint *timeout_p = data;
+
+  *timeout_p = 0;
+  return G_SOURCE_REMOVE;
+}
+
 static void
 meta_test_orientation_manager_has_accelerometer (void)
 {
   g_autoptr (MetaOrientationManager) manager = NULL;
   g_autoptr (MetaSensorsProxyMock) orientation_mock = NULL;
+  guint timeout_id;
 
   manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
   orientation_mock = meta_sensors_proxy_mock_get ();
 
+  timeout_id = g_timeout_add_seconds (10, on_wait_for_accel_timeout, &timeout_id);
   meta_sensors_proxy_mock_set_property (orientation_mock,
                                         "HasAccelerometer",
                                         g_variant_new_boolean (TRUE));
-  wait_for_orientation_changes (manager);
+
+  while (!meta_orientation_manager_has_accelerometer (manager) &&
+         timeout_id != 0)
+    g_main_context_iteration (NULL, TRUE);
 
   g_debug ("Checking whether accelerometer is present");
   g_assert_true (meta_orientation_manager_has_accelerometer (manager));
   g_assert_cmpuint (meta_orientation_manager_get_orientation (manager),
                     ==,
                     META_ORIENTATION_UNDEFINED);
+  g_clear_handle_id (&timeout_id, g_source_remove);
 }
 
 static void
@@ -141,14 +238,13 @@ meta_test_orientation_manager_accelerometer_orientations (void)
 
   for (i = initial + 1; i != initial; i = (i + 1) % META_N_ORIENTATIONS)
     {
-      changed_called = FALSE;
-      meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
-      wait_for_orientation_changes (manager);
+      unsigned int times_signalled = 0;
 
+      changed_called = FALSE;
       g_debug ("Checking orientation %d", i);
-      g_assert_cmpuint (meta_orientation_manager_get_orientation (manager),
-                        ==,
-                        i);
+      meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
+      wait_for_orientation (manager, i, &times_signalled);
+      g_assert_cmpuint (times_signalled, <=, 1);
 
       if (i != META_ORIENTATION_UNDEFINED)
         g_assert_true (changed_called);
