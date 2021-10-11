@@ -1652,11 +1652,12 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
-  MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaRendererNativeGpuData *gbm_renderer_gpu_data;
   MetaDeviceFileFlags device_file_flags = META_DEVICE_FILE_FLAG_NONE;
   g_autoptr (MetaDeviceFile) device_file = NULL;
   GError *gbm_error = NULL;
 #ifdef HAVE_EGL_DEVICE
+  MetaRendererNativeGpuData *egl_stream_renderer_gpu_data;
   GError *egl_device_error = NULL;
 #endif
 
@@ -1674,31 +1675,34 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   if (!device_file)
     return NULL;
 
+  gbm_renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
+                                                        device_file,
+                                                        gpu_kms,
+                                                        &gbm_error);
+  if (gbm_renderer_gpu_data)
+    {
+      MetaRenderDevice *render_device = gbm_renderer_gpu_data->render_device;
+
+      if (meta_render_device_is_hardware_accelerated (render_device))
+        return gbm_renderer_gpu_data;
+    }
+
 #ifdef HAVE_EGL_DEVICE
-  /* Try to initialize the EGLDevice backend first. Whenever we use a
-   * non-NVIDIA GPU, the EGLDevice enumeration function won't find a match, and
-   * we'll fall back to GBM (which will always succeed as it has a software
-   * rendering fallback)
-   */
-  renderer_gpu_data = create_renderer_gpu_data_egl_device (renderer_native,
-                                                           device_file,
-                                                           gpu_kms,
-                                                           &egl_device_error);
-  if (renderer_gpu_data)
-    return renderer_gpu_data;
+  egl_stream_renderer_gpu_data =
+    create_renderer_gpu_data_egl_device (renderer_native,
+                                         device_file,
+                                         gpu_kms,
+                                         &egl_device_error);
+  if (egl_stream_renderer_gpu_data)
+    {
+      g_clear_pointer (&gbm_renderer_gpu_data,
+                       meta_renderer_native_gpu_data_free);
+      return egl_stream_renderer_gpu_data;
+    }
 #endif
 
-  renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
-                                                    device_file,
-                                                    gpu_kms,
-                                                    &gbm_error);
-  if (renderer_gpu_data)
-    {
-#ifdef HAVE_EGL_DEVICE
-      g_error_free (egl_device_error);
-#endif
-      return renderer_gpu_data;
-    }
+  if (gbm_renderer_gpu_data)
+    return gbm_renderer_gpu_data;
 
   g_set_error (error, G_IO_ERROR,
                G_IO_ERROR_FAILED,
