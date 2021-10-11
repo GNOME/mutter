@@ -1721,6 +1721,24 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   return NULL;
 }
 
+static const char *
+renderer_data_mode_to_string (MetaRendererNativeMode mode)
+{
+  switch (mode)
+    {
+    case META_RENDERER_NATIVE_MODE_GBM:
+      return "gbm";
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      return "surfaceless";
+#ifdef HAVE_EGL_DEVICE
+    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      return "egldevice";
+#endif
+    }
+
+  g_assert_not_reached ();
+}
+
 static gboolean
 create_renderer_gpu_data (MetaRendererNative  *renderer_native,
                           MetaGpuKms          *gpu_kms,
@@ -1734,6 +1752,18 @@ create_renderer_gpu_data (MetaRendererNative  *renderer_native,
                                                    error);
   if (!renderer_gpu_data)
     return FALSE;
+
+  if (gpu_kms)
+    {
+      g_message ("Created %s renderer for '%s'",
+                 renderer_data_mode_to_string (renderer_gpu_data->mode),
+                 meta_gpu_kms_get_file_path (gpu_kms));
+    }
+  else
+    {
+      g_message ("Created %s renderer without GPU",
+                 renderer_data_mode_to_string (renderer_gpu_data->mode));
+    }
 
   g_hash_table_insert (renderer_native->gpu_datas,
                        gpu_kms,
