@@ -68,4 +68,6 @@ void meta_renderer_native_reset_modes (MetaRendererNative *renderer_native);
 
 gboolean meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native);
 
+MetaRendererNativeMode meta_renderer_native_get_mode (MetaRendererNative *renderer_native);
+
 #endif /* META_RENDERER_NATIVE_H */
