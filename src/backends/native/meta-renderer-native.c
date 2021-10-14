@@ -239,6 +239,17 @@ meta_renderer_native_has_pending_mode_set (MetaRendererNative *renderer_native)
   return renderer_native->pending_mode_set;
 }
 
+MetaRendererNativeMode
+meta_renderer_native_get_mode (MetaRendererNative *renderer_native)
+{
+  MetaGpuKms *primary_gpu = renderer_native->primary_gpu_kms;
+  MetaRendererNativeGpuData *primary_gpu_data;
+
+  primary_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
+                                                        primary_gpu);
+  return primary_gpu_data->mode;
+}
+
 static void
 meta_renderer_native_disconnect (CoglRenderer *cogl_renderer)
 {

@@ -51,6 +51,10 @@
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland.h"
 
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-renderer-native.h"
+#endif
+
 static char *_display_name_override;
 
 G_DEFINE_TYPE (MetaWaylandCompositor, meta_wayland_compositor, G_TYPE_OBJECT)
@@ -573,8 +577,25 @@ meta_wayland_compositor_new (MetaContext *context)
                                   compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
-  meta_wayland_eglstream_controller_init (compositor);
-#endif
+    {
+      gboolean should_enable_eglstream_controller = TRUE;
+#if defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND)
+      MetaRenderer *renderer = meta_backend_get_renderer (backend);
+
+      if (META_IS_RENDERER_NATIVE (renderer))
+        {
+          MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+
+          if (meta_renderer_native_get_mode (renderer_native) ==
+              META_RENDERER_NATIVE_MODE_GBM)
+            should_enable_eglstream_controller = FALSE;
+        }
+#endif /* defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND) */
+
+      if (should_enable_eglstream_controller)
+        meta_wayland_eglstream_controller_init (compositor);
+    }
+#endif /* HAVE_WAYLAND_EGLSTREAM */
 
   x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
