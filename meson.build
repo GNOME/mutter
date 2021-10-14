@@ -6,10 +6,8 @@ project('mutter', 'c',
 
 split_version = meson.project_version().split('.')
 
-# Automatically increase API version each development cycle,
-# starting with 0 in 3.23.x
-api_version = split_version[0].to_int() - 32
-libmutter_api_version = '@0@'.format(api_version)
+# API version, bump each development cycle
+libmutter_api_version = '10'
 
 mutter_srcdir = meson.current_source_dir()
 mutter_builddir = meson.current_build_dir()
