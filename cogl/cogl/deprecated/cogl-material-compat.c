@@ -54,13 +54,3 @@ cogl_material_set_color (CoglMaterial    *material,
   cogl_pipeline_set_color (COGL_PIPELINE (material), color);
 }
 
-void
-cogl_material_set_color4ub (CoglMaterial *material,
-			    uint8_t red,
-                            uint8_t green,
-                            uint8_t blue,
-                            uint8_t alpha)
-{
-  cogl_pipeline_set_color4ub (COGL_PIPELINE (material),
-                              red, green, blue, alpha);
-}

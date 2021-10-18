@@ -137,29 +137,6 @@ COGL_EXPORT void
 cogl_material_set_color (CoglMaterial    *material,
                          const CoglColor *color);
 
-/**
- * cogl_material_set_color4ub:
- * @material: A #CoglMaterial object
- * @red: The red component
- * @green: The green component
- * @blue: The blue component
- * @alpha: The alpha component
- *
- * Sets the basic color of the material, used when no lighting is enabled.
- *
- * The default value is (0xff, 0xff, 0xff, 0xff)
- *
- * Since: 1.0
- * Deprecated: 1.16: Use cogl_pipeline_set_color4ub() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_color4ub)
-COGL_EXPORT void
-cogl_material_set_color4ub (CoglMaterial *material,
-			    uint8_t red,
-                            uint8_t green,
-                            uint8_t blue,
-                            uint8_t alpha);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */
