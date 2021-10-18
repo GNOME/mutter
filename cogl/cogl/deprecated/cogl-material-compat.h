@@ -539,22 +539,6 @@ cogl_material_set_layer_combine_constant (CoglMaterial    *material,
                                           int              layer_index,
                                           const CoglColor *constant);
 
-/**
- * cogl_material_set_layer_matrix:
- * @material: A #CoglMaterial object
- * @layer_index: the index for the layer inside @material
- * @matrix: the transformation matrix for the layer
- *
- * This function lets you set a matrix that can be used to e.g. translate
- * and rotate a single layer of a material used to fill your geometry.
- * Deprecated: 1.16: Use cogl_pipeline_set_layer_matrix() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_matrix)
-COGL_EXPORT void
-cogl_material_set_layer_matrix (CoglMaterial            *material,
-                                int                      layer_index,
-                                const graphene_matrix_t *matrix);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */
