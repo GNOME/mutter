@@ -85,7 +85,6 @@
 
 #include <cogl/deprecated/cogl-auto-texture.h>
 #include <cogl/deprecated/cogl-shader.h>
-#include <cogl/deprecated/cogl-material-compat.h>
 
 #ifdef COGL_ENABLE_MUTTER_API
 #include <cogl/cogl-mutter.h>
