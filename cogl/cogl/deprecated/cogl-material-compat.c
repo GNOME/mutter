@@ -83,13 +83,6 @@ cogl_material_set_blend_constant (CoglMaterial *material,
 }
 
 void
-cogl_material_set_point_size (CoglMaterial *material,
-                              float         point_size)
-{
-  cogl_pipeline_set_point_size (COGL_PIPELINE (material), point_size);
-}
-
-void
 cogl_material_set_user_program (CoglMaterial *material,
                                 CoglHandle program)
 {
