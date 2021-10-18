@@ -81,10 +81,3 @@ cogl_material_set_blend_constant (CoglMaterial *material,
 {
   cogl_pipeline_set_blend_constant (COGL_PIPELINE (material), constant_color);
 }
-
-void
-cogl_material_set_user_program (CoglMaterial *material,
-                                CoglHandle program)
-{
-  cogl_pipeline_set_user_program (COGL_PIPELINE (material), program);
-}
