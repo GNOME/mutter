@@ -519,26 +519,6 @@ cogl_material_set_layer_combine (CoglMaterial *material,
 				 const char   *blend_string,
                                  GError      **error);
 
-/**
- * cogl_material_set_layer_combine_constant:
- * @material: A #CoglMaterial object
- * @layer_index: Specifies the layer you want to specify a constant used
- *               for texture combining
- * @constant: The constant color you want
- *
- * When you are using the 'CONSTANT' color source in a layer combine
- * description then you can use this function to define its value.
- *
- * Since: 1.0
- * Deprecated: 1.16: Use cogl_pipeline_set_layer_combine_constant()
- * instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_combine_constant)
-COGL_EXPORT void
-cogl_material_set_layer_combine_constant (CoglMaterial    *material,
-                                          int              layer_index,
-                                          const CoglColor *constant);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */

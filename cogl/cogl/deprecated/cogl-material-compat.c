@@ -116,13 +116,3 @@ cogl_material_set_layer_combine (CoglMaterial *material,
                                           blend_string,
                                           error);
 }
-
-void
-cogl_material_set_layer_combine_constant (CoglMaterial    *material,
-                                          int              layer_index,
-                                          const CoglColor *constant)
-{
-  cogl_pipeline_set_layer_combine_constant (COGL_PIPELINE (material),
-                                            layer_index,
-                                            constant);
-}
