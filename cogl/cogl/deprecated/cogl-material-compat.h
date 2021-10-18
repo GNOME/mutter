@@ -393,32 +393,6 @@ COGL_EXPORT void
 cogl_material_set_user_program (CoglMaterial *material,
                                 CoglHandle program);
 
-/**
- * cogl_material_set_layer:
- * @material: A #CoglMaterial object
- * @layer_index: the index of the layer
- * @texture: a #CoglHandle for the layer object
- *
- * In addition to the standard OpenGL lighting model a Cogl material may have
- * one or more layers comprised of textures that can be blended together in
- * order, with a number of different texture combine modes. This function
- * defines a new texture layer.
- *
- * The index values of multiple layers do not have to be consecutive; it is
- * only their relative order that is important.
- *
- * <note>In the future, we may define other types of material layers, such
- * as purely GLSL based layers.</note>
- *
- * Since: 1.0
- * Deprecated: 1.16: Use cogl_pipeline_set_layer() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_layer)
-COGL_EXPORT void
-cogl_material_set_layer (CoglMaterial *material,
-			 int           layer_index,
-			 CoglHandle    texture);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */

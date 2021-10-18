@@ -95,12 +95,3 @@ cogl_material_set_user_program (CoglMaterial *material,
 {
   cogl_pipeline_set_user_program (COGL_PIPELINE (material), program);
 }
-
-void
-cogl_material_set_layer (CoglMaterial *material,
-			 int           layer_index,
-			 CoglHandle    texture)
-{
-  cogl_pipeline_set_layer_texture (COGL_PIPELINE (material),
-                                   layer_index, texture);
-}
