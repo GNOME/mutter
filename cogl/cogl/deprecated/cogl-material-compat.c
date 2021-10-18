@@ -104,15 +104,3 @@ cogl_material_set_layer (CoglMaterial *material,
   cogl_pipeline_set_layer_texture (COGL_PIPELINE (material),
                                    layer_index, texture);
 }
-
-gboolean
-cogl_material_set_layer_combine (CoglMaterial *material,
-				 int           layer_index,
-				 const char   *blend_string,
-                                 GError **error)
-{
-  return cogl_pipeline_set_layer_combine (COGL_PIPELINE (material),
-                                          layer_index,
-                                          blend_string,
-                                          error);
-}
