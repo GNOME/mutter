@@ -309,22 +309,6 @@ cogl_material_set_blend (CoglMaterial *material,
                          const char   *blend_string,
                          GError      **error);
 
-/**
- * cogl_material_set_blend_constant:
- * @material: A #CoglMaterial object
- * @constant_color: The constant color you want
- *
- * When blending is setup to reference a CONSTANT blend factor then
- * blending will depend on the constant set with this function.
- *
- * Since: 1.0
- * Deprecated: 1.16: Use cogl_pipeline_set_blend_constant() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_blend_constant)
-COGL_EXPORT void
-cogl_material_set_blend_constant (CoglMaterial *material,
-                                  const CoglColor *constant_color);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */

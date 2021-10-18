@@ -74,10 +74,3 @@ cogl_material_set_blend (CoglMaterial *material,
                                   blend_string,
                                   error);
 }
-
-void
-cogl_material_set_blend_constant (CoglMaterial *material,
-                                  const CoglColor *constant_color)
-{
-  cogl_pipeline_set_blend_constant (COGL_PIPELINE (material), constant_color);
-}
