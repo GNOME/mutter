@@ -47,10 +47,3 @@ cogl_material_new (void)
   return COGL_MATERIAL (cogl_pipeline_new (ctx));
 }
 
-void
-cogl_material_set_color (CoglMaterial    *material,
-                         const CoglColor *color)
-{
-  cogl_pipeline_set_color (COGL_PIPELINE (material), color);
-}
-

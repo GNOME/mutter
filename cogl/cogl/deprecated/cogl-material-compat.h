@@ -115,28 +115,6 @@ COGL_DEPRECATED_FOR (cogl_pipeline_new)
 COGL_EXPORT CoglMaterial *
 cogl_material_new (void);
 
-/**
- * cogl_material_set_color:
- * @material: A #CoglMaterial object
- * @color: The components of the color
- *
- * Sets the basic color of the material, used when no lighting is enabled.
- *
- * Note that if you don't add any layers to the material then the color
- * will be blended unmodified with the destination; the default blend
- * expects premultiplied colors: for example, use (0.5, 0.0, 0.0, 0.5) for
- * semi-transparent red. See cogl_color_premultiply().
- *
- * The default value is (1.0, 1.0, 1.0, 1.0)
- *
- * Since: 1.0
- * Deprecated: 1.16: Use cogl_pipeline_set_color() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_color)
-COGL_EXPORT void
-cogl_material_set_color (CoglMaterial    *material,
-                         const CoglColor *color);
-
 G_END_DECLS
 
 #endif /* __COGL_MATERIAL_H__ */
