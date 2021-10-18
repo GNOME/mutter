@@ -64,13 +64,3 @@ cogl_material_set_color4ub (CoglMaterial *material,
   cogl_pipeline_set_color4ub (COGL_PIPELINE (material),
                               red, green, blue, alpha);
 }
-
-gboolean
-cogl_material_set_blend (CoglMaterial *material,
-                         const char   *blend_string,
-                         GError **error)
-{
-  return cogl_pipeline_set_blend (COGL_PIPELINE (material),
-                                  blend_string,
-                                  error);
-}
