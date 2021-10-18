@@ -50,27 +50,27 @@ on_paint (ClutterActor        *actor,
           TestState           *state)
 {
   CoglHandle tex;
-  CoglHandle material;
+  CoglPipeline *pipeline;
   uint8_t pixels[8];
 
   tex = make_texture ();
-  material = cogl_material_new ();
-  cogl_material_set_layer (material, 0, tex);
+  pipeline = cogl_pipeline_new ();
+  cogl_pipeline_set_layer (pipeline, 0, tex);
   cogl_object_unref (tex);
 
   /* Render a 1x1 pixel quad without mipmaps */
-  cogl_set_source (material);
-  cogl_pipeline_set_layer_filters (material, 0,
+  cogl_set_source (pipeline);
+  cogl_pipeline_set_layer_filters (pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
   cogl_rectangle (0, 0, 1, 1);
   /* Then with mipmaps */
-  cogl_pipeline_set_layer_filters (material, 0,
+  cogl_pipeline_set_layer_filters (pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
   cogl_rectangle (1, 0, 2, 1);
 
-  cogl_object_unref (material);
+  cogl_object_unref (pipeline);
 
   /* Read back the two pixels we rendered */
   cogl_read_pixels (0, 0, 2, 1,

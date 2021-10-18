@@ -104,7 +104,7 @@ on_paint (ClutterActor        *actor,
           TestState           *state)
 {
   CoglHandle tex0, tex1;
-  CoglHandle material;
+  CoglPipeline *pipeline;
   gboolean status;
   GError *error = NULL;
   float tex_coords[] = {
@@ -115,27 +115,27 @@ on_paint (ClutterActor        *actor,
   tex0 = make_texture (0x00);
   tex1 = make_texture (0x11);
 
-  material = cogl_material_new ();
+  pipeline = cogl_pipeline_new ();
 
   /* An arbitrary color which should be replaced by the first texture layer */
-  cogl_material_set_color4ub (material, 0x80, 0x80, 0x80, 0x80);
-  cogl_material_set_blend (material, "RGBA = ADD (SRC_COLOR, 0)", NULL);
+  cogl_pipeline_set_color4ub (pipeline, 0x80, 0x80, 0x80, 0x80);
+  cogl_pipekine_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
 
-  cogl_material_set_layer (material, 0, tex0);
-  cogl_material_set_layer_combine (material, 0,
+  cogl_pipeline_set_layer_texture (pipeline, 0, tex0);
+  cogl_pipeline_set_layer_combine (pipeline, 0,
                                    "RGBA = REPLACE (TEXTURE)", NULL);
   /* We'll use nearest filtering mode on the textures, otherwise the
      edge of the quad can pull in texels from the neighbouring
      quarters of the texture due to imprecision */
-  cogl_pipeline_set_layer_filters (material, 0,
+  cogl_pipeline_set_layer_filters (pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
 
-  cogl_material_set_layer (material, 1, tex1);
-  cogl_pipeline_set_layer_filters (material, 1,
+  cogl_pipeline_set_layer (pipeline, 1, tex1);
+  cogl_pipeline_set_layer_filters (pipeline, 1,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
-  status = cogl_material_set_layer_combine (material, 1,
+  status = cogl_pipeline_set_layer_combine (pipeline, 1,
                                             "RGBA = ADD (PREVIOUS, TEXTURE)",
                                             &error);
   if (!status)
@@ -147,11 +147,11 @@ on_paint (ClutterActor        *actor,
                error->message);
     }
 
-  cogl_set_source (material);
+  cogl_set_source (pipeline);
   cogl_rectangle_with_multitexture_coords (0, 0, QUAD_WIDTH, QUAD_WIDTH,
                                            tex_coords, 8);
 
-  cogl_object_unref (material);
+  cogl_object_unref (pipeline);
   cogl_object_unref (tex0);
   cogl_object_unref (tex1);
 

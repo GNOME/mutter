@@ -149,7 +149,7 @@ test_coglbox_fade_texture (CoglFramebuffer *framebuffer,
 
 static void
 test_coglbox_triangle_texture (CoglFramebuffer *framebuffer,
-                               CoglHandle       material,
+                               CoglPipeline    *pipeline,
                                int              tex_width,
                                int              tex_height,
                                float            x,
@@ -186,7 +186,7 @@ test_coglbox_triangle_texture (CoglFramebuffer *framebuffer,
                                        COGL_VERTICES_MODE_TRIANGLE_FAN,
                                        3,
                                        vertices);
-  cogl_primitive_draw (primitive, framebuffer, material);
+  cogl_primitive_draw (primitive, framebuffer, pipeline);
   cogl_object_unref (primitive);
 }
 
@@ -199,13 +199,16 @@ test_coglbox_paint (ClutterActor        *self,
                                            : priv->not_sliced_tex;
   int tex_width = cogl_texture_get_width (tex_handle);
   int tex_height = cogl_texture_get_height (tex_handle);
+  CoglPipeline *pipeline;
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
-  CoglHandle material = cogl_pipeline_new ();
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
-  cogl_pipeline_set_layer (material, 0, tex_handle);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_layer_texture (pipeline, 0, tex_handle);
 
-  cogl_pipeline_set_layer_filters (material, 0,
+  cogl_pipeline_set_layer_filters (pipeline, 0,
                                    priv->use_linear_filtering
                                    ? COGL_PIPELINE_FILTER_LINEAR :
                                    COGL_PIPELINE_FILTER_NEAREST,
@@ -219,10 +222,10 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_translate (framebuffer, -tex_width / 2, 0, 0);
 
   /* Draw a hand and reflect it */
-  cogl_framebuffer_draw_textured_rectangle (framebuffer, material,
+  cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
                                             0, 0, tex_width, tex_height,
                                             0, 0, 1, 1);
-  test_coglbox_fade_texture (framebuffer, material,
+  test_coglbox_fade_texture (framebuffer, pipeline,
                              0, tex_height,
 			     tex_width, (tex_height * 3 / 2),
 			     0.0, 1.0,
@@ -236,13 +239,13 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_translate (framebuffer, -tex_width / 2 - 10, 0, 0);
 
   /* Draw the texture split into two triangles */
-  test_coglbox_triangle_texture (framebuffer, material,
+  test_coglbox_triangle_texture (framebuffer, pipeline,
                                  tex_width, tex_height,
 				 0, 0,
 				 0, 0,
 				 0, 1,
 				 1, 1);
-  test_coglbox_triangle_texture (framebuffer, material,
+  test_coglbox_triangle_texture (framebuffer, pipeline,
                                  tex_width, tex_height,
 				 20, 0,
 				 0, 0,
@@ -251,7 +254,7 @@ test_coglbox_paint (ClutterActor        *self,
 
   cogl_framebuffer_pop_matrix (framebuffer);
 
-  cogl_object_unref (material);
+  cogl_object_unref (pipeline);
 }
 
 static void

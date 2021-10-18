@@ -144,23 +144,23 @@ on_after_paint (ClutterActor        *actor,
                 ClutterPaintContext *paint_context,
                 TestState           *state)
 {
-  CoglHandle material;
+  CoglPipeline *pipeline;
 
-  material = cogl_material_new ();
-  cogl_material_set_layer (material, 0, state->tfp);
+  pipeline = cogl_pipeline_new ();
+  cogl_pipeline_set_layer (pipeline, 0, state->tfp);
   if (state->frame_count == FRAME_COUNT_MIPMAP)
     {
-      const CoglMaterialFilter min_filter =
-        COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST;
-      cogl_pipeline_set_layer_filters (material, 0,
+      const CoglPipelineFilter min_filter =
+        COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST;;
+      cogl_pipeline_set_layer_filters (pipeline, 0,
                                        min_filter,
                                        COGL_PIPELINE_FILTER_NEAREST);
     }
   else
-    cogl_pipeline_set_layer_filters (material, 0,
+    cogl_pipeline_set_layer_filters (pipeline, 0,
                                      COGL_PIPELINE_FILTER_NEAREST,
                                      COGL_PIPELINE_FILTER_NEAREST);
-  cogl_set_source (material);
+  cogl_set_source (pipeline);
 
   cogl_rectangle (0, 0, PIXMAP_WIDTH, PIXMAP_HEIGHT);
 

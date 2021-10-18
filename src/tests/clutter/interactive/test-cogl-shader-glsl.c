@@ -161,7 +161,7 @@ static ShaderSource shaders[]=
 };
 
 static CoglHandle redhand;
-static CoglMaterial *material;
+static CoglPipeline *pipeline;
 static unsigned int timeout_id = 0;
 static int shader_no = 0;
 
@@ -176,7 +176,7 @@ on_after_paint (ClutterActor        *actor,
   float image_width = cogl_texture_get_width (redhand);
   float image_height = cogl_texture_get_height (redhand);
 
-  cogl_framebuffer_draw_rectangle (framebuffer, COGL_PIPELINE (material),
+  cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
                                    stage_width / 2.0f - image_width / 2.0f,
                                    stage_height / 2.0f - image_height / 2.0f,
                                    stage_width / 2.0f + image_width / 2.0f,
@@ -188,6 +188,9 @@ set_shader_num (int new_no)
 {
   CoglHandle shader;
   CoglHandle program;
+  CoglPipeline *pipeline;
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   int image_width = cogl_texture_get_width (redhand);
   int image_height = cogl_texture_get_height (redhand);
   int uniform_no;
@@ -195,6 +198,8 @@ set_shader_num (int new_no)
   g_print ("setting shaders[%i] named '%s'\n",
            new_no,
            shaders[new_no].name);
+
+  pipeline = cogl_pipeline_new (ctx);
 
   shader = cogl_create_shader (COGL_SHADER_TYPE_FRAGMENT);
   cogl_shader_source (shader, shaders[new_no].source);
@@ -218,7 +223,7 @@ set_shader_num (int new_no)
   uniform_no = cogl_program_get_uniform_location (program, "y_step");
   cogl_program_set_uniform_1f (program, uniform_no, 1.0f / image_height);
 
-  cogl_material_set_user_program (material, program);
+  cogl_pipeline_set_user_program (pipeline, program);
   cogl_object_unref (program);
 
   shader_no = new_no;
@@ -305,6 +310,9 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   char *file;
   GError *error;
   ClutterColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
+  CoglPipeline *pipeline;
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
   clutter_test_init (&argc, &argv);
 
@@ -322,8 +330,8 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   if (redhand == NULL)
     g_error ("image load failed: %s", error->message);
 
-  material = cogl_material_new ();
-  cogl_material_set_layer (material, 0, redhand);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_layer_texture (pipeline, 0, redhand);
 
   set_shader_num (0);
   g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);

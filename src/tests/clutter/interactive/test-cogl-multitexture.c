@@ -11,7 +11,7 @@
 
 #include "tests/clutter-test-utils.h"
 
-typedef struct _TestMultiLayerMaterialState
+typedef struct _TestMultiLayerPipelineState
 {
   ClutterActor    *group;
   CoglHandle       alpha_tex;
@@ -20,17 +20,17 @@ typedef struct _TestMultiLayerMaterialState
 
   ClutterTimeline *timeline;
 
-  CoglHandle       material0;
+  CoglPipeline *pipeline0;
   graphene_matrix_t tex_matrix0;
   graphene_matrix_t rot_matrix0;
   CoglHandle       light_tex0;
 
-  CoglHandle       material1;
+  CoglPipeline *pipeline1;
   graphene_matrix_t tex_matrix1;
   graphene_matrix_t rot_matrix1;
   CoglHandle       light_tex1;
 
-} TestMultiLayerMaterialState;
+} TestMultiLayerPipelineState;
 
 int
 test_cogl_multitexture_main (int argc, char *argv[]);
@@ -43,17 +43,17 @@ frame_cb (ClutterTimeline  *timeline,
 	  gint		   frame_no,
 	  gpointer	   data)
 {
-  TestMultiLayerMaterialState *state = data;
+  TestMultiLayerPipelineState *state = data;
 
   graphene_matrix_multiply (&state->rot_matrix0,
                             &state->tex_matrix0,
                             &state->tex_matrix0);
-  cogl_pipeline_set_layer_matrix (state->material0, 2, &state->tex_matrix0);
+  cogl_pipeline_set_layer_matrix (state->pipeline0, 2, &state->tex_matrix0);
 
   graphene_matrix_multiply (&state->rot_matrix1,
                             &state->tex_matrix1,
                             &state->tex_matrix1);
-  cogl_pipeline_set_layer_matrix (state->material1, 2, &state->tex_matrix1);
+  cogl_pipeline_set_layer_matrix (state->pipeline1, 2, &state->tex_matrix1);
 }
 
 static void
@@ -61,7 +61,7 @@ material_rectangle_paint (ClutterActor        *actor,
                           ClutterPaintContext *paint_context,
                           gpointer             data)
 {
-  TestMultiLayerMaterialState *state = data;
+  TestMultiLayerPipelineState *state = data;
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
 
@@ -70,13 +70,13 @@ material_rectangle_paint (ClutterActor        *actor,
   cogl_framebuffer_translate (framebuffer, 150, 15, 0);
 
   cogl_framebuffer_draw_multitextured_rectangle (framebuffer,
-                                                 COGL_FRAMEBUFFER (state->material0),
+                                                 COGL_FRAMEBUFFER (state->pipeline0),
                                                  0, 0, 200, 213,
                                                  state->tex_coords,
                                                  12);
   cogl_framebuffer_translate (framebuffer, -300, -30, 0);
   cogl_framebuffer_draw_multitextured_rectangle (framebuffer,
-                                                 COGL_FRAMEBUFFER (state->material1),
+                                                 COGL_FRAMEBUFFER (state->pipeline1),
                                                  0, 0, 200, 213,
                                                  state->tex_coords,
                                                  12);
@@ -86,7 +86,7 @@ material_rectangle_paint (ClutterActor        *actor,
 
 static void
 animation_completed_cb (ClutterAnimation            *animation,
-                        TestMultiLayerMaterialState *state)
+                        TestMultiLayerPipelineState *state)
 {
   static gboolean go_back = FALSE;
   gdouble new_rotation_y;
@@ -114,7 +114,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
   GError            *error = NULL;
   ClutterActor	    *stage;
   ClutterColor       stage_color = { 0x61, 0x56, 0x56, 0xff };
-  g_autofree TestMultiLayerMaterialState *state = g_new0 (TestMultiLayerMaterialState, 1);
+  g_autofree TestMultiLayerPipelineState *state = g_new0 (TestMultiLayerPipelineState, 1);
   gfloat             stage_w, stage_h;
   gchar            **files;
   gfloat             tex_coords[] =
@@ -184,15 +184,15 @@ test_cogl_multitexture_main (int argc, char *argv[])
 
   g_strfreev (files);
 
-  state->material0 = cogl_material_new ();
-  cogl_material_set_layer (state->material0, 0, state->alpha_tex);
-  cogl_material_set_layer (state->material0, 1, state->redhand_tex);
-  cogl_material_set_layer (state->material0, 2, state->light_tex0);
+  state->pipeline0 = cogl_pipeline_new ();
+  cogl_pipeline_set_layer (state->pipeline0, 0, state->alpha_tex);
+  cogl_pipeline_set_layer (state->pipeline0, 1, state->redhand_tex);
+  cogl_pipeline_set_layer (state->pipeline0, 2, state->light_tex0);
 
-  state->material1 = cogl_material_new ();
-  cogl_material_set_layer (state->material1, 0, state->alpha_tex);
-  cogl_material_set_layer (state->material1, 1, state->redhand_tex);
-  cogl_material_set_layer (state->material1, 2, state->light_tex1);
+  state->pipeline1 = cogl_pipeline_new ();
+  cogl_pipeline_set_layer (state->pipeline1, 0, state->alpha_tex);
+  cogl_pipeline_set_layer (state->pipeline1, 1, state->redhand_tex);
+  cogl_pipeline_set_layer (state->pipeline1, 2, state->light_tex1);
 
   state->tex_coords = tex_coords;
 
@@ -236,8 +236,8 @@ test_cogl_multitexture_main (int argc, char *argv[])
 
   clutter_test_main ();
 
-  cogl_object_unref (state->material1);
-  cogl_object_unref (state->material0);
+  cogl_object_unref (state->pipeline1);
+  cogl_object_unref (state->pipeline0);
   cogl_object_unref (state->alpha_tex);
   cogl_object_unref (state->redhand_tex);
   cogl_object_unref (state->light_tex0);

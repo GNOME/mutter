@@ -50,7 +50,7 @@ struct _Data
   Spark sparks[N_SPARKS];
   GTimer *last_spark_time;
 
-  CoglMaterial *material;
+  CoglPipeline *pipeline;
 };
 
 int
@@ -217,22 +217,24 @@ test_cogl_point_sprites_main (int argc, char *argv[])
 {
   ClutterActor *stage;
   CoglHandle tex;
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   Data data;
   GError *error = NULL;
   int i;
 
   clutter_test_init (&argc, &argv);
 
-  data.material = cogl_material_new ();
+  data.pipeline = cogl_pipeline_new (ctx);
   data.last_spark_time = g_timer_new ();
   data.next_spark_num = 0;
-  cogl_material_set_point_size (data.material, TEXTURE_SIZE);
+  cogl_pipeline_set_point_size (data.pipeline, TEXTURE_SIZE);
 
   tex = generate_round_texture ();
-  cogl_material_set_layer (data.material, 0, tex);
+  cogl_pipeline_set_layer_texture (data.pipeline, 0, tex);
   cogl_object_unref (tex);
 
-  if (!cogl_pipeline_set_layer_point_sprite_coords_enabled (data.material,
+  if (!cogl_pipeline_set_layer_point_sprite_coords_enabled (data.pipeline,
                                                             0, TRUE,
                                                             &error))
     {
@@ -266,7 +268,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
 
   clutter_test_main ();
 
-  cogl_object_unref (data.material);
+  cogl_object_unref (data.pipeline);
   g_timer_destroy (data.last_spark_time);
 
   for (i = 0; i < N_FIREWORKS; i++)
