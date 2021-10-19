@@ -103,14 +103,16 @@ clutter_input_focus_reset (ClutterInputFocus *focus)
 
   priv = clutter_input_focus_get_instance_private (focus);
 
-  if (priv->preedit &&
-      priv->mode == CLUTTER_PREEDIT_RESET_COMMIT)
-    clutter_input_focus_commit (focus, priv->preedit);
+  if (priv->preedit)
+    {
+      if (priv->mode == CLUTTER_PREEDIT_RESET_COMMIT)
+        clutter_input_focus_commit (focus, priv->preedit);
 
-  clutter_input_focus_set_preedit_text (focus, NULL, 0);
-  g_clear_pointer (&priv->preedit, g_free);
+      clutter_input_focus_set_preedit_text (focus, NULL, 0);
+      g_clear_pointer (&priv->preedit, g_free);
+    }
+
   priv->mode = CLUTTER_PREEDIT_RESET_CLEAR;
-
   clutter_input_method_reset (priv->im);
 }
 
