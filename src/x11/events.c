@@ -1055,35 +1055,9 @@ process_request_frame_extents (MetaX11Display *x11_display,
   Window xwindow = event->xclient.window;
   unsigned long data[4] = { 0, 0, 0, 0 };
 
-  MotifWmHints *hints = NULL;
-  gboolean hints_set = FALSE;
-
-  meta_verbose ("Setting frame extents for 0x%lx", xwindow);
-
-  /* See if the window is decorated. */
-  hints_set = meta_prop_get_motif_hints (x11_display,
-                                         xwindow,
-                                         x11_display->atom__MOTIF_WM_HINTS,
-                                         &hints);
-  if ((hints_set && hints->decorations) || !hints_set)
-    {
-      MetaFrameBorders borders;
-
-      /* Return estimated frame extents for a normal window. */
-      meta_ui_theme_get_frame_borders (x11_display->ui,
-                                       META_FRAME_TYPE_NORMAL,
-                                       0,
-                                       &borders);
-      data[0] = borders.visible.left;
-      data[1] = borders.visible.right;
-      data[2] = borders.visible.top;
-      data[3] = borders.visible.bottom;
-    }
-
   meta_topic (META_DEBUG_GEOMETRY,
-              "Setting _NET_FRAME_EXTENTS on unmanaged window 0x%lx "
-              "to top = %lu, left = %lu, bottom = %lu, right = %lu",
-              xwindow, data[0], data[1], data[2], data[3]);
+              "Setting _NET_FRAME_EXTENTS on unmanaged window 0x%lx",
+              xwindow);
 
   meta_x11_error_trap_push (x11_display);
   XChangeProperty (x11_display->xdisplay, xwindow,
@@ -1091,8 +1065,6 @@ process_request_frame_extents (MetaX11Display *x11_display,
                    XA_CARDINAL,
                    32, PropModeReplace, (guchar*) data, 4);
   meta_x11_error_trap_pop (x11_display);
-
-  g_free (hints);
 }
 
 /* from fvwm2, Copyright Matthias Clasen, Dominik Vogt */

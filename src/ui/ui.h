@@ -39,11 +39,6 @@ typedef gboolean (* MetaEventFunc) (XEvent *xevent, gpointer data);
 MetaUI *meta_ui_new  (MetaX11Display *x11_display);
 void    meta_ui_free (MetaUI *ui);
 
-void meta_ui_theme_get_frame_borders (MetaUI *ui,
-                                      MetaFrameType      type,
-                                      MetaFrameFlags     flags,
-                                      MetaFrameBorders *borders);
-
 MetaUIFrame * meta_ui_create_frame (MetaUI *ui,
                                     Display *xdisplay,
                                     MetaWindow *meta_window,

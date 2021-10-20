@@ -211,47 +211,6 @@ meta_ui_window_should_not_cause_focus (Display *xdisplay,
     return FALSE;
 }
 
-void
-meta_ui_theme_get_frame_borders (MetaUI *ui,
-                                 MetaFrameType      type,
-                                 MetaFrameFlags     flags,
-                                 MetaFrameBorders  *borders)
-{
-  GdkDisplay *display;
-  GdkScreen *screen;
-  int text_height;
-  MetaStyleInfo *style_info = NULL;
-  PangoContext *context;
-  const PangoFontDescription *font_desc;
-  PangoFontDescription *free_font_desc = NULL;
-
-  display = gdk_x11_lookup_xdisplay (ui->xdisplay);
-  screen = gdk_display_get_default_screen (display);
-
-  style_info = meta_theme_create_style_info (screen, NULL);
-
-  context = gtk_widget_get_pango_context (GTK_WIDGET (ui->frames));
-  font_desc = meta_prefs_get_titlebar_font ();
-
-  if (!font_desc)
-    {
-      free_font_desc = meta_style_info_create_font_desc (style_info);
-      font_desc = (const PangoFontDescription *) free_font_desc;
-    }
-
-  text_height = meta_pango_font_desc_get_text_height (font_desc, context);
-
-  meta_theme_get_frame_borders (meta_theme_get_default (),
-                                style_info, type, text_height, flags,
-                                borders);
-
-  if (free_font_desc)
-    pango_font_description_free (free_font_desc);
-
-  if (style_info != NULL)
-    meta_style_info_unref (style_info);
-}
-
 gboolean
 meta_ui_window_is_widget (MetaUI *ui,
                           Window  xwindow)
