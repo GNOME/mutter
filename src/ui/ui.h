@@ -48,12 +48,6 @@ MetaUIFrame * meta_ui_create_frame (MetaUI *ui,
                                     gint width,
                                     gint height,
                                     gulong *create_serial);
-void meta_ui_move_resize_frame (MetaUI *ui,
-				Window frame,
-				int x,
-				int y,
-				int width,
-				int height);
 
 /* GDK insists on tracking map/unmap */
 void meta_ui_map_frame   (MetaUI *ui,
