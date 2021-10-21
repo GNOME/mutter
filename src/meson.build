@@ -891,6 +891,13 @@ if have_remote_desktop
   mutter_built_sources += dbus_screen_cast_built_sources
 endif
 
+dbus_rtkit_built_sources = gnome.gdbus_codegen('meta-dbus-rtkit1',
+    'org.freedesktop.RealtimeKit1.xml',
+    interface_prefix: 'org.freedesktop.',
+    namespace: 'MetaDbus',
+)
+mutter_built_sources += dbus_rtkit_built_sources
+
 wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []
 wayland_protocol_sources = []

@@ -38,7 +38,6 @@
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-input-thread.h"
 
-#include <sched.h>
 #include <stdlib.h>
 
 #include "backends/meta-cursor-tracker-private.h"
@@ -61,6 +60,7 @@
 #include "cogl/cogl.h"
 #include "core/meta-border.h"
 #include "meta/main.h"
+#include "meta-dbus-rtkit1.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-screen-cast.h"
@@ -209,15 +209,36 @@ meta_backend_native_post_init (MetaBackend *backend)
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
     {
-      int retval;
-      struct sched_param sp = {
-        .sched_priority = sched_get_priority_min (SCHED_RR)
-      };
+      g_autoptr (MetaDbusRealtimeKit1) rtkit_proxy = NULL;
+      g_autoptr (GError) error = NULL;
 
-      retval = sched_setscheduler (0, SCHED_RR | SCHED_RESET_ON_FORK, &sp);
+      rtkit_proxy =
+        meta_dbus_realtime_kit1_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                        G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES |
+                                                        G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS |
+                                                        G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                        "org.freedesktop.RealtimeKit1",
+                                                        "/org/freedesktop/RealtimeKit1",
+                                                        NULL,
+                                                        &error);
 
-      if (retval != 0)
-        g_warning ("Failed to set RT scheduler: %m");
+      if (rtkit_proxy)
+        {
+          uint32_t priority;
+
+          priority = sched_get_priority_min (SCHED_RR);
+          meta_dbus_realtime_kit1_call_make_thread_realtime_sync (rtkit_proxy,
+                                                                  gettid (),
+                                                                  priority,
+                                                                  NULL,
+                                                                  &error);
+        }
+
+      if (error)
+        {
+          g_dbus_error_strip_remote_error (error);
+          g_message ("Failed to set RT scheduler: %s", error->message);
+        }
     }
 
 #ifdef HAVE_REMOTE_DESKTOP

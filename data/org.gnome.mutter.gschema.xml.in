@@ -122,9 +122,7 @@
                                         require a restart.
 
         • “rt-scheduler”              — makes mutter request a low priority
-                                        real-time scheduling. The executable
-                                        or user must have CAP_SYS_NICE.
-                                        Requires a restart.
+                                        real-time scheduling. Requires a restart.
 
         • “dma-buf-screen-sharing"    — enables DMA buffered screen sharing. This
                                         is already enabled by default when using
