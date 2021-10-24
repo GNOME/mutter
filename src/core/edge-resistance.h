@@ -27,13 +27,11 @@
 void meta_window_edge_resistance_for_move   (MetaWindow              *window,
                                              int                     *new_x,
                                              int                     *new_y,
-                                             GSourceFunc              timeout_func,
                                              MetaEdgeResistanceFlags  flags);
 void meta_window_edge_resistance_for_resize (MetaWindow              *window,
                                              int                     *new_width,
                                              int                     *new_height,
                                              MetaGravity              gravity,
-                                             GSourceFunc              timeout_func,
                                              MetaEdgeResistanceFlags  flags);
 
 #endif /* META_EDGE_RESISTANCE_H */

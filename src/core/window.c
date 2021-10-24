@@ -139,13 +139,11 @@ static void     update_move           (MetaWindow              *window,
                                        MetaEdgeResistanceFlags  flags,
                                        int                      x,
                                        int                      y);
-static gboolean update_move_timeout   (gpointer data);
 static void     update_resize         (MetaWindow              *window,
                                        MetaEdgeResistanceFlags  flags,
                                        int                      x,
                                        int                      y,
                                        gboolean                 force);
-static gboolean update_resize_timeout (gpointer data);
 static gboolean should_be_on_all_workspaces (MetaWindow *window);
 
 static void meta_window_flush_calc_showing   (MetaWindow *window);
@@ -6104,19 +6102,6 @@ check_moveresize_frequency (MetaWindow *window,
   return TRUE;
 }
 
-static gboolean
-update_move_timeout (gpointer data)
-{
-  MetaWindow *window = data;
-
-  update_move (window,
-               window->display->grab_last_edge_resistance_flags,
-               window->display->grab_latest_motion_x,
-               window->display->grab_latest_motion_y);
-
-  return FALSE;
-}
-
 static void
 update_move_maybe_tile (MetaWindow *window,
                         int         shake_threshold,
@@ -6351,7 +6336,6 @@ update_move (MetaWindow              *window,
   meta_window_edge_resistance_for_move (window,
                                         &new_x,
                                         &new_y,
-                                        update_move_timeout,
                                         flags);
 
   meta_window_move_frame (window, TRUE, new_x, new_y);
@@ -6490,7 +6474,6 @@ update_resize (MetaWindow              *window,
                                           &new_rect.width,
                                           &new_rect.height,
                                           gravity,
-                                          update_resize_timeout,
                                           flags);
 
   meta_window_resize_frame_with_gravity (window, TRUE,

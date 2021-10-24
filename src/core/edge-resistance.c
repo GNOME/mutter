@@ -38,29 +38,12 @@
   window->type   != META_WINDOW_MENU    &&     \
   window->type   != META_WINDOW_SPLASHSCREEN
 
-struct ResistanceDataForAnEdge
-{
-  gboolean     timeout_setup;
-  guint        timeout_id;
-  int          timeout_edge_pos;
-  gboolean     timeout_over;
-  GSourceFunc  timeout_func;
-  MetaWindow  *window;
-  int          keyboard_buildup;
-};
-typedef struct ResistanceDataForAnEdge ResistanceDataForAnEdge;
-
 struct MetaEdgeResistanceData
 {
   GArray *left_edges;
   GArray *right_edges;
   GArray *top_edges;
   GArray *bottom_edges;
-
-  ResistanceDataForAnEdge left_data;
-  ResistanceDataForAnEdge right_data;
-  ResistanceDataForAnEdge top_data;
-  ResistanceDataForAnEdge bottom_data;
 };
 
 static void compute_resistance_and_snapping_edges (MetaDisplay *display);
@@ -312,18 +295,6 @@ movement_towards_edge (MetaSide side, int increment)
     }
 }
 
-static gboolean
-edge_resistance_timeout (gpointer data)
-{
-  ResistanceDataForAnEdge *resistance_data = data;
-
-  resistance_data->timeout_over = TRUE;
-  resistance_data->timeout_id = 0;
-  (*resistance_data->timeout_func)(resistance_data->window);
-
-  return FALSE;
-}
-
 static int
 apply_edge_resistance (MetaWindow                *window,
                        int                        old_pos,
@@ -331,8 +302,6 @@ apply_edge_resistance (MetaWindow                *window,
                        const MetaRectangle       *old_rect,
                        const MetaRectangle       *new_rect,
                        GArray                    *edges,
-                       ResistanceDataForAnEdge   *resistance_data,
-                       GSourceFunc                timeout_func,
                        gboolean                   xdir,
                        gboolean                   include_windows,
                        gboolean                   keyboard_op)
@@ -348,24 +317,10 @@ apply_edge_resistance (MetaWindow                *window,
   const int PIXEL_DISTANCE_THRESHOLD_AWAYFROM_MONITOR  =  0;
   const int PIXEL_DISTANCE_THRESHOLD_TOWARDS_SCREEN    = 32;
   const int PIXEL_DISTANCE_THRESHOLD_AWAYFROM_SCREEN   =  0;
-  const int TIMEOUT_RESISTANCE_LENGTH_MS_WINDOW   =   0;
-  const int TIMEOUT_RESISTANCE_LENGTH_MS_MONITOR =   0;
-  const int TIMEOUT_RESISTANCE_LENGTH_MS_SCREEN   =   0;
 
   /* Quit if no movement was specified */
   if (old_pos == new_pos)
     return new_pos;
-
-  /* Remove the old timeout if it's no longer relevant */
-  if (resistance_data->timeout_setup &&
-      ((resistance_data->timeout_edge_pos > old_pos &&
-        resistance_data->timeout_edge_pos > new_pos)  ||
-       (resistance_data->timeout_edge_pos < old_pos &&
-        resistance_data->timeout_edge_pos < new_pos)))
-    {
-      resistance_data->timeout_setup = FALSE;
-      g_clear_handle_id (&resistance_data->timeout_id, g_source_remove);
-    }
 
   /* Get the range of indices in the edge array that we move past/to. */
   begin = find_index_of_edge_near_position (edges, old_pos,  increasing, xdir);
@@ -409,48 +364,6 @@ apply_edge_resistance (MetaWindow                *window,
       else /* mouse op */
         {
           int threshold;
-
-          /* TIMEOUT RESISTANCE: If the edge is relevant and we're moving
-           * towards it, then we may want to have some kind of time delay
-           * before the user can move past this edge.
-           */
-          if (movement_towards_edge (edge->side_type, increment))
-            {
-              /* First, determine the length of time for the resistance */
-              int timeout_length_ms = 0;
-              switch (edge->edge_type)
-                {
-                case META_EDGE_WINDOW:
-                  if (include_windows)
-                    timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_WINDOW;
-                  break;
-                case META_EDGE_MONITOR:
-                  timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_MONITOR;
-                  break;
-                case META_EDGE_SCREEN:
-                  timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_SCREEN;
-                  break;
-                }
-
-              if (!resistance_data->timeout_setup &&
-                  timeout_length_ms != 0)
-                {
-                  resistance_data->timeout_id =
-                    g_timeout_add (timeout_length_ms,
-                                   edge_resistance_timeout,
-                                   resistance_data);
-                  g_source_set_name_by_id (resistance_data->timeout_id,
-                                           "[mutter] edge_resistance_timeout");
-                  resistance_data->timeout_setup = TRUE;
-                  resistance_data->timeout_edge_pos = compare;
-                  resistance_data->timeout_over = FALSE;
-                  resistance_data->timeout_func = timeout_func;
-                  resistance_data->window = window;
-                }
-              if (!resistance_data->timeout_over &&
-                  timeout_length_ms != 0)
-                return compare;
-            }
 
           /* PIXEL DISTANCE MOUSE RESISTANCE: If the edge matters and the
            * user hasn't moved at least threshold pixels past this edge,
@@ -545,7 +458,6 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                     MetaWindow              *window,
                                     const MetaRectangle     *old_outer,
                                     MetaRectangle           *new_outer,
-                                    GSourceFunc              timeout_func,
                                     MetaEdgeResistanceFlags  flags,
                                     gboolean                 is_resize)
 {
@@ -659,8 +571,6 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               old_outer,
                                               new_outer,
                                               edge_data->left_edges,
-                                              &edge_data->left_data,
-                                              timeout_func,
                                               TRUE,
                                               include_windows,
                                               keyboard_op);
@@ -670,8 +580,6 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               old_outer,
                                               new_outer,
                                               edge_data->right_edges,
-                                              &edge_data->right_data,
-                                              timeout_func,
                                               TRUE,
                                               include_windows,
                                               keyboard_op);
@@ -690,8 +598,6 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               old_outer,
                                               new_outer,
                                               edge_data->top_edges,
-                                              &edge_data->top_data,
-                                              timeout_func,
                                               FALSE,
                                               include_windows,
                                               keyboard_op);
@@ -701,8 +607,6 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               old_outer,
                                               new_outer,
                                               edge_data->bottom_edges,
-                                              &edge_data->bottom_data,
-                                              timeout_func,
                                               FALSE,
                                               include_windows,
                                               keyboard_op);
@@ -791,16 +695,6 @@ meta_display_cleanup_edges (MetaDisplay *display)
   edge_data->right_edges = NULL;
   edge_data->top_edges = NULL;
   edge_data->bottom_edges = NULL;
-
-  /* Cleanup the timeouts */
-  if (edge_data->left_data.timeout_setup)
-    g_clear_handle_id (&edge_data->left_data.timeout_id, g_source_remove);
-  if (edge_data->right_data.timeout_setup)
-    g_clear_handle_id (&edge_data->right_data.timeout_id, g_source_remove);
-  if (edge_data->top_data.timeout_setup)
-    g_clear_handle_id (&edge_data->top_data.timeout_id, g_source_remove);
-  if (edge_data->bottom_data.timeout_setup)
-    g_clear_handle_id (&edge_data->bottom_data.timeout_id, g_source_remove);
 
   g_free (display->grab_edge_resistance_data);
   display->grab_edge_resistance_data = NULL;
@@ -977,22 +871,6 @@ cache_edges (MetaDisplay *display,
                 stupid_sort_requiring_extra_pointer_dereference);
   g_array_sort (display->grab_edge_resistance_data->bottom_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-}
-
-static void
-initialize_grab_edge_resistance_data (MetaDisplay *display)
-{
-  MetaEdgeResistanceData *edge_data = display->grab_edge_resistance_data;
-
-  edge_data->left_data.timeout_setup   = FALSE;
-  edge_data->right_data.timeout_setup  = FALSE;
-  edge_data->top_data.timeout_setup    = FALSE;
-  edge_data->bottom_data.timeout_setup = FALSE;
-
-  edge_data->left_data.keyboard_buildup   = 0;
-  edge_data->right_data.keyboard_buildup  = 0;
-  edge_data->top_data.keyboard_buildup    = 0;
-  edge_data->bottom_data.keyboard_buildup = 0;
 }
 
 static void
@@ -1179,18 +1057,12 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
                workspace_manager->active_workspace->monitor_edges,
                workspace_manager->active_workspace->screen_edges);
   g_list_free (edges);
-
-  /*
-   * 6th: Initialize the resistance timeouts and buildups
-   */
-  initialize_grab_edge_resistance_data (display);
 }
 
 void
 meta_window_edge_resistance_for_move (MetaWindow              *window,
                                       int                     *new_x,
                                       int                     *new_y,
-                                      GSourceFunc              timeout_func,
                                       MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, proposed_outer, new_outer;
@@ -1214,7 +1086,6 @@ meta_window_edge_resistance_for_move (MetaWindow              *window,
                                           window,
                                           &old_outer,
                                           &new_outer,
-                                          timeout_func,
                                           flags,
                                           is_resize))
     {
@@ -1272,7 +1143,6 @@ meta_window_edge_resistance_for_resize (MetaWindow              *window,
                                         int                     *new_width,
                                         int                     *new_height,
                                         MetaGravity              gravity,
-                                        GSourceFunc              timeout_func,
                                         MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, new_outer;
@@ -1295,7 +1165,6 @@ meta_window_edge_resistance_for_resize (MetaWindow              *window,
                                           window,
                                           &old_outer,
                                           &new_outer,
-                                          timeout_func,
                                           flags,
                                           TRUE))
     {
