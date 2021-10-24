@@ -156,7 +156,9 @@ translate_valuator_class (Display             *xdisplay,
                                   class->resolution);
 
   g_debug ("Added axis '%s' (min:%.2f, max:%.2fd, res:%d) of device %d",
-           clutter_input_axis_atom_names[axis],
+           axis == CLUTTER_INPUT_AXIS_IGNORE ?
+             "Ignored" :
+             clutter_input_axis_atom_names[axis - 1],
            class->min,
            class->max,
            class->resolution,
