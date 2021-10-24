@@ -353,33 +353,24 @@ grab_devices (MetaModalOptions  options,
               guint32           timestamp)
 {
   MetaBackend *backend = META_BACKEND (meta_get_backend ());
-  gboolean pointer_grabbed = FALSE;
-  gboolean keyboard_grabbed = FALSE;
 
   if ((options & META_MODAL_POINTER_ALREADY_GRABBED) == 0)
     {
       if (!meta_backend_grab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp))
         goto fail;
-
-      pointer_grabbed = TRUE;
     }
 
   if ((options & META_MODAL_KEYBOARD_ALREADY_GRABBED) == 0)
     {
       if (!meta_backend_grab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp))
-        goto fail;
-
-      keyboard_grabbed = TRUE;
+        goto ungrab_pointer;
     }
 
   return TRUE;
 
+ ungrab_pointer:
+  meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
  fail:
-  if (pointer_grabbed)
-    meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
-  if (keyboard_grabbed)
-    meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
-
   return FALSE;
 }
 
