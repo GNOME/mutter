@@ -1114,30 +1114,8 @@ load_state (const char *previous_save_file)
                             &length,
                             &error))
     {
-      char *canonical_session_file = session_file;
-
-      /* Maybe they were doing it the old way, with ~/.mutter */
-      session_file = g_strconcat (g_get_home_dir (),
-                                  G_DIR_SEPARATOR_S ".mutter"
-                                  G_DIR_SEPARATOR_S "sessions"
-                                  G_DIR_SEPARATOR_S,
-                                  previous_save_file,
-                                  NULL);
-
-      if (!g_file_get_contents (session_file,
-                                &text,
-                                &length,
-                                NULL))
-        {
-          /* oh, just give up */
-
-          g_error_free (error);
-          g_free (session_file);
-          g_free (canonical_session_file);
-          return NULL;
-        }
-
-      g_free (canonical_session_file);
+      g_free (session_file);
+      goto error;
     }
 
   meta_topic (META_DEBUG_SM, "Parsing saved session file %s", session_file);
