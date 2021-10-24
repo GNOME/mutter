@@ -529,7 +529,7 @@ gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
   int i;
-  GString *error_message;
+  g_autoptr (GString) error_message = NULL;
   gboolean constraints_failed = FALSE;
 
   if (renderer->connected)
@@ -594,7 +594,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
       else
         {
           renderer->connected = TRUE;
-          g_string_free (error_message, TRUE);
           return TRUE;
         }
     }
@@ -613,7 +612,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
       g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
                    "Failed to connected to any renderer: %s",
                    error_message->str);
-      g_string_free (error_message, TRUE);
       return FALSE;
     }
 
