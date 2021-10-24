@@ -348,6 +348,7 @@ _cogl_driver_update_features (CoglContext *context,
                        COGL_DRIVER_ERROR,
                        COGL_DRIVER_ERROR_INVALID_VERSION,
                        "OpenGL ES 2.0 or better is required");
+      g_strfreev (gl_extensions);
       return FALSE;
     }
 
