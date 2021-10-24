@@ -146,6 +146,7 @@ cogl_context_new (CoglDisplay *display,
       CoglRenderer *renderer = cogl_renderer_new ();
       if (!cogl_renderer_connect (renderer, error))
         {
+          cogl_object_unref (renderer);
           g_free (context);
           return NULL;
         }
