@@ -103,8 +103,9 @@ dump_layer_cb (CoglNode *node, void *user_data)
     {
       g_string_append_printf (changes_label, "\"];\n");
       g_string_append (state->graph, changes_label->str);
-      g_string_free (changes_label, TRUE);
     }
+
+  g_string_free (changes_label, TRUE);
 
   state_out.parent_id = layer_id;
 
@@ -210,8 +211,9 @@ dump_pipeline_cb (CoglNode *node, void *user_data)
     {
       g_string_append_printf (changes_label, "\"];\n");
       g_string_append (state->graph, changes_label->str);
-      g_string_free (changes_label, TRUE);
     }
+
+  g_string_free (changes_label, TRUE);
 
   if (layers)
     {
