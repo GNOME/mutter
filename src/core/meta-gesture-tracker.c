@@ -227,15 +227,12 @@ static gboolean
 state_is_applicable (MetaSequenceState prev_state,
                      MetaSequenceState state)
 {
+  /* PENDING_END state is final */
   if (prev_state == META_SEQUENCE_PENDING_END)
     return FALSE;
 
   /* Don't allow reverting to none */
   if (state == META_SEQUENCE_NONE)
-    return FALSE;
-
-  /* PENDING_END state is final */
-  if (prev_state == META_SEQUENCE_PENDING_END)
     return FALSE;
 
   /* Sequences must be accepted/denied before PENDING_END */
