@@ -619,7 +619,10 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   clutter_context->last_repaint_id = 1;
 
   if (!clutter_init_real (clutter_context, error))
-    return NULL;
+    {
+      g_free (clutter_context);
+      return NULL;
+    }
 
   ClutterCntx = clutter_context;
 
