@@ -1455,10 +1455,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
       /* Map */
       if (should_be_mapped)
         {
-          if (!must_be_realized)
-            g_warning ("Somehow we think actor '%s' should be mapped but "
-                       "not realized, which isn't allowed",
-                       _clutter_actor_get_debug_name (self));
+          g_assert (should_be_mapped == must_be_realized);
 
           /* realization is allowed to fail (though I don't know what
            * an app is supposed to do about that - shouldn't it just
