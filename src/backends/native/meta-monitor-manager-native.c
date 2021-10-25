@@ -508,8 +508,9 @@ meta_monitor_manager_native_set_crtc_gamma (MetaMonitorManager *manager,
                                                  red, green, blue));
 
   gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
-  g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
-           meta_crtc_get_id (crtc), gamma_ramp_string);
+  meta_topic (META_DEBUG_COLOR,
+              "Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
+              meta_crtc_get_id (crtc), gamma_ramp_string);
 
   meta_crtc_kms_invalidate_gamma (crtc_kms);
   clutter_stage_schedule_update (stage);

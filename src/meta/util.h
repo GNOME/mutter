@@ -74,6 +74,7 @@ void meta_fatal      (const char *format,
  * @META_DEBUG_REMOTE_DESKTOP: remote desktop
  * @META_DEBUG_BACKEND: backend
  * @META_DEBUG_RENDER: native backend rendering
+ * @META_DEBUG_COLOR: color management
  */
 typedef enum
 {
@@ -104,6 +105,7 @@ typedef enum
   META_DEBUG_REMOTE_DESKTOP  = 1 << 23,
   META_DEBUG_BACKEND         = 1 << 24,
   META_DEBUG_RENDER          = 1 << 25,
+  META_DEBUG_COLOR           = 1 << 26,
 } MetaDebugTopic;
 
 /**
