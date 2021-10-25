@@ -67,6 +67,7 @@ struct _MetaBackendClass
 
   MetaMonitorManager * (* create_monitor_manager) (MetaBackend *backend,
                                                    GError     **error);
+  MetaColorManager * (* create_color_manager) (MetaBackend *backend);
   MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend        *backend,
                                                 ClutterInputDevice *device);
   MetaCursorTracker * (* create_cursor_tracker) (MetaBackend *backend);
@@ -129,6 +130,8 @@ MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
                                                  ClutterInputDevice *device);
 
 MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
+
+MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);

@@ -42,6 +42,7 @@
 #include <string.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
+#include "backends/meta-color-manager.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-keymap-utils.h"
 #include "backends/meta-stage-private.h"
@@ -595,6 +596,14 @@ meta_backend_x11_create_clutter_backend (MetaBackend *backend)
   return CLUTTER_BACKEND (meta_clutter_backend_x11_new (backend));
 }
 
+static MetaColorManager *
+meta_backend_x11_create_color_manager (MetaBackend *backend)
+{
+  return g_object_new (META_TYPE_COLOR_MANAGER,
+                       "backend", backend,
+                       NULL);
+}
+
 static ClutterSeat *
 meta_backend_x11_create_default_seat (MetaBackend  *backend,
                                       GError      **error)
@@ -953,6 +962,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   object_class->dispose = meta_backend_x11_dispose;
   object_class->finalize = meta_backend_x11_finalize;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
+  backend_class->create_color_manager = meta_backend_x11_create_color_manager;
   backend_class->create_default_seat = meta_backend_x11_create_default_seat;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;

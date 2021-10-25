@@ -40,6 +40,7 @@
 
 #include <stdlib.h>
 
+#include "backends/meta-color-manager.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-manager.h"
 #include "backends/meta-keymap-utils.h"
@@ -277,6 +278,14 @@ meta_backend_native_create_monitor_manager (MetaBackend *backend,
                             G_CALLBACK (update_viewports), backend);
 
   return manager;
+}
+
+static MetaColorManager *
+meta_backend_native_create_color_manager (MetaBackend *backend)
+{
+  return g_object_new (META_TYPE_COLOR_MANAGER,
+                       "backend", backend,
+                       NULL);
 }
 
 static MetaCursorRenderer *
@@ -714,6 +723,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_capabilities = meta_backend_native_get_capabilities;
 
   backend_class->create_monitor_manager = meta_backend_native_create_monitor_manager;
+  backend_class->create_color_manager = meta_backend_native_create_color_manager;
   backend_class->get_cursor_renderer = meta_backend_native_get_cursor_renderer;
   backend_class->create_renderer = meta_backend_native_create_renderer;
   backend_class->get_input_settings = meta_backend_native_get_input_settings;

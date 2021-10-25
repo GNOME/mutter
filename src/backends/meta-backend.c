@@ -148,6 +148,7 @@ struct _MetaBackendPrivate
   MetaInputMapper *input_mapper;
   MetaIdleManager *idle_manager;
   MetaRenderer *renderer;
+  MetaColorManager *color_manager;
 #ifdef HAVE_EGL
   MetaEgl *egl;
 #endif
@@ -222,6 +223,7 @@ meta_backend_dispose (GObject *object)
 
   g_clear_pointer (&priv->cursor_tracker, meta_cursor_tracker_destroy);
   g_clear_object (&priv->current_device);
+  g_clear_object (&priv->color_manager);
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
 #ifdef HAVE_REMOTE_DESKTOP
@@ -954,6 +956,12 @@ meta_backend_create_monitor_manager (MetaBackend *backend,
                                                                    error);
 }
 
+static MetaColorManager *
+meta_backend_create_color_manager (MetaBackend *backend)
+{
+  return META_BACKEND_GET_CLASS (backend)->create_color_manager (backend);
+}
+
 static MetaRenderer *
 meta_backend_create_renderer (MetaBackend *backend,
                               GError     **error)
@@ -1194,6 +1202,8 @@ meta_backend_initable_init (GInitable     *initable,
   if (!priv->monitor_manager)
     return FALSE;
 
+  priv->color_manager = meta_backend_create_color_manager (backend);
+
   priv->renderer = meta_backend_create_renderer (backend, error);
   if (!priv->renderer)
     return FALSE;
@@ -1281,6 +1291,17 @@ meta_backend_get_monitor_manager (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->monitor_manager;
+}
+
+/**
+ * meta_backend_get_color_manager: (skip)
+ */
+MetaColorManager *
+meta_backend_get_color_manager (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->color_manager;
 }
 
 /**
