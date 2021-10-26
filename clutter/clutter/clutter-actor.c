@@ -12388,6 +12388,12 @@ clutter_actor_event (ClutterActor       *actor,
  handled:
   g_object_unref (actor);
 
+  if (event->type == CLUTTER_ENTER || event->type == CLUTTER_LEAVE)
+    {
+      g_warn_if_fail (retval == CLUTTER_EVENT_PROPAGATE);
+      return CLUTTER_EVENT_PROPAGATE;
+    }
+
   return retval;
 }
 
