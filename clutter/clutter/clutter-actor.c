@@ -18992,11 +18992,12 @@ clutter_actor_get_content_repeat (ClutterActor *self)
 
 void
 _clutter_actor_handle_event (ClutterActor       *self,
+                             ClutterActor       *root,
                              const ClutterEvent *event)
 {
   GPtrArray *event_tree;
   ClutterActor *iter;
-  gboolean is_key_event;
+  gboolean is_key_event, in_root = FALSE;
   gint i = 0;
 
   /* XXX - for historical reasons that are now lost in the mists of time,
@@ -19025,7 +19026,24 @@ _clutter_actor_handle_event (ClutterActor       *self,
           g_ptr_array_add (event_tree, g_object_ref (iter));
         }
 
+      if (iter == root)
+        {
+          in_root = TRUE;
+          break;
+        }
+
       iter = parent;
+    }
+
+  /* The grab root conceptually extends infinitely in all
+   * directions, so it handles the events that fall outside of
+   * the actor.
+   */
+  if (root && !in_root)
+    {
+      if (!clutter_actor_event (root, event, TRUE))
+        clutter_actor_event (root, event, FALSE);
+      goto done;
     }
 
   /* Capture: from top-level downwards */

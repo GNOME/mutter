@@ -246,6 +246,7 @@ void                            _clutter_actor_pop_clone_paint                  
 ClutterActorAlign               _clutter_actor_get_effective_x_align                    (ClutterActor *self);
 
 void                            _clutter_actor_handle_event                             (ClutterActor       *actor,
+                                                                                         ClutterActor       *root,
                                                                                          const ClutterEvent *event);
 
 void                            _clutter_actor_attach_clone                             (ClutterActor *actor,
