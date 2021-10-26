@@ -39,6 +39,7 @@ clutter_headers = [
   'clutter-frame-clock.h',
   'clutter-frame.h',
   'clutter-gesture-action.h',
+  'clutter-grab.h',
   'clutter-grid-layout.h',
   'clutter-image.h',
   'clutter-input-device.h',

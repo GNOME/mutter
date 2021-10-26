@@ -29,6 +29,7 @@
 #endif
 
 #include <clutter/clutter-actor.h>
+#include <clutter/clutter-grab.h>
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-stage-view.h>
 
@@ -268,6 +269,10 @@ CLUTTER_EXPORT
 ClutterActor * clutter_stage_get_device_actor (ClutterStage         *stage,
                                                ClutterInputDevice   *device,
                                                ClutterEventSequence *sequence);
+
+CLUTTER_EXPORT
+ClutterGrab * clutter_stage_grab (ClutterStage *stage,
+                                  ClutterActor *actor);
 
 G_END_DECLS
 

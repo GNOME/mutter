@@ -52,6 +52,7 @@
 #include "clutter-enum-types.h"
 #include "clutter-event-private.h"
 #include "clutter-frame-clock.h"
+#include "clutter-grab.h"
 #include "clutter-id-pool.h"
 #include "clutter-input-device-private.h"
 #include "clutter-main.h"
@@ -113,6 +114,8 @@ struct _ClutterStagePrivate
   gchar *title;
   ClutterActor *key_focused_actor;
 
+  ClutterGrab *topmost_grab;
+
   GQueue *event_queue;
 
   GArray *paint_volume_stack;
@@ -131,6 +134,14 @@ struct _ClutterStagePrivate
   guint throttle_motion_events : 1;
   guint motion_events_enabled  : 1;
   guint actor_needs_immediate_relayout : 1;
+};
+
+struct _ClutterGrab
+{
+  ClutterStage *stage;
+  ClutterActor *actor;
+  ClutterGrab *prev;
+  ClutterGrab *next;
 };
 
 enum
@@ -3624,4 +3635,55 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
   g_clear_pointer (&clear_area, cairo_region_destroy);
 
   return new_actor;
+}
+
+ClutterGrab *
+clutter_stage_grab (ClutterStage *stage,
+                    ClutterActor *actor)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  ClutterGrab *grab;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
+
+  grab = g_new0 (ClutterGrab, 1);
+  grab->stage = stage;
+  grab->actor = actor;
+  grab->prev = NULL;
+  grab->next = priv->topmost_grab;
+
+  if (priv->topmost_grab)
+    priv->topmost_grab->prev = grab;
+
+  priv->topmost_grab = grab;
+
+  return grab;
+}
+
+void
+clutter_grab_dismiss (ClutterGrab *grab)
+{
+  ClutterStagePrivate *priv;
+  ClutterGrab *prev, *next;
+
+  g_return_if_fail (grab != NULL);
+
+  priv = grab->stage->priv;
+  prev = grab->prev;
+  next = grab->next;
+
+  if (prev)
+    prev->next = next;
+  if (next)
+    next->prev = prev;
+
+  if (priv->topmost_grab == grab)
+    {
+      /* This is the active grab */
+      g_assert (prev == NULL);
+      priv->topmost_grab = next;
+    }
+
+  g_free (grab);
 }

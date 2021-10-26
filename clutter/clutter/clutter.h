@@ -65,6 +65,7 @@
 #include "clutter-frame-clock.h"
 #include "clutter-frame.h"
 #include "clutter-gesture-action.h"
+#include "clutter-grab.h"
 #include "clutter-grid-layout.h"
 #include "clutter-image.h"
 #include "clutter-input-device.h"
