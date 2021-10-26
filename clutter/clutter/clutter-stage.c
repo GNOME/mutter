@@ -3460,7 +3460,7 @@ clutter_stage_set_device_coords (ClutterStage         *stage,
     entry->coords = coords;
 }
 
-static void
+static ClutterEvent *
 create_crossing_event (ClutterStage         *stage,
                        ClutterInputDevice   *device,
                        ClutterEventSequence *sequence,
@@ -3483,15 +3483,7 @@ create_crossing_event (ClutterStage         *stage,
   event->crossing.sequence = sequence;
   clutter_event_set_device (event, device);
 
-  /* we need to make sure that this event is processed
-   * before any other event we might have queued up until
-   * now, so we go on, and synthesize the event emission
-   * ourselves
-   */
-  if (!_clutter_event_process_filters (event))
-    _clutter_process_event (event);
-
-  clutter_event_free (event);
+  return event;
 }
 
 void
@@ -3507,6 +3499,7 @@ clutter_stage_update_device (ClutterStage         *stage,
   ClutterInputDeviceType device_type;
   ClutterActor *old_actor;
   gboolean device_actor_changed;
+  ClutterEvent *event;
 
   device_type = clutter_input_device_get_device_type (device);
 
@@ -3531,22 +3524,33 @@ clutter_stage_update_device (ClutterStage         *stage,
                     point.y,
                     _clutter_actor_get_debug_name (new_actor));
 
+      /* we need to make sure that this event is processed
+       * before any other event we might have queued up until
+       * now, so we go on, and synthesize the event emission
+       * ourselves
+       */
       if (old_actor && emit_crossing)
         {
-          create_crossing_event (stage,
-                                 device, sequence,
-                                 CLUTTER_LEAVE,
-                                 old_actor, new_actor,
-                                 point, time_ms);
+          event = create_crossing_event (stage,
+                                         device, sequence,
+                                         CLUTTER_LEAVE,
+                                         old_actor, new_actor,
+                                         point, time_ms);
+          if (!_clutter_event_process_filters (event))
+            _clutter_process_event (event);
+          clutter_event_free (event);
         }
 
       if (new_actor && emit_crossing)
         {
-          create_crossing_event (stage,
-                                 device, sequence,
-                                 CLUTTER_ENTER,
-                                 new_actor, old_actor,
-                                 point, time_ms);
+          event = create_crossing_event (stage,
+                                         device, sequence,
+                                         CLUTTER_ENTER,
+                                         new_actor, old_actor,
+                                         point, time_ms);
+          if (!_clutter_event_process_filters (event))
+            _clutter_process_event (event);
+          clutter_event_free (event);
         }
     }
 }
