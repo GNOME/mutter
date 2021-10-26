@@ -3460,6 +3460,25 @@ clutter_stage_set_device_coords (ClutterStage         *stage,
     entry->coords = coords;
 }
 
+static ClutterActor *
+find_common_root_actor (ClutterStage *stage,
+                        ClutterActor *a,
+                        ClutterActor *b)
+{
+  if (a && b)
+    {
+      while (a)
+        {
+          if (a == b || clutter_actor_contains (a, b))
+            return a;
+
+          a = clutter_actor_get_parent (a);
+        }
+    }
+
+  return CLUTTER_ACTOR (stage);
+}
+
 static ClutterEvent *
 create_crossing_event (ClutterStage         *stage,
                        ClutterInputDevice   *device,
@@ -3641,6 +3660,140 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
   return new_actor;
 }
 
+static void
+clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
+                                            PointerDeviceEntry *entry,
+                                            ClutterActor       *grab_actor,
+                                            ClutterActor       *old_grab_actor)
+{
+  gboolean pointer_in_grab, pointer_in_old_grab;
+  ClutterEventType event_type = CLUTTER_NOTHING;
+  ClutterActor *topmost, *deepmost;
+
+  if (!entry->current_actor)
+    return;
+
+  pointer_in_grab =
+    !grab_actor ||
+    grab_actor == entry->current_actor ||
+    clutter_actor_contains (grab_actor, entry->current_actor);
+  pointer_in_old_grab =
+    !old_grab_actor ||
+    old_grab_actor == entry->current_actor ||
+    clutter_actor_contains (old_grab_actor, entry->current_actor);
+
+  /* Equate NULL actors to the stage here, to ease calculations further down. */
+  if (!grab_actor)
+    grab_actor = CLUTTER_ACTOR (stage);
+  if (!old_grab_actor)
+    old_grab_actor = CLUTTER_ACTOR (stage);
+
+  if (grab_actor == old_grab_actor)
+    return;
+
+  if (pointer_in_grab && pointer_in_old_grab)
+    {
+      /* Both grabs happen to contain the pointer actor, we have to figure out
+       * which is topmost, and emit ENTER/LEAVE events accordingly on the actors
+       * between old/new grabs.
+       */
+      if (clutter_actor_contains (grab_actor, old_grab_actor))
+        {
+          /* grab_actor is above old_grab_actor, emit ENTER events in the
+           * line between those two actors.
+           */
+          event_type = CLUTTER_ENTER;
+          deepmost = clutter_actor_get_parent (old_grab_actor);
+          topmost = grab_actor;
+        }
+      else if (clutter_actor_contains (old_grab_actor, grab_actor))
+        {
+          /* old_grab_actor is above grab_actor, emit LEAVE events in the
+           * line between those two actors.
+           */
+          event_type = CLUTTER_LEAVE;
+          deepmost = clutter_actor_get_parent (grab_actor);
+          topmost = old_grab_actor;
+        }
+    }
+  else if (pointer_in_grab)
+    {
+      /* Pointer is somewhere inside the grab_actor hierarchy. Emit ENTER events
+       * from the current grab actor to the pointer actor.
+       */
+      event_type = CLUTTER_ENTER;
+      deepmost = entry->current_actor;
+      topmost = grab_actor;
+    }
+  else if (pointer_in_old_grab)
+    {
+      /* Pointer is somewhere inside the old_grab_actor hierarchy. Emit LEAVE
+       * events from the common root of old/cur grab actors to the pointer
+       * actor.
+       */
+      event_type = CLUTTER_LEAVE;
+      deepmost = entry->current_actor;
+      topmost = find_common_root_actor (stage, grab_actor, old_grab_actor);
+    }
+
+  if (event_type != CLUTTER_NOTHING)
+    {
+      ClutterEvent *event;
+
+      event = create_crossing_event (stage,
+                                     entry->device,
+                                     entry->sequence,
+                                     event_type,
+                                     entry->current_actor,
+                                     event_type == CLUTTER_LEAVE ?
+                                     grab_actor : old_grab_actor,
+                                     entry->coords,
+                                     CLUTTER_CURRENT_TIME);
+      _clutter_actor_handle_event (deepmost, topmost, event);
+      clutter_event_free (event);
+    }
+}
+
+static void
+clutter_stage_notify_grab (ClutterStage *stage,
+                           ClutterGrab  *cur,
+                           ClutterGrab  *old)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  ClutterActor *cur_actor = NULL, *old_actor = NULL;
+  PointerDeviceEntry *entry;
+  GHashTableIter iter;
+
+  if (cur)
+    cur_actor = cur->actor;
+  if (old)
+    old_actor = old->actor;
+
+  /* Nothing to notify */
+  if (cur_actor == old_actor)
+    return;
+
+  g_hash_table_iter_init (&iter, priv->pointer_devices);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &entry))
+    {
+      /* Update pointers */
+      clutter_stage_notify_grab_on_pointer_entry (stage,
+                                                  entry,
+                                                  cur_actor,
+                                                  old_actor);
+    }
+
+  g_hash_table_iter_init (&iter, priv->touch_sequences);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &entry))
+    {
+      /* Update touch sequences */
+      clutter_stage_notify_grab_on_pointer_entry (stage,
+                                                  entry,
+                                                  cur_actor,
+                                                  old_actor);
+    }
+}
+
 ClutterGrab *
 clutter_stage_grab (ClutterStage *stage,
                     ClutterActor *actor)
@@ -3661,6 +3814,7 @@ clutter_stage_grab (ClutterStage *stage,
     priv->topmost_grab->prev = grab;
 
   priv->topmost_grab = grab;
+  clutter_stage_notify_grab (stage, grab, grab->next);
 
   return grab;
 }
@@ -3687,6 +3841,7 @@ clutter_grab_dismiss (ClutterGrab *grab)
       /* This is the active grab */
       g_assert (prev == NULL);
       priv->topmost_grab = next;
+      clutter_stage_notify_grab (stage, next, grab);
     }
 
   g_free (grab);
