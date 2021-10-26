@@ -759,6 +759,9 @@ meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_na
 {
   const unsigned int timeout_ms = 100;
 
+  if (g_list_find (renderer_native->power_save_page_flip_onscreens, onscreen))
+    return;
+
   if (!renderer_native->power_save_page_flip_source_id)
     {
       renderer_native->power_save_page_flip_source_id =
