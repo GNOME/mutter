@@ -493,6 +493,7 @@ meta_monitor_manager_native_set_crtc_gamma (MetaMonitorManager *manager,
     META_MONITOR_MANAGER_NATIVE (manager);
   MetaCrtcKms *crtc_kms;
   MetaKmsCrtc *kms_crtc;
+  const MetaKmsCrtcState *crtc_state;
   g_autofree char *gamma_ramp_string = NULL;
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
@@ -501,6 +502,17 @@ meta_monitor_manager_native_set_crtc_gamma (MetaMonitorManager *manager,
 
   crtc_kms = META_CRTC_KMS (crtc);
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+
+  if (size != crtc_state->gamma.size)
+    {
+      MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+      g_warning ("Tried to set a different gamma LUT size on %u (%s)",
+                 meta_kms_crtc_get_id (kms_crtc),
+                 meta_kms_device_get_path (kms_device));
+      return;
+    }
 
   g_hash_table_replace (manager_native->crtc_gamma_cache,
                         GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
