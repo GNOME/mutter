@@ -295,4 +295,6 @@ gboolean meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
                                                   gboolean      enabled,
                                                   GError      **error);
 
+size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
+
 #endif /* META_MONITOR_H */

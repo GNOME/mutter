@@ -618,6 +618,36 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
   };
 }
 
+/**
+ * meta_monitor_get_gamma_lut_size:
+ * @monitor: The MetaMonitor instance to retrieve the size from.
+ *
+ * Get the size of the look-up tables (LUTs) for the monitor.
+ *
+ * Retrieve the size of the LUT used to implement the encoding or decoding
+ * transfer functions ("gamma", "degamma") for the CRTC or CRTCs that backs
+ * this monitor.
+ *
+ * Returns: The number of look-up table entries possible for the monitor. It is
+ *   assumed that each CRTC of a monitor has identical gamma LUT sizes.
+ */
+size_t
+meta_monitor_get_gamma_lut_size (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
+  MetaOutput *output;
+  MetaCrtc *crtc;
+  size_t size;
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+  meta_monitor_manager_get_crtc_gamma (monitor_manager, crtc,
+                                       &size, NULL, NULL, NULL);
+  return size;
+}
+
 static void
 meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 {

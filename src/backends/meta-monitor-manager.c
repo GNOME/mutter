@@ -1152,7 +1152,7 @@ update_has_builtin_panel (MetaMonitorManager *manager)
                             obj_props[PROP_HAS_BUILTIN_PANEL]);
 }
 
-static void
+void
 meta_monitor_manager_get_crtc_gamma (MetaMonitorManager  *manager,
                                      MetaCrtc            *crtc,
                                      size_t              *size,
