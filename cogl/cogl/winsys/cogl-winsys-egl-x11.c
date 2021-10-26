@@ -43,6 +43,7 @@
 #include "cogl-renderer-private.h"
 #include "cogl-texture-pixmap-x11-private.h"
 #include "cogl-texture-2d-private.h"
+#include "driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl-texture-2d.h"
 #include "cogl-poll-private.h"
 #include "winsys/cogl-onscreen-egl.h"
@@ -62,6 +63,7 @@ typedef struct _CoglTexturePixmapEGL
 {
   EGLImageKHR image;
   CoglTexture *texture;
+  gboolean bind_tex_image_queued;
 } CoglTexturePixmapEGL;
 #endif
 
@@ -496,6 +498,9 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
                                         COGL_EGL_IMAGE_FLAG_NONE,
                                         NULL));
 
+  /* The image is initially bound as part of the creation */
+  egl_tex_pixmap->bind_tex_image_queued = FALSE;
+
   tex_pixmap->winsys = egl_tex_pixmap;
 
   return TRUE;
@@ -530,8 +535,32 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
                                         CoglTexturePixmapStereoMode stereo_mode,
                                         gboolean needs_mipmap)
 {
+  CoglTexturePixmapEGL *egl_tex_pixmap = tex_pixmap->winsys;
+  CoglTexture2D *tex_2d;
+  GError *error = NULL;
+
   if (needs_mipmap)
     return FALSE;
+
+  if (egl_tex_pixmap->bind_tex_image_queued)
+    {
+      COGL_NOTE (TEXTURE_PIXMAP, "Rebinding GLXPixmap for %p", tex_pixmap);
+
+      tex_2d = COGL_TEXTURE_2D (egl_tex_pixmap->texture);
+
+      if (cogl_texture_2d_gl_bind_egl_image (tex_2d,
+                                             egl_tex_pixmap->image,
+                                             &error))
+        {
+          egl_tex_pixmap->bind_tex_image_queued = FALSE;
+        }
+      else
+        {
+          g_warning ("Failed to rebind EGLImage to CoglTexture2D: %s",
+                     error->message);
+          g_error_free (error);
+        }
+    }
 
   return TRUE;
 }
@@ -539,6 +568,9 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
 static void
 _cogl_winsys_texture_pixmap_x11_damage_notify (CoglTexturePixmapX11 *tex_pixmap)
 {
+  CoglTexturePixmapEGL *egl_tex_pixmap = tex_pixmap->winsys;
+
+  egl_tex_pixmap->bind_tex_image_queued = TRUE;
 }
 
 static CoglTexture *

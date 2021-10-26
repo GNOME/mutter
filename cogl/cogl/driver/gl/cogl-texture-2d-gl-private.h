@@ -60,6 +60,13 @@ _cogl_texture_2d_gl_new_from_bitmap (CoglBitmap *bmp,
                                      gboolean can_convert_in_place,
                                      GError **error);
 
+#if defined (COGL_HAS_EGL_SUPPORT)
+gboolean
+cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
+                                   EGLImageKHR    image,
+                                   GError       **error);
+#endif
+
 #if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
 CoglTexture2D *
 _cogl_egl_texture_2d_gl_new_from_image (CoglContext *ctx,

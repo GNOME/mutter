@@ -274,18 +274,11 @@ allocate_from_egl_image (CoglTexture2D *tex_2d,
 
   tex_2d->gl_texture =
     ctx->texture_driver->gen (ctx, GL_TEXTURE_2D, internal_format);
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
-                                   tex_2d->gl_texture);
-  _cogl_gl_util_clear_gl_errors (ctx);
 
-  ctx->glEGLImageTargetTexture2D (GL_TEXTURE_2D, loader->src.egl_image.image);
-  if (_cogl_gl_util_get_error (ctx) != GL_NO_ERROR)
+  if (!cogl_texture_2d_gl_bind_egl_image (tex_2d,
+                                          loader->src.egl_image.image,
+                                          error))
     {
-      g_set_error_literal (error,
-                           COGL_TEXTURE_ERROR,
-                           COGL_TEXTURE_ERROR_BAD_PARAMETER,
-                           "Could not create a CoglTexture2D from a given "
-                           "EGLImage");
       GE( ctx, glDeleteTextures (1, &tex_2d->gl_texture) );
       return FALSE;
     }
@@ -356,6 +349,31 @@ allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
   tex_2d->internal_format = internal_format;
   tex_2d->gl_target = GL_TEXTURE_EXTERNAL_OES;
   tex_2d->is_get_data_supported = FALSE;
+
+  return TRUE;
+}
+
+gboolean
+cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
+                                   EGLImageKHR    image,
+                                   GError       **error)
+{
+  CoglContext *ctx = COGL_TEXTURE (tex_2d)->context;
+
+  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+                                   tex_2d->gl_texture);
+  _cogl_gl_util_clear_gl_errors (ctx);
+
+  ctx->glEGLImageTargetTexture2D (GL_TEXTURE_2D, image);
+  if (_cogl_gl_util_get_error (ctx) != GL_NO_ERROR)
+    {
+      g_set_error_literal (error,
+                           COGL_TEXTURE_ERROR,
+                           COGL_TEXTURE_ERROR_BAD_PARAMETER,
+                           "Could not bind the given EGLImage to a "
+                           "CoglTexture2D");
+      return FALSE;
+    }
 
   return TRUE;
 }
