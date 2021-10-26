@@ -84,6 +84,9 @@ typedef struct _MetaOutputInfo
   char *vendor;
   char *product;
   char *serial;
+
+  char *edid_checksum_md5;
+
   int width_mm;
   int height_mm;
   CoglSubpixelOrder subpixel_order;

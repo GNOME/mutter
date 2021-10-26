@@ -155,6 +155,8 @@ const char * meta_monitor_get_product (MetaMonitor *monitor);
 META_EXPORT_TEST
 const char * meta_monitor_get_serial (MetaMonitor *monitor);
 
+const char * meta_monitor_get_edid_checksum_md5 (MetaMonitor *monitor);
+
 META_EXPORT_TEST
 MetaConnectorType meta_monitor_get_connector_type (MetaMonitor *monitor);
 
