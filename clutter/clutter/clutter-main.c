@@ -683,7 +683,9 @@ emit_event_chain (ClutterEvent *event)
       return;
     }
 
-  _clutter_actor_handle_event (event->any.source, NULL, event);
+  _clutter_actor_handle_event (event->any.source,
+                               clutter_stage_get_grab_actor (event->any.stage),
+                               event);
 }
 
 /*

@@ -274,6 +274,9 @@ CLUTTER_EXPORT
 ClutterGrab * clutter_stage_grab (ClutterStage *stage,
                                   ClutterActor *actor);
 
+CLUTTER_EXPORT
+ClutterActor * clutter_stage_get_grab_actor (ClutterStage *stage);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_H__ */
