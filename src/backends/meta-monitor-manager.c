@@ -3971,3 +3971,17 @@ meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager)
 
   return priv->virtual_monitors;
 }
+
+void
+meta_monitor_manager_set_crtc_gamma (MetaMonitorManager *manager,
+                                     MetaCrtc           *crtc,
+                                     size_t              size,
+                                     unsigned short     *red,
+                                     unsigned short     *green,
+                                     unsigned short     *blue)
+{
+  MetaMonitorManagerClass *manager_class =
+    META_MONITOR_MANAGER_GET_CLASS (manager);
+
+  manager_class->set_crtc_gamma (manager, crtc, size, red, green, blue);
+}

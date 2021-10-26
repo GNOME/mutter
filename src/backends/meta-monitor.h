@@ -297,4 +297,10 @@ gboolean meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
 
 size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
 
+void meta_monitor_set_gamma_lut (MetaMonitor *monitor,
+                                 uint16_t    *red,
+                                 uint16_t    *green,
+                                 uint16_t    *blue,
+                                 size_t       size);
+
 #endif /* META_MONITOR_H */

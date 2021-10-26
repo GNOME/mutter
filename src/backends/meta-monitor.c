@@ -648,6 +648,69 @@ meta_monitor_get_gamma_lut_size (MetaMonitor *monitor)
   return size;
 }
 
+typedef struct
+{
+  uint16_t *red;
+  uint16_t *green;
+  uint16_t *blue;
+  size_t size;
+} LutData;
+
+static gboolean
+set_gamma_lut (MetaMonitor          *monitor,
+               MetaMonitorMode      *mode,
+               MetaMonitorCrtcMode  *monitor_crtc_mode,
+               gpointer              user_data,
+               GError              **error)
+{
+  LutData *lut_data = user_data;
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaCrtc *crtc;
+
+  crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
+
+  meta_monitor_manager_set_crtc_gamma (monitor_manager,
+                                       crtc,
+                                       lut_data->size,
+                                       lut_data->red,
+                                       lut_data->green,
+                                       lut_data->blue);
+  return TRUE;
+}
+
+/**
+ * meta_monitor_set_gamma_lut:
+ *
+ * Set a new gamma look-up table (LUT) for the given monitor's CRTCs.
+ */
+void
+meta_monitor_set_gamma_lut (MetaMonitor *monitor,
+                            uint16_t    *red,
+                            uint16_t    *green,
+                            uint16_t    *blue,
+                            size_t       size)
+{
+  MetaMonitorMode *current_mode;
+  LutData lut_data;
+
+  current_mode = meta_monitor_get_current_mode (monitor);
+  g_return_if_fail (current_mode);
+
+  lut_data = (LutData) {
+    .red = red,
+    .green = green,
+    .blue = blue,
+    .size = size,
+  };
+  meta_monitor_mode_foreach_crtc (monitor,
+                                  current_mode,
+                                  set_gamma_lut,
+                                  &lut_data,
+                                  NULL);
+}
+
 static void
 meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 {

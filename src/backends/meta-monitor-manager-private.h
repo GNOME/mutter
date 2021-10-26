@@ -466,4 +466,11 @@ void meta_monitor_manager_get_crtc_gamma (MetaMonitorManager  *manager,
                                           unsigned short     **green,
                                           unsigned short     **blue);
 
+void meta_monitor_manager_set_crtc_gamma (MetaMonitorManager *manager,
+                                          MetaCrtc           *crtc,
+                                          size_t              size,
+                                          unsigned short     *red,
+                                          unsigned short     *green,
+                                          unsigned short     *blue);
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
