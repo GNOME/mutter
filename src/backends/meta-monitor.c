@@ -387,6 +387,15 @@ meta_monitor_is_laptop_panel (MetaMonitor *monitor)
 }
 
 gboolean
+meta_monitor_is_virtual (MetaMonitor *monitor)
+{
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
+
+  return output_info->is_virtual;
+}
+
+gboolean
 meta_monitor_is_same_as (MetaMonitor *monitor,
                          MetaMonitor *other_monitor)
 {

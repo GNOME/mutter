@@ -45,6 +45,8 @@ meta_output_virtual_new (uint64_t                      id,
   output_info = meta_output_info_new ();
   output_info->name = g_strdup_printf ("Meta-%" G_GUINT64_FORMAT, id);
 
+  output_info->is_virtual = TRUE;
+
   output_info->n_possible_crtcs = 1;
   output_info->possible_crtcs = g_new0 (MetaCrtc *, 1);
   output_info->possible_crtcs[0] = META_CRTC (crtc_virtual);

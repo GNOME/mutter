@@ -80,6 +80,8 @@ typedef struct _MetaOutputInfo
 {
   grefcount ref_count;
 
+  gboolean is_virtual;
+
   char *name;
   char *vendor;
   char *product;
