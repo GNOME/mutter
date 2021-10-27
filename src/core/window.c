@@ -4162,8 +4162,13 @@ meta_window_move_resize_internal (MetaWindow          *window,
       g_signal_emit (window, window_signals[SIZE_CHANGED], 0);
     }
 
-  if (moved_or_resized || did_placement)
-    window->unconstrained_rect = unconstrained_rect;
+  /* Only update the stored size when requested but not when a
+   * (potentially outdated) request completes */
+  if (!(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) || 
+      flags & META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE)
+    {
+      window->unconstrained_rect = unconstrained_rect;
+    }
 
   if ((moved_or_resized ||
        did_placement ||
