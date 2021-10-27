@@ -2026,13 +2026,23 @@ clutter_stage_set_key_focus (ClutterStage *stage,
    * intended. The order of events would be:
    *   1st focus-out, 2nd focus-out (on stage), 2nd focus-in, 1st focus-in
    */
-  if (actor != NULL)
+  priv->key_focused_actor = actor;
+
+  /* If the key focused actor is allowed to receive key events according
+   * to the given grab (or there is none) set key focus on it, otherwise
+   * key focus is delayed until there are grabbing conditions that allow
+   * it to get key focus.
+   */
+  if (!priv->topmost_grab ||
+      priv->topmost_grab->actor == CLUTTER_ACTOR (stage) ||
+      priv->topmost_grab->actor == actor ||
+      (actor && clutter_actor_contains (priv->topmost_grab->actor, actor)))
     {
-      priv->key_focused_actor = actor;
-      _clutter_actor_set_has_key_focus (actor, TRUE);
+      if (actor != NULL)
+        _clutter_actor_set_has_key_focus (actor, TRUE);
+      else
+        _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
     }
-  else
-    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
 
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
@@ -3755,6 +3765,33 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
 }
 
 static void
+clutter_stage_notify_grab_on_key_focus (ClutterStage *stage,
+                                        ClutterActor *grab_actor,
+                                        ClutterActor *old_grab_actor)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  ClutterActor *key_focus;
+  gboolean focus_in_grab, focus_in_old_grab;
+
+  key_focus = priv->key_focused_actor ?
+    priv->key_focused_actor : CLUTTER_ACTOR (stage);
+
+  focus_in_grab =
+    !grab_actor ||
+    grab_actor == key_focus ||
+    clutter_actor_contains (grab_actor, key_focus);
+  focus_in_old_grab =
+    !old_grab_actor ||
+    old_grab_actor == key_focus ||
+    clutter_actor_contains (old_grab_actor, key_focus);
+
+  if (focus_in_grab && !focus_in_old_grab)
+    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (key_focus), TRUE);
+  else if (!focus_in_grab && focus_in_old_grab)
+    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (key_focus), FALSE);
+}
+
+static void
 clutter_stage_notify_grab (ClutterStage *stage,
                            ClutterGrab  *cur,
                            ClutterGrab  *old)
@@ -3792,6 +3829,8 @@ clutter_stage_notify_grab (ClutterStage *stage,
                                                   cur_actor,
                                                   old_actor);
     }
+
+  clutter_stage_notify_grab_on_key_focus (stage, cur_actor, old_actor);
 }
 
 ClutterGrab *
