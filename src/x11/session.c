@@ -1102,6 +1102,9 @@ load_state (const char *previous_save_file)
   gsize length;
   char *session_file;
 
+  parse_data.info = NULL;
+  parse_data.previous_id = NULL;
+
   session_file = g_strconcat (g_get_user_config_dir (),
                               G_DIR_SEPARATOR_S "mutter"
                               G_DIR_SEPARATOR_S "sessions" G_DIR_SEPARATOR_S,
@@ -1121,9 +1124,6 @@ load_state (const char *previous_save_file)
   meta_topic (META_DEBUG_SM, "Parsing saved session file %s", session_file);
   g_free (session_file);
   session_file = NULL;
-
-  parse_data.info = NULL;
-  parse_data.previous_id = NULL;
 
   context = g_markup_parse_context_new (&mutter_session_parser,
                                         0, &parse_data, NULL);
