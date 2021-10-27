@@ -19027,15 +19027,8 @@ _clutter_actor_handle_event (ClutterActor       *self,
 {
   GPtrArray *event_tree;
   ClutterActor *iter;
-  gboolean is_key_event, in_root = FALSE;
+  gboolean in_root = FALSE;
   gint i = 0;
-
-  /* XXX - for historical reasons that are now lost in the mists of time,
-   * key events are delivered regardless of whether an actor is set as
-   * reactive; this should be changed for 2.0.
-   */
-  is_key_event = event->type == CLUTTER_KEY_PRESS ||
-                 event->type == CLUTTER_KEY_RELEASE;
 
   event_tree = g_ptr_array_sized_new (64);
   g_ptr_array_set_free_func (event_tree, (GDestroyNotify) g_object_unref);
@@ -19047,8 +19040,7 @@ _clutter_actor_handle_event (ClutterActor       *self,
       ClutterActor *parent = iter->priv->parent;
 
       if (CLUTTER_ACTOR_IS_REACTIVE (iter) || /* an actor must be reactive */
-          parent == NULL ||                       /* unless it's the stage */
-          is_key_event)                          /* or this is a key event */
+          parent == NULL)                     /* unless it's the stage */
         {
           /* keep a reference on the actor, so that it remains valid
            * for the duration of the signal emission
