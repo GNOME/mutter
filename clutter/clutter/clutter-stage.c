@@ -3526,7 +3526,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                              gboolean              emit_crossing)
 {
   ClutterInputDeviceType device_type;
-  ClutterActor *old_actor;
+  ClutterActor *old_actor, *root;
   gboolean device_actor_changed;
   ClutterEvent *event;
 
@@ -3553,6 +3553,24 @@ clutter_stage_update_device (ClutterStage         *stage,
                     point.y,
                     _clutter_actor_get_debug_name (new_actor));
 
+      if (emit_crossing)
+        {
+          ClutterActor *grab_actor;
+
+          root = find_common_root_actor (stage, new_actor, old_actor);
+
+          grab_actor = clutter_stage_get_grab_actor (stage);
+
+          /* If the common root is outside the currently effective grab,
+           * it involves actors outside the grabbed actor hierarchy, the
+           * events should be propagated from/inside the grab actor.
+           */
+          if (grab_actor &&
+              root != grab_actor &&
+              !clutter_actor_contains (grab_actor, root))
+            root = grab_actor;
+        }
+
       /* we need to make sure that this event is processed
        * before any other event we might have queued up until
        * now, so we go on, and synthesize the event emission
@@ -3566,7 +3584,8 @@ clutter_stage_update_device (ClutterStage         *stage,
                                          old_actor, new_actor,
                                          point, time_ms);
           if (!_clutter_event_process_filters (event))
-            _clutter_process_event (event);
+            _clutter_actor_handle_event (old_actor, root, event);
+
           clutter_event_free (event);
         }
 
@@ -3578,7 +3597,8 @@ clutter_stage_update_device (ClutterStage         *stage,
                                          new_actor, old_actor,
                                          point, time_ms);
           if (!_clutter_event_process_filters (event))
-            _clutter_process_event (event);
+            _clutter_actor_handle_event (new_actor, root, event);
+
           clutter_event_free (event);
         }
     }
