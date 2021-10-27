@@ -13,6 +13,7 @@ mutter_srcdir = meson.current_source_dir()
 mutter_builddir = meson.current_build_dir()
 
 # generic version requirements
+colord_req = '>= 1.4.5'
 fribidi_req = '>= 1.0.0'
 glib_req = '>= 2.69.0'
 gi_req = '>= 0.9.5'
@@ -124,6 +125,7 @@ ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)
 libcanberra_dep = dependency('libcanberra', version: libcanberra_req)
 dbus_dep = dependency('dbus-1')
+colord_dep = dependency('colord', version: colord_req)
 
 have_wayland = get_option('wayland')
 # For now always require X11 support

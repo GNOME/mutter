@@ -48,6 +48,7 @@
 #include "backends/meta-color-manager-private.h"
 
 #include "backends/meta-backend-types.h"
+#include "backends/meta-color-device.h"
 #include "backends/meta-monitor.h"
 
 enum
@@ -64,9 +65,169 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MetaColorManagerPrivate
 {
   MetaBackend *backend;
+
+  CdClient *cd_client;
+  GCancellable *cancellable;
+
+  GHashTable *devices;
 } MetaColorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaColorManager, meta_color_manager, G_TYPE_OBJECT)
+
+static char *
+generate_monitor_id (MetaMonitor *monitor)
+{
+  const char *vendor;
+  const char *product;
+  const char *serial;
+  GString *id;
+
+  vendor = meta_monitor_get_vendor (monitor);
+  product = meta_monitor_get_product (monitor);
+  serial = meta_monitor_get_serial (monitor);
+  if (!vendor && !product && !serial)
+    return g_strdup (meta_monitor_get_connector (monitor));
+
+  id = g_string_new ("");
+
+  if (vendor)
+    g_string_append_printf (id, "v:%s", vendor);
+  if (product)
+    g_string_append_printf (id, "%sp:%s", id->len > 0 ? ";" : "", product);
+  if (serial)
+    g_string_append_printf (id, "%sp:%s", id->len > 0 ? ";" : "", serial);
+
+  return g_string_free (id, FALSE);
+}
+
+static void
+update_devices (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
+  GList *l;
+  GHashTable *devices;
+
+  devices = g_hash_table_new_full (g_str_hash,
+                                   g_str_equal,
+                                   g_free,
+                                   (GDestroyNotify) meta_color_device_destroy);
+  for (l = meta_monitor_manager_get_monitors (monitor_manager); l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+      g_autofree char *monitor_id = NULL;
+      g_autofree char *stolen_monitor_id = NULL;
+      MetaColorDevice *color_device;
+
+      monitor_id = generate_monitor_id (monitor);
+
+      if (priv->devices &&
+          g_hash_table_steal_extended (priv->devices,
+                                       monitor_id,
+                                       (gpointer *) &stolen_monitor_id,
+                                       (gpointer *) &color_device))
+        {
+          meta_topic (META_DEBUG_COLOR,
+                      "Updating color device '%s' monitor instance",
+                      meta_color_device_get_id (color_device));
+          meta_color_device_update_monitor (color_device, monitor);
+          g_hash_table_insert (devices,
+                               g_steal_pointer (&monitor_id),
+                               color_device);
+        }
+      else
+        {
+          color_device = meta_color_device_new (color_manager, monitor);
+          meta_topic (META_DEBUG_COLOR,
+                      "Created new color device '%s' for monitor %s",
+                      meta_color_device_get_id (color_device),
+                      meta_monitor_get_connector (monitor));
+          g_hash_table_insert (devices,
+                               g_steal_pointer (&monitor_id),
+                               color_device);
+        }
+    }
+
+  if (priv->devices)
+    {
+      if (g_hash_table_size (priv->devices) > 0)
+        {
+          meta_topic (META_DEBUG_COLOR, "Removing %u color devices",
+                      g_hash_table_size (priv->devices));
+        }
+      g_clear_pointer (&priv->devices, g_hash_table_unref);
+    }
+  priv->devices = devices;
+}
+
+static void
+on_monitors_changed (MetaMonitorManager *monitor_manager,
+                     MetaColorManager   *color_manager)
+{
+  update_devices (color_manager);
+}
+
+static void
+cd_client_connect_cb (GObject      *source_object,
+                      GAsyncResult *res,
+                      gpointer      user_data)
+{
+  CdClient *client = CD_CLIENT (source_object);
+  MetaColorManager *color_manager = META_COLOR_MANAGER (user_data);
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
+  g_autoptr (GError) error = NULL;
+
+  if (!cd_client_connect_finish (client, res, &error))
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_warning ("Failed to connect to colord daemon: %s", error->message);
+      return;
+    }
+
+  if (!cd_client_get_has_server (client))
+    {
+      g_warning ("There is no colord server available");
+      return;
+    }
+
+  update_devices (color_manager);
+  g_signal_connect (monitor_manager, "monitors-changed-internal",
+                    G_CALLBACK (on_monitors_changed),
+                    color_manager);
+}
+
+static void
+meta_color_manager_constructed (GObject *object)
+{
+  MetaColorManager *color_manager = META_COLOR_MANAGER (object);
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  priv->cancellable = g_cancellable_new ();
+
+  priv->cd_client = cd_client_new ();
+  cd_client_connect (priv->cd_client, priv->cancellable, cd_client_connect_cb,
+                     color_manager);
+}
+
+static void
+meta_color_manager_finalize (GObject *object)
+{
+  MetaColorManager *color_manager = META_COLOR_MANAGER (object);
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  g_cancellable_cancel (priv->cancellable);
+  g_clear_object (&priv->cancellable);
+  g_clear_pointer (&priv->devices, g_hash_table_unref);
+
+  G_OBJECT_CLASS (meta_color_manager_parent_class)->finalize (object);
+}
 
 static void
 meta_color_manager_set_property (GObject      *object,
@@ -115,6 +276,8 @@ meta_color_manager_class_init (MetaColorManagerClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->constructed = meta_color_manager_constructed;
+  object_class->finalize = meta_color_manager_finalize;
   object_class->set_property = meta_color_manager_set_property;
   object_class->get_property = meta_color_manager_get_property;
 
@@ -141,4 +304,13 @@ meta_color_manager_get_backend (MetaColorManager *color_manager)
     meta_color_manager_get_instance_private (color_manager);
 
   return priv->backend;
+}
+
+CdClient *
+meta_color_manager_get_cd_client (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  return priv->cd_client;
 }

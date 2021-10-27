@@ -18,11 +18,15 @@
 #ifndef META_COLOR_MANAGER_PRIVATE_H
 #define META_COLOR_MANAGER_PRIVATE_H
 
+#include <colord.h>
+
 #include "backends/meta-color-manager.h"
 
 struct _MetaColorManagerClass
 {
   GObjectClass parent_class;
 };
+
+CdClient * meta_color_manager_get_cd_client (MetaColorManager *color_manager);
 
 #endif /* META_COLOR_MANAGER_PRIVATE_H */

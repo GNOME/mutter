@@ -22,6 +22,7 @@ mutter_pkg_deps = [
 ]
 
 mutter_pkg_private_deps = [
+  colord_dep,
   gmodule_no_export_dep,
   gnome_settings_daemon_dep,
   json_glib_dep,
@@ -181,6 +182,8 @@ mutter_sources = [
   'backends/meta-backend-private.h',
   'backends/meta-barrier.c',
   'backends/meta-barrier-private.h',
+  'backends/meta-color-device.c',
+  'backends/meta-color-device.h',
   'backends/meta-color-manager.c',
   'backends/meta-color-manager.h',
   'backends/meta-color-manager-private.h',
