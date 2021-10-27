@@ -3135,9 +3135,13 @@ meta_display_notify_pad_group_switch (MetaDisplay        *display,
     pretty_name = clutter_input_device_get_device_name (pad);
 
   message = g_string_new (pretty_name);
-  g_string_append_c (message, '\n');
+  g_string_append (message, "\n\n");
   for (i = 0; i < n_modes; i++)
-    g_string_append (message, (i == n_mode) ? "⚫" : "⚪");
+    {
+      if (i > 0)
+        g_string_append_c (message, ' ');
+      g_string_append (message, (i == n_mode) ? "●" : "○");
+    }
 
   meta_display_show_osd (display, lookup_tablet_monitor (display, pad),
                          "input-tablet-symbolic", message->str);
