@@ -702,8 +702,8 @@ broadcast_tilt (MetaWaylandTabletTool *tool,
   struct wl_resource *resource;
   gdouble xtilt, ytilt;
 
-  xtilt = event->motion.axes[CLUTTER_INPUT_AXIS_FLAG_XTILT];
-  ytilt = event->motion.axes[CLUTTER_INPUT_AXIS_FLAG_YTILT];
+  xtilt = event->motion.axes[CLUTTER_INPUT_AXIS_XTILT];
+  ytilt = event->motion.axes[CLUTTER_INPUT_AXIS_YTILT];
 
   wl_resource_for_each (resource, &tool->focus_resource_list)
     {
@@ -720,7 +720,7 @@ broadcast_rotation (MetaWaylandTabletTool *tool,
   struct wl_resource *resource;
   gdouble rotation;
 
-  rotation = event->motion.axes[CLUTTER_INPUT_AXIS_FLAG_ROTATION];
+  rotation = event->motion.axes[CLUTTER_INPUT_AXIS_ROTATION];
 
   wl_resource_for_each (resource, &tool->focus_resource_list)
     {
@@ -737,7 +737,7 @@ broadcast_wheel (MetaWaylandTabletTool *tool,
   gdouble angle;
   gint32 clicks = 0;
 
-  angle = event->motion.axes[CLUTTER_INPUT_AXIS_FLAG_WHEEL];
+  angle = event->motion.axes[CLUTTER_INPUT_AXIS_WHEEL];
 
   /* FIXME: Perform proper angle-to-clicks accumulation elsewhere */
   if (angle > 0.01)
