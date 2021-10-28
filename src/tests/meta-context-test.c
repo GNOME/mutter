@@ -368,4 +368,30 @@ meta_context_test_class_init (MetaContextTestClass *klass)
 static void
 meta_context_test_init (MetaContextTest *context_test)
 {
+  GDBusProxy *proxy;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) ret = NULL;
+
+  proxy =
+    g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START |
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
+                                   NULL,
+                                   "org.freedesktop.ColorManager",
+                                   "/org/freedesktop/ColorManager",
+                                   "org.freedesktop.DBus.Mock",
+                                   NULL, &error);
+  if (!proxy)
+    {
+      g_warning ("Failed to find mocked color manager system service, %s",
+                 error->message);
+      return;
+    }
+
+  if (!g_dbus_proxy_call_sync (proxy,
+                               "ClearDevices",
+                               NULL,
+                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                               &error))
+    g_warning ("Failed to clear mocked color devices: %s", error->message);
 }

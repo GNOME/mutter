@@ -67,11 +67,6 @@ meta_backend_test_init_gpus (MetaBackendX11Nested *backend_x11_nested)
   meta_backend_add_gpu (META_BACKEND (backend_test), backend_test->gpu);
 }
 
-static void
-meta_backend_test_init (MetaBackendTest *backend_test)
-{
-}
-
 static MetaMonitorManager *
 meta_backend_test_create_monitor_manager (MetaBackend *backend,
                                           GError     **error)
@@ -173,6 +168,11 @@ meta_backend_test_remove_device (MetaBackendTest    *backend_test,
   clutter_event_set_stage (event, stage);
   clutter_event_put (event);
   clutter_event_free (event);
+}
+
+static void
+meta_backend_test_init (MetaBackendTest *backend_test)
+{
 }
 
 static void
