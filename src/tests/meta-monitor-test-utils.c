@@ -686,7 +686,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       int n_possible_crtcs;
       int scale;
       gboolean is_laptop_panel;
-      const char *serial;
+      char *serial;
       g_autoptr (MetaOutputInfo) output_info = NULL;
 
       crtc_index = setup->outputs[i].crtc;
@@ -729,9 +729,9 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 
       is_laptop_panel = setup->outputs[i].is_laptop_panel;
 
-      serial = setup->outputs[i].serial;
+      serial = g_strdup (setup->outputs[i].serial);
       if (!serial)
-        serial = "0x123456";
+        serial = g_strdup_printf ("0x123456%d", i);
 
       output_info = meta_output_info_new ();
 
@@ -740,7 +740,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                            : g_strdup_printf ("DP-%d", ++n_normal_panels));
       output_info->vendor = g_strdup ("MetaProduct's Inc.");
       output_info->product = g_strdup ("MetaMonitor");
-      output_info->serial = g_strdup (serial);
+      output_info->serial = serial;
       if (setup->outputs[i].hotplug_mode)
         {
           output_info->hotplug_mode_update = TRUE;

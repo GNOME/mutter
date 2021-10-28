@@ -292,7 +292,7 @@ meta_test_monitor_store_vertical (void)
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456a",
                 .mode = {
                   .width = 1024,
                   .height = 768,
@@ -317,7 +317,7 @@ meta_test_monitor_store_vertical (void)
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456b",
                 .mode = {
                   .width = 800,
                   .height = 600,
@@ -361,7 +361,7 @@ meta_test_monitor_store_primary (void)
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456a",
                 .mode = {
                   .width = 1024,
                   .height = 768,
@@ -386,7 +386,7 @@ meta_test_monitor_store_primary (void)
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456b",
                 .mode = {
                   .width = 800,
                   .height = 600,
@@ -669,7 +669,7 @@ meta_test_monitor_store_mirrored (void)
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456a",
                 .mode = {
                   .width = 800,
                   .height = 600,
@@ -680,7 +680,7 @@ meta_test_monitor_store_mirrored (void)
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456b",
                 .mode = {
                   .width = 800,
                   .height = 600,
@@ -725,7 +725,7 @@ meta_test_monitor_store_first_rotated (void)
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456a",
                 .mode = {
                   .width = 1024,
                   .height = 768,
@@ -751,7 +751,7 @@ meta_test_monitor_store_first_rotated (void)
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456b",
                 .mode = {
                   .width = 1024,
                   .height = 768,
@@ -796,7 +796,7 @@ meta_test_monitor_store_second_rotated (void)
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456a",
                 .mode = {
                   .width = 1024,
                   .height = 768,
@@ -822,7 +822,7 @@ meta_test_monitor_store_second_rotated (void)
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
-                .serial = "0x123456",
+                .serial = "0x123456b",
                 .mode = {
                   .width = 1024,
                   .height = 768,

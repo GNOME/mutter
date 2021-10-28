@@ -2333,7 +2333,8 @@ meta_test_monitor_lid_switch_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .is_laptop_panel = TRUE,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -2343,7 +2344,8 @@ meta_test_monitor_lid_switch_config (void)
           .possible_crtcs = { 1 },
           .n_possible_crtcs = 1,
           .width_mm = 220,
-          .height_mm = 124
+          .height_mm = 124,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -2517,7 +2519,8 @@ meta_test_monitor_lid_opened_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .is_laptop_panel = TRUE,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -2527,7 +2530,8 @@ meta_test_monitor_lid_opened_config (void)
           .possible_crtcs = { 1 },
           .n_possible_crtcs = 1,
           .width_mm = 220,
-          .height_mm = 124
+          .height_mm = 124,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -3025,7 +3029,8 @@ meta_test_monitor_lid_scaled_closed_opened (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .is_laptop_panel = TRUE,
+	  .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -4447,7 +4452,8 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .is_laptop_panel = TRUE,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -4607,7 +4613,8 @@ meta_test_monitor_orientation_initial_stored_rotated_no_touch (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .is_laptop_panel = TRUE,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -5507,7 +5514,8 @@ meta_test_monitor_custom_vertical_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -5517,7 +5525,8 @@ meta_test_monitor_custom_vertical_config (void)
           .possible_crtcs = { 1 },
           .n_possible_crtcs = 1,
           .width_mm = 220,
-          .height_mm = 124
+          .height_mm = 124,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -5651,7 +5660,8 @@ meta_test_monitor_custom_primary_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -5661,7 +5671,8 @@ meta_test_monitor_custom_primary_config (void)
           .possible_crtcs = { 1 },
           .n_possible_crtcs = 1,
           .width_mm = 220,
-          .height_mm = 124
+          .height_mm = 124,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -5790,7 +5801,8 @@ meta_test_monitor_custom_underscanning_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -5886,7 +5898,8 @@ meta_test_monitor_custom_scale_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -5987,7 +6000,8 @@ meta_test_monitor_custom_fractional_scale_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -6088,7 +6102,8 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -6199,7 +6214,8 @@ meta_test_monitor_custom_tiled_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456",
         },
         {
           .crtc = -1,
@@ -6218,7 +6234,8 @@ meta_test_monitor_custom_tiled_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456",
         }
       },
       .n_outputs = 2,
@@ -6345,7 +6362,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456",
         },
         {
           .crtc = -1,
@@ -6364,7 +6382,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456",
         }
       },
       .n_outputs = 2,
@@ -6516,7 +6535,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
             .loc_v_tile = 0,
             .tile_w = 512,
             .tile_h = 768
-          }
+          },
+          .serial = "0x123456",
         },
         {
           .crtc = -1,
@@ -6535,7 +6555,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
             .loc_v_tile = 0,
             .tile_w = 512,
             .tile_h = 768
-          }
+          },
+          .serial = "0x123456",
         }
       },
       .n_outputs = 2,
@@ -6671,7 +6692,8 @@ meta_test_monitor_custom_mirrored_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -6681,7 +6703,8 @@ meta_test_monitor_custom_mirrored_config (void)
           .possible_crtcs = { 1 },
           .n_possible_crtcs = 1,
           .width_mm = 220,
-          .height_mm = 124
+          .height_mm = 124,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -6804,6 +6827,7 @@ meta_test_monitor_custom_first_rotated_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -6814,6 +6838,7 @@ meta_test_monitor_custom_first_rotated_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -6943,6 +6968,7 @@ meta_test_monitor_custom_second_rotated_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -6953,6 +6979,7 @@ meta_test_monitor_custom_second_rotated_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -7088,6 +7115,7 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = -1,
@@ -7106,7 +7134,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456b",
         },
         {
           .crtc = -1,
@@ -7125,7 +7154,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 3,
@@ -7284,6 +7314,7 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = -1,
@@ -7302,7 +7333,8 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456b",
         },
         {
           .crtc = -1,
@@ -7321,7 +7353,8 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
             .loc_v_tile = 0,
             .tile_w = 400,
             .tile_h = 600
-          }
+          },
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 3,
@@ -7475,6 +7508,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456a",
         },
         {
           .crtc = 1,
@@ -7485,6 +7519,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 2,
@@ -7634,7 +7669,8 @@ meta_test_monitor_custom_interlaced_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,
@@ -7742,7 +7778,8 @@ meta_test_monitor_custom_oneoff (void)
           .possible_crtcs = { 0, 1 },
           .n_possible_crtcs = 2,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
         {
           .crtc = -1,
@@ -7876,7 +7913,8 @@ meta_test_monitor_custom_lid_switch_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .is_laptop_panel = TRUE,
+          .serial = "0x123456a",
         },
         {
           .crtc = -1,
@@ -7887,6 +7925,7 @@ meta_test_monitor_custom_lid_switch_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
+          .serial = "0x123456b",
         }
       },
       .n_outputs = 1, /* Second one hot plugged later */
@@ -8089,7 +8128,8 @@ meta_test_monitor_migrated_rotated (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         }
       },
       .n_outputs = 1,
@@ -8235,7 +8275,8 @@ meta_test_monitor_migrated_wiggle_discard (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         }
       },
       .n_outputs = 1,
@@ -8513,7 +8554,8 @@ meta_test_monitor_migrated_wiggle (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         }
       },
       .n_outputs = 1,
@@ -9268,7 +9310,8 @@ meta_test_monitor_policy_system_only (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .serial = "0x123456",
         },
       },
       .n_outputs = 1,

@@ -9,7 +9,7 @@
 	  <connector>DP-1</connector>
 	  <vendor>MetaProduct&apos;s Inc.</vendor>
 	  <product>MetaMonitor</product>
-	  <serial>0x123456</serial>
+	  <serial>0x123456a</serial>
 	</monitorspec>
 	<mode>
 	  <width>1024</width>
@@ -26,7 +26,7 @@
 	  <connector>DP-2</connector>
 	  <vendor>MetaProduct&apos;s Inc.</vendor>
 	  <product>MetaMonitor</product>
-	  <serial>0x123456</serial>
+	  <serial>0x123456b</serial>
 	</monitorspec>
 	<mode>
 	  <width>800</width>
