@@ -237,9 +237,9 @@ diagonal_to_str (double d)
 }
 
 static char *
-meta_monitor_make_display_name (MetaMonitor        *monitor,
-                                MetaMonitorManager *monitor_manager)
+meta_monitor_make_display_name (MetaMonitor *monitor)
 {
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
   g_autofree char *inches = NULL;
   g_autofree char *vendor_name = NULL;
   const char *vendor = NULL;
@@ -269,8 +269,7 @@ meta_monitor_make_display_name (MetaMonitor        *monitor,
   vendor = meta_monitor_get_vendor (monitor);
   if (vendor)
     {
-      vendor_name = meta_monitor_manager_get_vendor_name (monitor_manager,
-                                                          vendor);
+      vendor_name = meta_backend_get_vendor_name (backend, vendor);
 
       if (!vendor_name)
         vendor_name = g_strdup (vendor);
@@ -839,8 +838,7 @@ meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
 
   meta_monitor_normal_generate_modes (monitor_normal);
 
-  monitor_priv->display_name = meta_monitor_make_display_name (monitor,
-                                                               monitor_manager);
+  monitor_priv->display_name = meta_monitor_make_display_name (monitor);
 
   return monitor_normal;
 }
@@ -1538,8 +1536,7 @@ meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
 
   meta_monitor_tiled_generate_modes (monitor_tiled);
 
-  monitor_priv->display_name = meta_monitor_make_display_name (monitor,
-                                                               monitor_manager);
+  monitor_priv->display_name = meta_monitor_make_display_name (monitor);
 
   return monitor_tiled;
 }

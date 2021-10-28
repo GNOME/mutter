@@ -160,10 +160,6 @@ struct _MetaMonitorManager
 
   MetaMonitorConfigManager *config_manager;
 
-#ifdef HAVE_GNOME_DESKTOP
-  GnomePnpIds *pnp_ids;
-#endif
-
   MetaMonitorSwitchConfigType current_switch_config;
 
   MetaPrivacyScreenChangeState privacy_screen_change_state;
@@ -429,9 +425,6 @@ void meta_monitor_manager_clear_mode (MetaCrtcMode *mode);
 void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
 
 gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
-
-char * meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
-                                             const char         *vendor);
 
 static inline MetaOutputAssignment *
 meta_find_output_assignment (MetaOutputAssignment **outputs,

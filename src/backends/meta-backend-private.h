@@ -216,4 +216,7 @@ gboolean meta_backend_is_hw_cursors_inhibited (MetaBackend *backend);
 void meta_backend_update_from_event (MetaBackend  *backend,
                                      ClutterEvent *event);
 
+char * meta_backend_get_vendor_name (MetaBackend *backend,
+                                     const char  *pnp_id);
+
 #endif /* META_BACKEND_PRIVATE_H */

@@ -3879,30 +3879,6 @@ meta_monitor_manager_get_config_manager (MetaMonitorManager *manager)
   return manager->config_manager;
 }
 
-/**
- * meta_monitor_manager_get_vendor_name:
- * @manager: A #MetaMonitorManager object
- * @vendor:  the PNP ID of the monitor
- *
- * Find the full vendor name from the given monitor PNP ID.
- *
- * Returns: (transfer full): A string containing the vendor name,
- *                           or NULL when not found.
- */
-char *
-meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
-                                      const char         *vendor)
-{
-#ifdef HAVE_GNOME_DESKTOP
-  if (!manager->pnp_ids)
-    manager->pnp_ids = gnome_pnp_ids_new ();
-
-  return gnome_pnp_ids_get_pnp_id (manager->pnp_ids, vendor);
-#else
-  return g_strdup (vendor);
-#endif
-}
-
 gboolean
 meta_monitor_manager_get_panel_orientation_managed (MetaMonitorManager *manager)
 {

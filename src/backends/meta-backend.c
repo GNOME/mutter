@@ -167,6 +167,9 @@ struct _MetaBackendPrivate
 #ifdef HAVE_LIBWACOM
   WacomDeviceDatabase *wacom_db;
 #endif
+#ifdef HAVE_GNOME_DESKTOP
+  GnomePnpIds *pnp_ids;
+#endif
 
   ClutterContext *clutter_context;
   ClutterSeat *default_seat;
@@ -235,6 +238,9 @@ meta_backend_dispose (GObject *object)
 
 #ifdef HAVE_LIBWACOM
   g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
+#endif
+#ifdef HAVE_GNOME_DESKTOP
+  g_clear_object (&priv->pnp_ids);
 #endif
 
   if (priv->sleep_signal_id)
@@ -1765,4 +1771,30 @@ meta_backend_update_from_event (MetaBackend  *backend,
 {
   update_last_device_from_event (backend, event);
   update_pointer_visibility_from_event (backend, event);
+}
+
+/**
+ * meta_backend_get_vendor_name:
+ * @backend: A #MetaBackend object
+ * @pnp_id: the PNP ID
+ *
+ * Find the full vendor name from the given PNP ID.
+ *
+ * Returns: (transfer full): A string containing the vendor name,
+ *                           or NULL when not found.
+ */
+char *
+meta_backend_get_vendor_name (MetaBackend *backend,
+                              const char  *pnp_id)
+{
+#ifdef HAVE_GNOME_DESKTOP
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  if (!priv->pnp_ids)
+    priv->pnp_ids = gnome_pnp_ids_new ();
+
+  return gnome_pnp_ids_get_pnp_id (priv->pnp_ids, pnp_id);
+#else
+  return g_strdup (pnp_id);
+#endif
 }
