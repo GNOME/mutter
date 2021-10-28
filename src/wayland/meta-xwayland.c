@@ -536,14 +536,12 @@ xserver_died (GObject      *source,
               GAsyncResult *result,
               gpointer      user_data)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor;
   GSubprocess *proc = G_SUBPROCESS (source);
   MetaDisplay *display = meta_get_display ();
   g_autoptr (GError) error = NULL;
   MetaX11DisplayPolicy x11_display_policy;
 
-  x11_display_policy =
-    meta_context_get_x11_display_policy (compositor->context);
   if (!g_subprocess_wait_finish (proc, result, &error))
     {
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
@@ -551,7 +549,11 @@ xserver_died (GObject      *source,
 
       g_warning ("Failed to finish waiting for Xwayland: %s", error->message);
     }
-  else if (!g_subprocess_get_successful (proc))
+
+  compositor = meta_wayland_compositor_get_default ();
+  x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
+  if (!g_subprocess_get_successful (proc))
     {
       if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
         g_warning ("X Wayland crashed; exiting");
