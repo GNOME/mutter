@@ -1628,6 +1628,15 @@ typedef enum
   CLUTTER_PHASE_BUBBLE,
 } ClutterEventPhase;
 
+typedef enum
+{
+  CLUTTER_GRAB_STATE_NONE = 0,
+  CLUTTER_GRAB_STATE_POINTER = 1 << 0,
+  CLUTTER_GRAB_STATE_KEYBOARD = 1 << 1,
+  CLUTTER_GRAB_STATE_ALL = (CLUTTER_GRAB_STATE_POINTER |
+                            CLUTTER_GRAB_STATE_KEYBOARD),
+} ClutterGrabState;
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ENUMS_H__ */

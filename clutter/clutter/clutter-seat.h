@@ -97,6 +97,11 @@ struct _ClutterSeatClass
                             graphene_point_t     *coords,
                             ClutterModifierType  *modifiers);
 
+  ClutterGrabState (* grab) (ClutterSeat *seat,
+                             uint32_t     time);
+  void (* ungrab) (ClutterSeat *seat,
+                   uint32_t     time);
+
   /* Virtual devices */
   ClutterVirtualInputDevice * (* create_virtual_device) (ClutterSeat            *seat,
                                                          ClutterInputDeviceType  device_type);

@@ -71,6 +71,7 @@ struct _MetaSeatX11
   int pointer_id;
   int keyboard_id;
   int opcode;
+  ClutterGrabState grab_state;
   guint has_touchscreens : 1;
   guint touch_mode : 1;
   guint has_pointer_focus : 1;
@@ -1652,6 +1653,56 @@ meta_touch_info_free (MetaTouchInfo *touch_info)
   g_free (touch_info);
 }
 
+static ClutterGrabState
+meta_seat_x11_grab (ClutterSeat *seat,
+                    uint32_t     time)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackend *backend = meta_get_backend ();
+  ClutterGrabState state = CLUTTER_GRAB_STATE_NONE;
+
+  g_return_val_if_fail (seat_x11->grab_state == CLUTTER_GRAB_STATE_NONE,
+                        seat_x11->grab_state);
+
+  if (meta_backend_grab_device (backend,
+                                META_VIRTUAL_CORE_POINTER_ID,
+                                time))
+    state |= CLUTTER_GRAB_STATE_POINTER;
+
+  if (meta_backend_grab_device (backend,
+                                META_VIRTUAL_CORE_KEYBOARD_ID,
+                                time))
+    state |= CLUTTER_GRAB_STATE_KEYBOARD;
+
+  seat_x11->grab_state = state;
+
+  return state;
+}
+
+static void
+meta_seat_x11_ungrab (ClutterSeat *seat,
+                      uint32_t     time)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackend *backend = meta_get_backend ();
+
+  if ((seat_x11->grab_state & CLUTTER_GRAB_STATE_POINTER) != 0)
+    {
+      meta_backend_ungrab_device (backend,
+                                  META_VIRTUAL_CORE_POINTER_ID,
+                                  time);
+    }
+
+  if ((seat_x11->grab_state & CLUTTER_GRAB_STATE_KEYBOARD) != 0)
+    {
+      meta_backend_ungrab_device (backend,
+                                  META_VIRTUAL_CORE_KEYBOARD_ID,
+                                  time);
+    }
+
+  seat_x11->grab_state = CLUTTER_GRAB_STATE_NONE;
+}
+
 static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
@@ -1673,6 +1724,8 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;
   seat_class->handle_event_post = meta_seat_x11_handle_event_post;
   seat_class->query_state = meta_seat_x11_query_state;
+  seat_class->grab = meta_seat_x11_grab;
+  seat_class->ungrab = meta_seat_x11_ungrab;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",

@@ -28,4 +28,9 @@
 CLUTTER_EXPORT
 void clutter_seat_destroy (ClutterSeat *seat);
 
+ClutterGrabState clutter_seat_grab (ClutterSeat *seat,
+                                    uint32_t     time);
+void clutter_seat_ungrab (ClutterSeat *seat,
+                          uint32_t     time);
+
 #endif /* CLUTTER_SEAT_PRIVATE_H */
