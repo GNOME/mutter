@@ -405,12 +405,33 @@ gboolean
 meta_monitor_is_same_as (MetaMonitor *monitor,
                          MetaMonitor *other_monitor)
 {
-  MetaMonitorPrivate *priv =
-    meta_monitor_get_instance_private (monitor);
-  MetaMonitorPrivate *other_priv =
-    meta_monitor_get_instance_private (other_monitor);
+  const MetaMonitorSpec *spec = meta_monitor_get_spec (monitor);
+  const MetaMonitorSpec *other_spec = meta_monitor_get_spec (other_monitor);
 
-  return priv->winsys_id == other_priv->winsys_id;
+  if ((g_strcmp0 (spec->vendor, "unknown") == 0 ||
+       g_strcmp0 (spec->product, "unknown") == 0 ||
+       g_strcmp0 (spec->serial, "unknown") == 0) &&
+      (g_strcmp0 (other_spec->vendor, "unknown") == 0 ||
+       g_strcmp0 (other_spec->product, "unknown") == 0 ||
+       g_strcmp0 (other_spec->serial, "unknown") == 0))
+    {
+      MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+      MetaMonitorPrivate *other_priv =
+        meta_monitor_get_instance_private (other_monitor);
+
+      return priv->winsys_id == other_priv->winsys_id;
+    }
+
+  if (g_strcmp0 (spec->vendor, other_spec->vendor) != 0)
+    return FALSE;
+
+  if (g_strcmp0 (spec->product, other_spec->product) != 0)
+    return FALSE;
+
+  if (g_strcmp0 (spec->serial, other_spec->serial) != 0)
+    return FALSE;
+
+  return TRUE;
 }
 
 void
