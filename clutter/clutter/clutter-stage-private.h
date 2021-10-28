@@ -22,6 +22,7 @@
 #ifndef __CLUTTER_STAGE_PRIVATE_H__
 #define __CLUTTER_STAGE_PRIVATE_H__
 
+#include <clutter/clutter-grab.h>
 #include <clutter/clutter-stage-window.h>
 #include <clutter/clutter-stage.h>
 #include <clutter/clutter-input-device.h>
@@ -148,6 +149,9 @@ ClutterActor * clutter_stage_pick_and_update_device (ClutterStage             *s
                                                      ClutterDeviceUpdateFlags  flags,
                                                      graphene_point_t          point,
                                                      uint32_t                  time_ms);
+
+void clutter_stage_unlink_grab (ClutterStage *self,
+                                ClutterGrab  *grab);
 
 G_END_DECLS
 

@@ -3873,20 +3873,23 @@ clutter_stage_grab (ClutterStage *stage,
     priv->topmost_grab->prev = grab;
 
   priv->topmost_grab = grab;
+  clutter_actor_attach_grab (actor, grab);
   clutter_stage_notify_grab (stage, grab, grab->next);
 
   return grab;
 }
 
 void
-clutter_grab_dismiss (ClutterGrab *grab)
+clutter_stage_unlink_grab (ClutterStage *stage,
+                           ClutterGrab  *grab)
 {
-  ClutterStagePrivate *priv;
+  ClutterStagePrivate *priv = stage->priv;
   ClutterGrab *prev, *next;
 
-  g_return_if_fail (grab != NULL);
+  /* This grab is already detached */
+  if (!grab->prev && !grab->next && priv->topmost_grab != grab)
+    return;
 
-  priv = grab->stage->priv;
   prev = grab->prev;
   next = grab->next;
 
@@ -3903,6 +3906,18 @@ clutter_grab_dismiss (ClutterGrab *grab)
       clutter_stage_notify_grab (stage, next, grab);
     }
 
+  clutter_actor_detach_grab (grab->actor, grab);
+
+  grab->next = NULL;
+  grab->prev = NULL;
+}
+
+void
+clutter_grab_dismiss (ClutterGrab *grab)
+{
+  g_return_if_fail (grab != NULL);
+
+  clutter_stage_unlink_grab (grab->stage, grab);
   g_free (grab);
 }
 

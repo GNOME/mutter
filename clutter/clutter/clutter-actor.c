@@ -801,6 +801,7 @@ struct _ClutterActorPrivate
   gulong layout_changed_id;
 
   GList *stage_views;
+  GList *grabs;
 
   /* bitfields: KEEP AT THE END */
 
@@ -1634,6 +1635,25 @@ maybe_unset_key_focus (ClutterActor *self)
 }
 
 static void
+clutter_actor_clear_grabs (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  ClutterActor *stage;
+
+  if (!priv->grabs)
+    return;
+
+  stage = _clutter_actor_get_stage_internal (self);
+  g_assert (stage != NULL);
+
+  /* Undo every grab that the actor may hold, priv->grabs
+   * will be updated internally in clutter_stage_unlink_grab().
+   */
+  while (priv->grabs)
+    clutter_stage_unlink_grab (CLUTTER_STAGE (stage), priv->grabs->data);
+}
+
+static void
 clutter_actor_real_unmap (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
@@ -1678,6 +1698,8 @@ clutter_actor_real_unmap (ClutterActor *self)
   /* relinquish keyboard focus if we were unmapped while owning it */
   if (!CLUTTER_ACTOR_IS_TOPLEVEL (self))
     maybe_unset_key_focus (self);
+
+  clutter_actor_clear_grabs (self);
 }
 
 /**
@@ -5586,6 +5608,8 @@ clutter_actor_finalize (GObject *object)
                 _clutter_actor_get_debug_name ((ClutterActor *) object),
                 g_type_name (G_OBJECT_TYPE (object)));
 
+  /* No new grabs should have happened after unmapping */
+  g_assert (priv->grabs == NULL);
   g_free (priv->name);
 
   g_free (priv->debug_name);
@@ -19683,4 +19707,22 @@ clutter_actor_get_redraw_clip (ClutterActor       *self,
   _clutter_paint_volume_set_from_volume (dst_new_pv, paint_volume);
 
   return TRUE;
+}
+
+void
+clutter_actor_attach_grab (ClutterActor *self,
+                           ClutterGrab  *grab)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  priv->grabs = g_list_prepend (priv->grabs, grab);
+}
+
+void
+clutter_actor_detach_grab (ClutterActor *self,
+                           ClutterGrab  *grab)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  priv->grabs = g_list_remove (priv->grabs, grab);
 }

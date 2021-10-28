@@ -23,6 +23,7 @@
 #define __CLUTTER_ACTOR_PRIVATE_H__
 
 #include <clutter/clutter-actor.h>
+#include <clutter/clutter-grab.h>
 
 G_BEGIN_DECLS
 
@@ -271,6 +272,11 @@ gboolean clutter_actor_is_painting_unmapped (ClutterActor *self);
 gboolean clutter_actor_get_redraw_clip (ClutterActor       *self,
                                         ClutterPaintVolume *dst_old_pv,
                                         ClutterPaintVolume *dst_new_pv);
+
+void clutter_actor_attach_grab (ClutterActor *actor,
+                                ClutterGrab  *grab);
+void clutter_actor_detach_grab (ClutterActor *actor,
+                                ClutterGrab  *grab);
 
 G_END_DECLS
 
