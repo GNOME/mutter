@@ -483,7 +483,8 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
       output_info->max_bpc_max = max_bpc_range->max_value;
     }
 
-  meta_output_info_parse_edid (output_info, connector_state->edid_data);
+  if (connector_state->edid_data)
+    meta_output_info_parse_edid (output_info, connector_state->edid_data);
 
   output_info->tile_info = connector_state->tile_info;
 

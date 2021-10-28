@@ -970,8 +970,11 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
   output_info->name = g_strdup (xrandr_output->name);
 
   edid = read_xrandr_edid (xdisplay, output_id);
-  meta_output_info_parse_edid (output_info, edid);
-  g_bytes_unref (edid);
+  if (edid)
+    {
+      meta_output_info_parse_edid (output_info, edid);
+      g_bytes_unref (edid);
+    }
 
   output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
   output_info->hotplug_mode_update = output_get_hotplug_mode_update (xdisplay,

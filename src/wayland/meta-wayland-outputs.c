@@ -238,8 +238,8 @@ send_output_events (struct wl_resource *resource,
                                width_mm,
                                height_mm,
                                subpixel_order,
-                               vendor,
-                               product,
+                               vendor ? vendor : "unknown",
+                               product ? product : "unknown",
                                wl_transform);
       need_done = TRUE;
     }

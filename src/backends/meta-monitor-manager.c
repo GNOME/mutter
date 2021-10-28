@@ -1688,6 +1688,9 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       gboolean is_underscanning;
       gboolean supports_underscanning;
       gboolean supports_color_transform;
+      const char *vendor;
+      const char *product;
+      const char *serial;
 
       g_variant_builder_init (&crtcs, G_VARIANT_TYPE ("au"));
       for (j = 0; j < output_info->n_possible_crtcs; j++)
@@ -1729,14 +1732,17 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       connector_type_name = get_connector_type_name (output_info->connector_type);
       supports_underscanning = output_info->supports_underscanning;
       supports_color_transform = output_info->supports_color_transform;
+      vendor = output_info->vendor;
+      product = output_info->product;;
+      serial = output_info->serial;
 
       g_variant_builder_init (&properties, G_VARIANT_TYPE ("a{sv}"));
       g_variant_builder_add (&properties, "{sv}", "vendor",
-                             g_variant_new_string (output_info->vendor));
+                             g_variant_new_string (vendor ? vendor : "unknown"));
       g_variant_builder_add (&properties, "{sv}", "product",
-                             g_variant_new_string (output_info->product));
+                             g_variant_new_string (product ? product : "unknown"));
       g_variant_builder_add (&properties, "{sv}", "serial",
-                             g_variant_new_string (output_info->serial));
+                             g_variant_new_string (serial ? serial : "unknown"));
       g_variant_builder_add (&properties, "{sv}", "width-mm",
                              g_variant_new_int32 (output_info->width_mm));
       g_variant_builder_add (&properties, "{sv}", "height-mm",

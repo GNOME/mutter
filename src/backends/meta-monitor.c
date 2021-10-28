@@ -194,13 +194,20 @@ meta_monitor_generate_spec (MetaMonitor *monitor)
   const MetaOutputInfo *output_info =
     meta_monitor_get_main_output_info (monitor);
   MetaMonitorSpec *monitor_spec;
+  const char *vendor;
+  const char *product;
+  const char *serial;
+
+  vendor = output_info->vendor;
+  product = output_info->product;
+  serial = output_info->serial;
 
   monitor_spec = g_new0 (MetaMonitorSpec, 1);
   *monitor_spec = (MetaMonitorSpec) {
     .connector = g_strdup (output_info->name),
-    .vendor = g_strdup (output_info->vendor),
-    .product = g_strdup (output_info->product),
-    .serial = g_strdup (output_info->serial),
+    .vendor = g_strdup (vendor ? vendor : "unknown"),
+    .product = g_strdup (product ? product : "unknown"),
+    .serial = g_strdup (serial ? serial : "unknown"),
   };
 
   priv->spec = monitor_spec;
@@ -260,8 +267,7 @@ meta_monitor_make_display_name (MetaMonitor        *monitor,
     }
 
   vendor = meta_monitor_get_vendor (monitor);
-
-  if (g_strcmp0 (vendor, "unknown") != 0)
+  if (vendor)
     {
       vendor_name = meta_monitor_manager_get_vendor_name (monitor_manager,
                                                           vendor);

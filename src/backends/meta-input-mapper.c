@@ -306,32 +306,42 @@ match_edid (MetaMapperInputInfo  *input,
             MetaMonitor          *monitor,
             MetaOutputMatchType  *match_type)
 {
-  const gchar *dev_name;
+  const char *dev_name;
+  const char *vendor;
+  const char *serial;
 
   dev_name = clutter_input_device_get_device_name (input->device);
 
-  if (strcasestr (dev_name, meta_monitor_get_vendor (monitor)) == NULL)
+  vendor = meta_monitor_get_vendor (monitor);
+  if (!vendor || strcasestr (dev_name, vendor) == NULL)
     return FALSE;
 
   *match_type = META_MATCH_EDID_VENDOR;
 
-  if (strcasestr (dev_name, meta_monitor_get_product (monitor)) != NULL)
+  serial = meta_monitor_get_serial (monitor);
+  if (!serial || strcasestr (dev_name, serial) != NULL)
     {
       *match_type = META_MATCH_EDID_FULL;
     }
   else
     {
-      int i;
-      g_auto (GStrv) split = NULL;
+      const char *product;
 
-      split = g_strsplit (meta_monitor_get_product (monitor), " ", -1);
-
-      for (i = 0; split[i]; i++)
+      product = meta_monitor_get_product (monitor);
+      if (product)
         {
-          if (strcasestr (dev_name, split[i]) != NULL)
+          g_auto (GStrv) split = NULL;
+          int i;
+
+          split = g_strsplit (product, " ", -1);
+
+          for (i = 0; split[i]; i++)
             {
-              *match_type = META_MATCH_EDID_PARTIAL;
-              break;
+              if (strcasestr (dev_name, split[i]) != NULL)
+                {
+                  *match_type = META_MATCH_EDID_PARTIAL;
+                  break;
+                }
             }
         }
     }

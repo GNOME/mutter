@@ -313,8 +313,7 @@ meta_output_info_parse_edid (MetaOutputInfo *output_info,
   size_t len;
   gconstpointer data;
 
-  if (!edid)
-    goto out;
+  g_return_if_fail (edid);
 
   data = g_bytes_get_data (edid, &len);
   parsed_edid = meta_edid_info_new_parse (data);
@@ -346,14 +345,6 @@ meta_output_info_parse_edid (MetaOutputInfo *output_info,
 
       g_free (parsed_edid);
     }
-
- out:
-  if (!output_info->vendor)
-    output_info->vendor = g_strdup ("unknown");
-  if (!output_info->product)
-    output_info->product = g_strdup ("unknown");
-  if (!output_info->serial)
-    output_info->serial = g_strdup ("unknown");
 }
 
 gboolean

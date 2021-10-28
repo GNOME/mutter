@@ -415,12 +415,18 @@ meta_pad_action_mapper_cycle_tablet_output (MetaPadActionMapper *mapper,
   if (logical_monitor)
     {
       MetaMonitor *monitor;
+      const char *vendor;
+      const char *product;
+      const char *serial;
 
       /* Pick an arbitrary monitor in the logical monitor to represent it. */
       monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
-      edid[0] = meta_monitor_get_vendor (monitor);
-      edid[1] = meta_monitor_get_product (monitor);
-      edid[2] = meta_monitor_get_serial (monitor);
+      vendor = meta_monitor_get_vendor (monitor);
+      product = meta_monitor_get_product (monitor);
+      serial = meta_monitor_get_serial (monitor);
+      edid[0] = vendor ? vendor : "";
+      edid[1] = product ? product : "";
+      edid[2] = serial ? serial : "";
     }
   else
     {
