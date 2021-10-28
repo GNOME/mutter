@@ -86,6 +86,8 @@ struct _MetaWaylandCompositor
 
   struct wl_display *wayland_display;
   char *display_name;
+  GSource *source;
+
   GHashTable *outputs;
   GList *frame_callback_surfaces;
 

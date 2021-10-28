@@ -436,6 +436,7 @@ meta_wayland_compositor_finalize (GObject *object)
 
   g_clear_pointer (&compositor->display_name, g_free);
   g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
+  g_clear_pointer (&compositor->source, g_source_destroy);
 
   G_OBJECT_CLASS (meta_wayland_compositor_parent_class)->finalize (object);
 }
@@ -542,6 +543,8 @@ meta_wayland_compositor_new (MetaContext *context)
    */
   g_source_set_priority (wayland_event_source, GDK_PRIORITY_EVENTS + 1);
   g_source_attach (wayland_event_source, NULL);
+  compositor->source = wayland_event_source;
+  g_source_unref (wayland_event_source);
 
   g_signal_connect (stage, "after-update",
                     G_CALLBACK (on_after_update), compositor);
