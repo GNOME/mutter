@@ -303,6 +303,8 @@ if have_tests
     exe_wrapper: default_test_wrappers,
   )
 
+  add_test_setup('plain')
+
   add_test_setup('CI',
     env: [
       'MUTTER_DEBUG_DUMMY_MODE_SPECS=800x600@10.0',
