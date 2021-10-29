@@ -28,6 +28,7 @@
 #include "meta-test/meta-context-test.h"
 #include "meta/util.h"
 #include "meta/window.h"
+#include "meta/meta-workspace-manager.h"
 #include "tests/meta-test-utils.h"
 #include "ui/ui.h"
 #include "wayland/meta-wayland.h"
@@ -809,6 +810,64 @@ test_case_do (TestCase *test,
 
       if (!test_case_sleep (test, (guint32) interval, error))
         return FALSE;
+    }
+  else if (strcmp (argv[0], "set_strut") == 0)
+    {
+      if (argc != 6)
+        BAD_COMMAND("usage: %s <x> <y> <width> <height> <side>", argv[0]);
+
+      int x = atoi (argv[1]);
+      int y = atoi (argv[2]);
+      int width = atoi (argv[3]);
+      int height = atoi (argv[4]);
+
+      MetaSide side;
+      if (strcmp (argv[5], "left") == 0)
+        side = META_SIDE_LEFT;
+      else if (strcmp (argv[5], "right") == 0)
+        side = META_SIDE_RIGHT;
+      else if (strcmp (argv[5], "top") == 0)
+        side = META_SIDE_TOP;
+      else if (strcmp (argv[5], "bottom") == 0)
+        side = META_SIDE_BOTTOM;
+      else
+        return FALSE;
+
+      MetaDisplay *display = meta_get_display ();
+      MetaWorkspaceManager *workspace_manager =
+        meta_display_get_workspace_manager (display);
+      MetaRectangle rect = { x, y, width, height };
+      MetaStrut strut = { rect, side };
+      GSList *struts = g_slist_append (NULL, &strut);
+      GList *workspaces =
+        meta_workspace_manager_get_workspaces (workspace_manager);
+      GList *l;
+
+      for (l = workspaces; l; l = l->next)
+        {
+          MetaWorkspace *workspace = l->data;
+          meta_workspace_set_builtin_struts (workspace, struts);
+        }
+
+      g_slist_free (struts);
+    }
+  else if (strcmp (argv[0], "clear_struts") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      MetaDisplay *display = meta_get_display ();
+      MetaWorkspaceManager *workspace_manager =
+        meta_display_get_workspace_manager (display);
+      GList *workspaces =
+        meta_workspace_manager_get_workspaces (workspace_manager);
+      GList *l;
+
+      for (l = workspaces; l; l = l->next)
+        {
+          MetaWorkspace *workspace = l->data;
+          meta_workspace_set_builtin_struts (workspace, NULL);
+        }
     }
   else if (strcmp (argv[0], "assert_stacking") == 0)
     {
