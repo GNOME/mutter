@@ -1,0 +1,49 @@
+# Tests that the following works, both on Wayland and X11
+#  1. Create a window with a known size
+#  2. Fullscreen window results in fullscreen size
+#  3. Unfullscreen window followed by a strut change returns to known size
+
+new_client w wayland
+create w/1 csd
+
+resize w/1 500 400
+show w/1
+wait
+
+assert_size w/1 500 400
+
+fullscreen w/1
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+stop_after_next w
+unfullscreen w/1
+wait
+set_strut 0 0 1 1 top
+continue w
+wait_reconfigure
+assert_size w/1 500 400
+
+clear_struts
+wait
+
+new_client x x11
+create x/1 csd
+
+resize x/1 500 400
+show x/1
+wait
+
+assert_size x/1 500 400
+
+fullscreen x/1
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+stop_after_next x
+unfullscreen x/1
+wait
+set_strut 0 0 1 1 top
+continue x
+wait_reconfigure
+assert_size x/1 500 400
