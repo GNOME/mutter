@@ -51,6 +51,8 @@
 #include "backends/meta-color-device.h"
 #include "backends/meta-monitor.h"
 
+#include "meta-dbus-gsd-color.h"
+
 enum
 {
   PROP_0,
@@ -70,6 +72,8 @@ typedef struct _MetaColorManagerPrivate
   GCancellable *cancellable;
 
   GHashTable *devices;
+
+  MetaDbusSettingsDaemonColor *gsd_color;
 } MetaColorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaColorManager, meta_color_manager, G_TYPE_OBJECT)
@@ -202,6 +206,33 @@ cd_client_connect_cb (GObject      *source_object,
 }
 
 static void
+on_gsd_color_ready (GObject      *source_object,
+                    GAsyncResult *res,
+                    gpointer      user_data)
+{
+  MetaColorManager *color_manager = META_COLOR_MANAGER (user_data);
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaDbusSettingsDaemonColor *gsd_color;
+  g_autoptr (GError) error = NULL;
+
+  gsd_color =
+    meta_dbus_settings_daemon_color_proxy_new_for_bus_finish (res, &error);
+  if (!gsd_color)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Failed to create gsd-color D-Bus proxy: %s", error->message);
+      return;
+    }
+
+  meta_topic (META_DEBUG_COLOR,
+              "Connection to org.gnome.SettingsDaemon.Color established");
+  priv->gsd_color = gsd_color;
+}
+
+static void
 meta_color_manager_constructed (GObject *object)
 {
   MetaColorManager *color_manager = META_COLOR_MANAGER (object);
@@ -213,6 +244,15 @@ meta_color_manager_constructed (GObject *object)
   priv->cd_client = cd_client_new ();
   cd_client_connect (priv->cd_client, priv->cancellable, cd_client_connect_cb,
                      color_manager);
+
+  meta_dbus_settings_daemon_color_proxy_new_for_bus (
+    G_BUS_TYPE_SESSION,
+    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+    "org.gnome.SettingsDaemon.Color",
+    "/org/gnome/SettingsDaemon/Color",
+    priv->cancellable,
+    on_gsd_color_ready,
+    color_manager);
 }
 
 static void
@@ -225,6 +265,7 @@ meta_color_manager_finalize (GObject *object)
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
   g_clear_pointer (&priv->devices, g_hash_table_unref);
+  g_clear_object (&priv->gsd_color);
 
   G_OBJECT_CLASS (meta_color_manager_parent_class)->finalize (object);
 }

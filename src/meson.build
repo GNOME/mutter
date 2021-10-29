@@ -918,6 +918,13 @@ dbus_rtkit_built_sources = gnome.gdbus_codegen('meta-dbus-rtkit1',
 )
 mutter_built_sources += dbus_rtkit_built_sources
 
+dbus_gsd_color_built_sources = gnome.gdbus_codegen('meta-dbus-gsd-color',
+    join_paths(dbus_interfaces_dir, 'org.gnome.SettingsDaemon.Color.xml'),
+    interface_prefix: 'org.gnome.',
+    namespace: 'MetaDbus',
+)
+mutter_built_sources += dbus_gsd_color_built_sources
+
 wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []
 wayland_protocol_sources = []

@@ -1,0 +1,7 @@
+<node>
+  <interface name="org.gnome.SettingsDaemon.Color">
+    <property name="DisabledUntilTomorrow" type="b" access="readwrite"/>
+    <property name="NightLightActive" type="b" access="read"/>
+    <property name="Temperature" type="u" access="readwrite"/>
+  </interface>
+</node>
