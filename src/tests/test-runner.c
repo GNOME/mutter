@@ -960,6 +960,19 @@ test_case_do (TestCase *test,
           return FALSE;
         }
     }
+  else if (strcmp (argv[0], "stop_after_next") == 0 ||
+           strcmp (argv[0], "continue") == 0)
+    {
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>", argv[0]);
+
+      MetaTestClient *client = test_case_lookup_client (test, argv[1], error);
+      if (!client)
+        return FALSE;
+
+      if (!meta_test_client_do (client, error, argv[0], NULL))
+        return FALSE;
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);

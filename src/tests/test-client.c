@@ -34,6 +34,7 @@ GHashTable *windows;
 GQuark event_source_quark;
 GQuark event_handlers_quark;
 GQuark can_take_focus_quark;
+gboolean sync_after_lines = -1;
 
 typedef void (*XEventHandler) (GtkWidget *window, XEvent *event);
 
@@ -824,6 +825,26 @@ process_line (const char *line)
           goto out;
         }
     }
+  else if (strcmp (argv[0], "stop_after_next") == 0)
+    {
+      if (sync_after_lines != -1)
+        {
+          g_print ("Can't invoke 'stop_after_next' while already stopped");
+          goto out;
+        }
+
+      sync_after_lines = 1;
+    }
+  else if (strcmp (argv[0], "continue") == 0)
+    {
+      if (sync_after_lines != 0)
+        {
+          g_print ("Can only invoke 'continue' while stopped");
+          goto out;
+        }
+
+      sync_after_lines = -1;
+    }
   else
     {
       g_print ("Unknown command %s\n", argv[0]);
@@ -862,6 +883,30 @@ on_line_received (GObject      *source,
 static void
 read_next_line (GDataInputStream *in)
 {
+  while (sync_after_lines == 0)
+    {
+      GdkDisplay *display = gdk_display_get_default ();
+      g_autoptr (GError) error = NULL;
+      g_autofree char *line = NULL;
+      size_t length;
+
+      gdk_display_flush (display);
+
+      line = g_data_input_stream_read_line (in, &length, NULL, &error);
+      if (!line)
+        {
+          if (error)
+            g_printerr ("Error reading from stdin: %s\n", error->message);
+          gtk_main_quit ();
+          return;
+        }
+
+      process_line (line);
+    }
+
+  if (sync_after_lines >= 0)
+    sync_after_lines--;
+
   g_data_input_stream_read_line_async (in, G_PRIORITY_DEFAULT, NULL,
                                        on_line_received, NULL);
 }
