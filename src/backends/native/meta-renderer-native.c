@@ -740,17 +740,24 @@ configure_disabled_crtcs (MetaKmsDevice      *kms_device,
     }
 }
 
-static void
+static gboolean
 dummy_power_save_page_flip_cb (gpointer user_data)
 {
   MetaRendererNative *renderer_native = user_data;
+  g_autolist (GObject) old_list = NULL;
 
-  g_list_foreach (renderer_native->power_save_page_flip_onscreens,
+  old_list = g_steal_pointer (&renderer_native->power_save_page_flip_onscreens);
+
+  g_list_foreach (old_list,
                   (GFunc) meta_onscreen_native_dummy_power_save_page_flip,
                   NULL);
-  g_clear_list (&renderer_native->power_save_page_flip_onscreens,
-                g_object_unref);
+
+  if (renderer_native->power_save_page_flip_onscreens != NULL)
+    return G_SOURCE_CONTINUE;
+
   renderer_native->power_save_page_flip_source_id = 0;
+
+  return G_SOURCE_REMOVE;
 }
 
 void
@@ -765,9 +772,9 @@ meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_na
   if (!renderer_native->power_save_page_flip_source_id)
     {
       renderer_native->power_save_page_flip_source_id =
-        g_timeout_add_once (timeout_ms,
-                            dummy_power_save_page_flip_cb,
-                            renderer_native);
+        g_timeout_add (timeout_ms,
+                       dummy_power_save_page_flip_cb,
+                       renderer_native);
     }
 
   renderer_native->power_save_page_flip_onscreens =
