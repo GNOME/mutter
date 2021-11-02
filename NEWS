@@ -1,3 +1,23 @@
+40.6
+====
+* Don't change workspaces of unmanaged windows [Sebastian; !2003]
+* xwayland: Avoid unnecessary _NET_WM_STATE events [Dor; !2032]
+* Don't use atomic mode setting for virtio_gpu driver [Jonas; !2040]
+* frame-clock: Apply dithering to dispatch times [Daniel; !1826]
+* wayland: Accept final preference of drop destination [Robert; !2043]
+* Fix tilt direction of pen/tablet inputs [Quytelda; !2065]
+* Use b/w unicode for tablet mode OSD [Carlos; !2064]
+* Fix negative paint volume offscreen effect [Sebastian; !2031]
+* Only add paint volumes of mapped actors to stage clip [Robert; !2035]
+* Fix mapping tablet input to correct monitor [Jason; !1934]
+
+Contributors:
+  Dor Askayo, Carlos Garnacho, Jason Gerecke, Quytelda Kahja, Sebastian Keller,
+  Robert Mader, Florian Müllner, Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Fabio Tomat [fur]
+
 40.5
 ====
 * Fix monitor screencast scanouts [Michel; !1914]
