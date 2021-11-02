@@ -226,6 +226,8 @@ notify_view_crtc_presented (MetaRendererView *view,
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
+  g_return_if_fail (frame_info != NULL);
+
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
 
