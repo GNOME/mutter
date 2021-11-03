@@ -5904,15 +5904,7 @@ clutter_actor_real_calculate_resource_scale (ClutterActor *self,
 static void
 clutter_actor_real_destroy (ClutterActor *actor)
 {
-  ClutterActorIter iter;
-
-  g_object_freeze_notify (G_OBJECT (actor));
-
-  clutter_actor_iter_init (&iter, actor);
-  while (clutter_actor_iter_next (&iter, NULL))
-    clutter_actor_iter_destroy (&iter);
-
-  g_object_thaw_notify (G_OBJECT (actor));
+  clutter_actor_destroy_all_children (actor);
 }
 
 static GObject *
