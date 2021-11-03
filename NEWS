@@ -1,3 +1,43 @@
+41.1
+====
+* Fix monitor screencast scanouts [Michel; !1914]
+* dma-buf: Use alpha-less pixel formats where appropriate [Robert; !1810]
+* wayland: Allow clients to maximize windows regardless of constraints
+  [Christian; !1997]
+* Handle hotplug events without relevant changes more effectively
+  [Marco; !1964]
+* Improve error reporting when startup fails [Jonas; !1994]
+* dma-buf: Add support for ABGR and XBGR formats [Erfan; !1999]
+* Fix X11 middle button emulation setting [José; !2000]
+* Include server-side shadows in window screenshots [Robert; !1996]
+* Don't change workspaces of unmanaged windows [Sebastian; !2003]
+* Reset idletime when unplugging the power cable [Bastien; !2029]
+* xwayland: Avoid unnecessary _NET_WM_STATE events [Dor; !2032]
+* Fix videos in Firefox stuttering in overview [Robert; !2034]
+* Don't use atomic mode setting for virtio_gpu driver [Jonas; !2040]
+* Improve on-screen keyboard on X11 [Sebastian, Ray; !1955, !2039]
+* misc [Daniel, Jonas, Corentin, Robert; !1992, !2007, !2008, !2026, !2044]
+* Fix text glitches after size changes [Sebastian; !2006]
+* Fix reporting output rotation to xwayland [Olivier; !2050]
+* wayland: Accept final preference of drop destination [Robert; !2043]
+* Fix erratic scrolling in GTK apps [Carlos; gnome-shell#4647]
+* Fix tilt direction of pen/tablet inputs [Quytelda; !2065]
+* Use b/w unicode for tablet mode OSD [Carlos; !2064]
+* Fix negative paint volume offscreen effect [Sebastian; !2031]
+* Only add paint volumes of mapped actors to stage clip [Robert; !2035]
+* Fix mapping tablet input to correct monitor [Jason; !1934]
+* Misc. bug fixes and cleanups
+
+Contributors:
+  Marco Trevisan (Treviño), Erfan Abdi, Dor Askayo, Michel Dänzer,
+  José Expósito, Olivier Fourdan, Carlos Garnacho, Jason Gerecke,
+  Quytelda Kahja, Sebastian Keller, Robert Mader, Bastien Nocera, Corentin Noël,
+  Christian Rauch, Ray Strode, Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  eshagh shahidani [fa], Danial Behzadi [fa], Марко Костић [sr],
+  Zander Brown [en_GB], Ngọc Quân Trần [vi], Rūdolfs Mazurs [lv]
+
 41.0
 ====
 * Avoid race in wl_seat capabilities [Olivier; !77]
