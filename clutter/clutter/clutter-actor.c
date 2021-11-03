@@ -12031,8 +12031,6 @@ clutter_actor_remove_all_children (ClutterActor *self)
 void
 clutter_actor_destroy_all_children (ClutterActor *self)
 {
-  ClutterActorIter iter;
-
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   if (self->priv->n_children == 0)
@@ -12040,9 +12038,14 @@ clutter_actor_destroy_all_children (ClutterActor *self)
 
   g_object_freeze_notify (G_OBJECT (self));
 
-  clutter_actor_iter_init (&iter, self);
-  while (clutter_actor_iter_next (&iter, NULL))
-    clutter_actor_iter_destroy (&iter);
+  while (self->priv->first_child != NULL)
+    {
+      gint prev_n_children = self->priv->n_children;
+
+      clutter_actor_destroy (self->priv->first_child);
+
+      g_assert (self->priv->n_children < prev_n_children);
+    }
 
   g_object_thaw_notify (G_OBJECT (self));
 
