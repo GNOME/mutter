@@ -132,7 +132,6 @@ struct _ClutterStagePrivate
   GHashTable *pointer_devices;
   GHashTable *touch_sequences;
 
-  guint throttle_motion_events : 1;
   guint actor_needs_immediate_relayout : 1;
 };
 
@@ -707,7 +706,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
         check_device = TRUE;
 
       /* Skip consecutive motion events coming from the same device. */
-      if (priv->throttle_motion_events && next_event != NULL)
+      if (next_event != NULL)
         {
           if (event->type == CLUTTER_MOTION &&
               (next_event->type == CLUTTER_MOTION ||
@@ -1556,8 +1555,6 @@ clutter_stage_init (ClutterStage *self)
     }
 
   priv->event_queue = g_queue_new ();
-
-  priv->throttle_motion_events = TRUE;
 
   priv->pointer_devices =
     g_hash_table_new_full (NULL, NULL,
@@ -2416,55 +2413,6 @@ _clutter_stage_get_default_window (void)
     return NULL;
 
   return _clutter_stage_get_window (stage);
-}
-
-/**
- * clutter_stage_set_throttle_motion_events:
- * @stage: a #ClutterStage
- * @throttle: %TRUE to throttle motion events
- *
- * Sets whether motion events received between redraws should
- * be throttled or not. If motion events are throttled, those
- * events received by the windowing system between redraws will
- * be compressed so that only the last event will be propagated
- * to the @stage and its actors.
- *
- * This function should only be used if you want to have all
- * the motion events delivered to your application code.
- *
- * Since: 1.0
- */
-void
-clutter_stage_set_throttle_motion_events (ClutterStage *stage,
-                                          gboolean      throttle)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  if (priv->throttle_motion_events != throttle)
-    priv->throttle_motion_events = throttle;
-}
-
-/**
- * clutter_stage_get_throttle_motion_events:
- * @stage: a #ClutterStage
- *
- * Retrieves the value set with clutter_stage_set_throttle_motion_events()
- *
- * Return value: %TRUE if the motion events are being throttled,
- *   and %FALSE otherwise
- *
- * Since: 1.0
- */
-gboolean
-clutter_stage_get_throttle_motion_events (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage->priv->throttle_motion_events;
 }
 
 /**

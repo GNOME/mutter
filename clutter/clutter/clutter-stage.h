@@ -188,11 +188,6 @@ void            clutter_stage_set_key_focus                     (ClutterStage   
                                                                  ClutterActor          *actor);
 CLUTTER_EXPORT
 ClutterActor *  clutter_stage_get_key_focus                     (ClutterStage          *stage);
-CLUTTER_EXPORT
-void            clutter_stage_set_throttle_motion_events        (ClutterStage          *stage,
-                                                                 gboolean               throttle);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_throttle_motion_events        (ClutterStage          *stage);
 
 CLUTTER_EXPORT
 ClutterActor *  clutter_stage_get_actor_at_pos                  (ClutterStage          *stage,
