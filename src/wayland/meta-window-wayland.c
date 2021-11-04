@@ -944,6 +944,9 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
 
+  if (!wl_window->pending_configurations)
+    flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
+
   acked_configuration = acquire_acked_configuration (wl_window, pending);
 
   /* x/y are ignored when we're doing interactive resizing */
