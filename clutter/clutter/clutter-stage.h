@@ -184,12 +184,6 @@ void            clutter_stage_get_minimum_size                  (ClutterStage   
                                                                  guint                 *width,
                                                                  guint                 *height);
 CLUTTER_EXPORT
-void            clutter_stage_set_use_alpha                     (ClutterStage          *stage,
-                                                                 gboolean               use_alpha);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_use_alpha                     (ClutterStage          *stage);
-
-CLUTTER_EXPORT
 void            clutter_stage_set_key_focus                     (ClutterStage          *stage,
                                                                  ClutterActor          *actor);
 CLUTTER_EXPORT
@@ -199,9 +193,6 @@ void            clutter_stage_set_throttle_motion_events        (ClutterStage   
                                                                  gboolean               throttle);
 CLUTTER_EXPORT
 gboolean        clutter_stage_get_throttle_motion_events        (ClutterStage          *stage);
-CLUTTER_EXPORT
-gboolean        clutter_stage_event                             (ClutterStage          *stage,
-                                                                 ClutterEvent          *event);
 
 CLUTTER_EXPORT
 ClutterActor *  clutter_stage_get_actor_at_pos                  (ClutterStage          *stage,
