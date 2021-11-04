@@ -105,28 +105,6 @@ get_event_state_string (const ClutterEvent *event)
 }
 
 static gboolean
-red_button_cb (ClutterActor *actor,
-               ClutterEvent *event,
-               gpointer      data)
-{
-  ClutterActor *stage;
-
-  if (IsMotion)
-    IsMotion = FALSE;
-  else
-    IsMotion = TRUE;
-
-  stage = clutter_actor_get_stage (actor);
-  clutter_stage_set_motion_events_enabled (CLUTTER_STAGE (stage),
-                                           IsMotion);
-
-  g_print ("*** Per actor motion events %s ***\n",
-           IsMotion ? "enabled" : "disabled");
-
-  return FALSE;
-}
-
-static gboolean
 capture_cb (ClutterActor *actor,
 	    ClutterEvent *event,
 	    gpointer      data)
@@ -397,22 +375,6 @@ test_events_main (int argc, char *argv[])
   clutter_container_add (CLUTTER_CONTAINER(stage), focus_box, NULL);
 
   actor = clutter_actor_new ();
-  clutter_actor_set_background_color (actor, CLUTTER_COLOR_Red);
-  clutter_actor_set_name (actor, "Red Box");
-  clutter_actor_set_size (actor, 100, 100);
-  clutter_actor_set_position (actor, 100, 100);
-  clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "red box");
-  g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
-		    focus_box);
-  /* Toggle motion - enter/leave capture */
-  g_signal_connect (actor, "button-press-event",
-                    G_CALLBACK (red_button_cb), NULL);
-
-  clutter_stage_set_key_focus (CLUTTER_STAGE (stage), actor);
-
-  actor = clutter_actor_new ();
   clutter_actor_set_background_color (actor, CLUTTER_COLOR_Green);
   clutter_actor_set_name (actor, "Green Box");
   clutter_actor_set_size (actor, 100, 100);
@@ -423,6 +385,8 @@ test_events_main (int argc, char *argv[])
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
 		    focus_box);
   g_signal_connect (actor, "captured-event", G_CALLBACK (capture_cb), NULL);
+
+  clutter_stage_set_key_focus (CLUTTER_STAGE (stage), actor);
 
   /* non reactive */
   actor = clutter_actor_new ();

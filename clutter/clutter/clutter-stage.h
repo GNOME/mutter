@@ -200,11 +200,6 @@ void            clutter_stage_set_throttle_motion_events        (ClutterStage   
 CLUTTER_EXPORT
 gboolean        clutter_stage_get_throttle_motion_events        (ClutterStage          *stage);
 CLUTTER_EXPORT
-void            clutter_stage_set_motion_events_enabled         (ClutterStage          *stage,
-                                                                 gboolean               enabled);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_motion_events_enabled         (ClutterStage          *stage);
-CLUTTER_EXPORT
 gboolean        clutter_stage_event                             (ClutterStage          *stage,
                                                                  ClutterEvent          *event);
 

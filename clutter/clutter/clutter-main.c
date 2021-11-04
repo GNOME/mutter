@@ -995,30 +995,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                 _clutter_input_pointer_a11y_on_motion_event (device, x, y);
               }
           }
-        /* only the stage gets motion events if they are enabled */
-        if (!clutter_stage_get_motion_events_enabled (CLUTTER_STAGE (stage)) &&
-            event->any.source == NULL)
-          {
-            /* Only stage gets motion events */
-            event->any.source = stage;
-
-            if (device != NULL && device->pointer_grab_actor != NULL)
-              {
-                clutter_actor_event (device->pointer_grab_actor,
-                                     event,
-                                     FALSE);
-                break;
-              }
-
-            /* Trigger handlers on stage in both capture .. */
-            if (!clutter_actor_event (stage, event, TRUE))
-              {
-                /* and bubbling phase */
-                clutter_actor_event (stage, event, FALSE);
-              }
-            break;
-          }
-
         G_GNUC_FALLTHROUGH;
       case CLUTTER_BUTTON_PRESS:
       case CLUTTER_BUTTON_RELEASE:
@@ -1052,38 +1028,6 @@ _clutter_process_event_details (ClutterActor        *stage,
         }
 
       case CLUTTER_TOUCH_UPDATE:
-        /* only the stage gets motion events if they are enabled */
-        if (!clutter_stage_get_motion_events_enabled (CLUTTER_STAGE (stage)) &&
-            event->any.source == NULL)
-          {
-            ClutterActor *grab_actor = NULL;
-
-            /* Only stage gets motion events */
-            event->any.source = stage;
-
-            /* global grabs */
-            if (device->sequence_grab_actors != NULL)
-              {
-                grab_actor = g_hash_table_lookup (device->sequence_grab_actors,
-                                                  event->touch.sequence);
-              }
-
-            if (grab_actor != NULL)
-              {
-                clutter_actor_event (grab_actor, event, FALSE);
-                break;
-              }
-
-            /* Trigger handlers on stage in both capture .. */
-            if (!clutter_actor_event (stage, event, TRUE))
-              {
-                /* and bubbling phase */
-                clutter_actor_event (stage, event, FALSE);
-              }
-            break;
-          }
-
-        G_GNUC_FALLTHROUGH;
       case CLUTTER_TOUCH_BEGIN:
       case CLUTTER_TOUCH_CANCEL:
       case CLUTTER_TOUCH_END:

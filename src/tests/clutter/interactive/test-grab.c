@@ -133,25 +133,6 @@ blue_release_cb (ClutterActor    *actor,
 }
 
 static gboolean
-green_press_cb (ClutterActor    *actor,
-                ClutterEvent    *event,
-                gpointer         data)
-{
-  ClutterActor *stage;
-  gboolean enabled;
-
-  stage = clutter_actor_get_stage (actor);
-  enabled = !clutter_stage_get_motion_events_enabled (CLUTTER_STAGE (stage));
-
-  clutter_stage_set_motion_events_enabled (CLUTTER_STAGE (stage), enabled);
-
-  g_print ("per actor motion events are now %s\n",
-           enabled ? "enabled" : "disabled");
-
-  return FALSE;
-}
-
-static gboolean
 toggle_grab_pointer_cb (ClutterActor    *actor,
                         ClutterEvent    *event,
                         gpointer         data)
@@ -195,7 +176,6 @@ test_grab_main (int argc, char *argv[])
   ClutterActor   *stage, *actor;
   ClutterColor    rcol = { 0xff, 0, 0, 0xff}, 
                   bcol = { 0, 0, 0xff, 0xff },
-		  gcol = { 0, 0xff, 0, 0xff },
 		  ccol = { 0, 0xff, 0xff, 0xff },
 		  ycol = { 0xff, 0xff, 0, 0xff };
 
@@ -247,18 +227,6 @@ test_grab_main (int argc, char *argv[])
                     G_CALLBACK (grab_pointer_cb), NULL);
   g_signal_connect (actor, "button-release-event",
                     G_CALLBACK (blue_release_cb), NULL);
-
-  actor = clutter_actor_new ();
-  clutter_actor_set_background_color (actor, &gcol);
-  clutter_actor_set_size (actor, 100, 100);
-  clutter_actor_set_position (actor, 300, 300);
-  clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
-  g_signal_connect (actor, "event",
-                    G_CALLBACK (debug_event_cb), (char *) "green box");
-  g_signal_connect (actor, "button-press-event",
-                    G_CALLBACK (green_press_cb), NULL);
-
 
   actor = clutter_actor_new ();
   clutter_actor_set_background_color (actor, &ccol);
