@@ -248,6 +248,17 @@ toplevel_apply_limits (void)
 }
 
 static void
+toplevel_activation (void)
+{
+  ApplyLimitData data = {};
+
+  data.loop = g_main_loop_new (NULL, FALSE);
+  data.wayland_test_client = wayland_test_client_new ("xdg-activation");
+  wayland_test_client_finish (data.wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 pre_run_wayland_tests (void)
 {
   MetaWaylandCompositor *compositor;
@@ -271,6 +282,8 @@ init_wayland_tests (void)
                    subsurface_invalid_xdg_shell_actions);
   g_test_add_func ("/wayland/toplevel/apply-limits",
                    toplevel_apply_limits);
+  g_test_add_func ("/wayland/toplevel/activation",
+                   toplevel_activation);
 }
 
 int

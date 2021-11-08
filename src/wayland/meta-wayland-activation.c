@@ -278,7 +278,9 @@ activation_activate (struct wl_client   *client,
   if (!token)
     return;
 
-  if (meta_wayland_seat_get_grab_info (token->seat,
+  if (token->seat &&
+      token->surface &&
+      meta_wayland_seat_get_grab_info (token->seat,
                                        token->surface,
                                        token->serial,
                                        FALSE, NULL, NULL))
