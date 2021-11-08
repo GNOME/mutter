@@ -289,13 +289,13 @@ void
 meta_output_info_parse_edid (MetaOutputInfo *output_info,
                              GBytes         *edid)
 {
-  MonitorInfo *parsed_edid;
+  MetaEdidInfo *parsed_edid;
   size_t len;
 
   if (!edid)
     goto out;
 
-  parsed_edid = decode_edid (g_bytes_get_data (edid, &len));
+  parsed_edid = meta_edid_info_new_parse (g_bytes_get_data (edid, &len));
 
   if (parsed_edid)
     {
