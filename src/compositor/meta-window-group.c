@@ -91,9 +91,13 @@ meta_window_group_paint (ClutterActor        *actor,
   if (clutter_actor_is_in_clone_paint (actor))
     {
       CoglFramebuffer *fb;
+      ClutterStageView *view;
 
       fb = clutter_paint_context_get_framebuffer (paint_context);
-      if (!meta_actor_painting_untransformed (fb,
+      view = clutter_paint_context_get_stage_view (paint_context);
+      if (!view ||
+          fb != clutter_stage_view_get_framebuffer (view) ||
+          !meta_actor_painting_untransformed (fb,
                                               screen_width,
                                               screen_height,
                                               screen_width,
