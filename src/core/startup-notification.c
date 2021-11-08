@@ -90,7 +90,7 @@ struct _MetaStartupNotification
 
 
   GSList *startup_sequences;
-  guint startup_sequence_timeout;
+  guint startup_sequence_timeout_id;
 };
 
 typedef struct {
@@ -513,7 +513,7 @@ startup_sequence_timeout (void *data)
   else
     {
       /* remove */
-      sn->startup_sequence_timeout = 0;
+      sn->startup_sequence_timeout_id = 0;
       return FALSE;
     }
 }
@@ -521,16 +521,15 @@ startup_sequence_timeout (void *data)
 static void
 meta_startup_notification_ensure_timeout (MetaStartupNotification *sn)
 {
-  if (sn->startup_sequence_timeout != 0)
+  if (sn->startup_sequence_timeout_id != 0)
     return;
 
   /* our timeout just polls every second, instead of bothering
    * to compute exactly when we may next time out
    */
-  sn->startup_sequence_timeout = g_timeout_add_seconds (1,
-                                                        startup_sequence_timeout,
-                                                        sn);
-  g_source_set_name_by_id (sn->startup_sequence_timeout,
+  sn->startup_sequence_timeout_id =
+    g_timeout_add_seconds (1, startup_sequence_timeout, sn);
+  g_source_set_name_by_id (sn->startup_sequence_timeout_id,
                            "[mutter] startup_sequence_timeout");
 }
 
@@ -544,7 +543,7 @@ meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
   g_signal_handlers_disconnect_by_func (seq, on_sequence_completed, sn);
 
   if (sn->startup_sequences == NULL)
-    g_clear_handle_id (&sn->startup_sequence_timeout, g_source_remove);
+    g_clear_handle_id (&sn->startup_sequence_timeout_id, g_source_remove);
 
   g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
   g_object_unref (seq);
@@ -580,7 +579,7 @@ meta_startup_notification_finalize (GObject *object)
 {
   MetaStartupNotification *sn = META_STARTUP_NOTIFICATION (object);
 
-  g_clear_handle_id (&sn->startup_sequence_timeout, g_source_remove);
+  g_clear_handle_id (&sn->startup_sequence_timeout_id, g_source_remove);
 
   g_slist_free_full (sn->startup_sequences, g_object_unref);
   sn->startup_sequences = NULL;
@@ -634,7 +633,7 @@ meta_startup_notification_constructed (GObject *object)
   g_assert (sn->display != NULL);
 
   sn->startup_sequences = NULL;
-  sn->startup_sequence_timeout = 0;
+  sn->startup_sequence_timeout_id = 0;
 }
 
 static void
