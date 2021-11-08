@@ -160,8 +160,7 @@ meta_close_dialog_default_show (MetaCloseDialog *dialog)
 
   dialog_pid =
     meta_show_dialog ("--question",
-                      window_content, NULL,
-                      window->display->x11_display->screen_name,
+                      window_content, NULL, NULL,
                       _("_Force Quit"), _("_Wait"),
                       "face-sad-symbolic", window->xwindow,
                       NULL, NULL);
