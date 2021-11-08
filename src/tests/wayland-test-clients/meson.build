@@ -51,6 +51,7 @@ wayland_test_clients = [
   'invalid-subsurfaces',
   'invalid-xdg-shell-actions',
   'xdg-apply-limits',
+  'xdg-activation',
 ]
 
 foreach test : wayland_test_clients
