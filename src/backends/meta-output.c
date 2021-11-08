@@ -95,6 +95,7 @@ meta_output_info_unref (MetaOutputInfo *output_info)
       g_free (output_info->product);
       g_free (output_info->serial);
       g_free (output_info->edid_checksum_md5);
+      g_free (output_info->edid_info);
       g_free (output_info->modes);
       g_free (output_info->possible_crtcs);
       g_free (output_info->possible_clones);
@@ -305,45 +306,54 @@ meta_output_crtc_to_logical_transform (MetaOutput           *output,
                                            inverted_panel_orientation_transform);
 }
 
+static void
+set_output_details_from_edid (MetaOutputInfo *output_info,
+                              MetaEdidInfo   *edid_info)
+{
+  output_info->vendor = g_strndup (edid_info->manufacturer_code, 4);
+  if (!g_utf8_validate (output_info->vendor, -1, NULL))
+    g_clear_pointer (&output_info->vendor, g_free);
+
+  output_info->product = g_strndup (edid_info->dsc_product_name, 14);
+  if (!g_utf8_validate (output_info->product, -1, NULL) ||
+      output_info->product[0] == '\0')
+    {
+      g_clear_pointer (&output_info->product, g_free);
+      output_info->product =
+        g_strdup_printf ("0x%04x", (unsigned) edid_info->product_code);
+    }
+
+  output_info->serial = g_strndup (edid_info->dsc_serial_number, 14);
+  if (!g_utf8_validate (output_info->serial, -1, NULL) ||
+      output_info->serial[0] == '\0')
+    {
+      g_clear_pointer (&output_info->serial, g_free);
+      output_info->serial =
+        g_strdup_printf ("0x%08x", edid_info->serial_number);
+    }
+}
+
 void
 meta_output_info_parse_edid (MetaOutputInfo *output_info,
                              GBytes         *edid)
 {
-  MetaEdidInfo *parsed_edid;
+  MetaEdidInfo *edid_info;
   size_t len;
   gconstpointer data;
 
+  g_return_if_fail (!output_info->edid_info);
   g_return_if_fail (edid);
 
   data = g_bytes_get_data (edid, &len);
-  parsed_edid = meta_edid_info_new_parse (data);
+  edid_info = meta_edid_info_new_parse (data);
 
   output_info->edid_checksum_md5 = g_compute_checksum_for_data (G_CHECKSUM_MD5,
                                                                 data, len);
 
-  if (parsed_edid)
+  if (edid_info)
     {
-      output_info->vendor = g_strndup (parsed_edid->manufacturer_code, 4);
-      if (!g_utf8_validate (output_info->vendor, -1, NULL))
-        g_clear_pointer (&output_info->vendor, g_free);
-
-      output_info->product = g_strndup (parsed_edid->dsc_product_name, 14);
-      if (!g_utf8_validate (output_info->product, -1, NULL) ||
-          output_info->product[0] == '\0')
-        {
-          g_clear_pointer (&output_info->product, g_free);
-          output_info->product = g_strdup_printf ("0x%04x", (unsigned) parsed_edid->product_code);
-        }
-
-      output_info->serial = g_strndup (parsed_edid->dsc_serial_number, 14);
-      if (!g_utf8_validate (output_info->serial, -1, NULL) ||
-          output_info->serial[0] == '\0')
-        {
-          g_clear_pointer (&output_info->serial, g_free);
-          output_info->serial = g_strdup_printf ("0x%08x", parsed_edid->serial_number);
-        }
-
-      g_free (parsed_edid);
+      output_info->edid_info = edid_info;
+      set_output_details_from_edid (output_info, edid_info);
     }
 }
 

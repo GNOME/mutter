@@ -23,6 +23,7 @@
 
 #include <glib-object.h>
 
+#include "backends/edid.h"
 #include "backends/meta-backend-types.h"
 #include "backends/meta-gpu.h"
 #include "core/util-private.h"
@@ -88,6 +89,7 @@ typedef struct _MetaOutputInfo
   char *serial;
 
   char *edid_checksum_md5;
+  MetaEdidInfo *edid_info;
 
   int width_mm;
   int height_mm;
