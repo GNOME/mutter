@@ -508,13 +508,12 @@ startup_sequence_timeout (void *data)
 
   if (sn->startup_sequences != NULL)
     {
-      return TRUE;
+      return G_SOURCE_CONTINUE;
     }
   else
     {
-      /* remove */
       sn->startup_sequence_timeout_id = 0;
-      return FALSE;
+      return G_SOURCE_REMOVE;
     }
 }
 
