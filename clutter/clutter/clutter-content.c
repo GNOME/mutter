@@ -322,8 +322,8 @@ _clutter_content_paint_content (ClutterContent      *content,
 /**
  * clutter_content_get_preferred_size:
  * @content: a #ClutterContent
- * @width: (out): return location for the natural width of the content
- * @height: (out): return location for the natural height of the content
+ * @width: (out) (optional): return location for the natural width of the content
+ * @height: (out) (optional): return location for the natural height of the content
  *
  * Retrieves the natural size of the @content, if any.
  *
