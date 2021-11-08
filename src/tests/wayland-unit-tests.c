@@ -17,12 +17,11 @@
 
 #include "config.h"
 
-#include "tests/wayland-unit-tests.h"
-
 #include <gio/gio.h>
 
 #include "core/display-private.h"
 #include "core/window-private.h"
+#include "meta-test/meta-context-test.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-surface.h"
@@ -248,7 +247,7 @@ toplevel_apply_limits (void)
   g_test_assert_expected_messages ();
 }
 
-void
+static void
 pre_run_wayland_tests (void)
 {
   MetaWaylandCompositor *compositor;
@@ -259,7 +258,7 @@ pre_run_wayland_tests (void)
   test_driver = meta_wayland_test_driver_new (compositor);
 }
 
-void
+static void
 init_wayland_tests (void)
 {
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
@@ -272,4 +271,21 @@ init_wayland_tests (void)
                    subsurface_invalid_xdg_shell_actions);
   g_test_add_func ("/wayland/toplevel/apply-limits",
                    toplevel_apply_limits);
+}
+
+int
+main (int argc, char *argv[])
+{
+  g_autoptr (MetaContext) context = NULL;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  init_wayland_tests ();
+
+  g_signal_connect (context, "before-tests",
+                    G_CALLBACK (pre_run_wayland_tests), NULL);
+
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context));
 }

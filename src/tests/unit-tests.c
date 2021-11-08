@@ -37,7 +37,6 @@
 #include "tests/monitor-transform-tests.h"
 #include "tests/meta-test-utils.h"
 #include "tests/orientation-manager-unit-tests.h"
-#include "tests/wayland-unit-tests.h"
 
 MetaContext *test_context;
 
@@ -232,7 +231,6 @@ init_tests (void)
   init_monitor_config_migration_tests ();
   init_monitor_tests ();
   init_boxes_tests ();
-  init_wayland_tests ();
   init_monitor_transform_tests ();
   init_orientation_manager_tests ();
 }
@@ -252,8 +250,6 @@ main (int argc, char *argv[])
 
   g_signal_connect (context, "before-tests",
                     G_CALLBACK (pre_run_monitor_tests), NULL);
-  g_signal_connect (context, "before-tests",
-                    G_CALLBACK (pre_run_wayland_tests), NULL);
   g_signal_connect (context, "after-tests",
                     G_CALLBACK (finish_monitor_tests), NULL);
 
