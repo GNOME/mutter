@@ -283,4 +283,4 @@ click_action_clicked_cb (ClutterClickAction *click_action,
 }
 ```
 
-[gnome-coding-style]: https://developer.gnome.org/programming-guidelines/stable/c-coding-style.html.en
+[gnome-coding-style]: https://developer.gnome.org/documentation/guidelines/programming/coding-style.html
