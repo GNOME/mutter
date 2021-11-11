@@ -158,40 +158,15 @@ static void
 maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
 {
   MetaBackend *backend = META_BACKEND (native);
-  MetaSettings *settings = meta_backend_get_settings (backend);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
-  MetaGpuKms *primary_gpu;
-  MetaKmsDevice *kms_device;
-  const char *driver_name;
-  static const char *enable_dma_buf_drivers[] = {
-    "i915",
-    NULL,
-  };
 
-  primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
-  if (!primary_gpu)
+  if (!meta_renderer_is_hardware_accelerated (renderer))
     {
-      g_message ("Disabling DMA buffer screen sharing (surfaceless)");
-      goto disable_dma_bufs;
+      g_message ("Disabling DMA buffer screen sharing "
+                 "(not hardware accelerated)");
+      meta_screen_cast_disable_dma_bufs (screen_cast);
     }
-
-  kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
-  driver_name = meta_kms_device_get_driver_name (kms_device);
-
-  if (g_strv_contains (enable_dma_buf_drivers, driver_name))
-    return;
-
-  if (meta_settings_is_experimental_feature_enabled (settings,
-        META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING))
-    return;
-
-  g_message ("Disabling DMA buffer screen sharing for driver '%s'.",
-             driver_name);
-
-disable_dma_bufs:
-  meta_screen_cast_disable_dma_bufs (screen_cast);
 }
 #endif /* HAVE_REMOTE_DESKTOP */
 
