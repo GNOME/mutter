@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 0\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-09-05 21:03+0000\n"
-"PO-Revision-Date: 2021-09-10 19:03+0200\n"
+"POT-Creation-Date: 2021-11-04 20:03+0000\n"
+"PO-Revision-Date: 2021-11-11 11:00+0100\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
 "Language: hr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Launchpad-Export-Date: 2008-05-28 13:28+0000\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 2.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -246,11 +246,11 @@ msgstr "Uvećaj prozor okomito"
 msgid "Maximize window horizontally"
 msgstr "Uvećaj prozor vodoravno"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:179
 msgid "View split on left"
 msgstr "Podijeli pogled ulijevo"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:184
 msgid "View split on right"
 msgstr "Podijeli pogled udesno"
 
@@ -258,11 +258,11 @@ msgstr "Podijeli pogled udesno"
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid "Modifier to use for extended window management operations"
 msgstr "Izmjenjivač za korištenje radnji proširenog upravljanja prozorom"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:17
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -274,11 +274,11 @@ msgstr ""
 "tipkovnici. Očekivano je da je ova kombinacija zadana ili postavljena na "
 "prazan niz."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid "Attach modal dialogs"
 msgstr "Pričvrsti prozore dijaloga"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:30
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -288,11 +288,11 @@ msgstr ""
 "na naslovnu traku sadržajnog prozora i pomiču se zajedno sa sadržajnim "
 "prozorom."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Omogući rubno popločavanje pri ispuštanju prozora na rubovima zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -302,11 +302,11 @@ msgstr ""
 "okomito i prilagođava veličinu vodoravno da prekrije polovicu dostupnog "
 "područja. Ispuštanje prozora na gornji rub zaslona uvećava ih u potpunosti."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid "Workspaces are managed dynamically"
 msgstr "Radni prostori su upravljani promjenjivo"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -316,11 +316,11 @@ msgstr ""
 "broj radnih prostora (određeno brojem ključa radnih prostora u org.gnome."
 "desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
 msgstr "Radni prostori samo na glavnom zaslonu"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -328,11 +328,11 @@ msgstr ""
 "Određuje treba li se prebacivanje radnog prostora pokrenuti za prozore na "
 "svim zaslonima ili samo za prozore na glavnom zaslonu."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid "No tab popup"
 msgstr "Bez skočnih prozora"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
@@ -340,11 +340,11 @@ msgstr ""
 "Određuje treba li onemogućiti korištenje skočnog prozora i naglašavanje "
 "okvira za kruženje prozora."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Odgoda promjene fokusa dok se pokazivač prestane pomicati"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -354,11 +354,11 @@ msgstr ""
 "neće odmah promijeniti kada se prebaci na prozor, nego nakon što se "
 "pokazivač prestane pomicati."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Draggable border width"
 msgstr "Širina granice povlačenja"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -366,11 +366,11 @@ msgstr ""
 "Količina ukupne granice povlačenja. Ako vidljiva granica teme nije dovoljna, "
 "nevidljiva granica će biti dodana kako bi se zadovoljila ova vrijednost."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Automatski uvećaj prozore veličine približne zaslonu"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -378,22 +378,22 @@ msgstr ""
 "Ako je odabrano novi prozori koju su približno veličine zaslona automatski "
 "se uvečavaju."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Place new windows in the center"
 msgstr "Smjesti novi prozor u sredinu"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 "Ako je odabrano, novi prozor će uvijek biti u sredini aktivnog zaslona."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:117
 msgid "Enable experimental features"
 msgstr "Omogući eksperimentalne značajke"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:118
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -402,13 +402,15 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
-"mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
-"enables DMA buffered screen sharing. This is already enabled by default when "
-"using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-"X11 clients are gone. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always advertise valid buffer modifiers on Wayland. This is currently "
+"not the case when using the i915 driver. Does not require a restart. • “rt-"
+"scheduler” — makes mutter request a low priority real-time scheduling. "
+"Requires a restart. • “dma-buf-screen-sharing” — enables DMA buffered screen "
+"sharing. This is already enabled by default when using the i915 driver, but "
+"disabled for everything else. Requires a restart. • “autoclose-xwayland” — "
+"automatically terminates Xwayland if all relevant X11 clients are gone. Does "
+"not require a restart."
 msgstr ""
 "Za omogućavanje eksperimentalnih značajki, dodajte ključnu riječ značajke na "
 "popis. Zahtijeva li značajka ponovno pokretanje kompozitora ovisi o zadanoj "
@@ -418,28 +420,31 @@ msgstr ""
 "monitor-framebuffer” — čini mutter zadanim izlazu logičkih zaslona u "
 "logičnom koordinatnom prostoru piksela, dok međuspremnik okvira mijenja "
 "veličinu zaslona umjesto sadržaja prozora, kako bi upravljao (HiDPI) "
-"zaslonima visoke razlučivosti. Ne zahtijeva ponovno pokretanje. • “rt-"
-"scheduler” — čini zahtjeve muttera zakazanima u niskom prioritetu i stvarnom "
-"vremenu. Izvršitelj ili korisnik mora imati CAP_SYS_NICE. Zahtijeva ponovno "
-"pokretanje. • “dma-buf-screen-sharing\" — omogućuje DMA međuspremljeno "
-"dijeljenje zaslona. To je već omogućeno po zadanome ako se koristi i915 "
-"upravljački program, ali je onemogućene za sve ostalo. Zahtijeva ponovno "
-"pokretanje. • “autoclose-xwayland” — automatski zatvara Xwayland ako su svi "
-"relevantni X11 klijenti nestali. Ne zahtijeva ponovno pokretanje."
+"zaslonima visoke razlučivosti. Ne zahtijeva ponovno pokretanje. • “kms-"
+"modifiers” — čini da mutter uvijek objavljuje valjane izmjenjivače "
+"međuspremnika na Waylandu. To trenutno nije slučaj kada se koriste i915 "
+"upravljački programi. Ne zahtijeva ponovno pokretanje. • “rt-scheduler” — "
+"čini zahtjeve muttera zakazanima u niskom prioritetu i stvarnom vremenu. "
+"Zahtijeva ponovno pokretanje. • “dma-buf-screen-sharing\" — omogućuje DMA "
+"međuspremljeno dijeljenje zaslona. To je već omogućeno po zadanome ako se "
+"koristi i915 upravljački program, ali je onemogućene za sve ostalo. "
+"Zahtijeva ponovno pokretanje. • “autoclose-xwayland” — automatski zatvara "
+"Xwayland ako su svi relevantni X11 klijenti nestali. Ne zahtijeva ponovno "
+"pokretanje."
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Modifier to use to locate the pointer"
 msgstr "Izmjenjivač za korištenje lociranja pokazivača"
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:157
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ova tipka će pokrenuti “lociraj pokazivač” radnju."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:164
 msgid "Timeout for check-alive ping"
 msgstr "Vrijeme isteka provjere odgovora pinga"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -448,19 +453,19 @@ msgstr ""
 "bi bio otkriven kao smrznut. Korištenje 0 će u potpunosti onemogućiti "
 "provjeru odgovora pinga."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:189
 msgid "Select window from tab popup"
 msgstr "Odaberi prozor iz skočnog prozora"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:194
 msgid "Cancel tab popup"
 msgstr "Prekini skočni prozor"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:199
 msgid "Switch monitor configurations"
 msgstr "Prebacivanje podešavanja zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:191
+#: data/org.gnome.mutter.gschema.xml.in:204
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotiraj ugrađeno podešavanje zaslona"
 
@@ -618,26 +623,9 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Kompozitor"
 
-#: src/backends/x11/meta-clutter-backend-x11.c:237
-msgid "X display to use"
-msgstr "X Prikaz za korištenje"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:243
-msgid "X screen to use"
-msgstr "X zaslon za korištenje"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:248
-#: src/core/meta-context-main.c:585
-msgid "Make X calls synchronous"
-msgstr "Napravi X pozive usklađenim"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:254
-msgid "Disable XInput support"
-msgstr "Onemogući XInput podršku"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:513
+#: src/compositor/compositor.c:504
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -694,6 +682,10 @@ msgstr "Odredite ID upravljanja sesijama"
 msgid "Initialize session from savefile"
 msgstr "Pokreni sesiju iz spremljene datoteke"
 
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Napravi X pozive usklađenim"
+
 #: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
 msgstr "Pokreni wayland kompozitor"
@@ -745,11 +737,11 @@ msgstr "Prebaci zaslon"
 msgid "Show on-screen help"
 msgstr "Prikaži zaslonsku pomoć"
 
-#: src/core/mutter.c:47
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Inačica za ispis"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "Mutter priključak koji se koristi"
 
@@ -758,7 +750,7 @@ msgstr "Mutter priključak koji se koristi"
 msgid "Workspace %d"
 msgstr "Radni prostor %d"
 
-#: src/core/util.c:148
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter je kompiliran bez podrške za opširan način rada"
 
@@ -785,7 +777,7 @@ msgstr "Neuspjelo GDK pokretanje"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Neuspjelo otvaranje sustava prikaza X prozora \"%s\""
 
-#: src/x11/meta-x11-display.c:1175
+#: src/x11/meta-x11-display.c:1181
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Zaslon %d na prikazu '%s' je neispravan"
@@ -795,7 +787,7 @@ msgstr "Zaslon %d na prikazu '%s' je neispravan"
 msgid "Format %s not supported"
 msgstr "Format %s nije podržan"
 
-#: src/x11/session.c:1845
+#: src/x11/session.c:1823
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -807,6 +799,15 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
+
+#~ msgid "X display to use"
+#~ msgstr "X Prikaz za korištenje"
+
+#~ msgid "X screen to use"
+#~ msgstr "X zaslon za korištenje"
+
+#~ msgid "Disable XInput support"
+#~ msgstr "Onemogući XInput podršku"
 
 #~ msgid "Show the activities overview"
 #~ msgstr "Prikaži pregled aktivnosti"
