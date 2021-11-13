@@ -953,6 +953,17 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+#ifdef HAVE_NATIVE_BACKEND
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+#endif /* HAVE_NATIVE_BACKEND */
   struct pw_stream *pipewire_stream;
   uint8_t buffer[1024];
   struct spa_pod_builder pod_builder =
@@ -960,7 +971,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   int width;
   int height;
   float frame_rate;
-  const struct spa_pod *params[1];
+  const struct spa_pod *params[2];
+  int n_params = 0;
   int result;
 
   priv->node_id = SPA_ID_INVALID;
@@ -988,32 +1000,98 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
       max_framerate = SPA_FRACTION (frame_rate_fraction.num,
                                     frame_rate_fraction.denom);
 
-      params[0] = push_format_object (
-        &pod_builder,
-        SPA_VIDEO_FORMAT_BGRx, NULL, 0,
-        SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width,
-                                                                  height)),
-        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
-        SPA_FORMAT_VIDEO_maxFramerate,
-        SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
-                                       &min_framerate,
-                                       &max_framerate),
-        0);
+#ifdef HAVE_NATIVE_BACKEND
+      if (cogl_renderer_is_dma_buf_supported (cogl_renderer))
+        {
+          uint64_t modifier = DRM_FORMAT_MOD_INVALID;
+
+          params[n_params++] = push_format_object (
+            &pod_builder,
+            SPA_VIDEO_FORMAT_BGRx, &modifier, 1,
+            SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width,
+                                                                      height)),
+            SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+            SPA_FORMAT_VIDEO_maxFramerate,
+            SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
+                                           &min_framerate,
+                                           &max_framerate),
+            0);
+          params[n_params++] = push_format_object (
+            &pod_builder,
+            SPA_VIDEO_FORMAT_BGRx, NULL, 0,
+            SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width,
+                                                                      height)),
+            SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+            SPA_FORMAT_VIDEO_maxFramerate,
+            SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
+                                           &min_framerate,
+                                           &max_framerate),
+            0);
+        }
+      else
+#endif /* HAVE_NATIVE_BACKEND */
+        {
+          params[n_params++] = push_format_object (
+            &pod_builder,
+            SPA_VIDEO_FORMAT_BGRx, NULL, 0,
+            SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width,
+                                                                      height)),
+            SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+            SPA_FORMAT_VIDEO_maxFramerate,
+            SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
+                                           &min_framerate,
+                                           &max_framerate),
+            0);
+        }
     }
   else
     {
-      params[0] = push_format_object (
-        &pod_builder,
-        SPA_VIDEO_FORMAT_BGRx, NULL, 0,
-        SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&DEFAULT_SIZE,
-                                                               &MIN_SIZE,
-                                                               &MAX_SIZE),
-        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
-        SPA_FORMAT_VIDEO_maxFramerate,
-        SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
-                                       &MIN_FRAME_RATE,
-                                       &MAX_FRAME_RATE),
-        0);
+#ifdef HAVE_NATIVE_BACKEND
+      if (cogl_renderer_is_dma_buf_supported (cogl_renderer))
+        {
+          uint64_t modifier = DRM_FORMAT_MOD_INVALID;
+
+          params[n_params++] = push_format_object (
+            &pod_builder,
+            SPA_VIDEO_FORMAT_BGRx, &modifier, 1,
+            SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&DEFAULT_SIZE,
+                                                                   &MIN_SIZE,
+                                                                   &MAX_SIZE),
+            SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+            SPA_FORMAT_VIDEO_maxFramerate,
+            SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
+                                           &MIN_FRAME_RATE,
+                                           &MAX_FRAME_RATE),
+            0);
+          params[n_params++] = push_format_object (
+            &pod_builder,
+            SPA_VIDEO_FORMAT_BGRx, NULL, 0,
+            SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&DEFAULT_SIZE,
+                                                                   &MIN_SIZE,
+                                                                   &MAX_SIZE),
+            SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+            SPA_FORMAT_VIDEO_maxFramerate,
+            SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
+                                           &MIN_FRAME_RATE,
+                                           &MAX_FRAME_RATE),
+            0);
+        }
+      else
+#endif /* HAVE_NATIVE_BACKEND */
+        {
+          params[n_params++] = push_format_object (
+            &pod_builder,
+            SPA_VIDEO_FORMAT_BGRx, NULL, 0,
+            SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&DEFAULT_SIZE,
+                                                                   &MIN_SIZE,
+                                                                   &MAX_SIZE),
+            SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+            SPA_FORMAT_VIDEO_maxFramerate,
+            SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
+                                           &MIN_FRAME_RATE,
+                                           &MAX_FRAME_RATE),
+            0);
+        }
     }
 
   pw_stream_add_listener (pipewire_stream,
@@ -1026,7 +1104,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
                               SPA_ID_INVALID,
                               (PW_STREAM_FLAG_DRIVER |
                                PW_STREAM_FLAG_ALLOC_BUFFERS),
-                              params, G_N_ELEMENTS (params));
+                              params, n_params);
   if (result != 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
