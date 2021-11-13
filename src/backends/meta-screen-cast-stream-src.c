@@ -34,6 +34,10 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+#ifdef HAVE_NATIVE_BACKEND
+#include <drm_fourcc.h>
+#endif
+
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-stream.h"
 #include "clutter/clutter-mutter.h"
@@ -104,6 +108,61 @@ typedef struct _MetaScreenCastStreamSrcPrivate
 
   GHashTable *dmabuf_handles;
 } MetaScreenCastStreamSrcPrivate;
+
+static struct spa_pod *
+push_format_object (struct spa_pod_builder *pod_builder,
+                    enum spa_video_format   format,
+                    uint64_t               *modifiers,
+                    int                     n_modifiers,
+                    ...)
+{
+  struct spa_pod_frame pod_frames[2];
+  va_list args;
+
+  spa_pod_builder_push_object (pod_builder, &pod_frames[0],
+                               SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat);
+  spa_pod_builder_add (pod_builder,
+                       SPA_FORMAT_mediaType,
+                       SPA_POD_Id (SPA_MEDIA_TYPE_video),
+                       0);
+  spa_pod_builder_add (pod_builder,
+                       SPA_FORMAT_mediaSubtype,
+                       SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
+                       0);
+  spa_pod_builder_add (pod_builder,
+                       SPA_FORMAT_VIDEO_format, SPA_POD_Id (format),
+                       0);
+#ifdef HAVE_NATIVE_BACKEND
+  if (n_modifiers == 1 && modifiers[0] == DRM_FORMAT_MOD_INVALID)
+    {
+      spa_pod_builder_prop (pod_builder,
+                            SPA_FORMAT_VIDEO_modifier,
+                            SPA_POD_PROP_FLAG_MANDATORY);
+      spa_pod_builder_long (pod_builder, modifiers[0]);
+    }
+  else if (n_modifiers > 0)
+    {
+      int i;
+
+      spa_pod_builder_prop (pod_builder,
+                            SPA_FORMAT_VIDEO_modifier,
+                            (SPA_POD_PROP_FLAG_MANDATORY |
+                             SPA_POD_PROP_FLAG_DONT_FIXATE));
+      spa_pod_builder_push_choice (pod_builder, &pod_frames[1],
+                                   SPA_CHOICE_Enum,
+                                   0);
+      spa_pod_builder_long (pod_builder, modifiers[0]);
+      for (i = 0; i < n_modifiers; i++)
+        spa_pod_builder_long (pod_builder, modifiers[i]);
+      spa_pod_builder_pop (pod_builder, &pod_frames[1]);
+    }
+#endif /* HAVE_NATIVE_BACKEND */
+
+  va_start (args, n_modifiers);
+  spa_pod_builder_addv (pod_builder, args);
+  va_end (args);
+  return spa_pod_builder_pop (pod_builder, &pod_frames[0]);
+}
 
 static void
 meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface);
@@ -929,36 +988,32 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
       max_framerate = SPA_FRACTION (frame_rate_fraction.num,
                                     frame_rate_fraction.denom);
 
-      params[0] = spa_pod_builder_add_object (
+      params[0] = push_format_object (
         &pod_builder,
-        SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
-        SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
-        SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
-        SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
+        SPA_VIDEO_FORMAT_BGRx, NULL, 0,
         SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&SPA_RECTANGLE (width,
                                                                   height)),
         SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
         SPA_FORMAT_VIDEO_maxFramerate,
-          SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
-                                         &min_framerate,
-                                         &max_framerate));
+        SPA_POD_CHOICE_RANGE_Fraction (&max_framerate,
+                                       &min_framerate,
+                                       &max_framerate),
+        0);
     }
   else
     {
-      params[0] = spa_pod_builder_add_object (
+      params[0] = push_format_object (
         &pod_builder,
-        SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
-        SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
-        SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
-        SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
+        SPA_VIDEO_FORMAT_BGRx, NULL, 0,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&DEFAULT_SIZE,
                                                                &MIN_SIZE,
                                                                &MAX_SIZE),
         SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
         SPA_FORMAT_VIDEO_maxFramerate,
-          SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
-                                         &MIN_FRAME_RATE,
-                                         &MAX_FRAME_RATE));
+        SPA_POD_CHOICE_RANGE_Fraction (&DEFAULT_FRAME_RATE,
+                                       &MIN_FRAME_RATE,
+                                       &MAX_FRAME_RATE),
+        0);
     }
 
   pw_stream_add_listener (pipewire_stream,
