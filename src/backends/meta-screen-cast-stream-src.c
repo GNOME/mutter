@@ -772,6 +772,7 @@ on_stream_param_changed (void                 *data,
   struct spa_pod_builder pod_builder;
   const struct spa_pod *params[3];
   const int bpp = 4;
+  int buffer_types;
 
   if (!format || id != SPA_PARAM_Format)
     return;
@@ -788,6 +789,11 @@ on_stream_param_changed (void                 *data,
 
   pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
 
+  if (!spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier))
+    buffer_types = 1 << SPA_DATA_MemFd;
+  else
+    buffer_types = 1 << SPA_DATA_DmaBuf;
+
   params[0] = spa_pod_builder_add_object (
     &pod_builder,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
@@ -795,7 +801,8 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (1),
     SPA_PARAM_BUFFERS_size, SPA_POD_Int (size),
     SPA_PARAM_BUFFERS_stride, SPA_POD_Int (stride),
-    SPA_PARAM_BUFFERS_align, SPA_POD_Int (16));
+    SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
+    SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types));
 
   params[1] = spa_pod_builder_add_object (
     &pod_builder,
