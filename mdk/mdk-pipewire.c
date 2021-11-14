@@ -45,7 +45,7 @@ typedef struct _MdkPipeWireSource
 {
   GSource base;
 
-  struct pw_loop *pipewire_loop;
+  MdkPipewire *pipewire;
 } MdkPipeWireSource;
 
 struct _MdkPipewire
@@ -53,6 +53,7 @@ struct _MdkPipewire
   GObject parent;
 
   GSource *source;
+  struct pw_loop *pipewire_loop;
   struct pw_context *pipewire_context;
   struct pw_core *pipewire_core;
   struct spa_hook pipewire_core_listener;
@@ -68,48 +69,30 @@ pipewire_loop_source_dispatch (GSource     *source,
   MdkPipeWireSource *pipewire_source = (MdkPipeWireSource *) source;
   int result;
 
-  result = pw_loop_iterate (pipewire_source->pipewire_loop, 0);
+  result = pw_loop_iterate (pipewire_source->pipewire->pipewire_loop, 0);
   if (result < 0)
     g_warning ("pipewire_loop_iterate failed: %s", spa_strerror (result));
 
   return TRUE;
 }
 
-static void
-pipewire_loop_source_finalize (GSource *source)
-{
-  MdkPipeWireSource *pipewire_source = (MdkPipeWireSource *) source;
-
-  pw_loop_leave (pipewire_source->pipewire_loop);
-  pw_loop_destroy (pipewire_source->pipewire_loop);
-}
-
 static GSourceFuncs pipewire_source_funcs =
 {
   .dispatch = pipewire_loop_source_dispatch,
-  .finalize = pipewire_loop_source_finalize,
 };
 
 static MdkPipeWireSource *
-create_pipewire_source (void)
+create_pipewire_source (MdkPipewire *pipewire)
 {
   MdkPipeWireSource *pipewire_source;
 
   pipewire_source =
     (MdkPipeWireSource *) g_source_new (&pipewire_source_funcs,
                                         sizeof (MdkPipeWireSource));
-  pipewire_source->pipewire_loop = pw_loop_new (NULL);
-  if (!pipewire_source->pipewire_loop)
-    {
-      g_source_unref ((GSource *) pipewire_source);
-      return NULL;
-    }
-
+  pipewire_source->pipewire = pipewire;
   g_source_add_unix_fd (&pipewire_source->base,
-                        pw_loop_get_fd (pipewire_source->pipewire_loop),
+                        pw_loop_get_fd (pipewire->pipewire_loop),
                         G_IO_IN | G_IO_ERR);
-
-  pw_loop_enter (pipewire_source->pipewire_loop);
 
   return pipewire_source;
 }
@@ -146,6 +129,12 @@ mdk_pipewire_finalize (GObject *object)
   g_clear_pointer (&pipewire->pipewire_core, pw_core_disconnect);
   g_clear_pointer (&pipewire->pipewire_context, pw_context_destroy);
   g_clear_pointer (&pipewire->source, g_source_destroy);
+
+  if (pipewire->pipewire_loop)
+    {
+      pw_loop_leave (pipewire->pipewire_loop);
+      pw_loop_destroy (pipewire->pipewire_loop);
+    }
 
   G_OBJECT_CLASS (mdk_pipewire_parent_class)->finalize (object);
 }
@@ -194,7 +183,17 @@ mdk_pipewire_new (MdkContext  *context,
 
   pipewire = g_object_new (MDK_TYPE_PIPEWIRE, NULL);
 
-  pipewire_source = create_pipewire_source ();
+  pipewire->pipewire_loop = pw_loop_new (NULL);
+  if (!pipewire->pipewire_loop)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create pipewire loop");
+      return NULL;
+    }
+
+  pw_loop_enter (pipewire->pipewire_loop);
+
+  pipewire_source = create_pipewire_source (pipewire);
   if (!pipewire_source)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -205,7 +204,7 @@ mdk_pipewire_new (MdkContext  *context,
   g_source_attach (pipewire->source, NULL);
   g_source_unref (pipewire->source);
 
-  pipewire->pipewire_context = pw_context_new (pipewire_source->pipewire_loop,
+  pipewire->pipewire_context = pw_context_new (pipewire->pipewire_loop,
                                                NULL, 0);
   if (!pipewire->pipewire_context)
     {
@@ -240,7 +239,5 @@ mdk_pipewire_get_core (MdkPipewire *pipewire)
 struct pw_loop *
 mdk_pipewire_get_loop (MdkPipewire *pipewire)
 {
-  MdkPipeWireSource *source = (MdkPipeWireSource *) pipewire->source;
-
-  return source->pipewire_loop;
+  return pipewire->pipewire_loop;
 }
