@@ -97,6 +97,7 @@
 #include "clutter-timeline.h"
 #include "deprecated/clutter-timeline.h"
 
+#include "clutter-actor-private.h"
 #include "clutter-debug.h"
 #include "clutter-easing.h"
 #include "clutter-enum-types.h"
@@ -428,7 +429,10 @@ update_frame_clock (ClutterTimeline *timeline)
   if (!stage)
     {
       if (priv->is_playing)
-        g_warning ("Timelines with detached actors are not supported");
+        g_warning ("Timelines with detached actors are not supported. "
+                   "%s in animation of duration %ums but not on stage.",
+                   _clutter_actor_get_debug_name (priv->actor),
+                   priv->duration);
       goto out;
     }
 
