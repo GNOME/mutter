@@ -74,13 +74,6 @@ static const GDebugKey meta_debug_keys[] = {
   { "render", META_DEBUG_RENDER },
 };
 
-#ifdef WITH_VERBOSE_MODE
-static void
-meta_topic_real_valist (MetaDebugTopic topic,
-                        const char    *format,
-                        va_list        args) G_GNUC_PRINTF(2, 0);
-#endif
-
 static gint verbose_topics = 0;
 static gboolean is_wayland_compositor = FALSE;
 static int debug_paint_flags = 0;
@@ -264,16 +257,6 @@ utf8_fputs (const char *str,
 }
 
 #ifdef WITH_VERBOSE_MODE
-void
-meta_verbose_real (const char *format, ...)
-{
-  va_list args;
-
-  va_start (args, format);
-  meta_topic_real_valist (META_DEBUG_VERBOSE, format, args);
-  va_end (args);
-}
-
 const char *
 meta_topic_to_string (MetaDebugTopic topic)
 {
@@ -338,8 +321,6 @@ meta_topic_to_string (MetaDebugTopic topic)
   return "WM";
 }
 
-static int sync_count = 0;
-
 gboolean
 meta_is_topic_enabled (MetaDebugTopic topic)
 {
@@ -350,51 +331,6 @@ meta_is_topic_enabled (MetaDebugTopic topic)
     return FALSE;
 
   return !!(verbose_topics & topic);
-}
-
-static void
-meta_topic_real_valist (MetaDebugTopic topic,
-                        const char    *format,
-                        va_list        args)
-{
-  gchar *str;
-  FILE *out;
-
-  g_return_if_fail (format != NULL);
-
-  if (!meta_is_topic_enabled (topic))
-    return;
-
-  str = g_strdup_vprintf (format, args);
-
-  out = logfile ? logfile : stderr;
-
-  fprintf (out, "%s: ", meta_topic_to_string (topic));
-
-  if (topic == META_DEBUG_SYNC)
-    {
-      ++sync_count;
-      fprintf (out, "%d: ", sync_count);
-    }
-
-  utf8_fputs (str, out);
-  utf8_fputs ("\n", out);
-
-  fflush (out);
-
-  g_free (str);
-}
-
-void
-meta_topic_real (MetaDebugTopic topic,
-                 const char *format,
-                 ...)
-{
-  va_list args;
-
-  va_start (args, format);
-  meta_topic_real_valist (topic, format, args);
-  va_end (args);
 }
 #endif /* WITH_VERBOSE_MODE */
 

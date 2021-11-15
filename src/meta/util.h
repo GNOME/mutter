@@ -39,10 +39,6 @@ META_EXPORT
 gboolean meta_is_wayland_compositor (void);
 
 META_EXPORT
-void meta_verbose_real    (const char *format,
-                           ...) G_GNUC_PRINTF (1, 2);
-
-META_EXPORT
 void meta_bug        (const char *format,
                       ...) G_GNUC_PRINTF (1, 2);
 
@@ -126,11 +122,6 @@ typedef enum
 
 META_EXPORT
 gboolean meta_is_topic_enabled (MetaDebugTopic topic);
-
-META_EXPORT
-void meta_topic_real      (MetaDebugTopic topic,
-                           const char    *format,
-                           ...) G_GNUC_PRINTF (2, 3);
 
 META_EXPORT
 void meta_add_verbose_topic    (MetaDebugTopic topic);
