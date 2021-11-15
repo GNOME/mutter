@@ -57,6 +57,8 @@ struct _MdkPipewire
   struct pw_context *pipewire_context;
   struct pw_core *pipewire_core;
   struct spa_hook pipewire_core_listener;
+
+  GList *main_contexts;
 };
 
 G_DEFINE_FINAL_TYPE (MdkPipewire, mdk_pipewire, G_TYPE_OBJECT)
@@ -172,12 +174,43 @@ ensure_initialized (void)
   is_pipewire_initialized = TRUE;
 }
 
+static void
+mdk_pipewire_create_source (MdkPipewire *pipewire)
+{
+  MdkPipeWireSource *pipewire_source;
+  GMainContext *main_context;
+
+  g_return_if_fail (!pipewire->source);
+
+  pipewire_source = create_pipewire_source (pipewire);
+  pipewire->source = (GSource *) pipewire_source;
+
+  main_context = pipewire->main_contexts ?
+    g_list_first (pipewire->main_contexts)->data : NULL;
+  g_source_attach (pipewire->source, main_context);
+  g_source_unref (pipewire->source);
+}
+
+static void
+mdk_pipewire_destroy_source (MdkPipewire *pipewire)
+{
+  g_return_if_fail (pipewire->source);
+
+  g_clear_pointer (&pipewire->source, g_source_destroy);
+}
+
+static void
+mdk_pipewire_reset_source (MdkPipewire *pipewire)
+{
+  mdk_pipewire_destroy_source (pipewire);
+  mdk_pipewire_create_source (pipewire);
+}
+
 MdkPipewire *
 mdk_pipewire_new (MdkContext  *context,
                   GError     **error)
 {
   g_autoptr (MdkPipewire) pipewire = NULL;
-  MdkPipeWireSource *pipewire_source;
 
   ensure_initialized ();
 
@@ -193,16 +226,7 @@ mdk_pipewire_new (MdkContext  *context,
 
   pw_loop_enter (pipewire->pipewire_loop);
 
-  pipewire_source = create_pipewire_source (pipewire);
-  if (!pipewire_source)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to create PipeWire source");
-      return NULL;
-    }
-  pipewire->source = (GSource *) pipewire_source;
-  g_source_attach (pipewire->source, NULL);
-  g_source_unref (pipewire->source);
+  mdk_pipewire_create_source (pipewire);
 
   pipewire->pipewire_context = pw_context_new (pipewire->pipewire_loop,
                                                NULL, 0);
@@ -240,4 +264,28 @@ struct pw_loop *
 mdk_pipewire_get_loop (MdkPipewire *pipewire)
 {
   return pipewire->pipewire_loop;
+}
+
+void
+mdk_pipewire_push_main_context (MdkPipewire  *pipewire,
+                                GMainContext *main_context)
+{
+  g_return_if_fail (!g_list_find (pipewire->main_contexts, main_context));
+
+  pipewire->main_contexts = g_list_prepend (pipewire->main_contexts,
+                                            main_context);
+  mdk_pipewire_reset_source (pipewire);
+}
+
+void
+mdk_pipewire_pop_main_context (MdkPipewire  *pipewire,
+                               GMainContext *main_context)
+{
+  g_return_if_fail (pipewire->main_contexts);
+  g_return_if_fail (g_list_find (pipewire->main_contexts, main_context) ==
+                    g_list_first (pipewire->main_contexts));
+
+  pipewire->main_contexts = g_list_remove (pipewire->main_contexts,
+                                           main_context);
+  mdk_pipewire_reset_source (pipewire);
 }

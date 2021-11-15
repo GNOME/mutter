@@ -32,3 +32,9 @@ MdkPipewire * mdk_pipewire_new (MdkContext  *context,
 struct pw_core * mdk_pipewire_get_core (MdkPipewire *pipewire);
 
 struct pw_loop * mdk_pipewire_get_loop (MdkPipewire *pipewire);
+
+void mdk_pipewire_push_main_context (MdkPipewire  *pipewire,
+                                     GMainContext *main_context);
+
+void mdk_pipewire_pop_main_context (MdkPipewire  *pipewire,
+                                    GMainContext *main_context);
