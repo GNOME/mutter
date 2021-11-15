@@ -881,24 +881,32 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
 #ifdef WITH_VERBOSE_MODE
   if (meta_is_verbose ())
     {
+      g_autoptr (GString) str = NULL;
+
+      str = g_string_new ("Workspace layout:");
       r = 0;
       while (r < layout->rows)
         {
-          meta_verbose (" ");
-          meta_push_no_msg_prefix ();
+          g_string_append (str, "\n");
           c = 0;
           while (c < layout->cols)
             {
               if (r == layout->current_row &&
                   c == layout->current_col)
-                meta_verbose ("*%2d ", layout->grid[r*layout->cols+c]);
+                {
+                  g_string_append_printf (str, "*%2d ",
+                                          layout->grid[r * layout->cols + c]);
+                }
               else
-                meta_verbose ("%3d ", layout->grid[r*layout->cols+c]);
+                {
+                  g_string_append_printf (str, "%3d ",
+                                          layout->grid[r * layout->cols + c]);
+                }
               ++c;
             }
-          meta_pop_no_msg_prefix ();
           ++r;
         }
+      meta_verbose ("%s", str->str);
     }
 #endif /* WITH_VERBOSE_MODE */
 }

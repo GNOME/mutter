@@ -231,13 +231,11 @@ stack_dump (MetaStackTracker *tracker,
 {
   guint i;
 
-  meta_push_no_msg_prefix ();
   for (i = 0; i < stack->len; i++)
     {
       guint64 window = g_array_index (stack, guint64, i);
       meta_topic (META_DEBUG_STACK, "    %s", get_window_desc (tracker, window));
     }
-  meta_pop_no_msg_prefix ();
 }
 #endif /* WITH_VERBOSE_MODE */
 
@@ -248,7 +246,6 @@ meta_stack_tracker_dump (MetaStackTracker *tracker)
   GList *l;
 
   meta_topic (META_DEBUG_STACK, "MetaStackTracker state");
-  meta_push_no_msg_prefix ();
   meta_topic (META_DEBUG_STACK, "  xserver_serial: %ld", tracker->xserver_serial);
   meta_topic (META_DEBUG_STACK, "  verified_stack: ");
   stack_dump (tracker, tracker->verified_stack);
@@ -264,7 +261,6 @@ meta_stack_tracker_dump (MetaStackTracker *tracker)
       meta_topic (META_DEBUG_STACK, "  predicted_stack: ");
       stack_dump (tracker, tracker->predicted_stack);
     }
-  meta_pop_no_msg_prefix ();
 #endif /* WITH_VERBOSE_MODE */
 }
 

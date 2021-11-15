@@ -82,7 +82,6 @@ meta_topic_real_valist (MetaDebugTopic topic,
 #endif
 
 static gint verbose_topics = 0;
-static int no_prefix = 0;
 static gboolean is_wayland_compositor = FALSE;
 static int debug_paint_flags = 0;
 
@@ -370,8 +369,7 @@ meta_topic_real_valist (MetaDebugTopic topic,
 
   out = logfile ? logfile : stderr;
 
-  if (no_prefix == 0)
-    fprintf (out, "%s: ", topic_name (topic));
+  fprintf (out, "%s: ", topic_name (topic));
 
   if (topic == META_DEBUG_SYNC)
     {
@@ -419,8 +417,7 @@ meta_bug (const char *format, ...)
   out = stderr;
 #endif
 
-  if (no_prefix == 0)
-    utf8_fputs ("Bug in window manager: ", out);
+  utf8_fputs ("Bug in window manager: ", out);
   utf8_fputs (str, out);
   utf8_fputs ("\n", out);
 
@@ -451,8 +448,7 @@ meta_warning (const char *format, ...)
   out = stderr;
 #endif
 
-  if (no_prefix == 0)
-    utf8_fputs ("Window manager warning: ", out);
+  utf8_fputs ("Window manager warning: ", out);
   utf8_fputs (str, out);
   utf8_fputs ("\n", out);
 
@@ -482,8 +478,7 @@ meta_fatal (const char *format, ...)
   out = stderr;
 #endif
 
-  if (no_prefix == 0)
-    utf8_fputs ("Window manager error: ", out);
+  utf8_fputs ("Window manager error: ", out);
   utf8_fputs (str, out);
   utf8_fputs ("\n", out);
 
@@ -492,20 +487,6 @@ meta_fatal (const char *format, ...)
   g_free (str);
 
   meta_exit (META_EXIT_ERROR);
-}
-
-void
-meta_push_no_msg_prefix (void)
-{
-  ++no_prefix;
-}
-
-void
-meta_pop_no_msg_prefix (void)
-{
-  g_return_if_fail (no_prefix > 0);
-
-  --no_prefix;
 }
 
 void

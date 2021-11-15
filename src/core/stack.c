@@ -86,7 +86,6 @@ on_stack_changed (MetaStack *stack)
   hidden_stack_ids = g_array_new (FALSE, FALSE, sizeof (uint64_t));
 
   meta_topic (META_DEBUG_STACK, "Bottom to top: ");
-  meta_push_no_msg_prefix ();
 
   sorted = meta_stack_list_windows (stack, NULL);
 
@@ -123,8 +122,6 @@ on_stack_changed (MetaStack *stack)
 
       g_array_append_val (all_root_children_stacked, stack_id);
     }
-
-  meta_pop_no_msg_prefix ();
 
   if (display->x11_display)
     {
