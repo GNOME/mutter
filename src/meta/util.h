@@ -179,14 +179,6 @@ GPid meta_show_dialog (const char *type,
 
 const char * meta_topic_to_string (MetaDebugTopic topic);
 
-#define meta_verbose(...) \
-  G_STMT_START \
-    { \
-      if (meta_is_topic_enabled (META_DEBUG_VERBOSE)) \
-        meta_verbose_real (__VA_ARGS__); \
-    } \
-  G_STMT_END
-
 #define meta_topic(debug_topic, ...) \
   G_STMT_START \
     { \
@@ -196,6 +188,8 @@ const char * meta_topic_to_string (MetaDebugTopic topic);
         } \
     } \
   G_STMT_END
+
+#define meta_verbose(...) meta_topic (META_DEBUG_VERBOSE, __VA_ARGS__)
 
 #else
 
