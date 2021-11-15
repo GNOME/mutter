@@ -74,6 +74,8 @@ typedef struct _MetaCursorTrackerPrivate
   MetaCursorSprite *window_cursor;
 
   MetaCursorSprite *root_cursor;
+
+  GList *cursor_sprites;
 } MetaCursorTrackerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
@@ -531,4 +533,33 @@ meta_cursor_tracker_get_backend (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
 
   return priv->backend;
+}
+
+void
+meta_cursor_tracker_register_cursor_sprite (MetaCursorTracker *tracker,
+                                            MetaCursorSprite  *sprite)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  priv->cursor_sprites = g_list_prepend (priv->cursor_sprites, sprite);
+}
+
+void
+meta_cursor_tracker_unregister_cursor_sprite (MetaCursorTracker *tracker,
+                                              MetaCursorSprite  *sprite)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  priv->cursor_sprites = g_list_remove (priv->cursor_sprites, sprite);
+}
+
+GList *
+meta_cursor_tracker_peek_cursor_sprites (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  return priv->cursor_sprites;
 }

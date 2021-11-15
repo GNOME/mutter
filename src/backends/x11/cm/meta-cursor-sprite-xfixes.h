@@ -30,7 +30,8 @@ G_DECLARE_FINAL_TYPE (MetaCursorSpriteXfixes,
                       META, CURSOR_SPRITE_XFIXES,
                       MetaCursorSprite)
 
-MetaCursorSpriteXfixes * meta_cursor_sprite_xfixes_new (MetaDisplay  *display,
-                                                        GError      **error);
+MetaCursorSpriteXfixes * meta_cursor_sprite_xfixes_new (MetaDisplay        *display,
+                                                        MetaCursorTracker  *cursor_tracker,
+                                                        GError            **error);
 
 #endif /* META_CURSOR_SPRITE_XFIXES_H */
