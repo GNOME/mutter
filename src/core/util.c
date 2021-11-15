@@ -274,8 +274,8 @@ meta_verbose_real (const char *format, ...)
   va_end (args);
 }
 
-static const char*
-topic_name (MetaDebugTopic topic)
+const char *
+meta_topic_to_string (MetaDebugTopic topic)
 {
   switch (topic)
     {
@@ -369,7 +369,7 @@ meta_topic_real_valist (MetaDebugTopic topic,
 
   out = logfile ? logfile : stderr;
 
-  fprintf (out, "%s: ", topic_name (topic));
+  fprintf (out, "%s: ", meta_topic_to_string (topic));
 
   if (topic == META_DEBUG_SYNC)
     {

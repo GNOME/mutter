@@ -177,6 +177,8 @@ GPid meta_show_dialog (const char *type,
 /* To disable verbose mode, we make these functions into no-ops */
 #ifdef WITH_VERBOSE_MODE
 
+const char * meta_topic_to_string (MetaDebugTopic topic);
+
 #define meta_verbose(...) \
   G_STMT_START \
     { \
@@ -185,11 +187,13 @@ GPid meta_show_dialog (const char *type,
     } \
   G_STMT_END
 
-#define meta_topic(debug_topic,...) \
+#define meta_topic(debug_topic, ...) \
   G_STMT_START \
     { \
       if (meta_is_topic_enabled (debug_topic)) \
-        meta_topic_real (debug_topic, __VA_ARGS__); \
+        { \
+          g_message (__VA_ARGS__); \
+        } \
     } \
   G_STMT_END
 
