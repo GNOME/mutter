@@ -102,12 +102,14 @@ meta_cursor_sprite_xfixes_set_property (GObject      *object,
 }
 
 MetaCursorSpriteXfixes *
-meta_cursor_sprite_xfixes_new (MetaDisplay  *display,
-                               GError      **error)
+meta_cursor_sprite_xfixes_new (MetaDisplay        *display,
+                               MetaCursorTracker  *cursor_tracker,
+                               GError            **error)
 {
   return g_initable_new (META_TYPE_CURSOR_SPRITE_XFIXES,
                          NULL, error,
                          "display", display,
+                         "cursor-tracker", cursor_tracker,
                          NULL);
 }
 

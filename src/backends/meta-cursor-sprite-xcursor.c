@@ -326,11 +326,14 @@ meta_cursor_sprite_xcursor_realize_texture (MetaCursorSprite *sprite)
 }
 
 MetaCursorSpriteXcursor *
-meta_cursor_sprite_xcursor_new (MetaCursor cursor)
+meta_cursor_sprite_xcursor_new (MetaCursor         cursor,
+                                MetaCursorTracker *cursor_tracker)
 {
   MetaCursorSpriteXcursor *sprite_xcursor;
 
-  sprite_xcursor = g_object_new (META_TYPE_CURSOR_SPRITE_XCURSOR, NULL);
+  sprite_xcursor = g_object_new (META_TYPE_CURSOR_SPRITE_XCURSOR,
+                                 "cursor-tracker", cursor_tracker,
+                                 NULL);
   sprite_xcursor->cursor = cursor;
 
   return sprite_xcursor;

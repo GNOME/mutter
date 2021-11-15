@@ -24,6 +24,7 @@
 #include "backends/meta-cursor.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-tracker-private.h"
 #include "cogl/cogl.h"
 #include "meta/common.h"
 
@@ -37,6 +38,17 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
+enum
+{
+  PROP_0,
+
+  PROP_CURSOR_TRACKER,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct _MetaCursorSpritePrivate
 {
   GObject parent;
@@ -45,6 +57,8 @@ typedef struct _MetaCursorSpritePrivate
   float texture_scale;
   MetaMonitorTransform texture_transform;
   int hot_x, hot_y;
+
+  MetaCursorTracker *cursor_tracker;
 } MetaCursorSpritePrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCursorSprite,
@@ -204,6 +218,22 @@ meta_cursor_sprite_init (MetaCursorSprite *sprite)
 }
 
 static void
+meta_cursor_sprite_constructed (GObject *object)
+{
+  MetaCursorSprite *sprite = META_CURSOR_SPRITE (object);
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  g_assert (priv->cursor_tracker);
+
+  meta_cursor_tracker_register_cursor_sprite (priv->cursor_tracker, sprite);
+
+  g_clear_pointer (&priv->texture, cogl_object_unref);
+
+  G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->constructed (object);
+}
+
+static void
 meta_cursor_sprite_finalize (GObject *object)
 {
   MetaCursorSprite *sprite = META_CURSOR_SPRITE (object);
@@ -212,7 +242,30 @@ meta_cursor_sprite_finalize (GObject *object)
 
   g_clear_pointer (&priv->texture, cogl_object_unref);
 
+  meta_cursor_tracker_unregister_cursor_sprite (priv->cursor_tracker, sprite);
+
   G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->finalize (object);
+}
+
+static void
+meta_cursor_tracker_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaCursorSprite *sprite = META_CURSOR_SPRITE (object);
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  switch (prop_id)
+    {
+    case PROP_CURSOR_TRACKER:
+      priv->cursor_tracker = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -220,7 +273,19 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->constructed = meta_cursor_sprite_constructed;
   object_class->finalize = meta_cursor_sprite_finalize;
+  object_class->set_property = meta_cursor_tracker_set_property;
+
+  obj_props[PROP_CURSOR_TRACKER] =
+    g_param_spec_object ("cursor-tracker",
+                         "cursor tracker",
+                         "MetaCursorTracker",
+                         META_TYPE_CURSOR_TRACKER,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[PREPARE_AT] = g_signal_new ("prepare-at",
                                       G_TYPE_FROM_CLASS (object_class),

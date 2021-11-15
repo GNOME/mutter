@@ -77,12 +77,16 @@ static gboolean
 ensure_xfixes_cursor (MetaCursorTrackerX11 *tracker_x11)
 {
   MetaDisplay *display = meta_get_display ();
+  MetaCursorTracker *cursor_tracker;
   g_autoptr (GError) error = NULL;
 
   if (tracker_x11->xfixes_cursor)
     return FALSE;
 
-  tracker_x11->xfixes_cursor = meta_cursor_sprite_xfixes_new (display, &error);
+  cursor_tracker = META_CURSOR_TRACKER (tracker_x11);
+  tracker_x11->xfixes_cursor = meta_cursor_sprite_xfixes_new (display,
+                                                              cursor_tracker,
+                                                              &error);
   if (!tracker_x11->xfixes_cursor)
     g_warning ("Failed to create XFIXES cursor: %s", error->message);
 

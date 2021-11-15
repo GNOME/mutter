@@ -245,6 +245,9 @@ meta_wayland_cursor_surface_constructed (GObject *object)
     META_WAYLAND_SURFACE_ROLE (cursor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandCompositor *compositor = surface->compositor;
+  MetaBackend *backend = meta_context_get_backend (compositor->context);
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   MetaWaylandBuffer *buffer;
 
   buffer = meta_wayland_surface_get_buffer (surface);
@@ -257,7 +260,8 @@ meta_wayland_cursor_surface_constructed (GObject *object)
       meta_wayland_surface_ref_buffer_use_count (surface);
     }
 
-  priv->cursor_sprite = meta_cursor_sprite_wayland_new (surface);
+  priv->cursor_sprite = meta_cursor_sprite_wayland_new (surface,
+                                                        cursor_tracker);
   g_signal_connect_object (priv->cursor_sprite,
                            "prepare-at",
                            G_CALLBACK (cursor_sprite_prepare_at),

@@ -28,7 +28,8 @@
 G_DECLARE_FINAL_TYPE (MetaCursorSpriteWayland, meta_cursor_sprite_wayland,
                       META, CURSOR_SPRITE_WAYLAND, MetaCursorSprite)
 
-MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface);
+MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface,
+                                                          MetaCursorTracker  *cursor_tracker);
 
 MetaWaylandBuffer * meta_cursor_sprite_wayland_get_buffer (MetaCursorSpriteWayland *sprite_wayland);
 

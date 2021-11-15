@@ -1740,7 +1740,7 @@ meta_display_reload_cursor (MetaDisplay *display)
   MetaBackend *backend = meta_get_backend ();
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
-  sprite_xcursor = meta_cursor_sprite_xcursor_new (cursor);
+  sprite_xcursor = meta_cursor_sprite_xcursor_new (cursor, cursor_tracker);
 
   if (meta_is_wayland_compositor ())
     manage_root_cursor_sprite_scale (display, sprite_xcursor);

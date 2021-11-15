@@ -43,11 +43,14 @@ meta_cursor_sprite_wayland_is_animated (MetaCursorSprite *sprite)
 }
 
 MetaCursorSpriteWayland *
-meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface)
+meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface,
+                                MetaCursorTracker  *cursor_tracker)
 {
   MetaCursorSpriteWayland *sprite_wayland;
 
-  sprite_wayland = g_object_new (META_TYPE_CURSOR_SPRITE_WAYLAND, NULL);
+  sprite_wayland = g_object_new (META_TYPE_CURSOR_SPRITE_WAYLAND,
+                                 "cursor-tracker", cursor_tracker,
+                                 NULL);
   sprite_wayland->surface = surface;
 
   return sprite_wayland;
