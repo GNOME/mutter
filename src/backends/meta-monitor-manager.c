@@ -866,6 +866,7 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
 {
   MetaOrientation orientation;
   MetaMonitorTransform transform;
+  MetaMonitorTransform panel_transform;
   GError *error = NULL;
   MetaMonitorsConfig *config;
   MetaMonitor *laptop_panel;
@@ -882,7 +883,10 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   transform = meta_monitor_transform_from_orientation (orientation);
 
   laptop_logical_monitor = meta_monitor_get_logical_monitor (laptop_panel);
-  if (meta_logical_monitor_get_transform (laptop_logical_monitor) == transform)
+  panel_transform =
+    meta_monitor_crtc_to_logical_transform (laptop_panel, transform);
+  if (meta_logical_monitor_get_transform (laptop_logical_monitor) ==
+      panel_transform)
     return;
 
   current_config =
