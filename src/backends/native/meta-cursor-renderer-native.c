@@ -1886,3 +1886,17 @@ static void
 meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
 {
 }
+
+void
+meta_cursor_renderer_native_invalidate_gpu_state (MetaCursorRendererNative *native,
+                                                  MetaCursorSprite         *cursor_sprite,
+                                                  MetaGpuKms               *gpu_kms)
+{
+  MetaCursorNativePrivate *cursor_priv;
+
+  cursor_priv = get_cursor_priv (cursor_sprite);
+  if (!cursor_priv)
+    return;
+
+  g_hash_table_remove (cursor_priv->gpu_states, gpu_kms);
+}

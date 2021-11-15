@@ -46,9 +46,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-gles3.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-virtual.h"
@@ -125,6 +127,12 @@ meta_get_renderer_native_parent_vtable (void)
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
+  MetaRenderer *renderer = META_RENDERER (renderer_gpu_data->renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaCursorRenderer *cursor_renderer;
+  MetaGpuKms *gpu_kms;
+  GList *l;
+
   if (renderer_gpu_data->secondary.egl_context != EGL_NO_CONTEXT)
     {
       MetaRenderDevice *render_device = renderer_gpu_data->render_device;
@@ -137,6 +145,27 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
                                 egl_display,
                                 renderer_gpu_data->secondary.egl_context,
                                 NULL);
+    }
+
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  gpu_kms = renderer_gpu_data->gpu_kms;
+  if (cursor_renderer && gpu_kms)
+    {
+      MetaCursorRendererNative *cursor_renderer_native =
+        META_CURSOR_RENDERER_NATIVE (cursor_renderer);
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (backend);
+      GList *cursor_sprites =
+        meta_cursor_tracker_peek_cursor_sprites (cursor_tracker);
+
+      for (l = cursor_sprites; l; l = l->next)
+        {
+          MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (l->data);
+
+          meta_cursor_renderer_native_invalidate_gpu_state (cursor_renderer_native,
+                                                            cursor_sprite,
+                                                            gpu_kms);
+        }
     }
 
   g_clear_pointer (&renderer_gpu_data->render_device, g_object_unref);
@@ -1599,6 +1628,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->render_device = META_RENDER_DEVICE (render_device_gbm);
+  renderer_gpu_data->gpu_kms = gpu_kms;
 
   init_secondary_gpu_data (renderer_gpu_data);
   return renderer_gpu_data;
@@ -1650,6 +1680,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
   renderer_gpu_data->render_device =
     META_RENDER_DEVICE (render_device_egl_stream);
+  renderer_gpu_data->gpu_kms = gpu_kms;
 
   return renderer_gpu_data;
 }
