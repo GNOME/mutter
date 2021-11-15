@@ -525,6 +525,7 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
 
   g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
 }
+
 MetaBackend *
 meta_cursor_tracker_get_backend (MetaCursorTracker *tracker)
 {
