@@ -46,9 +46,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-gles3.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-virtual.h"
@@ -121,6 +123,11 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  MetaRenderer *renderer = META_RENDERER (renderer_gpu_data->renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaCursorRenderer *cursor_renderer;
+  MetaGpuKms *gpu_kms;
+  GList *l;
 
   if (renderer_gpu_data->secondary.egl_context != EGL_NO_CONTEXT)
     {
@@ -130,11 +137,33 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
                                 NULL);
     }
 
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  gpu_kms = renderer_gpu_data->gpu_kms;
+  if (cursor_renderer && gpu_kms)
+    {
+      MetaCursorRendererNative *cursor_renderer_native =
+        META_CURSOR_RENDERER_NATIVE (cursor_renderer);
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (backend);
+      GList *cursor_sprites =
+        meta_cursor_tracker_peek_cursor_sprites (cursor_tracker);
+
+      for (l = cursor_sprites; l; l = l->next)
+        {
+          MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (l->data);
+
+          meta_cursor_renderer_native_invalidate_gpu_state (cursor_renderer_native,
+                                                            cursor_sprite,
+                                                            gpu_kms);
+        }
+    }
+
   if (renderer_gpu_data->egl_display != EGL_NO_DISPLAY)
     meta_egl_terminate (egl, renderer_gpu_data->egl_display, NULL);
 
   g_clear_pointer (&renderer_gpu_data->gbm.device, gbm_device_destroy);
   g_clear_pointer (&renderer_gpu_data->device_file, meta_device_file_release);
+
   g_free (renderer_gpu_data);
 }
 
@@ -1588,6 +1617,7 @@ init_gbm_egl_display (MetaRendererNative  *renderer_native,
 
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
+                              MetaGpuKms          *gpu_kms,
                               MetaDeviceFile      *device_file,
                               GError             **error)
 {
@@ -1607,6 +1637,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data = meta_create_renderer_native_gpu_data ();
   renderer_gpu_data->device_file = meta_device_file_acquire (device_file);
   renderer_gpu_data->renderer_native = renderer_native;
+  renderer_gpu_data->gpu_kms = gpu_kms;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
 
@@ -1813,6 +1844,7 @@ count_drm_devices (MetaRendererNative *renderer_native)
 
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
+                                     MetaGpuKms          *gpu_kms,
                                      MetaDeviceFile      *device_file,
                                      GError             **error)
 {
@@ -1873,6 +1905,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
   renderer_gpu_data->egl.device = egl_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
   renderer_gpu_data->egl_display = egl_display;
+  renderer_gpu_data->gpu_kms = gpu_kms;
 
   return renderer_gpu_data;
 }
@@ -1911,6 +1944,7 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
     return NULL;
 
   gbm_renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
+                                                        gpu_kms,
                                                         device_file,
                                                         &gbm_error);
   if (gbm_renderer_gpu_data)
@@ -1922,6 +1956,7 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 #ifdef HAVE_EGL_DEVICE
   egl_stream_renderer_gpu_data =
     create_renderer_gpu_data_egl_device (renderer_native,
+                                         gpu_kms,
                                          device_file,
                                          &egl_device_error);
   if (egl_stream_renderer_gpu_data)

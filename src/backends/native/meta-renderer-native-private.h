@@ -50,6 +50,7 @@ typedef struct _MetaRendererNativeGpuData
   MetaRendererNative *renderer_native;
 
   MetaDeviceFile *device_file;
+  MetaGpuKms *gpu_kms;
 
   struct {
     struct gbm_device *device;
