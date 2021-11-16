@@ -334,16 +334,15 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
     cogl_framebuffer_finish (framebuffer);
 
+  cogl_framebuffer_discard_buffers (framebuffer,
+                                    COGL_BUFFER_BIT_DEPTH |
+                                    COGL_BUFFER_BIT_STENCIL);
+
   klass->swap_buffers_with_damage (onscreen,
                                    rectangles,
                                    n_rectangles,
                                    info,
                                    user_data);
-
-  cogl_framebuffer_discard_buffers (framebuffer,
-                                    COGL_BUFFER_BIT_COLOR |
-                                    COGL_BUFFER_BIT_DEPTH |
-                                    COGL_BUFFER_BIT_STENCIL);
 
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
@@ -395,16 +394,15 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
      COGL_WINSYS_FEATURE_SWAP_REGION */
   g_return_if_fail (klass->swap_region);
 
+  cogl_framebuffer_discard_buffers (framebuffer,
+                                    COGL_BUFFER_BIT_DEPTH |
+                                    COGL_BUFFER_BIT_STENCIL);
+
   klass->swap_region (onscreen,
                       rectangles,
                       n_rectangles,
                       info,
                       user_data);
-
-  cogl_framebuffer_discard_buffers (framebuffer,
-                                    COGL_BUFFER_BIT_COLOR |
-                                    COGL_BUFFER_BIT_DEPTH |
-                                    COGL_BUFFER_BIT_STENCIL);
 
   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
