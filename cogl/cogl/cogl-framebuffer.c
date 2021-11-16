@@ -1695,8 +1695,6 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
 
-  g_return_if_fail (buffers & COGL_BUFFER_BIT_COLOR);
-
   cogl_framebuffer_driver_discard_buffers (priv->driver, buffers);
 }
 
