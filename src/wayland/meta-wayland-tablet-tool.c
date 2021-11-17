@@ -553,6 +553,14 @@ sync_focus_surface (MetaWaylandTabletTool *tool,
                     const ClutterEvent    *event)
 {
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+  if (clutter_stage_get_grab_actor (stage))
+    {
+      meta_wayland_tablet_tool_set_focus (tool, NULL, event);
+      return;
+    }
 
   switch (display->event_route)
     {

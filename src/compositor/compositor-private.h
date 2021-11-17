@@ -82,6 +82,9 @@ gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
 MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
 
+void meta_compositor_grab_begin (MetaCompositor *compositor);
+void meta_compositor_grab_end (MetaCompositor *compositor);
+
 /*
  * This function takes a 64 bit time stamp from the monotonic clock, and clamps
  * it to the scope of the X server clock, without losing the granularity.

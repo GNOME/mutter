@@ -28,6 +28,7 @@
 #include "backends/meta-idle-manager.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
+#include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
@@ -65,6 +66,16 @@ stage_has_key_focus (void)
   ClutterActor *stage = meta_backend_get_stage (backend);
 
   return clutter_stage_get_key_focus (CLUTTER_STAGE (stage)) == stage;
+}
+
+static gboolean
+stage_has_grab (MetaDisplay *display)
+{
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  return clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)) != NULL;
 }
 
 static MetaWindow *
@@ -207,6 +218,31 @@ meta_display_handle_event (MetaDisplay        *display,
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
+  gboolean has_grab;
+
+  has_grab = stage_has_grab (display);
+
+  if (display->grabbed_in_clutter != has_grab)
+    {
+      MetaCompositor *compositor = meta_display_get_compositor (display);
+
+#ifdef HAVE_WAYLAND
+      if (meta_is_wayland_compositor ())
+        meta_display_sync_wayland_input_focus (display);
+#endif
+
+      if (!display->grabbed_in_clutter && has_grab)
+        {
+          display->grabbed_in_clutter = TRUE;
+          meta_display_cancel_touch (display);
+          meta_compositor_grab_begin (compositor);
+        }
+      else if (display->grabbed_in_clutter && !has_grab)
+        {
+          display->grabbed_in_clutter = FALSE;
+          meta_compositor_grab_end (compositor);
+        }
+    }
 
   sequence = clutter_event_get_event_sequence (event);
 
@@ -391,6 +427,13 @@ meta_display_handle_event (MetaDisplay        *display,
   if (display->current_pad_osd)
     {
       bypass_wayland = TRUE;
+      goto out;
+    }
+
+  if (stage_has_grab (display))
+    {
+      bypass_wayland = TRUE;
+      bypass_clutter = FALSE;
       goto out;
     }
 

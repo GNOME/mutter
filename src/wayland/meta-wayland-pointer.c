@@ -268,9 +268,11 @@ sync_focus_surface (MetaWaylandPointer *pointer)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
-      !clutter_seat_is_unfocus_inhibited (clutter_seat))
+  if (clutter_stage_get_grab_actor (stage) != NULL ||
+      (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+       !clutter_seat_is_unfocus_inhibited (clutter_seat)))
     {
       meta_wayland_pointer_set_focus (pointer, NULL);
       return;
@@ -441,8 +443,12 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   if (!meta_wayland_seat_has_pointer (seat))
+    return;
+
+  if (clutter_stage_get_grab_actor (stage) != NULL)
     return;
 
   if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&

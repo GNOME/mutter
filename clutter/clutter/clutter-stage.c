@@ -3677,7 +3677,8 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
                                      grab_actor : old_grab_actor,
                                      entry->coords,
                                      CLUTTER_CURRENT_TIME);
-      _clutter_actor_handle_event (deepmost, topmost, event);
+      if (!_clutter_event_process_filters (event))
+        _clutter_actor_handle_event (deepmost, topmost, event);
       clutter_event_free (event);
     }
 }

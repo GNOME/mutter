@@ -374,13 +374,13 @@ grab_devices (MetaModalOptions  options,
   return FALSE;
 }
 
-static void
+void
 meta_compositor_grab_begin (MetaCompositor *compositor)
 {
   META_COMPOSITOR_GET_CLASS (compositor)->grab_begin (compositor);
 }
 
-static void
+void
 meta_compositor_grab_end (MetaCompositor *compositor)
 {
   META_COMPOSITOR_GET_CLASS (compositor)->grab_end (compositor);
