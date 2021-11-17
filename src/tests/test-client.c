@@ -935,6 +935,8 @@ main(int argc, char **argv)
   GtkCssProvider *provider;
   GError *error = NULL;
 
+  g_log_writer_default_set_use_stderr (TRUE);
+
   g_option_context_add_main_entries (context, options, NULL);
 
   if (!g_option_context_parse (context,
