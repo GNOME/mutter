@@ -125,6 +125,9 @@ static MetaKmsUpdateChanges
 meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
                              MetaKmsCrtcState *other_state)
 {
+  if (state->is_active != other_state->is_active)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
   if (!meta_rectangle_equal (&state->rect, &other_state->rect))
     return META_KMS_UPDATE_CHANGE_FULL;
 
@@ -214,35 +217,29 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
       crtc_state.is_active = drm_crtc->mode_valid;
     }
 
-  if (crtc_state.is_active != crtc->current_state.is_active)
+  if (!crtc_state.is_active)
     {
-      changes |= META_KMS_UPDATE_CHANGE_FULL;
+      if (crtc->current_state.is_active)
+        changes |= META_KMS_UPDATE_CHANGE_FULL;
     }
-  else if (!crtc_state.is_active)
+  else
     {
-      clear_gamma_state (&crtc_state);
-      return changes;
-    }
-
-  read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
-
-  changes |= meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
-
-  if (changes == META_KMS_UPDATE_CHANGE_NONE)
-    {
-      clear_gamma_state (&crtc_state);
-      return changes;
+      read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
+      changes = meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
     }
 
   clear_gamma_state (&crtc->current_state);
   crtc->current_state = crtc_state;
 
   meta_topic (META_DEBUG_KMS,
-              "Read CRTC %u state: active: %d, mode: %s",
+              "Read CRTC %u state: active: %d, mode: %s, changed: %s",
               crtc->id, crtc->current_state.is_active,
               crtc->current_state.is_drm_mode_valid
                 ? crtc->current_state.drm_mode.name
-                : "(nil)");
+                : "(nil)",
+              changes == META_KMS_UPDATE_CHANGE_NONE
+                ? "no"
+                : "yes");
 
   return changes;
 }
