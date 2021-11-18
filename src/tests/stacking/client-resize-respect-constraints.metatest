@@ -1,0 +1,43 @@
+# Tests that constraints are applied after a client initiated resize
+#  1. Create a window that does not extend beyond the screen
+#  2. Move it to a known position 
+#  3. Resize such that the following resize will extend beyond the screen
+#  4. Check that the window was moved to the position that would allow it to fit on the screen
+
+new_client w wayland
+create w/1 csd
+
+resize w/1 500 400
+show w/1
+wait
+
+assert_size w/1 500 400
+
+move w/1 300 200
+assert_position w/1 300 200
+
+resize w/1 600 500
+wait_reconfigure
+assert_position w/1 200 100
+
+destroy w/1
+
+
+new_client x x11
+create x/1 csd
+
+resize x/1 500 400
+show x/1
+wait
+
+assert_size x/1 500 400
+
+move x/1 300 200
+assert_position x/1 300 200
+
+resize x/1 600 500
+wait_reconfigure
+assert_position x/1 200 100
+
+destroy x/1
+

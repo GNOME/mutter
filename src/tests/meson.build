@@ -293,6 +293,7 @@ stacking_tests = [
   'default-size',
   'modals',
   'map-fixed-size',
+  'client-resize-respect-constraints',
 ]
 
 foreach stacking_test: stacking_tests
