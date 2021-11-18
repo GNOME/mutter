@@ -396,7 +396,7 @@ update_connectors (MetaKmsImplDevice *impl_device,
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   g_autolist (MetaKmsConnector) connectors = NULL;
-  gboolean needs_full_change = FALSE;
+  gboolean added_connector = FALSE;
   unsigned int i;
   int fd;
 
@@ -420,7 +420,7 @@ update_connectors (MetaKmsImplDevice *impl_device,
         {
           connector = meta_kms_connector_new (impl_device, drm_connector,
                                               drm_resources);
-          needs_full_change = TRUE;
+          added_connector = TRUE;
         }
 
       drmModeFreeConnector (drm_connector);
@@ -428,7 +428,8 @@ update_connectors (MetaKmsImplDevice *impl_device,
       connectors = g_list_prepend (connectors, connector);
     }
 
-  if (!needs_full_change)
+  if (!added_connector &&
+      g_list_length (connectors) == g_list_length (priv->connectors))
     return META_KMS_UPDATE_CHANGE_NONE;
 
   g_list_free_full (priv->connectors, g_object_unref);
