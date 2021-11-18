@@ -4213,6 +4213,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   meta_stack_update_window_tile_matches (window->display->stack,
                                          workspace_manager->active_workspace);
+
+  if (flags & META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE)
+    meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 
 /**
