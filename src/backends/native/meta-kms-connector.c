@@ -138,7 +138,9 @@ sync_fd_held (MetaKmsConnector  *connector,
 {
   gboolean should_hold_fd;
 
-  should_hold_fd = connector->current_state->current_crtc_id != 0;
+  should_hold_fd =
+    connector->current_state &&
+    connector->current_state->current_crtc_id != 0;
 
   if (connector->fd_held == should_hold_fd)
     return;
@@ -569,6 +571,13 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   current_state = g_steal_pointer (&connector->current_state);
   changes = META_KMS_UPDATE_CHANGE_NONE;
 
+  if (!drm_connector)
+    {
+      if (current_state)
+        changes = META_KMS_UPDATE_CHANGE_FULL;
+      goto out;
+    }
+
   if (drm_connector->connection != DRM_MODE_CONNECTED)
     {
       if (drm_connector->connection != connector->connection)
@@ -577,7 +586,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
           changes |= META_KMS_UPDATE_CHANGE_FULL;
         }
 
-      return changes;
+      goto out;
     }
 
   state = meta_kms_connector_state_new ();
@@ -616,8 +625,8 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
       changes |= connector_changes;
     }
 
-  if (changes != META_KMS_UPDATE_CHANGE_NONE)
-    sync_fd_held (connector, impl_device);
+out:
+  sync_fd_held (connector, impl_device);
 
   return changes;
 }
@@ -634,13 +643,10 @@ meta_kms_connector_update_state (MetaKmsConnector *connector,
   drm_connector = drmModeGetConnector (meta_kms_impl_device_get_fd (impl_device),
                                        connector->id);
 
-  if (!drm_connector)
-    return META_KMS_UPDATE_CHANGE_FULL;
-
   changes = meta_kms_connector_read_state (connector, impl_device,
                                            drm_connector,
                                            drm_resources);
-  drmModeFreeConnector (drm_connector);
+  g_clear_pointer (&drm_connector, drmModeFreeConnector);
 
   return changes;
 }
