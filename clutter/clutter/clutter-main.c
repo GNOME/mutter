@@ -697,58 +697,21 @@ static inline void
 emit_pointer_event (ClutterEvent       *event,
                     ClutterInputDevice *device)
 {
-  if (device != NULL && device->pointer_grab_actor != NULL)
-    clutter_actor_event (device->pointer_grab_actor, event, FALSE);
-  else
-    emit_event_chain (event);
+  emit_event_chain (event);
 }
 
 static inline void
 emit_crossing_event (ClutterEvent       *event,
                      ClutterInputDevice *device)
 {
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterActor *grab_actor = NULL;
-
-  if (sequence)
-    {
-      if (device->sequence_grab_actors != NULL)
-        grab_actor = g_hash_table_lookup (device->sequence_grab_actors, sequence);
-    }
-  else
-    {
-      if (device != NULL && device->pointer_grab_actor != NULL)
-        grab_actor = device->pointer_grab_actor;
-    }
-
-  if (grab_actor != NULL)
-    clutter_actor_event (grab_actor, event, FALSE);
-  else
-    emit_event_chain (event);
+  emit_event_chain (event);
 }
 
 static inline void
 emit_touch_event (ClutterEvent       *event,
                   ClutterInputDevice *device)
 {
-  ClutterActor *grab_actor = NULL;
-
-  if (device->sequence_grab_actors != NULL)
-    {
-      grab_actor = g_hash_table_lookup (device->sequence_grab_actors,
-                                        event->touch.sequence);
-    }
-
-  if (grab_actor != NULL)
-    {
-      /* per-device sequence grab */
-      clutter_actor_event (grab_actor, event, FALSE);
-    }
-  else
-    {
-      /* no grab, time to capture and bubble */
-      emit_event_chain (event);
-    }
+  emit_event_chain (event);
 }
 
 static inline void
@@ -757,10 +720,7 @@ process_key_event (ClutterEvent       *event,
 {
   cally_snoop_key_event ((ClutterKeyEvent *) event);
 
-  if (device != NULL && device->keyboard_grab_actor != NULL)
-    clutter_actor_event (device->keyboard_grab_actor, event, FALSE);
-  else
-    emit_event_chain (event);
+  emit_event_chain (event);
 }
 
 static ClutterActor *

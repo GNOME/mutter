@@ -53,12 +53,6 @@ struct _ClutterInputDevice
 {
   GObject parent_instance;
 
-  /* the actor that has a grab in place for the device */
-  ClutterActor *pointer_grab_actor;
-  ClutterActor *keyboard_grab_actor;
-  GHashTable   *sequence_grab_actors;
-  GHashTable   *inv_sequence_grab_actors;
-
   /* Accessiblity */
   ClutterVirtualInputDevice *accessibility_virtual_device;
   ClutterPtrA11yData *ptr_a11y_data;

@@ -81,25 +81,6 @@ CLUTTER_EXPORT
 gboolean                clutter_input_device_get_has_cursor     (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
-void                    clutter_input_device_grab               (ClutterInputDevice  *device,
-                                                                 ClutterActor        *actor);
-CLUTTER_EXPORT
-void                    clutter_input_device_ungrab             (ClutterInputDevice  *device);
-CLUTTER_EXPORT
-ClutterActor *          clutter_input_device_get_grabbed_actor  (ClutterInputDevice  *device);
-
-CLUTTER_EXPORT
-void                    clutter_input_device_sequence_grab      (ClutterInputDevice   *device,
-                                                                 ClutterEventSequence *sequence,
-                                                                 ClutterActor         *actor);
-CLUTTER_EXPORT
-void                    clutter_input_device_sequence_ungrab    (ClutterInputDevice   *device,
-                                                                 ClutterEventSequence *sequence);
-CLUTTER_EXPORT
-ClutterActor *          clutter_input_device_sequence_get_grabbed_actor (ClutterInputDevice   *device,
-                                                                         ClutterEventSequence *sequence);
-
-CLUTTER_EXPORT
 const gchar *           clutter_input_device_get_vendor_id      (ClutterInputDevice *device);
 CLUTTER_EXPORT
 const gchar *           clutter_input_device_get_product_id     (ClutterInputDevice *device);
