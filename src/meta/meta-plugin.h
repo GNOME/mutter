@@ -332,32 +332,6 @@ void
 meta_plugin_complete_display_change (MetaPlugin *plugin,
                                      gboolean    ok);
 
-/**
- * MetaModalOptions:
- * @META_MODAL_POINTER_ALREADY_GRABBED: if set the pointer is already
- *   grabbed by the plugin and should not be grabbed again.
- * @META_MODAL_KEYBOARD_ALREADY_GRABBED: if set the keyboard is already
- *   grabbed by the plugin and should not be grabbed again.
- *
- * Options that can be provided when calling meta_plugin_begin_modal().
- */
-typedef enum
-{
-  META_MODAL_POINTER_ALREADY_GRABBED = 1 << 0,
-  META_MODAL_KEYBOARD_ALREADY_GRABBED = 1 << 1
-} MetaModalOptions;
-
-META_EXPORT
-gboolean
-meta_plugin_begin_modal (MetaPlugin      *plugin,
-                         MetaModalOptions options,
-                         guint32          timestamp);
-
-META_EXPORT
-void
-meta_plugin_end_modal (MetaPlugin *plugin,
-                       guint32     timestamp);
-
 META_EXPORT
 MetaDisplay *meta_plugin_get_display (MetaPlugin *plugin);
 

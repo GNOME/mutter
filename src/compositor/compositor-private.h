@@ -44,14 +44,6 @@ void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
 
 void meta_switch_workspace_completed (MetaCompositor *compositor);
 
-gboolean meta_begin_modal_for_plugin (MetaCompositor   *compositor,
-                                      MetaPlugin       *plugin,
-                                      MetaModalOptions  options,
-                                      guint32           timestamp);
-void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
-                                      MetaPlugin       *plugin,
-                                      guint32           timestamp);
-
 MetaPluginManager * meta_compositor_get_plugin_manager (MetaCompositor *compositor);
 
 int64_t meta_compositor_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,

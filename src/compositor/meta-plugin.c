@@ -136,58 +136,6 @@ meta_plugin_destroy_completed (MetaPlugin      *plugin,
 }
 
 /**
- * meta_plugin_begin_modal:
- * @plugin: a #MetaPlugin
- * @options: flags that modify the behavior of the modal grab
- * @timestamp: the timestamp used for establishing grabs
- *
- * This function is used to grab the keyboard and mouse for the exclusive
- * use of the plugin. Correct operation requires that both the keyboard
- * and mouse are grabbed, or thing will break. (In particular, other
- * passive X grabs in Meta can trigger but not be handled by the normal
- * keybinding handling code.) However, the plugin can establish the keyboard
- * and/or mouse grabs ahead of time and pass in the
- * %META_MODAL_POINTER_ALREADY_GRABBED and/or %META_MODAL_KEYBOARD_ALREADY_GRABBED
- * options. This facility is provided for two reasons: first to allow using
- * this function to establish modality after a passive grab, and second to
- * allow using obscure features of XGrabPointer() and XGrabKeyboard() without
- * having to add them to this API.
- *
- * Return value: whether we successfully grabbed the keyboard and
- *  mouse and made the plugin modal.
- */
-gboolean
-meta_plugin_begin_modal (MetaPlugin       *plugin,
-                         MetaModalOptions  options,
-                         guint32           timestamp)
-{
-  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
-
-  return meta_begin_modal_for_plugin (priv->compositor, plugin,
-                                      options, timestamp);
-}
-
-/**
- * meta_plugin_end_modal:
- * @plugin: a #MetaPlugin
- * @timestamp: the time used for releasing grabs
- *
- * Ends the modal operation begun with meta_plugin_begin_modal(). This
- * ungrabs both the mouse and keyboard even when
- * %META_MODAL_POINTER_ALREADY_GRABBED or
- * %META_MODAL_KEYBOARD_ALREADY_GRABBED were provided as options
- * when beginnning the modal operation.
- */
-void
-meta_plugin_end_modal (MetaPlugin *plugin,
-                       guint32     timestamp)
-{
-  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
-
-  meta_end_modal_for_plugin (priv->compositor, plugin, timestamp);
-}
-
-/**
  * meta_plugin_get_display:
  * @plugin: a #MetaPlugin
  *

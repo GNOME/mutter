@@ -146,12 +146,6 @@ static void
 on_top_window_actor_destroyed (MetaWindowActor *window_actor,
                                MetaCompositor  *compositor);
 
-static gboolean
-is_modal (MetaDisplay *display)
-{
-  return display->event_route == META_EVENT_ROUTE_COMPOSITOR_GRAB;
-}
-
 static void sync_actor_stacking (MetaCompositor *compositor);
 
 static void
@@ -348,32 +342,6 @@ meta_stage_is_focused (MetaDisplay *display)
   return (display->x11_display->focus_xwindow == window);
 }
 
-static gboolean
-grab_devices (MetaModalOptions  options,
-              guint32           timestamp)
-{
-  MetaBackend *backend = META_BACKEND (meta_get_backend ());
-
-  if ((options & META_MODAL_POINTER_ALREADY_GRABBED) == 0)
-    {
-      if (!meta_backend_grab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp))
-        goto fail;
-    }
-
-  if ((options & META_MODAL_KEYBOARD_ALREADY_GRABBED) == 0)
-    {
-      if (!meta_backend_grab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp))
-        goto ungrab_pointer;
-    }
-
-  return TRUE;
-
- ungrab_pointer:
-  meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
- fail:
-  return FALSE;
-}
-
 void
 meta_compositor_grab_begin (MetaCompositor *compositor)
 {
@@ -384,86 +352,6 @@ void
 meta_compositor_grab_end (MetaCompositor *compositor)
 {
   META_COMPOSITOR_GET_CLASS (compositor)->grab_end (compositor);
-}
-
-gboolean
-meta_begin_modal_for_plugin (MetaCompositor   *compositor,
-                             MetaPlugin       *plugin,
-                             MetaModalOptions  options,
-                             guint32           timestamp)
-{
-  /* To some extent this duplicates code in meta_display_begin_grab_op(), but there
-   * are significant differences in how we handle grabs that make it difficult to
-   * merge the two.
-   */
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
-  MetaDisplay *display = priv->display;
-
-#ifdef HAVE_WAYLAND
-  if (display->grab_op == META_GRAB_OP_WAYLAND_POPUP)
-    {
-      MetaWaylandSeat *seat = meta_wayland_compositor_get_default ()->seat;
-      meta_wayland_pointer_end_popup_grab (seat->pointer);
-    }
-#endif
-
-  if (is_modal (display) || display->grab_op != META_GRAB_OP_NONE)
-    return FALSE;
-
-  if (display->x11_display)
-    {
-      /* XXX: why is this needed? */
-      XIUngrabDevice (display->x11_display->xdisplay,
-                      META_VIRTUAL_CORE_POINTER_ID,
-                      timestamp);
-      XSync (display->x11_display->xdisplay, False);
-    }
-
-  if (!grab_devices (options, timestamp))
-    return FALSE;
-
-  display->grab_op = META_GRAB_OP_COMPOSITOR;
-  display->event_route = META_EVENT_ROUTE_COMPOSITOR_GRAB;
-  display->grab_window = NULL;
-  display->grab_have_pointer = TRUE;
-  display->grab_have_keyboard = TRUE;
-
-  g_signal_emit_by_name (display, "grab-op-begin",
-                         display->grab_window, display->grab_op);
-
-  meta_compositor_grab_begin (compositor);
-
-  return TRUE;
-}
-
-void
-meta_end_modal_for_plugin (MetaCompositor *compositor,
-                           MetaPlugin     *plugin,
-                           guint32         timestamp)
-{
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
-  MetaDisplay *display = priv->display;
-  MetaBackend *backend = meta_get_backend ();
-  MetaWindow *grab_window = display->grab_window;
-  MetaGrabOp grab_op = display->grab_op;
-
-  g_return_if_fail (is_modal (display));
-
-  display->grab_op = META_GRAB_OP_NONE;
-  display->event_route = META_EVENT_ROUTE_NORMAL;
-  display->grab_window = NULL;
-  display->grab_have_pointer = FALSE;
-  display->grab_have_keyboard = FALSE;
-
-  meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
-  meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
-
-  meta_compositor_grab_end (compositor);
-
-  g_signal_emit_by_name (display, "grab-op-end",
-                         grab_window, grab_op);
 }
 
 static void
