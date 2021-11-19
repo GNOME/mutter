@@ -694,31 +694,11 @@ emit_event_chain (ClutterEvent *event)
  */
 
 static inline void
-emit_pointer_event (ClutterEvent       *event,
-                    ClutterInputDevice *device)
+emit_event (ClutterEvent *event)
 {
-  emit_event_chain (event);
-}
-
-static inline void
-emit_crossing_event (ClutterEvent       *event,
-                     ClutterInputDevice *device)
-{
-  emit_event_chain (event);
-}
-
-static inline void
-emit_touch_event (ClutterEvent       *event,
-                  ClutterInputDevice *device)
-{
-  emit_event_chain (event);
-}
-
-static inline void
-process_key_event (ClutterEvent       *event,
-                   ClutterInputDevice *device)
-{
-  cally_snoop_key_event ((ClutterKeyEvent *) event);
+  if (event->type == CLUTTER_KEY_PRESS ||
+      event->type == CLUTTER_KEY_RELEASE)
+    cally_snoop_key_event ((ClutterKeyEvent *) event);
 
   emit_event_chain (event);
 }
@@ -912,12 +892,12 @@ _clutter_process_event_details (ClutterActor        *stage,
                 }
             }
 
-          process_key_event (event, device);
+          emit_event (event);
         }
         break;
 
       case CLUTTER_ENTER:
-        emit_crossing_event (event, device);
+        emit_event (event);
         break;
 
       case CLUTTER_LEAVE:
@@ -937,10 +917,10 @@ _clutter_process_event_details (ClutterActor        *stage,
             crossing->crossing.source =
               clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL);
 
-            emit_crossing_event (crossing, device);
+            emit_event (crossing);
             clutter_event_free (crossing);
           }
-        emit_crossing_event (event, device);
+        emit_event (event);
         break;
 
       case CLUTTER_MOTION:
@@ -983,7 +963,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                         x, y,
                         event->any.source);
 
-          emit_pointer_event (event, device);
+          emit_event (event);
           break;
         }
 
@@ -1001,7 +981,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                         x, y,
                         event->any.source);
 
-          emit_touch_event (event, device);
+          emit_event (event);
 
           if (event->type == CLUTTER_TOUCH_END ||
               event->type == CLUTTER_TOUCH_CANCEL)
