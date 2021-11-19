@@ -106,9 +106,12 @@ grab_pointer_cb (ClutterActor    *actor,
                  ClutterEvent    *event,
                  gpointer         data)
 {
-  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+  ClutterGrab *grab;
 
-  clutter_input_device_grab (device, actor);
+  grab = clutter_stage_grab (stage, actor);
+  g_object_set_data (G_OBJECT (actor), "grab-data", grab);
+
   return FALSE;
 }
 
@@ -117,9 +120,11 @@ red_release_cb (ClutterActor    *actor,
                 ClutterEvent    *event,
                 gpointer         data)
 {
-  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterGrab *grab;
 
-  clutter_input_device_ungrab (device);
+  grab = g_object_steal_data (G_OBJECT (actor), "grab-data");
+  clutter_grab_dismiss (grab);
+
   return FALSE;
 }
 
@@ -137,15 +142,20 @@ toggle_grab_pointer_cb (ClutterActor    *actor,
                         ClutterEvent    *event,
                         gpointer         data)
 {
-  ClutterInputDevice *device = clutter_event_get_device (event);
-
   /* we only deal with the event if the source is ourself */
   if (event->button.source == actor)
     {
-      if (clutter_input_device_get_grabbed_actor (device) != NULL)
-        clutter_input_device_ungrab (device);
+      ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+      ClutterGrab *grab;
+
+      grab = g_object_get_data (G_OBJECT (actor), "grab-data");
+
+      if (grab)
+        g_clear_pointer (&grab, clutter_grab_dismiss);
       else
-        clutter_input_device_grab (device, actor);
+        grab = clutter_stage_grab (stage, actor);
+
+      g_object_set_data (G_OBJECT (actor), "grab-data", grab);
     }
 
   return FALSE;
@@ -156,14 +166,17 @@ cyan_press_cb (ClutterActor    *actor,
                ClutterEvent    *event,
                gpointer         data)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
-  ClutterInputDevice *device = clutter_seat_get_pointer (seat);
+  ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+  ClutterGrab *grab;
 
-  if (clutter_input_device_get_grabbed_actor (device) != NULL)
-    clutter_input_device_ungrab (device);
+  grab = g_object_get_data (G_OBJECT (actor), "grab-data");
+
+  if (grab)
+    g_clear_pointer (&grab, clutter_grab_dismiss);
   else
-    clutter_input_device_grab (device, actor);
+    grab = clutter_stage_grab (stage, actor);
+
+  g_object_set_data (G_OBJECT (actor), "grab-data", grab);
 
   return FALSE;
 }
