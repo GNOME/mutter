@@ -30,7 +30,7 @@ is_window_size_fixed (MetaWindow *window)
   if (meta_window_is_fullscreen (window))
     return TRUE;
 
-  if (meta_window_get_maximized (window) |
+  if (meta_window_get_maximized (window) &
       (META_MAXIMIZE_VERTICAL | META_MAXIMIZE_VERTICAL))
     return TRUE;
 
