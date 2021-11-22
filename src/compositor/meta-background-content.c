@@ -169,16 +169,17 @@ typedef enum
 "  float dist_squared = dot (delta, delta);                               \n"\
 "                                                                         \n"\
 "  // Fully outside the circle                                            \n"\
-"  if (dist_squared >= (clip_radius * clip_radius))                       \n"\
+"  float outer_radius = clip_radius + 0.5;                                \n"\
+"  if (dist_squared >= (outer_radius * outer_radius))                     \n"\
 "    return 0.0;                                                          \n"\
 "                                                                         \n"\
 "  // Fully inside the circle                                             \n"\
-"  float inner_radius = clip_radius - 1.0;                                \n"\
+"  float inner_radius = clip_radius - 0.5;                                \n"\
 "  if (dist_squared <= (inner_radius * inner_radius))                     \n"\
 "    return 1.0;                                                          \n"\
 "                                                                         \n"\
 "  // Only pixels on the edge of the curve need expensive antialiasing    \n"\
-"  return clip_radius - sqrt (dist_squared);                              \n"\
+"  return outer_radius - sqrt (dist_squared);                             \n"\
 "}                                                                        \n"
 
 #define ROUNDED_CLIP_FRAGMENT_SHADER_CODE                                    \
