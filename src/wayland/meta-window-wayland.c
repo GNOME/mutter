@@ -861,6 +861,22 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
   return NULL;
 }
 
+static gboolean
+has_pending_resize (MetaWindowWayland *wl_window)
+{
+  GList *l;
+
+  for (l = wl_window->pending_configurations; l; l = l->next)
+    {
+      MetaWaylandWindowConfiguration *configuration = l->data;
+
+      if (configuration->has_size)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 int
 meta_window_wayland_get_geometry_scale (MetaWindow *window)
 {
@@ -944,7 +960,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
 
-  if (!wl_window->pending_configurations)
+  if (!has_pending_resize (wl_window))
     flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
 
   acked_configuration = acquire_acked_configuration (wl_window, pending);
