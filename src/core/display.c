@@ -1817,10 +1817,6 @@ get_event_route_from_grab_op (MetaGrabOp op)
     case META_GRAB_OP_WINDOW_BASE:
       return META_EVENT_ROUTE_WINDOW_OP;
 
-    case META_GRAB_OP_COMPOSITOR:
-      /* begin_grab_op shouldn't be called with META_GRAB_OP_COMPOSITOR. */
-      g_assert_not_reached ();
-
     case META_GRAB_OP_WAYLAND_POPUP:
       return META_EVENT_ROUTE_WAYLAND_POPUP;
 
@@ -2053,9 +2049,7 @@ meta_display_end_grab_op (MetaDisplay *display,
  * Gets the current grab operation, if any.
  *
  * Return value: the current grab operation, or %META_GRAB_OP_NONE if
- * Mutter doesn't currently have a grab. %META_GRAB_OP_COMPOSITOR will
- * be returned if a compositor-plugin modal operation is in effect
- * (See mutter_begin_modal_for_plugin())
+ * Mutter doesn't currently have a grab.
  */
 MetaGrabOp
 meta_display_get_grab_op (MetaDisplay *display)

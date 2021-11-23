@@ -1643,15 +1643,11 @@ static gboolean
 handle_leave_notify_event (MetaUIFrame *frame,
                            ClutterCrossingEvent *event)
 {
-  MetaGrabOp grab_op;
-
-  grab_op = meta_x11_wm_get_grab_op (frame->frames->x11_display);
-
   /* ignore the first LeaveNotify event after opening a window menu
    * if it is the result of a compositor grab
    */
   frame->maybe_ignore_leave_notify = frame->maybe_ignore_leave_notify &&
-                                     grab_op == META_GRAB_OP_COMPOSITOR;
+    (event->flags & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) != 0;
 
   if (frame->maybe_ignore_leave_notify)
     return FALSE;

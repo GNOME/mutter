@@ -109,7 +109,6 @@ typedef enum
  * @META_GRAB_OP_KEYBOARD_RESIZING_NE: Resizing NE with keyboard
  * @META_GRAB_OP_KEYBOARD_RESIZING_SW: Resizing SW with keyboard
  * @META_GRAB_OP_KEYBOARD_RESIZING_NW: Resizing NS with keyboard
- * @META_GRAB_OP_COMPOSITOR: Compositor asked for grab
  */
 
 /* The lower 16 bits of the grab operation is its type.
@@ -153,9 +152,6 @@ typedef enum
 
   /* Window grab ops. */
   META_GRAB_OP_WINDOW_BASE,
-
-  /* Special grab op when the compositor asked for a grab */
-  META_GRAB_OP_COMPOSITOR,
 
   /* For when a Wayland client takes a popup grab. */
   META_GRAB_OP_WAYLAND_POPUP,
