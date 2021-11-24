@@ -2704,7 +2704,7 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
 /**
  * clutter_actor_apply_relative_transform_to_point:
  * @self: A #ClutterActor
- * @ancestor: (allow-none): A #ClutterActor ancestor, or %NULL to use the
+ * @ancestor: (nullable): A #ClutterActor ancestor, or %NULL to use the
  *   default #ClutterStage
  * @point: A point as #graphene_point3d_t
  * @vertex: (out caller-allocates): The translated #graphene_point3d_t
@@ -4502,11 +4502,11 @@ clutter_actor_set_translation (ClutterActor *self,
 /**
  * clutter_actor_get_translation:
  * @self: a #ClutterActor
- * @translate_x: (out) (allow-none): return location for the X component
+ * @translate_x: (out) (optional): return location for the X component
  *   of the translation, or %NULL
- * @translate_y: (out) (allow-none): return location for the Y component
+ * @translate_y: (out) (optional): return location for the Y component
  *   of the translation, or %NULL
- * @translate_z: (out) (allow-none): return location for the Z component
+ * @translate_z: (out) (optional): return location for the Z component
  *   of the translation, or %NULL
  *
  * Retrieves the translation set using clutter_actor_set_translation().
@@ -5780,7 +5780,7 @@ clutter_actor_real_get_paint_volume (ClutterActor       *self,
  * cannot chain up to the parent implementation when computing their
  * paint volume.
  *
- * Return value: (transfer none): a pointer to the default
+ * Return value: (transfer none) (nullable): a pointer to the default
  *   #ClutterPaintVolume, relative to the #ClutterActor, or %NULL if
  *   the actor could not compute a valid paint volume. The returned value
  *   is not guaranteed to be stable across multiple frames, so if you
@@ -7357,7 +7357,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::parent-set:
    * @actor: the object which received the signal
-   * @old_parent: (allow-none): the previous parent of the actor, or %NULL
+   * @old_parent: (nullable): the previous parent of the actor, or %NULL
    *
    * This signal is emitted when the parent of the actor changes.
    *
@@ -8161,7 +8161,7 @@ _clutter_actor_queue_only_relayout (ClutterActor *self)
 /**
  * clutter_actor_queue_redraw_with_clip:
  * @self: a #ClutterActor
- * @clip: (allow-none): a rectangular clip region, or %NULL
+ * @clip: (nullable): a rectangular clip region, or %NULL
  *
  * Queues a redraw on @self limited to a specific, actor-relative
  * rectangular area.
@@ -8225,13 +8225,13 @@ clutter_actor_queue_relayout (ClutterActor *self)
 /**
  * clutter_actor_get_preferred_size:
  * @self: a #ClutterActor
- * @min_width_p: (out) (allow-none): return location for the minimum
+ * @min_width_p: (out) (optional): return location for the minimum
  *   width, or %NULL
- * @min_height_p: (out) (allow-none): return location for the minimum
+ * @min_height_p: (out) (optional): return location for the minimum
  *   height, or %NULL
- * @natural_width_p: (out) (allow-none): return location for the natural
+ * @natural_width_p: (out) (optional): return location for the natural
  *   width, or %NULL
- * @natural_height_p: (out) (allow-none): return location for the natural
+ * @natural_height_p: (out) (optional): return location for the natural
  *   height, or %NULL
  *
  * Computes the preferred minimum and natural size of an actor, taking into
@@ -8597,9 +8597,9 @@ clutter_actor_update_preferred_size_for_constraints (ClutterActor *self,
  * @self: A #ClutterActor
  * @for_height: available height when computing the preferred width,
  *   or a negative value to indicate that no height is defined
- * @min_width_p: (out) (allow-none): return location for minimum width,
+ * @min_width_p: (out) (optional): return location for minimum width,
  *   or %NULL
- * @natural_width_p: (out) (allow-none): return location for the natural
+ * @natural_width_p: (out) (optional): return location for the natural
  *   width, or %NULL
  *
  * Computes the requested minimum and natural widths for an actor,
@@ -8763,9 +8763,9 @@ clutter_actor_get_preferred_width (ClutterActor *self,
  * @self: A #ClutterActor
  * @for_width: available width to assume in computing desired height,
  *   or a negative value to indicate that no width is defined
- * @min_height_p: (out) (allow-none): return location for minimum height,
+ * @min_height_p: (out) (optional): return location for minimum height,
  *   or %NULL
- * @natural_height_p: (out) (allow-none): return location for natural
+ * @natural_height_p: (out) (optional): return location for natural
  *   height, or %NULL
  *
  * Computes the requested minimum and natural heights for an actor,
@@ -9835,8 +9835,8 @@ clutter_actor_set_size (ClutterActor *self,
 /**
  * clutter_actor_get_size:
  * @self: A #ClutterActor
- * @width: (out) (allow-none): return location for the width, or %NULL.
- * @height: (out) (allow-none): return location for the height, or %NULL.
+ * @width: (out) (optional): return location for the width, or %NULL.
+ * @height: (out) (optional): return location for the height, or %NULL.
  *
  * This function tries to "do what you mean" and return
  * the size an actor will have. If the actor has a valid
@@ -9867,8 +9867,8 @@ clutter_actor_get_size (ClutterActor *self,
 /**
  * clutter_actor_get_position:
  * @self: a #ClutterActor
- * @x: (out) (allow-none): return location for the X coordinate, or %NULL
- * @y: (out) (allow-none): return location for the Y coordinate, or %NULL
+ * @x: (out) (optional): return location for the X coordinate, or %NULL
+ * @y: (out) (optional): return location for the Y coordinate, or %NULL
  *
  * This function tries to "do what you mean" and tell you where the
  * actor is, prior to any transformations. Retrieves the fixed
@@ -9897,8 +9897,8 @@ clutter_actor_get_position (ClutterActor *self,
 /**
  * clutter_actor_get_fixed_position:
  * @self: a #ClutterActor
- * @x: (out) (allow-none): return location for the X coordinate, or %NULL
- * @y: (out) (allow-none): return location for the Y coordinate, or %NULL
+ * @x: (out) (optional): return location for the X coordinate, or %NULL
+ * @y: (out) (optional): return location for the Y coordinate, or %NULL
  *
  * This function gets the fixed position of the actor, if set. If there
  * is no fixed position set, this function returns %FALSE and doesn't set
@@ -9966,8 +9966,8 @@ clutter_actor_get_transformed_extents (ClutterActor    *self,
 /**
  * clutter_actor_get_transformed_position:
  * @self: A #ClutterActor
- * @x: (out) (allow-none): return location for the X coordinate, or %NULL
- * @y: (out) (allow-none): return location for the Y coordinate, or %NULL
+ * @x: (out) (optional): return location for the X coordinate, or %NULL
+ * @y: (out) (optional): return location for the Y coordinate, or %NULL
  *
  * Gets the absolute position of an actor, in pixels relative to the stage.
  *
@@ -9994,8 +9994,8 @@ clutter_actor_get_transformed_position (ClutterActor *self,
 /**
  * clutter_actor_get_transformed_size:
  * @self: A #ClutterActor
- * @width: (out) (allow-none): return location for the width, or %NULL
- * @height: (out) (allow-none): return location for the height, or %NULL
+ * @width: (out) (optional): return location for the width, or %NULL
+ * @height: (out) (optional): return location for the height, or %NULL
  *
  * Gets the absolute size of an actor in pixels, taking into account the
  * scaling factors.
@@ -10578,9 +10578,9 @@ clutter_actor_set_scale_z (ClutterActor *self,
 /**
  * clutter_actor_get_scale:
  * @self: A #ClutterActor
- * @scale_x: (out) (allow-none): Location to store horizontal
+ * @scale_x: (out) (optional): Location to store horizontal
  *   scale factor, or %NULL.
- * @scale_y: (out) (allow-none): Location to store vertical
+ * @scale_y: (out) (optional): Location to store vertical
  *   scale factor, or %NULL.
  *
  * Retrieves an actors scale factors.
@@ -10869,7 +10869,7 @@ clutter_actor_get_offscreen_redirect (ClutterActor *self)
 /**
  * clutter_actor_set_name:
  * @self: A #ClutterActor
- * @name: Textual tag to apply to actor
+ * @name: (nullable): Textual tag to apply to actor
  *
  * Sets the given name to @self. The name can be used to identify
  * a #ClutterActor.
@@ -10892,8 +10892,8 @@ clutter_actor_set_name (ClutterActor *self,
  *
  * Retrieves the name of @self.
  *
- * Return value: the name of the actor, or %NULL. The returned string is
- *   owned by the actor and should not be modified or freed.
+ * Return value: (nullable): the name of the actor, or %NULL. The returned
+ *   string is owned by the actor and should not be modified or freed.
  */
 const gchar *
 clutter_actor_get_name (ClutterActor *self)
@@ -11001,9 +11001,9 @@ clutter_actor_set_pivot_point (ClutterActor *self,
 /**
  * clutter_actor_get_pivot_point:
  * @self: a #ClutterActor
- * @pivot_x: (out) (allow-none): return location for the normalized X
+ * @pivot_x: (out) (optional): return location for the normalized X
  *   coordinate of the pivot point, or %NULL
- * @pivot_y: (out) (allow-none): return location for the normalized Y
+ * @pivot_y: (out) (optional): return location for the normalized Y
  *   coordinate of the pivot point, or %NULL
  *
  * Retrieves the coordinates of the #ClutterActor:pivot-point.
@@ -11163,13 +11163,13 @@ clutter_actor_has_clip (ClutterActor *self)
 /**
  * clutter_actor_get_clip:
  * @self: a #ClutterActor
- * @xoff: (out) (allow-none): return location for the X offset of
+ * @xoff: (out) (optional): return location for the X offset of
  *   the clip rectangle, or %NULL
- * @yoff: (out) (allow-none): return location for the Y offset of
+ * @yoff: (out) (optional): return location for the Y offset of
  *   the clip rectangle, or %NULL
- * @width: (out) (allow-none): return location for the width of
+ * @width: (out) (optional): return location for the width of
  *   the clip rectangle, or %NULL
- * @height: (out) (allow-none): return location for the height of
+ * @height: (out) (optional): return location for the height of
  *   the clip rectangle, or %NULL
  *
  * Gets the clip area for @self, if any is set.
@@ -11753,7 +11753,7 @@ clutter_actor_insert_child_at_index (ClutterActor *self,
  * clutter_actor_insert_child_above:
  * @self: a #ClutterActor
  * @child: a #ClutterActor
- * @sibling: (allow-none): a child of @self, or %NULL
+ * @sibling: (nullable): a child of @self, or %NULL
  *
  * Inserts @child into the list of children of @self, above another
  * child of @self or, if @sibling is %NULL, above all the children
@@ -11794,7 +11794,7 @@ clutter_actor_insert_child_above (ClutterActor *self,
  * clutter_actor_insert_child_below:
  * @self: a #ClutterActor
  * @child: a #ClutterActor
- * @sibling: (allow-none): a child of @self, or %NULL
+ * @sibling: (nullable): a child of @self, or %NULL
  *
  * Inserts @child into the list of children of @self, below another
  * child of @self or, if @sibling is %NULL, below all the children
@@ -11837,7 +11837,7 @@ clutter_actor_insert_child_below (ClutterActor *self,
  *
  * Retrieves the parent of @self.
  *
- * Return Value: (transfer none): The #ClutterActor parent, or %NULL
+ * Return Value: (transfer none) (nullable): The #ClutterActor parent, or %NULL
  *  if no parent is set
  */
 ClutterActor *
@@ -12093,7 +12093,7 @@ clutter_actor_contains (ClutterActor *self,
  * clutter_actor_set_child_above_sibling:
  * @self: a #ClutterActor
  * @child: a #ClutterActor child of @self
- * @sibling: (allow-none): a #ClutterActor child of @self, or %NULL
+ * @sibling: (nullable): a #ClutterActor child of @self, or %NULL
  *
  * Sets @child to be above @sibling in the list of children of @self.
  *
@@ -12145,7 +12145,7 @@ clutter_actor_set_child_above_sibling (ClutterActor *self,
  * clutter_actor_set_child_below_sibling:
  * @self: a #ClutterActor
  * @child: a #ClutterActor child of @self
- * @sibling: (allow-none): a #ClutterActor child of @self, or %NULL
+ * @sibling: (nullable): a #ClutterActor child of @self, or %NULL
  *
  * Sets @child to be below @sibling in the list of children of @self.
  *
@@ -13335,8 +13335,8 @@ clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
  * @self: A #ClutterActor
  * @x: (in): x screen coordinate of the point to unproject
  * @y: (in): y screen coordinate of the point to unproject
- * @x_out: (out): return location for the unprojected x coordinance
- * @y_out: (out): return location for the unprojected y coordinance
+ * @x_out: (out) (nullable): return location for the unprojected x coordinance
+ * @y_out: (out) (nullable): return location for the unprojected y coordinance
  *
  * This function translates screen coordinates (@x, @y) to
  * coordinates relative to the actor. For example, it can be used to translate
@@ -14053,7 +14053,7 @@ clutter_actor_create_pango_context (ClutterActor *self)
 /**
  * clutter_actor_create_pango_layout:
  * @self: a #ClutterActor
- * @text: (allow-none): the text to set on the #PangoLayout, or %NULL
+ * @text: (nullable): the text to set on the #PangoLayout, or %NULL
  *
  * Creates a new #PangoLayout from the same #PangoContext used
  * by the #ClutterActor. The #PangoLayout is already configured
@@ -14412,7 +14412,7 @@ clutter_actor_set_transform_internal (ClutterActor            *self,
 /**
  * clutter_actor_set_transform:
  * @self: a #ClutterActor
- * @transform: (allow-none): a #graphene_matrix_t, or %NULL to
+ * @transform: (nullable): a #graphene_matrix_t, or %NULL to
  *   unset a custom transformation
  *
  * Overrides the transformations of a #ClutterActor with a custom
@@ -14898,7 +14898,7 @@ clutter_actor_get_actions (ClutterActor *self)
  * Retrieves the #ClutterAction with the given name in the list
  * of actions applied to @self
  *
- * Return value: (transfer none): a #ClutterAction for the given
+ * Return value: (transfer none) (nullable): a #ClutterAction for the given
  *   name, or %NULL. The returned #ClutterAction is owned by the
  *   actor and it should not be unreferenced directly
  *
@@ -15106,7 +15106,7 @@ clutter_actor_get_constraints (ClutterActor *self)
  * Retrieves the #ClutterConstraint with the given name in the list
  * of constraints applied to @self
  *
- * Return value: (transfer none): a #ClutterConstraint for the given
+ * Return value: (transfer none) (nullable): a #ClutterConstraint for the given
  *   name, or %NULL. The returned #ClutterConstraint is owned by the
  *   actor and it should not be unreferenced directly
  *
@@ -15349,7 +15349,7 @@ clutter_actor_get_effects (ClutterActor *self)
  * Retrieves the #ClutterEffect with the given name in the list
  * of effects applied to @self
  *
- * Return value: (transfer none): a #ClutterEffect for the given
+ * Return value: (transfer none) (nullable): a #ClutterEffect for the given
  *   name, or %NULL. The returned #ClutterEffect is owned by the
  *   actor and it should not be unreferenced directly
  *
@@ -15581,7 +15581,7 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
  * should ensure that their volume has a depth of 0. (This will be true
  * as long as you don't call clutter_paint_volume_set_depth().)
  *
- * Return value: (transfer none): a pointer to a #ClutterPaintVolume,
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterPaintVolume,
  *   or %NULL if no volume could be determined. The returned pointer
  *   is not guaranteed to be valid across multiple frames; if you want
  *   to keep it, you will need to copy it using clutter_paint_volume_copy().
@@ -15614,7 +15614,7 @@ clutter_actor_get_paint_volume (ClutterActor *self)
  * transformed paint volume of all of its children and union them
  * together using clutter_paint_volume_union().
  *
- * Return value: (transfer none): a pointer to a #ClutterPaintVolume,
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterPaintVolume,
  *   or %NULL if no volume could be determined. The returned pointer is
  *   not guaranteed to be valid across multiple frames; if you wish to
  *   keep it, you will have to copy it using clutter_paint_volume_copy().
@@ -16021,13 +16021,13 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
 /**
  * clutter_actor_pick_frame_clock: (skip)
  * @self: a #ClutterActor
- * @out_actor: (nullable): a pointer to an #ClutterActor
+ * @out_actor: (out) (nullable) (optional): a pointer to an #ClutterActor
  *
  * Pick the most suitable frame clock for driving animations for this actor.
  *
  * The #ClutterActor used for picking the frame clock is written @out_actor.
  *
- * Returns: (transfer none): a #ClutterFrameClock
+ * Returns: (transfer none) (nullable): a #ClutterFrameClock
  */
 ClutterFrameClock *
 clutter_actor_pick_frame_clock (ClutterActor  *self,
@@ -16196,7 +16196,8 @@ clutter_actor_get_n_children (ClutterActor *self)
  * Retrieves the actor at the given @index_ inside the list of
  * children of @self.
  *
- * Return value: (transfer none): a pointer to a #ClutterActor, or %NULL
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterActor,
+ *   or %NULL
  *
  * Since: 1.10
  */
@@ -16413,7 +16414,7 @@ on_layout_manager_changed (ClutterLayoutManager *manager,
 /**
  * clutter_actor_set_layout_manager:
  * @self: a #ClutterActor
- * @manager: (allow-none): a #ClutterLayoutManager, or %NULL to unset it
+ * @manager: (nullable): a #ClutterLayoutManager, or %NULL to unset it
  *
  * Sets the #ClutterLayoutManager delegate object that will be used to
  * lay out the children of @self.
@@ -16466,8 +16467,8 @@ clutter_actor_set_layout_manager (ClutterActor         *self,
  *
  * Retrieves the #ClutterLayoutManager used by @self.
  *
- * Return value: (transfer none): a pointer to the #ClutterLayoutManager,
- *   or %NULL
+ * Return value: (transfer none) (nullable): a pointer to the
+ *   #ClutterLayoutManager, or %NULL
  *
  * Since: 1.10
  */
@@ -16504,7 +16505,8 @@ layout_info_free (gpointer data)
  *
  * If the actor does not have a ClutterLayoutInfo associated to it, %NULL is returned.
  *
- * Return value: (transfer none): a pointer to the ClutterLayoutInfo structure
+ * Return value: (transfer none) (nullable): a pointer to the ClutterLayoutInfo
+ *   structure
  */
 ClutterLayoutInfo *
 _clutter_actor_peek_layout_info (ClutterActor *self)
@@ -16559,7 +16561,8 @@ _clutter_actor_get_layout_info (ClutterActor *self)
  *
  * This function should only be used for getters.
  *
- * Return value: a const pointer to the ClutterLayoutInfo structure
+ * Return value: (transfer none): a const pointer to the ClutterLayoutInfo
+ *   structure
  */
 const ClutterLayoutInfo *
 _clutter_actor_get_layout_info_or_defaults (ClutterActor *self)
@@ -16969,7 +16972,7 @@ clutter_actor_set_background_color_internal (ClutterActor *self,
 /**
  * clutter_actor_set_background_color:
  * @self: a #ClutterActor
- * @color: (allow-none): a #ClutterColor, or %NULL to unset a previously
+ * @color: (nullable): a #ClutterColor, or %NULL to unset a previously
  *  set color
  *
  * Sets the background color of a #ClutterActor.
@@ -17041,7 +17044,8 @@ clutter_actor_get_background_color (ClutterActor *self,
  * is not safe to modify the list of children of @self while iterating
  * it.
  *
- * Return value: (transfer none): a pointer to a #ClutterActor, or %NULL
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterActor,
+ *   or %NULL
  *
  * Since: 1.10
  */
@@ -17064,7 +17068,8 @@ clutter_actor_get_previous_sibling (ClutterActor *self)
  * is not safe to modify the list of children of @self while iterating
  * it.
  *
- * Return value: (transfer none): a pointer to a #ClutterActor, or %NULL
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterActor,
+ *   or %NULL
  *
  * Since: 1.10
  */
@@ -17086,7 +17091,8 @@ clutter_actor_get_next_sibling (ClutterActor *self)
  * is not safe to modify the list of children of @self while iterating
  * it.
  *
- * Return value: (transfer none): a pointer to a #ClutterActor, or %NULL
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterActor,
+ *   or %NULL
  *
  * Since: 1.10
  */
@@ -17108,7 +17114,8 @@ clutter_actor_get_first_child (ClutterActor *self)
  * is not safe to modify the list of children of @self while iterating
  * it.
  *
- * Return value: (transfer none): a pointer to a #ClutterActor, or %NULL
+ * Return value: (transfer none) (nullable): a pointer to a #ClutterActor,
+ *   or %NULL
  *
  * Since: 1.10
  */
@@ -17201,7 +17208,8 @@ clutter_actor_iter_is_valid (const ClutterActorIter *iter)
 /**
  * clutter_actor_iter_next:
  * @iter: a #ClutterActorIter
- * @child: (out) (transfer none): return location for a #ClutterActor
+ * @child: (out) (transfer none) (optional) (nullable): return location for a
+ * #ClutterActor
  *
  * Advances the @iter and retrieves the next child of the root #ClutterActor
  * that was used to initialize the #ClutterActorIterator.
@@ -17242,7 +17250,8 @@ clutter_actor_iter_next (ClutterActorIter  *iter,
 /**
  * clutter_actor_iter_prev:
  * @iter: a #ClutterActorIter
- * @child: (out) (transfer none): return location for a #ClutterActor
+ * @child: (out) (transfer none) (optional) (nullable): return location for a
+ *   #ClutterActor
  *
  * Advances the @iter and retrieves the previous child of the root
  * #ClutterActor that was used to initialize the #ClutterActorIterator.
@@ -18092,8 +18101,8 @@ clutter_actor_get_easing_delay (ClutterActor *self)
  * you should use the #ClutterActor::transition-stopped signal, using the
  * transition name as the signal detail.
  *
- * Return value: (transfer none): a #ClutterTransition, or %NULL is none
- *   was found to match the passed name; the returned instance is owned
+ * Return value: (transfer none) (nullable): a #ClutterTransition, or %NULL if
+ *   none was found to match the passed name; the returned instance is owned
  *   by Clutter and it should not be freed
  *
  * Since: 1.10
@@ -18212,7 +18221,7 @@ clutter_actor_restore_easing_state (ClutterActor *self)
 /**
  * clutter_actor_set_content:
  * @self: a #ClutterActor
- * @content: (allow-none): a #ClutterContent, or %NULL
+ * @content: (nullable): a #ClutterContent, or %NULL
  *
  * Sets the contents of a #ClutterActor.
  *
@@ -18290,8 +18299,8 @@ clutter_actor_set_content (ClutterActor   *self,
  *
  * Retrieves the contents of @self.
  *
- * Return value: (transfer none): a pointer to the #ClutterContent instance,
- *   or %NULL if none was set
+ * Return value: (transfer none) (nullable): a pointer to the #ClutterContent
+ *   instance, or %NULL if none was set
  *
  * Since: 1.10
  */
@@ -18621,9 +18630,9 @@ clutter_actor_set_content_scaling_filters (ClutterActor         *self,
 /**
  * clutter_actor_get_content_scaling_filters:
  * @self: a #ClutterActor
- * @min_filter: (out) (allow-none): return location for the minification
+ * @min_filter: (out) (optional): return location for the minification
  *   filter, or %NULL
- * @mag_filter: (out) (allow-none): return location for the magnification
+ * @mag_filter: (out) (optional): return location for the magnification
  *   filter, or %NULL
  *
  * Retrieves the values set using clutter_actor_set_content_scaling_filters().
@@ -19043,7 +19052,7 @@ clutter_actor_set_child_transform_internal (ClutterActor            *self,
 /**
  * clutter_actor_set_child_transform:
  * @self: a #ClutterActor
- * @transform: (allow-none): a #graphene_matrix_t, or %NULL
+ * @transform: (nullable): a #graphene_matrix_t, or %NULL
  *
  * Sets the transformation matrix to be applied to all the children
  * of @self prior to their own transformations. The default child
