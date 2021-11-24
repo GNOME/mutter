@@ -3491,18 +3491,23 @@ meta_test_monitor_switch_external_without_external (void)
 }
 
 static void
-check_monitor_configuration_per_orientation (MonitorTestCaseExpect *base_expect,
-                                             unsigned int           monitor_index,
-                                             MetaOrientation        orientation,
-                                             int                    width,
-                                             int                    height)
+check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
+                                             unsigned int     monitor_index,
+                                             MetaOrientation  orientation,
+                                             int              width,
+                                             int              height)
 {
   MetaMonitorTransform transform;
-  MonitorTestCaseExpect expect = *base_expect;
+  MetaMonitorTransform output_transform;
+  MonitorTestCaseExpect expect = test_case->expect;
+  MonitorTestCaseSetup *setup = &test_case->setup;
   int i = 0;
 
   transform = meta_monitor_transform_from_orientation (orientation);
-  expect.logical_monitors[monitor_index].transform = transform;
+  output_transform = setup->outputs[monitor_index].panel_orientation_transform;
+  expect.logical_monitors[monitor_index].transform =
+    meta_monitor_transform_transform (transform,
+      meta_monitor_transform_invert (output_transform));
   expect.crtcs[monitor_index].transform = transform;
 
   if (meta_monitor_transform_is_rotated (transform))
@@ -3887,7 +3892,7 @@ meta_test_monitor_orientation_initial_rotated (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, orientation, 1024, 768));
+                        &test_case, 0, orientation, 1024, 768));
 }
 
 static void
@@ -3993,7 +3998,7 @@ meta_test_monitor_orientation_initial_rotated_no_touch_mode (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, META_ORIENTATION_NORMAL, 1024, 768));
+                        &test_case, 0, META_ORIENTATION_NORMAL, 1024, 768));
 }
 
 static void
@@ -4111,7 +4116,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, orientation, 960, 540));
+                        &test_case, 0, orientation, 960, 540));
 
   g_test_message ("Closing lid");
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
@@ -4120,7 +4125,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, orientation, 960, 540));
+                        &test_case, 0, orientation, 960, 540));
 
   g_test_message ("Rotating to left-up");
   orientation = META_ORIENTATION_LEFT_UP;
@@ -4134,7 +4139,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, orientation, 960, 540));
+                        &test_case, 0, orientation, 960, 540));
 
   /* When no touch device is available, the orientation change is ignored */
   g_test_message ("Removing touch device");
@@ -4148,7 +4153,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, META_ORIENTATION_LEFT_UP,
+                        &test_case, 0, META_ORIENTATION_LEFT_UP,
                         960, 540));
 }
 
@@ -4265,7 +4270,7 @@ meta_test_monitor_orientation_initial_stored_rotated_no_touch (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, META_ORIENTATION_NORMAL,
+                        &test_case, 0, META_ORIENTATION_NORMAL,
                         960, 540));
 
   g_test_message ("Closing lid");
@@ -4275,7 +4280,7 @@ meta_test_monitor_orientation_initial_stored_rotated_no_touch (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, META_ORIENTATION_NORMAL,
+                        &test_case, 0, META_ORIENTATION_NORMAL,
                         960, 540));
 }
 
@@ -4403,7 +4408,7 @@ meta_test_monitor_orientation_changes (void)
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, i, 1024, 768));
+                            &test_case, 0, i, 1024, 768));
 
       current = meta_monitor_config_manager_get_current (config_manager);
       previous = meta_monitor_config_manager_get_previous (config_manager);
@@ -4430,7 +4435,7 @@ meta_test_monitor_orientation_changes (void)
   g_assert_cmpuint (times_signalled, ==, 0);
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case.expect, 0, META_ORIENTATION_NORMAL,
+                        &test_case, 0, META_ORIENTATION_NORMAL,
                         1024, 768));
 
   g_assert (meta_monitor_config_manager_get_current (config_manager) ==
@@ -4451,7 +4456,7 @@ meta_test_monitor_orientation_changes (void)
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, META_ORIENTATION_NORMAL,
+                            &test_case, 0, META_ORIENTATION_NORMAL,
                             1024, 768));
 
       current = meta_monitor_config_manager_get_current (config_manager);
@@ -4628,7 +4633,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, i, 1024, 768));
+                            &test_case, 0, i, 1024, 768));
     }
 
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
@@ -4661,7 +4666,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, i, 1024, 768));
+                            &test_case, 0, i, 1024, 768));
     }
 
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
@@ -4765,7 +4770,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, i, 1024, 768));
+                            &test_case, 0, i, 1024, 768));
 
       g_test_message ("External monitor disconnected");
       test_case.setup.n_outputs = 1;
@@ -4779,7 +4784,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
       emulate_hotplug (test_setup);
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, i, 1024, 768));
+                            &test_case, 0, i, 1024, 768));
 
       g_test_message ("External monitor connected");
       test_case.setup.n_outputs = 2;
@@ -4794,7 +4799,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
       emulate_hotplug (test_setup);
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case.expect, 0, i, 1024, 768));
+                            &test_case, 0, i, 1024, 768));
     }
 
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
