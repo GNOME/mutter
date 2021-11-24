@@ -536,13 +536,17 @@ guess_candidates (MetaInputMapper     *mapper,
 
   if (info->matches->len == 0)
     {
-      DeviceMatch match = { 0 };
+      if (clutter_input_device_get_device_type (input->device) ==
+          CLUTTER_TOUCHSCREEN_DEVICE)
+        {
+          DeviceMatch match = { 0 };
 
-      match.monitor =
-        meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
+          match.monitor =
+            meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
 
-      if (match.monitor != NULL)
-        g_array_append_val (info->matches, match);
+          if (match.monitor != NULL)
+            g_array_append_val (info->matches, match);
+        }
 
       info->best = 0;
     }
