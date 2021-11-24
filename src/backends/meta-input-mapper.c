@@ -52,15 +52,6 @@ struct _MetaInputMapper
 
 typedef enum
 {
-  META_INPUT_CAP_TOUCH  = 1 << 0, /* touch device, either touchscreen or tablet */
-  META_INPUT_CAP_STYLUS = 1 << 1, /* tablet pen */
-  META_INPUT_CAP_ERASER = 1 << 2, /* tablet eraser */
-  META_INPUT_CAP_PAD    = 1 << 3, /* pad device, most usually in tablets */
-  META_INPUT_CAP_CURSOR = 1 << 4  /* pointer-like device in tablets */
-} MetaInputCapabilityFlags;
-
-typedef enum
-{
   META_MATCH_EDID_VENDOR,  /* EDID vendor match, eg. "WAC" for Wacom */
   META_MATCH_EDID_PARTIAL, /* Partial EDID model match, eg. "Cintiq" */
   META_MATCH_EDID_FULL,    /* Full EDID model match, eg. "Cintiq 12WX" */
@@ -83,7 +74,6 @@ struct _MetaMapperOutputInfo
 {
   MetaLogicalMonitor *logical_monitor;
   GList *input_devices;
-  MetaInputCapabilityFlags attached_caps;
 };
 
 struct _MappingHelper
@@ -217,31 +207,6 @@ mapper_output_info_free (MetaMapperOutputInfo *info)
   g_free (info);
 }
 
-static MetaInputCapabilityFlags
-mapper_input_info_get_caps (MetaMapperInputInfo *info)
-{
-  ClutterInputDeviceType type;
-
-  type = clutter_input_device_get_device_type (info->device);
-
-  switch (type)
-    {
-    case CLUTTER_TOUCHSCREEN_DEVICE:
-      return META_INPUT_CAP_TOUCH;
-    case CLUTTER_TABLET_DEVICE:
-    case CLUTTER_PEN_DEVICE:
-      return META_INPUT_CAP_STYLUS;
-    case CLUTTER_ERASER_DEVICE:
-      return META_INPUT_CAP_ERASER;
-    case CLUTTER_CURSOR_DEVICE:
-      return META_INPUT_CAP_CURSOR;
-    case CLUTTER_PAD_DEVICE:
-      return META_INPUT_CAP_PAD;
-    default:
-      return 0;
-    }
-}
-
 static void
 mapper_input_info_set_output (MetaMapperInputInfo  *input,
                               MetaMapperOutputInfo *output,
@@ -291,8 +256,6 @@ mapper_output_info_add_input (MetaMapperOutputInfo *output,
   g_assert (input->output == NULL);
 
   output->input_devices = g_list_prepend (output->input_devices, input);
-  output->attached_caps |= mapper_input_info_get_caps (input);
-
   mapper_input_info_set_output (input, output, monitor);
 }
 
@@ -300,16 +263,9 @@ static void
 mapper_output_info_remove_input (MetaMapperOutputInfo *output,
                                  MetaMapperInputInfo  *input)
 {
-  GList *l;
-
   g_assert (input->output == output);
 
   output->input_devices = g_list_remove (output->input_devices, input);
-  output->attached_caps = 0;
-
-  for (l = output->input_devices; l; l = l->next)
-    output->attached_caps |= mapper_input_info_get_caps (l->data);
-
   mapper_input_info_set_output (input, NULL, NULL);
 }
 
@@ -323,8 +279,6 @@ mapper_output_info_clear_inputs (MetaMapperOutputInfo *output)
       mapper_input_info_set_output (input, NULL, NULL);
       output->input_devices = g_list_remove (output->input_devices, input);
     }
-
-  output->attached_caps = 0;
 }
 
 static void
@@ -601,9 +555,9 @@ mapping_helper_apply (MappingHelper   *helper,
       DeviceCandidates *info;
 
       info = &g_array_index (helper->device_maps, DeviceCandidates, i);
-      g_debug ("Applying mapping %d to input device '%s', capabilities %x", i,
+      g_debug ("Applying mapping %d to input device '%s', type %d", i,
                clutter_input_device_get_device_name (info->input->device),
-               mapper_input_info_get_caps (info->input));
+               clutter_input_device_get_device_type (info->input->device));
 
       for (j = 0; j < info->matches->len; j++)
         {
@@ -623,9 +577,6 @@ mapping_helper_apply (MappingHelper   *helper,
                                         logical_monitor);
 
           if (!output)
-            continue;
-
-          if (output->attached_caps & mapper_input_info_get_caps (info->input))
             continue;
 
           g_debug ("Matched input '%s' with output '%s'",
