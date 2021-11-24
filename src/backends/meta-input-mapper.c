@@ -257,6 +257,10 @@ mapper_input_info_set_output (MetaMapperInputInfo  *input,
 
   input->output = output;
 
+  /* These devices don't require emission about mapping/ratio */
+  if (clutter_input_device_get_device_type (input->device) == CLUTTER_PAD_DEVICE)
+    return;
+
   if (output && monitor)
     {
       meta_monitor_manager_get_monitor_matrix (mapper->monitor_manager,
