@@ -479,7 +479,7 @@ on_after_tests (void)
 }
 
 static void
-init_wayland_tests (void)
+init_tests (void)
 {
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
                    subsurface_remap_toplevel);
@@ -498,7 +498,8 @@ init_wayland_tests (void)
 }
 
 int
-main (int argc, char *argv[])
+main (int   argc,
+      char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
 
@@ -508,7 +509,7 @@ main (int argc, char *argv[])
 
   test_context = context;
 
-  init_wayland_tests ();
+  init_tests ();
 
   g_signal_connect (context, "before-tests",
                     G_CALLBACK (on_before_tests), NULL);
