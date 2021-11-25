@@ -173,9 +173,16 @@ handle_xdg_surface_configure (void               *data,
                               struct xdg_surface *xdg_surface,
                               uint32_t            serial)
 {
+  static gboolean sent_invalid_once = FALSE;
+
+  if (sent_invalid_once)
+    return;
+
   xdg_surface_set_window_geometry (xdg_surface, 0, 0, 0, 0);
   draw_main ();
   wl_surface_commit (surface);
+
+  sent_invalid_once = TRUE;
 
   g_assert_cmpint (wl_display_roundtrip (display), !=, -1);
   running = FALSE;
