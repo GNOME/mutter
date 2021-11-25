@@ -216,8 +216,8 @@ handle_xdg_toplevel_configure (void                *data,
 }
 
 static void
-handle_xdg_toplevel_close(void                *data,
-                          struct xdg_toplevel *xdg_toplevel)
+handle_xdg_toplevel_close (void                *data,
+                           struct xdg_toplevel *xdg_toplevel)
 {
   g_assert_not_reached ();
 }
@@ -391,8 +391,8 @@ main (int    argc,
   state = STATE_WAIT_FOR_CONFIGURE_1;
 
   /* set minimum and maximum size and commit */
-  xdg_toplevel_set_min_size(xdg_toplevel, 700, 500);
-  xdg_toplevel_set_max_size(xdg_toplevel, 700, 500);
+  xdg_toplevel_set_min_size (xdg_toplevel, 700, 500);
+  xdg_toplevel_set_max_size (xdg_toplevel, 700, 500);
   wl_surface_commit (surface);
 
   test_driver_sync_point (test_driver, 0, NULL);
