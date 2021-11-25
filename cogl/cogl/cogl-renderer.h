@@ -419,6 +419,16 @@ cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
                               int            height,
                               GError       **error);
 
+
+/**
+ * cogl_renderer_is_dma_buf_supported: (skip)
+ * @renderer: A #CoglRenderer
+ *
+ * Returns: %TRUE if DMA buffers can be allocated
+ */
+COGL_EXPORT gboolean
+cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer);
+
 /**
  * cogl_renderer_bind_api: (skip)
  */

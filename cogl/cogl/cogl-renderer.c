@@ -773,6 +773,17 @@ cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
   return NULL;
 }
 
+gboolean
+cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer)
+{
+  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+
+  if (winsys->renderer_is_dma_buf_supported)
+    return winsys->renderer_is_dma_buf_supported (renderer);
+  else
+    return FALSE;
+}
+
 void
 cogl_renderer_bind_api (CoglRenderer *renderer)
 {

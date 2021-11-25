@@ -73,11 +73,12 @@ typedef struct _CoglWinsysVtable
 
   GCallback
   (*renderer_get_proc_address) (CoglRenderer *renderer,
-                                const char *name,
-                                gboolean in_core);
+                                const char   *name,
+                                gboolean      in_core);
 
   gboolean
-  (*renderer_connect) (CoglRenderer *renderer, GError **error);
+  (*renderer_connect) (CoglRenderer *renderer,
+                       GError      **error);
 
   void
   (*renderer_disconnect) (CoglRenderer *renderer);
@@ -86,7 +87,8 @@ typedef struct _CoglWinsysVtable
   (*renderer_outputs_changed) (CoglRenderer *renderer);
 
   gboolean
-  (*display_setup) (CoglDisplay *display, GError **error);
+  (*display_setup) (CoglDisplay *display,
+                    GError     **error);
 
   void
   (*display_destroy) (CoglDisplay *display);
@@ -97,11 +99,15 @@ typedef struct _CoglWinsysVtable
                               int            height,
                               GError       **error);
 
+  gboolean
+  (*renderer_is_dma_buf_supported) (CoglRenderer *renderer);
+
   void
   (*renderer_bind_api) (CoglRenderer *renderer);
 
   gboolean
-  (*context_init) (CoglContext *context, GError **error);
+  (*context_init) (CoglContext *context,
+                   GError     **error);
 
   void
   (*context_deinit) (CoglContext *context);
@@ -115,15 +121,15 @@ typedef struct _CoglWinsysVtable
   (*texture_pixmap_x11_free) (CoglTexturePixmapX11 *tex_pixmap);
 
   gboolean
-  (*texture_pixmap_x11_update) (CoglTexturePixmapX11 *tex_pixmap,
+  (*texture_pixmap_x11_update) (CoglTexturePixmapX11       *tex_pixmap,
                                 CoglTexturePixmapStereoMode stereo_mode,
-                                gboolean needs_mipmap);
+                                gboolean                    needs_mipmap);
 
   void
   (*texture_pixmap_x11_damage_notify) (CoglTexturePixmapX11 *tex_pixmap);
 
   CoglTexture *
-  (*texture_pixmap_x11_get_texture) (CoglTexturePixmapX11 *tex_pixmap,
+  (*texture_pixmap_x11_get_texture) (CoglTexturePixmapX11       *tex_pixmap,
                                      CoglTexturePixmapStereoMode stereo_mode);
 #endif
 
@@ -131,10 +137,12 @@ typedef struct _CoglWinsysVtable
   (*fence_add) (CoglContext *ctx);
 
   gboolean
-  (*fence_is_complete) (CoglContext *ctx, void *fence);
+  (*fence_is_complete) (CoglContext *ctx,
+                        void        *fence);
 
   void
-  (*fence_destroy) (CoglContext *ctx, void *fence);
+  (*fence_destroy) (CoglContext *ctx,
+                    void        *fence);
 
 } CoglWinsysVtable;
 
