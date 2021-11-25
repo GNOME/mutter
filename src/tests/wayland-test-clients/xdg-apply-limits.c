@@ -371,7 +371,7 @@ main (int    argc,
 
   wl_display_roundtrip (display);
 
-  // g_assert_nonnull (test_driver);
+  g_assert_nonnull (test_driver);
 
   surface = wl_compositor_create_surface (compositor);
   xdg_surface = xdg_wm_base_get_xdg_surface (xdg_wm_base, surface);
