@@ -73,6 +73,12 @@ meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
   MetaWaylandSurface *surface;
   CoglScanout *scanout;
 
+  /* If the actor appears to be obscured, need to go through the normal paint
+   * machinery to ensure the unobscured region is up to date
+   */
+  if (meta_surface_actor_is_obscured (META_SURFACE_ACTOR (self)))
+    return NULL;
+
   surface = meta_surface_actor_wayland_get_surface (self);
   if (!surface)
     return NULL;
