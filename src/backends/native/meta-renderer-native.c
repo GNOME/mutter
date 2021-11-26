@@ -1520,6 +1520,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       goto err_fail_make_current;
     }
 
+  renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU;
 
