@@ -35,6 +35,7 @@ clutter_conform_tests_general_tests = [
   'color',
   'frame-clock',
   'frame-clock-timeline',
+  'grab',
   'interval',
   'script-parser',
   'timeline',
