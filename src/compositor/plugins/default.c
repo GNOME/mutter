@@ -907,17 +907,20 @@ finish_timeline (ClutterTimeline *timeline)
 }
 
 static void
-kill_switch_workspace (MetaPlugin     *plugin)
+kill_switch_workspace (MetaPlugin *plugin)
 {
   MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
 
   if (priv->tml_switch_workspace1)
     {
-      g_object_ref (priv->tml_switch_workspace1);
-      clutter_timeline_stop (priv->tml_switch_workspace1);
-      clutter_timeline_stop (priv->tml_switch_workspace2);
-      g_signal_emit_by_name (priv->tml_switch_workspace1, "completed", NULL);
-      g_object_unref (priv->tml_switch_workspace1);
+      g_autoptr (ClutterTimeline) timeline1 = NULL;
+      g_autoptr (ClutterTimeline) timeline2 = NULL;
+
+      timeline1 = g_object_ref (priv->tml_switch_workspace1);
+      timeline2 = g_object_ref (priv->tml_switch_workspace2);
+
+      finish_timeline (timeline1);
+      finish_timeline (timeline2);
     }
 }
 
