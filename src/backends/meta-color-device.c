@@ -360,3 +360,9 @@ meta_color_device_get_id (MetaColorDevice *color_device)
 {
   return color_device->cd_device_id;
 }
+
+MetaMonitor *
+meta_color_device_get_monitor (MetaColorDevice *color_device)
+{
+  return color_device->monitor;
+}

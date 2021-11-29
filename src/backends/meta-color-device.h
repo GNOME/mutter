@@ -21,6 +21,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "core/util-private.h"
 
 #define META_TYPE_COLOR_DEVICE (meta_color_device_get_type ())
 G_DECLARE_FINAL_TYPE (MetaColorDevice, meta_color_device,
@@ -36,5 +37,8 @@ void meta_color_device_update_monitor (MetaColorDevice *color_device,
                                        MetaMonitor     *monitor);
 
 const char * meta_color_device_get_id (MetaColorDevice *color_device);
+
+META_EXPORT_TEST
+MetaMonitor * meta_color_device_get_monitor (MetaColorDevice *color_device);
 
 #endif /* META_COLOR_DEVICE_H */
