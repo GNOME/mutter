@@ -486,6 +486,7 @@ cc.compiles('void main (void) { __builtin_ffsl (0); __builtin_popcountl (0); }')
 cdata = configuration_data()
 cdata.set_quoted('GETTEXT_PACKAGE', gettext_package)
 cdata.set_quoted('VERSION', meson.project_version())
+cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 
 cdata.set('HAVE_EGL', have_egl)

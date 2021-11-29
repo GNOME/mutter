@@ -4,6 +4,9 @@
 /* Version number of package */
 #mesondefine VERSION
 
+/* Name of package */
+#mesondefine PACKAGE_NAME
+
 /* Version number of package */
 #mesondefine PACKAGE_VERSION
 
