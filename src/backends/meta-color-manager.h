@@ -21,6 +21,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "core/util-private.h"
 
 #define META_TYPE_COLOR_MANAGER (meta_color_manager_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaColorManager, meta_color_manager,
@@ -29,5 +30,9 @@ G_DECLARE_DERIVABLE_TYPE (MetaColorManager, meta_color_manager,
 
 MetaBackend *
 meta_color_manager_get_backend (MetaColorManager *color_manager);
+
+META_EXPORT_TEST
+MetaColorDevice * meta_color_manager_get_color_device (MetaColorManager *color_manager,
+                                                       MetaMonitor      *monitor);
 
 #endif /* META_COLOR_MANAGER_H */

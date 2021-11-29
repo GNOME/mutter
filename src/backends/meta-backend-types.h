@@ -23,6 +23,7 @@
 
 typedef struct _MetaBackend MetaBackend;
 
+typedef struct _MetaColorDevice MetaColorDevice;
 typedef struct _MetaColorManager MetaColorManager;
 
 typedef struct _MetaMonitorManager MetaMonitorManager;

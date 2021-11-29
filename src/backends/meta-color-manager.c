@@ -355,3 +355,15 @@ meta_color_manager_get_cd_client (MetaColorManager *color_manager)
 
   return priv->cd_client;
 }
+
+MetaColorDevice *
+meta_color_manager_get_color_device (MetaColorManager *color_manager,
+                                     MetaMonitor      *monitor)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  g_autofree char *monitor_id = NULL;
+
+  monitor_id = generate_monitor_id (monitor);
+  return g_hash_table_lookup (priv->devices, monitor_id);
+}
