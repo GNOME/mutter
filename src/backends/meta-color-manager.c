@@ -380,3 +380,12 @@ meta_color_manager_is_ready (MetaColorManager *color_manager)
 
   return priv->is_ready;
 }
+
+int
+meta_color_manager_get_num_color_devices (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  return g_hash_table_size (priv->devices);
+}

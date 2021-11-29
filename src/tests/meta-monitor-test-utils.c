@@ -768,6 +768,15 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       output_info->tile_info = setup->outputs[i].tile_info;
       output_info->panel_orientation_transform =
         setup->outputs[i].panel_orientation_transform;
+      if (setup->outputs[i].has_edid_info)
+        {
+          output_info->edid_info = g_memdup2 (&setup->outputs[i].edid_info,
+                                              sizeof (setup->outputs[i].edid_info));
+          output_info->edid_checksum_md5 =
+            g_compute_checksum_for_data (G_CHECKSUM_MD5,
+                                         (uint8_t *) &setup->outputs[i].edid_info,
+                                         sizeof (setup->outputs[i].edid_info));
+        }
 
       output = g_object_new (META_TYPE_OUTPUT_TEST,
                              "id", (uint64_t) i,

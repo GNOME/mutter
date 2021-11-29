@@ -222,6 +222,11 @@ test_cases += [
     'suite': 'unit',
     'sources': [ 'edid-tests.c', ],
   },
+  {
+    'name': 'color-management',
+    'suite': 'unit',
+    'sources': [ 'color-management-tests.c', ],
+  },
 ]
 
 if have_native_tests

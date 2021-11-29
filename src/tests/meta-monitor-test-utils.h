@@ -112,6 +112,8 @@ typedef struct _MonitorTestCaseOutput
   gboolean hotplug_mode;
   int suggested_x;
   int suggested_y;
+  gboolean has_edid_info;
+  MetaEdidInfo edid_info;
 } MonitorTestCaseOutput;
 
 typedef struct _MonitorTestCaseCrtc

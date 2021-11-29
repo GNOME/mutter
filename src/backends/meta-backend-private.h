@@ -131,6 +131,7 @@ MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
 
 MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
+META_EXPORT_TEST
 MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
 
 META_EXPORT_TEST

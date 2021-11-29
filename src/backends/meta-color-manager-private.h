@@ -32,4 +32,7 @@ CdClient * meta_color_manager_get_cd_client (MetaColorManager *color_manager);
 META_EXPORT_TEST
 gboolean meta_color_manager_is_ready (MetaColorManager *color_manager);
 
+META_EXPORT_TEST
+int meta_color_manager_get_num_color_devices (MetaColorManager *color_manager);
+
 #endif /* META_COLOR_MANAGER_PRIVATE_H */
