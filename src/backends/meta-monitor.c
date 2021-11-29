@@ -508,6 +508,15 @@ meta_monitor_get_serial (MetaMonitor *monitor)
   return output_info->serial;
 }
 
+const MetaEdidInfo *
+meta_monitor_get_edid_info (MetaMonitor *monitor)
+{
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
+
+  return output_info->edid_info;
+}
+
 const char *
 meta_monitor_get_edid_checksum_md5 (MetaMonitor *monitor)
 {

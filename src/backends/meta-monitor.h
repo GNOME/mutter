@@ -157,6 +157,9 @@ const char * meta_monitor_get_product (MetaMonitor *monitor);
 META_EXPORT_TEST
 const char * meta_monitor_get_serial (MetaMonitor *monitor);
 
+META_EXPORT_TEST
+const MetaEdidInfo * meta_monitor_get_edid_info (MetaMonitor *monitor);
+
 const char * meta_monitor_get_edid_checksum_md5 (MetaMonitor *monitor);
 
 META_EXPORT_TEST
