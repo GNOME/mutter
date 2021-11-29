@@ -49,6 +49,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-color-device.h"
+#include "backends/meta-color-store.h"
 #include "backends/meta-monitor.h"
 
 #include "meta-dbus-gsd-color.h"
@@ -67,6 +68,8 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MetaColorManagerPrivate
 {
   MetaBackend *backend;
+
+  MetaColorStore *color_store;
 
   cmsContext lcms_context;
 
@@ -203,6 +206,8 @@ cd_client_connect_cb (GObject      *source_object,
       return;
     }
 
+  priv->color_store = meta_color_store_new (color_manager);
+
   update_devices (color_manager);
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed),
@@ -274,6 +279,7 @@ meta_color_manager_finalize (GObject *object)
   g_clear_object (&priv->cancellable);
   g_clear_pointer (&priv->devices, g_hash_table_unref);
   g_clear_object (&priv->gsd_color);
+  g_clear_object (&priv->color_store);
   g_clear_pointer (&priv->lcms_context, cmsDeleteContext);
 
   G_OBJECT_CLASS (meta_color_manager_parent_class)->finalize (object);
@@ -363,6 +369,15 @@ meta_color_manager_get_cd_client (MetaColorManager *color_manager)
     meta_color_manager_get_instance_private (color_manager);
 
   return priv->cd_client;
+}
+
+MetaColorStore *
+meta_color_manager_get_color_store (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  return priv->color_store;
 }
 
 MetaColorDevice *

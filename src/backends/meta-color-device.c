@@ -24,8 +24,29 @@
 
 #include <colord.h>
 
+#include "backends/meta-color-device.h"
 #include "backends/meta-color-manager-private.h"
+#include "backends/meta-color-profile.h"
+#include "backends/meta-color-store.h"
 #include "backends/meta-monitor.h"
+
+#define EFI_PANEL_COLOR_INFO_PATH \
+  "/sys/firmware/efi/efivars/INTERNAL_PANEL_COLOR_INFO-01e1ada1-79f2-46b3-8d3e-71fc0996ca6b"
+
+enum
+{
+  READY,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
+typedef enum
+{
+  PENDING_EDID_PROFILE = 1 << 0,
+  PENDING_CONNECTED = 1 << 1,
+} PendingState;
 
 struct _MetaColorDevice
 {
@@ -37,7 +58,12 @@ struct _MetaColorDevice
   MetaMonitor *monitor;
   CdDevice *cd_device;
 
+  MetaColorProfile *device_profile;
+
   GCancellable *cancellable;
+
+  PendingState pending_state;
+  gboolean is_ready;
 };
 
 G_DEFINE_TYPE (MetaColorDevice, meta_color_device,
@@ -155,6 +181,8 @@ meta_color_device_dispose (GObject *object)
   g_cancellable_cancel (color_device->cancellable);
   g_clear_object (&color_device->cancellable);
 
+  g_clear_object (&color_device->device_profile);
+
   cd_device = color_device->cd_device;
   cd_device_id = color_device->cd_device_id;
   if (!cd_device && cd_device_id)
@@ -188,11 +216,39 @@ meta_color_device_class_init (MetaColorDeviceClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_color_device_dispose;
+
+  signals[READY] =
+    g_signal_new ("ready",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST, 0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_BOOLEAN);
 }
 
 static void
 meta_color_device_init (MetaColorDevice *color_device)
 {
+}
+
+static void
+meta_color_device_notify_ready (MetaColorDevice *color_device,
+                                gboolean         success)
+{
+  color_device->is_ready = success;
+  g_signal_emit (color_device, signals[READY], 0, success);
+}
+
+static void
+maybe_finish_setup (MetaColorDevice *color_device)
+{
+  if (color_device->pending_state)
+    return;
+
+  meta_topic (META_DEBUG_COLOR, "Color device '%s' is ready",
+              color_device->cd_device_id);
+
+  meta_color_device_notify_ready (color_device, TRUE);
 }
 
 static void
@@ -212,8 +268,53 @@ on_cd_device_connected (GObject      *source_object,
       g_warning ("Failed to connect to colord device %s: %s",
                  color_device->cd_device_id,
                  error->message);
-      return;
+
+      g_cancellable_cancel (color_device->cancellable);
+      meta_color_device_notify_ready (color_device, FALSE);
     }
+  else
+    {
+      meta_topic (META_DEBUG_COLOR, "Color device '%s' connected",
+                  color_device->cd_device_id);
+    }
+
+  color_device->pending_state &= ~PENDING_CONNECTED;
+
+  maybe_finish_setup (color_device);
+}
+
+static void
+ensure_device_profile_cb (GObject      *source_object,
+                          GAsyncResult *res,
+                          gpointer      user_data)
+{
+  MetaColorStore *color_store = META_COLOR_STORE (source_object);
+  MetaColorDevice *color_device = META_COLOR_DEVICE (user_data);
+  MetaColorProfile *color_profile;
+  g_autoptr (GError) error = NULL;
+
+  color_profile = meta_color_store_ensure_device_profile_finish (color_store,
+                                                                 res,
+                                                                 &error);
+
+  if (!color_profile)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Failed to create device color profile: %s", error->message);
+
+      g_cancellable_cancel (color_device->cancellable);
+      meta_color_device_notify_ready (color_device, FALSE);
+    }
+
+  meta_topic (META_DEBUG_COLOR, "Color device '%s' generated",
+              color_device->cd_device_id);
+
+  color_device->pending_state &= ~PENDING_EDID_PROFILE;
+  g_set_object (&color_device->device_profile, color_profile);
+
+  maybe_finish_setup (color_device);
 }
 
 static void
@@ -223,6 +324,8 @@ on_cd_device_created (GObject      *object,
 {
   CdClient *cd_client = CD_CLIENT (object);
   MetaColorDevice *color_device = user_data;
+  MetaColorManager *color_manager;
+  MetaColorStore *color_store;
   CdDevice *cd_device;
   g_autoptr (GError) error = NULL;
 
@@ -235,6 +338,7 @@ on_cd_device_created (GObject      *object,
       g_warning ("Failed to create colord device for '%s': %s",
                  color_device->cd_device_id,
                  error->message);
+      meta_color_device_notify_ready (color_device, FALSE);
       return;
     }
 
@@ -242,6 +346,16 @@ on_cd_device_created (GObject      *object,
 
   cd_device_connect (cd_device, color_device->cancellable,
                      on_cd_device_connected, color_device);
+  color_device->pending_state |= PENDING_CONNECTED;
+
+  color_manager = color_device->color_manager;
+  color_store = meta_color_manager_get_color_store (color_manager);
+  if (meta_color_store_ensure_device_profile (color_store,
+                                              color_device,
+                                              color_device->cancellable,
+                                              ensure_device_profile_cb,
+                                              color_device))
+    color_device->pending_state |= PENDING_EDID_PROFILE;
 }
 
 static void
@@ -361,8 +475,485 @@ meta_color_device_get_id (MetaColorDevice *color_device)
   return color_device->cd_device_id;
 }
 
+typedef struct
+{
+  MetaColorDevice *color_device;
+
+  char *file_path;
+  GBytes *bytes;
+  CdIcc *cd_icc;
+} GenerateProfileData;
+
+static void
+generate_profile_data_free (GenerateProfileData *data)
+{
+  g_free (data->file_path);
+  g_clear_object (&data->cd_icc);
+  g_clear_pointer (&data->bytes, g_bytes_unref);
+  g_free (data);
+}
+
+static void
+on_profile_written (GObject      *source_object,
+                    GAsyncResult *res,
+                    gpointer      user_data)
+{
+  GFile *file = G_FILE (source_object);
+  g_autoptr (GTask) task = G_TASK (user_data);
+  GenerateProfileData *data = g_task_get_task_data (task);
+  MetaColorManager *color_manager = data->color_device->color_manager;
+  g_autoptr (GError) error = NULL;
+  MetaColorProfile *color_profile;
+
+  if (!g_file_replace_contents_finish (file, res, NULL, &error))
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
+          g_task_return_error (task, g_steal_pointer (&error));
+          return;
+        }
+
+      g_prefix_error (&error, "Failed to write ICC profile to %s:",
+                      g_file_peek_path (file));
+      g_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
+
+  meta_topic (META_DEBUG_COLOR, "On-disk device profile '%s' updated",
+              g_file_peek_path (file));
+
+  color_profile =
+    meta_color_profile_new_from_icc (color_manager,
+                                     g_steal_pointer (&data->cd_icc),
+                                     g_steal_pointer (&data->bytes));
+  g_task_return_pointer (task, color_profile, g_object_unref);
+}
+
+static void
+do_save_icc_profile (GTask *task)
+{
+  GenerateProfileData *data = g_task_get_task_data (task);
+  const uint8_t *profile_data;
+  size_t profile_data_size;
+  g_autoptr (GFile) file = NULL;
+
+  profile_data = g_bytes_get_data (data->bytes, &profile_data_size);
+
+  file = g_file_new_for_path (data->file_path);
+  g_file_replace_contents_async  (file,
+                                  (const char *) profile_data,
+                                  profile_data_size,
+                                  NULL,
+                                  FALSE,
+                                  G_FILE_CREATE_NONE,
+                                  g_task_get_cancellable (task),
+                                  on_profile_written,
+                                  task);
+}
+
+static void
+on_directories_created (GObject      *source_object,
+                        GAsyncResult *res,
+                        gpointer      user_data)
+{
+  GFile *directory = G_FILE (source_object);
+  GTask *thread_task = G_TASK (res);
+  GTask *task = G_TASK (user_data);
+
+  if (g_cancellable_is_cancelled (g_task_get_cancellable (thread_task)))
+    {
+      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_CANCELLED,
+                               "Cancelled");
+      return;
+    }
+
+  meta_topic (META_DEBUG_COLOR, "ICC profile directory '%s' created",
+              g_file_peek_path (directory));
+
+  do_save_icc_profile (task);
+}
+
+static void
+create_directories_in_thread (GTask        *thread_task,
+                              gpointer      source_object,
+                              gpointer      task_data,
+                              GCancellable *cancellable)
+{
+  GFile *directory = G_FILE (source_object);
+  g_autoptr (GError) error = NULL;
+
+  if (!g_file_make_directory_with_parents (directory, cancellable, &error))
+    g_task_return_error (thread_task, g_steal_pointer (&error));
+  else
+    g_task_return_boolean (thread_task, TRUE);
+}
+
+static void
+create_icc_profiles_directory (GFile *directory,
+                               GTask *task)
+{
+  g_autoptr (GTask) thread_task = NULL;
+
+  thread_task = g_task_new (G_OBJECT (directory),
+                            g_task_get_cancellable (task),
+                            on_directories_created, task);
+  g_task_run_in_thread (thread_task, create_directories_in_thread);
+}
+
+static void
+on_directory_queried (GObject      *source_object,
+                      GAsyncResult *res,
+                      gpointer      user_data)
+{
+  GFile *directory = G_FILE (source_object);
+  g_autoptr (GTask) task = G_TASK (user_data);
+  g_autoptr (GFileInfo) file_info = NULL;
+  g_autoptr (GError) error = NULL;
+
+  file_info = g_file_query_info_finish (directory, res, &error);
+  if (!file_info)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
+          g_task_return_error (task, g_steal_pointer (&error));
+          return;
+        }
+      else if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+        {
+          create_icc_profiles_directory (directory, g_steal_pointer (&task));
+          return;
+        }
+      else
+        {
+          g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
+                                   "Failed to ensure data directory: %s",
+                                   error->message);
+          return;
+        }
+    }
+
+  do_save_icc_profile (g_steal_pointer (&task));
+}
+
+static void
+save_icc_profile (const char *file_path,
+                  GTask      *task)
+{
+  g_autoptr (GFile) file = NULL;
+  g_autoptr (GFile) directory = NULL;
+
+  file = g_file_new_for_path (file_path);
+  directory = g_file_get_parent (file);
+  g_file_query_info_async (directory,
+                           G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                           G_FILE_QUERY_INFO_NONE,
+                           G_PRIORITY_DEFAULT,
+                           g_task_get_cancellable (task),
+                           on_directory_queried,
+                           task);
+}
+
+static CdIcc *
+create_icc_profile_from_edid (MetaColorDevice     *color_device,
+                              const MetaEdidInfo  *edid_info,
+                              GError             **error)
+{
+  MetaColorManager *color_manager = color_device->color_manager;
+  MetaMonitor *monitor = color_device->monitor;
+  g_autoptr (CdIcc) cd_icc = NULL;
+  cmsCIExyYTRIPLE chroma;
+  cmsCIExyY white_point;
+  cmsToneCurve *transfer_curve[3] = { NULL, NULL, NULL };
+  cmsContext lcms_context;
+  const char *product;
+  const char *vendor;
+  const char *serial;
+  g_autofree char *vendor_name = NULL;
+  cmsHPROFILE lcms_profile;
+
+  cd_icc = cd_icc_new ();
+
+  chroma.Red.x = edid_info->red_x;
+  chroma.Red.y = edid_info->red_y;
+  chroma.Green.x = edid_info->green_x;
+  chroma.Green.y = edid_info->green_y;
+  chroma.Blue.x = edid_info->blue_x;
+  chroma.Blue.y = edid_info->blue_y;
+  white_point.x = edid_info->white_x;
+  white_point.y = edid_info->white_y;
+  white_point.Y = 1.0;
+
+  /* Estimate the transfer function for the gamma */
+  transfer_curve[0] = cmsBuildGamma (NULL, edid_info->gamma);
+  transfer_curve[1] = transfer_curve[0];
+  transfer_curve[2] = transfer_curve[0];
+
+  lcms_context = meta_color_manager_get_lcms_context (color_manager);
+  lcms_profile = cmsCreateRGBProfileTHR (lcms_context,
+                                         &white_point,
+                                         &chroma,
+                                         transfer_curve);
+  cmsSetHeaderRenderingIntent (lcms_profile, INTENT_PERCEPTUAL);
+  cmsSetDeviceClass (lcms_profile, cmsSigDisplayClass);
+
+  cmsFreeToneCurve (transfer_curve[0]);
+
+  if (!cd_icc_load_handle (cd_icc, lcms_profile,
+                           CD_ICC_LOAD_FLAGS_PRIMARIES, error))
+    {
+      cmsCloseProfile (lcms_profile);
+      return NULL;
+    }
+
+  cd_icc_add_metadata (cd_icc,
+                       CD_PROFILE_METADATA_DATA_SOURCE,
+                       CD_PROFILE_METADATA_DATA_SOURCE_EDID);
+  cd_icc_set_copyright (cd_icc, NULL,
+                        "This profile is free of known copyright restrictions.");
+
+  product = meta_monitor_get_product (monitor);
+  vendor = meta_monitor_get_vendor (monitor);
+  serial = meta_monitor_get_serial (monitor);
+  if (vendor)
+    {
+      MetaBackend *backend = meta_monitor_get_backend (monitor);
+
+      vendor_name = meta_backend_get_vendor_name (backend, vendor);
+    }
+
+  /* set 'ICC meta Tag for Monitor Profiles' data */
+  cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_EDID_MD5,
+                       meta_monitor_get_edid_checksum_md5 (monitor));
+  if (product)
+    cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_EDID_MODEL, product);
+  if (serial)
+    cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_EDID_SERIAL, serial);
+  if (vendor)
+    cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_EDID_MNFT, vendor);
+  if (vendor_name)
+    {
+      cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_EDID_VENDOR,
+                           vendor_name);
+    }
+
+  /* Set high level monitor details metadata */
+  if (!product)
+    product = "Unknown monitor";
+  cd_icc_set_model (cd_icc, NULL, product);
+  cd_icc_set_description (cd_icc, NULL,
+                          meta_monitor_get_display_name (monitor));
+
+  if (!vendor_name && vendor)
+    vendor_name = g_strdup (vendor);
+  else
+    vendor_name = g_strdup ("Unknown vendor");
+  cd_icc_set_manufacturer (cd_icc, NULL, vendor_name);
+
+  /* Set the framework creator metadata */
+  cd_icc_add_metadata (cd_icc,
+                       CD_PROFILE_METADATA_CMF_PRODUCT,
+                       PACKAGE_NAME);
+  cd_icc_add_metadata (cd_icc,
+                       CD_PROFILE_METADATA_CMF_BINARY,
+                       PACKAGE_NAME);
+  cd_icc_add_metadata (cd_icc,
+                       CD_PROFILE_METADATA_CMF_VERSION,
+                       PACKAGE_VERSION);
+  cd_icc_add_metadata (cd_icc,
+                       CD_PROFILE_METADATA_MAPPING_DEVICE_ID,
+                       color_device->cd_device_id);
+
+  return g_steal_pointer (&cd_icc);
+}
+
+static void
+create_device_profile_from_edid (MetaColorDevice *color_device,
+                                 GTask           *task)
+{
+  const MetaEdidInfo *edid_info;
+
+  edid_info = meta_monitor_get_edid_info (color_device->monitor);
+  if (edid_info)
+    {
+      g_autoptr (CdIcc) cd_icc = NULL;
+      GBytes *bytes;
+      g_autoptr (GError) error = NULL;
+      GenerateProfileData *data = g_task_get_task_data (task);
+      const char *file_path = data->file_path;
+      g_autofree char *file_md5_checksum = NULL;
+
+      meta_topic (META_DEBUG_COLOR,
+                  "Generating ICC profile for '%s' from EDID",
+                  meta_color_device_get_id (color_device));
+
+      cd_icc = create_icc_profile_from_edid (color_device, edid_info, &error);
+      if (!cd_icc)
+        {
+          g_task_return_error (task, g_steal_pointer (&error));
+          g_object_unref (task);
+          return;
+        }
+
+      bytes = cd_icc_save_data (cd_icc, CD_ICC_SAVE_FLAGS_NONE, &error);
+      if (!bytes)
+        {
+          g_task_return_error (task, g_steal_pointer (&error));
+          g_object_unref (task);
+          return;
+        }
+
+      /* Set metadata needed by colord */
+      cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME, file_path);
+
+      file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
+      cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
+                           file_md5_checksum);
+
+      data->cd_icc = g_steal_pointer (&cd_icc);
+      data->bytes = bytes;
+      save_icc_profile (file_path, task);
+    }
+  else
+    {
+      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
+                               "No EDID available");
+      g_object_unref (task);
+    }
+}
+
+static void
+on_efi_panel_color_info_loaded (GObject      *source_object,
+                                GAsyncResult *res,
+                                gpointer      user_data)
+{
+  GFile *file = G_FILE (source_object);
+  g_autoptr (GTask) task = G_TASK (user_data);
+  MetaColorDevice *color_device =
+    META_COLOR_DEVICE (g_task_get_source_object (task));
+  g_autoptr (GError) error = NULL;
+  g_autofree char *contents = NULL;
+  size_t length;
+
+  if (g_file_load_contents_finish (file, res,
+                                   &contents,
+                                   &length,
+                                   NULL,
+                                   &error))
+    {
+      g_autoptr (CdIcc) cd_icc = NULL;
+
+      meta_topic (META_DEBUG_COLOR,
+                  "Generating ICC profile for '%s' from EFI variable",
+                  meta_color_device_get_id (color_device));
+
+      cd_icc = cd_icc_new ();
+      if (cd_icc_load_data (cd_icc,
+                            (uint8_t *) contents,
+                            length,
+                            CD_ICC_LOAD_FLAGS_METADATA,
+                            &error))
+        {
+          GenerateProfileData *data = g_task_get_task_data (task);
+          const char *file_path = data->file_path;
+          g_autofree char *file_md5_checksum = NULL;
+          GBytes *bytes;
+
+          bytes = g_bytes_new_take (g_steal_pointer (&contents), length);
+
+          /* Set metadata needed by colord */
+          cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME,
+                               file_path);
+          file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5,
+                                                            bytes);
+          cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
+                               file_md5_checksum);
+
+          data->cd_icc = g_steal_pointer (&cd_icc);
+          data->bytes = bytes;
+          save_icc_profile (file_path, g_steal_pointer (&task));
+          return;
+        }
+      else
+        {
+          g_warning ("Failed to parse EFI panel color ICC profile: %s",
+                     error->message);
+        }
+    }
+  else
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
+          g_task_return_error (task, g_steal_pointer (&error));
+          return;
+        }
+
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+        g_warning ("Failed to read EFI panel color info: %s", error->message);
+    }
+
+  create_device_profile_from_edid (color_device, g_steal_pointer (&task));
+}
+
+void
+meta_color_device_generate_profile (MetaColorDevice     *color_device,
+                                    const char          *file_path,
+                                    GCancellable        *cancellable,
+                                    GAsyncReadyCallback  callback,
+                                    gpointer             user_data)
+{
+  GTask *task;
+  GenerateProfileData *data;
+
+  task = g_task_new (G_OBJECT (color_device), cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_color_device_generate_profile);
+
+  data = g_new0 (GenerateProfileData, 1);
+  data->color_device = color_device;
+  data->file_path = g_strdup (file_path);
+  g_task_set_task_data (task, data,
+                        (GDestroyNotify) generate_profile_data_free);
+
+  if (meta_monitor_is_laptop_panel (color_device->monitor) &&
+      meta_monitor_supports_color_transform (color_device->monitor))
+    {
+      g_autoptr (GFile) file = NULL;
+
+      file = g_file_new_for_path (EFI_PANEL_COLOR_INFO_PATH);
+      g_file_load_contents_async (file,
+                                  cancellable,
+                                  on_efi_panel_color_info_loaded,
+                                  task);
+    }
+  else
+    {
+      create_device_profile_from_edid (color_device, task);
+    }
+}
+
+MetaColorProfile *
+meta_color_device_generate_profile_finish (MetaColorDevice  *color_device,
+                                           GAsyncResult     *res,
+                                           GError          **error)
+{
+  g_assert (g_task_get_source_tag (G_TASK (res)) ==
+            meta_color_device_generate_profile);
+  return g_task_propagate_pointer (G_TASK (res), error);
+}
+
 MetaMonitor *
 meta_color_device_get_monitor (MetaColorDevice *color_device)
 {
   return color_device->monitor;
+}
+
+MetaColorProfile *
+meta_color_device_get_device_profile (MetaColorDevice *color_device)
+{
+  return color_device->device_profile;
+}
+
+gboolean
+meta_color_device_is_ready (MetaColorDevice *color_device)
+{
+  return color_device->is_ready;
 }

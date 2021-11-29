@@ -21,6 +21,7 @@
 #include <colord.h>
 #include <lcms2.h>
 
+#include "backends/meta-backend-types.h"
 #include "backends/meta-color-manager.h"
 
 struct _MetaColorManagerClass
@@ -29,6 +30,8 @@ struct _MetaColorManagerClass
 };
 
 CdClient * meta_color_manager_get_cd_client (MetaColorManager *color_manager);
+
+MetaColorStore * meta_color_manager_get_color_store (MetaColorManager *color_manager);
 
 META_EXPORT_TEST
 gboolean meta_color_manager_is_ready (MetaColorManager *color_manager);

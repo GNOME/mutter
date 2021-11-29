@@ -22,10 +22,13 @@
 
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager-private.h"
+#include "backends/meta-color-profile.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-test-utils.h"
 
 static MetaContext *test_context;
+
+#define PRIMARY_EPSILON 0.000015
 
 static MonitorTestCaseSetup base_monitor_setup = {
   .modes = {
@@ -205,6 +208,67 @@ meta_test_color_management_device_basic (void)
     }
 }
 
+static void
+meta_test_color_management_profile_device (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MetaEdidInfo edid_info;
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+  MetaColorDevice *color_device;
+  MetaColorProfile *color_profile;
+  CdIcc *cd_icc;
+  const CdColorXYZ *red;
+  const CdColorXYZ *green;
+  const CdColorXYZ *blue;
+  const CdColorXYZ *white;
+
+  edid_info = CALTECH_MONITOR_EDID;
+  test_case_setup.outputs[0].edid_info = edid_info;
+  test_case_setup.outputs[0].has_edid_info = TRUE;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  color_profile = meta_color_device_get_device_profile (color_device);
+  g_assert_nonnull (color_profile);
+  cd_icc = meta_color_profile_get_cd_icc (color_profile);
+  g_assert_nonnull (cd_icc);
+
+  red = cd_icc_get_red (cd_icc);
+  green = cd_icc_get_green (cd_icc);
+  blue = cd_icc_get_blue (cd_icc);
+  white = cd_icc_get_white (cd_icc);
+
+  /* Make sure we generate the same values as gsd-color did. */
+  g_assert_cmpfloat_with_epsilon (red->X, 0.549637, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (red->Y, 0.250671, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (red->Z, 0.000977, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (green->X, 0.277420, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (green->Y, 0.689514, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (green->Z, 0.052185, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (blue->X, 0.137146 , PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (blue->Y, 0.059814, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (blue->Z, 0.771744, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (white->X, 0.961090088, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (white->Y, 1.0, PRIMARY_EPSILON);
+  g_assert_cmpfloat_with_epsilon (white->Z, 1.10479736, PRIMARY_EPSILON);
+}
+
 static MetaMonitorTestSetup *
 create_stage_view_test_setup (MetaBackend *backend)
 {
@@ -230,6 +294,8 @@ init_tests (void)
 
   g_test_add_func ("/color-management/device/basic",
                    meta_test_color_management_device_basic);
+  g_test_add_func ("/color-management/profile/device",
+                   meta_test_color_management_profile_device);
 }
 
 int

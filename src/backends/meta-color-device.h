@@ -19,6 +19,7 @@
 #define META_COLOR_DEVICE_H
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
 #include "backends/meta-backend-types.h"
 #include "core/util-private.h"
@@ -40,5 +41,21 @@ const char * meta_color_device_get_id (MetaColorDevice *color_device);
 
 META_EXPORT_TEST
 MetaMonitor * meta_color_device_get_monitor (MetaColorDevice *color_device);
+
+META_EXPORT_TEST
+MetaColorProfile * meta_color_device_get_device_profile (MetaColorDevice *color_device);
+
+void meta_color_device_generate_profile (MetaColorDevice     *color_device,
+                                         const char          *file_path,
+                                         GCancellable        *cancellable,
+                                         GAsyncReadyCallback  callback,
+                                         gpointer             user_data);
+
+MetaColorProfile * meta_color_device_generate_profile_finish (MetaColorDevice  *color_device,
+                                                              GAsyncResult     *res,
+                                                              GError          **error);
+
+META_EXPORT_TEST
+gboolean meta_color_device_is_ready (MetaColorDevice *color_device);
 
 #endif /* META_COLOR_DEVICE_H */
