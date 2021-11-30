@@ -74,6 +74,8 @@ typedef struct _MetaColorManagerPrivate
   GHashTable *devices;
 
   MetaDbusSettingsDaemonColor *gsd_color;
+
+  gboolean is_ready;
 } MetaColorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaColorManager, meta_color_manager, G_TYPE_OBJECT)
@@ -203,6 +205,8 @@ cd_client_connect_cb (GObject      *source_object,
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed),
                     color_manager);
+
+  priv->is_ready = TRUE;
 }
 
 static void
@@ -366,4 +370,13 @@ meta_color_manager_get_color_device (MetaColorManager *color_manager,
 
   monitor_id = generate_monitor_id (monitor);
   return g_hash_table_lookup (priv->devices, monitor_id);
+}
+
+gboolean
+meta_color_manager_is_ready (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  return priv->is_ready;
 }
