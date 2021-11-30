@@ -7973,7 +7973,7 @@ meta_window_get_frame_bounds (MetaWindow *window)
  * meta_window_is_attached_dialog:
  * @window: a #MetaWindow
  *
- * Tests if @window is should be attached to its parent window.
+ * Tests if @window should be attached to its parent window.
  * (If the "attach_modal_dialogs" option is not enabled, this will
  * always return %FALSE.)
  *
