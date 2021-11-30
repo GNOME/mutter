@@ -420,10 +420,15 @@ meta_display_handle_event (MetaDisplay        *display,
        * See: https://gitlab.gnome.org/GNOME/mutter/issues/88
        */
       if (meta_window_handle_ui_frame_event (window, event))
-        bypass_wayland = (event->type == CLUTTER_BUTTON_PRESS ||
-                          event->type == CLUTTER_TOUCH_BEGIN);
+        {
+          bypass_wayland = (event->type == CLUTTER_BUTTON_PRESS ||
+                            event->type == CLUTTER_TOUCH_BEGIN);
+        }
       else
-        meta_window_handle_ungrabbed_event (window, event);
+        {
+          bypass_wayland = meta_window_has_modals (window);
+          meta_window_handle_ungrabbed_event (window, event);
+        }
 
       /* This might start a grab op. If it does, then filter out the
        * event, and if it doesn't, replay the event to release our
