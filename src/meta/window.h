@@ -344,6 +344,9 @@ META_EXPORT
 gboolean    meta_window_is_attached_dialog (MetaWindow *window);
 
 META_EXPORT
+gboolean    meta_window_has_attached_dialogs (MetaWindow *window);
+
+META_EXPORT
 const char *meta_window_get_mutter_hints (MetaWindow *window);
 
 META_EXPORT

@@ -7985,6 +7985,42 @@ meta_window_is_attached_dialog (MetaWindow *window)
   return window->attached;
 }
 
+static gboolean
+has_attached_foreach_func (MetaWindow *window,
+                           void       *data)
+{
+  gboolean *is_attached = data;
+
+  *is_attached = window->attached && !window->unmanaging;
+
+  if (*is_attached)
+    return FALSE;
+
+  return TRUE;
+}
+
+
+/**
+ * meta_window_has_attached_dialogs:
+ * @window: a #MetaWindow
+ *
+ * Tests if @window has any transients attached to it.
+ * (If the "attach_modal_dialogs" option is not enabled, this will
+ * always return %FALSE.)
+ *
+ * Return value: whether @window has attached transients
+ */
+gboolean
+meta_window_has_attached_dialogs (MetaWindow *window)
+{
+  gboolean has_attached = FALSE;
+
+  meta_window_foreach_transient (window,
+                                 has_attached_foreach_func,
+                                 &has_attached);
+  return has_attached;
+}
+
 /**
  * meta_window_get_tile_match:
  * @window: a #MetaWindow
