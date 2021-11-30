@@ -45,7 +45,8 @@ static guint signals[N_SIGNALS];
 typedef enum
 {
   PENDING_EDID_PROFILE = 1 << 0,
-  PENDING_CONNECTED = 1 << 1,
+  PENDING_PROFILE_READY = 1 << 1,
+  PENDING_CONNECTED = 1 << 2,
 } PendingState;
 
 struct _MetaColorDevice
@@ -59,6 +60,7 @@ struct _MetaColorDevice
   CdDevice *cd_device;
 
   MetaColorProfile *device_profile;
+  gulong device_profile_ready_handler_id;
 
   GCancellable *cancellable;
 
@@ -180,6 +182,8 @@ meta_color_device_dispose (GObject *object)
 
   g_cancellable_cancel (color_device->cancellable);
   g_clear_object (&color_device->cancellable);
+  g_clear_signal_handler (&color_device->device_profile_ready_handler_id,
+                          color_device->device_profile);
 
   g_clear_object (&color_device->device_profile);
 
@@ -284,6 +288,14 @@ on_cd_device_connected (GObject      *source_object,
 }
 
 static void
+on_profile_ready (MetaColorProfile *color_profile,
+                  MetaColorDevice  *color_device)
+{
+  color_device->pending_state &= ~PENDING_PROFILE_READY;
+  maybe_finish_setup (color_device);
+}
+
+static void
 ensure_device_profile_cb (GObject      *source_object,
                           GAsyncResult *res,
                           gpointer      user_data)
@@ -314,7 +326,18 @@ ensure_device_profile_cb (GObject      *source_object,
   color_device->pending_state &= ~PENDING_EDID_PROFILE;
   g_set_object (&color_device->device_profile, color_profile);
 
-  maybe_finish_setup (color_device);
+  if (!meta_color_profile_is_ready (color_profile))
+    {
+      color_device->device_profile_ready_handler_id =
+        g_signal_connect (color_profile, "ready",
+                          G_CALLBACK (on_profile_ready),
+                          color_device);
+      color_device->pending_state |= PENDING_PROFILE_READY;
+    }
+  else
+    {
+      maybe_finish_setup (color_device);
+    }
 }
 
 static void
@@ -863,6 +886,7 @@ on_efi_panel_color_info_loaded (GObject      *source_object,
           /* Set metadata needed by colord */
           cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME,
                                file_path);
+
           file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5,
                                                             bytes);
           cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,

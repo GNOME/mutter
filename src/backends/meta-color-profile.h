@@ -44,4 +44,6 @@ size_t meta_color_profile_get_data_size (MetaColorProfile *color_profile);
 META_EXPORT_TEST
 CdIcc * meta_color_profile_get_cd_icc (MetaColorProfile *color_profile);
 
+gboolean meta_color_profile_is_ready (MetaColorProfile *color_profile);
+
 #endif /* META_COLOR_PROFILE_H */
