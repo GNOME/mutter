@@ -23,11 +23,13 @@ BUS_NAME = BUS_PREFIX
 MAIN_OBJ = PATH_PREFIX
 MAIN_IFACE = BUS_NAME
 DEVICE_IFACE = BUS_PREFIX + '.Device'
+PROFILE_IFACE = BUS_PREFIX + '.Profile'
 SYSTEM_BUS = True
 
 
 def load(mock, parameters=None):
     mock.devices = {}
+    mock.profiles = {}
 
 def escape_unit_name(name):
     for s in ['.', '-', '\'', ' ']:
@@ -44,6 +46,13 @@ def device_id_from_path(mock, path):
             return device_id
     return None
 
+def profile_id_from_path(mock, path):
+  for profile_id in mock.profiles:
+     profile_path = mock.profiles[profile_id]
+     if profile_path == path:
+         return profile_id
+  return None
+
 @dbus.service.method(MAIN_IFACE, in_signature='ssa{sv}', out_signature='o')
 def CreateDevice(self, device_id, scope, props):
     uid = os.getuid()
@@ -56,6 +65,7 @@ def CreateDevice(self, device_id, scope, props):
                    DEVICE_IFACE,
                    {
                      'DeviceId': device_id,
+                     'Enabled': True,
                    },
                    [])
     self.EmitSignal(MAIN_IFACE, 'DeviceAdded', 'o', [device_path])
@@ -74,8 +84,38 @@ def FindDeviceById(self, device_id):
     return self.devices[device_id]
 
 
+@dbus.service.method(MAIN_IFACE, in_signature='ssha{sv}', out_signature='o')
+def CreateProfileWithFd(self, profile_id, scope, handle, props):
+    uid = os.getuid()
+    username = get_username(uid)
+    profile_path = PATH_PREFIX + '/profiles/' + \
+        escape_unit_name(profile_id) + \
+        '_' + username + '_' + str(uid)
+    self.profiles[profile_id] = profile_path
+    self.AddObject(profile_path,
+                   PROFILE_IFACE,
+                   {
+                     'ProfileId': profile_id,
+                     'Enabled': True,
+                     'Filename': props['Filename'],
+                   },
+                   [])
+    self.EmitSignal(MAIN_IFACE, 'ProfileAdded', 'o', [profile_path])
+    return profile_path
+
+@dbus.service.method(MAIN_IFACE, in_signature='o')
+def DeleteProfile(self, profile_path):
+    self.RemoveObject(profile_path)
+    profile_id = profile_id_from_path(self, profile_path)
+    del self.profiles[profile_id]
+    self.EmitSignal(MAIN_IFACE, 'ProfileRemoved', 'o', [profile_path])
+
+
 @dbus.service.method(MOCK_IFACE)
-def ClearDevices(self):
+def Reset(self):
     for device_path in self.devices.values():
         self.RemoveObject(device_path)
     self.devices = {}
+    for profile_path in self.profiles.values():
+        self.RemoveObject(profile_path)
+    self.profiles = {}

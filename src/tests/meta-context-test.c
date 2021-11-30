@@ -389,7 +389,7 @@ meta_context_test_init (MetaContextTest *context_test)
     }
 
   if (!g_dbus_proxy_call_sync (proxy,
-                               "ClearDevices",
+                               "Reset",
                                NULL,
                                G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
                                &error))
