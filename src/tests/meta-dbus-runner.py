@@ -12,18 +12,17 @@ from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 
 
-def set_nonblock(fd):
-    '''Set a file object to non-blocking'''
-
-    flags = fcntl.fcntl(fd, fcntl.F_GETFL)
-    fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-
-
 def get_templates_dir():
     return os.path.join(os.path.dirname(__file__), 'dbusmock-templates')
 
 def get_template_path(template_name):
     return os.path.join(get_templates_dir(), template_name + '.py')
+
+def get_subprocess_stdout():
+    if os.getenv('META_DBUS_RUNNER_VERBOSE') == '1':
+        return sys.stderr
+    else:
+        return subprocess.DEVNULL;
 
 
 class MutterDBusTestCase(DBusTestCase):
@@ -63,8 +62,7 @@ class MutterDBusTestCase(DBusTestCase):
         mock_server, mock_obj = \
             klass.spawn_server_template(template,
                                         params,
-                                        stdout=subprocess.PIPE)
-        set_nonblock(mock_server.stdout)
+                                        get_subprocess_stdout())
 
         mocks = (mock_server, mock_obj)
         assert klass.mocks.setdefault(template, mocks) == mocks
@@ -91,8 +89,7 @@ class MutterDBusTestCase(DBusTestCase):
                                mock_class.MAIN_OBJ,
                                mock_class.MAIN_IFACE,
                                mock_class.SYSTEM_BUS,
-                               stdout=subprocess.PIPE)
-        set_nonblock(mock_server.stdout)
+                               stdout=get_subprocess_stdout())
 
         bus = klass.get_dbus(system_bus=mock_class.SYSTEM_BUS)
         mock_obj = bus.get_object(mock_class.BUS_NAME, mock_class.MAIN_OBJ)
