@@ -1088,6 +1088,10 @@ meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
                                               int            root_x,
                                               int            root_y)
 {
+  g_return_val_if_fail (META_IS_STACK (stack), NULL);
+  g_return_val_if_fail (META_IS_WORKSPACE (workspace), NULL);
+  g_return_val_if_fail (!not_this_one || META_IS_WINDOW (not_this_one), NULL);
+
   return get_default_focus_window (stack, workspace, not_this_one,
                                    TRUE, root_x, root_y);
 }
@@ -1097,6 +1101,10 @@ meta_stack_get_default_focus_window (MetaStack     *stack,
                                      MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one)
 {
+  g_return_val_if_fail (META_IS_STACK (stack), NULL);
+  g_return_val_if_fail (META_IS_WORKSPACE (workspace), NULL);
+  g_return_val_if_fail (!not_this_one || META_IS_WINDOW (not_this_one), NULL);
+
   return get_default_focus_window (stack, workspace, not_this_one,
                                    FALSE, 0, 0);
 }
