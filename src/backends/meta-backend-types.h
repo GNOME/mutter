@@ -61,6 +61,7 @@ typedef struct _MetaScreenCastStream MetaScreenCastStream;
 
 typedef struct _MetaVirtualMonitor MetaVirtualMonitor;
 typedef struct _MetaVirtualMonitorInfo MetaVirtualMonitorInfo;
+typedef struct _MetaVirtualModeInfo MetaVirtualModeInfo;
 
 typedef struct _MetaIdleManager MetaIdleManager;
 

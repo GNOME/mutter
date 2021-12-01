@@ -34,8 +34,8 @@ G_DEFINE_TYPE (MetaCrtcModeVirtual, meta_crtc_mode_virtual,
                META_TYPE_CRTC_MODE)
 
 MetaCrtcModeVirtual *
-meta_crtc_mode_virtual_new (uint64_t                      id,
-                            const MetaVirtualMonitorInfo *info)
+meta_crtc_mode_virtual_new (uint64_t                   id,
+                            const MetaVirtualModeInfo *info)
 {
   g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
   g_autofree char *crtc_mode_name = NULL;

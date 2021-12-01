@@ -28,7 +28,7 @@ G_DECLARE_FINAL_TYPE (MetaCrtcModeVirtual, meta_crtc_mode_virtual,
                       META, CRTC_MODE_VIRTUAL,
                       MetaCrtcMode)
 
-MetaCrtcModeVirtual * meta_crtc_mode_virtual_new (uint64_t                      id,
-                                                  const MetaVirtualMonitorInfo *info);
+MetaCrtcModeVirtual * meta_crtc_mode_virtual_new (uint64_t                   id,
+                                                  const MetaVirtualModeInfo *info);
 
 #endif /* META_CRTC_MODE_VIRTUAL_H */

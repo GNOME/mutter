@@ -26,16 +26,21 @@
 #include "backends/meta-backend-types.h"
 #include "core/util-private.h"
 
-typedef struct _MetaVirtualMonitorInfo
+struct _MetaVirtualModeInfo
 {
   int width;
   int height;
   float refresh_rate;
+};
+
+struct _MetaVirtualMonitorInfo
+{
+  MetaVirtualModeInfo mode_info;
 
   char *vendor;
   char *product;
   char *serial;
-} MetaVirtualMonitorInfo;
+};
 
 #define META_TYPE_VIRTUAL_MONITOR (meta_virtual_monitor_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaVirtualMonitor, meta_virtual_monitor,

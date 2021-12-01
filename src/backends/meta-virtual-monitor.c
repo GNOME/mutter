@@ -71,9 +71,11 @@ meta_virtual_monitor_info_new (int         width,
   MetaVirtualMonitorInfo *info;
 
   info = g_new0 (MetaVirtualMonitorInfo, 1);
-  info->width = width;
-  info->height = height;
-  info->refresh_rate = refresh_rate;
+  info->mode_info = (MetaVirtualModeInfo) {
+    .width = width,
+    .height = height,
+    .refresh_rate = refresh_rate,
+  };
   info->vendor = g_strdup (vendor);
   info->product = g_strdup (product);
   info->serial = g_strdup (serial);

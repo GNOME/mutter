@@ -54,7 +54,7 @@ meta_virtual_monitor_native_new (uint64_t                      id,
   MetaOutputVirtual *output_virtual;
 
   crtc_virtual = meta_crtc_virtual_new (id);
-  crtc_mode_virtual = meta_crtc_mode_virtual_new (id, info);
+  crtc_mode_virtual = meta_crtc_mode_virtual_new (id, &info->mode_info);
   output_virtual = meta_output_virtual_new (id, info,
                                             crtc_virtual,
                                             crtc_mode_virtual);
