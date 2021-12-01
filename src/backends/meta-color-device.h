@@ -37,6 +37,7 @@ void meta_color_device_destroy (MetaColorDevice *color_device);
 void meta_color_device_update_monitor (MetaColorDevice *color_device,
                                        MetaMonitor     *monitor);
 
+META_EXPORT_TEST
 const char * meta_color_device_get_id (MetaColorDevice *color_device);
 
 META_EXPORT_TEST
@@ -44,6 +45,9 @@ MetaMonitor * meta_color_device_get_monitor (MetaColorDevice *color_device);
 
 META_EXPORT_TEST
 MetaColorProfile * meta_color_device_get_device_profile (MetaColorDevice *color_device);
+
+META_EXPORT_TEST
+MetaColorProfile * meta_color_device_get_assigned_profile (MetaColorDevice *color_device);
 
 void meta_color_device_generate_profile (MetaColorDevice     *color_device,
                                          const char          *file_path,

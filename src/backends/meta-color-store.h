@@ -18,6 +18,7 @@
 #ifndef META_COLOR_STORE_H
 #define META_COLOR_STORE_H
 
+#include <colord.h>
 #include <gio/gio.h>
 #include <glib-object.h>
 
@@ -37,6 +38,16 @@ gboolean meta_color_store_ensure_device_profile (MetaColorStore      *color_stor
                                                  gpointer             user_data);
 
 MetaColorProfile * meta_color_store_ensure_device_profile_finish (MetaColorStore  *color_store,
+                                                                  GAsyncResult    *res,
+                                                                  GError         **error);
+
+void meta_color_store_ensure_colord_profile (MetaColorStore      *color_store,
+                                             CdProfile           *cd_profile,
+                                             GCancellable        *cancellable,
+                                             GAsyncReadyCallback  callback,
+                                             gpointer             user_data);
+
+MetaColorProfile * meta_color_store_ensure_colord_profile_finish (MetaColorStore  *color_store,
                                                                   GAsyncResult    *res,
                                                                   GError         **error);
 

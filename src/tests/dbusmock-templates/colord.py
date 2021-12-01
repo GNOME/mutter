@@ -13,7 +13,7 @@ __copyright__ = '(c) 2021 Red Hat Inc.'
 import dbus
 import os
 import pwd
-from dbusmock import MOCK_IFACE
+from dbusmock import MOCK_IFACE, mockobject
 
 
 BUS_PREFIX = 'org.freedesktop.ColorManager'
@@ -65,7 +65,9 @@ def CreateDevice(self, device_id, scope, props):
                    DEVICE_IFACE,
                    {
                      'DeviceId': device_id,
+                     'Profiles': dbus.types.Array(signature='o'),
                      'Enabled': True,
+                     'ProfilingInhibitors': dbus.types.Array(signature='s'),
                    },
                    [])
     self.EmitSignal(MAIN_IFACE, 'DeviceAdded', 'o', [device_path])
@@ -119,3 +121,32 @@ def Reset(self):
     for profile_path in self.profiles.values():
         self.RemoveObject(profile_path)
     self.profiles = {}
+
+@dbus.service.method(MOCK_IFACE, in_signature='ss')
+def AddSystemProfile(self, profile_id, file_path):
+    uid = os.getuid()
+    username = get_username(uid)
+    profile_path = PATH_PREFIX + '/profiles/' + \
+        escape_unit_name(profile_id) + \
+        '_' + username + '_' + str(uid)
+    self.profiles[profile_id] = profile_path
+    self.AddObject(profile_path,
+                   PROFILE_IFACE,
+                   {
+                     'ProfileId': profile_id,
+                     'Filename': file_path,
+                     'Enabled': True,
+                   },
+                   [])
+    self.EmitSignal(MAIN_IFACE, 'ProfileAdded', 'o', [profile_path])
+
+@dbus.service.method(MOCK_IFACE, in_signature='sas')
+def SetDeviceProfiles(self, device_id, profile_ids):
+    device_path = self.devices[device_id]
+    device = mockobject.objects[device_path]
+    profile_paths = [
+        dbus.types.ObjectPath(self.profiles[profile_id])
+        for profile_id in profile_ids
+    ]
+    device.UpdateProperties(DEVICE_IFACE, {'Profiles': dbus.types.Array(profile_paths)})
+    device.EmitSignal(DEVICE_IFACE, 'Changed', '', [])

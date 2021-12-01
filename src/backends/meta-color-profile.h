@@ -34,6 +34,11 @@ MetaColorProfile * meta_color_profile_new_from_icc (MetaColorManager *color_mana
                                                     CdIcc            *icc,
                                                     GBytes           *raw_bytes);
 
+MetaColorProfile * meta_color_profile_new_from_cd_profile (MetaColorManager *color_manager,
+                                                           CdProfile        *cd_profile,
+                                                           CdIcc            *cd_icc,
+                                                           GBytes           *raw_bytes);
+
 gboolean meta_color_profile_equals_bytes (MetaColorProfile *color_profile,
                                           GBytes           *bytes);
 
@@ -44,6 +49,11 @@ size_t meta_color_profile_get_data_size (MetaColorProfile *color_profile);
 META_EXPORT_TEST
 CdIcc * meta_color_profile_get_cd_icc (MetaColorProfile *color_profile);
 
+CdProfile * meta_color_profile_get_cd_profile (MetaColorProfile *color_profile);
+
 gboolean meta_color_profile_is_ready (MetaColorProfile *color_profile);
+
+META_EXPORT_TEST
+const char * meta_color_profile_get_id (MetaColorProfile *color_profile);
 
 #endif /* META_COLOR_PROFILE_H */

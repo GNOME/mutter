@@ -62,6 +62,10 @@ struct _MetaColorDevice
   MetaColorProfile *device_profile;
   gulong device_profile_ready_handler_id;
 
+  MetaColorProfile *assigned_profile;
+  gulong assigned_profile_ready_handler_id;
+  GCancellable *assigned_profile_cancellable;
+
   GCancellable *cancellable;
 
   PendingState pending_state;
@@ -119,6 +123,77 @@ generate_cd_device_id (MetaMonitor *monitor)
 
 out:
   return g_string_free (device_id, FALSE);
+}
+
+static void
+ensure_default_profile_cb (GObject      *source_object,
+                           GAsyncResult *res,
+                           gpointer      user_data)
+{
+  MetaColorStore *color_store = META_COLOR_STORE (source_object);
+  MetaColorDevice *color_device;
+  g_autoptr (MetaColorProfile) color_profile = NULL;
+  g_autoptr (GError) error = NULL;
+
+  color_profile = meta_color_store_ensure_colord_profile_finish (color_store,
+                                                                 res,
+                                                                 &error);
+  if (!color_profile)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Failed to create color profile from colord profile: %s",
+                 error->message);
+    }
+
+  color_device = META_COLOR_DEVICE (user_data);
+  g_set_object (&color_device->assigned_profile, color_profile);
+}
+
+static void
+update_assigned_profile (MetaColorDevice *color_device)
+{
+  MetaColorManager *color_manager = color_device->color_manager;
+  MetaColorStore *color_store =
+    meta_color_manager_get_color_store (color_manager);
+  CdProfile *default_profile;
+  GCancellable *cancellable;
+
+  default_profile = cd_device_get_default_profile (color_device->cd_device);
+
+  if (color_device->assigned_profile &&
+      meta_color_profile_get_cd_profile (color_device->assigned_profile) ==
+      default_profile)
+    return;
+
+  if (color_device->assigned_profile_cancellable)
+    {
+      g_cancellable_cancel (color_device->assigned_profile_cancellable);
+      g_clear_object (&color_device->assigned_profile_cancellable);
+    }
+
+  if (!default_profile)
+    {
+      g_clear_object (&color_device->assigned_profile);
+      return;
+    }
+
+  cancellable = g_cancellable_new ();
+  color_device->assigned_profile_cancellable = cancellable;
+
+  meta_color_store_ensure_colord_profile (color_store,
+                                          default_profile,
+                                          cancellable,
+                                          ensure_default_profile_cb,
+                                          color_device);
+}
+
+static void
+on_cd_device_changed (CdDevice        *cd_device,
+                      MetaColorDevice *color_device)
+{
+  update_assigned_profile (color_device);
 }
 
 typedef struct
@@ -180,11 +255,18 @@ meta_color_device_dispose (GObject *object)
   meta_topic (META_DEBUG_COLOR,
               "Removing color device '%s'", color_device->cd_device_id);
 
+  if (color_device->assigned_profile_cancellable)
+    {
+      g_cancellable_cancel (color_device->assigned_profile_cancellable);
+      g_clear_object (&color_device->assigned_profile_cancellable);
+    }
+
   g_cancellable_cancel (color_device->cancellable);
   g_clear_object (&color_device->cancellable);
   g_clear_signal_handler (&color_device->device_profile_ready_handler_id,
                           color_device->device_profile);
 
+  g_clear_object (&color_device->assigned_profile);
   g_clear_object (&color_device->device_profile);
 
   cd_device = color_device->cd_device;
@@ -283,6 +365,10 @@ on_cd_device_connected (GObject      *source_object,
     }
 
   color_device->pending_state &= ~PENDING_CONNECTED;
+
+  g_signal_connect (cd_device, "changed",
+                    G_CALLBACK (on_cd_device_changed), color_device);
+  update_assigned_profile (color_device);
 
   maybe_finish_setup (color_device);
 }
@@ -980,4 +1066,10 @@ gboolean
 meta_color_device_is_ready (MetaColorDevice *color_device)
 {
   return color_device->is_ready;
+}
+
+MetaColorProfile *
+meta_color_device_get_assigned_profile (MetaColorDevice *color_device)
+{
+  return color_device->assigned_profile;
 }

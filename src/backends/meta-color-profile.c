@@ -46,8 +46,10 @@ struct _MetaColorProfile
   GBytes *bytes;
 
   char *cd_profile_id;
+  gboolean is_owner;
   CdProfile *cd_profile;
   GCancellable *cancellable;
+  guint notify_ready_id;
 
   gboolean is_ready;
 };
@@ -109,30 +111,35 @@ meta_color_profile_finalize (GObject *object)
   MetaColorProfile *color_profile = META_COLOR_PROFILE (object);
   MetaColorManager *color_manager = color_profile->color_manager;
   CdClient *cd_client = meta_color_manager_get_cd_client (color_manager);
-  CdProfile *cd_profile;
 
   g_cancellable_cancel (color_profile->cancellable);
   g_clear_object (&color_profile->cancellable);
+  g_clear_handle_id (&color_profile->notify_ready_id, g_source_remove);
 
-  cd_profile = color_profile->cd_profile;
-  if (!cd_profile)
+  if (color_profile->is_owner)
     {
-      g_autoptr (GError) error = NULL;
+      CdProfile *cd_profile;
 
-      cd_profile = find_profile_sync (cd_client,
-                                      color_profile->cd_profile_id,
-                                      &error);
-      if (!cd_profile &&
-          !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+      cd_profile = color_profile->cd_profile;
+      if (!cd_profile)
         {
-          g_warning ("Failed to find colord profile %s: %s",
-                     color_profile->cd_profile_id,
-                     error->message);
-        }
-    }
+          g_autoptr (GError) error = NULL;
 
-  if (cd_profile)
-    cd_client_delete_profile (cd_client, cd_profile, NULL, NULL, NULL);
+          cd_profile = find_profile_sync (cd_client,
+                                          color_profile->cd_profile_id,
+                                          &error);
+          if (!cd_profile &&
+              !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+            {
+              g_warning ("Failed to find colord profile %s: %s",
+                         color_profile->cd_profile_id,
+                         error->message);
+            }
+        }
+
+      if (cd_profile)
+        cd_client_delete_profile (cd_client, cd_profile, NULL, NULL, NULL);
+    }
 
   g_clear_pointer (&color_profile->cd_profile_id, g_free);
   g_clear_object (&color_profile->cd_icc);
@@ -270,10 +277,50 @@ meta_color_profile_new_from_icc (MetaColorManager *color_manager,
   color_profile->cd_icc = cd_icc;
   color_profile->bytes = raw_bytes;
   color_profile->cancellable = g_cancellable_new ();
+  color_profile->is_owner = TRUE;
 
   color_profile->cd_profile_id = g_strdup_printf ("icc-%s", checksum);
 
   create_cd_profile (color_profile, checksum);
+
+  return color_profile;
+}
+
+static gboolean
+notify_ready_idle (gpointer user_data)
+{
+  MetaColorProfile *color_profile = user_data;
+
+  color_profile->notify_ready_id = 0;
+  color_profile->is_ready = TRUE;
+  g_signal_emit (color_profile, signals[READY], 0);
+
+  return G_SOURCE_REMOVE;
+}
+
+MetaColorProfile *
+meta_color_profile_new_from_cd_profile (MetaColorManager *color_manager,
+                                        CdProfile        *cd_profile,
+                                        CdIcc            *cd_icc,
+                                        GBytes           *raw_bytes)
+{
+  MetaColorProfile *color_profile;
+  const char *checksum;
+
+  color_profile = g_object_new (META_TYPE_COLOR_PROFILE, NULL);
+  color_profile->color_manager = color_manager;
+  color_profile->cd_icc = cd_icc;
+  color_profile->bytes = raw_bytes;
+  color_profile->cancellable = g_cancellable_new ();
+  color_profile->is_owner = FALSE;
+
+  checksum = cd_icc_get_metadata_item (cd_icc,
+                                       CD_PROFILE_METADATA_FILE_CHECKSUM);
+  color_profile->cd_profile_id = g_strdup_printf ("icc-%s", checksum);
+  color_profile->cd_profile = g_object_ref (cd_profile);
+
+  color_profile->notify_ready_id = g_idle_add (notify_ready_idle,
+                                               color_profile);
 
   return color_profile;
 }
@@ -303,8 +350,20 @@ meta_color_profile_get_cd_icc (MetaColorProfile *color_profile)
   return color_profile->cd_icc;
 }
 
+CdProfile *
+meta_color_profile_get_cd_profile (MetaColorProfile *color_profile)
+{
+  return color_profile->cd_profile;
+}
+
 gboolean
 meta_color_profile_is_ready (MetaColorProfile *color_profile)
 {
   return color_profile->is_ready;
+}
+
+const char *
+meta_color_profile_get_id (MetaColorProfile *color_profile)
+{
+  return color_profile->cd_profile_id;
 }

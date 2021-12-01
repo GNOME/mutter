@@ -28,6 +28,9 @@
 
 static MetaContext *test_context;
 
+/* Profile ID is 'icc-$(md5sum sRGB.icc)' */
+#define SRGB_ICC_PROFILE_ID "icc-112034c661b5e0c91c51f109684612a0";
+
 #define PRIMARY_EPSILON 0.000015
 
 static MonitorTestCaseSetup base_monitor_setup = {
@@ -100,6 +103,82 @@ static MonitorTestCaseSetup base_monitor_setup = {
     .white_x = 0.313477, \
     .white_y = 0.329102, \
   })
+
+static GDBusProxy *
+get_colord_mock_proxy (void)
+{
+  GDBusProxy *proxy;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) ret = NULL;
+
+  proxy =
+    g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START |
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
+                                   NULL,
+                                   "org.freedesktop.ColorManager",
+                                   "/org/freedesktop/ColorManager",
+                                   "org.freedesktop.DBus.Mock",
+                                   NULL, &error);
+  if (!proxy)
+    {
+      g_error ("Failed to find mocked color manager system service, %s",
+               error->message);
+    }
+
+  return proxy;
+}
+
+static void
+set_colord_device_profiles (const char  *cd_device_id,
+                            const char **cd_profile_ids,
+                            int          n_cd_profile_ids)
+{
+  GDBusProxy *proxy;
+  g_autoptr (GError) error = NULL;
+  GVariantBuilder params_builder;
+  GVariantBuilder profiles_builder;
+  int i;
+
+  proxy = get_colord_mock_proxy ();
+
+  g_variant_builder_init (&params_builder, G_VARIANT_TYPE ("(sas)"));
+  g_variant_builder_add (&params_builder, "s", cd_device_id);
+
+  g_variant_builder_init (&profiles_builder, G_VARIANT_TYPE ("as"));
+  for (i = 0; i < n_cd_profile_ids; i++)
+    g_variant_builder_add (&profiles_builder, "s", cd_profile_ids[i]);
+  g_variant_builder_add (&params_builder, "as", &profiles_builder);
+
+  if (!g_dbus_proxy_call_sync (proxy,
+                               "SetDeviceProfiles",
+                               g_variant_builder_end (&params_builder),
+                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                               &error))
+    g_error ("Failed to set device profile: %s", error->message);
+}
+
+static void
+add_colord_system_profile (const char *cd_profile_id,
+                           const char *file_path)
+{
+  GDBusProxy *proxy;
+  g_autoptr (GError) error = NULL;
+  GVariantBuilder params_builder;
+
+  proxy = get_colord_mock_proxy ();
+
+  g_variant_builder_init (&params_builder, G_VARIANT_TYPE ("(ss)"));
+  g_variant_builder_add (&params_builder, "s", cd_profile_id);
+  g_variant_builder_add (&params_builder, "s", file_path);
+
+  if (!g_dbus_proxy_call_sync (proxy,
+                               "AddSystemProfile",
+                               g_variant_builder_end (&params_builder),
+                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                               &error))
+    g_error ("Failed to add system profile: %s", error->message);
+}
 
 static void
 meta_test_color_management_device_basic (void)
@@ -269,6 +348,63 @@ meta_test_color_management_profile_device (void)
   g_assert_cmpfloat_with_epsilon (white->Z, 1.10479736, PRIMARY_EPSILON);
 }
 
+static void
+meta_test_color_management_profile_system (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MetaEdidInfo edid_info;
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitor *monitor;
+  MetaColorDevice *color_device;
+  const char *path;
+  const char *color_profiles[1];
+  MetaColorProfile *color_profile;
+  const char *srgb_profile_id = SRGB_ICC_PROFILE_ID;
+
+  edid_info = CALTECH_MONITOR_EDID;
+  test_case_setup.outputs[0].edid_info = edid_info;
+  test_case_setup.outputs[0].has_edid_info = TRUE;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitor = meta_monitor_manager_get_monitors (monitor_manager)->data;
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_null (meta_color_device_get_assigned_profile (color_device));
+
+  path = g_test_get_filename (G_TEST_DIST, "tests", "icc-profiles", "sRGB.icc",
+                              NULL);
+  add_colord_system_profile (srgb_profile_id, path);
+  color_profiles[0] = srgb_profile_id;
+  set_colord_device_profiles (meta_color_device_get_id (color_device),
+                              color_profiles, G_N_ELEMENTS (color_profiles));
+
+  while (TRUE)
+    {
+      color_profile = meta_color_device_get_assigned_profile (color_device);
+      if (color_profile)
+        break;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+
+  g_assert_cmpstr (meta_color_profile_get_id (color_profile),
+                   ==,
+                   srgb_profile_id);
+}
+
 static MetaMonitorTestSetup *
 create_stage_view_test_setup (MetaBackend *backend)
 {
@@ -296,17 +432,27 @@ init_tests (void)
                    meta_test_color_management_device_basic);
   g_test_add_func ("/color-management/profile/device",
                    meta_test_color_management_profile_device);
+  g_test_add_func ("/color-management/profile/system",
+                   meta_test_color_management_profile_system);
 }
 
 int
 main (int argc, char **argv)
 {
   g_autoptr (MetaContext) context = NULL;
+  char *path;
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
                                       META_CONTEXT_TEST_FLAG_NONE);
 
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  path = g_test_build_filename (G_TEST_BUILT,
+                                "tests",
+                                "share",
+                                NULL);
+  g_setenv ("XDG_DATA_HOME", path, TRUE);
+  g_free (path);
 
   test_context = context;
 
