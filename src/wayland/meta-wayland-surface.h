@@ -147,7 +147,9 @@ struct _MetaWaylandDragDestFuncs
                       MetaWaylandSurface    *surface);
   void (* motion)    (MetaWaylandDataDevice *data_device,
                       MetaWaylandSurface    *surface,
-                      const ClutterEvent    *event);
+                      float                  x,
+                      float                  y,
+                      uint32_t               time_ms);
   void (* drop)      (MetaWaylandDataDevice *data_device,
                       MetaWaylandSurface    *surface);
   void (* update)    (MetaWaylandDataDevice *data_device,
@@ -315,7 +317,9 @@ void                meta_wayland_surface_delete (MetaWaylandSurface *surface);
 void                meta_wayland_surface_drag_dest_focus_in  (MetaWaylandSurface   *surface,
                                                               MetaWaylandDataOffer *offer);
 void                meta_wayland_surface_drag_dest_motion    (MetaWaylandSurface   *surface,
-                                                              const ClutterEvent   *event);
+                                                              float                 x,
+                                                              float                 y,
+                                                              uint32_t              time_ms);
 void                meta_wayland_surface_drag_dest_focus_out (MetaWaylandSurface   *surface);
 void                meta_wayland_surface_drag_dest_drop      (MetaWaylandSurface   *surface);
 void                meta_wayland_surface_drag_dest_update    (MetaWaylandSurface   *surface);

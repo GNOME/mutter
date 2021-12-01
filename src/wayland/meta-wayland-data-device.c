@@ -357,9 +357,16 @@ drag_grab_motion (MetaWaylandPointerGrab *grab,
 		  const ClutterEvent     *event)
 {
   MetaWaylandDragGrab *drag_grab = (MetaWaylandDragGrab*) grab;
+  graphene_point_t point;
+  uint32_t time_ms;
 
   if (drag_grab->drag_focus)
-    meta_wayland_surface_drag_dest_motion (drag_grab->drag_focus, event);
+    {
+      clutter_event_get_coords (event, &point.x, &point.y);
+      time_ms = clutter_event_get_time (event);
+      meta_wayland_surface_drag_dest_motion (drag_grab->drag_focus,
+                                             point.x, point.y, time_ms);
+    }
 
   if (drag_grab->drag_surface)
     meta_feedback_actor_update (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
@@ -826,7 +833,9 @@ meta_wayland_drag_dest_focus_out (MetaWaylandDataDevice *data_device,
 static void
 meta_wayland_drag_dest_motion (MetaWaylandDataDevice *data_device,
                                MetaWaylandSurface    *surface,
-                               const ClutterEvent    *event)
+                               float                  x,
+                               float                  y,
+                               uint32_t               time_ms)
 {
   MetaWaylandDragGrab *grab = data_device->current_grab;
   wl_fixed_t sx, sy;
@@ -838,7 +847,7 @@ meta_wayland_drag_dest_motion (MetaWaylandDataDevice *data_device,
                                                  grab->drag_focus,
                                                  &sx, &sy);
   wl_data_device_send_motion (grab->drag_focus_data_device,
-                              clutter_event_get_time (event),
+                              time_ms,
                               sx, sy);
 }
 

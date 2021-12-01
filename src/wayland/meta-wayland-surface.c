@@ -1656,12 +1656,14 @@ meta_wayland_surface_drag_dest_focus_in (MetaWaylandSurface   *surface,
 
 void
 meta_wayland_surface_drag_dest_motion (MetaWaylandSurface *surface,
-                                       const ClutterEvent *event)
+                                       float               x,
+                                       float               y,
+                                       uint32_t            time_ms)
 {
   MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
 
-  surface->dnd.funcs->motion (data_device, surface, event);
+  surface->dnd.funcs->motion (data_device, surface, x, y, time_ms);
 }
 
 void

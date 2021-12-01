@@ -636,17 +636,15 @@ meta_x11_drag_dest_focus_out (MetaWaylandDataDevice *data_device,
 static void
 meta_x11_drag_dest_motion (MetaWaylandDataDevice *data_device,
                            MetaWaylandSurface    *surface,
-                           const ClutterEvent    *event)
+                           float                  x,
+                           float                  y,
+                           uint32_t               time_ms)
 {
   MetaWaylandSeat *seat = meta_wayland_data_device_get_seat (data_device);
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
-  guint32 time;
-  gfloat x, y;
 
-  time = clutter_event_get_time (event);
-  clutter_event_get_coords (event, &x, &y);
-  xdnd_send_position (dnd, dnd->dnd_dest, time, x, y);
+  xdnd_send_position (dnd, dnd->dnd_dest, time_ms, x, y);
 }
 
 static void
@@ -975,28 +973,22 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
         }
       else if (event->message_type == xdnd_atoms[ATOM_DND_POSITION])
         {
-          ClutterEvent *motion;
           graphene_point_t pos;
           uint32_t action = 0;
 
           dnd->client_message_timestamp = event->data.l[3];
 
-          motion = clutter_event_new (CLUTTER_MOTION);
           clutter_seat_query_state (clutter_input_device_get_seat (seat->pointer->device),
                                     seat->pointer->device, NULL, &pos, NULL);
-          clutter_event_set_coords (motion, pos.x, pos.y);
-          clutter_event_set_device (motion, seat->pointer->device);
-          clutter_event_set_source_device (motion, seat->pointer->device);
-          clutter_event_set_time (motion, dnd->last_motion_time);
 
           action = atom_to_action ((Atom) event->data.l[4]);
           meta_wayland_data_source_set_user_action (dnd->source, action);
 
-          meta_wayland_surface_drag_dest_motion (drag_focus, motion);
+          meta_wayland_surface_drag_dest_motion (drag_focus, pos.x, pos.y,
+                                                 dnd->last_motion_time);
           xdnd_send_status (dnd, (Window) event->data.l[0],
                             meta_wayland_data_source_get_current_action (dnd->source));
 
-          clutter_event_free (motion);
           return TRUE;
         }
       else if (event->message_type == xdnd_atoms[ATOM_DND_LEAVE])
