@@ -645,24 +645,25 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
                                             id);
 
   wayland_output = wl_resource_get_user_data (output);
-  if (!wayland_output)
-    return;
-
   wl_resource_set_implementation (xdg_output_resource,
                                   &meta_xdg_output_interface,
                                   wayland_output, meta_xdg_output_destructor);
+
+  if (!wayland_output)
+    goto done;
 
   wayland_output->xdg_output_resources =
     g_list_prepend (wayland_output->xdg_output_resources, xdg_output_resource);
 
   if (!wayland_output->monitor)
-    return;
+    goto done;
 
   send_xdg_output_events (xdg_output_resource,
                           wayland_output,
                           wayland_output->monitor,
                           TRUE, NULL);
 
+done:
   xdg_output_version = wl_resource_get_version (xdg_output_resource);
   wl_output_version = wl_resource_get_version (output);
 
