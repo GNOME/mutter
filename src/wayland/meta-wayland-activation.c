@@ -279,11 +279,12 @@ activation_activate (struct wl_client   *client,
     return;
 
   if (token->seat &&
-      token->surface &&
-      meta_wayland_seat_get_grab_info (token->seat,
-                                       token->surface,
-                                       token->serial,
-                                       FALSE, NULL, NULL))
+      ((token->surface &&
+        meta_wayland_seat_get_grab_info (token->seat,
+                                         token->surface,
+                                         token->serial,
+                                         FALSE, NULL, NULL)) ||
+       meta_wayland_seat_can_popup (token->seat, token->serial)))
     {
       uint32_t timestamp;
       int32_t workspace_idx;
