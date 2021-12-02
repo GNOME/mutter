@@ -1185,7 +1185,9 @@ meta_backend_get_idle_manager (MetaBackend *backend)
 }
 
 /**
- * meta_backend_get_monitor_manager: (skip)
+ * meta_backend_get_monitor_manager:
+ *
+ * Returns: (transfer none): A #MetaMonitorManager
  */
 MetaMonitorManager *
 meta_backend_get_monitor_manager (MetaBackend *backend)

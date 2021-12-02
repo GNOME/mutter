@@ -123,8 +123,6 @@ MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
 MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
-MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
-META_EXPORT_TEST
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
