@@ -70,6 +70,7 @@ enum
 
   PROP_BACKEND,
   PROP_PANEL_ORIENTATION_MANAGED,
+  PROP_HAS_BUILTIN_PANEL,
 
   PROP_LAST
 };
@@ -107,6 +108,8 @@ typedef struct _MetaMonitorManagerPrivate
   GList *virtual_monitors;
 
   gboolean shutting_down;
+
+  gboolean has_builtin_panel;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -1032,6 +1035,33 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
     handle_orientation_change (orientation_manager, manager);
 }
 
+static void
+update_has_builtin_panel (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  GList *l;
+  gboolean has_builtin_panel = FALSE;
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+
+      if (meta_monitor_is_laptop_panel (monitor))
+        {
+          has_builtin_panel = TRUE;
+          break;
+        }
+    }
+
+  if (priv->has_builtin_panel == has_builtin_panel)
+    return;
+
+  priv->has_builtin_panel = has_builtin_panel;
+  g_object_notify_by_pspec (G_OBJECT (manager),
+                            obj_props[PROP_HAS_BUILTIN_PANEL]);
+}
+
 void
 meta_monitor_manager_setup (MetaMonitorManager *manager)
 {
@@ -1144,6 +1174,7 @@ meta_monitor_manager_set_property (GObject      *object,
       manager->backend = g_value_get_object (value);
       break;
     case PROP_PANEL_ORIENTATION_MANAGED:
+    case PROP_HAS_BUILTIN_PANEL:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -1156,6 +1187,8 @@ meta_monitor_manager_get_property (GObject    *object,
                                    GParamSpec *pspec)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
 
   switch (prop_id)
     {
@@ -1164,6 +1197,9 @@ meta_monitor_manager_get_property (GObject    *object,
       break;
     case PROP_PANEL_ORIENTATION_MANAGED:
       g_value_set_boolean (value, manager->panel_orientation_managed);
+      break;
+    case PROP_HAS_BUILTIN_PANEL:
+      g_value_set_boolean (value, priv->has_builtin_panel);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1233,6 +1269,16 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |
                           G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_HAS_BUILTIN_PANEL] =
+    g_param_spec_boolean ("has-builtin-panel",
+                          "Has builtin panel",
+                          "The system has a built in panel",
+                          FALSE,
+                          G_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY |
+                          G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
@@ -3148,6 +3194,7 @@ rebuild_monitors (MetaMonitorManager *manager)
     }
 
   update_panel_orientation_managed (manager);
+  update_has_builtin_panel (manager);
 }
 
 void
