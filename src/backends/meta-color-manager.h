@@ -35,4 +35,7 @@ META_EXPORT_TEST
 MetaColorDevice * meta_color_manager_get_color_device (MetaColorManager *color_manager,
                                                        MetaMonitor      *monitor);
 
+void meta_color_manager_set_brightness (MetaColorManager *color_manager,
+                                        int               brightness);
+
 #endif /* META_COLOR_MANAGER_H */

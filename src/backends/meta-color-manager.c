@@ -53,6 +53,7 @@
 #include "backends/meta-monitor.h"
 
 #include "meta-dbus-gsd-color.h"
+#include "meta-dbus-gsd-power-screen.h"
 
 enum
 {
@@ -79,6 +80,7 @@ typedef struct _MetaColorManagerPrivate
   GHashTable *devices;
 
   MetaDbusSettingsDaemonColor *gsd_color;
+  MetaDbusSettingsDaemonPowerScreen *gsd_power_screen;
 
   gboolean is_ready;
 } MetaColorManagerPrivate;
@@ -244,6 +246,34 @@ on_gsd_color_ready (GObject      *source_object,
 }
 
 static void
+on_gsd_power_screen_ready (GObject      *source_object,
+                           GAsyncResult *res,
+                           gpointer      user_data)
+{
+  MetaColorManager *color_manager = META_COLOR_MANAGER (user_data);
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaDbusSettingsDaemonPowerScreen *gsd_power_screen;
+  g_autoptr (GError) error = NULL;
+
+  gsd_power_screen =
+    meta_dbus_settings_daemon_power_screen_proxy_new_for_bus_finish (res,
+                                                                     &error);
+  if (!gsd_power_screen)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Failed to create gsd-power-screen D-Bus proxy: %s", error->message);
+      return;
+    }
+
+  meta_topic (META_DEBUG_COLOR,
+              "Connection to org.gnome.SettingsDaemon.PowerScreen established");
+  priv->gsd_power_screen = gsd_power_screen;
+}
+
+static void
 meta_color_manager_constructed (GObject *object)
 {
   MetaColorManager *color_manager = META_COLOR_MANAGER (object);
@@ -266,6 +296,15 @@ meta_color_manager_constructed (GObject *object)
     priv->cancellable,
     on_gsd_color_ready,
     color_manager);
+
+  meta_dbus_settings_daemon_power_screen_proxy_new_for_bus (
+    G_BUS_TYPE_SESSION,
+    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+    "org.gnome.SettingsDaemon.Power.Screen",
+    "/org/gnome/SettingsDaemon/Power",
+    priv->cancellable,
+    on_gsd_power_screen_ready,
+    color_manager);
 }
 
 static void
@@ -278,6 +317,7 @@ meta_color_manager_finalize (GObject *object)
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
   g_clear_pointer (&priv->devices, g_hash_table_unref);
+  g_clear_object (&priv->gsd_power_screen);
   g_clear_object (&priv->gsd_color);
   g_clear_object (&priv->color_store);
   g_clear_pointer (&priv->lcms_context, cmsDeleteContext);
@@ -417,4 +457,23 @@ meta_color_manager_get_lcms_context (MetaColorManager *color_manager)
     meta_color_manager_get_instance_private (color_manager);
 
   return priv->lcms_context;
+}
+
+void
+meta_color_manager_set_brightness (MetaColorManager *color_manager,
+                                   int               brightness)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  if (!priv->gsd_power_screen)
+    {
+      meta_topic (META_DEBUG_COLOR,
+                  "No org.gnome.SettingsDaemon.Power.Screen service available, "
+                  "not setting brightness");
+      return;
+    }
+
+  meta_dbus_settings_daemon_power_screen_set_brightness (priv->gsd_power_screen,
+                                                         brightness);
 }
