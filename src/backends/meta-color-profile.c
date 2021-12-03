@@ -367,3 +367,10 @@ meta_color_profile_get_id (MetaColorProfile *color_profile)
 {
   return color_profile->cd_profile_id;
 }
+
+const char *
+meta_color_profile_get_brightness_profile (MetaColorProfile *color_profile)
+{
+  return cd_profile_get_metadata_item (color_profile->cd_profile,
+                                       CD_PROFILE_METADATA_SCREEN_BRIGHTNESS);
+}

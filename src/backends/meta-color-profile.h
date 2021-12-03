@@ -56,4 +56,6 @@ gboolean meta_color_profile_is_ready (MetaColorProfile *color_profile);
 META_EXPORT_TEST
 const char * meta_color_profile_get_id (MetaColorProfile *color_profile);
 
+const char * meta_color_profile_get_brightness_profile (MetaColorProfile *color_profile);
+
 #endif /* META_COLOR_PROFILE_H */
