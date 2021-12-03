@@ -369,6 +369,12 @@ meta_color_profile_get_id (MetaColorProfile *color_profile)
 }
 
 const char *
+meta_color_profile_get_file_path (MetaColorProfile *color_profile)
+{
+  return cd_profile_get_filename (color_profile->cd_profile);
+}
+
+const char *
 meta_color_profile_get_brightness_profile (MetaColorProfile *color_profile)
 {
   return cd_profile_get_metadata_item (color_profile->cd_profile,
