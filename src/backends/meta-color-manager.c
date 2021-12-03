@@ -55,6 +55,8 @@
 #include "meta-dbus-gsd-color.h"
 #include "meta-dbus-gsd-power-screen.h"
 
+#define DEFAULT_TEMPERATURE 6500 /* Kelvin */
+
 enum
 {
   PROP_0,
@@ -83,6 +85,11 @@ typedef struct _MetaColorManagerPrivate
   MetaDbusSettingsDaemonPowerScreen *gsd_power_screen;
 
   gboolean is_ready;
+
+  /* The temperature (in Kelvin) adjustment to apply to the color LUTs;
+   * used to shift the screen towards red for Night Light.
+   */
+  unsigned int temperature;
 } MetaColorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaColorManager, meta_color_manager, G_TYPE_OBJECT)
@@ -219,6 +226,28 @@ cd_client_connect_cb (GObject      *source_object,
 }
 
 static void
+on_temperature_changed (MetaDbusSettingsDaemonColor *gsd_color,
+                        GParamSpec                  *pspec,
+                        MetaColorManager            *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  unsigned int temperature;
+
+  temperature = meta_dbus_settings_daemon_color_get_temperature (gsd_color);
+  if (priv->temperature == temperature)
+    return;
+
+  if (temperature < 1000 || temperature > 10000)
+    {
+      g_warning ("Invalid temperature from gsd-color: %u K", temperature);
+      return;
+    }
+
+  priv->temperature = temperature;
+}
+
+static void
 on_gsd_color_ready (GObject      *source_object,
                     GAsyncResult *res,
                     gpointer      user_data)
@@ -243,6 +272,10 @@ on_gsd_color_ready (GObject      *source_object,
   meta_topic (META_DEBUG_COLOR,
               "Connection to org.gnome.SettingsDaemon.Color established");
   priv->gsd_color = gsd_color;
+
+  g_signal_connect (gsd_color, "notify::temperature",
+                    G_CALLBACK (on_temperature_changed),
+                    color_manager);
 }
 
 static void
@@ -283,6 +316,7 @@ meta_color_manager_constructed (GObject *object)
   priv->lcms_context = cmsCreateContext (NULL, NULL);
 
   priv->cancellable = g_cancellable_new ();
+  priv->temperature = DEFAULT_TEMPERATURE;
 
   priv->cd_client = cd_client_new ();
   cd_client_connect (priv->cd_client, priv->cancellable, cd_client_connect_cb,
