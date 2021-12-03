@@ -94,6 +94,34 @@ typedef struct _MetaColorManagerPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaColorManager, meta_color_manager, G_TYPE_OBJECT)
 
+static void
+on_device_ready (MetaColorDevice  *color_device,
+                 gboolean          success,
+                 MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  if (!success)
+    {
+      meta_topic (META_DEBUG_COLOR, "Color device '%s' failed to become ready",
+                  meta_color_device_get_id (color_device));
+      return;
+    }
+
+  meta_color_device_update_gamma (color_device, priv->temperature);
+}
+
+static void
+on_device_changed (MetaColorDevice  *color_device,
+                   MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  meta_color_device_update_gamma (color_device, priv->temperature);
+}
+
 static char *
 generate_monitor_id (MetaMonitor *monitor)
 {
@@ -167,6 +195,13 @@ update_devices (MetaColorManager *color_manager)
           g_hash_table_insert (devices,
                                g_steal_pointer (&monitor_id),
                                color_device);
+
+          g_signal_connect_object (color_device, "ready",
+                                   G_CALLBACK (on_device_ready),
+                                   color_manager, 0);
+          g_signal_connect_object (color_device, "changed",
+                                   G_CALLBACK (on_device_changed),
+                                   color_manager, 0);
         }
     }
 
@@ -226,6 +261,32 @@ cd_client_connect_cb (GObject      *source_object,
 }
 
 static void
+update_all_gamma (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
+  GList *l;
+
+  for (l = meta_monitor_manager_get_monitors (monitor_manager); l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+      MetaColorDevice *color_device;
+
+      color_device = meta_color_manager_get_color_device (color_manager,
+                                                          monitor);
+      if (!color_device)
+        continue;
+
+      if (!meta_color_device_is_ready (color_device))
+          continue;
+
+      meta_color_device_update_gamma (color_device, priv->temperature);
+    }
+}
+
+static void
 on_temperature_changed (MetaDbusSettingsDaemonColor *gsd_color,
                         GParamSpec                  *pspec,
                         MetaColorManager            *color_manager)
@@ -245,6 +306,8 @@ on_temperature_changed (MetaDbusSettingsDaemonColor *gsd_color,
     }
 
   priv->temperature = temperature;
+
+  update_all_gamma (color_manager);
 }
 
 static void
@@ -276,6 +339,8 @@ on_gsd_color_ready (GObject      *source_object,
   g_signal_connect (gsd_color, "notify::temperature",
                     G_CALLBACK (on_temperature_changed),
                     color_manager);
+
+  update_all_gamma (color_manager);
 }
 
 static void
@@ -304,6 +369,8 @@ on_gsd_power_screen_ready (GObject      *source_object,
   meta_topic (META_DEBUG_COLOR,
               "Connection to org.gnome.SettingsDaemon.PowerScreen established");
   priv->gsd_power_screen = gsd_power_screen;
+
+  update_all_gamma (color_manager);
 }
 
 static void
@@ -339,6 +406,9 @@ meta_color_manager_constructed (GObject *object)
     priv->cancellable,
     on_gsd_power_screen_ready,
     color_manager);
+
+  update_devices (color_manager);
+  update_all_gamma (color_manager);
 }
 
 static void
