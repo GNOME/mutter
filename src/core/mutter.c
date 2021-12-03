@@ -131,7 +131,7 @@ main (int argc, char **argv)
   meta_context_add_option_entries (context, mutter_options, GETTEXT_PACKAGE);
   if (!meta_context_configure (context, &argc, &argv, &error))
     {
-      g_printerr ("Failed to configure: %s", error->message);
+      g_printerr ("Failed to configure: %s\n", error->message);
       return EXIT_FAILURE;
     }
 
@@ -141,13 +141,13 @@ main (int argc, char **argv)
 
   if (!meta_context_setup (context, &error))
     {
-      g_printerr ("Failed to setup: %s", error->message);
+      g_printerr ("Failed to setup: %s\n", error->message);
       return EXIT_FAILURE;
     }
 
   if (!meta_context_start (context, &error))
     {
-      g_printerr ("Failed to start: %s", error->message);
+      g_printerr ("Failed to start: %s\n", error->message);
       return EXIT_FAILURE;
     }
 
@@ -163,7 +163,7 @@ main (int argc, char **argv)
                           G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
                           NULL, NULL, &command_pid, &error))
         {
-          g_printerr ("Failed to run the command: %s", error->message);
+          g_printerr ("Failed to run the command: %s\n", error->message);
           return EXIT_FAILURE;
         }
 
@@ -172,7 +172,7 @@ main (int argc, char **argv)
 
   if (!meta_context_run_main_loop (context, &error))
     {
-      g_printerr ("Mutter terminated with a failure: %s", error->message);
+      g_printerr ("Mutter terminated with a failure: %s\n", error->message);
       return EXIT_FAILURE;
     }
 
