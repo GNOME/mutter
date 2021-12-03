@@ -35,9 +35,14 @@ struct _MetaColorStore
 
   MetaColorManager *color_manager;
 
+  GFileMonitor *icc_directory_monitor;
+
   GHashTable *profiles;
   GHashTable *device_profiles;
   GHashTable *pending_device_profiles;
+  GHashTable *pending_local_profiles;
+
+  GCancellable *cancellable;
 };
 
 typedef struct
@@ -54,9 +59,14 @@ meta_color_store_finalize (GObject *object)
 {
   MetaColorStore *color_store = META_COLOR_STORE (object);
 
+  g_cancellable_cancel (color_store->cancellable);
+  g_clear_object (&color_store->cancellable);
+
+  g_clear_object (&color_store->icc_directory_monitor);
   g_clear_pointer (&color_store->profiles, g_hash_table_unref);
   g_clear_pointer (&color_store->device_profiles, g_hash_table_unref);
   g_clear_pointer (&color_store->pending_device_profiles, g_hash_table_unref);
+  g_clear_pointer (&color_store->pending_local_profiles, g_hash_table_unref);
 
   G_OBJECT_CLASS (meta_color_store_parent_class)->finalize (object);
 }
@@ -72,12 +82,349 @@ meta_color_store_class_init (MetaColorStoreClass *klass)
 static void
 meta_color_store_init (MetaColorStore *color_store)
 {
+  color_store->cancellable = g_cancellable_new ();
+}
+
+static void
+on_directory_profile_ready (MetaColorProfile *color_profile,
+                            MetaColorStore   *color_store)
+{
+  g_object_ref (color_profile);
+
+  if (!g_hash_table_steal (color_store->pending_local_profiles,
+                           meta_color_profile_get_file_path (color_profile)))
+    g_warn_if_reached ();
+
+  g_hash_table_insert (color_store->profiles,
+                       g_strdup (meta_color_profile_get_id (color_profile)),
+                       color_profile);
+
+  meta_topic (META_DEBUG_COLOR, "Created colord profile '%s' from '%s'",
+              meta_color_profile_get_id (color_profile),
+              meta_color_profile_get_file_path (color_profile));
+
+  g_object_unref (color_profile);
+}
+
+static void
+create_profile_from_contents (MetaColorStore *color_store,
+                              const char     *file_path,
+                              const char     *contents,
+                              size_t          size)
+{
+  g_autoptr (CdIcc) cd_icc = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GBytes) bytes = NULL;
+  g_autofree char *file_md5_checksum = NULL;
+  MetaColorProfile *color_profile;
+
+  cd_icc = cd_icc_new ();
+  if (!cd_icc_load_data (cd_icc,
+                         (uint8_t *) contents,
+                         size,
+                         CD_ICC_LOAD_FLAGS_METADATA,
+                         &error))
+    {
+      g_warning ("Failed to parse ICC profile '%s': %s", file_path, error->message);
+      return;
+    }
+
+  bytes = g_bytes_new (contents, size);
+
+  /* Set metadata needed by colord */
+  cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME,
+                       file_path);
+
+  file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5,
+                                                    bytes);
+  cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
+                       file_md5_checksum);
+  color_profile =
+    meta_color_profile_new_from_icc (color_store->color_manager,
+                                     g_steal_pointer (&cd_icc),
+                                     g_steal_pointer (&bytes));
+
+  g_signal_connect (color_profile, "ready",
+                    G_CALLBACK (on_directory_profile_ready),
+                    color_store);
+
+  g_hash_table_insert (color_store->pending_local_profiles,
+                       g_strdup (file_path),
+                       color_profile);
+}
+
+static gboolean
+should_ignore_store_file (GFile *file)
+{
+  g_autofree char *file_name = NULL;
+
+  /* Ignore profiles from EDID, as they will always be generated on demand. */
+  file_name = g_file_get_basename (file);
+  return g_str_has_prefix (file_name, "edid-");
+}
+
+static void
+process_icc_directory_file (MetaColorStore *color_store,
+                            GFile          *file)
+{
+  g_autoptr (GError) error = NULL;
+  g_autofree char *contents = NULL;
+  size_t size;
+
+  if (should_ignore_store_file (file))
+    return;
+
+  if (!g_file_load_contents (file, NULL, &contents, &size, NULL, &error))
+    {
+      g_warning ("Failed to read '%s': %s",
+                 g_file_peek_path (file), error->message);
+      return;
+    }
+
+  create_profile_from_contents (color_store, g_file_peek_path (file),
+                                contents, size);
+}
+
+static gboolean
+is_file_info_icc_profile (GFileInfo *info)
+{
+  const char *content_type;
+
+  content_type =
+    g_file_info_get_attribute_string (info,
+                                      G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE);
+  if (g_strcmp0 (content_type, "application/vnd.iccprofile") != 0)
+    return FALSE;
+
+  if (g_file_info_get_attribute_boolean (info,
+                                         G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN))
+    return FALSE;
+
+  if (g_file_info_get_attribute_boolean (info,
+                                         G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP))
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
+is_file_icc_profile (GFile *file)
+{
+  g_autoptr (GFileInfo) info = NULL;
+  g_autoptr (GError) error = NULL;
+
+  info = g_file_query_info (file,
+                            G_FILE_ATTRIBUTE_STANDARD_NAME ","
+                            G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+                            G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","
+                            G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP ","
+                            G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                            G_FILE_QUERY_INFO_NONE,
+                            NULL,
+                            &error);
+  if (!info)
+    {
+      g_warning ("Failed to query file info on '%s': %s",
+                 g_file_get_path (file),
+                 error->message);
+      return FALSE;
+    }
+
+  return is_file_info_icc_profile (info);
+}
+
+static void
+on_store_file_read (GObject      *source_object,
+                    GAsyncResult *res,
+                    gpointer      user_data)
+{
+  GFile *file = G_FILE (source_object);
+  MetaColorStore *color_store = user_data;
+  g_autoptr (GError) error = NULL;
+  g_autofree char *contents = NULL;
+  size_t size;
+
+  if (!g_file_load_contents_finish (file, res,
+                                    &contents,
+                                    &size,
+                                    NULL,
+                                    &error))
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
+          g_warning ("Failed to read '%s': %s",
+                     g_file_peek_path (file), error->message);
+        }
+      return;
+    }
+
+  create_profile_from_contents (color_store, g_file_peek_path (file),
+                                contents, size);
+}
+
+static void
+query_file_info_cb (GObject      *source_object,
+                    GAsyncResult *res,
+                    gpointer      user_data)
+{
+  GFile *file = G_FILE (source_object);
+  g_autoptr (GFileInfo) info = NULL;
+  g_autoptr (GError) error = NULL;
+  MetaColorStore *color_store = user_data;
+
+  info = g_file_query_info_finish (file, res, &error);
+  if (!info)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Failed to query file info on '%s': %s",
+                 g_file_get_path (file),
+                 error->message);
+      return;
+    }
+
+  if (!is_file_info_icc_profile (info))
+    return;
+
+  if (should_ignore_store_file (file))
+    return;
+
+  g_file_load_contents_async (file, color_store->cancellable,
+                              on_store_file_read, color_store);
+}
+
+static void
+on_icc_directory_change (GFileMonitor      *monitor,
+                         GFile             *file,
+                         GFile             *other_file,
+                         GFileMonitorEvent  event_type,
+                         MetaColorStore    *color_store)
+{
+  switch (event_type)
+    {
+    case G_FILE_MONITOR_EVENT_CREATED:
+      break;
+    default:
+      return;
+    }
+
+  g_file_query_info_async (file,
+                           G_FILE_ATTRIBUTE_STANDARD_NAME ","
+                           G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+                           G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","
+                           G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP ","
+                           G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                           G_FILE_QUERY_INFO_NONE,
+                           G_PRIORITY_DEFAULT,
+                           color_store->cancellable,
+                           query_file_info_cb,
+                           color_store);
+}
+
+static gboolean
+init_profile_directory (MetaColorStore  *color_store,
+                        GError         **error)
+{
+  g_autofree char *icc_directory_path = NULL;
+  g_autoptr (GFile) icc_directory = NULL;
+  g_autoptr (GError) local_error = NULL;
+  g_autoptr (GFileEnumerator) enumerator = NULL;
+
+  icc_directory_path = g_build_filename (g_get_user_data_dir (),
+                                         "icc", NULL);
+  icc_directory = g_file_new_for_path (icc_directory_path);
+
+  if (!g_file_query_exists (icc_directory, NULL))
+    {
+      if (!g_file_make_directory_with_parents (icc_directory, NULL, error))
+        return FALSE;
+    }
+
+  color_store->icc_directory_monitor =
+    g_file_monitor (icc_directory,
+                    G_FILE_MONITOR_NONE,
+                    NULL, &local_error);
+  if (color_store->icc_directory_monitor)
+    {
+      g_signal_connect (color_store->icc_directory_monitor,
+                        "changed", G_CALLBACK (on_icc_directory_change),
+                        color_store);
+    }
+  else
+    {
+      g_warning ("Failed to monitor ICC profile directory '%s': %s",
+                 icc_directory_path,
+                 local_error->message);
+      g_clear_error (&local_error);
+    }
+
+  enumerator = g_file_enumerate_children (icc_directory,
+                                          G_FILE_ATTRIBUTE_STANDARD_NAME ","
+                                          G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+                                          G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","
+                                          G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP ","
+                                          G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                                          G_FILE_QUERY_INFO_NONE,
+                                          NULL,
+                                          error);
+  if (!enumerator)
+    return FALSE;
+
+  while (TRUE)
+    {
+      GFileInfo *file_info;
+
+      file_info = g_file_enumerator_next_file (enumerator, NULL, error);
+      if (!file_info)
+        {
+          if (*error)
+            return FALSE;
+          else
+            break;
+        }
+
+     switch (g_file_info_get_file_type (file_info))
+       {
+       case G_FILE_TYPE_REGULAR:
+         {
+           g_autoptr (GFile) file = NULL;
+           g_autofree char *file_path = NULL;
+
+           file_path = g_build_filename (icc_directory_path,
+                                         g_file_info_get_name (file_info),
+                                         NULL);
+           file = g_file_new_for_path (file_path);
+           if (is_file_icc_profile (file))
+             process_icc_directory_file (color_store, file);
+
+           break;
+         }
+       case G_FILE_TYPE_SYMBOLIC_LINK:
+         {
+           const char *target_path;
+           GFile *target;
+
+           target_path = g_file_info_get_symlink_target (file_info);
+           target = g_file_new_for_path (target_path);
+
+           if (is_file_icc_profile (target))
+             process_icc_directory_file (color_store, target);
+           break;
+         }
+       default:
+         break;
+       }
+    }
+
+  return TRUE;
 }
 
 MetaColorStore *
 meta_color_store_new (MetaColorManager *color_manager)
 {
   MetaColorStore *color_store;
+  g_autoptr (GError) error = NULL;
 
   color_store = g_object_new (META_TYPE_COLOR_STORE, NULL);
   color_store->color_manager = color_manager;
@@ -87,6 +434,11 @@ meta_color_store_new (MetaColorManager *color_manager)
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
   color_store->pending_device_profiles =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  color_store->pending_local_profiles =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+
+  if (!init_profile_directory (color_store, &error))
+    g_warning ("Failed to monitor ICC directory: %s", error->message);
 
   return color_store;
 }
