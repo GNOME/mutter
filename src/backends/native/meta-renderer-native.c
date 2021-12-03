@@ -1664,7 +1664,7 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
-  MetaRendererNativeGpuData *gbm_renderer_gpu_data;
+  MetaRendererNativeGpuData *gbm_renderer_gpu_data = NULL;
   MetaDeviceFileFlags device_file_flags = META_DEVICE_FILE_FLAG_NONE;
   g_autoptr (MetaDeviceFile) device_file = NULL;
   GError *gbm_error = NULL;
@@ -1687,17 +1687,29 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
   if (!device_file)
     return NULL;
 
-  gbm_renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
-                                                        device_file,
-                                                        gpu_kms,
-                                                        &gbm_error);
-  if (gbm_renderer_gpu_data)
+#ifdef HAVE_EGL_DEVICE
+  if (g_strcmp0 (getenv ("MUTTER_DEBUG_FORCE_EGL_STREAM"), "1") != 0)
+#endif
     {
-      MetaRenderDevice *render_device = gbm_renderer_gpu_data->render_device;
+      gbm_renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
+                                                            device_file,
+                                                            gpu_kms,
+                                                            &gbm_error);
+      if (gbm_renderer_gpu_data)
+        {
+          MetaRenderDevice *render_device = gbm_renderer_gpu_data->render_device;
 
-      if (meta_render_device_is_hardware_accelerated (render_device))
-        return gbm_renderer_gpu_data;
+          if (meta_render_device_is_hardware_accelerated (render_device))
+            return gbm_renderer_gpu_data;
+        }
     }
+#ifdef HAVE_EGL_DEVICE
+  else
+    {
+      g_set_error (&gbm_error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "GBM backend was disabled using env var");
+    }
+#endif
 
 #ifdef HAVE_EGL_DEVICE
   egl_stream_renderer_gpu_data =
