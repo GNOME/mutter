@@ -1085,3 +1085,36 @@ meta_color_device_get_assigned_profile (MetaColorDevice *color_device)
 {
   return color_device->assigned_profile;
 }
+
+void
+meta_color_device_update_gamma (MetaColorDevice *color_device,
+                                unsigned int     temperature)
+{
+  MetaColorProfile *color_profile;
+  MetaMonitor *monitor;
+  size_t lut_size;
+  g_autoptr (MetaGammaLut) lut = NULL;
+
+  color_profile = meta_color_device_get_assigned_profile (color_device);
+  if (!color_profile)
+    return;
+
+  monitor = color_device->monitor;
+  if (!meta_monitor_is_active (monitor))
+    return;
+
+  meta_topic (META_DEBUG_COLOR,
+              "Updating device '%s' (%s) using color profile '%s' "
+              "and temperature %uK",
+              meta_color_device_get_id (color_device),
+              meta_monitor_get_connector (monitor),
+              meta_color_profile_get_id (color_profile),
+              temperature);
+
+  lut_size = meta_monitor_get_gamma_lut_size (monitor);
+  lut = meta_color_profile_generate_gamma_lut (color_profile,
+                                               temperature,
+                                               lut_size);
+
+  meta_monitor_set_gamma_lut (monitor, lut);
+}
