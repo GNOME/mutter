@@ -21,6 +21,9 @@
 #ifndef META_BACKEND_TYPE_H
 #define META_BACKEND_TYPE_H
 
+#include <stdint.h>
+#include <stddef.h>
+
 typedef struct _MetaBackend MetaBackend;
 
 typedef struct _MetaColorDevice MetaColorDevice;
@@ -76,5 +79,13 @@ typedef struct _MetaIdleManager MetaIdleManager;
 #ifdef HAVE_REMOTE_DESKTOP
 typedef struct _MetaRemoteDesktop MetaRemoteDesktop;
 #endif
+
+typedef struct _MetaGammaLut
+{
+  uint16_t *red;
+  uint16_t *green;
+  uint16_t *blue;
+  size_t size;
+} MetaGammaLut;
 
 #endif /* META_BACKEND_TYPE_H */

@@ -43,17 +43,12 @@ struct _MetaCrtcClass
 {
   GObjectClass parent_class;
 
-  void (* get_gamma_lut) (MetaCrtc        *crtc,
-                          size_t          *size,
-                          unsigned short **red,
-                          unsigned short **green,
-                          unsigned short **blue);
+  size_t (* get_gamma_lut_size) (MetaCrtc *crtc);
 
-  void (* set_gamma_lut) (MetaCrtc       *crtc,
-                          size_t          size,
-                          unsigned short *red,
-                          unsigned short *green,
-                          unsigned short *blue);
+  MetaGammaLut * (* get_gamma_lut) (MetaCrtc *crtc);
+
+  void (* set_gamma_lut) (MetaCrtc           *crtc,
+                          const MetaGammaLut *lut);
 };
 
 META_EXPORT_TEST
@@ -86,16 +81,15 @@ void meta_crtc_unset_config (MetaCrtc *crtc);
 META_EXPORT_TEST
 const MetaCrtcConfig * meta_crtc_get_config (MetaCrtc *crtc);
 
-void meta_crtc_get_gamma_lut (MetaCrtc        *crtc,
-                              size_t          *size,
-                              unsigned short **red,
-                              unsigned short **green,
-                              unsigned short **blue);
+size_t meta_crtc_get_gamma_lut_size (MetaCrtc *crtc);
 
-void meta_crtc_set_gamma_lut (MetaCrtc       *crtc,
-                              size_t          size,
-                              unsigned short *red,
-                              unsigned short *green,
-                              unsigned short *blue);
+MetaGammaLut * meta_crtc_get_gamma_lut (MetaCrtc *crtc);
+
+void meta_crtc_set_gamma_lut (MetaCrtc           *crtc,
+                              const MetaGammaLut *lut);
+
+void meta_gamma_lut_free (MetaGammaLut *lut);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)
 
 #endif /* META_CRTC_H */

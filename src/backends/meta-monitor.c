@@ -689,21 +689,11 @@ meta_monitor_get_gamma_lut_size (MetaMonitor *monitor)
 {
   MetaOutput *output;
   MetaCrtc *crtc;
-  size_t size;
 
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
-  meta_crtc_get_gamma_lut (crtc, &size, NULL, NULL, NULL);
-  return size;
+  return meta_crtc_get_gamma_lut_size (crtc);
 }
-
-typedef struct
-{
-  uint16_t *red;
-  uint16_t *green;
-  uint16_t *blue;
-  size_t size;
-} LutData;
 
 static gboolean
 set_gamma_lut (MetaMonitor          *monitor,
@@ -712,16 +702,12 @@ set_gamma_lut (MetaMonitor          *monitor,
                gpointer              user_data,
                GError              **error)
 {
-  LutData *lut_data = user_data;
+  const MetaGammaLut *lut = user_data;
   MetaCrtc *crtc;
 
   crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
 
-  meta_crtc_set_gamma_lut (crtc,
-                           lut_data->size,
-                           lut_data->red,
-                           lut_data->green,
-                           lut_data->blue);
+  meta_crtc_set_gamma_lut (crtc, lut);
   return TRUE;
 }
 
@@ -731,28 +717,18 @@ set_gamma_lut (MetaMonitor          *monitor,
  * Set a new gamma look-up table (LUT) for the given monitor's CRTCs.
  */
 void
-meta_monitor_set_gamma_lut (MetaMonitor *monitor,
-                            uint16_t    *red,
-                            uint16_t    *green,
-                            uint16_t    *blue,
-                            size_t       size)
+meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
+                            const MetaGammaLut *lut)
 {
   MetaMonitorMode *current_mode;
-  LutData lut_data;
 
   current_mode = meta_monitor_get_current_mode (monitor);
   g_return_if_fail (current_mode);
 
-  lut_data = (LutData) {
-    .red = red,
-    .green = green,
-    .blue = blue,
-    .size = size,
-  };
   meta_monitor_mode_foreach_crtc (monitor,
                                   current_mode,
                                   set_gamma_lut,
-                                  &lut_data,
+                                  (gpointer) lut,
                                   NULL);
 }
 

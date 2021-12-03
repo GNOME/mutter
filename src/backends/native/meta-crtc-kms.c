@@ -85,12 +85,20 @@ meta_crtc_kms_set_cursor_renderer_private (MetaCrtcKms    *crtc_kms,
   crtc_kms->cursor_renderer_private_destroy_notify = destroy_notify;
 }
 
-static void
-meta_crtc_kms_get_gamma_lut (MetaCrtc        *crtc,
-                             size_t          *size,
-                             unsigned short **red,
-                             unsigned short **green,
-                             unsigned short **blue)
+static size_t
+meta_crtc_kms_get_gamma_lut_size (MetaCrtc *crtc)
+{
+  MetaKmsCrtc *kms_crtc;
+  const MetaKmsCrtcState *crtc_state;
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+
+  return crtc_state->gamma.size;
+}
+
+static MetaGammaLut *
+meta_crtc_kms_get_gamma_lut (MetaCrtc *crtc)
 {
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
@@ -98,40 +106,40 @@ meta_crtc_kms_get_gamma_lut (MetaCrtc        *crtc,
     monitor_manager_from_crtc (crtc);
   const MetaKmsCrtcState *crtc_state;
   MetaKmsCrtcGamma *crtc_gamma;
+  MetaGammaLut *lut;
 
   crtc_gamma =
     meta_monitor_manager_native_get_cached_crtc_gamma (monitor_manager_native,
                                                        crtc_kms);
   if (crtc_gamma)
     {
-      if (size)
-        *size = crtc_gamma->size;
-      if (red)
-        *red = g_memdup2 (crtc_gamma->red, *size * sizeof **red);
-      if (green)
-        *green = g_memdup2 (crtc_gamma->green, *size * sizeof **green);
-      if (blue)
-        *blue = g_memdup2 (crtc_gamma->blue, *size * sizeof **blue);
-      return;
+      lut = g_new0 (MetaGammaLut, 1);
+      lut->size = crtc_gamma->size;
+      lut->red = g_memdup2 (crtc_gamma->red,
+                            lut->size * sizeof (uint16_t));
+      lut->green = g_memdup2 (crtc_gamma->green,
+                              lut->size * sizeof (uint16_t));
+      lut->blue = g_memdup2 (crtc_gamma->blue,
+                             lut->size * sizeof (uint16_t));
+      return lut;
     }
 
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
-  if (size)
-    *size = crtc_state->gamma.size;
-  if (red)
-    *red = g_memdup2 (crtc_state->gamma.red, *size * sizeof **red);
-  if (green)
-    *green = g_memdup2 (crtc_state->gamma.green, *size * sizeof **green);
-  if (blue)
-    *blue = g_memdup2 (crtc_state->gamma.blue, *size * sizeof **blue);
+  lut = g_new0 (MetaGammaLut, 1);
+  lut->size = crtc_state->gamma.size;
+  lut->red = g_memdup2 (crtc_state->gamma.red,
+                        lut->size * sizeof (uint16_t));
+  lut->green = g_memdup2 (crtc_state->gamma.green,
+                          lut->size * sizeof (uint16_t));
+  lut->blue = g_memdup2 (crtc_state->gamma.blue,
+                         lut->size * sizeof (uint16_t));
+
+  return lut;
 }
 
 static char *
-generate_gamma_ramp_string (size_t          size,
-                            unsigned short *red,
-                            unsigned short *green,
-                            unsigned short *blue)
+generate_gamma_ramp_string (const MetaGammaLut *lut)
 {
   GString *string;
   int color;
@@ -139,39 +147,39 @@ generate_gamma_ramp_string (size_t          size,
   string = g_string_new ("[");
   for (color = 0; color < 3; color++)
     {
-      unsigned short **color_ptr = NULL;
+      uint16_t * const *color_ptr = NULL;
       char color_char;
       size_t i;
 
       switch (color)
         {
         case 0:
-          color_ptr = &red;
+          color_ptr = &lut->red;
           color_char = 'r';
           break;
         case 1:
-          color_ptr = &green;
+          color_ptr = &lut->green;
           color_char = 'g';
           break;
         case 2:
-          color_ptr = &blue;
+          color_ptr = &lut->blue;
           color_char = 'b';
           break;
         }
 
       g_assert (color_ptr);
       g_string_append_printf (string, " %c: ", color_char);
-      for (i = 0; i < MIN (4, size); i++)
+      for (i = 0; i < MIN (4, lut->size); i++)
         {
           int j;
 
-          if (size > 4)
+          if (lut->size > 4)
             {
               if (i == 2)
                 g_string_append (string, ",...");
 
               if (i >= 2)
-                j = i + (size - 4);
+                j = i + (lut->size - 4);
               else
                 j = i;
             }
@@ -191,11 +199,8 @@ generate_gamma_ramp_string (size_t          size,
 }
 
 static void
-meta_crtc_kms_set_gamma_lut (MetaCrtc       *crtc,
-                             size_t          size,
-                             unsigned short *red,
-                             unsigned short *green,
-                             unsigned short *blue)
+meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
+                             const MetaGammaLut *lut)
 {
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
@@ -209,7 +214,7 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc       *crtc,
 
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
-  if (size != crtc_state->gamma.size)
+  if (lut->size != crtc_state->gamma.size)
     {
       MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
 
@@ -219,13 +224,16 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc       *crtc,
       return;
     }
 
-  gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
+  gamma_ramp_string = generate_gamma_ramp_string (lut);
   meta_topic (META_DEBUG_COLOR,
               "Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
               meta_crtc_get_id (crtc), gamma_ramp_string);
 
-  crtc_gamma = meta_kms_crtc_gamma_new (kms_crtc, size,
-                                        red, green, blue);
+  crtc_gamma = meta_kms_crtc_gamma_new (kms_crtc,
+                                        lut->size,
+                                        lut->red,
+                                        lut->green,
+                                        lut->blue);
   meta_monitor_manager_native_update_cached_crtc_gamma (monitor_manager_native,
                                                         crtc_kms,
                                                         crtc_gamma);
@@ -559,6 +567,7 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
 
   object_class->dispose = meta_crtc_kms_dispose;
 
+  crtc_class->get_gamma_lut_size = meta_crtc_kms_get_gamma_lut_size;
   crtc_class->get_gamma_lut = meta_crtc_kms_get_gamma_lut;
   crtc_class->set_gamma_lut = meta_crtc_kms_set_gamma_lut;
 

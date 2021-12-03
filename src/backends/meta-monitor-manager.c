@@ -1169,10 +1169,8 @@ update_night_light_supported (MetaMonitorManager *manager)
       for (l_crtc = meta_gpu_get_crtcs (gpu); l_crtc; l_crtc = l_crtc->next)
         {
           MetaCrtc *crtc = l_crtc->data;
-          size_t gamma_lut_size;
 
-          meta_crtc_get_gamma_lut (crtc, &gamma_lut_size, NULL, NULL, NULL);
-          if (gamma_lut_size > 0)
+          if (meta_crtc_get_gamma_lut_size (crtc) > 0)
             {
               night_light_supported = TRUE;
               break;
@@ -2861,10 +2859,7 @@ meta_monitor_manager_handle_get_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
 {
   GList *combined_crtcs;
   MetaCrtc *crtc;
-  gsize size;
-  unsigned short *red;
-  unsigned short *green;
-  unsigned short *blue;
+  g_autoptr (MetaGammaLut) gamma_lut = NULL;
   GBytes *red_bytes, *green_bytes, *blue_bytes;
   GVariant *red_v, *green_v, *blue_v;
 
@@ -2889,11 +2884,14 @@ meta_monitor_manager_handle_get_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
   crtc = g_list_nth_data (combined_crtcs, crtc_id);
   g_list_free (combined_crtcs);
 
-  meta_crtc_get_gamma_lut (crtc, &size, &red, &green, &blue);
+  gamma_lut = meta_crtc_get_gamma_lut (crtc);
 
-  red_bytes = g_bytes_new_take (red, size * sizeof (unsigned short));
-  green_bytes = g_bytes_new_take (green, size * sizeof (unsigned short));
-  blue_bytes = g_bytes_new_take (blue, size * sizeof (unsigned short));
+  red_bytes = g_bytes_new_take (g_steal_pointer (&gamma_lut->red),
+                                gamma_lut->size * sizeof (unsigned short));
+  green_bytes = g_bytes_new_take (g_steal_pointer (&gamma_lut->green),
+                                  gamma_lut->size * sizeof (unsigned short));
+  blue_bytes = g_bytes_new_take (g_steal_pointer (&gamma_lut->blue),
+                                 gamma_lut->size * sizeof (unsigned short));
 
   red_v = g_variant_new_from_bytes (G_VARIANT_TYPE ("aq"), red_bytes, TRUE);
   green_v = g_variant_new_from_bytes (G_VARIANT_TYPE ("aq"), green_bytes, TRUE);
@@ -2921,11 +2919,9 @@ meta_monitor_manager_handle_set_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
 {
   GList *combined_crtcs;
   MetaCrtc *crtc;
-  gsize size, dummy;
-  unsigned short *red;
-  unsigned short *green;
-  unsigned short *blue;
+  size_t dummy;
   GBytes *red_bytes, *green_bytes, *blue_bytes;
+  MetaGammaLut lut;
 
   if (serial != manager->serial)
     {
@@ -2953,12 +2949,12 @@ meta_monitor_manager_handle_set_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
   green_bytes = g_variant_get_data_as_bytes (green_v);
   blue_bytes = g_variant_get_data_as_bytes (blue_v);
 
-  size = g_bytes_get_size (red_bytes) / sizeof (unsigned short);
-  red = (unsigned short*) g_bytes_get_data (red_bytes, &dummy);
-  green = (unsigned short*) g_bytes_get_data (green_bytes, &dummy);
-  blue = (unsigned short*) g_bytes_get_data (blue_bytes, &dummy);
+  lut.size = g_bytes_get_size (red_bytes) / sizeof (uint16_t);
+  lut.red = (uint16_t *) g_bytes_get_data (red_bytes, &dummy);
+  lut.green = (uint16_t *) g_bytes_get_data (green_bytes, &dummy);
+  lut.blue = (uint16_t *) g_bytes_get_data (blue_bytes, &dummy);
 
-  meta_crtc_set_gamma_lut (crtc, size, red, green, blue);
+  meta_crtc_set_gamma_lut (crtc, &lut);
   meta_dbus_display_config_complete_set_crtc_gamma (skeleton, invocation);
 
   g_bytes_unref (red_bytes);
