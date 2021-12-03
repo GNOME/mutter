@@ -60,4 +60,8 @@ const char * meta_color_profile_get_file_path (MetaColorProfile *color_profile);
 
 const char * meta_color_profile_get_brightness_profile (MetaColorProfile *color_profile);
 
+MetaGammaLut * meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
+                                                      unsigned int      temperature,
+                                                      size_t            lut_size);
+
 #endif /* META_COLOR_PROFILE_H */

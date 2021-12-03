@@ -24,6 +24,7 @@
 
 #include <colord.h>
 #include <gio/gio.h>
+#include <lcms2.h>
 
 #include "backends/meta-color-manager-private.h"
 
@@ -379,4 +380,125 @@ meta_color_profile_get_brightness_profile (MetaColorProfile *color_profile)
 {
   return cd_profile_get_metadata_item (color_profile->cd_profile,
                                        CD_PROFILE_METADATA_SCREEN_BRIGHTNESS);
+}
+
+static void
+set_blackbody_color_for_temperature (CdColorRGB   *blackbody_color,
+                                     unsigned int  temperature)
+{
+  if (!cd_color_get_blackbody_rgb_full (temperature,
+                                        blackbody_color,
+                                        CD_COLOR_BLACKBODY_FLAG_USE_PLANCKIAN))
+    {
+      g_warning ("Failed to get blackbody for %uK", temperature);
+      cd_color_rgb_set (blackbody_color, 1.0, 1.0, 1.0);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_COLOR,
+                  "Using blackbody color from %uK: %.1f, %.1f, %.1f",
+                  temperature,
+                  blackbody_color->R,
+                  blackbody_color->G,
+                  blackbody_color->B);
+    }
+}
+
+static MetaGammaLut *
+generate_gamma_lut_from_vcgt (MetaColorProfile    *color_profile,
+                              const cmsToneCurve **vcgt,
+                              unsigned int         temperature,
+                              size_t               lut_size)
+{
+  CdColorRGB blackbody_color;
+  MetaGammaLut *lut;
+  size_t i;
+
+  meta_topic (META_DEBUG_COLOR,
+              "Generating %zu sized GAMMA LUT using temperature %uK and VCGT",
+              lut_size, temperature);
+
+  set_blackbody_color_for_temperature (&blackbody_color, temperature);
+
+  lut = g_new0 (MetaGammaLut, 1);
+  lut->size = lut_size;
+  lut->red = g_new0 (uint16_t, lut_size);
+  lut->green = g_new0 (uint16_t, lut_size);
+  lut->blue = g_new0 (uint16_t, lut_size);
+
+  for (i = 0; i < lut_size; i++)
+    {
+      cmsFloat32Number in;
+
+      in = (double) i / (double) (lut_size - 1);
+      lut->red[i] =
+        cmsEvalToneCurveFloat (vcgt[0], in) *
+        blackbody_color.R * (double) 0xffff;
+      lut->green[i] =
+        cmsEvalToneCurveFloat (vcgt[1], in) *
+        blackbody_color.G * (double) 0xffff;
+      lut->blue[i] =
+        cmsEvalToneCurveFloat (vcgt[2], in) *
+        blackbody_color.B * (gdouble) 0xffff;
+    }
+
+  return lut;
+}
+
+static MetaGammaLut *
+generate_gamma_lut (MetaColorProfile *color_profile,
+                    unsigned int      temperature,
+                    size_t            lut_size)
+{
+  CdColorRGB blackbody_color;
+  MetaGammaLut *lut;
+  size_t i;
+
+  meta_topic (META_DEBUG_COLOR,
+              "Generating %zu sized GAMMA LUT using temperature %uK",
+              lut_size, temperature);
+
+  set_blackbody_color_for_temperature (&blackbody_color, temperature);
+
+  lut = g_new0 (MetaGammaLut, 1);
+  lut->size = lut_size;
+  lut->red = g_new0 (uint16_t, lut_size);
+  lut->green = g_new0 (uint16_t, lut_size);
+  lut->blue = g_new0 (uint16_t, lut_size);
+
+  for (i = 0; i < lut_size; i++)
+    {
+      uint16_t in;
+
+      in = (i * 0xffff) / (lut->size - 1);
+      lut->red[i] = in * blackbody_color.R;
+      lut->green[i] = in * blackbody_color.G;
+      lut->blue[i] = in * blackbody_color.B;
+    }
+
+  return lut;
+}
+
+MetaGammaLut *
+meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
+                                       unsigned int      temperature,
+                                       size_t            lut_size)
+{
+  cmsHPROFILE lcms_profile;
+  const cmsToneCurve **vcgt;
+
+  g_return_val_if_fail (lut_size > 0, NULL);
+
+  lcms_profile = cd_icc_get_handle (color_profile->cd_icc);
+  vcgt = cmsReadTag (lcms_profile, cmsSigVcgtTag);
+
+  if (vcgt && *vcgt)
+    {
+      return generate_gamma_lut_from_vcgt (color_profile, vcgt,
+                                           temperature, lut_size);
+    }
+  else
+    {
+      return generate_gamma_lut (color_profile, temperature, lut_size);
+    }
 }
