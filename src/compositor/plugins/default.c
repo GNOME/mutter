@@ -503,10 +503,15 @@ switch_workspace (MetaPlugin *plugin,
   MetaDisplay *display;
   MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
   GList        *l;
-  ClutterActor *workspace0  = clutter_actor_new ();
-  ClutterActor *workspace1  = clutter_actor_new ();
   ClutterActor *stage;
+  ClutterActor *workspace1, *workspace2;
   int           screen_width, screen_height;
+
+  if (from == to)
+    {
+      meta_plugin_switch_workspace_completed (plugin);
+      return;
+    }
 
   display = meta_plugin_get_display (plugin);
   stage = meta_get_stage_for_display (display);
@@ -515,66 +520,70 @@ switch_workspace (MetaPlugin *plugin,
                          &screen_width,
                          &screen_height);
 
+  workspace1 = clutter_actor_new ();
+  workspace2 = clutter_actor_new ();
+
   clutter_actor_set_pivot_point (workspace1, 1.0, 1.0);
-  clutter_actor_set_position (workspace1,
-                              screen_width,
-                              screen_height);
+  clutter_actor_set_size (workspace1,
+                          screen_width,
+                          screen_height);
+  clutter_actor_set_size (workspace2,
+                          screen_width,
+                          screen_height);
 
   clutter_actor_set_scale (workspace1, 0.0, 0.0);
 
   clutter_actor_add_child (stage, workspace1);
-  clutter_actor_add_child (stage, workspace0);
+  clutter_actor_add_child (stage, workspace2);
 
-  if (from == to)
-    {
-      meta_plugin_switch_workspace_completed (plugin);
-      return;
-    }
-
-  l = g_list_last (meta_get_window_actors (display));
-
-  while (l)
+  for (l = g_list_last (meta_get_window_actors (display)); l; l = l->prev)
     {
       MetaWindowActor *window_actor = l->data;
       ActorPrivate    *apriv	    = get_actor_private (window_actor);
       ClutterActor    *actor	    = CLUTTER_ACTOR (window_actor);
-      MetaWorkspace   *workspace;
-      gint             win_workspace;
+      MetaWindow      *window;
 
-      workspace = meta_window_get_workspace (meta_window_actor_get_meta_window (window_actor));
-      win_workspace = meta_workspace_index (workspace);
+      window = meta_window_actor_get_meta_window (window_actor);
 
-      if (win_workspace == to || win_workspace == from)
-        {
-          ClutterActor *parent = win_workspace == to ? workspace1 : workspace0;
-          apriv->orig_parent = clutter_actor_get_parent (actor);
-
-          g_object_ref (actor);
-          clutter_actor_remove_child (clutter_actor_get_parent (actor), actor);
-          clutter_actor_add_child (parent, actor);
-          clutter_actor_show (actor);
-          clutter_actor_set_child_below_sibling (parent, actor, NULL);
-          g_object_unref (actor);
-        }
-      else if (win_workspace < 0)
+      if (meta_window_is_on_all_workspaces (window))
         {
           /* Sticky window */
           apriv->orig_parent = NULL;
         }
       else
         {
-          /* Window on some other desktop */
-          clutter_actor_hide (actor);
-          apriv->orig_parent = NULL;
-        }
+          MetaWorkspace *workspace;
+          gint           win_workspace;
 
-      l = l->prev;
+          workspace = meta_window_get_workspace (window);
+          win_workspace = meta_workspace_index (workspace);
+
+          if (win_workspace == to || win_workspace == from)
+            {
+              ClutterActor *parent = win_workspace == to ? workspace1
+                                                         : workspace2;
+              apriv->orig_parent = clutter_actor_get_parent (actor);
+
+              g_object_ref (actor);
+              clutter_actor_remove_child (clutter_actor_get_parent (actor),
+                                          actor);
+              clutter_actor_add_child (parent, actor);
+              clutter_actor_set_child_below_sibling (parent, actor, NULL);
+              g_object_unref (actor);
+            }
+          else
+            {
+              /* Window on some other desktop */
+              clutter_actor_hide (actor);
+              apriv->orig_parent = NULL;
+            }
+        }
     }
 
-  priv->desktop1 = workspace0;
-  priv->desktop2 = workspace1;
+  priv->desktop1 = workspace1;
+  priv->desktop2 = workspace2;
 
-  priv->tml_switch_workspace1 = actor_animate (workspace0, CLUTTER_EASE_IN_SINE,
+  priv->tml_switch_workspace1 = actor_animate (workspace1, CLUTTER_EASE_IN_SINE,
                                                ANIMATION_SWITCH,
                                                "scale-x", 1.0,
                                                "scale-y", 1.0,
@@ -584,7 +593,7 @@ switch_workspace (MetaPlugin *plugin,
                     G_CALLBACK (on_switch_workspace_effect_complete),
                     plugin);
 
-  priv->tml_switch_workspace2 = actor_animate (workspace1, CLUTTER_EASE_IN_SINE,
+  priv->tml_switch_workspace2 = actor_animate (workspace2, CLUTTER_EASE_IN_SINE,
                                                ANIMATION_SWITCH,
                                                "scale-x", 0.0,
                                                "scale-y", 0.0,
