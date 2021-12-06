@@ -93,11 +93,10 @@ ensure_srgb_profile_bytes (MetaColorManagerX11 *color_manager_x11)
 }
 
 static void
-on_color_device_updated (MetaColorManager *color_manager,
-                         MetaColorDevice  *color_device)
+update_root_window_atom (MetaColorManagerX11 *color_manager_x11,
+                         MetaColorDevice     *color_device)
 {
-  MetaColorManagerX11 *color_manager_x11 =
-    META_COLOR_MANAGER_X11 (color_manager);
+  MetaColorManager *color_manager = META_COLOR_MANAGER (color_manager_x11);
   MetaBackend *backend = meta_color_manager_get_backend (color_manager);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
@@ -168,6 +167,97 @@ on_color_device_updated (MetaColorManager *color_manager,
       XDeleteProperty (xdisplay, xroot, icc_profile_atom);
       XDeleteProperty (xdisplay, xroot, icc_profile_version_atom);
     }
+}
+
+static uint64_t
+double_to_ctmval (double value)
+{
+  uint64_t sign = value < 0;
+  double integer, fractional;
+
+  if (sign)
+    value = -value;
+
+  fractional = modf (value, &integer);
+
+  return
+    sign << 63 |
+    (uint64_t) integer << 32 |
+    (uint64_t) (fractional * 0xffffffffUL);
+}
+
+static MetaOutputCtm
+mat33_to_ctm (CdMat3x3 matrix)
+{
+  MetaOutputCtm ctm;
+
+  /*
+   * libcolord generates a matrix containing double values. RandR's CTM
+   * property expects values in S31.32 fixed-point sign-magnitude format
+   */
+  ctm.matrix[0] = double_to_ctmval (matrix.m00);
+  ctm.matrix[1] = double_to_ctmval (matrix.m01);
+  ctm.matrix[2] = double_to_ctmval (matrix.m02);
+  ctm.matrix[3] = double_to_ctmval (matrix.m10);
+  ctm.matrix[4] = double_to_ctmval (matrix.m11);
+  ctm.matrix[5] = double_to_ctmval (matrix.m12);
+  ctm.matrix[6] = double_to_ctmval (matrix.m20);
+  ctm.matrix[7] = double_to_ctmval (matrix.m21);
+  ctm.matrix[8] = double_to_ctmval (matrix.m22);
+
+  return ctm;
+}
+
+static void
+update_device_ctm (MetaColorManagerX11 *color_manager_x11,
+                   MetaColorDevice     *color_device)
+{
+  MetaMonitor *monitor;
+  MetaColorProfile *color_profile;
+  CdIcc *srgb_cd_icc;
+  g_autoptr (GError) error = NULL;
+  CdIcc *cd_icc;
+  CdMat3x3 csc;
+  MetaOutputCtm ctm;
+  MetaOutput *output;
+  MetaOutputXrandr *output_xrandr;
+
+  monitor = meta_color_device_get_monitor (color_device);
+  if (!meta_monitor_supports_color_transform (monitor))
+    return;
+
+  color_profile = meta_color_device_get_assigned_profile (color_device);
+  if (!color_profile)
+    return;
+
+  srgb_cd_icc = ensure_srgb_profile (color_manager_x11);
+  if (!srgb_cd_icc)
+    return;
+
+  cd_icc = meta_color_profile_get_cd_icc (color_profile);
+  if (!cd_icc_utils_get_adaptation_matrix (cd_icc, srgb_cd_icc, &csc, &error))
+    {
+      g_warning_once ("Failed to calculate adaption matrix: %s",
+                      error->message);
+      return;
+    }
+
+  ctm = mat33_to_ctm (csc);
+
+  output = meta_monitor_get_main_output (monitor);
+  output_xrandr = META_OUTPUT_XRANDR (output);
+  meta_output_xrandr_set_ctm (output_xrandr, &ctm);
+}
+
+static void
+on_color_device_updated (MetaColorManager *color_manager,
+                         MetaColorDevice  *color_device)
+{
+  MetaColorManagerX11 *color_manager_x11 =
+    META_COLOR_MANAGER_X11 (color_manager);
+
+  update_root_window_atom (color_manager_x11, color_device);
+  update_device_ctm (color_manager_x11, color_device);
 }
 
 static void
