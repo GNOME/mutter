@@ -181,6 +181,55 @@ add_colord_system_profile (const char *cd_profile_id,
 }
 
 static void
+prepare_color_test (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  GDBusProxy *proxy;
+  g_autoptr (GError) error = NULL;
+
+  proxy = get_colord_mock_proxy ();
+
+  if (!g_dbus_proxy_call_sync (proxy,
+                               "Reset",
+                               NULL,
+                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                               &error))
+    g_error ("Failed to reset mocked colord state: %s", error->message);
+
+  g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
+  g_assert_cmpint (meta_color_manager_get_num_color_devices (color_manager),
+                   ==,
+                   0);
+}
+
+static void
+finish_color_test (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MetaMonitorTestSetup *test_setup;
+
+  test_case_setup.n_outputs = 0;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
+  g_assert_cmpint (meta_color_manager_get_num_color_devices (color_manager),
+                   ==,
+                   0);
+}
+
+static void
 meta_test_color_management_device_basic (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -200,11 +249,6 @@ meta_test_color_management_device_basic (void)
   test_case_setup.outputs[0].has_edid_info = TRUE;
   test_case_setup.outputs[1].edid_info = ANCOR_VX239_EDID;
   test_case_setup.outputs[1].has_edid_info = TRUE;
-
-  test_case_setup.n_outputs = 0;
-  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
-                                               MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   test_case_setup.n_outputs = 2;
   test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
@@ -416,11 +460,32 @@ static void
 on_before_tests (MetaContext *context)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
   MetaColorManager *color_manager =
     meta_backend_get_color_manager (backend);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+
+  test_case_setup.n_outputs = 0;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   while (!meta_color_manager_is_ready (color_manager))
     g_main_context_iteration (NULL, TRUE);
+}
+
+static void
+add_color_test (const char  *test_path,
+                GTestFunc    test_func)
+{
+  g_test_add_vtable (test_path, 0, NULL,
+                     (GTestFixtureFunc) prepare_color_test,
+                     (GTestFixtureFunc) test_func,
+                     (GTestFixtureFunc) finish_color_test);
 }
 
 static void
@@ -428,12 +493,12 @@ init_tests (void)
 {
   meta_init_monitor_test_setup (create_stage_view_test_setup);
 
-  g_test_add_func ("/color-management/device/basic",
-                   meta_test_color_management_device_basic);
-  g_test_add_func ("/color-management/profile/device",
-                   meta_test_color_management_profile_device);
-  g_test_add_func ("/color-management/profile/system",
-                   meta_test_color_management_profile_system);
+  add_color_test ("/color-management/device/basic",
+                  meta_test_color_management_device_basic);
+  add_color_test ("/color-management/profile/device",
+                  meta_test_color_management_profile_device);
+  add_color_test ("/color-management/profile/system",
+                  meta_test_color_management_profile_system);
 }
 
 int
