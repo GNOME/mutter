@@ -48,6 +48,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-barrier-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
+#include "backends/x11/meta-color-manager-x11.h"
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
@@ -599,7 +600,7 @@ meta_backend_x11_create_clutter_backend (MetaBackend *backend)
 static MetaColorManager *
 meta_backend_x11_create_color_manager (MetaBackend *backend)
 {
-  return g_object_new (META_TYPE_COLOR_MANAGER,
+  return g_object_new (META_TYPE_COLOR_MANAGER_X11,
                        "backend", backend,
                        NULL);
 }

@@ -387,6 +387,8 @@ if have_x11
     'backends/x11/meta-barrier-x11.h',
     'backends/x11/meta-clutter-backend-x11.c',
     'backends/x11/meta-clutter-backend-x11.h',
+    'backends/x11/meta-color-manager-x11.c',
+    'backends/x11/meta-color-manager-x11.h',
     'backends/x11/meta-crtc-xrandr.c',
     'backends/x11/meta-crtc-xrandr.h',
     'backends/x11/meta-cursor-renderer-x11.c',

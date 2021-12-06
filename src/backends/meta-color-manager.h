@@ -24,6 +24,7 @@
 #include "core/util-private.h"
 
 #define META_TYPE_COLOR_MANAGER (meta_color_manager_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaColorManager, meta_color_manager,
                           META, COLOR_MANAGER,
                           GObject)
