@@ -35,6 +35,13 @@ typedef struct _MetaMonitorTestSetup
 struct _MetaCrtcTest
 {
   MetaCrtc parent;
+
+  struct {
+    size_t size;
+    uint16_t *red;
+    uint16_t *green;
+    uint16_t *blue;
+  } gamma;
 };
 
 struct _MetaOutputTest
