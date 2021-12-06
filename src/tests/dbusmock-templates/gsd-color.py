@@ -29,3 +29,12 @@ def load(mock, parameters=None):
     mock.AddProperty(MAIN_IFACE, 'Temperature', dbus.UInt32())
     mock.Set(MAIN_IFACE, 'NightLightActive', mock.night_light_active)
     mock.Set(MAIN_IFACE, 'Temperature', dbus.UInt32(mock.temperature))
+
+
+@dbus.service.method(MOCK_IFACE, in_signature='b')
+def SetNightLightActive(self, active):
+    self.UpdateProperties(MAIN_IFACE, {'NightLightActive': active})
+
+@dbus.service.method(MOCK_IFACE, in_signature='u')
+def SetTemperature(self, temperature):
+    self.UpdateProperties(MAIN_IFACE, {'Temperature': temperature})
