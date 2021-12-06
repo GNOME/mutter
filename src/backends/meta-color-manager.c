@@ -109,7 +109,7 @@ on_device_ready (MetaColorDevice  *color_device,
       return;
     }
 
-  meta_color_device_update_gamma (color_device, priv->temperature);
+  meta_color_device_update (color_device, priv->temperature);
 }
 
 static void
@@ -119,7 +119,7 @@ on_device_changed (MetaColorDevice  *color_device,
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
 
-  meta_color_device_update_gamma (color_device, priv->temperature);
+  meta_color_device_update (color_device, priv->temperature);
 }
 
 static char *
@@ -282,7 +282,7 @@ update_all_gamma (MetaColorManager *color_manager)
       if (!meta_color_device_is_ready (color_device))
           continue;
 
-      meta_color_device_update_gamma (color_device, priv->temperature);
+      meta_color_device_update (color_device, priv->temperature);
     }
 }
 

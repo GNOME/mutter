@@ -1087,8 +1087,8 @@ meta_color_device_get_assigned_profile (MetaColorDevice *color_device)
 }
 
 void
-meta_color_device_update_gamma (MetaColorDevice *color_device,
-                                unsigned int     temperature)
+meta_color_device_update (MetaColorDevice *color_device,
+                          unsigned int     temperature)
 {
   MetaColorProfile *color_profile;
   MetaMonitor *monitor;
@@ -1110,6 +1110,22 @@ meta_color_device_update_gamma (MetaColorDevice *color_device,
               meta_monitor_get_connector (monitor),
               meta_color_profile_get_id (color_profile),
               temperature);
+
+  if (meta_monitor_is_laptop_panel (monitor))
+    {
+      const char *brightness_profile;
+
+      brightness_profile =
+        meta_color_profile_get_brightness_profile (color_profile);
+      if (brightness_profile)
+        {
+          meta_topic (META_DEBUG_COLOR,
+                      "Setting brightness to %s%% from brightness profile",
+                      brightness_profile);
+          meta_color_manager_set_brightness (color_device->color_manager,
+                                             atoi (brightness_profile));
+        }
+    }
 
   lut_size = meta_monitor_get_gamma_lut_size (monitor);
   lut = meta_color_profile_generate_gamma_lut (color_profile,
