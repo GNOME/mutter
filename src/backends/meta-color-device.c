@@ -37,6 +37,7 @@ enum
 {
   READY,
   CHANGED,
+  UPDATED,
 
   N_SIGNALS
 };
@@ -318,6 +319,12 @@ meta_color_device_class_init (MetaColorDeviceClass *klass)
                   G_TYPE_BOOLEAN);
   signals[CHANGED] =
     g_signal_new ("changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST, 0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[UPDATED] =
+    g_signal_new ("updated",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST, 0,
                   NULL, NULL, NULL,
@@ -1133,4 +1140,6 @@ meta_color_device_update (MetaColorDevice *color_device,
                                                lut_size);
 
   meta_monitor_set_gamma_lut (monitor, lut);
+
+  g_signal_emit (color_device, signals[UPDATED], 0);
 }

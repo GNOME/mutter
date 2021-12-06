@@ -59,6 +59,15 @@
 
 enum
 {
+  DEVICE_UPDATED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
+enum
+{
   PROP_0,
 
   PROP_BACKEND,
@@ -120,6 +129,13 @@ on_device_changed (MetaColorDevice  *color_device,
     meta_color_manager_get_instance_private (color_manager);
 
   meta_color_device_update (color_device, priv->temperature);
+}
+
+static void
+on_device_updated (MetaColorDevice  *color_device,
+                   MetaColorManager *color_manager)
+{
+  g_signal_emit (color_manager, signals[DEVICE_UPDATED], 0, color_device);
 }
 
 static char *
@@ -201,6 +217,9 @@ update_devices (MetaColorManager *color_manager)
                                    color_manager, 0);
           g_signal_connect_object (color_device, "changed",
                                    G_CALLBACK (on_device_changed),
+                                   color_manager, 0);
+          g_signal_connect_object (color_device, "updated",
+                                   G_CALLBACK (on_device_updated),
                                    color_manager, 0);
         }
     }
@@ -490,6 +509,14 @@ meta_color_manager_class_init (MetaColorManagerClass *klass)
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[DEVICE_UPDATED] =
+    g_signal_new ("device-updated",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST, 0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  META_TYPE_COLOR_DEVICE);
 }
 
 static void
