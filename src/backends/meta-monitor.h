@@ -116,6 +116,8 @@ gboolean meta_monitor_is_primary (MetaMonitor *monitor);
 
 gboolean meta_monitor_supports_underscanning (MetaMonitor *monitor);
 
+gboolean meta_monitor_supports_color_transform (MetaMonitor *monitor);
+
 gboolean meta_monitor_is_underscanning (MetaMonitor *monitor);
 
 gboolean meta_monitor_get_max_bpc (MetaMonitor  *monitor,

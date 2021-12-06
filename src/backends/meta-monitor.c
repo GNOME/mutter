@@ -354,6 +354,15 @@ meta_monitor_supports_underscanning (MetaMonitor *monitor)
 }
 
 gboolean
+meta_monitor_supports_color_transform (MetaMonitor *monitor)
+{
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
+
+  return output_info->supports_color_transform;
+}
+
+gboolean
 meta_monitor_is_underscanning (MetaMonitor *monitor)
 {
   MetaOutput *output;
