@@ -83,6 +83,9 @@ actor_event_hold (void)
   seat = clutter_backend_get_default_seat (backend);
   device = clutter_seat_get_pointer (seat);
 
+  while (clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL) == NULL)
+    g_main_context_iteration (NULL, FALSE);
+
   for (n_test_case = 0; n_test_case < G_N_ELEMENTS (test_cases); n_test_case++)
     {
       graphene_point_t actual_position;
