@@ -868,12 +868,18 @@ should_send_modifiers (MetaBackend *backend)
 
 static void
 send_modifiers (struct wl_resource      *resource,
-                MetaWaylandDmaBufFormat *format)
+                MetaWaylandDmaBufFormat *format,
+                GHashTable              *sent_formats)
 {
   g_assert (wl_resource_get_version (resource) <
             ZWP_LINUX_DMABUF_V1_GET_DEFAULT_FEEDBACK_SINCE_VERSION);
 
-  zwp_linux_dmabuf_v1_send_format (resource, format->drm_format);
+  if (!g_hash_table_contains (sent_formats,
+                              GUINT_TO_POINTER (format->drm_format)))
+    {
+      g_hash_table_add (sent_formats, GUINT_TO_POINTER (format->drm_format));
+      zwp_linux_dmabuf_v1_send_format (resource, format->drm_format);
+    }
 
   if (wl_resource_get_version (resource) <
       ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
@@ -901,7 +907,10 @@ dma_buf_bind (struct wl_client *client,
 
   if (version < ZWP_LINUX_DMABUF_V1_GET_DEFAULT_FEEDBACK_SINCE_VERSION)
     {
+      g_autoptr (GHashTable) sent_formats = NULL;
       unsigned int i;
+
+      sent_formats = g_hash_table_new (NULL, NULL);
 
       for (i = 0; i < dma_buf_manager->formats->len; i++)
         {
@@ -910,7 +919,7 @@ dma_buf_bind (struct wl_client *client,
                             MetaWaylandDmaBufFormat,
                             i);
 
-          send_modifiers (resource, format);
+          send_modifiers (resource, format, sent_formats);
         }
     }
 }
@@ -960,8 +969,6 @@ add_format (MetaWaylandDmaBufManager *dma_buf_manager,
       };
       g_array_append_val (dma_buf_manager->formats, format);
     }
-
-  return;
 
 add_fallback:
   format = (MetaWaylandDmaBufFormat) {
