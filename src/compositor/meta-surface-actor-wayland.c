@@ -30,7 +30,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
-#include "cogl/cogl-wayland-server.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/region-utils.h"
 #include "wayland/meta-wayland-buffer.h"

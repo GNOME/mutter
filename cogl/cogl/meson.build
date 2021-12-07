@@ -396,12 +396,6 @@ if have_glx
   ]
 endif
 
-if have_wayland
-  cogl_nonintrospected_headers += [
-    'cogl-wayland-server.h',
-  ]
-endif
-
 if have_egl
   cogl_nonintrospected_headers += [
     'cogl-egl.h',

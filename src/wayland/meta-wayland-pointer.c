@@ -51,7 +51,6 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-cursor.h"
 #include "clutter/clutter.h"
-#include "cogl/cogl-wayland-server.h"
 #include "cogl/cogl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "meta/meta-cursor-tracker.h"

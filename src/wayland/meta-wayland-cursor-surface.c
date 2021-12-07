@@ -25,7 +25,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
-#include "cogl/cogl-wayland-server.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
 #include "wayland/meta-cursor-sprite-wayland.h"
