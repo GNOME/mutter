@@ -75,6 +75,9 @@ META_EXPORT
 gboolean meta_backend_is_rendering_hardware_accelerated (MetaBackend *backend);
 
 META_EXPORT
+gboolean meta_backend_is_headless (MetaBackend *backend);
+
+META_EXPORT
 void meta_clutter_init (void);
 
 #endif /* META_BACKEND_H */

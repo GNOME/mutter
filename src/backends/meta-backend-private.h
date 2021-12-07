@@ -106,6 +106,8 @@ struct _MetaBackendClass
 
   void (* set_pointer_constraint) (MetaBackend           *backend,
                                    MetaPointerConstraint *constraint);
+
+  gboolean (* is_headless) (MetaBackend *backend);
 };
 
 void meta_backend_destroy (MetaBackend *backend);

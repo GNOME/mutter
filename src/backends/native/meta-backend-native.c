@@ -130,7 +130,7 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
 
   seat_id = meta_backend_native_get_seat_id (backend_native);
 
-  if (meta_backend_native_is_headless (backend_native))
+  if (meta_backend_is_headless (backend))
     flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
   else
     flags = META_SEAT_NATIVE_FLAG_NONE;
@@ -378,10 +378,10 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
     return meta_launcher_get_seat_id (backend_native->launcher);
 }
 
-gboolean
-meta_backend_native_is_headless (MetaBackendNative *backend_native)
+static gboolean
+meta_backend_native_is_headless (MetaBackend *backend)
 {
-  return backend_native->is_headless;
+  return META_BACKEND_NATIVE (backend)->is_headless;
 }
 
 static void
@@ -646,6 +646,8 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
 
   backend_class->set_pointer_constraint = meta_backend_native_set_pointer_constraint;
+
+  backend_class->is_headless = meta_backend_native_is_headless;
 
   obj_props[PROP_HEADLESS] =
     g_param_spec_boolean ("headless",

@@ -50,6 +50,4 @@ MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);
 
 const char * meta_backend_native_get_seat_id (MetaBackendNative *backend_native);
 
-gboolean meta_backend_native_is_headless (MetaBackendNative *backend_native);
-
 #endif /* META_BACKEND_NATIVE_H */

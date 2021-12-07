@@ -633,10 +633,22 @@ meta_backend_real_create_cursor_tracker (MetaBackend *backend)
                        NULL);
 }
 
+static gboolean
+meta_backend_real_is_headless (MetaBackend *backend)
+{
+  return FALSE;
+}
+
 gboolean
 meta_backend_is_lid_closed (MetaBackend *backend)
 {
   return META_BACKEND_GET_CLASS (backend)->is_lid_closed (backend);
+}
+
+gboolean
+meta_backend_is_headless (MetaBackend *backend)
+{
+  return META_BACKEND_GET_CLASS (backend)->is_headless (backend);
 }
 
 static void
@@ -859,6 +871,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->select_stage_events = meta_backend_real_select_stage_events;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
   klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
+  klass->is_headless = meta_backend_real_is_headless;
 
   obj_props[PROP_CONTEXT] =
     g_param_spec_object ("context",
