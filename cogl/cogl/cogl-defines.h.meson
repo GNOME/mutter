@@ -39,7 +39,6 @@
 #mesondefine COGL_HAS_GL
 #mesondefine CLUTTER_COGL_HAS_GL
 #mesondefine COGL_HAS_GLX_SUPPORT
-#mesondefine COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT
 #mesondefine COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
 #mesondefine COGL_HAS_EGL_SUPPORT
 #mesondefine COGL_HAS_X11
