@@ -224,7 +224,6 @@ static void
 clear_slow_keys (MetaInputDeviceNative *device)
 {
   g_list_free_full (device->slow_keys_list, meta_input_device_native_free_pending_slow_key);
-  g_list_free (device->slow_keys_list);
   device->slow_keys_list = NULL;
 }
 
