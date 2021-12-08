@@ -785,6 +785,8 @@ commit_flags_string (uint32_t commit_flags)
     commit_flag_strings[i++] = "ATOMIC_ALLOW_MODESET";
   if (commit_flags & DRM_MODE_PAGE_FLIP_EVENT)
     commit_flag_strings[i++] = "PAGE_FLIP_EVENT";
+  if (commit_flags & DRM_MODE_ATOMIC_TEST_ONLY)
+    commit_flag_strings[i++] = "TEST_ONLY";
 
   commit_flags_string = g_strjoinv ("|", (char **) commit_flag_strings);
   strncpy (static_commit_flags_string, commit_flags_string,
@@ -995,6 +997,9 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
 
   if (meta_kms_update_get_page_flip_listeners (update))
     commit_flags |= DRM_MODE_PAGE_FLIP_EVENT;
+
+  if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
+    commit_flags |= DRM_MODE_ATOMIC_TEST_ONLY;
 
 commit:
   meta_topic (META_DEBUG_KMS,

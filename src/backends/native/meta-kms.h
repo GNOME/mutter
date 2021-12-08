@@ -35,6 +35,7 @@ typedef enum _MetaKmsUpdateFlag
 {
   META_KMS_UPDATE_FLAG_NONE = 0,
   META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR = 1 << 0,
+  META_KMS_UPDATE_FLAG_TEST_ONLY = 1 << 1,
 } MetaKmsUpdateFlag;
 
 #define META_TYPE_KMS (meta_kms_get_type ())
@@ -49,6 +50,9 @@ MetaKmsUpdate * meta_kms_get_pending_update (MetaKms       *kms,
 MetaKmsFeedback * meta_kms_post_pending_update_sync (MetaKms           *kms,
                                                      MetaKmsDevice     *device,
                                                      MetaKmsUpdateFlag  flags);
+
+MetaKmsFeedback * meta_kms_post_test_update_sync (MetaKms       *kms,
+                                                  MetaKmsUpdate *update);
 
 void meta_kms_discard_pending_page_flips (MetaKms *kms);
 

@@ -72,6 +72,17 @@ meta_kms_plane_feedback_new_take_error (MetaKmsPlane *plane,
   return plane_feedback;
 }
 
+MetaKmsPlaneFeedback *
+meta_kms_plane_feedback_new_failed (MetaKmsPlane *plane,
+                                    MetaKmsCrtc  *crtc,
+                                    const char   *error_message)
+{
+  GError *error;
+
+  error = g_error_new_literal (G_IO_ERROR, G_IO_ERROR_FAILED, error_message);
+  return meta_kms_plane_feedback_new_take_error (plane, crtc, error);
+}
+
 MetaKmsFeedback *
 meta_kms_feedback_new_passed (GList *failed_planes)
 {

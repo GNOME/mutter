@@ -106,6 +106,10 @@ MetaKmsPlaneFeedback * meta_kms_plane_feedback_new_take_error (MetaKmsPlane *pla
                                                                MetaKmsCrtc  *crtc,
                                                                GError       *error);
 
+MetaKmsPlaneFeedback * meta_kms_plane_feedback_new_failed (MetaKmsPlane *plane,
+                                                           MetaKmsCrtc  *crtc,
+                                                           const char   *error_message);
+
 MetaKmsFeedback * meta_kms_feedback_new_passed (GList *failed_planes);
 
 MetaKmsFeedback * meta_kms_feedback_new_failed (GList  *failed_planes,

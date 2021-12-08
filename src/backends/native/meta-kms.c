@@ -257,8 +257,13 @@ meta_kms_process_update_in_impl (MetaKmsImpl  *impl,
   MetaKmsFeedback *feedback;
 
   feedback = meta_kms_impl_process_update (impl, data->update, data->flags);
-  meta_kms_device_predict_states_in_impl (meta_kms_update_get_device (update),
-                                          update);
+
+  if (!(data->flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
+    {
+      MetaKmsDevice *device = meta_kms_update_get_device (update);
+
+      meta_kms_device_predict_states_in_impl (device, update);
+    }
 
   return feedback;
 }
@@ -327,6 +332,34 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
   g_list_free (result_listeners);
 
   return feedback;
+}
+
+static gpointer
+meta_kms_test_update_in_impl (MetaKmsImpl  *impl,
+                              gpointer      user_data,
+                              GError      **error)
+{
+  MetaKmsUpdate *update = user_data;
+  MetaKmsUpdateFlag flags;
+
+  flags = META_KMS_UPDATE_FLAG_TEST_ONLY;
+  return meta_kms_impl_process_update (impl, update, flags);
+}
+
+MetaKmsFeedback *
+meta_kms_post_test_update_sync (MetaKms       *kms,
+                                MetaKmsUpdate *update)
+{
+  g_assert (!meta_kms_update_get_page_flip_listeners (update));
+  g_assert (!meta_kms_update_get_mode_sets (update));
+  g_assert (!meta_kms_update_get_connector_updates (update));
+
+  meta_kms_update_lock (update);
+
+  return meta_kms_run_impl_task_sync (kms,
+                                      meta_kms_test_update_in_impl,
+                                      update,
+                                      NULL);
 }
 
 static gpointer

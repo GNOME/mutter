@@ -41,6 +41,12 @@ typedef struct _CachedModeSet
 {
   GList *connectors;
   drmModeModeInfo *drm_mode;
+
+  int width;
+  int height;
+  int stride;
+  uint32_t format;
+  uint64_t modifier;
 } CachedModeSet;
 
 struct _MetaKmsImplDeviceSimple
@@ -259,14 +265,21 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
 
 static CachedModeSet *
 cached_mode_set_new (GList                 *connectors,
-                     const drmModeModeInfo *drm_mode)
+                     const drmModeModeInfo *drm_mode,
+                     MetaDrmBuffer         *buffer)
 {
   CachedModeSet *cached_mode_set;
+
 
   cached_mode_set = g_new0 (CachedModeSet, 1);
   *cached_mode_set = (CachedModeSet) {
     .connectors = g_list_copy (connectors),
     .drm_mode = g_memdup2 (drm_mode, sizeof *drm_mode),
+    .width = meta_drm_buffer_get_width (buffer),
+    .height = meta_drm_buffer_get_height (buffer),
+    .stride = meta_drm_buffer_get_stride (buffer),
+    .format = meta_drm_buffer_get_format (buffer),
+    .modifier = meta_drm_buffer_get_modifier (buffer),
   };
 
   return cached_mode_set;
@@ -353,6 +366,7 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
   g_autofree uint32_t *connectors = NULL;
   int n_connectors;
   MetaKmsPlaneAssignment *plane_assignment;
+  MetaDrmBuffer *buffer;
   drmModeModeInfo *drm_mode;
   uint32_t x, y;
   uint32_t fb_id;
@@ -363,7 +377,6 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
 
   if (mode_set->mode)
     {
-      MetaDrmBuffer *buffer;
       GList *l;
 
       drm_mode = g_alloca (sizeof *drm_mode);
@@ -437,6 +450,7 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
     }
   else
     {
+      buffer = NULL;
       drm_mode = NULL;
       x = y = 0;
       n_connectors = 0;
@@ -471,7 +485,8 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
       g_hash_table_replace (impl_device_simple->cached_mode_sets,
                             crtc,
                             cached_mode_set_new (mode_set->connectors,
-                                                 drm_mode));
+                                                 drm_mode,
+                                                 buffer));
     }
   else
     {
@@ -1398,6 +1413,71 @@ meta_kms_impl_device_simple_setup_drm_event_context (MetaKmsImplDevice *impl_dev
 }
 
 static MetaKmsFeedback *
+perform_update_test (MetaKmsImplDevice *impl_device,
+                     MetaKmsUpdate     *update)
+{
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
+  GList *failed_planes = NULL;
+  GList *l;
+
+  for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
+    {
+      MetaKmsPlaneAssignment *plane_assignment = l->data;
+      MetaKmsPlane *plane = plane_assignment->plane;
+      MetaKmsCrtc *crtc = plane_assignment->crtc;
+      MetaDrmBuffer *buffer = plane_assignment->buffer;
+      CachedModeSet *cached_mode_set;
+
+      if (!plane_assignment->crtc ||
+          !plane_assignment->buffer)
+        continue;
+
+      cached_mode_set = get_cached_mode_set (impl_device_simple,
+                                             plane_assignment->crtc);
+      if (!cached_mode_set)
+        {
+          MetaKmsPlaneFeedback *plane_feedback;
+
+          plane_feedback =
+            meta_kms_plane_feedback_new_failed (plane, crtc,
+                                                "No existing mode set");
+          failed_planes = g_list_append (failed_planes, plane_feedback);
+          continue;
+        }
+
+      if (meta_drm_buffer_get_width (buffer) != cached_mode_set->width ||
+          meta_drm_buffer_get_height (buffer) != cached_mode_set->height ||
+          meta_drm_buffer_get_stride (buffer) != cached_mode_set->stride ||
+          meta_drm_buffer_get_format (buffer) != cached_mode_set->format ||
+          meta_drm_buffer_get_modifier (buffer) != cached_mode_set->modifier)
+        {
+          MetaKmsPlaneFeedback *plane_feedback;
+
+          plane_feedback =
+            meta_kms_plane_feedback_new_failed (plane, crtc,
+                                                "Incompatible buffer");
+          failed_planes = g_list_append (failed_planes, plane_feedback);
+          continue;
+        }
+    }
+
+  if (failed_planes)
+    {
+      GError *error;
+
+      error = g_error_new_literal (G_IO_ERROR,
+                                   G_IO_ERROR_FAILED,
+                                   "One or more buffers incompatible");
+      return meta_kms_feedback_new_failed (failed_planes, error);
+    }
+  else
+    {
+      return meta_kms_feedback_new_passed (NULL);
+    }
+}
+
+static MetaKmsFeedback *
 meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
                                             MetaKmsUpdate     *update,
                                             MetaKmsUpdateFlag  flags)
@@ -1408,6 +1488,9 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
   meta_topic (META_DEBUG_KMS,
               "[simple] Processing update %" G_GUINT64_FORMAT,
               meta_kms_update_get_sequence_number (update));
+
+  if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
+    return perform_update_test (impl_device, update);
 
   if (meta_kms_update_is_power_save (update))
     {
