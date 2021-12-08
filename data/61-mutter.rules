@@ -1,5 +1,2 @@
 DRIVERS=="i915", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
-DRIVERS=="nouveau", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
-DRIVERS=="amdgpu", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
-DRIVERS=="radeon", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
 ENV{ID_PATH}=="platform-vkms", TAG+="mutter-device-ignore"
