@@ -528,32 +528,20 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  int n_planes;
   MetaDeviceFile *device_file;
   MetaGpuKms *gpu_kms;
-  int n_planes;
-  uint32_t drm_format;
-  uint64_t drm_modifier;
-  uint32_t stride;
   struct gbm_bo *gbm_bo;
   gboolean use_modifier;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferFlags flags;
-  MetaDrmBufferGbm *fb;
+  g_autoptr (MetaDrmBufferGbm) fb = NULL;
 
   for (n_planes = 0; n_planes < META_WAYLAND_DMA_BUF_MAX_FDS; n_planes++)
     {
       if (dma_buf->fds[n_planes] < 0)
         break;
     }
-
-  drm_format = dma_buf->drm_format;
-  drm_modifier = dma_buf->drm_modifier;
-  stride = dma_buf->strides[0];
-  if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen,
-                                                          drm_format,
-                                                          drm_modifier,
-                                                          stride))
-    return NULL;
 
   device_file = meta_renderer_native_get_primary_device_file (renderer_native);
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
@@ -576,7 +564,11 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
       return NULL;
     }
 
-  return COGL_SCANOUT (fb);
+  if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen,
+                                                          META_DRM_BUFFER (fb)))
+    return NULL;
+
+  return COGL_SCANOUT (g_steal_pointer (&fb));
 #else
   return NULL;
 #endif

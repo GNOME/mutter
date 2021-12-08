@@ -691,11 +691,8 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
   MetaDeviceFile *device_file;
   struct gbm_device *gbm_device;
   struct gbm_bo *gbm_bo;
-  uint32_t drm_format;
-  uint64_t drm_modifier;
-  uint32_t stride;
   MetaDrmBufferFlags flags;
-  MetaDrmBufferGbm *fb;
+  g_autoptr (MetaDrmBufferGbm) fb = NULL;
   g_autoptr (GError) error = NULL;
 
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
@@ -708,20 +705,8 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
   if (!gbm_bo)
     return NULL;
 
-  drm_format = gbm_bo_get_format (gbm_bo);
-  drm_modifier = gbm_bo_get_modifier (gbm_bo);
-  stride = gbm_bo_get_stride (gbm_bo);
-  if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen,
-                                                          drm_format,
-                                                          drm_modifier,
-                                                          stride))
-    {
-      gbm_bo_destroy (gbm_bo);
-      return NULL;
-    }
-
   flags = META_DRM_BUFFER_FLAG_NONE;
-  if (drm_modifier == DRM_FORMAT_MOD_INVALID)
+  if (gbm_bo_get_modifier (gbm_bo) == DRM_FORMAT_MOD_INVALID)
     flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
 
   fb = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, &error);
@@ -732,7 +717,11 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
       return NULL;
     }
 
-  return COGL_SCANOUT (fb);
+  if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen,
+                                                          META_DRM_BUFFER (fb)))
+    return NULL;
+
+  return COGL_SCANOUT (g_steal_pointer (&fb));
 #else
   return NULL;
 #endif
@@ -742,6 +731,9 @@ CoglScanout *
 meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
                                          CoglOnscreen      *onscreen)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferTryScanout,
+                           "WaylandBuffer (try scanout)");
+
   switch (buffer->type)
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:

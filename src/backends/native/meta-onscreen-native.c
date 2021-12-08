@@ -1226,46 +1226,30 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 }
 
 gboolean
-meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
-                                                   uint32_t      drm_format,
-                                                   uint64_t      drm_modifier,
-                                                   uint32_t      stride)
+meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
+                                                   MetaDrmBuffer *fb)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  const MetaCrtcConfig *crtc_config;
-  MetaDrmBuffer *fb;
-  struct gbm_bo *gbm_bo;
+  MetaCrtc *crtc = onscreen_native->crtc;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaGpuKms *gpu_kms;
+  MetaKmsDevice *kms_device;
+  MetaKms *kms;
+  MetaKmsUpdate *test_update;
+  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+  MetaKmsFeedbackResult result;
 
-  crtc_config = meta_crtc_get_config (onscreen_native->crtc);
-  if (crtc_config->transform != META_MONITOR_TRANSFORM_NORMAL)
-    return FALSE;
+  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  kms = meta_kms_device_get_kms (kms_device);
+  test_update = meta_kms_update_new (kms_device);
 
-  if (onscreen_native->secondary_gpu_state)
-    return FALSE;
+  meta_crtc_kms_assign_primary_plane (crtc_kms, fb, test_update);
+  kms_feedback = meta_kms_post_test_update_sync (kms, test_update);
+  meta_kms_update_free (test_update);
 
-  if (!onscreen_native->gbm.surface)
-    return FALSE;
-
-  fb = onscreen_native->gbm.current_fb ? onscreen_native->gbm.current_fb
-                                       : onscreen_native->gbm.next_fb;
-  if (!fb)
-    return FALSE;
-
-  if (!META_IS_DRM_BUFFER_GBM (fb))
-    return FALSE;
-
-  gbm_bo = meta_drm_buffer_gbm_get_bo (META_DRM_BUFFER_GBM (fb));
-
-  if (gbm_bo_get_format (gbm_bo) != drm_format)
-    return FALSE;
-
-  if (gbm_bo_get_modifier (gbm_bo) != drm_modifier)
-    return FALSE;
-
-  if (gbm_bo_get_stride (gbm_bo) != stride)
-    return FALSE;
-
-  return TRUE;
+  result = meta_kms_feedback_get_result (kms_feedback);
+  return result == META_KMS_FEEDBACK_PASSED;
 }
 
 static gboolean
