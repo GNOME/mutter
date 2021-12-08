@@ -131,10 +131,10 @@
                                         to manage HiDPI monitors. Does not
                                         require a restart.
 
-        • “kms-modifiers”             — makes mutter always advertise valid
-                                        buffer modifiers on Wayland. This is
-                                        currently not the case when using the
-                                        i915 driver. Requires a restart.
+        • “kms-modifiers”             — makes mutter always allocate scanout
+                                        buffers with explicit modifiers, if
+                                        supported by the driver. Requires a
+                                        restart.
 
         • “rt-scheduler”              — makes mutter request a low priority
                                         real-time scheduling. Requires a restart.
