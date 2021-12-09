@@ -259,6 +259,30 @@ activation_get_activation_token (struct wl_client   *client,
                                                      id);
 }
 
+static gboolean
+token_can_activate (MetaXdgActivationToken *token)
+{
+  MetaWaylandSeat *seat;
+
+  if (!token->seat)
+    return FALSE;
+  if (!token->surface)
+    return FALSE;
+
+  seat = token->seat;
+
+  if (seat->keyboard &&
+      meta_wayland_keyboard_can_grab_surface (seat->keyboard,
+                                              token->surface,
+                                              token->serial))
+    return TRUE;
+
+  return meta_wayland_seat_get_grab_info (seat,
+                                          token->surface,
+                                          token->serial,
+                                          FALSE, NULL, NULL);
+}
+
 static void
 activation_activate (struct wl_client   *client,
                      struct wl_resource *resource,
@@ -278,12 +302,7 @@ activation_activate (struct wl_client   *client,
   if (!token)
     return;
 
-  if (token->seat &&
-      token->surface &&
-      meta_wayland_seat_get_grab_info (token->seat,
-                                       token->surface,
-                                       token->serial,
-                                       FALSE, NULL, NULL))
+  if (token_can_activate (token))
     {
       uint32_t timestamp;
       int32_t workspace_idx;
