@@ -1226,6 +1226,9 @@ meta_backend_get_cursor_renderer (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterInputDevice *pointer;
 
+  if (!priv->default_seat)
+    return NULL;
+
   pointer = clutter_seat_get_pointer (priv->default_seat);
 
   return meta_backend_get_cursor_renderer_for_device (backend, pointer);
