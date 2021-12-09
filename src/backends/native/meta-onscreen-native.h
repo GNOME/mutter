@@ -56,4 +56,6 @@ MetaOnscreenNative * meta_onscreen_native_new (MetaRendererNative *renderer_nati
                                                int                 width,
                                                int                 height);
 
+MetaCrtc * meta_onscreen_native_get_crtc (MetaOnscreenNative *onscreen_native);
+
 #endif /* META_ONSCREEN_NATIVE_H */
