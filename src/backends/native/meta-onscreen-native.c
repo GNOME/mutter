@@ -2179,3 +2179,9 @@ meta_onscreen_native_class_init (MetaOnscreenNativeClass *klass)
     meta_onscreen_native_swap_buffers_with_damage;
   onscreen_class->direct_scanout = meta_onscreen_native_direct_scanout;
 }
+
+MetaCrtc *
+meta_onscreen_native_get_crtc (MetaOnscreenNative *onscreen_native)
+{
+  return onscreen_native->crtc;
+}
