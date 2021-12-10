@@ -25,7 +25,9 @@
 typedef struct _MetaLauncher MetaLauncher;
 typedef struct _MetaDbusLogin1Session MetaDbusLogin1Session;
 
-MetaLauncher     *meta_launcher_new                     (GError       **error);
+MetaLauncher     *meta_launcher_new                     (const char    *session_id,
+                                                         const char    *custom_seat_id,
+                                                         GError       **error);
 void              meta_launcher_free                    (MetaLauncher  *self);
 
 gboolean          meta_launcher_activate_vt             (MetaLauncher  *self,

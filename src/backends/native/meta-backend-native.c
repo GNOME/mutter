@@ -605,7 +605,23 @@ meta_backend_native_initable_init (GInitable     *initable,
 
   if (!meta_backend_is_headless (backend))
     {
-      native->launcher = meta_launcher_new (error);
+      const char *session_id = NULL;
+      const char *seat_id = NULL;
+
+      switch (native->mode)
+        {
+        case META_BACKEND_NATIVE_MODE_DEFAULT:
+          break;
+        case META_BACKEND_NATIVE_MODE_HEADLESS:
+          g_assert_not_reached ();
+          break;
+        case META_BACKEND_NATIVE_MODE_TEST:
+          session_id = "dummy";
+          seat_id = "seat0";
+          break;
+        }
+
+      native->launcher = meta_launcher_new (session_id, seat_id, error);
       if (!native->launcher)
         return FALSE;
     }
