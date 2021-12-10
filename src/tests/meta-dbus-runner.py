@@ -30,10 +30,12 @@ class MutterDBusTestCase(DBusTestCase):
     def setUpClass(klass):
         klass.mocks = OrderedDict()
 
+        print('Starting D-Bus daemons (session & system)...', file=sys.stderr)
         DBusTestCase.setUpClass()
         klass.start_session_bus()
         klass.start_system_bus()
 
+        print('Starting mocked services...', file=sys.stderr)
         (klass.mocks_manager, klass.mock_obj) = klass.start_from_local_template(
             'meta-mocks-manager', {'templates-dir': get_templates_dir()})
 
@@ -120,6 +122,7 @@ if __name__ == '__main__':
     test_case = MutterDBusTestCase()
     test_case.assertGreater(len(sys.argv), 1)
     try:
+        print('Running test case...', file=sys.stderr)
         test_case.wrap_call(sys.argv[1:])
     finally:
         MutterDBusTestCase.tearDownClass()
