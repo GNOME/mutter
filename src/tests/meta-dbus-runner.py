@@ -5,6 +5,7 @@ import sys
 import os
 import fcntl
 import subprocess
+import getpass
 from collections import OrderedDict
 from dbusmock import DBusTestCase
 from dbus.mainloop.glib import DBusGMainLoop
@@ -39,11 +40,13 @@ class MutterDBusTestCase(DBusTestCase):
         (klass.mocks_manager, klass.mock_obj) = klass.start_from_local_template(
             'meta-mocks-manager', {'templates-dir': get_templates_dir()})
 
-        klass.start_from_template('logind')
+        logind = klass.start_from_template('logind')
         klass.start_from_local_template('localed')
 
         klass.system_bus_con = klass.get_dbus(system_bus=True)
         klass.session_bus_con = klass.get_dbus(system_bus=False)
+
+        klass.add_logind_session(logind)
 
         if klass.session_bus_con.name_has_owner('org.gnome.Mutter.DisplayConfig'):
             raise Exception(
@@ -100,6 +103,15 @@ class MutterDBusTestCase(DBusTestCase):
         mocks = (mock_server, mock_obj)
         assert klass.mocks.setdefault(mock_class, mocks) == mocks
         return mocks
+
+    @classmethod
+    def add_logind_session(klass, logind):
+        [p_mock, obj] = logind
+        mock_iface = 'org.freedesktop.DBus.Mock'
+        obj.AddSeat('seat0', dbus_interface=mock_iface)
+        obj.AddSession('dummy', 'seat0',
+            dbus.types.UInt32(os.getuid()), getpass.getuser(),
+            True, dbus_interface=mock_iface)
 
     def wrap_call(self, args):
         env = {}
