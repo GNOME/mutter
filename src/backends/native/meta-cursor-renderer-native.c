@@ -1874,7 +1874,10 @@ meta_cursor_renderer_native_new (MetaBackend        *backend,
 
   priv->backend = backend;
 
-  init_hw_cursor_support (cursor_renderer_native);
+  if (g_strcmp0 (getenv ("MUTTER_DEBUG_DISABLE_HW_CURSORS"), "1"))
+    init_hw_cursor_support (cursor_renderer_native);
+  else
+    g_message ("Disabling hardware cursors because MUTTER_DEBUG_DISABLE_HW_CURSORS is set");
 
   return cursor_renderer_native;
 }
