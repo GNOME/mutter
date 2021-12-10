@@ -116,43 +116,43 @@ find_systemd_session (gchar **session_id,
               return FALSE;
             }
 
-        if (n_sessions == 0)
-          {
-            g_set_error (error,
-                         G_IO_ERROR,
-                         G_IO_ERROR_NOT_FOUND,
-                         "User %d has no sessions",
-                         getuid ());
-            return FALSE;
-          }
+          if (n_sessions == 0)
+            {
+              g_set_error (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_FOUND,
+                           "User %d has no sessions",
+                           getuid ());
+              return FALSE;
+            }
 
-        for (int i = 0; i < n_sessions; ++i)
-          {
-            saved_errno = sd_session_get_class (sessions[i], &class);
-            if (saved_errno < 0)
-              {
-                g_warning ("Couldn't get class for session '%d': %s",
-                           i,
-                           g_strerror (-saved_errno));
-                continue;
-              }
+          for (int i = 0; i < n_sessions; ++i)
+            {
+              saved_errno = sd_session_get_class (sessions[i], &class);
+              if (saved_errno < 0)
+                {
+                  g_warning ("Couldn't get class for session '%d': %s",
+                             i,
+                             g_strerror (-saved_errno));
+                  continue;
+                }
 
-            if (g_strcmp0 (class, "greeter") == 0)
-              {
-                local_session_id = g_strdup (sessions[i]);
-                break;
-              }
-          }
+              if (g_strcmp0 (class, "greeter") == 0)
+                {
+                  local_session_id = g_strdup (sessions[i]);
+                  break;
+                }
+            }
 
-        if (!local_session_id)
-          {
-            g_set_error (error,
-                         G_IO_ERROR,
-                         G_IO_ERROR_NOT_FOUND,
-                         "Couldn't find a session or a greeter session for user %d",
-                         getuid ());
-            return FALSE;
-          }
+          if (!local_session_id)
+            {
+              g_set_error (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_FOUND,
+                           "Couldn't find a session or a greeter session for user %d",
+                           getuid ());
+              return FALSE;
+            }
         }
       else
         {
