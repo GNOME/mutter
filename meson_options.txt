@@ -141,6 +141,18 @@ option('tests',
   description: 'Enable tests globally. Specific test suites can be controlled with core_tests, clutter_tests, and cogl_tests'
 )
 
+option('kvm_tests',
+  type: 'boolean',
+  value: false,
+  description: 'Enable running certain tests in a virtual machine with a custom built kernel'
+)
+
+option('kvm_kernel_image',
+  type: 'string',
+  value: '',
+  description: 'Path to a Linux kernel image to be used for KVM testing'
+)
+
 option('profiler',
   type: 'boolean',
   value: true,

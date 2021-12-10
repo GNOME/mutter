@@ -57,6 +57,7 @@ sysprof_req = '>= 3.37.2'
 gnome = import('gnome')
 pkg = import('pkgconfig')
 i18n  = import('i18n')
+fs = import('fs')
 cc = meson.get_compiler('c')
 
 prefix = get_option('prefix')
@@ -269,6 +270,7 @@ have_core_tests = false
 have_cogl_tests = false
 have_clutter_tests = false
 have_native_tests = false
+have_kvm_tests = false
 have_installed_tests = false
 
 if have_tests
@@ -285,6 +287,15 @@ if have_tests
     endif
     if not have_remote_desktop
       error('Native tests require remote desktop')
+    endif
+  endif
+  have_kvm_tests = get_option('kvm_tests')
+  if have_kvm_tests
+    if not have_native_backend
+      error('KVM tests need the native backend tests')
+    endif
+    if host_machine.cpu_family() != 'x86_64'
+      error('KVM tests are only supported on x86_64')
     endif
   endif
 

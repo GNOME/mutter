@@ -1,0 +1,48 @@
+build_linux = find_program('build-linux.sh')
+
+kernel_image_path = get_option('kvm_kernel_image')
+if kernel_image_path != ''
+  if not fs.is_absolute(kernel_image_path)
+    error('Kernel image path @0@ must be absolute'.format(kernel_image_path))
+  endif
+  if not fs.is_file(kernel_image_path)
+    error('Kernel image @0@ does not exist'.format(kernel_image_path))
+  endif
+  kernel_image_target = []
+else
+  kernel_image_target = custom_target('linux-kernel',
+    output: 'bzImage',
+    input: 'kernel-version.txt',
+    console: true,
+    command: [
+      build_linux,
+      'https://anongit.freedesktop.org/git/drm/drm.git',
+      '@INPUT@',
+      '@OUTPUT@',
+      '--enable', 'CONFIG_DRM_VKMS',
+    ]
+  )
+  kernel_image_path = kernel_image_target.full_path()
+endif
+
+virtme_run = find_program('virtme-run.sh')
+
+foreach test: privileged_tests
+  test_name = test[0]
+  test_executable = test[1]
+
+  test('kvm-' + test_name, virtme_run,
+    suite: ['core', 'mutter/native/kvm'],
+    depends: [
+      kernel_image_target,
+    ],
+    workdir: mutter_srcdir,
+    args: [
+      kernel_image_path,
+      meta_dbus_runner.full_path(),
+      '--kvm',
+      test_executable.full_path(),
+      meson.current_build_dir(),
+    ]
+  )
+endforeach

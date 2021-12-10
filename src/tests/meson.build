@@ -117,6 +117,8 @@ test_runner = executable('mutter-test-runner',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
+meta_dbus_runner = find_program('meta-dbus-runner.py')
+
 if have_installed_tests
   install_data('meta-dbus-runner.py',
     install_dir: mutter_installed_tests_libexecdir,
@@ -391,11 +393,14 @@ if have_native_tests
     is_parallel: false,
     timeout: 60,
   )
+endif
 
-  test('native-kms-render', native_kms_render_tests,
-    suite: ['core', 'mutter/native/kms/render'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
+if have_kvm_tests
+  privileged_tests = [
+    [ 'kms-render', native_kms_render_tests ],
+  ]
+
+  if have_kvm_tests
+    subdir('kvm')
+  endif
 endif
