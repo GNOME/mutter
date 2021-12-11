@@ -8021,6 +8021,35 @@ meta_window_has_attached_dialogs (MetaWindow *window)
   return has_attached;
 }
 
+static gboolean
+has_modals_foreach_func (MetaWindow *window,
+                         void       *data)
+{
+  gboolean *is_modal = data;
+
+  *is_modal = window->type == META_WINDOW_MODAL_DIALOG && !window->unmanaging;
+
+  if (*is_modal)
+    return FALSE;
+
+  return TRUE;
+}
+
+/**
+ * meta_window_has_modals:
+ * @window: a #MetaWindow
+ *
+ * Return value: whether @window has any modal transients
+ */
+gboolean
+meta_window_has_modals (MetaWindow *window)
+{
+  gboolean has_modals = FALSE;
+
+  meta_window_foreach_transient (window, has_modals_foreach_func, &has_modals);
+  return has_modals;
+}
+
 /**
  * meta_window_get_tile_match:
  * @window: a #MetaWindow
