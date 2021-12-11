@@ -1,3 +1,21 @@
+41.2
+====
+* Fix blank screen when unplugging docking station [Jonas; !2097]
+* Prefer GBM over EGLStream where possible [Jonas; !2051, !2052]
+* Fix unredirected Xwayland windows not getting updated [Michel; !2112]
+* Improve anti-aliasing of background corners [Daniel; !2102]
+* Copy damage rectangles to secondary GPU [Piotr; !2033]
+* Improve Wacom tablet mapping [Carlos; !2107]
+* Fixed crashes [Jonas, Daniel; #1950, !2081, !2104, !1991, !2127]
+* Misc. bug fixes and cleanups [Simon, Corentin, Pascal; !2049, !2119, !2138]
+
+Contributors:
+  Michel Dänzer, Carlos Garnacho, Simon McVittie, Pascal Nowack, Corentin Noël,
+  Daniel van Vugt, Jonas Ådahl, Piotr Łopatka
+
+Translators:
+  Milo Casagrande [it], Quentin PAGÈS [oc]
+
 41.1
 ====
 * Fix monitor screencast scanouts [Michel; !1914]
