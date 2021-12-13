@@ -314,8 +314,7 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
   int64_t max_render_time_us;
   int i;
 
-  refresh_interval_us =
-    (int64_t) (0.5 + G_USEC_PER_SEC / frame_clock->refresh_rate);
+  refresh_interval_us = frame_clock->refresh_interval_us;
 
   if (!frame_clock->got_measurements_last_frame ||
       G_UNLIKELY (clutter_paint_debug_flags &
