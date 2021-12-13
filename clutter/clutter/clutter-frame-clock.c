@@ -45,10 +45,7 @@ typedef struct _EstimateQueue
   int next_index;
 } EstimateQueue;
 
-/* When heuristic render time is off,
- * wait 2ms after vblank before starting to draw next frame.
- */
-#define SYNC_DELAY_FALLBACK_US ms2us (2)
+#define SYNC_DELAY_FALLBACK_FRACTION 0.875
 
 typedef struct _ClutterFrameListener
 {
@@ -319,7 +316,7 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
   if (!frame_clock->got_measurements_last_frame ||
       G_UNLIKELY (clutter_paint_debug_flags &
                   CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
-    return refresh_interval_us - SYNC_DELAY_FALLBACK_US;
+    return refresh_interval_us * SYNC_DELAY_FALLBACK_FRACTION;
 
   for (i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
     {
