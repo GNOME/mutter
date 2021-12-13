@@ -271,6 +271,7 @@ have_cogl_tests = false
 have_clutter_tests = false
 have_native_tests = false
 have_kvm_tests = false
+have_tty_tests = false
 have_installed_tests = false
 
 if have_tests
@@ -296,6 +297,12 @@ if have_tests
     endif
     if host_machine.cpu_family() != 'x86_64'
       error('KVM tests are only supported on x86_64')
+    endif
+  endif
+  have_tty_tests = get_option('tty_tests')
+  if have_tty_tests
+    if not have_native_backend
+      error('TTY tests need the native backend tests')
     endif
   endif
 

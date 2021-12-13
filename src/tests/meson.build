@@ -395,12 +395,26 @@ if have_native_tests
   )
 endif
 
-if have_kvm_tests
+if have_kvm_tests or have_tty_tests
   privileged_tests = [
     [ 'kms-render', native_kms_render_tests ],
   ]
 
   if have_kvm_tests
     subdir('kvm')
+  endif
+
+  if have_tty_tests
+    foreach test: privileged_tests
+      test_name = test[0]
+      test_executable = test[1]
+
+      test('native-' + test_name, test_executable,
+        suite: ['core', 'mutter/native/tty'],
+        env: test_env,
+        is_parallel: false,
+        timeout: 60,
+      )
+    endforeach
   endif
 endif

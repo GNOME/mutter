@@ -153,6 +153,12 @@ option('kvm_kernel_image',
   description: 'Path to a Linux kernel image to be used for KVM testing'
 )
 
+option('tty_tests',
+  type: 'boolean',
+  value: false,
+  description: 'Enable tests that must be run on a TTY (KMS tests without KVM)'
+)
+
 option('profiler',
   type: 'boolean',
   value: true,
