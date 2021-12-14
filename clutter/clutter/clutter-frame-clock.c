@@ -657,7 +657,13 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   ClutterFrameResult result;
   int64_t ideal_dispatch_time_us, lateness_us;
 
+#ifdef COGL_HAS_TRACING
+  int64_t this_dispatch_ready_time_us;
+
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Frame Clock (dispatch)");
+
+  this_dispatch_ready_time_us = g_source_get_ready_time (frame_clock->source);
+#endif
 
   ideal_dispatch_time_us = (frame_clock->last_dispatch_time_us -
                             frame_clock->last_dispatch_lateness_us) +
@@ -719,6 +725,17 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
         }
       break;
     }
+
+#ifdef COGL_HAS_TRACING
+  if (this_dispatch_ready_time_us != -1 &&
+      G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      g_autofree char *description = NULL;
+      description = g_strdup_printf ("dispatched %ld µs late",
+                                     time_us - this_dispatch_ready_time_us);
+      COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, description);
+    }
+#endif
 }
 
 static gboolean
