@@ -228,6 +228,48 @@ void
 clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
 {
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
+                           "Frame Clock (presented)");
+
+#ifdef COGL_HAS_TRACING
+  if (G_UNLIKELY (cogl_is_tracing_enabled ()))
+    {
+      int64_t current_time_us;
+      g_autoptr (GString) description = NULL;
+
+      current_time_us = g_get_monotonic_time ();
+      description = g_string_new (NULL);
+
+      if (frame_info->presentation_time != 0)
+        {
+          if (frame_info->presentation_time <= current_time_us)
+            {
+              g_string_append_printf (description,
+                                      "presentation was %ld µs earlier",
+                                      current_time_us - frame_info->presentation_time);
+            }
+          else
+            {
+              g_string_append_printf (description,
+                                      "presentation will be %ld µs later",
+                                      frame_info->presentation_time - current_time_us);
+            }
+        }
+
+      if (frame_info->gpu_rendering_duration_ns != 0)
+        {
+          if (description->len > 0)
+            g_string_append (description, ", ");
+
+          g_string_append_printf (description,
+                                  "buffer swap to GPU done: %ld µs",
+                                  ns2us (frame_info->gpu_rendering_duration_ns));
+        }
+
+      COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented, description->str);
+    }
+#endif
+
   frame_clock->last_presentation_time_us = frame_info->presentation_time;
 
   frame_clock->got_measurements_last_frame = FALSE;
