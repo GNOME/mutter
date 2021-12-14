@@ -642,6 +642,8 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   COGL_TRACE_END (ClutterFrameClockEvents);
 
   COGL_TRACE_BEGIN (ClutterFrameClockTimelines, "Frame Clock (timelines)");
+  if (frame_clock->is_next_presentation_time_valid)
+    time_us = frame_clock->next_presentation_time_us;
   advance_timelines (frame_clock, time_us);
   COGL_TRACE_END (ClutterFrameClockTimelines);
 
