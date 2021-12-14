@@ -328,6 +328,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 void
 clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 {
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Frame Clock (ready)");
+
   switch (frame_clock->state)
     {
     case CLUTTER_FRAME_CLOCK_STATE_INIT:
