@@ -33,7 +33,7 @@
  * be used to update the state of the actors.
  *
  * It is important to note that #ClutterTimeline is not a generic API for
- * calling closures after an interval; each Timeline is tied into the master
+ * calling closures after an interval; each Timeline is tied into a frame
  * clock used to drive the frame cycle. If you need to schedule a closure
  * after an interval, see clutter_threads_add_timeout() instead.
  *
@@ -163,7 +163,7 @@ struct _ClutterTimelinePrivate
   guint is_playing         : 1;
 
   /* If we've just started playing and haven't yet gotten
-   * a tick from the master clock
+   * a tick from the frame clock
    */
   guint waiting_first_tick : 1;
   guint auto_reverse       : 1;
@@ -1884,9 +1884,11 @@ _clutter_timeline_advance (ClutterTimeline *timeline,
  * @tick_time: time of advance
  *
  * Advances @timeline based on the time passed in @tick_time. This
- * function is called by the master clock. The @timeline will use this
- * interval to emit the #ClutterTimeline::new-frame signal and
- * eventually skip frames.
+ * function is called by the frame clock and ideally passes the next
+ * presentation time in which consequences of our timeline will be visible.
+ * Otherwise an estimate using the current monotonic time is also acceptable.
+ * The @timeline will use this interval to emit the #ClutterTimeline::new-frame
+ * signal and eventually skip frames.
  */
 void
 _clutter_timeline_do_tick (ClutterTimeline *timeline,
