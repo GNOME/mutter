@@ -1319,16 +1319,21 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
 
   meta_xwayland_terminate (manager);
 
-  snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
-            manager->public_connection.display_index);
-  unlink (path);
+  if (manager->public_connection.name)
+    {
+      snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
+                manager->public_connection.display_index);
+      unlink (path);
+      g_clear_pointer (&manager->public_connection.name, g_free);
+    }
 
-  snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
-            manager->private_connection.display_index);
-  unlink (path);
-
-  g_clear_pointer (&manager->public_connection.name, g_free);
-  g_clear_pointer (&manager->private_connection.name, g_free);
+  if (manager->private_connection.name)
+    {
+      snprintf (path, sizeof path, "%s%d", X11_TMP_UNIX_PATH,
+                manager->private_connection.display_index);
+      unlink (path);
+      g_clear_pointer (&manager->private_connection.name, g_free);
+    }
 
   meta_xwayland_connection_release (&manager->public_connection);
   meta_xwayland_connection_release (&manager->private_connection);

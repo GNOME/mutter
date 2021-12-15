@@ -414,7 +414,12 @@ meta_wayland_log_func (const char *fmt,
 void
 meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
 {
-  meta_xwayland_shutdown (&compositor->xwayland_manager);
+  MetaX11DisplayPolicy x11_display_policy;
+
+  x11_display_policy =
+    meta_context_get_x11_display_policy (compositor->context);
+  if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
+    meta_xwayland_shutdown (&compositor->xwayland_manager);
 
   if (compositor->wayland_display)
     wl_display_destroy_clients (compositor->wayland_display);
