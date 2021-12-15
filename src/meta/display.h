@@ -111,6 +111,9 @@ META_EXPORT
 guint32 meta_display_get_current_time_roundtrip (MetaDisplay *display);
 
 META_EXPORT
+GList * meta_display_list_all_windows (MetaDisplay *display);
+
+META_EXPORT
 GList* meta_display_get_tab_list (MetaDisplay   *display,
                                   MetaTabList    type,
                                   MetaWorkspace *workspace);

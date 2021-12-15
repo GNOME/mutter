@@ -2390,6 +2390,31 @@ mru_cmp (gconstpointer a,
 }
 
 /**
+ * meta_display_list_all_windows:
+ * @display: a #MetaDisplay
+ *
+ * List all windows, including override-redirect ones. The windows are
+ * in no particular order.
+ *
+ * Returns: (transfer container) (element-type Meta.Window): List of windows
+ */
+GList *
+meta_display_list_all_windows (MetaDisplay *display)
+{
+  GList *all_windows = NULL;
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+
+  windows = meta_display_list_windows (display,
+                                       META_LIST_INCLUDE_OVERRIDE_REDIRECT);
+
+  /* Yay for mixing GList and GSList in the API */
+  for (l = windows; l; l = l->next)
+    all_windows = g_list_prepend (all_windows, l->data);
+  return all_windows;
+}
+
+/**
  * meta_display_get_tab_list:
  * @display: a #MetaDisplay
  * @type: type of tab list
