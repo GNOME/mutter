@@ -50,7 +50,6 @@ typedef struct _ClutterFrameListenerIface
                          gpointer           user_data);
   ClutterFrameResult (* frame) (ClutterFrameClock *frame_clock,
                                 int64_t            frame_count,
-                                int64_t            time_us,
                                 gpointer           user_data);
 } ClutterFrameListenerIface;
 

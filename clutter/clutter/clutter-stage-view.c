@@ -1146,7 +1146,6 @@ end_frame_timing_measurement (ClutterStageView *view)
 static ClutterFrameResult
 handle_frame_clock_frame (ClutterFrameClock *frame_clock,
                           int64_t            frame_count,
-                          int64_t            time_us,
                           gpointer           user_data)
 {
   ClutterStageView *view = user_data;

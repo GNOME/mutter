@@ -650,7 +650,6 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
   result = frame_clock->listener.iface->frame (frame_clock,
                                                frame_count,
-                                               time_us,
                                                frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockFrame);
 
