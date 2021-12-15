@@ -2,6 +2,7 @@
 #include "tests/clutter-test-utils.h"
 
 static const float refresh_rate = 60.0;
+static const int64_t refresh_interval_us = G_USEC_PER_SEC / refresh_rate;
 
 static ClutterFrameResult
 timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
@@ -61,6 +62,8 @@ frame_clock_timeline_basic (void)
   int frame_counter;
   int64_t before_us;
   int64_t after_us;
+  int64_t duration_us;
+  int64_t lateness_us;
 
   main_loop = g_main_loop_new (NULL, FALSE);
   frame_clock = clutter_frame_clock_new (refresh_rate,
@@ -97,10 +100,10 @@ frame_clock_timeline_basic (void)
   g_main_loop_run (main_loop);
 
   after_us = g_get_monotonic_time ();
+  duration_us = after_us - before_us;
+  lateness_us = duration_us - ms2us (clutter_timeline_get_duration (timeline));
 
-  g_assert_cmpint (after_us - before_us,
-                   >=,
-                   ms2us (clutter_timeline_get_duration (timeline)));
+  g_assert_cmpint (lateness_us, >, -refresh_interval_us);
 
   g_assert_true (marker1_reached);
 
@@ -140,6 +143,8 @@ frame_clock_timeline_switch (void)
   int frame_counter;
   int64_t before_us;
   int64_t after_us;
+  int64_t duration_us;
+  int64_t lateness_us;
 
   main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -181,10 +186,15 @@ frame_clock_timeline_switch (void)
   g_main_loop_run (main_loop);
 
   after_us = g_get_monotonic_time ();
+  duration_us = after_us - before_us;
+  lateness_us = duration_us - ms2us (clutter_timeline_get_duration (timeline));
 
-  g_assert_cmpint (after_us - before_us,
-                   >=,
-                   ms2us (clutter_timeline_get_duration (timeline)));
+  /* Our threshold is two frames. This is because switching a timeline to a
+   * new clock of the same frequency shifts the phase up to one frame. And
+   * this timeline has seen two different clocks so its overall duration may
+   * be out by almost two frames. But more than two frames is a bug.
+   */
+  g_assert_cmpint (lateness_us, >, -2 * refresh_interval_us);
 
   g_assert (clutter_timeline_get_frame_clock (timeline) == frame_clock2);
 
