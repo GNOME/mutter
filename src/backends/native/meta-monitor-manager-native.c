@@ -83,6 +83,8 @@ struct _MetaMonitorManagerNative
   GHashTable *crtc_gamma_cache;
 
   gboolean needs_outputs;
+
+  guint rebuild_virtual_idle_id;
 };
 
 struct _MetaMonitorManagerNativeClass
@@ -778,6 +780,35 @@ meta_monitor_manager_native_set_privacy_screen_enabled (MetaMonitorManager *mana
   return TRUE;
 }
 
+static gboolean
+rebuild_virtual_idle_cb (gpointer user_data)
+{
+  MetaMonitorManager *manager = user_data;
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (manager);
+
+  manager_native->rebuild_virtual_idle_id = 0;
+
+  meta_monitor_manager_reconfigure (manager);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+on_virtual_monitor_mode_changed (MetaVirtualMonitor *virtual_monitor,
+                                 GParamSpec         *pspec,
+                                 MetaMonitorManager *manager)
+{
+  MetaMonitorManagerNative *manager_native =
+    META_MONITOR_MANAGER_NATIVE (manager);
+
+  if (manager_native->rebuild_virtual_idle_id)
+    return;
+
+  manager_native->rebuild_virtual_idle_id =
+    g_idle_add (rebuild_virtual_idle_cb, manager);
+}
+
 static MetaVirtualMonitor *
 meta_monitor_manager_native_create_virtual_monitor (MetaMonitorManager            *manager,
                                                     const MetaVirtualMonitorInfo  *info,
@@ -790,6 +821,10 @@ meta_monitor_manager_native_create_virtual_monitor (MetaMonitorManager          
 
   id = allocate_virtual_monitor_id (manager_native);
   virtual_monitor_native = meta_virtual_monitor_native_new (id, info);
+  g_signal_connect (virtual_monitor_native, "notify::crtc-mode",
+                    G_CALLBACK (on_virtual_monitor_mode_changed),
+                    manager);
+
   return META_VIRTUAL_MONITOR (virtual_monitor_native);
 }
 
@@ -819,6 +854,7 @@ meta_monitor_manager_native_dispose (GObject *object)
   MetaMonitorManagerNative *manager_native =
     META_MONITOR_MANAGER_NATIVE (object);
 
+  g_clear_handle_id (&manager_native->rebuild_virtual_idle_id, g_source_remove);
   g_clear_pointer (&manager_native->crtc_gamma_cache,
                    g_hash_table_unref);
 

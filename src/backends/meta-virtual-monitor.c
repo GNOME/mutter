@@ -135,7 +135,8 @@ meta_virtual_monitor_set_property (GObject      *object,
       priv->crtc = g_value_get_object (value);
       break;
     case PROP_CRTC_MODE:
-      priv->crtc_mode = g_value_get_object (value);
+      g_set_object (&priv->crtc_mode,
+                    g_value_get_object (value));
       break;
     case PROP_OUTPUT:
       priv->output = g_value_get_object (value);
@@ -219,7 +220,6 @@ meta_virtual_monitor_class_init (MetaVirtualMonitorClass *klass)
                          "The virtual CRTC mode",
                          META_TYPE_CRTC_MODE,
                          G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_OUTPUT] =
     g_param_spec_object ("output",
@@ -237,4 +237,16 @@ meta_virtual_monitor_class_init (MetaVirtualMonitorClass *klass)
                   G_SIGNAL_RUN_LAST, 0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+}
+
+void
+meta_virtual_monitor_set_mode (MetaVirtualMonitor *virtual_monitor,
+                               int                 width,
+                               int                 height,
+                               float               refresh_rate)
+{
+  MetaVirtualMonitorClass *klass =
+    META_VIRTUAL_MONITOR_GET_CLASS (virtual_monitor);
+
+  klass->set_mode (virtual_monitor, width, height, refresh_rate);
 }

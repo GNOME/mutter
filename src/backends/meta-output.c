@@ -541,3 +541,21 @@ meta_tile_info_equal (MetaTileInfo *a,
 
   return TRUE;
 }
+
+void
+meta_output_update_modes (MetaOutput    *output,
+                          MetaCrtcMode  *preferred_mode,
+                          MetaCrtcMode **modes,
+                          int            n_modes)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+  int i;
+
+  for (i = 0; i < priv->info->n_modes; i++)
+    g_object_unref (priv->info->modes[i]);
+  g_free (priv->info->modes);
+
+  priv->info->preferred_mode = preferred_mode;
+  priv->info->modes = modes;
+  priv->info->n_modes = n_modes;
+}

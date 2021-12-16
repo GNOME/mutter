@@ -50,6 +50,11 @@ G_DECLARE_DERIVABLE_TYPE (MetaVirtualMonitor, meta_virtual_monitor,
 struct _MetaVirtualMonitorClass
 {
   GObjectClass parent_class;
+
+  void (* set_mode) (MetaVirtualMonitor *virtual_monitor,
+                     int                 width,
+                     int                 height,
+                     float               refresh_rate);
 };
 
 META_EXPORT_TEST
@@ -69,6 +74,12 @@ MetaCrtcMode * meta_virtual_monitor_get_crtc_mode (MetaVirtualMonitor *virtual_m
 
 META_EXPORT_TEST
 MetaOutput * meta_virtual_monitor_get_output (MetaVirtualMonitor *virtual_monitor);
+
+META_EXPORT_TEST
+void meta_virtual_monitor_set_mode (MetaVirtualMonitor *virtual_monitor,
+                                    int                 width,
+                                    int                 height,
+                                    float               refresh_rate);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualMonitorInfo,
                                meta_virtual_monitor_info_free)

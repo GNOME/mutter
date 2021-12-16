@@ -212,4 +212,9 @@ MetaMonitorTransform meta_output_logical_to_crtc_transform (MetaOutput          
 MetaMonitorTransform meta_output_crtc_to_logical_transform (MetaOutput           *output,
                                                             MetaMonitorTransform  transform);
 
+void meta_output_update_modes (MetaOutput    *output,
+                               MetaCrtcMode  *preferred_mode,
+                               MetaCrtcMode **modes,
+                               int            n_modes);
+
 #endif /* META_OUTPUT_H */
