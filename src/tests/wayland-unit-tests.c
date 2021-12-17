@@ -361,7 +361,6 @@ toplevel_activation (void)
   data.loop = g_main_loop_new (NULL, FALSE);
   data.wayland_test_client = meta_wayland_test_client_new ("xdg-activation");
   meta_wayland_test_client_finish (data.wayland_test_client);
-  g_test_assert_expected_messages ();
 }
 
 static void
