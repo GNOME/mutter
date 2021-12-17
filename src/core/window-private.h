@@ -912,4 +912,8 @@ void meta_window_clear_queued (MetaWindow *window);
 
 void meta_window_update_layout (MetaWindow *window);
 
+gboolean meta_window_calculate_bounds (MetaWindow *window,
+                                       int        *bounds_width,
+                                       int        *bounds_height);
+
 #endif
