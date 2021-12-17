@@ -20,6 +20,8 @@
 #ifndef META_LATER_H
 #define META_LATER_H
 
+#include <meta/types.h>
+
 /**
  * MetaLaterType:
  * @META_LATER_RESIZE: call in a resize processing phase that is done
@@ -49,5 +51,16 @@ guint meta_later_add    (MetaLaterType  when,
 
 META_EXPORT
 void  meta_later_remove (guint          later_id);
+
+META_EXPORT
+unsigned int meta_laters_add (MetaLaters     *laters,
+                              MetaLaterType   when,
+                              GSourceFunc     func,
+                              gpointer        user_data,
+                              GDestroyNotify  notify);
+
+META_EXPORT
+void meta_laters_remove (MetaLaters   *laters,
+                         unsigned int  later_id);
 
 #endif /* META_LATER_H */

@@ -208,7 +208,25 @@ invoke_later_idle (gpointer data)
     }
 }
 
-static unsigned int
+/**
+ * meta_laters_add:
+ * @laters: a #MetaLaters
+ * @when: enumeration value determining the phase at which to run the callback
+ * @func: callback to run later
+ * @user_data: data to pass to the callback
+ * @notify: function to call to destroy @data when it is no longer in use, or %NULL
+ *
+ * Sets up a callback  to be called at some later time. @when determines the
+ * particular later occasion at which it is called. This is much like g_idle_add(),
+ * except that the functions interact properly with clutter event handling.
+ * If a "later" function is added from a clutter event handler, and is supposed
+ * to be run before the stage is redrawn, it will be run before that redraw
+ * of the stage, not the next one.
+ *
+ * Return value: an integer ID (guaranteed to be non-zero) that can be used
+ *  to cancel the callback and prevent it from being run.
+ */
+unsigned int
 meta_laters_add (MetaLaters     *laters,
                  MetaLaterType   when,
                  GSourceFunc     func,
@@ -287,7 +305,14 @@ meta_later_add (MetaLaterType  when,
                           when, func, data, notify);
 }
 
-static void
+/**
+ * meta_laters_remove:
+ * @laters: a #MetaLaters
+ * @later_id: the integer ID returned from meta_later_add()
+ *
+ * Removes a callback added with meta_later_add()
+ */
+void
 meta_laters_remove (MetaLaters   *laters,
                     unsigned int  later_id)
 {

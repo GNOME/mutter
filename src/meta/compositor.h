@@ -162,4 +162,7 @@ void meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
 				                MetaWindowMenuType  menu,
                                                 MetaRectangle      *rect);
 
+META_EXPORT
+MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
+
 #endif /* META_COMPOSITOR_H */

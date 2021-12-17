@@ -32,6 +32,7 @@ typedef struct _MetaX11Display  MetaX11Display;
 typedef struct _MetaFrame       MetaFrame;
 typedef struct _MetaWindow      MetaWindow;
 typedef struct _MetaWorkspace   MetaWorkspace;
+typedef struct _MetaLaters      MetaLaters;
 /**
  * MetaGroup: (skip)
  *

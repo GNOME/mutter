@@ -18,8 +18,7 @@
 #ifndef META_LATER_PRIVATE_H
 #define META_LATER_PRIVATE_H
 
-typedef struct _MetaLaters MetaLaters;
-typedef struct _MetaCompositor MetaCompositor;
+#include <meta/types.h>
 
 MetaLaters * meta_laters_new (MetaCompositor *compositor);
 

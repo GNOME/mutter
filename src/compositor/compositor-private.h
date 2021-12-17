@@ -72,8 +72,6 @@ ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
-MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
-
 void meta_compositor_grab_begin (MetaCompositor *compositor);
 void meta_compositor_grab_end (MetaCompositor *compositor);
 
