@@ -307,6 +307,7 @@ GList *             meta_monitor_manager_get_logical_monitors (MetaMonitorManage
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_from_number (MetaMonitorManager *manager,
                                                                           int                 number);
 
+META_EXPORT_TEST
 MetaLogicalMonitor *meta_monitor_manager_get_primary_logical_monitor (MetaMonitorManager *manager);
 
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,

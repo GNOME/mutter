@@ -25,6 +25,8 @@
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-test-utils.h"
+#include "meta/meta-later.h"
+#include "meta/meta-workspace-manager.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-surface.h"
@@ -364,6 +366,276 @@ toplevel_activation (void)
 }
 
 static void
+on_sync_point (MetaWaylandTestDriver *test_driver,
+               unsigned int           sequence,
+               struct wl_resource    *surface_resource,
+               struct wl_client      *wl_client,
+               unsigned int          *latest_sequence)
+{
+  *latest_sequence = sequence;
+}
+
+static void
+wait_for_sync_point (unsigned int sync_point)
+{
+  gulong handler_id;
+  unsigned int latest_sequence = 0;
+
+  handler_id = g_signal_connect (test_driver, "sync-point",
+                                 G_CALLBACK (on_sync_point),
+                                 &latest_sequence);
+  while (latest_sequence != sync_point)
+    g_main_context_iteration (NULL, TRUE);
+  g_signal_handler_disconnect (test_driver, handler_id);
+}
+
+static gboolean
+mark_later_as_done (gpointer user_data)
+{
+  gboolean *done = user_data;
+
+  *done = TRUE;
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+wait_until_after_paint (void)
+{
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
+  gboolean done;
+
+  done = FALSE;
+  meta_laters_add (laters,
+                   META_LATER_BEFORE_REDRAW,
+                   mark_later_as_done,
+                   &done,
+                   NULL);
+  while (!done)
+    g_main_context_iteration (NULL, FALSE);
+
+  done = FALSE;
+  meta_laters_add (laters,
+                   META_LATER_IDLE,
+                   mark_later_as_done,
+                   &done,
+                   NULL);
+  while (!done)
+    g_main_context_iteration (NULL, FALSE);
+}
+
+static void
+set_struts (MetaRectangle rect,
+            MetaSide      side)
+{
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaWorkspaceManager *workspace_manager =
+    meta_display_get_workspace_manager (display);
+  GList *workspaces =
+    meta_workspace_manager_get_workspaces (workspace_manager);
+  MetaStrut strut;
+  g_autoptr (GSList) struts = NULL;
+  GList *l;
+
+  strut = (MetaStrut) { .rect = rect, .side = side };
+  struts = g_slist_append (NULL, &strut);
+
+  for (l = workspaces; l; l = l->next)
+    {
+      MetaWorkspace *workspace = l->data;
+
+      meta_workspace_set_builtin_struts (workspace, struts);
+    }
+}
+
+static void
+clear_struts (void)
+{
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaWorkspaceManager *workspace_manager =
+    meta_display_get_workspace_manager (display);
+  GList *workspaces =
+    meta_workspace_manager_get_workspaces (workspace_manager);
+  GList *l;
+
+  for (l = workspaces; l; l = l->next)
+    {
+      MetaWorkspace *workspace = l->data;
+
+      meta_workspace_set_builtin_struts (workspace, NULL);
+    }
+}
+
+static MetaRectangle
+get_primary_logical_monitor_layout (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor;
+
+  logical_monitor =
+    meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+  return meta_logical_monitor_get_layout (logical_monitor);
+}
+
+static void
+toplevel_bounds_struts (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+  MetaRectangle logical_monitor_layout;
+  MetaRectangle work_area;
+
+  /*
+   * This test case makes sure that setting and changing struts result in the
+   * right bounds are sent.
+   */
+
+  logical_monitor_layout = get_primary_logical_monitor_layout ();
+  set_struts ((MetaRectangle) {
+                .x = 0,
+                .y = 0,
+                .width = logical_monitor_layout.width,
+                .height = 10,
+              },
+              META_SIDE_TOP);
+
+  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+
+  wait_for_sync_point (1);
+  wait_until_after_paint ();
+
+  window = find_client_window ("toplevel-bounds-test");
+
+  g_assert_nonnull (window->monitor);
+  meta_window_get_work_area_current_monitor (window, &work_area);
+  g_assert_cmpint (work_area.width, ==, logical_monitor_layout.width);
+  g_assert_cmpint (work_area.height, ==, logical_monitor_layout.height - 10);
+
+  g_assert_cmpint (window->rect.width, ==, work_area.width - 10);
+  g_assert_cmpint (window->rect.height, ==, work_area.height - 10);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+
+  clear_struts ();
+
+  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+
+  wait_for_sync_point (1);
+  wait_until_after_paint ();
+
+  window = find_client_window ("toplevel-bounds-test");
+  g_assert_nonnull (window->monitor);
+  meta_window_get_work_area_current_monitor (window, &work_area);
+  g_assert_cmpint (work_area.width, ==, logical_monitor_layout.width);
+  g_assert_cmpint (work_area.height, ==, logical_monitor_layout.height);
+
+  g_assert_cmpint (window->rect.width, ==, work_area.width - 10);
+  g_assert_cmpint (window->rect.height, ==, work_area.height - 10);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
+wait_for_cursor_position (float x,
+                          float y)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  graphene_point_t point;
+
+  while (TRUE)
+    {
+      meta_cursor_tracker_get_pointer (cursor_tracker, &point, NULL);
+      if (G_APPROX_VALUE (x, point.x, FLT_EPSILON) &&
+          G_APPROX_VALUE (y, point.y, FLT_EPSILON))
+        break;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+}
+
+static void
+toplevel_bounds_monitors (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat;
+  g_autoptr (MetaVirtualMonitor) second_virtual_monitor = NULL;
+  MetaWaylandTestClient *wayland_test_client;
+  MetaRectangle logical_monitor_layout;
+  MetaRectangle work_area;
+  MetaWindow *window;
+
+  /*
+   * This test case creates two monitors, with different sizes, with a fake
+   * panel on top of the primary monitor. It then makes sure launching on both
+   * monitors results in the correct bounds.
+   */
+
+  seat = meta_backend_get_default_seat (backend);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+
+  second_virtual_monitor = meta_create_test_monitor (test_context,
+                                                     300, 200, 60.0);
+
+  logical_monitor_layout = get_primary_logical_monitor_layout ();
+  set_struts ((MetaRectangle) {
+                .x = 0,
+                .y = 0,
+                .width = logical_monitor_layout.width,
+                .height = 10,
+              },
+              META_SIDE_TOP);
+
+  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+
+  wait_for_sync_point (1);
+  wait_until_after_paint ();
+
+  window = find_client_window ("toplevel-bounds-test");
+
+  g_assert_nonnull (window->monitor);
+  meta_window_get_work_area_current_monitor (window, &work_area);
+  g_assert_cmpint (work_area.width, ==, logical_monitor_layout.width);
+  g_assert_cmpint (work_area.height, ==, logical_monitor_layout.height - 10);
+
+  g_assert_cmpint (window->rect.width, ==, work_area.width - 10);
+  g_assert_cmpint (window->rect.height, ==, work_area.height - 10);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       CLUTTER_CURRENT_TIME,
+                                                       550.0, 100.0);
+  wait_for_cursor_position (550.0, 100.0);
+
+  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+
+  wait_for_sync_point (1);
+  wait_until_after_paint ();
+
+  window = find_client_window ("toplevel-bounds-test");
+
+  g_assert_nonnull (window->monitor);
+  meta_window_get_work_area_current_monitor (window, &work_area);
+  g_assert_cmpint (work_area.width, ==, 300);
+  g_assert_cmpint (work_area.height, ==, 200);
+
+  g_assert_cmpint (window->rect.width, ==, 300 - 10);
+  g_assert_cmpint (window->rect.height, ==, 200 - 10);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -398,6 +670,10 @@ init_tests (void)
                    toplevel_apply_limits);
   g_test_add_func ("/wayland/toplevel/activation",
                    toplevel_activation);
+  g_test_add_func ("/wayland/toplevel/bounds/struts",
+                   toplevel_bounds_struts);
+  g_test_add_func ("/wayland/toplevel/bounds/monitors",
+                   toplevel_bounds_monitors);
 }
 
 int

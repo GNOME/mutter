@@ -53,6 +53,7 @@ wayland_test_clients = [
   'invalid-xdg-shell-actions',
   'xdg-apply-limits',
   'xdg-activation',
+  'xdg-toplevel-bounds',
 ]
 
 foreach test : wayland_test_clients

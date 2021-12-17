@@ -181,6 +181,8 @@ surface_state_changed (MetaWindow *window)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   MetaWaylandWindowConfiguration *configuration;
+  int bounds_width;
+  int bounds_height;
 
   /* don't send notify when the window is being unmanaged */
   if (window->unmanaging)
@@ -188,9 +190,16 @@ surface_state_changed (MetaWindow *window)
 
   g_return_if_fail (wl_window->has_last_sent_configuration);
 
+  if (!meta_window_calculate_bounds (window, &bounds_width, &bounds_height))
+    {
+      bounds_width = 0;
+      bounds_height = 0;
+    }
+
   configuration =
     meta_wayland_window_configuration_new (window,
                                            wl_window->last_sent_rect,
+                                           bounds_width, bounds_height,
                                            wl_window->last_sent_geometry_scale,
                                            META_MOVE_RESIZE_STATE_CHANGED,
                                            wl_window->last_sent_gravity);
@@ -345,6 +354,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                flags & META_MOVE_RESIZE_STATE_CHANGED)
         {
           MetaWaylandWindowConfiguration *configuration;
+          int bounds_width;
+          int bounds_height;
 
           if (!meta_wayland_surface_get_buffer (window->surface) &&
               !META_WINDOW_MAXIMIZED (window) &&
@@ -352,9 +363,18 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
               !meta_window_is_fullscreen (window))
             return;
 
+          if (!meta_window_calculate_bounds (window,
+                                             &bounds_width,
+                                             &bounds_height))
+            {
+              bounds_width = 0;
+              bounds_height = 0;
+            }
+
           configuration =
             meta_wayland_window_configuration_new (window,
                                                    configured_rect,
+                                                   bounds_width, bounds_height,
                                                    geometry_scale,
                                                    flags,
                                                    gravity);

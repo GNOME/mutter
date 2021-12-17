@@ -43,6 +43,8 @@ is_window_size_fixed (MetaWindow *window)
 MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new (MetaWindow          *window,
                                        MetaRectangle        rect,
+                                       int                  bounds_width,
+                                       int                  bounds_height,
                                        int                  scale,
                                        MetaMoveResizeFlags  flags,
                                        MetaGravity          gravity)
@@ -52,6 +54,9 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
     .serial = ++global_serial_counter,
+
+    .bounds_width = bounds_width,
+    .bounds_height = bounds_height,
 
     .scale = scale,
     .gravity = gravity,
@@ -108,7 +113,8 @@ meta_wayland_window_configuration_new_relative (int rel_x,
 }
 
 MetaWaylandWindowConfiguration *
-meta_wayland_window_configuration_new_empty (void)
+meta_wayland_window_configuration_new_empty (int bounds_width,
+                                             int bounds_height)
 {
   MetaWaylandWindowConfiguration *configuration;
 
@@ -116,6 +122,8 @@ meta_wayland_window_configuration_new_empty (void)
   *configuration = (MetaWaylandWindowConfiguration) {
     .serial = ++global_serial_counter,
     .scale = 1,
+    .bounds_width = bounds_width,
+    .bounds_height = bounds_height,
   };
 
   return configuration;
