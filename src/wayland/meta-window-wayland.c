@@ -54,10 +54,7 @@ struct _MetaWindowWayland
   gboolean has_pending_state_change;
 
   gboolean has_last_sent_configuration;
-  int last_sent_x;
-  int last_sent_y;
-  int last_sent_width;
-  int last_sent_height;
+  MetaRectangle last_sent_rect;
   int last_sent_rel_x;
   int last_sent_rel_y;
   int last_sent_geometry_scale;
@@ -193,10 +190,7 @@ surface_state_changed (MetaWindow *window)
 
   configuration =
     meta_wayland_window_configuration_new (window,
-                                           wl_window->last_sent_x,
-                                           wl_window->last_sent_y,
-                                           wl_window->last_sent_width,
-                                           wl_window->last_sent_height,
+                                           wl_window->last_sent_rect,
                                            wl_window->last_sent_geometry_scale,
                                            META_MOVE_RESIZE_STATE_CHANGED,
                                            wl_window->last_sent_gravity);
@@ -237,10 +231,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   gboolean can_move_now = FALSE;
-  int configured_x;
-  int configured_y;
-  int configured_width;
-  int configured_height;
+  MetaRectangle configured_rect;
   int geometry_scale;
   int new_x;
   int new_y;
@@ -253,8 +244,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   if (window->unmanaging)
     return;
 
-  configured_x = constrained_rect.x;
-  configured_y = constrained_rect.y;
+  configured_rect.x = constrained_rect.x;
+  configured_rect.y = constrained_rect.y;
 
   /* The scale the window is drawn in might change depending on what monitor it
    * is mainly on. Scale the configured rectangle to be in logical pixel
@@ -262,8 +253,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
    * to the Wayland surface. */
   geometry_scale = meta_window_wayland_get_geometry_scale (window);
 
-  configured_width = constrained_rect.width;
-  configured_height = constrained_rect.height;
+  configured_rect.width = constrained_rect.width;
+  configured_rect.height = constrained_rect.height;
 
   /* For wayland clients, the size is completely determined by the client,
    * and while this allows to avoid some trickery with frames and the resulting
@@ -323,8 +314,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                     configuration =
                       meta_wayland_window_configuration_new_relative (rel_x,
                                                                       rel_y,
-                                                                      configured_width,
-                                                                      configured_height,
+                                                                      configured_rect.width,
+                                                                      configured_rect.height,
                                                                       geometry_scale);
                     meta_window_wayland_configure (wl_window, configuration);
 
@@ -363,10 +354,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
 
           configuration =
             meta_wayland_window_configuration_new (window,
-                                                   configured_x,
-                                                   configured_y,
-                                                   configured_width,
-                                                   configured_height,
+                                                   configured_rect,
                                                    geometry_scale,
                                                    flags,
                                                    gravity);
@@ -380,10 +368,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
     }
 
   wl_window->has_last_sent_configuration = TRUE;
-  wl_window->last_sent_x = configured_x;
-  wl_window->last_sent_y = configured_y;
-  wl_window->last_sent_width = configured_width;
-  wl_window->last_sent_height = configured_height;
+  wl_window->last_sent_rect = configured_rect;
   wl_window->last_sent_geometry_scale = geometry_scale;
   wl_window->last_sent_gravity = gravity;
 

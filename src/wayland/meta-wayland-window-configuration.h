@@ -49,10 +49,7 @@ struct _MetaWaylandWindowConfiguration
 };
 
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (MetaWindow          *window,
-                                                                        int                  x,
-                                                                        int                  y,
-                                                                        int                  width,
-                                                                        int                  height,
+                                                                        MetaRectangle        rect,
                                                                         int                  scale,
                                                                         MetaMoveResizeFlags  flags,
                                                                         MetaGravity          gravity);

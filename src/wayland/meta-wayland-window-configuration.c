@@ -42,10 +42,7 @@ is_window_size_fixed (MetaWindow *window)
 
 MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new (MetaWindow          *window,
-                                       int                  x,
-                                       int                  y,
-                                       int                  width,
-                                       int                  height,
+                                       MetaRectangle        rect,
                                        int                  scale,
                                        MetaMoveResizeFlags  flags,
                                        MetaGravity          gravity)
@@ -62,22 +59,22 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
   };
 
   if (flags & META_MOVE_RESIZE_MOVE_ACTION ||
-      window->rect.x != x ||
-      window->rect.y != y)
+      window->rect.x != rect.x ||
+      window->rect.y != rect.y)
     {
       configuration->has_position = TRUE;
-      configuration->x = x;
-      configuration->y = y;
+      configuration->x = rect.x;
+      configuration->y = rect.y;
     }
 
   if (flags & META_MOVE_RESIZE_RESIZE_ACTION ||
       is_window_size_fixed (window) ||
-      window->rect.width != width ||
-      window->rect.height != height)
+      window->rect.width != rect.width ||
+      window->rect.height != rect.height)
     {
       configuration->has_size = TRUE;
-      configuration->width = width;
-      configuration->height = height;
+      configuration->width = rect.width;
+      configuration->height = rect.height;
     }
 
   return configuration;
