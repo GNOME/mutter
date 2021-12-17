@@ -964,6 +964,8 @@ _meta_window_shared_new (MetaDisplay         *display,
                          MetaCompEffect       effect,
                          XWindowAttributes   *attrs)
 {
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
   MetaWindow *window;
 
@@ -1157,7 +1159,11 @@ _meta_window_shared_new (MetaDisplay         *display,
 
   window->compositor_private = NULL;
 
-  window->monitor = meta_window_calculate_main_logical_monitor (window);
+  if (window->rect.width > 0 && window->rect.height > 0)
+    window->monitor = meta_window_calculate_main_logical_monitor (window);
+  else
+    window->monitor = meta_backend_get_current_logical_monitor (backend);
+
   if (window->monitor)
     window->preferred_output_winsys_id = window->monitor->winsys_id;
   else

@@ -468,6 +468,9 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
       return;
     }
 
+  if (window->rect.width == 0 || window->rect.height == 0)
+    return;
+
   /* Require both the current and the new monitor would be the new main monitor,
    * even given the resulting scale the window would end up having. This is
    * needed to avoid jumping back and forth between the new and the old, since
