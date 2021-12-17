@@ -298,11 +298,11 @@ typedef struct _ApplyLimitData
 } ApplyLimitData;
 
 static void
-on_sync_point (MetaWaylandTestDriver *test_driver,
-               unsigned int           sequence,
-               struct wl_resource    *surface_resource,
-               struct wl_client      *wl_client,
-               ApplyLimitData        *data)
+on_apply_limits_sync_point (MetaWaylandTestDriver *test_driver,
+                            unsigned int           sequence,
+                            struct wl_resource    *surface_resource,
+                            struct wl_client      *wl_client,
+                            ApplyLimitData        *data)
 {
   MetaWindow *window;
 
@@ -344,7 +344,8 @@ toplevel_apply_limits (void)
   data.loop = g_main_loop_new (NULL, FALSE);
   data.wayland_test_client = meta_wayland_test_client_new ("xdg-apply-limits");
   handler_id = g_signal_connect (test_driver, "sync-point",
-                                 G_CALLBACK (on_sync_point), &data);
+                                 G_CALLBACK (on_apply_limits_sync_point),
+                                 &data);
   g_main_loop_run (data.loop);
   g_assert_cmpint (data.state, ==, APPLY_LIMIT_STATE_FINISH);
   meta_wayland_test_client_finish (data.wayland_test_client);
