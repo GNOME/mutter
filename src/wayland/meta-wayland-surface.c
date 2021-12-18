@@ -325,12 +325,7 @@ surface_process_damage (MetaWaylandSurface *surface,
                         cairo_region_t     *buffer_region)
 {
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
-  cairo_rectangle_int_t surface_rect;
   cairo_rectangle_int_t buffer_rect;
-  cairo_region_t *scaled_region;
-  cairo_region_t *transformed_region;
-  cairo_region_t *viewport_region;
-  graphene_rect_t src_rect;
   MetaSurfaceActor *actor;
 
   /* If the client destroyed the buffer it attached before committing, but
@@ -345,59 +340,73 @@ surface_process_damage (MetaWaylandSurface *surface,
     .height = get_buffer_height (surface),
   };
 
-  /* Intersect the damage region with the surface region before scaling in
-   * order to avoid integer overflow when scaling a damage region is too large
-   * (for example INT32_MAX which mesa passes). */
-  surface_rect = (cairo_rectangle_int_t) {
-    .width = meta_wayland_surface_get_width (surface),
-    .height = meta_wayland_surface_get_height (surface),
-  };
-  cairo_region_intersect_rectangle (surface_region, &surface_rect);
-
-  /* The damage region must be in the same coordinate space as the buffer,
-   * i.e. scaled with surface->scale. */
-  if (surface->viewport.has_src_rect)
+  if (!cairo_region_is_empty (surface_region))
     {
-      src_rect = (graphene_rect_t) {
-        .origin.x = surface->viewport.src_rect.origin.x,
-        .origin.y = surface->viewport.src_rect.origin.y,
-        .size.width = surface->viewport.src_rect.size.width,
-        .size.height = surface->viewport.src_rect.size.height
+      cairo_rectangle_int_t surface_rect;
+      cairo_region_t *scaled_region;
+      cairo_region_t *transformed_region;
+      cairo_region_t *viewport_region;
+      graphene_rect_t src_rect;
+
+      /* Intersect the damage region with the surface region before scaling in
+       * order to avoid integer overflow when scaling a damage region is too
+       * large (for example INT32_MAX which mesa passes). */
+      surface_rect = (cairo_rectangle_int_t) {
+        .width = meta_wayland_surface_get_width (surface),
+        .height = meta_wayland_surface_get_height (surface),
       };
-    }
-  else
-    {
-      int width, height;
+      cairo_region_intersect_rectangle (surface_region, &surface_rect);
 
-      if (meta_monitor_transform_is_rotated (surface->buffer_transform))
+      /* The damage region must be in the same coordinate space as the buffer,
+       * i.e. scaled with surface->scale. */
+      if (surface->viewport.has_src_rect)
         {
-          width = get_buffer_height (surface);
-          height = get_buffer_width (surface);
+          src_rect = (graphene_rect_t) {
+            .origin.x = surface->viewport.src_rect.origin.x,
+            .origin.y = surface->viewport.src_rect.origin.y,
+            .size.width = surface->viewport.src_rect.size.width,
+            .size.height = surface->viewport.src_rect.size.height
+          };
         }
       else
         {
-          width = get_buffer_width (surface);
-          height = get_buffer_height (surface);
+          int width, height;
+
+          if (meta_monitor_transform_is_rotated (surface->buffer_transform))
+            {
+              width = get_buffer_height (surface);
+              height = get_buffer_width (surface);
+            }
+          else
+            {
+              width = get_buffer_width (surface);
+              height = get_buffer_height (surface);
+            }
+
+          src_rect = (graphene_rect_t) {
+            .size.width = width / surface->scale,
+            .size.height = height / surface->scale
+          };
         }
+      viewport_region = meta_region_crop_and_scale (surface_region,
+                                                    &src_rect,
+                                                    surface_rect.width,
+                                                    surface_rect.height);
+      scaled_region = meta_region_scale (viewport_region, surface->scale);
+      transformed_region = meta_region_transform (scaled_region,
+                                                  surface->buffer_transform,
+                                                  buffer_rect.width,
+                                                  buffer_rect.height);
 
-      src_rect = (graphene_rect_t) {
-        .size.width = width / surface->scale,
-        .size.height = height / surface->scale
-      };
+      /* Now add the scaled, cropped and transformed damage region to the
+       * buffer damage. Buffer damage is already in the correct coordinate
+       * space. */
+      cairo_region_union (buffer_region, transformed_region);
+
+      cairo_region_destroy (viewport_region);
+      cairo_region_destroy (scaled_region);
+      cairo_region_destroy (transformed_region);
     }
-  viewport_region = meta_region_crop_and_scale (surface_region,
-                                                &src_rect,
-                                                surface_rect.width,
-                                                surface_rect.height);
-  scaled_region = meta_region_scale (viewport_region, surface->scale);
-  transformed_region = meta_region_transform (scaled_region,
-                                              surface->buffer_transform,
-                                              buffer_rect.width,
-                                              buffer_rect.height);
-
-  /* Now add the scaled, cropped and transformed damage region to the
-   * buffer damage. Buffer damage is already in the correct coordinate space. */
-  cairo_region_union (buffer_region, transformed_region);
 
   cairo_region_intersect_rectangle (buffer_region, &buffer_rect);
 
@@ -419,10 +428,6 @@ surface_process_damage (MetaWaylandSurface *surface,
                                              rect.width, rect.height);
         }
     }
-
-  cairo_region_destroy (viewport_region);
-  cairo_region_destroy (scaled_region);
-  cairo_region_destroy (transformed_region);
 }
 
 MetaWaylandBuffer *
