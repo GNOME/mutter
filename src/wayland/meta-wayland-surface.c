@@ -366,9 +366,22 @@ surface_process_damage (MetaWaylandSurface *surface,
     }
   else
     {
+      int width, height;
+
+      if (meta_monitor_transform_is_rotated (surface->buffer_transform))
+        {
+          width = get_buffer_height (surface);
+          height = get_buffer_width (surface);
+        }
+      else
+        {
+          width = get_buffer_width (surface);
+          height = get_buffer_height (surface);
+        }
+
       src_rect = (graphene_rect_t) {
-        .size.width = surface_rect.width,
-        .size.height = surface_rect.height
+        .size.width = width / surface->scale,
+        .size.height = height / surface->scale
       };
     }
   viewport_region = meta_region_crop_and_scale (surface_region,
