@@ -298,30 +298,28 @@ surface_process_damage (MetaWaylandSurface *surface,
 
   /* The damage region must be in the same coordinate space as the buffer,
    * i.e. scaled with surface->scale. */
-  scaled_region = meta_region_scale (surface_region, surface->scale);
   if (surface->viewport.has_src_rect)
     {
       src_rect = (graphene_rect_t) {
-        .origin.x = surface->viewport.src_rect.origin.x * surface->scale,
-        .origin.y = surface->viewport.src_rect.origin.y * surface->scale,
-        .size.width = surface->viewport.src_rect.size.width * surface->scale,
-        .size.height = surface->viewport.src_rect.size.height * surface->scale
+        .origin.x = surface->viewport.src_rect.origin.x,
+        .origin.y = surface->viewport.src_rect.origin.y,
+        .size.width = surface->viewport.src_rect.size.width,
+        .size.height = surface->viewport.src_rect.size.height
       };
     }
   else
     {
       src_rect = (graphene_rect_t) {
-        .size.width = surface_rect.width * surface->scale,
-        .size.height = surface_rect.height * surface->scale,
+        .size.width = surface_rect.width,
+        .size.height = surface_rect.height
       };
     }
-  viewport_region = meta_region_crop_and_scale (scaled_region,
+  viewport_region = meta_region_crop_and_scale (surface_region,
                                                 &src_rect,
-                                                surface_rect.width *
-                                                surface->scale,
-                                                surface_rect.height *
-                                                surface->scale);
-  transformed_region = meta_region_transform (viewport_region,
+                                                surface_rect.width,
+                                                surface_rect.height);
+  scaled_region = meta_region_scale (viewport_region, surface->scale);
+  transformed_region = meta_region_transform (scaled_region,
                                               surface->buffer_transform,
                                               buffer_rect.width,
                                               buffer_rect.height);
