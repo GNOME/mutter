@@ -499,7 +499,7 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
           cairo_rectangle_int_t rect;
 
           cairo_region_get_rectangle (intersection_region, i, &rect);
-          intersection_size += (rect.width - rect.x) * (rect.height - rect.x);
+          intersection_size += rect.width * rect.height;
         }
       cairo_region_destroy (intersection_region);
 
