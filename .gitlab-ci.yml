@@ -33,10 +33,15 @@ variables:
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
 
+      dnf builddep -y gsettings-desktop-schemas --setopt=install_weak_deps=False &&
       dnf builddep -y mutter --setopt=install_weak_deps=False &&
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
       dnf builddep -y libinput --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
+        main . 79dd34316ffa44221bcd1b6227aebe1b4b2643d8 &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
