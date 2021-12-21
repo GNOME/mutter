@@ -20,6 +20,7 @@ glib_req = '>= 2.69.0'
 gi_req = '>= 0.9.5'
 graphene_req = '>= 1.10.2'
 gtk3_req = '>= 3.19.8'
+gtk4_req = '>= 4.0.0'
 gdk_pixbuf_req = '>= 2.0'
 uprof_req = '>= 0.3'
 pango_req = '>= 1.46.0'
@@ -105,6 +106,7 @@ mutter_installed_tests_libexecdir = join_paths(
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
+gtk4_dep = dependency('gtk4', version: gtk4_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0')
 pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
