@@ -180,7 +180,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
                           "application-id", application_id,
                           "name", g_app_info_get_name (info),
                           "workspace", workspace_idx,
-                          "timestamp", context->timestamp,
+                          "timestamp", (uint64_t) context->timestamp,
                           NULL);
 
       meta_startup_notification_add_sequence (sn, seq);

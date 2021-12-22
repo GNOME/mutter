@@ -149,7 +149,7 @@ token_commit (struct wl_client   *client,
   MetaXdgActivationToken *token = wl_resource_get_user_data (resource);
   MetaWaylandActivation *activation = token->activation;
   MetaDisplay *display = meta_get_display ();
-  uint32_t timestamp;
+  uint64_t timestamp;
 
   if (token->committed)
     {

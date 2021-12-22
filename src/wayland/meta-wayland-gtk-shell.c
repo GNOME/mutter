@@ -535,7 +535,7 @@ gtk_shell_notify_launch (struct wl_client   *client,
 {
   MetaDisplay *display = meta_get_display ();
   MetaStartupSequence *sequence;
-  uint32_t timestamp;
+  uint64_t timestamp;
 
   sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
                                                         startup_id);
