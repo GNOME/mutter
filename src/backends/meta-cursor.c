@@ -279,6 +279,7 @@ meta_cursor_sprite_finalize (GObject *object)
   g_clear_pointer (&priv->texture, cogl_object_unref);
 
   meta_cursor_tracker_unregister_cursor_sprite (priv->cursor_tracker, sprite);
+  g_clear_object (&priv->cursor_tracker);
 
   G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->finalize (object);
 }
@@ -296,7 +297,7 @@ meta_cursor_tracker_set_property (GObject      *object,
   switch (prop_id)
     {
     case PROP_CURSOR_TRACKER:
-      priv->cursor_tracker = g_value_get_object (value);
+      g_set_object (&priv->cursor_tracker, g_value_get_object (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
