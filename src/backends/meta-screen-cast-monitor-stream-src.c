@@ -162,6 +162,7 @@ before_stage_painted (MetaStage           *stage,
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastRecordFlag flags;
 
   if (monitor_src->maybe_record_idle_id)
     return;
@@ -169,10 +170,8 @@ before_stage_painted (MetaStage           *stage,
   if (!clutter_stage_view_peek_scanout (view))
     return;
 
-  monitor_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle,
-                                                  src);
-  g_source_set_name_by_id (monitor_src->maybe_record_idle_id,
-                           "[mutter] maybe_record_frame_on_idle [monitor-src]");
+  flags = META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static MetaBackend *
