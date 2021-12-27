@@ -430,15 +430,19 @@ maybe_record_cursor (MetaScreenCastStreamSrc *src,
 
 static gboolean
 do_record_frame (MetaScreenCastStreamSrc  *src,
+                 MetaScreenCastRecordFlag  flags,
                  struct spa_buffer        *spa_buffer,
                  uint8_t                  *data,
                  GError                  **error)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  gboolean dmabuf_only;
 
-  if (spa_buffer->datas[0].data ||
-      spa_buffer->datas[0].type == SPA_DATA_MemFd)
+  dmabuf_only = flags & META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
+  if (!dmabuf_only &&
+      (spa_buffer->datas[0].data ||
+       spa_buffer->datas[0].type == SPA_DATA_MemFd))
     {
       int width = priv->video_format.size.width;
       int height = priv->video_format.size.height;
@@ -566,7 +570,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
       g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
-      if (do_record_frame (src, spa_buffer, data, &error))
+      if (do_record_frame (src, flags, spa_buffer, data, &error))
         {
           struct spa_meta_region *spa_meta_video_crop;
 
