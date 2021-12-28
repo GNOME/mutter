@@ -31,7 +31,7 @@ is_window_size_fixed (MetaWindow *window)
     return TRUE;
 
   if (meta_window_get_maximized (window) &
-      (META_MAXIMIZE_VERTICAL | META_MAXIMIZE_VERTICAL))
+      (META_MAXIMIZE_VERTICAL | META_MAXIMIZE_HORIZONTAL))
     return TRUE;
 
   if (meta_window_get_tile_mode (window) != META_TILE_NONE)
