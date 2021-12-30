@@ -132,7 +132,6 @@ add_common_modes (MetaOutputInfo *output_info,
 {
   MetaCrtcMode *crtc_mode;
   GPtrArray *array;
-  float refresh_rate;
   unsigned i;
   unsigned max_hdisplay = 0;
   unsigned max_vdisplay = 0;
@@ -144,17 +143,15 @@ add_common_modes (MetaOutputInfo *output_info,
 
   for (i = 0; i < output_info->n_modes; i++)
     {
-      MetaCrtcMode *crtc_mode = output_info->modes[i];
-      MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_mode);
-      MetaKmsMode *kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
-      const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
+      const MetaCrtcModeInfo *crtc_mode_info =
+        meta_crtc_mode_get_info (output_info->modes[i]);
       float bandwidth;
 
-      refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
-      bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
-      max_hdisplay = MAX (max_hdisplay, drm_mode->hdisplay);
-      max_vdisplay = MAX (max_vdisplay, drm_mode->vdisplay);
-      max_refresh_rate = MAX (max_refresh_rate, refresh_rate);
+      bandwidth = crtc_mode_info->refresh_rate * crtc_mode_info->width *
+                  crtc_mode_info->height;
+      max_hdisplay = MAX (max_hdisplay, crtc_mode_info->width);
+      max_vdisplay = MAX (max_vdisplay, crtc_mode_info->height);
+      max_refresh_rate = MAX (max_refresh_rate, crtc_mode_info->refresh_rate);
       max_bandwidth = MAX (max_bandwidth, bandwidth);
     }
 
@@ -175,6 +172,8 @@ add_common_modes (MetaOutputInfo *output_info,
       MetaKmsMode *fallback_mode = l->data;
       const drmModeModeInfo *drm_mode;
       float bandwidth;
+      float refresh_rate;
+      gboolean is_duplicate = FALSE;
 
       if (!(meta_kms_mode_get_flags (fallback_mode) & flag_filter))
         continue;
@@ -186,6 +185,23 @@ add_common_modes (MetaOutputInfo *output_info,
           drm_mode->vdisplay > max_vdisplay ||
           refresh_rate > max_refresh_rate ||
           bandwidth > max_bandwidth)
+        continue;
+
+      for (i = 0; i < output_info->n_modes; i++)
+        {
+          const MetaCrtcModeInfo *crtc_mode_info =
+            meta_crtc_mode_get_info (output_info->modes[i]);
+
+          if (drm_mode->hdisplay == crtc_mode_info->width &&
+              drm_mode->vdisplay == crtc_mode_info->height &&
+              fabs (1 - (refresh_rate / crtc_mode_info->refresh_rate)) <
+              SYNC_TOLERANCE)
+            {
+              is_duplicate = TRUE;
+              break;
+            }
+        }
+      if (is_duplicate)
         continue;
 
       crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, fallback_mode);
