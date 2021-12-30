@@ -86,6 +86,24 @@ get_xmode_name (XRRModeInfo *xmode)
   return g_strdup_printf ("%dx%d", width, height);
 }
 
+static float
+calculate_xrandr_refresh_rate (XRRModeInfo *xmode)
+{
+  float h_total;
+  float v_total;
+
+  h_total = (float) xmode->hTotal;
+  v_total = (float) xmode->vTotal;
+
+  if (xmode->modeFlags & RR_DoubleScan)
+    v_total *= 2.0;
+
+  if (xmode->modeFlags & RR_Interlace)
+    v_total /= 2.0;
+
+  return xmode->dotClock / (h_total * v_total);
+}
+
 static gboolean
 meta_gpu_xrandr_read_current (MetaGpu  *gpu,
                               GError  **error)
@@ -148,8 +166,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
       crtc_mode_info = meta_crtc_mode_info_new ();
       crtc_mode_info->width = xmode->width;
       crtc_mode_info->height = xmode->height;
-      crtc_mode_info->refresh_rate = (xmode->dotClock /
-                                      ((float)xmode->hTotal * xmode->vTotal));
+      crtc_mode_info->refresh_rate = calculate_xrandr_refresh_rate (xmode);
       crtc_mode_info->flags = xmode->modeFlags;
 
       crtc_mode_name = get_xmode_name (xmode);
