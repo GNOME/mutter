@@ -787,6 +787,17 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if (state->scale > 0)
     surface->scale = state->scale;
 
+  if ((get_buffer_width (surface) % surface->scale != 0) ||
+      (get_buffer_height (surface) % surface->scale != 0))
+    {
+      wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
+                              "Buffer size (%dx%d) must be an integer multiple "
+                              "of the buffer_scale (%d)",
+                              get_buffer_width (surface),
+                              get_buffer_height (surface), surface->scale);
+      goto cleanup;
+    }
+
   if (state->has_new_buffer_transform)
     surface->buffer_transform = state->buffer_transform;
 
