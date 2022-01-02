@@ -103,6 +103,7 @@ meta_x11_handle_event (XEvent *xevent)
     {
       /* forward the event into clutter for emission etc. */
       clutter_do_event (event);
+      clutter_event_free (event);
       --spin;
     }
 
