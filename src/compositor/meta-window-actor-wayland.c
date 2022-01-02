@@ -155,7 +155,7 @@ meta_window_actor_wayland_dispose (GObject *object)
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (object);
   MetaSurfaceActor *surface_actor =
     meta_window_actor_get_surface (window_actor);
-  GList *children;
+  g_autoptr (GList) children = NULL;
   GList *l;
 
   children = clutter_actor_get_children (CLUTTER_ACTOR (window_actor));
