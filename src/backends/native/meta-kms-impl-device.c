@@ -264,6 +264,188 @@ meta_kms_impl_device_get_path (MetaKmsImplDevice *impl_device)
   return priv->path;
 }
 
+static MetaDeviceFile *
+meta_kms_impl_device_open_device_file (MetaKmsImplDevice  *impl_device,
+                                       const char         *path,
+                                       GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  return klass->open_device_file (impl_device, priv->path, error);
+}
+
+static gpointer
+kms_event_dispatch_in_impl (MetaThreadImpl  *impl,
+                            gpointer         user_data,
+                            GError         **error)
+{
+  MetaKmsImplDevice *impl_device = user_data;
+  gboolean ret;
+
+  ret = meta_kms_impl_device_dispatch (impl_device, error);
+  return GINT_TO_POINTER (ret);
+}
+
+static gboolean
+ensure_device_file (MetaKmsImplDevice  *impl_device,
+                    GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaDeviceFile *device_file;
+
+  if (priv->device_file)
+    return TRUE;
+
+  device_file = meta_kms_impl_device_open_device_file (impl_device,
+                                                       priv->path,
+                                                       error);
+  if (!device_file)
+    return FALSE;
+
+  priv->device_file = device_file;
+
+  if (!(priv->flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
+    {
+      priv->fd_source =
+        meta_thread_impl_register_fd (META_THREAD_IMPL (priv->impl),
+                                      meta_device_file_get_fd (device_file),
+                                      kms_event_dispatch_in_impl,
+                                      impl_device);
+      g_source_set_priority (priv->fd_source, G_PRIORITY_HIGH);
+    }
+
+  return TRUE;
+}
+
+gboolean
+meta_kms_impl_device_lease_objects (MetaKmsImplDevice  *impl_device,
+                                    GList              *connectors,
+                                    GList              *crtcs,
+                                    GList              *planes,
+                                    int                *out_fd,
+                                    uint32_t           *out_lessee_id,
+                                    GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  uint32_t *object_ids;
+  int n_object_ids;
+  GList *l;
+  int retval;
+  uint32_t lessee_id;
+  int i = 0;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  if (!ensure_device_file (impl_device, error))
+    return FALSE;
+
+  meta_kms_impl_device_hold_fd (impl_device);
+
+  n_object_ids = (g_list_length (connectors) +
+                  g_list_length (crtcs) +
+                  g_list_length (planes));
+  object_ids = g_alloca (sizeof (uint32_t) * n_object_ids);
+
+  for (l = connectors; l; l = l->next)
+    {
+      MetaKmsConnector *connector = l->data;
+
+      object_ids[i++] = meta_kms_connector_get_id (connector);
+    }
+
+  for (l = crtcs; l; l = l->next)
+    {
+      MetaKmsCrtc *crtc = l->data;
+
+      object_ids[i++] = meta_kms_crtc_get_id (crtc);
+    }
+
+  for (l = planes; l; l = l->next)
+    {
+      MetaKmsPlane *plane = l->data;
+
+      object_ids[i++] = meta_kms_plane_get_id (plane);
+    }
+
+  retval = drmModeCreateLease (meta_kms_impl_device_get_fd (impl_device),
+                               object_ids, n_object_ids, 0,
+                               &lessee_id);
+
+  if (retval < 0)
+    {
+      meta_kms_impl_device_unhold_fd (impl_device);
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-retval),
+                   "Failed to create lease: %s", g_strerror (-retval));
+      return FALSE;
+    }
+
+  *out_fd = retval;
+  *out_lessee_id = lessee_id;
+
+  return TRUE;
+}
+
+gboolean
+meta_kms_impl_device_revoke_lease (MetaKmsImplDevice  *impl_device,
+                                   uint32_t            lessee_id,
+                                   GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  int retval;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  retval = drmModeRevokeLease (meta_kms_impl_device_get_fd (impl_device),
+                               lessee_id);
+  meta_kms_impl_device_unhold_fd (impl_device);
+
+  if (retval != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-retval),
+                   "Failed to revoke lease: %s", g_strerror (-retval));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+meta_kms_impl_device_list_lessees (MetaKmsImplDevice  *impl_device,
+                                   uint32_t          **out_lessee_ids,
+                                   int                *out_num_lessee_ids,
+                                   GError            **error)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  drmModeLesseeListRes *list;
+  int i;
+  uint32_t *lessee_ids;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  list = drmModeListLessees (meta_kms_impl_device_get_fd (impl_device));
+
+  if (!list)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to list lessees");
+      return FALSE;
+    }
+
+  lessee_ids = g_new0 (uint32_t, list->count);
+  for (i = 0; i < list->count; i++)
+    lessee_ids[i] = list->lessees[i];
+
+  *out_lessee_ids = lessee_ids;
+  *out_num_lessee_ids = list->count;
+  return TRUE;
+}
+
 gboolean
 meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                GError            **error)
@@ -312,18 +494,6 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
     }
 
   return TRUE;
-}
-
-static gpointer
-kms_event_dispatch_in_impl (MetaThreadImpl  *impl,
-                            gpointer         user_data,
-                            GError         **error)
-{
-  MetaKmsImplDevice *impl_device = user_data;
-  gboolean ret;
-
-  ret = meta_kms_impl_device_dispatch (impl_device, error);
-  return GINT_TO_POINTER (ret);
 }
 
 drmModePropertyPtr
@@ -888,50 +1058,6 @@ init_fallback_modes (MetaKmsImplDevice *impl_device)
     }
 
   priv->fallback_modes = g_list_reverse (modes);
-}
-
-static MetaDeviceFile *
-meta_kms_impl_device_open_device_file (MetaKmsImplDevice  *impl_device,
-                                       const char         *path,
-                                       GError            **error)
-{
-  MetaKmsImplDevicePrivate *priv =
-    meta_kms_impl_device_get_instance_private (impl_device);
-  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
-
-  return klass->open_device_file (impl_device, priv->path, error);
-}
-
-static gboolean
-ensure_device_file (MetaKmsImplDevice  *impl_device,
-                    GError            **error)
-{
-  MetaKmsImplDevicePrivate *priv =
-    meta_kms_impl_device_get_instance_private (impl_device);
-  MetaDeviceFile *device_file;
-
-  if (priv->device_file)
-    return TRUE;
-
-  device_file = meta_kms_impl_device_open_device_file (impl_device,
-                                                       priv->path,
-                                                       error);
-  if (!device_file)
-    return FALSE;
-
-  priv->device_file = device_file;
-
-  if (!(priv->flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
-    {
-      priv->fd_source =
-        meta_thread_impl_register_fd (META_THREAD_IMPL (priv->impl),
-                                      meta_device_file_get_fd (device_file),
-                                      kms_event_dispatch_in_impl,
-                                      impl_device);
-      g_source_set_priority (priv->fd_source, G_PRIORITY_HIGH);
-    }
-
-  return TRUE;
 }
 
 static void

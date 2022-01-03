@@ -86,6 +86,23 @@ gboolean meta_kms_device_handle_flush (MetaKmsDevice *device,
 META_EXPORT_TEST
 void meta_kms_device_disable (MetaKmsDevice *device);
 
+gboolean meta_kms_device_lease_objects (MetaKmsDevice  *device,
+                                        GList          *connectors,
+                                        GList          *crtcs,
+                                        GList          *planes,
+                                        int            *out_fd,
+                                        uint32_t       *out_lessee_id,
+                                        GError        **error);
+
+gboolean meta_kms_device_revoke_lease (MetaKmsDevice  *device,
+                                       uint32_t        lessee_id,
+                                       GError        **error);
+
+gboolean meta_kms_device_list_lessees (MetaKmsDevice  *device,
+                                       uint32_t      **out_lessee_ids,
+                                       int            *out_num_lessee_ids,
+                                       GError        **error);
+
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,

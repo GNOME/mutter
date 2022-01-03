@@ -132,6 +132,23 @@ const char * meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *imp
 
 const char * meta_kms_impl_device_get_path (MetaKmsImplDevice *impl_device);
 
+gboolean meta_kms_impl_device_lease_objects (MetaKmsImplDevice  *impl_device,
+                                             GList              *connectors,
+                                             GList              *crtcs,
+                                             GList              *planes,
+                                             int                *out_fd,
+                                             uint32_t           *out_lessee_id,
+                                             GError            **error);
+
+gboolean meta_kms_impl_device_revoke_lease (MetaKmsImplDevice  *impl_device,
+                                            uint32_t            lessee_id,
+                                            GError            **error);
+
+gboolean meta_kms_impl_device_list_lessees (MetaKmsImplDevice  *impl_device,
+                                            uint32_t          **out_lessee_ids,
+                                            int                *out_num_lessee_ids,
+                                            GError            **error);
+
 gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                         GError            **error);
 
