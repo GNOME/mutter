@@ -1017,10 +1017,11 @@ wl_surface_destroy (struct wl_client *client,
 }
 
 static void
-wl_surface_attach (struct wl_client *client,
+wl_surface_attach (struct wl_client   *client,
                    struct wl_resource *surface_resource,
                    struct wl_resource *buffer_resource,
-                   gint32 dx, gint32 dy)
+                   int32_t             dx,
+                   int32_t             dy)
 {
   MetaWaylandSurface *surface =
     wl_resource_get_user_data (surface_resource);
@@ -1092,9 +1093,9 @@ destroy_frame_callback (struct wl_resource *callback_resource)
 }
 
 static void
-wl_surface_frame (struct wl_client *client,
+wl_surface_frame (struct wl_client   *client,
                   struct wl_resource *surface_resource,
-                  guint32 callback_id)
+                  uint32_t            callback_id)
 {
   MetaWaylandFrameCallback *callback;
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
@@ -1117,7 +1118,7 @@ wl_surface_frame (struct wl_client *client,
 }
 
 static void
-wl_surface_set_opaque_region (struct wl_client *client,
+wl_surface_set_opaque_region (struct wl_client   *client,
                               struct wl_resource *surface_resource,
                               struct wl_resource *region_resource)
 {
@@ -1139,7 +1140,7 @@ wl_surface_set_opaque_region (struct wl_client *client,
 }
 
 static void
-wl_surface_set_input_region (struct wl_client *client,
+wl_surface_set_input_region (struct wl_client   *client,
                              struct wl_resource *surface_resource,
                              struct wl_resource *region_resource)
 {
@@ -1161,7 +1162,7 @@ wl_surface_set_input_region (struct wl_client *client,
 }
 
 static void
-wl_surface_commit (struct wl_client *client,
+wl_surface_commit (struct wl_client   *client,
                    struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
