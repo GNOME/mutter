@@ -189,7 +189,10 @@ meta_surface_actor_x11_is_visible (MetaSurfaceActorX11 *self)
 
 static void
 meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
-                                       int x, int y, int width, int height)
+                                       int               x,
+                                       int               y,
+                                       int               width,
+                                       int               height)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
 
