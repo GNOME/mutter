@@ -65,3 +65,5 @@ int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
 
 META_EXPORT_TEST
 gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
+
+gboolean meta_kms_crtc_is_leased (MetaKmsCrtc *crtc);

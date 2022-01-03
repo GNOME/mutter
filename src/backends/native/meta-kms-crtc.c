@@ -50,6 +50,8 @@ struct _MetaKmsCrtc
   MetaKmsCrtcState current_state;
 
   MetaKmsCrtcPropTable prop_table;
+
+  gboolean is_leased;
 };
 
 G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
@@ -105,6 +107,12 @@ gboolean
 meta_kms_crtc_is_active (MetaKmsCrtc *crtc)
 {
   return crtc->current_state.is_active;
+}
+
+gboolean
+meta_kms_crtc_is_leased (MetaKmsCrtc *crtc)
+{
+  return crtc->is_leased;
 }
 
 static void

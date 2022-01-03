@@ -327,6 +327,15 @@ meta_crtc_kms_set_config (MetaCrtc             *crtc,
 }
 
 static gboolean
+meta_crtc_kms_is_leased (MetaCrtc *crtc)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+
+  return meta_kms_crtc_is_leased (kms_crtc);
+}
+
+static gboolean
 meta_crtc_kms_is_transform_handled (MetaCrtcNative       *crtc_native,
                                     MetaMonitorTransform  transform)
 {
@@ -476,6 +485,7 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
   crtc_class->set_gamma_lut = meta_crtc_kms_set_gamma_lut;
   crtc_class->assign_extra = meta_crtc_kms_assign_extra;
   crtc_class->set_config = meta_crtc_kms_set_config;
+  crtc_class->is_leased = meta_crtc_kms_is_leased;
 
   crtc_native_class->is_transform_handled = meta_crtc_kms_is_transform_handled;
   crtc_native_class->is_hw_cursor_supported = meta_crtc_kms_is_hw_cursor_supported;

@@ -470,3 +470,14 @@ meta_crtc_config_new (graphene_rect_t      *layout,
 
   return config;
 }
+
+gboolean
+meta_crtc_is_leased (MetaCrtc *crtc)
+{
+  MetaCrtcClass *klass = META_CRTC_GET_CLASS (crtc);
+
+  if (klass->is_leased)
+    return klass->is_leased (crtc);
+  else
+    return FALSE;
+}

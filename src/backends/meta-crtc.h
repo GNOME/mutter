@@ -55,6 +55,8 @@ struct _MetaCrtcClass
   void (* set_config) (MetaCrtc             *crtc,
                        const MetaCrtcConfig *config,
                        gpointer              backend_private);
+
+  gboolean (* is_leased) (MetaCrtc *crtc);
 };
 
 META_EXPORT_TEST
@@ -131,5 +133,7 @@ META_EXPORT_TEST
 MetaCrtcConfig * meta_crtc_config_new (graphene_rect_t      *layout,
                                        MetaCrtcMode         *mode,
                                        MetaMonitorTransform  transform);
+
+gboolean meta_crtc_is_leased (MetaCrtc *crtc);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaGammaLut, meta_gamma_lut_free)

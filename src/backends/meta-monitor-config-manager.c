@@ -99,6 +99,9 @@ is_crtc_assigned (MetaCrtc  *crtc,
 {
   unsigned int i;
 
+  if (meta_crtc_is_leased (crtc))
+    return TRUE;
+
   for (i = 0; i < crtc_assignments->len; i++)
     {
       MetaCrtcAssignment *assigned_crtc_assignment =
