@@ -17,7 +17,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2021-11-07.0'
+    BASE_TAG: '2022-01-03.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -41,7 +41,7 @@ variables:
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-        main . 79dd34316ffa44221bcd1b6227aebe1b4b2643d8 &&
+        master . 79dd34316ffa44221bcd1b6227aebe1b4b2643d8 &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
