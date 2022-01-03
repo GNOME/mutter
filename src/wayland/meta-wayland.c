@@ -557,9 +557,9 @@ meta_wayland_compositor_new (MetaContext *context)
                     G_CALLBACK (on_presented), compositor);
 
   if (!wl_global_create (compositor->wayland_display,
-			 &wl_compositor_interface,
-			 META_WL_COMPOSITOR_VERSION,
-			 compositor, compositor_bind))
+                         &wl_compositor_interface,
+                         META_WL_COMPOSITOR_VERSION,
+                         compositor, compositor_bind))
     g_error ("Failed to register the global wl_compositor");
 
   meta_wayland_init_egl (compositor);
@@ -592,24 +592,24 @@ meta_wayland_compositor_new (MetaContext *context)
                                   compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
-    {
-      gboolean should_enable_eglstream_controller = TRUE;
+  {
+    gboolean should_enable_eglstream_controller = TRUE;
 #if defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND)
-      MetaRenderer *renderer = meta_backend_get_renderer (backend);
+    MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
-      if (META_IS_RENDERER_NATIVE (renderer))
-        {
-          MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+    if (META_IS_RENDERER_NATIVE (renderer))
+      {
+        MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
 
-          if (meta_renderer_native_get_mode (renderer_native) ==
-              META_RENDERER_NATIVE_MODE_GBM)
-            should_enable_eglstream_controller = FALSE;
-        }
+        if (meta_renderer_native_get_mode (renderer_native) ==
+            META_RENDERER_NATIVE_MODE_GBM)
+          should_enable_eglstream_controller = FALSE;
+      }
 #endif /* defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND) */
 
-      if (should_enable_eglstream_controller)
-        meta_wayland_eglstream_controller_init (compositor);
-    }
+    if (should_enable_eglstream_controller)
+      meta_wayland_eglstream_controller_init (compositor);
+  }
 #endif /* HAVE_WAYLAND_EGLSTREAM */
 
   x11_display_policy =
