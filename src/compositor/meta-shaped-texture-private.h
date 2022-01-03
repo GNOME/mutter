@@ -30,7 +30,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-shaped-texture.h"
 
-MetaShapedTexture *meta_shaped_texture_new (void);
+MetaShapedTexture * meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       CoglTexture       *texture);
 void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
