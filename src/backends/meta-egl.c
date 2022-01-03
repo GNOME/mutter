@@ -1094,7 +1094,7 @@ meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
       return FALSE;
     }
 
-    return TRUE;
+  return TRUE;
 }
 
 #define GET_EGL_PROC_ADDR(proc) \
