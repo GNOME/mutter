@@ -145,7 +145,7 @@ meta_texture_tower_set_base_texture (MetaTextureTower *tower,
       height = cogl_texture_get_height (tower->textures[0]);
 
       tower->n_levels = 1 + MAX ((int)(M_LOG2E * log (width)), (int)(M_LOG2E * log (height)));
-      tower->n_levels = MIN(tower->n_levels, MAX_TEXTURE_LEVELS);
+      tower->n_levels = MIN (tower->n_levels, MAX_TEXTURE_LEVELS);
 
       meta_texture_tower_update_area (tower, 0, 0, width, height);
     }
@@ -465,22 +465,22 @@ meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
       int i;
 
       for (i = 1; i <= level; i++)
-       {
-         /* Use "floor" convention here to be consistent with the NPOT texture extension */
-         texture_width = MAX (1, texture_width / 2);
-         texture_height = MAX (1, texture_height / 2);
+        {
+          /* Use "floor" convention here to be consistent with the NPOT texture extension */
+          texture_width = MAX (1, texture_width / 2);
+          texture_height = MAX (1, texture_height / 2);
 
-         if (tower->textures[i] == NULL)
-           texture_tower_create_texture (tower, i, texture_width, texture_height);
-       }
+          if (tower->textures[i] == NULL)
+            texture_tower_create_texture (tower, i, texture_width, texture_height);
+        }
 
       for (i = 1; i <= level; i++)
-       {
-         if (tower->invalid[level].x2 != tower->invalid[level].x1 &&
-             tower->invalid[level].y2 != tower->invalid[level].y1)
-           texture_tower_revalidate (tower, i);
-       }
-   }
+        {
+          if (tower->invalid[level].x2 != tower->invalid[level].x1 &&
+              tower->invalid[level].y2 != tower->invalid[level].y1)
+            texture_tower_revalidate (tower, i);
+        }
+    }
 
   return tower->textures[level];
 }
