@@ -255,7 +255,7 @@ build-without-native-backend-and-wayland@x86_64:
   stage: test
   script:
     - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
-        ./.gitlab-ci/run-tests.sh
+        ./.gitlab-ci/run-meson.sh test -C build --no-rebuild -t 10
   artifacts:
     expire_in: 1 day
     reports:
@@ -354,7 +354,8 @@ dist-mutter:
   needs:
     - build-mutter@x86_64
   script:
-    - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS" meson dist -C build
+    - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
+        ./.gitlab-ci/run-meson.sh dist -C build
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
