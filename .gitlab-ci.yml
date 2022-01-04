@@ -355,6 +355,9 @@ dist-mutter:
     - build-mutter@x86_64
   script:
     - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS" meson dist -C build
+  artifacts:
+    paths:
+      - build/meson-logs
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
