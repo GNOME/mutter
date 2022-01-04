@@ -83,7 +83,6 @@ libmutter_name = 'mutter-' + libmutter_api_version
 
 mutter_installed_tests_datadir = join_paths(
   datadir, 'installed-tests', libmutter_name)
-
 mutter_installed_tests_libexecdir = join_paths(
   libexecdir, 'installed-tests', libmutter_name)
 
