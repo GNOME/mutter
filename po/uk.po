@@ -2,13 +2,13 @@
 # Yuriy Syrota <rasta@renome.rovno.ua>, 2001, 2002.
 # Maxim Dziumanenko <dziumanenko@gmail.com>, 2004-2008.
 # Daniel Korostil <ted.korostiled@gmail.com>, 2014, 2015.
-# Yuri Chornoivan <yurchor@ukr.net>, 2020, 2021.
+# Yuri Chornoivan <yurchor@ukr.net>, 2020, 2021, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-11-04 20:03+0000\n"
-"PO-Revision-Date: 2021-11-05 20:54+0200\n"
+"POT-Creation-Date: 2022-01-05 17:17+0000\n"
+"PO-Revision-Date: 2022-01-05 21:49+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -404,13 +404,15 @@ msgstr "Увімкнути експериментальні можливості
 #| "framebuffer” — makes mutter default to layout logical monitors in a "
 #| "logical pixel coordinate space, while scaling monitor framebuffers "
 #| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
-#| "sharing. This is already enabled by default when using the i915 driver, "
-#| "but disabled for everything else. Requires a restart. • “autoclose-"
-#| "xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-#| "are gone. Does not require a restart."
+#| "restart. • “kms-modifiers” — makes mutter always advertise valid buffer "
+#| "modifiers on Wayland. This is currently not the case when using the i915 "
+#| "driver. Does not require a restart. • “rt-scheduler” — makes mutter "
+#| "request a low priority real-time scheduling. Requires a restart. • “dma-"
+#| "buf-screen-sharing” — enables DMA buffered screen sharing. This is "
+#| "already enabled by default when using the i915 driver, but disabled for "
+#| "everything else. Requires a restart. • “autoclose-xwayland” — "
+#| "automatically terminates Xwayland if all relevant X11 clients are gone. "
+#| "Does not require a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -421,7 +423,7 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always advertise valid buffer modifiers on Wayland. This is currently "
-"not the case when using the i915 driver. Does not require a restart. • “rt-"
+"not the case when using the i915 driver. Requires a restart. • “rt-"
 "scheduler” — makes mutter request a low priority real-time scheduling. "
 "Requires a restart. • “dma-buf-screen-sharing” — enables DMA buffered screen "
 "sharing. This is already enabled by default when using the i915 driver, but "
@@ -438,15 +440,17 @@ msgstr ""
 "слова: • «scale-monitor-framebuffer» — наказує mutter типово розташовувати "
 "логічні монітори у координатному просторі логічних пікселів, масштабуючи "
 "буфери кадрів моніторів, замість вмісту вікон. Призначено для роботи із "
-"моніторами із високою роздільною здатністю. Не потребує перезапуску. • «kms-modifiers» — наказує mutter завжди надавати чинні модифікатори буфера у Wayland. У поточній версії такі модифікатори не надаються при використанні драйвера i915. Не потребує перезапуску "
-"композитора. • «rt-scheduler» — наказати mutter надсилати до системи запит "
-"щодо низькопріоритетного планування режиму реального часу. Потребує "
-"перезапуску композитора. • “dma-buf-screen-sharing\" — вмикає спільне "
-"використання буферизованих екранів DMA. Типово вже увімкнено, якщо "
-"використано драйвер i915, але вимкнено для усіх інших драйверів. Потребує "
-"перезапуску композитора. • «autoclose-xwayland» — автоматично перериває "
-"роботу Xwayland, якщо завершать роботу усі відповідні клієнти X11. Не "
-"потребує перезапуску композитора."
+"моніторами із високою роздільною здатністю. Не потребує перезапуску. • «kms-"
+"modifiers» — наказує mutter завжди надавати чинні модифікатори буфера у "
+"Wayland. У поточній версії такі модифікатори не надаються при використанні "
+"драйвера i915. Потребує перезапуску композитора. • «rt-scheduler» — "
+"наказати mutter надсилати до системи запит щодо низькопріоритетного "
+"планування режиму реального часу. Потребує перезапуску композитора. • “dma-"
+"buf-screen-sharing\" — вмикає спільне використання буферизованих екранів "
+"DMA. Типово вже увімкнено, якщо використано драйвер i915, але вимкнено для "
+"усіх інших драйверів. Потребує перезапуску композитора. • «autoclose-"
+"xwayland» — автоматично перериває роботу Xwayland, якщо завершать роботу усі "
+"відповідні клієнти X11. Не потребує перезапуску композитора."
 
 #: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Modifier to use to locate the pointer"
@@ -673,11 +677,11 @@ msgid ""
 msgstr ""
 "Можете трошки зачекати відновлення активності або примусово закрити програму."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Завершити примусово"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Зачекати"
 
@@ -769,7 +773,7 @@ msgstr "Додатки Clutter для використання"
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:141
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter зібрано без підтримки докладного режиму"
 
