@@ -17,7 +17,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-01-03.0'
+    BASE_TAG: '2022-01-05.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -46,6 +46,11 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
         1.23 . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        -Dgtk_doc=false \
+        https://gitlab.gnome.org/GNOME/libgweather.git \
+        main . 1f687f6375a3f3f006600119f7eee7df7348ade5 &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
