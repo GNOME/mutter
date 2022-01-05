@@ -34,7 +34,6 @@
  *
  *  - all children are arranged on a single line
  *  - the axis used is controlled by the #ClutterBoxLayout:orientation property
- *  - the order of the packing is determined by the #ClutterBoxLayout:pack-start boolean property
  *  - each child will be allocated to its natural size or, if #ClutterActor:x-expand or
  *  #ClutterActor:y-expand are set, the available size
  *  - honours the #ClutterActor's #ClutterActor:x-align and #ClutterActor:y-align properties
@@ -53,6 +52,7 @@
 #include <math.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
+#include "deprecated/clutter-box-layout.h"
 #include "deprecated/clutter-container.h"
 
 #include "clutter-box-layout.h"
@@ -75,7 +75,6 @@ struct _ClutterBoxLayoutPrivate
 
   ClutterOrientation orientation;
 
-  guint is_pack_start  : 1;
   guint is_homogeneous : 1;
 };
 
@@ -764,19 +763,13 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
     {
       child_allocation.x1 = box->x1;
       child_allocation.x2 = MAX (1.0, box->x2);
-      if (priv->is_pack_start)
-        y = box->y2 - box->y1;
-      else
-        y = box->y1;
+      y = box->y1;
     }
   else
     {
       child_allocation.y1 = box->y1;
       child_allocation.y2 = MAX (1.0, box->y2);
-      if (priv->is_pack_start)
-        x = box->x2 - box->x1;
-      else
-        x = box->x1;
+      x = box->x1;
     }
 
   i = 0;
@@ -828,17 +821,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
               child_allocation.y2 = child_allocation.y1 + sizes[i].minimum_size;
             }
 
-          if (priv->is_pack_start)
-            {
-              y -= child_size + priv->spacing;
-
-              child_allocation.y1 -= child_size;
-              child_allocation.y2 -= child_size;
-            }
-          else
-            {
-              y += child_size + priv->spacing;
-            }
+          y += child_size + priv->spacing;
         }
       else /* CLUTTER_ORIENTATION_HORIZONTAL */
         {
@@ -853,17 +836,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
               child_allocation.x2 = child_allocation.x1 + sizes[i].minimum_size;
             }
 
-          if (priv->is_pack_start)
-            {
-              x -= child_size + priv->spacing;
-
-              child_allocation.x1 -= child_size;
-              child_allocation.x2 -= child_size;
-            }
-          else
-            {
-              x += child_size + priv->spacing;
-            }
+          x += child_size + priv->spacing;
 
           if (is_rtl)
             {
@@ -939,7 +912,7 @@ clutter_box_layout_get_property (GObject    *gobject,
       break;
 
     case PROP_PACK_START:
-      g_value_set_boolean (value, priv->is_pack_start);
+      g_value_set_boolean (value, FALSE);
       break;
 
     default:
@@ -997,17 +970,14 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
   /**
    * ClutterBoxLayout:pack-start:
    *
-   * Whether the #ClutterBoxLayout should pack items at the start
-   * or append them at the end
-   *
-   * Since: 1.2
+   * Deprecated: No longer has any effect
    */
   obj_props[PROP_PACK_START] =
     g_param_spec_boolean ("pack-start",
                           P_("Pack Start"),
                           P_("Whether to pack items at the start of the box"),
                           FALSE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
   /**
    * ClutterBoxLayout:spacing:
@@ -1035,7 +1005,6 @@ clutter_box_layout_init (ClutterBoxLayout *self)
 
   self->priv->orientation = CLUTTER_ORIENTATION_HORIZONTAL;
   self->priv->is_homogeneous = FALSE;
-  self->priv->is_pack_start = FALSE;
   self->priv->spacing = 0;
 
   self->priv->easing_mode = CLUTTER_EASE_OUT_CUBIC;
@@ -1218,50 +1187,25 @@ clutter_box_layout_get_homogeneous (ClutterBoxLayout *layout)
  * @pack_start: %TRUE if the @layout should pack children at the
  *   beginning of the layout
  *
- * Sets whether children of @layout should be laid out by appending
- * them or by prepending them
- *
- * Since: 1.2
+ * Deprecated: No longer has any effect
  */
 void
 clutter_box_layout_set_pack_start (ClutterBoxLayout *layout,
                                    gboolean          pack_start)
 {
-  ClutterBoxLayoutPrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_BOX_LAYOUT (layout));
-
-  priv = layout->priv;
-
-  if (priv->is_pack_start != pack_start)
-    {
-      ClutterLayoutManager *manager;
-
-      priv->is_pack_start = pack_start ? TRUE : FALSE;
-
-      manager = CLUTTER_LAYOUT_MANAGER (layout);
-
-      clutter_layout_manager_layout_changed (manager);
-
-      g_object_notify (G_OBJECT (layout), "pack-start");
-    }
 }
 
 /**
  * clutter_box_layout_get_pack_start:
  * @layout: a #ClutterBoxLayout
  *
- * Retrieves the value set using clutter_box_layout_set_pack_start()
+ * Return value: The value of the :pack-start property,
+ *   always %FALSE
  *
- * Return value: %TRUE if the #ClutterBoxLayout should pack children
- *  at the beginning of the layout, and %FALSE otherwise
- *
- * Since: 1.2
+ * Deprecated: No longer has any effect
  */
 gboolean
 clutter_box_layout_get_pack_start (ClutterBoxLayout *layout)
 {
-  g_return_val_if_fail (CLUTTER_IS_BOX_LAYOUT (layout), FALSE);
-
-  return layout->priv->is_pack_start;
+  return FALSE;
 }

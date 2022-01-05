@@ -227,6 +227,7 @@ clutter_nonintrospected_sources = [
 ]
 
 clutter_deprecated_headers = [
+  'deprecated/clutter-box-layout.h',
   'deprecated/clutter-container.h',
   'deprecated/clutter-timeline.h',
 ]

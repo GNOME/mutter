@@ -99,11 +99,6 @@ void                    clutter_box_layout_set_homogeneous      (ClutterBoxLayou
                                                                  gboolean             homogeneous);
 CLUTTER_EXPORT
 gboolean                clutter_box_layout_get_homogeneous      (ClutterBoxLayout    *layout);
-CLUTTER_EXPORT
-void                    clutter_box_layout_set_pack_start       (ClutterBoxLayout    *layout,
-                                                                 gboolean             pack_start);
-CLUTTER_EXPORT
-gboolean                clutter_box_layout_get_pack_start       (ClutterBoxLayout    *layout);
 
 G_END_DECLS
 
