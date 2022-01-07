@@ -1112,7 +1112,7 @@ ensure_surface_feedback (MetaWaylandDmaBufManager *dma_buf_manager,
 static void
 surface_feedback_destructor (struct wl_resource *resource)
 {
-  MetaWaylandDmaBufSurfaceFeedback *surface_feedback =
+  MetaWaylandDmaBufSurfaceFeedback *surface_feedback;
 
   surface_feedback = wl_resource_get_user_data (resource);
   if (!surface_feedback)
