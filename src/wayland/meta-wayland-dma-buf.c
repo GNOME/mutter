@@ -67,6 +67,10 @@
 #define DRM_FORMAT_MOD_INVALID ((1ULL << 56) - 1)
 #endif
 
+#ifndef EGL_DRM_RENDER_NODE_FILE_EXT
+#define EGL_DRM_RENDER_NODE_FILE_EXT 0x3377
+#endif
+
 #define META_WAYLAND_DMA_BUF_MAX_FDS 4
 
 /* Compatible with zwp_linux_dmabuf_feedback_v1.tranche_flags */
