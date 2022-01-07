@@ -1054,6 +1054,7 @@ _meta_window_shared_new (MetaDisplay         *display,
 
   /* And this is our unmaximized size */
   window->saved_rect = window->rect;
+  window->saved_rect_fullscreen = window->rect;
   window->unconstrained_rect = window->rect;
 
   window->depth = attrs->depth;
