@@ -95,9 +95,6 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
   if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
     goto done;
 
-  if (clutter_actor_get_n_children (CLUTTER_ACTOR (window_actor)) != 1)
-    goto done;
-
   window = meta_window_actor_get_meta_window (window_actor);
   if (!window)
     goto done;
@@ -114,8 +111,10 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
   if (!COGL_IS_ONSCREEN (framebuffer))
     goto done;
 
-  surface_actor = meta_window_actor_get_surface (window_actor);
-  if (!META_IS_SURFACE_ACTOR_WAYLAND (surface_actor))
+  surface_actor = meta_window_actor_get_topmost_surface (window_actor);
+  if (!surface_actor ||
+      CLUTTER_ACTOR (surface_actor) !=
+      clutter_actor_get_last_child (CLUTTER_ACTOR (window_actor)))
     goto done;
   surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);
 
