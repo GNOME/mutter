@@ -1391,6 +1391,7 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
     META_RENDERER_CLASS (meta_renderer_native_parent_class);
 
   meta_kms_discard_pending_page_flips (kms);
+  meta_kms_discard_pending_updates (kms);
 
   keep_current_onscreens_alive (renderer);
 

@@ -181,6 +181,12 @@ struct _MetaKms
 
 G_DEFINE_TYPE (MetaKms, meta_kms, G_TYPE_OBJECT)
 
+void
+meta_kms_discard_pending_updates (MetaKms *kms)
+{
+  g_clear_list (&kms->pending_updates, (GDestroyNotify) meta_kms_update_free);
+}
+
 static void
 meta_kms_add_pending_update (MetaKms       *kms,
                              MetaKmsUpdate *update)
