@@ -40,6 +40,8 @@ typedef enum _MetaKmsUpdateFlag
 #define META_TYPE_KMS (meta_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, GObject)
 
+void meta_kms_discard_pending_updates (MetaKms *kms);
+
 MetaKmsUpdate * meta_kms_ensure_pending_update (MetaKms       *kms,
                                                 MetaKmsDevice *device);
 
