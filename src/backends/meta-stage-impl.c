@@ -445,8 +445,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   gboolean has_buffer_age;
   gboolean swap_with_damage;
   cairo_region_t *redraw_clip;
-  cairo_region_t *redraw_clip_history;
-  cairo_region_t *redraw_clip_swap;
   cairo_region_t *queued_redraw_clip = NULL;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
@@ -569,28 +567,20 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
   if (use_clipped_redraw)
     {
-      /* If using fractional scaling then the regions might be a fraction of
-       * a logical pixel (or one physical pixel) smaller than expected.
-       * So we need to regenerate them to avoid such gaps.
+      /* Regenerate redraw_clip because:
+       *  1. It's missing the regions added from damage_history above; and
+       *  2. If using fractional scaling then it might be a fraction of a
+       *     logical pixel (or one physical pixel) smaller than
+       *     fb_clip_region, due to the clamping from
+       *     offset_scale_and_clamp_region. So we need to ensure redraw_clip
+       *     is a superset of fb_clip_region to avoid such gaps.
        */
-      redraw_clip_history = scale_offset_and_clamp_region (fb_clip_region,
-                                                           1.0 / fb_scale,
-                                                           view_rect.x,
-                                                           view_rect.y);
-
-      redraw_clip_swap = scale_offset_and_clamp_region (redraw_clip,
-                                                        1.0 / fb_scale,
-                                                        view_rect.x,
-                                                        view_rect.y);
+      cairo_region_destroy (redraw_clip);
+      redraw_clip = scale_offset_and_clamp_region (fb_clip_region,
+                                                   1.0 / fb_scale,
+                                                   view_rect.x,
+                                                   view_rect.y);
     }
-  else
-    {
-      redraw_clip_history = cairo_region_reference (fb_clip_region);
-      redraw_clip_swap = cairo_region_reference (redraw_clip);
-    }
-
-  g_clear_pointer (&redraw_clip, cairo_region_destroy);
-  g_clear_pointer (&fb_clip_region, cairo_region_destroy);
 
   if (paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
     {
@@ -602,11 +592,11 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     }
   else if (use_clipped_redraw)
     {
-      queue_damage_region (stage_window, stage_view, redraw_clip_history);
+      queue_damage_region (stage_window, stage_view, fb_clip_region);
 
-      cogl_framebuffer_push_region_clip (fb, redraw_clip_history);
+      cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
-      paint_stage (stage_impl, stage_view, redraw_clip_history);
+      paint_stage (stage_impl, stage_view, redraw_clip);
 
       cogl_framebuffer_pop_clip (fb);
     }
@@ -614,10 +604,8 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     {
       meta_topic (META_DEBUG_BACKEND, "Unclipped stage paint");
 
-      paint_stage (stage_impl, stage_view, redraw_clip_history);
+      paint_stage (stage_impl, stage_view, redraw_clip);
     }
-
-  cairo_region_destroy (redraw_clip_history);
 
   /* XXX: It seems there will be a race here in that the stage
    * window may be resized before the cogl_onscreen_swap_region
@@ -628,11 +616,12 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
    * artefacts.
    */
   if (use_clipped_redraw)
-    swap_region = cairo_region_reference (redraw_clip_swap);
+    swap_region = cairo_region_reference (fb_clip_region);
   else
     swap_region = cairo_region_create ();
 
-  cairo_region_destroy (redraw_clip_swap);
+  g_clear_pointer (&redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&fb_clip_region, cairo_region_destroy);
 
   COGL_TRACE_BEGIN_SCOPED (MetaStageImplRedrawViewSwapFramebuffer,
                            "Paint (swap framebuffer)");
