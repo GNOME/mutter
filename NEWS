@@ -1,3 +1,26 @@
+41.3
+====
+* Check keyboard serials for activation [Carlos; !2148]
+* Fix mixed up refresh rates in multi-monitor setups [Robert; !2169]
+* Allow disabling HW cursors [Olivier; !2150]
+* Improve damage handling [Robert; !2168]
+* Consider xrandr flags for advertised modes [Robert; !2190]
+* Ensure constraints after client resize [Sebastian; !2103]
+* window-group: Disable culling when rendinging clone to offscreen buffer
+  [Sebastian; !2080]
+* Fix workspace switch animation in default plugin [Mark, Erik; !2076, !2120]
+* Fix unfullscreening of window that were mapped fullscreen [Jonas; !2210]
+* Fix DMA-BUF screencasts with unredirected fullscreen windows [Georges; !2186]
+* Fix orientation changes on devices with 90° [Hans, Marco; !2090]
+* Fixed crashes [Jonas; !2147, !2216]
+* Plugged leaks [Sebastian, Jonas; !2193, !2225]
+* Misc. bug fixes and cleanups [Jonas, Ievgen; !2002, !2162, !2187]
+
+Contributors:
+  Olivier Fourdan, Carlos Garnacho, Hans de Goede, Sebastian Keller,
+  Robert Mader, Mark, Erik Massop, Florian Müllner,
+  Georges Basile Stavracas Neto, Ievgen Popovych, Jonas Ådahl
+
 41.2
 ====
 * Fix blank screen when unplugging docking station [Jonas; !2097]
