@@ -2146,10 +2146,7 @@ meta_onscreen_native_dispose (GObject *object)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      /* flip state takes a reference on the onscreen so there should
-       * never be outstanding flips when we reach here. */
-      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
-
+      g_clear_object (&onscreen_native->gbm.next_fb);
       free_current_bo (onscreen);
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
