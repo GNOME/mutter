@@ -969,9 +969,7 @@ cleanup:
 void
 meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface)
 {
-  if (!surface->cached_state)
-    return;
-
+  meta_wayland_surface_ensure_cached_state (surface);
   meta_wayland_surface_apply_state (surface, surface->cached_state);
 }
 
