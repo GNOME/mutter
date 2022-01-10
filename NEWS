@@ -1,3 +1,97 @@
+42.alpha
+========
+* Fix monitor screencast scanouts [Michel; !1914]
+* dma-buf: Use alpha-less pixel formats where appropriate [Robert; !1810]
+* wayland: Allow clients to maximize windows regardless of constraints
+  [Christian; !1997]
+* Handle hotplug events without relevant changes more effectively [Marco; !1964]
+* Improve error reporting when startup fails [Jonas; !1994]
+* dma-buf: Add support for ABGR and XBGR formats [Erfan; !1999]
+* Fix X11 middle button emulation setting [José; !2000]
+* Include server-side shadows in window screenshots [Robert; !1996]
+* Don't change workspaces of unmanaged windows [Sebastian; !2003]
+* Reset idletime when unplugging the power cable [Bastien; !2029]
+* xwayland: Avoid unnecessary _NET_WM_STATE events [Dor; !2032]
+* Fix videos in Firefox stuttering in overview [Robert; !2034]
+* Don't use atomic mode setting for virtio_gpu driver [Jonas; !2040]
+* Improve on-screen keyboard on X11 [Sebastian, Ray; !1955, !2039]
+* Fix text glitches after size changes [Sebastian; !2006]
+* Fix reporting output rotation to xwayland [Olivier; !2050]
+* wayland: Accept final preference of drop destination [Robert; !2043]
+* Only add paint volumes of mapped actors to stage clip [Robert; !2035]
+* Fix negative paint volume offscreen effect [Sebastian; !2031]
+* Introduce MetaRenderDevice [Jonas; !1854]
+* Prefer GBM over EGLStream where possible [Jonas; !2051, !2052]
+* Fix erratic scrolling in GTK apps [Carlos; !2059]
+* Use rtkit to get realtime priority [Carlos; !2060]
+* Turn experimental features into flags [Robert; !1961]
+* Add support for EGL_KHR_partial_update [Erico; !2023]
+* Use b/w unicode for tablet mode OSD [Carlos; !2064]
+* Fix tilt direction of pen/tablet inputs [Quytelda; !2065]
+* Sanitize event handling at gestures [Carlos; !2024]
+* Fix mapping tablet input to correct monitor [Jason; !1934]
+* Optionally run (and exit) with a command [Mark; !1982]
+* Fix key repeat of on-screen keyboard for 2nd-level keysyms [Ray; !2045]
+* Copy damage rectangles to secondary GPU [Piotr; !2033]
+* Fix window size after returning from fullscreen [Sebastian, Jonas; !2066]
+* Fix blank screen when unplugging docking station [Jonas; !2097]
+* Ensure constraints after client resize [Sebastian; !2103]
+* Improve anti-aliasing of background corners [Daniel; !2102]
+* Fix unredirected Xwayland windows not getting updated [Michel; !2112]
+* Fix DND between X11 and wayland clients [Carlos; !2124]
+* Add hold gestures [José; !1830]
+* Always snoop key events for a11y [Carlos; !1328]
+* Improve Wacom tablet mapping [Carlos; !2107]
+* Allow adding more streams to a screen cast session [Jonas; !2131]
+* Do not throttle input in wayland event delivery [Carlos; !1915]
+* Allow forcing EGLStream backend [Jonas; !2132]
+* Check keyboard serials for activation [Carlos; !2148]
+* Rebind the EGL image when handling damage [Neil; !2062]
+* Do not pass events to windows with modal transients [Florian; !2123]
+* Fix mixed up refresh rates in multi-monitor setups [Robert; !2169]
+* Fix orientation changes on devices with 90° [Hans, Marco; !2090]
+* Allow disabling HW cursors [Olivier; !2150]
+* Improve damage handling [Robert; !2168]
+* Consider xrandr flags for advertised modes [Robert; !2190]
+* Improve KMS fallback modes [Robert; !2189]
+* window-group: Disable culling when rendinging clone to offscreen buffer
+  [Sebastian; !2080]
+* Support DMA buffer feedback [Jonas, Robert; !2202, !1959]
+* Advance timelines according to presentation time [Daniel; !2161]
+* Drop deprecated wl-shell and text-input-v3 support [Fernando; !2183, !2185]
+* Fix workspace switch animation in default plugin [Mark, Erik; !2076, !2120]
+* Fix unfullscreening of window that were mapped fullscreen [Jonas; !2210]
+* Consider wayland subsurfaces for scanout [Robert; !2211]
+* Fix DMA-BUF screencasts with unredirected fullscreen windows [Georges; !2186]
+* Fixed crashes [Carlos, Jonas, Daniel; !2063, !2025, !2081, !2104, !1991,
+  !2111, !2127, !2147, !2181, !2216]
+* Plugged leaks [Sebastian, Jonas; !2193, !2192, !2225]
+* Misc. bug fixes and cleanups [Daniel, Jonas, Corentin, Robert, Georges,
+  Sebastian, Simon, Carlos, Pascal, Fernando, Joan, José, Florian, Alexander,
+  Ievgen; !1992, !2007, !2008, !2026, !2044, !2057, !2002, !2028, !2049, !2061,
+  !1796, !2079, !2084, !2088, !2093, !2009, !2094, !2108, !2125, !2133, !2128,
+  !2138, !2058, !2130, !2140, !2122, !2095, !2126, !2139, !2145, !2149, !2157,
+  !1966, !2163, !2158, !2134, !1993, !2142, !2162, !2173, !2187, !2199, !2203,
+  !2204, !2205, !2146, !1812, !2214, !2215, !2188, !2206]
+
+Contributors:
+  Marco Trevisan (Treviño), Erfan Abdi, Dor Askayo, Michel Dänzer,
+  José Expósito, Olivier Fourdan, Carlos Garnacho, Jason Gerecke, Hans de Goede,
+  JoseExposito, Quytelda Kahja, Sebastian Keller, Robert Mader, Mark,
+  Erik Massop, Simon McVittie, Alexander Mikhaylenko, Fernando Monteiro,
+  Florian Müllner, Georges Basile Stavracas Neto, Bastien Nocera, Pascal Nowack,
+  Corentin Noël, Erico Nunes, Ievgen Popovych, Christian Rauch, Neil Roberts,
+  Ray Strode, Joan Torres, Daniel van Vugt, Jonas Ådahl, Piotr Łopatka
+
+Translators:
+  eshagh shahidani [fa], Danial Behzadi [fa], Марко Костић [sr],
+  Zander Brown [en_GB], Ngọc Quân Trần [vi], Rūdolfs Mazurs [lv],
+  Yuri Chornoivan [uk], Fabio Tomat [fur], Hugo Carvalho [pt],
+  Milo Casagrande [it], Quentin PAGÈS [oc], Goran Vidović [hr],
+  Yaron Shahrabani [he], Daniel Mustieles [es], Aleksandr Melman [ru],
+  Aurimas Černius [lt], Sveinn í Felli [is], Kukuh Syafaat [id],
+  Asier Sarasua Garmendia [eu]
+
 41.0
 ====
 * Avoid race in wl_seat capabilities [Olivier; !77]
