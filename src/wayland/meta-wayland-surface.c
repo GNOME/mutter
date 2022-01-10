@@ -966,10 +966,18 @@ cleanup:
   meta_wayland_surface_state_reset (state);
 }
 
+static void
+ensure_cached_state (MetaWaylandSurface *surface)
+{
+  if (!surface->cached_state)
+    surface->cached_state = g_object_new (META_TYPE_WAYLAND_SURFACE_STATE,
+                                          NULL);
+}
+
 void
 meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface)
 {
-  meta_wayland_surface_ensure_cached_state (surface);
+  ensure_cached_state (surface);
   meta_wayland_surface_apply_state (surface, surface->cached_state);
 }
 
@@ -977,15 +985,6 @@ MetaWaylandSurfaceState *
 meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface)
 {
   return surface->pending_state;
-}
-
-MetaWaylandSurfaceState *
-meta_wayland_surface_ensure_cached_state (MetaWaylandSurface *surface)
-{
-  if (!surface->cached_state)
-    surface->cached_state = g_object_new (META_TYPE_WAYLAND_SURFACE_STATE,
-                                          NULL);
-  return surface->cached_state;
 }
 
 static void
@@ -1010,17 +1009,15 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    */
   if (meta_wayland_surface_should_cache_state (surface))
     {
-      MetaWaylandSurfaceState *cached_state;
-
-      cached_state = meta_wayland_surface_ensure_cached_state (surface);
+      ensure_cached_state (surface);
 
       /*
        * A new commit indicates a new content update, so any previous
        * cached content update did not go on screen and needs to be discarded.
        */
-      meta_wayland_surface_state_discard_presentation_feedback (cached_state);
+      meta_wayland_surface_state_discard_presentation_feedback (surface->cached_state);
 
-      meta_wayland_surface_state_merge_into (pending, cached_state);
+      meta_wayland_surface_state_merge_into (pending, surface->cached_state);
     }
   else
     {

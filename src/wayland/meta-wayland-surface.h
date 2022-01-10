@@ -262,9 +262,6 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
 MetaWaylandSurfaceState *
                     meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
-MetaWaylandSurfaceState *
-                    meta_wayland_surface_ensure_cached_state (MetaWaylandSurface *surface);
-
 void                meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface);
