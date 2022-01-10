@@ -542,6 +542,20 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
   g_return_if_fail (!cairo_region_is_empty (fb_clip_region));
 
+  /* XXX: It seems there will be a race here in that the stage
+   * window may be resized before the cogl_onscreen_swap_region
+   * is handled and so we may copy the wrong region. I can't
+   * really see how we can handle this with the current state of X
+   * but at least in this case a full redraw should be queued by
+   * the resize anyway so it should only exhibit temporary
+   * artefacts.
+   */
+  /* swap_region does not need damage history, set it up before that */
+  if (use_clipped_redraw)
+    swap_region = cairo_region_copy (fb_clip_region);
+  else
+    swap_region = cairo_region_create ();
+
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
@@ -612,19 +626,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
       paint_stage (stage_impl, stage_view, redraw_clip);
     }
-
-  /* XXX: It seems there will be a race here in that the stage
-   * window may be resized before the cogl_onscreen_swap_region
-   * is handled and so we may copy the wrong region. I can't
-   * really see how we can handle this with the current state of X
-   * but at least in this case a full redraw should be queued by
-   * the resize anyway so it should only exhibit temporary
-   * artefacts.
-   */
-  if (use_clipped_redraw)
-    swap_region = cairo_region_reference (fb_clip_region);
-  else
-    swap_region = cairo_region_create ();
 
   g_clear_pointer (&redraw_clip, cairo_region_destroy);
   g_clear_pointer (&fb_clip_region, cairo_region_destroy);
