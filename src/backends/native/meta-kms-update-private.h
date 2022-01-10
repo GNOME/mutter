@@ -40,6 +40,8 @@ typedef struct _MetaKmsCrtcColorUpdate
 
 typedef struct _MetaKmsFeedback
 {
+  gatomicrefcount ref_count;
+
   MetaKmsFeedbackResult result;
 
   GList *failed_planes;

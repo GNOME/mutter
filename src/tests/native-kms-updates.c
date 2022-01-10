@@ -357,7 +357,7 @@ meta_test_kms_update_page_flip (void)
   feedback =
     meta_kms_device_process_update_sync (device, update,
                                          META_KMS_UPDATE_FLAG_NONE);
-  meta_kms_feedback_free (feedback);
+  meta_kms_feedback_unref (feedback);
   meta_kms_update_free (update);
 
   g_main_loop_run (data.loop);
@@ -382,7 +382,7 @@ meta_test_kms_update_page_flip (void)
   feedback =
     meta_kms_device_process_update_sync (device, update,
                                          META_KMS_UPDATE_FLAG_NONE);
-  meta_kms_feedback_free (feedback);
+  meta_kms_feedback_unref (feedback);
   meta_kms_update_free (update);
 
   g_main_loop_run (data.loop);

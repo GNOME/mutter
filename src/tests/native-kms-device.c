@@ -284,7 +284,7 @@ meta_test_kms_device_mode_set (void)
                                 META_KMS_ASSIGN_PLANE_FLAG_NONE);
   feedback = meta_kms_device_process_update_sync (device, update,
                                                   META_KMS_UPDATE_FLAG_NONE);
-  meta_kms_feedback_free (feedback);
+  meta_kms_feedback_unref (feedback);
   meta_kms_update_free (update);
 
   g_assert_nonnull (meta_kms_crtc_get_current_state (crtc));
@@ -349,7 +349,7 @@ meta_test_kms_device_power_save (void)
                                 META_KMS_ASSIGN_PLANE_FLAG_NONE);
   feedback = meta_kms_device_process_update_sync (device, update,
                                                   META_KMS_UPDATE_FLAG_NONE);
-  meta_kms_feedback_free (feedback);
+  meta_kms_feedback_unref (feedback);
   meta_kms_update_free (update);
 
   g_assert_true (meta_kms_crtc_is_active (crtc));
@@ -387,7 +387,7 @@ meta_test_kms_device_power_save (void)
                                 META_KMS_ASSIGN_PLANE_FLAG_NONE);
   feedback = meta_kms_device_process_update_sync (device, update,
                                                   META_KMS_UPDATE_FLAG_NONE);
-  meta_kms_feedback_free (feedback);
+  meta_kms_feedback_unref (feedback);
   meta_kms_update_free (update);
 
   g_assert_true (meta_kms_crtc_is_active (crtc));

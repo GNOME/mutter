@@ -90,6 +90,7 @@ meta_kms_feedback_new_passed (GList *failed_planes)
     .result = META_KMS_FEEDBACK_PASSED,
     .failed_planes = failed_planes,
   };
+  g_atomic_ref_count_init (&feedback->ref_count);
 
   return feedback;
 }
@@ -106,17 +107,28 @@ meta_kms_feedback_new_failed (GList  *failed_planes,
     .error = error,
     .failed_planes = failed_planes,
   };
+  g_atomic_ref_count_init (&feedback->ref_count);
 
   return feedback;
 }
 
-void
-meta_kms_feedback_free (MetaKmsFeedback *feedback)
+MetaKmsFeedback *
+meta_kms_feedback_ref (MetaKmsFeedback *feedback)
 {
-  g_list_free_full (feedback->failed_planes,
-                    (GDestroyNotify) meta_kms_plane_feedback_free);
-  g_clear_error (&feedback->error);
-  g_free (feedback);
+  g_atomic_ref_count_inc (&feedback->ref_count);
+  return feedback;
+}
+
+void
+meta_kms_feedback_unref (MetaKmsFeedback *feedback)
+{
+  if (g_atomic_ref_count_dec (&feedback->ref_count))
+    {
+      g_list_free_full (feedback->failed_planes,
+                        (GDestroyNotify) meta_kms_plane_feedback_free);
+      g_clear_error (&feedback->error);
+      g_free (feedback);
+    }
 }
 
 MetaKmsFeedbackResult

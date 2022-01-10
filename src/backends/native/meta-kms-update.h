@@ -81,8 +81,10 @@ typedef struct _MetaKmsPlaneFeedback
 typedef void (* MetaKmsResultListenerFunc) (const MetaKmsFeedback *feedback,
                                             gpointer               user_data);
 
+MetaKmsFeedback * meta_kms_feedback_ref (MetaKmsFeedback *feedback);
+
 META_EXPORT_TEST
-void meta_kms_feedback_free (MetaKmsFeedback *feedback);
+void meta_kms_feedback_unref (MetaKmsFeedback *feedback);
 
 MetaKmsFeedbackResult meta_kms_feedback_get_result (const MetaKmsFeedback *feedback);
 
@@ -202,7 +204,7 @@ meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
                                 meta_fixed_16_from_int (_w), \
                                 meta_fixed_16_from_int (_h))
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsFeedback, meta_kms_feedback_free)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsFeedback, meta_kms_feedback_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsUpdate, meta_kms_update_free)
 
 #endif /* META_KMS_UPDATE_H */
