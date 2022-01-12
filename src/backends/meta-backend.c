@@ -354,30 +354,29 @@ meta_backend_monitors_changed (MetaBackend *backend)
 }
 
 static inline gboolean
-check_has_pointing_device (ClutterSeat *seat)
+determine_hotplug_pointer_visibility (ClutterSeat *seat)
 {
-  GList *l, *devices;
-  gboolean found = FALSE;
+  g_autoptr (GList) devices = NULL;
+  const GList *l;
+  gboolean has_touchscreen = FALSE, has_pointer = FALSE;
 
   devices = clutter_seat_list_devices (seat);
 
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
+      ClutterInputDeviceType device_type;
 
-      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
-        continue;
-      if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE ||
-          clutter_input_device_get_device_type (device) == CLUTTER_KEYBOARD_DEVICE)
-        continue;
+      device_type = clutter_input_device_get_device_type (device);
 
-      found = TRUE;
-      break;
+      if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
+        has_touchscreen = TRUE;
+      if (device_type == CLUTTER_POINTER_DEVICE ||
+          device_type == CLUTTER_TOUCHPAD_DEVICE)
+        has_pointer = TRUE;
     }
 
-  g_list_free (devices);
-
-  return found;
+  return has_pointer && !has_touchscreen;
 }
 
 static void
@@ -395,11 +394,12 @@ on_device_added (ClutterSeat        *seat,
 
   device_type = clutter_input_device_get_device_type (device);
 
-  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
-    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
-  else if (device_type == CLUTTER_POINTER_DEVICE &&
-           !clutter_seat_has_touchscreen (seat))
-    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, TRUE);
+  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
+      device_type == CLUTTER_POINTER_DEVICE)
+    {
+      meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
+                                               determine_hotplug_pointer_visibility (seat));
+    }
 
   if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
       device_type == CLUTTER_TABLET_DEVICE ||
@@ -430,27 +430,12 @@ on_device_removed (ClutterSeat        *seat,
   if (priv->current_device == device)
     {
       MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
-      gboolean has_touchscreen, has_pointing_device;
-      ClutterInputDeviceType device_type;
 
       g_clear_object (&priv->current_device);
       g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
-      device_type = clutter_input_device_get_device_type (device);
-      has_touchscreen = clutter_seat_has_touchscreen (seat);
-
-      if (device_type == CLUTTER_TOUCHSCREEN_DEVICE && has_touchscreen)
-        {
-          /* There's more touchscreens left, keep the pointer hidden */
-          meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
-        }
-      else if (device_type != CLUTTER_KEYBOARD_DEVICE)
-        {
-          has_pointing_device = check_has_pointing_device (seat);
-          meta_cursor_tracker_set_pointer_visible (cursor_tracker,
-                                                   has_pointing_device &&
-                                                   !has_touchscreen);
-        }
+      meta_cursor_tracker_set_pointer_visible (cursor_tracker,
+                                               determine_hotplug_pointer_visibility (seat));
     }
 
   if (priv->current_device == device)
@@ -489,25 +474,9 @@ on_stage_shown_cb (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterSeat *seat = priv->default_seat;
-  g_autoptr (GList) devices = NULL;
-  const GList *l;
 
-  devices = clutter_seat_list_devices (seat);
-  for (l = devices; l; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-
-      if (clutter_input_device_get_device_mode (device) ==
-          CLUTTER_INPUT_MODE_LOGICAL)
-        continue;
-
-      if (clutter_input_device_get_device_type (device) !=
-          CLUTTER_POINTER_DEVICE)
-        continue;
-
-      meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, TRUE);
-      break;
-    }
+  meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
+                                           determine_hotplug_pointer_visibility (seat));
 }
 
 static void
