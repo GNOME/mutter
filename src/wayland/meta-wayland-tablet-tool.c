@@ -399,7 +399,7 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
   tool->focus_surface_destroy_listener.notify = tablet_tool_handle_focus_surface_destroy;
   tool->cursor_surface_destroy_listener.notify = tablet_tool_handle_cursor_surface_destroy;
 
-  tool->default_sprite = meta_cursor_sprite_xcursor_new (META_CURSOR_CROSSHAIR,
+  tool->default_sprite = meta_cursor_sprite_xcursor_new (META_CURSOR_DEFAULT,
                                                          cursor_tracker);
   meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (tool->default_sprite),
                                        (MetaCursorPrepareFunc) tool_cursor_prepare_at,
