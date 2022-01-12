@@ -63,22 +63,7 @@ meta_seat_native_handle_event_post (ClutterSeat        *seat,
   ClutterInputDevice *device = clutter_event_get_source_device (event);
   ClutterEventType event_type = event->type;
 
-  if (event_type == CLUTTER_PROXIMITY_IN)
-    {
-      MetaCursorRenderer *cursor_renderer;
-
-      if (!seat_native->tablet_cursors)
-        {
-          seat_native->tablet_cursors = g_hash_table_new_full (NULL, NULL, NULL,
-                                                               g_object_unref);
-        }
-
-      cursor_renderer = meta_cursor_renderer_new (meta_get_backend (), device);
-      g_hash_table_insert (seat_native->tablet_cursors,
-                           device, cursor_renderer);
-      return TRUE;
-    }
-  else if (event_type == CLUTTER_PROXIMITY_OUT)
+  if (event_type == CLUTTER_PROXIMITY_OUT)
     {
       if (seat_native->tablet_cursors)
         g_hash_table_remove (seat_native->tablet_cursors, device);
@@ -619,9 +604,32 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
       return seat_native->cursor_renderer;
     }
 
-  if (seat_native->tablet_cursors &&
-      clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
-    return g_hash_table_lookup (seat_native->tablet_cursors, device);
+  if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
+    {
+      MetaCursorRenderer *cursor_renderer = NULL;
+
+      if (!seat_native->tablet_cursors)
+        {
+          seat_native->tablet_cursors =
+            g_hash_table_new_full (NULL, NULL, NULL,
+                                   g_object_unref);
+        }
+      else
+        {
+          cursor_renderer = g_hash_table_lookup (seat_native->tablet_cursors,
+                                                 device);
+        }
+
+      if (!cursor_renderer)
+        {
+          cursor_renderer = meta_cursor_renderer_new (meta_get_backend (),
+                                                      device);
+          g_hash_table_insert (seat_native->tablet_cursors,
+                               device, cursor_renderer);
+        }
+
+      return cursor_renderer;
+    }
 
   return NULL;
 }
