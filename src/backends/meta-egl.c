@@ -159,6 +159,9 @@ set_egl_error (GError **error)
     return;
 
   error_number = eglGetError ();
+  if (error_number == EGL_SUCCESS)
+    return;
+
   error_str = get_egl_error_str (error_number);
   g_set_error_literal (error, META_EGL_ERROR,
                        error_number,
