@@ -1424,29 +1424,34 @@ meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
       device_path = meta_egl_query_device_string (egl, egl_device,
                                                   EGL_DRM_RENDER_NODE_FILE_EXT,
                                                   &local_error);
+      if (local_error)
+        {
+          g_warning ("Failed to query EGL render node path: %s",
+                     local_error->message);
+          g_clear_error (&local_error);
+        }
     }
-  else if (meta_egl_egl_device_has_extensions (egl, egl_device, NULL,
-                                               "EGL_EXT_device_drm",
-                                               NULL))
+
+  if (!device_path &&
+      meta_egl_egl_device_has_extensions (egl, egl_device, NULL,
+                                          "EGL_EXT_device_drm",
+                                          NULL))
     {
       device_path = meta_egl_query_device_string (egl, egl_device,
                                                   EGL_DRM_DEVICE_FILE_EXT,
                                                   &local_error);
-    }
-  else
-    {
-      meta_topic (META_DEBUG_WAYLAND,
-                  "Only advertising zwp_linux_dmabuf_v1 interface version 3 "
-                  "support, missing 'EGL_EXT_device_drm' and "
-                  "'EGL_EXT_device_drm_render_node'");
-      protocol_version = 3;
-      goto initialize;
+      if (local_error)
+        {
+          g_warning ("Failed to query EGL render node path: %s",
+                     local_error->message);
+        }
     }
 
   if (!device_path)
     {
-      g_warning ("Failed to query EGL device path: %s",
-                 local_error->message);
+      meta_topic (META_DEBUG_WAYLAND,
+                  "Only advertising zwp_linux_dmabuf_v1 interface version 3 "
+                  "support, no suitable device path could be found");
       protocol_version = 3;
       goto initialize;
     }
