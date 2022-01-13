@@ -249,30 +249,6 @@ translate_crossing_event (MetaBackendX11 *x11,
   meta_backend_x11_translate_crossing_event (x11, enter_event);
 }
 
-static void
-handle_device_change (MetaBackendX11 *x11,
-                      XIEvent        *event)
-{
-  XIDeviceChangedEvent *device_changed;
-  ClutterInputDevice *device;
-  ClutterBackend *backend;
-  ClutterSeat *seat;
-
-  if (event->evtype != XI_DeviceChanged)
-    return;
-
-  device_changed = (XIDeviceChangedEvent *) event;
-
-  if (device_changed->reason != XISlaveSwitch)
-    return;
-
-  backend = meta_backend_get_clutter_backend (META_BACKEND (x11));
-  seat = clutter_backend_get_default_seat (backend);
-  device = meta_seat_x11_lookup_device_id (META_SEAT_X11 (seat),
-                                           device_changed->sourceid);
-  meta_backend_update_last_device (META_BACKEND (x11), device);
-}
-
 /* Clutter makes the assumption that there is only one X window
  * per stage, which is a valid assumption to make for a generic
  * application toolkit. As such, it will ignore any events sent
@@ -321,10 +297,7 @@ handle_input_event (MetaBackendX11 *x11,
     {
       XIEvent *input_event = (XIEvent *) event->xcookie.data;
 
-      if (input_event->evtype == XI_DeviceChanged)
-        handle_device_change (x11, input_event);
-      else
-        maybe_spoof_event_as_stage_event (x11, input_event);
+      maybe_spoof_event_as_stage_event (x11, input_event);
     }
 }
 
