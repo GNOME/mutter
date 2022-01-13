@@ -998,6 +998,22 @@ system_bus_gotten_cb (GObject      *object,
                                         NULL);
 }
 
+static void
+update_last_device_from_event (MetaBackend  *backend,
+                               ClutterEvent *event)
+{
+  ClutterInputDevice *source;
+
+  /* Handled elsewhere */
+  if (event->type == CLUTTER_DEVICE_ADDED ||
+      event->type == CLUTTER_DEVICE_REMOVED)
+    return;
+
+  source = clutter_event_get_source_device (event);
+  if (source)
+    meta_backend_update_last_device (backend, source);
+}
+
 /* Mutter is responsible for pulling events off the X queue, so Clutter
  * doesn't need (and shouldn't) run its normal event source which polls
  * the X fd, but we do have to deal with dispatching events that accumulate
@@ -1037,6 +1053,7 @@ clutter_source_dispatch (GSource     *source,
       event->any.stage =
         CLUTTER_STAGE (meta_backend_get_stage (backend_source->backend));
       clutter_do_event (event);
+      update_last_device_from_event (backend_source->backend, event);
       clutter_event_free (event);
     }
 
