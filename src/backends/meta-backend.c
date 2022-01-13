@@ -357,26 +357,10 @@ static gboolean
 update_last_device (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
-  ClutterInputDeviceType device_type;
 
   priv->device_update_idle_id = 0;
-  device_type = clutter_input_device_get_device_type (priv->current_device);
-
   g_signal_emit (backend, signals[LAST_DEVICE_CHANGED], 0,
                  priv->current_device);
-
-  switch (device_type)
-    {
-    case CLUTTER_KEYBOARD_DEVICE:
-      break;
-    case CLUTTER_TOUCHSCREEN_DEVICE:
-      meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
-      break;
-    default:
-      meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
-      break;
-    }
 
   return G_SOURCE_REMOVE;
 }
@@ -1014,6 +998,34 @@ update_last_device_from_event (MetaBackend  *backend,
     meta_backend_update_last_device (backend, source);
 }
 
+static void
+update_pointer_visibility_from_event (MetaBackend  *backend,
+                                      ClutterEvent *event)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
+  ClutterInputDevice *device;
+  ClutterInputDeviceType device_type;
+
+  device = clutter_event_get_source_device (event);
+  if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_PHYSICAL)
+    return;
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  switch (device_type)
+    {
+    case CLUTTER_KEYBOARD_DEVICE:
+      break;
+    case CLUTTER_TOUCHSCREEN_DEVICE:
+      meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+      break;
+    default:
+      meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
+      break;
+    }
+}
+
 /* Mutter is responsible for pulling events off the X queue, so Clutter
  * doesn't need (and shouldn't) run its normal event source which polls
  * the X fd, but we do have to deal with dispatching events that accumulate
@@ -1054,6 +1066,7 @@ clutter_source_dispatch (GSource     *source,
         CLUTTER_STAGE (meta_backend_get_stage (backend_source->backend));
       clutter_do_event (event);
       update_last_device_from_event (backend_source->backend, event);
+      update_pointer_visibility_from_event (backend_source->backend, event);
       clutter_event_free (event);
     }
 
