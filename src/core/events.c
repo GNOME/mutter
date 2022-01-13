@@ -309,15 +309,7 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (event->type != CLUTTER_DEVICE_ADDED &&
       event->type != CLUTTER_DEVICE_REMOVED)
-    {
-      ClutterInputDevice *source;
-
-      handle_idletime_for_event (event);
-      source = clutter_event_get_source_device (event);
-
-      if (source)
-        meta_backend_update_last_device (backend, source);
-    }
+    handle_idletime_for_event (event);
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)
