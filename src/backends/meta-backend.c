@@ -381,7 +381,7 @@ update_last_device (MetaBackend *backend)
   return G_SOURCE_REMOVE;
 }
 
-void
+static void
 meta_backend_update_last_device (MetaBackend        *backend,
                                  ClutterInputDevice *device)
 {
