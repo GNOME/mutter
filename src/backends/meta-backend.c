@@ -120,6 +120,8 @@ static MetaBackend *_backend;
 
 static gboolean stage_views_disabled = FALSE;
 
+#define HIDDEN_POINTER_TIMEOUT 300 /* ms */
+
 /**
  * meta_get_backend:
  *
@@ -186,6 +188,8 @@ struct _MetaBackendPrivate
   guint sleep_signal_id;
   GCancellable *cancellable;
   GDBusConnection *system_bus;
+
+  uint32_t last_pointer_motion;
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
@@ -394,7 +398,7 @@ determine_hotplug_pointer_visibility (ClutterSeat *seat)
 {
   g_autoptr (GList) devices = NULL;
   const GList *l;
-  gboolean has_touchscreen = FALSE, has_pointer = FALSE;
+  gboolean has_touchscreen = FALSE, has_pointer = FALSE, has_tablet = FALSE;
 
   devices = clutter_seat_list_devices (seat);
 
@@ -410,9 +414,13 @@ determine_hotplug_pointer_visibility (ClutterSeat *seat)
       if (device_type == CLUTTER_POINTER_DEVICE ||
           device_type == CLUTTER_TOUCHPAD_DEVICE)
         has_pointer = TRUE;
+      if (device_type == CLUTTER_TABLET_DEVICE ||
+          device_type == CLUTTER_PEN_DEVICE ||
+          device_type == CLUTTER_ERASER_DEVICE)
+        has_tablet = TRUE;
     }
 
-  return has_pointer && !has_touchscreen;
+  return has_pointer && !has_touchscreen && !has_tablet;
 }
 
 static void
@@ -1006,22 +1014,38 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
   MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
   ClutterInputDevice *device;
   ClutterInputDeviceType device_type;
+  uint32_t time_ms;
 
   device = clutter_event_get_source_device (event);
   if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_PHYSICAL)
     return;
 
   device_type = clutter_input_device_get_device_type (device);
+  time_ms = clutter_event_get_time (event);
 
   switch (device_type)
     {
-    case CLUTTER_KEYBOARD_DEVICE:
-      break;
     case CLUTTER_TOUCHSCREEN_DEVICE:
       meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
       break;
-    default:
+    case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TOUCHPAD_DEVICE:
+      priv->last_pointer_motion = time_ms;
       meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
+      break;
+    case CLUTTER_TABLET_DEVICE:
+    case CLUTTER_PEN_DEVICE:
+    case CLUTTER_ERASER_DEVICE:
+    case CLUTTER_CURSOR_DEVICE:
+      if (meta_is_wayland_compositor () &&
+          time_ms > priv->last_pointer_motion + HIDDEN_POINTER_TIMEOUT)
+        meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+      break;
+    case CLUTTER_KEYBOARD_DEVICE:
+    case CLUTTER_PAD_DEVICE:
+    case CLUTTER_EXTENSION_DEVICE:
+    case CLUTTER_JOYSTICK_DEVICE:
+    default:
       break;
     }
 }
