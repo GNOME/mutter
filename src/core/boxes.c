@@ -429,7 +429,7 @@ merge_spanning_rects_in_region (GList *region)
    * considerations that also apply to this function.
    */
 
-  GList* compare;
+  GList *compare;
   compare = region;
 
   if (region == NULL)
