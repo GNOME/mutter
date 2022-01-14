@@ -127,6 +127,7 @@ MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
+META_EXPORT_TEST
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
                                                                   ClutterInputDevice *device);
@@ -152,6 +153,7 @@ void meta_backend_finish_touch_sequence (MetaBackend          *backend,
                                          ClutterEventSequence *sequence,
                                          MetaSequenceState     state);
 
+META_EXPORT_TEST
 MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *backend);
 
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);

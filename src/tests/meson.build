@@ -222,6 +222,17 @@ if have_native_tests
     install_dir: mutter_installed_tests_libexecdir,
   )
 
+  pointer_constraints_tests = executable('mutter-native-pointer-constraints',
+    sources: [
+      'native-pointer-constraints.c',
+    ],
+    include_directories: tests_includes,
+    c_args: tests_c_args,
+    dependencies: libmutter_test_dep,
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+
   ref_test_sanity = executable('mutter-ref-test-sanity',
     sources: [
       'ref-test-sanity.c',
@@ -368,6 +379,13 @@ if have_native_tests
 
   test('native-headless', native_headless_tests,
     suite: ['core', 'mutter/native/headless'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
+  test('native-pointer-constraints', pointer_constraints_tests,
+    suite: ['core', 'mutter/native/input'],
     env: test_env,
     is_parallel: false,
     timeout: 60,
