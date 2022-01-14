@@ -219,6 +219,7 @@ meta_test_client_dov (MetaTestClient  *client,
 {
   GString *command = g_string_new (NULL);
   char *line = NULL;
+  GError *local_error = NULL;
 
   while (TRUE)
     {
@@ -239,7 +240,7 @@ meta_test_client_dov (MetaTestClient  *client,
   g_string_append_c (command, '\n');
 
   if (!g_data_output_stream_put_string (client->in, command->str,
-                                        client->cancellable, error))
+                                        client->cancellable, &local_error))
     goto out;
 
   g_data_input_stream_read_line_async (client->out,
@@ -248,7 +249,7 @@ meta_test_client_dov (MetaTestClient  *client,
                                        test_client_line_read,
                                        client);
 
-  client->error = error;
+  client->error = &local_error;
   g_main_loop_run (client->loop);
   line = client->line;
   client->line = NULL;
@@ -256,9 +257,9 @@ meta_test_client_dov (MetaTestClient  *client,
 
   if (!line)
     {
-      if (*error == NULL)
+      if (!local_error)
         {
-          g_set_error (error,
+          g_set_error (&local_error,
                        META_TEST_CLIENT_ERROR,
                        META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
                        "test client exited");
@@ -268,7 +269,7 @@ meta_test_client_dov (MetaTestClient  *client,
 
   if (strcmp (line, "OK") != 0)
     {
-      g_set_error (error,
+      g_set_error (&local_error,
                    META_TEST_CLIENT_ERROR,
                    META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
                    "%s", line);
@@ -279,7 +280,15 @@ meta_test_client_dov (MetaTestClient  *client,
   g_string_free (command, TRUE);
   g_free (line);
 
-  return *error == NULL;
+  if (local_error)
+    {
+      g_propagate_error (error, local_error);
+      return FALSE;
+    }
+  else
+    {
+      return TRUE;
+    }
 }
 
 gboolean
