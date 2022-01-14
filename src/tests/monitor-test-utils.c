@@ -41,23 +41,7 @@ test_get_gpu (void)
 void
 set_custom_monitor_config (const char *filename)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
-  MetaMonitorConfigStore *config_store;
-  GError *error = NULL;
-  const char *path;
-
-  g_assert_nonnull (config_manager);
-
-  config_store = meta_monitor_config_manager_get_store (config_manager);
-
-  path = g_test_get_filename (G_TEST_DIST, "tests", "monitor-configs",
-                              filename, NULL);
-  if (!meta_monitor_config_store_set_custom (config_store, path, NULL,
-                                             &error))
-    g_error ("Failed to set custom config: %s", error->message);
+  meta_set_custom_monitor_config (meta_get_backend (), filename);
 }
 
 char *

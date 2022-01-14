@@ -108,4 +108,8 @@ void meta_test_client_destroy (MetaTestClient *client);
 META_EXPORT
 const char * meta_test_get_plugin_name (void);
 
+META_EXPORT
+void meta_set_custom_monitor_config (MetaBackend *backend,
+                                     const char  *filename);
+
 #endif /* TEST_UTILS_H */

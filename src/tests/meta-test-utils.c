@@ -25,6 +25,7 @@
 #include <string.h>
 #include <X11/Xlib-xcb.h>
 
+#include "backends/meta-monitor-config-store.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
@@ -590,4 +591,26 @@ meta_test_get_plugin_name (void)
     return name;
   else
     return "libdefault";
+}
+
+void
+meta_set_custom_monitor_config (MetaBackend *backend,
+                                const char  *filename)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorConfigStore *config_store;
+  GError *error = NULL;
+  const char *path;
+
+  g_assert_nonnull (config_manager);
+
+  config_store = meta_monitor_config_manager_get_store (config_manager);
+
+  path = g_test_get_filename (G_TEST_DIST, "tests", "monitor-configs",
+                              filename, NULL);
+  if (!meta_monitor_config_store_set_custom (config_store, path, NULL,
+                                             &error))
+    g_error ("Failed to set custom config: %s", error->message);
 }
