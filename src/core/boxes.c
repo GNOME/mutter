@@ -434,7 +434,7 @@ merge_spanning_rects_in_region (GList *region)
 
   if (region == NULL)
     {
-      g_warning ("Region to merge was empty!  Either you have a some "
+      g_warning ("Region to merge was empty! Either you have a some "
                  "pathological STRUT list or there's a bug somewhere!");
       return NULL;
     }
