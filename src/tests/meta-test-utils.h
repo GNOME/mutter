@@ -74,6 +74,11 @@ gboolean meta_test_client_wait (MetaTestClient  *client,
                                 GError         **error);
 
 META_EXPORT
+gboolean meta_test_client_dov (MetaTestClient  *client,
+                               GError         **error,
+                               va_list          vap);
+
+META_EXPORT
 gboolean meta_test_client_do (MetaTestClient  *client,
                               GError         **error,
                               ...) G_GNUC_NULL_TERMINATED;

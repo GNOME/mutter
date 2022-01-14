@@ -213,15 +213,12 @@ test_client_line_read (GObject      *source,
 }
 
 gboolean
-meta_test_client_do (MetaTestClient  *client,
-                     GError         **error,
-                     ...)
+meta_test_client_dov (MetaTestClient  *client,
+                      GError         **error,
+                      va_list          vap)
 {
   GString *command = g_string_new (NULL);
   char *line = NULL;
-  va_list vap;
-
-  va_start (vap, error);
 
   while (TRUE)
     {
@@ -238,8 +235,6 @@ meta_test_client_do (MetaTestClient  *client,
       g_string_append (command, quoted);
       g_free (quoted);
     }
-
-  va_end (vap);
 
   g_string_append_c (command, '\n');
 
@@ -285,6 +280,21 @@ meta_test_client_do (MetaTestClient  *client,
   g_free (line);
 
   return *error == NULL;
+}
+
+gboolean
+meta_test_client_do (MetaTestClient  *client,
+                     GError         **error,
+                     ...)
+{
+  va_list vap;
+  gboolean retval;
+
+  va_start (vap, error);
+  retval = meta_test_client_dov (client, error, vap);
+  va_end (vap);
+
+  return retval;
 }
 
 gboolean
