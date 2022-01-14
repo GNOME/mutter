@@ -112,4 +112,7 @@ META_EXPORT
 void meta_set_custom_monitor_config (MetaBackend *backend,
                                      const char  *filename);
 
+META_EXPORT
+void meta_wait_for_paint (MetaContext *context);
+
 #endif /* TEST_UTILS_H */

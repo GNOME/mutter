@@ -614,3 +614,31 @@ meta_set_custom_monitor_config (MetaBackend *backend,
                                              &error))
     g_error ("Failed to set custom config: %s", error->message);
 }
+
+static void
+on_view_presented (ClutterStage      *stage,
+                   ClutterStageView  *view,
+                   ClutterFrameInfo  *frame_info,
+                   GList            **presented_views)
+{
+  *presented_views = g_list_remove (*presented_views, view);
+}
+
+void
+meta_wait_for_paint (MetaContext *context)
+{
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  GList *views;
+  gulong handler_id;
+
+  clutter_actor_queue_redraw (stage);
+
+  views = g_list_copy (meta_renderer_get_views (renderer));
+  handler_id = g_signal_connect (stage, "presented",
+                                 G_CALLBACK (on_view_presented), &views);
+  while (views)
+    g_main_context_iteration (NULL, TRUE);
+  g_signal_handler_disconnect (stage, handler_id);
+}
