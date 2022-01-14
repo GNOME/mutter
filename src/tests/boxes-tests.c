@@ -52,7 +52,7 @@ get_random_rect (MetaRectangle *rect)
 static MetaRectangle*
 new_meta_rect (int x, int y, int width, int height)
 {
-  MetaRectangle* temporary;
+  MetaRectangle *temporary;
   temporary = g_new (MetaRectangle, 1);
   temporary->x = x;
   temporary->y = y;
@@ -65,7 +65,7 @@ new_meta_rect (int x, int y, int width, int height)
 static MetaStrut*
 new_meta_strut (int x, int y, int width, int height, int side)
 {
-  MetaStrut* temporary;
+  MetaStrut *temporary;
   temporary = g_new (MetaStrut, 1);
   temporary->rect = meta_rect(x, y, width, height);
   temporary->side = side;
@@ -76,7 +76,7 @@ new_meta_strut (int x, int y, int width, int height, int side)
 static MetaEdge*
 new_screen_edge (int x, int y, int width, int height, int side_type)
 {
-  MetaEdge* temporary;
+  MetaEdge *temporary;
   temporary = g_new (MetaEdge, 1);
   temporary->rect.x = x;
   temporary->rect.y = y;
@@ -91,7 +91,7 @@ new_screen_edge (int x, int y, int width, int height, int side_type)
 static MetaEdge*
 new_monitor_edge (int x, int y, int width, int height, int side_type)
 {
-  MetaEdge* temporary;
+  MetaEdge *temporary;
   temporary = g_new (MetaEdge, 1);
   temporary->rect.x = x;
   temporary->rect.y = y;
@@ -364,8 +364,8 @@ test_merge_regions (void)
    *   number of those merges that were of the form A is adjacent to B
    */
 
-  GList* region;
-  GList* compare;
+  GList *region;
+  GList *compare;
   int num_contains, num_merged, num_part_contains, num_adjacent;
 
   num_contains = num_merged = num_part_contains = num_adjacent = 0;
@@ -570,8 +570,8 @@ verify_lists_are_equal (GList *code, GList *answer)
 static void
 test_regions_okay (void)
 {
-  GList* region;
-  GList* tmp;
+  GList *region;
+  GList *tmp;
 
   /*************************************************************/
   /* Make sure test region 0 has the right spanning rectangles */
@@ -656,7 +656,7 @@ test_regions_okay (void)
 static void
 test_region_fitting (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect;
 
   /* See test_basic_fitting() for how/why these automated random tests work */
@@ -698,7 +698,7 @@ test_region_fitting (void)
 static void
 test_clamping_to_region (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect;
   MetaRectangle min_size;
   FixedDirections fixed_directions;
@@ -819,7 +819,7 @@ gboolean time_to_print = FALSE;
 static void
 test_clipping_to_region (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect, temp;
   FixedDirections fixed_directions = 0;
   int i;
@@ -879,7 +879,7 @@ test_clipping_to_region (void)
 static void
 test_shoving_into_region (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect, temp;
   FixedDirections fixed_directions = 0;
   int i;
@@ -994,8 +994,8 @@ verify_edge_lists_are_equal (GList *code, GList *answer)
 static void
 test_find_onscreen_edges (void)
 {
-  GList* edges;
-  GList* tmp;
+  GList *edges;
+  GList *tmp;
 
   int left   = META_DIRECTION_LEFT;
   int right  = META_DIRECTION_RIGHT;
@@ -1125,8 +1125,8 @@ test_find_onscreen_edges (void)
 static void
 test_find_nonintersected_monitor_edges (void)
 {
-  GList* edges;
-  GList* tmp;
+  GList *edges;
+  GList *tmp;
 
   int left   = META_DIRECTION_LEFT;
   int right  = META_DIRECTION_RIGHT;
