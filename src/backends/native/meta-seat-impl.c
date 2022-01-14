@@ -3514,6 +3514,59 @@ meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat_impl,
   g_object_unref (task);
 }
 
+static void
+ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
+{
+  int i, candidate = -1;
+  int nearest_monitor_x, nearest_monitor_y, min_distance = G_MAXINT;
+  cairo_rectangle_int_t monitor_rect;
+  graphene_point_t coords;
+
+  if (!meta_seat_impl_query_state (seat_impl,
+                                   seat_impl->core_pointer, NULL,
+                                   &coords, NULL))
+    return;
+
+  /* Pointer is in a view */
+  if (meta_viewport_info_get_view_at (seat_impl->viewports,
+                                      coords.x, coords.y) >= 0)
+    return;
+
+  /* Find nearest view */
+  for (i = 0; i < meta_viewport_info_get_num_views (seat_impl->viewports); i++)
+    {
+      meta_viewport_info_get_view_info (seat_impl->viewports, i,
+                                        &monitor_rect, NULL);
+      nearest_monitor_x = MIN (ABS (coords.x - monitor_rect.x),
+                               ABS (coords.x -
+                                    monitor_rect.x + monitor_rect.width));
+      nearest_monitor_y = MIN (ABS (coords.y - monitor_rect.y),
+                               ABS (coords.y -
+                                    monitor_rect.y + monitor_rect.height));
+      if (nearest_monitor_x < min_distance ||
+          nearest_monitor_y < min_distance)
+        {
+          min_distance = MIN (nearest_monitor_x, nearest_monitor_y);
+          candidate = i;
+        }
+    }
+
+  if (candidate < 0)
+    return;
+
+  /* Calculate new coordinates on nearest view */
+  meta_viewport_info_get_view_info (seat_impl->viewports,
+                                    candidate,
+                                    &monitor_rect, NULL);
+  coords.x = CLAMP (coords.x, monitor_rect.x,
+                    monitor_rect.x + monitor_rect.width - 1);
+  coords.y = CLAMP (coords.y, monitor_rect.y,
+                    monitor_rect.y + monitor_rect.height - 1);
+
+  notify_absolute_motion_in_impl (seat_impl->core_pointer, 0,
+                                  coords.x, coords.y, NULL);
+}
+
 static gboolean
 set_viewports (GTask *task)
 {
@@ -3522,6 +3575,8 @@ set_viewports (GTask *task)
 
   g_set_object (&seat_impl->viewports, viewports);
   g_task_return_boolean (task, TRUE);
+
+  ensure_pointer_onscreen (seat_impl);
 
   return G_SOURCE_REMOVE;
 }
