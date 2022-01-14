@@ -477,12 +477,19 @@ meta_test_client_new (MetaContext           *context,
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
   x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
 
-  g_subprocess_launcher_setenv (launcher,
-                                "WAYLAND_DISPLAY", wayland_display_name,
-                                TRUE);
-  g_subprocess_launcher_setenv (launcher,
-                                "DISPLAY", x11_display_name,
-                                TRUE);
+  if (wayland_display_name)
+    {
+      g_subprocess_launcher_setenv (launcher,
+                                    "WAYLAND_DISPLAY", wayland_display_name,
+                                    TRUE);
+    }
+
+  if (x11_display_name)
+    {
+      g_subprocess_launcher_setenv (launcher,
+                                    "DISPLAY", x11_display_name,
+                                    TRUE);
+    }
 
   subprocess = g_subprocess_launcher_spawn (launcher,
                                             error,
