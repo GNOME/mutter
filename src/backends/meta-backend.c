@@ -349,28 +349,7 @@ update_cursors (MetaBackend *backend)
 void
 meta_backend_monitors_changed (MetaBackend *backend)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  ClutterSeat *seat = priv->default_seat;
-  ClutterInputDevice *device = clutter_seat_get_pointer (seat);
-  graphene_point_t point;
-
   meta_backend_sync_screen_size (backend);
-
-  if (clutter_seat_query_state (seat, device, NULL, &point, NULL))
-    {
-      /* If we're outside all monitors, warp the pointer back inside */
-      if ((!meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                         point.x, point.y) ||
-           !priv->is_pointer_position_initialized) &&
-          !meta_monitor_manager_is_headless (monitor_manager))
-        {
-          reset_pointer_position (backend);
-          priv->is_pointer_position_initialized = TRUE;
-        }
-    }
-
   update_cursors (backend);
 }
 
