@@ -23,6 +23,7 @@
 #include "core/meta-context-private.h"
 
 #include <locale.h>
+#include <sys/resource.h>
 
 #include "backends/meta-backend-private.h"
 #include "compositor/meta-plugin-manager.h"
@@ -77,6 +78,9 @@ typedef struct _MetaContextPrivate
 
   GMainLoop *main_loop;
   GError *termination_error;
+#ifdef RLIMIT_NOFILE
+  struct rlimit saved_rlimit_nofile;
+#endif
 } MetaContextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContext, meta_context, G_TYPE_OBJECT)
@@ -492,6 +496,108 @@ meta_context_set_unsafe_mode (MetaContext *context,
   g_object_notify_by_pspec (G_OBJECT (context), obj_props[PROP_UNSAFE_MODE]);
 }
 
+static gboolean
+meta_context_save_rlimit_nofile (MetaContext  *context,
+                                 GError      **error)
+{
+#ifdef RLIMIT_NOFILE
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  if (getrlimit (RLIMIT_NOFILE, &priv->saved_rlimit_nofile) != 0)
+    {
+      priv->saved_rlimit_nofile.rlim_cur = 0;
+      priv->saved_rlimit_nofile.rlim_max = 0;
+      g_set_error (error, G_FILE_ERROR, g_file_error_from_errno (errno),
+                   "getrlimit failed: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  return TRUE;
+#else
+  g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOSYS,
+               "Missing support for RLIMIT_NOFILE");
+
+  return FALSE;
+#endif
+}
+
+/**
+ * meta_context_raise_rlimit_nofile:
+ * @context: a #MetaContext
+ * @error: a return location for errors
+ *
+ * Raises the RLIMIT_NOFILE limit value to the hard limit.
+ */
+gboolean
+meta_context_raise_rlimit_nofile (MetaContext  *context,
+                                  GError      **error)
+{
+#ifdef RLIMIT_NOFILE
+  struct rlimit new_rlimit;
+
+  if (getrlimit (RLIMIT_NOFILE, &new_rlimit) != 0)
+    {
+      g_set_error (error, G_FILE_ERROR, g_file_error_from_errno (errno),
+                   "getrlimit failed: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  /* Raise the rlimit_nofile value to the hard limit */
+  new_rlimit.rlim_cur = new_rlimit.rlim_max;
+
+  if (setrlimit (RLIMIT_NOFILE, &new_rlimit) != 0)
+    {
+      g_set_error (error, G_FILE_ERROR, g_file_error_from_errno (errno),
+                   "setrlimit failed: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  return TRUE;
+#else
+  g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOSYS,
+               "Missing support for RLIMIT_NOFILE");
+
+  return FALSE;
+#endif
+}
+
+/**
+ * meta_context_restore_rlimit_nofile:
+ * @context: a #MetaContext
+ * @error: a return location for errors
+ *
+ * Restores the RLIMIT_NOFILE limits from when the #MetaContext was created.
+ */
+gboolean
+meta_context_restore_rlimit_nofile (MetaContext  *context,
+                                    GError      **error)
+{
+#ifdef RLIMIT_NOFILE
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  if (priv->saved_rlimit_nofile.rlim_cur == 0)
+    {
+      g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOENT,
+                   "RLIMIT_NOFILE not saved");
+      return FALSE;
+    }
+
+  if (setrlimit (RLIMIT_NOFILE, &priv->saved_rlimit_nofile) != 0)
+    {
+      g_set_error (error, G_FILE_ERROR, g_file_error_from_errno (errno),
+                   "setrlimit failed: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  return TRUE;
+#else
+  g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOSYS,
+               "Missing support for RLIMIT_NOFILE");
+
+  return FALSE;
+#endif
+}
+
 static void
 meta_context_get_property (GObject    *object,
                            guint       prop_id,
@@ -618,6 +724,7 @@ static void
 meta_context_init (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  g_autoptr (GError) error = NULL;
 
   priv->plugin_gtype = G_TYPE_NONE;
   priv->gnome_wm_keybindings = g_strdup ("Mutter");
@@ -631,4 +738,10 @@ meta_context_init (MetaContext *context)
   g_option_context_set_main_group (priv->option_context,
                                    g_option_group_new (NULL, NULL, NULL,
                                                        context, NULL));
+
+  if (!meta_context_save_rlimit_nofile (context, &error))
+    {
+      if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOSYS))
+        g_warning ("Failed to save the nofile limit: %s", error->message);
+    }
 }

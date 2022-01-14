@@ -98,4 +98,12 @@ MetaBackend * meta_context_get_backend (MetaContext *context);
 META_EXPORT
 MetaDisplay * meta_context_get_display (MetaContext *context);
 
+META_EXPORT
+gboolean meta_context_raise_rlimit_nofile (MetaContext  *context,
+                                           GError      **error);
+
+META_EXPORT
+gboolean meta_context_restore_rlimit_nofile (MetaContext  *context,
+                                             GError      **error);
+
 #endif /* META_CONTEXT_H */
