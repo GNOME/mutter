@@ -3787,11 +3787,13 @@ ClutterGrab *
 clutter_stage_grab (ClutterStage *stage,
                     ClutterActor *actor)
 {
-  ClutterStagePrivate *priv = stage->priv;
+  ClutterStagePrivate *priv;
   ClutterGrab *grab;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
+
+  priv = stage->priv;
 
   if (!priv->topmost_grab)
     {
