@@ -40,6 +40,7 @@ struct _MetaWaylandWindowConfiguration
   int rel_y;
 
   gboolean has_size;
+  gboolean is_resizing;
   int width;
   int height;
 
@@ -59,11 +60,12 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (MetaWind
                                                                         MetaMoveResizeFlags  flags,
                                                                         MetaGravity          gravity);
 
-MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_relative (int rel_x,
-                                                                                 int rel_y,
-                                                                                 int width,
-                                                                                 int height,
-                                                                                 int scale);
+MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_relative (MetaWindow *window,
+                                                                                 int         rel_x,
+                                                                                 int         rel_y,
+                                                                                 int         width,
+                                                                                 int         height,
+                                                                                 int         scale);
 
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (int bounds_width,
                                                                               int bounds_height);

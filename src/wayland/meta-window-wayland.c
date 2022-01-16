@@ -321,7 +321,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                     MetaWaylandWindowConfiguration *configuration;
 
                     configuration =
-                      meta_wayland_window_configuration_new_relative (rel_x,
+                      meta_wayland_window_configuration_new_relative (window,
+                                                                      rel_x,
                                                                       rel_y,
                                                                       configured_rect.width,
                                                                       configured_rect.height,
@@ -824,9 +825,39 @@ meta_window_wayland_peek_configuration (MetaWindowWayland *wl_window,
 
 static MetaWaylandWindowConfiguration *
 acquire_acked_configuration (MetaWindowWayland       *wl_window,
-                             MetaWaylandSurfaceState *pending)
+                             MetaWaylandSurfaceState *pending,
+                             gboolean                *is_client_resize)
 {
   GList *l;
+  gboolean has_pending_resize = FALSE;
+
+  /* There can be 3 different cases where a resizing configurations can be found
+   * in the list of pending configurations. We consider resizes in any of these
+   * cases to be requested by the server:
+   * 1. Acked serial is resizing. This is obviously a server requested resize.
+   * 2. Acked serial is larger than the serial of a pending resizing
+   *    configuration. This means there was a server requested resize in the
+   *    past that has not been acked yet. This covers cases such as a resizing
+   *    configure followed by a status change configure before the client had
+   *    time to ack the former.
+   * 3. Acked serial is smaller than the serial of a pending resizing
+   *    configuration. This means there will be a server requested resize in the
+   *    future. In this case we want to avoid marking this as a client resize,
+   *    because it will change in the future again anyway and considering it
+   *    a client resize could trigger another move_resize on the server due to
+   *    enforcing constraints based on an already outdated size. */
+  for (l = wl_window->pending_configurations; l; l = l->next)
+    {
+      MetaWaylandWindowConfiguration *configuration = l->data;
+
+      if (configuration->is_resizing)
+        {
+          has_pending_resize = TRUE;
+          break;
+        }
+    }
+
+  *is_client_resize = !has_pending_resize;
 
   if (!pending->has_acked_configure_serial)
     return NULL;
@@ -869,20 +900,30 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
   return NULL;
 }
 
-static gboolean
-has_pending_resize (MetaWindowWayland *wl_window)
+gboolean
+meta_window_wayland_is_resize (MetaWindowWayland *wl_window,
+                               int                width,
+                               int                height)
 {
-  GList *l;
+  int old_width;
+  int old_height;
 
-  for (l = wl_window->pending_configurations; l; l = l->next)
+  if (wl_window->pending_configurations)
     {
-      MetaWaylandWindowConfiguration *configuration = l->data;
+      old_width = wl_window->last_sent_rect.width;
+      old_height = wl_window->last_sent_rect.height;
+    }
+  else
+    {
+      MetaWindow *window = META_WINDOW (wl_window);
 
-      if (configuration->has_size)
-        return TRUE;
+      old_width = window->rect.width;
+      old_height = window->rect.height;
     }
 
-  return FALSE;
+  return !wl_window->has_last_sent_configuration ||
+         old_width != width ||
+         old_height != height;
 }
 
 int
@@ -945,6 +986,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   MetaMoveResizeFlags flags;
   MetaWaylandWindowConfiguration *acked_configuration;
   gboolean is_window_being_resized;
+  gboolean is_client_resize;
 
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
@@ -968,10 +1010,8 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
 
-  if (!has_pending_resize (wl_window))
-    flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
-
-  acked_configuration = acquire_acked_configuration (wl_window, pending);
+  acked_configuration = acquire_acked_configuration (wl_window, pending,
+                                                     &is_client_resize);
 
   /* x/y are ignored when we're doing interactive resizing */
   is_window_being_resized = (meta_grab_op_is_resizing (display->grab_op) &&
@@ -1021,7 +1061,11 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     }
 
   if (rect.width != window->rect.width || rect.height != window->rect.height)
-    flags |= META_MOVE_RESIZE_RESIZE_ACTION;
+    {
+      flags |= META_MOVE_RESIZE_RESIZE_ACTION;
+      if (is_client_resize)
+        flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
+    }
 
   if (window->display->grab_window == window)
     gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
