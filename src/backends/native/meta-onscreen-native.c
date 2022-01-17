@@ -597,20 +597,6 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
 
       g_warn_if_fail (secondary_gpu_state->import_status ==
                       META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE);
-
-      /*
-       * Fall back. If META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE is
-       * in effect, we have COPY_MODE_PRIMARY prepared already, so we
-       * simply retry with that path. Import status cannot be FAILED,
-       * because we should not retry if failed once.
-       *
-       * If import status is OK, that is unexpected and we do not
-       * have the fallback path prepared which means this output cannot
-       * work anymore.
-       */
-      secondary_gpu_state->renderer_gpu_data->secondary.copy_mode =
-        META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
-
       secondary_gpu_state->import_status =
         META_SHARED_FRAMEBUFFER_IMPORT_STATUS_FAILED;
       return FALSE;
@@ -993,22 +979,24 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
       renderer_gpu_data =
         meta_renderer_native_get_gpu_data (renderer_native,
                                            secondary_gpu_state->gpu_kms);
-retry:
       switch (renderer_gpu_data->secondary.copy_mode)
         {
         case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
-          if (!import_shared_framebuffer (onscreen,
-                                          secondary_gpu_state))
-            goto retry;
+          if (import_shared_framebuffer (onscreen, secondary_gpu_state))
+            break;
+
+          /* The fallback was prepared in pre_swap_buffers */
+          renderer_gpu_data->secondary.copy_mode =
+            META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+          G_GNUC_FALLTHROUGH;
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
+          /* Done before eglSwapBuffers. */
           break;
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           copy_shared_framebuffer_gpu (onscreen,
                                        secondary_gpu_state,
                                        renderer_gpu_data,
                                        egl_context_changed);
-          break;
-        case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
-          /* Done before eglSwapBuffers. */
           break;
         }
     }
