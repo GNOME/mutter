@@ -594,8 +594,9 @@ meta_test_get_plugin_name (void)
 }
 
 void
-meta_set_custom_monitor_config (MetaBackend *backend,
-                                const char  *filename)
+meta_set_custom_monitor_config (MetaBackend            *backend,
+                                const char             *filename,
+                                MetaMonitorsConfigFlag  configs_flags)
 {
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -611,8 +612,9 @@ meta_set_custom_monitor_config (MetaBackend *backend,
   path = g_test_get_filename (G_TEST_DIST, "tests", "monitor-configs",
                               filename, NULL);
   if (!meta_monitor_config_store_set_custom (config_store, path, NULL,
+                                             configs_flags,
                                              &error))
-    g_error ("Failed to set custom config: %s", error->message);
+    g_warning ("Failed to set custom config: %s", error->message);
 }
 
 static void

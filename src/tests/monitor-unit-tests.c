@@ -7690,6 +7690,7 @@ meta_test_monitor_migrated_rotated (void)
   if (!meta_monitor_config_store_set_custom (config_store,
                                              "/dev/null",
                                              migrated_path,
+                                             META_MONITORS_CONFIG_FLAG_NONE,
                                              &error))
     g_error ("Failed to set custom config store files: %s", error->message);
 
@@ -7832,6 +7833,7 @@ meta_test_monitor_migrated_wiggle_discard (void)
   if (!meta_monitor_config_store_set_custom (config_store,
                                              "/dev/null",
                                              migrated_path,
+                                             META_MONITORS_CONFIG_FLAG_NONE,
                                              &error))
     g_error ("Failed to set custom config store files: %s", error->message);
 
@@ -8103,6 +8105,7 @@ meta_test_monitor_migrated_wiggle (void)
   if (!meta_monitor_config_store_set_custom (config_store,
                                              "/dev/null",
                                              migrated_path,
+                                             META_MONITORS_CONFIG_FLAG_NONE,
                                              &error))
     g_error ("Failed to set custom config store files: %s", error->message);
 

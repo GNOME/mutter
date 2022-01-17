@@ -51,12 +51,12 @@ typedef struct _MetaMonitorsConfigKey
   GList *monitor_specs;
 } MetaMonitorsConfigKey;
 
-typedef enum _MetaMonitorsConfigFlag
+enum _MetaMonitorsConfigFlag
 {
   META_MONITORS_CONFIG_FLAG_NONE = 0,
   META_MONITORS_CONFIG_FLAG_MIGRATED = (1 << 0),
   META_MONITORS_CONFIG_FLAG_SYSTEM_CONFIG = (1 << 1),
-} MetaMonitorsConfigFlag;
+};
 
 struct _MetaMonitorsConfig
 {

@@ -26,6 +26,12 @@
 
 #include "backends/meta-monitor-config-manager.h"
 
+typedef enum _MetaConfigStore
+{
+  META_CONFIG_STORE_SYSTEM,
+  META_CONFIG_STORE_USER,
+} MetaConfigStore;
+
 #define META_TYPE_MONITOR_CONFIG_STORE (meta_monitor_config_store_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
                       META, MONITOR_CONFIG_STORE, GObject)
@@ -46,15 +52,22 @@ void meta_monitor_config_store_remove (MetaMonitorConfigStore *config_store,
                                        MetaMonitorsConfig     *config);
 
 META_EXPORT_TEST
-gboolean meta_monitor_config_store_set_custom (MetaMonitorConfigStore *config_store,
-                                               const char             *read_path,
-                                               const char             *write_path,
-                                               GError                **error);
+gboolean meta_monitor_config_store_set_custom (MetaMonitorConfigStore  *config_store,
+                                               const char              *read_path,
+                                               const char              *write_path,
+                                               MetaMonitorsConfigFlag   flags,
+                                               GError                 **error);
+
+META_EXPORT_TEST
+GList * meta_monitor_config_store_get_stores_policy (MetaMonitorConfigStore *config_store);
 
 META_EXPORT_TEST
 int meta_monitor_config_store_get_config_count (MetaMonitorConfigStore *config_store);
 
 META_EXPORT_TEST
 MetaMonitorManager * meta_monitor_config_store_get_monitor_manager (MetaMonitorConfigStore *config_store);
+
+META_EXPORT_TEST
+void meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store);
 
 #endif /* META_MONITOR_CONFIG_STORE_H */

@@ -55,6 +55,7 @@ test_migration (const char *old_config,
                                     NULL);
   if (!meta_monitor_config_store_set_custom (config_store, "/dev/null",
                                              migrated_path,
+                                             META_MONITORS_CONFIG_FLAG_NONE,
                                              &error))
     g_error ("Failed to set custom config store: %s", error->message);
 

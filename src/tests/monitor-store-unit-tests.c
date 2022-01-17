@@ -890,6 +890,35 @@ meta_test_monitor_store_unknown_elements (void)
   check_monitor_store_configurations (&expect);
 }
 
+static void
+meta_test_monitor_store_policy_not_allowed (void)
+{
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "*Policy can only be defined in system level "
+                         "configurations*");
+  set_custom_monitor_config ("policy.xml");
+  g_test_assert_expected_messages ();
+}
+
+static void
+meta_test_monitor_store_policy (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorConfigStore *config_store =
+    meta_monitor_config_manager_get_store (config_manager);
+  GList *stores_policy;
+
+  set_custom_monitor_system_config ("policy.xml");
+  stores_policy = meta_monitor_config_store_get_stores_policy (config_store);
+  g_assert_cmpuint (g_list_length (stores_policy), ==, 1);
+  g_assert_cmpint (GPOINTER_TO_INT (stores_policy->data),
+                   ==,
+                   META_CONFIG_STORE_SYSTEM);
+}
+
 void
 init_monitor_store_tests (void)
 {
@@ -917,4 +946,8 @@ init_monitor_store_tests (void)
                    meta_test_monitor_store_interlaced);
   g_test_add_func ("/backends/monitor-store/unknown-elements",
                    meta_test_monitor_store_unknown_elements);
+  g_test_add_func ("/backends/monitor-store/policy-not-allowed",
+                   meta_test_monitor_store_policy_not_allowed);
+  g_test_add_func ("/backends/monitor-store/policy",
+                   meta_test_monitor_store_policy);
 }

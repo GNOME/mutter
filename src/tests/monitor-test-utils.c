@@ -38,10 +38,24 @@ test_get_gpu (void)
   return META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);
 }
 
+static void
+set_custom_monitor_config_common (const char             *filename,
+                                  MetaMonitorsConfigFlag  configs_flags)
+{
+  meta_set_custom_monitor_config (meta_get_backend (), filename, configs_flags);
+}
+
 void
 set_custom_monitor_config (const char *filename)
 {
-  meta_set_custom_monitor_config (meta_get_backend (), filename);
+  set_custom_monitor_config_common (filename, META_MONITORS_CONFIG_FLAG_NONE);
+}
+
+void
+set_custom_monitor_system_config (const char *filename)
+{
+  set_custom_monitor_config_common (filename,
+                                    META_MONITORS_CONFIG_FLAG_SYSTEM_CONFIG);
 }
 
 char *

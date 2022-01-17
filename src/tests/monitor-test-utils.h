@@ -201,6 +201,8 @@ MetaGpu * test_get_gpu (void);
 
 void set_custom_monitor_config (const char *filename);
 
+void set_custom_monitor_system_config (const char *filename);
+
 char * read_file (const char *file_path);
 
 void check_monitor_configuration (MonitorTestCaseExpect *expect);

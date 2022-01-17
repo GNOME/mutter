@@ -24,6 +24,7 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/sync.h>
 
+#include "backends/meta-backend-types.h"
 #include "meta/window.h"
 
 #define META_TEST_CLIENT_ERROR meta_test_client_error_quark ()
@@ -109,8 +110,9 @@ META_EXPORT
 const char * meta_test_get_plugin_name (void);
 
 META_EXPORT
-void meta_set_custom_monitor_config (MetaBackend *backend,
-                                     const char  *filename);
+void meta_set_custom_monitor_config (MetaBackend            *backend,
+                                     const char             *filename,
+                                     MetaMonitorsConfigFlag  configs_flags);
 
 META_EXPORT
 void meta_wait_for_paint (MetaContext *context);
