@@ -177,8 +177,11 @@ touch_get_info (MetaWaylandTouch     *touch,
 
   touch_info = g_hash_table_lookup (touch->touches, sequence);
 
-  if (!touch_info && create)
+  if (create)
     {
+      if (touch_info != NULL)
+        g_warning ("Stale touch information for sequence slot %p", sequence);
+
       touch_info = g_new0 (MetaWaylandTouchInfo, 1);
       touch_info->slot = clutter_event_sequence_get_slot (sequence);
       g_hash_table_insert (touch->touches, sequence, touch_info);
