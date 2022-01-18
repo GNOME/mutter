@@ -97,7 +97,6 @@ MetaPluginManager *
 meta_plugin_manager_new (MetaCompositor *compositor)
 {
   MetaPluginManager *plugin_mgr;
-  MetaPluginClass *klass;
   MetaPlugin *plugin;
   MetaMonitorManager *monitors;
 
@@ -107,16 +106,21 @@ meta_plugin_manager_new (MetaCompositor *compositor)
 
   _meta_plugin_set_compositor (plugin, compositor);
 
-  klass = META_PLUGIN_GET_CLASS (plugin);
-
-  if (klass->start)
-    klass->start (plugin);
-
   monitors = meta_monitor_manager_get ();
   g_signal_connect (monitors, "confirm-display-change",
                     G_CALLBACK (on_confirm_display_change), plugin_mgr);
 
   return plugin_mgr;
+}
+
+void
+meta_plugin_manager_start (MetaPluginManager *plugin_mgr)
+{
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
+
+  if (klass->start)
+    klass->start (plugin);
 }
 
 static void

@@ -45,6 +45,8 @@ typedef struct MetaPluginManager MetaPluginManager;
 
 MetaPluginManager * meta_plugin_manager_new (MetaCompositor *compositor);
 
+void meta_plugin_manager_start (MetaPluginManager *plugin_mgr);
+
 META_EXPORT_TEST
 void     meta_plugin_manager_load         (const gchar       *plugin_name);
 

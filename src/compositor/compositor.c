@@ -548,6 +548,7 @@ meta_compositor_do_manage (MetaCompositor  *compositor,
     return FALSE;
 
   priv->plugin_mgr = meta_plugin_manager_new (compositor);
+  meta_plugin_manager_start (priv->plugin_mgr);
 
   return TRUE;
 }
