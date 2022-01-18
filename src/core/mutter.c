@@ -170,6 +170,9 @@ main (int argc, char **argv)
       g_child_watch_add (command_pid, command_exited_cb, context);
     }
 
+  if (meta_context_get_compositor_type (context) == META_COMPOSITOR_TYPE_WAYLAND)
+    meta_context_raise_rlimit_nofile (context, NULL);
+
   if (!meta_context_run_main_loop (context, &error))
     {
       g_printerr ("Mutter terminated with a failure: %s\n", error->message);
