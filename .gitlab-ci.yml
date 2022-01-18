@@ -17,13 +17,14 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-01-20'
+    BASE_TAG: '2022-01-25'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
       gcovr
       gdm
       gnome-shell
+      mozjs91-devel
       python3-dbusmock
       sassc
       uncrustify
@@ -38,6 +39,10 @@ variables:
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
       dnf builddep -y libinput --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/gjs.git \
+        master . 5a1237aeb81feddd016fb9f71e77d5ee872bccd0 &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
