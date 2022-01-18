@@ -92,6 +92,15 @@ process_died (GObject      *source,
   client->process_running = FALSE;
 }
 
+static void
+child_setup (gpointer user_data)
+{
+  MetaDisplay *display = user_data;
+  MetaContext *context = meta_display_get_context (display);
+
+  meta_context_restore_rlimit_nofile (context, NULL);
+}
+
 /**
  * meta_wayland_client_new:
  * @launcher: (not nullable): a GSubprocessLauncher to use to launch the subprocess
@@ -196,6 +205,8 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
   compositor = meta_wayland_compositor_get_default ();
   g_subprocess_launcher_take_fd (client->launcher, client_fd[1], 3);
   g_subprocess_launcher_setenv (client->launcher, "WAYLAND_SOCKET", "3", TRUE);
+  g_subprocess_launcher_set_child_setup (client->launcher,
+                                         child_setup, display, NULL);
   wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
   subprocess = g_subprocess_launcher_spawnv (client->launcher, argv, error);
   g_clear_object (&client->launcher);
