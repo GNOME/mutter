@@ -26,6 +26,7 @@
 
 #include "config.h"
 
+#include "core/display-private.h"
 #include "core/util-private.h"
 
 #include <stdio.h>
@@ -518,6 +519,15 @@ append_argument (GPtrArray  *args,
   g_ptr_array_add (args, locale_arg);
 }
 
+static void
+child_setup (gpointer user_data)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaContext *context = meta_display_get_context (display);
+
+  meta_context_restore_rlimit_nofile (context, NULL);
+}
+
 /**
  * meta_show_dialog: (skip)
  * @type: type of dialog
@@ -622,7 +632,7 @@ meta_show_dialog (const char *type,
                  (gchar**) args->pdata,
                  NULL,
                  G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-                 NULL, NULL,
+                 child_setup, NULL,
                  &child_pid,
                  &error
                  );

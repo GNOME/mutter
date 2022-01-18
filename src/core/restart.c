@@ -101,6 +101,15 @@ restart_message_painted (gpointer data)
   return FALSE;
 }
 
+static void
+child_setup (gpointer user_data)
+{
+  MetaDisplay *display = user_data;
+  MetaContext *context = meta_display_get_context (display);
+
+  meta_context_restore_rlimit_nofile (context, NULL);
+}
+
 /**
  * meta_restart:
  * @message: (allow-none): message to display to the user, or %NULL
@@ -148,7 +157,7 @@ meta_restart (const char *message)
                                  (char **)helper_argv,
                                  NULL, /* envp */
                                  G_SPAWN_DEFAULT,
-                                 NULL, NULL, /* child_setup */
+                                 child_setup, display,
                                  NULL, /* child_pid */
                                  NULL, /* standard_input */
                                  &helper_out_fd,
