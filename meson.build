@@ -265,6 +265,12 @@ if have_introspection
   ]
 endif
 
+have_documentation = get_option('docs')
+if have_documentation
+  gidocgen_dep = dependency('gi-docgen', version: '>= 2021.1',
+                            fallback: ['gi-docgen', 'dummy_dep'])
+endif
+
 have_tests = get_option('tests')
 have_core_tests = false
 have_cogl_tests = false
@@ -553,6 +559,9 @@ subdir('data')
 subdir('src')
 subdir('po')
 subdir('doc/man')
+if have_documentation
+  subdir('doc/reference')
+endif
 
 meson.add_install_script('meson/meson-postinstall.sh')
 meson.add_dist_script('meson/check-version.py', meson.project_version(), 'NEWS')
@@ -579,6 +588,7 @@ summary('Wacom', have_libwacom, section: 'Options')
 summary('SM', have_sm, section: 'Options')
 summary('Startup notification', have_startup_notification, section: 'Options')
 summary('Introspection', have_introspection, section: 'Options')
+summary('Documentation', have_documentation, section: 'Options')
 summary('Profiler', have_profiler, section: 'Options')
 summary('Xwayland initfd', have_xwayland_initfd, section: 'Options')
 summary('Xwayland listenfd', have_xwayland_listenfd, section: 'Options')

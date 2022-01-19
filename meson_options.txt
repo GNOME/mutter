@@ -111,6 +111,12 @@ option('introspection',
   description: 'Enable GObject introspection'
 )
 
+option('docs',
+  type: 'boolean',
+  value: false,
+  description: 'Enable gi-docgen documentation'
+)
+
 option('cogl_tests',
   type: 'boolean',
   value: true,

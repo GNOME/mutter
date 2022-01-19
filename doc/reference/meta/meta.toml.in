@@ -1,0 +1,44 @@
+[library]
+version = "@version@"
+browse_url = "https://gitlab.gnome.org/GNOME/mutter/"
+repository_url = "https://gitlab.gnome.org/GNOME/mutter.git"
+website_url = "https://blogs.gnome.org/shell-dev/"
+docs_url = "https://docs.gtk.org/"
+authors = "Mutter Development Team"
+license = "GPL-2.0-or-later"
+description = "The Mutter display server, window manager and compositor library"
+dependencies = [ "GObject-2.0", "Gdk-3.0", "Gtk-3.0" ]
+devhelp = true
+search_index = true
+
+  [dependencies."GObject-2.0"]
+  name = "GObject"
+  description = "The base type system library"
+  docs_url = "https://docs.gtk.org/gobject/"
+
+  [dependencies."Gdk-3.0"]
+  name = "GDK"
+  description = "The GTK windowing system abstraction"
+  docs_url = "https://docs.gtk.org/gdk3/"
+
+  [dependencies."Gtk-3.0"]
+  name = "GTK"
+  description = "The GTK toolkit"
+  docs_url = "https://docs.gtk.org/gtk3/"
+
+[theme]
+name = "basic"
+show_index_summary = true
+show_class_hierarchy = true
+
+[source-location]
+base_url = "https://gitlab.gnome.org/GNOME/mutter/-/blob/@vcs_tag@/"
+
+[extra]
+# The same order will be used when generating the index
+content_files = [
+]
+content_images = [
+]
+urlmap_file = "urlmap.js"
+
