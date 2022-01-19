@@ -627,6 +627,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_pointer_constraints_init (compositor);
   meta_wayland_xdg_foreign_init (compositor);
   init_dma_buf_support (compositor);
+  meta_wayland_init_single_pixel_buffer_manager (compositor);
   meta_wayland_keyboard_shortcuts_inhibit_init (compositor);
   meta_wayland_surface_inhibit_shortcuts_dialog_init ();
   meta_wayland_text_input_init (compositor);

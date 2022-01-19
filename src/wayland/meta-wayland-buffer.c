@@ -140,6 +140,7 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
   MetaWaylandEglStream *stream;
 #endif
   MetaWaylandDmaBufBuffer *dma_buf;
+  MetaWaylandSinglePixelBuffer *single_pixel_buffer;
 
   if (wl_shm_buffer_get (buffer->resource) != NULL)
     {
@@ -191,6 +192,14 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
     {
       buffer->dma_buf.dma_buf = dma_buf;
       buffer->type = META_WAYLAND_BUFFER_TYPE_DMA_BUF;
+      return TRUE;
+    }
+
+  single_pixel_buffer = meta_wayland_single_pixel_buffer_from_buffer (buffer);
+  if (single_pixel_buffer)
+    {
+      buffer->single_pixel.single_pixel_buffer = single_pixel_buffer;
+      buffer->type = META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL;
       return TRUE;
     }
 
@@ -576,6 +585,10 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
       return meta_wayland_dma_buf_buffer_attach (buffer,
                                                  texture,
                                                  error);
+    case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
+      return meta_wayland_single_pixel_buffer_attach (buffer,
+                                                      texture,
+                                                      error);
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
       g_assert_not_reached ();
       return FALSE;
@@ -682,6 +695,7 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
 #endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
+    case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
       res = TRUE;
       break;
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
@@ -757,6 +771,7 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
   switch (buffer->type)
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
+    case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
       return NULL;
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
       return try_acquire_egl_image_scanout (buffer, onscreen);
@@ -795,6 +810,9 @@ meta_wayland_buffer_finalize (GObject *object)
 #endif
   g_clear_pointer (&buffer->dma_buf.texture, cogl_object_unref);
   g_clear_object (&buffer->dma_buf.dma_buf);
+  g_clear_pointer (&buffer->single_pixel.single_pixel_buffer,
+                   meta_wayland_single_pixel_buffer_free);
+  cogl_clear_object (&buffer->single_pixel.texture);
 
   G_OBJECT_CLASS (meta_wayland_buffer_parent_class)->finalize (object);
 }
