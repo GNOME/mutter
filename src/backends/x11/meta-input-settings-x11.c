@@ -596,6 +596,64 @@ meta_input_settings_x11_set_trackball_accel_profile (MetaInputSettings          
 }
 
 static void
+meta_input_settings_x11_set_pointing_stick_accel_profile (MetaInputSettings           *settings,
+                                                          ClutterInputDevice          *device,
+                                                          GDesktopPointerAccelProfile  profile)
+{
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
+
+  if ((caps & CLUTTER_INPUT_CAPABILITY_TRACKPOINT) == 0)
+    return;
+
+  set_device_accel_profile (settings, device, profile);
+}
+
+static void
+meta_input_settings_x11_set_pointing_stick_scroll_method (MetaInputSettings                 *settings,
+                                                          ClutterInputDevice                *device,
+                                                          GDesktopPointingStickScrollMethod  method)
+{
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
+  guchar *defaults;
+  guchar values[3] = { 0 }; /* 2fg, edge, on-button */
+
+  if ((caps & CLUTTER_INPUT_CAPABILITY_TRACKPOINT) == 0)
+    return;
+
+  defaults = get_property (device, "libinput Scroll Method Enabled Default",
+                           XA_INTEGER, 8, 3);
+  if (!defaults)
+    return;
+
+  switch (method)
+    {
+    case G_DESKTOP_POINTING_STICK_SCROLL_METHOD_DEFAULT:
+      values[0] = defaults[0];
+      values[1] = defaults[1];
+      values[2] = defaults[2];
+      break;
+    case G_DESKTOP_POINTING_STICK_SCROLL_METHOD_NONE:
+      values[0] = 0;
+      values[1] = 0;
+      values[2] = 0;
+      break;
+    case G_DESKTOP_POINTING_STICK_SCROLL_METHOD_ON_BUTTON_DOWN:
+      values[0] = 0;
+      values[1] = 0;
+      values[2] = 1;
+      break;
+    default:
+      g_assert_not_reached ();
+      return;
+    }
+
+  change_property (settings, device, "libinput Scroll Method Enabled",
+                   XA_INTEGER, 8, &values, 3);
+
+  meta_XFree (defaults);
+}
+
+static void
 meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
                                             ClutterInputDevice    *device,
                                             GDesktopTabletMapping  mapping)
@@ -866,6 +924,8 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
   input_settings_class->set_touchpad_accel_profile = meta_input_settings_x11_set_touchpad_accel_profile;
   input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
+  input_settings_class->set_pointing_stick_accel_profile = meta_input_settings_x11_set_pointing_stick_accel_profile;
+  input_settings_class->set_pointing_stick_scroll_method = meta_input_settings_x11_set_pointing_stick_scroll_method;
 
   input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
   input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;

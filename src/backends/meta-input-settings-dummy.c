@@ -222,6 +222,20 @@ meta_input_settings_dummy_set_trackball_middle_click_emulation (MetaInputSetting
 {
 }
 
+static void
+meta_input_settings_dummy_set_pointing_stick_scroll_method (MetaInputSettings                 *settings,
+                                                            ClutterInputDevice                *device,
+                                                            GDesktopPointingStickScrollMethod  method)
+{
+}
+
+static void
+meta_input_settings_dummy_set_pointing_stick_accel_profile (MetaInputSettings           *settings,
+                                                            ClutterInputDevice          *device,
+                                                            GDesktopPointerAccelProfile  profile)
+{
+}
+
 static gboolean
 meta_input_settings_dummy_has_two_finger_scroll (MetaInputSettings  *settings,
                                                  ClutterInputDevice *device)
@@ -281,6 +295,10 @@ meta_input_settings_dummy_class_init (MetaInputSettingsDummyClass *klass)
     meta_input_settings_dummy_set_touchpad_accel_profile;
   input_settings_class->set_trackball_accel_profile =
     meta_input_settings_dummy_set_trackball_accel_profile;
+  input_settings_class->set_pointing_stick_scroll_method =
+    meta_input_settings_dummy_set_pointing_stick_scroll_method;
+  input_settings_class->set_pointing_stick_accel_profile =
+    meta_input_settings_dummy_set_pointing_stick_accel_profile;
   input_settings_class->set_stylus_pressure =
     meta_input_settings_dummy_set_stylus_pressure;
   input_settings_class->set_stylus_button_map =

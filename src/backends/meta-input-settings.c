@@ -85,6 +85,7 @@ struct _MetaInputSettingsPrivate
   GSettings *mouse_settings;
   GSettings *touchpad_settings;
   GSettings *trackball_settings;
+  GSettings *pointing_stick_settings;
   GSettings *keyboard_settings;
   GSettings *keyboard_a11y_settings;
 
@@ -177,6 +178,7 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->mouse_settings);
   g_clear_object (&priv->touchpad_settings);
   g_clear_object (&priv->trackball_settings);
+  g_clear_object (&priv->pointing_stick_settings);
   g_clear_object (&priv->keyboard_settings);
   g_clear_object (&priv->keyboard_a11y_settings);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
@@ -396,6 +398,10 @@ do_update_pointer_accel_profile (MetaInputSettings          *input_settings,
     input_settings_class->set_trackball_accel_profile (input_settings,
                                                        device,
                                                        profile);
+  else if (settings == priv->pointing_stick_settings)
+    input_settings_class->set_pointing_stick_accel_profile (input_settings,
+                                                            device,
+                                                            profile);
 }
 
 static void
@@ -985,6 +991,51 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
 }
 
 static void
+update_pointing_stick_scroll_method (MetaInputSettings  *input_settings,
+                                     GSettings          *settings,
+                                     ClutterInputDevice *device)
+{
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (input_settings);
+  MetaInputSettingsClass *input_settings_class;
+  GDesktopPointingStickScrollMethod method;
+  ClutterInputCapabilities caps;
+
+  method = g_settings_get_enum (settings, "scroll-method");
+  input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
+
+  if (device)
+    {
+      caps = clutter_input_device_get_capabilities (device);
+
+      if ((caps & CLUTTER_INPUT_CAPABILITY_TRACKPOINT) == 0)
+        return;
+    }
+
+  if (device)
+    {
+      input_settings_class->set_pointing_stick_scroll_method (input_settings, device, method);
+    }
+  else if (!device)
+    {
+      GList *l;
+
+      for (l = priv->devices; l; l = l->next)
+        {
+          device = l->data;
+          caps = clutter_input_device_get_capabilities (device);
+
+          if ((caps & CLUTTER_INPUT_CAPABILITY_TRACKPOINT) != 0)
+            {
+              input_settings_class->set_pointing_stick_scroll_method (input_settings,
+                                                                      device,
+                                                                      method);
+            }
+        }
+    }
+}
+
+static void
 update_keyboard_repeat (MetaInputSettings *input_settings)
 {
   MetaInputSettingsClass *input_settings_class;
@@ -1172,7 +1223,7 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_touchpad_tap_and_drag_enabled (input_settings, NULL);
       else if (strcmp (key, "tap-and-drag-lock") == 0)
         update_touchpad_tap_and_drag_lock_enabled (input_settings, NULL);
-      else if (strcmp(key, "disable-while-typing") == 0)
+      else if (strcmp (key, "disable-while-typing") == 0)
         update_touchpad_disable_while_typing (input_settings, NULL);
       else if (strcmp (key, "send-events") == 0)
         update_touchpad_send_events (input_settings, NULL);
@@ -1194,6 +1245,15 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_pointer_accel_profile (input_settings, settings, NULL);
       else if (strcmp (key, "middle-click-emulation") == 0)
         update_middle_click_emulation (input_settings, settings, NULL);
+    }
+  else if (settings == priv->pointing_stick_settings)
+    {
+      if (strcmp (key, "speed") == 0)
+        update_device_speed (input_settings, NULL);
+      else if (strcmp (key, "accel-profile") == 0)
+        update_pointer_accel_profile (input_settings, settings, NULL);
+      else if (strcmp (key, "scroll-method") == 0)
+        update_pointing_stick_scroll_method (input_settings, settings, NULL);
     }
   else if (settings == priv->keyboard_settings)
     {
@@ -1477,6 +1537,16 @@ apply_device_settings (MetaInputSettings  *input_settings,
   update_pointer_accel_profile (input_settings,
                                 priv->trackball_settings,
                                 device);
+
+  update_pointing_stick_scroll_method (input_settings,
+                                       priv->pointing_stick_settings,
+                                       device);
+
+  update_pointer_accel_profile (input_settings,
+                                priv->pointing_stick_settings,
+                                device);
+
+  load_keyboard_a11y_settings (input_settings);
 
   update_middle_click_emulation (input_settings, priv->mouse_settings, device);
   update_middle_click_emulation (input_settings, priv->touchpad_settings, device);
@@ -1771,6 +1841,10 @@ meta_input_settings_init (MetaInputSettings *settings)
 
   priv->trackball_settings = g_settings_new ("org.gnome.desktop.peripherals.trackball");
   g_signal_connect (priv->trackball_settings, "changed",
+                    G_CALLBACK (meta_input_settings_changed_cb), settings);
+
+  priv->pointing_stick_settings = g_settings_new ("org.gnome.desktop.peripherals.pointingstick");
+  g_signal_connect (priv->pointing_stick_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
 
   priv->keyboard_settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
