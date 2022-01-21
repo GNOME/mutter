@@ -210,7 +210,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL,
   COGL_FEATURE_ID_BLIT_FRAMEBUFFER,
   COGL_FEATURE_ID_TIMESTAMP_QUERY,
-  COGL_FEATURE_ID_GET_GPU_TIME,
 
   /*< private >*/
   _COGL_N_FEATURE_IDS   /*< skip >*/
@@ -385,7 +384,7 @@ cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
  * cogl_context_get_gpu_time_ns:
  * @context: a #CoglContext pointer
  *
- * This function should only be called if the COGL_FEATURE_ID_GET_GPU_TIME
+ * This function should only be called if the COGL_FEATURE_ID_TIMESTAMP_QUERY
  * feature is advertised.
  *
  * Return value: Current GPU time in nanoseconds

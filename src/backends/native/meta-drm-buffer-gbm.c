@@ -324,7 +324,7 @@ meta_drm_buffer_gbm_fill_timings (MetaDrmBuffer  *buffer,
   cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
   cogl_object_unref (cogl_tex);
 
-  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_GET_GPU_TIME))
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     {
       info->gpu_time_before_buffer_swap_ns =
         cogl_context_get_gpu_time_ns (cogl_context);

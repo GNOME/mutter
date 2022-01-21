@@ -519,7 +519,7 @@ int64_t
 cogl_context_get_gpu_time_ns (CoglContext *context)
 {
   g_return_val_if_fail (cogl_has_feature (context,
-                                          COGL_FEATURE_ID_GET_GPU_TIME),
+                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         0);
 
   return context->driver_vtable->get_gpu_time_ns (context);

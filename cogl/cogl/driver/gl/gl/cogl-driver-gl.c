@@ -543,11 +543,8 @@ _cogl_driver_update_features (CoglContext *ctx,
                     COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT,
                     TRUE);
 
-  if (ctx->glGenQueries && ctx->glQueryCounter)
+  if (ctx->glGenQueries && ctx->glQueryCounter && ctx->glGetInteger64v)
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
-
-  if (ctx->glGetInteger64v)
-    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_GET_GPU_TIME, TRUE);
 
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)

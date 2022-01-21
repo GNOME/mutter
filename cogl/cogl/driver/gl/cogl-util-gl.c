@@ -558,7 +558,7 @@ cogl_gl_get_gpu_time_ns (CoglContext *context)
   int64_t gpu_time_ns;
 
   g_return_val_if_fail (cogl_has_feature (context,
-                                          COGL_FEATURE_ID_GET_GPU_TIME),
+                                          COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         0);
 
   GE (context, glGetInteger64v (GL_TIMESTAMP, &gpu_time_ns));
