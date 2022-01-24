@@ -72,9 +72,28 @@ find_systemd_session (gchar **session_id,
   g_auto (GStrv) sessions = NULL;
   int n_sessions;
   int saved_errno;
+  const char *xdg_session_id = NULL;
 
   g_assert (session_id != NULL);
   g_assert (error == NULL || *error == NULL);
+
+  xdg_session_id = g_getenv ("XDG_SESSION_ID");
+  if (xdg_session_id)
+    {
+      saved_errno = sd_session_is_active (xdg_session_id);
+      if (saved_errno < 0)
+        {
+          g_set_error (error,
+                       G_IO_ERROR,
+                       G_IO_ERROR_NOT_FOUND,
+                       "Failed to get status of XDG_SESSION_ID session (%s)",
+                       g_strerror (-saved_errno));
+          return FALSE;
+        }
+
+      *session_id = g_strdup (xdg_session_id);
+      return TRUE;
+    }
 
   /* if we are in a logind session, we can trust that value, so use it. This
    * happens for example when you run mutter directly from a VT but when
