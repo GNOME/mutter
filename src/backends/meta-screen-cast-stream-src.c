@@ -859,6 +859,10 @@ on_stream_add_buffer (void             *data,
 
   if (dmabuf_handle)
     {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Allocating DMA buffer for pw_stream %u",
+                  pw_stream_get_node_id (priv->pipewire_stream));
+
       spa_data[0].type = SPA_DATA_DmaBuf;
       spa_data[0].flags = SPA_DATA_FLAG_READWRITE;
       spa_data[0].fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
@@ -877,6 +881,10 @@ on_stream_add_buffer (void             *data,
                       "be negotiated");
           return;
         }
+
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Allocating MemFd buffer for pw_stream %u",
+                  pw_stream_get_node_id (priv->pipewire_stream));
 
       /* Fallback to a memfd buffer */
       spa_data[0].type = SPA_DATA_MemFd;
