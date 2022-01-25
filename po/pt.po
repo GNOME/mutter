@@ -5,14 +5,14 @@
 # Pedro Albuquerque <palbuquerque73@openmailbox.com>, 2015.
 # Tiago Santos <tiagofsantos81@sapo.pt>, 2016.
 # Juliano de Souza Camargo <julianosc@protonmail.com>, 2020.
-# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020, 2021.
+# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020, 2021, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 3.10\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-01-05 21:01+0000\n"
-"PO-Revision-Date: 2022-01-06 23:05+0000\n"
+"POT-Creation-Date: 2022-01-25 08:11+0000\n"
+"PO-Revision-Date: 2022-01-25 19:35+0000\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: https://l10n.gnome.org/teams/pt/\n"
 "Language: pt\n"
@@ -643,6 +643,14 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Evento de campainha"
+
+#: src/core/display.c:673
+msgid "Privacy Screen Enabled"
+msgstr "Ecrã de privacidade ativado"
+
+#: src/core/display.c:674
+msgid "Privacy Screen Disabled"
+msgstr "Ecrã de privacidade desativado"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
