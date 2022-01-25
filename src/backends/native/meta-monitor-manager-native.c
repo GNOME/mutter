@@ -34,11 +34,8 @@
  * See also #MetaMonitorManagerXrandr for an implementation using XRandR.
  */
 
-#include "backends/meta-monitor.h"
 #include "config.h"
 
-#include "backends/native/meta-kms-device.h"
-#include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-monitor-manager-native.h"
 
 #include <drm.h>
@@ -49,10 +46,13 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor-config-manager.h"
+#include "backends/meta-monitor.h"
 #include "backends/meta-output.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
