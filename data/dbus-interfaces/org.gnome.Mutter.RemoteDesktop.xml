@@ -14,27 +14,27 @@
   <interface name="org.gnome.Mutter.RemoteDesktop">
 
     <!--
-	CreateSession:
-	@session_path: Path to the new session object
+        CreateSession:
+        @session_path: Path to the new session object
     -->
     <method name="CreateSession">
       <arg name="session_path" type="o" direction="out" />
     </method>
 
     <!--
-	SupportedDeviceTypes:
-	@short_description: Bit mask of supported device types
+        SupportedDeviceTypes:
+        @short_description: Bit mask of supported device types
 
-	Device types:
-	  1: keyboard
-	  2: pointer
-	  4: touchscreen
+        Device types:
+          1: keyboard
+          2: pointer
+          4: touchscreen
     -->
     <property name="SupportedDeviceTypes" type="u" access="read" />
 
     <!--
-	Version:
-	@short_description: API version
+        Version:
+        @short_description: API version
     -->
     <property name="Version" type="i" access="read" />
 
@@ -47,41 +47,42 @@
   <interface name="org.gnome.Mutter.RemoteDesktop.Session">
 
     <!--
-	SessionId:
+        SessionId:
 
-	An identification string used for identifying a remote desktop session.
-	It can be used to associate screen cast sessions with a remote desktop session.
+        An identification string used for identifying a remote desktop session.
+        It can be used to associate screen cast sessions with a remote desktop
+        session.
     -->
     <property name="SessionId" type="s" access="read" />
 
     <!--
-	Start:
+        Start:
 
-	Start the remote desktop session
+        Start the remote desktop session
     -->
     <method name="Start" />
 
     <!--
-	Stop:
+        Stop:
 
-	Stop the remote desktop session
+        Stop the remote desktop session
     -->
     <method name="Stop" />
 
     <!--
-	Closed:
+        Closed:
 
-	The session has closed.
+        The session has closed.
 
-	A session doesn't have to have been started before it may be closed.
-	After it being closed, it can no longer be used.
+        A session doesn't have to have been started before it may be closed.
+        After it being closed, it can no longer be used.
     -->
     <signal name="Closed" />
 
     <!--
-	NotifyKeyboardKeycode:
+        NotifyKeyboardKeycode:
 
-	A key identified by an evdev keycode was pressed or released
+        A key identified by an evdev keycode was pressed or released
      -->
     <method name="NotifyKeyboardKeycode">
       <arg name="keycode" type="u" direction="in" />
@@ -89,9 +90,9 @@
     </method>
 
     <!--
-	NotifyKeyboardKeysym:
+        NotifyKeyboardKeysym:
 
-	A key identified by a keysym was pressed or released
+        A key identified by a keysym was pressed or released
      -->
     <method name="NotifyKeyboardKeysym">
       <arg name="keysym" type="u" direction="in" />
@@ -99,9 +100,9 @@
     </method>
 
     <!--
-	NotifyPointerButton:
+        NotifyPointerButton:
 
-	A pointer button was pressed or released
+        A pointer button was pressed or released
      -->
     <method name="NotifyPointerButton">
       <arg name="button" type="i" direction="in" />
@@ -109,34 +110,35 @@
     </method>
 
     <!--
-	NotifyPointerAxis:
+        NotifyPointerAxis:
 
-	A smooth pointer axis event notification. Relative motion deltas are to be
-	interpreted as pixel movement of a standardized mouse.
+        A smooth pointer axis event notification. Relative motion deltas are to
+        be interpreted as pixel movement of a standardized mouse.
 
-	Additionally to the smooth pointer axis event notification, an emulated
-	discrete pointer axis event notification is emitted based on the submitted
-	accumulated smooth scrolling steps.
-	The base for these emulated discrete pointer axis event is the discrete step
-	with the value 10.0.
-	This means that for a delta dx (or dy) with the value 10.0 one emulated
-	discrete scrolling event is emitted.
-	For a high resolution smooth pointer axis event, a smaller value is submitted
-	for each scrolling step.
-	This means: For a double resolution mouse wheel one emulated discrete event
-	is emitted for 2 smooth pointer axis events with each having the value 5.0.
+        Additionally to the smooth pointer axis event notification, an emulated
+        discrete pointer axis event notification is emitted based on the
+        submitted accumulated smooth scrolling steps.
+        The base for these emulated discrete pointer axis event is the discrete
+        step with the value 10.0.
+        This means that for a delta dx (or dy) with the value 10.0 one emulated
+        discrete scrolling event is emitted.
+        For a high resolution smooth pointer axis event, a smaller value is
+        submitted for each scrolling step.
+        This means: For a double resolution mouse wheel one emulated discrete
+        event is emitted for 2 smooth pointer axis events with each having the
+        value 5.0.
 
-	Possible @flags:
-	  1: finish - scroll motion was finished (e.g. fingers lifted)
-	  2: source_wheel - The scroll event is originated by a mouse wheel.
-	  4: source_finger - The scroll event is originated by one or more fingers on
-	                     the device (eg. touchpads).
-	  8: source_continuous - The scroll event is originated by the motion of some
-	                          device (eg. a scroll button is set).
+        Possible @flags:
+          1: finish - scroll motion was finished (e.g. fingers lifted)
+          2: source_wheel - The scroll event is originated by a mouse wheel.
+          4: source_finger - The scroll event is originated by one or more
+                             fingers on the device (eg. touchpads).
+          8: source_continuous - The scroll event is originated by the motion
+                                 of some device (eg. a scroll button is set).
 
-	  Maximum one of the @flags 'source_wheel', 'source_finger',
-	  'source_continuous' may be specified.
-	  If no source flag is specified, `source_finger` is assumed.
+          Maximum one of the @flags 'source_wheel', 'source_finger',
+          'source_continuous' may be specified.
+          If no source flag is specified, `source_finger` is assumed.
      -->
     <method name="NotifyPointerAxis">
       <arg name="dx" type="d" direction="in" />
@@ -145,9 +147,9 @@
     </method>
 
     <!--
-	NotifyPointerAxisDiscrete:
+        NotifyPointerAxisDiscrete:
 
-	A discrete pointer axis event notification
+        A discrete pointer axis event notification
      -->
     <method name="NotifyPointerAxisDiscrete">
       <arg name="axis" type="u" direction="in" />
@@ -155,9 +157,9 @@
     </method>
 
     <!--
-	NotifyPointerMotionRelative:
+        NotifyPointerMotionRelative:
 
-	A relative pointer motion event notification
+        A relative pointer motion event notification
      -->
     <method name="NotifyPointerMotionRelative">
       <arg name="dx" type="d" direction="in" />
@@ -165,9 +167,9 @@
     </method>
 
     <!--
-	NotifyPointerMotionAbsolute:
+        NotifyPointerMotionAbsolute:
 
-	A absolute pointer motion event notification
+        A absolute pointer motion event notification
      -->
     <method name="NotifyPointerMotionAbsolute">
       <arg name="stream" type="s" direction="in" />
@@ -176,9 +178,9 @@
     </method>
 
     <!--
-	NotifyTouchDown:
+        NotifyTouchDown:
 
-	A absolute pointer motion event notification
+        A absolute pointer motion event notification
      -->
     <method name="NotifyTouchDown">
       <arg name="stream" type="s" direction="in" />
@@ -188,9 +190,9 @@
     </method>
 
     <!--
-	NotifyTouchMotion:
+        NotifyTouchMotion:
 
-	A absolute pointer motion event notification
+        A absolute pointer motion event notification
      -->
     <method name="NotifyTouchMotion">
       <arg name="stream" type="s" direction="in" />
@@ -200,9 +202,9 @@
     </method>
 
     <!--
-	NotifyTouchUp:
+        NotifyTouchUp:
 
-	A absolute pointer motion event notification
+        A absolute pointer motion event notification
      -->
     <method name="NotifyTouchUp">
       <arg name="slot" type="u" direction="in" />
