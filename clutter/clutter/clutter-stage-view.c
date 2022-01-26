@@ -93,6 +93,7 @@ typedef struct _ClutterStageViewPrivate
 
   guint dirty_viewport   : 1;
   guint dirty_projection : 1;
+  guint needs_update_devices : 1;
 } ClutterStageViewPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageView, clutter_stage_view, G_TYPE_OBJECT)
@@ -1176,7 +1177,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   clutter_stage_finish_layout (stage);
 
-  devices = clutter_stage_find_updated_devices (stage);
+  if (priv->needs_update_devices)
+    devices = clutter_stage_find_updated_devices (stage, view);
 
   frame = CLUTTER_FRAME_INIT;
 
@@ -1200,6 +1202,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   _clutter_stage_window_finish_frame (stage_window, view, &frame);
 
   clutter_stage_update_devices (stage, devices);
+  priv->needs_update_devices = FALSE;
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
   clutter_stage_emit_after_update (stage, view);
@@ -1521,4 +1524,13 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
+}
+
+void
+clutter_stage_view_invalidate_input_devices (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  priv->needs_update_devices = TRUE;
 }

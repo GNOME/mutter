@@ -79,4 +79,6 @@ void clutter_stage_view_notify_presented (ClutterStageView *view,
 CLUTTER_EXPORT
 void clutter_stage_view_notify_ready (ClutterStageView *view);
 
+void clutter_stage_view_invalidate_input_devices (ClutterStageView *view);
+
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

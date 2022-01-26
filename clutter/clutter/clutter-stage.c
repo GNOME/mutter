@@ -127,7 +127,6 @@ struct _ClutterStagePrivate
 
   int update_freeze_count;
 
-  gboolean needs_update_devices;
   gboolean pending_finish_queue_redraws;
 
   GHashTable *pointer_devices;
@@ -785,6 +784,19 @@ clutter_stage_dequeue_actor_relayout (ClutterStage *stage,
     }
 }
 
+static void
+clutter_stage_invalidate_views_devices (ClutterStage *stage)
+{
+  GList *l;
+
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      clutter_stage_view_invalidate_input_devices (view);
+    }
+}
+
 void
 clutter_stage_maybe_relayout (ClutterActor *actor)
 {
@@ -832,36 +844,33 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
   CLUTTER_NOTE (ACTOR, "<<< Completed recomputing layout of %d subtrees", count);
 
   if (count)
-    priv->needs_update_devices = TRUE;
+    clutter_stage_invalidate_views_devices (stage);
 }
 
 GSList *
-clutter_stage_find_updated_devices (ClutterStage *stage)
+clutter_stage_find_updated_devices (ClutterStage     *stage,
+                                    ClutterStageView *view)
 {
   ClutterStagePrivate *priv = stage->priv;
   GSList *updating = NULL;
   GHashTableIter iter;
   gpointer value;
 
-  if (!priv->needs_update_devices)
-    return NULL;
-
-  priv->needs_update_devices = FALSE;
-
   g_hash_table_iter_init (&iter, priv->pointer_devices);
   while (g_hash_table_iter_next (&iter, NULL, &value))
     {
       PointerDeviceEntry *entry = value;
-      ClutterStageView *view;
-      const cairo_region_t *clip;
+      ClutterStageView *pointer_view;
 
-      view = clutter_stage_get_view_at (stage, entry->coords.x, entry->coords.y);
-      if (!view)
+      pointer_view = clutter_stage_get_view_at (stage,
+                                                entry->coords.x,
+                                                entry->coords.y);
+      if (!pointer_view)
+        continue;
+      if (pointer_view != view)
         continue;
 
-      clip = clutter_stage_view_peek_redraw_clip (view);
-      if (!clip || cairo_region_contains_point (clip, entry->coords.x, entry->coords.y))
-        updating = g_slist_prepend (updating, entry->device);
+      updating = g_slist_prepend (updating, entry->device);
     }
 
   return updating;
