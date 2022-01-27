@@ -446,20 +446,8 @@ meta_xwayland_terminate (MetaXWaylandManager *manager)
 {
   MetaDisplay *display = meta_get_display ();
 
-  g_clear_handle_id (&manager->xserver_grace_period_id, g_source_remove);
   meta_display_shutdown_x11 (display);
   meta_xwayland_stop_xserver (manager);
-}
-
-static gboolean
-shutdown_xwayland_cb (gpointer data)
-{
-  MetaXWaylandManager *manager = data;
-
-  meta_verbose ("Shutting down Xwayland");
-  manager->xserver_grace_period_id = 0;
-  meta_xwayland_terminate (manager);
-  return G_SOURCE_REMOVE;
 }
 
 static int
@@ -489,11 +477,7 @@ static void
 x_io_error_exit (Display *display,
                  void    *data)
 {
-  MetaXWaylandManager *manager = data;
-
   g_warning ("Xwayland just died, attempting to recover");
-  manager->xserver_grace_period_id =
-    g_idle_add (shutdown_xwayland_cb, manager);
 }
 
 static void
@@ -961,48 +945,6 @@ xdisplay_connection_activity_cb (gint         fd,
 }
 
 static void
-meta_xwayland_stop_xserver_timeout (MetaXWaylandManager *manager)
-{
-  if (manager->xserver_grace_period_id)
-    return;
-
-  manager->xserver_grace_period_id =
-    g_timeout_add_seconds (10, shutdown_xwayland_cb, manager);
-}
-
-static void
-window_unmanaged_cb (MetaWindow          *window,
-                     MetaXWaylandManager *manager)
-{
-  manager->x11_windows = g_list_remove (manager->x11_windows, window);
-  g_signal_handlers_disconnect_by_func (window,
-                                        window_unmanaged_cb,
-                                        manager);
-  if (!manager->x11_windows)
-    {
-      meta_verbose ("All X11 windows gone, setting shutdown timeout");
-      meta_xwayland_stop_xserver_timeout (manager);
-    }
-}
-
-static void
-window_created_cb (MetaDisplay         *display,
-                   MetaWindow          *window,
-                   MetaXWaylandManager *manager)
-{
-  /* Ignore all internal windows */
-  if (!window->xwindow ||
-      meta_window_get_pid (window) == getpid ())
-    return;
-
-  manager->x11_windows = g_list_prepend (manager->x11_windows, window);
-  g_signal_connect (window, "unmanaged",
-                    G_CALLBACK (window_unmanaged_cb), manager);
-
-  g_clear_handle_id (&manager->xserver_grace_period_id, g_source_remove);
-}
-
-static void
 meta_xwayland_stop_xserver (MetaXWaylandManager *manager)
 {
   if (manager->proc)
@@ -1097,9 +1039,6 @@ on_x11_display_closing (MetaDisplay         *display,
   g_signal_handlers_disconnect_by_func (display,
                                         on_x11_display_closing,
                                         manager);
-  g_signal_handlers_disconnect_by_func (display,
-                                        window_created_cb,
-                                        manager);
 }
 
 static void
@@ -1129,20 +1068,10 @@ static void
 on_x11_display_setup (MetaDisplay         *display,
                       MetaXWaylandManager *manager)
 {
-  MetaContext *context = meta_display_get_context (display);
   MetaX11Display *x11_display = meta_display_get_x11_display (display);
-  MetaX11DisplayPolicy x11_display_policy;
 
   meta_xwayland_init_dnd (x11_display);
   meta_xwayland_init_xrandr (manager, x11_display);
-  meta_xwayland_stop_xserver_timeout (manager);
-
-  x11_display_policy = meta_context_get_x11_display_policy (context);
-  if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
-    {
-      g_signal_connect (display, "window-created",
-                        G_CALLBACK (window_created_cb), manager);
-    }
 }
 
 void

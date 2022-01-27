@@ -60,7 +60,6 @@ typedef struct
   guint abstract_fd_watch_id;
   guint unix_fd_watch_id;
 
-  guint xserver_grace_period_id;
   struct wl_display *wayland_display;
   struct wl_client *client;
   struct wl_resource *xserver_resource;
@@ -68,8 +67,6 @@ typedef struct
 
   GCancellable *xserver_died_cancellable;
   GSubprocess *proc;
-
-  GList *x11_windows;
 
   MetaXWaylandDnd *dnd;
 
