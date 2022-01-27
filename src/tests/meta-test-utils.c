@@ -336,46 +336,47 @@ meta_test_client_wait (MetaTestClient  *client,
 }
 
 MetaWindow *
+meta_find_window_from_title (MetaContext *context,
+                             const char  *title)
+{
+  g_autoptr (GList) windows = NULL;
+  GList *l;
+
+  windows = meta_display_list_all_windows (meta_context_get_display (context));
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      if (g_strcmp0 (window->title, title) == 0)
+        return window;
+    }
+
+  return NULL;
+}
+
+MetaWindow *
 meta_test_client_find_window (MetaTestClient  *client,
                               const char      *window_id,
                               GError         **error)
 {
   MetaDisplay *display = meta_get_display ();
-  GSList *windows;
-  GSList *l;
-  MetaWindow *result;
-  char *expected_title;
-
-  windows =
-    meta_display_list_windows (display,
-                               META_LIST_INCLUDE_OVERRIDE_REDIRECT);
+  g_autofree char *expected_title = NULL;
+  MetaWindow *window;
 
   expected_title = g_strdup_printf ("test/%s/%s", client->id, window_id);
+  window = meta_find_window_from_title (meta_display_get_context (display),
+                                        expected_title);
 
-  result = NULL;
-  for (l = windows; l; l = l->next)
-    {
-      MetaWindow *window = l->data;
-
-      if (g_strcmp0 (window->title, expected_title) == 0)
-        {
-          result = window;
-          break;
-        }
-    }
-
-  g_slist_free (windows);
-  g_free (expected_title);
-
-  if (result == NULL)
+  if (!window)
     {
       g_set_error (error,
                    META_TEST_CLIENT_ERROR,
                    META_TEST_CLIENT_ERROR_RUNTIME_ERROR,
                    "window %s/%s isn't known to Mutter", client->id, window_id);
+      return NULL;
     }
 
-  return result;
+  return window;
 }
 
 typedef struct _WaitForShownData

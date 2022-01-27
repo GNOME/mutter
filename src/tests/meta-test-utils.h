@@ -85,6 +85,10 @@ gboolean meta_test_client_do (MetaTestClient  *client,
                               ...) G_GNUC_NULL_TERMINATED;
 
 META_EXPORT
+MetaWindow * meta_find_window_from_title (MetaContext *context,
+                                          const char  *title);
+
+META_EXPORT
 MetaWindow * meta_test_client_find_window (MetaTestClient  *client,
                                            const char      *window_id,
                                            GError         **error);
