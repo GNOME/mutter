@@ -25,104 +25,13 @@
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-wayland-test-driver.h"
-#include "wayland/meta-wayland.h"
+#include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-surface.h"
-
-typedef struct _WaylandTestClient
-{
-  GSubprocess *subprocess;
-  char *path;
-  GMainLoop *main_loop;
-} WaylandTestClient;
 
 static MetaContext *test_context;
 static MetaWaylandTestDriver *test_driver;
 static MetaVirtualMonitor *virtual_monitor;
 static ClutterVirtualInputDevice *virtual_pointer;
-
-static char *
-get_test_client_path (const char *test_client_name)
-{
-  return g_test_build_filename (G_TEST_BUILT,
-                                "src",
-                                "tests",
-                                "wayland-test-clients",
-                                test_client_name,
-                                NULL);
-}
-
-static WaylandTestClient *
-wayland_test_client_new (const char *test_client_name)
-{
-  MetaWaylandCompositor *compositor;
-  const char *wayland_display_name;
-  g_autofree char *test_client_path = NULL;
-  g_autoptr (GSubprocessLauncher) launcher = NULL;
-  GSubprocess *subprocess;
-  GError *error = NULL;
-  WaylandTestClient *wayland_test_client;
-
-  compositor = meta_wayland_compositor_get_default ();
-  wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
-  test_client_path = get_test_client_path (test_client_name);
-
-  launcher =  g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
-  g_subprocess_launcher_setenv (launcher,
-                                "WAYLAND_DISPLAY", wayland_display_name,
-                                TRUE);
-
-  subprocess = g_subprocess_launcher_spawn (launcher,
-                                            &error,
-                                            test_client_path,
-                                            NULL);
-  if (!subprocess)
-    {
-      g_error ("Failed to launch Wayland test client '%s': %s",
-               test_client_path, error->message);
-    }
-
-  wayland_test_client = g_new0 (WaylandTestClient, 1);
-  wayland_test_client->subprocess = subprocess;
-  wayland_test_client->path = g_strdup (test_client_name);
-  wayland_test_client->main_loop = g_main_loop_new (NULL, FALSE);
-
-  return wayland_test_client;
-}
-
-static void
-wayland_test_client_finished (GObject      *source_object,
-                              GAsyncResult *res,
-                              gpointer      user_data)
-{
-  WaylandTestClient *wayland_test_client = user_data;
-  GError *error = NULL;
-
-  if (!g_subprocess_wait_finish (wayland_test_client->subprocess,
-                                 res,
-                                 &error))
-    {
-      g_error ("Failed to wait for Wayland test client '%s': %s",
-               wayland_test_client->path, error->message);
-    }
-
-  g_main_loop_quit (wayland_test_client->main_loop);
-}
-
-static void
-wayland_test_client_finish (WaylandTestClient *wayland_test_client)
-{
-  g_subprocess_wait_async (wayland_test_client->subprocess, NULL,
-                           wayland_test_client_finished, wayland_test_client);
-
-  g_main_loop_run (wayland_test_client->main_loop);
-
-  g_assert_true (g_subprocess_get_successful (wayland_test_client->subprocess));
-
-  g_main_loop_unref (wayland_test_client->main_loop);
-  g_free (wayland_test_client->path);
-  g_object_unref (wayland_test_client->subprocess);
-  g_free (wayland_test_client);
-}
 
 static MetaWindow *
 find_client_window (const char *title)
@@ -146,44 +55,48 @@ find_client_window (const char *title)
 static void
 subsurface_remap_toplevel (void)
 {
-  WaylandTestClient *wayland_test_client;
+  MetaWaylandTestClient *wayland_test_client;
 
-  wayland_test_client = wayland_test_client_new ("subsurface-remap-toplevel");
-  wayland_test_client_finish (wayland_test_client);
+  wayland_test_client =
+    meta_wayland_test_client_new ("subsurface-remap-toplevel");
+  meta_wayland_test_client_finish (wayland_test_client);
 }
 
 static void
 subsurface_reparenting (void)
 {
-  WaylandTestClient *wayland_test_client;
+  MetaWaylandTestClient *wayland_test_client;
 
-  wayland_test_client = wayland_test_client_new ("subsurface-reparenting");
-  wayland_test_client_finish (wayland_test_client);
+  wayland_test_client =
+    meta_wayland_test_client_new ("subsurface-reparenting");
+  meta_wayland_test_client_finish (wayland_test_client);
 }
 
 static void
 subsurface_invalid_subsurfaces (void)
 {
-  WaylandTestClient *wayland_test_client;
+  MetaWaylandTestClient *wayland_test_client;
 
-  wayland_test_client = wayland_test_client_new ("invalid-subsurfaces");
+  wayland_test_client =
+    meta_wayland_test_client_new ("invalid-subsurfaces");
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "WL: error in client communication*");
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "WL: error in client communication*");
-  wayland_test_client_finish (wayland_test_client);
+  meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();
 }
 
 static void
 subsurface_invalid_xdg_shell_actions (void)
 {
-  WaylandTestClient *wayland_test_client;
+  MetaWaylandTestClient *wayland_test_client;
 
-  wayland_test_client = wayland_test_client_new ("invalid-xdg-shell-actions");
+  wayland_test_client =
+    meta_wayland_test_client_new ("invalid-xdg-shell-actions");
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "Invalid geometry * set on xdg_surface*");
-  wayland_test_client_finish (wayland_test_client);
+  meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();
 }
 
@@ -341,7 +254,7 @@ subsurface_parent_unmapped (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaDisplay *display = meta_context_get_display (test_context);
-  WaylandTestClient *wayland_test_client;
+  MetaWaylandTestClient *wayland_test_client;
   ClutterSeat *seat;
   gulong window_added_id;
   gulong sync_point_id;
@@ -350,7 +263,8 @@ subsurface_parent_unmapped (void)
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
 
-  wayland_test_client = wayland_test_client_new ("subsurface-parent-unmapped");
+  wayland_test_client =
+    meta_wayland_test_client_new ("subsurface-parent-unmapped");
 
   window_added_id =
     g_signal_connect (display->stack, "window-added",
@@ -361,7 +275,7 @@ subsurface_parent_unmapped (void)
                       G_CALLBACK (on_unmap_sync_point),
                       NULL);
 
-  wayland_test_client_finish (wayland_test_client);
+  meta_wayland_test_client_finish (wayland_test_client);
 
   g_clear_object (&virtual_pointer);
   g_signal_handler_disconnect (test_driver, sync_point_id);
@@ -378,7 +292,7 @@ typedef enum _ApplyLimitState
 typedef struct _ApplyLimitData
 {
   GMainLoop *loop;
-  WaylandTestClient *wayland_test_client;
+  MetaWaylandTestClient *wayland_test_client;
   ApplyLimitState state;
 } ApplyLimitData;
 
@@ -427,12 +341,12 @@ toplevel_apply_limits (void)
   gulong handler_id;
 
   data.loop = g_main_loop_new (NULL, FALSE);
-  data.wayland_test_client = wayland_test_client_new ("xdg-apply-limits");
+  data.wayland_test_client = meta_wayland_test_client_new ("xdg-apply-limits");
   handler_id = g_signal_connect (test_driver, "sync-point",
                                  G_CALLBACK (on_sync_point), &data);
   g_main_loop_run (data.loop);
   g_assert_cmpint (data.state, ==, APPLY_LIMIT_STATE_FINISH);
-  wayland_test_client_finish (data.wayland_test_client);
+  meta_wayland_test_client_finish (data.wayland_test_client);
   g_test_assert_expected_messages ();
   g_signal_handler_disconnect (test_driver, handler_id);
 }
@@ -443,8 +357,8 @@ toplevel_activation (void)
   ApplyLimitData data = {};
 
   data.loop = g_main_loop_new (NULL, FALSE);
-  data.wayland_test_client = wayland_test_client_new ("xdg-activation");
-  wayland_test_client_finish (data.wayland_test_client);
+  data.wayland_test_client = meta_wayland_test_client_new ("xdg-activation");
+  meta_wayland_test_client_finish (data.wayland_test_client);
   g_test_assert_expected_messages ();
 }
 

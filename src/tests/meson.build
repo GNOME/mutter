@@ -287,6 +287,8 @@ if have_native_tests
     sources: [
       'meta-wayland-test-driver.c',
       'meta-wayland-test-driver.h',
+      'meta-wayland-test-utils.c',
+      'meta-wayland-test-utils.h',
       'wayland-unit-tests.c',
       test_driver_server_header,
       test_driver_protocol_code,
