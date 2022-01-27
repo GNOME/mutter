@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-01-05 21:01+0000\n"
-"PO-Revision-Date: 2022-01-06 00:54+0300\n"
+"POT-Creation-Date: 2022-01-26 15:03+0000\n"
+"PO-Revision-Date: 2022-01-26 20:37+0300\n"
 "Last-Translator: Aleksandr Melman <Alexmelman88@gmail.com>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -420,7 +420,7 @@ msgid ""
 "sharing” — enables DMA buffered screen sharing. This is already enabled by "
 "default when using the i915 driver, but disabled for everything else. "
 "Requires a restart. • “autoclose-xwayland” — automatically terminates "
-"Xwayland if all relevant X11 clients are gone. Does not require a restart."
+"Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Чтобы включить экспериментальные функции, добавьте в список ключевое слово "
 "feature. Требует ли функция перезапуска композитора, зависит от данной "
@@ -438,8 +438,8 @@ msgstr ""
 "совместное использование экрана с буферизацией DMA. Это уже включено по "
 "умолчанию при использовании драйвера i915, но отключено для всего "
 "остального. Требуется перезагрузка. - \"autoclose-xwayland\" - автоматически "
-"завершает работу Xwayland, если все соответствующие клиенты X11 удалены. Не "
-"требует перезапуска."
+"завершает работу Xwayland, если все соответствующие клиенты X11 удалены. "
+"Требуется перезагрузка."
 
 #: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Modifier to use to locate the pointer"
@@ -646,6 +646,14 @@ msgstr "На экране %i дисплея «%s» уже запущен дру�
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Событие звонка"
+
+#: src/core/display.c:673
+msgid "Privacy Screen Enabled"
+msgstr "Экран конфиденциальности включен"
+
+#: src/core/display.c:674
+msgid "Privacy Screen Disabled"
+msgstr "Экран конфиденциальности отключен"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
