@@ -121,4 +121,10 @@ void meta_set_custom_monitor_config (MetaBackend            *backend,
 META_EXPORT
 void meta_wait_for_paint (MetaContext *context);
 
+META_EXPORT
+MetaVirtualMonitor * meta_create_test_monitor (MetaContext *context,
+                                               int          width,
+                                               int          height,
+                                               float        refresh_rate);
+
 #endif /* TEST_UTILS_H */

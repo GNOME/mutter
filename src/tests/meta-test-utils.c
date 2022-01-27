@@ -26,6 +26,7 @@
 #include <X11/Xlib-xcb.h>
 
 #include "backends/meta-monitor-config-store.h"
+#include "backends/meta-virtual-monitor.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
@@ -644,4 +645,33 @@ meta_wait_for_paint (MetaContext *context)
   while (views)
     g_main_context_iteration (NULL, TRUE);
   g_signal_handler_disconnect (stage, handler_id);
+}
+
+MetaVirtualMonitor *
+meta_create_test_monitor (MetaContext *context,
+                          int          width,
+                          int          height,
+                          float        refresh_rate)
+{
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
+  g_autoptr (GError) error = NULL;
+  static int serial_count = 0x10000;
+  g_autofree char *serial = NULL;
+  MetaVirtualMonitor *virtual_monitor;
+
+  serial = g_strdup_printf ("0x%x", serial_count++);
+  monitor_info = meta_virtual_monitor_info_new (width, height, refresh_rate,
+                                                "MetaTestVendor",
+                                                "MetaVirtualMonitor",
+                                                serial);
+  virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                                 monitor_info,
+                                                                 &error);
+  if (!virtual_monitor)
+    g_error ("Failed to create virtual monitor: %s", error->message);
+  meta_monitor_manager_reload (monitor_manager);
+
+  return virtual_monitor;
 }

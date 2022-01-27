@@ -24,6 +24,7 @@
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
+#include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-surface.h"
@@ -365,30 +366,18 @@ toplevel_activation (void)
 static void
 on_before_tests (void)
 {
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (test_context);
-  g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
-  g_autoptr (GError) error = NULL;
 
   test_driver = meta_wayland_test_driver_new (compositor);
-
-  monitor_info = meta_virtual_monitor_info_new (400, 400, 60.0,
-                                                "MetaTestVendor",
-                                                "MetaVirtualMonitor",
-                                                "0x1234");
-  virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
-                                                                 monitor_info,
-                                                                 &error);
-  if (!virtual_monitor)
-    g_error ("Failed to create virtual monitor: %s", error->message);
-  meta_monitor_manager_reload (monitor_manager);
+  virtual_monitor = meta_create_test_monitor (test_context,
+                                              400, 400, 60.0);
 }
 
 static void
 on_after_tests (void)
 {
+  g_clear_object (&test_driver);
   g_clear_object (&virtual_monitor);
 }
 
