@@ -642,11 +642,11 @@ msgstr "Událost zvonku"
 
 #: src/core/display.c:673
 msgid "Privacy Screen Enabled"
-msgstr "Soukromá obrazovka povolena"
+msgstr "Soukromí obrazovky zapnuto"
 
 #: src/core/display.c:674
 msgid "Privacy Screen Disabled"
-msgstr "Soukromá obrazovka zakázána"
+msgstr "Soukromí obrazovky vypnuto"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
