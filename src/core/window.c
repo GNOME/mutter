@@ -2039,16 +2039,18 @@ meta_window_flush_calc_showing (MetaWindow *window)
 }
 
 void
-meta_window_queue (MetaWindow *window, guint queuebits)
+meta_window_queue (MetaWindow   *window,
+                   MetaQueueType queuebits)
 {
-  guint queuenum;
+  unsigned int queuenum;
 
   /* Easier to debug by checking here rather than in the idle */
-  g_return_if_fail (!window->override_redirect || (queuebits & META_QUEUE_MOVE_RESIZE) == 0);
+  g_return_if_fail (!window->override_redirect ||
+                    (queuebits & META_QUEUE_MOVE_RESIZE) == 0);
 
-  for (queuenum=0; queuenum<NUMBER_OF_QUEUES; queuenum++)
+  for (queuenum = 0; queuenum < NUMBER_OF_QUEUES; queuenum++)
     {
-      if (queuebits & 1<<queuenum)
+      if (queuebits & 1 << queuenum)
         {
           /* Data which varies between queues.
            * Yes, these do look a lot like associative arrays:
@@ -2078,16 +2080,16 @@ meta_window_queue (MetaWindow *window, guint queuebits)
           /* If the window already claims to be in that queue, there's no
            * point putting it in the queue.
            */
-          if (window->is_in_queues & 1<<queuenum)
+          if (window->is_in_queues & 1 << queuenum)
             break;
 
           meta_topic (META_DEBUG_WINDOW_STATE,
-              "Putting %s in the %s queue",
-              window->desc,
-              meta_window_queue_names[queuenum]);
+                      "Putting %s in the %s queue",
+                      window->desc,
+                      meta_window_queue_names[queuenum]);
 
           /* So, mark it as being in this queue. */
-          window->is_in_queues |= 1<<queuenum;
+          window->is_in_queues |= 1 << queuenum;
 
           /* There's not a lot of point putting things into a queue if
            * nobody's on the other end pulling them out. Therefore,
@@ -2096,13 +2098,13 @@ meta_window_queue (MetaWindow *window, guint queuebits)
            */
 
           if (queue_later[queuenum] == 0)
-            queue_later[queuenum] = meta_later_add
-              (
-                window_queue_later_when[queuenum],
-                window_queue_later_handler[queuenum],
-                GUINT_TO_POINTER(queuenum),
-                NULL
-              );
+            {
+              queue_later[queuenum] =
+                meta_later_add (window_queue_later_when[queuenum],
+                                window_queue_later_handler[queuenum],
+                                GUINT_TO_POINTER (queuenum),
+                                NULL);
+            }
 
           /* And now we actually put it on the queue. */
           queue_pending[queuenum] = g_slist_prepend (queue_pending[queuenum],
