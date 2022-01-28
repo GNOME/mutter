@@ -60,10 +60,9 @@ typedef enum
 {
   META_QUEUE_CALC_SHOWING = 1 << 0,
   META_QUEUE_MOVE_RESIZE  = 1 << 1,
-  META_QUEUE_UPDATE_ICON  = 1 << 2,
 } MetaQueueType;
 
-#define NUMBER_OF_QUEUES 3
+#define NUMBER_OF_QUEUES 2
 
 typedef enum
 {
@@ -184,9 +183,6 @@ struct _MetaWindow
   Visual *xvisual;
   char *desc; /* used in debug spew */
   char *title;
-
-  cairo_surface_t *icon;
-  cairo_surface_t *mini_icon;
 
   MetaWindowType type;
 
@@ -608,9 +604,10 @@ struct _MetaWindowClass
   void (*get_default_skip_hints) (MetaWindow *window,
                                   gboolean   *skip_taskbar_out,
                                   gboolean   *skip_pager_out);
-  gboolean (*update_icon)        (MetaWindow       *window,
-                                  cairo_surface_t **icon,
-                                  cairo_surface_t **mini_icon);
+
+  cairo_surface_t * (*get_icon) (MetaWindow *window);
+  cairo_surface_t * (*get_mini_icon) (MetaWindow *window);
+
   pid_t (*get_client_pid)        (MetaWindow *window);
   void (*update_main_monitor)    (MetaWindow                   *window,
                                   MetaWindowUpdateMonitorFlags  flags);
@@ -866,6 +863,10 @@ MetaLogicalMonitor * meta_window_calculate_main_logical_monitor (MetaWindow *win
 MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
 void meta_window_update_monitor (MetaWindow                   *window,
                                  MetaWindowUpdateMonitorFlags  flags);
+
+cairo_surface_t * meta_window_get_icon (MetaWindow *window);
+
+cairo_surface_t * meta_window_get_mini_icon (MetaWindow *window);
 
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);

@@ -1595,7 +1595,7 @@ meta_ui_frame_paint (MetaUIFrame  *frame,
   if (button_type > -1)
     button_states[button_type] = frame->button_state;
 
-  mini_icon = frame->meta_window->mini_icon;
+  mini_icon = meta_window_get_mini_icon (frame->meta_window);
   flags = meta_frame_get_flags (frame->meta_window->frame);
   type = meta_window_get_frame_type (frame->meta_window);
 

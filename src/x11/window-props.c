@@ -296,7 +296,7 @@ reload_icon (MetaWindow    *window,
   meta_icon_cache_property_changed (&priv->icon_cache,
                                     window->display->x11_display,
                                     atom);
-  meta_window_queue(window, META_QUEUE_UPDATE_ICON);
+  meta_window_x11_queue_update_icon (window_x11);
 }
 
 static void
@@ -1694,7 +1694,8 @@ reload_wm_hints (MetaWindow    *window,
                                     window->display->x11_display,
                                     XA_WM_HINTS);
 
-  meta_window_queue (window, META_QUEUE_UPDATE_ICON | META_QUEUE_MOVE_RESIZE);
+  meta_window_x11_queue_update_icon (window_x11);
+  meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 
 static gboolean

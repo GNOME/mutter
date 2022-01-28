@@ -42,7 +42,9 @@
 #include "core/window-private.h"
 #include "core/workspace-private.h"
 #include "meta/common.h"
+#include "meta/compositor.h"
 #include "meta/meta-cursor-tracker.h"
+#include "meta/meta-later.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
@@ -1773,23 +1775,88 @@ meta_window_x11_get_default_skip_hints (MetaWindow *window,
   *skip_pager_out = priv->wm_state_skip_pager;
 }
 
+static void
+meta_window_x11_update_icon (MetaWindowX11 *window_x11,
+                             gboolean       force)
+{
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+  MetaWindow *window = META_WINDOW (window_x11);
+  cairo_surface_t *icon = NULL;
+  cairo_surface_t *mini_icon = NULL;
+  gboolean changed;
+
+  changed = meta_read_icons (window->display->x11_display,
+                             window->xwindow,
+                             &priv->icon_cache,
+                             priv->wm_hints_pixmap,
+                             priv->wm_hints_mask,
+                             &icon,
+                             META_ICON_WIDTH, META_ICON_HEIGHT,
+                             &mini_icon,
+                             META_MINI_ICON_WIDTH, META_MINI_ICON_HEIGHT);
+
+  if (changed || force)
+    {
+      g_clear_pointer (&priv->icon, cairo_surface_destroy);
+      g_clear_pointer (&priv->mini_icon, cairo_surface_destroy);
+      priv->icon = icon;
+      priv->mini_icon = mini_icon;
+
+      g_object_freeze_notify (G_OBJECT (window));
+      g_object_notify (G_OBJECT (window), "icon");
+      g_object_notify (G_OBJECT (window), "mini-icon");
+      g_object_thaw_notify (G_OBJECT (window));
+
+      if (window->frame)
+        meta_frame_queue_draw (window->frame);
+    }
+}
+
 static gboolean
-meta_window_x11_update_icon (MetaWindow       *window,
-                             cairo_surface_t **icon,
-                             cairo_surface_t **mini_icon)
+update_icon_before_redraw (gpointer user_data)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (user_data);
+
+  meta_window_x11_update_icon (window_x11, FALSE);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_window_x11_queue_update_icon (MetaWindowX11 *window_x11)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+  MetaWindow *window = META_WINDOW (window_x11);
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+
+  priv->update_icon_handle_id =
+    meta_laters_add (meta_compositor_get_laters (compositor),
+                     META_LATER_BEFORE_REDRAW,
+                     update_icon_before_redraw,
+                     window,
+                     NULL);
+}
+
+static cairo_surface_t *
+meta_window_x11_get_icon (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
 
-  return meta_read_icons (window->display->x11_display,
-                          window->xwindow,
-                          &priv->icon_cache,
-                          priv->wm_hints_pixmap,
-                          priv->wm_hints_mask,
-                          icon,
-                          META_ICON_WIDTH, META_ICON_HEIGHT,
-                          mini_icon,
-                          META_MINI_ICON_WIDTH, META_MINI_ICON_HEIGHT);
+  return priv->icon;
+}
+
+static cairo_surface_t *
+meta_window_x11_get_mini_icon (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  return priv->mini_icon;
 }
 
 static void
@@ -2070,9 +2137,34 @@ meta_window_x11_is_focus_async (MetaWindow *window)
 }
 
 static void
+meta_window_x11_dispose (GObject *object)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (object);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+  MetaWindow *window = META_WINDOW (window_x11);
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+
+  if (priv->update_icon_handle_id)
+    {
+      meta_laters_remove (meta_compositor_get_laters (compositor),
+                          priv->update_icon_handle_id);
+    }
+
+  g_clear_pointer (&priv->icon, cairo_surface_destroy);
+  g_clear_pointer (&priv->mini_icon, cairo_surface_destroy);
+
+  G_OBJECT_CLASS (meta_window_x11_parent_class)->dispose (object);
+}
+
+static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
+
+  object_class->dispose = meta_window_x11_dispose;
 
   window_class->manage = meta_window_x11_manage;
   window_class->unmanage = meta_window_x11_unmanage;
@@ -2086,7 +2178,8 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->move_resize_internal = meta_window_x11_move_resize_internal;
   window_class->update_struts = meta_window_x11_update_struts;
   window_class->get_default_skip_hints = meta_window_x11_get_default_skip_hints;
-  window_class->update_icon = meta_window_x11_update_icon;
+  window_class->get_icon = meta_window_x11_get_icon;
+  window_class->get_mini_icon = meta_window_x11_get_mini_icon;
   window_class->update_main_monitor = meta_window_x11_update_main_monitor;
   window_class->main_monitor_changed = meta_window_x11_main_monitor_changed;
   window_class->get_client_pid = meta_window_x11_get_client_pid;
@@ -3691,6 +3784,9 @@ meta_window_x11_new (MetaDisplay       *display,
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
   priv->border_width = attrs.border_width;
+
+  if (!window->override_redirect)
+    meta_window_x11_update_icon (window_x11, TRUE);
 
   meta_window_grab_keys (window);
   if (window->type != META_WINDOW_DOCK && !window->override_redirect)
