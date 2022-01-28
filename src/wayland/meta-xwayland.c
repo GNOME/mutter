@@ -868,14 +868,25 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   args[i++] = XWAYLAND_LISTENFD;
   args[i++] = "7";
 #endif
-#ifdef HAVE_XWAYLAND_TERMINATE_DELAY
-  if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND &&
-      meta_settings_is_experimental_feature_enabled (settings,
+
+  if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
+#ifdef HAVE_XWAYLAND_TERMINATE_DELAY
     {
-      /* Terminate after a 10 seconds delay */
-      args[i++] = "-terminate";
-      args[i++] = "10";
+      if (x11_display_policy == META_X11_DISPLAY_POLICY_ON_DEMAND)
+        {
+          /* Terminate after a 10 seconds delay */
+          args[i++] = "-terminate";
+          args[i++] = "10";
+        }
+      else
+        {
+          g_warning ("autoclose-xwayland disabled, requires Xwayland on demand");
+        }
+    }
+#else
+    {
+      g_warning ("autoclose-xwayland disabled, not supported");
     }
 #endif
   for (j = 0; j <  G_N_ELEMENTS (x11_extension_names); j++)
