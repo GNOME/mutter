@@ -15748,7 +15748,7 @@ clutter_actor_get_real_resource_scale (ClutterActor *self)
       guessed_scale = clutter_backend_get_fallback_resource_scale (backend);
     }
 
-  g_assert (guessed_scale >= 1.f);
+  g_assert (guessed_scale >= 0.5);
 
   /* Always return this value until we compute the correct one later.
    * If our guess turns out to be wrong, we'll emit "resource-scale-changed"
