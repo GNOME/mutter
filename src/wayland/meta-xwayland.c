@@ -60,6 +60,7 @@
 #define XWAYLAND_LISTENFD "-listen"
 #endif
 
+#define TMP_UNIX_DIR         "/tmp"
 #define X11_TMP_UNIX_DIR     "/tmp/.X11-unix"
 #define X11_TMP_UNIX_PATH    "/tmp/.X11-unix/X"
 
@@ -496,9 +497,18 @@ meta_xwayland_override_display_number (int number)
 static gboolean
 ensure_x11_unix_perms (GError **error)
 {
-  struct stat buf;
+  /* Try to detect systems on which /tmp/.X11-unix is owned by neither root nor
+   * ourselves because in that case the owner can take over the socket we create
+   * (symlink races are fixed in linux 800179c9b8a1). This should not be
+   * possible in the first place and systems should come with some way to ensure
+   * that's the case (systemd-tmpfiles, polyinstantiation …).
+   *
+   * That check however only works if we see the root user namespace which might
+   * not be the case when running in e.g. toolbx (root and other user are all
+   * mapped to overflowuid). */
+  struct stat x11_tmp, tmp;
 
-  if (lstat (X11_TMP_UNIX_DIR, &buf) != 0)
+  if (lstat (X11_TMP_UNIX_DIR, &x11_tmp) != 0)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
                    "Failed to check permissions on directory \"%s\": %s",
@@ -506,8 +516,18 @@ ensure_x11_unix_perms (GError **error)
       return FALSE;
     }
 
-  /* If the directory already exists, it should belong to root or ourselves ... */
-  if (buf.st_uid != 0 && buf.st_uid != getuid ())
+  if (lstat (TMP_UNIX_DIR, &tmp) != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to check permissions on directory \"%s\": %s",
+                   TMP_UNIX_DIR, g_strerror (errno));
+      return FALSE;
+    }
+
+  /* If the directory already exists, it should belong to the same
+   * user as /tmp or belong to ourselves ...
+   * (if /tmp is not owned by root or ourselves we're in deep trouble) */
+  if (x11_tmp.st_uid != tmp.st_uid && x11_tmp.st_uid != getuid ())
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
                    "Wrong ownership for directory \"%s\"",
@@ -516,7 +536,7 @@ ensure_x11_unix_perms (GError **error)
     }
 
   /* ... be writable ... */
-  if ((buf.st_mode & 0022) != 0022)
+  if ((x11_tmp.st_mode & 0022) != 0022)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
                    "Directory \"%s\" is not writable",
@@ -525,7 +545,7 @@ ensure_x11_unix_perms (GError **error)
     }
 
   /* ... and have the sticky bit set */
-  if ((buf.st_mode & 01000) != 01000)
+  if ((x11_tmp.st_mode & 01000) != 01000)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
                    "Directory \"%s\" is missing the sticky bit",
