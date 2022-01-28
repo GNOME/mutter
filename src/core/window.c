@@ -133,7 +133,8 @@ static void     ensure_mru_position_after (MetaWindow *window,
 
 static void meta_window_move_resize_now (MetaWindow  *window);
 
-static void meta_window_unqueue (MetaWindow *window, guint queuebits);
+static void meta_window_unqueue (MetaWindow    *window,
+                                 MetaQueueType  queuebits);
 
 static void     update_move           (MetaWindow              *window,
                                        MetaEdgeResistanceFlags  flags,
@@ -1967,32 +1968,25 @@ static const gchar* meta_window_queue_names[NUMBER_OF_QUEUES] =
 #endif
 
 static void
-meta_window_unqueue (MetaWindow *window, guint queuebits)
+meta_window_unqueue (MetaWindow    *window,
+                     MetaQueueType  queuebits)
 {
-  gint queuenum;
+  int queuenum;
 
-  for (queuenum=0; queuenum<NUMBER_OF_QUEUES; queuenum++)
+  for (queuenum = 0; queuenum < NUMBER_OF_QUEUES; queuenum++)
     {
-      if ((queuebits & 1<<queuenum) /* they have asked to unqueue */
-          &&
-          (window->is_in_queues & 1<<queuenum)) /* it's in the queue */
+      if ((queuebits & 1 << queuenum) &&
+          (window->is_in_queues & 1 << queuenum))
         {
 
           meta_topic (META_DEBUG_WINDOW_STATE,
-              "Removing %s from the %s queue",
-              window->desc,
-              meta_window_queue_names[queuenum]);
+                      "Removing %s from the %s queue",
+                      window->desc,
+                      meta_window_queue_names[queuenum]);
 
-          /* Note that window may not actually be in the queue
-           * because it may have been in "copy" inside the idle handler
-           */
           queue_pending[queuenum] = g_slist_remove (queue_pending[queuenum], window);
-          window->is_in_queues &= ~(1<<queuenum);
+          window->is_in_queues &= ~(1 << queuenum);
 
-          /* Okay, so maybe we've used up all the entries in the queue.
-           * In that case, we should kill the function that deals with
-           * the queue, because there's nothing left for it to do.
-           */
           if (queue_pending[queuenum] == NULL && queue_later[queuenum] != 0)
             {
               meta_later_remove (queue_later[queuenum]);
