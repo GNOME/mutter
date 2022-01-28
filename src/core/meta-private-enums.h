@@ -28,4 +28,10 @@ typedef enum _MetaX11DisplayPolicy
   META_X11_DISPLAY_POLICY_DISABLED,
 } MetaX11DisplayPolicy;
 
+typedef enum
+{
+  META_QUEUE_CALC_SHOWING = 1 << 0,
+  META_QUEUE_MOVE_RESIZE = 1 << 1,
+} MetaQueueType;
+
 #endif /* META_PRIVATE_ENUMS_H */

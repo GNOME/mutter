@@ -416,6 +416,8 @@ meta_stack_thaw (MetaStack *stack)
 {
   g_return_if_fail (stack->freeze_count > 0);
 
+  COGL_TRACE_BEGIN_SCOPED (MetaStackThaw, "Stack: thaw");
+
   stack->freeze_count -= 1;
   meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, NULL);

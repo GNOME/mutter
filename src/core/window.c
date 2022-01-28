@@ -109,8 +109,6 @@
 
 #define SNAP_SECURITY_LABEL_PREFIX "snap."
 
-static int destroying_windows_disallowed = 0;
-
 /* Each window has a "stamp" which is a non-recycled 64-bit ID. They
  * start after the end of the XID space so that, for stacking
  * we can keep a guint64 that represents one or the other
@@ -130,8 +128,6 @@ static void     meta_window_save_rect         (MetaWindow    *window);
 
 static void     ensure_mru_position_after (MetaWindow *window,
                                            MetaWindow *after_this_one);
-
-static void meta_window_move_resize_now (MetaWindow  *window);
 
 static void meta_window_unqueue (MetaWindow    *window,
                                  MetaQueueType  queuebits);
@@ -170,17 +166,12 @@ static MetaWindow * meta_window_find_tile_match (MetaWindow   *window,
                                                  MetaTileMode  mode);
 static void update_edge_constraints (MetaWindow *window);
 
-/* Idle handlers for the three queues (run with meta_later_add()). The
- * "data" parameter in each case will be a GINT_TO_POINTER of the
- * index into the queue arrays to use.
- *
- * TODO: Possibly there is still some code duplication among these, which we
- * need to sort out at some point.
- */
-static gboolean idle_calc_showing (gpointer data);
-static gboolean idle_move_resize (gpointer data);
+typedef struct _MetaWindowPrivate
+{
+  MetaQueueType queued_types;
+} MetaWindowPrivate;
 
-G_DEFINE_ABSTRACT_TYPE (MetaWindow, meta_window, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWindow, meta_window, G_TYPE_OBJECT)
 
 enum
 {
@@ -1083,7 +1074,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->placed = ((window->mapped && !window->hidden) || window->override_redirect);
   window->denied_focus_and_not_transient = FALSE;
   window->unmanaging = FALSE;
-  window->is_in_queues = 0;
   window->keys_grabbed = FALSE;
   window->grab_on_frame = FALSE;
   window->all_keys_grabbed = FALSE;
@@ -1458,10 +1448,6 @@ meta_window_unmanage (MetaWindow  *window,
   meta_compositor_remove_window (window->display->compositor, window);
   window->known_to_compositor = FALSE;
 
-  if (destroying_windows_disallowed > 0)
-    meta_bug ("Tried to destroy window %s while destruction was not allowed",
-              window->desc);
-
   meta_display_unregister_stamp (window->display, window->stamp);
 
   if (meta_prefs_get_attach_modal_dialogs ())
@@ -1774,289 +1760,65 @@ implement_showing (MetaWindow *window,
     sync_client_window_mapped (window);
 }
 
-static void
-meta_window_calc_showing (MetaWindow  *window)
+void
+meta_window_update_visibility (MetaWindow  *window)
 {
   implement_showing (window, meta_window_should_be_showing (window));
 }
 
-static guint queue_later[NUMBER_OF_QUEUES] = {};
-static GSList *queue_pending[NUMBER_OF_QUEUES] = {};
-
-static int
-stackcmp (gconstpointer a, gconstpointer b)
+void
+meta_window_clear_queued (MetaWindow *window)
 {
-  MetaWindow *aw = (gpointer) a;
-  MetaWindow *bw = (gpointer) b;
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
-  return meta_stack_windows_cmp (aw->display->stack,
-                                 aw, bw);
+  priv->queued_types &= ~META_QUEUE_CALC_SHOWING;
 }
-
-static gboolean
-idle_calc_showing (gpointer data)
-{
-  MetaDisplay *display = meta_get_display ();
-  GSList *tmp;
-  GSList *copy;
-  GSList *should_show;
-  GSList *should_hide;
-  GSList *unplaced;
-  GSList *displays;
-  guint queue_index = GPOINTER_TO_INT (data);
-
-  COGL_TRACE_BEGIN_SCOPED (MetaWindowCalcShowing, "Window: Calc showing");
-
-  g_return_val_if_fail (queue_pending[queue_index] != NULL, FALSE);
-
-  meta_topic (META_DEBUG_WINDOW_STATE,
-              "Clearing the calc_showing queue");
-
-  /* Work with a copy, for reentrancy. The allowed reentrancy isn't
-   * complete; destroying a window while we're in here would result in
-   * badness. But it's OK to queue/unqueue calc_showings.
-   */
-  copy = g_slist_copy (queue_pending[queue_index]);
-  g_slist_free (queue_pending[queue_index]);
-  queue_pending[queue_index] = NULL;
-  queue_later[queue_index] = 0;
-
-  destroying_windows_disallowed += 1;
-
-  /* We map windows from top to bottom and unmap from bottom to
-   * top, to avoid extra expose events. The exception is
-   * for unplaced windows, which have to be mapped from bottom to
-   * top so placement works.
-   */
-  should_show = NULL;
-  should_hide = NULL;
-  unplaced = NULL;
-  displays = NULL;
-
-  COGL_TRACE_BEGIN (MetaWindowCalcShowingCalc, "Window: Calc showing (calc)");
-
-  tmp = copy;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      if (!window->placed)
-        unplaced = g_slist_prepend (unplaced, window);
-      else if (meta_window_should_be_showing (window))
-        should_show = g_slist_prepend (should_show, window);
-      else
-        should_hide = g_slist_prepend (should_hide, window);
-
-      tmp = tmp->next;
-    }
-
-  /* bottom to top */
-  unplaced = g_slist_sort (unplaced, stackcmp);
-  should_hide = g_slist_sort (should_hide, stackcmp);
-  /* top to bottom */
-  should_show = g_slist_sort (should_show, stackcmp);
-  should_show = g_slist_reverse (should_show);
-
-  COGL_TRACE_END (MetaWindowCalcShowingCalc);
-
-  COGL_TRACE_BEGIN (MetaWindowCalcShowingUnplaced,
-                    "Window: Calc showing (calc unplaced)");
-
-  tmp = unplaced;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      meta_window_calc_showing (window);
-
-      tmp = tmp->next;
-    }
-
-  COGL_TRACE_END (MetaWindowCalcShowingUnplaced);
-
-  meta_stack_freeze (display->stack);
-
-  COGL_TRACE_BEGIN (MetaWindowCalcShowingShow, "Window: Calc showing (show)");
-  tmp = should_show;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      implement_showing (window, TRUE);
-
-      tmp = tmp->next;
-    }
-  COGL_TRACE_END (MetaWindowCalcShowingShow);
-
-  COGL_TRACE_BEGIN (MetaWindowCalcShowingHide, "Window: Calc showing (hide)");
-  tmp = should_hide;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      implement_showing (window, FALSE);
-
-      tmp = tmp->next;
-    }
-  COGL_TRACE_END (MetaWindowCalcShowingHide);
-
-  COGL_TRACE_BEGIN (MetaWindowCalcShowingSync,
-                    "Window: Calc showing (sync stack)");
-  meta_stack_thaw (display->stack);
-  COGL_TRACE_END (MetaWindowCalcShowingSync);
-
-  tmp = copy;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      /* important to set this here for reentrancy -
-       * if we queue a window again while it's in "copy",
-       * then queue_calc_showing will just return since
-       * we are still in the calc_showing queue
-       */
-      window->is_in_queues &= ~META_QUEUE_CALC_SHOWING;
-
-      tmp = tmp->next;
-    }
-
-  if (meta_prefs_get_focus_mode () != G_DESKTOP_FOCUS_MODE_CLICK)
-    {
-      /* When display->mouse_mode is false, we want to ignore
-       * EnterNotify events unless they come from mouse motion.  To do
-       * that, we set a sentinel property on the root window if we're
-       * not in mouse_mode.
-       */
-      tmp = should_show;
-      while (tmp != NULL)
-        {
-          MetaWindow *window = tmp->data;
-          MetaDisplay *display = window->display;
-
-          if (display->x11_display && !display->mouse_mode)
-            meta_x11_display_increment_focus_sentinel (display->x11_display);
-
-          tmp = tmp->next;
-        }
-    }
-
-  g_slist_free (copy);
-
-  g_slist_free (unplaced);
-  g_slist_free (should_show);
-  g_slist_free (should_hide);
-  g_slist_free (displays);
-
-  destroying_windows_disallowed -= 1;
-
-  return FALSE;
-}
-
-#ifdef WITH_VERBOSE_MODE
-static const gchar* meta_window_queue_names[NUMBER_OF_QUEUES] =
-  {"calc_showing", "move_resize", };
-#endif
 
 static void
 meta_window_unqueue (MetaWindow    *window,
-                     MetaQueueType  queuebits)
+                     MetaQueueType  queue_types)
 {
-  int queuenum;
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
-  for (queuenum = 0; queuenum < NUMBER_OF_QUEUES; queuenum++)
-    {
-      if ((queuebits & 1 << queuenum) &&
-          (window->is_in_queues & 1 << queuenum))
-        {
+  queue_types &= priv->queued_types;
 
-          meta_topic (META_DEBUG_WINDOW_STATE,
-                      "Removing %s from the %s queue",
-                      window->desc,
-                      meta_window_queue_names[queuenum]);
+  if (!queue_types)
+    return;
 
-          queue_pending[queuenum] = g_slist_remove (queue_pending[queuenum], window);
-          window->is_in_queues &= ~(1 << queuenum);
-
-          if (queue_pending[queuenum] == NULL && queue_later[queuenum] != 0)
-            {
-              meta_later_remove (queue_later[queuenum]);
-              queue_later[queuenum] = 0;
-            }
-        }
-    }
+  meta_display_unqueue_window (window->display, window, queue_types);
+  priv->queued_types &= ~queue_types;
 }
 
 static void
 meta_window_flush_calc_showing (MetaWindow *window)
 {
-  if (window->is_in_queues & META_QUEUE_CALC_SHOWING)
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  if (priv->queued_types & META_QUEUE_CALC_SHOWING)
     {
       meta_window_unqueue (window, META_QUEUE_CALC_SHOWING);
-      meta_window_calc_showing (window);
+      meta_window_update_visibility (window);
     }
 }
 
 void
 meta_window_queue (MetaWindow   *window,
-                   MetaQueueType queuebits)
+                   MetaQueueType queue_types)
 {
-  unsigned int queuenum;
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
   g_return_if_fail (!window->override_redirect ||
-                    (queuebits & META_QUEUE_MOVE_RESIZE) == 0);
+                    (queue_types & META_QUEUE_MOVE_RESIZE) == 0);
 
-  for (queuenum = 0; queuenum < NUMBER_OF_QUEUES; queuenum++)
-    {
-      if (queuebits & 1 << queuenum)
-        {
-          const MetaLaterType window_queue_later_when[NUMBER_OF_QUEUES] =
-            {
-              META_LATER_CALC_SHOWING,
-              META_LATER_RESIZE,
-            };
+  if (window->unmanaging)
+    return;
 
-          const GSourceFunc window_queue_later_handler[NUMBER_OF_QUEUES] =
-            {
-              idle_calc_showing,
-              idle_move_resize,
-            };
+  queue_types &= ~priv->queued_types;
+  if (!queue_types)
+    return;
 
-          if (window->unmanaging)
-            break;
-
-          if (window->is_in_queues & 1 << queuenum)
-            break;
-
-          meta_topic (META_DEBUG_WINDOW_STATE,
-                      "Putting %s in the %s queue",
-                      window->desc,
-                      meta_window_queue_names[queuenum]);
-
-          window->is_in_queues |= 1 << queuenum;
-
-          if (queue_later[queuenum] == 0)
-            {
-              queue_later[queuenum] =
-                meta_later_add (window_queue_later_when[queuenum],
-                                window_queue_later_handler[queuenum],
-                                GUINT_TO_POINTER (queuenum),
-                                NULL);
-            }
-
-          queue_pending[queuenum] = g_slist_prepend (queue_pending[queuenum],
-                                                     window);
-      }
-  }
+  priv->queued_types |= queue_types;
+  meta_display_queue_window (window->display, window, queue_types);
 }
 
 static gboolean
@@ -4090,7 +3852,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   /* If we did placement, then we need to save the position that the window
-   * was placed at to make sure that meta_window_move_resize_now places the
+   * was placed at to make sure that meta_window_update_layout() places the
    * window correctly.
    */
   if (did_placement)
@@ -4367,54 +4129,14 @@ meta_window_resize_frame_with_gravity (MetaWindow *window,
   meta_window_move_resize_internal (window, flags, gravity, rect);
 }
 
-static void
-meta_window_move_resize_now (MetaWindow  *window)
+void
+meta_window_update_layout (MetaWindow *window)
 {
   meta_window_move_resize_frame (window, FALSE,
                                  window->unconstrained_rect.x,
                                  window->unconstrained_rect.y,
                                  window->unconstrained_rect.width,
                                  window->unconstrained_rect.height);
-}
-
-static gboolean
-idle_move_resize (gpointer data)
-{
-  GSList *tmp;
-  GSList *copy;
-  guint queue_index = GPOINTER_TO_INT (data);
-
-  meta_topic (META_DEBUG_GEOMETRY, "Clearing the move_resize queue");
-
-  /* Work with a copy, for reentrancy. The allowed reentrancy isn't
-   * complete; destroying a window while we're in here would result in
-   * badness. But it's OK to queue/unqueue move_resizes.
-   */
-  copy = g_slist_copy (queue_pending[queue_index]);
-  g_slist_free (queue_pending[queue_index]);
-  queue_pending[queue_index] = NULL;
-  queue_later[queue_index] = 0;
-
-  destroying_windows_disallowed += 1;
-
-  tmp = copy;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      /* As a side effect, sets window->move_resize_queued = FALSE */
-      meta_window_move_resize_now (window);
-
-      tmp = tmp->next;
-    }
-
-  g_slist_free (copy);
-
-  destroying_windows_disallowed -= 1;
-
-  return FALSE;
 }
 
 void

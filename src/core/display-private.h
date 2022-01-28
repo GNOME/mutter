@@ -432,4 +432,12 @@ gboolean meta_display_init_x11_finish (MetaDisplay   *display,
 
 void     meta_display_shutdown_x11 (MetaDisplay  *display);
 
+void meta_display_queue_window (MetaDisplay   *display,
+                                MetaWindow    *window,
+                                MetaQueueType  queue_types);
+
+void meta_display_unqueue_window (MetaDisplay   *display,
+                                  MetaWindow    *window,
+                                  MetaQueueType  queue_types);
+
 #endif

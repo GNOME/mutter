@@ -56,13 +56,7 @@ typedef enum
   META_CLIENT_TYPE_MAX_RECOGNIZED = 2
 } MetaClientType;
 
-typedef enum
-{
-  META_QUEUE_CALC_SHOWING = 1 << 0,
-  META_QUEUE_MOVE_RESIZE  = 1 << 1,
-} MetaQueueType;
-
-#define NUMBER_OF_QUEUES 2
+#define META_N_QUEUE_TYPES 2
 
 typedef enum
 {
@@ -396,9 +390,6 @@ struct _MetaWindow
 
   /* Are we in meta_window_new()? */
   guint constructing : 1;
-
-  /* Are we in the various queues? (Bitfield: see META_WINDOW_IS_IN_QUEUE) */
-  guint is_in_queues : NUMBER_OF_QUEUES;
 
   /* Used by keybindings.c */
   guint keys_grabbed : 1;     /* normal keybindings grabbed */
@@ -914,5 +905,11 @@ gboolean meta_window_unit_cgroup_equal (MetaWindow *window1,
 
 void meta_window_check_alive_on_event (MetaWindow *window,
                                        uint32_t    timestamp);
+
+void meta_window_update_visibility (MetaWindow  *window);
+
+void meta_window_clear_queued (MetaWindow *window);
+
+void meta_window_update_layout (MetaWindow *window);
 
 #endif
