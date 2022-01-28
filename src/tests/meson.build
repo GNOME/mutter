@@ -130,119 +130,64 @@ if have_installed_tests
   )
 endif
 
-unit_tests = executable('mutter-test-unit-tests',
-  sources: [
-    'unit-tests.c',
-    'boxes-tests.c',
-    'boxes-tests.h',
-    'monitor-config-migration-unit-tests.c',
-    'monitor-config-migration-unit-tests.h',
-    'monitor-store-unit-tests.c',
-    'monitor-store-unit-tests.h',
-    'monitor-transform-tests.c',
-    'monitor-transform-tests.h',
-    'orientation-manager-unit-tests.c',
-  ],
-  include_directories: tests_includes,
-  c_args: tests_c_args,
-  dependencies: libmutter_test_dep,
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
+wayland_test_utils = [
+  'meta-wayland-test-driver.c',
+  'meta-wayland-test-driver.h',
+  'meta-wayland-test-utils.c',
+  'meta-wayland-test-utils.h',
+  test_driver_server_header,
+  test_driver_protocol_code,
+]
 
-monitor_unit_tests = executable('mutter-monitor-unit-tests',
-  sources: [
-    'monitor-unit-tests.c',
-  ],
-  include_directories: tests_includes,
-  c_args: tests_c_args,
-  dependencies: libmutter_test_dep,
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
+# The test_cases is a list of dictionaries each one representing one test case.
+# It consists of the following keys:
+#  - 'name' - the test name
+#  - 'suite' - the test suite
+#  - 'sources' - a list of source code files
 
-headless_start_test = executable('mutter-headless-start-test',
-  sources: [
-    'headless-start-test.c',
-  ],
-  include_directories: tests_includes,
-  c_args: tests_c_args,
-  dependencies: libmutter_test_dep,
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
+test_cases = []
+privileged_test_cases = []
 
-stage_view_tests = executable('mutter-stage-view-tests',
-  sources: [
-    'stage-view-tests.c',
-  ],
-  include_directories: tests_includes,
-  c_args: tests_c_args,
-  dependencies: libmutter_test_dep,
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
-
-anonymous_file_test = executable('anonymous-file-tests',
-  sources: [
-    'anonymous-file.c',
-  ],
-  include_directories: tests_includes,
-  c_args: tests_c_args,
-  dependencies: [tests_deps],
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
+test_cases += [
+  {
+    'name': 'unit',
+    'suite': 'unit',
+    'sources': [
+      'unit-tests.c',
+      'boxes-tests.c',
+      'boxes-tests.h',
+      'monitor-config-migration-unit-tests.c',
+      'monitor-config-migration-unit-tests.h',
+      'monitor-store-unit-tests.c',
+      'monitor-store-unit-tests.h',
+      'monitor-transform-tests.c',
+      'monitor-transform-tests.h',
+      'orientation-manager-unit-tests.c',
+    ],
+  },
+  {
+    'name': 'monitor-unit',
+    'suite': 'backend',
+    'sources': [ 'monitor-unit-tests.c', ],
+  },
+  {
+    'name': 'headless-start',
+    'suite': 'backend',
+    'sources': [ 'headless-start-test.c', ],
+  },
+  {
+    'name': 'stage-views',
+    'suite': 'compositor',
+    'sources': [ 'stage-view-tests.c', ],
+  },
+  {
+    'name': 'anonymous-file',
+    'suite': 'unit',
+    'sources': [ 'anonymous-file.c', ],
+  },
+]
 
 if have_native_tests
-  native_kms_utils_tests = executable('mutter-native-kms-utils-tests',
-    sources: [
-      'kms-utils-unit-tests.c',
-    ],
-    include_directories: tests_includepath,
-    c_args: tests_c_args,
-    dependencies: [tests_deps],
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
-
-  native_headless_tests = executable('mutter-native-headless-tests',
-    sources: [
-      'native-headless.c',
-      'native-screen-cast.c',
-      'native-screen-cast.h',
-      'native-virtual-monitor.c',
-      'native-virtual-monitor.h',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
-
-  pointer_constraints_tests = executable('mutter-native-pointer-constraints',
-    sources: [
-      'native-pointer-constraints.c',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
-
-  ref_test_sanity = executable('mutter-ref-test-sanity',
-    sources: [
-      'ref-test-sanity.c',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
-
   screen_cast_client = executable('mutter-screen-cast-client',
     sources: [
       'screen-cast-client.c',
@@ -258,71 +203,97 @@ if have_native_tests
     install_dir: mutter_installed_tests_libexecdir,
   )
 
-  native_persistent_virtual_monitor = executable(
-    'mutter-persistent-virtual-monitor',
-    sources: [
-      'native-persistent-virtual-monitor.c',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
+  # Native backend tests
+  test_cases += [
+    {
+      'name': 'kms-utils',
+      'suite': 'backends/native',
+      'sources': [ 'kms-utils-unit-tests.c', ],
+    },
+    {
+      'name': 'native-unit',
+      'suite': 'backends/native',
+      'sources': [
+        'native-headless.c',
+        'native-screen-cast.c',
+        'native-screen-cast.h',
+        'native-virtual-monitor.c',
+        'native-virtual-monitor.h',
+      ],
+    },
+    {
+      'name': 'pointer-constraints',
+      'suite': 'backends/native',
+      'sources': [ 'native-pointer-constraints.c' ],
+    },
+    {
+      'name': 'ref-test-sanity',
+      'suite': 'backends/native',
+      'sources': [ 'ref-test-sanity.c' ],
+    },
+    {
+      'name': 'persistent-virtual-monitor',
+      'suite': 'backends/native',
+      'sources': [ 'native-persistent-virtual-monitor.c' ],
+    },
+  ]
 
-  wayland_tests = executable('mutter-wayland-tests',
-    sources: [
-      'meta-wayland-test-driver.c',
-      'meta-wayland-test-driver.h',
-      'meta-wayland-test-utils.c',
-      'meta-wayland-test-utils.h',
-      'wayland-unit-tests.c',
-      test_driver_server_header,
-      test_driver_protocol_code,
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
+  # Privileged tests
+  privileged_test_cases += [
+    {
+      'name': 'kms-render',
+      'suite': 'backends/native/kms',
+      'sources': [ 'native-kms-render.c' ],
+    },
+    {
+      'name': 'kms-device',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'meta-kms-test-utils.c',
+        'meta-kms-test-utils.h',
+        'native-kms-device.c',
+      ],
+    },
+    {
+      'name': 'kms-update',
+      'suite': 'backends/native/kms',
+      'sources': [
+        'meta-kms-test-utils.c',
+        'meta-kms-test-utils.h',
+        'native-kms-updates.c',
+      ],
+    },
+  ]
 
-  native_kms_render_tests = executable('mutter-native-kms-render',
-    sources: [
-      'native-kms-render.c',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
+  # Wayland tests
+  test_cases += [
+    {
+      'name': 'wayland-unit',
+      'suite': 'wayland',
+      'sources': [
+        'wayland-unit-tests.c',
+        wayland_test_utils,
+      ],
+    },
+  ]
 
-  native_kms_device_tests = executable('mutter-native-kms-device',
-    sources: [
-      'meta-kms-test-utils.c',
-      'meta-kms-test-utils.h',
-      'native-kms-device.c',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
+  foreach test_case: test_cases
+    test_executable = executable('mutter-' + test_case['name'],
+      sources: test_case['sources'],
+      include_directories: tests_includes,
+      c_args: tests_c_args,
+      dependencies: libmutter_test_dep,
+      install: have_installed_tests,
+      install_dir: mutter_installed_tests_libexecdir,
+    )
 
-  native_kms_update_tests = executable('mutter-native-kms-update-tests',
-    sources: [
-      'meta-kms-test-utils.c',
-      'meta-kms-test-utils.h',
-      'native-kms-updates.c',
-    ],
-    include_directories: tests_includes,
-    c_args: tests_c_args,
-    dependencies: libmutter_test_dep,
-    install: have_installed_tests,
-    install_dir: mutter_installed_tests_libexecdir,
-  )
+    test(test_case['name'], test_executable,
+      suite: ['core', 'mutter/' + test_case['suite']],
+      env: test_env,
+      is_parallel: false,
+      timeout: 60,
+    )
+  endforeach
 endif
 
 stacking_tests = [
@@ -367,103 +338,34 @@ foreach stacking_test: stacking_tests
   )
 endforeach
 
-test('normal', unit_tests,
-  suite: ['core', 'mutter/unit'],
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
-test('monitors', monitor_unit_tests,
-  suite: ['core', 'mutter/unit'],
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
-test('headless-start', headless_start_test,
-  suite: ['core', 'mutter/unit'],
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
-test('stage-view', stage_view_tests,
-  suite: ['core', 'mutter/unit'],
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
-test('anonymous-file', anonymous_file_test,
-  suite: ['core', 'mutter/unit'],
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
-if have_native_tests
-  test('native-kms-utils', native_kms_utils_tests,
-    suite: ['core', 'mutter/native/kms'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
-
-  test('native-headless', native_headless_tests,
-    suite: ['core', 'mutter/native/headless'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
-
-  test('native-pointer-constraints', pointer_constraints_tests,
-    suite: ['core', 'mutter/native/input'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
-
-  test('ref-test-sanity', ref_test_sanity,
-    suite: ['core', 'mutter/ref-test/sanity'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
-
-  test('native-persistent-virtual-monitor', native_persistent_virtual_monitor,
-    suite: ['core', 'mutter/native/persistent-virtual-monitor'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
-
-  test('wayland', wayland_tests,
-    suite: ['core', 'mutter/unit'],
-    env: test_env,
-    is_parallel: false,
-    timeout: 60,
-  )
-endif
-
 if have_kvm_tests or have_tty_tests
-  privileged_tests = [
-    [ 'kms-render', native_kms_render_tests ],
-    [ 'kms-device', native_kms_device_tests ],
-    [ 'kms-update', native_kms_update_tests ],
-  ]
+  privileged_tests = []
+  foreach test_case: privileged_test_cases
+    test_executable = executable('mutter-' + test_case['name'],
+      sources: test_case['sources'],
+      include_directories: tests_includes,
+      c_args: tests_c_args,
+      dependencies: libmutter_test_dep,
+      install: have_installed_tests,
+      install_dir: mutter_installed_tests_libexecdir,
+    )
+    privileged_tests += [
+      {
+        'name': test_case['name'],
+        'suite': test_case['suite'],
+        'executable': test_executable,
+      },
+    ]
+  endforeach
 
   if have_kvm_tests
     subdir('kvm')
   endif
 
   if have_tty_tests
-    foreach test: privileged_tests
-      test_name = test[0]
-      test_executable = test[1]
-
-      test('native-' + test_name, test_executable,
-        suite: ['core', 'mutter/native/tty'],
+    foreach test_case: privileged_tests
+      test('tty-' + test_case['name'], test_case['executable'],
+        suite: ['core', 'mutter/tty', 'mutter/tty/' + test_case['suite']],
         env: test_env,
         is_parallel: false,
         timeout: 60,

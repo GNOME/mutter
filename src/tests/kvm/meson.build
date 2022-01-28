@@ -27,12 +27,9 @@ endif
 
 virtme_run = find_program('virtme-run.sh')
 
-foreach test: privileged_tests
-  test_name = test[0]
-  test_executable = test[1]
-
-  test('kvm-' + test_name, virtme_run,
-    suite: ['core', 'mutter/native/kvm'],
+foreach test_case: privileged_tests
+  test('kvm-' + test_case['name'], virtme_run,
+    suite: ['core', 'mutter/kvm', 'mutter/kvm/' + test_case['suite']],
     depends: [
       kernel_image_target,
     ],
@@ -41,7 +38,7 @@ foreach test: privileged_tests
       kernel_image_path,
       meta_dbus_runner.full_path(),
       '--kvm',
-      test_executable.full_path(),
+      test_case['executable'].full_path(),
       meson.current_build_dir(),
     ]
   )
