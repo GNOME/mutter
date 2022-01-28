@@ -209,6 +209,7 @@ meta_compositor_x11_unmanage (MetaCompositor *compositor)
   MetaX11Display *x11_display = display->x11_display;
   Display *xdisplay = x11_display->xdisplay;
   Window xroot = x11_display->xroot;
+  MetaCompositorClass *parent_class;
 
   /*
    * This is the most important part of cleanup - we have to do this before
@@ -216,6 +217,9 @@ meta_compositor_x11_unmanage (MetaCompositor *compositor)
    * able to redirect subwindows
    */
   XCompositeUnredirectSubwindows (xdisplay, xroot, CompositeRedirectManual);
+
+  parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
+  parent_class->unmanage (compositor);
 }
 
 /*

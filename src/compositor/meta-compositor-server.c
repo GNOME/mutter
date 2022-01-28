@@ -33,11 +33,6 @@ meta_compositor_server_manage (MetaCompositor  *compositor,
   return TRUE;
 }
 
-static void
-meta_compositor_server_unmanage (MetaCompositor *compositor)
-{
-}
-
 static int64_t
 meta_compositor_server_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
                                                            int64_t         monotonic_time_us)
@@ -92,7 +87,6 @@ meta_compositor_server_class_init (MetaCompositorServerClass *klass)
   MetaCompositorClass *compositor_class = META_COMPOSITOR_CLASS (klass);
 
   compositor_class->manage = meta_compositor_server_manage;
-  compositor_class->unmanage = meta_compositor_server_unmanage;
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_server_monotonic_to_high_res_xserver_time;
   compositor_class->grab_begin = meta_compositor_server_grab_begin;

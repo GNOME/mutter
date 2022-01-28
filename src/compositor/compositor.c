@@ -450,6 +450,20 @@ meta_compositor_manage (MetaCompositor *compositor)
     g_error ("Compositor failed to manage display: %s", error->message);
 }
 
+static void
+meta_compositor_real_unmanage (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  g_clear_signal_handler (&priv->top_window_actor_destroy_id,
+                          priv->top_window_actor);
+
+  g_clear_pointer (&priv->window_group, clutter_actor_destroy);
+  g_clear_pointer (&priv->top_window_group, clutter_actor_destroy);
+  g_clear_pointer (&priv->feedback_group, clutter_actor_destroy);
+}
+
 void
 meta_compositor_unmanage (MetaCompositor *compositor)
 {
@@ -1118,12 +1132,6 @@ meta_compositor_dispose (GObject *object)
   g_clear_signal_handler (&priv->before_paint_handler_id, stage);
   g_clear_signal_handler (&priv->after_paint_handler_id, stage);
 
-  g_clear_signal_handler (&priv->top_window_actor_destroy_id,
-                          priv->top_window_actor);
-
-  g_clear_pointer (&priv->window_group, clutter_actor_destroy);
-  g_clear_pointer (&priv->top_window_group, clutter_actor_destroy);
-  g_clear_pointer (&priv->feedback_group, clutter_actor_destroy);
   g_clear_pointer (&priv->windows, g_list_free);
 
   G_OBJECT_CLASS (meta_compositor_parent_class)->dispose (object);
@@ -1139,6 +1147,7 @@ meta_compositor_class_init (MetaCompositorClass *klass)
   object_class->constructed = meta_compositor_constructed;
   object_class->dispose = meta_compositor_dispose;
 
+  klass->unmanage = meta_compositor_real_unmanage;
   klass->remove_window = meta_compositor_real_remove_window;
   klass->before_paint = meta_compositor_real_before_paint;
   klass->after_paint = meta_compositor_real_after_paint;
