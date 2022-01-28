@@ -23,14 +23,15 @@
 #include "meta-test/meta-context-test.h"
 #include "meta/meta-window-actor.h"
 #include "tests/meta-backend-test.h"
+#include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-test-utils.h"
-#include "tests/monitor-test-utils.h"
 #include "x11/meta-x11-display-private.h"
 
 #define X11_TEST_CLIENT_NAME "x11_test_client"
 #define X11_TEST_CLIENT_WINDOW "window1"
 
 static MetaContext *test_context;
+static MetaBackend *test_backend;
 
 static MonitorTestCaseSetup initial_test_case_setup = {
   .modes = {
@@ -480,10 +481,11 @@ meta_test_actor_stage_views_hide_parent (void)
 }
 
 static MetaMonitorTestSetup *
-create_stage_view_test_setup (void)
+create_stage_view_test_setup (MetaBackend *backend)
 {
-  return create_monitor_test_setup (&initial_test_case_setup,
-                                    MONITOR_TEST_FLAG_NO_STORED);
+  return meta_create_monitor_test_setup (backend,
+                                         &initial_test_case_setup,
+                                         MONITOR_TEST_FLAG_NO_STORED);
 }
 
 static void
@@ -546,8 +548,9 @@ meta_test_actor_stage_views_hot_plug (void)
   prev_stage_views = g_list_copy_deep (stage_views,
                                        (GCopyFunc) g_object_ref, NULL);
 
-  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &hotplug_test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
@@ -596,8 +599,9 @@ meta_test_actor_stage_views_frame_clock (void)
   frame_clock_test_setup.n_modes = 2;
   frame_clock_test_setup.outputs[1].modes[0] = 1;
   frame_clock_test_setup.outputs[1].preferred_mode = 1;
-  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frame_clock_test_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
@@ -740,8 +744,9 @@ meta_test_actor_stage_views_timeline (void)
   frame_clock_test_setup.n_modes = 2;
   frame_clock_test_setup.outputs[1].modes[0] = 1;
   frame_clock_test_setup.outputs[1].preferred_mode = 1;
-  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frame_clock_test_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
@@ -819,8 +824,9 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
   frame_clock_test_setup = initial_test_case_setup;
   frame_clock_test_setup.n_outputs = 1;
   frame_clock_test_setup.n_crtcs = 1;
-  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frame_clock_test_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
@@ -856,8 +862,9 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
   old_frame_clock =
     g_object_ref (clutter_stage_view_get_frame_clock (old_stage_view));
 
-  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frame_clock_test_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
   wait_for_paint (stage);
 
@@ -900,8 +907,9 @@ meta_test_actor_stage_views_parent_views_changed (void)
   stage = meta_backend_get_stage (backend);
 
   frame_clock_test_setup = initial_test_case_setup;
-  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frame_clock_test_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
@@ -1043,8 +1051,9 @@ meta_test_actor_stage_views_and_frame_clocks_freed (void)
   frame_clock_test_setup = initial_test_case_setup;
   frame_clock_test_setup.n_outputs = 0;
   frame_clock_test_setup.n_crtcs = 0;
-  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &frame_clock_test_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
@@ -1075,8 +1084,9 @@ ensure_view_count (int n_views)
   test_case_setup = initial_test_case_setup;
   test_case_setup.n_outputs = n_views;
   test_case_setup.n_crtcs = n_views;
-  test_setup = create_monitor_test_setup (&test_case_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
@@ -1148,8 +1158,9 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
   /* Make sure we have a single output. */
   hotplug_test_case_setup.n_outputs = 1;
   hotplug_test_case_setup.n_crtcs = 1;
-  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &hotplug_test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
   wait_for_paint (stage);
   g_assert_cmpint (g_list_length (clutter_actor_peek_stage_views (stage)),
@@ -1171,8 +1182,9 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
   meta_window_actor_queue_frame_drawn (META_WINDOW_ACTOR (window_actor), TRUE);
 
   /* Hotplug to rebuild the views, will clear the window actor view list. */
-  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &hotplug_test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
   g_assert_null (clutter_actor_peek_stage_views (window_actor));
 
@@ -1183,8 +1195,9 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
 
   /* Hotplug again to re-rebuild the views, will again clear the window actor
    * view list, which will be a no-op. */
-  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &hotplug_test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
   /* Make sure we're not using some old frame clock when queuing another
@@ -1307,9 +1320,15 @@ meta_test_timeline_actor_tree_clear (void)
 }
 
 static void
+on_before_tests (MetaContext *context)
+{
+  test_backend = meta_context_get_backend (context);
+}
+
+static void
 init_tests (void)
 {
-  meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
+  meta_init_monitor_test_setup (create_stage_view_test_setup);
 
   g_test_add_func ("/stage-view/stage-views-exist",
                    meta_test_stage_views_exist);
@@ -1356,6 +1375,8 @@ main (int argc, char *argv[])
 
   init_tests ();
 
+  g_signal_connect (context, "before-tests",
+                    G_CALLBACK (on_before_tests), NULL);
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);
 }

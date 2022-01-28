@@ -22,8 +22,8 @@
 
 #include "orientation-manager-unit-tests.h"
 
+#include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-sensors-proxy-mock.h"
-#include "tests/monitor-test-utils.h"
 
 static void
 meta_test_orientation_manager_no_daemon (void)

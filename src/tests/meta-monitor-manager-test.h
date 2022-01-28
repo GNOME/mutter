@@ -44,7 +44,7 @@ struct _MetaOutputTest
   float scale;
 };
 
-typedef MetaMonitorTestSetup * (* CreateTestSetupFunc) (void);
+typedef MetaMonitorTestSetup * (* MetaCreateTestSetupFunc) (MetaBackend *backend);
 
 #define META_TYPE_CRTC_TEST (meta_crtc_test_get_type ())
 META_EXPORT
@@ -64,7 +64,7 @@ G_DECLARE_FINAL_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
                       META, MONITOR_MANAGER_TEST, MetaMonitorManager)
 
 META_EXPORT
-void meta_monitor_manager_test_init_test_setup (CreateTestSetupFunc func);
+void meta_init_monitor_test_setup (MetaCreateTestSetupFunc func);
 
 META_EXPORT
 void meta_monitor_manager_test_read_current (MetaMonitorManager *manager);

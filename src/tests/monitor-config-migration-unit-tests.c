@@ -29,7 +29,7 @@
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-monitor-config-migration.h"
-#include "tests/monitor-test-utils.h"
+#include "tests/meta-monitor-test-utils.h"
 
 static void
 test_migration (const char *old_config,
@@ -70,8 +70,8 @@ test_migration (const char *old_config,
   expected_path = g_test_get_filename (G_TEST_DIST, "tests", "migration",
                                        new_config, NULL);
 
-  expected_data = read_file (expected_path);
-  migrated_data = read_file (migrated_path);
+  expected_data = meta_read_file (expected_path);
+  migrated_data = meta_read_file (migrated_path);
 
   g_assert_nonnull (expected_data);
   g_assert_nonnull (migrated_data);

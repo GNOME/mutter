@@ -197,27 +197,43 @@ typedef struct _MonitorTestCase
   MonitorTestCaseExpect expect;
 } MonitorTestCase;
 
-MetaGpu * test_get_gpu (void);
+META_EXPORT
+MetaGpu * meta_test_get_gpu (MetaBackend *backend);
 
-void set_custom_monitor_config (const char *filename);
+META_EXPORT
+void meta_set_custom_monitor_config (MetaContext *context,
+                                     const char  *filename);
 
-void set_custom_monitor_system_config (const char *filename);
+META_EXPORT
+void meta_set_custom_monitor_system_config (MetaContext *context,
+                                            const char  *filename);
 
-char * read_file (const char *file_path);
+META_EXPORT
+char * meta_read_file (const char *file_path);
 
-void check_monitor_configuration (MonitorTestCaseExpect *expect);
-void check_monitor_scales (MonitorTestCaseExpect       *expect,
-                           MetaMonitorScalesConstraint  scales_constraints);
+META_EXPORT
+void meta_check_monitor_configuration (MetaContext           *context,
+                                       MonitorTestCaseExpect *expect);
 
-MetaMonitorTestSetup * create_monitor_test_setup (MonitorTestCaseSetup *setup,
-                                                  MonitorTestFlag       flags);
+META_EXPORT
+void meta_check_monitor_scales (MetaContext                 *context,
+                                MonitorTestCaseExpect       *expect,
+                                MetaMonitorScalesConstraint  scales_constraints);
 
+META_EXPORT
+MetaMonitorTestSetup * meta_create_monitor_test_setup (MetaBackend          *backend,
+                                                       MonitorTestCaseSetup *setup,
+                                                       MonitorTestFlag       flags);
+
+META_EXPORT
 const char * meta_orientation_to_string (MetaOrientation orientation);
 
+META_EXPORT
 void meta_wait_for_orientation (MetaOrientationManager *orientation_manager,
                                 MetaOrientation         orientation,
                                 unsigned int           *times_signalled_out);
 
+META_EXPORT
 void meta_wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
                                                 unsigned int           *times_signalled_out);
 

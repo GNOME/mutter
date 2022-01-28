@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "tests/monitor-test-utils.h"
+#include "tests/meta-monitor-test-utils.h"
 
 #include <float.h>
 
@@ -33,33 +33,31 @@
 #include "meta-backend-test.h"
 
 MetaGpu *
-test_get_gpu (void)
+meta_test_get_gpu (MetaBackend *backend)
 {
-  return META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);
-}
-
-static void
-set_custom_monitor_config_common (const char             *filename,
-                                  MetaMonitorsConfigFlag  configs_flags)
-{
-  meta_set_custom_monitor_config (meta_get_backend (), filename, configs_flags);
+  return META_GPU (meta_backend_get_gpus (backend)->data);
 }
 
 void
-set_custom_monitor_config (const char *filename)
+meta_set_custom_monitor_config (MetaContext *context,
+                                const char  *filename)
 {
-  set_custom_monitor_config_common (filename, META_MONITORS_CONFIG_FLAG_NONE);
+  meta_set_custom_monitor_config_full (meta_context_get_backend (context),
+                                       filename,
+                                       META_MONITORS_CONFIG_FLAG_NONE);
 }
 
 void
-set_custom_monitor_system_config (const char *filename)
+meta_set_custom_monitor_system_config (MetaContext *context,
+                                       const char  *filename)
 {
-  set_custom_monitor_config_common (filename,
-                                    META_MONITORS_CONFIG_FLAG_SYSTEM_CONFIG);
+  meta_set_custom_monitor_config_full (meta_context_get_backend (context),
+                                       filename,
+                                       META_MONITORS_CONFIG_FLAG_SYSTEM_CONFIG);
 }
 
 char *
-read_file (const char *file_path)
+meta_read_file (const char *file_path)
 {
   g_autoptr (GFile) file = NULL;
   g_autoptr (GFileInputStream) input_stream = NULL;
@@ -322,9 +320,10 @@ check_logical_monitor (MetaMonitorManager             *monitor_manager,
 }
 
 void
-check_monitor_configuration (MonitorTestCaseExpect *expect)
+meta_check_monitor_configuration (MetaContext           *context,
+                                  MonitorTestCaseExpect *expect)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -621,8 +620,9 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
 }
 
 MetaMonitorTestSetup *
-create_monitor_test_setup (MonitorTestCaseSetup *setup,
-                           MonitorTestFlag       flags)
+meta_create_monitor_test_setup (MetaBackend          *backend,
+                                MonitorTestCaseSetup *setup,
+                                MonitorTestFlag       flags)
 {
   MetaMonitorTestSetup *test_setup;
   int i;
@@ -658,7 +658,7 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
 
       crtc = g_object_new (META_TYPE_CRTC_TEST,
                            "id", (uint64_t) i + 1,
-                           "gpu", test_get_gpu (),
+                           "gpu", meta_test_get_gpu (backend),
                            NULL);
 
       test_setup->crtcs = g_list_append (test_setup->crtcs, crtc);
@@ -765,7 +765,7 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
 
       output = g_object_new (META_TYPE_OUTPUT_TEST,
                              "id", (uint64_t) i,
-                             "gpu", test_get_gpu (),
+                             "gpu", meta_test_get_gpu (backend),
                              "info", output_info,
                              NULL);
 
@@ -828,12 +828,13 @@ check_expected_scales (MetaMonitor                 *monitor,
     }
 }
 
-void check_monitor_scales (MonitorTestCaseExpect       *expect,
+void
+meta_check_monitor_scales (MetaContext                 *context,
+                           MonitorTestCaseExpect       *expect,
                            MetaMonitorScalesConstraint  scales_constraints)
 {
-  MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
+    meta_backend_get_monitor_manager (meta_context_get_backend (context));
 
   GList *monitors;
   GList *l;

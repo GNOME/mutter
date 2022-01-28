@@ -6,14 +6,14 @@ mutter_test_sources = [
   'meta-gpu-test.h',
   'meta-monitor-manager-test.c',
   'meta-monitor-manager-test.h',
+  'meta-monitor-test-utils.c',
+  'meta-monitor-test-utils.h',
   'meta-ref-test.c',
   'meta-ref-test.h',
   'meta-sensors-proxy-mock.c',
   'meta-sensors-proxy-mock.h',
   'meta-test-utils.c',
   'meta-test-utils.h',
-  'monitor-test-utils.c',
-  'monitor-test-utils.h',
 ]
 
 libmutter_test_name = 'mutter-test-' + libmutter_api_version
@@ -139,8 +139,6 @@ unit_tests = executable('mutter-test-unit-tests',
     'monitor-config-migration-unit-tests.h',
     'monitor-store-unit-tests.c',
     'monitor-store-unit-tests.h',
-    'monitor-test-utils.c',
-    'monitor-test-utils.h',
     'monitor-transform-tests.c',
     'monitor-transform-tests.h',
     'orientation-manager-unit-tests.c',
@@ -154,8 +152,6 @@ unit_tests = executable('mutter-test-unit-tests',
 
 monitor_unit_tests = executable('mutter-monitor-unit-tests',
   sources: [
-    'monitor-test-utils.c',
-    'monitor-test-utils.h',
     'monitor-unit-tests.c',
   ],
   include_directories: tests_includes,
@@ -178,8 +174,6 @@ headless_start_test = executable('mutter-headless-start-test',
 
 stage_view_tests = executable('mutter-stage-view-tests',
   sources: [
-    'monitor-test-utils.c',
-    'monitor-test-utils.h',
     'stage-view-tests.c',
   ],
   include_directories: tests_includes,

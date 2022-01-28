@@ -66,8 +66,8 @@ meta_test_warp_on_hotplug (void)
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
 
-  meta_set_custom_monitor_config (backend, "pointer-constraint.xml",
-                                  META_MONITORS_CONFIG_FLAG_NONE);
+  meta_set_custom_monitor_config_full (backend, "pointer-constraint.xml",
+                                       META_MONITORS_CONFIG_FLAG_NONE);
 
   monitor_info1 = meta_virtual_monitor_info_new (100, 100, 60.0,
                                                  "MetaTestVendor",

@@ -27,7 +27,7 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
 #include "tests/meta-backend-test.h"
-#include "tests/monitor-test-utils.h"
+#include "tests/meta-monitor-test-utils.h"
 
 G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC)
 G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT)
@@ -46,10 +46,49 @@ struct _MetaMonitorManagerTest
 G_DEFINE_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
                META_TYPE_MONITOR_MANAGER)
 
-static CreateTestSetupFunc initial_setup_func;
+static MetaCreateTestSetupFunc initial_setup_func;
+
+static MonitorTestCaseSetup default_test_case_setup = {
+  .modes = {
+    {
+      .width = 800,
+      .height = 600,
+      .refresh_rate = 60.0
+    }
+  },
+  .n_modes = 1,
+  .outputs = {
+     {
+      .crtc = 0,
+      .modes = { 0 },
+      .n_modes = 1,
+      .preferred_mode = 0,
+      .possible_crtcs = { 0 },
+      .n_possible_crtcs = 1,
+      .width_mm = 222,
+      .height_mm = 125
+    },
+
+  },
+  .n_outputs = 1,
+  .crtcs = {
+    {
+      .current_mode = 0
+    },
+  },
+  .n_crtcs = 1,
+};
+
+static MetaMonitorTestSetup *
+create_default_test_setup (MetaBackend *backend)
+{
+  return meta_create_monitor_test_setup (backend,
+                                         &default_test_case_setup,
+                                         MONITOR_TEST_FLAG_NO_STORED);
+}
 
 void
-meta_monitor_manager_test_init_test_setup (CreateTestSetupFunc func)
+meta_init_monitor_test_setup (MetaCreateTestSetupFunc func)
 {
   initial_setup_func = func;
 }
@@ -382,6 +421,21 @@ meta_monitor_manager_test_get_default_layout_mode (MetaMonitorManager *manager)
 }
 
 static void
+meta_monitor_manager_test_constructed (GObject *object)
+{
+  MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (object);
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_test);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+
+  if (initial_setup_func)
+    manager_test->test_setup = initial_setup_func (backend);
+  else
+    manager_test->test_setup = create_default_test_setup (backend);
+
+  G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->constructed (object);
+}
+
+static void
 meta_monitor_manager_test_dispose (GObject *object)
 {
   MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (object);
@@ -389,57 +443,6 @@ meta_monitor_manager_test_dispose (GObject *object)
   g_clear_pointer (&manager_test->test_setup, g_free);
 
   G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->dispose (object);
-}
-
-static MonitorTestCaseSetup default_test_case_setup = {
-  .modes = {
-    {
-      .width = 800,
-      .height = 600,
-      .refresh_rate = 60.0
-    }
-  },
-  .n_modes = 1,
-  .outputs = {
-     {
-      .crtc = 0,
-      .modes = { 0 },
-      .n_modes = 1,
-      .preferred_mode = 0,
-      .possible_crtcs = { 0 },
-      .n_possible_crtcs = 1,
-      .width_mm = 222,
-      .height_mm = 125
-    },
-
-  },
-  .n_outputs = 1,
-  .crtcs = {
-    {
-      .current_mode = 0
-    },
-  },
-  .n_crtcs = 1,
-};
-
-static MetaMonitorTestSetup *
-create_default_test_setup (void)
-{
-  return create_monitor_test_setup (&default_test_case_setup,
-                                    MONITOR_TEST_FLAG_NO_STORED);
-}
-
-static void
-meta_monitor_manager_test_constructed (GObject *object)
-{
-  MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (object);
-
-  if (initial_setup_func)
-    manager_test->test_setup = initial_setup_func ();
-  else
-    manager_test->test_setup = create_default_test_setup ();
-
-  G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->constructed (object);
 }
 
 static void
@@ -454,8 +457,8 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
 
-  object_class->dispose = meta_monitor_manager_test_dispose;
   object_class->constructed = meta_monitor_manager_test_constructed;
+  object_class->dispose = meta_monitor_manager_test_dispose;
 
   manager_class->ensure_initial_config = meta_monitor_manager_test_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_test_apply_monitors_config;

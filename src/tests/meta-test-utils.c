@@ -596,9 +596,9 @@ meta_test_get_plugin_name (void)
 }
 
 void
-meta_set_custom_monitor_config (MetaBackend            *backend,
-                                const char             *filename,
-                                MetaMonitorsConfigFlag  configs_flags)
+meta_set_custom_monitor_config_full (MetaBackend            *backend,
+                                     const char             *filename,
+                                     MetaMonitorsConfigFlag  configs_flags)
 {
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);

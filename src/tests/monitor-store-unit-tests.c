@@ -25,7 +25,7 @@
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "tests/monitor-test-utils.h"
+#include "tests/meta-monitor-test-utils.h"
 #include "tests/unit-tests.h"
 
 #define MAX_N_MONITORS 10
@@ -258,7 +258,7 @@ meta_test_monitor_store_single (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("single.xml");
+  meta_set_custom_monitor_config (test_context, "single.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -327,7 +327,7 @@ meta_test_monitor_store_vertical (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("vertical.xml");
+  meta_set_custom_monitor_config (test_context, "vertical.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -396,7 +396,7 @@ meta_test_monitor_store_primary (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("primary.xml");
+  meta_set_custom_monitor_config (test_context, "primary.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -441,7 +441,7 @@ meta_test_monitor_store_underscanning (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("underscanning.xml");
+  meta_set_custom_monitor_config (test_context, "underscanning.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -491,7 +491,7 @@ meta_test_monitor_store_scale (void)
       return;
     }
 
-  set_custom_monitor_config ("scale.xml");
+  meta_set_custom_monitor_config (test_context, "scale.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -541,7 +541,7 @@ meta_test_monitor_store_fractional_scale (void)
       return;
     }
 
-  set_custom_monitor_config ("fractional-scale.xml");
+  meta_set_custom_monitor_config (test_context, "fractional-scale.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -591,7 +591,7 @@ meta_test_monitor_store_high_precision_fractional_scale (void)
       return;
     }
 
-  set_custom_monitor_config ("high-precision-fractional-scale.xml");
+  meta_set_custom_monitor_config (test_context, "high-precision-fractional-scale.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -645,7 +645,7 @@ meta_test_monitor_store_mirrored (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("mirrored.xml");
+  meta_set_custom_monitor_config (test_context, "mirrored.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -716,7 +716,7 @@ meta_test_monitor_store_first_rotated (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("first-rotated.xml");
+  meta_set_custom_monitor_config (test_context, "first-rotated.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -787,7 +787,7 @@ meta_test_monitor_store_second_rotated (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("second-rotated.xml");
+  meta_set_custom_monitor_config (test_context, "second-rotated.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -832,7 +832,7 @@ meta_test_monitor_store_interlaced (void)
     .n_configurations = 1
   };
 
-  set_custom_monitor_config ("interlaced.xml");
+  meta_set_custom_monitor_config (test_context, "interlaced.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -885,7 +885,7 @@ meta_test_monitor_store_unknown_elements (void)
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "Unknown element <unknownunderlogicalmonitor> "
                          "under <logicalmonitor>, ignoring");
-  set_custom_monitor_config ("unknown-elements.xml");
+  meta_set_custom_monitor_config (test_context, "unknown-elements.xml");
   g_test_assert_expected_messages ();
 
   check_monitor_store_configurations (&expect);
@@ -897,7 +897,7 @@ meta_test_monitor_store_policy_not_allowed (void)
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "*Policy can only be defined in system level "
                          "configurations*");
-  set_custom_monitor_config ("policy.xml");
+  meta_set_custom_monitor_config (test_context, "policy.xml");
   g_test_assert_expected_messages ();
 }
 
@@ -912,7 +912,7 @@ meta_test_monitor_store_policy (void)
     meta_monitor_config_manager_get_store (config_manager);
   GList *stores_policy;
 
-  set_custom_monitor_system_config ("policy.xml");
+  meta_set_custom_monitor_system_config (test_context, "policy.xml");
   stores_policy = meta_monitor_config_store_get_stores_policy (config_store);
   g_assert_cmpuint (g_list_length (stores_policy), ==, 1);
   g_assert_cmpint (GPOINTER_TO_INT (stores_policy->data),
@@ -925,7 +925,7 @@ meta_test_monitor_store_policy_empty (void)
 {
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "*Invalid store*");
-  set_custom_monitor_system_config ("policy-empty.xml");
+  meta_set_custom_monitor_system_config (test_context, "policy-empty.xml");
   g_test_assert_expected_messages ();
 }
 
@@ -934,7 +934,7 @@ meta_test_monitor_store_policy_duplicate (void)
 {
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "*Multiple identical stores*");
-  set_custom_monitor_system_config ("policy-duplicate.xml");
+  meta_set_custom_monitor_system_config (test_context, "policy-duplicate.xml");
   g_test_assert_expected_messages ();
 }
 
@@ -943,7 +943,7 @@ meta_test_monitor_store_policy_invalid (void)
 {
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "*Invalid store*");
-  set_custom_monitor_system_config ("policy-invalid.xml");
+  meta_set_custom_monitor_system_config (test_context, "policy-invalid.xml");
   g_test_assert_expected_messages ();
 }
 
@@ -952,7 +952,7 @@ meta_test_monitor_store_policy_multiple (void)
 {
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "*Multiple stores elements under policy*");
-  set_custom_monitor_system_config ("policy-multiple.xml");
+  meta_set_custom_monitor_system_config (test_context, "policy-multiple.xml");
   g_test_assert_expected_messages ();
 }
 
@@ -972,7 +972,7 @@ meta_test_monitor_store_policy_dbus (void)
   g_assert_nonnull (policy);
   g_assert_cmpint (policy->enable_dbus, ==, TRUE);
 
-  set_custom_monitor_system_config ("policy-dbus.xml");
+  meta_set_custom_monitor_system_config (test_context, "policy-dbus.xml");
 
   policy = meta_monitor_config_store_get_policy (config_store);
   g_assert_nonnull (policy);
@@ -993,7 +993,8 @@ meta_test_monitor_store_policy_dbus_invalid (void)
 
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "*Multiple dbus elements under policy*");
-  set_custom_monitor_system_config ("policy-dbus-invalid.xml");
+  meta_set_custom_monitor_system_config (test_context,
+                                         "policy-dbus-invalid.xml");
   g_test_assert_expected_messages ();
 
   policy = meta_monitor_config_store_get_policy (config_store);

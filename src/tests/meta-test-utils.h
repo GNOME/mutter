@@ -114,9 +114,9 @@ META_EXPORT
 const char * meta_test_get_plugin_name (void);
 
 META_EXPORT
-void meta_set_custom_monitor_config (MetaBackend            *backend,
-                                     const char             *filename,
-                                     MetaMonitorsConfigFlag  configs_flags);
+void meta_set_custom_monitor_config_full (MetaBackend            *backend,
+                                          const char             *filename,
+                                          MetaMonitorsConfigFlag  configs_flags);
 
 META_EXPORT
 void meta_wait_for_paint (MetaContext *context);
