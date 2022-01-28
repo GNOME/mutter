@@ -8,10 +8,10 @@ mutter_test_sources = [
   'meta-monitor-manager-test.h',
   'meta-sensors-proxy-mock.c',
   'meta-sensors-proxy-mock.h',
-  'monitor-test-utils.c',
-  'monitor-test-utils.h',
   'meta-test-utils.c',
   'meta-test-utils.h',
+  'monitor-test-utils.c',
+  'monitor-test-utils.h',
 ]
 
 libmutter_test_name = 'mutter-test-' + libmutter_api_version
