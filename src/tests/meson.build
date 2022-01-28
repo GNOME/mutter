@@ -6,6 +6,8 @@ mutter_test_sources = [
   'meta-gpu-test.h',
   'meta-monitor-manager-test.c',
   'meta-monitor-manager-test.h',
+  'meta-ref-test.c',
+  'meta-ref-test.h',
   'meta-sensors-proxy-mock.c',
   'meta-sensors-proxy-mock.h',
   'meta-test-utils.c',
@@ -200,11 +202,6 @@ anonymous_file_test = executable('anonymous-file-tests',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
-ref_test_sources = [
-  'meta-ref-test.c',
-  'meta-ref-test.h',
-]
-
 if have_native_tests
   native_kms_utils_tests = executable('mutter-native-kms-utils-tests',
     sources: [
@@ -224,7 +221,6 @@ if have_native_tests
       'native-screen-cast.h',
       'native-virtual-monitor.c',
       'native-virtual-monitor.h',
-      ref_test_sources,
     ],
     include_directories: tests_includes,
     c_args: tests_c_args,
@@ -247,7 +243,6 @@ if have_native_tests
   ref_test_sanity = executable('mutter-ref-test-sanity',
     sources: [
       'ref-test-sanity.c',
-      ref_test_sources,
     ],
     include_directories: tests_includes,
     c_args: tests_c_args,
