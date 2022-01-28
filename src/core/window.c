@@ -2044,7 +2044,6 @@ meta_window_queue (MetaWindow   *window,
 {
   unsigned int queuenum;
 
-  /* Easier to debug by checking here rather than in the idle */
   g_return_if_fail (!window->override_redirect ||
                     (queuebits & META_QUEUE_MOVE_RESIZE) == 0);
 
@@ -2052,11 +2051,6 @@ meta_window_queue (MetaWindow   *window,
     {
       if (queuebits & 1 << queuenum)
         {
-          /* Data which varies between queues.
-           * Yes, these do look a lot like associative arrays:
-           * I seem to be turning into a Perl programmer.
-           */
-
           const MetaLaterType window_queue_later_when[NUMBER_OF_QUEUES] =
             {
               META_LATER_CALC_SHOWING, /* CALC_SHOWING */
@@ -2071,15 +2065,9 @@ meta_window_queue (MetaWindow   *window,
               idle_update_icon,
             };
 
-          /* If we're about to drop the window, there's no point in putting
-           * it on a queue.
-           */
           if (window->unmanaging)
             break;
 
-          /* If the window already claims to be in that queue, there's no
-           * point putting it in the queue.
-           */
           if (window->is_in_queues & 1 << queuenum)
             break;
 
@@ -2088,14 +2076,7 @@ meta_window_queue (MetaWindow   *window,
                       window->desc,
                       meta_window_queue_names[queuenum]);
 
-          /* So, mark it as being in this queue. */
           window->is_in_queues |= 1 << queuenum;
-
-          /* There's not a lot of point putting things into a queue if
-           * nobody's on the other end pulling them out. Therefore,
-           * let's check to see whether an idle handler exists to do
-           * that. If not, we'll create one.
-           */
 
           if (queue_later[queuenum] == 0)
             {
@@ -2106,7 +2087,6 @@ meta_window_queue (MetaWindow   *window,
                                 NULL);
             }
 
-          /* And now we actually put it on the queue. */
           queue_pending[queuenum] = g_slist_prepend (queue_pending[queuenum],
                                                      window);
       }
