@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
+"POT-Creation-Date: 2021-10-14 16:28+0000\n"
 "PO-Revision-Date: 2020-03-01 00:25+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
@@ -50,116 +50,136 @@ msgid "Move window to last workspace"
 msgstr "ウィンドウを最後のワークスペースへ移動する"
 
 #: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "ウィンドウを左側のワークスペースへ移動する"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "ウィンドウを右側のワークスペースへ移動する"
+
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "ウィンドウを上側のワークスペースへ移動する"
 
-#: data/50-mutter-navigation.xml:27
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "ウィンドウを下側のワークスペースへ移動する"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "ウィンドウを左側のモニターへ移動する"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "ウィンドウを右側のモニターへ移動する"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "ウィンドウを上側のモニターへ移動する"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "ウィンドウを下側のモニターへ移動する"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "アプリケーションを切り替える"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "前のアプリケーションに切り替える"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "ウィンドウを切り替える"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "前のウィンドウに切り替える"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "一つのアプリケーション内のウィンドウを切り替える"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "一つのアプリケーション内の前のウィンドウに切り替える"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "システムコントロールを切り替える"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "前のシステムコントロールに切り替える"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "ウィンドウを直接切り替える"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "前のウィンドウに直接切り替える"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "一つのアプリケーション内のウィンドウを直接切り替える"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "一つのアプリケーション内の前のウィンドウに直接切り替える"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "システムコントロールを直接切り替える"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "前のシステムコントロールに直接切り替える"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "すべての通常のウィンドウを隠す"
 
 # ｢キーボードショートカット｣のアプレット (gnome-control-center) で表示するメッセージ
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "ワークスペース 1 へ切り替える"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "ワークスペース 2 へ切り替える"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "ワークスペース 3 へ切り替える"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "ワークスペース 4 へ切り替える"
 
 # ｢キーボードショートカット｣のアプレット (gnome-control-center) で表示するメッセージ
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "最後のワークスペースへ切り替える"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:131
+#, fuzzy
+#| msgid "Move to workspace left"
+msgid "Move to workspace on the left"
+msgstr "左側のワークスペースへ移動する"
+
+#: data/50-mutter-navigation.xml:134
+#, fuzzy
+#| msgid "Move to workspace right"
+msgid "Move to workspace on the right"
+msgstr "右側のワークスペースへ移動する"
+
+#: data/50-mutter-navigation.xml:138
 msgid "Move to workspace above"
 msgstr "上側のワークスペースへ移動する"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:142
 msgid "Move to workspace below"
 msgstr "下側のワークスペースへ移動する"
 
@@ -170,10 +190,6 @@ msgstr "システム"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "コマンド実行プロンプトを表示する"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "アクティビティ画面を表示する"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -243,11 +259,11 @@ msgstr "ウィンドウを垂直方向に最大化する"
 msgid "Maximize window horizontally"
 msgstr "ウィンドウを水平方向に最大化する"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "画面左半分に表示する"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "画面右半分に表示する"
 
@@ -388,101 +404,104 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:134
-msgid "Modifier to use to locate the pointer"
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:135
-msgid "This key will initiate the “locate pointer” action."
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:142
-msgid "Timeout for check-alive ping"
+"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
+"enables DMA buffered screen sharing. This is already enabled by default when "
+"using the i915 driver, but disabled for everything else. Requires a restart. "
+"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
+"X11 clients are gone. Does not require a restart."
 msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:143
+msgid "Modifier to use to locate the pointer"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:144
+msgid "This key will initiate the “locate pointer” action."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:151
+msgid "Timeout for check-alive ping"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Select window from tab popup"
 msgstr "タブのポップアップでウィンドウを選択します"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Cancel tab popup"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Switch monitor configurations"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:191
 msgid "Rotates the built-in monitor configuration"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "VT 1 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "VT 2 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "VT 3 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "VT 4 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "VT 5 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "VT 6 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "VT 7 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "VT 8 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "VT 9 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "VT 10 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "VT 11 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "VT 12 へ切り替える"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -492,66 +511,59 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2567
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "モードを切り替え (グループ %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr ""
 
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2590
-msgid "Switch monitor"
-msgstr "モニターを切り替え"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
 
-#: src/backends/meta-input-settings.c:2592
-msgid "Show on-screen help"
-msgstr "オンスクリーンヘルプを表示"
-
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "ビルトインディスプレイ"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "不明"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "不明なディスプレイ"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -564,9 +576,31 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr ""
 
+#: src/backends/x11/meta-clutter-backend-x11.c:237
+#, fuzzy
+#| msgid "X Display to use"
+msgid "X display to use"
+msgstr "使用する X ディスプレイを指定する"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:243
+#, fuzzy
+#| msgid "X Display to use"
+msgid "X screen to use"
+msgstr "使用する X ディスプレイを指定する"
+
+# 'X' という１文字は固有名詞のため大文字にする
+#: src/backends/x11/meta-clutter-backend-x11.c:248
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "X の呼び出しを同期する"
+
+#: src/backends/x11/meta-clutter-backend-x11.c:254
+msgid "Disable XInput support"
+msgstr ""
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:513
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -577,51 +611,6 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "ベルイベント"
-
-#: src/core/main.c:190
-msgid "Disable connection to session manager"
-msgstr "セッションマネージャーに接続しない"
-
-#: src/core/main.c:196
-msgid "Replace the running window manager"
-msgstr "実行中のウィンドウマネージャーを置き換える"
-
-#: src/core/main.c:202
-msgid "Specify session management ID"
-msgstr "セッション管理 ID を指定する"
-
-#: src/core/main.c:207
-msgid "X Display to use"
-msgstr "使用する X ディスプレイを指定する"
-
-#: src/core/main.c:213
-msgid "Initialize session from savefile"
-msgstr "保存ファイルからセッションを初期化する"
-
-# 'X' という１文字は固有名詞のため大文字にする
-#: src/core/main.c:219
-msgid "Make X calls synchronous"
-msgstr "X の呼び出しを同期する"
-
-#: src/core/main.c:226
-msgid "Run as a wayland compositor"
-msgstr "Wayland のコンポジターとして実行する"
-
-#: src/core/main.c:232
-msgid "Run as a nested compositor"
-msgstr ""
-
-#: src/core/main.c:238
-msgid "Run wayland compositor without starting Xwayland"
-msgstr ""
-
-#: src/core/main.c:246
-msgid "Run as a full display server, rather than nested"
-msgstr ""
-
-#: src/core/main.c:252
-msgid "Run with X11 backend"
-msgstr ""
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -649,44 +638,102 @@ msgstr "強制終了する(_F)"
 msgid "_Wait"
 msgstr "待機する(_W)"
 
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
+#: src/core/meta-context-main.c:555
+msgid "Replace the running window manager"
+msgstr "実行中のウィンドウマネージャーを置き換える"
 
-#: src/core/mutter.c:52
+#: src/core/meta-context-main.c:561
+msgid "X Display to use"
+msgstr "使用する X ディスプレイを指定する"
+
+#: src/core/meta-context-main.c:567
+msgid "Disable connection to session manager"
+msgstr "セッションマネージャーに接続しない"
+
+#: src/core/meta-context-main.c:573
+msgid "Specify session management ID"
+msgstr "セッション管理 ID を指定する"
+
+#: src/core/meta-context-main.c:579
+msgid "Initialize session from savefile"
+msgstr "保存ファイルからセッションを初期化する"
+
+#: src/core/meta-context-main.c:592
+msgid "Run as a wayland compositor"
+msgstr "Wayland のコンポジターとして実行する"
+
+#: src/core/meta-context-main.c:598
+msgid "Run as a nested compositor"
+msgstr ""
+
+#: src/core/meta-context-main.c:604
+msgid "Run wayland compositor without starting Xwayland"
+msgstr ""
+
+#: src/core/meta-context-main.c:610
+msgid "Specify Wayland display name to use"
+msgstr ""
+
+#: src/core/meta-context-main.c:618
+msgid "Run as a full display server, rather than nested"
+msgstr ""
+
+#: src/core/meta-context-main.c:623
+msgid "Run as a headless display server"
+msgstr ""
+
+#: src/core/meta-context-main.c:628
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr ""
+
+#: src/core/meta-context-main.c:639
+msgid "Run with X11 backend"
+msgstr ""
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:782
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "モードを切り替え (グループ %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:805
+msgid "Switch monitor"
+msgstr "モニターを切り替え"
+
+#: src/core/meta-pad-action-mapper.c:807
+msgid "Show on-screen help"
+msgstr "オンスクリーンヘルプを表示"
+
+#: src/core/mutter.c:48
 msgid "Print version"
 msgstr "バージョンを表示する"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:54
 msgid "Mutter plugin to use"
 msgstr "使用する Mutter のプラグイン"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "ワークスペース %d"
 
-#: src/core/util.c:122
-msgid "Mutter was compiled without support for verbose mode\n"
+#: src/core/util.c:148
+#, fuzzy
+#| msgid "Mutter was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode"
 msgstr "この mutter は詳細ログモードをサポートしていません\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/wayland/meta-wayland-tablet-pad.c:519
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "モード切り替え: モード %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:673
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -695,18 +742,22 @@ msgstr ""
 "ディスプレイ“%s”はすでにウィンドウマネージャーを持っています。現在のウィンド"
 "ウマネージャーを上書きするために --replace オプションの使用を試してください。"
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
+#: src/x11/meta-x11-display.c:1067
+#, fuzzy
+#| msgid "Failed to initialize GDK\n"
+msgid "Failed to initialize GDK"
 msgstr "GDK の初期化に失敗しました\n"
 
-#: src/x11/meta-x11-display.c:1113
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
+#: src/x11/meta-x11-display.c:1091
+#, fuzzy, c-format
+#| msgid "Failed to open X Window System display “%s”\n"
+msgid "Failed to open X Window System display “%s”"
 msgstr "X Window System のディスプレイ“%s”のオープンに失敗しました\n"
 
-#: src/x11/meta-x11-display.c:1196
-#, c-format
-msgid "Screen %d on display “%s” is invalid\n"
+#: src/x11/meta-x11-display.c:1175
+#, fuzzy, c-format
+#| msgid "Screen %d on display “%s” is invalid\n"
+msgid "Screen %d on display “%s” is invalid"
 msgstr "ディスプレイ“%2$s”上のスクリーン %1$d は無効です\n"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
@@ -714,7 +765,7 @@ msgstr "ディスプレイ“%2$s”上のスクリーン %1$d は無効です\n
 msgid "Format %s not supported"
 msgstr "フォーマット %s はサポートしていません"
 
-#: src/x11/session.c:1821
+#: src/x11/session.c:1845
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -722,22 +773,26 @@ msgstr ""
 "これらのウィンドウは“現在の設定を保存する”機能をサポートしません。次回ログイ"
 "ンする時に手動で再起動してください。"
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "ウィンドウを左側のワークスペースへ移動する"
+#~ msgid "Show the activities overview"
+#~ msgstr "アクティビティ画面を表示する"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "ウィンドウを右側のワークスペースへ移動する"
-
-#~ msgid "Move to workspace left"
-#~ msgstr "左側のワークスペースへ移動する"
-
-#~ msgid "Move to workspace right"
-#~ msgstr "右側のワークスペースへ移動する"
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
 
 #~ msgid "Toggle shaded state"
 #~ msgstr "シェードの状態を切り替える"
