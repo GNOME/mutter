@@ -24,7 +24,6 @@
 #define META_WINDOW_ACTOR_WAYLAND_H
 
 #include "compositor/meta-window-actor-private.h"
-#include "wayland/meta-wayland-surface.h"
 
 #define META_TYPE_WINDOW_ACTOR_WAYLAND (meta_window_actor_wayland_get_type())
 G_DECLARE_FINAL_TYPE (MetaWindowActorWayland,

@@ -3,8 +3,6 @@
 #ifndef META_WINDOW_ACTOR_PRIVATE_H
 #define META_WINDOW_ACTOR_PRIVATE_H
 
-#include <X11/extensions/Xdamage.h>
-
 #include "compositor/meta-plugin-manager.h"
 #include "compositor/meta-surface-actor.h"
 #include "meta/compositor-mutter.h"
