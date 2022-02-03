@@ -39,6 +39,9 @@ typedef struct _Stream
   struct spa_hook pipewire_stream_listener;
   enum pw_stream_state state;
   int buffer_count;
+
+  int target_width;
+  int target_height;
 } Stream;
 
 typedef struct _Session
@@ -305,8 +308,7 @@ stream_connect (Stream *stream)
   struct pw_stream *pipewire_stream;
   uint8_t params_buffer[1024];
   struct spa_pod_builder pod_builder;
-  struct spa_rectangle min_rect;
-  struct spa_rectangle max_rect;
+  struct spa_rectangle rect;
   struct spa_fraction min_framerate;
   struct spa_fraction max_framerate;
   const struct spa_pod *params[2];
@@ -316,8 +318,7 @@ stream_connect (Stream *stream)
                                    "mutter-test-pipewire-stream",
                                    NULL);
 
-  min_rect = SPA_RECTANGLE (1, 1);
-  max_rect = SPA_RECTANGLE (50 , 50);
+  rect = SPA_RECTANGLE (stream->target_width, stream->target_height);
   min_framerate = SPA_FRACTION (1, 1);
   max_framerate = SPA_FRACTION (30, 1);
 
@@ -328,9 +329,7 @@ stream_connect (Stream *stream)
     SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
     SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
     SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
-    SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&min_rect,
-                                                           &min_rect,
-                                                           &max_rect),
+    SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&rect),
     SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION(0, 1)),
     SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
                                                                   &min_framerate,
@@ -384,12 +383,17 @@ on_pipewire_stream_added (MetaDBusScreenCastStream *proxy,
 }
 
 static Stream *
-stream_new (const char *path)
+stream_new (const char *path,
+            int         width,
+            int         height)
 {
   Stream *stream;
   GError *error = NULL;
 
   stream = g_new0 (Stream, 1);
+  stream->target_width = width;
+  stream->target_height = height;
+
   stream->proxy = meta_dbus_screen_cast_stream_proxy_new_for_bus_sync (
     G_BUS_TYPE_SESSION,
     G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
@@ -438,7 +442,9 @@ session_stop (Session *session)
 }
 
 static Stream *
-session_record_virtual (Session *session)
+session_record_virtual (Session *session,
+                        int      width,
+                        int      height)
 {
   GVariantBuilder properties_builder;
   GVariant *properties_variant;
@@ -457,7 +463,7 @@ session_record_virtual (Session *session)
         &error))
     g_error ("Failed to create session: %s", error->message);
 
-  stream = stream_new (stream_path);
+  stream = stream_new (stream_path, width, height);
   g_assert_nonnull (stream);
   return stream;
 }
@@ -552,7 +558,7 @@ main (int    argc,
 
   screen_cast = screen_cast_new ();
   session = screen_cast_create_session (screen_cast);
-  stream = session_record_virtual (session);
+  stream = session_record_virtual (session, 50, 50);
 
   session_start (session);
 
