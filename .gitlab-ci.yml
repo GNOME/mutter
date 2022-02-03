@@ -57,9 +57,8 @@ variables:
         -D{dri1,dri2}=false \
         -Ddri3=true \
         https://gitlab.freedesktop.org/xorg/xserver.git \
-        xwayland-22.1 \
-        . \
-        xwayland-22.0.99.901 &&
+        xwayland-22.1.0 \
+        . &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gjs.git \
