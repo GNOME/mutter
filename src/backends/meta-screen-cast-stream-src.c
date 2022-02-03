@@ -1213,7 +1213,8 @@ create_pipewire_source (MetaScreenCastStreamSrc *src)
                         G_IO_IN | G_IO_ERR);
 
   pw_loop_enter (pipewire_source->pipewire_loop);
-  g_source_attach (&pipewire_source->base, NULL);
+  g_source_attach (source, NULL);
+  g_source_unref (source);
 
   return pipewire_source;
 }
@@ -1285,7 +1286,7 @@ meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src)
 }
 
 static void
-meta_screen_cast_stream_src_finalize (GObject *object)
+meta_screen_cast_stream_src_dispose (GObject *object)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (object);
   MetaScreenCastStreamSrcPrivate *priv =
@@ -1298,10 +1299,9 @@ meta_screen_cast_stream_src_finalize (GObject *object)
   g_clear_pointer (&priv->dmabuf_handles, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_core, pw_core_disconnect);
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
-  g_source_destroy (&priv->pipewire_source->base);
-  g_source_unref (&priv->pipewire_source->base);
+  g_clear_pointer ((GSource **) &priv->pipewire_source, g_source_destroy);
 
-  G_OBJECT_CLASS (meta_screen_cast_stream_src_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_screen_cast_stream_src_parent_class)->dispose (object);
 }
 
 static void
@@ -1360,7 +1360,7 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_screen_cast_stream_src_finalize;
+  object_class->dispose = meta_screen_cast_stream_src_dispose;
   object_class->set_property = meta_screen_cast_stream_src_set_property;
   object_class->get_property = meta_screen_cast_stream_src_get_property;
 

@@ -312,8 +312,6 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       break;
     }
-
-  g_clear_object (&virtual_src->virtual_monitor);
 }
 
 static gboolean
@@ -526,12 +524,20 @@ ensure_virtual_monitor (MetaScreenCastVirtualStreamSrc *virtual_src,
       MetaCrtcMode *crtc_mode =
         meta_virtual_monitor_get_crtc_mode (virtual_monitor);
       const MetaCrtcModeInfo *mode_info = meta_crtc_mode_get_info (crtc_mode);
+      float refresh_rate;
 
       if (mode_info->width == video_format->size.width &&
           mode_info->height == video_format->size.height)
         return;
 
-      g_clear_object (&virtual_src->virtual_monitor);
+      refresh_rate = ((float) video_format->max_framerate.num /
+                      video_format->max_framerate.denom);
+      meta_virtual_monitor_set_mode (virtual_monitor,
+                                     video_format->size.width,
+                                     video_format->size.height,
+                                     refresh_rate);
+      meta_monitor_manager_reload (monitor_manager);
+      return;
     }
 
   virtual_monitor = create_virtual_monitor (virtual_src, video_format, &error);
@@ -586,6 +592,19 @@ hw_cursor_inhibitor_iface_init (MetaHwCursorInhibitorInterface *iface)
 }
 
 static void
+meta_screen_cast_virtual_stream_src_dispose (GObject *object)
+{
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (object);
+  GObjectClass *parent_class =
+    G_OBJECT_CLASS (meta_screen_cast_virtual_stream_src_parent_class);
+
+  parent_class->dispose (object);
+
+  g_clear_object (&virtual_src->virtual_monitor);
+}
+
+static void
 meta_screen_cast_virtual_stream_src_init (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
 }
@@ -593,8 +612,11 @@ meta_screen_cast_virtual_stream_src_init (MetaScreenCastVirtualStreamSrc *virtua
 static void
 meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaScreenCastStreamSrcClass *src_class =
     META_SCREEN_CAST_STREAM_SRC_CLASS (klass);
+
+  object_class->dispose = meta_screen_cast_virtual_stream_src_dispose;
 
   src_class->get_specs = meta_screen_cast_virtual_stream_src_get_specs;
   src_class->enable = meta_screen_cast_virtual_stream_src_enable;
