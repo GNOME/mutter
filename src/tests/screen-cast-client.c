@@ -369,8 +369,37 @@ stream_wait_for_streaming (Stream *stream)
 static G_GNUC_UNUSED void
 stream_wait_for_render (Stream *stream)
 {
-  while (stream->buffer_count == 0)
+  int initial_buffer_count = stream->buffer_count;
+
+  while (stream->buffer_count == initial_buffer_count)
     g_main_context_iteration (NULL, TRUE);
+}
+
+static void
+stream_resize (Stream *stream,
+               int     width,
+               int     height)
+{
+  uint8_t params_buffer[1024];
+  struct spa_pod_builder pod_builder;
+  const struct spa_pod *params[1];
+  struct spa_rectangle rect;
+
+  stream->target_width = width;
+  stream->target_height = height;
+
+  rect = SPA_RECTANGLE (width, height);
+
+  pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
+
+  params[0] = spa_pod_builder_add_object (
+    &pod_builder,
+    SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
+    SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&rect),
+    0);
+
+  pw_stream_update_params (stream->pipewire_stream,
+                           params, G_N_ELEMENTS (params));
 }
 
 static void
@@ -558,13 +587,31 @@ main (int    argc,
 
   screen_cast = screen_cast_new ();
   session = screen_cast_create_session (screen_cast);
-  stream = session_record_virtual (session, 50, 50);
+  stream = session_record_virtual (session, 50, 40);
 
   session_start (session);
+
+  /* Check that we receive the initial frame */
 
   stream_wait_for_node (stream);
   stream_wait_for_streaming (stream);
   stream_wait_for_render (stream);
+  g_assert_cmpint (stream->spa_format.size.width, ==, 50);
+  g_assert_cmpint (stream->spa_format.size.height, ==, 40);
+
+  /* Check that resizing works */
+  stream_resize (stream, 70, 60);
+  while (TRUE)
+    {
+      stream_wait_for_render (stream);
+
+      if (stream->spa_format.size.width == 70 &&
+          stream->spa_format.size.height == 60)
+        break;
+
+      g_assert_cmpint (stream->spa_format.size.width, ==, 50);
+      g_assert_cmpint (stream->spa_format.size.height, ==, 40);
+    }
 
   session_stop (session);
 
