@@ -28,6 +28,7 @@
 
 #include "backends/x11/meta-clutter-backend-x11.h"
 
-MetaX11FilterReturn meta_x11_handle_event (XEvent *xevent);
+MetaX11FilterReturn meta_x11_handle_event (MetaBackend *backend,
+                                           XEvent      *xevent);
 
 #endif /* META_EVENT_X11_H */

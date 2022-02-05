@@ -1442,6 +1442,15 @@ meta_compositor_get_stage (MetaCompositor *compositor)
   return CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
 }
 
+MetaBackend *
+meta_compositor_get_backend (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  return priv->backend;
+}
+
 MetaWindowActor *
 meta_compositor_get_top_window_actor (MetaCompositor *compositor)
 {
