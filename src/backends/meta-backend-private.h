@@ -202,4 +202,7 @@ void meta_backend_remove_hw_cursor_inhibitor (MetaBackend           *backend,
 
 gboolean meta_backend_is_hw_cursors_inhibited (MetaBackend *backend);
 
+void meta_backend_update_from_event (MetaBackend  *backend,
+                                     ClutterEvent *event);
+
 #endif /* META_BACKEND_PRIVATE_H */

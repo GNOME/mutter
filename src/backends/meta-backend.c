@@ -1065,8 +1065,7 @@ clutter_source_dispatch (GSource     *source,
       event->any.stage =
         CLUTTER_STAGE (meta_backend_get_stage (backend_source->backend));
       clutter_do_event (event);
-      update_last_device_from_event (backend_source->backend, event);
-      update_pointer_visibility_from_event (backend_source->backend, event);
+      meta_backend_update_from_event (backend_source->backend, event);
       clutter_event_free (event);
     }
 
@@ -1679,4 +1678,12 @@ meta_backend_is_hw_cursors_inhibited (MetaBackend *backend)
     }
 
   return FALSE;
+}
+
+void
+meta_backend_update_from_event (MetaBackend  *backend,
+                                ClutterEvent *event)
+{
+  update_last_device_from_event (backend, event);
+  update_pointer_visibility_from_event (backend, event);
 }
