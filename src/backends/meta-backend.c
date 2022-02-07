@@ -645,7 +645,7 @@ upower_properties_changed (GDBusProxy *proxy,
           g_signal_emit (backend, signals[LID_IS_CLOSED_CHANGED], 0,
                          priv->lid_is_closed);
 
-          if (lid_is_closed)
+          if (!lid_is_closed)
             reset_idle_time = TRUE;
         }
     }
