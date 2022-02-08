@@ -1217,6 +1217,85 @@ ensure_cursor_priv (MetaCursorSprite *cursor_sprite)
   return cursor_priv;
 }
 
+static MetaDrmBuffer *
+create_cursor_drm_buffer_gbm (MetaGpuKms      *gpu_kms,
+                              MetaDeviceFile  *device_file,
+                              uint8_t         *pixels,
+                              int              width,
+                              int              height,
+                              int              stride,
+                              int              cursor_width,
+                              int              cursor_height,
+                              uint32_t         format,
+                              GError         **error)
+{
+  struct gbm_device *gbm_device;
+  struct gbm_bo *bo;
+  uint8_t buf[4 * cursor_width * cursor_height];
+  int i;
+  MetaDrmBufferFlags flags;
+  MetaDrmBufferGbm *buffer_gbm;
+
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  if (!gbm_device_is_format_supported (gbm_device, format,
+                                       GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Buffer format not supported");
+      return NULL;
+    }
+
+  bo = gbm_bo_create (gbm_device, cursor_width, cursor_height,
+                      format, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE);
+  if (!bo)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Failed to allocate gbm_bo: %s", g_strerror (errno));
+      return NULL;
+    }
+
+  memset (buf, 0, sizeof (buf));
+  for (i = 0; i < height; i++)
+    memcpy (buf + i * 4 * cursor_width, pixels + i * stride, width * 4);
+  if (gbm_bo_write (bo, buf, cursor_width * cursor_height * 4) != 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Failed write to gbm_bo: %s", g_strerror (errno));
+      gbm_bo_destroy (bo);
+      return NULL;
+    }
+
+  flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+  buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, bo, flags, error);
+  if (!buffer_gbm)
+    {
+      gbm_bo_destroy (bo);
+      return NULL;
+    }
+
+  return META_DRM_BUFFER (buffer_gbm);
+}
+
+static MetaDrmBuffer *
+create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
+                          MetaDeviceFile  *device_file,
+                          uint8_t         *pixels,
+                          int              width,
+                          int              height,
+                          int              stride,
+                          int              cursor_width,
+                          int              cursor_height,
+                          uint32_t         format,
+                          GError         **error)
+{
+  return create_cursor_drm_buffer_gbm (gpu_kms, device_file,
+                                       pixels,
+                                       width, height, stride,
+                                       cursor_width, cursor_height,
+                                       format,
+                                       error);
+}
+
 static void
 load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
                                        MetaGpuKms               *gpu_kms,
@@ -1229,9 +1308,14 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+  MetaDevicePool *device_pool =
+    meta_backend_native_get_device_pool (backend_native);
   uint64_t cursor_width, cursor_height;
+  MetaDrmBuffer *buffer;
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-  struct gbm_device *gbm_device;
+  g_autoptr (MetaDeviceFile) device_file = NULL;
+  g_autoptr (GError) error = NULL;
 
   cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
@@ -1248,70 +1332,32 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
       return;
     }
 
-  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
-  if (gbm_device_is_format_supported (gbm_device, gbm_format,
-                                      GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE))
+  device_file = meta_device_pool_open (device_pool,
+                                       meta_gpu_kms_get_file_path (gpu_kms),
+                                       META_DEVICE_FILE_FLAG_TAKE_CONTROL,
+                                       &error);
+  if (!device_file)
     {
-      MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
-      MetaDevicePool *device_pool =
-        meta_backend_native_get_device_pool (backend_native);
-      g_autoptr (MetaDeviceFile) device_file = NULL;
-      struct gbm_bo *bo;
-      uint8_t buf[4 * cursor_width * cursor_height];
-      uint i;
-      g_autoptr (GError) error = NULL;
-      MetaDrmBufferFlags flags;
-      MetaDrmBufferGbm *buffer_gbm;
-
-      device_file = meta_device_pool_open (device_pool,
-                                           meta_gpu_kms_get_file_path (gpu_kms),
-                                           META_DEVICE_FILE_FLAG_TAKE_CONTROL,
-                                           &error);
-      if (!device_file)
-        {
-          g_warning ("Failed to open '%s' for updating the cursor: %s",
-                     meta_gpu_kms_get_file_path (gpu_kms),
-                     error->message);
-          return;
-        }
-
-      bo = gbm_bo_create (gbm_device, cursor_width, cursor_height,
-                          gbm_format, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE);
-      if (!bo)
-        {
-          meta_warning ("Failed to allocate HW cursor buffer");
-          return;
-        }
-
-      memset (buf, 0, sizeof(buf));
-      for (i = 0; i < height; i++)
-        memcpy (buf + i * 4 * cursor_width, pixels + i * rowstride, width * 4);
-      if (gbm_bo_write (bo, buf, cursor_width * cursor_height * 4) != 0)
-        {
-          meta_warning ("Failed to write cursors buffer data: %s",
-                        g_strerror (errno));
-          gbm_bo_destroy (bo);
-          return;
-        }
-
-      flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
-      buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, bo, flags,
-                                                 &error);
-      if (!buffer_gbm)
-        {
-          meta_warning ("Failed to create DRM buffer wrapper: %s",
-                        error->message);
-          gbm_bo_destroy (bo);
-          return;
-        }
-
-      set_pending_cursor_sprite_buffer (cursor_sprite, gpu_kms,
-                                        META_DRM_BUFFER (buffer_gbm));
+      g_warning ("Failed to open '%s' for updating the cursor: %s",
+                 meta_gpu_kms_get_file_path (gpu_kms),
+                 error->message);
+      return;
     }
-  else
+
+  buffer = create_cursor_drm_buffer (gpu_kms, device_file,
+                                     pixels,
+                                     width, height, rowstride,
+                                     cursor_width,
+                                     cursor_height,
+                                     gbm_format,
+                                     &error);
+  if (!buffer)
     {
-      meta_warning ("HW cursor for format %d not supported", gbm_format);
+      g_warning ("Realizing HW cursor failed: %s", error->message);
+      return;
     }
+
+  set_pending_cursor_sprite_buffer (cursor_sprite, gpu_kms, buffer);
 }
 
 static gboolean
