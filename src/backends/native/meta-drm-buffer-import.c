@@ -162,6 +162,7 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
   fb_args.width = gbm_bo_get_width (primary_bo);
   fb_args.height = gbm_bo_get_height (primary_bo);
   fb_args.format = gbm_bo_get_format (primary_bo);
+  fb_args.handle = gbm_bo_get_handle (primary_bo).u32;
 
   imported_bo = dmabuf_to_gbm_bo (importer,
                                   dmabuf_fd,

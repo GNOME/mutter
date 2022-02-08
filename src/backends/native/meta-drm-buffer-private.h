@@ -33,6 +33,7 @@ typedef struct _MetaDrmFbArgs
   uint32_t offsets[4];
   uint32_t strides[4];
   uint64_t modifiers[4];
+  uint32_t handle;
 } MetaDrmFbArgs;
 
 struct _MetaDrmBufferClass

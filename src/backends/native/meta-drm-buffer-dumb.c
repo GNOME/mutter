@@ -248,6 +248,7 @@ init_dumb_buffer (MetaDrmBufferDumb  *buffer_dumb,
     .width = width,
     .height = height,
     .format = format,
+    .handle = create_arg.handle,
     .handles = { create_arg.handle },
     .strides = { create_arg.pitch },
   };

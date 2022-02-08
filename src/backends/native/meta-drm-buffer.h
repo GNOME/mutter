@@ -50,6 +50,8 @@ gboolean meta_drm_buffer_ensure_fb_id (MetaDrmBuffer  *buffer,
 
 uint32_t meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer);
 
+uint32_t meta_drm_buffer_get_handle (MetaDrmBuffer *buffer);
+
 int meta_drm_buffer_get_width (MetaDrmBuffer *buffer);
 
 int meta_drm_buffer_get_height (MetaDrmBuffer *buffer);

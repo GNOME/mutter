@@ -53,6 +53,7 @@ typedef struct _MetaDrmBufferPrivate
   MetaDrmBufferFlags flags;
 
   uint32_t fb_id;
+  uint32_t handle;
 } MetaDrmBufferPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaDrmBuffer, meta_drm_buffer,
@@ -152,6 +153,8 @@ meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
     }
 
   priv->fb_id = fb_id;
+  priv->handle = fb_args->handle;
+
   return TRUE;
 }
 
@@ -183,6 +186,14 @@ meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer)
   MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
 
   return priv->fb_id;
+}
+
+uint32_t
+meta_drm_buffer_get_handle (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferPrivate *priv = meta_drm_buffer_get_instance_private (buffer);
+
+  return priv->handle;
 }
 
 int

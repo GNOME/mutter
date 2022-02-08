@@ -164,6 +164,7 @@ meta_drm_buffer_gbm_ensure_fb_id (MetaDrmBuffer  *buffer,
   fb_args.width = gbm_bo_get_width (bo);
   fb_args.height = gbm_bo_get_height (bo);
   fb_args.format = gbm_bo_get_format (bo);
+  fb_args.handle = gbm_bo_get_handle (bo).u32;
 
   if (!meta_drm_buffer_do_ensure_fb_id (META_DRM_BUFFER (buffer_gbm),
                                         &fb_args, error))
