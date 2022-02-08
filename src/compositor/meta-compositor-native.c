@@ -77,6 +77,7 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
   MetaWaylandSurface *surface;
+  int geometry_scale;
   MetaWaylandSurface *old_candidate =
     compositor_native->current_scanout_candidate;
   MetaWaylandSurface *new_candidate = NULL;
@@ -120,6 +121,11 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
 
   surface = meta_surface_actor_wayland_get_surface (surface_actor_wayland);
   if (!surface)
+    goto done;
+
+  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
+  if (!meta_wayland_surface_can_scanout_untransformed (surface, view,
+                                                       geometry_scale))
     goto done;
 
   new_candidate = surface;

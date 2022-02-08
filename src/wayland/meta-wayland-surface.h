@@ -368,6 +368,11 @@ MetaCrtc * meta_wayland_surface_get_scanout_candidate (MetaWaylandSurface *surfa
 void meta_wayland_surface_set_scanout_candidate (MetaWaylandSurface *surface,
                                                  MetaCrtc           *crtc);
 
+gboolean
+meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
+                                                MetaRendererView   *view,
+                                                int                 geometry_scale);
+
 static inline GNode *
 meta_get_next_subsurface_sibling (GNode *n)
 {
