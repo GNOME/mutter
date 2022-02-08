@@ -41,6 +41,7 @@
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-device-pool.h"
+#include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
@@ -1218,25 +1219,24 @@ ensure_cursor_priv (MetaCursorSprite *cursor_sprite)
 }
 
 static MetaDrmBuffer *
-create_cursor_drm_buffer_gbm (MetaGpuKms      *gpu_kms,
-                              MetaDeviceFile  *device_file,
-                              uint8_t         *pixels,
-                              int              width,
-                              int              height,
-                              int              stride,
-                              int              cursor_width,
-                              int              cursor_height,
-                              uint32_t         format,
-                              GError         **error)
+create_cursor_drm_buffer_gbm (MetaGpuKms         *gpu_kms,
+                              MetaDeviceFile     *device_file,
+                              struct gbm_device  *gbm_device,
+                              uint8_t            *pixels,
+                              int                 width,
+                              int                 height,
+                              int                 stride,
+                              int                 cursor_width,
+                              int                 cursor_height,
+                              uint32_t            format,
+                              GError            **error)
 {
-  struct gbm_device *gbm_device;
   struct gbm_bo *bo;
   uint8_t buf[4 * cursor_width * cursor_height];
   int i;
   MetaDrmBufferFlags flags;
   MetaDrmBufferGbm *buffer_gbm;
 
-  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
   if (!gbm_device_is_format_supported (gbm_device, format,
                                        GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE))
     {
@@ -1277,6 +1277,38 @@ create_cursor_drm_buffer_gbm (MetaGpuKms      *gpu_kms,
 }
 
 static MetaDrmBuffer *
+create_cursor_drm_buffer_dumb (MetaGpuKms      *gpu_kms,
+                               MetaDeviceFile  *device_file,
+                               uint8_t         *pixels,
+                               int              width,
+                               int              height,
+                               int              stride,
+                               int              cursor_width,
+                               int              cursor_height,
+                               uint32_t         format,
+                               GError         **error)
+{
+  MetaDrmBufferDumb *buffer_dumb;
+  int i;
+  uint8_t *data;
+
+  buffer_dumb = meta_drm_buffer_dumb_new (device_file,
+                                          cursor_width, cursor_height,
+                                          format,
+                                          error);
+  if (!buffer_dumb)
+    return NULL;
+
+  data = meta_drm_buffer_dumb_get_data (buffer_dumb);
+
+  memset (data, 0, cursor_width * cursor_height * 4);
+  for (i = 0; i < height; i++)
+    memcpy (data + i * 4 * cursor_width, pixels + i * stride, width * 4);
+
+  return META_DRM_BUFFER (buffer_dumb);
+}
+
+static MetaDrmBuffer *
 create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
                           MetaDeviceFile  *device_file,
                           uint8_t         *pixels,
@@ -1288,12 +1320,27 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
                           uint32_t         format,
                           GError         **error)
 {
-  return create_cursor_drm_buffer_gbm (gpu_kms, device_file,
-                                       pixels,
-                                       width, height, stride,
-                                       cursor_width, cursor_height,
-                                       format,
-                                       error);
+  struct gbm_device *gbm_device;
+
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  if (gbm_device)
+    {
+      return create_cursor_drm_buffer_gbm (gpu_kms, device_file, gbm_device,
+                                           pixels,
+                                           width, height, stride,
+                                           cursor_width, cursor_height,
+                                           format,
+                                           error);
+    }
+  else
+    {
+      return create_cursor_drm_buffer_dumb (gpu_kms, device_file,
+                                            pixels,
+                                            width, height, stride,
+                                            cursor_width, cursor_height,
+                                            format,
+                                            error);
+    }
 }
 
 static void
@@ -1671,6 +1718,9 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
         }
 
       gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+      if (!gbm_device)
+        return;
+
       bo = gbm_bo_import (gbm_device,
                           GBM_BO_IMPORT_WL_BUFFER,
                           buffer,
@@ -1851,12 +1901,7 @@ init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 {
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-  struct gbm_device *gbm_device;
   uint64_t width, height;
-
-  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
-  if (!gbm_device)
-    return;
 
   cursor_renderer_gpu_data =
     meta_create_cursor_renderer_native_gpu_data (gpu_kms);
