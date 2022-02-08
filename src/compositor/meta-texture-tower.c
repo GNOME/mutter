@@ -62,6 +62,7 @@ struct _MetaTextureTower
   CoglOffscreen *fbos[MAX_TEXTURE_LEVELS];
   Box invalid[MAX_TEXTURE_LEVELS];
   CoglPipeline *pipeline_template;
+  CoglSnippet *snippet;
 };
 
 /**
@@ -97,6 +98,7 @@ meta_texture_tower_free (MetaTextureTower *tower)
     cogl_object_unref (tower->pipeline_template);
 
   meta_texture_tower_set_base_texture (tower, NULL);
+  cogl_clear_object (&tower->snippet);
 
   g_free (tower);
 }
@@ -214,6 +216,28 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
           tower->invalid[i].y2 = MAX (tower->invalid[i].y2, invalid.y2);
         }
     }
+}
+
+void
+meta_texture_tower_set_snippet (MetaTextureTower *tower,
+                                CoglSnippet      *snippet)
+{
+  int i;
+
+  if (tower->snippet == snippet)
+    return;
+
+  g_clear_pointer (&tower->snippet, cogl_object_unref);
+
+  if (snippet)
+    tower->snippet = cogl_object_ref (snippet);
+
+  for (i = 1; i < tower->n_levels; i++)
+    {
+      cogl_clear_object (&tower->textures[i]);
+      g_clear_object (&tower->fbos[i]);
+    }
+  cogl_clear_object (&tower->pipeline_template);
 }
 
 /* It generally looks worse if we scale up a window texture by even a
@@ -409,6 +433,9 @@ texture_tower_revalidate (MetaTextureTower *tower,
 
   pipeline = cogl_pipeline_copy (tower->pipeline_template);
   cogl_pipeline_set_layer_texture (pipeline, 0, tower->textures[level - 1]);
+
+  if (tower->snippet && level == 1)
+    cogl_pipeline_add_layer_snippet (pipeline, 0, tower->snippet);
 
   cogl_framebuffer_draw_textured_rectangle (fb, pipeline,
                                             invalid->x1, invalid->y1,

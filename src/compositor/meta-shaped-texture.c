@@ -1144,6 +1144,8 @@ meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
   g_clear_pointer (&stex->snippet, cogl_object_unref);
   if (snippet)
     stex->snippet = cogl_object_ref (snippet);
+
+  meta_texture_tower_set_snippet (stex->paint_tower, snippet);
 }
 
 /**

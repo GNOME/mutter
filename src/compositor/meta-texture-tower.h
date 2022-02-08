@@ -63,6 +63,9 @@ void              meta_texture_tower_update_area       (MetaTextureTower *tower,
 CoglTexture      *meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
                                                         ClutterPaintContext *paint_context);
 
+void meta_texture_tower_set_snippet (MetaTextureTower *tower,
+                                     CoglSnippet      *snippet);
+
 G_END_DECLS
 
 #endif /* __META_TEXTURE_TOWER_H__ */
