@@ -17,7 +17,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-03-04.1'
+    BASE_TAG: '2022-03-05.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -31,6 +31,8 @@ variables:
       xorg-x11-server-Xvfb
       mesa-dri-drivers
       xorg-x11-proto-devel
+      qemu-system-x86-core
+      busybox
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -41,6 +43,7 @@ variables:
       dnf builddep -y libinput --setopt=install_weak_deps=False &&
       dnf builddep -y wayland --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
+      dnf builddep -y kernel --setopt=install_weak_deps=False &&
 
       # For Xwayland
       dnf builddep -y xorg-x11-server-Xwayland --setopt=install_weak_deps=False &&
@@ -86,7 +89,21 @@ variables:
                       mutter mutter-devel \
                       gnome-shell &&
 
-      dnf clean all
+      dnf clean all &&
+
+      if [[ x"$(uname -m )" = "xx86_64" ]] ; then
+        meson build -Dkvm_tests=true &&
+        ninja -C build src/tests/kvm/bzImage &&
+        mkdir -p /opt/mutter &&
+        cp build/src/tests/kvm/bzImage /opt/mutter/bzImage &&
+
+        git clone https://github.com/jadahl/virtme.git &&
+        cd virtme &&
+        git checkout e7ee481efa10098ed0d62c9e033d61b2379b9b95 &&
+        ./setup.py install --prefix=/usr &&
+        cd .. &&
+        rm -rf virtme
+      fi
 
 default:
   # Cancel jobs if newer commits are pushed to the branch
@@ -209,9 +226,16 @@ check-code-style:
       fi
   allow_failure: true
 
+.build-mutter-base:
+  variables:
+    BASE_MESON_OPTIONS:
+      -Degl_device=true
+      -Dwayland_eglstream=true
+
 .build-mutter:
   extends:
     - .fdo.distribution-image@fedora
+    - .build-mutter-base
   stage: build
   script:
     - meson . build
@@ -221,8 +245,8 @@ check-code-style:
         --warnlevel 2
         -Dbuildtype=debugoptimized
         -Db_coverage=true
-        -Degl_device=true
-        -Dwayland_eglstream=true
+        $BASE_MESON_OPTIONS
+        $EXTRA_MESON_OPTIONS
     - meson compile -C build
     - meson install -C build
   artifacts:
@@ -231,6 +255,10 @@ check-code-style:
       - build
 
 build-mutter@x86_64:
+  variables:
+    EXTRA_MESON_OPTIONS:
+      -Dkvm_tests=true
+      -Dkvm_kernel_image=/opt/mutter/bzImage
   extends:
     - .build-mutter
     - .mutter.fedora:35@x86_64
@@ -297,19 +325,15 @@ build-without-native-backend-and-wayland@x86_64:
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
   before_script:
-    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     # Disable e.g. audio support to not dead lock screen cast tests
     - mkdir -m 700 $XDG_RUNTIME_DIR
     - pipewire & sleep 2
 
-.test-mutter:
+.test-mutter-base:
   extends:
     - .fdo.distribution-image@fedora
   <<: *test-setup
   stage: test
-  script:
-    - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
-        ./.gitlab-ci/run-meson.sh test -C build --no-rebuild -t 10
   after_script:
     - pushd build
     - gcovr --root=..
@@ -319,13 +343,26 @@ build-without-native-backend-and-wayland@x86_64:
     - popd
   artifacts:
     expire_in: 1 day
-    reports:
-      junit: "build/meson-logs/testlog.junit.xml"
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
     when: always
     paths:
       - build
       - coverage-*.json
+
+.test-mutter:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .test-mutter-base
+  script:
+    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
+    - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
+        ./.gitlab-ci/run-meson.sh test -C build
+          --no-suite 'mutter/kvm'
+          --no-rebuild
+          --timeout-multiplier 10
+  artifacts:
+    reports:
+      junit: "build/meson-logs/testlog.junit.xml"
 
 test-mutter@x86_64:
   extends:
@@ -333,6 +370,24 @@ test-mutter@x86_64:
     - .mutter.fedora:35@x86_64
   needs:
     - build-mutter@x86_64
+
+test-mutter-kvm@x86_64:
+  extends:
+    - .test-mutter-base
+    - .mutter.fedora:35@x86_64
+  tags:
+    - kvm
+  script:
+      meson test -C build
+        --no-rebuild
+        --timeout-multiplier 10
+        --setup plain
+        --suite 'mutter/kvm'
+  needs:
+    - build-mutter@x86_64
+  artifacts:
+    reports:
+      junit: "build/meson-logs/testlog-plain.junit.xml"
 
 test-mutter@aarch64:
   extends:
@@ -357,6 +412,7 @@ coverage:
   needs:
     - test-mutter@x86_64
     - test-mutter@aarch64
+    - test-mutter-kvm@x86_64
 
 can-build-gnome-shell@x86_64:
   extends:
@@ -402,11 +458,17 @@ dist-mutter:
   extends:
     - .fdo.distribution-image@fedora
     - .mutter.fedora:35@x86_64
+    - .build-mutter-base
   <<: *test-setup
   stage: deploy
   needs:
-    - build-mutter@x86_64
+    - build-fedora-container@x86_64
   script:
+    - meson . build --werror --prefix /usr
+        -Dbuildtype=debugoptimized
+        $BASE_MESON_OPTIONS
+        -Dkvm_tests=false
+    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
         ./.gitlab-ci/run-meson.sh dist -C build
   rules:
