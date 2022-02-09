@@ -3412,6 +3412,8 @@ set_keyboard_layout_index (GTask *task)
 
   seat_impl->layout_idx = idx;
 
+  meta_seat_impl_sync_leds_in_impl (seat_impl);
+
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
 
   g_task_return_boolean (task, TRUE);
