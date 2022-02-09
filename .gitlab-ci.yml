@@ -252,7 +252,12 @@ build-without-opengl-and-glx@x86_64:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
+    - meson . build --werror --prefix /usr
+        -Dbuildtype=debugoptimized
+        -Dopengl=false
+        -Dglx=false
+        -Degl_device=true
+        -Dwayland_eglstream=true
     - meson compile -C build
     - meson install -C build
   artifacts:
@@ -267,7 +272,13 @@ build-without-native-backend-and-wayland@x86_64:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false -Dnative_tests=false --werror --prefix /usr
+    - meson . build --werror --prefix /usr
+        -Dbuildtype=debugoptimized
+        -Dnative_backend=false
+        -Dudev=false
+        -Dwayland=false
+        -Dcore_tests=false
+        -Dnative_tests=false
     - meson compile -C build
     - meson install -C build
   artifacts:
