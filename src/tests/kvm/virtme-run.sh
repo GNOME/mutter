@@ -20,6 +20,12 @@ XDG_DATA_DIRS=$XDG_DATA_DIRS \
 $VM_ENV \
 "
 
+if [[ "$(stat -c '%t:%T' -L /proc/$$/fd/0)" == "0:0" ]]; then
+  mkfifo $XDG_RUNTIME_DIR/fake-stdin.$$
+  exec 0<> $XDG_RUNTIME_DIR/fake-stdin.$$
+  rm -f $XDG_RUNTIME_DIR/fake-stdin.$$
+fi
+
 virtme-run \
   --memory=256M \
   --rw \
