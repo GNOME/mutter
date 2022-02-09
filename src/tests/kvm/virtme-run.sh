@@ -32,7 +32,7 @@ virtme-run \
   --pwd \
   --kimg "$IMAGE" \
   --script-sh "sh -c \"env $VIRTME_ENV $DIRNAME/run-kvm-test.sh \\\"$WRAPPER\\\" \\\"$WRAPPER_ARGS\\\" \\\"$TEST_EXECUTABLE\\\" \\\"$TEST_RESULT_FILE\\\"\"" \
-  --qemu-opts -cpu host,pdcm=off
+  --qemu-opts -cpu host,pdcm=off -smp 2
 
 TEST_RESULT="$(cat "$TEST_RESULT_FILE")"
 rm "$TEST_RESULT_FILE"
