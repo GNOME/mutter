@@ -90,9 +90,16 @@ if have_installed_tests
 endif
 
 test_env = environment()
-test_env.set('G_TEST_SRCDIR', join_paths(mutter_srcdir, 'src'))
-test_env.set('G_TEST_BUILDDIR', mutter_builddir)
-test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
+
+test_env_variables = {
+  'G_TEST_SRCDIR': join_paths(mutter_srcdir, 'src'),
+  'G_TEST_BUILDDIR': mutter_builddir,
+  'MUTTER_TEST_PLUGIN_PATH': '@0@'.format(default_plugin.full_path()),
+}
+
+foreach name, value: test_env_variables
+  test_env.set(name, value)
+endforeach
 
 test_client = executable('mutter-test-client',
   sources: ['test-client.c'],
