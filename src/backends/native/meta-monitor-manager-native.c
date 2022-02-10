@@ -507,6 +507,8 @@ on_kms_resources_changed (MetaKms              *kms,
                           MetaKmsUpdateChanges  changes,
                           MetaMonitorManager   *manager)
 {
+  gboolean needs_emit_privacy_screen_change = FALSE;
+
   g_assert (changes != META_KMS_UPDATE_CHANGE_NONE);
 
   if (changes == META_KMS_UPDATE_CHANGE_GAMMA)
@@ -527,13 +529,17 @@ on_kms_resources_changed (MetaKms              *kms,
             META_PRIVACY_SCREEN_CHANGE_STATE_PENDING_HOTKEY;
         }
 
-      meta_monitor_manager_maybe_emit_privacy_screen_change (manager);
+      needs_emit_privacy_screen_change = TRUE;
 
       if (changes == META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
-        return;
+        goto out;
     }
 
   handle_hotplug_event (manager);
+
+out:
+  if (needs_emit_privacy_screen_change)
+    meta_monitor_manager_maybe_emit_privacy_screen_change (manager);
 }
 
 static void
