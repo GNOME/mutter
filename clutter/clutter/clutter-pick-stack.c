@@ -453,8 +453,8 @@ get_verts_rectangle (graphene_point3d_t     verts[4],
 
 static void
 calculate_clear_area (ClutterPickStack  *pick_stack,
+                      PickRecord        *pick_rec,
                       int                elem,
-                      ClutterActor      *actor,
                       cairo_region_t   **clear_area)
 {
   cairo_region_t *area = NULL;
@@ -462,7 +462,7 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
   cairo_rectangle_int_t rect;
   int i;
 
-  clutter_actor_get_abs_allocation_vertices (actor,
+  clutter_actor_get_abs_allocation_vertices (pick_rec->actor,
                                              (graphene_point3d_t *) &verts);
   if (!get_verts_rectangle (verts, &rect))
     {
@@ -470,6 +470,13 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
         *clear_area = NULL;
       return;
     }
+
+  rect.x += ceil (pick_rec->base.rect.x1);
+  rect.y += ceil (pick_rec->base.rect.y1);
+  rect.width =
+    MIN (rect.width, floor (pick_rec->base.rect.x2 - pick_rec->base.rect.x1));
+  rect.height =
+    MIN (rect.height, floor (pick_rec->base.rect.y2 - pick_rec->base.rect.y1));
 
   area = cairo_region_create_rectangle (&rect);
 
@@ -521,7 +528,7 @@ clutter_pick_stack_search_actor (ClutterPickStack          *pick_stack,
           ray_intersects_record (pick_stack, rec, point, ray))
         {
           if (clear_area)
-            calculate_clear_area (pick_stack, i, rec->actor, clear_area);
+            calculate_clear_area (pick_stack, rec, i, clear_area);
           return rec->actor;
         }
     }
