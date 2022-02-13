@@ -596,17 +596,17 @@ distribute_natural_allocation (float          extra_space,
   /* Distribute available space.
    * This master piece of a loop was conceived by Behdad Esfahbod.
    */
-  for (i = n_requested_sizes - 1; extra_space > 0 && i >= 0; --i)
+  for (i = n_requested_sizes - 1; extra_space > 0.0 && i >= 0; --i)
     {
       /* Divide remaining space by number of remaining children.
        * Sort order and reducing remaining space by assigned space
        * ensures that space is distributed equally.
        */
-      int glue = (extra_space + i) / (i + 1);
-      int gap = sizes[(spreading[i])].natural_size
-              - sizes[(spreading[i])].minimum_size;
+      float glue = (extra_space + i) / (i + 1.0);
+      float gap =
+        sizes[(spreading[i])].natural_size - sizes[(spreading[i])].minimum_size;
 
-      int extra = MIN (glue, gap);
+      float extra = MIN (glue, gap);
 
       sizes[spreading[i]].minimum_size += extra;
 
