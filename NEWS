@@ -1,3 +1,43 @@
+42.beta
+=======
+* Implement a new Clutter grab API [Carlos; !2068, !2099, !2100]
+* Support KMS testing via QEMU [Jonas Å.; !2151]
+* Generate API references with gi-docgen [Andy; !2248]
+* Improve support for running from toolbx [Sebastian; !2254, !2261]
+* Add support for privacy screen [Marco; !1952]
+* Allow changing monitor configuration policy [Jonas Å.; !2030]
+* Add support for XFixes ClientDisconnectMode [Olivier; !1794]
+* Fix possible missed clicks on menus [Carlos; !2257]
+* Place popups on the same monitor as the anchor rect [Jonas Å.; !2252]
+* Announce DMA-BUF support via pipewire [columbarius; !1939]
+* Raise the file descriptor limit of the wayland compositor [Olivier; !2235]
+* Fix resetting idle time on lid open [Carlos; !2272]
+* Don't limit DMA buffer screen casting only to Intel [Jonas Å.; !2086]
+* Keep a single cursor sprite visible with tablets [Carlos; !285]
+* Sync keyboard LEDs after layout changes [Konstantin; !2279]
+* Honor window input area in picking [Carlos; !2283]
+* Handle mixture of keycombo/no action in pad rings/strips [Carlos; !2001]
+* Fixed crashes [Carlos, Jonas Å., Daniel; !2237, !2280, !2282, !2251]
+* Misc. bug fixes and cleanups [Björn, Jonas Å., Daniel, Michel, Robert,
+  Pascal, Florian, Olivier, Pabel, Carlos, Jonas D.; !2236, !2014, !2240,
+  !2230, !2232, !2255, !2245, !2242, !2159, !2253, !2258, !2263, !2266,
+  !2271, !2256, !2264, !2262, !2281, !2287, !2284]
+
+Contributors:
+  Marco Trevisan (Treviño), Björn Daase, Jonas Dreßler, Michel Dänzer,
+  Olivier Fourdan, Carlos Garnacho, Pablo Correa Gómez, Andy Holmes,
+  Konstantin Kharlamov, Robert Mader, Florian Müllner, Pascal Nowack,
+  Daniel van Vugt, Sebastian Wick, columbarius, Jonas Ådahl
+
+Translators:
+  Yaron Shahrabani [he], Boyuan Yang [zh_CN], Marek Černocký [cs],
+  Aurimas Černius [lt], Kukuh Syafaat [id], Daniel Mustieles [es],
+  Yuri Chornoivan [uk], Hugo Carvalho [pt], Yosef Or Boczko [he],
+  Fran Dieguez [gl], Matheus Barbosa [pt_BR], Aleksandr Melman [ru],
+  sicklylife [ja], Luming Zh [zh_CN], Matej Urbančič [sl],
+  Leônidas Araújo [pt_BR], Asier Sarasua Garmendia [eu],
+  Jordi Mas i Hernandez [ca]
+
 42.alpha
 ========
 * Fix monitor screencast scanouts [Michel; !1914]
