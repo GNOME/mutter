@@ -191,6 +191,7 @@ if have_native_tests
   screen_cast_client = executable('mutter-screen-cast-client',
     sources: [
       'screen-cast-client.c',
+      dbus_remote_desktop_built_sources,
       dbus_screen_cast_built_sources,
     ],
     include_directories: tests_includes,

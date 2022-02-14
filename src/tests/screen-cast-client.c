@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+#include "meta-dbus-remote-desktop.h"
 #include "meta-dbus-screen-cast.h"
 
 typedef struct _Stream
@@ -46,8 +47,14 @@ typedef struct _Stream
 
 typedef struct _Session
 {
-  MetaDBusScreenCastSession *proxy;
+  MetaDBusScreenCastSession *screen_cast_session_proxy;
+  MetaDBusRemoteDesktopSession *remote_desktop_session_proxy;
 } Session;
+
+typedef struct _RemoteDesktop
+{
+  MetaDBusRemoteDesktop *proxy;
+} RemoteDesktop;
 
 typedef struct _ScreenCast
 {
@@ -453,9 +460,10 @@ session_start (Session *session)
 {
   GError *error = NULL;
 
-  if (!meta_dbus_screen_cast_session_call_start_sync (session->proxy,
-                                                      NULL,
-                                                      &error))
+  if (!meta_dbus_remote_desktop_session_call_start_sync (
+        session->remote_desktop_session_proxy,
+        NULL,
+        &error))
     g_error ("Failed to start session: %s", error->message);
 }
 
@@ -464,9 +472,10 @@ session_stop (Session *session)
 {
   GError *error = NULL;
 
-  if (!meta_dbus_screen_cast_session_call_stop_sync (session->proxy,
-                                                     NULL,
-                                                     &error))
+  if (!meta_dbus_remote_desktop_session_call_stop_sync (
+        session->remote_desktop_session_proxy,
+        NULL,
+        &error))
     g_error ("Failed to stop session: %s", error->message);
 }
 
@@ -485,7 +494,7 @@ session_record_virtual (Session *session,
   properties_variant = g_variant_builder_end (&properties_builder);
 
   if (!meta_dbus_screen_cast_session_call_record_virtual_sync (
-        session->proxy,
+        session->screen_cast_session_proxy,
         properties_variant,
         &stream_path,
         NULL,
@@ -498,21 +507,14 @@ session_record_virtual (Session *session,
 }
 
 static Session *
-session_new (const char *path)
+session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
+             MetaDBusScreenCastSession    *screen_cast_session_proxy)
 {
   Session *session;
-  GError *error = NULL;
 
   session = g_new0 (Session, 1);
-  session->proxy = meta_dbus_screen_cast_session_proxy_new_for_bus_sync (
-    G_BUS_TYPE_SESSION,
-    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
-    "org.gnome.Mutter.ScreenCast",
-    path,
-    NULL,
-    &error);
-  if (!session->proxy)
-    g_error ("Failed to acquire proxy: %s", error->message);
+  session->remote_desktop_session_proxy = remote_desktop_session_proxy;
+  session->screen_cast_session_proxy = screen_cast_session_proxy;
 
   return session;
 }
@@ -520,32 +522,101 @@ session_new (const char *path)
 static void
 session_free (Session *session)
 {
-  g_clear_object (&session->proxy);
+  g_clear_object (&session->screen_cast_session_proxy);
+  g_clear_object (&session->remote_desktop_session_proxy);
   g_free (session);
 }
 
 static Session *
-screen_cast_create_session (ScreenCast *screen_cast)
+screen_cast_create_session (RemoteDesktop *remote_desktop,
+                            ScreenCast    *screen_cast)
 {
   GVariantBuilder properties_builder;
-  GVariant *properties_variant;
   GError *error = NULL;
-  g_autofree char *session_path = NULL;
+  g_autofree char *remote_desktop_session_path = NULL;
+  MetaDBusRemoteDesktopSession *remote_desktop_session_proxy;
+  g_autofree char *screen_cast_session_path = NULL;
+  MetaDBusScreenCastSession *screen_cast_session_proxy;
+  const char *session_id;
   Session *session;
 
-  g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
-  properties_variant = g_variant_builder_end (&properties_builder);
-
-  if (!meta_dbus_screen_cast_call_create_session_sync (screen_cast->proxy,
-                                                       properties_variant,
-                                                       &session_path,
-                                                       NULL,
-                                                       &error))
+  if (!meta_dbus_remote_desktop_call_create_session_sync (
+        remote_desktop->proxy,
+        &remote_desktop_session_path,
+        NULL,
+        &error))
     g_error ("Failed to create session: %s", error->message);
 
-  session = session_new (session_path);
+  remote_desktop_session_proxy =
+    meta_dbus_remote_desktop_session_proxy_new_for_bus_sync (
+      G_BUS_TYPE_SESSION,
+      G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+      "org.gnome.Mutter.RemoteDesktop",
+      remote_desktop_session_path,
+      NULL,
+      &error);
+  if (!remote_desktop_session_proxy)
+    g_error ("Failed to acquire proxy: %s", error->message);
+
+  session_id =
+    meta_dbus_remote_desktop_session_get_session_id (
+      remote_desktop_session_proxy);
+
+  g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
+  g_variant_builder_add (&properties_builder, "{sv}",
+                         "remote-desktop-session-id",
+                         g_variant_new_string (session_id));
+
+  if (!meta_dbus_screen_cast_call_create_session_sync (
+        screen_cast->proxy,
+        g_variant_builder_end (&properties_builder),
+        &screen_cast_session_path,
+        NULL,
+        &error))
+    g_error ("Failed to create session: %s", error->message);
+
+  screen_cast_session_proxy =
+    meta_dbus_screen_cast_session_proxy_new_for_bus_sync (
+      G_BUS_TYPE_SESSION,
+      G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+      "org.gnome.Mutter.ScreenCast",
+      screen_cast_session_path,
+      NULL,
+      &error);
+  if (!screen_cast_session_proxy)
+    g_error ("Failed to acquire proxy: %s", error->message);
+
+  session = session_new (remote_desktop_session_proxy,
+                         screen_cast_session_proxy);
   g_assert_nonnull (session);
   return session;
+}
+
+static RemoteDesktop *
+remote_desktop_new (void)
+{
+  RemoteDesktop *remote_desktop;
+  GError *error = NULL;
+
+  remote_desktop = g_new0 (RemoteDesktop, 1);
+  remote_desktop->proxy = meta_dbus_remote_desktop_proxy_new_for_bus_sync (
+    G_BUS_TYPE_SESSION,
+    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+    "org.gnome.Mutter.RemoteDesktop",
+    "/org/gnome/Mutter/RemoteDesktop",
+    NULL,
+    &error);
+  if (!remote_desktop->proxy)
+    g_error ("Failed to acquire proxy: %s", error->message);
+
+  return remote_desktop;
+}
+
+static void
+remote_desktop_free (RemoteDesktop *remote_desktop)
+{
+  g_clear_object (&remote_desktop->proxy);
+  g_free (remote_desktop);
 }
 
 static ScreenCast *
@@ -579,14 +650,16 @@ int
 main (int    argc,
       char **argv)
 {
+  RemoteDesktop *remote_desktop;
   ScreenCast *screen_cast;
   Session *session;
   Stream *stream;
 
   init_pipewire ();
 
+  remote_desktop = remote_desktop_new ();
   screen_cast = screen_cast_new ();
-  session = screen_cast_create_session (screen_cast);
+  session = screen_cast_create_session (remote_desktop, screen_cast);
   stream = session_record_virtual (session, 50, 40);
 
   session_start (session);
@@ -613,11 +686,15 @@ main (int    argc,
       g_assert_cmpint (stream->spa_format.size.height, ==, 40);
     }
 
+  /* Check that resizing works */
+  stream_resize (stream, 60, 60);
+
   session_stop (session);
 
   stream_free (stream);
   session_free (session);
   screen_cast_free (screen_cast);
+  remote_desktop_free (remote_desktop);
 
   release_pipewire ();
 
