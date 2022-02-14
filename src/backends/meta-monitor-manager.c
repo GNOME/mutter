@@ -1369,6 +1369,13 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
                   NULL, NULL, NULL,
 		  G_TYPE_NONE, 0);
 
+  /**
+   * MetaMonitorManager::monitor-privacy-screen-changed: (skip)
+   * @monitor_manager: The #MetaMonitorManager
+   * @logical_monitor: The #MetaLogicalMonitor where the privacy screen state
+   *                   changed
+   * @enabled: %TRUE if the privacy screen was enabled, otherwise %FALSE
+   */
   signals[MONITOR_PRIVACY_SCREEN_CHANGED] =
     g_signal_new ("monitor-privacy-screen-changed",
                   G_TYPE_FROM_CLASS (object_class),
