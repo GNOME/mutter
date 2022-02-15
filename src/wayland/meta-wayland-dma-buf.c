@@ -275,6 +275,7 @@ meta_wayland_dma_buf_feedback_send (MetaWaylandDmaBufFeedback *feedback,
   device_id_ptr = wl_array_add (&main_device_buf, sizeof (*device_id_ptr));
   *device_id_ptr = feedback->main_device_id;
   zwp_linux_dmabuf_feedback_v1_send_main_device (resource, &main_device_buf);
+  wl_array_release (&main_device_buf);
 
   g_list_foreach (feedback->tranches,
                   (GFunc) meta_wayland_dma_buf_tranche_send,
