@@ -1,3 +1,12 @@
+40.9
+====
+* Place popups on the same monitor as the anchor rect [Jonas; !2252]
+* Fixed crashes [Carlos, Daniel; !2237, !2282, !2251]
+* Misc. bug fixes [Robert; !2232]
+
+Contributors:
+  Carlos Garnacho, Robert Mader, Daniel van Vugt, Jonas Ådahl
+
 40.8
 ====
 * Fix mixed up refresh rates in multi-monitor setups [Robert; !2169]
