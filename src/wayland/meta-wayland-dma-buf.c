@@ -1292,7 +1292,7 @@ add_fallback:
  *
  * [ 32 bit format  ][ 32 bit padding ][          64 bit modifier         ]
  */
-typedef struct _MetaMetaWaylanDmaBdufFormatEntry
+typedef struct _MetaWaylandDmaBufFormatEntry
 {
   uint32_t drm_format;
   uint32_t unused_padding;
