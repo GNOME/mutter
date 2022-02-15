@@ -1,3 +1,20 @@
+41.4
+====
+* Fix DND between X11 and wayland clients [Carlos; !2124]
+* Fix resetting idle time on lid open [Carlos; !2272]
+* wayland/gtk: Only perform allowed titlebar gestures [Florian; !2281]
+* Place popups on the same monitor as the anchor rect [Jonas; !2252]
+* Fix wrong resizes of some clients on focus changes [Sebastian; #2091]
+* Misc. bug fixes [Robert; !2232, !2263]
+* Fixed crashes [Carlos, Daniel; !2237, !2282, !2251]
+
+Contributors:
+  Carlos Garnacho, Sebastian Keller, Robert Mader, Florian Müllner,
+  Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  sicklylife [ja]
+
 41.3
 ====
 * Check keyboard serials for activation [Carlos; !2148]
