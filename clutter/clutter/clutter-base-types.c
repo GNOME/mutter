@@ -39,8 +39,6 @@
 
 #define FLOAT_EPSILON   (1e-15)
 
-
-
 /*
  * ClutterMargin
  */
