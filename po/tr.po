@@ -8,14 +8,14 @@
 # Muhammed EKEN <gnome@m-eken.com>, 2011.
 # Furkan Ahmet Kara <furkanahmetkara.fk@gmail.com>, 2017.
 # Muhammet Kara <muhammetk@gmail.com>, 2011, 2012, 2014, 2015, 2016, 2017.
-# Emin Tufan Çetin <etcetin@gmail.com>, 2017-2021.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2017-2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-09-03 21:08+0000\n"
-"PO-Revision-Date: 2021-09-09 22:25+0300\n"
+"POT-Creation-Date: 2022-02-14 16:04+0000\n"
+"PO-Revision-Date: 2022-02-16 22:23+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -178,7 +178,8 @@ msgstr "Üstteki çalışma alanına taşı"
 msgid "Move to workspace below"
 msgstr "Alttaki çalışma alanına taşı"
 
-#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
+#: data/50-mutter-system.xml:6
+#: data/50-mutter-wayland.xml:6
 msgid "System"
 msgstr "Sistem"
 
@@ -232,9 +233,7 @@ msgstr "Pencereyi yeniden boyutlandır"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr ""
-"Pencerenin tüm çalışma alanlarında veya yalnızca bir tanesi üzerinde "
-"olmasını seç"
+msgstr "Pencerenin tüm çalışma alanlarında veya yalnızca bir tanesi üzerinde olmasını seç"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
@@ -256,11 +255,13 @@ msgstr "Pencereyi dikey olarak büyült"
 msgid "Maximize window horizontally"
 msgstr "Pencereyi yatay olarak büyült"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41
+#: data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "Solda bölünmüş olarak göster"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45
+#: data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "Sağda bölünmüş olarak göster"
 
@@ -268,213 +269,139 @@ msgstr "Sağda bölünmüş olarak göster"
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Genişletilmiş pencere yönetimi işlemleri için kullanılacak değiştirici"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
-msgid ""
-"This key will initiate the “overlay”, which is a combination window overview "
-"and application launching system. The default is intended to be the “Windows "
-"key” on PC hardware. It’s expected that this binding either the default or "
-"set to the empty string."
-msgstr ""
-"Bu tuş, pencere genel görünümü ve uygulama başlatma sisteminin bir birleşimi "
-"olan “bindirme” işlemini başlatır. Öntanımlı olarak PC donanımındaki "
-"“Windows tuşu” olması tasarlanmıştır. Bu bağlayıcının öntanımlı veya boş "
-"dizge olarak ayarlanması beklenir."
+#: data/org.gnome.mutter.gschema.xml.in:16
+msgid "This key will initiate the “overlay”, which is a combination window overview and application launching system. The default is intended to be the “Windows key” on PC hardware. It’s expected that this binding either the default or set to the empty string."
+msgstr "Bu tuş, pencere genel görünümü ve uygulama başlatma sisteminin bir birleşimi olan “bindirme” işlemini başlatır. Öntanımlı olarak PC donanımındaki “Windows tuşu” olması tasarlanmıştır. Bu bağlayıcının öntanımlı veya boş dizge olarak ayarlanması beklenir."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Yardımcı diyalogları ekle"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
-msgid ""
-"When true, instead of having independent titlebars, modal dialogs appear "
-"attached to the titlebar of the parent window and are moved together with "
-"the parent window."
-msgstr ""
-"Seçili olduğunda, bağımsız başlık çubuklarına sahip olmak yerine, kipsel "
-"diyaloglar üst pencerenin başlık çubuğunda ekli gözükür ve üst pencere ile "
-"birlikte hareket ettirilebilirler."
+#: data/org.gnome.mutter.gschema.xml.in:29
+msgid "When true, instead of having independent titlebars, modal dialogs appear attached to the titlebar of the parent window and are moved together with the parent window."
+msgstr "Seçili olduğunda, bağımsız başlık çubuklarına sahip olmak yerine, kipsel diyaloglar üst pencerenin başlık çubuğunda ekli gözükür ve üst pencere ile birlikte hareket ettirilebilirler."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
-msgstr ""
-"Pencereler ekran kenarlarında bırakıldığında kenar döşemeyi etkinleştir"
+msgstr "Pencereler ekran kenarlarında bırakıldığında kenar döşemeyi etkinleştir"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
-msgid ""
-"If enabled, dropping windows on vertical screen edges maximizes them "
-"vertically and resizes them horizontally to cover half of the available "
-"area. Dropping windows on the top screen edge maximizes them completely."
-msgstr ""
-"Eğer etkinleştirilirse, dikey ekran kenarlarına bırakılan pencereler dikey "
-"olarak ekranı kaplar ve yatayda kullanılabilir alanın yarısını kaplayacak "
-"biçimde yeniden boyutlandırılır. Ekranın tepedeki kenarına bırakılan "
-"pencereler ekranı tümüyle kaplar."
+#: data/org.gnome.mutter.gschema.xml.in:39
+msgid "If enabled, dropping windows on vertical screen edges maximizes them vertically and resizes them horizontally to cover half of the available area. Dropping windows on the top screen edge maximizes them completely."
+msgstr "Eğer etkinleştirilirse, dikey ekran kenarlarına bırakılan pencereler dikey olarak ekranı kaplar ve yatayda kullanılabilir alanın yarısını kaplayacak biçimde yeniden boyutlandırılır. Ekranın tepedeki kenarına bırakılan pencereler ekranı tümüyle kaplar."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Çalışma alanları dinamik olarak yönetilir"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
-msgid ""
-"Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
-msgstr ""
-"Çalışma alanlarının dinamik olarak mı yönetileceğini yoksa sabit sayıda "
-"çalışma alanı mı olacağını belirler (org.gnome.desktop.wm.preferences "
-"içindeki num-workspaces değişkeni tarafından belirlenir)."
+#: data/org.gnome.mutter.gschema.xml.in:49
+msgid "Determines whether workspaces are managed dynamically or whether there’s a static number of workspaces (determined by the num-workspaces key in org.gnome.desktop.wm.preferences)."
+msgstr "Çalışma alanlarının dinamik olarak mı yönetileceğini yoksa sabit sayıda çalışma alanı mı olacağını belirler (org.gnome.desktop.wm.preferences içindeki num-workspaces değişkeni tarafından belirlenir)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Yalnızca birincil monitördeki çalışma alanları"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
-msgid ""
-"Determines whether workspace switching should happen for windows on all "
-"monitors or only for windows on the primary monitor."
-msgstr ""
-"Çalışma alanı değiştirilmesinin, tüm monitörlerdeki pencerelerde mi yoksa "
-"yalnızca birincil monitördekilerde mi gerçekleşeceğini belirler."
-
 #: data/org.gnome.mutter.gschema.xml.in:59
+msgid "Determines whether workspace switching should happen for windows on all monitors or only for windows on the primary monitor."
+msgstr "Çalışma alanı değiştirilmesinin, tüm monitörlerdeki pencerelerde mi yoksa yalnızca birincil monitördekilerde mi gerçekleşeceğini belirler."
+
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
 msgstr "Sekme açılır penceresi yok"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Pencere geçişinde çerçeve vurgulanması ve açılır pencere kullanımının "
-"kapatılıp kapatılmayacağını belirler."
-
 #: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Determines whether the use of popup and highlight frame should be disabled for window cycling."
+msgstr "Pencere geçişinde çerçeve vurgulanması ve açılır pencere kullanımının kapatılıp kapatılmayacağını belirler."
+
+#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Odak değişikliklerini imleç hareketi durana dek ertele"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
-msgid ""
-"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
-"focus will not be changed immediately when entering a window, but only after "
-"the pointer stops moving."
-msgstr ""
-"Eğer seçiliyse ve odaklama kipi “sloppy” yada “mouse” ise bir pencereye "
-"geçişte odak hemen değil, yanlızca imleç hareket etmeyi bıraktığında değişir."
+#: data/org.gnome.mutter.gschema.xml.in:77
+msgid "If set to true, and the focus mode is either “sloppy” or “mouse” then the focus will not be changed immediately when entering a window, but only after the pointer stops moving."
+msgstr "Eğer seçiliyse ve odaklama kipi “sloppy” yada “mouse” ise bir pencereye geçişte odak hemen değil, yanlızca imleç hareket etmeyi bıraktığında değişir."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
 msgstr "Sürüklenebilir kenarlık genişliği"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
-msgid ""
-"The amount of total draggable borders. If the theme’s visible borders are "
-"not enough, invisible borders will be added to meet this value."
-msgstr ""
-"Sürüklenebilir kenarlıkların toplam miktarı. Eğer temanın görünür "
-"kenarlıkları yetersiz gelirse, bu değere ulaşmak için görünmez kenarlıklar "
-"eklenir."
+#: data/org.gnome.mutter.gschema.xml.in:88
+msgid "The amount of total draggable borders. If the theme’s visible borders are not enough, invisible borders will be added to meet this value."
+msgstr "Sürüklenebilir kenarlıkların toplam miktarı. Eğer temanın görünür kenarlıkları yetersiz gelirse, bu değere ulaşmak için görünmez kenarlıklar eklenir."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Ekran boyutuna yakın pencereleri kendiliğinden ekranı kaplattır"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
-msgid ""
-"If enabled, new windows that are initially the size of the monitor "
-"automatically get maximized."
-msgstr ""
-"Etkinleştirildiğinde ekran boyutunda başlayan yeni pencereler kendiliğinden "
-"ekranı kaplar."
-
 #: data/org.gnome.mutter.gschema.xml.in:98
+msgid "If enabled, new windows that are initially the size of the monitor automatically get maximized."
+msgstr "Etkinleştirildiğinde ekran boyutunda başlayan yeni pencereler kendiliğinden ekranı kaplar."
+
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "Yeni pencereleri ekranın ortasına yerleştir"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
-msgid ""
-"When true, the new windows will always be put in the center of the active "
-"screen of the monitor."
-msgstr ""
-"Etkinleştirildiğinde, yeni pencereler her zaman monitörün etkin ekranında "
-"ortaya yerleştirilir."
-
 #: data/org.gnome.mutter.gschema.xml.in:107
+msgid "When true, the new windows will always be put in the center of the active screen of the monitor."
+msgstr "Etkinleştirildiğinde, yeni pencereler her zaman monitörün etkin ekranında ortaya yerleştirilir."
+
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
 msgstr "Deneysel özellikleri etkinleştir"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
-msgid ""
-"To enable experimental features, add the feature keyword to the list. "
-"Whether the feature requires restarting the compositor depends on the given "
-"feature. Any experimental feature is not required to still be available, or "
-"configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
-"mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
-"enables DMA buffered screen sharing. This is already enabled by default when "
-"using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-"X11 clients are gone. Does not require a restart."
-msgstr ""
-"Deneysel özellikleri etkinleştirmek için özelliğin anahtar sözcüğünü listeye "
-"ekleyin. Özelliğin yeniden başlatmayı gerektirip gerektirmeyeceği verilen "
-"özelliğe bağlıdır. Hiçbir deneysel özellik hala kullanılabilir veya "
-"yapılandırılabilir olmak zorunda değildir. Bu ayara eklenecek herhangi bir "
-"şeyin gelecekte olabilecek değişikliklerden etkilenmeyeceğini düşünmeyin. Şu "
-"anda kullanılabilir anahtar sözcükler: • “scale-monitor-framebuffer” — "
-"mutter’in HiDPI monitörleri yönetmesi için pencere içeriği yerine monitör "
-"çerçeve arabelleğini ölçeklendirirken, mantıksal monitörleri mantıksal "
-"piksel koordinat aralığına yerleştirmesini öntanımlı yapar. Yeniden başlatma "
-"gerektirmez. • “rt-scheduler” — mutter isteğini bir düşük öncelikli gerçek "
-"zamanlı sıralandırma yapar. Çalıştırılabilir (executable) veya kullanıcı "
-"CAP_SYS_NICE’ye sahip olmalıdır. Yeniden başlatma gerektirir. • “dma-buf-"
-"screen-sharing\" — DMA arabellekli ekran paylaşımını etkinleştirir. Bu, i915 "
-"sürücüsü kullanılırken zaten öntanımlı olarak etkinleştirilir, ancak diğer "
-"tümünde devre dışıdır. Yeniden başlatma gerektirir. • “autoclose-xwayland” — "
-"eğer ilişkili tüm X11 istemcileri artık yoksa XWaylandʼi kendiliğinden "
-"sonlandırır. Yeniden başlatma gerektirmez."
+#: data/org.gnome.mutter.gschema.xml.in:117
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
+#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
+#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
+#| "sharing. This is already enabled by default when using the i915 driver, "
+#| "but disabled for everything else. Requires a restart. • “autoclose-"
+#| "xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+#| "are gone. Does not require a restart."
+msgid "To enable experimental features, add the feature keyword to the list. Whether the feature requires restarting the compositor depends on the given feature. Any experimental feature is not required to still be available, or configurable. Don’t expect adding anything in this setting to be future proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes mutter default to layout logical monitors in a logical pixel coordinate space, while scaling monitor framebuffers instead of window content, to manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes mutter always allocate scanout buffers with explicit modifiers, if supported by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a low priority real-time scheduling. Requires a restart. • “autoclose-xwayland” — automatically terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
+msgstr "Deneysel özellikleri etkinleştirmek için özelliğin anahtar sözcüğünü listeye ekleyin. Özelliğin yeniden başlatmayı gerektirip gerektirmeyeceği verilen özelliğe bağlıdır. Hiçbir deneysel özellik hala kullanılabilir veya yapılandırılabilir olmak zorunda değildir. Bu ayara eklenecek herhangi bir şeyin gelecekte olabilecek değişikliklerden etkilenmeyeceğini düşünmeyin. Şu anda kullanılabilir anahtar sözcükler: • “scale-monitor-framebuffer” — mutter’in HiDPI monitörleri yönetmesi için pencere içeriği yerine monitör çerçeve arabelleğini ölçeklendirirken, mantıksal monitörleri mantıksal piksel koordinat aralığına yerleştirmesini öntanımlı yapar. Yeniden başlatma gerektirmez. • “kms-modifiers” — eğer sürücüce destekleniyorsa, mutter her zaman scanout arabelleğini açık değiştiricilerle tahsis eder.  • “rt-scheduler” — mutter isteğini bir düşük öncelikli gerçek zamanlı sıralandırma yapar. Yeniden başlatma gerektirir. • “autoclose-xwayland” — eğer ilişkili tüm X11 istemcileri artık yoksa XWaylandʼi kendiliğinden sonlandırır. Yeniden başlatma gerektirir."
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
 msgstr "İşaretçiyi konumlamada kullanılacak değiştirici"
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Bu anahtar “işaretçiyi konumla” eylemini başlatacak."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
 msgstr "Canlılık denetim pingi için zaman aşımı"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
-msgid ""
-"Number of milliseconds a client has to respond to a ping request in order to "
-"not be detected as frozen. Using 0 will disable the alive check completely."
-msgstr ""
-"İstemcinin donuk olarak saptanmaması için ping istemini yanıtlaması gereken "
-"milisaniye sayısı. 0 kullanmak canlılık denetimini tümüyle devre dışı "
-"bırakır."
+#: data/org.gnome.mutter.gschema.xml.in:159
+msgid "Number of milliseconds a client has to respond to a ping request in order to not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr "İstemcinin donuk olarak saptanmaması için ping istemini yanıtlaması gereken milisaniye sayısı. 0 kullanmak canlılık denetimini tümüyle devre dışı bırakır."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
 msgstr "Pencereyi, sekme açılır penceresinden seç"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
 msgstr "Sekmeyi yeni pencerede açmayı iptal et"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "Monitör yapılandırmaları arası geçiş yap"
 
-#: data/org.gnome.mutter.gschema.xml.in:191
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr "Yerleşik monitör yapılandırmaları arası geçiş yapar"
 
@@ -535,70 +462,24 @@ msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "X11 yakalamalarının Xwayland ile klavye odağı kilitlemesine izin ver"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
-msgid ""
-"Allow all keyboard events to be routed to X11 “override redirect” windows "
-"with a grab when running in Xwayland. This option is to support X11 clients "
-"which map an “override redirect” window (which do not receive keyboard "
-"focus) and issue a keyboard grab to force all keyboard events to that "
-"window. This option is seldom used and has no effect on regular X11 windows "
-"which can receive keyboard focus under normal circumstances. For a X11 grab "
-"to be taken into account under Wayland, the client must also either send a "
-"specific X11 ClientMessage to the root window or be among the applications "
-"allowed in key “xwayland-grab-access-rules”."
-msgstr ""
-"Xwayland içinde çalışırken tüm klavye etkinlikleri yakalamalı X11 “override "
-"redirect” pencerelerine yönlendirilecek. Bu seçenek, “override redirect” "
-"penceresi çizen (klavye odağı almayan) X11 istemcilerini desteklemek ve bu "
-"istemcilerin tüm klavye etkinliklerini bu pencereye zorlayan klavye "
-"yakalaması yayımlamasını sağlar. Bu seçenek nadiren kullanılır ve sıradan "
-"koşullar altında klavye odağı alan sıradan X11 pencerelerinde etkisi yoktur. "
-"Bir X11 yakalamasının Wayland altında hesaba katılması için istemci ya kök "
-"pencereye belirli X11 ClientMessage’ı göndermeli ya da “xwayland-grab-access-"
-"rules” anahtarındaki izin verilen uygulamalar arasında olmalıdır."
+msgid "Allow all keyboard events to be routed to X11 “override redirect” windows with a grab when running in Xwayland. This option is to support X11 clients which map an “override redirect” window (which do not receive keyboard focus) and issue a keyboard grab to force all keyboard events to that window. This option is seldom used and has no effect on regular X11 windows which can receive keyboard focus under normal circumstances. For a X11 grab to be taken into account under Wayland, the client must also either send a specific X11 ClientMessage to the root window or be among the applications allowed in key “xwayland-grab-access-rules”."
+msgstr "Xwayland içinde çalışırken tüm klavye etkinlikleri yakalamalı X11 “override redirect” pencerelerine yönlendirilecek. Bu seçenek, “override redirect” penceresi çizen (klavye odağı almayan) X11 istemcilerini desteklemek ve bu istemcilerin tüm klavye etkinliklerini bu pencereye zorlayan klavye yakalaması yayımlamasını sağlar. Bu seçenek nadiren kullanılır ve sıradan koşullar altında klavye odağı alan sıradan X11 pencerelerinde etkisi yoktur. Bir X11 yakalamasının Wayland altında hesaba katılması için istemci ya kök pencereye belirli X11 ClientMessage’ı göndermeli ya da “xwayland-grab-access-rules” anahtarındaki izin verilen uygulamalar arasında olmalıdır."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Klavye yakalamaları yapabilen Xwayland uygulamaları"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
-msgid ""
-"List the resource names or resource class of X11 windows either allowed or "
-"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
-"resource class of a given X11 window can be obtained using the command "
-"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are denied, which has precedence over the list of "
-"values allowed, to revoke applications from the default system list. The "
-"default system list includes the following applications: "
-"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
-"using the specific keyboard shortcut defined by the keybinding key “restore-"
-"shortcuts”."
-msgstr ""
-"Xwayland altında X11 klavye yakalamaları yapmak için izin verilsin veya "
-"verilmesin tüm X11 pencerelerinin kaynak adlarını veya kaynak sınıfını "
-"listele. Verilen bir X11 penceresinin kaynak adı veya kaynak sınıfı “xprop "
-"WM_CLASS” komutuyla elde edilebilir. Değerlerde “*” joker karakteri ve “?” "
-"değiştirilebilir damga kullanımı desteklenmektedir. “!” ile başlayan "
-"değerler engellenmiştir; bunların, uygulamaları öntanımlı sistem listesinden "
-"kaldırmada, izinli listesinden üstünlüğü vardır. Öntanımlı sistem listesi şu "
-"uygulamaları içerir: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Kullanıcılar, "
-"“restore-shortcuts” anahtar bağlama anahtarıyla tanımlanmış özel klavye "
-"kısayolunu kullanarak var olan yakalamayı kırabilir."
+msgid "List the resource names or resource class of X11 windows either allowed or not allowed to issue X11 keyboard grabs under Xwayland. The resource name or resource class of a given X11 window can be obtained using the command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. Values starting with “!” are denied, which has precedence over the list of values allowed, to revoke applications from the default system list. The default system list includes the following applications: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by using the specific keyboard shortcut defined by the keybinding key “restore-shortcuts”."
+msgstr "Xwayland altında X11 klavye yakalamaları yapmak için izin verilsin veya verilmesin tüm X11 pencerelerinin kaynak adlarını veya kaynak sınıfını listele. Verilen bir X11 penceresinin kaynak adı veya kaynak sınıfı “xprop WM_CLASS” komutuyla elde edilebilir. Değerlerde “*” joker karakteri ve “?” değiştirilebilir damga kullanımı desteklenmektedir. “!” ile başlayan değerler engellenmiştir; bunların, uygulamaları öntanımlı sistem listesinden kaldırmada, izinli listesinden üstünlüğü vardır. Öntanımlı sistem listesi şu uygulamaları içerir: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Kullanıcılar, “restore-shortcuts” anahtar bağlama anahtarıyla tanımlanmış özel klavye kısayolunu kullanarak var olan yakalamayı kırabilir."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
 msgstr "Seçilen X eklentilerini Xwayland’de devre dışı bırak"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:117
-msgid ""
-"This option disables the selected X extensions in Xwayland if Xwayland was "
-"built with support for those X extensions. This option has no effect if "
-"Xwayland was built without support for the selected extensions. Xwayland "
-"needs to be restarted for this setting to take effect."
-msgstr ""
-"Bu seçenek; eğer Xwayland ilgili X eklentilerine destekle inşa edildiyse, "
-"seçili X eklentilerini Xwayland’de devre dışı bırakır. Eğer Xwayland, seçili "
-"eklentileri desteklemeksizin inşa edildiyse bu seçenek etkisizdir. Bu ayarın "
-"etkili olması için Xwayland yeniden başlatılmalıdır."
+msgid "This option disables the selected X extensions in Xwayland if Xwayland was built with support for those X extensions. This option has no effect if Xwayland was built without support for the selected extensions. Xwayland needs to be restarted for this setting to take effect."
+msgstr "Bu seçenek; eğer Xwayland ilgili X eklentilerine destekle inşa edildiyse, seçili X eklentilerini Xwayland’de devre dışı bırakır. Eğer Xwayland, seçili eklentileri desteklemeksizin inşa edildiyse bu seçenek etkisizdir. Bu ayarın etkili olması için Xwayland yeniden başlatılmalıdır."
 
 #: src/backends/meta-monitor.c:246
 msgid "Built-in display"
@@ -614,16 +495,13 @@ msgstr "Bilinmeyen Monitör"
 
 #: src/backends/meta-monitor.c:285
 #, c-format
-msgctxt ""
-"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgctxt "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
 #: src/backends/meta-monitor.c:293
 #, c-format
-msgctxt ""
-"This is a monitor vendor name followed by product/model name where size in "
-"inches could not be calculated, e.g. Dell U2414H"
+msgctxt "This is a monitor vendor name followed by product/model name where size in inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
@@ -632,36 +510,24 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Dizgici"
 
-#: src/backends/x11/meta-clutter-backend-x11.c:237
-msgid "X display to use"
-msgstr "Kullanılacak X monitörü"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:243
-msgid "X screen to use"
-msgstr "Kullanılacak X ekranı"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:248
-#: src/core/meta-context-main.c:585
-msgid "Make X calls synchronous"
-msgstr "X çağrılarını eşzamanlı yap"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:254
-msgid "Disable XInput support"
-msgstr "XInput desteğini devre dışı bırak"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:513
+#: src/compositor/compositor.c:392
 #, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"“%2$s” monitöründeki %1$i ekranında halihazırda başka birleştirme yöneticisi "
-"çalışıyor."
+msgid "Another compositing manager is already running on screen %i on display “%s”."
+msgstr "“%2$s” monitöründeki %1$i ekranında halihazırda başka birleştirme yöneticisi çalışıyor."
 
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Etkinlik zili"
+
+#: src/core/display.c:687
+msgid "Privacy Screen Enabled"
+msgstr "Gizlilik Ekranı Etkin"
+
+#: src/core/display.c:688
+msgid "Privacy Screen Disabled"
+msgstr "Gizlilik Ekranı Devre Dışı"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -674,17 +540,14 @@ msgid "Application is not responding."
 msgstr "Uygulama yanıtlamıyor."
 
 #: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Uygulamanın sürmesini bekleyebilir veya tümüyle çıkmaya zorlayabilirsiniz."
+msgid "You may choose to wait a short while for it to continue or force the application to quit entirely."
+msgstr "Uygulamanın sürmesini bekleyebilir veya tümüyle çıkmaya zorlayabilirsiniz."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Zorla Çık"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Bekle"
 
@@ -707,6 +570,10 @@ msgstr "Ortam yönetim ID’sini belirt"
 #: src/core/meta-context-main.c:579
 msgid "Initialize session from savefile"
 msgstr "Ortamı kayıtlı dosyadan başlat"
+
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "X çağrılarını eşzamanlı yap"
 
 #: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
@@ -743,7 +610,7 @@ msgstr "X11 arkayüzüyle çalıştır"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:840
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Kip Anahtarı (Küme %d)"
@@ -751,19 +618,19 @@ msgstr "Kip Anahtarı (Küme %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:863
 msgid "Switch monitor"
 msgstr "Monitör değiştir"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Show on-screen help"
 msgstr "Ekranda yardımı göster"
 
-#: src/core/mutter.c:47
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Sürümü yazdır"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "Kullanılacak Mutter eklentisi"
 
@@ -772,7 +639,7 @@ msgstr "Kullanılacak Mutter eklentisi"
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:148
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 
@@ -783,13 +650,8 @@ msgstr "Kip Anahtarı: Kip %d"
 
 #: src/x11/meta-x11-display.c:673
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"“%s” monitörünün halihazırda pencere yöneticisi var; geçerli pencere "
-"yöneticisinin yerine başkasını koymak için --replace seçeneğini kullanmayı "
-"deneyin."
+msgid "Display “%s” already has a window manager; try using the --replace option to replace the current window manager."
+msgstr "“%s” monitörünün halihazırda pencere yöneticisi var; geçerli pencere yöneticisinin yerine başkasını koymak için --replace seçeneğini kullanmayı deneyin."
 
 #: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
@@ -800,7 +662,7 @@ msgstr "GDK ilklendirilemedi"
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Pencere Sistemi monitörü “%s” açılamadı"
 
-#: src/x11/meta-x11-display.c:1175
+#: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
@@ -810,18 +672,23 @@ msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 msgid "Format %s not supported"
 msgstr "%s biçimi desteklenmiyor"
 
-#: src/x11/session.c:1845
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Bu pencereler, “geçerli ayarları kaydet” özelliğini desteklemiyor ve sonraki "
-"girişinizde elle yeniden başlatılmalıdır."
+#: src/x11/session.c:1823
+msgid "These windows do not support “save current setup” and will have to be restarted manually next time you log in."
+msgstr "Bu pencereler, “geçerli ayarları kaydet” özelliğini desteklemiyor ve sonraki girişinizde elle yeniden başlatılmalıdır."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
+
+#~ msgid "X display to use"
+#~ msgstr "Kullanılacak X monitörü"
+
+#~ msgid "X screen to use"
+#~ msgstr "Kullanılacak X ekranı"
+
+#~ msgid "Disable XInput support"
+#~ msgstr "XInput desteğini devre dışı bırak"
 
 #~ msgid "Show the activities overview"
 #~ msgstr "Etkinlik genel görünümünü göster"
