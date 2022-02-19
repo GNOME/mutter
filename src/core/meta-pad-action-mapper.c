@@ -642,7 +642,7 @@ meta_pad_action_mapper_handle_action (MetaPadActionMapper *mapper,
 {
   MetaPadDirection direction = META_PAD_DIRECTION_NONE;
   g_autoptr (GSettings) settings1 = NULL, settings2 = NULL;
-  g_autofree char *accel1, *accel2;
+  g_autofree char *accel1 = NULL, *accel2 = NULL;
   gboolean handled;
 
   if (action == META_PAD_ACTION_RING)
@@ -748,7 +748,7 @@ compose_directional_action_label (MetaPadDirection  direction1,
                                   MetaPadDirection  direction2,
                                   GSettings        *value2)
 {
-  g_autofree char *accel1, *accel2;
+  g_autofree char *accel1 = NULL, *accel2 = NULL;
   GString *str;
 
   accel1 = g_settings_get_string (value1, "keybinding");
