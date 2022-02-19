@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-08-30 22:01+0000\n"
-"PO-Revision-Date: 2021-09-01 18:20+0200\n"
+"POT-Creation-Date: 2022-02-07 19:25+0000\n"
+"PO-Revision-Date: 2022-02-19 14:53+0100\n"
 "Last-Translator: Philipp Kiemle <philipp.kiemle@gmail.com>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -652,19 +652,15 @@ msgid "Compositor"
 msgstr "Compositor"
 
 #: src/backends/x11/meta-clutter-backend-x11.c:237
-#, fuzzy
-#| msgid "X Display to use"
 msgid "X display to use"
 msgstr "Zu verwendende X-Anzeige"
 
 #: src/backends/x11/meta-clutter-backend-x11.c:243
-#, fuzzy
-#| msgid "X Display to use"
 msgid "X screen to use"
-msgstr "Zu verwendende X-Anzeige"
+msgstr "Zu verwendender X-Bildschirm"
 
 #: src/backends/x11/meta-clutter-backend-x11.c:248
-#: src/core/meta-context-main.c:583
+#: src/core/meta-context-main.c:585
 msgid "Make X calls synchronous"
 msgstr "X-Aufrufe abgleichen"
 
@@ -704,64 +700,64 @@ msgstr ""
 "Sie können der Anwendung noch etwas Zeit geben oder ein sofortiges Beenden "
 "erzwingen."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Beenden erzwingen"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Warten"
 
-#: src/core/meta-context-main.c:553
+#: src/core/meta-context-main.c:555
 msgid "Replace the running window manager"
 msgstr "Den aktuellen Fensterverwalter ersetzen"
 
-#: src/core/meta-context-main.c:559
+#: src/core/meta-context-main.c:561
 msgid "X Display to use"
 msgstr "Zu verwendende X-Anzeige"
 
-#: src/core/meta-context-main.c:565
+#: src/core/meta-context-main.c:567
 msgid "Disable connection to session manager"
 msgstr "Verbindung zur Sitzungsverwaltung deaktivieren"
 
-#: src/core/meta-context-main.c:571
+#: src/core/meta-context-main.c:573
 msgid "Specify session management ID"
 msgstr "Kennung der Sitzungsverwaltung angeben"
 
-#: src/core/meta-context-main.c:577
+#: src/core/meta-context-main.c:579
 msgid "Initialize session from savefile"
 msgstr "Sitzung anhand gespeicherter Datei starten"
 
-#: src/core/meta-context-main.c:590
+#: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
 msgstr "Als Wayland-Compositor ausführen"
 
-#: src/core/meta-context-main.c:596
+#: src/core/meta-context-main.c:598
 msgid "Run as a nested compositor"
 msgstr "Als eingebetteten Compositor ausführen"
 
-#: src/core/meta-context-main.c:602
+#: src/core/meta-context-main.c:604
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland-Compositor ausführen, ohne Xwayland zu starten"
 
-#: src/core/meta-context-main.c:608
+#: src/core/meta-context-main.c:610
 msgid "Specify Wayland display name to use"
 msgstr "Name der Wayland-Anzeige festlegen"
 
-#: src/core/meta-context-main.c:616
+#: src/core/meta-context-main.c:618
 msgid "Run as a full display server, rather than nested"
 msgstr "Als vollwertigen Display-Server verwenden (nicht eingebettet)"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:623
 msgid "Run as a headless display server"
 msgstr "Als Display-Server ohne grafische Oberfläche verwenden"
 
 # Für WxH@R siehe https://gitlab.gnome.org/GNOME/mutter/-/blob/master/src/core/main.c#L498
-#: src/core/meta-context-main.c:626
+#: src/core/meta-context-main.c:628
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Einen persistenten virtuellen Monitor hinzufügen (BxH oder BxH@W)"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:639
 msgid "Run with X11 backend"
 msgstr "Mit X11-Backend ausführen"
 
@@ -784,11 +780,11 @@ msgstr "Bildschirm wechseln"
 msgid "Show on-screen help"
 msgstr "Bildschirmhilfe anzeigen"
 
-#: src/core/mutter.c:47
+#: src/core/mutter.c:48
 msgid "Print version"
 msgstr "Version ausgeben"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:54
 msgid "Mutter plugin to use"
 msgstr "Zu benutzendes Mutter-Plugin"
 
