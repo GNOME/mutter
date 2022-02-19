@@ -378,12 +378,10 @@ buildtype = get_option('buildtype')
 if buildtype != 'plain'
   all_warnings = [
     '-fno-strict-aliasing',
+    '-Wall',
     '-Wpointer-arith',
     '-Wmissing-declarations',
-    '-Wimplicit-function-declaration',
     '-Wformat=2',
-    '-Wformat-nonliteral',
-    '-Wformat-security',
     '-Wstrict-prototypes',
     '-Wmissing-prototypes',
     '-Wnested-externs',
