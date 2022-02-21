@@ -4,21 +4,21 @@
 # Elnaz Sarbar <elnaz@farsiweb.info>, 2005, 2006.
 # Meelad Zakaria <meelad@farsiweb.info>, 2006.
 # Farzaneh Sarafraz <farzaneh@farsiweb.info>, 2006.
-# Danial Behzadi <dani.behzi@ubuntu.com>, 2021.
+# Danial Behzadi <dani.behzi@ubuntu.com>, 2021-2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-09-20 18:09+0000\n"
-"PO-Revision-Date: 2021-09-21 18:53+0430\n"
+"POT-Creation-Date: 2022-02-16 19:25+0000\n"
+"PO-Revision-Date: 2022-02-21 16:17+0330\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
 "Language-Team: Persian\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.0.1\n"
 "X-DamnedLies-Scope: partial\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
@@ -250,11 +250,11 @@ msgstr "بیشینه‌کردن عمودی پنجره"
 msgid "Maximize window horizontally"
 msgstr "بیشینه‌کردن افقی پنجره"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "نمایش انشعاب در سمت راست"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "نمایش انشعاب در سمت راست"
 
@@ -262,19 +262,19 @@ msgstr "نمایش انشعاب در سمت راست"
 msgid "Mutter"
 msgstr "ماتر"
 
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "تغییردهنده‌ای که برای عمل‌های مدیریت پنجرهٔ افزوده به کار می‌رود"
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "ضمیمه‌کردن محاوره‌های معین"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "فضاهای‌کاری بصورت پویا مدیریت می‌شوند"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the focus "
 "will not be changed immediately when entering a window, but only after the "
@@ -283,23 +283,23 @@ msgstr ""
 "اگر روی درست تنظیم شده باشد و حالت تمرکز «sloppy» یا «mouse» باشد، تمرکز نه "
 "بلافاصله پس از ورود به پنجره، بلکه پس از توقّف حرکت نشانگر، عوض می‌شود."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "قرار دادن پنجره‌های جدید در مرکز"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
 msgstr "فعال‌سازی امکانات آزمایشی"
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
 msgstr "گزینش پنجره از واشوی زبانه"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "تعویض پیکربندی‌های نمایشگر"
 
-#: data/org.gnome.mutter.gschema.xml.in:191
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr "پیکربندی نمایشگر توکار را می‌چرخاند"
 
@@ -383,25 +383,9 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "ترکیب‌بند"
 
-#: src/backends/x11/meta-clutter-backend-x11.c:237
-msgid "X display to use"
-msgstr "نمایشگر X جهت استفاده"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:243
-msgid "X screen to use"
-msgstr "صفحهٔ X جهت استفاده"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:248 src/core/meta-context-main.c:585
-msgid "Make X calls synchronous"
-msgstr "همگام کردن فراخوانی‌های X"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:254
-msgid "Disable XInput support"
-msgstr "از کار انداختن پشتیبانی XInput"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:513
+#: src/compositor/compositor.c:392
 #, c-format
 msgid "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
@@ -410,6 +394,14 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "رویداد زنگ"
+
+#: src/core/display.c:687
+msgid "Privacy Screen Enabled"
+msgstr "صفحهٔ محرمانگی به کار افتاده"
+
+#: src/core/display.c:688
+msgid "Privacy Screen Disabled"
+msgstr "صفحهٔ محرمانگی از کار افتاده"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -427,11 +419,11 @@ msgid ""
 "to quit entirely."
 msgstr "ممکن است بخواهید کمی صبر کنید تا ادامه بدهد یا برنامه را با اجبار ببندید."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "ترک _اجباری"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_صبرکردن"
 
@@ -454,6 +446,10 @@ msgstr "مشخص کردن شناسهٔ مدیریت نشست"
 #: src/core/meta-context-main.c:579
 msgid "Initialize session from savefile"
 msgstr "مقداردهی اولیهٔ نشست از پرونده ذخیره"
+
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "همگام کردن فراخوانی‌های X"
 
 #: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
@@ -490,7 +486,7 @@ msgstr "اجرا به همراه پسانهٔ X11"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:840
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "تعویض حالت (گروه %Id)"
@@ -498,19 +494,19 @@ msgstr "تعویض حالت (گروه %Id)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:863
 msgid "Switch monitor"
 msgstr "تعویض نمایشگر"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Show on-screen help"
 msgstr "نمایش راهنمای در صفحه"
 
-#: src/core/mutter.c:47
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "چاپ نگارش"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "افزایهٔ ماتر جهت استفاده"
 
@@ -519,7 +515,7 @@ msgstr "افزایهٔ ماتر جهت استفاده"
 msgid "Workspace %d"
 msgstr "فضای‌کاری %Id"
 
-#: src/core/util.c:148
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "ماتر بدون پشتیبانی حالت مفصل کامپایل شده است"
 
@@ -546,7 +542,7 @@ msgstr "مقداردهی اولیهٔ GDK شکست خورد"
 msgid "Failed to open X Window System display “%s”"
 msgstr "شکست در گشودن نمایشگر «%s» سامانهٔ پنجرهٔ X"
 
-#: src/x11/meta-x11-display.c:1175
+#: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "صفحهٔ %Id روی نمایشگر «%s» نامعتبر است"
@@ -556,7 +552,7 @@ msgstr "صفحهٔ %Id روی نمایشگر «%s» نامعتبر است"
 msgid "Format %s not supported"
 msgstr "قالب %s پشتیبانی نمی‌شود"
 
-#: src/x11/session.c:1845
+#: src/x11/session.c:1823
 msgid ""
 "These windows do not support “save current setup” and will have to be restarted "
 "manually next time you log in."
@@ -568,6 +564,15 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (بر روی %s)"
+
+#~ msgid "X display to use"
+#~ msgstr "نمایشگر X جهت استفاده"
+
+#~ msgid "X screen to use"
+#~ msgstr "صفحهٔ X جهت استفاده"
+
+#~ msgid "Disable XInput support"
+#~ msgstr "از کار انداختن پشتیبانی XInput"
 
 #~ msgid "Unknown window information request: %d"
 #~ msgstr "درخواست ناشناس برای اطلاعات پنجره: %Id"
@@ -624,8 +629,8 @@ msgstr "%s (بر روی %s)"
 #~ "نیست\n"
 
 #~ msgid ""
-#~ "\"%s\" found in configuration database is not a valid value for keybinding \"%s"
-#~ "\"\n"
+#~ "\"%s\" found in configuration database is not a valid value for keybinding "
+#~ "\"%s\"\n"
 #~ msgstr ""
 #~ "«%s» که در پایگاه داده‌ی پیکربندی پیدا شده مقدار معتبری برای کلید مقید «%s» "
 #~ "نیست\n"
@@ -1001,11 +1006,11 @@ msgstr "%s (بر روی %s)"
 #~ msgstr "<%s> برای تم «%s» تنظیم نشده است"
 
 #~ msgid ""
-#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window type="
-#~ "\"%s\" style_set=\"whatever\"/> element"
+#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
+#~ "type=\"%s\" style_set=\"whatever\"/> element"
 #~ msgstr ""
-#~ "سبک جارچوب برای نوع پنجره «%s» در تم «%s» تنظیم نشده است، یک عنصر <window type="
-#~ "\"%s\" style_set=\"whatever\"/>  اضافه کنید"
+#~ "سبک جارچوب برای نوع پنجره «%s» در تم «%s» تنظیم نشده است، یک عنصر <window "
+#~ "type=\"%s\" style_set=\"whatever\"/>  اضافه کنید"
 
 #~ msgid "User-defined constants must begin with a capital letter; \"%s\" does not"
 #~ msgstr ""
@@ -1831,8 +1836,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 1. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۱. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1844,8 +1849,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 10. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۱۰. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1857,8 +1862,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 11. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۱۱. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1870,8 +1875,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 12. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۱۲. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1883,8 +1888,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 2. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۲. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1896,8 +1901,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 3. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۳. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1909,8 +1914,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 4. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۴. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1922,8 +1927,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 5. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۵. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1935,8 +1940,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 6. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری۶. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1948,8 +1953,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 7. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۷. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1961,8 +1966,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 8. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۸. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -1974,8 +1979,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding that switches to workspace 9. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید برای تعویض به فضای کاری ۹. قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبتآسان‌گیر است و حروف بزرگ "
@@ -1987,8 +1992,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding used to activate the window menu. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که برای فعال‌سازی منوی پنجره به کار می‌رود؛ قالب آن به شکل «&lt;"
 #~ "Control&gt;a» یا «&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر "
@@ -1997,8 +2002,8 @@ msgstr "%s (بر روی %s)"
 #~ "کلید مقیدی برای این کنش وجود نخواهد داشت."
 
 #~ msgid ""
-#~ "The keybinding used to close a window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "The keybinding used to close a window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
 #~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", then "
 #~ "there will be no keybinding for this action."
@@ -2058,8 +2063,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding used to maximize a window. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که برای حداکثر کردن پنجره به کار می‌رود؛ قالب آن به شکل «&lt;"
 #~ "Control&gt;a» یا «&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر "
@@ -2071,8 +2076,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding used to minimize a window. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که برای حداقل کردن پنجره به کار می‌رود؛ قالب آن به شکل «&lt;"
 #~ "Control&gt;a» یا «&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر "
@@ -2388,8 +2393,8 @@ msgstr "%s (بر روی %s)"
 #~ "binding reverses the direction of movement. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که برای جابه‌جایی تمرکز بین پنجره‌ها بدون استفاده از پنجره‌ی واشو "
 #~ "به کار می‌رود؛ قالب آن به شکل «&lt;Control&gt;a» یا «&lt;Shift&gt;&lt;Alt&gt;"
@@ -2403,8 +2408,8 @@ msgstr "%s (بر روی %s)"
 #~ "binding reverses the direction of movement. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که برای جابه‌جایی تمرکز بین پنجره‌ها با استفاده از پنجره‌ی واشو به "
 #~ "کار می‌رود؛ (&lt;Alt&gt;Tab طبق سنت) نگهداشتن کلید «تبدیل» هنگام استفاده از این "
@@ -2433,8 +2438,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding used to toggle fullscreen mode. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید ضامن حالت تمام صفحه. قالب آن به شکل «&lt;Control&gt;a» یا «&lt;"
 #~ "Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ یا "
@@ -2446,8 +2451,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding used to toggle maximization. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلید ضامن حداکثر کردن. قالب آن به شکل «&lt;Control&gt;a» یا «&lt;"
 #~ "Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ یا "
@@ -2486,8 +2491,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding used to unmaximize a window. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که برای ناحداکثر کردن پنجره به کار می‌رود. قالب آن به شکل «&lt;"
 #~ "Control&gt;a» یا «&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر "
@@ -2513,8 +2518,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding which invokes a terminal. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که یک پایانه احضار می‌کند؛ قالب آن به شکل «&lt;Control&gt;a» یا "
 #~ "«&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر است و حروف بزرگ "
@@ -2553,8 +2558,8 @@ msgstr "%s (بر روی %s)"
 #~ "The keybinding which shows the panel's main menu. The format looks like \"&lt;"
 #~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal "
 #~ "and allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" "
-#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "مقیدسازی کلیدی که منوی اصلی تابلو را نشان می‌دهد؛ قالب آن به شکل «&lt;"
 #~ "Control&gt;a» یا «&lt;Shift&gt;&lt;Alt&gt;F1» است. این تجزیه‌گر به نسبت آسان‌گیر "
