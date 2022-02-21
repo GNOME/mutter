@@ -349,7 +349,7 @@ meta_egl_choose_all_configs (MetaEgl       *egl,
       return NULL;
     }
 
-  *out_num_configs = num_configs;
+  *out_num_configs = num_matches;
   return configs;
 }
 
