@@ -59,6 +59,20 @@ i18n  = import('i18n')
 fs = import('fs')
 cc = meson.get_compiler('c')
 
+add_project_link_arguments(
+  cc.get_supported_link_arguments(
+    # meson automatically adds -rpath to targets and strips them when they
+    # are installed. ld adds a RUNPATH tag for -rpath arguments by default.
+    # This makes ld add a RPATH tag instead (as it did some time ago).
+    # The reason why we want RPATH and not RUNPATH is that LD_LIBRARY_PATH
+    # takes precedence over RUNPATH but not over RPATH. Since we usually run
+    # development builds in jhbuild which sets up LD_LIBRARY_PATH this can
+    # result in wrong dependencies being picked up by the linker.
+    '-Wl,--disable-new-dtags',
+  ),
+  language : 'c',
+)
+
 prefix = get_option('prefix')
 
 bindir = join_paths(prefix, get_option('bindir'))
