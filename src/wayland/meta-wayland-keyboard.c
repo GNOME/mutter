@@ -58,8 +58,6 @@
 #include "core/meta-anonymous-file.h"
 #include "wayland/meta-wayland-private.h"
 
-#define GSD_KEYBOARD_SCHEMA "org.gnome.settings-daemon.peripherals.keyboard"
-
 G_DEFINE_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
                META_TYPE_WAYLAND_INPUT_DEVICE)
 
