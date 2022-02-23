@@ -220,6 +220,12 @@ meta_display_handle_event (MetaDisplay        *display,
   ClutterEventSequence *sequence;
   gboolean has_grab;
 
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *wayland_compositor = NULL;
+  if (meta_is_wayland_compositor ())
+    wayland_compositor = meta_wayland_compositor_get_default ();
+#endif
+
   has_grab = stage_has_grab (display);
 
   if (display->grabbed_in_clutter != has_grab)
@@ -227,7 +233,7 @@ meta_display_handle_event (MetaDisplay        *display,
       MetaCompositor *compositor = meta_display_get_compositor (display);
 
 #ifdef HAVE_WAYLAND
-      if (meta_is_wayland_compositor ())
+      if (wayland_compositor)
         meta_display_sync_wayland_input_focus (display);
 #endif
 
@@ -268,12 +274,8 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 
 #ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor = NULL;
-  if (meta_is_wayland_compositor ())
-    {
-      compositor = meta_wayland_compositor_get_default ();
-      meta_wayland_compositor_update (compositor, event);
-    }
+  if (wayland_compositor)
+    meta_wayland_compositor_update (wayland_compositor, event);
 #endif
 
   if (event->type == CLUTTER_PAD_BUTTON_PRESS ||
@@ -312,7 +314,7 @@ meta_display_handle_event (MetaDisplay        *display,
     handle_idletime_for_event (event);
 
 #ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)
+  if (wayland_compositor && event->type == CLUTTER_MOTION)
     {
       MetaCursorRenderer *cursor_renderer;
       ClutterInputDevice *device;
@@ -513,13 +515,13 @@ meta_display_handle_event (MetaDisplay        *display,
     bypass_clutter = !bypass_wayland;
 
 #ifdef HAVE_WAYLAND
-  if (compositor && !bypass_wayland)
+  if (wayland_compositor && !bypass_wayland)
     {
       if (window && event->type == CLUTTER_MOTION &&
           event->any.time != CLUTTER_CURRENT_TIME)
         meta_window_check_alive_on_event (window, event->any.time);
 
-      if (meta_wayland_compositor_handle_event (compositor, event))
+      if (meta_wayland_compositor_handle_event (wayland_compositor, event))
         bypass_clutter = TRUE;
     }
 #endif
