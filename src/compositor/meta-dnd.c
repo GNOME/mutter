@@ -46,10 +46,7 @@ typedef struct _MetaDndPrivate MetaDndPrivate;
 struct _MetaDndPrivate
 {
 #ifdef HAVE_WAYLAND
-  gulong handler_id[3];
-
-  MetaCompositor *compositor;
-  MetaWaylandCompositor *wl_compositor;
+  gboolean dnd_during_modal;
 #else
   /* to avoid warnings (g_type_class_add_private: assertion `private_size > 0' failed) */
   gchar dummy;
@@ -230,54 +227,73 @@ meta_dnd_handle_xdnd_event (MetaBackend       *backend,
 
 #ifdef HAVE_WAYLAND
 static void
-meta_dnd_wayland_on_motion_event (ClutterActor *actor,
-                                  ClutterEvent *event,
-                                  MetaDnd      *dnd)
+meta_dnd_wayland_on_motion_event (MetaDnd            *dnd,
+                                  const ClutterEvent *event)
 {
-  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
   MetaWaylandDragGrab *current_grab;
   gfloat event_x, event_y;
+  MetaWaylandCompositor *wl_compositor = meta_wayland_compositor_get_default ();
 
   g_return_if_fail (event != NULL);
 
   clutter_event_get_coords (event, &event_x, &event_y);
   meta_dnd_notify_dnd_position_change (dnd, (int)event_x, (int)event_y);
 
-  current_grab = meta_wayland_data_device_get_current_grab (&priv->wl_compositor->seat->data_device);
+  current_grab = meta_wayland_data_device_get_current_grab (&wl_compositor->seat->data_device);
   if (current_grab)
     meta_wayland_drag_grab_update_feedback_actor (current_grab, event);
 }
 
 static void
-meta_dnd_wayland_end_notify (ClutterActor *actor,
-                             ClutterEvent *event,
-                             MetaDnd      *dnd)
+meta_dnd_wayland_end_notify (MetaDnd *dnd)
 {
   MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
+  MetaWaylandCompositor *wl_compositor = meta_wayland_compositor_get_default ();
 
-  meta_wayland_data_device_end_drag (&priv->wl_compositor->seat->data_device);
-  meta_dnd_wayland_handle_end_modal (priv->compositor);
+  meta_wayland_data_device_end_drag (&wl_compositor->seat->data_device);
+
+  priv->dnd_during_modal = FALSE;
+
+  meta_dnd_notify_dnd_leave (dnd);
 }
 
 static void
-meta_dnd_wayland_on_button_released (ClutterActor *actor,
-                                     ClutterEvent *event,
-                                     MetaDnd      *dnd)
+meta_dnd_wayland_on_button_released (MetaDnd            *dnd,
+                                     const ClutterEvent *event)
 {
-  meta_dnd_wayland_end_notify (actor, event, dnd);
+  meta_dnd_wayland_end_notify (dnd);
 }
 
 static void
-meta_dnd_wayland_on_key_pressed (ClutterActor *actor,
-                                 ClutterEvent *event,
-                                 MetaDnd      *dnd)
+meta_dnd_wayland_on_key_pressed (MetaDnd            *dnd,
+                                 const ClutterEvent *event)
 {
   guint key = clutter_event_get_key_symbol (event);
 
   if (key != CLUTTER_KEY_Escape)
     return;
 
-  meta_dnd_wayland_end_notify (actor, event, dnd);
+  meta_dnd_wayland_end_notify (dnd);
+}
+
+void
+meta_dnd_wayland_maybe_handle_event (MetaDnd            *dnd,
+                                     const ClutterEvent *event)
+{
+  MetaWaylandCompositor *wl_compositor = meta_wayland_compositor_get_default ();
+  MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
+
+  if (!meta_wayland_data_device_get_current_grab (&wl_compositor->seat->data_device))
+    return;
+
+  g_warn_if_fail (priv->dnd_during_modal);
+
+  if (event->type == CLUTTER_MOTION)
+    meta_dnd_wayland_on_motion_event (dnd, event);
+  else if (event->type == CLUTTER_BUTTON_RELEASE)
+    meta_dnd_wayland_on_button_released (dnd, event);
+  else if (event->type == CLUTTER_KEY_PRESS)
+    meta_dnd_wayland_on_key_pressed (dnd, event);
 }
 
 void
@@ -287,28 +303,10 @@ meta_dnd_wayland_handle_begin_modal (MetaCompositor *compositor)
   MetaDnd *dnd = meta_backend_get_dnd (meta_get_backend ());
   MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
 
-  if (priv->handler_id[0] == 0 &&
+  if (!priv->dnd_during_modal &&
       meta_wayland_data_device_get_current_grab (&wl_compositor->seat->data_device) != NULL)
     {
-      ClutterStage *stage = meta_compositor_get_stage (compositor);
-
-      priv->compositor = compositor;
-      priv->wl_compositor = wl_compositor;
-
-      priv->handler_id[0] = g_signal_connect (stage,
-                                              "motion-event",
-                                              G_CALLBACK (meta_dnd_wayland_on_motion_event),
-                                              dnd);
-
-      priv->handler_id[1] = g_signal_connect (stage,
-                                              "button-release-event",
-                                              G_CALLBACK (meta_dnd_wayland_on_button_released),
-                                              dnd);
-
-      priv->handler_id[2] = g_signal_connect (stage,
-                                              "key-press-event",
-                                              G_CALLBACK (meta_dnd_wayland_on_key_pressed),
-                                              dnd);
+      priv->dnd_during_modal = TRUE;
 
       meta_dnd_notify_dnd_enter (dnd);
     }
@@ -319,17 +317,11 @@ meta_dnd_wayland_handle_end_modal (MetaCompositor *compositor)
 {
   MetaDnd *dnd = meta_backend_get_dnd (meta_get_backend ());
   MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
-  ClutterStage *stage = meta_compositor_get_stage (compositor);
-  unsigned int i;
 
-  if (!priv->compositor)
+  if (!priv->dnd_during_modal)
     return;
 
-  for (i = 0; i < G_N_ELEMENTS (priv->handler_id); i++)
-    g_clear_signal_handler (&priv->handler_id[i], stage);
-
-  priv->compositor = NULL;
-  priv->wl_compositor = NULL;
+  priv->dnd_during_modal = FALSE;
 
   meta_dnd_notify_dnd_leave (dnd);
 }

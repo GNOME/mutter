@@ -25,6 +25,7 @@
 #include "core/events.h"
 
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-manager.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
@@ -426,6 +427,11 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (stage_has_grab (display))
     {
+#ifdef HAVE_WAYLAND
+      if (wayland_compositor)
+        meta_dnd_wayland_maybe_handle_event (meta_backend_get_dnd (backend), event);
+#endif
+
       bypass_wayland = TRUE;
       bypass_clutter = FALSE;
       goto out;

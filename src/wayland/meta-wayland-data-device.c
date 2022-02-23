@@ -304,7 +304,7 @@ meta_wayland_drag_grab_get_focus (MetaWaylandDragGrab *drag_grab)
 
 void
 meta_wayland_drag_grab_update_feedback_actor (MetaWaylandDragGrab *drag_grab,
-                                              ClutterEvent        *event)
+                                              const ClutterEvent  *event)
 {
   meta_feedback_actor_update (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
                               event);
