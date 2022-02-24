@@ -1165,11 +1165,65 @@ update_has_builtin_panel (MetaMonitorManager *manager)
                             obj_props[PROP_HAS_BUILTIN_PANEL]);
 }
 
+static void
+meta_monitor_manager_get_crtc_gamma (MetaMonitorManager  *manager,
+                                     MetaCrtc            *crtc,
+                                     size_t              *size,
+                                     unsigned short     **red,
+                                     unsigned short     **green,
+                                     unsigned short     **blue)
+{
+  MetaMonitorManagerClass *klass = META_MONITOR_MANAGER_GET_CLASS (manager);
+
+  if (klass->get_crtc_gamma)
+    {
+      klass->get_crtc_gamma (manager, crtc, size, red, green, blue);
+    }
+  else
+    {
+      if (size)
+        *size = 0;
+      if (red)
+        *red = NULL;
+      if (green)
+        *green = NULL;
+      if (blue)
+        *blue = NULL;
+    }
+}
+
+static gboolean
+is_night_light_supported (MetaMonitorManager *manager)
+{
+  GList *l;
+
+  for (l = meta_backend_get_gpus (manager->backend); l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+      GList *l_crtc;
+
+      for (l_crtc = meta_gpu_get_crtcs (gpu); l_crtc; l_crtc = l_crtc->next)
+        {
+          MetaCrtc *crtc = l_crtc->data;
+          size_t gamma_lut_size;
+
+          meta_monitor_manager_get_crtc_gamma (manager, crtc,
+                                               &gamma_lut_size,
+                                               NULL, NULL, NULL);
+          if (gamma_lut_size > 0)
+            return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
 void
 meta_monitor_manager_setup (MetaMonitorManager *manager)
 {
   MetaMonitorConfigStore *config_store;
   const MetaMonitorConfigPolicy *policy;
+  gboolean night_light_supported;
 
   manager->in_init = TRUE;
 
@@ -1180,6 +1234,9 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
   meta_dbus_display_config_set_apply_monitors_config_allowed (manager->display_config,
                                                               policy->enable_dbus);
 
+  night_light_supported = is_night_light_supported (manager);
+  meta_dbus_display_config_set_night_light_supported (manager->display_config,
+                                                      night_light_supported);
 
   meta_monitor_manager_read_current_state (manager);
 
@@ -2811,7 +2868,6 @@ meta_monitor_manager_handle_get_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
                                              guint                  crtc_id,
                                              MetaMonitorManager    *manager)
 {
-  MetaMonitorManagerClass *klass;
   GList *combined_crtcs;
   MetaCrtc *crtc;
   gsize size;
@@ -2842,14 +2898,8 @@ meta_monitor_manager_handle_get_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
   crtc = g_list_nth_data (combined_crtcs, crtc_id);
   g_list_free (combined_crtcs);
 
-  klass = META_MONITOR_MANAGER_GET_CLASS (manager);
-  if (klass->get_crtc_gamma)
-    klass->get_crtc_gamma (manager, crtc, &size, &red, &green, &blue);
-  else
-    {
-      size = 0;
-      red = green = blue = NULL;
-    }
+  meta_monitor_manager_get_crtc_gamma (manager, crtc,
+                                       &size, &red, &green, &blue);
 
   red_bytes = g_bytes_new_take (red, size * sizeof (unsigned short));
   green_bytes = g_bytes_new_take (green, size * sizeof (unsigned short));

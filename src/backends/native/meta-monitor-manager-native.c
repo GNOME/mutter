@@ -365,27 +365,46 @@ meta_monitor_manager_native_get_crtc_gamma (MetaMonitorManager  *manager,
   MetaKmsCrtc *kms_crtc;
   const MetaKmsCrtcState *crtc_state;
 
-  g_return_if_fail (META_IS_CRTC_KMS (crtc));
+  if (!META_IS_CRTC_KMS (crtc))
+    {
+      if (size)
+        *size = 0;
+      if (red)
+        *red = NULL;
+      if (green)
+        *green = NULL;
+      if (blue)
+        *blue = NULL;
+      return;
+    }
 
   crtc_gamma =
     meta_monitor_manager_native_get_cached_crtc_gamma (manager_native,
                                                        crtc_kms);
   if (crtc_gamma)
     {
-      *size = crtc_gamma->size;
-      *red = g_memdup2 (crtc_gamma->red, *size * sizeof **red);
-      *green = g_memdup2 (crtc_gamma->green, *size * sizeof **green);
-      *blue = g_memdup2 (crtc_gamma->blue, *size * sizeof **blue);
+      if (size)
+        *size = crtc_gamma->size;
+      if (red)
+        *red = g_memdup2 (crtc_gamma->red, *size * sizeof **red);
+      if (green)
+        *green = g_memdup2 (crtc_gamma->green, *size * sizeof **green);
+      if (blue)
+        *blue = g_memdup2 (crtc_gamma->blue, *size * sizeof **blue);
       return;
     }
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
-  *size = crtc_state->gamma.size;
-  *red = g_memdup2 (crtc_state->gamma.red, *size * sizeof **red);
-  *green = g_memdup2 (crtc_state->gamma.green, *size * sizeof **green);
-  *blue = g_memdup2 (crtc_state->gamma.blue, *size * sizeof **blue);
+  if (size)
+    *size = crtc_state->gamma.size;
+  if (red)
+    *red = g_memdup2 (crtc_state->gamma.red, *size * sizeof **red);
+  if (green)
+    *green = g_memdup2 (crtc_state->gamma.green, *size * sizeof **green);
+  if (blue)
+    *blue = g_memdup2 (crtc_state->gamma.blue, *size * sizeof **blue);
 }
 
 static char *

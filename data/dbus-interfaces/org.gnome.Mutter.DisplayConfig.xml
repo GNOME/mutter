@@ -298,6 +298,13 @@
     <property name="ApplyMonitorsConfigAllowed" type="b" access="read" />
 
     <!--
+        NightLightSupported:
+
+        Whether night light is supported by this system.
+    -->
+    <property name="NightLightSupported" type="b" access="read" />
+
+    <!--
         MonitorsChanged:
 
 	The signal is emitted every time the screen configuration
