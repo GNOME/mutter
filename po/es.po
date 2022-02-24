@@ -8,20 +8,21 @@
 # Francisco Javier F. Serrador <serrador@cvs.gnome.org>, 2004, 2005, 2006.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
 # Daniel Mustieles <daniel.mustieles@gmail.com>, 2011-2022.
+# Daniel Mustieles García <daniel.mustieles@gmail.com>, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-01-30 15:26+0000\n"
-"PO-Revision-Date: 2022-02-07 13:50+0100\n"
-"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
+"POT-Creation-Date: 2022-02-19 13:57+0000\n"
+"PO-Revision-Date: 2022-02-24 12:49+0100\n"
+"Last-Translator: Daniel Mustieles García <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Generator: Gtranslator 41.0\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -252,11 +253,11 @@ msgstr "Maximizar la ventana verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar la ventana horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "Ver división a la izquierda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:184
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "Ver división a la derecha"
 
@@ -264,12 +265,12 @@ msgstr "Ver división a la derecha"
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr ""
 "Modificador que usar para extender las operaciones de gestión sobre ventanas"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -282,11 +283,11 @@ msgstr ""
 "este atajo del teclado sea el predeterminado o se establezca a una cadena "
 "vacía."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Adjuntar diálogos modales"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -296,13 +297,13 @@ msgstr ""
 "aparecen diálogos modales adjuntos a la barra de título de la ventana padre "
 "y se mueven junto con la ventana padre."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
 "Activar el mosaico en los bordes al arrastrar ventanas a los bordes de la "
 "ventana"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -313,11 +314,11 @@ msgstr ""
 "mitad del área disponible. Arrastrar ventanas al borde superior de la "
 "pantalla las maximiza por completo."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Las áreas de trabajo se gestionan dinámicamente"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -327,11 +328,11 @@ msgstr ""
 "número estático de áreas de trabajo (determinado por la clave «num-"
 "workspaces» en «org.gnome.desktop.wm.preferences»)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Áreas de trabajo sólo en el primario"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -339,11 +340,11 @@ msgstr ""
 "Determina si el cambio entre áreas de trabajo debería suceder para las "
 "ventanas en todos los monitores o sólo para ventanas en el monitor primario."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
 msgstr "No hay pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
@@ -351,11 +352,11 @@ msgstr ""
 "Determina si el uso de ventanas emergentes y marcos resaltados se debe "
 "desactivar al cambiar entre ventanas."
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Retrasar el cambio de foco hasta detener el puntero"
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -365,11 +366,11 @@ msgstr ""
 "entonces el foco no se cambiará inmediatamente al entrar en una ventana, "
 "pero sí después de dejar quieto el puntero."
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
 msgstr "Anchura arrastrable del borde"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -378,13 +379,13 @@ msgstr ""
 "del tema no son suficientes, se añadirán bordes invisibles para satisfacer "
 "este valor."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Maximizar automáticamente las ventanas que casi tengan el tamaño de la "
 "pantalla"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -392,11 +393,11 @@ msgstr ""
 "Si está activada, las ventanas nuevas que inicialmente tienen el tamaño de "
 "la pantalla, se maximizan."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "Colocar las ventanas nuevas en el centro"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -404,11 +405,11 @@ msgstr ""
 "Cuando es cierto, las ventanas nuevas se colocarán siempre en el centro de "
 "la pantalla activa del monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
 msgstr "Activar las características experimentales"
 
-#: data/org.gnome.mutter.gschema.xml.in:118
+#: data/org.gnome.mutter.gschema.xml.in:117
 #| msgid ""
 #| "To enable experimental features, add the feature keyword to the list. "
 #| "Whether the feature requires restarting the compositor depends on the "
@@ -425,7 +426,7 @@ msgstr "Activar las características experimentales"
 #| "buffered screen sharing. This is already enabled by default when using "
 #| "the i915 driver, but disabled for everything else. Requires a restart. • "
 #| "“autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-#| "X11 clients are gone. Does not require a restart."
+#| "X11 clients are gone. Requires a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -437,11 +438,9 @@ msgid ""
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
-"low priority real-time scheduling. Requires a restart. • “dma-buf-screen-"
-"sharing” — enables DMA buffered screen sharing. This is already enabled by "
-"default when using the i915 driver, but disabled for everything else. "
-"Requires a restart. • “autoclose-xwayland” — automatically terminates "
-"Xwayland if all relevant X11 clients are gone. Requires a restart."
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
 "Para activar las características experimentales, añada la palabra clave de "
 "la característica a la lista. Depende de la característica que se deba "
@@ -462,19 +461,19 @@ msgstr ""
 "xwayland” — termina Xwayland automáticamente si todos los clientes X11 "
 "relevantes ya no están. Requiere reiniciar."
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador que usar para encontrar el puntero"
 
-#: data/org.gnome.mutter.gschema.xml.in:157
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará la acción de encontrar el puntero."
 
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
 msgstr "Tiempo de espera para la comprobación de ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -482,19 +481,19 @@ msgstr ""
 "Número de milisegundos que tiene un cliente para responder a ping y que no "
 "se le detecte como caído. Usar 0 desactivará esta comprobación."
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
 msgstr "Seleccionar ventana de la pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
 msgstr "Cancelar pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:199
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "Cambiar la configuración del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:204
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota la configuración del monitor empotrado"
 
@@ -667,11 +666,11 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campana"
 
-#: src/core/display.c:673
+#: src/core/display.c:687
 msgid "Privacy Screen Enabled"
 msgstr "Privacidad de pantalla activada"
 
-#: src/core/display.c:674
+#: src/core/display.c:688
 msgid "Privacy Screen Disabled"
 msgstr "Privacidad de pantalla desactivada"
 
@@ -760,7 +759,7 @@ msgstr "Ejecutar con «backend» de X11"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:840
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambiar modo (grupo %d)"
@@ -768,11 +767,11 @@ msgstr "Cambiar modo (grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:863
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Show on-screen help"
 msgstr "Mostrar la ayuda en pantalla"
 
@@ -789,7 +788,7 @@ msgstr "Complemento de mutter que usar"
 msgid "Workspace %d"
 msgstr "Área de trabajo %d"
 
-#: src/core/util.c:141
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter se compiló sin soporte para modo detallado"
 
@@ -816,7 +815,7 @@ msgstr "Falló al inicializar GDK"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falló al abrir la pantalla del sistema X-Window «%s»"
 
-#: src/x11/meta-x11-display.c:1181
+#: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "La ventana %d en la pantalla «%s» no es válida"
