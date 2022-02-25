@@ -675,15 +675,10 @@ _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
 }
 
 static inline void
-emit_event_chain (ClutterEvent *event)
+emit_event_chain (ClutterActor *target,
+                  ClutterEvent *event)
 {
-  if (event->any.source == NULL)
-    {
-      CLUTTER_NOTE (EVENT, "No source set, discarding event");
-      return;
-    }
-
-  _clutter_actor_handle_event (event->any.source,
+  _clutter_actor_handle_event (target,
                                clutter_stage_get_grab_actor (event->any.stage),
                                event);
 }
@@ -694,13 +689,14 @@ emit_event_chain (ClutterEvent *event)
  */
 
 static inline void
-emit_event (ClutterEvent *event)
+emit_event (ClutterActor *target,
+            ClutterEvent *event)
 {
   if (event->type == CLUTTER_KEY_PRESS ||
       event->type == CLUTTER_KEY_RELEASE)
     cally_snoop_key_event ((ClutterKeyEvent *) event);
 
-  emit_event_chain (event);
+  emit_event_chain (target, event);
 }
 
 static ClutterActor *
@@ -856,8 +852,10 @@ _clutter_process_event_details (ClutterActor        *stage,
                                 ClutterEvent        *event)
 {
   ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   ClutterMainContext *clutter_context;
   ClutterBackend *backend;
+  ClutterActor *target;
 
   clutter_context = _clutter_context_get_default ();
   backend = clutter_context->backend;
@@ -865,7 +863,6 @@ _clutter_process_event_details (ClutterActor        *stage,
   switch (event->type)
     {
       case CLUTTER_NOTHING:
-        event->any.source = stage;
         break;
 
       case CLUTTER_KEY_PRESS:
@@ -880,28 +877,27 @@ _clutter_process_event_details (ClutterActor        *stage,
         {
           ClutterActor *actor = NULL;
 
-          /* check that we're not a synthetic event with source set */
-          if (event->any.source == NULL)
+          actor = clutter_stage_get_key_focus (CLUTTER_STAGE (stage));
+          if (G_UNLIKELY (actor == NULL))
             {
-              actor = clutter_stage_get_key_focus (CLUTTER_STAGE (stage));
-              event->any.source = actor;
-              if (G_UNLIKELY (actor == NULL))
-                {
-                  g_warning ("No key focus set, discarding");
-                  return;
-                }
+              g_warning ("No key focus set, discarding");
+              return;
             }
 
-          emit_event (event);
+          emit_event (actor, event);
         }
         break;
 
       case CLUTTER_ENTER:
-        emit_event (event);
+        target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                 device, sequence);
+        emit_event (target, event);
         break;
 
       case CLUTTER_LEAVE:
-        emit_event (event);
+        target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                 device, sequence);
+        emit_event (target, event);
         break;
 
       case CLUTTER_MOTION:
@@ -937,14 +933,15 @@ _clutter_process_event_details (ClutterActor        *stage,
         {
           gfloat x, y;
 
+          target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                   device, sequence);
           clutter_event_get_coords (event, &x, &y);
 
           CLUTTER_NOTE (EVENT,
                         "Reactive event received at %.2f, %.2f - actor: %p",
-                        x, y,
-                        event->any.source);
+                        x, y, target);
 
-          emit_event (event);
+          emit_event (target, event);
           break;
         }
 
@@ -955,14 +952,15 @@ _clutter_process_event_details (ClutterActor        *stage,
         {
           gfloat x, y;
 
+          target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                   device, sequence);
           clutter_event_get_coords (event, &x, &y);
 
           CLUTTER_NOTE (EVENT,
                         "Reactive event received at %.2f, %.2f - actor: %p",
-                        x, y,
-                        event->any.source);
+                        x, y, target);
 
-          emit_event (event);
+          emit_event (target, event);
 
           if (event->type == CLUTTER_TOUCH_END ||
               event->type == CLUTTER_TOUCH_CANCEL)
