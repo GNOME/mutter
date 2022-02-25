@@ -901,25 +901,6 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_LEAVE:
-        /* same as CLUTTER_ENTER above: when leaving the stage
-         * we need to also emit a CLUTTER_LEAVE event on the
-         * actor currently underneath the device, unless it's the
-         * stage
-         */
-        if (event->any.source == stage &&
-            event->crossing.related == NULL &&
-            clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL) != stage)
-          {
-            ClutterEvent *crossing;
-
-            crossing = clutter_event_copy (event);
-            crossing->crossing.related = stage;
-            crossing->crossing.source =
-              clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL);
-
-            emit_event (crossing);
-            clutter_event_free (crossing);
-          }
         emit_event (event);
         break;
 
