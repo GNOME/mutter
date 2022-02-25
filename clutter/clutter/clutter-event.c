@@ -541,7 +541,8 @@ clutter_event_get_source (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, NULL);
 
-  return event->any.source;
+  return clutter_stage_get_event_actor (clutter_event_get_stage (event),
+                                        event);
 }
 
 /**
@@ -557,10 +558,6 @@ void
 clutter_event_set_source (ClutterEvent *event,
                           ClutterActor *actor)
 {
-  g_return_if_fail (event != NULL);
-  g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
-
-  event->any.source = actor;
 }
 
 /**

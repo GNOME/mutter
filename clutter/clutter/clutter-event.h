@@ -716,10 +716,10 @@ void                    clutter_event_set_device_tool           (ClutterEvent   
 CLUTTER_EXPORT
 ClutterInputDeviceTool *clutter_event_get_device_tool           (const ClutterEvent     *event);
 
-CLUTTER_EXPORT
+CLUTTER_DEPRECATED_FOR(clutter_stage_get_event_actor)
 void                    clutter_event_set_source                (ClutterEvent           *event,
                                                                  ClutterActor           *actor);
-CLUTTER_EXPORT
+CLUTTER_DEPRECATED
 ClutterActor *          clutter_event_get_source                (const ClutterEvent     *event);
 CLUTTER_EXPORT
 void                    clutter_event_set_stage                 (ClutterEvent           *event,
