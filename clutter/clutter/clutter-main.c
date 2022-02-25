@@ -741,9 +741,6 @@ update_device_for_event (ClutterStage *stage,
 void
 clutter_do_event (ClutterEvent *event)
 {
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
-
   /* we need the stage for the event */
   if (event->any.stage == NULL)
     {
@@ -755,57 +752,17 @@ clutter_do_event (ClutterEvent *event)
   if (CLUTTER_ACTOR_IN_DESTRUCTION (event->any.stage))
     return;
 
-  device = clutter_event_get_device (event);
-  sequence = clutter_event_get_event_sequence (event);
-
-  if (device)
+  switch (event->any.type)
     {
-      ClutterActor *actor = NULL;
-
-      switch (event->any.type)
-        {
-        case CLUTTER_ENTER:
-        case CLUTTER_MOTION:
-        case CLUTTER_BUTTON_PRESS:
-        case CLUTTER_TOUCH_BEGIN:
-        case CLUTTER_TOUCH_UPDATE:
-          actor = update_device_for_event (event->any.stage, event, TRUE);
-          break;
-        case CLUTTER_KEY_PRESS:
-        case CLUTTER_KEY_RELEASE:
-        case CLUTTER_PAD_BUTTON_PRESS:
-        case CLUTTER_PAD_BUTTON_RELEASE:
-        case CLUTTER_PAD_STRIP:
-        case CLUTTER_PAD_RING:
-        case CLUTTER_IM_COMMIT:
-        case CLUTTER_IM_DELETE:
-        case CLUTTER_IM_PREEDIT:
-          actor = clutter_stage_get_key_focus (event->any.stage);
-          break;
-        case CLUTTER_DEVICE_ADDED:
-        case CLUTTER_DEVICE_REMOVED:
-          actor = CLUTTER_ACTOR (event->any.stage);
-          break;
-        case CLUTTER_LEAVE:
-        case CLUTTER_BUTTON_RELEASE:
-        case CLUTTER_TOUCH_END:
-        case CLUTTER_TOUCH_CANCEL:
-        case CLUTTER_SCROLL:
-        case CLUTTER_TOUCHPAD_PINCH:
-        case CLUTTER_TOUCHPAD_SWIPE:
-        case CLUTTER_TOUCHPAD_HOLD:
-        case CLUTTER_PROXIMITY_IN:
-        case CLUTTER_PROXIMITY_OUT:
-          actor = clutter_stage_get_device_actor (event->any.stage,
-                                                  device, sequence);
-          break;
-        case CLUTTER_NOTHING:
-        case CLUTTER_EVENT_LAST:
-          g_assert_not_reached ();
-          break;
-        }
-
-      clutter_event_set_source (event, actor);
+    case CLUTTER_ENTER:
+    case CLUTTER_MOTION:
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_UPDATE:
+      update_device_for_event (event->any.stage, event, TRUE);
+      break;
+    default:
+      break;
     }
 
   if (_clutter_event_process_filters (event))
