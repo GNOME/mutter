@@ -585,9 +585,11 @@ static void
 repick_for_event (MetaWaylandTabletTool *tool,
                   const ClutterEvent    *for_event)
 {
-  ClutterActor *actor = NULL;
+  ClutterActor *actor;
 
-  actor = clutter_event_get_source (for_event);
+  actor = clutter_stage_get_device_actor (clutter_event_get_stage (for_event),
+                                          clutter_event_get_device (for_event),
+                                          clutter_event_get_event_sequence (for_event));
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
     tool->current = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));

@@ -220,7 +220,9 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
       MetaWaylandSurface *surface = NULL;
       ClutterActor *actor;
 
-      actor = clutter_event_get_source (event);
+      actor = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+                                              clutter_event_get_device (event),
+                                              clutter_event_get_event_sequence (event));
 
       if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
         surface = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));

@@ -641,9 +641,15 @@ repick_for_event (MetaWaylandPointer *pointer,
   MetaWaylandSurface *surface;
 
   if (clutter_event_type (for_event) == CLUTTER_LEAVE)
-    actor = clutter_event_get_related (for_event);
+    {
+      actor = clutter_event_get_related (for_event);
+    }
   else
-    actor = clutter_event_get_source (for_event);
+    {
+      actor = clutter_stage_get_device_actor (clutter_event_get_stage (for_event),
+                                              clutter_event_get_device (for_event),
+                                              clutter_event_get_event_sequence (for_event));
+    }
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
     {
