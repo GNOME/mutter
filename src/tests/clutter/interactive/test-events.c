@@ -185,7 +185,7 @@ input_cb (ClutterActor *actor,
 	  gpointer      data)
 {
   ClutterActor *stage = clutter_actor_get_stage (actor); 
-  ClutterActor *source_actor = clutter_event_get_source (event);
+  ClutterActor *source_actor;
   graphene_point_t position;
   gchar *state;
   gchar keybuf[128];
@@ -194,6 +194,18 @@ input_cb (ClutterActor *actor,
 
   device = clutter_event_get_device (event);
   device_name = clutter_input_device_get_device_name (device);
+
+  if (event->type == CLUTTER_KEY_PRESS ||
+      event->type == CLUTTER_KEY_RELEASE)
+    {
+      source_actor = clutter_stage_get_key_focus (CLUTTER_STAGE (stage));
+    }
+  else
+    {
+      source_actor = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
+                                                     device,
+                                                     clutter_event_get_event_sequence (event));
+    }
 
   source = clutter_event_get_source_device (event);
   if (source)

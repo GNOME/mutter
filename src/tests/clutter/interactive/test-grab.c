@@ -15,6 +15,7 @@ debug_event_cb (ClutterActor *actor,
                 gpointer      data)
 {
   gchar keybuf[9], *source = (gchar*)data;
+  ClutterActor *target;
   int   len = 0;
 
   switch (event->type)
@@ -93,9 +94,12 @@ debug_event_cb (ClutterActor *actor,
       return FALSE;
     }
 
-  if (clutter_event_get_source (event) == actor)
-    printf(" *source*");
-  
+  target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+                                           clutter_event_get_device (event),
+                                           clutter_event_get_event_sequence (event));
+  if (target == actor)
+    printf(" *target*");
+
   printf("\n");
 
   return FALSE;
@@ -142,8 +146,14 @@ toggle_grab_pointer_cb (ClutterActor    *actor,
                         ClutterEvent    *event,
                         gpointer         data)
 {
+  ClutterActor *target;
+
   /* we only deal with the event if the source is ourself */
-  if (event->button.source == actor)
+  target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+                                           clutter_event_get_device (event),
+                                           clutter_event_get_event_sequence (event));
+
+  if (target == actor)
     {
       ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
       ClutterGrab *grab;
