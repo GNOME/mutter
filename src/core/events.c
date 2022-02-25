@@ -87,15 +87,17 @@ get_window_for_event (MetaDisplay        *display,
     {
     case META_EVENT_ROUTE_NORMAL:
       {
-        ClutterActor *source;
+        ClutterActor *target;
         MetaWindowActor *window_actor;
 
         /* Always use the key focused window for key events. */
         if (IS_KEY_EVENT (event))
             return stage_has_key_focus () ? display->focus_window : NULL;
 
-        source = clutter_event_get_source (event);
-        window_actor = meta_window_actor_from_actor (source);
+        target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+                                                 clutter_event_get_device (event),
+                                                 clutter_event_get_event_sequence (event));
+        window_actor = meta_window_actor_from_actor (target);
         if (window_actor)
           return meta_window_actor_get_meta_window (window_actor);
         else
