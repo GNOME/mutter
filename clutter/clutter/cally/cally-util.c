@@ -282,8 +282,11 @@ insert_hf (gpointer key, gpointer value, gpointer data)
 static gunichar
 check_key_visibility (ClutterEvent *event)
 {
-  ClutterKeyEvent *key_event = (ClutterKeyEvent *)event;
-  AtkObject *accessible = clutter_actor_get_accessible (key_event->source);
+  AtkObject *accessible;
+  ClutterActor *focus;
+
+  focus = clutter_stage_get_key_focus (clutter_event_get_stage (event));
+  accessible = clutter_actor_get_accessible (focus);
 
   g_return_val_if_fail (accessible != NULL, 0);
 
@@ -299,8 +302,8 @@ check_key_visibility (ClutterEvent *event)
      still better fill this with a default unichar that the original
      one */
 
-  if (CLUTTER_IS_TEXT (key_event->source))
-    return clutter_text_get_password_char (CLUTTER_TEXT (key_event->source));
+  if (CLUTTER_IS_TEXT (focus))
+    return clutter_text_get_password_char (CLUTTER_TEXT (focus));
   else
     return DEFAULT_PASSWORD_CHAR;
 }
