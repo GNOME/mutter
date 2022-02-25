@@ -231,7 +231,6 @@ init_event (ClutterKeyEvent *event)
   event->time = 0;      /* not needed */
   event->flags = CLUTTER_EVENT_FLAG_SYNTHETIC;
   event->stage = NULL;  /* not needed */
-  event->source = NULL; /* not needed */
   event->modifier_state = 0;
   event->hardware_keycode = 0; /* not needed */
 }

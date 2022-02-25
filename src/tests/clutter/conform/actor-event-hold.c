@@ -102,7 +102,6 @@ actor_event_hold (void)
       event->touchpad_hold.time = EVENT_TIME;
       event->touchpad_hold.n_fingers = test_case->n_fingers;
       event->touchpad_hold.stage = (ClutterStage *) stage;
-      event->touchpad_hold.source = stage;
       clutter_event_set_coords (event, test_case->x, test_case->y);
       clutter_event_set_device (event, device);
 

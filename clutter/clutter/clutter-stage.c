@@ -3400,7 +3400,6 @@ create_crossing_event (ClutterStage         *stage,
   event->crossing.time = time_ms;
   event->crossing.flags = flags;
   event->crossing.stage = stage;
-  event->crossing.source = source;
   event->crossing.x = coords.x;
   event->crossing.y = coords.y;
   event->crossing.related = related;

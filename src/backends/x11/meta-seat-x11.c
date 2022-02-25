@@ -2444,7 +2444,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
             event->crossing.type = event->type = CLUTTER_ENTER;
 
             event->crossing.stage = stage;
-            event->crossing.source = CLUTTER_ACTOR (stage);
             event->crossing.related = NULL;
 
             event->crossing.time = xev->time;
@@ -2458,7 +2457,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
             event->crossing.type = event->type = CLUTTER_LEAVE;
 
             event->crossing.stage = stage;
-            event->crossing.source = CLUTTER_ACTOR (stage);
             event->crossing.related = NULL;
 
             event->crossing.time = xev->time;

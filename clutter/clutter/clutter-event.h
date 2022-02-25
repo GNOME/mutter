@@ -141,7 +141,6 @@ struct _ClutterAnyEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 };
 
 /**
@@ -168,7 +167,6 @@ struct _ClutterKeyEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterModifierType modifier_state;
   guint keyval;
@@ -207,7 +205,6 @@ struct _ClutterButtonEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   gfloat x;
   gfloat y;
@@ -238,7 +235,6 @@ struct _ClutterProximityEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
   ClutterInputDevice *device;
 };
 
@@ -265,7 +261,6 @@ struct _ClutterCrossingEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   gfloat x;
   gfloat y;
@@ -298,7 +293,6 @@ struct _ClutterMotionEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   gfloat x;
   gfloat y;
@@ -340,7 +334,6 @@ struct _ClutterScrollEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   gfloat x;
   gfloat y;
@@ -390,7 +383,6 @@ struct _ClutterTouchEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   gfloat x;
   gfloat y;
@@ -436,7 +428,6 @@ struct _ClutterTouchpadPinchEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterTouchpadGesturePhase phase;
   gfloat x;
@@ -479,7 +470,6 @@ struct _ClutterTouchpadSwipeEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterTouchpadGesturePhase phase;
   guint n_fingers;
@@ -519,7 +509,6 @@ struct _ClutterTouchpadHoldEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterTouchpadGesturePhase phase;
   uint32_t n_fingers;
@@ -533,7 +522,6 @@ struct _ClutterPadButtonEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   guint32 button;
   guint32 group;
@@ -547,7 +535,6 @@ struct _ClutterPadStripEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterInputDevice *device;
   ClutterInputDevicePadSource strip_source;
@@ -563,7 +550,6 @@ struct _ClutterPadRingEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterInputDevice *device;
   ClutterInputDevicePadSource ring_source;
@@ -579,7 +565,6 @@ struct _ClutterDeviceEvent
   guint32 time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   ClutterInputDevice *device;
 };
@@ -590,7 +575,6 @@ struct _ClutterIMEvent
   uint32_t time;
   ClutterEventFlags flags;
   ClutterStage *stage;
-  ClutterActor *source;
 
   char *text;
   int32_t offset;

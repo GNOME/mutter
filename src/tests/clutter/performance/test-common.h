@@ -104,7 +104,6 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
       device = clutter_seat_get_pointer (seat);
 
       event2->crossing.stage = stage;
-      event2->crossing.source = stage;
       event2->crossing.x = 10;
       event2->crossing.y = 10;
       event2->crossing.related = NULL;
