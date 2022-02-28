@@ -283,6 +283,18 @@ token_can_activate (MetaXdgActivationToken *token)
                                           FALSE, NULL, NULL);
 }
 
+static gboolean
+startup_sequence_is_recent (MetaDisplay         *display,
+                            MetaStartupSequence *sequence)
+{
+  uint32_t seq_timestamp_ms, last_user_time_ms;
+
+  seq_timestamp_ms = meta_startup_sequence_get_timestamp (sequence);
+  last_user_time_ms = meta_display_get_last_user_time (display);
+
+  return seq_timestamp_ms >= last_user_time_ms;
+}
+
 static void
 activation_activate (struct wl_client   *client,
                      struct wl_resource *resource,
@@ -291,7 +303,9 @@ activation_activate (struct wl_client   *client,
 {
   MetaWaylandActivation *activation = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
+  MetaDisplay *display = meta_get_display ();
   MetaXdgActivationToken *token;
+  MetaStartupSequence *sequence;
   MetaWindow *window;
 
   window = meta_wayland_surface_get_window (surface);
@@ -299,16 +313,27 @@ activation_activate (struct wl_client   *client,
     return;
 
   token = g_hash_table_lookup (activation->tokens, token_str);
-  if (!token)
+  if (token)
+    {
+      sequence = token->sequence;
+    }
+  else
+    {
+      sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
+                                                            token_str);
+    }
+
+  if (!sequence)
     return;
 
-  if (token_can_activate (token))
+  if ((token && token_can_activate (token)) ||
+      (!token && startup_sequence_is_recent (display, sequence)))
     {
       uint32_t timestamp;
       int32_t workspace_idx;
 
-      workspace_idx = meta_startup_sequence_get_workspace (token->sequence);
-      timestamp = meta_startup_sequence_get_timestamp (token->sequence);
+      workspace_idx = meta_startup_sequence_get_workspace (sequence);
+      timestamp = meta_startup_sequence_get_timestamp (sequence);
 
       if (workspace_idx >= 0)
         meta_window_change_workspace_by_index (window, workspace_idx, TRUE);
@@ -321,7 +346,7 @@ activation_activate (struct wl_client   *client,
       meta_window_set_demands_attention (window);
     }
 
-  meta_startup_sequence_complete (token->sequence);
+  meta_startup_sequence_complete (sequence);
 }
 
 static const struct xdg_activation_v1_interface activation_interface = {
