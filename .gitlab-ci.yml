@@ -291,6 +291,13 @@ build-without-native-backend-and-wayland@x86_64:
   script:
     - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
         ./.gitlab-ci/run-meson.sh test -C build --no-rebuild -t 10
+  after_script:
+    - pushd build
+    - gcovr --root=..
+        --filter='\.\./src/' --filter='\.\./clutter/' --filter='\.\./cogl/'
+        --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
+        --json --output=../coverage-${CI_JOB_NAME}.json
+    - popd
   artifacts:
     expire_in: 1 day
     reports:
@@ -299,6 +306,7 @@ build-without-native-backend-and-wayland@x86_64:
     when: always
     paths:
       - build
+      - coverage-*.json
 
 test-mutter@x86_64:
   extends:
@@ -314,30 +322,21 @@ test-mutter@aarch64:
   needs:
     - build-mutter@aarch64
 
-.test-mutter-coverage:
+coverage:
   extends:
     - .fdo.distribution-image@fedora
+    - .mutter.fedora:35@x86_64
   stage: analyze
   script:
-    - ninja -C build coverage
-    - cat build/meson-logs/coverage.txt
+    - mkdir coveragereport
+    - gcovr --add-tracefile coverage-*.json
+        --html-details --print-summary --output coveragereport/index.html
   artifacts:
     paths:
-      - build/meson-logs/coveragereport
-  coverage: '/^TOTAL.*\s+(\d+\%)$/'
-
-test-mutter-coverage@x86_64:
-  extends:
-    - .test-mutter-coverage
-    - .mutter.fedora:35@x86_64
+      - coveragereport
+  coverage: '/^lines: (\d+\.\d+\%)/'
   needs:
     - test-mutter@x86_64
-
-test-mutter-coverage@aarch64:
-  extends:
-    - .test-mutter-coverage
-    - .mutter.fedora:35@aarch64
-  needs:
     - test-mutter@aarch64
 
 can-build-gnome-shell@x86_64:
