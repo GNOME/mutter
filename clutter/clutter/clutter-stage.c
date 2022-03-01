@@ -3921,3 +3921,70 @@ clutter_stage_get_grab_actor (ClutterStage *stage)
   /* Return active grab */
   return priv->topmost_grab->actor;
 }
+
+/**
+ * clutter_stage_get_event_actor:
+ * @stage: a #ClutterStage
+ * @event: an event received on the stage
+ *
+ * Retrieves the current focus actor for an event. This is
+ * the key focus for key events and other events directed
+ * to the key focus, or the actor directly under the
+ * coordinates of a device or touch sequence.
+ *
+ * The actor is looked up at the time of calling this function,
+ * and may differ from the actor that the stage originally
+ * delivered the event to.
+ *
+ * Return value: (transfer none): a pointer to the #ClutterActor or %NULL
+ **/
+ClutterActor *
+clutter_stage_get_event_actor (ClutterStage       *stage,
+                               const ClutterEvent *event)
+{
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
+  g_return_val_if_fail (event != NULL, NULL);
+
+  switch (event->type)
+    {
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+    case CLUTTER_PAD_BUTTON_PRESS:
+    case CLUTTER_PAD_BUTTON_RELEASE:
+    case CLUTTER_PAD_RING:
+    case CLUTTER_PAD_STRIP:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
+      return clutter_stage_get_key_focus (stage);
+    case CLUTTER_MOTION:
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+    case CLUTTER_SCROLL:
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_UPDATE:
+    case CLUTTER_TOUCH_END:
+    case CLUTTER_TOUCH_CANCEL:
+    case CLUTTER_TOUCHPAD_PINCH:
+    case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
+    case CLUTTER_PROXIMITY_IN:
+    case CLUTTER_PROXIMITY_OUT:
+      device = clutter_event_get_device (event);
+      sequence = clutter_event_get_event_sequence (event);
+
+      return clutter_stage_get_device_actor (stage, device, sequence);
+    case CLUTTER_DEVICE_ADDED:
+    case CLUTTER_DEVICE_REMOVED:
+    case CLUTTER_NOTHING:
+    case CLUTTER_EVENT_LAST:
+      g_warn_if_reached ();
+    }
+
+  return NULL;
+}
