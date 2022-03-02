@@ -31,6 +31,23 @@
 #include "meta-dbus-remote-desktop.h"
 #include "meta-dbus-screen-cast.h"
 
+#define assert_cursor_position(stream, x, y) \
+{ \
+  g_assert_cmpint (stream->cursor_x, ==, (x)); \
+  g_assert_cmpint (stream->cursor_y, ==, (y)); \
+}
+
+#define CURSOR_META_SIZE(width, height) \
+ (sizeof(struct spa_meta_cursor) + \
+  sizeof(struct spa_meta_bitmap) + width * height * 4)
+
+enum
+  {
+    CURSOR_MODE_HIDDEN = 0,
+    CURSOR_MODE_EMBEDDED = 1,
+    CURSOR_MODE_METADATA = 2,
+  };
+
 typedef struct _Stream
 {
   MetaDBusScreenCastStream *proxy;
@@ -43,6 +60,9 @@ typedef struct _Stream
 
   int target_width;
   int target_height;
+
+  int cursor_x;
+  int cursor_y;
 } Stream;
 
 typedef struct _Session
@@ -209,7 +229,7 @@ on_stream_param_changed (void                 *user_data,
   Stream *stream = user_data;
   uint8_t params_buffer[1024];
   struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[2];
+  const struct spa_pod *params[3];
 
   if (!format || id != SPA_PARAM_Format)
     return;
@@ -233,8 +253,35 @@ on_stream_param_changed (void                 *user_data,
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)),
     0);
 
+  params[2] = spa_pod_builder_add_object (
+    &pod_builder,
+    SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
+    SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Cursor),
+    SPA_PARAM_META_size, SPA_POD_CHOICE_RANGE_Int (CURSOR_META_SIZE (384, 384),
+                                                   CURSOR_META_SIZE (1, 1),
+                                                   CURSOR_META_SIZE (384, 384)),
+    0);
+
   pw_stream_update_params (stream->pipewire_stream,
                            params, G_N_ELEMENTS (params));
+}
+
+static void
+process_buffer_metadata (Stream            *stream,
+                         struct spa_buffer *buffer)
+{
+  struct spa_meta_cursor *spa_meta_cursor;
+
+  spa_meta_cursor = spa_buffer_find_meta_data (buffer, SPA_META_Cursor,
+                                               sizeof *spa_meta_cursor);
+  if (!spa_meta_cursor)
+    return;
+
+  if (!spa_meta_cursor_is_valid (spa_meta_cursor))
+    return;
+
+  stream->cursor_x = spa_meta_cursor->position.x;
+  stream->cursor_y = spa_meta_cursor->position.y;
 }
 
 static void
@@ -265,6 +312,8 @@ static void
 process_buffer (Stream            *stream,
                 struct spa_buffer *buffer)
 {
+  process_buffer_metadata (stream, buffer);
+
   if (buffer->datas[0].chunk->size == 0)
     g_assert_not_reached ();
   else if (buffer->datas[0].type == SPA_DATA_MemFd)
@@ -366,6 +415,16 @@ stream_wait_for_node (Stream *stream)
     g_main_context_iteration (NULL, TRUE);
 }
 
+static void
+stream_wait_for_cursor_position (Stream *stream,
+                                 int     x,
+                                 int     y)
+{
+  while (stream->cursor_x != x &&
+         stream->cursor_y != y)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 static G_GNUC_UNUSED void
 stream_wait_for_streaming (Stream *stream)
 {
@@ -456,6 +515,21 @@ stream_free (Stream *stream)
 }
 
 static void
+session_notify_absolute_pointer (Session *session,
+                                 Stream  *stream,
+                                 double   x,
+                                 double   y)
+{
+  GError *error = NULL;
+
+  if (!meta_dbus_remote_desktop_session_call_notify_pointer_motion_absolute_sync (
+        session->remote_desktop_session_proxy,
+        g_dbus_proxy_get_object_path (G_DBUS_PROXY (stream->proxy)),
+        x, y, NULL, &error))
+    g_error ("Failed to send absolute pointer motion event: %s", error->message);
+}
+
+static void
 session_start (Session *session)
 {
   GError *error = NULL;
@@ -491,6 +565,9 @@ session_record_virtual (Session *session,
   Stream *stream;
 
   g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
+  g_variant_builder_add (&properties_builder, "{sv}",
+                         "cursor-mode",
+                         g_variant_new_uint32 (CURSOR_MODE_METADATA));
   properties_variant = g_variant_builder_end (&properties_builder);
 
   if (!meta_dbus_screen_cast_session_call_record_virtual_sync (
@@ -664,11 +741,18 @@ main (int    argc,
 
   session_start (session);
 
+  /* Check that the display server handles events being emitted too early. */
+  session_notify_absolute_pointer (session, stream, 2, 3);
+
   /* Check that we receive the initial frame */
 
   stream_wait_for_node (stream);
-  stream_wait_for_streaming (stream);
   stream_wait_for_render (stream);
+  stream_wait_for_streaming (stream);
+  session_notify_absolute_pointer (session, stream, 6, 5);
+  session_notify_absolute_pointer (session, stream, 5, 6);
+  stream_wait_for_render (stream);
+  stream_wait_for_cursor_position (stream, 5, 6);
   g_assert_cmpint (stream->spa_format.size.width, ==, 50);
   g_assert_cmpint (stream->spa_format.size.height, ==, 40);
 
