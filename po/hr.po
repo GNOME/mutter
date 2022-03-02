@@ -5,18 +5,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 0\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-11-04 20:03+0000\n"
-"PO-Revision-Date: 2021-11-11 11:00+0100\n"
+"POT-Creation-Date: 2022-02-19 13:57+0000\n"
+"PO-Revision-Date: 2022-03-02 12:49+0100\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Launchpad-Export-Date: 2008-05-28 13:28+0000\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -246,11 +246,11 @@ msgstr "Uvećaj prozor okomito"
 msgid "Maximize window horizontally"
 msgstr "Uvećaj prozor vodoravno"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "Podijeli pogled ulijevo"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:184
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "Podijeli pogled udesno"
 
@@ -258,11 +258,11 @@ msgstr "Podijeli pogled udesno"
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Izmjenjivač za korištenje radnji proširenog upravljanja prozorom"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -274,11 +274,11 @@ msgstr ""
 "tipkovnici. Očekivano je da je ova kombinacija zadana ili postavljena na "
 "prazan niz."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Pričvrsti prozore dijaloga"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -288,11 +288,11 @@ msgstr ""
 "na naslovnu traku sadržajnog prozora i pomiču se zajedno sa sadržajnim "
 "prozorom."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Omogući rubno popločavanje pri ispuštanju prozora na rubovima zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -302,11 +302,11 @@ msgstr ""
 "okomito i prilagođava veličinu vodoravno da prekrije polovicu dostupnog "
 "područja. Ispuštanje prozora na gornji rub zaslona uvećava ih u potpunosti."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Radni prostori su upravljani promjenjivo"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -316,11 +316,11 @@ msgstr ""
 "broj radnih prostora (određeno brojem ključa radnih prostora u org.gnome."
 "desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Radni prostori samo na glavnom zaslonu"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -328,11 +328,11 @@ msgstr ""
 "Određuje treba li se prebacivanje radnog prostora pokrenuti za prozore na "
 "svim zaslonima ili samo za prozore na glavnom zaslonu."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
 msgstr "Bez skočnih prozora"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
@@ -340,11 +340,11 @@ msgstr ""
 "Određuje treba li onemogućiti korištenje skočnog prozora i naglašavanje "
 "okvira za kruženje prozora."
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Odgoda promjene fokusa dok se pokazivač prestane pomicati"
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -354,11 +354,11 @@ msgstr ""
 "neće odmah promijeniti kada se prebaci na prozor, nego nakon što se "
 "pokazivač prestane pomicati."
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
 msgstr "Širina granice povlačenja"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -366,11 +366,11 @@ msgstr ""
 "Količina ukupne granice povlačenja. Ako vidljiva granica teme nije dovoljna, "
 "nevidljiva granica će biti dodana kako bi se zadovoljila ova vrijednost."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Automatski uvećaj prozore veličine približne zaslonu"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -378,22 +378,22 @@ msgstr ""
 "Ako je odabrano novi prozori koju su približno veličine zaslona automatski "
 "se uvečavaju."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "Smjesti novi prozor u sredinu"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 "Ako je odabrano, novi prozor će uvijek biti u sredini aktivnog zaslona."
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
 msgstr "Omogući eksperimentalne značajke"
 
-#: data/org.gnome.mutter.gschema.xml.in:118
+#: data/org.gnome.mutter.gschema.xml.in:117
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -403,14 +403,11 @@ msgid ""
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always advertise valid buffer modifiers on Wayland. This is currently "
-"not the case when using the i915 driver. Does not require a restart. • “rt-"
-"scheduler” — makes mutter request a low priority real-time scheduling. "
-"Requires a restart. • “dma-buf-screen-sharing” — enables DMA buffered screen "
-"sharing. This is already enabled by default when using the i915 driver, but "
-"disabled for everything else. Requires a restart. • “autoclose-xwayland” — "
-"automatically terminates Xwayland if all relevant X11 clients are gone. Does "
-"not require a restart."
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
 "Za omogućavanje eksperimentalnih značajki, dodajte ključnu riječ značajke na "
 "popis. Zahtijeva li značajka ponovno pokretanje kompozitora ovisi o zadanoj "
@@ -425,26 +422,23 @@ msgstr ""
 "međuspremnika na Waylandu. To trenutno nije slučaj kada se koriste i915 "
 "upravljački programi. Ne zahtijeva ponovno pokretanje. • “rt-scheduler” — "
 "čini zahtjeve muttera zakazanima u niskom prioritetu i stvarnom vremenu. "
-"Zahtijeva ponovno pokretanje. • “dma-buf-screen-sharing\" — omogućuje DMA "
-"međuspremljeno dijeljenje zaslona. To je već omogućeno po zadanome ako se "
-"koristi i915 upravljački program, ali je onemogućene za sve ostalo. "
 "Zahtijeva ponovno pokretanje. • “autoclose-xwayland” — automatski zatvara "
-"Xwayland ako su svi relevantni X11 klijenti nestali. Ne zahtijeva ponovno "
+"Xwayland ako su svi relevantni X11 klijenti nestali. Zahtijeva ponovno "
 "pokretanje."
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
 msgstr "Izmjenjivač za korištenje lociranja pokazivača"
 
-#: data/org.gnome.mutter.gschema.xml.in:157
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ova tipka će pokrenuti “lociraj pokazivač” radnju."
 
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
 msgstr "Vrijeme isteka provjere odgovora pinga"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -453,19 +447,19 @@ msgstr ""
 "bi bio otkriven kao smrznut. Korištenje 0 će u potpunosti onemogućiti "
 "provjeru odgovora pinga."
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
 msgstr "Odaberi prozor iz skočnog prozora"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
 msgstr "Prekini skočni prozor"
 
-#: data/org.gnome.mutter.gschema.xml.in:199
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "Prebacivanje podešavanja zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:204
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotiraj ugrađeno podešavanje zaslona"
 
@@ -625,7 +619,7 @@ msgstr "Kompozitor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:504
+#: src/compositor/compositor.c:392
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -635,6 +629,14 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Događaj zvona"
+
+#: src/core/display.c:687
+msgid "Privacy Screen Enabled"
+msgstr "Zaslon privatnosti omogućen"
+
+#: src/core/display.c:688
+msgid "Privacy Screen Disabled"
+msgstr "Zaslon privatnosti onemogućen"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -654,11 +656,11 @@ msgstr ""
 "Možete pričekati neko vrijeme da aplikacija nastavi s radom ili možete "
 "prisiliti prekid rada aplikacije."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Prisili izlaženje"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Čekaj"
 
@@ -721,7 +723,7 @@ msgstr "Pokreni s X11 pozadinskim programom"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:840
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Način prebacivanja (Grupa %d)"
@@ -729,11 +731,11 @@ msgstr "Način prebacivanja (Grupa %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:863
 msgid "Switch monitor"
 msgstr "Prebaci zaslon"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Show on-screen help"
 msgstr "Prikaži zaslonsku pomoć"
 
@@ -750,7 +752,7 @@ msgstr "Mutter priključak koji se koristi"
 msgid "Workspace %d"
 msgstr "Radni prostor %d"
 
-#: src/core/util.c:149
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter je kompiliran bez podrške za opširan način rada"
 
@@ -777,7 +779,7 @@ msgstr "Neuspjelo GDK pokretanje"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Neuspjelo otvaranje sustava prikaza X prozora \"%s\""
 
-#: src/x11/meta-x11-display.c:1181
+#: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Zaslon %d na prikazu '%s' je neispravan"
@@ -1392,11 +1394,12 @@ msgstr "%s (na %s)"
 #~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Kombinacije tipki koji pokreću odgovarajuće označenu naredbu u /apps/"
-#~ "metacity/keybinding_commands ključu. Oblik zapisa izgleda kao \"<Control>a"
-#~ "\" ili \"<Shift><Alt>F1\". Program za obradu je dosta slobodan i "
-#~ "dozvoljava velika ili mala slova, takođe i skraćenice poput \"<Ctl>\" i "
-#~ "\"< Ctrl>\". Ako postavite opciju na specijalni niz znakova \"disabled\", "
-#~ "tada neće biti korištena niti jedna kombinacija tipki za ovu aktivnost."
+#~ "metacity/keybinding_commands ključu. Oblik zapisa izgleda kao "
+#~ "\"<Control>a\" ili \"<Shift><Alt>F1\". Program za obradu je dosta "
+#~ "slobodan i dozvoljava velika ili mala slova, takođe i skraćenice poput "
+#~ "\"<Ctl>\" i \"< Ctrl>\". Ako postavite opciju na specijalni niz znakova "
+#~ "\"disabled\", tada neće biti korištena niti jedna kombinacija tipki za "
+#~ "ovu aktivnost."
 
 #~ msgid ""
 #~ "The keybinding that switches to the workspace above the current "
@@ -2002,8 +2005,8 @@ msgstr "%s (na %s)"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -2057,8 +2060,8 @@ msgstr "%s (na %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Kombinacija tipki koja premiješta fokus unazad između prozora bez popup "
 #~ "prozora. Držeći tipku \"shift\" zajedno s kombinacijom tipki omogućuje se "
@@ -2074,8 +2077,8 @@ msgstr "%s (na %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Kombinacija tipki koja premiješta fokus unazad između prozora koristeći "
 #~ "popup prozor. Držeći tipku \"shift\" zajedno s kombinacijom tipki "
@@ -2317,8 +2320,8 @@ msgstr "%s (na %s)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "Kombinacija tipki koja pokreće alat ploče za snimanje izgleda prozora. "
 #~ "Oblik zapisa izgleda kao \"<Control>a\" ili \"<Shift><Alt>F1\". Program "
@@ -2409,8 +2412,8 @@ msgstr "%s (na %s)"
 #~ "ostalih, a ako je prozor već iznad svih, stavlja ga ispod. Format izgleda "
 #~ "kao \"&lt;Control&gt;a\" ili \"&lt;Shift&gt;&lt;Alt&gt;F1\", te je "
 #~ "prilično fleksibilan te dozvoljava mala ili velika slova te kratice poput "
-#~ "\"&lt;Ctl&gt;\" i \"&lt;Ctrl&gt;\". Ako unesete posebnu riječ \"disabled"
-#~ "\", neće biti kombinacije tipki za ovu akciju."
+#~ "\"&lt;Ctl&gt;\" i \"&lt;Ctrl&gt;\". Ako unesete posebnu riječ "
+#~ "\"disabled\", neće biti kombinacije tipki za ovu akciju."
 
 #~ msgid ""
 #~ "This keybinding lowers a window below other windows. The format looks "
@@ -2657,8 +2660,8 @@ msgstr "%s (na %s)"
 #~ "terminal not being given focus."
 #~ msgstr ""
 #~ "Ova opcija nudi dodatnu kontrolu nad fokusom za novokreirane prozore. Ima "
-#~ "dvije vrijednosti: \"pametna\", koja postavlja uobičajeni fokus i \"stroga"
-#~ "\", koja programima pokrenutima iz terminala ne daje fokus."
+#~ "dvije vrijednosti: \"pametna\", koja postavlja uobičajeni fokus i "
+#~ "\"stroga\", koja programima pokrenutima iz terminala ne daje fokus."
 
 #~ msgid "Toggle always on top state"
 #~ msgstr "Uključi da je uvijek na vrhu"
@@ -3449,8 +3452,8 @@ msgstr "%s (na %s)"
 #~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
 #~ ">"
 #~ msgstr ""
-#~ "Nedostaje <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"svejedno"
-#~ "\"/>"
+#~ "Nedostaje <frame state=\"%s\" resize=\"%s\" focus=\"%s\" "
+#~ "style=\"svejedno\"/>"
 
 #~ msgid "Failed to load theme \"%s\": %s\n"
 #~ msgstr "Nije uspjelo učitavanje teme \"%s\": %s\n"
