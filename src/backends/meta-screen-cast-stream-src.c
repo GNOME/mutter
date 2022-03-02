@@ -678,7 +678,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
 
-static gboolean
+gboolean
 meta_screen_cast_stream_src_is_enabled (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =

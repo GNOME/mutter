@@ -82,6 +82,8 @@ struct _MetaScreenCastStreamSrcClass
 
 void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
 
+gboolean meta_screen_cast_stream_src_is_enabled (MetaScreenCastStreamSrc *src);
+
 void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                      MetaScreenCastRecordFlag  flags);
 

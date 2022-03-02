@@ -93,6 +93,9 @@ meta_screen_cast_virtual_stream_transform_position (MetaScreenCastStream *stream
   ClutterStageView *view;
   MetaRectangle view_layout;
 
+  if (!meta_screen_cast_stream_src_is_enabled (src))
+    return FALSE;
+
   view = meta_screen_cast_virtual_stream_src_get_view (virtual_src);
   if (!view)
     return FALSE;
