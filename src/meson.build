@@ -23,12 +23,17 @@ mutter_pkg_deps = [
 
 mutter_pkg_private_deps = [
   gmodule_no_export_dep,
-  gnome_desktop_dep,
   gnome_settings_daemon_dep,
   json_glib_dep,
   libcanberra_dep,
   xkbcommon_dep,
 ]
+
+if have_gnome_desktop
+  mutter_pkg_private_deps += [
+    gnome_desktop_dep,
+  ]
+endif
 
 if have_gl
   mutter_pkg_deps += [

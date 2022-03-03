@@ -3816,10 +3816,14 @@ char *
 meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
                                       const char         *vendor)
 {
+#ifdef HAVE_GNOME_DESKTOP
   if (!manager->pnp_ids)
     manager->pnp_ids = gnome_pnp_ids_new ();
 
   return gnome_pnp_ids_get_pnp_id (manager->pnp_ids, vendor);
+#else
+  return g_strdup (vendor);
+#endif
 }
 
 gboolean

@@ -57,6 +57,12 @@ option('remote_desktop',
   description: 'Enable remote desktop and screen cast support'
 )
 
+option('libgnome_desktop',
+  type: 'boolean',
+  value: true,
+  description: 'Build with or without gnome-desktop'
+)
+
 option('egl_device',
   type: 'boolean',
   value: false,

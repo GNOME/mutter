@@ -26,7 +26,10 @@
 
 #include <cogl/cogl.h>
 #include <graphene.h>
+
+#ifdef HAVE_GNOME_DESKTOP
 #include <libgnome-desktop/gnome-pnp-ids.h>
+#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor.h"
@@ -155,7 +158,9 @@ struct _MetaMonitorManager
 
   MetaMonitorConfigManager *config_manager;
 
+#ifdef HAVE_GNOME_DESKTOP
   GnomePnpIds *pnp_ids;
+#endif
 
   MetaMonitorSwitchConfigType current_switch_config;
 

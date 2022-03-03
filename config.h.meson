@@ -46,6 +46,9 @@
 /* Defined if screen cast and remote desktop support is enabled */
 #mesondefine HAVE_REMOTE_DESKTOP
 
+/* Defined if gnome-desktop is enabled */
+#mesondefine HAVE_GNOME_DESKTOP
+
 /* Building with SM support */
 #mesondefine HAVE_SM
 
