@@ -36,6 +36,9 @@
 typedef struct _CoglOnscreenEglPrivate
 {
   EGLSurface egl_surface;
+
+  /* Can use PFNEGLSWAPBUFFERSWITHDAMAGEKHRPROC (or the EXT variant) */
+  EGLBoolean (*pf_eglSwapBuffersWithDamage) (EGLDisplay, EGLSurface, const EGLint *, EGLint);
 } CoglOnscreenEglPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreenEgl, cogl_onscreen_egl,
@@ -142,6 +145,17 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
     {
       CoglRenderer *renderer = context->display->renderer;
       CoglRendererEGL *egl_renderer = renderer->winsys;
+
+      if (egl_renderer->pf_eglSwapBuffersWithDamageKHR)
+        {
+          priv->pf_eglSwapBuffersWithDamage =
+            egl_renderer->pf_eglSwapBuffersWithDamageKHR;
+        }
+      else
+        {
+          priv->pf_eglSwapBuffersWithDamage =
+            egl_renderer->pf_eglSwapBuffersWithDamageEXT;
+        }
 
       eglSwapInterval (egl_renderer->edpy, 1);
     }
@@ -310,7 +324,7 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
         cogl_framebuffer_create_timestamp_query (COGL_FRAMEBUFFER (onscreen));
     }
 
-  if (n_rectangles && egl_renderer->pf_eglSwapBuffersWithDamage)
+  if (n_rectangles && priv->pf_eglSwapBuffersWithDamage)
     {
       CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
       size_t size = n_rectangles * sizeof (int) * 4;
@@ -327,10 +341,10 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen  *onscreen,
             cogl_framebuffer_get_height (framebuffer) - rect[1] - rect[3];
         }
 
-      if (egl_renderer->pf_eglSwapBuffersWithDamage (egl_renderer->edpy,
-                                                     priv->egl_surface,
-                                                     flipped,
-                                                     n_rectangles) == EGL_FALSE)
+      if (priv->pf_eglSwapBuffersWithDamage (egl_renderer->edpy,
+                                             priv->egl_surface,
+                                             flipped,
+                                             n_rectangles) == EGL_FALSE)
         g_warning ("Error reported by eglSwapBuffersWithDamage");
     }
   else
