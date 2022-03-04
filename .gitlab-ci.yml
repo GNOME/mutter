@@ -214,7 +214,15 @@ check-code-style:
     - .fdo.distribution-image@fedora
   stage: build
   script:
-    - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
+    - meson . build
+        --prefix /usr
+        --werror
+        --fatal-meson-warnings
+        --warnlevel 2
+        -Dbuildtype=debugoptimized
+        -Db_coverage=true
+        -Degl_device=true
+        -Dwayland_eglstream=true
     - meson compile -C build
     - meson install -C build
   artifacts:
