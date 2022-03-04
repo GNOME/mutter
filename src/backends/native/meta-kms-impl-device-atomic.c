@@ -347,7 +347,7 @@ static gboolean
 add_plane_property (MetaKmsImplDevice  *impl_device,
                     MetaKmsPlane       *plane,
                     drmModeAtomicReq   *req,
-                    MetaKmsCrtcProp     prop,
+                    MetaKmsPlaneProp    prop,
                     uint64_t            value,
                     GError            **error)
 {
