@@ -308,6 +308,8 @@ clutter_click_action_handle_event (ClutterAction      *action,
     {
     case CLUTTER_TOUCH_BEGIN:
       has_button = FALSE;
+
+      G_GNUC_FALLTHROUGH;
     case CLUTTER_BUTTON_PRESS:
       if (priv->is_held)
         return CLUTTER_EVENT_STOP;
@@ -359,6 +361,8 @@ clutter_click_action_handle_event (ClutterAction      *action,
 
     case CLUTTER_TOUCH_END:
       has_button = FALSE;
+
+      G_GNUC_FALLTHROUGH;
     case CLUTTER_BUTTON_RELEASE:
       if (!priv->is_held)
         return CLUTTER_EVENT_STOP;
