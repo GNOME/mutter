@@ -396,7 +396,6 @@ buildtype = get_option('buildtype')
 if buildtype != 'plain'
   all_warnings = [
     '-fno-strict-aliasing',
-    '-Wall',
     '-Wpointer-arith',
     '-Wmissing-declarations',
     '-Wformat=2',
@@ -428,6 +427,11 @@ if buildtype != 'plain'
     '-Werror=pointer-to-int-cast',
     '-Werror=empty-body',
     '-Werror=write-strings',
+    '-Wno-sign-compare',
+    '-Wno-cast-function-type',
+    '-Wno-unused-parameter',
+    '-Wno-missing-field-initializers',
+    '-Wno-type-limits',
   ]
   supported_warnings = cc.get_supported_arguments(all_warnings)
   add_project_arguments(supported_warnings, language: 'c')
