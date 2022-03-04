@@ -3744,6 +3744,8 @@ meta_window_update_monitor (MetaWindow                   *window,
       /* If we're changing monitors, we need to update the has_maximize_func flag,
        * as the working area has changed. */
       meta_window_recalc_features (window);
+
+      meta_display_queue_check_fullscreen (window->display);
     }
 }
 
