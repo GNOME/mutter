@@ -507,7 +507,9 @@ meta_window_apply_session_info (MetaWindow *window,
       window->size_hints.win_gravity = info->gravity;
       gravity = window->size_hints.win_gravity;
 
-      flags = META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION;
+      flags = (META_MOVE_RESIZE_MOVE_ACTION |
+               META_MOVE_RESIZE_RESIZE_ACTION |
+               META_MOVE_RESIZE_CONSTRAIN);
 
       adjust_for_gravity (window, FALSE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
@@ -575,7 +577,10 @@ meta_window_x11_manage (MetaWindow *window)
       rect.width = window->size_hints.width;
       rect.height = window->size_hints.height;
 
-      flags = META_MOVE_RESIZE_CONFIGURE_REQUEST | META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION;
+      flags = (META_MOVE_RESIZE_CONFIGURE_REQUEST |
+               META_MOVE_RESIZE_MOVE_ACTION |
+               META_MOVE_RESIZE_RESIZE_ACTION |
+               META_MOVE_RESIZE_CONSTRAIN);
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
@@ -2700,9 +2705,9 @@ meta_window_move_resize_request (MetaWindow  *window,
    */
   flags = META_MOVE_RESIZE_CONFIGURE_REQUEST;
   if (value_mask & (CWX | CWY))
-    flags |= META_MOVE_RESIZE_MOVE_ACTION;
+    flags |= META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_CONSTRAIN;
   if (value_mask & (CWWidth | CWHeight))
-    flags |= META_MOVE_RESIZE_RESIZE_ACTION;
+    flags |= META_MOVE_RESIZE_RESIZE_ACTION | META_MOVE_RESIZE_CONSTRAIN;
 
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION))
     {

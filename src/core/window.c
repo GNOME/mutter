@@ -2120,7 +2120,9 @@ meta_window_force_placement (MetaWindow *window,
    */
   window->calc_placement = TRUE;
 
-  flags = META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION;
+  flags = (META_MOVE_RESIZE_MOVE_ACTION |
+           META_MOVE_RESIZE_RESIZE_ACTION |
+           META_MOVE_RESIZE_CONSTRAIN);
   if (force_move)
     flags |= META_MOVE_RESIZE_FORCE_MOVE;
 
@@ -2681,7 +2683,8 @@ meta_window_maximize (MetaWindow        *window,
       meta_window_move_resize_internal (window,
                                         (META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION |
-                                         META_MOVE_RESIZE_STATE_CHANGED),
+                                         META_MOVE_RESIZE_STATE_CHANGED |
+                                         META_MOVE_RESIZE_CONSTRAIN),
                                         META_GRAVITY_NORTH_WEST,
                                         window->unconstrained_rect);
     }
@@ -2949,7 +2952,8 @@ meta_window_tile (MetaWindow   *window,
   meta_window_move_resize_internal (window,
                                     (META_MOVE_RESIZE_MOVE_ACTION |
                                      META_MOVE_RESIZE_RESIZE_ACTION |
-                                     META_MOVE_RESIZE_STATE_CHANGED),
+                                     META_MOVE_RESIZE_STATE_CHANGED |
+                                     META_MOVE_RESIZE_CONSTRAIN),
                                     META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
 
@@ -3275,7 +3279,8 @@ meta_window_make_fullscreen (MetaWindow  *window)
       meta_window_move_resize_internal (window,
                                         (META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION |
-                                         META_MOVE_RESIZE_STATE_CHANGED),
+                                         META_MOVE_RESIZE_STATE_CHANGED |
+                                         META_MOVE_RESIZE_CONSTRAIN),
                                         META_GRAVITY_NORTH_WEST,
                                         window->unconstrained_rect);
     }
@@ -3581,7 +3586,8 @@ meta_window_reposition (MetaWindow *window)
 {
   meta_window_move_resize_internal (window,
                                     (META_MOVE_RESIZE_MOVE_ACTION |
-                                     META_MOVE_RESIZE_RESIZE_ACTION),
+                                     META_MOVE_RESIZE_RESIZE_ACTION |
+                                     META_MOVE_RESIZE_CONSTRAIN),
                                     META_GRAVITY_NORTH_WEST,
                                     window->rect);
 }
@@ -3855,10 +3861,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   constrained_rect = unconstrained_rect;
   temporary_rect = window->rect;
-  if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION) &&
-      !(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) &&
-      !(flags & (META_MOVE_RESIZE_UNMAXIMIZE | META_MOVE_RESIZE_UNFULLSCREEN)) &&
-      window->monitor)
+  if (flags & META_MOVE_RESIZE_CONSTRAIN && window->monitor)
     {
       MetaRectangle old_rect;
       meta_window_get_frame_rect (window, &old_rect);
@@ -3989,7 +3992,9 @@ meta_window_move_frame (MetaWindow *window,
 
   g_return_if_fail (!window->override_redirect);
 
-  flags = (user_op ? META_MOVE_RESIZE_USER_ACTION : 0) | META_MOVE_RESIZE_MOVE_ACTION;
+  flags = ((user_op ? META_MOVE_RESIZE_USER_ACTION : 0) |
+           META_MOVE_RESIZE_MOVE_ACTION |
+           META_MOVE_RESIZE_CONSTRAIN);
   meta_window_move_resize_internal (window, flags, META_GRAVITY_NORTH_WEST, rect);
 }
 
@@ -4020,9 +4025,10 @@ meta_window_move_between_rects (MetaWindow  *window,
   window->saved_rect.y = window->unconstrained_rect.y;
 
   meta_window_move_resize_internal (window,
-                                    move_resize_flags |
-                                    META_MOVE_RESIZE_MOVE_ACTION |
-                                    META_MOVE_RESIZE_RESIZE_ACTION,
+                                    (move_resize_flags |
+                                     META_MOVE_RESIZE_MOVE_ACTION |
+                                     META_MOVE_RESIZE_RESIZE_ACTION |
+                                     META_MOVE_RESIZE_CONSTRAIN),
                                     META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
 }
@@ -4052,7 +4058,10 @@ meta_window_move_resize_frame (MetaWindow  *window,
 
   g_return_if_fail (!window->override_redirect);
 
-  flags = (user_op ? META_MOVE_RESIZE_USER_ACTION : 0) | META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION;
+  flags = ((user_op ? META_MOVE_RESIZE_USER_ACTION : 0) |
+           META_MOVE_RESIZE_MOVE_ACTION |
+           META_MOVE_RESIZE_RESIZE_ACTION |
+           META_MOVE_RESIZE_CONSTRAIN);
 
   meta_window_move_resize_internal (window, flags, META_GRAVITY_NORTH_WEST, rect);
 }
@@ -4161,7 +4170,9 @@ meta_window_resize_frame_with_gravity (MetaWindow *window,
       meta_window_update_tile_fraction (window, w, h);
     }
 
-  flags = (user_op ? META_MOVE_RESIZE_USER_ACTION : 0) | META_MOVE_RESIZE_RESIZE_ACTION;
+  flags = ((user_op ? META_MOVE_RESIZE_USER_ACTION : 0) |
+           META_MOVE_RESIZE_RESIZE_ACTION |
+           META_MOVE_RESIZE_CONSTRAIN);
   meta_window_move_resize_internal (window, flags, gravity, rect);
 }
 
