@@ -133,8 +133,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
           required_format = format;
           break;
         }
-      /* flow through */
-
+      G_GNUC_FALLTHROUGH;
       /* Just one 24-bit ordering supported */
     case COGL_PIXEL_FORMAT_RGB_888:
     case COGL_PIXEL_FORMAT_BGR_888:
@@ -155,6 +154,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
           gltype = GL_UNSIGNED_INT_2_10_10_10_REV_EXT;
           break;
         }
+      G_GNUC_FALLTHROUGH;
 #endif
     case COGL_PIXEL_FORMAT_BGRA_1010102:
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:

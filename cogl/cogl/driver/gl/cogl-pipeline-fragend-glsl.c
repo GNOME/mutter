@@ -534,7 +534,7 @@ add_arg (CoglPipelineShaderState *shader_state,
                                   swizzle);
           break;
         }
-      /* flow through */
+      G_GNUC_FALLTHROUGH;
     case COGL_PIPELINE_COMBINE_SOURCE_PRIMARY_COLOR:
       g_string_append_printf (shader_source, "cogl_color_in.%s", swizzle);
       break;
