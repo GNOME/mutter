@@ -109,8 +109,11 @@ static gboolean
 is_barrier_blocking_directions (MetaBarrier         *barrier,
                                 MetaBarrierDirection directions)
 {
+  MetaBorderMotionDirection border_motion_directions =
+    (MetaBorderMotionDirection) directions;
+
   return meta_border_is_blocking_directions (&barrier->priv->border,
-                                             directions);
+                                             border_motion_directions);
 }
 
 static void
