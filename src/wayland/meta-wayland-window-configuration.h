@@ -50,6 +50,8 @@ struct _MetaWaylandWindowConfiguration
 
   int bounds_width;
   int bounds_height;
+
+  gboolean is_fullscreen;
 };
 
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (MetaWindow          *window,

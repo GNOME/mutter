@@ -47,6 +47,8 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
     .scale = scale,
     .gravity = gravity,
     .flags = flags,
+
+    .is_fullscreen = meta_window_is_fullscreen (window),
   };
 
   if (flags & META_MOVE_RESIZE_MOVE_ACTION ||

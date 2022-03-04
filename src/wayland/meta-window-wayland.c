@@ -939,9 +939,9 @@ meta_window_wayland_get_geometry_scale (MetaWindow *window)
 }
 
 static void
-calculate_offset (MetaWaylandWindowConfiguration *configuration,
-                  MetaRectangle                  *geometry,
-                  MetaRectangle                  *rect)
+calculate_position (MetaWaylandWindowConfiguration *configuration,
+                    MetaRectangle                  *geometry,
+                    MetaRectangle                  *rect)
 {
   int offset_x;
   int offset_y;
@@ -1043,16 +1043,19 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
               rect.x = parent->rect.x + acked_configuration->rel_x;
               rect.y = parent->rect.y + acked_configuration->rel_y;
             }
-          else if (acked_configuration->has_position)
+          else
             {
-              calculate_offset (acked_configuration, &new_geom, &rect);
+              if (acked_configuration->is_fullscreen)
+                flags |= META_MOVE_RESIZE_CONSTRAIN;
+              if (acked_configuration->has_position)
+                calculate_position (acked_configuration, &new_geom, &rect);
             }
         }
     }
   else
     {
       if (acked_configuration && acked_configuration->has_position)
-        calculate_offset (acked_configuration, &new_geom, &rect);
+        calculate_position (acked_configuration, &new_geom, &rect);
     }
 
   rect.x += dx;

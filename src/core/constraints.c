@@ -370,9 +370,10 @@ setup_constraint_info (ConstraintInfo      *info,
     info->action_type = ACTION_RESIZE;
   else if (flags & META_MOVE_RESIZE_MOVE_ACTION)
     info->action_type = ACTION_MOVE;
+  else if (flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE)
+    info->action_type = ACTION_MOVE;
   else
-    g_error ("BAD, BAD developer!  No treat for you!  (Fix your calls to "
-             "meta_window_move_resize_internal()).");
+    g_assert_not_reached ();
 
   info->is_user_action = (flags & META_MOVE_RESIZE_USER_ACTION);
 
