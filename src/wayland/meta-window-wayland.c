@@ -996,7 +996,14 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
    * scale new_geom to physical pixels given what buffer scale and texture scale
    * is in use. */
 
-  geometry_scale = meta_window_wayland_get_geometry_scale (window);
+  acked_configuration = acquire_acked_configuration (wl_window, pending,
+                                                     &is_client_resize);
+
+  if (acked_configuration)
+    geometry_scale = acked_configuration->scale;
+  else
+    geometry_scale = meta_window_wayland_get_geometry_scale (window);
+
   new_geom.x *= geometry_scale;
   new_geom.y *= geometry_scale;
   new_geom.width *= geometry_scale;
@@ -1012,9 +1019,6 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   window->custom_frame_extents.top = new_geom.y;
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
-
-  acked_configuration = acquire_acked_configuration (wl_window, pending,
-                                                     &is_client_resize);
 
   /* x/y are ignored when we're doing interactive resizing */
   is_window_being_resized = (meta_grab_op_is_resizing (display->grab_op) &&
