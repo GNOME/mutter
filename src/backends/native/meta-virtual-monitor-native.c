@@ -33,8 +33,6 @@ struct _MetaVirtualMonitorNative
   uint64_t id;
 };
 
-#define VIRTUAL_OUTPUT_ID_BIT (((uint64_t) 1) << 63)
-
 G_DEFINE_TYPE (MetaVirtualMonitorNative, meta_virtual_monitor_native,
                META_TYPE_VIRTUAL_MONITOR)
 

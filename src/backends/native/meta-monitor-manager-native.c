@@ -90,8 +90,6 @@ struct _MetaMonitorManagerNativeClass
   MetaMonitorManagerClass parent_class;
 };
 
-#define VIRTUAL_OUTPUT_ID_BIT (((uint64_t) 1) << 63)
-
 static void
 initable_iface_init (GInitableIface *initable_iface);
 
