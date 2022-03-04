@@ -468,14 +468,22 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
 
 #ifdef HAVE_NATIVE_BACKEND
 static struct gbm_bo *
-import_scanout_gbm_bo (MetaWaylandDmaBufBuffer *dma_buf,
-                       MetaGpuKms              *gpu_kms,
-                       int                      n_planes,
-                       gboolean                *use_modifier)
+import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
+                       MetaGpuKms               *gpu_kms,
+                       int                       n_planes,
+                       gboolean                 *use_modifier,
+                       GError                  **error)
 {
   struct gbm_device *gbm_device;
+  struct gbm_bo *gbm_bo;
 
   gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  if (!gbm_device)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No gbm_device available");
+      return NULL;
+    }
 
   if (dma_buf->drm_modifier != DRM_FORMAT_MOD_INVALID ||
       n_planes > 1 ||
@@ -501,9 +509,10 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer *dma_buf,
               sizeof (import_with_modifier.offsets));
 
       *use_modifier = TRUE;
-      return gbm_bo_import (gbm_device, GBM_BO_IMPORT_FD_MODIFIER,
-                            &import_with_modifier,
-                            GBM_BO_USE_SCANOUT);
+
+      gbm_bo = gbm_bo_import (gbm_device, GBM_BO_IMPORT_FD_MODIFIER,
+                              &import_with_modifier,
+                              GBM_BO_USE_SCANOUT);
     }
   else
     {
@@ -518,10 +527,19 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer *dma_buf,
       };
 
       *use_modifier = FALSE;
-      return gbm_bo_import (gbm_device, GBM_BO_IMPORT_FD,
-                            &import_legacy,
-                            GBM_BO_USE_SCANOUT);
+      gbm_bo = gbm_bo_import (gbm_device, GBM_BO_IMPORT_FD,
+                              &import_legacy,
+                              GBM_BO_USE_SCANOUT);
     }
+
+  if (!gbm_bo)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "gbm_bo_import failed: %s", g_strerror (errno));
+      return NULL;
+    }
+
+  return gbm_bo;
 }
 #endif
 
@@ -550,10 +568,12 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
 
   device_file = meta_renderer_native_get_primary_device_file (renderer_native);
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
-  gbm_bo = import_scanout_gbm_bo (dma_buf, gpu_kms, n_planes, &use_modifier);
+  gbm_bo = import_scanout_gbm_bo (dma_buf, gpu_kms, n_planes, &use_modifier,
+                                  &error);
   if (!gbm_bo)
     {
-      g_debug ("Failed to import scanout gbm_bo: %s", g_strerror (errno));
+      meta_topic (META_DEBUG_WAYLAND,
+                  "Failed to import scanout gbm_bo: %s", error->message);
       return NULL;
     }
 
@@ -564,7 +584,8 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
   fb = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, &error);
   if (!fb)
     {
-      g_debug ("Failed to create scanout buffer: %s", error->message);
+      meta_topic (META_DEBUG_WAYLAND,
+                  "Failed to create scanout buffer: %s", error->message);
       gbm_bo_destroy (gbm_bo);
       return NULL;
     }
