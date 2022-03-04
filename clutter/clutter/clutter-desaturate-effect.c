@@ -308,12 +308,12 @@ clutter_desaturate_effect_new (gdouble factor)
  */
 void
 clutter_desaturate_effect_set_factor (ClutterDesaturateEffect *effect,
-                                      gdouble                  factor)
+                                      double                   factor)
 {
   g_return_if_fail (CLUTTER_IS_DESATURATE_EFFECT (effect));
   g_return_if_fail (factor >= 0.0 && factor <= 1.0);
 
-  if (fabsf (effect->factor - factor) >= 0.00001)
+  if (fabs (effect->factor - factor) >= 0.00001)
     {
       effect->factor = factor;
       update_factor_uniform (effect);
