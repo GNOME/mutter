@@ -526,6 +526,7 @@ set_device_accel_profile (ClutterInputDevice         *device,
       break;
     default:
       g_warn_if_reached ();
+      G_GNUC_FALLTHROUGH;
     case G_DESKTOP_POINTER_ACCEL_PROFILE_DEFAULT:
       libinput_profile =
         libinput_device_config_accel_get_default_profile (libinput_device);
