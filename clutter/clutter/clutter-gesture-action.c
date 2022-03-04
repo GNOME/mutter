@@ -417,7 +417,7 @@ clutter_gesture_action_handle_event (ClutterAction      *action,
             return CLUTTER_EVENT_PROPAGATE;
           }
       }
-      /* Follow same code path as a touch event update */
+      G_GNUC_FALLTHROUGH;
 
     case CLUTTER_TOUCH_UPDATE:
       if (!priv->in_gesture)
