@@ -593,6 +593,7 @@ set_device_accel_profile (ClutterInputDevice         *device,
       break;
     default:
       g_warn_if_reached ();
+      G_GNUC_FALLTHROUGH;
     case G_DESKTOP_POINTER_ACCEL_PROFILE_DEFAULT:
       values[0] = defaults[0];
       values[1] = defaults[1];
