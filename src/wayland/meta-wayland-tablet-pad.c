@@ -360,6 +360,7 @@ meta_wayland_tablet_pad_handle_event (MetaWaylandTabletPad *pad,
     case CLUTTER_PAD_STRIP:
       if (group)
         return meta_wayland_tablet_pad_group_handle_event (group, event);
+      G_GNUC_FALLTHROUGH;
     default:
       return FALSE;
     }
