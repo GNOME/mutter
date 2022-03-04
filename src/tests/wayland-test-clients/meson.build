@@ -77,6 +77,9 @@ wayland_test_clients = [
     'name': 'xdg-toplevel-bounds',
   },
   {
+    'name': 'fullscreen',
+  },
+  {
     'name': 'dma-buf-scanout',
     'extra_deps': [
       libdrm_dep,
