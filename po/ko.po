@@ -7,7 +7,7 @@
 #
 # Updated in mutter:
 # Changwoo Ryu <cwryu@debian.org>, 2011-2017.
-# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2021.
+# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2022.
 #
 #
 # 주의:
@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-09-03 21:08+0000\n"
-"PO-Revision-Date: 2021-03-15 11:58+0200\n"
+"POT-Creation-Date: 2022-03-02 11:52+0000\n"
+"PO-Revision-Date: 2022-03-05 17:13+0200\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -257,11 +257,11 @@ msgstr "창을 세로 방향으로 최대화"
 msgid "Maximize window horizontally"
 msgstr "창을 가로 방향으로 최대화"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "왼쪽 나눔창 보기"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "오른쪽 나눔창 보기"
 
@@ -269,11 +269,11 @@ msgstr "오른쪽 나눔창 보기"
 msgid "Mutter"
 msgstr "머터"
 
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "창 관리 작업을 할 때 사용할 변경 키"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -285,11 +285,11 @@ msgstr ""
 "서 기본값은 “윈도우 키”입니다. 보통 이 키 바인딩은 기본값이거나 빈 문자열입니"
 "다."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "모달 대화 상자 부착"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -298,11 +298,11 @@ msgstr ""
 "참이면 모달 대화 상자에서 별도의 제목 표시줄을 표시하지 않고 상위 창의 제목 "
 "표시줄에 붙어서 상위 창과 함께 움직입니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "창을 화면 가장자리에 끌어 놓을 때 가장자리에 맞춰 격자로 만들기"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -312,11 +312,11 @@ msgstr ""
 "로 방향으로 화면을 절반을 차지하도록 크기를 바꿉니다. 화면 위 가장자리에 창"
 "을 놓으면 전체 화면으로 만듭니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "작업 공간을 동적으로 관리"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -326,11 +326,11 @@ msgstr ""
 "(고정된 개수는 org.gnome.desktop.wm.preferences의 num-workspaces 키로 지정합"
 "니다.)"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "주 모니터에서만 작업 공간"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -338,22 +338,22 @@ msgstr ""
 "작업 공간을 전환할 때 모든 모니터의 창에 대해 할지 주 모니터의 창에서만 할지 "
 "결정합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
 msgstr "탭 팝업 없음"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
 msgstr ""
 "팝업 및 강조 프레임을 창 전환 목록에 사용하지 않게 만들지 여부를 결정합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "포인터가 움직임을 멈출 때까지 포커스 전환 미루기"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -362,11 +362,11 @@ msgstr ""
 "참이고 포커스 모드가 “sloppy”나 “mouse”인 경우, 창 안에 포인터를 옮겼을 때 즉"
 "시 포커스를 전환하지 않고, 포인터가 움직임을 멈추었을 때 전환합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
 msgstr "마우스로 끌 수 있는 가장자리의 너비"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -374,31 +374,31 @@ msgstr ""
 "마우스로 끌 수 있는 가장자리의 너비. 테마의 가장자리가 이보다 작은 경우, 투명"
 "한 가장자리가 부족한 양만큼 추가됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "모니터 크기와 가까운 창 자동 최대화"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr "참이면 처음에 크기가 모니터 크기인 새 창은 최대화됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "새 창을 중앙에 놓기"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr "참이면, 새로운 창은 항상 사용 중인 모니터 화면의 중앙에 놓습니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
 msgstr "실험적인 기능 사용"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:117
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -407,41 +407,39 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
-"mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
-"enables DMA buffered screen sharing. This is already enabled by default when "
-"using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-"X11 clients are gone. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
 "실험적인 기능을 사용하려면, 해당 기능 키워드를 목록에 추가하십시오. 기능에 따"
 "라 컴포지터를 다시 시작해야 할 수도 있습니다. 실험적인 기능은 사용할 수 없을 "
-"수도 있고, 설정할 수 없을 수도 있습니다. 이 설정에 추가한 사항이 앞으로 버전"
-"에서도 동작할 거라고 기대하지 마십시오. 현재 가능한 값은: • “scale-monitor-"
-"framebuffer” —  머터는 기본적으로 논리 픽셀 좌표 공간에서 논리 모니터를 배치"
-"하고, HiDPI 모니터를 관리하기 위해 창 내용 대신 모니터 프레임 버퍼를 스케일링"
-"합니다. 재시작은 필요하지 않습니다. • “rt-scheduler” — 머터 요청을 우선순위"
-"가 낮은 실시간 스케줄링으로 만듭니다. 실행 파일 또는 사용자는 CAP_SYS_NICE가 "
-"있어야 합니다. 재시작이 필요합니다. • “dma-buf-screen-sharing\" — DMA 버퍼 화"
-"면 공유를 활성화합니다. i915 드라이버를 사용할 때는 기본적으로 활성화되지만, "
-"다른 모든 드라이버에서는 비활성화됩니다. 재시작이 필요합니다.  • “dma-buf-"
-"screen-sharing\" — 모든 X11 관련 클라이언트가 종료되면 X웨일랜드를 자동으로 "
-"종료합니다. 재시작은 필요하지 않습니다."
+"수도 있고, 설정할 수 없을 수도 있습니다. 이 설정에 추가한 사항이 앞으로의 버"
+"전에서도 동작할 거라고 기대하지 마십시오. 현재 사용 가능한 키워드: • “scale-"
+"monitor-framebuffer” — 머터는 기본적으로 논리 픽셀 좌표 공간에서 논리 모니터"
+"를 배치하고, HiDPI 모니터를 관리하기 위해 창 내용 대신 모니터 프레임 버퍼를 "
+"스케일링합니다. 재시작은 필요하지 않습니다. • “kms-modifiers” — 드라이버에서 "
+"지원하는 경우 머터가 항상 명시적 한정자를 사용하여 스캔아웃 버퍼를 할당 합니"
+"다. 재시작이 필요합니다. • “rt-scheduler” — 머터 요청을 우선순위가 낮은 실시"
+"간 스케줄링으로 만듭니다. 재시작이 필요합니다. • “autoclose-xwayland” — 모든 "
+"X11 관련 클라이언트가 종료되면 X웨일랜드를 자동으로 종료합니다. 재시작이 필요"
+"하지 않습니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
 msgstr "포인터 위치 찾기에 사용할 키"
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
 msgstr "이 키는 “포인터 위치 찾기” 동작을 합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
 msgstr "활성 확인 핑 시간 초과"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -449,19 +447,19 @@ msgstr ""
 "중지된 것으로 감지되지 않도록 클라이언트가 핑 요청에 응답해야 하는 시간 (밀리"
 "초). 0을 사용하면 활성 확인이 완전히 비활성화됩니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
 msgstr "탭 팝업에서 창 선택"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
 msgstr "탭 팝업 취소"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "모니터 설정 전환"
 
-#: data/org.gnome.mutter.gschema.xml.in:191
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
@@ -615,26 +613,9 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "컴포지터"
 
-#: src/backends/x11/meta-clutter-backend-x11.c:237
-msgid "X display to use"
-msgstr "사용할 X 디스플레이"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:243
-msgid "X screen to use"
-msgstr "사용할 X 화면"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:248
-#: src/core/meta-context-main.c:585
-msgid "Make X calls synchronous"
-msgstr "동기 X 호출을 합니다"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:254
-msgid "Disable XInput support"
-msgstr "XInput 지원 비활성화"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:513
+#: src/compositor/compositor.c:392
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -645,6 +626,14 @@ msgstr ""
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "삑소리 이벤트"
+
+#: src/core/display.c:687
+msgid "Privacy Screen Enabled"
+msgstr "사생활 보호 화면 사용"
+
+#: src/core/display.c:688
+msgid "Privacy Screen Disabled"
+msgstr "사생활 보호 화면 해제"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -662,11 +651,11 @@ msgid ""
 "application to quit entirely."
 msgstr "좀 더 기다리거나 해당 프로그램을 강제로 끝낼 수 있습니다."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "강제로 끝내기(_F)"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "기다리기(_W)"
 
@@ -689,6 +678,10 @@ msgstr "세션 관리 ID를 지정합니다"
 #: src/core/meta-context-main.c:579
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
+
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "동기 X 호출을 합니다"
 
 #: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
@@ -725,7 +718,7 @@ msgstr "X11 백 엔드로 실행 합니다"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:840
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -733,19 +726,19 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:863
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
-#: src/core/mutter.c:47
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "버전을 출력합니다"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
@@ -754,7 +747,7 @@ msgstr "사용할 머터 플러그인"
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:148
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
@@ -781,7 +774,7 @@ msgstr "GDK 초기화에 실패했습니다"
 msgid "Failed to open X Window System display “%s”"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1175
+#: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
@@ -791,7 +784,7 @@ msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
-#: src/x11/session.c:1845
+#: src/x11/session.c:1823
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -804,6 +797,15 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
+
+#~ msgid "X display to use"
+#~ msgstr "사용할 X 디스플레이"
+
+#~ msgid "X screen to use"
+#~ msgstr "사용할 X 화면"
+
+#~ msgid "Disable XInput support"
+#~ msgstr "XInput 지원 비활성화"
 
 #~ msgid "Show the activities overview"
 #~ msgstr "현재 활동 보이기"
