@@ -741,6 +741,8 @@ update_device_for_event (ClutterStage *stage,
 void
 clutter_do_event (ClutterEvent *event)
 {
+  ClutterActor *event_actor = NULL;
+
   /* we need the stage for the event */
   if (event->any.stage == NULL)
     {
@@ -765,7 +767,15 @@ clutter_do_event (ClutterEvent *event)
       break;
     }
 
-  if (_clutter_event_process_filters (event))
+  if (event->any.type != CLUTTER_DEVICE_ADDED &&
+      event->any.type != CLUTTER_DEVICE_REMOVED &&
+      event->any.type != CLUTTER_NOTHING &&
+      event->any.type != CLUTTER_EVENT_LAST)
+    {
+      event_actor = clutter_stage_get_event_actor (event->any.stage, event);
+    }
+
+  if (_clutter_event_process_filters (event, event_actor))
     return;
 
   /* Instead of processing events when received, we queue them up to

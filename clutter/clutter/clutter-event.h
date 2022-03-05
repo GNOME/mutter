@@ -615,6 +615,7 @@ union _ClutterEvent
 /**
  * ClutterEventFilterFunc:
  * @event: the event that is going to be emitted
+ * @event_actor: the current device actor of the events device
  * @user_data: the data pointer passed to clutter_event_add_filter()
  *
  * A function pointer type used by event filters that are added with
@@ -628,6 +629,7 @@ union _ClutterEvent
  * Since: 1.18
  */
 typedef gboolean (* ClutterEventFilterFunc) (const ClutterEvent *event,
+                                             ClutterActor       *event_actor,
                                              gpointer            user_data);
 
 CLUTTER_EXPORT

@@ -213,7 +213,8 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
 
 static gboolean
 meta_display_handle_event (MetaDisplay        *display,
-                           const ClutterEvent *event)
+                           const ClutterEvent *event,
+                           ClutterActor       *event_actor)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaWindow *window = NULL;
@@ -540,11 +541,12 @@ meta_display_handle_event (MetaDisplay        *display,
 
 static gboolean
 event_callback (const ClutterEvent *event,
+                ClutterActor       *event_actor,
                 gpointer            data)
 {
   MetaDisplay *display = data;
 
-  return meta_display_handle_event (display, event);
+  return meta_display_handle_event (display, event, event_actor);
 }
 
 void

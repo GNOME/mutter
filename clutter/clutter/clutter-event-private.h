@@ -14,7 +14,8 @@ CLUTTER_EXPORT
 void            _clutter_process_event                  (ClutterEvent       *event);
 
 CLUTTER_EXPORT
-gboolean        _clutter_event_process_filters          (ClutterEvent       *event);
+gboolean        _clutter_event_process_filters          (ClutterEvent *event,
+                                                         ClutterActor *event_actor);
 
 /* clears the event queue inside the main context */
 void            _clutter_clear_events_queue             (void);

@@ -1772,7 +1772,8 @@ clutter_event_is_pointer_emulated (const ClutterEvent *event)
 }
 
 gboolean
-_clutter_event_process_filters (ClutterEvent *event)
+_clutter_event_process_filters (ClutterEvent *event,
+                                ClutterActor *event_actor)
 {
   ClutterMainContext *context = _clutter_context_get_default ();
   GList *l, *next;
@@ -1789,7 +1790,7 @@ _clutter_event_process_filters (ClutterEvent *event)
       if (event_filter->stage && event_filter->stage != event->any.stage)
         continue;
 
-      if (event_filter->func (event, event_filter->user_data) == CLUTTER_EVENT_STOP)
+      if (event_filter->func (event, event_actor, event_filter->user_data) == CLUTTER_EVENT_STOP)
         return CLUTTER_EVENT_STOP;
     }
 

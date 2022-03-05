@@ -3478,7 +3478,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                                          CLUTTER_EVENT_NONE,
                                          old_actor, new_actor,
                                          point, time_ms);
-          if (!_clutter_event_process_filters (event))
+          if (!_clutter_event_process_filters (event, old_actor))
             _clutter_actor_handle_event (old_actor, root, event);
 
           clutter_event_free (event);
@@ -3492,7 +3492,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                                          CLUTTER_EVENT_NONE,
                                          new_actor, old_actor,
                                          point, time_ms);
-          if (!_clutter_event_process_filters (event))
+          if (!_clutter_event_process_filters (event, new_actor))
             _clutter_actor_handle_event (new_actor, root, event);
 
           clutter_event_free (event);
@@ -3676,7 +3676,7 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
                                      grab_actor : old_grab_actor,
                                      entry->coords,
                                      CLUTTER_CURRENT_TIME);
-      if (!_clutter_event_process_filters (event))
+      if (!_clutter_event_process_filters (event, entry->current_actor))
         _clutter_actor_handle_event (deepmost, topmost, event);
       clutter_event_free (event);
     }
