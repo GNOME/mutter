@@ -81,23 +81,20 @@ stage_has_grab (MetaDisplay *display)
 
 static MetaWindow *
 get_window_for_event (MetaDisplay        *display,
-                      const ClutterEvent *event)
+                      const ClutterEvent *event,
+                      ClutterActor       *event_actor)
 {
   switch (display->event_route)
     {
     case META_EVENT_ROUTE_NORMAL:
       {
-        ClutterActor *target;
         MetaWindowActor *window_actor;
 
         /* Always use the key focused window for key events. */
         if (IS_KEY_EVENT (event))
             return stage_has_key_focus () ? display->focus_window : NULL;
 
-        target = clutter_stage_get_device_actor (clutter_event_get_stage (event),
-                                                 clutter_event_get_device (event),
-                                                 clutter_event_get_event_sequence (event));
-        window_actor = meta_window_actor_from_actor (target);
+        window_actor = meta_window_actor_from_actor (event_actor);
         if (window_actor)
           return meta_window_actor_get_meta_window (window_actor);
         else
@@ -339,7 +336,7 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 #endif
 
-  window = get_window_for_event (display, event);
+  window = get_window_for_event (display, event, event_actor);
 
   display->current_time = event->any.time;
 
