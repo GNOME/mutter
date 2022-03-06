@@ -906,7 +906,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         uint32_t stride;
         uint32_t offset;
         uint32_t bpp;
-        uint32_t modifier;
+        uint64_t modifier;
         uint32_t format;
         CoglFramebuffer *dmabuf_fb;
         CoglDmaBufHandle *dmabuf_handle;

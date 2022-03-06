@@ -104,7 +104,7 @@ meta_drm_buffer_import_get_offset (MetaDrmBuffer *buffer,
   return meta_drm_buffer_get_offset (importee, offset);
 }
 
-static uint32_t
+static uint64_t
 meta_drm_buffer_import_get_modifier (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);

@@ -163,7 +163,7 @@ meta_drm_buffer_dumb_get_offset (MetaDrmBuffer *buffer,
   return buffer_dumb->offset;
 }
 
-static uint32_t
+static uint64_t
 meta_drm_buffer_dumb_get_modifier (MetaDrmBuffer *buffer)
 {
   return DRM_FORMAT_MOD_LINEAR;

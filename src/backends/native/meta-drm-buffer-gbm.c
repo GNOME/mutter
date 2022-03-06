@@ -124,7 +124,7 @@ meta_drm_buffer_gbm_get_offset (MetaDrmBuffer *buffer,
   return gbm_bo_get_offset (buffer_gbm->bo, plane);
 }
 
-static uint32_t
+static uint64_t
 meta_drm_buffer_gbm_get_modifier (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);

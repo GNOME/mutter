@@ -52,7 +52,7 @@ struct _MetaDrmBufferClass
   uint32_t (* get_format) (MetaDrmBuffer *buffer);
   int (* get_offset) (MetaDrmBuffer *buffer,
                       int            plane);
-  uint32_t (* get_modifier) (MetaDrmBuffer *buffer);
+  uint64_t (* get_modifier) (MetaDrmBuffer *buffer);
 
   gboolean (* fill_timings) (MetaDrmBuffer  *buffer,
                              CoglFrameInfo  *info,

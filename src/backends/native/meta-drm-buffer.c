@@ -222,7 +222,7 @@ meta_drm_buffer_get_offset (MetaDrmBuffer *buffer,
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_offset (buffer, plane);
 }
 
-uint32_t
+uint64_t
 meta_drm_buffer_get_modifier (MetaDrmBuffer *buffer)
 {
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_modifier (buffer);
