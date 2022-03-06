@@ -657,6 +657,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
           spa_data->chunk->size = spa_data->maxsize;
           spa_data->chunk->stride =
             meta_screen_cast_stream_src_calculate_stride (src, spa_data);
+          spa_data->chunk->flags = SPA_CHUNK_FLAG_NONE;
 
           /* Update VideoCrop if needed */
           spa_meta_video_crop =
@@ -686,11 +687,13 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
         {
           g_warning ("Failed to record screen cast frame: %s", error->message);
           spa_buffer->datas[0].chunk->size = 0;
+          spa_buffer->datas[0].chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
         }
     }
   else
     {
       spa_buffer->datas[0].chunk->size = 0;
+      spa_buffer->datas[0].chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
     }
 
   maybe_record_cursor (src, spa_buffer);
