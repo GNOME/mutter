@@ -1332,9 +1332,21 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one,
                                      guint32        timestamp)
 {
+  MetaWindow *current_focus;
+
   if (timestamp == META_CURRENT_TIME)
     meta_warning ("META_CURRENT_TIME used to choose focus window; "
                   "focus window may not be correct.");
+
+  current_focus = workspace->display->focus_window;
+
+  if (current_focus &&
+      current_focus != not_this_one &&
+      meta_window_located_on_workspace (current_focus, workspace))
+    {
+      meta_window_focus (current_focus, timestamp);
+      return;
+    }
 
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
       !workspace->display->mouse_mode)
