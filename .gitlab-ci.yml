@@ -337,7 +337,7 @@ coverage:
   stage: analyze
   script:
     - mkdir coveragereport
-    - gcovr --add-tracefile coverage-*.json
+    - gcovr --add-tracefile 'coverage-*.json'
         --html-details --print-summary --output coveragereport/index.html
   artifacts:
     paths:
