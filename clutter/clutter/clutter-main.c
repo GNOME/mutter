@@ -741,6 +741,7 @@ update_device_for_event (ClutterStage *stage,
 void
 clutter_do_event (ClutterEvent *event)
 {
+  ClutterContext *context = _clutter_context_get_default();
   ClutterActor *event_actor = NULL;
 
   /* we need the stage for the event */
@@ -775,8 +776,17 @@ clutter_do_event (ClutterEvent *event)
       event_actor = clutter_stage_get_event_actor (event->any.stage, event);
     }
 
+  context->current_event = g_slist_prepend (context->current_event, event);
+
   if (_clutter_event_process_filters (event, event_actor))
-    return;
+    {
+      context->current_event =
+        g_slist_delete_link (context->current_event, context->current_event);
+
+      return;
+    }
+
+  context->current_event = g_slist_delete_link (context->current_event, context->current_event);
 
   /* Instead of processing events when received, we queue them up to
    * handle per-frame before animations, layout, and drawing.
