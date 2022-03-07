@@ -1,3 +1,36 @@
+42.rc
+=====
+* Fix X11 → wayland drops ending up in the wrong wayland client [Olivier; !2305]
+* Make xdg-activation interoperate with other startup sequences [Carlos; !2314]
+* Fix stuck grab feedback actor during compositor grabs [Jonas D.; !2308]
+* Make gnome-desktop dependency optional [Bilal; !2317]
+* Provide better profiling information [Ivan; !1928]
+* Drop ClutterEvent "source" field [Carlos; !2311]
+* Add support for xdg_toplevel.configure_bounds() [Jonas Å.; !2167]
+* Add support for wl_surface.offset [Jonas Å.; !1905]
+* Fix resizing of virtual monitors [Jonas Å.; !2270]
+* Include size in configure events of maximized clients [Sebastian K.; !2238]
+* Only allow direct scanouts for surfaces that aren't cropped, scaled or rotated
+  [Robert; !2276]
+* Fix pipewire screencasts [Ivan; !2322]
+* Plugged memory leak [Robert; !2297]
+* Fixed crash [Jonas; !2318]
+* Misc. bug fixes and cleanups [Bilal, Jonas Å., Florian, Dor, Alfonso,
+  Sebastian W., Carlos, Jonas D.; !2306, !2300, !2301, !2303, !2307, !2315,
+  !2319, !2298, !2320, !2324]
+
+Contributors:
+  Dor Askayo, Jonas Dreßler, Bilal Elmoussaoui, Olivier Fourdan,
+  Carlos Garnacho, Sebastian Keller, Robert Mader, Ivan Molodetskikh,
+  Florian Müllner, Alfonso Sánchez-Beato, Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Emin Tufan Çetin [tr], Yosef Or Boczko [he], Quentin PAGÈS [oc],
+  Christian Kirbach [de], Aurimas Černius [lt], Danial Behzadi [fa],
+  Daniel Mustieles [es], Alan Mortensen [da], Goran Vidović [hr],
+  Tim Sabsch [de], Anders Jonsson [sv], Gwan-gyeong Mun [ko],
+  Daniel Șerbănescu [ro], Piotr Drąg [pl]
+
 42.beta
 =======
 * Implement a new Clutter grab API [Carlos; !2068, !2099, !2100]
