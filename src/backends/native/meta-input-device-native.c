@@ -1350,6 +1350,30 @@ determine_device_type (struct libinput_device *ldev)
     return CLUTTER_EXTENSION_DEVICE;
 }
 
+static ClutterInputCapabilities
+translate_device_capabilities (struct libinput_device *ldev)
+{
+  ClutterInputCapabilities caps = 0;
+
+  /* This setting is specific to touchpads and alike, only in these
+   * devices there is this additional layer of touch event interpretation.
+   */
+  if (libinput_device_config_tap_get_finger_count (ldev) > 0)
+    caps |= CLUTTER_INPUT_CAPABILITY_TOUCHPAD;
+  if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TABLET_TOOL))
+    caps |= CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
+  if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TABLET_PAD))
+    caps |= CLUTTER_INPUT_CAPABILITY_TABLET_PAD;
+  if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_POINTER))
+    caps |= CLUTTER_INPUT_CAPABILITY_POINTER;
+  if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TOUCH))
+    caps |= CLUTTER_INPUT_CAPABILITY_TOUCH;
+  if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_KEYBOARD))
+    caps |= CLUTTER_INPUT_CAPABILITY_KEYBOARD;
+
+  return caps;
+}
+
 /*
  * meta_input_device_native_new:
  * @manager: the device manager
@@ -1365,11 +1389,13 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
 {
   MetaInputDeviceNative *device;
   ClutterInputDeviceType type;
+  ClutterInputCapabilities capabilities;
   char *vendor, *product;
   int n_rings = 0, n_strips = 0, n_groups = 1, n_buttons = 0;
   char *node_path;
   double width, height;
 
+  capabilities = translate_device_capabilities (libinput_device);
   type = determine_device_type (libinput_device);
   vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
   product = g_strdup_printf ("%.4x", libinput_device_get_id_product (libinput_device));
@@ -1387,6 +1413,7 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
                          "name", libinput_device_get_name (libinput_device),
                          "device-type", type,
+                         "capabilities", capabilities,
                          "device-mode", CLUTTER_INPUT_MODE_PHYSICAL,
                          "vendor-id", vendor,
                          "product-id", product,
