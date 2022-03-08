@@ -121,6 +121,9 @@ int clutter_input_device_get_pad_feature_group (ClutterInputDevice           *de
                                                 ClutterInputDevicePadFeature  feature,
                                                 int                           n_feature);
 
+CLUTTER_EXPORT
+ClutterInputCapabilities clutter_input_device_get_capabilities (ClutterInputDevice *device);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_INPUT_DEVICE_H__ */
