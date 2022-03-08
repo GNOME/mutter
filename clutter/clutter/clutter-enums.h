@@ -936,6 +936,29 @@ typedef enum /*< prefix=CLUTTER_FLOW >*/
 } ClutterFlowOrientation;
 
 /**
+ * ClutterInputDeviceCapabilities:
+ * @CLUTTER_INPUT_CAPABILITY_NONE: No capabilities
+ * @CLUTTER_INPUT_CAPABILITY_POINTER: Pointer capability
+ * @CLUTTER_INPUT_CAPABILITY_KEYBOARD: Keyboard capability
+ * @CLUTTER_INPUT_CAPABILITY_TOUCHPAD: Touchpad gesture and scroll capability
+ * @CLUTTER_INPUT_CAPABILITY_TOUCH: Touch capability
+ * @CLUTTER_INPUT_CAPABILITY_TABLET_TOOL: Tablet tool capability
+ * @CLUTTER_INPUT_CAPABILITY_TABLET_PAD: Tablet pad capability
+ *
+ * Describes the capabilities of an input device.
+ **/
+typedef enum /*< prefix=CLUTTER_INPUT_CAPABILITY >*/
+{
+  CLUTTER_INPUT_CAPABILITY_NONE = 0,
+  CLUTTER_INPUT_CAPABILITY_POINTER = 1 << 0,
+  CLUTTER_INPUT_CAPABILITY_KEYBOARD = 1 << 1,
+  CLUTTER_INPUT_CAPABILITY_TOUCHPAD = 1 << 2,
+  CLUTTER_INPUT_CAPABILITY_TOUCH = 1 << 3,
+  CLUTTER_INPUT_CAPABILITY_TABLET_TOOL = 1 << 4,
+  CLUTTER_INPUT_CAPABILITY_TABLET_PAD = 1 << 5,
+} ClutterInputCapabilities;
+
+/**
  * ClutterInputDeviceType:
  * @CLUTTER_POINTER_DEVICE: A pointer device
  * @CLUTTER_KEYBOARD_DEVICE: A keyboard device
