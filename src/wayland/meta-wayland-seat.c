@@ -114,7 +114,7 @@ lookup_device_capabilities (ClutterSeat *seat)
 
   for (l = devices; l; l = l->next)
     {
-      ClutterInputDeviceType device_type;
+      ClutterInputCapabilities device_capabilities;
 
       /* Only look for physical devices, logical devices have rather generic
        * keyboard/pointer device types, which is not truly representative of
@@ -123,26 +123,14 @@ lookup_device_capabilities (ClutterSeat *seat)
       if (clutter_input_device_get_device_mode (l->data) == CLUTTER_INPUT_MODE_LOGICAL)
         continue;
 
-      device_type = clutter_input_device_get_device_type (l->data);
+      device_capabilities = clutter_input_device_get_capabilities (l->data);
 
-      switch (device_type)
-        {
-        case CLUTTER_TOUCHPAD_DEVICE:
-        case CLUTTER_POINTER_DEVICE:
-          capabilities |= WL_SEAT_CAPABILITY_POINTER;
-          break;
-        case CLUTTER_KEYBOARD_DEVICE:
-          capabilities |= WL_SEAT_CAPABILITY_KEYBOARD;
-          break;
-        case CLUTTER_TOUCHSCREEN_DEVICE:
-          capabilities |= WL_SEAT_CAPABILITY_TOUCH;
-          break;
-        default:
-          g_debug ("Ignoring device '%s' with unhandled type %d",
-                   clutter_input_device_get_device_name (l->data),
-                   device_type);
-          break;
-        }
+      if (device_capabilities & CLUTTER_INPUT_CAPABILITY_POINTER)
+        capabilities |= WL_SEAT_CAPABILITY_POINTER;
+      if (device_capabilities & CLUTTER_INPUT_CAPABILITY_KEYBOARD)
+        capabilities |= WL_SEAT_CAPABILITY_KEYBOARD;
+      if (device_capabilities & CLUTTER_INPUT_CAPABILITY_TOUCH)
+        capabilities |= WL_SEAT_CAPABILITY_TOUCH;
     }
 
   g_list_free (devices);
@@ -297,11 +285,11 @@ static gboolean
 event_from_supported_hardware_device (MetaWaylandSeat    *seat,
                                       const ClutterEvent *event)
 {
-  ClutterInputDevice     *input_device;
-  ClutterInputMode        input_mode;
-  ClutterInputDeviceType  device_type;
-  gboolean                hardware_device = FALSE;
-  gboolean                supported_device = FALSE;
+  ClutterInputDevice *input_device;
+  ClutterInputMode input_mode;
+  ClutterInputCapabilities capabilities;
+  gboolean hardware_device = FALSE;
+  gboolean supported_device = FALSE;
 
   input_device = clutter_event_get_source_device (event);
 
@@ -315,21 +303,13 @@ event_from_supported_hardware_device (MetaWaylandSeat    *seat,
 
   hardware_device = TRUE;
 
-  device_type = clutter_input_device_get_device_type (input_device);
+  capabilities = clutter_input_device_get_capabilities (input_device);
 
-  switch (device_type)
-    {
-    case CLUTTER_TOUCHPAD_DEVICE:
-    case CLUTTER_POINTER_DEVICE:
-    case CLUTTER_KEYBOARD_DEVICE:
-    case CLUTTER_TOUCHSCREEN_DEVICE:
-      supported_device = TRUE;
-      break;
-
-    default:
-      supported_device = FALSE;
-      break;
-    }
+  if ((capabilities &
+       (CLUTTER_INPUT_CAPABILITY_POINTER |
+        CLUTTER_INPUT_CAPABILITY_KEYBOARD |
+        CLUTTER_INPUT_CAPABILITY_TOUCH)) != 0)
+    supported_device = TRUE;
 
 out:
   return hardware_device && supported_device;
