@@ -1328,6 +1328,28 @@ update_pad_features (MetaInputDeviceNative *device_native)
     }
 }
 
+static ClutterInputDeviceType
+determine_device_type (struct libinput_device *ldev)
+{
+  /* This setting is specific to touchpads and alike, only in these
+   * devices there is this additional layer of touch event interpretation.
+   */
+  if (libinput_device_config_tap_get_finger_count (ldev) > 0)
+    return CLUTTER_TOUCHPAD_DEVICE;
+  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TABLET_TOOL))
+    return CLUTTER_TABLET_DEVICE;
+  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TABLET_PAD))
+    return CLUTTER_PAD_DEVICE;
+  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_POINTER))
+    return CLUTTER_POINTER_DEVICE;
+  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TOUCH))
+    return CLUTTER_TOUCHSCREEN_DEVICE;
+  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_KEYBOARD))
+    return CLUTTER_KEYBOARD_DEVICE;
+  else
+    return CLUTTER_EXTENSION_DEVICE;
+}
+
 /*
  * meta_input_device_native_new:
  * @manager: the device manager
@@ -1348,7 +1370,7 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
   char *node_path;
   double width, height;
 
-  type = meta_input_device_native_determine_type_in_impl (libinput_device);
+  type = determine_device_type (libinput_device);
   vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
   product = g_strdup_printf ("%.4x", libinput_device_get_id_product (libinput_device));
   node_path = g_strdup_printf ("/dev/input/%s", libinput_device_get_sysname (libinput_device));
@@ -1454,28 +1476,6 @@ meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative *device,
     return;
 
   libinput_device_led_update (device->libinput_device, leds);
-}
-
-ClutterInputDeviceType
-meta_input_device_native_determine_type_in_impl (struct libinput_device *ldev)
-{
-  /* This setting is specific to touchpads and alike, only in these
-   * devices there is this additional layer of touch event interpretation.
-   */
-  if (libinput_device_config_tap_get_finger_count (ldev) > 0)
-    return CLUTTER_TOUCHPAD_DEVICE;
-  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TABLET_TOOL))
-    return CLUTTER_TABLET_DEVICE;
-  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TABLET_PAD))
-    return CLUTTER_PAD_DEVICE;
-  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_POINTER))
-    return CLUTTER_POINTER_DEVICE;
-  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_TOUCH))
-    return CLUTTER_TOUCHSCREEN_DEVICE;
-  else if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_KEYBOARD))
-    return CLUTTER_KEYBOARD_DEVICE;
-  else
-    return CLUTTER_EXTENSION_DEVICE;
 }
 
 /**

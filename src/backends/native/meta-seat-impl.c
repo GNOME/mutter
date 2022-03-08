@@ -1658,7 +1658,7 @@ evdev_add_device (MetaSeatImpl           *seat_impl,
 
   /* Clutter assumes that device types are exclusive in the
    * ClutterInputDevice API */
-  type = meta_input_device_native_determine_type_in_impl (libinput_device);
+  type = clutter_input_device_get_device_type (device);
 
   is_touchscreen = type == CLUTTER_TOUCHSCREEN_DEVICE;
   is_tablet_switch =
