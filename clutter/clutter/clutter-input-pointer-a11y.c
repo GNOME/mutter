@@ -25,11 +25,13 @@
 
 #include "clutter-build-config.h"
 
+#include "clutter-backend-private.h"
 #include "clutter-enum-types.h"
 #include "clutter-input-device.h"
 #include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-main.h"
+#include "clutter-private.h"
 #include "clutter-virtual-input-device.h"
 
 static gboolean
@@ -725,4 +727,40 @@ _clutter_is_input_pointer_a11y_enabled (ClutterInputDevice *device)
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
 
   return (is_secondary_click_enabled (device) || is_dwell_click_enabled (device));
+}
+
+void
+_clutter_input_pointer_a11y_maybe_handle_event (ClutterEvent *event)
+{
+
+  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterMainContext *clutter_context;
+  ClutterBackend *backend;
+
+  if (!_clutter_is_input_pointer_a11y_enabled (device))
+    return;
+
+  if ((event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC) != 0)
+    return;
+
+  clutter_context = _clutter_context_get_default ();
+  backend = clutter_context->backend;
+
+  if (!clutter_backend_is_display_server (backend))
+    return;
+
+  if (event->type == CLUTTER_MOTION)
+    {
+      float x, y;
+
+      clutter_event_get_coords (event, &x, &y);
+      _clutter_input_pointer_a11y_on_motion_event (device, x, y);
+    }
+  else if (event->type == CLUTTER_BUTTON_PRESS ||
+           event->type == CLUTTER_BUTTON_RELEASE)
+    {
+      _clutter_input_pointer_a11y_on_button_event (device,
+                                                   event->button.button,
+                                                   event->type == CLUTTER_BUTTON_PRESS);
+    }
 }

@@ -778,6 +778,7 @@ clutter_do_event (ClutterEvent *event)
 
   context->current_event = g_slist_prepend (context->current_event, event);
 
+  _clutter_input_pointer_a11y_maybe_handle_event (event);
   if (_clutter_event_process_filters (event, event_actor))
     {
       context->current_event =
@@ -830,12 +831,7 @@ _clutter_process_event_details (ClutterActor        *stage,
 {
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterMainContext *clutter_context;
-  ClutterBackend *backend;
   ClutterActor *target;
-
-  clutter_context = _clutter_context_get_default ();
-  backend = clutter_context->backend;
 
   switch (event->type)
     {
@@ -878,31 +874,8 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_MOTION:
-        if (clutter_backend_is_display_server (backend) &&
-            !(event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC))
-          {
-            if (_clutter_is_input_pointer_a11y_enabled (device))
-              {
-                gfloat x, y;
-
-                clutter_event_get_coords (event, &x, &y);
-                _clutter_input_pointer_a11y_on_motion_event (device, x, y);
-              }
-          }
-        G_GNUC_FALLTHROUGH;
       case CLUTTER_BUTTON_PRESS:
       case CLUTTER_BUTTON_RELEASE:
-        if (clutter_backend_is_display_server (backend))
-          {
-            if (_clutter_is_input_pointer_a11y_enabled (device) && (event->type != CLUTTER_MOTION))
-              {
-                _clutter_input_pointer_a11y_on_button_event (device,
-                                                             event->button.button,
-                                                             event->type == CLUTTER_BUTTON_PRESS);
-              }
-          }
-
-        G_GNUC_FALLTHROUGH;
       case CLUTTER_SCROLL:
       case CLUTTER_TOUCHPAD_PINCH:
       case CLUTTER_TOUCHPAD_SWIPE:

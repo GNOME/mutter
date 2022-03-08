@@ -42,6 +42,9 @@ void _clutter_input_pointer_a11y_on_button_event (ClutterInputDevice   *device,
 CLUTTER_EXPORT
 gboolean _clutter_is_input_pointer_a11y_enabled  (ClutterInputDevice     *device);
 
+CLUTTER_EXPORT
+void _clutter_input_pointer_a11y_maybe_handle_event (ClutterEvent *event);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_INPUT_POINTER_A11Y_H__ */
