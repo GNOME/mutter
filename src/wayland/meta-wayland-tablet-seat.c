@@ -167,30 +167,27 @@ notify_pads (MetaWaylandTabletSeat *tablet_seat,
 static gboolean
 is_tablet_device (ClutterInputDevice *device)
 {
-  ClutterInputDeviceType device_type;
+  ClutterInputCapabilities capabilities;
 
   if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return FALSE;
 
-  device_type = clutter_input_device_get_device_type (device);
+  capabilities = clutter_input_device_get_capabilities (device);
 
-  return (device_type == CLUTTER_TABLET_DEVICE ||
-          device_type == CLUTTER_PEN_DEVICE ||
-          device_type == CLUTTER_ERASER_DEVICE ||
-          device_type == CLUTTER_CURSOR_DEVICE);
+  return (capabilities & CLUTTER_INPUT_CAPABILITY_TABLET_TOOL) != 0;
 }
 
 static gboolean
 is_pad_device (ClutterInputDevice *device)
 {
-  ClutterInputDeviceType device_type;
+  ClutterInputCapabilities capabilities;
 
   if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return FALSE;
 
-  device_type = clutter_input_device_get_device_type (device);
+  capabilities = clutter_input_device_get_capabilities (device);
 
-  return device_type == CLUTTER_PAD_DEVICE;
+  return (capabilities & CLUTTER_INPUT_CAPABILITY_TABLET_PAD) != 0;
 }
 
 static void
@@ -471,8 +468,8 @@ meta_wayland_tablet_seat_notify_tool (MetaWaylandTabletSeat *tablet_seat,
 }
 
 static GList *
-lookup_grouped_devices (ClutterInputDevice     *device,
-                        ClutterInputDeviceType  type)
+lookup_grouped_devices (ClutterInputDevice       *device,
+                        ClutterInputCapabilities  capabilities)
 {
   ClutterSeat *clutter_seat;
   GList *devices, *l;
@@ -485,7 +482,8 @@ lookup_grouped_devices (ClutterInputDevice     *device,
     {
       if (l->data == device)
         continue;
-      if (clutter_input_device_get_device_type (l->data) != type)
+      if ((clutter_input_device_get_capabilities (l->data) & capabilities) ==
+          capabilities)
         continue;
 
       if (!clutter_input_device_is_grouped (device, l->data))
@@ -506,7 +504,8 @@ meta_wayland_tablet_seat_lookup_paired_tablet (MetaWaylandTabletSeat *tablet_sea
   MetaWaylandTablet *tablet;
   GList *devices;
 
-  devices = lookup_grouped_devices (pad->device, CLUTTER_TABLET_DEVICE);
+  devices = lookup_grouped_devices (pad->device,
+                                    CLUTTER_INPUT_CAPABILITY_TABLET_TOOL);
 
   if (!devices)
     return NULL;
@@ -528,7 +527,8 @@ meta_wayland_tablet_seat_lookup_paired_pads (MetaWaylandTabletSeat *tablet_seat,
   GList *l, *devices, *pads = NULL;
   MetaWaylandTabletPad *pad;
 
-  devices = lookup_grouped_devices (tablet->device, CLUTTER_PAD_DEVICE);
+  devices = lookup_grouped_devices (tablet->device,
+                                    CLUTTER_INPUT_CAPABILITY_TABLET_PAD);
 
   for (l = devices; l; l = l->next)
     {

@@ -43,18 +43,16 @@ unbind_resource (struct wl_resource *resource)
 static gboolean
 is_tablet_device (ClutterInputDevice *device)
 {
-  ClutterInputDeviceType device_type;
+  ClutterInputCapabilities capabilities;
 
   if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return FALSE;
 
-  device_type = clutter_input_device_get_device_type (device);
+  capabilities = clutter_input_device_get_capabilities (device);
 
-  return (device_type == CLUTTER_TABLET_DEVICE ||
-          device_type == CLUTTER_PEN_DEVICE ||
-          device_type == CLUTTER_ERASER_DEVICE ||
-          device_type == CLUTTER_CURSOR_DEVICE ||
-          device_type == CLUTTER_PAD_DEVICE);
+  return (capabilities &
+          (CLUTTER_INPUT_CAPABILITY_TABLET_TOOL |
+           CLUTTER_INPUT_CAPABILITY_TABLET_PAD)) != 0;
 }
 
 static void
