@@ -105,6 +105,53 @@ struct _ClutterInputDevicePrivate
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterInputDevice, clutter_input_device, G_TYPE_OBJECT);
 
 static void
+clutter_input_device_constructed (GObject *gobject)
+{
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (gobject);
+  ClutterInputDevicePrivate *priv =
+    clutter_input_device_get_instance_private (device);
+
+  if (priv->capabilities == 0)
+    {
+      ClutterInputCapabilities capabilities = 0;
+
+      switch (priv->device_type)
+        {
+        case CLUTTER_POINTER_DEVICE:
+          capabilities = CLUTTER_INPUT_CAPABILITY_POINTER;
+          break;
+        case CLUTTER_KEYBOARD_DEVICE:
+          capabilities = CLUTTER_INPUT_CAPABILITY_KEYBOARD;
+          break;
+        case CLUTTER_TOUCHPAD_DEVICE:
+          capabilities = CLUTTER_INPUT_CAPABILITY_POINTER |
+            CLUTTER_INPUT_CAPABILITY_TOUCHPAD;
+          break;
+        case CLUTTER_TOUCHSCREEN_DEVICE:
+          capabilities = CLUTTER_INPUT_CAPABILITY_TOUCH;
+          break;
+        case CLUTTER_TABLET_DEVICE:
+        case CLUTTER_PEN_DEVICE:
+        case CLUTTER_ERASER_DEVICE:
+        case CLUTTER_CURSOR_DEVICE:
+          capabilities = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
+          break;
+        case CLUTTER_PAD_DEVICE:
+          capabilities = CLUTTER_INPUT_CAPABILITY_TABLET_PAD;
+          break;
+        case CLUTTER_EXTENSION_DEVICE:
+        case CLUTTER_JOYSTICK_DEVICE:
+          break;
+        case CLUTTER_N_DEVICE_TYPES:
+          g_assert_not_reached ();
+          break;
+        }
+
+      priv->capabilities = capabilities;
+    }
+}
+
+static void
 clutter_input_device_dispose (GObject *gobject)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (gobject);
@@ -437,6 +484,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                          NULL,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
+  gobject_class->constructed = clutter_input_device_constructed;
   gobject_class->dispose = clutter_input_device_dispose;
   gobject_class->set_property = clutter_input_device_set_property;
   gobject_class->get_property = clutter_input_device_get_property;
