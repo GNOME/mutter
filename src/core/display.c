@@ -1443,7 +1443,6 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
   else
     meta_topic (META_DEBUG_FOCUS, "Focus change has no effect, because there is no matching wayland surface");
 
-  meta_stage_set_active (stage, focus_window == NULL);
   meta_wayland_compositor_set_input_focus (compositor, focus_window);
 
   clutter_stage_repick_device (CLUTTER_STAGE (stage),
