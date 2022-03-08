@@ -141,7 +141,8 @@ device_added (ClutterSeat         *seat,
 {
   PadMappingInfo *info;
 
-  if (clutter_input_device_get_device_type (device) == CLUTTER_PAD_DEVICE)
+  if ((clutter_input_device_get_capabilities (device) &
+       CLUTTER_INPUT_CAPABILITY_TABLET_PAD) != 0)
     {
       info = pad_mapping_info_new (device);
       g_hash_table_insert (mapper->pads, device, info);
@@ -384,8 +385,9 @@ meta_pad_action_mapper_cycle_tablet_output (MetaPadActionMapper *mapper,
 
   g_return_if_fail (META_IS_PAD_ACTION_MAPPER (mapper));
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-  g_return_if_fail (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE ||
-                    clutter_input_device_get_device_type (device) == CLUTTER_PAD_DEVICE);
+  g_return_if_fail ((clutter_input_device_get_capabilities (device) &
+                     (CLUTTER_INPUT_CAPABILITY_TABLET_TOOL |
+                      CLUTTER_INPUT_CAPABILITY_TABLET_PAD)) != 0);
 
   info = g_hash_table_lookup (mapper->pads, device);
   g_return_if_fail (info != NULL);
@@ -439,8 +441,8 @@ meta_pad_action_mapper_is_button_grabbed (MetaPadActionMapper *mapper,
 {
   g_return_val_if_fail (META_IS_PAD_ACTION_MAPPER (mapper), FALSE);
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (pad), FALSE);
-  g_return_val_if_fail (clutter_input_device_get_device_type (pad) ==
-                        CLUTTER_PAD_DEVICE, FALSE);
+  g_return_val_if_fail ((clutter_input_device_get_capabilities (pad) &
+                         CLUTTER_INPUT_CAPABILITY_TABLET_PAD) != 0, FALSE);
 
   return (meta_pad_action_mapper_get_button_action (mapper, pad, button) !=
           G_DESKTOP_PAD_BUTTON_ACTION_NONE);
@@ -827,8 +829,8 @@ meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
 
   g_return_val_if_fail (META_IS_PAD_ACTION_MAPPER (mapper), NULL);
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (pad), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_type (pad) ==
-                        CLUTTER_PAD_DEVICE, NULL);
+  g_return_val_if_fail ((clutter_input_device_get_capabilities (pad) &
+                         CLUTTER_INPUT_CAPABILITY_TABLET_PAD) != 0, NULL);
 
   group = clutter_input_device_get_mode_switch_button_group (pad, button);
 
