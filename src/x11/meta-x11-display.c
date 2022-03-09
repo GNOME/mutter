@@ -1303,25 +1303,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                                               xroot,
                                               PropertyChangeMask);
 
-  sprintf (buf, "WM_S%d", number);
-
-  wm_sn_atom = XInternAtom (xdisplay, buf, False);
-  new_wm_sn_owner = take_manager_selection (x11_display, xroot, wm_sn_atom, timestamp, replace_current_wm);
-  if (new_wm_sn_owner == None)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to acquire window manager ownership");
-
-      g_object_run_dispose (G_OBJECT (x11_display));
-      g_clear_object (&x11_display);
-
-      return NULL;
-    }
-
-  x11_display->wm_sn_selection_window = new_wm_sn_owner;
-  x11_display->wm_sn_atom = wm_sn_atom;
-  x11_display->wm_sn_timestamp = timestamp;
-
   init_event_masks (x11_display);
 
   /* Select for cursor changes so the cursor tracker is up to date. */
@@ -1417,6 +1398,29 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   if (!meta_is_wayland_compositor ())
     meta_dnd_init_xdnd (x11_display);
+
+  sprintf (buf, "WM_S%d", number);
+
+  wm_sn_atom = XInternAtom (xdisplay, buf, False);
+  new_wm_sn_owner = take_manager_selection (x11_display,
+                                            xroot,
+                                            wm_sn_atom,
+                                            timestamp,
+                                            replace_current_wm);
+  if (new_wm_sn_owner == None)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to acquire window manager ownership");
+
+      g_object_run_dispose (G_OBJECT (x11_display));
+      g_clear_object (&x11_display);
+
+      return NULL;
+    }
+
+  x11_display->wm_sn_selection_window = new_wm_sn_owner;
+  x11_display->wm_sn_atom = wm_sn_atom;
+  x11_display->wm_sn_timestamp = timestamp;
 
   return x11_display;
 }
