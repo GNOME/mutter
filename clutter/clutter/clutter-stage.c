@@ -3150,53 +3150,62 @@ clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage)
   priv->actor_needs_immediate_relayout = TRUE;
 }
 
-static void
-on_device_actor_reactive_changed (ClutterActor       *actor,
-                                  GParamSpec         *pspec,
-                                  PointerDeviceEntry *entry)
+void
+clutter_stage_invalidate_focus (ClutterStage *self,
+                                ClutterActor *actor)
 {
-  ClutterStage *self = entry->stage;
+  ClutterStagePrivate *priv = self->priv;
+  GHashTableIter iter;
+  gpointer value;
 
-  g_assert (!clutter_actor_get_reactive (actor));
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
+    return;
 
-  clutter_stage_pick_and_update_device (self,
-                                        entry->device,
-                                        entry->sequence,
-                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
-                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
-                                        entry->coords,
-                                        CLUTTER_CURRENT_TIME);
-}
+  g_assert (!clutter_actor_is_mapped (actor) || !clutter_actor_get_reactive (actor));
 
-static void
-on_device_actor_destroyed (ClutterActor       *actor,
-                           PointerDeviceEntry *entry)
-{
-  /* Simply unset the current_actor pointer here, there's no need to
-   * unset has_pointer or to disconnect any signals because the actor
-   * is gone anyway.
-   */
-  entry->current_actor = NULL;
-  g_clear_pointer (&entry->clear_area, cairo_region_destroy);
-  clutter_stage_repick_device (entry->stage, entry->device);
+  g_hash_table_iter_init (&iter, priv->pointer_devices);
+  while (g_hash_table_iter_next (&iter, NULL, &value))
+    {
+      PointerDeviceEntry *entry = value;
+
+      if (entry->current_actor != actor)
+        continue;
+
+      clutter_stage_pick_and_update_device (self,
+                                            entry->device,
+                                            NULL,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
+                                            CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                            entry->coords,
+                                            CLUTTER_CURRENT_TIME);
+    }
+
+  g_hash_table_iter_init (&iter, priv->touch_sequences);
+  while (g_hash_table_iter_next (&iter, NULL, &value))
+    {
+      PointerDeviceEntry *entry = value;
+
+      if (entry->current_actor != actor)
+        continue;
+
+      clutter_stage_pick_and_update_device (self,
+                                            entry->device,
+                                            entry->sequence,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
+                                            CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                            entry->coords,
+                                            CLUTTER_CURRENT_TIME);
+    }
+
+  if (actor != CLUTTER_ACTOR (self))
+    g_assert (!clutter_actor_has_pointer (actor));
 }
 
 static void
 free_pointer_device_entry (PointerDeviceEntry *entry)
 {
   if (entry->current_actor)
-    {
-      ClutterActor *actor = entry->current_actor;
-
-      g_signal_handlers_disconnect_by_func (actor,
-                                            G_CALLBACK (on_device_actor_reactive_changed),
-                                            entry);
-      g_signal_handlers_disconnect_by_func (actor,
-                                            G_CALLBACK (on_device_actor_destroyed),
-                                            entry);
-
-      _clutter_actor_set_has_pointer (actor, FALSE);
-   }
+    _clutter_actor_set_has_pointer (entry->current_actor, FALSE);
 
   g_clear_pointer (&entry->clear_area, cairo_region_destroy);
 
@@ -3240,30 +3249,12 @@ clutter_stage_update_device_entry (ClutterStage         *self,
   if (entry->current_actor != actor)
     {
       if (entry->current_actor)
-        {
-          ClutterActor *old_actor = entry->current_actor;
-
-          g_signal_handlers_disconnect_by_func (old_actor,
-                                                G_CALLBACK (on_device_actor_reactive_changed),
-                                                entry);
-          g_signal_handlers_disconnect_by_func (old_actor,
-                                                G_CALLBACK (on_device_actor_destroyed),
-                                                entry);
-
-          _clutter_actor_set_has_pointer (old_actor, FALSE);
-        }
+        _clutter_actor_set_has_pointer (entry->current_actor, FALSE);
 
       entry->current_actor = actor;
 
       if (actor)
-        {
-          g_signal_connect (actor, "notify::reactive",
-                            G_CALLBACK (on_device_actor_reactive_changed), entry);
-          g_signal_connect (actor, "destroy",
-                            G_CALLBACK (on_device_actor_destroyed), entry);
-
-          _clutter_actor_set_has_pointer (actor, TRUE);
-        }
+        _clutter_actor_set_has_pointer (actor, TRUE);
     }
 
   g_clear_pointer (&entry->clear_area, cairo_region_destroy);

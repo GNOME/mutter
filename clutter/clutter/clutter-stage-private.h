@@ -154,6 +154,9 @@ ClutterActor * clutter_stage_pick_and_update_device (ClutterStage             *s
 void clutter_stage_unlink_grab (ClutterStage *self,
                                 ClutterGrab  *grab);
 
+void clutter_stage_invalidate_focus (ClutterStage *self,
+                                     ClutterActor *actor);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */

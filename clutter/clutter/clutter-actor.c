@@ -1701,6 +1701,13 @@ clutter_actor_real_unmap (ClutterActor *self)
    */
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
 
+  if (priv->has_pointer)
+    {
+      ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
+      clutter_stage_invalidate_focus (CLUTTER_STAGE (stage), self);
+    }
+
   /* relinquish keyboard focus if we were unmapped while owning it */
   if (!CLUTTER_ACTOR_IS_TOPLEVEL (self))
     maybe_unset_key_focus (self);
@@ -12440,7 +12447,11 @@ void
 clutter_actor_set_reactive (ClutterActor *actor,
                             gboolean      reactive)
 {
+  ClutterActorPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  priv = actor->priv;
 
   if (reactive == CLUTTER_ACTOR_IS_REACTIVE (actor))
     return;
@@ -12451,6 +12462,13 @@ clutter_actor_set_reactive (ClutterActor *actor,
     CLUTTER_ACTOR_UNSET_FLAGS (actor, CLUTTER_ACTOR_REACTIVE);
 
   g_object_notify_by_pspec (G_OBJECT (actor), obj_props[PROP_REACTIVE]);
+
+  if (!CLUTTER_ACTOR_IS_REACTIVE (actor) && priv->has_pointer)
+    {
+      ClutterActor *stage = _clutter_actor_get_stage_internal (actor);
+
+      clutter_stage_invalidate_focus (CLUTTER_STAGE (stage), actor);
+    }
 }
 
 /**
