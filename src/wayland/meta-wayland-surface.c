@@ -791,12 +791,16 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if ((get_buffer_width (surface) % surface->scale != 0) ||
       (get_buffer_height (surface) % surface->scale != 0))
     {
-      wl_resource_post_error (surface->resource, WL_SURFACE_ERROR_INVALID_SIZE,
-                              "Buffer size (%dx%d) must be an integer multiple "
-                              "of the buffer_scale (%d)",
-                              get_buffer_width (surface),
-                              get_buffer_height (surface), surface->scale);
-      goto cleanup;
+      struct wl_resource *resource = surface->resource;
+      pid_t pid;
+
+      wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL,
+                                 NULL);
+
+      g_warning ("Bug in client with pid %ld: Buffer size (%dx%d) is not an"
+                 "integer multiple of the buffer_scale (%d).", (long) pid,
+                 get_buffer_width (surface), get_buffer_height (surface),
+                 surface->scale);
     }
 
   if (state->has_new_buffer_transform)
