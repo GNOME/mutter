@@ -380,12 +380,15 @@ clutter_gesture_action_handle_event (ClutterAction      *action,
         return CLUTTER_EVENT_PROPAGATE;
     }
 
-  if (priv->in_gesture && point &&
+  if (point &&
       event_type == CLUTTER_LEAVE &&
       (event->crossing.flags & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) != 0)
     {
-      priv->in_gesture = FALSE;
-      cancel_gesture (gesture_action);
+      gesture_unregister_point (gesture_action, position);
+
+      if (priv->in_gesture)
+        cancel_gesture (gesture_action);
+
       return CLUTTER_EVENT_PROPAGATE;
     }
 
