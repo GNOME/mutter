@@ -359,7 +359,6 @@ meta_screen_cast_new (MetaBackend            *backend,
   return screen_cast;
 }
 
-
 static void
 meta_screen_cast_init (MetaScreenCast *screen_cast)
 {
