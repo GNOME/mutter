@@ -133,9 +133,9 @@ struct _MetaBackendPrivate
   MetaEgl *egl;
 #endif
   MetaSettings *settings;
+  MetaDbusSessionWatcher *dbus_session_watcher;
 #ifdef HAVE_REMOTE_DESKTOP
   MetaRemoteAccessController *remote_access_controller;
-  MetaDbusSessionWatcher *dbus_session_watcher;
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
 #endif
@@ -1361,6 +1361,14 @@ meta_backend_get_settings (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->settings;
+}
+
+MetaDbusSessionWatcher *
+meta_backend_get_dbus_session_watcher (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->dbus_session_watcher;
 }
 
 #ifdef HAVE_REMOTE_DESKTOP

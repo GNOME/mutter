@@ -76,6 +76,10 @@ typedef struct _MetaBarrierImpl MetaBarrierImpl;
 
 typedef struct _MetaIdleManager MetaIdleManager;
 
+typedef struct _MetaDbusSession MetaDbusSession;
+typedef struct _MetaDbusSessionManager MetaDbusSessionManager;
+typedef struct _MetaDbusSessionWatcher MetaDbusSessionWatcher;
+
 #ifdef HAVE_REMOTE_DESKTOP
 typedef struct _MetaRemoteDesktop MetaRemoteDesktop;
 #endif

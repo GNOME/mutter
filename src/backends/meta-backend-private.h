@@ -140,6 +140,8 @@ META_EXPORT_TEST
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
 MetaEgl * meta_backend_get_egl (MetaBackend *backend);
 
+MetaDbusSessionWatcher * meta_backend_get_dbus_session_watcher (MetaBackend *backend);
+
 #ifdef HAVE_REMOTE_DESKTOP
 MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
 
