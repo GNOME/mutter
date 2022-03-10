@@ -34,7 +34,7 @@ struct _MetaDbusSessionInterface
 {
   GTypeInterface parent_iface;
 
-  void (* client_vanished) (MetaDbusSession *session);
+  void (* close) (MetaDbusSession *session);
 };
 
 #define META_TYPE_DBUS_SESSION_WATCHER (meta_dbus_session_watcher_get_type ())
@@ -48,5 +48,7 @@ void meta_dbus_session_watcher_watch_session (MetaDbusSessionWatcher *session_wa
                                               MetaDbusSession        *session);
 
 void meta_dbus_session_notify_closed (MetaDbusSession *session);
+
+void meta_dbus_session_close (MetaDbusSession *session);
 
 #endif /* META_DBUS_SESSION_WATCHER_H */

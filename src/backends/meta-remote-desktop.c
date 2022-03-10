@@ -88,7 +88,7 @@ meta_remote_desktop_inhibit (MetaRemoteDesktop *remote_desktop)
           MetaRemoteDesktopSession *session = value;
 
           g_hash_table_iter_steal (&iter);
-          meta_remote_desktop_session_close (session);
+          meta_dbus_session_close (META_DBUS_SESSION (session));
         }
     }
 }
@@ -262,7 +262,7 @@ on_prepare_shutdown (MetaBackend       *backend,
       MetaRemoteDesktopSession *session = value;
 
       g_hash_table_iter_steal (&iter);
-      meta_remote_desktop_session_close (session);
+      meta_dbus_session_close (META_DBUS_SESSION (session));
     }
 }
 

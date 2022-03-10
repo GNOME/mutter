@@ -58,12 +58,6 @@ typedef struct _MetaDbusSessionClient
 } MetaDbusSessionClient;
 
 static void
-meta_dbus_session_client_vanished (MetaDbusSession *session)
-{
-  META_DBUS_SESSION_GET_IFACE (session)->client_vanished (session);
-}
-
-static void
 meta_dbus_session_client_destroy (MetaDbusSessionClient *client)
 {
   while (TRUE)
@@ -77,11 +71,7 @@ meta_dbus_session_client_destroy (MetaDbusSessionClient *client)
 
       session = l->data;
 
-      /*
-       * This will invoke on_session_closed which removes the session from the
-       * list.
-       */
-      meta_dbus_session_client_vanished (session);
+      meta_dbus_session_close (session);
     }
 
   if (client->name_watcher_id)
@@ -234,4 +224,10 @@ meta_dbus_session_watcher_class_init (MetaDbusSessionWatcherClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_dbus_session_watcher_finalize;
+}
+
+void
+meta_dbus_session_close (MetaDbusSession *session)
+{
+  META_DBUS_SESSION_GET_IFACE (session)->close (session);
 }

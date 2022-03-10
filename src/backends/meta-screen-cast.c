@@ -68,7 +68,7 @@ meta_screen_cast_inhibit (MetaScreenCast *screen_cast)
         {
           MetaScreenCastSession *session = screen_cast->sessions->data;
 
-          meta_screen_cast_session_close (session);
+          meta_dbus_session_close (META_DBUS_SESSION (session));
         }
     }
 }
@@ -338,7 +338,7 @@ on_prepare_shutdown (MetaBackend    *backend,
 
       if (meta_screen_cast_session_get_session_type (session) !=
           META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP)
-        meta_screen_cast_session_close (session);
+        meta_dbus_session_close (META_DBUS_SESSION (session));
     }
 }
 

@@ -130,9 +130,10 @@ meta_screen_cast_session_is_active (MetaScreenCastSession *session)
   return session->is_active;
 }
 
-void
-meta_screen_cast_session_close (MetaScreenCastSession *session)
+static void
+meta_screen_cast_session_close (MetaDbusSession *dbus_session)
 {
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (dbus_session);
   MetaDBusScreenCastSession *skeleton = META_DBUS_SCREEN_CAST_SESSION (session);
 
   session->is_active = FALSE;
@@ -287,7 +288,7 @@ handle_stop (MetaDBusScreenCastSession *skeleton,
       return TRUE;
     }
 
-  meta_screen_cast_session_close (session);
+  meta_dbus_session_close (META_DBUS_SESSION (session));
 
   meta_dbus_screen_cast_session_complete_stop (skeleton, invocation);
 
@@ -298,7 +299,7 @@ static void
 on_stream_closed (MetaScreenCastStream  *stream,
                   MetaScreenCastSession *session)
 {
-  meta_screen_cast_session_close (session);
+  meta_dbus_session_close (META_DBUS_SESSION (session));
 }
 
 static gboolean
@@ -711,15 +712,9 @@ meta_screen_cast_session_init_iface (MetaDBusScreenCastSessionIface *iface)
 }
 
 static void
-meta_screen_cast_session_client_vanished (MetaDbusSession *dbus_session)
-{
-  meta_screen_cast_session_close (META_SCREEN_CAST_SESSION (dbus_session));
-}
-
-static void
 meta_dbus_session_init_iface (MetaDbusSessionInterface *iface)
 {
-  iface->client_vanished = meta_screen_cast_session_client_vanished;
+  iface->close = meta_screen_cast_session_close;
 }
 
 MetaScreenCastSession *
@@ -822,7 +817,7 @@ meta_screen_cast_session_handle_stop (MetaRemoteAccessHandle *handle)
   if (!session)
     return;
 
-  meta_screen_cast_session_close (session);
+  meta_dbus_session_close (META_DBUS_SESSION (session));
 }
 
 static void

@@ -207,9 +207,11 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
   return TRUE;
 }
 
-void
-meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
+static void
+meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
 {
+  MetaRemoteDesktopSession *session =
+    META_REMOTE_DESKTOP_SESSION (dbus_session);
   MetaDBusRemoteDesktopSession *skeleton =
     META_DBUS_REMOTE_DESKTOP_SESSION (session);
 
@@ -217,9 +219,12 @@ meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
 
   if (session->screen_cast_session)
     {
+      MetaDbusSession *screen_cast_session =
+        META_DBUS_SESSION (session->screen_cast_session);
+
       g_clear_signal_handler (&session->screen_cast_session_closed_handler_id,
                               session->screen_cast_session);
-      meta_screen_cast_session_close (session->screen_cast_session);
+      meta_dbus_session_close (screen_cast_session);
       session->screen_cast_session = NULL;
     }
 
@@ -259,7 +264,7 @@ on_screen_cast_session_closed (MetaScreenCastSession    *screen_cast_session,
                                MetaRemoteDesktopSession *session)
 {
   session->screen_cast_session = NULL;
-  meta_remote_desktop_session_close (session);
+  meta_dbus_session_close (META_DBUS_SESSION (session));
 }
 
 gboolean
@@ -384,7 +389,7 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
                                              error->message);
       g_error_free (error);
 
-      meta_remote_desktop_session_close (session);
+      meta_dbus_session_close (META_DBUS_SESSION (session));
 
       return TRUE;
     }
@@ -416,7 +421,7 @@ handle_stop (MetaDBusRemoteDesktopSession *skeleton,
       return TRUE;
     }
 
-  meta_remote_desktop_session_close (session);
+  meta_dbus_session_close (META_DBUS_SESSION (session));
 
   meta_dbus_remote_desktop_session_complete_stop (skeleton, invocation);
 
@@ -1676,15 +1681,9 @@ meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface
 }
 
 static void
-meta_remote_desktop_session_client_vanished (MetaDbusSession *dbus_session)
-{
-  meta_remote_desktop_session_close (META_REMOTE_DESKTOP_SESSION (dbus_session));
-}
-
-static void
 meta_dbus_session_init_iface (MetaDbusSessionInterface *iface)
 {
-  iface->client_vanished = meta_remote_desktop_session_client_vanished;
+  iface->close = meta_remote_desktop_session_close;
 }
 
 static void
@@ -1759,7 +1758,7 @@ meta_remote_desktop_session_handle_stop (MetaRemoteAccessHandle *handle)
   if (!session)
     return;
 
-  meta_remote_desktop_session_close (session);
+  meta_dbus_session_close (META_DBUS_SESSION (session));
 }
 
 static void

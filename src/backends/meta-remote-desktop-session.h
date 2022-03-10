@@ -51,8 +51,6 @@ void meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession  *se
                                                    const char                *mime_type,
                                                    GTask                     *task);
 
-void meta_remote_desktop_session_close (MetaRemoteDesktopSession *session);
-
 MetaRemoteDesktopSession * meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
                                                             const char         *peer_name,
                                                             GError            **error);
