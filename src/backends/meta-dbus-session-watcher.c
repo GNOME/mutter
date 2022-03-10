@@ -231,3 +231,9 @@ meta_dbus_session_close (MetaDbusSession *session)
 {
   META_DBUS_SESSION_GET_IFACE (session)->close (session);
 }
+
+const char *
+meta_dbus_session_get_id (MetaDbusSession *session)
+{
+  return META_DBUS_SESSION_GET_IFACE (session)->get_id (session);
+}

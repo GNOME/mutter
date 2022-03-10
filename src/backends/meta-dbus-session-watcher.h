@@ -35,6 +35,7 @@ struct _MetaDbusSessionInterface
   GTypeInterface parent_iface;
 
   void (* close) (MetaDbusSession *session);
+  const char * (* get_id) (MetaDbusSession *session);
 };
 
 #define META_TYPE_DBUS_SESSION_WATCHER (meta_dbus_session_watcher_get_type ())
@@ -50,5 +51,7 @@ void meta_dbus_session_watcher_watch_session (MetaDbusSessionWatcher *session_wa
 void meta_dbus_session_notify_closed (MetaDbusSession *session);
 
 void meta_dbus_session_close (MetaDbusSession *session);
+
+const char * meta_dbus_session_get_id (MetaDbusSession *session);
 
 #endif /* META_DBUS_SESSION_WATCHER_H */
