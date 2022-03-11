@@ -2063,6 +2063,7 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaGpu *gpu = meta_crtc_get_gpu (onscreen_native->crtc);
   MetaRendererNativeGpuData *renderer_gpu_data;
+  g_autoptr (GError) local_error = NULL;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          META_GPU_KMS (gpu));
@@ -2070,12 +2071,21 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
   switch (renderer_gpu_data->secondary.copy_mode)
     {
     case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
-      if (!init_secondary_gpu_state_gpu_copy_mode (renderer_native,
-                                                   onscreen,
-                                                   renderer_gpu_data,
-                                                   error))
-        return FALSE;
-      break;
+      if (init_secondary_gpu_state_gpu_copy_mode (renderer_native,
+                                                  onscreen,
+                                                  renderer_gpu_data,
+                                                  &local_error))
+        return TRUE;
+
+      g_warning ("Secondary GPU initialization failed (%s). "
+                 "Falling back to GPU-less mode instead, so the "
+                 "the secondary monitor may be slow to update.",
+                 local_error->message);
+
+      renderer_gpu_data->secondary.copy_mode =
+        META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO;
+
+      G_GNUC_FALLTHROUGH;
     case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
       /*
        * Initialize also the primary copy mode, so that if zero-copy
