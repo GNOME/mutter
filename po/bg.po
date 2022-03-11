@@ -2,10 +2,10 @@
 # Copyright (C) 2002, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
 # Copyright (C) 2009, 2010, 2011, 2012, 2013 Free Software Foundation, Inc.
 # Copyright (C) 2014, 2015, 2016, 2017 Free Software Foundation, Inc.
-# Copyright (C) 2021 Alexander Shopov.
+# Copyright (C) 2021, 2022 Alexander Shopov.
 # Alexander Shopov <ash@kambanaria.org>, 2002, 2006, 2007, 2009, 2010.
 # Alexander Shopov <ash@kambanaria.org>, 2011, 2012, 2013, 2014, 2015.
-# Alexander Shopov <ash@kambanaria.org>, 2016, 2017, 2021.
+# Alexander Shopov <ash@kambanaria.org>, 2016, 2017, 2021, 2022.
 # Vladimir Petkov <kaladan@gmail.com>, 2004. 
 # Rostislav Raykov <zbrox@i-space.org>, 2004.
 # Yavor Doganov <yavor@gnu.org>, 2008.
@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-07-22 14:59+0000\n"
-"PO-Revision-Date: 2021-07-25 07:52+0200\n"
+"POT-Creation-Date: 2022-03-09 16:25+0000\n"
+"PO-Revision-Date: 2022-03-11 08:01+0100\n"
 "Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
 "Language-Team: Bulgarian <dict@fsa-bg.org>\n"
 "Language: bg\n"
@@ -185,10 +185,6 @@ msgstr "Система"
 msgid "Show the run command prompt"
 msgstr "Показване на прозореца за стартиране на команда"
 
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Преглед на дейностите"
-
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
 msgstr "Възстановяване на клавишните комбинации"
@@ -257,11 +253,11 @@ msgstr "Максимизиране на прозореца вертикално"
 msgid "Maximize window horizontally"
 msgstr "Максимизиране на прозореца хоризонтално"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "Разделѐн отляво изглед"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "Разделѐн отдясно изглед"
 
@@ -269,12 +265,12 @@ msgstr "Разделѐн отдясно изглед"
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr ""
 "Модификатор, който да се ползва за допълнителните действия по прозорците"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -285,11 +281,11 @@ msgstr ""
 "за стартиране на програми. Стандартно клавишът е „Windows“ при системите "
 "съвместими с PC. Очаква се да е или стандартната стойност или празен низ."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Прилепени модални диалогови прозорци"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -299,13 +295,13 @@ msgstr ""
 "на родителския си прозорец и се местят с него, вместо да са отделни и да "
 "имат собствена заглавна лента."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
 "Включване на прилепването и максимизирането на прозорците по границите на "
 "екрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -316,11 +312,11 @@ msgstr ""
 "на екрана. При поставянето им край горната граница прозорците ще се "
 "максимизират изцяло."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Динамично управление на работните места"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -330,11 +326,11 @@ msgstr ""
 "установено число (зададено чрез ключа „num-workspaces“ в „org.gnome.desktop."
 "wm.preferences“)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Работни плотове само на основния екран"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -342,11 +338,11 @@ msgstr ""
 "Дали смяната на работни плотове да се извършва на всички екрани или само на "
 "основния."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
 msgstr "Без изскачащ прозорец при обхождане"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
@@ -354,11 +350,11 @@ msgstr ""
 "Дали изскачащият прозорец при обхождане и рамката за отбелязване на "
 "прозорците да се изключат."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Смяната на фокуса да изчака спирането на показалеца"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -368,11 +364,11 @@ msgstr ""
 "„mouse“ (под мишката), тогава фокусът няма да се предава веднага при "
 "навлизането в прозорец, а едва след като показалецът спре да се движи."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
 msgstr "Широчина на границата за влачене"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -380,12 +376,12 @@ msgstr ""
 "Общ размер на границите за влачене. Ако видимите граници на темата са по-"
 "малки, се добавят невидими граници, за да се достигне тази величина."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Автоматично максимизиране на прозорци с размер близък до този на екрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -393,21 +389,21 @@ msgstr ""
 "Ако е включено, новите прозорци, чийто размер е близък на този на екрана, "
 "автоматично ще се максимизират."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "Поставяне на новите прозорци в центъра на екрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr "Ако е включено, новите прозорци ще се поставят в центъра на екрана."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
 msgstr "Включване на експерименталните възможности"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:117
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -416,13 +412,12 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
-"mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
-"enables DMA buffered screen sharing. This is already enabled by default when "
-"using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-"X11 clients are gone. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
 "За да включите експериментални възможности, добавете ги към списъка. В някои "
 "случаи това изисква рестартиране на мениджъра за наслагване. "
@@ -432,28 +427,28 @@ msgstr ""
 "в съвместно графично пространство с логически координати на пикселите, при "
 "което се мащабират буферите за кадри, а не съдържанието на прозорците — за "
 "управление на мониторите с висока разделителна способност, не изисква "
-"рестартиране. • „rt-scheduler“ — mutter заявява достъп в реално време с "
-"нисък приоритет. Изпълнимият файл или потребителят трябва да е със зададена "
-"настройка „CAP_SYS_NICE“, изисква рестартиране. • „dma-buf-screen-sharing“ — "
-"включва буферирано споделяне на екрана чрез директен достъп до паметта "
-"(DMA). Настройката стандартно е включена при ползването на драйвера i915, "
-"иначе е изключена, изисква рестартиране. • „autoclose-xwayland“ — "
-"автоматично спиране на Xwayland, когато всички клиенти на X11 привършат "
-"работа, не изисква рестартиране."
+"рестартиране. • „kms-modifiers“ — кара mutter да заделя буфери без специални "
+"настройки, ако това се поддържа от драйвера, изисква рестартиране. • „rt-"
+"scheduler“ — mutter заявява достъп в реално време с нисък приоритет, изисква "
+"рестартиране. • „dma-buf-screen-sharing“ — включва буферирано споделяне на "
+"екрана чрез директен достъп до паметта (DMA). Настройката стандартно е "
+"включена при ползването на драйвера i915, иначе е изключена, изисква "
+"рестартиране. • „autoclose-xwayland“ — автоматично спиране на Xwayland, "
+"когато всички клиенти на X11 привършат работа, изисква рестартиране."
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
 msgstr "Модификатор за откриване на показалеца"
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Този клавиш задейства откриването на показалеца."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
 msgstr "Време на проверка за функциониране"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -461,19 +456,19 @@ msgstr ""
 "Брой милисекунди, в които клиентът трябва да отговори на заявка за проверка "
 "на състоянието, за да не се счита за забил. Стойност 0 изключва проверката."
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
 msgstr "Избиране при обхождане чрез изскачащ прозорец"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
 msgstr "Без изскачащ прозорец при обхождане"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "Смяна на настройките на екрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:191
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr "Завъртане на вградения екран"
 
@@ -600,26 +595,26 @@ msgstr ""
 "е компилиран с поддръжката им. Тя няма ефект, ако Xwayland е компилиран без "
 "тях. Xwayland трябва да бъде рестартиран, за да влезе настройката в сила."
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
 msgstr "Вграден екран"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "Непознат"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
 msgstr "Непознат екран"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -632,26 +627,9 @@ msgstr "%s %s"
 msgid "Compositor"
 msgstr "Мениджър за наслагване"
 
-#: src/backends/x11/meta-clutter-backend-x11.c:237
-msgid "X display to use"
-msgstr "X дисплеят, който да се използва"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:243
-msgid "X screen to use"
-msgstr "X екранът, който да се използва"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:248
-#: src/core/meta-context-main.c:583
-msgid "Make X calls synchronous"
-msgstr "Извикванията на X да са синхронни"
-
-#: src/backends/x11/meta-clutter-backend-x11.c:254
-msgid "Disable XInput support"
-msgstr "Изключване на XInput"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:513
+#: src/compositor/compositor.c:392
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -660,6 +638,14 @@ msgstr "На екран %i от дисплея „%s“ вече има мени
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Събитие за звънец"
+
+#: src/core/display.c:687
+msgid "Privacy Screen Enabled"
+msgstr "Защита срещу любопитни"
+
+#: src/core/display.c:688
+msgid "Privacy Screen Disabled"
+msgstr "Без Защита срещу любопитни"
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -679,72 +665,76 @@ msgstr ""
 "Можете да изчакате малко, преди изрично да накарате програмата да спре "
 "работата си."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Принудително спиране"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "Из_чакване"
 
-#: src/core/meta-context-main.c:553
+#: src/core/meta-context-main.c:555
 msgid "Replace the running window manager"
 msgstr "Замяна на текущия мениджър на прозорци"
 
-#: src/core/meta-context-main.c:559
+#: src/core/meta-context-main.c:561
 msgid "X Display to use"
 msgstr "X дисплей, който да се използва"
 
-#: src/core/meta-context-main.c:565
+#: src/core/meta-context-main.c:567
 msgid "Disable connection to session manager"
 msgstr "Прекъсване на връзката към мениджъра на сесиите"
 
-#: src/core/meta-context-main.c:571
+#: src/core/meta-context-main.c:573
 msgid "Specify session management ID"
 msgstr "Определяне на идентификатор за управлението на сесии"
 
 # Ако „запазено“ не се членува, низът се събира на един ред без
 # пренасяне.
-#: src/core/meta-context-main.c:577
+#: src/core/meta-context-main.c:579
 msgid "Initialize session from savefile"
 msgstr "Инициализиране на сесия от файл със запазено състояние"
 
-#: src/core/meta-context-main.c:590
+#: src/core/meta-context-main.c:585
+msgid "Make X calls synchronous"
+msgstr "Извикванията на X да са синхронни"
+
+#: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
 msgstr "Wayland да е мениджър за наслагване"
 
-#: src/core/meta-context-main.c:596
+#: src/core/meta-context-main.c:598
 msgid "Run as a nested compositor"
 msgstr "Изпълнение като вложен сървър за изобразяване"
 
-#: src/core/meta-context-main.c:602
+#: src/core/meta-context-main.c:604
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Мениджърът за наслагване на wayland да се стартира без Xwayland"
 
-#: src/core/meta-context-main.c:608
+#: src/core/meta-context-main.c:610
 msgid "Specify Wayland display name to use"
 msgstr "Име на дисплей на Wayland, който да се ползва"
 
-#: src/core/meta-context-main.c:616
+#: src/core/meta-context-main.c:618
 msgid "Run as a full display server, rather than nested"
 msgstr "Изпълнение като самостоятелен, а не вложен сървър за изобразяване"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:623
 msgid "Run as a headless display server"
 msgstr "Изпълнение като сървър за изобразяване без монитор"
 
-#: src/core/meta-context-main.c:626
+#: src/core/meta-context-main.c:628
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Добавяне на постоянен, виртуален монитор (ШxВ или ШxВ@Ч)"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:639
 msgid "Run with X11 backend"
 msgstr "Стартиране с подсистемата за X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:840
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Смяна на режима (режим %d)"
@@ -752,19 +742,19 @@ msgstr "Смяна на режима (режим %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:863
 msgid "Switch monitor"
 msgstr "Смяна на екрана"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Show on-screen help"
 msgstr "Показване на помощта на екрана"
 
-#: src/core/mutter.c:47
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Отпечатване на версията на програмата"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "Приставка, която да се ползва"
 
@@ -773,11 +763,11 @@ msgstr "Приставка, която да се ползва"
 msgid "Workspace %d"
 msgstr "Работен плот %d"
 
-#: src/core/util.c:148
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter е компилиран без поддръжка на подробен режим"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Смяна на режима: режим %d"
@@ -800,7 +790,7 @@ msgstr "Неуспешно инициализиране на GDK"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Неуспешно отваряне на дисплея на X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1175
+#: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Екранът %d на дисплей „%s“ е невалиден"
@@ -810,7 +800,7 @@ msgstr "Екранът %d на дисплей „%s“ е невалиден"
 msgid "Format %s not supported"
 msgstr "Неподдържан формат: %s"
 
-#: src/x11/session.c:1845
+#: src/x11/session.c:1823
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
