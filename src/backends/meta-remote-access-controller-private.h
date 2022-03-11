@@ -24,8 +24,10 @@
 #include "backends/meta-backend-types.h"
 #include "meta/meta-remote-access-controller.h"
 
-MetaRemoteAccessController * meta_remote_access_controller_new (MetaRemoteDesktop *remote_desktop,
-                                                                MetaScreenCast    *screen_cast);
+MetaRemoteAccessController * meta_remote_access_controller_new (void);
+
+void meta_remote_access_controller_add (MetaRemoteAccessController *controller,
+                                        MetaDbusSessionManager     *session_manager);
 
 void meta_remote_access_controller_notify_new_handle (MetaRemoteAccessController *controller,
                                                       MetaRemoteAccessHandle     *handle);

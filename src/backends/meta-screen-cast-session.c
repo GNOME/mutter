@@ -25,6 +25,7 @@
 #include "backends/meta-screen-cast-session.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-screen-cast-area-stream.h"
@@ -34,18 +35,35 @@
 #include "backends/meta-screen-cast-window-stream.h"
 #include "core/display-private.h"
 
+#include "meta-private-enum-types.h"
+
 #define META_SCREEN_CAST_SESSION_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Session"
+
+enum
+{
+  PROP_0,
+
+  PROP_SESSION_MANAGER,
+  PROP_PEER_NAME,
+  PROP_ID,
+  PROP_SESSION_TYPE,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
 
 struct _MetaScreenCastSession
 {
   MetaDBusScreenCastSessionSkeleton parent;
 
-  MetaScreenCast *screen_cast;
+  MetaDbusSessionManager *session_manager;
 
   char *peer_name;
 
   MetaScreenCastSessionType session_type;
   char *object_path;
+  char *session_id;
 
   GList *streams;
 
@@ -54,6 +72,8 @@ struct _MetaScreenCastSession
   gboolean is_active;
   gboolean disable_animations;
 };
+
+static void initable_init_iface (GInitableIface *iface);
 
 static void
 meta_screen_cast_session_init_iface (MetaDBusScreenCastSessionIface *iface);
@@ -64,6 +84,8 @@ meta_dbus_session_init_iface (MetaDbusSessionInterface *iface);
 G_DEFINE_TYPE_WITH_CODE (MetaScreenCastSession,
                          meta_screen_cast_session,
                          META_DBUS_TYPE_SCREEN_CAST_SESSION_SKELETON,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_init_iface)
                          G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SCREEN_CAST_SESSION,
                                                 meta_screen_cast_session_init_iface)
                          G_IMPLEMENT_INTERFACE (META_TYPE_DBUS_SESSION,
@@ -87,7 +109,7 @@ static void
 init_remote_access_handle (MetaScreenCastSession *session)
 {
   MetaBackend *backend =
-    meta_screen_cast_get_backend (session->screen_cast);
+    meta_dbus_session_manager_get_backend (session->session_manager);
   MetaRemoteAccessController *remote_access_controller;
   MetaRemoteAccessHandle *remote_access_handle;
 
@@ -164,6 +186,14 @@ meta_screen_cast_session_close (MetaDbusSession *dbus_session)
   g_object_unref (session);
 }
 
+static const char *
+meta_screen_cast_session_get_id (MetaDbusSession *dbus_session)
+{
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (dbus_session);
+
+  return session->session_id;
+}
+
 MetaScreenCastStream *
 meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
                                      const char            *path)
@@ -185,7 +215,7 @@ meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
 MetaScreenCast *
 meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session)
 {
-  return session->screen_cast;
+  return META_SCREEN_CAST (session->session_manager);
 }
 
 void
@@ -219,6 +249,38 @@ check_permission (MetaScreenCastSession *session,
 {
   return g_strcmp0 (session->peer_name,
                     g_dbus_method_invocation_get_sender (invocation)) == 0;
+}
+
+static gboolean
+meta_screen_cast_session_initable_init (GInitable     *initable,
+                                        GCancellable  *cancellable,
+                                        GError       **error)
+{
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (initable);
+  GDBusInterfaceSkeleton *interface_skeleton;
+  GDBusConnection *connection;
+  static unsigned int global_session_number = 0;
+
+  session->object_path =
+    g_strdup_printf (META_SCREEN_CAST_SESSION_DBUS_PATH "/u%u",
+                     ++global_session_number);
+
+  interface_skeleton = G_DBUS_INTERFACE_SKELETON (session);
+  connection =
+    meta_dbus_session_manager_get_connection (session->session_manager);
+  if (!g_dbus_interface_skeleton_export (interface_skeleton,
+                                         connection,
+                                         session->object_path,
+                                         error))
+    return FALSE;
+
+  return TRUE;
+}
+
+static void
+initable_init_iface (GInitableIface *iface)
+{
+  iface->init = meta_screen_cast_session_initable_init;
 }
 
 static gboolean
@@ -326,7 +388,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
   MetaBackend *backend =
-    meta_screen_cast_get_backend (session->screen_cast);
+    meta_dbus_session_manager_get_backend (session->session_manager);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitor *monitor;
@@ -426,7 +488,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
   MetaBackend *backend =
-    meta_screen_cast_get_backend (session->screen_cast);
+    meta_dbus_session_manager_get_backend (session->session_manager);
   MetaContext *context = meta_backend_get_context (backend);
   MetaDisplay *display = meta_context_get_display (context);
   GDBusInterfaceSkeleton *interface_skeleton;
@@ -580,7 +642,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
 
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
-  backend = meta_screen_cast_get_backend (session->screen_cast);
+  backend = meta_dbus_session_manager_get_backend (session->session_manager);
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   flags = META_SCREEN_CAST_FLAG_NONE;
@@ -715,36 +777,7 @@ static void
 meta_dbus_session_init_iface (MetaDbusSessionInterface *iface)
 {
   iface->close = meta_screen_cast_session_close;
-}
-
-MetaScreenCastSession *
-meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
-                              MetaScreenCastSessionType   session_type,
-                              const char                 *peer_name,
-                              GError                    **error)
-{
-  GDBusInterfaceSkeleton *interface_skeleton;
-  MetaScreenCastSession *session;
-  GDBusConnection *connection;
-  static unsigned int global_session_number = 0;
-
-  session = g_object_new (META_TYPE_SCREEN_CAST_SESSION, NULL);
-  session->screen_cast = screen_cast;
-  session->session_type = session_type;
-  session->peer_name = g_strdup (peer_name);
-  session->object_path =
-    g_strdup_printf (META_SCREEN_CAST_SESSION_DBUS_PATH "/u%u",
-                     ++global_session_number);
-
-  interface_skeleton = G_DBUS_INTERFACE_SKELETON (session);
-  connection = meta_screen_cast_get_connection (screen_cast);
-  if (!g_dbus_interface_skeleton_export (interface_skeleton,
-                                         connection,
-                                         session->object_path,
-                                         error))
-    return NULL;
-
-  return session;
+  iface->get_id = meta_screen_cast_session_get_id;
 }
 
 static void
@@ -755,8 +788,65 @@ meta_screen_cast_session_finalize (GObject *object)
   g_clear_object (&session->handle);
   g_free (session->peer_name);
   g_free (session->object_path);
+  g_free (session->session_id);
 
   G_OBJECT_CLASS (meta_screen_cast_session_parent_class)->finalize (object);
+}
+
+static void
+meta_screen_cast_session_set_property (GObject      *object,
+                                       guint         prop_id,
+                                       const GValue *value,
+                                       GParamSpec   *pspec)
+{
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (object);
+
+  switch (prop_id)
+    {
+    case PROP_SESSION_MANAGER:
+      session->session_manager = g_value_get_object (value);
+      break;
+    case PROP_PEER_NAME:
+      session->peer_name = g_value_dup_string (value);
+      break;
+    case PROP_ID:
+      session->session_id = g_value_dup_string (value);
+      break;
+    case PROP_SESSION_TYPE:
+      session->session_type = g_value_get_enum (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_screen_cast_session_get_property (GObject    *object,
+                                       guint       prop_id,
+                                       GValue     *value,
+                                       GParamSpec *pspec)
+{
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (object);
+
+  switch (prop_id)
+    {
+    case PROP_SESSION_MANAGER:
+      g_value_set_object (value, session->session_manager);
+      break;
+    case PROP_PEER_NAME:
+      g_value_set_string (value, session->peer_name);
+      break;
+    case PROP_ID:
+      g_value_set_string (value, session->session_id);
+      break;
+    case PROP_SESSION_TYPE:
+      g_value_set_enum (value, session->session_type);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -770,6 +860,43 @@ meta_screen_cast_session_class_init (MetaScreenCastSessionClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_screen_cast_session_finalize;
+  object_class->set_property = meta_screen_cast_session_set_property;
+  object_class->get_property = meta_screen_cast_session_get_property;
+
+  obj_props[PROP_SESSION_MANAGER] =
+    g_param_spec_object ("session-manager",
+                         "session manager",
+                         "D-Bus session manager",
+                         META_TYPE_DBUS_SESSION_MANAGER,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_PEER_NAME] =
+    g_param_spec_string ("peer-name",
+                         "peer name",
+                         "D-Bus peer name",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_ID] =
+    g_param_spec_string ("id",
+                         "session id",
+                         "Unique ID of the session",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_SESSION_TYPE] =
+    g_param_spec_enum ("session-type",
+                       "session type",
+                       "The type of screen cast session",
+                       META_TYPE_SCREEN_CAST_SESSION_TYPE,
+                       META_SCREEN_CAST_SESSION_TYPE_NORMAL,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static gboolean

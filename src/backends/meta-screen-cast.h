@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-dbus-session-watcher.h"
 
 #include "meta-dbus-screen-cast.h"
@@ -47,13 +48,7 @@ typedef enum _MetaScreenCastFlag
 #define META_TYPE_SCREEN_CAST (meta_screen_cast_get_type ())
 G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
                       META, SCREEN_CAST,
-                      MetaDBusScreenCastSkeleton)
-
-void meta_screen_cast_inhibit (MetaScreenCast *screen_cast);
-
-void meta_screen_cast_uninhibit (MetaScreenCast *screen_cast);
-
-GDBusConnection * meta_screen_cast_get_connection (MetaScreenCast *screen_cast);
+                      MetaDbusSessionManager)
 
 MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
 
@@ -63,7 +58,6 @@ CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast *scree
                                                            int             width,
                                                            int             height);
 
-MetaScreenCast * meta_screen_cast_new (MetaBackend            *backend,
-                                       MetaDbusSessionWatcher *session_watcher);
+MetaScreenCast * meta_screen_cast_new (MetaBackend *backend);
 
 #endif /* META_SCREEN_CAST_H */

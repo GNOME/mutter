@@ -41,8 +41,6 @@ G_DECLARE_FINAL_TYPE (MetaRemoteDesktopSessionHandle,
 
 char * meta_remote_desktop_session_get_object_path (MetaRemoteDesktopSession *session);
 
-char * meta_remote_desktop_session_get_session_id (MetaRemoteDesktopSession *session);
-
 gboolean meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSession  *session,
                                                            MetaScreenCastSession     *screen_cast_session,
                                                            GError                   **error);
@@ -50,9 +48,5 @@ gboolean meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSess
 void meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession  *session,
                                                    const char                *mime_type,
                                                    GTask                     *task);
-
-MetaRemoteDesktopSession * meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
-                                                            const char         *peer_name,
-                                                            GError            **error);
 
 #endif /* META_REMOTE_DESKTOP_SESSION_H */

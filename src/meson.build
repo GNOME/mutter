@@ -845,6 +845,7 @@ mutter_private_enum_sources = []
 if have_remote_desktop
   mutter_private_enum_sources += [
     'backends/meta-screen-cast.h',
+    'backends/meta-screen-cast-session.h',
   ]
 endif
 

@@ -36,64 +36,20 @@
 
 struct _MetaScreenCast
 {
-  MetaDBusScreenCastSkeleton parent;
-
-  int dbus_name_id;
-
-  int inhibit_count;
-
-  GList *sessions;
-
-  MetaDbusSessionWatcher *session_watcher;
-  MetaBackend *backend;
+  MetaDbusSessionManager parent;
 
   gboolean disable_dma_bufs;
 };
 
-static void
-meta_screen_cast_init_iface (MetaDBusScreenCastIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaScreenCast, meta_screen_cast,
-                         META_DBUS_TYPE_SCREEN_CAST_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SCREEN_CAST,
-                                                meta_screen_cast_init_iface))
-
-void
-meta_screen_cast_inhibit (MetaScreenCast *screen_cast)
-{
-  screen_cast->inhibit_count++;
-  if (screen_cast->inhibit_count == 1)
-    {
-      while (screen_cast->sessions)
-        {
-          MetaScreenCastSession *session = screen_cast->sessions->data;
-
-          meta_dbus_session_close (META_DBUS_SESSION (session));
-        }
-    }
-}
-
-void
-meta_screen_cast_uninhibit (MetaScreenCast *screen_cast)
-{
-  g_return_if_fail (screen_cast->inhibit_count > 0);
-
-  screen_cast->inhibit_count--;
-}
-
-GDBusConnection *
-meta_screen_cast_get_connection (MetaScreenCast *screen_cast)
-{
-  GDBusInterfaceSkeleton *interface_skeleton =
-    G_DBUS_INTERFACE_SKELETON (screen_cast);
-
-  return g_dbus_interface_skeleton_get_connection (interface_skeleton);
-}
+G_DEFINE_TYPE (MetaScreenCast, meta_screen_cast,
+               META_TYPE_DBUS_SESSION_MANAGER)
 
 MetaBackend *
 meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
 {
-  return screen_cast->backend;
+  MetaDbusSessionManager *session_manager = META_DBUS_SESSION_MANAGER (screen_cast);
+
+  return meta_dbus_session_manager_get_backend (session_manager);
 }
 
 void
@@ -107,8 +63,12 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
                                         int             width,
                                         int             height)
 {
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (screen_cast);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session_manager);
   ClutterBackend *clutter_backend =
-    meta_backend_get_clutter_backend (screen_cast->backend);
+    meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
@@ -140,19 +100,28 @@ register_remote_desktop_screen_cast_session (MetaScreenCastSession  *session,
 {
   MetaScreenCast *screen_cast =
     meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (screen_cast);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session_manager);
   MetaRemoteDesktop *remote_desktop = meta_backend_get_remote_desktop (backend);
+  MetaDbusSessionManager *remote_desktop_session_manager =
+    META_DBUS_SESSION_MANAGER (remote_desktop);
+  MetaDbusSession *remote_desktop_dbus_session;
   MetaRemoteDesktopSession *remote_desktop_session;
 
-  remote_desktop_session =
-    meta_remote_desktop_get_session (remote_desktop, remote_desktop_session_id);
-  if (!remote_desktop_session)
+  remote_desktop_dbus_session =
+    meta_dbus_session_manager_get_session (remote_desktop_session_manager,
+                                           remote_desktop_session_id);
+  if (!remote_desktop_dbus_session)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No remote desktop session found");
       return FALSE;
     }
 
+  remote_desktop_session =
+    META_REMOTE_DESKTOP_SESSION (remote_desktop_dbus_session);
   if (!meta_remote_desktop_session_register_screen_cast (remote_desktop_session,
                                                          session,
                                                          error))
@@ -161,36 +130,21 @@ register_remote_desktop_screen_cast_session (MetaScreenCastSession  *session,
   return TRUE;
 }
 
-static void
-on_session_closed (MetaScreenCastSession *session,
-                   MetaScreenCast        *screen_cast)
-{
-  screen_cast->sessions = g_list_remove (screen_cast->sessions, session);
-}
-
 static gboolean
 handle_create_session (MetaDBusScreenCast    *skeleton,
                        GDBusMethodInvocation *invocation,
-                       GVariant              *properties)
+                       GVariant              *properties,
+                       MetaScreenCast        *screen_cast)
 {
-  MetaScreenCast *screen_cast = META_SCREEN_CAST (skeleton);
-  const char *peer_name;
-  MetaScreenCastSession *session;
-  GError *error = NULL;
-  const char *session_path;
-  const char *client_dbus_name;
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (screen_cast);
   char *remote_desktop_session_id = NULL;
-  gboolean disable_animations;
   MetaScreenCastSessionType session_type;
-
-  if (screen_cast->inhibit_count > 0)
-    {
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_ACCESS_DENIED,
-                                             "Session creation inhibited");
-
-      return TRUE;
-    }
+  MetaDbusSession *dbus_session;
+  MetaScreenCastSession *session;
+  g_autoptr (GError) error = NULL;
+  gboolean disable_animations;
+  const char *session_path;
 
   g_variant_lookup (properties, "remote-desktop-session-id", "s",
                     &remote_desktop_session_id);
@@ -200,24 +154,20 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
   else
     session_type = META_SCREEN_CAST_SESSION_TYPE_NORMAL;
 
-  peer_name = g_dbus_method_invocation_get_sender (invocation);
-  session = meta_screen_cast_session_new (screen_cast,
-                                          session_type,
-                                          peer_name,
-                                          &error);
-  if (!session)
+  dbus_session =
+    meta_dbus_session_manager_create_session (session_manager,
+                                              invocation,
+                                              &error,
+                                              "session-type", session_type,
+                                              NULL);
+  if (!dbus_session)
     {
-      g_warning ("Failed to create screen cast session: %s",
-                 error->message);
-
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_FAILED,
-                                             "Failed to create session: %s",
-                                             error->message);
-      g_error_free (error);
-
-      return TRUE;
+      g_dbus_method_invocation_return_error_literal (invocation, G_DBUS_ERROR,
+                                                     G_DBUS_ERROR_FAILED,
+                                                     error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
+  session = META_SCREEN_CAST_SESSION (dbus_session);
 
   if (remote_desktop_session_id)
     {
@@ -228,9 +178,8 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
           g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                                  G_DBUS_ERROR_FAILED,
                                                  "%s", error->message);
-          g_error_free (error);
-          g_object_unref (session);
-          return TRUE;
+          meta_dbus_session_close (dbus_session);
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
     }
 
@@ -240,121 +189,46 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
       meta_screen_cast_session_set_disable_animations (session,
                                                        disable_animations);
     }
-
-  client_dbus_name = g_dbus_method_invocation_get_sender (invocation);
-  meta_dbus_session_watcher_watch_session (screen_cast->session_watcher,
-                                           client_dbus_name,
-                                           META_DBUS_SESSION (session));
-
   session_path = meta_screen_cast_session_get_object_path (session);
   meta_dbus_screen_cast_complete_create_session (skeleton,
                                                  invocation,
                                                  session_path);
-
-  screen_cast->sessions = g_list_append (screen_cast->sessions, session);
-
-  g_signal_connect (session, "session-closed",
-                    G_CALLBACK (on_session_closed),
-                    screen_cast);
-
-  return TRUE;
-}
-
-static void
-meta_screen_cast_init_iface (MetaDBusScreenCastIface *iface)
-{
-  iface->handle_create_session = handle_create_session;
-}
-
-static void
-on_bus_acquired (GDBusConnection *connection,
-                 const char      *name,
-                 gpointer         user_data)
-{
-  MetaScreenCast *screen_cast = user_data;
-  GDBusInterfaceSkeleton *interface_skeleton =
-    G_DBUS_INTERFACE_SKELETON (screen_cast);
-  g_autoptr (GError) error = NULL;
-
-  if (!g_dbus_interface_skeleton_export (interface_skeleton,
-                                         connection,
-                                         META_SCREEN_CAST_DBUS_PATH,
-                                         &error))
-    g_warning ("Failed to export screen cast object: %s", error->message);
-}
-
-static void
-on_name_acquired (GDBusConnection *connection,
-                  const char      *name,
-                  gpointer         user_data)
-{
-  g_info ("Acquired name %s", name);
-}
-
-static void
-on_name_lost (GDBusConnection *connection,
-              const char      *name,
-              gpointer         user_data)
-{
-  g_warning ("Lost or failed to acquire name %s", name);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
 meta_screen_cast_constructed (GObject *object)
 {
   MetaScreenCast *screen_cast = META_SCREEN_CAST (object);
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (screen_cast);
+  GDBusInterfaceSkeleton *interface_skeleton =
+    meta_dbus_session_manager_get_interface_skeleton (session_manager);
+  MetaDBusScreenCast *skeleton = META_DBUS_SCREEN_CAST (interface_skeleton);
 
-  screen_cast->dbus_name_id =
-    g_bus_own_name (G_BUS_TYPE_SESSION,
-                    META_SCREEN_CAST_DBUS_SERVICE,
-                    G_BUS_NAME_OWNER_FLAGS_NONE,
-                    on_bus_acquired,
-                    on_name_acquired,
-                    on_name_lost,
-                    screen_cast,
-                    NULL);
-}
+  g_signal_connect (interface_skeleton, "handle-create-session",
+                    G_CALLBACK (handle_create_session), screen_cast);
 
-static void
-meta_screen_cast_finalize (GObject *object)
-{
-  MetaScreenCast *screen_cast = META_SCREEN_CAST (object);
+  meta_dbus_screen_cast_set_version (skeleton, META_SCREEN_CAST_API_VERSION);
 
-  if (screen_cast->dbus_name_id)
-    g_bus_unown_name (screen_cast->dbus_name_id);
-
-  g_assert (!screen_cast->sessions);
-
-  G_OBJECT_CLASS (meta_screen_cast_parent_class)->finalize (object);
-}
-
-static void
-on_prepare_shutdown (MetaBackend    *backend,
-                     MetaScreenCast *screen_cast)
-{
-  while (screen_cast->sessions)
-    {
-      MetaScreenCastSession *session = screen_cast->sessions->data;
-
-      if (meta_screen_cast_session_get_session_type (session) !=
-          META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP)
-        meta_dbus_session_close (META_DBUS_SESSION (session));
-    }
+  G_OBJECT_CLASS (meta_screen_cast_parent_class)->constructed (object);
 }
 
 MetaScreenCast *
-meta_screen_cast_new (MetaBackend            *backend,
-                      MetaDbusSessionWatcher *session_watcher)
+meta_screen_cast_new (MetaBackend *backend)
 {
   MetaScreenCast *screen_cast;
+  g_autoptr (MetaDBusScreenCast) skeleton = NULL;
 
-  screen_cast = g_object_new (META_TYPE_SCREEN_CAST, NULL);
-  screen_cast->backend = backend;
-  screen_cast->session_watcher = session_watcher;
-
-  g_signal_connect (backend, "prepare-shutdown",
-                    G_CALLBACK (on_prepare_shutdown),
-                    screen_cast);
+  skeleton = meta_dbus_screen_cast_skeleton_new ();
+  screen_cast =
+    g_object_new (META_TYPE_SCREEN_CAST,
+                  "backend", backend,
+                  "service-name", META_SCREEN_CAST_DBUS_SERVICE,
+                  "service-path", META_SCREEN_CAST_DBUS_PATH,
+                  "session-gtype", META_TYPE_SCREEN_CAST_SESSION,
+                  "interface-skeleton", skeleton,
+                  NULL);
 
   return screen_cast;
 }
@@ -369,9 +243,6 @@ meta_screen_cast_init (MetaScreenCast *screen_cast)
       pw_init (NULL, NULL);
       is_pipewire_initialized = TRUE;
     }
-
-  meta_dbus_screen_cast_set_version (META_DBUS_SCREEN_CAST (screen_cast),
-                                     META_SCREEN_CAST_API_VERSION);
 }
 
 static void
@@ -380,5 +251,4 @@ meta_screen_cast_class_init (MetaScreenCastClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->constructed = meta_screen_cast_constructed;
-  object_class->finalize = meta_screen_cast_finalize;
 }

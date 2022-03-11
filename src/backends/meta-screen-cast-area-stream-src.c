@@ -26,6 +26,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-screen-cast-area-stream.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-stage-private.h"

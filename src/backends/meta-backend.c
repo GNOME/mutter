@@ -206,9 +206,9 @@ meta_backend_dispose (GObject *object)
 #ifdef HAVE_REMOTE_DESKTOP
   g_clear_object (&priv->remote_desktop);
   g_clear_object (&priv->screen_cast);
+#endif
   g_clear_object (&priv->dbus_session_watcher);
   g_clear_object (&priv->remote_access_controller);
-#endif
 
 #ifdef HAVE_LIBWACOM
   g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
@@ -557,14 +557,20 @@ meta_backend_real_post_init (MetaBackend *backend)
                         input_settings);
     }
 
-#ifdef HAVE_REMOTE_DESKTOP
-  priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
-  priv->screen_cast = meta_screen_cast_new (backend,
-                                            priv->dbus_session_watcher);
-  priv->remote_desktop = meta_remote_desktop_new (backend,
-                                                  priv->dbus_session_watcher);
   priv->remote_access_controller =
-    meta_remote_access_controller_new (priv->remote_desktop, priv->screen_cast);
+    meta_remote_access_controller_new ();
+  priv->dbus_session_watcher =
+    g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
+
+#ifdef HAVE_REMOTE_DESKTOP
+  priv->screen_cast = meta_screen_cast_new (backend);
+  meta_remote_access_controller_add (
+    priv->remote_access_controller,
+    META_DBUS_SESSION_MANAGER (priv->screen_cast));
+  priv->remote_desktop = meta_remote_desktop_new (backend);
+  meta_remote_access_controller_add (
+    priv->remote_access_controller,
+    META_DBUS_SESSION_MANAGER (priv->remote_desktop));
 #endif /* HAVE_REMOTE_DESKTOP */
 
   if (!meta_monitor_manager_is_headless (priv->monitor_manager))

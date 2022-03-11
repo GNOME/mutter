@@ -52,256 +52,49 @@ typedef enum _MetaRemoteDesktopDeviceTypes
 
 struct _MetaRemoteDesktop
 {
-  MetaDBusRemoteDesktopSkeleton parent;
-
-  MetaBackend *backend;
-  int dbus_name_id;
-
-  int inhibit_count;
-
-  GHashTable *sessions;
-
-  MetaDbusSessionWatcher *session_watcher;
+  MetaDbusSessionManager parent;
 };
 
-static void
-meta_remote_desktop_init_iface (MetaDBusRemoteDesktopIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaRemoteDesktop,
-                         meta_remote_desktop,
-                         META_DBUS_TYPE_REMOTE_DESKTOP_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_REMOTE_DESKTOP,
-                                                meta_remote_desktop_init_iface));
-
-void
-meta_remote_desktop_inhibit (MetaRemoteDesktop *remote_desktop)
-{
-  remote_desktop->inhibit_count++;
-  if (remote_desktop->inhibit_count == 1)
-    {
-      GHashTableIter iter;
-      gpointer key, value;
-
-      g_hash_table_iter_init (&iter, remote_desktop->sessions);
-      while (g_hash_table_iter_next (&iter, &key, &value))
-        {
-          MetaRemoteDesktopSession *session = value;
-
-          g_hash_table_iter_steal (&iter);
-          meta_dbus_session_close (META_DBUS_SESSION (session));
-        }
-    }
-}
-
-void
-meta_remote_desktop_uninhibit (MetaRemoteDesktop *remote_desktop)
-{
-  g_return_if_fail (remote_desktop->inhibit_count > 0);
-
-  remote_desktop->inhibit_count--;
-}
-
-MetaBackend *
-meta_remote_desktop_get_backend (MetaRemoteDesktop *remote_desktop)
-{
-  return remote_desktop->backend;
-}
-
-GDBusConnection *
-meta_remote_desktop_get_connection (MetaRemoteDesktop *remote_desktop)
-{
-  GDBusInterfaceSkeleton *interface_skeleton =
-    G_DBUS_INTERFACE_SKELETON (remote_desktop);
-
-  return g_dbus_interface_skeleton_get_connection (interface_skeleton);
-}
-
-MetaRemoteDesktopSession *
-meta_remote_desktop_get_session (MetaRemoteDesktop *remote_desktop,
-                                 const char        *session_id)
-{
-  return g_hash_table_lookup (remote_desktop->sessions, session_id);
-}
-
-static void
-on_session_closed (MetaRemoteDesktopSession *session,
-                   MetaRemoteDesktop        *remote_desktop)
-{
-  char *session_id;
-
-  session_id = meta_remote_desktop_session_get_session_id (session);
-  g_hash_table_remove (remote_desktop->sessions, session_id);
-}
+G_DEFINE_TYPE (MetaRemoteDesktop, meta_remote_desktop,
+               META_TYPE_DBUS_SESSION_MANAGER)
 
 static gboolean
 handle_create_session (MetaDBusRemoteDesktop *skeleton,
-                       GDBusMethodInvocation *invocation)
+                       GDBusMethodInvocation *invocation,
+                       MetaRemoteDesktop     *remote_desktop)
 {
-  MetaRemoteDesktop *remote_desktop = META_REMOTE_DESKTOP (skeleton);
-  const char *peer_name;
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (remote_desktop);
+  MetaDbusSession *dbus_session;
   MetaRemoteDesktopSession *session;
-  GError *error = NULL;
-  char *session_id;
+  g_autoptr (GError) error = NULL;
   char *session_path;
-  const char *client_dbus_name;
 
-  if (remote_desktop->inhibit_count > 0)
+  dbus_session =
+    meta_dbus_session_manager_create_session (session_manager,
+                                              invocation,
+                                              &error,
+                                              NULL);
+  if (!dbus_session)
     {
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_ACCESS_DENIED,
-                                             "Session creation inhibited");
-
-      return TRUE;
+      g_dbus_method_invocation_return_error_literal (invocation, G_DBUS_ERROR,
+                                                     G_DBUS_ERROR_FAILED,
+                                                     error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  peer_name = g_dbus_method_invocation_get_sender (invocation);
-  session = meta_remote_desktop_session_new (remote_desktop,
-                                             peer_name,
-                                             &error);
-  if (!session)
-    {
-      g_warning ("Failed to create remote desktop session: %s",
-                 error->message);
-
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_FAILED,
-                                             "Failed to create session: %s",
-                                             error->message);
-      g_error_free (error);
-
-      return TRUE;
-    }
-
-  session_id = meta_remote_desktop_session_get_session_id (session);
-  g_hash_table_insert (remote_desktop->sessions,
-                       session_id,
-                       session);
-
-  client_dbus_name = g_dbus_method_invocation_get_sender (invocation);
-  meta_dbus_session_watcher_watch_session (remote_desktop->session_watcher,
-                                           client_dbus_name,
-                                           META_DBUS_SESSION (session));
-
+  session = META_REMOTE_DESKTOP_SESSION (dbus_session);
   session_path = meta_remote_desktop_session_get_object_path (session);
   meta_dbus_remote_desktop_complete_create_session (skeleton,
                                                     invocation,
                                                     session_path);
-
-  g_signal_connect (session, "session-closed",
-                    G_CALLBACK (on_session_closed),
-                    remote_desktop);
-
-  return TRUE;
-}
-
-static void
-meta_remote_desktop_init_iface (MetaDBusRemoteDesktopIface *iface)
-{
-  iface->handle_create_session = handle_create_session;
-}
-
-static void
-on_bus_acquired (GDBusConnection *connection,
-                 const char      *name,
-                 gpointer         user_data)
-{
-  MetaRemoteDesktop *remote_desktop = user_data;
-  GDBusInterfaceSkeleton *interface_skeleton =
-    G_DBUS_INTERFACE_SKELETON (remote_desktop);
-  g_autoptr (GError) error = NULL;
-
-  if (!g_dbus_interface_skeleton_export (interface_skeleton,
-                                         connection,
-                                         META_REMOTE_DESKTOP_DBUS_PATH,
-                                         &error))
-    g_warning ("Failed to export remote desktop object: %s", error->message);
-}
-
-static void
-on_name_acquired (GDBusConnection *connection,
-                  const char      *name,
-                  gpointer         user_data)
-{
-  g_info ("Acquired name %s", name);
-}
-
-static void
-on_name_lost (GDBusConnection *connection,
-              const char      *name,
-              gpointer         user_data)
-{
-  g_warning ("Lost or failed to acquire name %s", name);
-}
-
-static void
-meta_remote_desktop_constructed (GObject *object)
-{
-  MetaRemoteDesktop *remote_desktop = META_REMOTE_DESKTOP (object);
-
-  remote_desktop->dbus_name_id =
-    g_bus_own_name (G_BUS_TYPE_SESSION,
-                    META_REMOTE_DESKTOP_DBUS_SERVICE,
-                    G_BUS_NAME_OWNER_FLAGS_NONE,
-                    on_bus_acquired,
-                    on_name_acquired,
-                    on_name_lost,
-                    remote_desktop,
-                    NULL);
-}
-
-static void
-on_prepare_shutdown (MetaBackend       *backend,
-                     MetaRemoteDesktop *remote_desktop)
-{
-  GHashTableIter iter;
-  gpointer value;
-
-  g_hash_table_iter_init (&iter, remote_desktop->sessions);
-  while (g_hash_table_iter_next (&iter, NULL, &value))
-    {
-      MetaRemoteDesktopSession *session = value;
-
-      g_hash_table_iter_steal (&iter);
-      meta_dbus_session_close (META_DBUS_SESSION (session));
-    }
-}
-
-static void
-meta_remote_desktop_finalize (GObject *object)
-{
-  MetaRemoteDesktop *remote_desktop = META_REMOTE_DESKTOP (object);
-
-  if (remote_desktop->dbus_name_id != 0)
-    g_bus_unown_name (remote_desktop->dbus_name_id);
-
-  g_assert (g_hash_table_size (remote_desktop->sessions) == 0);
-  g_hash_table_destroy (remote_desktop->sessions);
-
-  G_OBJECT_CLASS (meta_remote_desktop_parent_class)->finalize (object);
-}
-
-MetaRemoteDesktop *
-meta_remote_desktop_new (MetaBackend            *backend,
-                         MetaDbusSessionWatcher *session_watcher)
-{
-  MetaRemoteDesktop *remote_desktop;
-
-  remote_desktop = g_object_new (META_TYPE_REMOTE_DESKTOP, NULL);
-  remote_desktop->backend = backend;
-  remote_desktop->session_watcher = session_watcher;
-
-  g_signal_connect (backend, "prepare-shutdown",
-                    G_CALLBACK (on_prepare_shutdown),
-                    remote_desktop);
-
-  return remote_desktop;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static MetaRemoteDesktopDeviceTypes
-calculate_supported_device_types (void)
+calculate_supported_device_types (MetaBackend *backend)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
   ClutterVirtualDeviceType device_types;
   MetaRemoteDesktopDeviceTypes supported_devices =
     META_REMOTE_DESKTOP_DEVICE_TYPE_NONE;
@@ -320,16 +113,52 @@ calculate_supported_device_types (void)
 }
 
 static void
-meta_remote_desktop_init (MetaRemoteDesktop *remote_desktop)
+meta_remote_desktop_constructed (GObject *object)
 {
-  remote_desktop->sessions = g_hash_table_new (g_str_hash, g_str_equal);
+  MetaRemoteDesktop *remote_desktop = META_REMOTE_DESKTOP (object);
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (remote_desktop);
+  GDBusInterfaceSkeleton *interface_skeleton =
+    meta_dbus_session_manager_get_interface_skeleton (session_manager);
+  MetaDBusRemoteDesktop *interface =
+    META_DBUS_REMOTE_DESKTOP (interface_skeleton);
+  MetaBackend *backend = meta_dbus_session_manager_get_backend (session_manager);
+
+  g_signal_connect (interface, "handle-create-session",
+                    G_CALLBACK (handle_create_session), remote_desktop);
 
   meta_dbus_remote_desktop_set_supported_device_types (
-    META_DBUS_REMOTE_DESKTOP (remote_desktop),
-    calculate_supported_device_types ());
+    interface,
+    calculate_supported_device_types (backend));
   meta_dbus_remote_desktop_set_version (
-    META_DBUS_REMOTE_DESKTOP (remote_desktop),
+    interface,
     META_REMOTE_DESKTOP_API_VERSION);
+
+  G_OBJECT_CLASS (meta_remote_desktop_parent_class)->constructed (object);
+}
+
+MetaRemoteDesktop *
+meta_remote_desktop_new (MetaBackend *backend)
+{
+  MetaRemoteDesktop *remote_desktop;
+  g_autoptr (MetaDBusRemoteDesktop) skeleton = NULL;
+
+  skeleton = meta_dbus_remote_desktop_skeleton_new ();
+  remote_desktop =
+    g_object_new (META_TYPE_REMOTE_DESKTOP,
+                  "backend", backend,
+                  "service-name", META_REMOTE_DESKTOP_DBUS_SERVICE,
+                  "service-path", META_REMOTE_DESKTOP_DBUS_PATH,
+                  "session-gtype", META_TYPE_REMOTE_DESKTOP_SESSION,
+                  "interface-skeleton", skeleton,
+                  NULL);
+
+  return remote_desktop;
+}
+
+static void
+meta_remote_desktop_init (MetaRemoteDesktop *remote_desktop)
+{
 }
 
 static void
@@ -338,5 +167,4 @@ meta_remote_desktop_class_init (MetaRemoteDesktopClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->constructed = meta_remote_desktop_constructed;
-  object_class->finalize = meta_remote_desktop_finalize;
 }

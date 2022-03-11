@@ -22,6 +22,8 @@
 
 #include "backends/meta-remote-access-controller-private.h"
 
+#include "backends/meta-dbus-session-manager.h"
+
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-remote-desktop.h"
 #include "backends/meta-screen-cast.h"
@@ -73,8 +75,7 @@ struct _MetaRemoteAccessController
 {
   GObject parent;
 
-  MetaRemoteDesktop *remote_desktop;
-  MetaScreenCast *screen_cast;
+  GList *session_managers;
 };
 
 G_DEFINE_TYPE (MetaRemoteAccessController,
@@ -153,10 +154,14 @@ meta_remote_access_controller_notify_new_handle (MetaRemoteAccessController *con
 void
 meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController *controller)
 {
-#ifdef HAVE_REMOTE_DESKTOP
-  meta_remote_desktop_inhibit (controller->remote_desktop);
-  meta_screen_cast_inhibit (controller->screen_cast);
-#endif
+  GList *l;
+
+  for (l = controller->session_managers; l; l = l->next)
+    {
+      MetaDbusSessionManager *session_manager = l->data;
+
+      meta_dbus_session_manager_inhibit (session_manager);
+    }
 }
 
 /**
@@ -170,24 +175,28 @@ meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController 
 void
 meta_remote_access_controller_uninhibit_remote_access (MetaRemoteAccessController *controller)
 {
-#ifdef HAVE_REMOTE_DESKTOP
-  meta_screen_cast_uninhibit (controller->screen_cast);
-  meta_remote_desktop_uninhibit (controller->remote_desktop);
-#endif
+  GList *l;
+
+  for (l = controller->session_managers; l; l = l->next)
+    {
+      MetaDbusSessionManager *session_manager = l->data;
+
+      meta_dbus_session_manager_uninhibit (session_manager);
+    }
 }
 
 MetaRemoteAccessController *
-meta_remote_access_controller_new (MetaRemoteDesktop *remote_desktop,
-                                   MetaScreenCast    *screen_cast)
+meta_remote_access_controller_new (void)
 {
-  MetaRemoteAccessController *remote_access_controller;
+  return g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER, NULL);
+}
 
-  remote_access_controller = g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER,
-                                           NULL);
-  remote_access_controller->remote_desktop = remote_desktop;
-  remote_access_controller->screen_cast = screen_cast;
-
-  return remote_access_controller;
+void
+meta_remote_access_controller_add (MetaRemoteAccessController *controller,
+                                   MetaDbusSessionManager     *session_manager)
+{
+  controller->session_managers = g_list_append (controller->session_managers,
+                                                session_manager);
 }
 
 static void
