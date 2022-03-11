@@ -227,35 +227,45 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                          "Display",
                          "The display to construct the pointer barrier on",
                          META_TYPE_DISPLAY,
-                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_X1] =
     g_param_spec_int ("x1",
                       "X1",
                       "The first X coordinate of the barrier",
                       0, G_MAXSHORT, 0,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_Y1] =
     g_param_spec_int ("y1",
                       "Y1",
                       "The first Y coordinate of the barrier",
                       0, G_MAXSHORT, 0,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_X2] =
     g_param_spec_int ("x2",
                       "X2",
                       "The second X coordinate of the barrier",
                       0, G_MAXSHORT, G_MAXSHORT,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_Y2] =
     g_param_spec_int ("y2",
                       "Y2",
                       "The second Y coordinate of the barrier",
                       0, G_MAXSHORT, G_MAXSHORT,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_DIRECTIONS] =
     g_param_spec_flags ("directions",
@@ -263,7 +273,9 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                         "A set of directions to let the pointer through",
                         META_TYPE_BARRIER_DIRECTION,
                         0,
-                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
