@@ -1,3 +1,9 @@
+42.0
+====
+
+Translators:
+  Fabio Tomat [fur], Alexander Shopov [bg]
+
 42.rc
 =====
 * Fix X11 → wayland drops ending up in the wrong wayland client [Olivier; !2305]
