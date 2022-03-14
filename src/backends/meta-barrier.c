@@ -334,15 +334,15 @@ meta_barrier_init (MetaBarrier *barrier)
 }
 
 void
-_meta_barrier_emit_hit_signal (MetaBarrier      *barrier,
-                               MetaBarrierEvent *event)
+meta_barrier_emit_hit_signal (MetaBarrier      *barrier,
+                              MetaBarrierEvent *event)
 {
   g_signal_emit (barrier, obj_signals[HIT], 0, event);
 }
 
 void
-_meta_barrier_emit_left_signal (MetaBarrier      *barrier,
-                                MetaBarrierEvent *event)
+meta_barrier_emit_left_signal (MetaBarrier      *barrier,
+                               MetaBarrierEvent *event)
 {
   g_signal_emit (barrier, obj_signals[LEFT], 0, event);
 }

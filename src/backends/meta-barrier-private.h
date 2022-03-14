@@ -47,10 +47,10 @@ struct _MetaBarrierImplClass
   void (*destroy) (MetaBarrierImpl *barrier);
 };
 
-void _meta_barrier_emit_hit_signal (MetaBarrier      *barrier,
+void meta_barrier_emit_hit_signal (MetaBarrier      *barrier,
+                                   MetaBarrierEvent *event);
+void meta_barrier_emit_left_signal (MetaBarrier      *barrier,
                                     MetaBarrierEvent *event);
-void _meta_barrier_emit_left_signal (MetaBarrier      *barrier,
-                                     MetaBarrierEvent *event);
 
 void meta_barrier_event_unref (MetaBarrierEvent *event);
 

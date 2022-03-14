@@ -356,9 +356,9 @@ static gboolean
 emit_event_idle (MetaBarrierIdleData *idle_data)
 {
   if (idle_data->state == META_BARRIER_STATE_HELD)
-    _meta_barrier_emit_hit_signal (idle_data->barrier, idle_data->event);
+    meta_barrier_emit_hit_signal (idle_data->barrier, idle_data->event);
   else
-    _meta_barrier_emit_left_signal (idle_data->barrier, idle_data->event);
+    meta_barrier_emit_left_signal (idle_data->barrier, idle_data->event);
 
   meta_barrier_event_unref (idle_data->event);
 
@@ -573,7 +573,7 @@ meta_barrier_manager_native_process_in_impl (MetaBarrierManagerNative *manager,
 }
 
 static gboolean
-_meta_barrier_impl_native_is_active (MetaBarrierImpl *impl)
+meta_barrier_impl_native_is_active (MetaBarrierImpl *impl)
 {
   MetaBarrierImplNative *self = META_BARRIER_IMPL_NATIVE (impl);
 
@@ -581,7 +581,7 @@ _meta_barrier_impl_native_is_active (MetaBarrierImpl *impl)
 }
 
 static void
-_meta_barrier_impl_native_release (MetaBarrierImpl  *impl,
+meta_barrier_impl_native_release (MetaBarrierImpl  *impl,
                                    MetaBarrierEvent *event)
 {
   MetaBarrierImplNative *self = META_BARRIER_IMPL_NATIVE (impl);
@@ -592,7 +592,7 @@ _meta_barrier_impl_native_release (MetaBarrierImpl  *impl,
 }
 
 static void
-_meta_barrier_impl_native_destroy (MetaBarrierImpl *impl)
+meta_barrier_impl_native_destroy (MetaBarrierImpl *impl)
 {
   MetaBarrierImplNative *self = META_BARRIER_IMPL_NATIVE (impl);
 
@@ -631,9 +631,9 @@ meta_barrier_impl_native_class_init (MetaBarrierImplNativeClass *klass)
 {
   MetaBarrierImplClass *impl_class = META_BARRIER_IMPL_CLASS (klass);
 
-  impl_class->is_active = _meta_barrier_impl_native_is_active;
-  impl_class->release = _meta_barrier_impl_native_release;
-  impl_class->destroy = _meta_barrier_impl_native_destroy;
+  impl_class->is_active = meta_barrier_impl_native_is_active;
+  impl_class->release = meta_barrier_impl_native_release;
+  impl_class->destroy = meta_barrier_impl_native_destroy;
 }
 
 static void

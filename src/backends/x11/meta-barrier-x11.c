@@ -53,7 +53,7 @@ G_DEFINE_TYPE (MetaBarrierImplX11,
                META_TYPE_BARRIER_IMPL)
 
 static gboolean
-_meta_barrier_impl_x11_is_active (MetaBarrierImpl *impl)
+meta_barrier_impl_x11_is_active (MetaBarrierImpl *impl)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
 
@@ -61,8 +61,8 @@ _meta_barrier_impl_x11_is_active (MetaBarrierImpl *impl)
 }
 
 static void
-_meta_barrier_impl_x11_release (MetaBarrierImpl  *impl,
-                                MetaBarrierEvent *event)
+meta_barrier_impl_x11_release (MetaBarrierImpl  *impl,
+                               MetaBarrierEvent *event)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
   MetaDisplay *display = self->barrier->priv->display;
@@ -77,7 +77,7 @@ _meta_barrier_impl_x11_release (MetaBarrierImpl  *impl,
 }
 
 static void
-_meta_barrier_impl_x11_destroy (MetaBarrierImpl *impl)
+meta_barrier_impl_x11_destroy (MetaBarrierImpl *impl)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
   MetaDisplay *display = self->barrier->priv->display;
@@ -154,10 +154,10 @@ meta_barrier_fire_xevent (MetaBarrier    *barrier,
   switch (xevent->evtype)
     {
     case XI_BarrierHit:
-      _meta_barrier_emit_hit_signal (barrier, event);
+      meta_barrier_emit_hit_signal (barrier, event);
       break;
     case XI_BarrierLeave:
-      _meta_barrier_emit_left_signal (barrier, event);
+      meta_barrier_emit_left_signal (barrier, event);
       break;
     default:
       g_assert_not_reached ();
@@ -201,9 +201,9 @@ meta_barrier_impl_x11_class_init (MetaBarrierImplX11Class *klass)
 {
   MetaBarrierImplClass *impl_class = META_BARRIER_IMPL_CLASS (klass);
 
-  impl_class->is_active = _meta_barrier_impl_x11_is_active;
-  impl_class->release = _meta_barrier_impl_x11_release;
-  impl_class->destroy = _meta_barrier_impl_x11_destroy;
+  impl_class->is_active = meta_barrier_impl_x11_is_active;
+  impl_class->release = meta_barrier_impl_x11_release;
+  impl_class->destroy = meta_barrier_impl_x11_destroy;
 }
 
 static void
