@@ -23,9 +23,23 @@
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
+#include "backends/native/meta-renderer-native.h"
+#include "tests/meta-ref-test.h"
 
 static MetaContext *test_context;
 static MetaWaylandTestDriver *test_driver;
+static MetaVirtualMonitor *virtual_monitor;
+static MetaWaylandTestClient *wayland_test_client;
+static MetaWindow *test_window = NULL;
+
+static ClutterStageView *
+get_view (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+
+  return CLUTTER_STAGE_VIEW (meta_renderer_get_views (renderer)->data);
+}
 
 static void
 on_first_frame (MetaWindowActor *window_actor,
@@ -52,31 +66,51 @@ wait_for_first_frame (MetaWindow *window)
 }
 
 static void
-toplevel_fullscreen (void)
+on_effects_completed (MetaWindowActor *window_actor,
+                      gboolean        *done)
 {
-  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
-  MetaWaylandTestClient *wayland_test_client;
-  MetaWindow *window = NULL;
-  MetaRectangle rect;
+  *done = TRUE;
+}
 
-  virtual_monitor = meta_create_test_monitor (test_context, 100, 100, 10.0);
+static void
+wait_for_window_added (MetaWindow *window)
+{
+  MetaWindowActor *window_actor;
+  gboolean done = FALSE;
+  gulong handler_id;
 
-  wayland_test_client = meta_wayland_test_client_new ("fullscreen");
+  window_actor = meta_window_actor_from_window (window);
+  handler_id = g_signal_connect (window_actor, "effects-completed",
+                                 G_CALLBACK (on_effects_completed), &done);
 
-  while (!(window = meta_find_window_from_title (test_context, "fullscreen")))
+  while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  wait_for_first_frame (window);
+  g_signal_handler_disconnect (window_actor, handler_id);
+}
 
-  meta_window_get_frame_rect (window, &rect);
+static void
+toplevel_fullscreen (void)
+{
+  MetaRectangle rect;
+
+  wait_for_first_frame (test_window);
+
+  meta_window_get_frame_rect (test_window, &rect);
   g_assert_cmpint (rect.width, ==, 100);
   g_assert_cmpint (rect.height, ==, 100);
   g_assert_cmpint (rect.x, ==, 0);
   g_assert_cmpint (rect.y, ==, 0);
+}
 
-  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+static void
+toplevel_fullscreen_ref_test (void)
+{
+  wait_for_window_added (test_window);
 
-  meta_wayland_test_client_finish (wayland_test_client);
+  meta_ref_test_verify_view (get_view (),
+                             g_test_get_path (), 1,
+                             meta_ref_test_determine_ref_test_flag ());
 }
 
 static void
@@ -86,11 +120,25 @@ on_before_tests (void)
     meta_context_get_wayland_compositor (test_context);
 
   test_driver = meta_wayland_test_driver_new (compositor);
+
+  virtual_monitor = meta_create_test_monitor (test_context, 100, 100, 10.0);
+
+  wayland_test_client = meta_wayland_test_client_new ("fullscreen");
+
+  while (!(test_window =
+           meta_find_window_from_title (test_context, "fullscreen")))
+    g_main_context_iteration (NULL, TRUE);
 }
 
 static void
 on_after_tests (void)
 {
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+
+  g_clear_object (&virtual_monitor);
+
   g_clear_object (&test_driver);
 }
 
@@ -99,6 +147,8 @@ init_tests (void)
 {
   g_test_add_func ("/wayland/toplevel/fullscreen",
                    toplevel_fullscreen);
+  g_test_add_func ("/wayland/toplevel/fullscreen-ref-test",
+                   toplevel_fullscreen_ref_test);
 }
 
 int
