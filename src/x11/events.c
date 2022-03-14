@@ -1964,12 +1964,6 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
         }
     }
 
-  if (meta_x11_display_process_barrier_xevent (x11_display, input_event))
-    {
-      bypass_gtk = bypass_compositor = TRUE;
-      goto out;
-    }
-
   if (handle_input_xevent (x11_display, input_event, event->xany.serial))
     {
       bypass_gtk = bypass_compositor = TRUE;

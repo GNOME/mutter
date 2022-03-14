@@ -29,6 +29,7 @@
 #include <X11/Xlib.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/x11/meta-backend-x11-types.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 
 #define META_TYPE_BACKEND_X11 (meta_backend_x11_get_type ())
@@ -63,5 +64,7 @@ uint8_t meta_backend_x11_get_xkb_event_base (MetaBackendX11 *x11);
 void meta_backend_x11_reload_cursor (MetaBackendX11 *x11);
 
 void meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11);
+
+MetaX11Barriers * meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11);
 
 #endif /* META_BACKEND_X11_H */

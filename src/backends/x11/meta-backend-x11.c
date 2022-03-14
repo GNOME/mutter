@@ -45,6 +45,7 @@
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-keymap-utils.h"
 #include "backends/meta-stage-private.h"
+#include "backends/x11/meta-barrier-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-seat-x11.h"
@@ -79,6 +80,7 @@ struct _MetaBackendX11Private
   int xinput_event_base;
   int xinput_error_base;
   Time latest_evtime;
+  gboolean have_xinput_23;
 
   uint8_t xkb_event_base;
   uint8_t xkb_error_base;
@@ -89,6 +91,8 @@ struct _MetaBackendX11Private
   xkb_layout_index_t keymap_layout_group;
 
   MetaLogicalMonitor *cached_current_logical_monitor;
+
+  MetaX11Barriers *barriers;
 };
 typedef struct _MetaBackendX11Private MetaBackendX11Private;
 
@@ -286,7 +290,7 @@ maybe_spoof_event_as_stage_event (MetaBackendX11 *x11,
     }
 }
 
-static void
+static gboolean
 handle_input_event (MetaBackendX11 *x11,
                     XEvent         *event)
 {
@@ -296,9 +300,17 @@ handle_input_event (MetaBackendX11 *x11,
       event->xcookie.extension == priv->xinput_opcode)
     {
       XIEvent *input_event = (XIEvent *) event->xcookie.data;
+      MetaX11Barriers *barriers;
+
+      barriers = meta_backend_x11_get_barriers (x11);
+      if (barriers &&
+          meta_x11_barriers_process_xevent (barriers, input_event))
+        return TRUE;
 
       maybe_spoof_event_as_stage_event (x11, input_event);
     }
+
+  return FALSE;
 }
 
 static void
@@ -401,10 +413,13 @@ handle_host_xevent (MetaBackend *backend,
 
   if (!bypass_clutter)
     {
-      handle_input_event (x11, event);
+      if (handle_input_event (x11, event))
+        goto done;
+
       meta_x11_handle_event (backend, event);
     }
 
+done:
   XFreeEventData (priv->xdisplay, &event->xcookie);
 }
 
@@ -518,7 +533,6 @@ meta_backend_x11_post_init (MetaBackend *backend)
   ClutterSeat *seat;
   MetaInputSettings *input_settings;
   int major, minor;
-  gboolean has_xi = FALSE;
 
   priv->source = x_event_source_new (backend);
 
@@ -531,24 +545,6 @@ meta_backend_x11_post_init (MetaBackend *backend)
     meta_fatal ("Could not initialize XSync counter");
 
   priv->user_active_alarm = xsync_user_active_alarm_set (priv);
-
-  if (XQueryExtension (priv->xdisplay,
-                       "XInputExtension",
-                       &priv->xinput_opcode,
-                       &priv->xinput_error_base,
-                       &priv->xinput_event_base))
-    {
-      major = 2; minor = 3;
-      if (XIQueryVersion (priv->xdisplay, &major, &minor) == Success)
-        {
-          int version = (major * 10) + minor;
-          if (version >= 22)
-            has_xi = TRUE;
-        }
-    }
-
-  if (!has_xi)
-    meta_fatal ("X server doesn't have the XInput extension, version 2.2 or newer");
 
   if (!xkb_x11_setup_xkb_extension (priv->xcb,
                                     XKB_X11_MIN_MAJOR_XKB_VERSION,
@@ -817,6 +813,47 @@ init_xkb_state (MetaBackendX11 *x11)
 }
 
 static gboolean
+init_xinput (MetaBackendX11  *backend_x11,
+             GError         **error)
+{
+  MetaBackendX11Private *priv =
+    meta_backend_x11_get_instance_private (backend_x11);
+  gboolean has_xi = FALSE;
+
+  if (XQueryExtension (priv->xdisplay,
+                       "XInputExtension",
+                       &priv->xinput_opcode,
+                       &priv->xinput_error_base,
+                       &priv->xinput_event_base))
+    {
+      int major, minor;
+
+      major = 2; minor = 3;
+      if (XIQueryVersion (priv->xdisplay, &major, &minor) == Success)
+        {
+          int version;
+
+          version = (major * 10) + minor;
+          if (version >= 22)
+            has_xi = TRUE;
+
+          if (version >= 23)
+            priv->have_xinput_23 = TRUE;
+        }
+    }
+
+  if (!has_xi)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "X server doesn't have the XInput extension, "
+                   "version 2.2 or newer");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 meta_backend_x11_initable_init (GInitable    *initable,
                                 GCancellable *cancellable,
                                 GError      **error)
@@ -851,6 +888,12 @@ meta_backend_x11_initable_init (GInitable    *initable,
   priv->root_window = DefaultRootWindow (xdisplay);
 
   init_xkb_state (x11);
+
+  if (!init_xinput (x11, error))
+    return FALSE;
+
+  if (priv->have_xinput_23)
+    priv->barriers = meta_x11_barriers_new (x11);
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
@@ -991,4 +1034,13 @@ meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11)
 
   clutter_event_put (event);
   clutter_event_free (event);
+}
+
+MetaX11Barriers *
+meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11)
+{
+  MetaBackendX11Private *priv =
+    meta_backend_x11_get_instance_private (backend_x11);
+
+  return priv->barriers;
 }

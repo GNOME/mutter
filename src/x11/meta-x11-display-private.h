@@ -175,8 +175,6 @@ struct _MetaX11Display
   unsigned int have_damage : 1;
 #define META_X11_DISPLAY_HAS_COMPOSITE(x11_display) ((x11_display)->have_composite)
 #define META_X11_DISPLAY_HAS_DAMAGE(x11_display) ((x11_display)->have_damage)
-  gboolean have_xinput_23 : 1;
-#define META_X11_DISPLAY_HAS_XINPUT_23(x11_display) ((x11_display)->have_xinput_23)
 
   MetaX11StartupNotification *startup_notification;
   MetaX11Stack *x11_stack;
@@ -212,9 +210,6 @@ void        meta_x11_display_register_sync_alarm   (MetaX11Display *x11_display,
                                                     MetaWindow     *window);
 void        meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
                                                     XSyncAlarm      alarm);
-
-gboolean meta_x11_display_process_barrier_xevent (MetaX11Display *x11_display,
-                                                  XIEvent        *event);
 
 META_EXPORT
 void meta_x11_display_set_alarm_filter (MetaX11Display *x11_display,

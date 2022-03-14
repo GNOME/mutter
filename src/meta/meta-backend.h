@@ -33,6 +33,12 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/meta-remote-access-controller.h"
 
+typedef enum _MetaBackendCapabilities
+{
+  META_BACKEND_CAPABILITY_NONE = 0,
+  META_BACKEND_CAPABILITY_BARRIERS = 1 << 0,
+} MetaBackendCapabilities;
+
 #define META_TYPE_BACKEND (meta_backend_get_type ())
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
@@ -76,6 +82,9 @@ gboolean meta_backend_is_rendering_hardware_accelerated (MetaBackend *backend);
 
 META_EXPORT
 gboolean meta_backend_is_headless (MetaBackend *backend);
+
+META_EXPORT
+MetaBackendCapabilities meta_backend_get_capabilities (MetaBackend *backend);
 
 META_EXPORT
 void meta_clutter_init (void);

@@ -606,10 +606,10 @@ meta_barrier_impl_native_destroy (MetaBarrierImpl *impl)
 MetaBarrierImpl *
 meta_barrier_impl_native_new (MetaBarrier *barrier)
 {
+  MetaBackend *backend = meta_barrier_get_backend (barrier);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
   MetaBarrierImplNative *self;
   MetaBarrierManagerNative *manager;
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
 
   self = g_object_new (META_TYPE_BARRIER_IMPL_NATIVE, NULL);
 

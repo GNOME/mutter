@@ -39,6 +39,7 @@ enum
 {
   PROP_0,
 
+  PROP_BACKEND,
   PROP_DISPLAY,
 
   PROP_X1,
@@ -62,6 +63,21 @@ enum
 
 static guint obj_signals[LAST_SIGNAL];
 
+static MetaBackend *
+backend_from_display (MetaDisplay *display)
+{
+  MetaContext *context = meta_display_get_context (display);
+
+  return meta_context_get_backend (context);
+}
+
+static MetaDisplay *
+display_from_backend (MetaBackend *backend)
+{
+  MetaContext *context = meta_backend_get_context (backend);
+
+  return meta_context_get_display (context);
+}
 
 static void
 meta_barrier_get_property (GObject    *object,
@@ -71,10 +87,14 @@ meta_barrier_get_property (GObject    *object,
 {
   MetaBarrier *barrier = META_BARRIER (object);
   MetaBarrierPrivate *priv = barrier->priv;
+
   switch (prop_id)
     {
+    case PROP_BACKEND:
+      g_value_set_object (value, priv->backend);
+      break;
     case PROP_DISPLAY:
-      g_value_set_object (value, priv->display);
+      g_value_set_object (value, display_from_backend (priv->backend));
       break;
     case PROP_X1:
       g_value_set_int (value, priv->border.line.a.x);
@@ -108,9 +128,18 @@ meta_barrier_set_property (GObject      *object,
   MetaBarrierPrivate *priv = barrier->priv;
   switch (prop_id)
     {
-    case PROP_DISPLAY:
-      priv->display = g_value_get_object (value);
+    case PROP_BACKEND:
+      priv->backend = g_value_get_object (value);
       break;
+    case PROP_DISPLAY:
+      {
+        MetaDisplay *display;
+
+        display = g_value_get_object (value);
+        if (display)
+          priv->backend = backend_from_display (g_value_get_object (value));
+        break;
+      }
     case PROP_X1:
       priv->border.line.a.x = g_value_get_int (value);
       break;
@@ -182,11 +211,11 @@ meta_barrier_release (MetaBarrier      *barrier,
 }
 
 static void
-meta_barrier_constructed (GObject *object)
+init_barrier_impl (MetaBarrier *barrier)
 {
-  MetaBarrier *barrier = META_BARRIER (object);
   MetaBarrierPrivate *priv = barrier->priv;
 
+  g_return_if_fail (priv->backend);
   g_return_if_fail (priv->border.line.a.x == priv->border.line.b.x ||
                     priv->border.line.a.y == priv->border.line.b.y);
   g_return_if_fail (priv->border.line.a.x >= 0);
@@ -195,15 +224,22 @@ meta_barrier_constructed (GObject *object)
   g_return_if_fail (priv->border.line.b.y >= 0);
 
 #if defined(HAVE_NATIVE_BACKEND)
-  if (META_IS_BACKEND_NATIVE (meta_get_backend ()))
+  if (META_IS_BACKEND_NATIVE (priv->backend))
     priv->impl = meta_barrier_impl_native_new (barrier);
 #endif
-  if (META_IS_BACKEND_X11 (meta_get_backend ()) &&
+  if (META_IS_BACKEND_X11 (priv->backend) &&
       !meta_is_wayland_compositor ())
     priv->impl = meta_barrier_impl_x11_new (barrier);
 
-  if (priv->impl == NULL)
-    g_warning ("Created a non-working barrier");
+  g_warn_if_fail (priv->impl);
+}
+
+static void
+meta_barrier_constructed (GObject *object)
+{
+  MetaBarrier *barrier = META_BARRIER (object);
+
+  init_barrier_impl (barrier);
 
   /* Take a ref that we'll release in destroy() so that the object stays
    * alive while active. */
@@ -222,11 +258,20 @@ meta_barrier_class_init (MetaBarrierClass *klass)
   object_class->dispose = meta_barrier_dispose;
   object_class->constructed = meta_barrier_constructed;
 
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "The backend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DISPLAY] =
     g_param_spec_object ("display",
                          "Display",
                          "The display to construct the pointer barrier on",
                          META_TYPE_DISPLAY,
+                         G_PARAM_DEPRECATED |
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -345,6 +390,12 @@ meta_barrier_emit_left_signal (MetaBarrier      *barrier,
                                MetaBarrierEvent *event)
 {
   g_signal_emit (barrier, obj_signals[LEFT], 0, event);
+}
+
+MetaBackend *
+meta_barrier_get_backend (MetaBarrier *barrier)
+{
+  return barrier->priv->backend;
 }
 
 static void

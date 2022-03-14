@@ -78,6 +78,7 @@ GType meta_display_get_type (void) G_GNUC_CONST;
 #define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
 
 META_EXPORT
+G_DEPRECATED_FOR (meta_backend_get_capabilities)
 gboolean meta_display_supports_extended_barriers (MetaDisplay *display);
 
 META_EXPORT

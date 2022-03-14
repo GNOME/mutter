@@ -245,6 +245,12 @@ meta_backend_x11_nested_post_init (MetaBackend *backend)
   backend_class->post_init (backend);
 }
 
+static MetaBackendCapabilities
+meta_backend_x11_nested_get_capabilities (MetaBackend *backend)
+{
+  return META_BACKEND_CAPABILITY_NONE;
+}
+
 static gboolean
 meta_backend_x11_nested_initable_init (GInitable     *initable,
                                        GCancellable  *cancellable,
@@ -303,6 +309,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   object_class->dispose = meta_backend_x11_nested_dispose;
 
   backend_class->post_init = meta_backend_x11_nested_post_init;
+  backend_class->get_capabilities = meta_backend_x11_nested_get_capabilities;
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;
   backend_class->get_cursor_renderer = meta_backend_x11_nested_get_cursor_renderer;

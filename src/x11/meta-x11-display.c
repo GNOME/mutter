@@ -429,15 +429,8 @@ query_xi_extension (MetaX11Display *x11_display)
                        &x11_display->xinput_error_base,
                        &x11_display->xinput_event_base))
     {
-        if (XIQueryVersion (x11_display->xdisplay, &major, &minor) == Success)
-        {
-          int version = (major * 10) + minor;
-          if (version >= 22)
-            has_xi = TRUE;
-
-          if (version >= 23)
-            x11_display->have_xinput_23 = TRUE;
-        }
+      if (XIQueryVersion (x11_display->xdisplay, &major, &minor) == Success)
+        has_xi = TRUE;
     }
 
   if (!has_xi)
@@ -792,11 +785,6 @@ init_event_masks (MetaX11Display *x11_display)
   XISetMask (mask.mask, XI_Leave);
   XISetMask (mask.mask, XI_FocusIn);
   XISetMask (mask.mask, XI_FocusOut);
-  if (META_X11_DISPLAY_HAS_XINPUT_23 (x11_display))
-    {
-      XISetMask (mask.mask, XI_BarrierHit);
-      XISetMask (mask.mask, XI_BarrierLeave);
-    }
   XISelectEvents (x11_display->xdisplay, x11_display->xroot, &mask, 1);
 
   event_mask = (SubstructureRedirectMask | SubstructureNotifyMask |

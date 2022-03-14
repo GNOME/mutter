@@ -63,6 +63,9 @@ typedef struct _MetaVirtualMonitor MetaVirtualMonitor;
 typedef struct _MetaVirtualMonitorInfo MetaVirtualMonitorInfo;
 typedef struct _MetaVirtualModeInfo MetaVirtualModeInfo;
 
+typedef struct _MetaBarrier MetaBarrier;
+typedef struct _MetaBarrierImpl MetaBarrierImpl;
+
 typedef struct _MetaIdleManager MetaIdleManager;
 
 #ifdef HAVE_REMOTE_DESKTOP

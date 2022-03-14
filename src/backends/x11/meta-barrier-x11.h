@@ -26,6 +26,7 @@
 #define META_BARRIER_X11_H
 
 #include "backends/meta-barrier-private.h"
+#include "backends/x11/meta-backend-x11-types.h"
 
 G_BEGIN_DECLS
 
@@ -36,6 +37,13 @@ G_DECLARE_FINAL_TYPE (MetaBarrierImplX11,
                       MetaBarrierImpl)
 
 MetaBarrierImpl *meta_barrier_impl_x11_new (MetaBarrier *barrier);
+
+MetaX11Barriers * meta_x11_barriers_new (MetaBackendX11 *backend_x11);
+
+void meta_x11_barriers_free (MetaX11Barriers *x11_barriers);
+
+gboolean meta_x11_barriers_process_xevent (MetaX11Barriers *barriers,
+                                           XIEvent         *event);
 
 G_END_DECLS
 

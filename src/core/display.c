@@ -2826,20 +2826,11 @@ meta_display_modifiers_accelerator_activate (MetaDisplay *display)
 gboolean
 meta_display_supports_extended_barriers (MetaDisplay *display)
 {
-#ifdef HAVE_NATIVE_BACKEND
-  if (META_IS_BACKEND_NATIVE (meta_get_backend ()))
-    return TRUE;
-#endif
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
 
-  if (META_IS_BACKEND_X11_CM (meta_get_backend ()))
-    {
-      if (meta_is_wayland_compositor())
-        return FALSE;
-
-      return META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display);
-    }
-
-  return FALSE;
+  return !!(meta_backend_get_capabilities (backend) &
+            META_BACKEND_CAPABILITY_BARRIERS);
 }
 
 /**

@@ -28,6 +28,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dnd-private.h"
+#include "backends/x11/meta-barrier-x11.h"
 #include "backends/x11/meta-cursor-renderer-x11.h"
 #include "backends/x11/meta-cursor-tracker-x11.h"
 #include "backends/x11/meta-gpu-xrandr.h"
@@ -113,6 +114,20 @@ meta_backend_x11_cm_post_init (MetaBackend *backend)
 
   parent_backend_class->post_init (backend);
   take_touch_grab (backend);
+}
+
+static MetaBackendCapabilities
+meta_backend_x11_cm_get_capabilities (MetaBackend *backend)
+{
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  MetaBackendCapabilities capabilities = META_BACKEND_CAPABILITY_NONE;
+  MetaX11Barriers *barriers;
+
+  barriers = meta_backend_x11_get_barriers (backend_x11);
+  if (barriers)
+    capabilities |= META_BACKEND_CAPABILITY_BARRIERS;
+
+  return capabilities;
 }
 
 static MetaRenderer *
@@ -523,6 +538,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   object_class->constructed = meta_backend_x11_cm_constructed;
 
   backend_class->post_init = meta_backend_x11_cm_post_init;
+  backend_class->get_capabilities = meta_backend_x11_cm_get_capabilities;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_cm_create_monitor_manager;
   backend_class->get_cursor_renderer = meta_backend_x11_cm_get_cursor_renderer;

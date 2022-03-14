@@ -53,6 +53,7 @@
 
 #include <stdlib.h>
 
+#include "backends/meta-barrier-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-manager.h"
@@ -96,6 +97,7 @@ enum
   PROP_0,
 
   PROP_CONTEXT,
+  PROP_CAPABILITIES,
 
   N_PROPS
 };
@@ -845,6 +847,9 @@ meta_backend_get_property (GObject    *object,
     case PROP_CONTEXT:
       g_value_set_object (value, priv->context);
       break;
+    case PROP_CAPABILITIES:
+      g_value_set_flags (value, meta_backend_get_capabilities (backend));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -878,6 +883,14 @@ meta_backend_class_init (MetaBackendClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_CAPABILITIES] =
+    g_param_spec_flags ("capabilities",
+                        "capabilities",
+                        "Backend capabilities",
+                        META_TYPE_BACKEND_CAPABILITIES,
+                        META_BACKEND_CAPABILITY_NONE,
+                        G_PARAM_READABLE |
+                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[KEYMAP_CHANGED] =
@@ -1548,6 +1561,14 @@ meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
   g_set_object (&priv->client_pointer_constraint, constraint);
 }
 
+MetaBarrierImpl *
+meta_backend_create_barrier_impl (MetaBackend *backend,
+                                  MetaBarrier *barrier)
+{
+  return META_BACKEND_GET_CLASS (backend)->create_barrier_impl (backend,
+                                                                barrier);
+}
+
 ClutterBackend *
 meta_backend_get_clutter_backend (MetaBackend *backend)
 {
@@ -1565,6 +1586,12 @@ void
 meta_backend_prepare_shutdown (MetaBackend *backend)
 {
   g_signal_emit (backend, signals[PREPARE_SHUTDOWN], 0);
+}
+
+MetaBackendCapabilities
+meta_backend_get_capabilities (MetaBackend *backend)
+{
+  return META_BACKEND_GET_CLASS (backend)->get_capabilities (backend);
 }
 
 /**
