@@ -222,7 +222,7 @@ meta_dnd_handle_xdnd_event (MetaBackend       *backend,
       return TRUE;
     }
 
-    return FALSE;
+  return FALSE;
 }
 
 #ifdef HAVE_WAYLAND
