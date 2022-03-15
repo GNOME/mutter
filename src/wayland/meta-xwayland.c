@@ -1067,9 +1067,6 @@ on_x11_display_closing (MetaDisplay         *display,
   g_signal_handlers_disconnect_by_func (meta_monitor_manager_get (),
                                         monitors_changed_cb,
                                         NULL);
-  g_signal_handlers_disconnect_by_func (display,
-                                        on_x11_display_closing,
-                                        manager);
 }
 
 static void
