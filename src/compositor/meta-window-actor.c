@@ -1508,6 +1508,12 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
   return framebuffer;
 }
 
+static gboolean
+meta_window_actor_is_single_surface_actor (MetaWindowActor *self)
+{
+  return META_WINDOW_ACTOR_GET_CLASS (self)->is_single_surface_actor (self);
+}
+
 /**
  * meta_window_actor_get_image:
  * @self: A #MetaWindowActor
@@ -1541,7 +1547,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
 
   stex = meta_surface_actor_get_texture (priv->surface);
   if (!meta_shaped_texture_should_get_via_offscreen (stex) &&
-      clutter_actor_get_n_children (actor) == 1)
+      meta_window_actor_is_single_surface_actor (self))
     {
       MetaRectangle *surface_clip = NULL;
 

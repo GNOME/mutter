@@ -33,6 +33,8 @@ struct _MetaWindowActorClass
                       gboolean         frozen);
   void (*update_regions) (MetaWindowActor *actor);
   gboolean (*can_freeze_commits) (MetaWindowActor *actor);
+
+  gboolean (*is_single_surface_actor) (MetaWindowActor *actor);
 };
 
 typedef enum

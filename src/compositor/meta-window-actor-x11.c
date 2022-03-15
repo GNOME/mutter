@@ -1534,6 +1534,12 @@ meta_window_actor_x11_can_freeze_commits (MetaWindowActor *actor)
   return clutter_actor_is_mapped (clutter_actor);
 }
 
+static gboolean
+meta_window_actor_x11_is_single_surface_actor (MetaWindowActor *actor)
+{
+  return clutter_actor_get_n_children (CLUTTER_ACTOR (actor)) == 1;
+}
+
 static void
 meta_window_actor_x11_set_property (GObject      *object,
                                     guint         prop_id,
@@ -1710,6 +1716,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
   window_actor_class->update_regions = meta_window_actor_x11_update_regions;
   window_actor_class->can_freeze_commits = meta_window_actor_x11_can_freeze_commits;
+  window_actor_class->is_single_surface_actor = meta_window_actor_x11_is_single_surface_actor;
 
   actor_class->paint = meta_window_actor_x11_paint;
   actor_class->get_paint_volume = meta_window_actor_x11_get_paint_volume;

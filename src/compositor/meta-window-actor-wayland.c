@@ -207,6 +207,12 @@ meta_window_actor_wayland_can_freeze_commits (MetaWindowActor *actor)
   return FALSE;
 }
 
+static gboolean
+meta_window_actor_wayland_is_single_surface_actor (MetaWindowActor *actor)
+{
+  return clutter_actor_get_n_children (CLUTTER_ACTOR (actor)) == 1;
+}
+
 static void
 meta_window_actor_wayland_dispose (GObject *object)
 {
@@ -245,6 +251,7 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   window_actor_class->set_frozen = meta_window_actor_wayland_set_frozen;
   window_actor_class->update_regions = meta_window_actor_wayland_update_regions;
   window_actor_class->can_freeze_commits = meta_window_actor_wayland_can_freeze_commits;
+  window_actor_class->is_single_surface_actor = meta_window_actor_wayland_is_single_surface_actor;
 
   object_class->dispose = meta_window_actor_wayland_dispose;
 }
