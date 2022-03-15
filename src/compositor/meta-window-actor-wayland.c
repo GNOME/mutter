@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include "compositor/meta-cullable.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "meta/meta-window-actor.h"
@@ -32,7 +33,12 @@ struct _MetaWindowActorWayland
   MetaWindowActor parent;
 };
 
-G_DEFINE_TYPE (MetaWindowActorWayland, meta_window_actor_wayland, META_TYPE_WINDOW_ACTOR)
+static void cullable_iface_init (MetaCullableInterface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaWindowActorWayland, meta_window_actor_wayland,
+                         META_TYPE_WINDOW_ACTOR,
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                cullable_iface_init))
 
 typedef struct _SurfaceTreeTraverseData
 {
@@ -123,6 +129,29 @@ meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
                    -1,
                    set_surface_actor_index,
                    &traverse_data);
+}
+
+static void
+meta_window_actor_wayland_cull_out (MetaCullable   *cullable,
+                                    cairo_region_t *unobscured_region,
+                                    cairo_region_t *clip_region)
+{
+  meta_cullable_cull_out_children (cullable,
+                                   unobscured_region,
+                                   clip_region);
+}
+
+static void
+meta_window_actor_wayland_reset_culling (MetaCullable *cullable)
+{
+  meta_cullable_reset_culling_children (cullable);
+}
+
+static void
+cullable_iface_init (MetaCullableInterface *iface)
+{
+  iface->cull_out = meta_window_actor_wayland_cull_out;
+  iface->reset_culling = meta_window_actor_wayland_reset_culling;
 }
 
 static MetaSurfaceActor *

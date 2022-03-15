@@ -106,8 +106,6 @@ struct _MetaWindowActorX11
   gboolean is_frozen;
 };
 
-static MetaCullableInterface *cullable_parent_iface;
-
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaWindowActorX11, meta_window_actor_x11, META_TYPE_WINDOW_ACTOR,
@@ -1633,7 +1631,9 @@ meta_window_actor_x11_cull_out (MetaCullable   *cullable,
 {
   MetaWindowActorX11 *self = META_WINDOW_ACTOR_X11 (cullable);
 
-  cullable_parent_iface->cull_out (cullable, unobscured_region, clip_region);
+  meta_cullable_cull_out_children (cullable,
+                                   unobscured_region,
+                                   clip_region);
 
   set_clip_region_beneath (self, clip_region);
 }
@@ -1645,14 +1645,12 @@ meta_window_actor_x11_reset_culling (MetaCullable *cullable)
 
   g_clear_pointer (&actor_x11->shadow_clip, cairo_region_destroy);
 
-  cullable_parent_iface->reset_culling (cullable);
+  meta_cullable_reset_culling_children (cullable);
 }
 
 static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
-  cullable_parent_iface = g_type_interface_peek_parent (iface);
-
   iface->cull_out = meta_window_actor_x11_cull_out;
   iface->reset_culling = meta_window_actor_x11_reset_culling;
 }

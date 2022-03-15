@@ -27,7 +27,6 @@
 
 #include "backends/meta-screen-cast-window.h"
 #include "compositor/compositor-private.h"
-#include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor-x11.h"
 #include "compositor/meta-surface-actor.h"
@@ -114,13 +113,10 @@ static MetaSurfaceActor * meta_window_actor_real_get_scanout_candidate (MetaWind
 static void meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
                                                          MetaSurfaceActor *surface_actor);
 
-static void cullable_iface_init (MetaCullableInterface *iface);
-
 static void screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TYPE_ACTOR,
                                   G_ADD_PRIVATE (MetaWindowActor)
-                                  G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init)
                                   G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
@@ -1034,28 +1030,6 @@ see_region (cairo_region_t *region,
   cairo_surface_destroy (surface);
 }
 #endif
-
-
-static void
-meta_window_actor_cull_out (MetaCullable   *cullable,
-                            cairo_region_t *unobscured_region,
-                            cairo_region_t *clip_region)
-{
-  meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
-}
-
-static void
-meta_window_actor_reset_culling (MetaCullable *cullable)
-{
-  meta_cullable_reset_culling_children (cullable);
-}
-
-static void
-cullable_iface_init (MetaCullableInterface *iface)
-{
-  iface->cull_out = meta_window_actor_cull_out;
-  iface->reset_culling = meta_window_actor_reset_culling;
-}
 
 void
 meta_window_actor_sync_visibility (MetaWindowActor *self)
