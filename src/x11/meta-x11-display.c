@@ -107,17 +107,10 @@ meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 
   for (l = windows; l; l = l->next)
     {
-      if (META_IS_WINDOW (l->data))
-        {
-          MetaWindow *window = l->data;
+      MetaWindow *window = META_WINDOW (l->data);
 
-          if (!window->unmanaging)
-            meta_window_unmanage (window, META_CURRENT_TIME);
-        }
-      else if (META_IS_BARRIER (l->data))
-        meta_barrier_destroy (META_BARRIER (l->data));
-      else
-        g_assert_not_reached ();
+      if (!window->unmanaging)
+        meta_window_unmanage (window, META_CURRENT_TIME);
     }
   g_list_free_full (windows, g_object_unref);
 }
