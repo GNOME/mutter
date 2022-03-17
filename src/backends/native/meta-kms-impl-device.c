@@ -914,17 +914,30 @@ err:
   return META_KMS_RESOURCE_CHANGE_FULL;
 }
 
-static void
+static MetaKmsResourceChanges
 meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                                      MetaKmsUpdate     *update)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
+  GList *l;
 
-  g_list_foreach (priv->crtcs, (GFunc) meta_kms_crtc_predict_state,
-                  update);
-  g_list_foreach (priv->connectors, (GFunc) meta_kms_connector_predict_state,
-                  update);
+  for (l = priv->crtcs; l; l = l->next)
+    {
+      MetaKmsCrtc *crtc = l->data;
+
+      changes |= meta_kms_crtc_predict_state (crtc, update);
+    }
+
+  for (l = priv->connectors; l; l = l->next)
+    {
+      MetaKmsConnector *connector = l->data;
+
+      changes |= meta_kms_connector_predict_state (connector, update);
+    }
+
+  return changes;
 }
 
 void
@@ -944,14 +957,26 @@ meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
   return meta_device_file_get_fd (priv->device_file);
 }
 
+static void
+emit_resources_changed_callback (MetaKms  *kms,
+                                 gpointer  user_data)
+{
+  MetaKmsResourceChanges changes = GPOINTER_TO_UINT (user_data);
+
+  meta_kms_emit_resources_changed (kms, changes);
+}
+
 MetaKmsFeedback *
 meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                      MetaKmsUpdate     *update,
                                      MetaKmsUpdateFlag  flags)
 {
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
   MetaKmsFeedback *feedback;
   g_autoptr (GError) error = NULL;
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   if (!ensure_device_file (impl_device, &error))
     return meta_kms_feedback_new_failed (NULL, g_steal_pointer (&error));
@@ -959,9 +984,17 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
   meta_kms_impl_device_hold_fd (impl_device);
   feedback = klass->process_update (impl_device, update, flags);
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
-    meta_kms_impl_device_predict_states (impl_device, update);
+    changes = meta_kms_impl_device_predict_states (impl_device, update);
   meta_kms_impl_device_unhold_fd (impl_device);
 
+  if (changes != META_KMS_RESOURCE_CHANGE_NONE)
+    {
+      MetaKms *kms = meta_kms_device_get_kms (priv->device);
+
+      meta_kms_queue_callback (kms,
+                               emit_resources_changed_callback,
+                               GUINT_TO_POINTER (changes), NULL);
+    }
   return feedback;
 }
 

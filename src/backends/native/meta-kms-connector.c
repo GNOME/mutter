@@ -758,7 +758,7 @@ meta_kms_connector_disable (MetaKmsConnector *connector)
   current_state->current_crtc_id = 0;
 }
 
-void
+MetaKmsResourceChanges
 meta_kms_connector_predict_state (MetaKmsConnector *connector,
                                   MetaKmsUpdate    *update)
 {
@@ -766,10 +766,11 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
   MetaKmsConnectorState *current_state;
   GList *mode_sets;
   GList *l;
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   current_state = connector->current_state;
   if (!current_state)
-    return;
+    return META_KMS_RESOURCE_CHANGE_NONE;
 
   mode_sets = meta_kms_update_get_mode_sets (update);
   for (l = mode_sets; l; l = l->next)
@@ -812,11 +813,19 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
             {
               if (connector_update->privacy_screen.is_enabled)
                 {
+                  if (current_state->privacy_screen_state !=
+                      META_PRIVACY_SCREEN_ENABLED)
+                    changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+
                   current_state->privacy_screen_state =
                     META_PRIVACY_SCREEN_ENABLED;
                 }
               else
                 {
+                  if (current_state->privacy_screen_state !=
+                      META_PRIVACY_SCREEN_DISABLED)
+                    changes |= META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+
                   current_state->privacy_screen_state =
                     META_PRIVACY_SCREEN_DISABLED;
                 }
@@ -826,6 +835,8 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
 
   impl_device = meta_kms_device_get_impl_device (connector->device);
   sync_fd_held (connector, impl_device);
+
+  return changes;
 }
 
 static void

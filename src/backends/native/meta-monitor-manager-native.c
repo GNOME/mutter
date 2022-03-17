@@ -736,69 +736,6 @@ allocate_virtual_monitor_id (MetaMonitorManagerNative *manager_native)
     }
 }
 
-static void
-on_kms_privacy_screen_update_result (const MetaKmsFeedback *kms_feedback,
-                                     gpointer               user_data)
-{
-  MetaMonitorManager *manager = user_data;
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
-
-  if (meta_kms_feedback_get_result (kms_feedback) == META_KMS_FEEDBACK_FAILED)
-    {
-      manager->privacy_screen_change_state =
-        META_PRIVACY_SCREEN_CHANGE_STATE_NONE;
-      return;
-    }
-
-  on_kms_resources_changed (kms,
-                            META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN,
-                            manager);
-}
-
-static gboolean
-meta_monitor_manager_native_set_privacy_screen_enabled (MetaMonitorManager *manager,
-                                                        gboolean            enabled)
-{
-  MetaMonitorManagerClass *manager_class;
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
-  gboolean any_update = FALSE;
-  GList *l;
-
-  manager_class =
-    META_MONITOR_MANAGER_CLASS (meta_monitor_manager_native_parent_class);
-
-  if (!manager_class->set_privacy_screen_enabled (manager, enabled))
-    return FALSE;
-
-  for (l = meta_kms_get_devices (kms); l; l = l->next)
-    {
-      MetaKmsDevice *kms_device = l->data;
-      MetaKmsUpdate *kms_update;
-
-      kms_update = meta_kms_get_pending_update (kms, kms_device);
-
-      if (kms_update)
-        {
-          meta_kms_update_remove_result_listeners (
-            kms_update, on_kms_privacy_screen_update_result, manager);
-          meta_kms_update_add_result_listener (
-            kms_update, on_kms_privacy_screen_update_result, manager);
-          any_update = TRUE;
-       }
-    }
-
-  if (any_update)
-    {
-      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-
-      clutter_stage_schedule_update (stage);
-    }
-
-  return TRUE;
-}
-
 static gboolean
 rebuild_virtual_idle_cb (gpointer user_data)
 {
@@ -956,8 +893,6 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
     meta_monitor_manager_native_get_crtc_gamma;
   manager_class->set_crtc_gamma =
     meta_monitor_manager_native_set_crtc_gamma;
-  manager_class->set_privacy_screen_enabled =
-    meta_monitor_manager_native_set_privacy_screen_enabled;
   manager_class->is_transform_handled =
     meta_monitor_manager_native_is_transform_handled;
   manager_class->calculate_monitor_mode_scale =

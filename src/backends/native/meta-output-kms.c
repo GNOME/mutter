@@ -114,12 +114,15 @@ meta_output_kms_set_privacy_screen_enabled (MetaOutput  *output,
                                             gboolean     enabled,
                                             GError     **error)
 {
-  MetaGpu *gpu;
-  MetaKms *kms;
-  MetaKmsDevice *kms_device;
-  MetaKmsUpdate *kms_update;
+  MetaGpu *gpu = meta_output_get_gpu (output);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
   MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
   MetaKmsConnector *connector = meta_output_kms_get_kms_connector (output_kms);
+  MetaKmsUpdate *kms_update;
+  MetaCrtc *crtc;
 
   if (!meta_kms_connector_is_privacy_screen_supported (connector))
     {
@@ -128,12 +131,18 @@ meta_output_kms_set_privacy_screen_enabled (MetaOutput  *output,
       return FALSE;
     }
 
-  gpu = meta_output_get_gpu (META_OUTPUT (output_kms));
-  kms_device = meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
-  kms = meta_kms_device_get_kms (kms_device);
   kms_update = meta_kms_ensure_pending_update (kms, kms_device);
 
   meta_kms_update_set_privacy_screen (kms_update, connector, enabled);
+
+  crtc = meta_output_get_assigned_crtc (output);
+  if (crtc)
+    {
+      MetaRendererView *view;
+
+      view = meta_renderer_get_view_for_crtc (renderer, crtc);
+      clutter_stage_view_schedule_update (CLUTTER_STAGE_VIEW (view));
+    }
 
   return TRUE;
 }

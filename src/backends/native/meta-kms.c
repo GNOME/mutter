@@ -651,7 +651,7 @@ handle_hotplug_event (MetaKms                *kms,
   changes |= meta_kms_update_states_sync (kms, udev_device);
 
   if (changes != META_KMS_RESOURCE_CHANGE_NONE)
-    g_signal_emit (kms, signals[RESOURCES_CHANGED], 0, changes);
+    meta_kms_emit_resources_changed (kms, changes);
 }
 
 void
@@ -798,4 +798,11 @@ meta_kms_class_init (MetaKmsClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   META_TYPE_KMS_RESOURCE_CHANGES);
+}
+
+void
+meta_kms_emit_resources_changed (MetaKms                *kms,
+                                 MetaKmsResourceChanges  changes)
+{
+  g_signal_emit (kms, signals[RESOURCES_CHANGED], 0, changes);
 }

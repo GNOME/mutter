@@ -61,6 +61,9 @@ gboolean meta_kms_in_impl_task (MetaKms *kms);
 
 gboolean meta_kms_is_waiting_for_impl_task (MetaKms *kms);
 
+void meta_kms_emit_resources_changed (MetaKms                *kms,
+                                      MetaKmsResourceChanges  changes);
+
 #define meta_assert_in_kms_impl(kms) \
   g_assert (meta_kms_in_impl_task (kms))
 #define meta_assert_not_in_kms_impl(kms) \
