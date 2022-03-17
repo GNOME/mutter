@@ -237,7 +237,7 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
 }
 
 MetaKmsResourceChanges
-meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
+meta_kms_crtc_update_state_in_impl (MetaKmsCrtc *crtc)
 {
   MetaKmsImplDevice *impl_device;
   MetaKmsResourceChanges changes;
@@ -270,7 +270,7 @@ out:
 }
 
 void
-meta_kms_crtc_disable (MetaKmsCrtc *crtc)
+meta_kms_crtc_disable_in_impl (MetaKmsCrtc *crtc)
 {
   crtc->current_state.is_active = FALSE;
   crtc->current_state.rect = (MetaRectangle) { 0 };
@@ -279,8 +279,8 @@ meta_kms_crtc_disable (MetaKmsCrtc *crtc)
 }
 
 void
-meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
-                             MetaKmsUpdate *update)
+meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
+                                     MetaKmsUpdate *update)
 {
   GList *mode_sets;
   GList *crtc_gammas;

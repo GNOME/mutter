@@ -426,9 +426,9 @@ update_connectors (MetaKmsImplDevice *impl_device,
           if (updated_connector_id == 0 ||
               meta_kms_connector_get_id (connector) == updated_connector_id)
             {
-              changes |= meta_kms_connector_update_state (connector,
-                                                          drm_resources,
-                                                          drm_connector);
+              changes |= meta_kms_connector_update_state_in_impl (connector,
+                                                                  drm_resources,
+                                                                  drm_connector);
             }
         }
       else
@@ -911,7 +911,7 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
           meta_kms_crtc_get_id (crtc) != crtc_id)
         continue;
 
-      changes |= meta_kms_crtc_update_state (crtc);
+      changes |= meta_kms_crtc_update_state_in_impl (crtc);
     }
 
   drmModeFreeResources (drm_resources);
@@ -935,13 +935,15 @@ meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
   GList *l;
 
-  g_list_foreach (priv->crtcs, (GFunc) meta_kms_crtc_predict_state, update);
+  g_list_foreach (priv->crtcs,
+                  (GFunc) meta_kms_crtc_predict_state_in_impl,
+                  update);
 
   for (l = priv->connectors; l; l = l->next)
     {
       MetaKmsConnector *connector = l->data;
 
-      changes |= meta_kms_connector_predict_state (connector, update);
+      changes |= meta_kms_connector_predict_state_in_impl (connector, update);
     }
 
   return changes;
@@ -1017,8 +1019,10 @@ meta_kms_impl_device_disable (MetaKmsImplDevice *impl_device)
 
   meta_kms_impl_device_hold_fd (impl_device);
   klass->disable (impl_device);
-  g_list_foreach (priv->crtcs, (GFunc) meta_kms_crtc_disable, NULL);
-  g_list_foreach (priv->connectors, (GFunc) meta_kms_connector_disable, NULL);
+  g_list_foreach (priv->crtcs,
+                  (GFunc) meta_kms_crtc_disable_in_impl, NULL);
+  g_list_foreach (priv->connectors,
+                  (GFunc) meta_kms_connector_disable_in_impl, NULL);
   meta_kms_impl_device_unhold_fd (impl_device);
 }
 

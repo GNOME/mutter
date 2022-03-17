@@ -753,9 +753,9 @@ out:
 }
 
 MetaKmsResourceChanges
-meta_kms_connector_update_state (MetaKmsConnector *connector,
-                                 drmModeRes       *drm_resources,
-                                 drmModeConnector *drm_connector)
+meta_kms_connector_update_state_in_impl (MetaKmsConnector *connector,
+                                         drmModeRes       *drm_resources,
+                                         drmModeConnector *drm_connector)
 {
   MetaKmsImplDevice *impl_device;
   MetaKmsResourceChanges changes;
@@ -769,7 +769,7 @@ meta_kms_connector_update_state (MetaKmsConnector *connector,
 }
 
 void
-meta_kms_connector_disable (MetaKmsConnector *connector)
+meta_kms_connector_disable_in_impl (MetaKmsConnector *connector)
 {
   MetaKmsConnectorState *current_state;
 
@@ -781,8 +781,8 @@ meta_kms_connector_disable (MetaKmsConnector *connector)
 }
 
 MetaKmsResourceChanges
-meta_kms_connector_predict_state (MetaKmsConnector *connector,
-                                  MetaKmsUpdate    *update)
+meta_kms_connector_predict_state_in_impl (MetaKmsConnector *connector,
+                                          MetaKmsUpdate    *update)
 {
   MetaKmsImplDevice *impl_device;
   MetaKmsConnectorState *current_state;
