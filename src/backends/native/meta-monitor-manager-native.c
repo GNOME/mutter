@@ -522,21 +522,21 @@ handle_hotplug_event (MetaMonitorManager *manager)
 }
 
 static void
-on_kms_resources_changed (MetaKms              *kms,
-                          MetaKmsUpdateChanges  changes,
-                          MetaMonitorManager   *manager)
+on_kms_resources_changed (MetaKms                *kms,
+                          MetaKmsResourceChanges  changes,
+                          MetaMonitorManager     *manager)
 {
   gboolean needs_emit_privacy_screen_change = FALSE;
 
-  g_assert (changes != META_KMS_UPDATE_CHANGE_NONE);
+  g_assert (changes != META_KMS_RESOURCE_CHANGE_NONE);
 
-  if (changes == META_KMS_UPDATE_CHANGE_GAMMA)
+  if (changes == META_KMS_RESOURCE_CHANGE_GAMMA)
     {
       meta_dbus_display_config_emit_monitors_changed (manager->display_config);
       return;
     }
 
-  if (changes & META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
+  if (changes & META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN)
     {
       if (manager->privacy_screen_change_state ==
           META_PRIVACY_SCREEN_CHANGE_STATE_NONE)
@@ -550,7 +550,7 @@ on_kms_resources_changed (MetaKms              *kms,
 
       needs_emit_privacy_screen_change = TRUE;
 
-      if (changes == META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
+      if (changes == META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN)
         goto out;
     }
 
@@ -752,7 +752,7 @@ on_kms_privacy_screen_update_result (const MetaKmsFeedback *kms_feedback,
     }
 
   on_kms_resources_changed (kms,
-                            META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN,
+                            META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN,
                             manager);
 }
 

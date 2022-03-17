@@ -64,14 +64,14 @@ typedef enum _MetaKmsDeviceFlag
   META_KMS_DEVICE_FLAG_NO_MODE_SETTING = 1 << 4,
 } MetaKmsDeviceFlag;
 
-typedef enum _MetaKmsUpdateChanges
+typedef enum _MetaKmsResourceChanges
 {
-  META_KMS_UPDATE_CHANGE_NONE = 0,
-  META_KMS_UPDATE_CHANGE_GAMMA = 1 << 0,
-  META_KMS_UPDATE_CHANGE_NO_DEVICES = 1 << 1,
-  META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN = 1 << 2,
-  META_KMS_UPDATE_CHANGE_FULL = -1,
-} MetaKmsUpdateChanges;
+  META_KMS_RESOURCE_CHANGE_NONE = 0,
+  META_KMS_RESOURCE_CHANGE_GAMMA = 1 << 0,
+  META_KMS_RESOURCE_CHANGE_NO_DEVICES = 1 << 1,
+  META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN = 1 << 2,
+  META_KMS_RESOURCE_CHANGE_FULL = -1,
+} MetaKmsResourceChanges;
 
 typedef enum _MetaKmsUpdateFlag
 {

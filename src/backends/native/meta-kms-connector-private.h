@@ -101,8 +101,8 @@ uint64_t meta_kms_connector_get_prop_drm_value (MetaKmsConnector     *connector,
                                                 MetaKmsConnectorProp  prop,
                                                 uint64_t              value);
 
-MetaKmsUpdateChanges meta_kms_connector_update_state (MetaKmsConnector *connector,
-                                                      drmModeRes       *drm_resources);
+MetaKmsResourceChanges meta_kms_connector_update_state (MetaKmsConnector *connector,
+                                                        drmModeRes       *drm_resources);
 
 void meta_kms_connector_disable (MetaKmsConnector *connector);
 

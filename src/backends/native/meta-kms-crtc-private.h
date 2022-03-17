@@ -38,7 +38,7 @@ MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice  *impl_device,
                                  int                 idx,
                                  GError            **error);
 
-MetaKmsUpdateChanges meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
+MetaKmsResourceChanges meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
 
 void meta_kms_crtc_disable (MetaKmsCrtc *crtc);
 

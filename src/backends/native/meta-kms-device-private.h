@@ -25,9 +25,9 @@
 
 MetaKmsImplDevice * meta_kms_device_get_impl_device (MetaKmsDevice *device);
 
-MetaKmsUpdateChanges meta_kms_device_update_states_in_impl (MetaKmsDevice *device,
-                                                            uint32_t       crtc_id,
-                                                            uint32_t       connector_id);
+MetaKmsResourceChanges meta_kms_device_update_states_in_impl (MetaKmsDevice *device,
+                                                              uint32_t       crtc_id,
+                                                              uint32_t       connector_id);
 
 void meta_kms_device_add_fake_plane_in_impl (MetaKmsDevice    *device,
                                              MetaKmsPlaneType  plane_type,

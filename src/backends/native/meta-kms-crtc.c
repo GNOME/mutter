@@ -131,38 +131,38 @@ read_gamma_state (MetaKmsCrtc       *crtc,
                        crtc_state->gamma.blue);
 }
 
-static MetaKmsUpdateChanges
+static MetaKmsResourceChanges
 meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
                              MetaKmsCrtcState *other_state)
 {
   if (state->is_active != other_state->is_active)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (!meta_rectangle_equal (&state->rect, &other_state->rect))
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->is_drm_mode_valid != other_state->is_drm_mode_valid)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (!meta_drm_mode_equal (&state->drm_mode, &other_state->drm_mode))
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->gamma.size != other_state->gamma.size)
-    return META_KMS_UPDATE_CHANGE_GAMMA;
+    return META_KMS_RESOURCE_CHANGE_GAMMA;
 
   if (memcmp (state->gamma.blue, other_state->gamma.blue,
               state->gamma.size * sizeof (uint16_t)) != 0)
-    return META_KMS_UPDATE_CHANGE_GAMMA;
+    return META_KMS_RESOURCE_CHANGE_GAMMA;
 
   if (memcmp (state->gamma.green, other_state->gamma.green,
               state->gamma.size * sizeof (uint16_t)) != 0)
-    return META_KMS_UPDATE_CHANGE_GAMMA;
+    return META_KMS_RESOURCE_CHANGE_GAMMA;
 
   if (memcmp (state->gamma.red, other_state->gamma.red,
               state->gamma.size * sizeof (uint16_t)) != 0)
-    return META_KMS_UPDATE_CHANGE_GAMMA;
+    return META_KMS_RESOURCE_CHANGE_GAMMA;
 
-  return META_KMS_UPDATE_CHANGE_NONE;
+  return META_KMS_RESOURCE_CHANGE_NONE;
 }
 
 static void
@@ -174,14 +174,14 @@ clear_gamma_state (MetaKmsCrtcState *crtc_state)
   g_clear_pointer (&crtc_state->gamma.blue, g_free);
 }
 
-static MetaKmsUpdateChanges
+static MetaKmsResourceChanges
 meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
                           MetaKmsImplDevice       *impl_device,
                           drmModeCrtc             *drm_crtc,
                           drmModeObjectProperties *drm_props)
 {
   MetaKmsCrtcState crtc_state = {0};
-  MetaKmsUpdateChanges changes = META_KMS_UPDATE_CHANGE_NONE;
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
   MetaKmsProp *active_prop;
 
   meta_kms_impl_device_update_prop_table (impl_device,
@@ -213,7 +213,7 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   if (!crtc_state.is_active)
     {
       if (crtc->current_state.is_active)
-        changes |= META_KMS_UPDATE_CHANGE_FULL;
+        changes |= META_KMS_RESOURCE_CHANGE_FULL;
     }
   else
     {
@@ -229,18 +229,18 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
               crtc->current_state.is_drm_mode_valid
                 ? crtc->current_state.drm_mode.name
                 : "(nil)",
-              changes == META_KMS_UPDATE_CHANGE_NONE
+              changes == META_KMS_RESOURCE_CHANGE_NONE
                 ? "no"
                 : "yes");
 
   return changes;
 }
 
-MetaKmsUpdateChanges
+MetaKmsResourceChanges
 meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
 {
   MetaKmsImplDevice *impl_device;
-  MetaKmsUpdateChanges changes;
+  MetaKmsResourceChanges changes;
   int fd;
   drmModeCrtc *drm_crtc;
   drmModeObjectProperties *drm_props;
@@ -256,7 +256,7 @@ meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
       crtc->current_state.is_active = FALSE;
       crtc->current_state.rect = (MetaRectangle) { };
       crtc->current_state.is_drm_mode_valid = FALSE;
-      changes = META_KMS_UPDATE_CHANGE_FULL;
+      changes = META_KMS_RESOURCE_CHANGE_FULL;
       goto out;
     }
 

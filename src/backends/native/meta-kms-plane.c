@@ -393,13 +393,13 @@ update_rotations (MetaKmsPlane *plane)
     }
 }
 
-static MetaKmsUpdateChanges
+static MetaKmsResourceChanges
 meta_kms_plane_read_state (MetaKmsPlane            *plane,
                            MetaKmsImplDevice       *impl_device,
                            drmModePlane            *drm_plane,
                            drmModeObjectProperties *drm_plane_props)
 {
-  MetaKmsUpdateChanges changes = META_KMS_UPDATE_CHANGE_NONE;
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   meta_kms_impl_device_update_prop_table (impl_device,
                                           drm_plane_props->props,

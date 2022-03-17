@@ -568,80 +568,80 @@ kms_modes_equal (GList *modes,
   return TRUE;
 }
 
-static MetaKmsUpdateChanges
+static MetaKmsResourceChanges
 meta_kms_connector_state_changes (MetaKmsConnectorState *state,
                                   MetaKmsConnectorState *new_state)
 {
   if (state->current_crtc_id != new_state->current_crtc_id)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->common_possible_crtcs != new_state->common_possible_crtcs)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->common_possible_clones != new_state->common_possible_clones)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->encoder_device_idxs != new_state->encoder_device_idxs)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->width_mm != new_state->width_mm)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->height_mm != new_state->height_mm)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->has_scaling != new_state->has_scaling)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->non_desktop != new_state->non_desktop)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->subpixel_order != new_state->subpixel_order)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->suggested_x != new_state->suggested_x)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->suggested_y != new_state->suggested_y)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->hotplug_mode_update != new_state->hotplug_mode_update)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->panel_orientation_transform !=
       new_state->panel_orientation_transform)
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (!meta_tile_info_equal (&state->tile_info, &new_state->tile_info))
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if ((state->edid_data && !new_state->edid_data) || !state->edid_data ||
       !g_bytes_equal (state->edid_data, new_state->edid_data))
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (!kms_modes_equal (state->modes, new_state->modes))
-    return META_KMS_UPDATE_CHANGE_FULL;
+    return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (state->privacy_screen_state != new_state->privacy_screen_state)
-    return META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN;
+    return META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
 
-  return META_KMS_UPDATE_CHANGE_NONE;
+  return META_KMS_RESOURCE_CHANGE_NONE;
 }
 
 static void
-meta_kms_connector_update_state_changes (MetaKmsConnector      *connector,
-                                         MetaKmsUpdateChanges   changes,
-                                         MetaKmsConnectorState *new_state)
+meta_kms_connector_update_state_changes (MetaKmsConnector       *connector,
+                                         MetaKmsResourceChanges  changes,
+                                         MetaKmsConnectorState  *new_state)
 {
   MetaKmsConnectorState *current_state = connector->current_state;
 
-  g_return_if_fail (changes != META_KMS_UPDATE_CHANGE_FULL);
+  g_return_if_fail (changes != META_KMS_RESOURCE_CHANGE_FULL);
 
-  if (changes & META_KMS_UPDATE_CHANGE_PRIVACY_SCREEN)
+  if (changes & META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN)
     current_state->privacy_screen_state = new_state->privacy_screen_state;
 }
 
-static MetaKmsUpdateChanges
+static MetaKmsResourceChanges
 meta_kms_connector_read_state (MetaKmsConnector  *connector,
                                MetaKmsImplDevice *impl_device,
                                drmModeConnector  *drm_connector,
@@ -649,11 +649,11 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
 {
   g_autoptr (MetaKmsConnectorState) state = NULL;
   g_autoptr (MetaKmsConnectorState) current_state = NULL;
-  MetaKmsUpdateChanges connector_changes;
-  MetaKmsUpdateChanges changes;
+  MetaKmsResourceChanges connector_changes;
+  MetaKmsResourceChanges changes;
 
   current_state = g_steal_pointer (&connector->current_state);
-  changes = META_KMS_UPDATE_CHANGE_NONE;
+  changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   meta_kms_impl_device_update_prop_table (impl_device,
                                           drm_connector->props,
@@ -665,7 +665,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   if (!drm_connector)
     {
       if (current_state)
-        changes = META_KMS_UPDATE_CHANGE_FULL;
+        changes = META_KMS_RESOURCE_CHANGE_FULL;
       goto out;
     }
 
@@ -674,7 +674,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
       if (drm_connector->connection != connector->connection)
         {
           connector->connection = drm_connector->connection;
-          changes |= META_KMS_UPDATE_CHANGE_FULL;
+          changes |= META_KMS_RESOURCE_CHANGE_FULL;
         }
 
       goto out;
@@ -698,17 +698,17 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   if (drm_connector->connection != connector->connection)
     {
       connector->connection = drm_connector->connection;
-      changes |= META_KMS_UPDATE_CHANGE_FULL;
+      changes |= META_KMS_RESOURCE_CHANGE_FULL;
     }
 
   if (!current_state)
-    connector_changes = META_KMS_UPDATE_CHANGE_FULL;
+    connector_changes = META_KMS_RESOURCE_CHANGE_FULL;
   else
     connector_changes = meta_kms_connector_state_changes (current_state, state);
 
   changes |= connector_changes;
 
-  if (!(changes & META_KMS_UPDATE_CHANGE_FULL))
+  if (!(changes & META_KMS_RESOURCE_CHANGE_FULL))
     {
       meta_kms_connector_update_state_changes (connector,
                                                connector_changes,
@@ -726,13 +726,13 @@ out:
   return changes;
 }
 
-MetaKmsUpdateChanges
+MetaKmsResourceChanges
 meta_kms_connector_update_state (MetaKmsConnector *connector,
                                  drmModeRes       *drm_resources)
 {
   MetaKmsImplDevice *impl_device;
   drmModeConnector *drm_connector;
-  MetaKmsUpdateChanges changes;
+  MetaKmsResourceChanges changes;
 
   impl_device = meta_kms_device_get_impl_device (connector->device);
   drm_connector = drmModeGetConnector (meta_kms_impl_device_get_fd (impl_device),
