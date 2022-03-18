@@ -71,7 +71,7 @@ meta_barrier_impl_x11_release (MetaBarrierImpl  *impl,
                                MetaBarrierEvent *event)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
-  MetaBackend *backend = self->barrier->priv->backend;
+  MetaBackend *backend = meta_barrier_get_backend (self->barrier);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
@@ -84,7 +84,7 @@ static void
 meta_barrier_impl_x11_destroy (MetaBarrierImpl *impl)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
-  MetaBackend *backend = self->barrier->priv->backend;
+  MetaBackend *backend = meta_barrier_get_backend (self->barrier);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   MetaX11Barriers *barriers = meta_backend_x11_get_barriers (backend_x11);
   Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
@@ -106,23 +106,24 @@ meta_barrier_impl_x11_new (MetaBarrier *barrier)
   MetaX11Barriers *barriers;
   Display *xdisplay;
   Window root;
+  MetaBorder *border;
   unsigned int allowed_motion_dirs;
 
   self = g_object_new (META_TYPE_BARRIER_IMPL_X11, NULL);
   self->barrier = barrier;
 
-  backend = self->barrier->priv->backend;
+  backend = meta_barrier_get_backend (self->barrier);
   backend_x11 = META_BACKEND_X11 (backend);
   xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
   root = DefaultRootWindow (xdisplay);
 
-  allowed_motion_dirs =
-    meta_border_get_allows_directions (&barrier->priv->border);
+  border = meta_barrier_get_border (barrier);
+  allowed_motion_dirs = meta_border_get_allows_directions (border);
   self->xbarrier = XFixesCreatePointerBarrier (xdisplay, root,
-                                               barrier->priv->border.line.a.x,
-                                               barrier->priv->border.line.a.y,
-                                               barrier->priv->border.line.b.x,
-                                               barrier->priv->border.line.b.y,
+                                               border->line.a.x,
+                                               border->line.a.y,
+                                               border->line.b.x,
+                                               border->line.b.y,
                                                allowed_motion_dirs,
                                                0, NULL);
 

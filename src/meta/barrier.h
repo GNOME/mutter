@@ -9,58 +9,6 @@
 
 G_BEGIN_DECLS
 
-#define META_TYPE_BARRIER            (meta_barrier_get_type ())
-#define META_BARRIER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BARRIER, MetaBarrier))
-#define META_BARRIER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_BARRIER, MetaBarrierClass))
-#define META_IS_BARRIER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BARRIER))
-#define META_IS_BARRIER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_BARRIER))
-#define META_BARRIER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_BARRIER, MetaBarrierClass))
-
-typedef struct _MetaBarrier        MetaBarrier;
-typedef struct _MetaBarrierClass   MetaBarrierClass;
-typedef struct _MetaBarrierPrivate MetaBarrierPrivate;
-
-typedef struct _MetaBarrierEvent   MetaBarrierEvent;
-
-/**
- * MetaBarrier:
- *
- * The <structname>MetaBarrier</structname> structure contains
- * only private data and should be accessed using the provided API
- *
- **/
-struct _MetaBarrier
-{
-  GObject parent;
-
-  MetaBarrierPrivate *priv;
-};
-
-/**
- * MetaBarrierClass:
- *
- * The <structname>MetaBarrierClass</structname> structure contains only
- * private data.
- */
-struct _MetaBarrierClass
-{
-  /*< private >*/
-  GObjectClass parent_class;
-};
-
-META_EXPORT
-GType meta_barrier_get_type (void) G_GNUC_CONST;
-
-META_EXPORT
-gboolean meta_barrier_is_active (MetaBarrier *barrier);
-
-META_EXPORT
-void meta_barrier_destroy (MetaBarrier *barrier);
-
-META_EXPORT
-void meta_barrier_release (MetaBarrier      *barrier,
-                           MetaBarrierEvent *event);
-
 /**
  * MetaBarrierDirection:
  * @META_BARRIER_DIRECTION_POSITIVE_X: Positive direction in the X axis
@@ -77,6 +25,23 @@ typedef enum
   META_BARRIER_DIRECTION_NEGATIVE_X = 1 << 2,
   META_BARRIER_DIRECTION_NEGATIVE_Y = 1 << 3,
 } MetaBarrierDirection;
+
+#define META_TYPE_BARRIER (meta_barrier_get_type ())
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaBarrier, meta_barrier,
+                      META, BARRIER, GObject)
+
+typedef struct _MetaBarrierEvent MetaBarrierEvent;
+
+META_EXPORT
+gboolean meta_barrier_is_active (MetaBarrier *barrier);
+
+META_EXPORT
+void meta_barrier_destroy (MetaBarrier *barrier);
+
+META_EXPORT
+void meta_barrier_release (MetaBarrier      *barrier,
+                           MetaBarrierEvent *event);
 
 /**
  * MetaBarrierEvent:

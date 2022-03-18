@@ -102,18 +102,20 @@ next_serial (void)
 static gboolean
 is_barrier_horizontal (MetaBarrier *barrier)
 {
-  return meta_border_is_horizontal (&barrier->priv->border);
+  MetaBorder *border = meta_barrier_get_border (barrier);
+
+  return meta_border_is_horizontal (border);
 }
 
 static gboolean
 is_barrier_blocking_directions (MetaBarrier         *barrier,
                                 MetaBarrierDirection directions)
 {
+  MetaBorder *border = meta_barrier_get_border (barrier);
   MetaBorderMotionDirection border_motion_directions =
     (MetaBorderMotionDirection) directions;
 
-  return meta_border_is_blocking_directions (&barrier->priv->border,
-                                             border_motion_directions);
+  return meta_border_is_blocking_directions (border, border_motion_directions);
 }
 
 static void
@@ -131,7 +133,8 @@ dismiss_pointer (MetaBarrierImplNative *self)
 static MetaLine2
 calculate_barrier_hit_box (MetaBarrier *barrier)
 {
-  MetaLine2 hit_box = barrier->priv->border.line;
+  MetaBorder *border = meta_barrier_get_border (barrier);
+  MetaLine2 hit_box = border->line;
 
   if (is_barrier_horizontal (barrier))
     {
@@ -170,6 +173,7 @@ maybe_release_barrier (gpointer key,
 {
   MetaBarrierImplNative *self = key;
   MetaBarrier *barrier = self->barrier;
+  MetaBorder *border = meta_barrier_get_border (barrier);
   MetaLine2 *motion = user_data;
   MetaLine2 hit_box;
 
@@ -179,10 +183,8 @@ maybe_release_barrier (gpointer key,
   /* Release if we end up outside barrier end points. */
   if (is_barrier_horizontal (barrier))
     {
-      if (motion->b.x > MAX (barrier->priv->border.line.a.x,
-                             barrier->priv->border.line.b.x) ||
-          motion->b.x < MIN (barrier->priv->border.line.a.x,
-                             barrier->priv->border.line.b.x))
+      if (motion->b.x > MAX (border->line.a.x, border->line.b.x) ||
+          motion->b.x < MIN (border->line.a.x, border->line.b.x))
         {
           dismiss_pointer (self);
           return;
@@ -190,10 +192,8 @@ maybe_release_barrier (gpointer key,
     }
   else
     {
-      if (motion->b.y > MAX (barrier->priv->border.line.a.y,
-                             barrier->priv->border.line.b.y) ||
-          motion->b.y < MIN (barrier->priv->border.line.a.y,
-                             barrier->priv->border.line.b.y))
+      if (motion->b.y > MAX (border->line.a.y, border->line.b.y) ||
+          motion->b.y < MIN (border->line.a.y, border->line.b.y))
         {
           dismiss_pointer (self);
           return;
@@ -254,6 +254,7 @@ update_closest_barrier (gpointer key,
 {
   MetaBarrierImplNative *self = key;
   MetaBarrier *barrier = self->barrier;
+  MetaBorder *border = meta_barrier_get_border (barrier);
   MetaClosestBarrierData *data = user_data;
   MetaVector2 intersection;
   float dx, dy;
@@ -274,7 +275,7 @@ update_closest_barrier (gpointer key,
 
   /* Check if the motion intersects with the barrier, and retrieve the
    * intersection point if any. */
-  if (!meta_line2_intersects_with (&barrier->priv->border.line,
+  if (!meta_line2_intersects_with (&border->line,
                                    &data->in.motion,
                                    &intersection))
     return;
@@ -473,13 +474,14 @@ clamp_to_barrier (MetaBarrierImplNative *self,
                   float *y)
 {
   MetaBarrier *barrier = self->barrier;
+  MetaBorder *border = meta_barrier_get_border (barrier);
 
   if (is_barrier_horizontal (barrier))
     {
       if (*motion_dir & META_BARRIER_DIRECTION_POSITIVE_Y)
-        *y = barrier->priv->border.line.a.y;
+        *y = border->line.a.y;
       else if (*motion_dir & META_BARRIER_DIRECTION_NEGATIVE_Y)
-        *y = barrier->priv->border.line.a.y;
+        *y = border->line.a.y;
 
       self->blocked_dir = *motion_dir & (META_BARRIER_DIRECTION_POSITIVE_Y |
                                          META_BARRIER_DIRECTION_NEGATIVE_Y);
@@ -489,9 +491,9 @@ clamp_to_barrier (MetaBarrierImplNative *self,
   else
     {
       if (*motion_dir & META_BARRIER_DIRECTION_POSITIVE_X)
-        *x = barrier->priv->border.line.a.x;
+        *x = border->line.a.x;
       else if (*motion_dir & META_BARRIER_DIRECTION_NEGATIVE_X)
-        *x = barrier->priv->border.line.a.x;
+        *x = border->line.a.x;
 
       self->blocked_dir = *motion_dir & (META_BARRIER_DIRECTION_POSITIVE_X |
                                          META_BARRIER_DIRECTION_NEGATIVE_X);

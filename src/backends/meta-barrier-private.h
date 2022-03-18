@@ -56,13 +56,8 @@ void meta_barrier_event_unref (MetaBarrierEvent *event);
 
 MetaBackend * meta_barrier_get_backend (MetaBarrier *barrier);
 
-G_END_DECLS
+MetaBorder * meta_barrier_get_border (MetaBarrier *barrier);
 
-struct _MetaBarrierPrivate
-{
-  MetaBackend *backend;
-  MetaBorder border;
-  MetaBarrierImpl *impl;
-};
+G_END_DECLS
 
 #endif /* META_BARRIER_PRIVATE_H */

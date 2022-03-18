@@ -23,6 +23,18 @@
 #include "backends/native/meta-barrier-native.h"
 #endif
 
+struct _MetaBarrier
+{
+  GObject parent;
+};
+
+typedef struct _MetaBarrierPrivate
+{
+  MetaBackend *backend;
+  MetaBorder border;
+  MetaBarrierImpl *impl;
+} MetaBarrierPrivate;
+
 G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
 G_DEFINE_TYPE (MetaBarrierImpl, meta_barrier_impl, G_TYPE_OBJECT)
 
@@ -86,7 +98,7 @@ meta_barrier_get_property (GObject    *object,
                            GParamSpec *pspec)
 {
   MetaBarrier *barrier = META_BARRIER (object);
-  MetaBarrierPrivate *priv = barrier->priv;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   switch (prop_id)
     {
@@ -125,7 +137,8 @@ meta_barrier_set_property (GObject      *object,
                            GParamSpec   *pspec)
 {
   MetaBarrier *barrier = META_BARRIER (object);
-  MetaBarrierPrivate *priv = barrier->priv;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+
   switch (prop_id)
     {
     case PROP_BACKEND:
@@ -166,7 +179,7 @@ static void
 meta_barrier_dispose (GObject *object)
 {
   MetaBarrier *barrier = META_BARRIER (object);
-  MetaBarrierPrivate *priv = barrier->priv;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   if (meta_barrier_is_active (barrier))
     {
@@ -182,7 +195,8 @@ meta_barrier_dispose (GObject *object)
 gboolean
 meta_barrier_is_active (MetaBarrier *barrier)
 {
-  MetaBarrierImpl *impl = barrier->priv->impl;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+  MetaBarrierImpl *impl = priv->impl;
 
   if (impl)
     return META_BARRIER_IMPL_GET_CLASS (impl)->is_active (impl);
@@ -204,7 +218,8 @@ void
 meta_barrier_release (MetaBarrier      *barrier,
                       MetaBarrierEvent *event)
 {
-  MetaBarrierImpl *impl = barrier->priv->impl;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+  MetaBarrierImpl *impl = priv->impl;
 
   if (impl)
     META_BARRIER_IMPL_GET_CLASS (impl)->release (impl, event);
@@ -213,7 +228,7 @@ meta_barrier_release (MetaBarrier      *barrier,
 static void
 init_barrier_impl (MetaBarrier *barrier)
 {
-  MetaBarrierPrivate *priv = barrier->priv;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   g_return_if_fail (priv->backend);
   g_return_if_fail (priv->border.line.a.x == priv->border.line.b.x ||
@@ -364,7 +379,8 @@ meta_barrier_class_init (MetaBarrierClass *klass)
 void
 meta_barrier_destroy (MetaBarrier *barrier)
 {
-  MetaBarrierImpl *impl = barrier->priv->impl;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+  MetaBarrierImpl *impl = priv->impl;
 
   if (impl)
     META_BARRIER_IMPL_GET_CLASS (impl)->destroy (impl);
@@ -375,7 +391,6 @@ meta_barrier_destroy (MetaBarrier *barrier)
 static void
 meta_barrier_init (MetaBarrier *barrier)
 {
-  barrier->priv = meta_barrier_get_instance_private (barrier);
 }
 
 void
@@ -395,15 +410,22 @@ meta_barrier_emit_left_signal (MetaBarrier      *barrier,
 MetaBackend *
 meta_barrier_get_backend (MetaBarrier *barrier)
 {
-  return barrier->priv->backend;
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+
+  return priv->backend;
+}
+
+MetaBorder *
+meta_barrier_get_border (MetaBarrier *barrier)
+{
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+
+  return &priv->border;
 }
 
 static void
 meta_barrier_impl_class_init (MetaBarrierImplClass *klass)
 {
-  klass->is_active = NULL;
-  klass->release = NULL;
-  klass->destroy = NULL;
 }
 
 static void
