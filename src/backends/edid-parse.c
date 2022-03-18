@@ -31,6 +31,20 @@
 
 #include "backends/edid.h"
 
+/* VESA E-EDID */
+#define EDID_BLOCK_LENGTH   128
+#define EDID_EXT_FLAG_ADDR  0x7E
+#define EDID_EXT_TAG_ADDR   0x00
+
+/* VESA reserved IDs for extension blocks */
+#define EDID_EXT_ID_CTA     0x02
+
+/* CTA-861 extension block */
+#define EDID_EXT_CTA_REVISION_ADDR                        0x01
+#define EDID_EXT_CTA_DESCRIPTOR_OFFSET_ADDR               0x02
+#define EDID_EXT_CTA_DATA_BLOCK_OFFSET                    0x04
+#define EDID_EXT_CTA_TAG_EXTENDED                         0x07
+
 static int
 get_bit (int in, int bit)
 {
@@ -43,6 +57,19 @@ get_bits (int in, int begin, int end)
   int mask = (1 << (end - begin + 1)) - 1;
 
   return (in >> begin) & mask;
+}
+
+static void
+decode_check_sum (const uint8_t *edid,
+                  MetaEdidInfo  *info)
+{
+  int i;
+  uint8_t check = 0;
+
+  for (i = 0; i < 128; ++i)
+    check += edid[i];
+
+  info->checksum = check;
 }
 
 static gboolean
@@ -527,17 +554,82 @@ decode_descriptors (const uint8_t *edid,
   return TRUE;
 }
 
-static void
-decode_check_sum (const uint8_t *edid,
-		  MetaEdidInfo  *info)
+static gboolean
+decode_ext_cta (const uint8_t *cta_block,
+                MetaEdidInfo  *info)
 {
+  const uint8_t *data_block;
+  uint8_t data_block_end;
+  uint8_t data_block_offset;
+  int size;
+  int tag;
+
+  /* The CTA extension block is a number of data blocks followed by a number
+   * of (timing) descriptors. We only parse the data blocks. */
+
+  /* CTA-861-H Table 58: CTA Extension Version 3 */
+  data_block_end = cta_block[EDID_EXT_CTA_DESCRIPTOR_OFFSET_ADDR];
+  data_block_offset = EDID_EXT_CTA_DATA_BLOCK_OFFSET;
+
+  /* Table 58:
+   * If d=0, then no detailed timing descriptors are provided, and no data is
+   * provided in the data block collection */
+  if (data_block_end == 0)
+    return TRUE;
+
+  /* Table 58:
+   * If no data is provided in the data block collection, then d=4 */
+  if (data_block_end == 4)
+    return TRUE;
+
+  if (data_block_end < 4)
+    return FALSE;
+
+  while (data_block_offset < data_block_end)
+    {
+      /* CTA-861-H 7.4: CTA Data Block Collection */
+      data_block = cta_block + data_block_offset;
+      size = get_bits (data_block[0], 0, 4) + 1;
+      tag = get_bits (data_block[0], 5, 7);
+
+      data_block_offset += size;
+
+      /* CTA Data Block extended tag type is the second byte */
+      if (tag == EDID_EXT_CTA_TAG_EXTENDED)
+        tag = (tag << 8) + data_block[1];
+
+      switch (tag)
+        {
+        }
+    }
+
+  return TRUE;
+}
+
+static gboolean
+decode_extensions (const uint8_t *edid,
+                   MetaEdidInfo  *info)
+{
+  int blocks;
   int i;
-  uint8_t check = 0;
+  const uint8_t *block = NULL;
 
-  for (i = 0; i < 128; ++i)
-    check += edid[i];
+  blocks = edid[EDID_EXT_FLAG_ADDR];
 
-  info->checksum = check;
+  for (i = 0; i < blocks; i++)
+    {
+      block = edid + EDID_BLOCK_LENGTH * (i + 1);
+
+      switch (block[EDID_EXT_TAG_ADDR])
+        {
+        case EDID_EXT_ID_CTA:
+          if (!decode_ext_cta (block, info))
+            return FALSE;
+          break;
+        }
+    }
+
+  return TRUE;
 }
 
 MetaEdidInfo *
@@ -556,7 +648,8 @@ meta_edid_info_new_parse (const uint8_t *edid)
       && decode_color_characteristics (edid, info)
       && decode_established_timings (edid, info)
       && decode_standard_timings (edid, info)
-      && decode_descriptors (edid, info))
+      && decode_descriptors (edid, info)
+      && decode_extensions (edid, info))
     {
       return info;
     }
