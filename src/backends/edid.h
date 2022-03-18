@@ -30,6 +30,7 @@
 typedef struct _MetaEdidInfo MetaEdidInfo;
 typedef struct _MetaEdidTiming MetaEdidTiming;
 typedef struct _MetaEdidDetailedTiming MetaEdidDetailedTiming;
+typedef struct _MetaEdidHdrStaticMetadata MetaEdidHdrStaticMetadata;
 
 typedef enum
 {
@@ -74,6 +75,19 @@ typedef enum
   META_EDID_COLORIMETRY_ICTCP       = (1 << 15),
 } MetaEdidColorimetry;
 
+typedef enum
+{
+  META_EDID_TF_TRADITIONAL_GAMMA_SDR = (1 << 0),
+  META_EDID_TF_TRADITIONAL_GAMMA_HDR = (1 << 1),
+  META_EDID_TF_PQ                    = (1 << 2),
+  META_EDID_TF_HLG                   = (1 << 3),
+} MetaEdidTransferFunction;
+
+typedef enum
+{
+  META_EDID_STATIC_METADATA_TYPE1 = 0,
+} MetaEdidStaticMetadataType;
+
 struct _MetaEdidTiming
 {
   int width;
@@ -117,6 +131,16 @@ struct _MetaEdidDetailedTiming
       int negative_hsync;
     } digital;
   } connector;
+};
+
+struct _MetaEdidHdrStaticMetadata
+{
+  int available;
+  int max_luminance;
+  int min_luminance;
+  int max_fal;
+  MetaEdidTransferFunction tf;
+  MetaEdidStaticMetadataType sm;
 };
 
 struct _MetaEdidInfo
@@ -203,6 +227,7 @@ struct _MetaEdidInfo
   char		dsc_string[14];		/* Unspecified ASCII data */
 
   MetaEdidColorimetry colorimetry;
+  MetaEdidHdrStaticMetadata hdr_static_metadata;
 };
 
 MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *data);

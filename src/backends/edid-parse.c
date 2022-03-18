@@ -45,6 +45,7 @@
 #define EDID_EXT_CTA_DATA_BLOCK_OFFSET                    0x04
 #define EDID_EXT_CTA_TAG_EXTENDED                         0x07
 #define EDID_EXT_CTA_TAG_EXTENDED_COLORIMETRY             0x0705
+#define EDID_EXT_CTA_TAG_EXTENDED_HDR_STATIC_METADATA     0x0706
 
 static int
 get_bit (int in, int bit)
@@ -565,6 +566,28 @@ decode_ext_cta_colorimetry (const uint8_t *data_block,
 }
 
 static gboolean
+decode_ext_cta_hdr_static_metadata (const uint8_t *data_block,
+                                    MetaEdidInfo  *info)
+{
+  /* CTA-861-H: Table 92 - HDR Static Metadata Data Block (HDR SMDB) */
+  int size;
+
+  info->hdr_static_metadata.available = TRUE;
+  info->hdr_static_metadata.tf = data_block[2];
+  info->hdr_static_metadata.sm = data_block[3];
+
+  size = get_bits (data_block[0], 0, 5);
+  if (size > 3)
+    info->hdr_static_metadata.max_luminance = data_block[4];
+  if (size > 4)
+    info->hdr_static_metadata.max_fal = data_block[5];
+  if (size > 5)
+    info->hdr_static_metadata.min_luminance = data_block[6];
+
+  return TRUE;
+}
+
+static gboolean
 decode_ext_cta (const uint8_t *cta_block,
                 MetaEdidInfo  *info)
 {
@@ -612,6 +635,10 @@ decode_ext_cta (const uint8_t *cta_block,
         {
         case EDID_EXT_CTA_TAG_EXTENDED_COLORIMETRY:
           if (!decode_ext_cta_colorimetry (data_block, info))
+            return FALSE;
+          break;
+        case EDID_EXT_CTA_TAG_EXTENDED_HDR_STATIC_METADATA:
+          if (!decode_ext_cta_hdr_static_metadata (data_block, info))
             return FALSE;
           break;
         }
