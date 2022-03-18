@@ -757,6 +757,10 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
                            "FB Copy (primary GPU)");
 
+  if (!secondary_gpu_state ||
+      secondary_gpu_state->egl_surface == EGL_NO_SURFACE)
+    return FALSE;
+
   primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
   primary_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native, primary_gpu);
