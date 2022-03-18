@@ -34,6 +34,15 @@ G_DECLARE_FINAL_TYPE (MetaBarrier, meta_barrier,
 typedef struct _MetaBarrierEvent MetaBarrierEvent;
 
 META_EXPORT
+MetaBarrier * meta_barrier_new (MetaBackend           *backend,
+                                int                    x1,
+                                int                    y1,
+                                int                    x2,
+                                int                    y2,
+                                MetaBarrierDirection   directions,
+                                GError               **error);
+
+META_EXPORT
 gboolean meta_barrier_is_active (MetaBarrier *barrier);
 
 META_EXPORT

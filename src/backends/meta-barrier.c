@@ -35,7 +35,13 @@ typedef struct _MetaBarrierPrivate
   MetaBarrierImpl *impl;
 } MetaBarrierPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
+static void initable_iface_init (GInitableIface *initable_iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaBarrier, meta_barrier, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (MetaBarrier)
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init))
+
 G_DEFINE_TYPE (MetaBarrierImpl, meta_barrier_impl, G_TYPE_OBJECT)
 
 G_STATIC_ASSERT ((int) META_BARRIER_DIRECTION_POSITIVE_X ==
@@ -225,6 +231,31 @@ meta_barrier_release (MetaBarrier      *barrier,
     META_BARRIER_IMPL_GET_CLASS (impl)->release (impl, event);
 }
 
+static gboolean
+meta_barrier_initable_init (GInitable     *initable,
+                            GCancellable  *cancellable,
+                            GError       **error)
+{
+  MetaBarrier *barrier = META_BARRIER (initable);
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+
+  priv = meta_barrier_get_instance_private (barrier);
+  if (!priv->impl)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create barrier impl");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_iface->init = meta_barrier_initable_init;
+}
+
 static void
 init_barrier_impl (MetaBarrier *barrier)
 {
@@ -391,6 +422,26 @@ meta_barrier_destroy (MetaBarrier *barrier)
 static void
 meta_barrier_init (MetaBarrier *barrier)
 {
+}
+
+MetaBarrier *
+meta_barrier_new (MetaBackend           *backend,
+                  int                    x1,
+                  int                    y1,
+                  int                    x2,
+                  int                    y2,
+                  MetaBarrierDirection   directions,
+                  GError               **error)
+{
+  return g_initable_new (META_TYPE_BARRIER,
+                         NULL, error,
+                         "backend", backend,
+                         "x1", x1,
+                         "y1", y1,
+                         "x2", x2,
+                         "y2", y2,
+                         "directions", directions,
+                         NULL);
 }
 
 void
