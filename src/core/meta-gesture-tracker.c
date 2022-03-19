@@ -50,11 +50,9 @@ struct _MetaSequenceInfo
 
 struct _GestureActionData
 {
-  ClutterGestureAction *gesture;
+  ClutterGesture *gesture;
   MetaSequenceState state;
-  gulong gesture_begin_id;
-  gulong gesture_end_id;
-  gulong gesture_cancel_id;
+  unsigned long gesture_notify_state_id;
 };
 
 struct _MetaGestureTrackerPrivate
@@ -279,70 +277,51 @@ meta_gesture_tracker_set_state (MetaGestureTracker *tracker,
   return TRUE;
 }
 
-static gboolean
-gesture_begin_cb (ClutterGestureAction *gesture,
-                  ClutterActor         *actor,
-                  MetaGestureTracker   *tracker)
-{
-  MetaGestureTrackerPrivate *priv;
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-
-  if (!g_list_find (priv->listeners, gesture) &&
-      meta_gesture_tracker_set_state (tracker, META_SEQUENCE_ACCEPTED))
-    priv->listeners = g_list_prepend (priv->listeners, gesture);
-
-  return TRUE;
-}
-
 static void
-gesture_end_cb (ClutterGestureAction *gesture,
-                ClutterActor         *actor,
-                MetaGestureTracker   *tracker)
+gesture_state_changed (ClutterGesture     *gesture,
+                       GParamSpec         *pspec,
+                       MetaGestureTracker *self)
 {
-  MetaGestureTrackerPrivate *priv;
+  MetaGestureTrackerPrivate *priv =
+    meta_gesture_tracker_get_instance_private (self);
+  ClutterGestureState new_state = clutter_gesture_get_state (gesture);
 
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  priv->listeners = g_list_remove (priv->listeners, gesture);
-
-  if (!priv->listeners)
-    meta_gesture_tracker_untrack_stage (tracker);
-}
-
-static void
-gesture_cancel_cb (ClutterGestureAction *gesture,
-                   ClutterActor         *actor,
-                   MetaGestureTracker   *tracker)
-{
-  MetaGestureTrackerPrivate *priv;
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-
-  if (g_list_find (priv->listeners, gesture))
+  if (new_state == CLUTTER_GESTURE_STATE_RECOGNIZING)
     {
-      priv->listeners = g_list_remove (priv->listeners, gesture);
-
-      if (!priv->listeners)
-        meta_gesture_tracker_set_state (tracker, META_SEQUENCE_PENDING_END);
+      if (!g_list_find (priv->listeners, gesture))
+        {
+          if (meta_gesture_tracker_set_state (self, META_SEQUENCE_ACCEPTED))
+            priv->listeners = g_list_prepend (priv->listeners, gesture);
+        }
     }
-}
+  else if (new_state == CLUTTER_GESTURE_STATE_COMPLETED)
+    {
+      if (g_list_find (priv->listeners, gesture))
+        {
+          priv->listeners = g_list_remove (priv->listeners, gesture);
 
-static void
-cancel_and_unref_gesture_cb (ClutterGestureAction *action)
-{
-  clutter_gesture_action_cancel (action);
-  g_object_unref (action);
+          if (!priv->listeners)
+            meta_gesture_tracker_untrack_stage (self);
+        }
+    }
+  else if (new_state == CLUTTER_GESTURE_STATE_CANCELLED)
+    {
+      if (g_list_find (priv->listeners, gesture))
+        {
+          priv->listeners = g_list_remove (priv->listeners, gesture);
+
+          if (!priv->listeners)
+            meta_gesture_tracker_set_state (self, META_SEQUENCE_PENDING_END);
+        }
+
+    }
 }
 
 static void
 clear_gesture_data (GestureActionData *data)
 {
-  g_clear_signal_handler (&data->gesture_begin_id, data->gesture);
-  g_clear_signal_handler (&data->gesture_end_id, data->gesture);
-  g_clear_signal_handler (&data->gesture_cancel_id, data->gesture);
-
-  /* Defer cancellation to an idle, as it may happen within event handling */
-  g_idle_add_once ((GSourceOnceFunc) cancel_and_unref_gesture_cb, data->gesture);
+  g_clear_signal_handler (&data->gesture_notify_state_id, data->gesture);
+  g_object_unref (data->gesture);
 }
 
 static void
@@ -378,20 +357,14 @@ meta_gesture_tracker_track_stage (MetaGestureTracker *tracker,
       GestureActionData data;
 
       if (!clutter_actor_meta_get_enabled (l->data) ||
-          !CLUTTER_IS_GESTURE_ACTION (l->data))
+          !CLUTTER_IS_GESTURE (l->data))
         continue;
 
       data.gesture = g_object_ref (l->data);
       data.state = META_SEQUENCE_NONE;
-      data.gesture_begin_id =
-        g_signal_connect (data.gesture, "gesture-begin",
-                          G_CALLBACK (gesture_begin_cb), tracker);
-      data.gesture_end_id =
-        g_signal_connect (data.gesture, "gesture-end",
-                          G_CALLBACK (gesture_end_cb), tracker);
-      data.gesture_cancel_id =
-        g_signal_connect (data.gesture, "gesture-cancel",
-                          G_CALLBACK (gesture_cancel_cb), tracker);
+      data.gesture_notify_state_id =
+        g_signal_connect (data.gesture, "notify::state",
+                          G_CALLBACK (gesture_state_changed), tracker);
       g_array_append_val (priv->stage_gestures, data);
     }
 
