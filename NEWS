@@ -1,3 +1,14 @@
+41.5
+====
+* Fix X11 → wayland drops ending up in the wrong wayland client [Olivier; !2305]
+* Allow forcing EGLStream backend [Jonas; !2132]
+
+Contributors:
+  Olivier Fourdan, Jonas Ådahl
+
+Translators:
+  Christian Kirbach [de]
+
 41.4
 ====
 * Fix DND between X11 and wayland clients [Carlos; !2124]
