@@ -3779,7 +3779,7 @@ G_DEFINE_BOXED_TYPE (ClutterGrab, clutter_grab,
  * Grabs input onto a certain actor. Events will be propagated as
  * usual inside its hierarchy.
  *
- * Returns: (transfer none): (nullable): an opaque #ClutterGrab handle, drop
+ * Returns: (transfer full): (nullable): an opaque #ClutterGrab handle, drop
  *   with clutter_grab_dismiss()
  **/
 ClutterGrab *
