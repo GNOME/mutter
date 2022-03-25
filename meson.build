@@ -101,7 +101,6 @@ mutter_installed_tests_libexecdir = join_paths(
   libexecdir, 'installed-tests', libmutter_name)
 
 m_dep = cc.find_library('m', required: true)
-x11_dep = dependency('x11')
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0')
@@ -120,31 +119,42 @@ gthread_dep = dependency('gobject-2.0', version: glib_req)
 gmodule_no_export_dep = dependency('gmodule-no-export-2.0', version: glib_req)
 gnome_settings_daemon_dep = dependency('gnome-settings-daemon', required: false)
 json_glib_dep = dependency('json-glib-1.0', version: json_glib_req)
-xcomposite_dep = dependency('xcomposite', version: xcomposite_req)
-xcursor_dep = dependency('xcursor')
-xdamage_dep = dependency('xdamage')
-xext_dep = dependency('xext')
-xfixes_dep = dependency('xfixes', version: xfixes_req)
-xi_dep = dependency('xi', version: xi_req)
-xtst_dep = dependency('xtst')
-xkbfile_dep = dependency('xkbfile')
-xkeyboard_config_dep = dependency('xkeyboard-config')
 xkbcommon_dep = dependency('xkbcommon', version: xkbcommon_req)
-xkbcommon_x11_dep = dependency('xkbcommon-x11')
-xrender_dep = dependency('xrender')
-x11_xcb_dep = dependency('x11-xcb')
-xrandr_dep = dependency('xrandr', version: xrandr_req)
-xcb_randr_dep = dependency('xcb-randr')
-xcb_res_dep = dependency('xcb-res')
-xinerama_dep = dependency('xinerama')
-xau_dep = dependency('xau')
 ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)
 libcanberra_dep = dependency('libcanberra', version: libcanberra_req)
 dbus_dep = dependency('dbus-1')
 
+have_wayland = get_option('wayland')
 # For now always require X11 support
 have_x11 = true
+have_xwayland = have_wayland # for now default to have_wayland
+have_x11_client = have_x11 or have_xwayland
+
+if have_xwayland and not have_wayland
+  error('XWayland support requires Wayland support enabled')
+endif
+
+if have_x11_client
+  x11_dep = dependency('x11')
+  xcomposite_dep = dependency('xcomposite', version: xcomposite_req)
+  xcursor_dep = dependency('xcursor')
+  xdamage_dep = dependency('xdamage')
+  xext_dep = dependency('xext')
+  xfixes_dep = dependency('xfixes', version: xfixes_req)
+  xi_dep = dependency('xi', version: xi_req)
+  xtst_dep = dependency('xtst')
+  xkbfile_dep = dependency('xkbfile')
+  xkeyboard_config_dep = dependency('xkeyboard-config')
+  xkbcommon_x11_dep = dependency('xkbcommon-x11')
+  xrender_dep = dependency('xrender')
+  x11_xcb_dep = dependency('x11-xcb')
+  xrandr_dep = dependency('xrandr', version: xrandr_req)
+  xcb_randr_dep = dependency('xcb-randr')
+  xcb_res_dep = dependency('xcb-res')
+  xinerama_dep = dependency('xinerama')
+  xau_dep = dependency('xau')
+endif
 
 
 have_gnome_desktop = get_option('libgnome_desktop')
@@ -170,7 +180,7 @@ if have_glx
   endif
 endif
 
-have_egl_xlib = have_egl and have_x11
+have_egl_xlib = have_egl and have_x11_client
 
 have_gles2 = get_option('gles2')
 if have_gles2
@@ -182,7 +192,6 @@ if have_gles2
   endif
 endif
 
-have_wayland = get_option('wayland')
 if have_wayland
   wayland_server_dep = dependency('wayland-server', version: wayland_server_req)
   wayland_client_dep = dependency('wayland-client', version: wayland_server_req)
@@ -303,6 +312,9 @@ if have_tests
   if have_core_tests
     if not have_wayland
       error('Tests require Wayland to be enabled')
+    endif
+    if not have_x11_client
+      error('Tests requires an X11 client')
     endif
   endif
   have_native_tests = get_option('native_tests')
@@ -469,8 +481,10 @@ cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
 
-xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
-cdata.set_quoted('XKB_BASE', xkb_base)
+if have_x11_client
+  xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
+  cdata.set_quoted('XKB_BASE', xkb_base)
+endif
 
 if cc.has_header_symbol('sys/prctl.h', 'prctl')
   cdata.set('HAVE_SYS_PRCTL', 1)
@@ -479,7 +493,7 @@ endif
 have_xwayland_initfd = false
 have_xwayland_listenfd = false
 have_xwayland_terminate_delay = false
-if have_wayland
+if have_xwayland
   xwayland_dep = dependency('xwayland', required: false)
 
   xwayland_path = get_option('xwayland_path')
@@ -543,10 +557,12 @@ if have_wayland
 endif
 
 have_xsetioerrorexithandler = false
-if cc.has_function('XSetIOErrorExitHandler', dependencies: x11_dep,
-                   prefix: '''#include <X11/Xlib.h>''')
-  have_xsetioerrorexithandler = true
-  cdata.set('HAVE_XSETIOERROREXITHANDLER', 1)
+if have_x11_client
+  if cc.has_function('XSetIOErrorExitHandler', dependencies: x11_dep,
+                    prefix: '''#include <X11/Xlib.h>''')
+    have_xsetioerrorexithandler = true
+    cdata.set('HAVE_XSETIOERROREXITHANDLER', 1)
+  endif
 endif
 
 optional_functions = [
@@ -607,6 +623,8 @@ summary('GLX', have_glx, section: 'Rendering APIs')
 
 summary('Wayland', have_wayland, section: 'Options')
 summary('Wayland EGLStream', have_wayland_eglstream, section: 'Options')
+summary('X11', have_x11, section: 'Options')
+summary('XWayland', have_xwayland, section: 'Options')
 summary('Native Backend', have_native_backend, section: 'Options')
 summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')

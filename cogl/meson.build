@@ -47,7 +47,7 @@ if have_egl
   ]
 endif
 
-if have_x11
+if have_x11_client
   cogl_pkg_deps += [
     x11_dep,
   ]

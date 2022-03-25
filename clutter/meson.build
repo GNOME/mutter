@@ -59,7 +59,7 @@ if have_wayland
   ]
 endif
 
-if have_x11
+if have_x11_client
   clutter_pkg_deps += [
     x11_dep,
   ]

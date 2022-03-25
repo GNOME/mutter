@@ -9,8 +9,8 @@ cdata.set('COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT', have_egl_xlib)
 cdata.set('COGL_HAS_EGL_SUPPORT', have_egl)
 cdata.set('COGL_HAS_X11', have_x11)
 cdata.set('COGL_HAS_X11_SUPPORT', have_x11)
-cdata.set('COGL_HAS_XLIB', have_x11)
-cdata.set('COGL_HAS_XLIB_SUPPORT', have_x11)
+cdata.set('COGL_HAS_XLIB', have_x11_client)
+cdata.set('COGL_HAS_XLIB_SUPPORT', have_x11_client)
 cdata.set('COGL_HAS_TRACING', have_profiler)
 
 cogl_defines_h = configure_file(
@@ -360,7 +360,7 @@ cogl_sources = [
   'cogl-graphene.c',
 ]
 
-if have_x11
+if have_x11_client
   cogl_nonintrospected_headers += [
     'winsys/cogl-texture-pixmap-x11.h',
     'cogl-xlib.h',
