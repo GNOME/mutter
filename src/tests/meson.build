@@ -201,6 +201,11 @@ test_cases += [
     'suite': 'unit',
     'sources': [ 'anonymous-file.c', ],
   },
+  {
+    'name': 'edid',
+    'suite': 'unit',
+    'sources': [ 'edid-tests.c', ],
+  },
 ]
 
 if have_native_tests

@@ -27,6 +27,8 @@
 
 #include <stdint.h>
 
+#include "core/util-private.h"
+
 typedef struct _MetaEdidInfo MetaEdidInfo;
 typedef struct _MetaEdidTiming MetaEdidTiming;
 typedef struct _MetaEdidDetailedTiming MetaEdidDetailedTiming;
@@ -230,6 +232,7 @@ struct _MetaEdidInfo
   MetaEdidHdrStaticMetadata hdr_static_metadata;
 };
 
+META_EXPORT_TEST
 MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *data);
 
 #endif
