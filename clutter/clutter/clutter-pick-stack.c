@@ -491,7 +491,9 @@ calculate_clear_area (ClutterPickStack  *pick_stack,
 	   rec->base.rect.y1 == rec->base.rect.y2))
         continue;
 
-      clutter_actor_get_paint_box (rec->actor, &paint_box);
+      if (!clutter_actor_get_paint_box (rec->actor, &paint_box))
+        continue;
+
       cairo_region_subtract_rectangle (area,
                                        &(cairo_rectangle_int_t) {
                                          .x = paint_box.x1,
