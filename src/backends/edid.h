@@ -60,6 +60,20 @@ typedef enum
   META_EDID_STEREO_TYPE_SIDE_BY_SIDE
 } MetaEdidStereoType;
 
+typedef enum
+{
+  META_EDID_COLORIMETRY_XVYCC601    = (1 << 0),
+  META_EDID_COLORIMETRY_XVYCC709    = (1 << 1),
+  META_EDID_COLORIMETRY_SYCC601     = (1 << 2),
+  META_EDID_COLORIMETRY_OPYCC601    = (1 << 3),
+  META_EDID_COLORIMETRY_OPRGB       = (1 << 4),
+  META_EDID_COLORIMETRY_BT2020CYCC  = (1 << 5),
+  META_EDID_COLORIMETRY_BT2020YCC   = (1 << 6),
+  META_EDID_COLORIMETRY_BT2020RGB   = (1 << 7),
+  META_EDID_COLORIMETRY_ST2113RGB   = (1 << 14),
+  META_EDID_COLORIMETRY_ICTCP       = (1 << 15),
+} MetaEdidColorimetry;
+
 struct _MetaEdidTiming
 {
   int width;
@@ -187,6 +201,8 @@ struct _MetaEdidInfo
   char		dsc_serial_number[14];
   char		dsc_product_name[14];
   char		dsc_string[14];		/* Unspecified ASCII data */
+
+  MetaEdidColorimetry colorimetry;
 };
 
 MetaEdidInfo *meta_edid_info_new_parse (const uint8_t *data);
