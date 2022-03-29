@@ -724,6 +724,30 @@ update_device_for_event (ClutterStage *stage,
                                                time_ms);
 }
 
+static void
+remove_device_for_event (ClutterStage *stage,
+                         ClutterEvent *event,
+                         gboolean      emit_crossing)
+{
+  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  graphene_point_t point;
+  uint32_t time;
+
+  clutter_event_get_coords (event, &point.x, &point.y);
+  time = clutter_event_get_time (event);
+
+  clutter_stage_update_device (stage,
+                               device, sequence,
+                               point,
+                               time,
+                               NULL,
+                               NULL,
+                               TRUE);
+
+  clutter_stage_remove_device_entry (stage, device, sequence);
+}
+
 /**
  * clutter_do_event:
  * @event: a #ClutterEvent.
@@ -784,6 +808,13 @@ clutter_do_event (ClutterEvent *event)
       context->current_event =
         g_slist_delete_link (context->current_event, context->current_event);
 
+      if (event->type == CLUTTER_TOUCH_END ||
+          event->type == CLUTTER_TOUCH_CANCEL)
+        {
+          _clutter_stage_process_queued_events (event->any.stage);
+          remove_device_for_event (event->any.stage, event, TRUE);
+        }
+
       return;
     }
 
@@ -798,31 +829,6 @@ clutter_do_event (ClutterEvent *event)
    */
   _clutter_stage_queue_event (event->any.stage, event, TRUE);
 }
-
-static void
-remove_device_for_event (ClutterStage *stage,
-                         ClutterEvent *event,
-                         gboolean      emit_crossing)
-{
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  graphene_point_t point;
-  uint32_t time;
-
-  clutter_event_get_coords (event, &point.x, &point.y);
-  time = clutter_event_get_time (event);
-
-  clutter_stage_update_device (stage,
-                               device, sequence,
-                               point,
-                               time,
-                               NULL,
-                               NULL,
-                               TRUE);
-
-  clutter_stage_remove_device_entry (stage, device, sequence);
-}
-
 
 static void
 _clutter_process_event_details (ClutterActor        *stage,
