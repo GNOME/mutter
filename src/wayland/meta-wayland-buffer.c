@@ -207,6 +207,12 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
       format = COGL_PIXEL_FORMAT_ARGB_8888;
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
+    case WL_SHM_FORMAT_XBGR8888:
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      G_GNUC_FALLTHROUGH;
+    case WL_SHM_FORMAT_ABGR8888:
+      format = COGL_PIXEL_FORMAT_ABGR_8888_PRE;
+      break;
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_RGB565:
       format = COGL_PIXEL_FORMAT_RGB_565;
@@ -218,6 +224,12 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888;
       components = COGL_TEXTURE_COMPONENTS_RGB;
+      break;
+    case WL_SHM_FORMAT_XBGR8888:
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      G_GNUC_FALLTHROUGH;
+    case WL_SHM_FORMAT_ABGR8888:
+      format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
       break;
     case WL_SHM_FORMAT_XRGB2101010:
       components = COGL_TEXTURE_COMPONENTS_RGB;
@@ -813,6 +825,8 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
     clutter_backend_get_cogl_context (clutter_backend);
 
   static const enum wl_shm_format shm_formats[] = {
+    WL_SHM_FORMAT_ABGR8888,
+    WL_SHM_FORMAT_XBGR8888,
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     WL_SHM_FORMAT_RGB565,
     WL_SHM_FORMAT_ARGB2101010,
