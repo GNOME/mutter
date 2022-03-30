@@ -211,40 +211,6 @@ _cogl_parse_debug_string (const char *value,
     }
 }
 
-#ifdef COGL_ENABLE_DEBUG
-static gboolean
-cogl_arg_debug_cb (const char *key,
-                   const char *value,
-                   void *user_data)
-{
-  _cogl_parse_debug_string (value,
-                            TRUE /* enable the flags */,
-                            FALSE /* don't ignore help */);
-  return TRUE;
-}
-
-static gboolean
-cogl_arg_no_debug_cb (const char *key,
-                      const char *value,
-                      void *user_data)
-{
-  _cogl_parse_debug_string (value,
-                            FALSE, /* disable the flags */
-                            TRUE /* ignore help */);
-  return TRUE;
-}
-#endif /* COGL_ENABLE_DEBUG */
-
-static GOptionEntry cogl_args[] = {
-#ifdef COGL_ENABLE_DEBUG
-  { "cogl-debug", 0, 0, G_OPTION_ARG_CALLBACK, cogl_arg_debug_cb,
-    N_("Cogl debugging flags to set"), "FLAGS" },
-  { "cogl-no-debug", 0, 0, G_OPTION_ARG_CALLBACK, cogl_arg_no_debug_cb,
-    N_("Cogl debugging flags to unset"), "FLAGS" },
-#endif /* COGL_ENABLE_DEBUG */
-  { NULL, },
-};
-
 void
 _cogl_debug_check_environment (void)
 {
@@ -267,34 +233,4 @@ _cogl_debug_check_environment (void)
                                 FALSE /* don't ignore help */);
       env_string = NULL;
     }
-}
-
-static gboolean
-pre_parse_hook (GOptionContext *context,
-                GOptionGroup *group,
-                void *data,
-                GError **error)
-{
-  _cogl_init ();
-
-  return TRUE;
-}
-
-/* XXX: GOption based library initialization is not reliable because the
- * GOption API has no way to represent dependencies between libraries.
- */
-GOptionGroup *
-cogl_get_option_group (void)
-{
-  GOptionGroup *group;
-
-  group = g_option_group_new ("cogl",
-                              _("Cogl Options"),
-                              _("Show Cogl options"),
-                              NULL, NULL);
-
-  g_option_group_set_parse_hooks (group, pre_parse_hook, NULL);
-  g_option_group_add_entries (group, cogl_args);
-
-  return group;
 }

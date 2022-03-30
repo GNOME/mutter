@@ -44,22 +44,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * cogl_get_option_group:
- *
- * Retrieves the #GOptionGroup used by Cogl to parse the command
- * line options. Clutter uses this to handle the Cogl command line
- * options during its initialization process.
- *
- * Return value: a #GOptionGroup
- *
- * Since: 1.0
- * Deprecated: 1.16: Not replaced
- */
-COGL_DEPRECATED
-COGL_EXPORT GOptionGroup *
-cogl_get_option_group (void);
-
 /* Misc */
 /**
  * cogl_get_proc_address: (skip)
