@@ -3840,8 +3840,10 @@ clutter_actor_paint (ClutterActor        *self,
   clutter_paint_node_paint (root_node, paint_context);
 
   /* If we make it here then the actor has run through a complete
-     paint run including all the effects so it's no longer dirty */
-  priv->is_dirty = FALSE;
+   * paint run including all the effects so it's no longer dirty,
+   * unless a new redraw was queued up.
+   */
+  priv->is_dirty = priv->propagated_one_redraw;
 }
 
 /**
