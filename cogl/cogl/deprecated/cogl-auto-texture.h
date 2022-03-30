@@ -102,28 +102,6 @@ cogl_texture_new_from_data (int width,
                             int rowstride,
                             const uint8_t *data);
 
-/**
- * cogl_texture_new_from_bitmap:
- * @bitmap: A #CoglBitmap pointer
- * @flags: Optional flags for the texture, or %COGL_TEXTURE_NONE
- * @internal_format: the #CoglPixelFormat to use for the GPU storage of the
- * texture
- *
- * Creates a #CoglTexture from a #CoglBitmap.
- *
- * Return value: (transfer full): A newly created #CoglTexture or
- *               %NULL on failure
- *
- * Since: 1.0
- * Deprecated: 1.18: Use specific constructors such as
- *                   cogl_texture_2d_new_from_bitmap()
- */
-COGL_DEPRECATED_FOR (cogl_texture_2d_new_from_bitmap__OR__cogl_texture_2d_sliced_new_from_bitmap)
-COGL_EXPORT CoglTexture *
-cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
-                              CoglTextureFlags flags,
-                              CoglPixelFormat internal_format);
-
 G_END_DECLS
 
 #endif /* __COGL_AUTO_TEXTURE_H__ */

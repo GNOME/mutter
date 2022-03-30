@@ -342,9 +342,7 @@ clutter_canvas_paint_content (ClutterContent      *content,
     g_clear_pointer (&priv->texture, cogl_object_unref);
 
   if (priv->texture == NULL)
-    priv->texture = cogl_texture_new_from_bitmap (priv->buffer,
-                                                  COGL_TEXTURE_NO_SLICING,
-                                                  CLUTTER_CAIRO_FORMAT_ARGB32);
+    priv->texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (priv->buffer));
 
   if (priv->texture == NULL)
     return;

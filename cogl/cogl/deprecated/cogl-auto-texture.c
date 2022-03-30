@@ -226,28 +226,6 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
 }
 
 CoglTexture *
-cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
-                              CoglTextureFlags flags,
-                              CoglPixelFormat internal_format)
-{
-  g_autoptr (GError) error = NULL;
-
-  CoglTexture *tex =
-    _cogl_texture_new_from_bitmap (bitmap,
-                                   flags,
-                                   internal_format,
-                                   FALSE, /* can't convert in-place */
-                                   &error);
-  if (!tex)
-    {
-      COGL_NOTE (TEXTURES, "Failed to create texture from bitmap: %s",
-                 error->message);
-      return NULL;
-    }
-  return tex;
-}
-
-CoglTexture *
 cogl_texture_new_from_file (const char        *filename,
                             CoglTextureFlags   flags,
                             CoglPixelFormat    internal_format,
