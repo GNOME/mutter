@@ -45,7 +45,7 @@ get_bits (int in, int begin, int end)
   return (in >> begin) & mask;
 }
 
-static int
+static gboolean
 decode_header (const uint8_t *edid)
 {
   if (memcmp (edid, "\x00\xff\xff\xff\xff\xff\xff\x00", 8) == 0)
@@ -53,7 +53,7 @@ decode_header (const uint8_t *edid)
   return FALSE;
 }
 
-static int
+static gboolean
 decode_vendor_and_product_identification (const uint8_t *edid,
                                           MetaEdidInfo  *info)
 {
@@ -109,7 +109,7 @@ decode_vendor_and_product_identification (const uint8_t *edid,
   return TRUE;
 }
 
-static int
+static gboolean
 decode_edid_version (const uint8_t *edid,
                      MetaEdidInfo  *info)
 {
@@ -119,7 +119,7 @@ decode_edid_version (const uint8_t *edid,
   return TRUE;
 }
 
-static int
+static gboolean
 decode_display_parameters (const uint8_t *edid,
                            MetaEdidInfo  *info)
 {
@@ -263,7 +263,7 @@ decode_fraction (int high, int low)
   return result;
 }
 
-static int
+static gboolean
 decode_color_characteristics (const uint8_t *edid,
                               MetaEdidInfo  *info)
 {
@@ -333,7 +333,7 @@ decode_established_timings (const uint8_t *edid,
   return TRUE;
 }
 
-static int
+static gboolean
 decode_standard_timings (const uint8_t *edid,
                          MetaEdidInfo  *info)
 {
@@ -499,7 +499,7 @@ decode_detailed_timing (const uint8_t          *timing,
     }
 }
 
-static int
+static gboolean
 decode_descriptors (const uint8_t *edid,
                     MetaEdidInfo  *info)
 {
