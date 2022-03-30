@@ -308,6 +308,23 @@ if have_native_tests
     install_rpath: pkglibdir,
   )
 
+  input_capture_client = executable('mutter-input-capture-test-client',
+    sources: [
+      'input-capture-test-client.c',
+      dbus_input_capture_built_sources,
+    ],
+    include_directories: tests_includes,
+    c_args: [
+      tests_c_args,
+      '-DG_LOG_DOMAIN="mutter-input-capture-test-client"',
+    ],
+    dependencies: [
+      gio_unix_dep,
+    ],
+    install: have_installed_tests,
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+
   # Native backend tests
   test_cases += [
     {
@@ -344,6 +361,11 @@ if have_native_tests
       'name': 'persistent-virtual-monitor',
       'suite': 'backends/native',
       'sources': [ 'native-persistent-virtual-monitor.c' ],
+    },
+    {
+      'name': 'input-capture',
+      'suite': 'backends/native',
+      'sources': [ 'input-capture-tests.c' ],
     },
   ]
 

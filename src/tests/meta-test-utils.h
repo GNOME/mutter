@@ -25,6 +25,7 @@
 #include <X11/extensions/sync.h>
 
 #include "backends/meta-backend-types.h"
+#include "backends/meta-virtual-monitor.h"
 #include "meta/window.h"
 
 #define META_TEST_CLIENT_ERROR meta_test_client_error_quark ()

@@ -1,0 +1,70 @@
+<!DOCTYPE node PUBLIC
+'-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
+'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+<node>
+
+  <!--
+      org.gnome.Mutter.InputCapture:
+      @short_description: Interface for input capture triggers
+
+      This API is private and not intended to be used outside of the integrated
+      system that uses libmutter. No compatibility between versions is
+      promised.
+  -->
+  <interface name="org.gnome.Mutter.InputCapture">
+
+    <method name="CreateSession">
+      <arg name="capabilities" type="u" direction="in" />
+      <arg name="session_path" type="o" direction="out" />
+    </method>
+
+    <!--
+        SupportedCapabilities:
+
+        <simplelist>
+          <member>1: KEYBOARD</member>
+          <member>2: POINTER</member>
+          <member>4: TOUCH</member>
+        </simplelist>
+    -->
+    <property name="SupportedCapabilities" type="u" access="read" />
+
+  </interface>
+
+  <interface name="org.gnome.Mutter.InputCapture.Session">
+
+    <method name="GetZones">
+      <arg name="serial" type="u" direction="out" />
+      <arg name="zones" type="a(uuii)" direction="out" />
+    </method>
+
+    <method name="AddBarrier">
+      <arg name="serial" type="u" direction="in" />
+      <arg name="position" type="(iiii)" direction="in" />
+      <arg name="id" type="u" direction="out" />
+    </method>
+
+    <method name="Enable" />
+    <method name="Disable" />
+
+    <method name="Release">
+      <arg type="a{sv}" name="options" direction="in" />
+    </method>
+
+    <method name="Close" />
+
+    <signal name="Activated">
+      <arg type="u" name="barrier_id" direction="in" />
+      <arg type="u" name="activation_id" direction="in" />
+      <arg type="(dd)" name="cursor_position" direction="in" />
+    </signal>
+    <signal name="Deactivated">
+      <arg type="u" name="activation_id" direction="in" />
+    </signal>
+    <signal name="ZonesChanged" />
+    <signal name="Disabled" />
+    <signal name="Closed" />
+
+  </interface>
+
+</node>

@@ -226,6 +226,10 @@ mutter_sources = [
   'backends/meta-idle-manager.c',
   'backends/meta-idle-manager.h',
   'backends/meta-idle-monitor-private.h',
+  'backends/meta-input-capture.c',
+  'backends/meta-input-capture.h',
+  'backends/meta-input-capture-session.c',
+  'backends/meta-input-capture-session.h',
   'backends/meta-input-device.c',
   'backends/meta-input-mapper.c',
   'backends/meta-input-mapper-private.h',
@@ -1000,6 +1004,13 @@ foreach dbus_interface: dbus_interfaces
   }
   mutter_built_sources += dbus_sources
 endforeach
+
+dbus_input_capture_built_sources = gnome.gdbus_codegen('meta-dbus-input-capture',
+    dbus_interfaces_dir / 'org.gnome.Mutter.InputCapture.xml',
+    interface_prefix: 'org.gnome.Mutter',
+    namespace: 'MetaDBus',
+)
+mutter_built_sources += dbus_input_capture_built_sources
 
 wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []

@@ -59,6 +59,7 @@
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-idle-manager.h"
 #include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-input-capture.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -139,6 +140,7 @@ struct _MetaBackendPrivate
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
 #endif
+  MetaInputCapture *input_capture;
 
 #ifdef HAVE_LIBWACOM
   WacomDeviceDatabase *wacom_db;
@@ -207,6 +209,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->remote_desktop);
   g_clear_object (&priv->screen_cast);
 #endif
+  g_clear_object (&priv->input_capture);
   g_clear_object (&priv->dbus_session_watcher);
   g_clear_object (&priv->remote_access_controller);
 
@@ -579,6 +582,11 @@ meta_backend_real_post_init (MetaBackend *backend)
     priv->remote_access_controller,
     META_DBUS_SESSION_MANAGER (priv->remote_desktop));
 #endif /* HAVE_REMOTE_DESKTOP */
+
+  priv->input_capture = meta_input_capture_new (backend);
+  meta_remote_access_controller_add (
+    priv->remote_access_controller,
+    META_DBUS_SESSION_MANAGER (priv->input_capture));
 
   if (!meta_monitor_manager_is_headless (priv->monitor_manager))
     init_pointer_position (backend);
