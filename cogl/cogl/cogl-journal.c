@@ -122,11 +122,7 @@ typedef void (*CoglJournalBatchCallback) (CoglJournalEntry *start,
 typedef gboolean (*CoglJournalBatchTest) (CoglJournalEntry *entry0,
                                           CoglJournalEntry *entry1);
 
-static void _cogl_journal_free (CoglJournal *journal);
-
-COGL_OBJECT_INTERNAL_DEFINE (Journal, journal);
-
-static void
+void
 _cogl_journal_free (CoglJournal *journal)
 {
   int i;
@@ -154,7 +150,7 @@ _cogl_journal_new (CoglFramebuffer *framebuffer)
 
   _cogl_list_init (&journal->pending_fences);
 
-  return _cogl_journal_object_new (journal);
+  return journal;
 }
 
 static void

@@ -346,7 +346,7 @@ cogl_framebuffer_dispose (GObject *object)
   g_clear_pointer (&priv->clip_stack, _cogl_clip_stack_unref);
   cogl_clear_object (&priv->modelview_stack);
   cogl_clear_object (&priv->projection_stack);
-  cogl_clear_object (&priv->journal);
+  g_clear_pointer (&priv->journal, _cogl_journal_free);
 
   ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
 

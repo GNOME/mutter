@@ -40,8 +40,6 @@
 
 typedef struct _CoglJournal
 {
-  CoglObject _parent;
-
   /* A pointer the framebuffer that is using this journal. This is
      only valid when the journal is not empty. It *does* take a
      reference on the framebuffer. Although this creates a circular
@@ -87,6 +85,9 @@ typedef struct _CoglJournalEntry
 
 CoglJournal *
 _cogl_journal_new (CoglFramebuffer *framebuffer);
+
+void
+_cogl_journal_free (CoglJournal *journal);
 
 void
 _cogl_journal_log_quad (CoglJournal  *journal,
