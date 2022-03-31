@@ -69,18 +69,21 @@ paint (TestState *state)
   graphene_matrix_init_identity (&matrix);
   cogl_framebuffer_set_modelview_matrix (test_fb, &matrix);
 
-  tex0 = cogl_texture_new_from_data (2, 2,
-                                     COGL_TEXTURE_NO_ATLAS,
-                                     COGL_PIXEL_FORMAT_RGB_888,
-                                     COGL_PIXEL_FORMAT_ANY,
-                                     6,
-                                     data0);
-  tex1 = cogl_texture_new_from_data (2, 2,
-                                     COGL_TEXTURE_NO_ATLAS,
-                                     COGL_PIXEL_FORMAT_RGB_888,
-                                     COGL_PIXEL_FORMAT_ANY,
-                                     6,
-                                     data1);
+  tex0 = cogl_texture_2d_new_from_data (test_ctx,
+                                        2, 2,
+                                        COGL_PIXEL_FORMAT_RGB_888,
+                                        6,
+                                        data0,
+                                        &error);
+  g_assert_no_error (error);
+
+  tex1 = cogl_texture_2d_new_from_data (test_ctx,
+                                        2, 2,
+                                        COGL_PIXEL_FORMAT_RGB_888,
+                                        6,
+                                        data1,
+                                        &error);
+  g_assert_no_error (error);
 
   pipeline = cogl_pipeline_new (test_ctx);
 
