@@ -62,12 +62,6 @@ G_DEFINE_TYPE_WITH_CODE (ClutterImage, clutter_image, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
                                                 clutter_content_iface_init))
 
-GQuark
-clutter_image_error_quark (void)
-{
-  return g_quark_from_static_string ("clutter-image-error-quark");
-}
-
 static CoglTexture *
 create_texture_from_data (unsigned int      width,
                           unsigned int      height,
@@ -268,15 +262,10 @@ clutter_image_set_data (ClutterImage     *image,
                                             pixel_format,
                                             row_stride,
                                             data,
-                                            NULL);
+                                            error);
 
   if (priv->texture == NULL)
-    {
-      g_set_error_literal (error, CLUTTER_IMAGE_ERROR,
-                           CLUTTER_IMAGE_ERROR_INVALID_DATA,
-                           "Unable to load image data");
-      return FALSE;
-    }
+    return FALSE;
 
   clutter_content_invalidate (CLUTTER_CONTENT (image));
   update_image_size (image);
@@ -333,15 +322,10 @@ clutter_image_set_bytes (ClutterImage     *image,
                                             pixel_format,
                                             row_stride,
                                             g_bytes_get_data (data, NULL),
-                                            NULL);
+                                            error);
 
   if (priv->texture == NULL)
-    {
-      g_set_error_literal (error, CLUTTER_IMAGE_ERROR,
-                           CLUTTER_IMAGE_ERROR_INVALID_DATA,
-                           "Unable to load image data");
-      return FALSE;
-    }
+    return FALSE;
 
   clutter_content_invalidate (CLUTTER_CONTENT (image));
   update_image_size (image);
@@ -401,7 +385,7 @@ clutter_image_set_area (ClutterImage                 *image,
                                                 pixel_format,
                                                 row_stride,
                                                 data,
-                                                NULL);
+                                                error);
     }
   else
     {
@@ -424,12 +408,7 @@ clutter_image_set_area (ClutterImage                 *image,
     }
 
   if (priv->texture == NULL)
-    {
-      g_set_error_literal (error, CLUTTER_IMAGE_ERROR,
-                           CLUTTER_IMAGE_ERROR_INVALID_DATA,
-                           "Unable to load image data");
-      return FALSE;
-    }
+    return FALSE;
 
   clutter_content_invalidate (CLUTTER_CONTENT (image));
   update_image_size (image);
