@@ -100,13 +100,15 @@ test_coglbox_dispose (GObject *object)
 static void
 test_coglbox_init (TestCoglbox *self)
 {
+  g_autoptr (GError) error = NULL;
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   gchar *file;
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  self->cogl_tex_id = cogl_texture_new_from_file (file,
-                                                  COGL_TEXTURE_NONE,
-                                                  COGL_PIXEL_FORMAT_ANY,
-                                                  NULL);
+  self->cogl_tex_id = cogl_texture_2d_new_from_file (ctx, file, &error);
+  if (error)
+    g_warning ("Error loading redhand.png: %s", error->message);
   g_free (file);
 }
 

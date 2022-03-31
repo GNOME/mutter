@@ -227,6 +227,8 @@ test_coglbox_dispose (GObject *object)
 static void
 test_coglbox_init (TestCoglbox *self)
 {
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   GError *error = NULL;
   gchar *file;
 
@@ -235,10 +237,9 @@ test_coglbox_init (TestCoglbox *self)
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
   self->sliced_tex =
-    cogl_texture_new_from_file  (file,
-                                 COGL_TEXTURE_NONE,
-                                 COGL_PIXEL_FORMAT_ANY,
-                                 &error);
+    cogl_texture_2d_sliced_new_from_file (ctx, file,
+                                          COGL_TEXTURE_MAX_WASTE,
+                                          &error);
   if (self->sliced_tex == NULL)
     {
       if (error)
@@ -251,11 +252,7 @@ test_coglbox_init (TestCoglbox *self)
         g_warning ("Texture loading failed: <unknown>");
     }
 
-  self->not_sliced_tex =
-    cogl_texture_new_from_file (file,
-                                COGL_TEXTURE_NO_SLICING,
-                                COGL_PIXEL_FORMAT_ANY,
-                                &error);
+  self->not_sliced_tex = cogl_texture_2d_new_from_file (ctx, file, &error);
   if (self->not_sliced_tex == NULL)
     {
       if (error)
