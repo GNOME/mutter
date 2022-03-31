@@ -14,50 +14,18 @@ G_BEGIN_DECLS
 
 #define TEST_TYPE_COGLBOX test_coglbox_get_type()
 
-#define TEST_COGLBOX(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglbox))
-
-#define TEST_COGLBOX_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
-
-#define TEST_IS_COGLBOX(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
-  TEST_TYPE_COGLBOX))
-
-#define TEST_IS_COGLBOX_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), \
-  TEST_TYPE_COGLBOX))
-
-#define TEST_COGLBOX_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
-
-typedef struct _TestCoglbox        TestCoglbox;
-typedef struct _TestCoglboxClass   TestCoglboxClass;
-typedef struct _TestCoglboxPrivate TestCoglboxPrivate;
+static
+G_DECLARE_FINAL_TYPE (TestCoglbox, test_coglbox, TEST, COGLBOX, ClutterActor)
 
 struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  /*< private >*/
-  TestCoglboxPrivate *priv;
+  CoglHandle cogl_tex_id;
+  gdouble    animation_progress;
 };
 
-struct _TestCoglboxClass
-{
-  ClutterActorClass parent_class;
-
-  /* padding for future expansion */
-  void (*_test_coglbox1) (void);
-  void (*_test_coglbox2) (void);
-  void (*_test_coglbox3) (void);
-  void (*_test_coglbox4) (void);
-};
-
-static GType test_coglbox_get_type (void) G_GNUC_CONST;
+G_DEFINE_TYPE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
 
 int
 test_cogl_tex_tile_main (int argc, char *argv[]);
@@ -67,20 +35,6 @@ test_cogl_tex_tile_describe (void);
 
 G_END_DECLS
 
-/* Coglbox private declaration
- *--------------------------------------------------*/
-
-struct _TestCoglboxPrivate
-{
-  CoglHandle cogl_tex_id;
-  gdouble    animation_progress;
-};
-
-G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
-
-#define TEST_COGLBOX_GET_PRIVATE(obj) \
-(test_coglbox_get_instance_private (TEST_COGLBOX ((obj))))
-
 /* Coglbox implementation
  *--------------------------------------------------*/
 
@@ -88,7 +42,7 @@ static void
 test_coglbox_paint (ClutterActor        *self,
                     ClutterPaintContext *paint_context)
 {
-  TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
+  TestCoglbox *coglbox = TEST_COGLBOX (self);
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
@@ -98,11 +52,11 @@ test_coglbox_paint (ClutterActor        *self,
   gfloat frac;
   gint t;
 
-  angle = priv->animation_progress * 2 * G_PI;
+  angle = coglbox->animation_progress * 2 * G_PI;
 
-  frac = ((priv->animation_progress <= 0.5f
-           ? priv->animation_progress
-           : 1.0f - priv->animation_progress) + 0.5f) * 2.0f;
+  frac = ((coglbox->animation_progress <= 0.5f
+           ? coglbox->animation_progress
+           : 1.0f - coglbox->animation_progress) + 0.5f) * 2.0f;
 
   for (t=0; t<4; t+=2)
     {
@@ -112,8 +66,6 @@ test_coglbox_paint (ClutterActor        *self,
       texcoords[t]   *= frac;
       texcoords[t+1] *= frac;
     }
-
-  priv = TEST_COGLBOX_GET_PRIVATE (self);
 
   cogl_framebuffer_push_matrix (framebuffer);
 
@@ -125,7 +77,7 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_translate (framebuffer, 100, 100, 0);
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_layer_texture (pipeline, 0, priv->cogl_tex_id);
+  cogl_pipeline_set_layer_texture (pipeline, 0, coglbox->cogl_tex_id);
   cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
                                             0, 0, 200, 213,
                                             texcoords[0], texcoords[1],
@@ -144,10 +96,9 @@ test_coglbox_finalize (GObject *object)
 static void
 test_coglbox_dispose (GObject *object)
 {
-  TestCoglboxPrivate *priv;
+  TestCoglbox *coglbox = TEST_COGLBOX (object);
 
-  priv = TEST_COGLBOX_GET_PRIVATE (object);
-  cogl_object_unref (priv->cogl_tex_id);
+  cogl_object_unref (coglbox->cogl_tex_id);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }
@@ -155,13 +106,10 @@ test_coglbox_dispose (GObject *object)
 static void
 test_coglbox_init (TestCoglbox *self)
 {
-  TestCoglboxPrivate *priv;
   gchar *file;
 
-  self->priv = priv = TEST_COGLBOX_GET_PRIVATE(self);
-
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  priv->cogl_tex_id = cogl_texture_new_from_file (file,
+  self->cogl_tex_id = cogl_texture_new_from_file (file,
                                                   COGL_TEXTURE_NONE,
                                                   COGL_PIXEL_FORMAT_ANY,
                                                   NULL);
@@ -190,9 +138,9 @@ frame_cb (ClutterTimeline *timeline,
           int              msecs,
           gpointer         data)
 {
-  TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (data);
+  TestCoglbox *coglbox = TEST_COGLBOX (data);
 
-  priv->animation_progress = clutter_timeline_get_progress (timeline);
+  coglbox->animation_progress = clutter_timeline_get_progress (timeline);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
 }
 

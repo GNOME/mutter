@@ -13,50 +13,21 @@ G_BEGIN_DECLS
 
 #define TEST_TYPE_COGLBOX test_coglbox_get_type()
 
-#define TEST_COGLBOX(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglbox))
-
-#define TEST_COGLBOX_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
-
-#define TEST_IS_COGLBOX(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
-  TEST_TYPE_COGLBOX))
-
-#define TEST_IS_COGLBOX_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), \
-  TEST_TYPE_COGLBOX))
-
-#define TEST_COGLBOX_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
-
-typedef struct _TestCoglbox        TestCoglbox;
-typedef struct _TestCoglboxClass   TestCoglboxClass;
-typedef struct _TestCoglboxPrivate TestCoglboxPrivate;
+static
+G_DECLARE_FINAL_TYPE (TestCoglbox, test_coglbox, TEST, COGLBOX, ClutterActor)
 
 struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  /*< private >*/
-  TestCoglboxPrivate *priv;
+  CoglHandle sliced_tex, not_sliced_tex;
+  gint       frame;
+  gboolean   use_sliced;
+  gboolean   use_linear_filtering;
 };
 
-struct _TestCoglboxClass
-{
-  ClutterActorClass parent_class;
+G_DEFINE_TYPE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
 
-  /* padding for future expansion */
-  void (*_test_coglbox1) (void);
-  void (*_test_coglbox2) (void);
-  void (*_test_coglbox3) (void);
-  void (*_test_coglbox4) (void);
-};
-
-static GType test_coglbox_get_type (void) G_GNUC_CONST;
 
 int
 test_cogl_tex_polygon_main (int argc, char *argv[]);
@@ -65,22 +36,6 @@ const char *
 test_cogl_tex_polygon_describe (void);
 
 G_END_DECLS
-
-/* Coglbox private declaration
- *--------------------------------------------------*/
-
-struct _TestCoglboxPrivate
-{
-  CoglHandle sliced_tex, not_sliced_tex;
-  gint       frame;
-  gboolean   use_sliced;
-  gboolean   use_linear_filtering;
-};
-
-G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
-
-#define TEST_COGLBOX_GET_PRIVATE(obj) \
-((TestCoglboxPrivate *)test_coglbox_get_instance_private (TEST_COGLBOX ((obj))))
 
 /* Coglbox implementation
  *--------------------------------------------------*/
@@ -194,9 +149,9 @@ static void
 test_coglbox_paint (ClutterActor        *self,
                     ClutterPaintContext *paint_context)
 {
-  TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
-  CoglHandle tex_handle = priv->use_sliced ? priv->sliced_tex
-                                           : priv->not_sliced_tex;
+  TestCoglbox *coglbox = TEST_COGLBOX (self);
+  CoglHandle tex_handle = coglbox->use_sliced ? coglbox->sliced_tex
+                                              : coglbox->not_sliced_tex;
   int tex_width = cogl_texture_get_width (tex_handle);
   int tex_height = cogl_texture_get_height (tex_handle);
   CoglPipeline *pipeline;
@@ -209,16 +164,16 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_pipeline_set_layer_texture (pipeline, 0, tex_handle);
 
   cogl_pipeline_set_layer_filters (pipeline, 0,
-                                   priv->use_linear_filtering
+                                   coglbox->use_linear_filtering
                                    ? COGL_PIPELINE_FILTER_LINEAR :
                                    COGL_PIPELINE_FILTER_NEAREST,
-                                   priv->use_linear_filtering
+                                   coglbox->use_linear_filtering
                                    ? COGL_PIPELINE_FILTER_LINEAR :
                                    COGL_PIPELINE_FILTER_NEAREST);
 
   cogl_framebuffer_push_matrix (framebuffer);
   cogl_framebuffer_translate (framebuffer, tex_width / 2, 0, 0);
-  cogl_framebuffer_rotate (framebuffer, priv->frame, 0, 1, 0);
+  cogl_framebuffer_rotate (framebuffer, coglbox->frame, 0, 1, 0);
   cogl_framebuffer_translate (framebuffer, -tex_width / 2, 0, 0);
 
   /* Draw a hand and reflect it */
@@ -235,7 +190,7 @@ test_coglbox_paint (ClutterActor        *self,
 
   cogl_framebuffer_push_matrix (framebuffer);
   cogl_framebuffer_translate (framebuffer, tex_width * 3 / 2 + 60, 0, 0);
-  cogl_framebuffer_rotate (framebuffer, priv->frame, 0, 1, 0);
+  cogl_framebuffer_rotate (framebuffer, coglbox->frame, 0, 1, 0);
   cogl_framebuffer_translate (framebuffer, -tex_width / 2 - 10, 0, 0);
 
   /* Draw the texture split into two triangles */
@@ -266,11 +221,10 @@ test_coglbox_finalize (GObject *object)
 static void
 test_coglbox_dispose (GObject *object)
 {
-  TestCoglboxPrivate *priv;
+  TestCoglbox *coglbox = TEST_COGLBOX (object);
 
-  priv = TEST_COGLBOX_GET_PRIVATE (object);
-  cogl_object_unref (priv->not_sliced_tex);
-  cogl_object_unref (priv->sliced_tex);
+  cogl_object_unref (coglbox->not_sliced_tex);
+  cogl_object_unref (coglbox->sliced_tex);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }
@@ -278,22 +232,19 @@ test_coglbox_dispose (GObject *object)
 static void
 test_coglbox_init (TestCoglbox *self)
 {
-  TestCoglboxPrivate *priv;
   GError *error = NULL;
   gchar *file;
 
-  self->priv = priv = TEST_COGLBOX_GET_PRIVATE (self);
-
-  priv->use_linear_filtering = FALSE;
-  priv->use_sliced = FALSE;
+  self->use_linear_filtering = FALSE;
+  self->use_sliced = FALSE;
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  priv->sliced_tex =
+  self->sliced_tex =
     cogl_texture_new_from_file  (file,
                                  COGL_TEXTURE_NONE,
                                  COGL_PIXEL_FORMAT_ANY,
                                  &error);
-  if (priv->sliced_tex == NULL)
+  if (self->sliced_tex == NULL)
     {
       if (error)
         {
@@ -305,12 +256,12 @@ test_coglbox_init (TestCoglbox *self)
         g_warning ("Texture loading failed: <unknown>");
     }
 
-  priv->not_sliced_tex =
+  self->not_sliced_tex =
     cogl_texture_new_from_file (file,
                                 COGL_TEXTURE_NO_SLICING,
                                 COGL_PIXEL_FORMAT_ANY,
                                 &error);
-  if (priv->not_sliced_tex == NULL)
+  if (self->not_sliced_tex == NULL)
     {
       if (error)
         {
@@ -346,10 +297,10 @@ frame_cb (ClutterTimeline *timeline,
           int              elapsed_msecs,
           gpointer         data)
 {
-  TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (data);
+  TestCoglbox *coglbox = TEST_COGLBOX (data);
   gdouble progress = clutter_timeline_get_progress (timeline);
 
-  priv->frame = 360.0 * progress;
+  coglbox->frame = 360.0 * progress;
   clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
 }
 
@@ -392,7 +343,7 @@ G_MODULE_EXPORT int
 test_cogl_tex_polygon_main (int argc, char *argv[])
 {
   ClutterActor     *stage;
-  ClutterActor     *coglbox;
+  TestCoglbox      *coglbox;
   ClutterActor     *filtering_toggle;
   ClutterActor     *slicing_toggle;
   ClutterActor     *note;
@@ -409,8 +360,9 @@ test_cogl_tex_polygon_main (int argc, char *argv[])
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   /* Cogl Box */
-  coglbox = test_coglbox_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), coglbox);
+  coglbox = TEST_COGLBOX (test_coglbox_new ());
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage),
+                               CLUTTER_ACTOR (coglbox));
 
   /* Timeline for animation */
   timeline = clutter_timeline_new_for_actor (stage, 6000);
@@ -419,15 +371,12 @@ test_cogl_tex_polygon_main (int argc, char *argv[])
   clutter_timeline_start (timeline);
 
   /* Labels for toggling settings */
-  slicing_toggle = make_toggle ("Texture slicing: ",
-                                &(TEST_COGLBOX_GET_PRIVATE (coglbox)
-                                  ->use_sliced));
+  slicing_toggle = make_toggle ("Texture slicing: ", &coglbox->use_sliced);
   clutter_actor_set_position (slicing_toggle, 0,
                               clutter_actor_get_height (stage)
                               - clutter_actor_get_height (slicing_toggle));
   filtering_toggle = make_toggle ("Linear filtering: ",
-                                  &(TEST_COGLBOX_GET_PRIVATE (coglbox)
-                                    ->use_linear_filtering));
+                                  &coglbox->use_linear_filtering);
   clutter_actor_set_position (filtering_toggle, 0,
                               clutter_actor_get_y (slicing_toggle)
                               - clutter_actor_get_height (filtering_toggle));

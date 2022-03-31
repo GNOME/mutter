@@ -13,50 +13,19 @@ G_BEGIN_DECLS
 
 #define TEST_TYPE_COGLBOX test_coglbox_get_type()
 
-#define TEST_COGLBOX(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglbox))
-
-#define TEST_COGLBOX_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
-
-#define TEST_IS_COGLBOX(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
-  TEST_TYPE_COGLBOX))
-
-#define TEST_IS_COGLBOX_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), \
-  TEST_TYPE_COGLBOX))
-
-#define TEST_COGLBOX_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
-
-typedef struct _TestCoglbox        TestCoglbox;
-typedef struct _TestCoglboxClass   TestCoglboxClass;
-typedef struct _TestCoglboxPrivate TestCoglboxPrivate;
+static
+G_DECLARE_FINAL_TYPE (TestCoglbox, test_coglbox, TEST, COGLBOX, ClutterActor)
 
 struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  /*< private >*/
-  TestCoglboxPrivate *priv;
+  CoglHandle texhand_id;
+  CoglHandle texture_id;
+  CoglFramebuffer *framebuffer;
 };
 
-struct _TestCoglboxClass
-{
-  ClutterActorClass parent_class;
-
-  /* padding for future expansion */
-  void (*_test_coglbox1) (void);
-  void (*_test_coglbox2) (void);
-  void (*_test_coglbox3) (void);
-  void (*_test_coglbox4) (void);
-};
-
-static GType test_coglbox_get_type (void) G_GNUC_CONST;
+G_DEFINE_TYPE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
 
 int
 test_cogl_offscreen_main (int argc, char *argv[]);
@@ -66,21 +35,6 @@ test_cogl_offscreen_describe (void);
 
 G_END_DECLS
 
-/* Coglbox private declaration
- *--------------------------------------------------*/
-
-struct _TestCoglboxPrivate
-{
-  CoglHandle texhand_id;
-  CoglHandle texture_id;
-  CoglFramebuffer *framebuffer;
-};
-
-G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
-
-#define TEST_COGLBOX_GET_PRIVATE(obj) \
-(test_coglbox_get_instance_private (TEST_COGLBOX ((obj))))
-
 /* Coglbox implementation
  *--------------------------------------------------*/
 
@@ -88,7 +42,7 @@ static void
 test_coglbox_paint (ClutterActor        *self,
                     ClutterPaintContext *paint_context)
 {
-  TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
+  TestCoglbox *coglbox = TEST_COGLBOX (self);
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
@@ -101,7 +55,7 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_object_unref (pipeline);
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_layer_texture (pipeline, 0, priv->texhand_id);
+  cogl_pipeline_set_layer_texture (pipeline, 0, coglbox->texhand_id);
   cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
                                             0, 0,
                                             400, 400,
@@ -111,17 +65,17 @@ test_coglbox_paint (ClutterActor        *self,
 
   pipeline = cogl_pipeline_new (ctx);
   cogl_pipeline_set_color4ub (pipeline, 0xff, 0, 0, 0xff);
-  cogl_framebuffer_draw_rectangle (priv->framebuffer, pipeline,
+  cogl_framebuffer_draw_rectangle (coglbox->framebuffer, pipeline,
                                    20, 20, 20 + 100, 20 + 100);
 
   cogl_pipeline_set_color4ub (pipeline, 0, 0xff, 0, 0xff);
-  cogl_framebuffer_draw_rectangle (priv->framebuffer, pipeline,
+  cogl_framebuffer_draw_rectangle (coglbox->framebuffer, pipeline,
                                    80, 80, 80 + 100, 80 + 100);
   cogl_object_unref (pipeline);
 
   pipeline = cogl_pipeline_new (ctx);
   cogl_pipeline_set_color4ub (pipeline, 0x88, 0x88, 0x88, 0x88);
-  cogl_pipeline_set_layer_texture (pipeline, 0, priv->texture_id);
+  cogl_pipeline_set_layer_texture (pipeline, 0, coglbox->texture_id);
   cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
                                             100, 100,
                                             300, 300,
@@ -141,12 +95,10 @@ test_coglbox_finalize (GObject *object)
 static void
 test_coglbox_dispose (GObject *object)
 {
-  TestCoglboxPrivate *priv;
+  TestCoglbox *coglbox = TEST_COGLBOX (object);
 
-  priv = TEST_COGLBOX_GET_PRIVATE (object);
-
-  cogl_object_unref (priv->texture_id);
-  g_object_unref (priv->framebuffer);
+  cogl_object_unref (coglbox->texture_id);
+  g_object_unref (coglbox->framebuffer);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }
@@ -247,7 +199,7 @@ setup_viewport (CoglFramebuffer *framebuffer,
 static void
 test_coglbox_map (ClutterActor *actor)
 {
-  TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (actor);
+  TestCoglbox *coglbox = TEST_COGLBOX (actor);
   ClutterActor *stage;
   ClutterPerspective perspective;
   float stage_width;
@@ -257,48 +209,45 @@ test_coglbox_map (ClutterActor *actor)
   CLUTTER_ACTOR_CLASS (test_coglbox_parent_class)->map (actor);
 
   printf ("Creating offscreen\n");
-  priv->framebuffer =
-    COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (priv->texture_id));
-  if (!cogl_framebuffer_allocate (priv->framebuffer, &error))
+  coglbox->framebuffer =
+    COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (coglbox->texture_id));
+  if (!cogl_framebuffer_allocate (coglbox->framebuffer, &error))
     g_error ("Failed to allocate framebuffer: %s", error->message);
 
   stage = clutter_actor_get_stage (actor);
   clutter_stage_get_perspective (CLUTTER_STAGE (stage), &perspective);
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
-  setup_viewport (priv->framebuffer,
+  setup_viewport (coglbox->framebuffer,
                   stage_width, stage_height,
                   perspective.fovy,
                   perspective.aspect,
                   perspective.z_near,
                   perspective.z_far);
 
-  if (!priv->framebuffer)
+  if (!coglbox->framebuffer)
     printf ("Failed creating offscreen to texture!\n");
 }
 
 static void
 test_coglbox_init (TestCoglbox *self)
 {
-  TestCoglboxPrivate *priv;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
   gchar *file;
 
-  self->priv = priv = TEST_COGLBOX_GET_PRIVATE(self);
-
   printf ("Loading redhand.png\n");
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  priv->texhand_id = cogl_texture_new_from_file (file,
+  self->texhand_id = cogl_texture_new_from_file (file,
                                                  COGL_TEXTURE_NONE,
                                                  COGL_PIXEL_FORMAT_ANY,
                                                  NULL);
   g_free (file);
 
   printf ("Creating texture with size\n");
-  priv->texture_id = cogl_texture_2d_new_with_size (ctx, 200, 200);
+  self->texture_id = cogl_texture_2d_new_with_size (ctx, 200, 200);
 
-  if (priv->texture_id == NULL)
+  if (self->texture_id == NULL)
     printf ("Failed creating texture with size!\n");
 }
 
