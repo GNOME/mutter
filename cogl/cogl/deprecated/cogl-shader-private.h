@@ -40,7 +40,7 @@ typedef struct _CoglShader CoglShader;
 
 struct _CoglShader
 {
-  CoglHandleObject _parent;
+  CoglObject _parent;
   GLuint gl_handle;
   CoglPipeline *compilation_pipeline;
   CoglShaderType type;

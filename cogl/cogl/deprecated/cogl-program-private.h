@@ -38,7 +38,7 @@ typedef struct _CoglProgram CoglProgram;
 
 struct _CoglProgram
 {
-  CoglHandleObject _parent;
+  CoglObject _parent;
 
   GSList *attached_shaders;
 

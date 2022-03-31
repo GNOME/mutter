@@ -38,10 +38,6 @@
 #include "cogl-object.h"
 #include "cogl-debug.h"
 
-/* For compatibility until all components have been converted */
-typedef struct _CoglObjectClass CoglHandleClass;
-typedef struct _CoglObject      CoglHandleObject;
-
 /* XXX: sadly we didn't fully consider when we copied the cairo API
  * for _set_user_data that the callback doesn't get a pointer to the
  * instance which is desired in most cases. This means you tend to end
