@@ -20,7 +20,7 @@ struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  CoglHandle cogl_tex_id[4];
+  CoglTexture *cogl_tex_id[4];
   gint       frame;
 };
 

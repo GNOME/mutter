@@ -20,7 +20,8 @@ struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  CoglHandle sliced_tex, not_sliced_tex;
+  CoglTexture *sliced_tex;
+  CoglTexture *not_sliced_tex;
   gint       frame;
   gboolean   use_sliced;
   gboolean   use_linear_filtering;
@@ -150,8 +151,8 @@ test_coglbox_paint (ClutterActor        *self,
                     ClutterPaintContext *paint_context)
 {
   TestCoglbox *coglbox = TEST_COGLBOX (self);
-  CoglHandle tex_handle = coglbox->use_sliced ? coglbox->sliced_tex
-                                              : coglbox->not_sliced_tex;
+  CoglTexture *tex_handle = coglbox->use_sliced ? coglbox->sliced_tex
+                                                : coglbox->not_sliced_tex;
   int tex_width = cogl_texture_get_width (tex_handle);
   int tex_height = cogl_texture_get_height (tex_handle);
   CoglPipeline *pipeline;

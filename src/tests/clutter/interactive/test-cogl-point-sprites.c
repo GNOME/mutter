@@ -59,12 +59,12 @@ test_cogl_point_sprites_main (int argc, char *argv[]);
 const char *
 test_cogl_point_sprites_describe (void);
 
-static CoglHandle
+static CoglTexture *
 generate_round_texture (void)
 {
   guint8 *p, *data;
   int x, y;
-  CoglHandle tex;
+  CoglTexture *tex;
 
   p = data = g_malloc (TEXTURE_SIZE * TEXTURE_SIZE * 4);
 
@@ -216,7 +216,7 @@ G_MODULE_EXPORT int
 test_cogl_point_sprites_main (int argc, char *argv[])
 {
   ClutterActor *stage;
-  CoglHandle tex;
+  CoglTexture *tex;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
   Data data;

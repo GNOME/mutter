@@ -14,8 +14,8 @@
 typedef struct _TestMultiLayerPipelineState
 {
   ClutterActor    *group;
-  CoglHandle       alpha_tex;
-  CoglHandle       redhand_tex;
+  CoglTexture     *alpha_tex;
+  CoglTexture     *redhand_tex;
   gfloat          *tex_coords;
 
   ClutterTimeline *timeline;
@@ -23,12 +23,12 @@ typedef struct _TestMultiLayerPipelineState
   CoglPipeline *pipeline0;
   graphene_matrix_t tex_matrix0;
   graphene_matrix_t rot_matrix0;
-  CoglHandle       light_tex0;
+  CoglTexture     *light_tex0;
 
   CoglPipeline *pipeline1;
   graphene_matrix_t tex_matrix1;
   graphene_matrix_t rot_matrix1;
-  CoglHandle       light_tex1;
+  CoglTexture     *light_tex1;
 
 } TestMultiLayerPipelineState;
 

@@ -20,8 +20,8 @@ struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  CoglHandle texhand_id;
-  CoglHandle texture_id;
+  CoglTexture *texhand_id;
+  CoglTexture *texture_id;
   CoglFramebuffer *framebuffer;
 };
 

@@ -21,7 +21,7 @@ struct _TestCoglbox
 {
   ClutterActor           parent;
 
-  CoglHandle cogl_tex_id;
+  CoglTexture *cogl_tex_id;
   gdouble    animation_progress;
 };
 
