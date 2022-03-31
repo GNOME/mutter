@@ -60,8 +60,9 @@ const char *
 test_cogl_point_sprites_describe (void);
 
 static CoglTexture *
-generate_round_texture (void)
+generate_round_texture (CoglContext *ctx)
 {
+  g_autoptr (GError) error = NULL;
   guint8 *p, *data;
   int x, y;
   CoglTexture *tex;
@@ -84,12 +85,14 @@ generate_round_texture (void)
         *(p++) = value;
       }
 
-  tex = cogl_texture_new_from_data (TEXTURE_SIZE, TEXTURE_SIZE,
-                                    COGL_TEXTURE_NO_SLICING,
-                                    COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                    COGL_PIXEL_FORMAT_ANY,
-                                    TEXTURE_SIZE * 4,
-                                    data);
+  tex = cogl_texture_2d_new_from_data (ctx,
+                                       TEXTURE_SIZE, TEXTURE_SIZE,
+                                       COGL_PIXEL_FORMAT_RGBA_8888_PRE,
+                                       TEXTURE_SIZE * 4,
+                                       data,
+                                       &error);
+
+  g_assert_no_error (error);
 
   g_free (data);
 
@@ -230,7 +233,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
   data.next_spark_num = 0;
   cogl_pipeline_set_point_size (data.pipeline, TEXTURE_SIZE);
 
-  tex = generate_round_texture ();
+  tex = generate_round_texture (ctx);
   cogl_pipeline_set_layer_texture (data.pipeline, 0, tex);
   cogl_object_unref (tex);
 
