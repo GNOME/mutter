@@ -225,29 +225,3 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
   return tex;
 }
 
-CoglTexture *
-cogl_texture_new_from_file (const char        *filename,
-                            CoglTextureFlags   flags,
-                            CoglPixelFormat    internal_format,
-                            GError           **error)
-{
-  CoglBitmap *bmp;
-  CoglTexture *texture = NULL;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-  bmp = cogl_bitmap_new_from_file (filename, error);
-  if (bmp == NULL)
-    return NULL;
-
-  texture = _cogl_texture_new_from_bitmap (bmp, flags,
-                                           internal_format,
-                                           TRUE, /* can convert in-place */
-                                           error);
-
-  cogl_object_unref (bmp);
-
-  return texture;
-}

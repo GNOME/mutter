@@ -36,36 +36,6 @@ G_BEGIN_DECLS
 #include <cogl/cogl-texture.h>
 
 /**
- * cogl_texture_new_from_file:
- * @filename: the file to load
- * @flags: Optional flags for the texture, or %COGL_TEXTURE_NONE
- * @internal_format: the #CoglPixelFormat to use for the GPU storage of the
- *    texture. If %COGL_PIXEL_FORMAT_ANY is given then a premultiplied
- *    format similar to the format of the source data will be used. The
- *    default blending equations of Cogl expect premultiplied color data;
- *    the main use of passing a non-premultiplied format here is if you
- *    have non-premultiplied source data and are going to adjust the blend
- *    mode (see cogl_material_set_blend()) or use the data for something
- *    other than straight blending.
- * @error: return location for a #GError or %NULL
- *
- * Creates a #CoglTexture from an image file.
- *
- * Return value: (transfer full): A newly created #CoglTexture or
- *               %NULL on failure
- *
- * Since: 0.8
- * Deprecated: 1.18: Use specific constructors such as
- *                   cogl_texture_2d_new_from_file()
- */
-COGL_DEPRECATED_FOR (cogl_texture_2d_new_from_file__OR__cogl_texture_2d_sliced_new_from_file)
-COGL_EXPORT CoglTexture *
-cogl_texture_new_from_file (const char       *filename,
-                            CoglTextureFlags   flags,
-                            CoglPixelFormat    internal_format,
-                            GError           **error);
-
-/**
  * cogl_texture_new_from_data:
  * @width: width of texture in pixels
  * @height: height of texture in pixels
