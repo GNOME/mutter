@@ -70,19 +70,19 @@ on_button_press_event (ClutterActor *actor,
 
 static gboolean
 input_cb (ClutterActor *stage,
-	  ClutterEvent *event,
-	  gpointer      data)
+          ClutterEvent *event,
+          gpointer      data)
 {
   SuperOH *oh = data;
 
   if (event->type == CLUTTER_KEY_RELEASE)
     {
       g_print ("*** key press event (key:%c) ***\n",
-	       clutter_event_get_key_symbol (event));
+               clutter_event_get_key_symbol (event));
 
       if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_q)
         {
-	  clutter_test_quit ();
+          clutter_test_quit ();
 
           return TRUE;
         }
@@ -106,8 +106,8 @@ input_cb (ClutterActor *stage,
 /* Timeline handler */
 static void
 frame_cb (ClutterTimeline *timeline,
-	  gint             msecs,
-	  gpointer         data)
+          gint             msecs,
+          gpointer         data)
 {
   SuperOH *oh = data;
   gint i;
@@ -214,14 +214,14 @@ test_actors_main (int argc, char *argv[])
       h = clutter_actor_get_height (oh->hand[i]);
 
       x = oh->stage_width / 2
-	+ oh->radius
-	* cos (i * G_PI / (NHANDS / 2))
-	- w / 2;
+        + oh->radius
+        * cos (i * G_PI / (NHANDS / 2))
+        - w / 2;
 
       y = oh->stage_height / 2
-	+ oh->radius
-	* sin (i * G_PI / (NHANDS / 2))
-	- h / 2;
+        + oh->radius
+        * sin (i * G_PI / (NHANDS / 2))
+        - h / 2;
 
       clutter_actor_set_position (oh->hand[i], x, y);
       clutter_actor_set_translation (oh->hand[i], -100.f, -106.5, 0);
@@ -244,9 +244,7 @@ test_actors_main (int argc, char *argv[])
   /* Show everying */
   clutter_actor_show (oh->stage);
 
-  g_signal_connect (oh->stage, "key-release-event",
-		    G_CALLBACK (input_cb),
-		    oh);
+  g_signal_connect (oh->stage, "key-release-event", G_CALLBACK (input_cb), oh);
 
   /* and start it */
   clutter_timeline_start (oh->timeline);

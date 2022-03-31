@@ -6,7 +6,7 @@
 #include "tests/clutter-test-utils.h"
 
 #ifndef _MSC_VER
-#include <unistd.h> 		/* for sleep(), used for screenshots */
+#include <unistd.h> /* for sleep(), used for screenshots */
 #endif
 #include <stdlib.h>
 #ifdef _MSC_VER
@@ -87,11 +87,12 @@ draw_flower (ClutterCanvas *canvas,
       cairo_rotate (cr, rand() % 6);
 
       do {
-	idx = (rand() % (sizeof (colors) / sizeof (double) / 3)) * 3;
+        idx = (rand() % (sizeof (colors) / sizeof (double) / 3)) * 3;
       } while (idx == last_idx);
 
-      cairo_set_source_rgba (cr, colors[idx], colors[idx+1],
-			     colors[idx+2], 0.5);
+      cairo_set_source_rgba (cr,
+                             colors[idx], colors[idx+1],
+                             colors[idx+2], 0.5);
 
       last_idx = idx;
 
@@ -100,25 +101,25 @@ draw_flower (ClutterCanvas *canvas,
       pm2 = rand() % 4;
 
       for (j=1; j<n_petals+1; j++)
-	{
-	  cairo_save (cr);
-	  cairo_rotate (cr, ((2*M_PI)/n_petals)*j);
+        {
+          cairo_save (cr);
+          cairo_rotate (cr, ((2*M_PI)/n_petals)*j);
 
-	  /* Petals are made up beziers */
-	  cairo_new_path (cr);
-	  cairo_move_to (cr, 0, 0);
-	  cairo_rel_curve_to (cr,
-			      petal_size, petal_size,
-			      (pm2+2)*petal_size, petal_size,
-			      (2*petal_size) + pm1, 0);
-	  cairo_rel_curve_to (cr,
-			      0 + (pm2*petal_size), -petal_size,
-			      -petal_size, -petal_size,
-			      -((2*petal_size) + pm1), 0);
-	  cairo_close_path (cr);
-	  cairo_fill (cr);
-	  cairo_restore (cr);
-	}
+          /* Petals are made up beziers */
+          cairo_new_path (cr);
+          cairo_move_to (cr, 0, 0);
+          cairo_rel_curve_to (cr,
+                              petal_size, petal_size,
+                              (pm2 + 2) * petal_size, petal_size,
+                              (2 * petal_size) + pm1, 0);
+          cairo_rel_curve_to (cr,
+                              0 + (pm2 * petal_size), -petal_size,
+                              -petal_size, -petal_size,
+                              -((2 * petal_size) + pm1), 0);
+          cairo_close_path (cr);
+          cairo_fill (cr);
+          cairo_restore (cr);
+        }
 
       petal_size -= rand() % (size/8);
 
@@ -183,7 +184,7 @@ tick (ClutterTimeline *timeline,
         flowers[i]->y = -clutter_actor_get_height (flowers[i]->ctex);
 
       clutter_actor_set_position (flowers[i]->ctex,
-				  flowers[i]->x, flowers[i]->y);
+                                  flowers[i]->x, flowers[i]->y);
 
       clutter_actor_set_rotation_angle (flowers[i]->ctex,
                                         CLUTTER_Z_AXIS,
@@ -233,7 +234,8 @@ test_cairo_flowers_main (int argc, char **argv)
       clutter_container_add_actor (CLUTTER_CONTAINER (stage),
                                    flowers[i]->ctex);
       clutter_actor_set_position (flowers[i]->ctex,
-				  flowers[i]->x, flowers[i]->y);
+                                  flowers[i]->x,
+                                  flowers[i]->y);
     }
 
   /* fire a callback for frame change */
@@ -244,8 +246,8 @@ test_cairo_flowers_main (int argc, char **argv)
   clutter_timeline_start (timeline);
 
   g_signal_connect (stage, "key-press-event",
-		    G_CALLBACK (clutter_test_quit),
-		    NULL);
+                    G_CALLBACK (clutter_test_quit),
+                    NULL);
 
   clutter_test_main ();
 

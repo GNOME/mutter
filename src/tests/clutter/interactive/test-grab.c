@@ -22,13 +22,13 @@ debug_event_cb (ClutterActor *actor,
     {
     case CLUTTER_KEY_PRESS:
       len = g_unichar_to_utf8 (clutter_keysym_to_unicode (event->key.keyval),
-			       keybuf);
+                               keybuf);
       keybuf[len] = '\0';
       printf ("[%s] KEY PRESS '%s'", source, keybuf);
       break;
     case CLUTTER_KEY_RELEASE:
       len = g_unichar_to_utf8 (clutter_keysym_to_unicode (event->key.keyval),
-			       keybuf);
+                               keybuf);
       keybuf[len] = '\0';
       printf ("[%s] KEY RELEASE '%s'", source, keybuf);
       break;
@@ -199,8 +199,8 @@ test_grab_main (int argc, char *argv[])
   ClutterActor   *stage, *actor;
   ClutterColor    rcol = { 0xff, 0, 0, 0xff}, 
                   bcol = { 0, 0, 0xff, 0xff },
-		  ccol = { 0, 0xff, 0xff, 0xff },
-		  ycol = { 0xff, 0xff, 0, 0xff };
+                  ccol = { 0, 0xff, 0xff, 0xff },
+                  ycol = { 0xff, 0xff, 0, 0xff };
 
   clutter_test_init (&argc, &argv);
 

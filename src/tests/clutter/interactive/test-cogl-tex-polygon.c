@@ -227,9 +227,9 @@ test_coglbox_paint (ClutterActor        *self,
                                             0, 0, 1, 1);
   test_coglbox_fade_texture (framebuffer, pipeline,
                              0, tex_height,
-			     tex_width, (tex_height * 3 / 2),
-			     0.0, 1.0,
-			     1.0, 0.5);
+                             tex_width, (tex_height * 3 / 2),
+                             0.0, 1.0,
+                             1.0, 0.5);
 
   cogl_framebuffer_pop_matrix (framebuffer);
 
@@ -241,16 +241,16 @@ test_coglbox_paint (ClutterActor        *self,
   /* Draw the texture split into two triangles */
   test_coglbox_triangle_texture (framebuffer, pipeline,
                                  tex_width, tex_height,
-				 0, 0,
-				 0, 0,
-				 0, 1,
-				 1, 1);
+                                 0, 0,
+                                 0, 0,
+                                 0, 1,
+                                 1, 1);
   test_coglbox_triangle_texture (framebuffer, pipeline,
                                  tex_width, tex_height,
-				 20, 0,
-				 0, 0,
-				 1, 0,
-				 1, 1);
+                                 20, 0,
+                                 0, 0,
+                                 1, 0,
+                                 1, 1);
 
   cogl_framebuffer_pop_matrix (framebuffer);
 
@@ -343,8 +343,8 @@ test_coglbox_new (void)
 
 static void
 frame_cb (ClutterTimeline *timeline,
-	  gint             elapsed_msecs,
-	  gpointer         data)
+          int              elapsed_msecs,
+          gpointer         data)
 {
   TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (data);
   gdouble progress = clutter_timeline_get_progress (timeline);
@@ -361,7 +361,7 @@ update_toggle_text (ClutterText *button, gboolean val)
 
 static gboolean
 on_toggle_click (ClutterActor *button, ClutterEvent *event,
-		 gboolean *toggle_val)
+         gboolean *toggle_val)
 {
   update_toggle_text (CLUTTER_TEXT (button), *toggle_val = !*toggle_val);
 
@@ -383,7 +383,7 @@ make_toggle (const char *label_text, gboolean *toggle_val)
   clutter_container_add (CLUTTER_CONTAINER (group), label, button, NULL);
 
   g_signal_connect (button, "button-press-event", G_CALLBACK (on_toggle_click),
-		    toggle_val);
+                    toggle_val);
 
   return group;
 }
@@ -420,29 +420,29 @@ test_cogl_tex_polygon_main (int argc, char *argv[])
 
   /* Labels for toggling settings */
   slicing_toggle = make_toggle ("Texture slicing: ",
-				&(TEST_COGLBOX_GET_PRIVATE (coglbox)
-				  ->use_sliced));
+                                &(TEST_COGLBOX_GET_PRIVATE (coglbox)
+                                  ->use_sliced));
   clutter_actor_set_position (slicing_toggle, 0,
-			      clutter_actor_get_height (stage)
-			      - clutter_actor_get_height (slicing_toggle));
+                              clutter_actor_get_height (stage)
+                              - clutter_actor_get_height (slicing_toggle));
   filtering_toggle = make_toggle ("Linear filtering: ",
-				  &(TEST_COGLBOX_GET_PRIVATE (coglbox)
-				    ->use_linear_filtering));
+                                  &(TEST_COGLBOX_GET_PRIVATE (coglbox)
+                                    ->use_linear_filtering));
   clutter_actor_set_position (filtering_toggle, 0,
-			      clutter_actor_get_y (slicing_toggle)
-			      - clutter_actor_get_height (filtering_toggle));
+                              clutter_actor_get_y (slicing_toggle)
+                              - clutter_actor_get_height (filtering_toggle));
   note = clutter_text_new_with_text ("Sans 10", "<- Click to change");
   clutter_actor_set_position (note,
-			      clutter_actor_get_width (filtering_toggle) + 10,
-			      (clutter_actor_get_height (stage)
-			       + clutter_actor_get_y (filtering_toggle)) / 2
-			      - clutter_actor_get_height (note) / 2);
+                              clutter_actor_get_width (filtering_toggle) + 10,
+                              (clutter_actor_get_height (stage)
+                               + clutter_actor_get_y (filtering_toggle)) / 2
+                              - clutter_actor_get_height (note) / 2);
 
   clutter_container_add (CLUTTER_CONTAINER (stage),
-			 slicing_toggle,
-			 filtering_toggle,
-			 note,
-			 NULL);
+                         slicing_toggle,
+                         filtering_toggle,
+                         note,
+                         NULL);
 
   clutter_actor_show (stage);
 

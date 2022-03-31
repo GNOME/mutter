@@ -492,8 +492,8 @@ create_item (void)
 
 static gboolean
 keypress_cb (ClutterActor *actor,
-	     ClutterEvent *event,
-	     gpointer      data)
+             ClutterEvent *event,
+             gpointer      data)
 {
   switch (clutter_event_get_key_symbol (event))
     {
@@ -663,8 +663,8 @@ test_layout_main (int argc, char *argv[])
   clutter_actor_add_child (stage, instructions);
 
   g_signal_connect (stage, "key-release-event",
-		    G_CALLBACK (keypress_cb),
-		    NULL);
+                    G_CALLBACK (keypress_cb),
+                    NULL);
 
   clutter_timeline_stop (main_timeline);
 

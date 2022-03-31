@@ -187,8 +187,8 @@ test_coglbox_new (void)
 
 static void
 frame_cb (ClutterTimeline *timeline,
-	  gint             msecs,
-	  gpointer         data)
+          int              msecs,
+          gpointer         data)
 {
   TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (data);
 

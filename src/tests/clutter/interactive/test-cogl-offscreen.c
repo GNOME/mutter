@@ -291,7 +291,7 @@ test_coglbox_init (TestCoglbox *self)
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
   priv->texhand_id = cogl_texture_new_from_file (file,
                                                  COGL_TEXTURE_NONE,
-						 COGL_PIXEL_FORMAT_ANY,
+                                                 COGL_PIXEL_FORMAT_ANY,
                                                  NULL);
   g_free (file);
 

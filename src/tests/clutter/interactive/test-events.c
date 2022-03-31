@@ -106,8 +106,8 @@ get_event_state_string (const ClutterEvent *event)
 
 static gboolean
 capture_cb (ClutterActor *actor,
-	    ClutterEvent *event,
-	    gpointer      data)
+            ClutterEvent *event,
+            gpointer      data)
 {
   g_print ("* captured event '%s' for type '%s' *\n",
            get_event_type_name (event),
@@ -118,7 +118,7 @@ capture_cb (ClutterActor *actor,
 
 static void
 key_focus_in_cb (ClutterActor *actor,
-		 gpointer      data)
+         gpointer      data)
 {
   ClutterActor *focus_box = CLUTTER_ACTOR (data);  
 
@@ -127,12 +127,12 @@ key_focus_in_cb (ClutterActor *actor,
   else
     {
       clutter_actor_set_position (focus_box,
-				  clutter_actor_get_x (actor) - 5,
-				  clutter_actor_get_y (actor) - 5);
+          clutter_actor_get_x (actor) - 5,
+          clutter_actor_get_y (actor) - 5);
 
       clutter_actor_set_size (focus_box,
-			      clutter_actor_get_width (actor) + 10,
-			      clutter_actor_get_height (actor) + 10);
+              clutter_actor_get_width (actor) + 10,
+              clutter_actor_get_height (actor) + 10);
       clutter_actor_show (focus_box);
     }
 }
@@ -181,8 +181,8 @@ fill_keybuf (char *keybuf, ClutterKeyEvent *event)
 
 static gboolean
 input_cb (ClutterActor *actor,
-	  ClutterEvent *event,
-	  gpointer      data)
+          ClutterEvent *event,
+          gpointer      data)
 {
   ClutterActor *stage = clutter_actor_get_stage (actor); 
   ClutterActor *source_actor;
@@ -271,7 +271,7 @@ input_cb (ClutterActor *actor,
         clutter_stage_set_key_focus (CLUTTER_STAGE (stage), NULL);
       else if (source_actor == actor &&
                clutter_actor_get_parent (actor) == stage)
-	clutter_stage_set_key_focus (CLUTTER_STAGE (stage), actor);
+        clutter_stage_set_key_focus (CLUTTER_STAGE (stage), actor);
       break;
     case CLUTTER_TOUCH_BEGIN:
       clutter_event_get_position (event, &position);
@@ -395,7 +395,7 @@ test_events_main (int argc, char *argv[])
   clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
   g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "green box");
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
-		    focus_box);
+                    focus_box);
   g_signal_connect (actor, "captured-event", G_CALLBACK (capture_cb), NULL);
 
   clutter_stage_set_key_focus (CLUTTER_STAGE (stage), actor);
@@ -409,9 +409,9 @@ test_events_main (int argc, char *argv[])
   clutter_container_add (CLUTTER_CONTAINER(stage), actor, NULL);
   g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "blue box");
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
-		    focus_box);
+                    focus_box);
   g_signal_connect (stage, "key-focus-in", G_CALLBACK (key_focus_in_cb),
-		    focus_box);
+                    focus_box);
 
   /* non reactive group, with reactive child */
   actor = clutter_actor_new ();
