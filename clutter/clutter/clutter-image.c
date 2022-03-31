@@ -48,12 +48,12 @@
 #include "clutter-paint-nodes.h"
 #include "clutter-private.h"
 
-struct _ClutterImagePrivate
+typedef struct
 {
   CoglTexture *texture;
   gint width;
   gint height;
-};
+} ClutterImagePrivate;
 
 static void clutter_content_iface_init (ClutterContentInterface *iface);
 
@@ -88,20 +88,21 @@ create_texture_from_data (unsigned int      width,
 static void
 update_image_size (ClutterImage *self)
 {
+  ClutterImagePrivate *priv = clutter_image_get_instance_private (self);
   gint width, height;
 
-  if (self->priv->texture == NULL)
+  if (priv->texture == NULL)
     return;
 
-  width = cogl_texture_get_width (self->priv->texture);
-  height = cogl_texture_get_height (self->priv->texture);
+  width = cogl_texture_get_width (priv->texture);
+  height = cogl_texture_get_height (priv->texture);
 
-  if (self->priv->width == width &&
-      self->priv->height == height)
+  if (priv->width == width &&
+      priv->height == height)
     return;
 
-  self->priv->width = width;
-  self->priv->height = height;
+  priv->width = width;
+  priv->height = height;
 
   clutter_content_invalidate_size (CLUTTER_CONTENT (self));
 }
@@ -109,7 +110,8 @@ update_image_size (ClutterImage *self)
 static void
 clutter_image_finalize (GObject *gobject)
 {
-  ClutterImagePrivate *priv = CLUTTER_IMAGE (gobject)->priv;
+  ClutterImage *image = CLUTTER_IMAGE (gobject);
+  ClutterImagePrivate *priv = clutter_image_get_instance_private (image);
 
   if (priv->texture != NULL)
     {
@@ -129,7 +131,6 @@ clutter_image_class_init (ClutterImageClass *klass)
 static void
 clutter_image_init (ClutterImage *self)
 {
-  self->priv = clutter_image_get_instance_private (self);
 }
 
 static void
@@ -138,7 +139,8 @@ clutter_image_paint_content (ClutterContent      *content,
                              ClutterPaintNode    *root,
                              ClutterPaintContext *paint_context)
 {
-  ClutterImagePrivate *priv = CLUTTER_IMAGE (content)->priv;
+  ClutterImage *image = CLUTTER_IMAGE (content);
+  ClutterImagePrivate *priv = clutter_image_get_instance_private (image);
   ClutterPaintNode *node;
 
   if (priv->texture == NULL)
@@ -155,7 +157,8 @@ clutter_image_get_preferred_size (ClutterContent *content,
                                   gfloat         *width,
                                   gfloat         *height)
 {
-  ClutterImagePrivate *priv = CLUTTER_IMAGE (content)->priv;
+  ClutterImage *image = CLUTTER_IMAGE (content);
+  ClutterImagePrivate *priv = clutter_image_get_instance_private (image);
 
   if (priv->texture == NULL)
     return FALSE;
@@ -252,7 +255,7 @@ clutter_image_set_data (ClutterImage     *image,
   g_return_val_if_fail (CLUTTER_IS_IMAGE (image), FALSE);
   g_return_val_if_fail (data != NULL, FALSE);
 
-  priv = image->priv;
+  priv = clutter_image_get_instance_private (image);
 
   if (priv->texture != NULL)
     cogl_object_unref (priv->texture);
@@ -312,7 +315,7 @@ clutter_image_set_bytes (ClutterImage     *image,
   g_return_val_if_fail (CLUTTER_IS_IMAGE (image), FALSE);
   g_return_val_if_fail (data != NULL, FALSE);
 
-  priv = image->priv;
+  priv = clutter_image_get_instance_private (image);
 
   if (priv->texture != NULL)
     cogl_object_unref (priv->texture);
@@ -376,7 +379,7 @@ clutter_image_set_area (ClutterImage                 *image,
   g_return_val_if_fail (data != NULL, FALSE);
   g_return_val_if_fail (area != NULL, FALSE);
 
-  priv = image->priv;
+  priv = clutter_image_get_instance_private (image);
 
   if (priv->texture == NULL)
     {
@@ -434,7 +437,10 @@ clutter_image_set_area (ClutterImage                 *image,
 CoglTexture *
 clutter_image_get_texture (ClutterImage *image)
 {
+  ClutterImagePrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_IMAGE (image), NULL);
 
-  return image->priv->texture;
+  priv = clutter_image_get_instance_private (image);
+  return priv->texture;
 }
