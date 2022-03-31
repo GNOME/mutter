@@ -83,7 +83,6 @@
  * they enable the experimental api... */
 #include <cogl/deprecated/cogl-type-casts.h>
 
-#include <cogl/deprecated/cogl-auto-texture.h>
 #include <cogl/deprecated/cogl-shader.h>
 
 #ifdef COGL_ENABLE_MUTTER_API

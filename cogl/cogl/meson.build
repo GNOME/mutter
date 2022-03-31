@@ -65,7 +65,6 @@ cogl_deprecated_headers = [
   'deprecated/cogl-shader.h',
   'deprecated/cogl-clutter.h',
   'deprecated/cogl-type-casts.h',
-  'deprecated/cogl-auto-texture.h',
 ]
 
 cogl_headers = [
@@ -349,7 +348,6 @@ cogl_sources = [
   'cogl-scanout.c',
   'deprecated/cogl-program.c',
   'deprecated/cogl-program-private.h',
-  'deprecated/cogl-auto-texture.c',
   'deprecated/cogl-shader-private.h',
   'deprecated/cogl-shader.c',
   'deprecated/cogl-clutter.c',
