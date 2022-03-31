@@ -87,12 +87,6 @@ test_coglbox_paint (ClutterActor        *self,
 }
 
 static void
-test_coglbox_finalize (GObject *object)
-{
-  G_OBJECT_CLASS (test_coglbox_parent_class)->finalize (object);
-}
-
-static void
 test_coglbox_dispose (GObject *object)
 {
   TestCoglbox *coglbox = TEST_COGLBOX (object);
@@ -257,7 +251,6 @@ test_coglbox_class_init (TestCoglboxClass *klass)
   GObjectClass      *gobject_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class   = CLUTTER_ACTOR_CLASS (klass);
 
-  gobject_class->finalize     = test_coglbox_finalize;
   gobject_class->dispose      = test_coglbox_dispose;
 
   actor_class->map            = test_coglbox_map;
