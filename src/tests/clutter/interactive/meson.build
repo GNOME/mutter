@@ -22,7 +22,6 @@ clutter_tests_interactive_test_sources = [
   'test-grab.c',
   'test-cogl-shader-glsl.c',
   'test-cogl-tex-tile.c',
-  'test-cogl-tex-convert.c',
   'test-cogl-offscreen.c',
   'test-cogl-tex-polygon.c',
   'test-animation.c',
