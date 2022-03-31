@@ -58,6 +58,8 @@ MetaBackend * meta_barrier_get_backend (MetaBarrier *barrier);
 
 MetaBorder * meta_barrier_get_border (MetaBarrier *barrier);
 
+MetaBarrierFlags meta_barrier_get_flags (MetaBarrier *barrier);
+
 G_END_DECLS
 
 #endif /* META_BARRIER_PRIVATE_H */

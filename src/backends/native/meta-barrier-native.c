@@ -44,6 +44,7 @@ struct _MetaBarrierManagerNative
 {
   GHashTable *barriers;
   GMutex mutex;
+  MetaBarrierImplNative *pointer_trap;
 };
 
 typedef enum
@@ -504,6 +505,38 @@ clamp_to_barrier (MetaBarrierImplNative *self,
   self->state = META_BARRIER_STATE_HIT;
 }
 
+static gboolean
+stick_to_barrier (MetaBarrierImplNative *self,
+                  MetaBarrierDirection   motion_dir,
+                  float                  prev_x,
+                  float                  prev_y,
+                  float                 *x,
+                  float                 *y)
+{
+  MetaLine2 motion = {
+    .a = { .x = prev_x, .y = prev_y },
+    .b = { .x = *x, .y = *y },
+  };
+  MetaBorder *border = meta_barrier_get_border (self->barrier);
+  MetaVector2 intersection;
+
+  if (meta_line2_intersects_with (&motion, &border->line,
+                                  &intersection))
+    {
+      *x = intersection.x;
+      *y = intersection.y;
+
+      self->blocked_dir = motion_dir;
+      self->state = META_BARRIER_STATE_HIT;
+      self->manager->pointer_trap = self;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 void
 meta_barrier_manager_native_process_in_impl (MetaBarrierManagerNative *manager,
                                              ClutterInputDevice       *device,
@@ -524,10 +557,17 @@ meta_barrier_manager_native_process_in_impl (MetaBarrierManagerNative *manager,
                                  device, NULL, &prev_pos, NULL))
     return;
 
-  g_mutex_lock (&manager->mutex);
-
   prev_x = prev_pos.x;
   prev_y = prev_pos.y;
+
+  if (manager->pointer_trap)
+    {
+      *x = prev_pos.x;
+      *y = prev_pos.y;
+      return;
+    }
+
+  g_mutex_lock (&manager->mutex);
 
   /* Get the direction of the motion vector. */
   if (prev_x < *x)
@@ -548,7 +588,18 @@ meta_barrier_manager_native_process_in_impl (MetaBarrierManagerNative *manager,
                                *x, *y,
                                motion_dir,
                                &barrier_impl))
-        clamp_to_barrier (barrier_impl, &motion_dir, x, y);
+        {
+          MetaBarrier *barrier = barrier_impl->barrier;
+
+          if (meta_barrier_get_flags (barrier) & META_BARRIER_FLAG_STICKY)
+            {
+              if (stick_to_barrier (barrier_impl, motion_dir,
+                                    prev_x, prev_y, x, y))
+                break;
+            }
+
+          clamp_to_barrier (barrier_impl, &motion_dir, x, y);
+        }
       else
         break;
     }
@@ -590,7 +641,10 @@ meta_barrier_impl_native_release (MetaBarrierImpl  *impl,
 
   if (self->state == META_BARRIER_STATE_HELD &&
       event->event_id == self->trigger_serial)
-    self->state = META_BARRIER_STATE_RELEASE;
+    {
+      self->state = META_BARRIER_STATE_RELEASE;
+      self->manager->pointer_trap = NULL;
+    }
 }
 
 static void
@@ -599,6 +653,8 @@ meta_barrier_impl_native_destroy (MetaBarrierImpl *impl)
   MetaBarrierImplNative *self = META_BARRIER_IMPL_NATIVE (impl);
 
   g_mutex_lock (&self->manager->mutex);
+  if (self->manager->pointer_trap == self)
+    self->manager->pointer_trap = NULL;
   g_hash_table_remove (self->manager->barriers, self);
   g_mutex_unlock (&self->manager->mutex);
   g_main_context_unref (self->main_context);

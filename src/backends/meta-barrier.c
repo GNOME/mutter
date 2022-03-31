@@ -28,6 +28,7 @@ typedef struct _MetaBarrierPrivate
   MetaBackend *backend;
   MetaBorder border;
   MetaBarrierImpl *impl;
+  MetaBarrierFlags flags;
 } MetaBarrierPrivate;
 
 static void initable_iface_init (GInitableIface *initable_iface);
@@ -60,6 +61,7 @@ enum
   PROP_X2,
   PROP_Y2,
   PROP_DIRECTIONS,
+  PROP_FLAGS,
 
   PROP_LAST,
 };
@@ -125,6 +127,9 @@ meta_barrier_get_property (GObject    *object,
       g_value_set_flags (value,
                          meta_border_get_allows_directions (&priv->border));
       break;
+    case PROP_FLAGS:
+      g_value_set_flags (value, priv->flags);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -169,6 +174,9 @@ meta_barrier_set_property (GObject      *object,
     case PROP_DIRECTIONS:
       meta_border_set_allows_directions (&priv->border,
                                          g_value_get_flags (value));
+      break;
+    case PROP_FLAGS:
+      priv->flags = g_value_get_flags (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -362,6 +370,15 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_FLAGS] =
+    g_param_spec_flags ("flags",
+                        "Flags",
+                        "Flags for manipulating barrier behavior",
+                        META_TYPE_BARRIER_FLAGS,
+                        META_BARRIER_FLAG_NONE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -426,6 +443,7 @@ meta_barrier_new (MetaBackend           *backend,
                   int                    x2,
                   int                    y2,
                   MetaBarrierDirection   directions,
+                  MetaBarrierFlags       flags,
                   GError               **error)
 {
   return g_initable_new (META_TYPE_BARRIER,
@@ -436,6 +454,7 @@ meta_barrier_new (MetaBackend           *backend,
                          "x2", x2,
                          "y2", y2,
                          "directions", directions,
+                         "flags", flags,
                          NULL);
 }
 
@@ -467,6 +486,14 @@ meta_barrier_get_border (MetaBarrier *barrier)
   MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   return &priv->border;
+}
+
+MetaBarrierFlags
+meta_barrier_get_flags (MetaBarrier *barrier)
+{
+  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
+
+  return priv->flags;
 }
 
 static void

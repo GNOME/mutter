@@ -26,6 +26,12 @@ typedef enum
   META_BARRIER_DIRECTION_NEGATIVE_Y = 1 << 3,
 } MetaBarrierDirection;
 
+typedef enum
+{
+  META_BARRIER_FLAG_NONE = 1 << 0,
+  META_BARRIER_FLAG_STICKY = 1 << 1,
+} MetaBarrierFlags;
+
 #define META_TYPE_BARRIER (meta_barrier_get_type ())
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaBarrier, meta_barrier,
@@ -45,6 +51,7 @@ MetaBarrier * meta_barrier_new (MetaBackend           *backend,
                                 int                    x2,
                                 int                    y2,
                                 MetaBarrierDirection   directions,
+                                MetaBarrierFlags       flags,
                                 GError               **error);
 
 META_EXPORT
