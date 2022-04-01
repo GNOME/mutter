@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <gio/gunixinputstream.h>
 #include <stdio.h>
 
 #include "meta-dbus-input-capture.h"
@@ -54,6 +55,8 @@ typedef struct _InputCaptureSession
   unsigned int serial;
 } InputCaptureSession;
 
+static GDataInputStream *stdin_reader;
+
 static void
 ping_mutter (InputCaptureSession *session)
 {
@@ -78,6 +81,54 @@ write_state (InputCaptureSession *session,
   ping_mutter (session);
   fprintf (stdout, "%s\n", state);
   fflush (stdout);
+}
+
+typedef struct
+{
+  GMainLoop *loop;
+  const char *expected_state;
+} WaitData;
+
+static void
+on_line_read (GObject      *source_object,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+  WaitData *data = user_data;
+  g_autofree char *line = NULL;
+  g_autoptr (GError) error = NULL;
+
+  line =
+    g_data_input_stream_read_line_finish (G_DATA_INPUT_STREAM (source_object),
+                                          res, NULL, &error);
+  if (error)
+    g_error ("Failed to read line from test client: %s", error->message);
+  if (!line)
+    g_error ("Unexpected EOF");
+
+  g_assert_cmpstr (data->expected_state, ==, line);
+
+  g_main_loop_quit (data->loop);
+}
+
+static void
+wait_for_state (InputCaptureSession *session,
+                const char          *expected_state)
+{
+  WaitData data;
+
+  data.loop = g_main_loop_new (NULL, FALSE);
+  data.expected_state = expected_state;
+
+  g_data_input_stream_read_line_async (stdin_reader,
+                                       G_PRIORITY_DEFAULT,
+                                       NULL,
+                                       on_line_read,
+                                       &data);
+
+  g_main_loop_run (data.loop);
+  g_main_loop_unref (data.loop);
+  ping_mutter (session);
 }
 
 static InputCapture *
@@ -174,6 +225,31 @@ input_capture_session_get_zones (InputCaptureSession *session)
   return zones;
 }
 
+static unsigned int
+input_capture_session_add_barrier (InputCaptureSession *session,
+                                   int                  x1,
+                                   int                  y1,
+                                   int                  x2,
+                                   int                  y2)
+{
+  g_autoptr (GError) error = NULL;
+  unsigned int barrier_id;
+
+  if (!meta_dbus_input_capture_session_call_add_barrier_sync (
+        session->proxy,
+        session->serial,
+        g_variant_new ("(iiii)", x1, y1, x2, y2),
+        &barrier_id,
+        NULL,
+        &error))
+    {
+      g_warning ("Failed to add barrier: %s", error->message);
+      return 0;
+    }
+
+  return barrier_id;
+}
+
 static void
 input_capture_session_enable (InputCaptureSession *session)
 {
@@ -192,6 +268,21 @@ input_capture_session_disable (InputCaptureSession *session)
   if (!meta_dbus_input_capture_session_call_disable_sync (session->proxy,
                                                           NULL, &error))
     g_warning ("Failed to disable session: %s", error->message);
+}
+
+static void
+input_capture_session_release (InputCaptureSession *session,
+                               double               x,
+                               double               y)
+{
+  g_autoptr (GError) error = NULL;
+  GVariant *position;
+
+  position = g_variant_new ("(dd)", x, y);
+  if (!meta_dbus_input_capture_session_call_release_sync (session->proxy,
+                                                          position,
+                                                          NULL, &error))
+    g_warning ("Failed to release pointer: %s", error->message);
 }
 
 static void
@@ -296,6 +387,98 @@ test_zones (void)
   input_capture_session_close (session);
 }
 
+typedef struct
+{
+  unsigned int activated_barrier_id;
+  double activated_x;
+  double activated_y;
+  unsigned int activated_serial;
+} BarriersTestData;
+
+static void
+on_activated (MetaDBusInputCaptureSession *proxy,
+              unsigned int                 barrier_id,
+              unsigned int                 serial,
+              GVariant                    *cursor_position,
+              BarriersTestData            *data)
+{
+  g_assert_cmpuint (data->activated_barrier_id, ==, 0);
+
+  data->activated_barrier_id = barrier_id;
+  data->activated_serial = serial;
+  g_variant_get (cursor_position, "(dd)",
+                 &data->activated_x, &data->activated_y);
+}
+
+static void
+test_barriers (void)
+{
+  InputCapture *input_capture;
+  InputCaptureSession *session;
+  g_autolist (Zone) zones = NULL;
+  unsigned int barrier1, barrier2;
+  BarriersTestData data = {};
+  unsigned int prev_activated_serial;
+
+  input_capture = input_capture_new ();
+  session = input_capture_create_session (input_capture);
+
+  zones = input_capture_session_get_zones (session);
+
+  /*
+   * +-------------+--------------+
+   * ||            |              |
+   * ||<--B#1      |              |
+   * ||            |     B#2      |
+   * +-------------+      |       |
+   *               |      V       |
+   *               +==============+
+   */
+  barrier1 = input_capture_session_add_barrier (session, 0, 0, 0, 600);
+  barrier2 = input_capture_session_add_barrier (session, 800, 768, 1824, 768);
+
+  g_assert_cmpuint (barrier1, !=, 0);
+  g_assert_cmpuint (barrier2, !=, 0);
+  g_assert_cmpuint (barrier1, !=, barrier2);
+
+  g_signal_connect (session->proxy, "activated",
+                    G_CALLBACK (on_activated), &data);
+
+  input_capture_session_enable (session);
+
+  write_state (session, "1");
+
+  while (data.activated_barrier_id == 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpuint (data.activated_serial, !=, 0);
+  g_assert_cmpuint (data.activated_barrier_id, ==, barrier1);
+  g_assert_cmpfloat_with_epsilon (data.activated_x, 0.0, DBL_EPSILON);
+  g_assert_cmpfloat_with_epsilon (data.activated_y, 15.0, DBL_EPSILON);
+
+  wait_for_state (session, "1");
+
+  input_capture_session_release (session, 200, 150);
+
+  write_state (session, "2");
+
+  prev_activated_serial = data.activated_serial;
+
+  data = (BarriersTestData) {};
+  while (data.activated_barrier_id == 0)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpuint (data.activated_serial, !=, 0);
+  g_assert_cmpuint (data.activated_serial, !=, prev_activated_serial);
+  g_assert_cmpuint (data.activated_barrier_id, ==, barrier2);
+  g_assert_cmpfloat_with_epsilon (data.activated_x, 1000.0, DBL_EPSILON);
+  g_assert_cmpfloat_with_epsilon (data.activated_y, 768.0, DBL_EPSILON);
+
+  input_capture_session_release (session, 1200, 700);
+  write_state (session, "3");
+
+  input_capture_session_close (session);
+}
+
 static const struct
 {
   const char *name;
@@ -303,6 +486,7 @@ static const struct
 } test_cases[] = {
   { "sanity", test_sanity, },
   { "zones", test_zones, },
+  { "barriers", test_barriers, },
 };
 
 static void
@@ -330,7 +514,16 @@ main (int    argc,
     {
       if (g_strcmp0 (test_cases[i].name, test_case) == 0)
         {
+          g_autoptr (GInputStream) stdin_stream = NULL;
+
+          stdin_stream = g_unix_input_stream_new (fileno (stdin), FALSE);
+          stdin_reader = g_data_input_stream_new (stdin_stream);
+
           test_cases[i].func ();
+
+          g_clear_object (&stdin_reader);
+          g_clear_object (&stdin_stream);
+
           return EXIT_SUCCESS;
         }
     }

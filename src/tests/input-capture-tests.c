@@ -22,6 +22,7 @@
 
 #include <gio/gio.h>
 
+#include "backends/meta-backend-private.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-test-utils.h"
 
@@ -31,6 +32,7 @@ typedef struct _InputCaptureTestClient
   char *path;
   GMainLoop *main_loop;
   GDataInputStream *line_reader;
+  GDataOutputStream *line_writer;
 } InputCaptureTestClient;
 
 static MetaContext *test_context;
@@ -45,13 +47,16 @@ input_capture_test_client_new (const char *test_case)
   InputCaptureTestClient *test_client;
   GInputStream *stdout_stream;
   GDataInputStream *line_reader;
+  GOutputStream *stdin_stream;
+  GDataOutputStream *line_writer;
 
   test_client_path = g_test_build_filename (G_TEST_BUILT,
                                             "src",
                                             "tests",
                                             "mutter-input-capture-test-client",
                                             NULL);
-  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE);
+  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
+                                        G_SUBPROCESS_FLAGS_STDIN_PIPE);
   subprocess = g_subprocess_launcher_spawn (launcher,
                                             &error,
                                             test_client_path,
@@ -63,10 +68,14 @@ input_capture_test_client_new (const char *test_case)
   stdout_stream = g_subprocess_get_stdout_pipe (subprocess);
   line_reader = g_data_input_stream_new (stdout_stream);
 
+  stdin_stream = g_subprocess_get_stdin_pipe (subprocess);
+  line_writer = g_data_output_stream_new (stdin_stream);
+
   test_client = g_new0 (InputCaptureTestClient, 1);
   test_client->subprocess = subprocess;
   test_client->main_loop = g_main_loop_new (NULL, FALSE);
   test_client->line_reader = line_reader;
+  test_client->line_writer = line_writer;
 
   return test_client;
 }
@@ -116,6 +125,24 @@ input_capture_test_client_wait_for_state (InputCaptureTestClient *test_client,
 
   g_main_loop_run (data.loop);
   g_main_loop_unref (data.loop);
+}
+
+static void
+input_capture_test_client_write_state (InputCaptureTestClient *test_client,
+                                       const char             *state)
+{
+  g_autoptr (GError) error = NULL;
+  g_autofree char *line = NULL;
+
+  line = g_strdup_printf ("%s\n", state);
+
+  if (!g_data_output_stream_put_string (test_client->line_writer,
+                                        line, NULL, &error))
+    g_error ("Failed to write state: %s", error->message);
+
+  if (!g_output_stream_flush (G_OUTPUT_STREAM (test_client->line_writer),
+                              NULL, &error))
+    g_error ("Failed to flush state: %s", error->message);
 }
 
 static void
@@ -182,12 +209,91 @@ meta_test_input_capture_zones (void)
 }
 
 static void
+assert_pointer_position (ClutterSeat *seat,
+                         double       x,
+                         double       y)
+{
+  graphene_point_t pos;
+
+  clutter_seat_query_state (seat,
+                            clutter_seat_get_pointer (seat),
+                            NULL, &pos, NULL);
+
+  g_assert_cmpfloat_with_epsilon (pos.x, x, DBL_EPSILON);
+  g_assert_cmpfloat_with_epsilon (pos.y, y, DBL_EPSILON);
+}
+
+static void
+meta_test_input_capture_barriers (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (MetaVirtualMonitor) virtual_monitor1 = NULL;
+  g_autoptr (MetaVirtualMonitor) virtual_monitor2 = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  InputCaptureTestClient *test_client;
+
+  virtual_monitor1 = meta_create_test_monitor (test_context, 800, 600, 20.0);
+  virtual_monitor2 = meta_create_test_monitor (test_context, 1024, 768, 20.0);
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+
+  test_client = input_capture_test_client_new ("barriers");
+  input_capture_test_client_wait_for_state (test_client, "1");
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, 10.0);
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, 10.0);
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, 10.0);
+
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+
+  assert_pointer_position (seat, 0.0, 15.0);
+
+  input_capture_test_client_write_state (test_client, "1");
+  input_capture_test_client_wait_for_state (test_client, "2");
+
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+
+  assert_pointer_position (seat, 200.0, 150.0);
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       800.0, 300.0);
+  meta_flush_input (test_context);
+
+  assert_pointer_position (seat, 1000.0, 450.0);
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       0.0, 400.0);
+
+  input_capture_test_client_wait_for_state (test_client, "3");
+  assert_pointer_position (seat, 1200.0, 700.0);
+
+  input_capture_test_client_finish (test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/input-capture/sanity",
                    meta_test_input_capture_sanity);
   g_test_add_func ("/backends/native/input-capture/zones",
                    meta_test_input_capture_zones);
+  g_test_add_func ("/backends/native/input-capture/barriers",
+                   meta_test_input_capture_barriers);
 }
 
 int

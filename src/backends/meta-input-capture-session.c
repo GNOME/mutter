@@ -29,6 +29,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-remote-access-controller-private.h"
+#include "meta/barrier.h"
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
 
@@ -36,12 +37,33 @@
 
 #define META_INPUT_CAPTURE_SESSION_DBUS_PATH "/org/gnome/Mutter/InputCapture/Session"
 
+static GQuark quark_barrier_id;
+
 enum
 {
   PROP_0,
 
   N_PROPS
 };
+
+typedef enum _InputCaptureState
+{
+  INPUT_CAPTURE_STATE_INIT,
+  INPUT_CAPTURE_STATE_ENABLED,
+  INPUT_CAPTURE_STATE_ACTIVATED,
+  INPUT_CAPTURE_STATE_CLOSED,
+} InputCaptureState;
+
+typedef struct _InputCaptureBarrier
+{
+  int x1;
+  int y1;
+  int x2;
+  int y2;
+
+  unsigned int id;
+  MetaBarrier *barrier;
+} InputCaptureBarrier;
 
 struct _MetaInputCaptureSession
 {
@@ -55,9 +77,11 @@ struct _MetaInputCaptureSession
   char *session_id;
   char *object_path;
 
-  gboolean enabled;
+  InputCaptureState state;
+  GHashTable *barriers;
 
-  uint32_t serial;
+  uint32_t zones_serial;
+  uint32_t activation_id;
 
   MetaInputCaptureSessionHandle *handle;
 };
@@ -107,31 +131,149 @@ init_remote_access_handle (MetaInputCaptureSession *session)
                                                    remote_access_handle);
 }
 
+static void
+release_remote_access_handle (MetaInputCaptureSession *session)
+{
+  MetaRemoteAccessHandle *remote_access_handle =
+    META_REMOTE_ACCESS_HANDLE (session->handle);
+
+  meta_remote_access_handle_notify_stopped (remote_access_handle);
+  g_clear_object (&session->handle);
+}
+
+static void
+on_barrier_hit (MetaBarrier             *barrier,
+                const MetaBarrierEvent  *event,
+                MetaInputCaptureSession *session)
+{
+  MetaDBusInputCaptureSession *skeleton =
+    META_DBUS_INPUT_CAPTURE_SESSION (session);
+  GVariant *cursor_position;
+  unsigned int barrier_id;
+
+  switch (session->state)
+    {
+    case INPUT_CAPTURE_STATE_ACTIVATED:
+      return;
+    case INPUT_CAPTURE_STATE_ENABLED:
+      break;
+    case INPUT_CAPTURE_STATE_INIT:
+    case INPUT_CAPTURE_STATE_CLOSED:
+      g_warn_if_reached ();
+      return;
+    }
+
+  session->state = INPUT_CAPTURE_STATE_ACTIVATED;
+
+  barrier_id = GPOINTER_TO_UINT (g_object_get_qdata (G_OBJECT (barrier),
+                                                     quark_barrier_id));
+  cursor_position = g_variant_new ("(dd)", event->x, event->y);
+
+  meta_dbus_input_capture_session_emit_activated (skeleton,
+                                                  barrier_id,
+                                                  ++session->activation_id,
+                                                  cursor_position);
+
+  init_remote_access_handle (session);
+}
+
+static void
+clear_all_barriers (MetaInputCaptureSession *session)
+{
+  GHashTableIter iter;
+  InputCaptureBarrier *input_capture_barrier;
+
+  g_hash_table_iter_init (&iter, session->barriers);
+  while (g_hash_table_iter_next (&iter, NULL,
+                                 (gpointer *) &input_capture_barrier))
+    g_clear_pointer (&input_capture_barrier->barrier, meta_barrier_destroy);
+}
+
+static void
+release_all_barriers (MetaInputCaptureSession *session)
+{
+  GHashTableIter iter;
+  InputCaptureBarrier *input_capture_barrier;
+
+  g_hash_table_iter_init (&iter, session->barriers);
+  while (g_hash_table_iter_next (&iter, NULL,
+                                 (gpointer *) &input_capture_barrier))
+    {
+      MetaBarrier *barrier;
+
+      barrier = input_capture_barrier->barrier;
+      if (!barrier)
+        continue;
+
+      meta_barrier_release (barrier, NULL);
+    }
+}
+
 static gboolean
 meta_input_capture_session_enable (MetaInputCaptureSession  *session,
                                    GError                  **error)
 {
-  g_assert (!session->enabled);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  GHashTableIter iter;
+  gpointer key, value;
 
-  session->enabled = TRUE;
+  g_warn_if_fail (session->state == INPUT_CAPTURE_STATE_INIT);
 
-  init_remote_access_handle (session);
+  g_hash_table_iter_init (&iter, session->barriers);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      unsigned int barrier_id = GPOINTER_TO_UINT (key);
+      InputCaptureBarrier *input_capture_barrier = value;
+      g_autoptr (MetaBarrier) barrier = NULL;
+
+      barrier = meta_barrier_new (backend,
+                                  input_capture_barrier->x1,
+                                  input_capture_barrier->y1,
+                                  input_capture_barrier->x2,
+                                  input_capture_barrier->y2,
+                                  0,
+                                  META_BARRIER_FLAG_STICKY,
+                                  error);
+      if (!barrier)
+        goto err;
+
+      g_object_set_qdata (G_OBJECT (barrier), quark_barrier_id,
+                          GUINT_TO_POINTER (barrier_id));
+      g_signal_connect (barrier, "hit", G_CALLBACK (on_barrier_hit), session);
+      input_capture_barrier->barrier = barrier;
+    }
+
+  session->state = INPUT_CAPTURE_STATE_ENABLED;
 
   return TRUE;
+
+err:
+  clear_all_barriers (session);
+  return FALSE;
 }
 
 static void
 meta_input_capture_session_disable (MetaInputCaptureSession *session)
 {
-  session->enabled = FALSE;
+  switch (session->state)
+    {
+    case INPUT_CAPTURE_STATE_INIT:
+      return;
+    case INPUT_CAPTURE_STATE_ACTIVATED:
+    case INPUT_CAPTURE_STATE_ENABLED:
+      break;
+    case INPUT_CAPTURE_STATE_CLOSED:
+      g_warn_if_reached ();
+      return;
+    }
+
+  clear_all_barriers (session);
+
+  session->state = INPUT_CAPTURE_STATE_INIT;
 
   if (session->handle)
-    {
-      MetaRemoteAccessHandle *remote_access_handle =
-        META_REMOTE_ACCESS_HANDLE (session->handle);
-
-      meta_remote_access_handle_notify_stopped (remote_access_handle);
-    }
+    release_remote_access_handle (session);
 }
 
 static void
@@ -142,8 +284,8 @@ meta_input_capture_session_close (MetaDbusSession *dbus_session)
   MetaDBusInputCaptureSession *skeleton =
     META_DBUS_INPUT_CAPTURE_SESSION (session);
 
-  if (session->enabled)
-    meta_input_capture_session_disable (session);
+  meta_input_capture_session_disable (session);
+  session->state = INPUT_CAPTURE_STATE_CLOSED;
 
   meta_dbus_session_notify_closed (META_DBUS_SESSION (session));
   meta_dbus_input_capture_session_emit_closed (skeleton);
@@ -160,15 +302,233 @@ check_permission (MetaInputCaptureSession *session,
                     g_dbus_method_invocation_get_sender (invocation)) == 0;
 }
 
+typedef enum
+{
+  LINE_ADJACENCY_ERROR,
+  LINE_ADJACENCY_NONE,
+  LINE_ADJACENCY_OVERLAP,
+  LINE_ADJACENCY_CONTAINED,
+  LINE_ADJACENCY_PARTIAL,
+} LineAdjacency;
+
+static LineAdjacency
+get_barrier_adjacency (MetaRectangle  *rect,
+                       int             x1,
+                       int             y1,
+                       int             x2,
+                       int             y2,
+                       GError        **error)
+{
+  int x_min, x_max;
+  int y_min, y_max;
+
+  x_min = MIN (x1, x2);
+  x_max = MAX (x1, x2);
+  y_min = MIN (y1, y2);
+  y_max = MAX (y1, y2);
+
+  if (x1 == x2)
+    {
+      int x = x1;
+
+      if (x < rect->x || x > rect->x + rect->width)
+        return LINE_ADJACENCY_NONE;
+
+      if (y_max < rect->y ||
+          y_min > rect->y + rect->height)
+        return LINE_ADJACENCY_NONE;
+
+      if (rect->x + rect->width == x || rect->x == x)
+        {
+          if (y_max > rect->y + rect->height ||
+              y_min < rect->y)
+            return LINE_ADJACENCY_PARTIAL;
+          else
+            return LINE_ADJACENCY_CONTAINED;
+        }
+      else
+        {
+          return LINE_ADJACENCY_OVERLAP;
+        }
+    }
+  else if (y1 == y2)
+    {
+      int y = y1;
+
+      if (y < rect->y || y > rect->y + rect->height)
+        return LINE_ADJACENCY_NONE;
+
+      if (x_max < rect->x ||
+          x_min > rect->x + rect->width)
+        return LINE_ADJACENCY_NONE;
+
+      if (rect->y + rect->height == y || rect->y == y)
+        {
+          if (x_max > rect->x + rect->width ||
+              x_min < rect->x)
+            return LINE_ADJACENCY_PARTIAL;
+          else
+            return LINE_ADJACENCY_CONTAINED;
+        }
+      else
+        {
+          return LINE_ADJACENCY_OVERLAP;
+        }
+    }
+
+  return LINE_ADJACENCY_NONE;
+}
+
+static gboolean
+check_barrier (MetaInputCaptureSession  *session,
+               int                       x1,
+               int                       y1,
+               int                       x2,
+               int                       y2,
+               GError                  **error)
+{
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  gboolean has_adjecent_monitor = FALSE;
+  GList *logical_monitors;
+  GList *l;
+
+  if (x1 != x2 && y1 != y2)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Barrier coordinates not axis aligned");
+      return FALSE;
+    }
+
+  if (x1 == x2 && y1 == y2)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                   "Barrier cannot be a singularity");
+      return FALSE;
+    }
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      MetaRectangle layout;
+
+      layout = meta_logical_monitor_get_layout (logical_monitor);
+      switch (get_barrier_adjacency (&layout, x1, y1, x2, y2, error))
+        {
+        case LINE_ADJACENCY_ERROR:
+          return FALSE;
+        case LINE_ADJACENCY_NONE:
+          break;
+        case LINE_ADJACENCY_CONTAINED:
+          if (has_adjecent_monitor)
+            {
+              g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                           "Adjecent to multiple monitor edges");
+              return FALSE;
+            }
+          has_adjecent_monitor = TRUE;
+          break;
+        case LINE_ADJACENCY_OVERLAP:
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Line overlaps with monitor region");
+          return FALSE;
+        case LINE_ADJACENCY_PARTIAL:
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Line partially with monitor region");
+          return FALSE;
+        }
+    }
+
+  return has_adjecent_monitor;
+}
+
+static unsigned int
+find_available_barrier_id (MetaInputCaptureSession *session)
+{
+  unsigned int id;
+
+  for (id = 1;; id++)
+    {
+      if (!g_hash_table_contains (session->barriers, GUINT_TO_POINTER (id)))
+        return id;
+    }
+}
+
+static void
+input_capture_barrier_free (gpointer user_data)
+{
+  InputCaptureBarrier *input_capture_barrier = user_data;
+
+  g_clear_pointer (&input_capture_barrier->barrier, meta_barrier_destroy);
+  g_free (input_capture_barrier);
+}
+
 static gboolean
 handle_add_barrier (MetaDBusInputCaptureSession *object,
                     GDBusMethodInvocation       *invocation,
                     unsigned int                 serial,
                     GVariant                    *position)
 {
-  g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                         G_DBUS_ERROR_FAILED,
-                                         "Not implemented");
+  MetaInputCaptureSession *session = META_INPUT_CAPTURE_SESSION (object);
+  int x1, y1, x2, y2;
+  g_autoptr (GError) error = NULL;
+  InputCaptureBarrier *input_capture_barrier;
+  unsigned int barrier_id;
+
+  if (!check_permission (session, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (session->zones_serial != serial)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_BAD_ADDRESS,
+                                             "State out of date");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (session->state != INPUT_CAPTURE_STATE_INIT)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Session already enabled");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  g_variant_get (position, "(iiii)", &x1, &y1, &x2, &y2);
+  if (!check_barrier (session, x1, y1, x2, y2, &error))
+    {
+      g_dbus_method_invocation_return_error_literal (invocation, G_DBUS_ERROR,
+                                                     G_DBUS_ERROR_ACCESS_DENIED,
+                                                     error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  barrier_id = find_available_barrier_id (session);
+
+  input_capture_barrier = g_new0 (InputCaptureBarrier, 1);
+  *input_capture_barrier = (InputCaptureBarrier) {
+    .id = barrier_id,
+    .x1 = x1,
+    .y1 = y1,
+    .x2 = x2,
+    .y2 = y2,
+  };
+  g_hash_table_insert (session->barriers,
+                       GUINT_TO_POINTER (barrier_id),
+                       input_capture_barrier);
+
+  meta_dbus_input_capture_session_complete_add_barrier (object, invocation,
+                                                        barrier_id);
+
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
@@ -204,7 +564,7 @@ handle_get_zones (MetaDBusInputCaptureSession *object,
   zones_variant = g_variant_builder_end (&zones_builder);
 
   meta_dbus_input_capture_session_complete_get_zones (object, invocation,
-                                                      session->serial,
+                                                      session->zones_serial,
                                                       zones_variant);
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
@@ -224,7 +584,7 @@ handle_enable (MetaDBusInputCaptureSession *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  if (session->enabled)
+  if (session->state != INPUT_CAPTURE_STATE_INIT)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -261,7 +621,8 @@ handle_disable (MetaDBusInputCaptureSession *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  if (!session->enabled)
+  if (session->state != INPUT_CAPTURE_STATE_ENABLED &&
+      session->state != INPUT_CAPTURE_STATE_ACTIVATED)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -281,9 +642,40 @@ handle_release (MetaDBusInputCaptureSession *object,
                 GDBusMethodInvocation       *invocation,
                 GVariant                    *position)
 {
-  g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                         G_DBUS_ERROR_ACCESS_DENIED,
-                                         "Not implemented");
+  MetaInputCaptureSession *session = META_INPUT_CAPTURE_SESSION (object);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  double x, y;
+
+  if (!check_permission (session, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (session->state != INPUT_CAPTURE_STATE_ACTIVATED)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Capture not active");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  release_all_barriers (session);
+
+  session->state = INPUT_CAPTURE_STATE_ENABLED;
+
+  g_variant_get (position, "(dd)", &x, &y);
+  clutter_seat_warp_pointer (seat, x, y);
+
+  if (session->handle)
+    release_remote_access_handle (session);
+
+  meta_dbus_input_capture_session_complete_release (object, invocation);
+
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
@@ -315,7 +707,7 @@ on_monitors_changed (MetaMonitorManager      *monitor_manager,
   MetaDBusInputCaptureSession *skeleton =
     META_DBUS_INPUT_CAPTURE_SESSION (session);
 
-  session->serial++;
+  session->zones_serial++;
   meta_input_capture_session_disable (session);
   meta_dbus_input_capture_session_emit_zones_changed (skeleton);
 }
@@ -374,6 +766,8 @@ static void
 meta_input_capture_session_finalize (GObject *object)
 {
   MetaInputCaptureSession *session = META_INPUT_CAPTURE_SESSION (object);
+
+  g_clear_pointer (&session->barriers, g_hash_table_unref);
 
   g_clear_object (&session->handle);
   g_free (session->peer_name);
@@ -444,6 +838,9 @@ meta_input_capture_session_class_init (MetaInputCaptureSessionClass *klass)
   object_class->get_property = meta_input_capture_session_get_property;
 
   meta_dbus_session_install_properties (object_class, N_PROPS);
+
+  quark_barrier_id =
+    g_quark_from_static_string ("meta-input-capture-barrier-id-quark");
 }
 
 static void
@@ -454,6 +851,9 @@ meta_input_capture_session_init (MetaInputCaptureSession *session)
   session->object_path =
     g_strdup_printf (META_INPUT_CAPTURE_SESSION_DBUS_PATH "/u%u",
                      ++global_session_number);
+
+  session->barriers = g_hash_table_new_full (NULL, NULL, NULL,
+                                             input_capture_barrier_free);
 }
 
 char *
