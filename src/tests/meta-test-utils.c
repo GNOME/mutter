@@ -27,6 +27,9 @@
 
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-virtual-monitor.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-input-thread.h"
+#include "backends/native/meta-seat-native.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
@@ -794,4 +797,48 @@ meta_create_test_monitor (MetaContext *context,
   meta_monitor_manager_reload (monitor_manager);
 
   return virtual_monitor;
+}
+
+#ifdef HAVE_NATIVE_BACKEND
+static gboolean
+callback_idle (gpointer user_data)
+{
+  GMainLoop *loop = user_data;
+
+  g_main_loop_quit (loop);
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+queue_callback (GTask *task)
+{
+  g_idle_add (callback_idle, g_task_get_task_data (task));
+  return G_SOURCE_REMOVE;
+}
+#endif
+
+void
+meta_flush_input (MetaContext *context)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterSeat *seat;
+  MetaSeatNative *seat_native;
+  g_autoptr (GTask) task = NULL;
+  g_autoptr (GMainLoop) loop = NULL;
+
+  g_assert_true (META_IS_BACKEND_NATIVE (backend));
+
+  seat = meta_backend_get_default_seat (backend);
+  seat_native = META_SEAT_NATIVE (seat);
+
+  task = g_task_new (backend, NULL, NULL, NULL);
+  loop = g_main_loop_new (NULL, FALSE);
+  g_task_set_task_data (task, loop, NULL);
+
+  meta_seat_impl_run_input_task (seat_native->impl, task,
+                                 (GSourceFunc) queue_callback);
+
+  g_main_loop_run (loop);
+#endif
 }

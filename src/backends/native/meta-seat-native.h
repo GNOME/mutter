@@ -34,6 +34,7 @@
 #include "backends/native/meta-pointer-constraint-native.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
+#include "core/util-private.h"
 
 typedef struct _MetaSeatNative MetaSeatNative;
 
@@ -66,6 +67,7 @@ struct _MetaSeatNative
 };
 
 #define META_TYPE_SEAT_NATIVE meta_seat_native_get_type ()
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaSeatNative, meta_seat_native,
                       META, SEAT_NATIVE, ClutterSeat)
 

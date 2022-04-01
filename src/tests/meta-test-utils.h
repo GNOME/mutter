@@ -122,4 +122,7 @@ MetaVirtualMonitor * meta_create_test_monitor (MetaContext *context,
                                                int          height,
                                                float        refresh_rate);
 
+META_EXPORT
+void meta_flush_input (MetaContext *context);
+
 #endif /* TEST_UTILS_H */
