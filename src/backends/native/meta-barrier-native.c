@@ -640,7 +640,7 @@ meta_barrier_impl_native_release (MetaBarrierImpl  *impl,
   MetaBarrierImplNative *self = META_BARRIER_IMPL_NATIVE (impl);
 
   if (self->state == META_BARRIER_STATE_HELD &&
-      event->event_id == self->trigger_serial)
+      (!event || event->event_id == self->trigger_serial))
     {
       self->state = META_BARRIER_STATE_RELEASE;
       self->manager->pointer_trap = NULL;

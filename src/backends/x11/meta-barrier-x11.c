@@ -75,6 +75,12 @@ meta_barrier_impl_x11_release (MetaBarrierImpl  *impl,
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
+  if (!event)
+    {
+      g_warning ("X11 barriers always need barrier events to release");
+      return;
+    }
+
   XIBarrierReleasePointer (xdisplay,
                            META_VIRTUAL_CORE_POINTER_ID,
                            self->xbarrier, event->event_id);
