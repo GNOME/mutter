@@ -44,6 +44,8 @@
       <arg name="id" type="u" direction="out" />
     </method>
 
+    <method name="ClearBarriers" />
+
     <method name="Enable" />
     <method name="Disable" />
 

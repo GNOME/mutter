@@ -251,6 +251,16 @@ input_capture_session_add_barrier (InputCaptureSession *session,
 }
 
 static void
+input_capture_session_clear_barriers (InputCaptureSession *session)
+{
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_dbus_input_capture_session_call_clear_barriers_sync (
+        session->proxy, NULL, &error))
+    g_warning ("Failed to clear barriers: %s", error->message);
+}
+
+static void
 input_capture_session_enable (InputCaptureSession *session)
 {
   g_autoptr (GError) error = NULL;
@@ -479,6 +489,38 @@ test_barriers (void)
   input_capture_session_close (session);
 }
 
+static void
+test_clear_barriers (void)
+{
+  InputCapture *input_capture;
+  InputCaptureSession *session;
+  g_autolist (Zone) zones = NULL;
+  BarriersTestData data = {};
+
+  input_capture = input_capture_new ();
+  session = input_capture_create_session (input_capture);
+
+  zones = input_capture_session_get_zones (session);
+
+  input_capture_session_add_barrier (session, 0, 0, 0, 600);
+
+  g_signal_connect (session->proxy, "activated",
+                    G_CALLBACK (on_activated), &data);
+
+  input_capture_session_enable (session);
+
+  write_state (session, "1");
+
+  while (data.activated_barrier_id == 0)
+    g_main_context_iteration (NULL, TRUE);
+
+  input_capture_session_clear_barriers (session);
+  write_state (session, "2");
+  wait_for_state (session, "1");
+
+  input_capture_session_close (session);
+}
+
 static const struct
 {
   const char *name;
@@ -487,6 +529,7 @@ static const struct
   { "sanity", test_sanity, },
   { "zones", test_zones, },
   { "barriers", test_barriers, },
+  { "clear-barriers", test_clear_barriers, },
 };
 
 static void

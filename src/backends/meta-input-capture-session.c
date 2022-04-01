@@ -533,6 +533,27 @@ handle_add_barrier (MetaDBusInputCaptureSession *object,
 }
 
 static gboolean
+handle_clear_barriers (MetaDBusInputCaptureSession *object,
+                       GDBusMethodInvocation       *invocation)
+{
+  MetaInputCaptureSession *session = META_INPUT_CAPTURE_SESSION (object);
+
+  if (!check_permission (session, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  g_hash_table_remove_all (session->barriers);
+
+  meta_dbus_input_capture_session_complete_clear_barriers (object, invocation);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
 handle_get_zones (MetaDBusInputCaptureSession *object,
                   GDBusMethodInvocation       *invocation)
 {
@@ -749,6 +770,7 @@ static void
 meta_input_capture_session_init_iface (MetaDBusInputCaptureSessionIface *iface)
 {
   iface->handle_add_barrier = handle_add_barrier;
+  iface->handle_clear_barriers = handle_clear_barriers;
   iface->handle_enable = handle_enable;
   iface->handle_disable = handle_disable;
   iface->handle_release = handle_release;
