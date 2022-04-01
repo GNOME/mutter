@@ -469,9 +469,9 @@ maybe_emit_barrier_event (gpointer key, gpointer value, gpointer user_data)
 /* Clamp (x, y) to the barrier and remove clamped direction from motion_dir. */
 static void
 clamp_to_barrier (MetaBarrierImplNative *self,
-                  MetaBarrierDirection *motion_dir,
-                  float *x,
-                  float *y)
+                  MetaBarrierDirection  *motion_dir,
+                  float                 *x,
+                  float                 *y)
 {
   MetaBarrier *barrier = self->barrier;
   MetaBorder *border = meta_barrier_get_border (barrier);
@@ -584,7 +584,7 @@ meta_barrier_impl_native_is_active (MetaBarrierImpl *impl)
 
 static void
 meta_barrier_impl_native_release (MetaBarrierImpl  *impl,
-                                   MetaBarrierEvent *event)
+                                  MetaBarrierEvent *event)
 {
   MetaBarrierImplNative *self = META_BARRIER_IMPL_NATIVE (impl);
 
