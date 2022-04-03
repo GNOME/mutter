@@ -3413,6 +3413,15 @@ create_crossing_event (ClutterStage         *stage,
   return event;
 }
 
+static void
+clutter_stage_emit_crossing_event (ClutterStage       *self,
+                                   const ClutterEvent *event,
+                                   ClutterActor       *deepmost,
+                                   ClutterActor       *topmost)
+{
+  _clutter_actor_handle_event (deepmost, topmost, event);
+}
+
 void
 clutter_stage_update_device (ClutterStage         *stage,
                              ClutterInputDevice   *device,
@@ -3483,7 +3492,12 @@ clutter_stage_update_device (ClutterStage         *stage,
                                          old_actor, new_actor,
                                          point, time_ms);
           if (!_clutter_event_process_filters (event, old_actor))
-            _clutter_actor_handle_event (old_actor, root, event);
+            {
+              clutter_stage_emit_crossing_event (stage,
+                                                 event,
+                                                 old_actor,
+                                                 root);
+            }
 
           clutter_event_free (event);
         }
@@ -3497,7 +3511,12 @@ clutter_stage_update_device (ClutterStage         *stage,
                                          new_actor, old_actor,
                                          point, time_ms);
           if (!_clutter_event_process_filters (event, new_actor))
-            _clutter_actor_handle_event (new_actor, root, event);
+            {
+              clutter_stage_emit_crossing_event (stage,
+                                                 event,
+                                                 new_actor,
+                                                 root);
+            }
 
           clutter_event_free (event);
         }
@@ -3681,7 +3700,13 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
                                      entry->coords,
                                      CLUTTER_CURRENT_TIME);
       if (!_clutter_event_process_filters (event, entry->current_actor))
-        _clutter_actor_handle_event (deepmost, topmost, event);
+        {
+          clutter_stage_emit_crossing_event (stage,
+                                             event,
+                                             deepmost,
+                                             topmost);
+        }
+
       clutter_event_free (event);
     }
 }
@@ -3993,4 +4018,89 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
     }
 
   return NULL;
+}
+
+void
+clutter_stage_emit_event (ClutterStage       *self,
+                          const ClutterEvent *event)
+{
+  ClutterStagePrivate *priv = self->priv;
+  ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  PointerDeviceEntry *entry;
+  ClutterActor *target_actor = NULL;
+
+  if (sequence != NULL)
+    entry = g_hash_table_lookup (priv->touch_sequences, sequence);
+  else
+    entry = g_hash_table_lookup (priv->pointer_devices, device);
+
+  switch (event->type)
+    {
+      case CLUTTER_NOTHING:
+      case CLUTTER_DEVICE_REMOVED:
+      case CLUTTER_DEVICE_ADDED:
+      case CLUTTER_EVENT_LAST:
+        return;
+
+      case CLUTTER_KEY_PRESS:
+      case CLUTTER_KEY_RELEASE:
+      case CLUTTER_PAD_BUTTON_PRESS:
+      case CLUTTER_PAD_BUTTON_RELEASE:
+      case CLUTTER_PAD_STRIP:
+      case CLUTTER_PAD_RING:
+      case CLUTTER_IM_COMMIT:
+      case CLUTTER_IM_DELETE:
+      case CLUTTER_IM_PREEDIT:
+        {
+          target_actor = priv->key_focused_actor ?
+            priv->key_focused_actor : CLUTTER_ACTOR (self);
+          break;
+        }
+
+      /* x11 stage enter/leave events */
+      case CLUTTER_ENTER:
+      case CLUTTER_LEAVE:
+        {
+          target_actor = entry->current_actor;
+          break;
+        }
+
+      case CLUTTER_MOTION:
+      case CLUTTER_BUTTON_PRESS:
+      case CLUTTER_BUTTON_RELEASE:
+      case CLUTTER_SCROLL:
+      case CLUTTER_TOUCHPAD_PINCH:
+      case CLUTTER_TOUCHPAD_SWIPE:
+      case CLUTTER_TOUCHPAD_HOLD:
+      case CLUTTER_TOUCH_UPDATE:
+      case CLUTTER_TOUCH_BEGIN:
+      case CLUTTER_TOUCH_CANCEL:
+      case CLUTTER_TOUCH_END:
+        {
+          float x, y;
+
+          clutter_event_get_coords (event, &x, &y);
+
+          CLUTTER_NOTE (EVENT,
+                        "Reactive event received at %.2f, %.2f - actor: %p",
+                        x, y, entry->current_actor);
+
+          target_actor = entry->current_actor;
+          break;
+        }
+
+      case CLUTTER_PROXIMITY_IN:
+      case CLUTTER_PROXIMITY_OUT:
+        {
+          target_actor = CLUTTER_ACTOR (self);
+          break;
+        }
+    }
+
+  g_assert (target_actor != NULL);
+
+  _clutter_actor_handle_event (target_actor,
+                               clutter_stage_get_grab_actor (self),
+                               event);
 }

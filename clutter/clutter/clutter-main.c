@@ -674,29 +674,19 @@ _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
   return continue_emission;
 }
 
-static inline void
-emit_event_chain (ClutterActor *target,
-                  ClutterEvent *event)
-{
-  _clutter_actor_handle_event (target,
-                               clutter_stage_get_grab_actor (event->any.stage),
-                               event);
-}
-
 /*
  * Emits a pointer event after having prepared the event for delivery (setting
  * source, generating enter/leave etc.).
  */
 
 static inline void
-emit_event (ClutterActor *target,
-            ClutterEvent *event)
+emit_event (ClutterEvent *event)
 {
   if (event->type == CLUTTER_KEY_PRESS ||
       event->type == CLUTTER_KEY_RELEASE)
     cally_snoop_key_event ((ClutterKeyEvent *) event);
 
-  emit_event_chain (target, event);
+  clutter_stage_emit_event (event->any.stage, event);
 }
 
 static ClutterActor *
@@ -836,10 +826,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                                 ClutterMainContext  *context,
                                 ClutterEvent        *event)
 {
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterActor *target;
-
   switch (event->type)
     {
       case CLUTTER_NOTHING:
@@ -854,32 +840,8 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_IM_COMMIT:
       case CLUTTER_IM_DELETE:
       case CLUTTER_IM_PREEDIT:
-        {
-          ClutterActor *actor = NULL;
-
-          actor = clutter_stage_get_key_focus (CLUTTER_STAGE (stage));
-          if (G_UNLIKELY (actor == NULL))
-            {
-              g_warning ("No key focus set, discarding");
-              return;
-            }
-
-          emit_event (actor, event);
-        }
-        break;
-
       case CLUTTER_ENTER:
-        target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                 device, sequence);
-        emit_event (target, event);
-        break;
-
       case CLUTTER_LEAVE:
-        target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                 device, sequence);
-        emit_event (target, event);
-        break;
-
       case CLUTTER_MOTION:
       case CLUTTER_BUTTON_PRESS:
       case CLUTTER_BUTTON_RELEASE:
@@ -887,48 +849,13 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_TOUCHPAD_PINCH:
       case CLUTTER_TOUCHPAD_SWIPE:
       case CLUTTER_TOUCHPAD_HOLD:
-        {
-          gfloat x, y;
-
-          target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                   device, sequence);
-          clutter_event_get_coords (event, &x, &y);
-
-          CLUTTER_NOTE (EVENT,
-                        "Reactive event received at %.2f, %.2f - actor: %p",
-                        x, y, target);
-
-          emit_event (target, event);
-          break;
-        }
-
       case CLUTTER_TOUCH_UPDATE:
       case CLUTTER_TOUCH_BEGIN:
       case CLUTTER_TOUCH_CANCEL:
       case CLUTTER_TOUCH_END:
-        {
-          gfloat x, y;
-
-          target = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                   device, sequence);
-          clutter_event_get_coords (event, &x, &y);
-
-          CLUTTER_NOTE (EVENT,
-                        "Reactive event received at %.2f, %.2f - actor: %p",
-                        x, y, target);
-
-          emit_event (target, event);
-          break;
-        }
-
       case CLUTTER_PROXIMITY_IN:
       case CLUTTER_PROXIMITY_OUT:
-        if (!clutter_actor_event (stage, event, TRUE))
-          {
-            /* and bubbling phase */
-            clutter_actor_event (stage, event, FALSE);
-          }
-
+        emit_event (event);
         break;
 
       case CLUTTER_DEVICE_REMOVED:

@@ -168,6 +168,9 @@ void clutter_stage_invalidate_focus (ClutterStage *self,
 void clutter_stage_maybe_invalidate_focus (ClutterStage *self,
                                            ClutterActor *actor);
 
+void clutter_stage_emit_event (ClutterStage       *self,
+                               const ClutterEvent *event);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
