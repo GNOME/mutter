@@ -45,6 +45,7 @@
 #include "clutter-stage.h"
 #include "deprecated/clutter-container.h"
 
+#include "clutter-action-private.h"
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
 #include "clutter-cairo.h"
@@ -3423,7 +3424,8 @@ create_crossing_event (ClutterStage         *stage,
 typedef enum
 {
   EVENT_NOT_HANDLED,
-  EVENT_HANDLED_BY_ACTOR
+  EVENT_HANDLED_BY_ACTOR,
+  EVENT_HANDLED_BY_ACTION
 } EventHandledState;
 
 static EventHandledState
@@ -3431,11 +3433,26 @@ emit_event (const ClutterEvent *event,
             GPtrArray          *actors)
 {
   int i;
+  gboolean action_handled_event = FALSE;
 
   /* Capture: from top-level downwards */
   for (i = actors->len - 1; i >= 0; i--)
     {
       ClutterActor *actor = g_ptr_array_index (actors, i);
+      const GList *l;
+
+      for (l = clutter_actor_peek_actions (actor); l; l = l->next)
+        {
+          ClutterAction *action = l->data;
+
+          if (clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)) &&
+              clutter_action_get_phase (action) == CLUTTER_PHASE_CAPTURE &&
+              clutter_action_handle_event (action, event))
+            action_handled_event = TRUE;
+        }
+
+      if (action_handled_event)
+        return EVENT_HANDLED_BY_ACTION;
 
       if (clutter_actor_event (actor, event, TRUE))
         return EVENT_HANDLED_BY_ACTOR;
@@ -3445,6 +3462,20 @@ emit_event (const ClutterEvent *event,
   for (i = 0; i < actors->len; i++)
     {
       ClutterActor *actor = g_ptr_array_index (actors, i);
+      const GList *l;
+
+      for (l = clutter_actor_peek_actions (actor); l; l = l->next)
+        {
+          ClutterAction *action = l->data;
+
+          if (clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)) &&
+              clutter_action_get_phase (action) == CLUTTER_PHASE_BUBBLE &&
+              clutter_action_handle_event (action, event))
+            action_handled_event = TRUE;
+        }
+
+      if (action_handled_event)
+        return EVENT_HANDLED_BY_ACTION;
 
       if (clutter_actor_event (actor, event, FALSE))
         return EVENT_HANDLED_BY_ACTOR;
