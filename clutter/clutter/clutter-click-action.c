@@ -343,12 +343,12 @@ clutter_click_action_handle_event (ClutterAction      *action,
 
     case CLUTTER_ENTER:
       click_action_set_pressed (click_action, priv->is_held);
-      break;
+      return CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_LEAVE:
       click_action_set_pressed (click_action, FALSE);
       click_action_cancel_long_press (click_action);
-      break;
+      return CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_TOUCH_CANCEL:
       clutter_click_action_release (click_action);

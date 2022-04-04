@@ -378,20 +378,22 @@ clutter_gesture_action_handle_event (ClutterAction      *action,
         return CLUTTER_EVENT_PROPAGATE;
     }
 
-  if (point &&
-      event_type == CLUTTER_LEAVE &&
-      (event->crossing.flags & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) != 0)
-    {
-      gesture_unregister_point (gesture_action, position);
-
-      if (priv->in_gesture)
-        cancel_gesture (gesture_action);
-
-      return CLUTTER_EVENT_PROPAGATE;
-    }
-
   switch (clutter_event_type (event))
     {
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+      if (point &&
+          event_type == CLUTTER_LEAVE &&
+          (event->crossing.flags & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) != 0)
+        {
+          gesture_unregister_point (gesture_action, position);
+
+          if (priv->in_gesture)
+            cancel_gesture (gesture_action);
+        }
+
+      return CLUTTER_EVENT_PROPAGATE;
+
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_TOUCH_BEGIN:
       if (priv->stage == NULL)
