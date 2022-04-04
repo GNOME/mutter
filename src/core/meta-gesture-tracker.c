@@ -502,25 +502,8 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
       break;
     }
 
-  /* As soon as a sequence is accepted, we replay it to
-   * the stage as a captured event, and make sure it's never
-   * propagated anywhere else. Since ClutterGestureAction does
-   * all its event handling from a captured-event handler on
-   * the stage, this effectively acts as a "sequence grab" on
-   * gesture actions.
-   *
-   * Sequences that aren't (yet or never) in an accepted state
-   * will go through, these events will get processed through
-   * the compositor, and eventually through clutter, still
-   * triggering the gestures capturing events on the stage, and
-   * possibly resulting in MetaSequenceState changes.
-   */
   if (state == META_SEQUENCE_ACCEPTED)
-    {
-      clutter_actor_event (CLUTTER_ACTOR (clutter_event_get_stage (event)),
-                           event, TRUE);
-      return TRUE;
-    }
+    return TRUE;
 
   return FALSE;
 }
