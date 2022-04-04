@@ -424,6 +424,19 @@ clutter_click_action_handle_event (ClutterAction      *action,
 }
 
 static void
+clutter_click_action_sequence_cancelled (ClutterAction        *action,
+                                         ClutterInputDevice   *device,
+                                         ClutterEventSequence *sequence)
+{
+  ClutterClickAction *self = CLUTTER_CLICK_ACTION (action);
+  ClutterClickActionPrivate *priv =
+    clutter_click_action_get_instance_private (self);
+
+  if (priv->press_device == device && priv->press_sequence == sequence)
+    clutter_click_action_release (self);
+}
+
+static void
 clutter_click_action_set_actor (ClutterActorMeta *meta,
                                 ClutterActor     *actor)
 {
@@ -530,6 +543,7 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
   ClutterActionClass *action_class = CLUTTER_ACTION_CLASS (klass);
 
   action_class->handle_event = clutter_click_action_handle_event;
+  action_class->sequence_cancelled = clutter_click_action_sequence_cancelled;
 
   meta_class->set_actor = clutter_click_action_set_actor;
   meta_class->set_enabled = clutter_click_action_set_enabled;

@@ -513,6 +513,38 @@ clutter_gesture_action_handle_event (ClutterAction      *action,
 }
 
 static void
+clutter_gesture_action_sequence_cancelled (ClutterAction        *action,
+                                           ClutterInputDevice   *device,
+                                           ClutterEventSequence *sequence)
+{
+  ClutterGestureAction *self = CLUTTER_GESTURE_ACTION (action);
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (self);
+  int i, position = -1;
+
+  for (i = 0; i < priv->points->len; i++)
+    {
+      if ((g_array_index (priv->points, GesturePoint, i).device == device) &&
+          (g_array_index (priv->points, GesturePoint, i).sequence == sequence))
+        {
+          position = i;
+          break;
+        }
+    }
+
+  if (position == -1)
+    return;
+
+  if (priv->in_gesture)
+    {
+      priv->in_gesture = FALSE;
+      cancel_gesture (self);
+    }
+
+  gesture_unregister_point (self, position);
+}
+
+static void
 clutter_gesture_action_set_enabled (ClutterActorMeta *meta,
                                     gboolean          is_enabled)
 {
@@ -642,6 +674,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
   meta_class->set_enabled = clutter_gesture_action_set_enabled;
 
   action_class->handle_event = clutter_gesture_action_handle_event;
+  action_class->sequence_cancelled = clutter_gesture_action_sequence_cancelled;
 
   klass->gesture_begin = default_event_handler;
   klass->gesture_progress = default_event_handler;
