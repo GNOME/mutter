@@ -820,3 +820,9 @@ meta_wayland_compositor_is_egl_display_bound (MetaWaylandCompositor *compositor)
 
   return priv->is_wayland_egl_display_bound;
 }
+
+MetaXWaylandManager *
+meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor)
+{
+  return &compositor->xwayland_manager;
+}

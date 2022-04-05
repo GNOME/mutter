@@ -94,5 +94,8 @@ void                    meta_wayland_compositor_notify_surface_id (MetaWaylandCo
                                                                    int                    id,
                                                                    MetaWaylandSurface    *surface);
 
+META_EXPORT_TEST
+MetaXWaylandManager *   meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor);
+
 #endif
 
