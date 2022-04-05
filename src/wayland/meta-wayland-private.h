@@ -54,6 +54,8 @@ typedef struct
 
 struct _MetaXWaylandManager
 {
+  MetaWaylandCompositor *compositor;
+
   MetaXWaylandConnection private_connection;
   MetaXWaylandConnection public_connection;
 
