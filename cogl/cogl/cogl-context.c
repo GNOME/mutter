@@ -501,6 +501,13 @@ cogl_context_get_named_pipeline (CoglContext     *context,
   return g_hash_table_lookup (context->named_pipelines, key);
 }
 
+/**
+ * cogl_context_free_timestamp_query:
+ * @context: a #CoglContext object
+ * @query: (transfer full): the #CoglTimestampQuery to free
+ *
+ * Free the #CoglTimestampQuery
+ */
 void
 cogl_context_free_timestamp_query (CoglContext        *context,
                                    CoglTimestampQuery *query)
