@@ -454,6 +454,14 @@ meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker)
   g_signal_emit (tracker, signals[POSITION_INVALIDATED], 0);
 }
 
+/**
+ * meta_cursor_tracker_get_pointer:
+ * @tracker: a #MetaCursorTracker object
+ * @coords: (out caller-allocates): the coordinates of the pointer
+ * @mods: (out): the current #ClutterModifierType of the pointer
+ *
+ * Get the current pointer position and state.
+ */
 void
 meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
                                  graphene_point_t    *coords,
