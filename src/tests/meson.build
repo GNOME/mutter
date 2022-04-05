@@ -295,6 +295,13 @@ if have_native_tests
         wayland_test_utils,
       ],
     },
+    {
+      'name': 'xwayland',
+      'suite': 'wayland',
+      'sources': [
+        'xwayland-tests.c',
+      ],
+    },
   ]
 
   foreach test_case: test_cases
