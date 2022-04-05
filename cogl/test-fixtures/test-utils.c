@@ -99,7 +99,7 @@ create_onscreen (CoglContext *cogl_context,
       break;
 #endif
     case COGL_WINSYS_ID_EGL_XLIB:
-#ifdef COGL_HAS_EGL_SUPPORT
+#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
       return COGL_ONSCREEN (cogl_onscreen_xlib_new (cogl_context,
                                                     width, height));
 #else

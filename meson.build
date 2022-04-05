@@ -135,6 +135,10 @@ if have_xwayland and not have_wayland
   error('XWayland support requires Wayland support enabled')
 endif
 
+if not have_wayland and not have_x11
+  error('A Wayland/X11 backend must be enabled')
+endif
+
 if have_x11_client
   x11_dep = dependency('x11')
   xcomposite_dep = dependency('xcomposite', version: xcomposite_req)

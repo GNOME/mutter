@@ -36,6 +36,7 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl-attribute-private.h"
 #include "cogl-sampler-cache-private.h"
+#include "cogl-texture-private.h"
 
 typedef struct _CoglDriverVtable CoglDriverVtable;
 
