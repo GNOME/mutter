@@ -4420,6 +4420,14 @@ meta_window_get_titlebar_rect (MetaWindow    *window,
     }
 }
 
+/**
+ * meta_window_get_startup_id:
+ * @window: a #MetaWindow
+ *
+ * Gets the startup id of the given #MetaWindow
+ *
+ * Returns: (nullable): the startup id
+ */
 const char*
 meta_window_get_startup_id (MetaWindow *window)
 {
@@ -7140,6 +7148,9 @@ meta_window_get_description (MetaWindow *window)
  * @window: a #MetaWindow
  *
  * Return the current value of the name part of WM_CLASS X property.
+ *
+ * Returns: (nullable): the current value of the name part of WM_CLASS X
+ * property
  */
 const char *
 meta_window_get_wm_class (MetaWindow *window)
@@ -7155,6 +7166,9 @@ meta_window_get_wm_class (MetaWindow *window)
  * @window: a #MetaWindow
  *
  * Return the current value of the instance part of WM_CLASS X property.
+ *
+ * Returns: (nullable): the current value of the instance part of WM_CLASS X
+ * property.
  */
 const char *
 meta_window_get_wm_class_instance (MetaWindow *window)
@@ -7172,7 +7186,7 @@ meta_window_get_wm_class_instance (MetaWindow *window)
  * Gets an unique id for a sandboxed app (currently flatpaks and snaps are
  * supported).
  *
- * Return value: (transfer none): the sandboxed application ID or %NULL
+ * Returns: (transfer none) (nullable): the sandboxed application ID or %NULL
  **/
 const char *
 meta_window_get_sandboxed_app_id (MetaWindow *window)
@@ -7186,7 +7200,7 @@ meta_window_get_sandboxed_app_id (MetaWindow *window)
  * meta_window_get_gtk_theme_variant:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the theme variant or %NULL
+ * Returns: (transfer none) (nullable): the theme variant or %NULL
  **/
 const char *
 meta_window_get_gtk_theme_variant (MetaWindow *window)
@@ -7198,7 +7212,7 @@ meta_window_get_gtk_theme_variant (MetaWindow *window)
  * meta_window_get_gtk_application_id:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the application ID
+ * Returns: (transfer none) (nullable): the application ID
  **/
 const char *
 meta_window_get_gtk_application_id (MetaWindow *window)
@@ -7210,7 +7224,7 @@ meta_window_get_gtk_application_id (MetaWindow *window)
  * meta_window_get_gtk_unique_bus_name:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the unique name
+ * Returns: (transfer none) (nullable): the unique name
  **/
 const char *
 meta_window_get_gtk_unique_bus_name (MetaWindow *window)
@@ -7222,7 +7236,7 @@ meta_window_get_gtk_unique_bus_name (MetaWindow *window)
  * meta_window_get_gtk_application_object_path:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the object path
+ * Returns: (transfer none) (nullable): the object path
  **/
 const char *
 meta_window_get_gtk_application_object_path (MetaWindow *window)
@@ -7234,7 +7248,7 @@ meta_window_get_gtk_application_object_path (MetaWindow *window)
  * meta_window_get_gtk_window_object_path:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the object path
+ * Returns: (transfer none) (nullable): the object path
  **/
 const char *
 meta_window_get_gtk_window_object_path (MetaWindow *window)
@@ -7246,7 +7260,7 @@ meta_window_get_gtk_window_object_path (MetaWindow *window)
  * meta_window_get_gtk_app_menu_object_path:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the object path
+ * Returns: (transfer none) (nullable): the object path
  **/
 const char *
 meta_window_get_gtk_app_menu_object_path (MetaWindow *window)
@@ -7258,7 +7272,7 @@ meta_window_get_gtk_app_menu_object_path (MetaWindow *window)
  * meta_window_get_gtk_menubar_object_path:
  * @window: a #MetaWindow
  *
- * Return value: (transfer none): the object path
+ * Returns: (transfer none) (nullable): the object path
  **/
 const char *
 meta_window_get_gtk_menubar_object_path (MetaWindow *window)
@@ -7325,13 +7339,13 @@ meta_window_get_layer (MetaWindow *window)
  *
  * Returns the #MetaWindow for the window that is pointed to by the
  * WM_TRANSIENT_FOR hint on this window (see XGetTransientForHint()
- * or XSetTransientForHint()). Metacity keeps transient windows above their
+ * or XSetTransientForHint()). Mutter keeps transient windows above their
  * parents. A typical usage of this hint is for a dialog that wants to stay
  * above its associated window.
  *
- * Return value: (transfer none): the window this window is transient for, or
- * %NULL if the WM_TRANSIENT_FOR hint is unset or does not point to a toplevel
- * window that Metacity knows about.
+ * Returns: (transfer none) (nullable): the window this window is transient for,
+ * or %NULL if the WM_TRANSIENT_FOR hint is unset or does not point to a
+ * toplevel window that Mutter knows about.
  */
 MetaWindow *
 meta_window_get_transient_for (MetaWindow *window)
@@ -7374,7 +7388,7 @@ meta_window_get_pid (MetaWindow *window)
  * meta_window_get_unit_cgroup:
  * @window: a #MetaWindow
  *
- * Return value: a GFile for the cgroup path, or NULL.
+ * Returns: (nullable): a #GFile for the cgroup path, or %NULL.
  */
 GFile *
 meta_window_get_unit_cgroup (MetaWindow *window)
@@ -7446,8 +7460,8 @@ meta_window_unit_cgroup_equal (MetaWindow *window1,
  * Returns name of the client machine from which this windows was created,
  * if known (obtained from the WM_CLIENT_MACHINE property).
  *
- * Return value: (transfer none): the machine name, or NULL; the string is
- * owned by the window manager and should not be freed or modified by the
+ * Returns: (transfer none) (nullable): the machine name, or %NULL; the string
+ * is owned by the window manager and should not be freed or modified by the
  * caller.
  */
 const char *
@@ -7486,8 +7500,8 @@ meta_window_is_remote (MetaWindow *window)
  * use; 'mutter-' key prefix is reserved for internal use, and must not be used
  * by plugins.
  *
- * Return value: (transfer none): the _MUTTER_HINTS string, or %NULL if no hints
- * are set.
+ * Returns: (transfer none) (nullable): the _MUTTER_HINTS string, or %NULL if no
+ * hints are set.
  */
 const char *
 meta_window_get_mutter_hints (MetaWindow *window)

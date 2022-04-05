@@ -36,9 +36,6 @@ G_DECLARE_DERIVABLE_TYPE (MetaStartupSequence,
                           META, STARTUP_SEQUENCE,
                           GObject)
 
-/**
- * meta_startup_notification_get_sequences: (skip)
- */
 META_EXPORT
 GSList *      meta_startup_notification_get_sequences (MetaStartupNotification *sn);
 

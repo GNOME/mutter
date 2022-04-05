@@ -129,6 +129,7 @@ meta_group_unref (MetaGroup *group)
  * meta_window_get_group: (skip)
  * @window: a #MetaWindow
  *
+ * Returns: (transfer none) (nullable): the #MetaGroup of the window
  */
 MetaGroup*
 meta_window_get_group (MetaWindow *window)
