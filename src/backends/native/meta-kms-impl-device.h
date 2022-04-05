@@ -40,6 +40,7 @@ typedef struct _MetaKmsDeviceCaps
 
   gboolean prefers_shadow_buffer;
   gboolean uses_monotonic_clock;
+  gboolean addfb2_modifiers;
 } MetaKmsDeviceCaps;
 
 typedef struct _MetaKmsProp MetaKmsProp;
