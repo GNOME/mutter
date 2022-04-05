@@ -261,6 +261,22 @@ calculate_titlebar_height (GtkWindow *window)
 }
 
 static void
+text_get_func (GtkClipboard     *clipboard,
+               GtkSelectionData *selection_data,
+               unsigned int      info,
+               gpointer          data)
+{
+  gtk_selection_data_set_text (selection_data, data, -1);
+}
+
+static void
+text_clear_func (GtkClipboard *clipboard,
+                 gpointer      data)
+{
+  g_free (data);
+}
+
+static void
 process_line (const char *line)
 {
   GError *error = NULL;
@@ -844,6 +860,37 @@ process_line (const char *line)
         }
 
       sync_after_lines = -1;
+    }
+  else if (strcmp (argv[0], "clipboard-set") == 0)
+    {
+      GdkDisplay *display = gdk_display_get_default ();
+      GtkClipboard *clipboard;
+      GdkAtom atom;
+      GtkTargetList *target_list;
+      GtkTargetEntry *targets;
+      int n_targets;
+
+      if (argc != 3)
+        {
+          g_print ("usage: clipboard-set <mimetype> <text>\n");
+          goto out;
+        }
+
+      clipboard = gtk_clipboard_get_for_display (display,
+                                                 GDK_SELECTION_CLIPBOARD);
+
+      atom = gdk_atom_intern (argv[1], FALSE);
+      target_list = gtk_target_list_new (NULL, 0);
+      gtk_target_list_add (target_list, atom, 0, 0);
+
+      targets = gtk_target_table_new_from_list (target_list, &n_targets);
+      gtk_target_list_unref (target_list);
+
+      gtk_clipboard_set_with_data (clipboard,
+                                   targets, n_targets,
+                                   text_get_func, text_clear_func,
+                                   g_strdup (argv[2]));
+      gtk_target_table_free (targets, n_targets);
     }
   else
     {
