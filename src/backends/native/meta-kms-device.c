@@ -490,6 +490,9 @@ meta_kms_device_new (MetaKms            *kms,
   free (device->path);
   device->path = data.out_path;
 
+  if (!device->caps.addfb2_modifiers)
+    device->flags |= META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS;
+
   return device;
 }
 
