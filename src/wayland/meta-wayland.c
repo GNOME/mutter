@@ -764,3 +764,9 @@ meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
       meta_wayland_compositor_remove_surface_association (compositor, id);
     }
 }
+
+MetaXWaylandManager *
+meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor)
+{
+  return &compositor->xwayland_manager;
+}
