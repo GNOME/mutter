@@ -57,13 +57,6 @@
 #include "wayland/meta-wayland-buffer.h"
 #endif
 
-#ifndef DRM_CAP_CURSOR_WIDTH
-#define DRM_CAP_CURSOR_WIDTH 0x8
-#endif
-#ifndef DRM_CAP_CURSOR_HEIGHT
-#define DRM_CAP_CURSOR_HEIGHT 0x9
-#endif
-
 /* When animating a cursor, we usually call drmModeSetCursor2 once per frame.
  * Though, testing shows that we need to triple buffer the cursor buffer in
  * order to avoid glitches when animating the cursor, at least when running on
