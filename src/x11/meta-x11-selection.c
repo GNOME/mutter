@@ -524,16 +524,24 @@ meta_x11_selection_init (MetaX11Display *x11_display)
 void
 meta_x11_selection_shutdown (MetaX11Display *x11_display)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
+  MetaSelection *selection = meta_display_get_selection (display);
   guint i;
 
-  g_signal_handlers_disconnect_by_func (meta_display_get_selection (display),
+  g_signal_handlers_disconnect_by_func (selection,
                                         notify_selection_owner,
                                         x11_display);
 
   for (i = 0; i < META_N_SELECTION_TYPES; i++)
     {
-      g_clear_object (&x11_display->selection.owners[i]);
+      MetaSelectionSource *owner;
+
+      owner = x11_display->selection.owners[i];
+      if (owner)
+        {
+          meta_selection_unset_owner (selection, i, owner);
+          g_clear_object (&x11_display->selection.owners[i]);
+        }
       if (x11_display->selection.cancellables[i])
         {
           g_cancellable_cancel (x11_display->selection.cancellables[i]);
