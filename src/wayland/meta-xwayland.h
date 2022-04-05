@@ -50,4 +50,9 @@ void
 meta_xwayland_associate_window_with_surface (MetaWindow          *window,
                                              MetaWaylandSurface  *surface);
 
+META_EXPORT_TEST
+gboolean meta_xwayland_signal (MetaXWaylandManager  *manager,
+                               int                   signum,
+                               GError              **error);
+
 #endif /* META_XWAYLAND_H */
