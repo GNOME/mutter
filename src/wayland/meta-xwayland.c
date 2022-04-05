@@ -478,7 +478,16 @@ static void
 x_io_error_exit (Display *display,
                  void    *data)
 {
-  g_warning ("Xwayland just died, attempting to recover");
+  MetaXWaylandManager *manager = data;
+  MetaX11DisplayPolicy x11_display_policy;
+
+  x11_display_policy =
+    meta_context_get_x11_display_policy (manager->compositor->context);
+
+  if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
+    g_warning ("X Wayland crashed (X IO error)");
+  else
+    meta_topic (META_DEBUG_WAYLAND, "Xwayland disappeared");
 }
 
 static void
@@ -1033,6 +1042,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
              manager->public_connection.name,
              manager->private_connection.name);
 
+  manager->compositor = compositor;
   manager->wayland_display = wl_display;
   policy = meta_context_get_x11_display_policy (context);
 
