@@ -682,7 +682,7 @@ meta_startup_notification_class_init (MetaStartupNotificationClass *klass)
                   META_TYPE_STARTUP_NOTIFICATION,
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, G_TYPE_POINTER);
+                  G_TYPE_NONE, 1, META_TYPE_STARTUP_SEQUENCE);
 
   g_object_class_install_properties (object_class, N_PROPS, sn_props);
 }
