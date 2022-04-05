@@ -1276,3 +1276,19 @@ meta_xwayland_handle_xevent (XEvent *event)
 
   return FALSE;
 }
+
+gboolean
+meta_xwayland_signal (MetaXWaylandManager  *manager,
+                      int                   signum,
+                      GError              **error)
+{
+  if (!manager->proc)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Can't send signal, Xwayland not running");
+      return FALSE;
+    }
+
+  g_subprocess_send_signal (manager->proc, signum);
+  return TRUE;
+}
