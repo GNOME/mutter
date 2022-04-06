@@ -73,6 +73,13 @@ struct _MetaWaylandTextInput
   uint32_t text_change_cause;
   gboolean enabled;
 
+  struct
+  {
+    char *string;
+    uint32_t cursor;
+    uint32_t anchor;
+  } preedit;
+
   guint done_idle_id;
 };
 
@@ -128,6 +135,10 @@ clutter_input_focus_send_done (ClutterInputFocus *focus)
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
+      zwp_text_input_v3_send_preedit_string (resource,
+                                             text_input->preedit.string,
+                                             text_input->preedit.cursor,
+                                             text_input->preedit.anchor);
       zwp_text_input_v3_send_done (resource,
                                    lookup_serial (text_input, resource));
     }
@@ -233,7 +244,6 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                                 guint              cursor)
 {
   MetaWaylandTextInput *text_input;
-  struct wl_resource *resource;
   gsize pos = 0;
 
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
@@ -241,10 +251,14 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
   if (text)
     pos = g_utf8_offset_to_pointer (text, cursor) - text;
 
-  wl_resource_for_each (resource, &text_input->focus_resource_list)
-    {
-      zwp_text_input_v3_send_preedit_string (resource, text, pos, pos);
-    }
+  g_clear_pointer (&text_input->preedit.string, g_free);
+  text_input->preedit.string = g_strdup (text);
+
+  if (text)
+    pos = g_utf8_offset_to_pointer (text, cursor) - text;
+
+  text_input->preedit.cursor = pos;
+  text_input->preedit.anchor = pos;
 
   meta_wayland_text_input_focus_defer_done (focus);
 }
@@ -662,6 +676,8 @@ meta_wayland_text_input_destroy (MetaWaylandTextInput *text_input)
   meta_wayland_text_input_set_focus (text_input, NULL);
   g_object_unref (text_input->input_focus);
   g_hash_table_destroy (text_input->resource_serials);
+  g_clear_pointer (&text_input->preedit.string, g_free);
+  g_clear_pointer (&text_input->surrounding.text, g_free);
   g_free (text_input);
 }
 
