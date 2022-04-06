@@ -1431,6 +1431,8 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
     focus_window = NULL;
   else if (is_no_focus_xwindow)
     focus_window = NULL;
+  else if (clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)))
+    focus_window = NULL;
   else if (display->focus_window && display->focus_window->surface)
     focus_window = display->focus_window;
   else
