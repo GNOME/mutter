@@ -438,6 +438,13 @@ meta_selection_transfer_async (MetaSelection        *selection,
   task = g_task_new (selection, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_transfer_async);
 
+  if (!selection->owners[selection_type])
+    {
+      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                               "Tried to transfer from NULL selection source");
+      return;
+    }
+
   transfer_request = transfer_request_new (output, selection_type, size,
                                            cancellable);
 
