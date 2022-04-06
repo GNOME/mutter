@@ -268,9 +268,14 @@ meta_x11_selection_input_stream_dispose (GObject *object)
     META_X11_SELECTION_INPUT_STREAM (object);
   MetaX11SelectionInputStreamPrivate *priv =
     meta_x11_selection_input_stream_get_instance_private (stream);
+  MetaX11Display *x11_display;
 
-  priv->x11_display->selection.input_streams =
-    g_list_remove (priv->x11_display->selection.input_streams, stream);
+  x11_display = priv->x11_display;
+  if (x11_display)
+    {
+      x11_display->selection.input_streams =
+        g_list_remove (x11_display->selection.input_streams, stream);
+    }
 
   G_OBJECT_CLASS (meta_x11_selection_input_stream_parent_class)->dispose (object);
 }
@@ -282,12 +287,24 @@ meta_x11_selection_input_stream_finalize (GObject *object)
     META_X11_SELECTION_INPUT_STREAM (object);
   MetaX11SelectionInputStreamPrivate *priv =
     meta_x11_selection_input_stream_get_instance_private (stream);
+  MetaX11Display *x11_display;
 
   g_async_queue_unref (priv->chunks);
 
   g_free (priv->selection);
   g_free (priv->target);
   g_free (priv->property);
+
+  x11_display = priv->x11_display;
+  if (x11_display)
+    {
+      Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
+
+      XDestroyWindow (xdisplay, priv->window);
+
+      g_object_remove_weak_pointer (G_OBJECT (x11_display),
+                                    (gpointer *) &priv->x11_display);
+    }
 
   G_OBJECT_CLASS (meta_x11_selection_input_stream_parent_class)->finalize (object);
 }
@@ -520,6 +537,9 @@ meta_x11_selection_input_stream_new_async (MetaX11Display      *x11_display,
   priv = meta_x11_selection_input_stream_get_instance_private (stream);
 
   priv->x11_display = x11_display;
+  g_object_add_weak_pointer (G_OBJECT (x11_display),
+                             (gpointer *) &priv->x11_display);
+
   x11_display->selection.input_streams =
     g_list_prepend (x11_display->selection.input_streams, stream);
   priv->selection = g_strdup (selection);
