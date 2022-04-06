@@ -639,6 +639,8 @@ text_input_commit_state (struct wl_client   *client,
 
   if (enable_panel)
     clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_ON);
+
+  meta_wayland_text_input_focus_defer_done (focus);
 }
 
 static struct zwp_text_input_v3_interface meta_text_input_interface = {
