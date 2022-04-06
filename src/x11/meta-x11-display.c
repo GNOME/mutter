@@ -1127,7 +1127,7 @@ meta_x11_display_new (MetaDisplay  *display,
                       GError      **error)
 {
   MetaContext *context = meta_display_get_context (display);
-  MetaX11Display *x11_display;
+  g_autoptr (MetaX11Display) x11_display = NULL;
   Display *xdisplay;
   Screen *xscreen;
   Window xroot;
@@ -1399,8 +1399,6 @@ meta_x11_display_new (MetaDisplay  *display,
                    "Failed to acquire window manager ownership");
 
       g_object_run_dispose (G_OBJECT (x11_display));
-      g_clear_object (&x11_display);
-
       return NULL;
     }
 
@@ -1410,7 +1408,7 @@ meta_x11_display_new (MetaDisplay  *display,
 
   init_event_masks (x11_display);
 
-  return x11_display;
+  return g_steal_pointer (&x11_display);
 }
 
 void
