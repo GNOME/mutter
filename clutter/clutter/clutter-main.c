@@ -116,6 +116,7 @@ static const GDebugKey clutter_debug_keys[] = {
   { "oob-transforms", CLUTTER_DEBUG_OOB_TRANSFORMS },
   { "frame-timings", CLUTTER_DEBUG_FRAME_TIMINGS },
   { "detailed-trace", CLUTTER_DEBUG_DETAILED_TRACE },
+  { "grabs", CLUTTER_DEBUG_GRABS },
 };
 #endif /* CLUTTER_ENABLE_DEBUG */
 
