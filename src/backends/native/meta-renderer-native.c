@@ -1566,9 +1566,12 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  gboolean ret = FALSE;
   EGLDisplay egl_display;
   EGLConfig egl_config;
   EGLContext egl_context;
+  CoglContext *cogl_context;
+  CoglDisplay *cogl_display;
   const char **missing_gl_extensions;
 
   egl_display = meta_render_device_get_egl_display (render_device);
@@ -1576,26 +1579,26 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "No EGL display");
-      return FALSE;
+      goto out;
     }
 
   if (!meta_render_device_is_hardware_accelerated (render_device))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Not hardware accelerated");
-      return FALSE;
+      goto out;
     }
 
   meta_egl_bind_api (egl, EGL_OPENGL_ES_API, NULL);
 
   if (!create_secondary_egl_config (egl, renderer_gpu_data->mode, egl_display,
                                     &egl_config, error))
-    goto err;
+    goto out;
 
   egl_context = create_secondary_egl_context (egl, egl_display, egl_config,
                                               error);
   if (egl_context == EGL_NO_CONTEXT)
-    goto err;
+    goto out;
 
   meta_renderer_native_ensure_gles3 (renderer_native);
 
@@ -1607,7 +1610,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
                               error))
     {
       meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
-      goto err;
+      goto out;
     }
 
   if (!meta_gles3_has_extensions (renderer_native->gles3,
@@ -1625,7 +1628,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       g_free (missing_gl_extensions_str);
       g_free (missing_gl_extensions);
 
-      goto err_fail_make_current;
+      goto out;
     }
 
   renderer_gpu_data->secondary.egl_context = egl_context;
@@ -1636,23 +1639,16 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
     meta_egl_has_extensions (egl, egl_display, NULL,
                              "EGL_EXT_image_dma_buf_import_modifiers",
                              NULL);
-
+  ret = TRUE;
+out:
   maybe_restore_cogl_egl_api (renderer_native);
-
-  return TRUE;
-
-err_fail_make_current:
-  meta_egl_make_current (egl,
-                         egl_display,
-                         EGL_NO_SURFACE,
-                         EGL_NO_SURFACE,
-                         EGL_NO_CONTEXT,
-                         NULL);
-
-err:
-  maybe_restore_cogl_egl_api (renderer_native);
-
-  return FALSE;
+  cogl_context = cogl_context_from_renderer_native (renderer_native);
+  if (cogl_context)
+    {
+      cogl_display = cogl_context_get_display (cogl_context);
+      _cogl_winsys_egl_ensure_current (cogl_display);
+    }
+  return ret;
 }
 
 static void
