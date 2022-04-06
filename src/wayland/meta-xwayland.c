@@ -1008,7 +1008,6 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
   else if (g_getenv ("RUNNING_UNDER_GDM"))
     display = 1024;
 
-
   if (!manager->public_connection.name)
     {
       if (!choose_xdisplay (manager, &manager->public_connection, &display, error))
