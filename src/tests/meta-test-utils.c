@@ -50,7 +50,10 @@ struct _MetaTestClient
   MetaAsyncWaiter *waiter;
 };
 
-struct _MetaAsyncWaiter {
+struct _MetaAsyncWaiter
+{
+  MetaX11Display *x11_display;
+
   XSyncCounter counter;
   int counter_value;
   XSyncAlarm alarm;
@@ -91,15 +94,18 @@ meta_ensure_test_client_path (int    argc,
 }
 
 MetaAsyncWaiter *
-meta_async_waiter_new (void)
+meta_async_waiter_new (MetaX11Display *x11_display)
 {
-  MetaAsyncWaiter *waiter = g_new0 (MetaAsyncWaiter, 1);
-
-  MetaDisplay *display = meta_get_display ();
-  Display *xdisplay = display->x11_display->xdisplay;
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
+  MetaAsyncWaiter *waiter;
   XSyncValue value;
   XSyncAlarmAttributes attr;
 
+  waiter = g_new0 (MetaAsyncWaiter, 1);
+
+  waiter->x11_display = x11_display;
+  g_object_add_weak_pointer (G_OBJECT (x11_display),
+                             (gpointer *) &waiter->x11_display);
   waiter->counter_value = 0;
   XSyncIntToValue (&value, waiter->counter_value);
 
@@ -136,11 +142,19 @@ meta_async_waiter_new (void)
 void
 meta_async_waiter_destroy (MetaAsyncWaiter *waiter)
 {
-  MetaDisplay *display = meta_get_display ();
-  Display *xdisplay = display->x11_display->xdisplay;
+  MetaX11Display *x11_display;
 
-  XSyncDestroyAlarm (xdisplay, waiter->alarm);
-  XSyncDestroyCounter (xdisplay, waiter->counter);
+  x11_display = waiter->x11_display;
+  if (x11_display)
+    {
+      Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
+
+      XSyncDestroyAlarm (xdisplay, waiter->alarm);
+      XSyncDestroyCounter (xdisplay, waiter->counter);
+
+      g_object_remove_weak_pointer (G_OBJECT (x11_display),
+                                    (gpointer *) &waiter->x11_display);
+    }
   g_main_loop_unref (waiter->loop);
 }
 
@@ -165,13 +179,17 @@ meta_async_waiter_wait (MetaAsyncWaiter *waiter,
 void
 meta_async_waiter_set_and_wait (MetaAsyncWaiter *waiter)
 {
-  MetaDisplay *display = meta_get_display ();
-  Display *xdisplay = display->x11_display->xdisplay;
-  int wait_value = meta_async_waiter_next_value (waiter);
+  Display *xdisplay;
+  int wait_value;
+
+  g_return_if_fail (waiter->x11_display);
+
+  wait_value = meta_async_waiter_next_value (waiter);
 
   XSyncValue sync_value;
   XSyncIntToValue (&sync_value, wait_value);
 
+  xdisplay = meta_x11_display_get_xdisplay (waiter->x11_display);
   XSyncSetCounter (xdisplay, waiter->counter, sync_value);
   meta_async_waiter_wait (waiter, wait_value);
 }
@@ -181,6 +199,7 @@ meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
                                      MetaX11Display        *x11_display,
                                      XSyncAlarmNotifyEvent *event)
 {
+  g_assert (x11_display == waiter->x11_display);
 
   if (event->alarm != waiter->alarm)
     return FALSE;
@@ -520,9 +539,11 @@ meta_test_client_new (MetaContext           *context,
 
   if (client->type == META_WINDOW_CLIENT_TYPE_X11)
     {
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (context);
+      MetaX11Display *x11_display;
 
-      if (!display->x11_display)
+      x11_display = meta_display_get_x11_display (display);
+      if (!x11_display)
         {
           GThread *thread;
 
@@ -532,8 +553,10 @@ meta_test_client_new (MetaContext           *context,
           meta_context_test_wait_for_x11_display (META_CONTEXT_TEST (context));
           g_thread_join (thread);
         }
+      x11_display = meta_display_get_x11_display (display);
+      g_assert_nonnull (x11_display);
 
-      client->waiter = meta_async_waiter_new ();
+      client->waiter = meta_async_waiter_new (x11_display);
     }
 
   return client;

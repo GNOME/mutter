@@ -50,14 +50,14 @@ typedef struct _MetaTestClient MetaTestClient;
 
 META_EXPORT
 gboolean meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
-                                              MetaX11Display        *display,
+                                              MetaX11Display        *x11_display,
                                               XSyncAlarmNotifyEvent *event);
 
 META_EXPORT
 void meta_async_waiter_set_and_wait (MetaAsyncWaiter *waiter);
 
 META_EXPORT
-MetaAsyncWaiter * meta_async_waiter_new (void);
+MetaAsyncWaiter * meta_async_waiter_new (MetaX11Display *x11_display);
 
 META_EXPORT
 void meta_async_waiter_destroy (MetaAsyncWaiter *waiter);

@@ -73,7 +73,7 @@ on_x11_display_opened (MetaDisplay *display,
 {
   meta_x11_display_set_alarm_filter (display->x11_display,
                                      test_case_alarm_filter, test);
-  test->waiter = meta_async_waiter_new ();
+  test->waiter = meta_async_waiter_new (display->x11_display);
 }
 
 static TestCase *
