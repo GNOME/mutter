@@ -2,6 +2,7 @@
 #include <clutter/clutter.h>
 
 #include "tests/clutter-test-utils.h"
+#include "clutter/clutter-event-private.h"
 
 typedef struct
 {
@@ -57,7 +58,7 @@ event_cb (ClutterActor *actor,
       EventLog entry = { clutter_actor_get_name (actor), event->type };
 
       g_debug ("Event '%s' on actor '%s'",
-               entry.type == CLUTTER_ENTER ? "ENTER" : "LEAVE",
+               clutter_event_get_name (event),
                entry.name);
       g_array_append_val (events, entry);
     }
