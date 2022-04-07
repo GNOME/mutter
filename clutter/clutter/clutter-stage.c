@@ -57,6 +57,7 @@
 #include "clutter-frame.h"
 #include "clutter-grab.h"
 #include "clutter-input-device-private.h"
+#include "clutter-input-only-actor.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
 #include "clutter-mutter.h"
@@ -148,7 +149,10 @@ struct _ClutterGrab
 {
   grefcount ref_count;
   ClutterStage *stage;
+
   ClutterActor *actor;
+  gboolean owns_actor;
+
   ClutterGrab *prev;
   ClutterGrab *next;
 };
@@ -3866,20 +3870,28 @@ clutter_grab_unref (ClutterGrab *grab)
 G_DEFINE_BOXED_TYPE (ClutterGrab, clutter_grab,
                      clutter_grab_ref, clutter_grab_unref)
 
-/**
- * clutter_stage_grab:
- * @stage: The #ClutterStage
- * @actor: The actor grabbing input
- *
- * Grabs input onto a certain actor. Events will be propagated as
- * usual inside its hierarchy.
- *
- * Returns: (transfer full): an opaque #ClutterGrab handle, drop
- *   with [method@Grab.dismiss]
- **/
-ClutterGrab *
-clutter_stage_grab (ClutterStage *stage,
-                    ClutterActor *actor)
+static ClutterGrab *
+clutter_grab_new (ClutterStage *stage,
+                  ClutterActor *actor,
+                  gboolean      owns_actor)
+{
+  ClutterGrab *grab;
+
+  grab = g_new0 (ClutterGrab, 1);
+  g_ref_count_init (&grab->ref_count);
+  grab->stage = stage;
+
+  grab->actor = actor;
+  if (owns_actor)
+    grab->owns_actor = TRUE;
+
+  return grab;
+}
+
+static ClutterGrab *
+clutter_stage_grab_full (ClutterStage *stage,
+                         ClutterActor *actor,
+                         gboolean      owns_actor)
 {
   ClutterStagePrivate *priv;
   ClutterGrab *grab;
@@ -3904,10 +3916,8 @@ clutter_stage_grab (ClutterStage *stage,
         clutter_seat_grab (seat, clutter_get_current_event_time ());
     }
 
-  grab = g_new0 (ClutterGrab, 1);
-  g_ref_count_init (&grab->ref_count);
-  grab->stage = stage;
-  grab->actor = actor;
+  grab = clutter_grab_new (stage, actor, owns_actor);
+
   grab->prev = NULL;
   grab->next = priv->topmost_grab;
 
@@ -3933,6 +3943,43 @@ clutter_stage_grab (ClutterStage *stage,
   clutter_stage_notify_grab (stage, grab, grab->next);
 
   return grab;
+}
+
+/**
+ * clutter_stage_grab:
+ * @stage: The #ClutterStage
+ * @actor: The actor grabbing input
+ *
+ * Grabs input onto a certain actor. Events will be propagated as
+ * usual inside its hierarchy.
+ *
+ * Returns: (transfer full): an opaque #ClutterGrab handle, drop
+ *   with [method@Grab.dismiss]
+ **/
+ClutterGrab *
+clutter_stage_grab (ClutterStage *stage,
+                    ClutterActor *actor)
+{
+  return clutter_stage_grab_full (stage, actor, FALSE);
+}
+
+ClutterGrab *
+clutter_stage_grab_input_only (ClutterStage        *stage,
+                               ClutterEventHandler  handler,
+                               gpointer             user_data,
+                               GDestroyNotify       user_data_destroy)
+{
+  ClutterInputOnlyActor *input_only_actor;
+  ClutterActor *actor;
+
+  input_only_actor = clutter_input_only_actor_new (handler, user_data,
+                                                   user_data_destroy);
+  actor = CLUTTER_ACTOR (input_only_actor);
+  clutter_actor_set_name (actor, "input only grab actor");
+
+  clutter_actor_insert_child_at_index (CLUTTER_ACTOR (stage), actor, 0);
+
+  return clutter_stage_grab_full (stage, actor, TRUE);
 }
 
 void
@@ -3991,6 +4038,9 @@ clutter_stage_unlink_grab (ClutterStage *stage,
 
   grab->next = NULL;
   grab->prev = NULL;
+
+  if (grab->owns_actor)
+    g_clear_pointer (&grab->actor, clutter_actor_destroy);
 }
 
 /**

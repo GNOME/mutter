@@ -32,6 +32,8 @@
 
 G_BEGIN_DECLS
 
+typedef gboolean (* ClutterEventHandler) (const ClutterEvent *event,
+                                          gpointer            user_data);
 typedef enum
 {
   CLUTTER_DEVICE_UPDATE_NONE = 0,
@@ -162,6 +164,12 @@ void clutter_stage_notify_action_implicit_grab (ClutterStage         *self,
 
 void clutter_stage_add_to_redraw_clip (ClutterStage       *self,
                                        ClutterPaintVolume *clip);
+
+CLUTTER_EXPORT
+ClutterGrab * clutter_stage_grab_input_only (ClutterStage        *self,
+                                             ClutterEventHandler  handler,
+                                             gpointer             user_data,
+                                             GDestroyNotify       user_data_destroy);
 
 G_END_DECLS
 
