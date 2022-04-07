@@ -2112,3 +2112,67 @@ clutter_event_get_relative_motion (const ClutterEvent *event,
   else
     return FALSE;
 }
+
+const char *
+clutter_event_get_name (const ClutterEvent *event)
+{
+  switch (event->type)
+    {
+    case CLUTTER_KEY_PRESS:
+      return "key-press";
+    case CLUTTER_KEY_RELEASE:
+      return "key-release";
+    case CLUTTER_MOTION:
+      return "motion";
+    case CLUTTER_ENTER:
+      return "enter";
+    case CLUTTER_LEAVE:
+      return "leave";
+    case CLUTTER_BUTTON_PRESS:
+      return "button-press";
+    case CLUTTER_BUTTON_RELEASE:
+      return "button-release";
+    case CLUTTER_SCROLL:
+      return "scroll";
+    case CLUTTER_TOUCH_BEGIN:
+      return "touch-begin";
+    case CLUTTER_TOUCH_UPDATE:
+      return "touch-update";
+    case CLUTTER_TOUCH_END:
+      return "touch-end";
+    case CLUTTER_TOUCH_CANCEL:
+      return "touch-cancel";
+    case CLUTTER_TOUCHPAD_PINCH:
+      return "touchpad-pinch";
+    case CLUTTER_TOUCHPAD_SWIPE:
+      return "touchpad-swipe";
+    case CLUTTER_TOUCHPAD_HOLD:
+      return "touchpad-hold";
+    case CLUTTER_PROXIMITY_IN:
+      return "proximity-in";
+    case CLUTTER_PROXIMITY_OUT:
+      return "proximity-out";
+    case CLUTTER_PAD_BUTTON_PRESS:
+      return "pad-button-press";
+    case CLUTTER_PAD_BUTTON_RELEASE:
+      return "pad-button-release";
+    case CLUTTER_PAD_STRIP:
+      return "pad-strip";
+    case CLUTTER_PAD_RING:
+      return "pad-ring";
+    case CLUTTER_DEVICE_ADDED:
+      return "device-added";
+    case CLUTTER_DEVICE_REMOVED:
+      return "device-removed";
+    case CLUTTER_IM_COMMIT:
+      return "im-commit";
+    case CLUTTER_IM_DELETE:
+      return "im-delete";
+    case CLUTTER_IM_PREEDIT:
+      return "im-preedit";
+    case CLUTTER_NOTHING:
+    case CLUTTER_EVENT_LAST:
+      break;
+    }
+  g_assert_not_reached ();
+}

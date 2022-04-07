@@ -38,6 +38,9 @@ CLUTTER_EXPORT
 void            _clutter_event_push                     (const ClutterEvent *event,
                                                          gboolean            do_copy);
 
+CLUTTER_EXPORT
+const char * clutter_event_get_name (const ClutterEvent *event);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_EVENT_PRIVATE_H__ */
