@@ -301,7 +301,7 @@ msgstr ""
 #: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
-"Habilita la tessel·lització a les vores en deixar anar les finestres a les "
+"Habilita la tessel·lació a les vores en deixar anar les finestres a les "
 "vores de la pantalla"
 
 #: data/org.gnome.mutter.gschema.xml.in:39
@@ -433,7 +433,7 @@ msgstr ""
 "No espereu afegir res en aquest ajustament que sigui una futura prova. "
 "Actualment, les paraules clau possibles són: • «scale-monitor-framebuffer»: "
 "fa que el mutter organitzi els monitors lògics en un espai de coordenades "
-"pixel·lades lògiques per defecte a l'hora de gestionar monitors HiDPI, de "
+"pixelades lògiques per defecte a l'hora de gestionar monitors HiDPI, de "
 "manera que redimensiona els marcs de memòria dels monitors en comptes del "
 "contingut de les finestres. No requereix un reinici. • «kms-modifiers» - fa "
 "que el mutter assigni sempre memòries intermèdies d'escaneig amb "
@@ -445,7 +445,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
-msgstr "Modificar a usar per localitzar el punter"
+msgstr "Modificar a usar per a localitzar el punter"
 
 #: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
@@ -579,7 +579,7 @@ msgid ""
 "shortcuts”."
 msgstr ""
 "Llista els noms o classes dels recursos de les finestres X11 que estiguin "
-"permesos o denegades per emetre captures de teclat X11 sota Xwayland. El nom "
+"permesos o denegades per a emetre captures de teclat X11 sota Xwayland. El nom "
 "o la classe dels recursos d'una finestra X11 donada es pot obtenir amb "
 "l'ordre «xprop WM_CLASS». Es poden utilitzar comodins «*» o «?» als valors. "
 "Els valors que comencin amb «!» es deneguen i tenen precedència per sobre de "
