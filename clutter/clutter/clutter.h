@@ -87,7 +87,7 @@
 #include "clutter/clutter-paint-context.h"
 #include "clutter/clutter-paint-nodes.h"
 #include "clutter/clutter-paint-node.h"
-#include "clutter/clutter-pan-action.h"
+#include "clutter/clutter-pan-gesture.h"
 #include "clutter/clutter-pick-context.h"
 #include "clutter/clutter-pipeline-cache.h"
 #include "clutter/clutter-property-transition.h"
