@@ -54,6 +54,14 @@ struct _ClutterActionClass
   void (* sequence_cancelled) (ClutterAction        *action,
                                ClutterInputDevice   *device,
                                ClutterEventSequence *sequence);
+
+  gboolean (* register_sequence) (ClutterAction      *self,
+                                  const ClutterEvent *event);
+
+  int (* setup_sequence_relationship) (ClutterAction        *action_1,
+                                       ClutterAction        *action_2,
+                                       ClutterInputDevice   *device,
+                                       ClutterEventSequence *sequence);
 };
 
 /* ClutterActor API */

@@ -88,6 +88,20 @@ struct _ClutterGestureClass
    * ClutterGestureClass::may_recognize: (skip)
    */
   gboolean (* may_recognize) (ClutterGesture *self);
+
+  /**
+   * ClutterGestureClass::should_influence: (skip)
+   */
+  void (* should_influence) (ClutterGesture *self,
+                             ClutterGesture *other_gesture,
+                             gboolean       *cancel_on_recognizing);
+
+  /**
+   * ClutterGestureClass::should_be_influenced_by: (skip)
+   */
+  void (* should_be_influenced_by) (ClutterGesture *self,
+                                    ClutterGesture *other_gesture,
+                                    gboolean       *cancelled_on_recognizing);
 };
 
 CLUTTER_EXPORT
@@ -143,5 +157,9 @@ void clutter_gesture_get_point_previous_coords_abs (ClutterGesture   *self,
 CLUTTER_EXPORT
 const ClutterEvent * clutter_gesture_get_point_event (ClutterGesture  *self,
                                                       int              point_index);
+
+CLUTTER_EXPORT
+void clutter_gesture_can_not_cancel (ClutterGesture *self,
+                                     ClutterGesture *other_gesture);
 
 G_END_DECLS

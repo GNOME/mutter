@@ -42,4 +42,12 @@ void clutter_action_sequence_cancelled (ClutterAction        *action,
                                         ClutterInputDevice   *device,
                                         ClutterEventSequence *sequence);
 
+gboolean clutter_action_register_sequence (ClutterAction      *self,
+                                           const ClutterEvent *event);
+
+int clutter_action_setup_sequence_relationship (ClutterAction        *action_1,
+                                                ClutterAction        *action_2,
+                                                ClutterInputDevice   *device,
+                                                ClutterEventSequence *sequence);
+
 G_END_DECLS
