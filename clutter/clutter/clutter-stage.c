@@ -4264,6 +4264,21 @@ free_event_receiver (EventReceiver *receiver)
 }
 
 static void
+remove_all_actors_from_chain (PointerDeviceEntry *entry)
+{
+  unsigned int i;
+
+  for (i = 0; i < entry->event_emission_chain->len; i++)
+    {
+      EventReceiver *receiver =
+        &g_array_index (entry->event_emission_chain, EventReceiver, i);
+
+      if (receiver->actor)
+        g_clear_object (&receiver->actor);
+    }
+}
+
+static void
 remove_all_actions_from_chain (PointerDeviceEntry *entry)
 {
   unsigned int i;
@@ -4527,4 +4542,22 @@ clutter_stage_implicit_grab_actor_unmapped (ClutterStage *self,
       if (entry->implicit_grab_actor == actor)
         cancel_implicit_grab_on_actor (entry, actor);
     }
+}
+
+void
+clutter_stage_notify_action_implicit_grab (ClutterStage         *self,
+                                           ClutterInputDevice   *device,
+                                           ClutterEventSequence *sequence)
+{
+  ClutterStagePrivate *priv = self->priv;
+  PointerDeviceEntry *entry;
+
+  if (sequence != NULL)
+    entry = g_hash_table_lookup (priv->touch_sequences, sequence);
+  else
+    entry = g_hash_table_lookup (priv->pointer_devices, device);
+
+  g_assert (entry->press_count > 0);
+
+  remove_all_actors_from_chain (entry);
 }

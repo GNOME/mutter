@@ -178,6 +178,10 @@ void clutter_stage_maybe_lost_implicit_grab (ClutterStage         *self,
 void clutter_stage_implicit_grab_actor_unmapped (ClutterStage *self,
                                                  ClutterActor *actor);
 
+void clutter_stage_notify_action_implicit_grab (ClutterStage         *self,
+                                                ClutterInputDevice   *device,
+                                                ClutterEventSequence *sequence);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
