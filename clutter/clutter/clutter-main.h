@@ -56,6 +56,7 @@ typedef enum
   CLUTTER_DEBUG_DETAILED_TRACE      = 1 << 18,
   CLUTTER_DEBUG_GRABS               = 1 << 19,
   CLUTTER_DEBUG_FRAME_CLOCK         = 1 << 20,
+  CLUTTER_DEBUG_GESTURES            = 1 << 21,
 } ClutterDebugFlag;
 
 typedef enum
