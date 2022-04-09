@@ -15,7 +15,7 @@ G_BEGIN_DECLS
 /* Try the GCC extension for valists in macros */
 #define CLUTTER_NOTE(type,x,a...)                       G_STMT_START {  \
         if (G_UNLIKELY (CLUTTER_HAS_DEBUG (type))) {                    \
-          _clutter_debug_message ("[" #type "]:" G_STRLOC ": " x, ##a); \
+          _clutter_debug_message ("[" #type "]: " x, ##a); \
         }                                               } G_STMT_END
 
 #else /* !__GNUC__ */
@@ -26,7 +26,7 @@ G_BEGIN_DECLS
 #define CLUTTER_NOTE(type,...)                          G_STMT_START {   \
         if (G_UNLIKELY (CLUTTER_HAS_DEBUG (type))) {                     \
           gchar *_fmt = g_strdup_printf (__VA_ARGS__);                   \
-          _clutter_debug_message ("[" #type "]:" G_STRLOC ": %s", _fmt); \
+          _clutter_debug_message ("[" #type "]: %s", _fmt); \
           g_free (_fmt);                                                 \
         }                                               } G_STMT_END
 #endif
