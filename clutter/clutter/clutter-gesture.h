@@ -65,13 +65,41 @@ struct _ClutterGestureClass
 
   gboolean (* may_recognize) (ClutterGesture *self);
 
+  /**
+   * ClutterGestureClass::should_influence:
+   * @self: the #ClutterGesture
+   * @other_gesture: the #ClutterGesture that should be influenced
+   * @cancel_on_recognizing: (inout): whether to cancel @other_gesture
+   *   when @self recognizes
+   * @inhibit_until_cancelled: (inout): whether to inhibit @other_gesture
+   *   until @self got cancelled
+   *
+   * This virtual function is called to request whether @self should
+   * influence @other_gesture, i.e. whether @other_gesture should be moved
+   * to state CANCELLED when @self enters RECOGNIZING.
+   */
   void (* should_influence) (ClutterGesture *self,
                              ClutterGesture *other_gesture,
-                             gboolean       *cancel_on_recognizing);
+                             gboolean       *cancel_on_recognizing,
+                             gboolean       *inhibit_until_cancelled);
 
+  /**
+   * ClutterGestureClass::should_be_influenced_by:
+   * @self: the #ClutterGesture
+   * @other_gesture: the influencing #ClutterGesture
+   * @cancelled_on_recognizing: (inout): whether @self should be cancelled
+   *   when @other_gesture recognizes
+   * @inhibited_until_cancelled: (inout): whether @self should be inhibited
+   *   until @other_gesture got cancelled
+   *
+   * This virtual function is called to request whether @other_gesture should
+   * influence @self, i.e. whether @self should be moved to state
+   * CANCELLED when @other_gesture enters RECOGNIZING.
+   */
   void (* should_be_influenced_by) (ClutterGesture *self,
                                     ClutterGesture *other_gesture,
-                                    gboolean       *cancelled_on_recognizing);
+                                    gboolean       *cancelled_on_recognizing,
+                                    gboolean       *inhibited_until_cancelled);
 };
 
 CLUTTER_EXPORT
@@ -131,5 +159,9 @@ const ClutterEvent * clutter_gesture_get_point_event (ClutterGesture  *self,
 CLUTTER_EXPORT
 void clutter_gesture_can_not_cancel (ClutterGesture *self,
                                      ClutterGesture *other_gesture);
+
+CLUTTER_EXPORT
+void clutter_gesture_require_failure_of (ClutterGesture *self,
+                                         ClutterGesture *other_gesture);
 
 G_END_DECLS

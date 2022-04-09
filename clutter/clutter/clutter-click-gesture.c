@@ -83,7 +83,8 @@ clutter_click_gesture_release (ClutterPressGesture *press_gesture)
 static void
 clutter_click_gesture_should_influence (ClutterGesture *gesture,
                                         ClutterGesture *other_gesture,
-                                        gboolean       *cancel_on_recognizing)
+                                        gboolean       *cancel_on_recognizing,
+                                        gboolean       *inhibit_until_cancelled)
 {
   ClutterClickGesture *self = CLUTTER_CLICK_GESTURE (gesture);
   ClutterActor *actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (gesture));
