@@ -63,12 +63,10 @@ clutter_headers = [
   'clutter-pipeline-cache.h',
   'clutter-press-gesture.h',
   'clutter-property-transition.h',
-  'clutter-rotate-action.h',
   'clutter-seat.h',
   'clutter-settings.h',
   'clutter-shader-effect.h',
   'clutter-shader-types.h',
-  'clutter-swipe-action.h',
   'clutter-snap-constraint.h',
   'clutter-stage.h',
   'clutter-stage-view.h',
@@ -78,7 +76,6 @@ clutter_headers = [
   'clutter-transition.h',
   'clutter-types.h',
   'clutter-virtual-input-device.h',
-  'clutter-zoom-action.h',
 ]
 
 clutter_sources = [
@@ -154,12 +151,10 @@ clutter_sources = [
   'clutter-pipeline-cache.c',
   'clutter-press-gesture.c',
   'clutter-property-transition.c',
-  'clutter-rotate-action.c',
   'clutter-seat.c',
   'clutter-settings.c',
   'clutter-shader-effect.c',
   'clutter-shader-types.c',
-  'clutter-swipe-action.c',
   'clutter-snap-constraint.c',
   'clutter-sprite.c',
   'clutter-stage-accessible.c',
@@ -174,7 +169,6 @@ clutter_sources = [
   'clutter-timeline.c',
   'clutter-util.c',
   'clutter-paint-volume.c',
-  'clutter-zoom-action.c',
 ]
 
 clutter_private_headers = [

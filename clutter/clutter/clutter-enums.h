@@ -737,23 +737,6 @@ typedef enum
 } ClutterPickMode;
 
 /**
- * ClutterSwipeDirection:
- * @CLUTTER_SWIPE_DIRECTION_UP: Upwards swipe gesture
- * @CLUTTER_SWIPE_DIRECTION_DOWN: Downwards swipe gesture
- * @CLUTTER_SWIPE_DIRECTION_LEFT: Leftwards swipe gesture
- * @CLUTTER_SWIPE_DIRECTION_RIGHT: Rightwards swipe gesture
- *
- * The main direction of the swipe gesture
- */
-typedef enum /*< prefix=CLUTTER_SWIPE_DIRECTION >*/
-{
-  CLUTTER_SWIPE_DIRECTION_UP    = 1 << 0,
-  CLUTTER_SWIPE_DIRECTION_DOWN  = 1 << 1,
-  CLUTTER_SWIPE_DIRECTION_LEFT  = 1 << 2,
-  CLUTTER_SWIPE_DIRECTION_RIGHT = 1 << 3
-} ClutterSwipeDirection;
-
-/**
  * ClutterPanAxis:
  * @CLUTTER_PAN_AXIS_BOTH: No constraint
  * @CLUTTER_PAN_AXIS_X: Set a constraint on the X axis
