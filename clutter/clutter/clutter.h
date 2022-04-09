@@ -79,6 +79,7 @@
 #include "clutter/clutter-keyval.h"
 #include "clutter/clutter-layout-manager.h"
 #include "clutter/clutter-layout-meta.h"
+#include "clutter/clutter-long-press-gesture.h"
 #include "clutter/clutter-macros.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-offscreen-effect.h"
