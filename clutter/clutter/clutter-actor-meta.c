@@ -109,6 +109,8 @@ clutter_actor_meta_real_set_actor (ClutterActorMeta *meta,
     priv->destroy_id = g_signal_connect (priv->actor, "destroy",
                                          G_CALLBACK (on_actor_destroy),
                                          meta);
+
+  g_object_notify_by_pspec (G_OBJECT (meta), obj_props[PROP_ACTOR]);
 }
 
 static void
@@ -213,7 +215,8 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
                          P_("Actor"),
                          P_("The actor attached to the meta"),
                          CLUTTER_TYPE_ACTOR,
-                         CLUTTER_PARAM_READABLE);
+                         CLUTTER_PARAM_READABLE |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActorMeta:name:
