@@ -942,28 +942,6 @@ typedef enum
 } ClutterStepMode;
 
 /**
- * ClutterGestureTriggerEdge:
- * @CLUTTER_GESTURE_TRIGGER_EDGE_NONE: Tell #ClutterGestureAction that
- * the gesture must begin immediately and there's no drag limit that
- * will cause its cancellation;
- * @CLUTTER_GESTURE_TRIGGER_EDGE_AFTER: Tell #ClutterGestureAction that
- * it needs to wait until the drag threshold has been exceeded before
- * considering that the gesture has begun;
- * @CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE: Tell #ClutterGestureAction that
- * the gesture must begin immediately and that it must be cancelled
- * once the drag exceed the configured threshold.
- *
- * Enum passed to the [method@GestureAction.set_threshold_trigger_edge]
- * function.
- */
-typedef enum
-{
-  CLUTTER_GESTURE_TRIGGER_EDGE_NONE  = 0,
-  CLUTTER_GESTURE_TRIGGER_EDGE_AFTER,
-  CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE
-} ClutterGestureTriggerEdge;
-
-/**
  * ClutterTouchpadGesturePhase:
  * @CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN: The gesture has begun.
  * @CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE: The gesture has been updated.
