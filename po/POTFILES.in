@@ -17,7 +17,6 @@ src/compositor/meta-background.c
 src/core/bell.c
 src/core/display.c
 src/core/keybindings.c
-src/core/meta-close-dialog-default.c
 src/core/meta-context-main.c
 src/core/meta-pad-action-mapper.c
 src/core/mutter.c

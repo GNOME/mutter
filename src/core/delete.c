@@ -56,6 +56,8 @@ meta_window_ensure_close_dialog (MetaWindow *window)
   display = window->display;
   window->close_dialog = meta_compositor_create_close_dialog (display->compositor,
                                                               window);
+  if (!window->close_dialog)
+    return;
   g_signal_connect (window->close_dialog, "response",
                     G_CALLBACK (close_dialog_response_cb), window);
 }

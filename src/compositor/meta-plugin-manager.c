@@ -29,7 +29,6 @@
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-module.h"
-#include "core/meta-close-dialog-default-private.h"
 #include "core/meta-inhibit-shortcuts-dialog-default-private.h"
 #include "core/window-private.h"
 #include "meta/meta-x11-errors.h"
@@ -396,7 +395,7 @@ meta_plugin_manager_create_close_dialog (MetaPluginManager *plugin_mgr,
   if (klass->create_close_dialog)
     return klass->create_close_dialog (plugin, window);
 
-  return meta_close_dialog_default_new (window);
+  return NULL;
 }
 
 MetaInhibitShortcutsDialog *
