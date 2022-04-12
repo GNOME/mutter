@@ -92,6 +92,13 @@ meta_kms_crtc_is_active (MetaKmsCrtc *crtc)
   return crtc->current_state.is_active;
 }
 
+
+gboolean
+meta_kms_crtc_has_gamma (MetaKmsCrtc *crtc)
+{
+  return !!meta_kms_crtc_get_prop_id (crtc, META_KMS_CRTC_PROP_GAMMA_LUT);
+}
+
 static void
 read_gamma_state (MetaKmsCrtc       *crtc,
                   MetaKmsCrtcState  *crtc_state,

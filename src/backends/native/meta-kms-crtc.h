@@ -66,6 +66,8 @@ uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
 
 int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
 
+gboolean meta_kms_crtc_has_gamma (MetaKmsCrtc *crtc);
+
 gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
 
 void meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma);
