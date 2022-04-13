@@ -172,4 +172,7 @@ gboolean clutter_seat_query_state (ClutterSeat          *seat,
                                    graphene_point_t     *coords,
                                    ClutterModifierType  *modifiers);
 
+CLUTTER_EXPORT
+const char * clutter_seat_get_name (ClutterSeat *seat);
+
 #endif /* CLUTTER_SEAT_H */
