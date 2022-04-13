@@ -451,11 +451,11 @@ typedef enum
  * @user_data: data passed to the function
  *
  */
-typedef void (* MetaKeyHandlerFunc) (MetaDisplay     *display,
-                                     MetaWindow      *window,
-                                     ClutterKeyEvent *event,
-                                     MetaKeyBinding  *binding,
-                                     gpointer         user_data);
+typedef void (* MetaKeyHandlerFunc) (MetaDisplay           *display,
+                                     MetaWindow            *window,
+                                     const ClutterKeyEvent *event,
+                                     MetaKeyBinding        *binding,
+                                     gpointer               user_data);
 
 META_EXPORT
 GType meta_key_binding_get_type    (void);
