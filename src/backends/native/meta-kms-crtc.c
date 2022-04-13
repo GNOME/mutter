@@ -369,6 +369,7 @@ init_properties (MetaKmsCrtc       *crtc,
   MetaKmsCrtcPropTable *prop_table = &crtc->prop_table;
   int fd;
   drmModeObjectProperties *drm_props;
+  int i;
 
   *prop_table = (MetaKmsCrtcPropTable) {
     .props = {
@@ -405,6 +406,17 @@ init_properties (MetaKmsCrtc       *crtc,
                                         crtc);
 
   drmModeFreeObjectProperties (drm_props);
+
+  for (i = 0; i < META_KMS_CRTC_N_PROPS; i++)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "%s (%s) CRTC %u property '%s' is %s",
+                  meta_kms_impl_device_get_path (impl_device),
+                  meta_kms_impl_device_get_driver_name (impl_device),
+                  drm_crtc->crtc_id,
+                  prop_table->props[i].name,
+                  prop_table->props[i].prop_id ? "supported" : "unsupported");
+    }
 }
 
 MetaKmsCrtc *
