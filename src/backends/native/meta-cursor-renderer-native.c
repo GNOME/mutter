@@ -159,6 +159,10 @@ ensure_cursor_priv (MetaCursorSprite *cursor_sprite);
 static MetaCursorNativePrivate *
 get_cursor_priv (MetaCursorSprite *cursor_sprite);
 
+static gboolean
+is_cursor_scale_and_transform_valid (MetaCursorRenderer *renderer,
+                                     MetaCursorSprite   *cursor_sprite);
+
 static MetaCursorRendererNativeGpuData *
 meta_cursor_renderer_native_gpu_data_from_gpu (MetaGpuKms *gpu_kms)
 {
@@ -1069,10 +1073,12 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
     {
       gboolean realized;
 
+      ensure_cursor_priv (cursor_sprite);
       realized = meta_cursor_sprite_realize_texture (cursor_sprite);
       gpus = calculate_cursor_sprite_gpus (renderer, cursor_sprite);
 
-      if (realized)
+      if (realized ||
+          !is_cursor_scale_and_transform_valid (renderer, cursor_sprite))
         realize_cursor_sprite (renderer, cursor_sprite, gpus);
     }
 
