@@ -220,6 +220,8 @@ mutter_sources = [
   'backends/meta-dbus-session-watcher.h',
   'backends/meta-display-config-shared.h',
   'backends/meta-dnd-private.h',
+  'backends/meta-fd-source.c',
+  'backends/meta-fd-source.h',
   'backends/meta-gpu.c',
   'backends/meta-gpu.h',
   'backends/meta-idle-monitor.c',

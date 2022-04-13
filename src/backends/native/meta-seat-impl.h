@@ -68,7 +68,7 @@ struct _MetaSeatImpl
   MetaSeatNative *seat_native;
   char *seat_id;
   MetaSeatNativeFlag flags;
-  MetaEventSource *event_source;
+  GSource *libinput_source;
   struct libinput *libinput;
   GRWLock state_lock;
 

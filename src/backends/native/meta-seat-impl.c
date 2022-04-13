@@ -34,6 +34,7 @@
 #include <math.h>
 
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-fd-source.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-device-pool.h"
@@ -1337,39 +1338,6 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
   queue_event (seat_impl, event);
 }
 
-/*
- * MetaEventSource for reading input devices
- */
-
-static gboolean
-meta_event_prepare (GSource *g_source,
-                    int     *timeout_ms)
-{
-  MetaEventSource *source = (MetaEventSource *) g_source;
-  MetaSeatImpl *seat_impl = source->seat_impl;
-
-  *timeout_ms = -1;
-
-  switch (libinput_next_event_type (seat_impl->libinput))
-    {
-    case LIBINPUT_EVENT_NONE:
-      return FALSE;
-    default:
-      return TRUE;
-    }
-}
-
-static gboolean
-meta_event_check (GSource *source)
-{
-  MetaEventSource *event_source = (MetaEventSource *) source;
-  gboolean retval;
-
-  retval = !!(event_source->event_poll_fd.revents & G_IO_IN);
-
-  return retval;
-}
-
 static void
 constrain_to_barriers (MetaSeatImpl       *seat_impl,
                        ClutterInputDevice *device,
@@ -1876,68 +1844,6 @@ notify_pad_ring (ClutterInputDevice *input_device,
   clutter_event_set_time (event, us2ms (time_us));
 
   queue_event (seat_impl, event);
-}
-
-static gboolean
-meta_event_dispatch (GSource     *g_source,
-                     GSourceFunc  callback,
-                     gpointer     user_data)
-{
-  MetaEventSource *source = (MetaEventSource *) g_source;
-  MetaSeatImpl *seat_impl;
-
-  seat_impl = source->seat_impl;
-
-  dispatch_libinput (seat_impl);
-
-  return TRUE;
-}
-
-static GSourceFuncs event_funcs = {
-  meta_event_prepare,
-  meta_event_check,
-  meta_event_dispatch,
-  NULL
-};
-
-static MetaEventSource *
-meta_event_source_new (MetaSeatImpl *seat_impl)
-{
-  GSource *source;
-  MetaEventSource *event_source;
-  int fd;
-
-  source = g_source_new (&event_funcs, sizeof (MetaEventSource));
-  g_source_set_name (source, "[mutter] Events");
-  event_source = (MetaEventSource *) source;
-
-  /* setup the source */
-  event_source->seat_impl = seat_impl;
-
-  fd = libinput_get_fd (seat_impl->libinput);
-  event_source->event_poll_fd.fd = fd;
-  event_source->event_poll_fd.events = G_IO_IN;
-
-  /* and finally configure and attach the GSource */
-  g_source_set_priority (source, CLUTTER_PRIORITY_EVENTS);
-  g_source_add_poll (source, &event_source->event_poll_fd);
-  g_source_set_can_recurse (source, TRUE);
-  g_source_attach (source, seat_impl->input_context);
-
-  return event_source;
-}
-
-static void
-meta_event_source_free (MetaEventSource *source)
-{
-  GSource *g_source = (GSource *) source;
-
-  /* ignore the return value of close, it's not like we can do something
-   * about it */
-  close (source->event_poll_fd.fd);
-
-  g_source_destroy (g_source);
-  g_source_unref (g_source);
 }
 
 static gboolean
@@ -3133,6 +3039,30 @@ meta_seat_impl_set_keyboard_numlock_in_impl (MetaSeatImpl *seat_impl,
 }
 
 static gboolean
+meta_libinput_source_prepare (gpointer user_data)
+{
+  MetaSeatImpl *seat_impl = META_SEAT_IMPL (user_data);
+
+  switch (libinput_next_event_type (seat_impl->libinput))
+    {
+    case LIBINPUT_EVENT_NONE:
+      return FALSE;
+    default:
+      return TRUE;
+    }
+}
+
+static gboolean
+meta_libinput_source_dispatch (gpointer user_data)
+{
+  MetaSeatImpl *seat_impl = META_SEAT_IMPL (user_data);
+
+  dispatch_libinput (seat_impl);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static gboolean
 init_libinput (MetaSeatImpl  *seat_impl,
                GError       **error)
 {
@@ -3176,10 +3106,19 @@ init_libinput (MetaSeatImpl  *seat_impl,
 static void
 init_libinput_source (MetaSeatImpl *seat_impl)
 {
-  MetaEventSource *source;
+  int fd;
+  GSource *source;
 
-  source = meta_event_source_new (seat_impl);
-  seat_impl->event_source = source;
+  fd = libinput_get_fd (seat_impl->libinput);
+  source = meta_create_fd_source (fd,
+                                  "[mutter] libinput",
+                                  meta_libinput_source_prepare,
+                                  meta_libinput_source_dispatch,
+                                  seat_impl,
+                                  NULL);
+  seat_impl->libinput_source = source;
+  g_source_attach (source, seat_impl->input_context);
+  g_source_unref (source);
 }
 
 static gpointer
@@ -3377,7 +3316,7 @@ destroy_in_impl (GTask *task)
   g_clear_pointer (&seat_impl->libinput, libinput_unref);
   g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
   g_clear_pointer (&seat_impl->touch_states, g_hash_table_destroy);
-  g_clear_pointer (&seat_impl->event_source, meta_event_source_free);
+  g_clear_pointer (&seat_impl->libinput_source, g_source_destroy);
 
   numlock_active =
     xkb_state_mod_name_is_active (seat_impl->xkb, XKB_MOD_NAME_NUM,
@@ -3424,7 +3363,7 @@ meta_seat_impl_finalize (GObject *object)
 
   g_assert (!seat_impl->libinput);
   g_assert (!seat_impl->tools);
-  g_assert (!seat_impl->event_source);
+  g_assert (!seat_impl->libinput_source);
 
   g_free (seat_impl->seat_id);
 
