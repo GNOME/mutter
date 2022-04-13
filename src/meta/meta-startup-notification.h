@@ -44,30 +44,30 @@ MetaLaunchContext *
              meta_startup_notification_create_launcher (MetaStartupNotification *sn);
 
 META_EXPORT
-const char * meta_startup_sequence_get_id             (MetaStartupSequence *sequence);
+const char * meta_startup_sequence_get_id             (MetaStartupSequence *seq);
 
 META_EXPORT
-gboolean     meta_startup_sequence_get_completed      (MetaStartupSequence *sequence);
+gboolean     meta_startup_sequence_get_completed      (MetaStartupSequence *seq);
 
 META_EXPORT
-const char * meta_startup_sequence_get_name           (MetaStartupSequence *sequence);
+const char * meta_startup_sequence_get_name           (MetaStartupSequence *seq);
 
 META_EXPORT
-int          meta_startup_sequence_get_workspace      (MetaStartupSequence *sequence);
+int          meta_startup_sequence_get_workspace      (MetaStartupSequence *seq);
 
 META_EXPORT
-uint64_t     meta_startup_sequence_get_timestamp      (MetaStartupSequence *sequence);
+uint64_t     meta_startup_sequence_get_timestamp      (MetaStartupSequence *seq);
 
 META_EXPORT
-const char * meta_startup_sequence_get_icon_name      (MetaStartupSequence *sequence);
+const char * meta_startup_sequence_get_icon_name      (MetaStartupSequence *seq);
 
 META_EXPORT
-const char * meta_startup_sequence_get_application_id (MetaStartupSequence *sequence);
+const char * meta_startup_sequence_get_application_id (MetaStartupSequence *seq);
 
 META_EXPORT
-const char * meta_startup_sequence_get_wmclass        (MetaStartupSequence *sequence);
+const char * meta_startup_sequence_get_wmclass        (MetaStartupSequence *seq);
 
 META_EXPORT
-void        meta_startup_sequence_complete           (MetaStartupSequence *sequence);
+void        meta_startup_sequence_complete           (MetaStartupSequence *seq);
 
 #endif /* META_STARTUP_NOTIFICATION_H */

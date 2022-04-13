@@ -701,7 +701,7 @@ meta_startup_notification_new (MetaDisplay *display)
  *
  * Get the list of startup sequences arrived in the startup notification object.
  *
- * Returns: (element-type MetaStartupSequence): a #GSList of
+ * Returns: (element-type MetaStartupSequence) (transfer none): a #GSList of
  * #MetaStartupSequence in the #MetaStartupNotification.
  **/
 GSList *
