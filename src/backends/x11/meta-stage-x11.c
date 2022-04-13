@@ -128,7 +128,7 @@ meta_stage_x11_set_wm_protocols (MetaStageX11 *stage_x11)
   Display *xdisplay = xdisplay_from_stage (stage_x11);
   Atom protocols[2];
   int n = 0;
-  
+
   protocols[n++] = clutter_backend_x11->atom_WM_DELETE_WINDOW;
   protocols[n++] = clutter_backend_x11->atom_NET_WM_PING;
 
@@ -234,17 +234,17 @@ set_wm_title (MetaStageX11 *stage_x11)
   if (stage_x11->title == NULL)
     {
       XDeleteProperty (xdisplay,
-                       stage_x11->xwin, 
+                       stage_x11->xwin,
                        clutter_backend_x11->atom_NET_WM_NAME);
     }
   else
     {
       XChangeProperty (xdisplay,
-                       stage_x11->xwin, 
+                       stage_x11->xwin,
                        clutter_backend_x11->atom_NET_WM_NAME,
                        clutter_backend_x11->atom_UTF8_STRING,
-                       8, 
-                       PropModeReplace, 
+                       8,
+                       PropModeReplace,
                        (unsigned char *) stage_x11->title,
                        (int) strlen (stage_x11->title));
     }
