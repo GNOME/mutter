@@ -1442,6 +1442,14 @@ meta_backend_get_screen_cast (MetaBackend *backend)
 }
 #endif /* HAVE_REMOTE_DESKTOP */
 
+MetaInputCapture *
+meta_backend_get_input_capture (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->input_capture;
+}
+
 /**
  * meta_backend_get_remote_access_controller:
  * @backend: A #MetaBackend

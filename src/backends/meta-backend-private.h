@@ -149,6 +149,8 @@ MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
 MetaScreenCast * meta_backend_get_screen_cast (MetaBackend *backend);
 #endif
 
+MetaInputCapture * meta_backend_get_input_capture (MetaBackend *backend);
+
 gboolean meta_backend_grab_device (MetaBackend *backend,
                                    int          device_id,
                                    uint32_t     timestamp);

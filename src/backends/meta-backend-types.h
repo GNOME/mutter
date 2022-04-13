@@ -92,4 +92,7 @@ typedef struct _MetaGammaLut
   size_t size;
 } MetaGammaLut;
 
+typedef struct _MetaInputCapture MetaInputCapture;
+typedef struct _MetaInputCaptureSession MetaInputCaptureSession;
+
 #endif /* META_BACKEND_TYPE_H */
