@@ -362,7 +362,7 @@ parse_active (MetaKmsImplDevice  *impl_device,
 }
 
 static void
-init_proporties (MetaKmsCrtc       *crtc,
+init_properties (MetaKmsCrtc       *crtc,
                  MetaKmsImplDevice *impl_device,
                  drmModeCrtc       *drm_crtc)
 {
@@ -432,7 +432,7 @@ meta_kms_crtc_new (MetaKmsImplDevice  *impl_device,
   crtc->id = drm_crtc->crtc_id;
   crtc->idx = idx;
 
-  init_proporties (crtc, impl_device, drm_crtc);
+  init_properties (crtc, impl_device, drm_crtc);
 
   meta_kms_crtc_read_state (crtc, impl_device, drm_crtc, drm_props);
 
