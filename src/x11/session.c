@@ -69,7 +69,6 @@ meta_window_release_saved_state (const MetaWindowSessionInfo *info)
 
 #include "core/display-private.h"
 #include "meta/main.h"
-#include "meta/util.h"
 #include "meta/workspace.h"
 
 typedef struct _MetaIceConnection
@@ -87,7 +86,6 @@ static void        save_state         (void);
 static char*       load_state         (const char *previous_save_file);
 static void        regenerate_save_file (void);
 static const char* full_save_file       (void);
-static void        warn_about_lame_clients_and_finish_interact (gboolean shutdown);
 static void        disconnect         (void);
 
 /* This is called when data is available on an ICE connection.  */
@@ -597,7 +595,9 @@ interact_callback (SmcConn smc_conn, SmPointer client_data)
 
   current_state = STATE_DONE_WITH_INTERACT;
 
-  warn_about_lame_clients_and_finish_interact (shutdown);
+  SmcInteractDone (session_connection, False /* don't cancel logout */);
+
+  save_yourself_possibly_done (shutdown, TRUE);
 }
 
 static void
@@ -1732,107 +1732,6 @@ static const char*
 full_save_file (void)
 {
   return full_save_path;
-}
-
-static int
-windows_cmp_by_title (MetaWindow *a,
-                      MetaWindow *b)
-{
-  return g_utf8_collate (a->title, b->title);
-}
-
-static void
-finish_interact (gboolean shutdown)
-{
-  if (current_state == STATE_DONE_WITH_INTERACT) /* paranoia */
-    {
-      SmcInteractDone (session_connection, False /* don't cancel logout */);
-
-      save_yourself_possibly_done (shutdown, TRUE);
-    }
-}
-
-static void
-dialog_closed (GPid pid, int status, gpointer user_data)
-{
-  gboolean shutdown = GPOINTER_TO_INT (user_data);
-
-  if (WIFEXITED (status) && WEXITSTATUS (status) == 0) /* pressed "OK" */
-    {
-      finish_interact (shutdown);
-    }
-}
-
-static void
-warn_about_lame_clients_and_finish_interact (gboolean shutdown)
-{
-  GSList *lame = NULL;
-  GSList *windows;
-  GSList *lame_details = NULL;
-  GSList *tmp;
-  GSList *columns = NULL;
-  GPid pid;
-
-  windows = meta_display_list_windows (meta_get_display (), META_LIST_DEFAULT);
-  tmp = windows;
-  while (tmp != NULL)
-    {
-      MetaWindow *window;
-
-      window = tmp->data;
-
-      /* only complain about normal windows, the others
-       * are kind of dumb to worry about
-       */
-      if (window->sm_client_id == NULL &&
-          window->type == META_WINDOW_NORMAL)
-        lame = g_slist_prepend (lame, window);
-
-      tmp = tmp->next;
-    }
-
-  g_slist_free (windows);
-
-  if (lame == NULL)
-    {
-      /* No lame apps. */
-      finish_interact (shutdown);
-      return;
-    }
-
-  columns = g_slist_prepend (columns, (gpointer)"Window");
-  columns = g_slist_prepend (columns, (gpointer)"Class");
-
-  lame = g_slist_sort (lame, (GCompareFunc) windows_cmp_by_title);
-
-  tmp = lame;
-  while (tmp != NULL)
-    {
-      MetaWindow *w = tmp->data;
-
-      lame_details = g_slist_prepend (lame_details,
-                                      w->res_class ? w->res_class : (gpointer)"");
-      lame_details = g_slist_prepend (lame_details,
-                                      w->title);
-
-      tmp = tmp->next;
-    }
-  g_slist_free (lame);
-
-  pid = meta_show_dialog("--list",
-                         _("These windows do not support “save current setup” "
-                           "and will have to be restarted manually next time "
-                           "you log in."),
-                         "240",
-                         meta_get_display()->x11_display->screen_name,
-                         NULL, NULL, NULL,
-                         None,
-                         columns,
-                         lame_details);
-
-  g_slist_free (lame_details);
-
-  g_child_watch_add (pid, dialog_closed, GINT_TO_POINTER (shutdown));
 }
 
 #endif /* HAVE_SM */
