@@ -153,18 +153,6 @@ char* meta_external_binding_name_for_action (guint keybinding_action);
 META_EXPORT
 char* meta_g_utf8_strndup (const gchar *src, gsize n);
 
-META_EXPORT
-GPid meta_show_dialog (const char *type,
-                       const char *message,
-                       const char *timeout,
-                       const char *display,
-                       const char *ok_text,
-                       const char *cancel_text,
-                       const char *icon_name,
-                       const int transient_for,
-                       GSList *columns,
-                       GSList *entries);
-
 /* To disable verbose mode, we make these functions into no-ops */
 #ifdef WITH_VERBOSE_MODE
 
