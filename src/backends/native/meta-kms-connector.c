@@ -213,42 +213,41 @@ sync_fd_held (MetaKmsConnector  *connector,
 
 static void
 set_panel_orientation (MetaKmsConnectorState *state,
-                       drmModePropertyPtr     prop,
-                       uint64_t               orientation)
+                       MetaKmsProp           *panel_orientation)
 {
-  const char *name;
+  MetaMonitorTransform transform;
+  MetaKmsConnectorPanelOrientation orientation = panel_orientation->value;
 
-  name = prop->enums[orientation].name;
-  if (strcmp (name, "Upside Down") == 0)
+  switch (orientation)
     {
-      state->panel_orientation_transform = META_MONITOR_TRANSFORM_180;
+    case META_KMS_CONNECTOR_PANEL_ORIENTATION_UPSIDE_DOWN:
+      transform = META_MONITOR_TRANSFORM_180;
+      break;
+    case META_KMS_CONNECTOR_PANEL_ORIENTATION_LEFT_SIDE_UP:
+      transform = META_MONITOR_TRANSFORM_90;
+      break;
+    case META_KMS_CONNECTOR_PANEL_ORIENTATION_RIGHT_SIDE_UP:
+      transform = META_MONITOR_TRANSFORM_270;
+      break;
+    default:
+      transform = META_MONITOR_TRANSFORM_NORMAL;
+      break;
     }
-  else if (strcmp (name, "Left Side Up") == 0)
-    {
-      /* Left side up, rotate 90 degrees counter clockwise to correct */
-      state->panel_orientation_transform = META_MONITOR_TRANSFORM_90;
-    }
-  else if (strcmp (name, "Right Side Up") == 0)
-    {
-      /* Right side up, rotate 270 degrees counter clockwise to correct */
-      state->panel_orientation_transform = META_MONITOR_TRANSFORM_270;
-    }
-  else
-    {
-      state->panel_orientation_transform = META_MONITOR_TRANSFORM_NORMAL;
-    }
+
+  state->panel_orientation_transform = transform;
 }
 
 static void
 set_privacy_screen (MetaKmsConnectorState *state,
                     MetaKmsConnector      *connector,
-                    drmModePropertyPtr     prop,
-                    uint64_t               value)
+                    MetaKmsProp           *hw_state)
 {
+  MetaKmsConnectorPrivacyScreen privacy_screen = hw_state->value;
+
   if (!meta_kms_connector_is_privacy_screen_supported (connector))
     return;
 
-  switch (value)
+  switch (privacy_screen)
     {
     case META_KMS_PRIVACY_SCREEN_HW_STATE_DISABLED:
       state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
@@ -266,7 +265,7 @@ set_privacy_screen (MetaKmsConnectorState *state,
       break;
     default:
       state->privacy_screen_state = META_PRIVACY_SCREEN_DISABLED;
-      g_warning ("Unknown privacy screen state: %" G_GUINT64_FORMAT, value);
+      g_warning ("Unknown privacy screen state: %u", privacy_screen);
     }
 
   if (!has_privacy_screen_software_toggle (connector))
@@ -279,43 +278,36 @@ state_set_properties (MetaKmsConnectorState *state,
                       MetaKmsConnector      *connector,
                       drmModeConnector      *drm_connector)
 {
-  int fd;
-  int i;
+  MetaKmsProp *props = connector->prop_table.props;
+  MetaKmsProp *prop;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
+  prop = &props[META_KMS_CONNECTOR_PROP_SUGGESTED_X];
+  if (prop->prop_id)
+    state->suggested_x = prop->value;
 
-  for (i = 0; i < drm_connector->count_props; i++)
-    {
-      drmModePropertyPtr prop;
+  prop = &props[META_KMS_CONNECTOR_PROP_SUGGESTED_Y];
+  if (prop->prop_id)
+    state->suggested_y = prop->value;
 
-      prop = drmModeGetProperty (fd, drm_connector->props[i]);
-      if (!prop)
-        continue;
+  prop = &props[META_KMS_CONNECTOR_PROP_HOTPLUG_MODE_UPDATE];
+  if (prop->prop_id)
+    state->hotplug_mode_update = prop->value;
 
-      if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-          strcmp (prop->name, "suggested X") == 0)
-        state->suggested_x = drm_connector->prop_values[i];
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "suggested Y") == 0)
-        state->suggested_y = drm_connector->prop_values[i];
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "hotplug_mode_update") == 0)
-        state->hotplug_mode_update = drm_connector->prop_values[i];
-      else if (strcmp (prop->name, "scaling mode") == 0)
-        state->has_scaling = TRUE;
-      else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-               strcmp (prop->name, "panel orientation") == 0)
-        set_panel_orientation (state, prop, drm_connector->prop_values[i]);
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "non-desktop") == 0)
-        state->non_desktop = drm_connector->prop_values[i];
-      else if (prop->prop_id == meta_kms_connector_get_prop_id (connector,
-                META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE))
-        set_privacy_screen (state, connector, prop,
-                            drm_connector->prop_values[i]);
+  prop = &props[META_KMS_CONNECTOR_PROP_SCALING_MODE];
+  if (prop->prop_id)
+    state->has_scaling = TRUE;
 
-      drmModeFreeProperty (prop);
-    }
+  prop = &props[META_KMS_CONNECTOR_PROP_PANEL_ORIENTATION];
+  if (prop->prop_id)
+    set_panel_orientation (state, prop);
+
+  prop = &props[META_KMS_CONNECTOR_PROP_NON_DESKTOP];
+  if (prop->prop_id)
+    state->non_desktop = prop->value;
+
+  prop = &props[META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE];
+  if (prop->prop_id)
+    set_privacy_screen (state, connector, prop);
 }
 
 static CoglSubpixelOrder
@@ -416,36 +408,15 @@ state_set_blobs (MetaKmsConnectorState *state,
                  MetaKmsImplDevice     *impl_device,
                  drmModeConnector      *drm_connector)
 {
-  int fd;
-  int i;
+  MetaKmsProp *prop;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
+  prop = &connector->prop_table.props[META_KMS_CONNECTOR_PROP_EDID];
+  if (prop->prop_id && prop->value)
+    state_set_edid (state, connector, impl_device, prop->value);
 
-  for (i = 0; i < drm_connector->count_props; i++)
-    {
-      drmModePropertyPtr prop;
-
-      prop = drmModeGetProperty (fd, drm_connector->props[i]);
-      if (!prop)
-        continue;
-
-      if (prop->flags & DRM_MODE_PROP_BLOB)
-        {
-          uint32_t blob_id;
-
-          blob_id = drm_connector->prop_values[i];
-
-          if (blob_id)
-            {
-              if (strcmp (prop->name, "EDID") == 0)
-                state_set_edid (state, connector, impl_device, blob_id);
-              else if (strcmp (prop->name, "TILE") == 0)
-                state_set_tile_info (state, connector, impl_device, blob_id);
-            }
-        }
-
-      drmModeFreeProperty (prop);
-    }
+  prop = &connector->prop_table.props[META_KMS_CONNECTOR_PROP_TILE];
+  if (prop->prop_id && prop->value)
+    state_set_tile_info (state, connector, impl_device, prop->value);
 }
 
 static void
