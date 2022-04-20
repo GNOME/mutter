@@ -675,6 +675,13 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   current_state = g_steal_pointer (&connector->current_state);
   changes = META_KMS_UPDATE_CHANGE_NONE;
 
+  meta_kms_impl_device_update_prop_table (impl_device,
+                                          drm_connector->props,
+                                          drm_connector->prop_values,
+                                          drm_connector->count_props,
+                                          connector->prop_table.props,
+                                          META_KMS_CONNECTOR_N_PROPS);
+
   if (!drm_connector)
     {
       if (current_state)
@@ -1048,14 +1055,6 @@ init_properties (MetaKmsConnector  *connector,
         },
     }
   };
-
-  meta_kms_impl_device_init_prop_table (impl_device,
-                                        drm_connector->props,
-                                        drm_connector->prop_values,
-                                        drm_connector->count_props,
-                                        connector->prop_table.props,
-                                        META_KMS_CONNECTOR_N_PROPS,
-                                        NULL);
 }
 
 static char *

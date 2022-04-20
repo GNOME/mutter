@@ -156,24 +156,6 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   return META_KMS_UPDATE_CHANGE_NONE;
 }
 
-static int
-find_prop_idx (MetaKmsProp *prop,
-               uint32_t    *drm_props,
-               int          n_drm_props)
-{
-  int i;
-
-  g_return_val_if_fail (prop->prop_id > 0, -1);
-
-  for (i = 0; i < n_drm_props; i++)
-    {
-      if (drm_props[i] == prop->prop_id)
-        return i;
-    }
-
-  return -1;
-}
-
 static void
 clear_gamma_state (MetaKmsCrtcState *crtc_state)
 {
@@ -192,7 +174,13 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   MetaKmsCrtcState crtc_state = {0};
   MetaKmsUpdateChanges changes = META_KMS_UPDATE_CHANGE_NONE;
   MetaKmsProp *active_prop;
-  int active_idx;
+
+  meta_kms_impl_device_update_prop_table (impl_device,
+                                          drm_props->props,
+                                          drm_props->prop_values,
+                                          drm_props->count_props,
+                                          crtc->prop_table.props,
+                                          META_KMS_CRTC_N_PROPS);
 
   crtc_state.rect = (MetaRectangle) {
     .x = drm_crtc->x,
@@ -205,17 +193,11 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   crtc_state.drm_mode = drm_crtc->mode;
 
   active_prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_ACTIVE];
+
   if (active_prop->prop_id)
-    {
-      active_idx = find_prop_idx (active_prop,
-                                  drm_props->props,
-                                  drm_props->count_props);
-      crtc_state.is_active = !!drm_props->prop_values[active_idx];
-    }
+    crtc_state.is_active = !!active_prop->value;
   else
-    {
-      crtc_state.is_active = drm_crtc->mode_valid;
-    }
+    crtc_state.is_active = drm_crtc->mode_valid;
 
   read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
 
@@ -351,26 +333,11 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
 }
 
 static void
-parse_active (MetaKmsImplDevice  *impl_device,
-              MetaKmsProp        *prop,
-              drmModePropertyPtr  drm_prop,
-              uint64_t            drm_prop_value,
-              gpointer            user_data)
-{
-  MetaKmsCrtc *crtc = user_data;
-
-  crtc->current_state.is_active = !!drm_prop_value;
-}
-
-static void
 init_properties (MetaKmsCrtc       *crtc,
                  MetaKmsImplDevice *impl_device,
                  drmModeCrtc       *drm_crtc)
 {
   MetaKmsCrtcPropTable *prop_table = &crtc->prop_table;
-  int fd;
-  drmModeObjectProperties *drm_props;
-  int i;
 
   *prop_table = (MetaKmsCrtcPropTable) {
     .props = {
@@ -383,7 +350,6 @@ init_properties (MetaKmsCrtc       *crtc,
         {
           .name = "ACTIVE",
           .type = DRM_MODE_PROP_RANGE,
-          .parse = parse_active,
         },
       [META_KMS_CRTC_PROP_GAMMA_LUT] =
         {
@@ -392,32 +358,6 @@ init_properties (MetaKmsCrtc       *crtc,
         },
     }
   };
-
-  fd = meta_kms_impl_device_get_fd (impl_device);
-  drm_props = drmModeObjectGetProperties (fd,
-                                          drm_crtc->crtc_id,
-                                          DRM_MODE_OBJECT_CRTC);
-
-  meta_kms_impl_device_init_prop_table (impl_device,
-                                        drm_props->props,
-                                        drm_props->prop_values,
-                                        drm_props->count_props,
-                                        crtc->prop_table.props,
-                                        META_KMS_CRTC_N_PROPS,
-                                        crtc);
-
-  drmModeFreeObjectProperties (drm_props);
-
-  for (i = 0; i < META_KMS_CRTC_N_PROPS; i++)
-    {
-      meta_topic (META_DEBUG_KMS,
-                  "%s (%s) CRTC %u property '%s' is %s",
-                  meta_kms_impl_device_get_path (impl_device),
-                  meta_kms_impl_device_get_driver_name (impl_device),
-                  drm_crtc->crtc_id,
-                  prop_table->props[i].name,
-                  prop_table->props[i].prop_id ? "supported" : "unsupported");
-    }
 }
 
 MetaKmsCrtc *

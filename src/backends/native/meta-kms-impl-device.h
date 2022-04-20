@@ -66,12 +66,6 @@ struct _MetaKmsProp
 
   uint32_t prop_id;
   uint64_t value;
-
-  void (* parse) (MetaKmsImplDevice  *impl_device,
-                  MetaKmsProp        *prop,
-                  drmModePropertyPtr  drm_prop,
-                  uint64_t            value,
-                  gpointer            user_data);
 };
 
 #define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())
@@ -164,13 +158,12 @@ MetaKmsPlane * meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_devi
                                                     MetaKmsPlaneType   plane_type,
                                                     MetaKmsCrtc       *crtc);
 
-void meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
-                                           uint32_t          *drm_props,
-                                           uint64_t          *drm_props_values,
-                                           int                n_drm_props,
-                                           MetaKmsProp       *props,
-                                           int                n_props,
-                                           gpointer           user_data);
+void meta_kms_impl_device_update_prop_table (MetaKmsImplDevice *impl_device,
+                                             uint32_t          *drm_props,
+                                             uint64_t          *drm_props_values,
+                                             int                n_drm_props,
+                                             MetaKmsProp       *props,
+                                             int                n_props);
 
 void meta_kms_impl_device_reload_prop_values (MetaKmsImplDevice *impl_device,
                                               uint32_t          *drm_props,

@@ -190,33 +190,40 @@ meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
 }
 
 static void
-parse_rotations (MetaKmsImplDevice  *impl_device,
-                 MetaKmsProp        *prop,
-                 drmModePropertyPtr  drm_prop,
-                 uint64_t            drm_prop_value,
-                 gpointer            user_data)
+update_rotations (MetaKmsPlane *plane)
 {
-  MetaKmsPlane *plane = user_data;
-  int i;
+  MetaKmsProp *prop;
+  MetaKmsPlaneRotation rotation;
 
-  for (i = 0; i < drm_prop->count_enums; i++)
+  prop = &plane->prop_table.props[META_KMS_PLANE_PROP_ROTATION];
+  rotation = prop->value;
+
+  if (rotation & META_KMS_PLANE_ROTATION_ROTATE_0)
     {
-      MetaMonitorTransform transform = -1;
+      plane->all_hw_transforms |= 1 << META_MONITOR_TRANSFORM_NORMAL;
+      plane->rotation_map[META_MONITOR_TRANSFORM_NORMAL] =
+        1 << prop->enum_values[META_KMS_PLANE_ROTATION_BIT_ROTATE_0].value;
+    }
 
-      if (strcmp (drm_prop->enums[i].name, "rotate-0") == 0)
-        transform = META_MONITOR_TRANSFORM_NORMAL;
-      else if (strcmp (drm_prop->enums[i].name, "rotate-90") == 0)
-        transform = META_MONITOR_TRANSFORM_90;
-      else if (strcmp (drm_prop->enums[i].name, "rotate-180") == 0)
-        transform = META_MONITOR_TRANSFORM_180;
-      else if (strcmp (drm_prop->enums[i].name, "rotate-270") == 0)
-        transform = META_MONITOR_TRANSFORM_270;
+  if (rotation & META_KMS_PLANE_ROTATION_ROTATE_90)
+    {
+      plane->all_hw_transforms |= 1 << META_MONITOR_TRANSFORM_90;
+      plane->rotation_map[META_MONITOR_TRANSFORM_90] =
+        1 << prop->enum_values[META_KMS_PLANE_ROTATION_BIT_ROTATE_90].value;
+    }
 
-      if (transform != -1)
-        {
-          plane->all_hw_transforms |= 1 << transform;
-          plane->rotation_map[transform] = 1 << drm_prop->enums[i].value;
-        }
+  if (rotation & META_KMS_PLANE_ROTATION_ROTATE_180)
+    {
+      plane->all_hw_transforms |= 1 << META_MONITOR_TRANSFORM_180;
+      plane->rotation_map[META_MONITOR_TRANSFORM_180] =
+        1 << prop->enum_values[META_KMS_PLANE_ROTATION_BIT_ROTATE_180].value;
+    }
+
+  if (rotation & META_KMS_PLANE_ROTATION_ROTATE_270)
+    {
+      plane->all_hw_transforms |= 1 << META_MONITOR_TRANSFORM_270;
+      plane->rotation_map[META_MONITOR_TRANSFORM_270] =
+        1 << prop->enum_values[META_KMS_PLANE_ROTATION_BIT_ROTATE_270].value;
     }
 }
 
@@ -243,13 +250,9 @@ free_modifier_array (GArray *array)
 }
 
 static void
-parse_formats (MetaKmsImplDevice  *impl_device,
-               MetaKmsProp        *prop,
-               drmModePropertyPtr  drm_prop,
-               uint64_t            drm_prop_value,
-               gpointer            user_data)
+update_formats (MetaKmsPlane      *plane,
+                MetaKmsImplDevice *impl_device)
 {
-  MetaKmsPlane *plane = user_data;
   uint64_t blob_id;
   int fd;
   drmModePropertyBlobPtr blob;
@@ -257,10 +260,12 @@ parse_formats (MetaKmsImplDevice  *impl_device,
   uint32_t *formats;
   struct drm_format_modifier *drm_modifiers;
   unsigned int fmt_i, mod_i;
+  MetaKmsProp *in_formats;
 
   g_return_if_fail (g_hash_table_size (plane->formats_modifiers) == 0);
 
-  blob_id = drm_prop_value;
+  in_formats = &plane->prop_table.props[META_KMS_PLANE_PROP_IN_FORMATS];
+  blob_id = in_formats->value;
   if (blob_id == 0)
     return;
 
@@ -345,10 +350,8 @@ static const uint32_t drm_default_formats[] =
   };
 
 static void
-init_legacy_formats (MetaKmsPlane            *plane,
-                     MetaKmsImplDevice       *impl_device,
-                     drmModePlane            *drm_plane,
-                     drmModeObjectProperties *drm_plane_props)
+update_legacy_formats (MetaKmsPlane *plane,
+                       drmModePlane *drm_plane)
 {
   if (g_hash_table_size (plane->formats_modifiers) == 0)
     {
@@ -364,6 +367,28 @@ init_legacy_formats (MetaKmsPlane            *plane,
                               drm_default_formats,
                               G_N_ELEMENTS (drm_default_formats));
     }
+}
+
+static MetaKmsUpdateChanges
+meta_kms_plane_read_state (MetaKmsPlane            *plane,
+                           MetaKmsImplDevice       *impl_device,
+                           drmModePlane            *drm_plane,
+                           drmModeObjectProperties *drm_plane_props)
+{
+  MetaKmsUpdateChanges changes = META_KMS_UPDATE_CHANGE_NONE;
+
+  meta_kms_impl_device_update_prop_table (impl_device,
+                                          drm_plane_props->props,
+                                          drm_plane_props->prop_values,
+                                          drm_plane_props->count_props,
+                                          plane->prop_table.props,
+                                          META_KMS_PLANE_N_PROPS);
+
+  update_formats (plane, impl_device);
+  update_rotations (plane);
+  update_legacy_formats (plane, drm_plane);
+
+  return changes;
 }
 
 static void
@@ -388,13 +413,11 @@ init_properties (MetaKmsPlane            *plane,
           .enum_values = prop_table->rotation_bitmask,
           .num_enum_values = META_KMS_PLANE_ROTATION_BIT_N_PROPS,
           .default_value = META_KMS_PLANE_ROTATION_UNKNOWN,
-          .parse = parse_rotations,
         },
       [META_KMS_PLANE_PROP_IN_FORMATS] =
         {
           .name = "IN_FORMATS",
           .type = DRM_MODE_PROP_BLOB,
-          .parse = parse_formats,
         },
       [META_KMS_PLANE_PROP_SRC_X] =
         {
@@ -489,14 +512,6 @@ init_properties (MetaKmsPlane            *plane,
         },
     },
   };
-
-  meta_kms_impl_device_init_prop_table (impl_device,
-                                        drm_plane_props->props,
-                                        drm_plane_props->prop_values,
-                                        drm_plane_props->count_props,
-                                        plane->prop_table.props,
-                                        META_KMS_PLANE_N_PROPS,
-                                        plane);
 }
 
 MetaKmsPlane *
@@ -514,7 +529,8 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
   plane->device = meta_kms_impl_device_get_device (impl_device);
 
   init_properties (plane, impl_device, drm_plane, drm_plane_props);
-  init_legacy_formats (plane, impl_device, drm_plane, drm_plane_props);
+
+  meta_kms_plane_read_state (plane, impl_device, drm_plane, drm_plane_props);
 
   return plane;
 }
