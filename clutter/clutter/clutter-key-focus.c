@@ -125,14 +125,15 @@ static void
 create_event_emission_chain (ClutterKeyFocus *key_focus,
                              GArray          *chain,
                              ClutterActor    *topmost,
-                             ClutterActor    *deepmost)
+                             ClutterActor    *deepmost,
+                             const ClutterEvent *event)
 {
   ClutterKeyFocusPrivate *priv =
     clutter_key_focus_get_instance_private (key_focus);
   int i;
 
   g_assert (priv->cur_event_actors->len == 0);
-  clutter_actor_collect_event_actors (topmost, deepmost, priv->cur_event_actors);
+  clutter_actor_collect_event_actors (topmost, deepmost, priv->cur_event_actors, event);
 
   for (i = priv->cur_event_actors->len - 1; i >= 0; i--)
     {
@@ -342,7 +343,7 @@ clutter_key_focus_propagate_event (ClutterFocus       *focus,
     seat_grab_actor = CLUTTER_ACTOR (stage);
 
   create_event_emission_chain (key_focus, priv->cur_event_emission_chain,
-                               seat_grab_actor, target_actor);
+                               seat_grab_actor, target_actor, event);
 
   emit_event (event, priv->cur_event_emission_chain);
 

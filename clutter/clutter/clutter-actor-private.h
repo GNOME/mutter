@@ -291,9 +291,10 @@ void clutter_actor_attach_grab (ClutterActor *actor,
 void clutter_actor_detach_grab (ClutterActor *actor,
                                 ClutterGrab  *grab);
 
-void clutter_actor_collect_event_actors (ClutterActor *self,
-                                         ClutterActor *deepmost,
-                                         GPtrArray    *actors);
+void clutter_actor_collect_event_actors (ClutterActor       *self,
+                                         ClutterActor       *deepmost,
+                                         GPtrArray          *actors,
+                                         const ClutterEvent *for_event);
 
 const GList * clutter_actor_peek_actions (ClutterActor *self);
 

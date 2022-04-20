@@ -369,14 +369,15 @@ static void
 create_event_emission_chain (ClutterSprite *sprite,
                              GArray        *chain,
                              ClutterActor  *topmost,
-                             ClutterActor  *deepmost)
+                             ClutterActor  *deepmost,
+                             const ClutterEvent *event)
 {
   ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
   const GList *l;
   int i;
 
   g_assert (priv->cur_event_actors->len == 0);
-  clutter_actor_collect_event_actors (topmost, deepmost, priv->cur_event_actors);
+  clutter_actor_collect_event_actors (topmost, deepmost, priv->cur_event_actors, event);
 
   for (i = priv->cur_event_actors->len - 1; i >= 0; i--)
     {
@@ -892,7 +893,7 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
       priv->implicit_grab_actor = target_actor;
       clutter_actor_set_implicitly_grabbed (priv->implicit_grab_actor, TRUE);
 
-      create_event_emission_chain (sprite, priv->event_emission_chain, seat_grab_actor, target_actor);
+      create_event_emission_chain (sprite, priv->event_emission_chain, seat_grab_actor, target_actor, event);
       setup_sequence_actions (sprite, priv->event_emission_chain, event);
     }
 
@@ -907,7 +908,7 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
     }
   else
     {
-      create_event_emission_chain (sprite, priv->cur_event_emission_chain, seat_grab_actor, target_actor);
+      create_event_emission_chain (sprite, priv->cur_event_emission_chain, seat_grab_actor, target_actor, event);
 
       emit_event (event, priv->cur_event_emission_chain);
 
@@ -1154,7 +1155,7 @@ clutter_sprite_emit_crossing_event (ClutterSprite      *sprite,
           event_emission_chain = g_array_ref (priv->cur_event_emission_chain);
         }
 
-      create_event_emission_chain (sprite, event_emission_chain, topmost, deepmost);
+      create_event_emission_chain (sprite, event_emission_chain, topmost, deepmost, event);
 
       emit_event (event, event_emission_chain);
 
