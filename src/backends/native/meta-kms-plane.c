@@ -387,6 +387,7 @@ init_properties (MetaKmsPlane            *plane,
           .type = DRM_MODE_PROP_BITMASK,
           .enum_values = prop_table->rotation_bitmask,
           .num_enum_values = META_KMS_PLANE_ROTATION_BIT_N_PROPS,
+          .default_value = META_KMS_PLANE_ROTATION_UNKNOWN,
           .parse = parse_rotations,
         },
       [META_KMS_PLANE_PROP_IN_FORMATS] =

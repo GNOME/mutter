@@ -62,6 +62,7 @@ struct _MetaKmsProp
 
   unsigned int num_enum_values;
   MetaKmsEnum *enum_values;
+  uint64_t default_value;
 
   uint32_t prop_id;
   uint64_t value;
@@ -191,5 +192,8 @@ gboolean meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device
                                                  GError            **error);
 
 void meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device);
+
+uint64_t meta_kms_prop_convert_value (MetaKmsProp *prop,
+                                      uint64_t     value);
 
 #endif /* META_KMS_IMPL_DEVICE_H */

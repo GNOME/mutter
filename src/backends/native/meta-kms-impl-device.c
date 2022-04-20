@@ -486,6 +486,122 @@ meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_device,
   return plane;
 }
 
+uint64_t
+meta_kms_prop_convert_value (MetaKmsProp *prop,
+                             uint64_t     value)
+{
+  switch (prop->type)
+    {
+    case DRM_MODE_PROP_RANGE:
+    case DRM_MODE_PROP_SIGNED_RANGE:
+    case DRM_MODE_PROP_BLOB:
+    case DRM_MODE_PROP_OBJECT:
+      return value;
+    case DRM_MODE_PROP_ENUM:
+      g_assert (prop->enum_values[value].valid);
+      return prop->enum_values[value].value;
+    case DRM_MODE_PROP_BITMASK:
+      {
+        int i;
+        uint64_t result = 0;
+
+        for (i = 0; i < prop->num_enum_values; i++)
+          {
+            if (!prop->enum_values[i].valid)
+              continue;
+
+            if (value & prop->enum_values[i].bitmask)
+              {
+                result |= (1 << prop->enum_values[i].value);
+                value &= ~(prop->enum_values[i].bitmask);
+              }
+          }
+
+        g_assert (value == 0);
+        return result;
+      }
+    default:
+      g_assert_not_reached ();
+    }
+
+  return 0;
+}
+
+static void
+update_prop_value (MetaKmsProp *prop,
+                   uint64_t     drm_value)
+{
+  switch (prop->type)
+    {
+    case DRM_MODE_PROP_RANGE:
+    case DRM_MODE_PROP_SIGNED_RANGE:
+    case DRM_MODE_PROP_BLOB:
+    case DRM_MODE_PROP_OBJECT:
+      prop->value = drm_value;
+      return;
+    case DRM_MODE_PROP_ENUM:
+      {
+        int i;
+
+        for (i = 0; i < prop->num_enum_values; i++)
+          {
+            if (prop->enum_values[i].valid &&
+                prop->enum_values[i].value == drm_value)
+              {
+                prop->value = i;
+                return;
+              }
+          }
+
+        prop->value = prop->default_value;
+        return;
+      }
+    case DRM_MODE_PROP_BITMASK:
+      {
+        int i;
+        uint64_t result = 0;
+
+        for (i = 0; i < prop->num_enum_values; i++)
+          {
+            if (!prop->enum_values[i].valid)
+              continue;
+
+            if (drm_value & (1 << prop->enum_values[i].value))
+              {
+                result |= prop->enum_values[i].bitmask;
+                drm_value &= ~(1 << prop->enum_values[i].value);
+              }
+          }
+        if (drm_value  != 0)
+          result |= prop->default_value;
+
+        prop->value = result;
+        return;
+      }
+    default:
+      g_assert_not_reached ();
+    }
+}
+
+static void
+update_prop_enum_value(MetaKmsEnum        *prop_enum,
+                       drmModePropertyRes *drm_prop)
+{
+  int i;
+
+  for (i = 0; i < drm_prop->count_enums; i++)
+    {
+      if (strcmp (prop_enum->name, drm_prop->enums[i].name) == 0)
+        {
+          prop_enum->value = drm_prop->enums[i].value;
+          prop_enum->valid = TRUE;
+          return;
+        }
+    }
+
+  prop_enum->valid = FALSE;
+}
+
 static MetaKmsProp *
 find_prop (MetaKmsProp *props,
            int          n_props,
@@ -516,16 +632,35 @@ meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
                                       gpointer           user_data)
 {
   int fd;
-  uint32_t i;
+  uint32_t i, j;
 
   fd = meta_kms_impl_device_get_fd (impl_device);
 
+  for (i = 0; i < n_props; i++)
+    {
+      MetaKmsProp *prop = &props[i];
+
+      prop->prop_id = 0;
+      prop->value = 0;
+
+      for (j = 0; j < prop->num_enum_values; j++)
+        {
+          prop->enum_values[j].valid = FALSE;
+          prop->enum_values[j].value = 0;
+        }
+    }
+
   for (i = 0; i < n_drm_props; i++)
     {
+      uint32_t prop_id;
+      uint64_t prop_value;
       drmModePropertyRes *drm_prop;
       MetaKmsProp *prop;
 
-      drm_prop = drmModeGetProperty (fd, drm_props[i]);
+      prop_id = drm_props[i];
+      prop_value = drm_prop_values[i];
+
+      drm_prop = drmModeGetProperty (fd, prop_id);
       if (!drm_prop)
         continue;
 
@@ -540,17 +675,26 @@ meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
         {
           g_warning ("DRM property '%s' (%u) had unexpected flags (0x%x), "
                      "ignoring",
-                     drm_prop->name, drm_props[i], drm_prop->flags);
+                     drm_prop->name, prop_id, drm_prop->flags);
           drmModeFreeProperty (drm_prop);
           continue;
         }
 
-      prop->prop_id = drm_props[i];
+      prop->prop_id = prop_id;
+
+      if (prop->type == DRM_MODE_PROP_BITMASK ||
+          prop->type == DRM_MODE_PROP_ENUM)
+        {
+          for (j = 0; j < prop->num_enum_values; j++)
+            update_prop_enum_value (&prop->enum_values[j], drm_prop);
+        }
+
+      update_prop_value (prop, prop_value);
 
       if (prop->parse)
         {
           prop->parse (impl_device, prop,
-                       drm_prop, drm_prop_values[i],
+                       drm_prop, prop_value,
                        user_data);
         }
 

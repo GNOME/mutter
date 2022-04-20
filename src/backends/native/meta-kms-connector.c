@@ -868,6 +868,7 @@ init_properties (MetaKmsConnector  *connector,
           .type = DRM_MODE_PROP_ENUM,
           .enum_values = prop_table->underscan_enum,
           .num_enum_values = META_KMS_CONNECTOR_UNDERSCAN_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_UNDERSCAN_UNKNOWN,
         },
       [META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER] =
         {
@@ -885,6 +886,7 @@ init_properties (MetaKmsConnector  *connector,
           .type = DRM_MODE_PROP_ENUM,
           .enum_values = prop_table->privacy_screen_sw_enum,
           .num_enum_values = META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_PRIVACY_SCREEN_UNKNOWN,
         },
       [META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE] =
         {
@@ -892,6 +894,7 @@ init_properties (MetaKmsConnector  *connector,
           .type = DRM_MODE_PROP_ENUM,
           .enum_values = prop_table->privacy_screen_hw_enum,
           .num_enum_values = META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_PRIVACY_SCREEN_UNKNOWN,
         },
       [META_KMS_CONNECTOR_PROP_EDID] =
         {
@@ -924,6 +927,7 @@ init_properties (MetaKmsConnector  *connector,
           .type = DRM_MODE_PROP_ENUM,
           .enum_values = prop_table->scaling_mode_enum,
           .num_enum_values = META_KMS_CONNECTOR_SCALING_MODE_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_SCALING_MODE_UNKNOWN,
         },
       [META_KMS_CONNECTOR_PROP_PANEL_ORIENTATION] =
         {
@@ -931,6 +935,7 @@ init_properties (MetaKmsConnector  *connector,
           .type = DRM_MODE_PROP_ENUM,
           .enum_values = prop_table->panel_orientation_enum,
           .num_enum_values = META_KMS_CONNECTOR_PANEL_ORIENTATION_N_PROPS,
+          .default_value = META_KMS_CONNECTOR_PANEL_ORIENTATION_UNKNOWN,
         },
       [META_KMS_CONNECTOR_PROP_NON_DESKTOP] =
         {

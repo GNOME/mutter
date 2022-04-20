@@ -64,6 +64,7 @@ typedef enum _MetaKmsPlaneRotation
   META_KMS_PLANE_ROTATION_ROTATE_270 = (1 << 3),
   META_KMS_PLANE_ROTATION_REFLECT_X = (1 << 4),
   META_KMS_PLANE_ROTATION_REFLECT_Y = (1 << 5),
+  META_KMS_PLANE_ROTATION_UNKNOWN = (1 << 6),
 } MetaKmsPlaneRotation;
 
 MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
