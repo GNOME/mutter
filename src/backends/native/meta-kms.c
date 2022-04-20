@@ -66,6 +66,8 @@ struct _MetaKms
   int kernel_thread_inhibit_count;
 
   MetaKmsCursorManager *cursor_manager;
+
+  gboolean shutting_down;
 };
 
 G_DEFINE_TYPE (MetaKms, meta_kms, META_TYPE_THREAD)
@@ -352,6 +354,12 @@ meta_kms_create_device (MetaKms            *kms,
   return device;
 }
 
+gboolean
+meta_kms_is_shutting_down (MetaKms *kms)
+{
+  return kms->shutting_down;
+}
+
 static gpointer
 prepare_shutdown_in_impl (MetaThreadImpl  *thread_impl,
                           gpointer         user_data,
@@ -367,6 +375,7 @@ static void
 on_prepare_shutdown (MetaBackend *backend,
                      MetaKms     *kms)
 {
+  kms->shutting_down = TRUE;
   meta_kms_run_impl_task_sync (kms, prepare_shutdown_in_impl, NULL, NULL);
   meta_thread_flush_callbacks (META_THREAD (kms));
 
