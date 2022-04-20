@@ -51,4 +51,8 @@ uint32_t meta_kms_crtc_get_prop_id (MetaKmsCrtc     *crtc,
 const char * meta_kms_crtc_get_prop_name (MetaKmsCrtc     *crtc,
                                           MetaKmsCrtcProp  prop);
 
+uint64_t meta_kms_crtc_get_prop_drm_value (MetaKmsCrtc     *crtc,
+                                           MetaKmsCrtcProp  prop,
+                                           uint64_t         value);
+
 #endif /* META_KMS_CRTC_PRIVATE_H */

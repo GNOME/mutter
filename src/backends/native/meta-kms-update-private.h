@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <stdint.h>
 
+#include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 
@@ -50,8 +51,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaRectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
   MetaKmsFbDamage *fb_damage;
-
-  uint64_t rotation;
+  MetaKmsPlaneRotation rotation;
 
   struct {
     gboolean is_valid;
@@ -133,7 +133,7 @@ META_EXPORT_TEST
 MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
 
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
-                                             uint64_t                rotation);
+                                             MetaKmsPlaneRotation    rotation);
 
 META_EXPORT_TEST
 MetaKmsPlaneAssignment * meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,

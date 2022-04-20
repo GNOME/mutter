@@ -86,6 +86,15 @@ meta_kms_crtc_get_prop_name (MetaKmsCrtc     *crtc,
   return crtc->prop_table.props[prop].name;
 }
 
+uint64_t
+meta_kms_crtc_get_prop_drm_value (MetaKmsCrtc     *crtc,
+                                  MetaKmsCrtcProp  property,
+                                  uint64_t         value)
+{
+  MetaKmsProp *prop = &crtc->prop_table.props[property];
+  return meta_kms_prop_convert_value (prop, value);
+}
+
 gboolean
 meta_kms_crtc_is_active (MetaKmsCrtc *crtc)
 {

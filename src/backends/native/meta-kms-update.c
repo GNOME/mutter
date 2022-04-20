@@ -497,7 +497,7 @@ meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignmen
 
 void
 meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
-                                        uint64_t                rotation)
+                                        MetaKmsPlaneRotation    rotation)
 {
   g_assert (!meta_kms_update_is_locked (plane_assignment->update));
   g_warn_if_fail (rotation);

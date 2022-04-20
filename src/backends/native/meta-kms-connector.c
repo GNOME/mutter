@@ -94,6 +94,15 @@ meta_kms_connector_get_prop_name (MetaKmsConnector     *connector,
   return connector->prop_table.props[prop].name;
 }
 
+uint64_t
+meta_kms_connector_get_prop_drm_value (MetaKmsConnector     *connector,
+                                       MetaKmsConnectorProp  property,
+                                       uint64_t              value)
+{
+  MetaKmsProp *prop = &connector->prop_table.props[property];
+  return meta_kms_prop_convert_value (prop, value);
+}
+
 uint32_t
 meta_kms_connector_get_connector_type (MetaKmsConnector *connector)
 {

@@ -81,6 +81,10 @@ uint32_t meta_kms_plane_get_prop_id (MetaKmsPlane     *plane,
 const char * meta_kms_plane_get_prop_name (MetaKmsPlane     *plane,
                                            MetaKmsPlaneProp  prop);
 
+uint64_t meta_kms_plane_get_prop_drm_value (MetaKmsPlane     *plane,
+                                            MetaKmsPlaneProp  prop,
+                                            uint64_t          value);
+
 MetaKmsPropType meta_kms_plane_get_prop_internal_type (MetaKmsPlane     *plane,
                                                        MetaKmsPlaneProp  prop);
 
