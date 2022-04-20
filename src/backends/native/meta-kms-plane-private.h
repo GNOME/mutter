@@ -45,6 +45,27 @@ typedef enum _MetaKmsPlaneProp
   META_KMS_PLANE_N_PROPS
 } MetaKmsPlaneProp;
 
+typedef enum _MetaKmsPlaneRotationBit
+{
+  META_KMS_PLANE_ROTATION_BIT_ROTATE_0 = 0,
+  META_KMS_PLANE_ROTATION_BIT_ROTATE_90,
+  META_KMS_PLANE_ROTATION_BIT_ROTATE_180,
+  META_KMS_PLANE_ROTATION_BIT_ROTATE_270,
+  META_KMS_PLANE_ROTATION_BIT_REFLECT_X,
+  META_KMS_PLANE_ROTATION_BIT_REFLECT_Y,
+  META_KMS_PLANE_ROTATION_BIT_N_PROPS,
+} MetaKmsPlaneRotationBit;
+
+typedef enum _MetaKmsPlaneRotation
+{
+  META_KMS_PLANE_ROTATION_ROTATE_0 = (1 << 0),
+  META_KMS_PLANE_ROTATION_ROTATE_90 = (1 << 1),
+  META_KMS_PLANE_ROTATION_ROTATE_180 = (1 << 2),
+  META_KMS_PLANE_ROTATION_ROTATE_270 = (1 << 3),
+  META_KMS_PLANE_ROTATION_REFLECT_X = (1 << 4),
+  META_KMS_PLANE_ROTATION_REFLECT_Y = (1 << 5),
+} MetaKmsPlaneRotation;
+
 MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
                                    MetaKmsImplDevice       *impl_device,
                                    drmModePlane            *drm_plane,

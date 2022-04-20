@@ -33,6 +33,7 @@
 typedef struct _MetaKmsPlanePropTable
 {
   MetaKmsProp props[META_KMS_PLANE_N_PROPS];
+  MetaKmsEnum rotation_bitmask[META_KMS_PLANE_ROTATION_BIT_N_PROPS];
 } MetaKmsPlanePropTable;
 
 struct _MetaKmsPlane
@@ -384,6 +385,8 @@ init_properties (MetaKmsPlane            *plane,
         {
           .name = "rotation",
           .type = DRM_MODE_PROP_BITMASK,
+          .enum_values = prop_table->rotation_bitmask,
+          .num_enum_values = META_KMS_PLANE_ROTATION_BIT_N_PROPS,
           .parse = parse_rotations,
         },
       [META_KMS_PLANE_PROP_IN_FORMATS] =
@@ -451,7 +454,39 @@ init_properties (MetaKmsPlane            *plane,
           .name = "FB_DAMAGE_CLIPS",
           .type = DRM_MODE_PROP_BLOB,
         },
-    }
+    },
+    .rotation_bitmask = {
+      [META_KMS_PLANE_ROTATION_BIT_ROTATE_0] =
+        {
+          .name = "rotate-0",
+          .bitmask = META_KMS_PLANE_ROTATION_ROTATE_0,
+        },
+      [META_KMS_PLANE_ROTATION_BIT_ROTATE_90] =
+        {
+          .name = "rotate-90",
+          .bitmask = META_KMS_PLANE_ROTATION_ROTATE_90,
+        },
+      [META_KMS_PLANE_ROTATION_BIT_ROTATE_180] =
+        {
+          .name = "rotate-180",
+          .bitmask = META_KMS_PLANE_ROTATION_ROTATE_180,
+        },
+      [META_KMS_PLANE_ROTATION_BIT_ROTATE_270] =
+        {
+          .name = "rotate-270",
+          .bitmask = META_KMS_PLANE_ROTATION_ROTATE_270,
+        },
+      [META_KMS_PLANE_ROTATION_BIT_REFLECT_X] =
+        {
+          .name = "reflect-x",
+          .bitmask = META_KMS_PLANE_ROTATION_REFLECT_X,
+        },
+      [META_KMS_PLANE_ROTATION_BIT_REFLECT_Y] =
+        {
+          .name = "reflect-y",
+          .bitmask = META_KMS_PLANE_ROTATION_REFLECT_Y,
+        },
+    },
   };
 
   meta_kms_impl_device_init_prop_table (impl_device,

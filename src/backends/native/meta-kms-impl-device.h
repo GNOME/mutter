@@ -43,6 +43,15 @@ typedef struct _MetaKmsDeviceCaps
   gboolean addfb2_modifiers;
 } MetaKmsDeviceCaps;
 
+
+typedef struct _MetaKmsEnum
+{
+  const char *name;
+  gboolean valid;
+  uint64_t value;
+  uint64_t bitmask;
+} MetaKmsEnum;
+
 typedef struct _MetaKmsProp MetaKmsProp;
 
 struct _MetaKmsProp
@@ -50,13 +59,18 @@ struct _MetaKmsProp
   const char *name;
   uint32_t type;
   MetaKmsPropType internal_type;
+
+  unsigned int num_enum_values;
+  MetaKmsEnum *enum_values;
+
+  uint32_t prop_id;
+  uint64_t value;
+
   void (* parse) (MetaKmsImplDevice  *impl_device,
                   MetaKmsProp        *prop,
                   drmModePropertyPtr  drm_prop,
                   uint64_t            value,
                   gpointer            user_data);
-
-  uint32_t prop_id;
 };
 
 #define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())

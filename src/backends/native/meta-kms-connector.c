@@ -34,6 +34,12 @@
 typedef struct _MetaKmsConnectorPropTable
 {
   MetaKmsProp props[META_KMS_CONNECTOR_N_PROPS];
+  MetaKmsEnum dpms_enum[META_KMS_CONNECTOR_DPMS_N_PROPS];
+  MetaKmsEnum underscan_enum[META_KMS_CONNECTOR_UNDERSCAN_N_PROPS];
+  MetaKmsEnum privacy_screen_sw_enum[META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS];
+  MetaKmsEnum privacy_screen_hw_enum[META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS];
+  MetaKmsEnum scaling_mode_enum[META_KMS_CONNECTOR_SCALING_MODE_N_PROPS];
+  MetaKmsEnum panel_orientation_enum[META_KMS_CONNECTOR_PANEL_ORIENTATION_N_PROPS];
 } MetaKmsConnectorPropTable;
 
 struct _MetaKmsConnector
@@ -853,11 +859,15 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "DPMS",
           .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->dpms_enum,
+          .num_enum_values = META_KMS_CONNECTOR_DPMS_N_PROPS,
         },
       [META_KMS_CONNECTOR_PROP_UNDERSCAN] =
         {
           .name = "underscan",
           .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->underscan_enum,
+          .num_enum_values = META_KMS_CONNECTOR_UNDERSCAN_N_PROPS,
         },
       [META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER] =
         {
@@ -873,11 +883,163 @@ init_properties (MetaKmsConnector  *connector,
         {
           .name = "privacy-screen sw-state",
           .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->privacy_screen_sw_enum,
+          .num_enum_values = META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS,
         },
       [META_KMS_CONNECTOR_PROP_PRIVACY_SCREEN_HW_STATE] =
         {
           .name = "privacy-screen hw-state",
           .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->privacy_screen_hw_enum,
+          .num_enum_values = META_KMS_CONNECTOR_PRIVACY_SCREEN_N_PROPS,
+        },
+      [META_KMS_CONNECTOR_PROP_EDID] =
+        {
+          .name = "EDID",
+          .type = DRM_MODE_PROP_BLOB,
+        },
+      [META_KMS_CONNECTOR_PROP_TILE] =
+        {
+          .name = "TILE",
+          .type = DRM_MODE_PROP_BLOB,
+        },
+      [META_KMS_CONNECTOR_PROP_SUGGESTED_X] =
+        {
+          .name = "suggested X",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CONNECTOR_PROP_SUGGESTED_Y] =
+        {
+          .name = "suggested Y",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CONNECTOR_PROP_HOTPLUG_MODE_UPDATE] =
+        {
+          .name = "hotplug_mode_update",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CONNECTOR_PROP_SCALING_MODE] =
+        {
+          .name = "scaling mode",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->scaling_mode_enum,
+          .num_enum_values = META_KMS_CONNECTOR_SCALING_MODE_N_PROPS,
+        },
+      [META_KMS_CONNECTOR_PROP_PANEL_ORIENTATION] =
+        {
+          .name = "panel orientation",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->panel_orientation_enum,
+          .num_enum_values = META_KMS_CONNECTOR_PANEL_ORIENTATION_N_PROPS,
+        },
+      [META_KMS_CONNECTOR_PROP_NON_DESKTOP] =
+        {
+          .name = "non-desktop",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+    },
+    .dpms_enum = {
+      [META_KMS_CONNECTOR_DPMS_ON] =
+        {
+          .name = "On",
+        },
+      [META_KMS_CONNECTOR_DPMS_STANDBY] =
+        {
+          .name = "Standby",
+        },
+      [META_KMS_CONNECTOR_DPMS_SUSPEND] =
+        {
+          .name = "Suspend",
+        },
+      [META_KMS_CONNECTOR_DPMS_OFF] =
+        {
+          .name = "Off",
+        },
+    },
+    .underscan_enum = {
+      [META_KMS_CONNECTOR_UNDERSCAN_OFF] =
+        {
+          .name = "off",
+        },
+      [META_KMS_CONNECTOR_UNDERSCAN_ON] =
+        {
+          .name = "on",
+        },
+      [META_KMS_CONNECTOR_UNDERSCAN_AUTO] =
+        {
+          .name = "auto",
+        },
+    },
+    .privacy_screen_sw_enum = {
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_ENABLED] =
+        {
+          .name = "Enabled",
+        },
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_DISABLED] =
+        {
+          .name = "Disabled",
+        },
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_ENABLED_LOCKED] =
+        {
+          .name = "Enabled-locked",
+        },
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_DISABLED_LOCKED] =
+        {
+          .name = "Disabled-locked",
+        },
+    },
+    .privacy_screen_hw_enum = {
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_ENABLED] =
+        {
+          .name = "Enabled",
+        },
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_DISABLED] =
+        {
+          .name = "Disabled",
+        },
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_ENABLED_LOCKED] =
+        {
+          .name = "Enabled-locked",
+        },
+      [META_KMS_CONNECTOR_PRIVACY_SCREEN_DISABLED_LOCKED] =
+        {
+          .name = "Disabled-locked",
+        },
+    },
+    .scaling_mode_enum = {
+      [META_KMS_CONNECTOR_SCALING_MODE_NONE] =
+        {
+          .name = "None",
+        },
+      [META_KMS_CONNECTOR_SCALING_MODE_FULL] =
+        {
+          .name = "Full",
+        },
+      [META_KMS_CONNECTOR_SCALING_MODE_CENTER] =
+        {
+          .name = "Center",
+        },
+      [META_KMS_CONNECTOR_SCALING_MODE_FULL_ASPECT] =
+        {
+          .name = "Full aspect",
+        },
+    },
+    .panel_orientation_enum = {
+      [META_KMS_CONNECTOR_PANEL_ORIENTATION_NORMAL] =
+        {
+          .name = "Normal",
+        },
+      [META_KMS_CONNECTOR_PANEL_ORIENTATION_UPSIDE_DOWN] =
+        {
+          .name = "Upside Down",
+        },
+      [META_KMS_CONNECTOR_PANEL_ORIENTATION_LEFT_SIDE_UP] =
+        {
+          .name = "Left Side Up",
+        },
+      [META_KMS_CONNECTOR_PANEL_ORIENTATION_RIGHT_SIDE_UP] =
+        {
+          .name = "Right Side Up",
         },
     }
   };
