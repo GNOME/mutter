@@ -343,6 +343,8 @@ meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
           if (clutter_input_focus_is_focused (focus))
             {
               input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
+              clutter_input_focus_reset (focus);
+              meta_wayland_text_input_focus_flush_done (focus);
               clutter_input_method_focus_out (input_method);
             }
 
