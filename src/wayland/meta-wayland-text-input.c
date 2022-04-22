@@ -25,6 +25,7 @@
 
 #include <wayland-server.h>
 
+#include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-versions.h"
@@ -788,7 +789,28 @@ meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
 
   if (event->type == CLUTTER_BUTTON_PRESS ||
       event->type == CLUTTER_TOUCH_BEGIN)
-    meta_wayland_text_input_focus_flush_done (text_input->input_focus);
+    {
+      MetaWaylandSurface *surface = NULL;
+      ClutterActor *actor;
+
+      actor = clutter_stage_get_device_actor (clutter_event_get_stage (event),
+                                              clutter_event_get_device (event),
+                                              clutter_event_get_event_sequence (event));
+
+      if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
+        {
+          MetaSurfaceActorWayland *actor_wayland =
+            META_SURFACE_ACTOR_WAYLAND (actor);
+
+          surface = meta_surface_actor_wayland_get_surface (actor_wayland);
+
+          if (surface == text_input->surface)
+            {
+              clutter_input_focus_reset (text_input->input_focus);
+              meta_wayland_text_input_focus_flush_done (text_input->input_focus);
+            }
+        }
+    }
 
   return retval;
 }

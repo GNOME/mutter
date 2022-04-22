@@ -2232,6 +2232,7 @@ clutter_text_press (ClutterActor *actor,
     return CLUTTER_EVENT_PROPAGATE;
 
   clutter_actor_grab_key_focus (actor);
+  clutter_input_focus_reset (priv->input_focus);
   clutter_input_focus_set_input_panel_state (priv->input_focus,
                                              CLUTTER_INPUT_PANEL_STATE_TOGGLE);
 

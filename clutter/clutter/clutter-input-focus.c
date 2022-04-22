@@ -210,14 +210,6 @@ clutter_input_focus_filter_event (ClutterInputFocus  *focus,
                                             event->im.offset);
       return TRUE;
     }
-  else if (event->type == CLUTTER_TOUCH_BEGIN ||
-           (event->type == CLUTTER_BUTTON_PRESS &&
-            event->button.button == CLUTTER_BUTTON_PRIMARY))
-    {
-      clutter_input_focus_reset (focus);
-      /* pointing events are not consumed by IMs */
-      return FALSE;
-    }
 
   return FALSE;
 }
