@@ -3193,7 +3193,7 @@ clutter_text_key_focus_out (ClutterActor *actor)
 
   if (priv->editable && clutter_input_focus_is_focused (priv->input_focus))
     {
-      clutter_text_set_preedit_string (CLUTTER_TEXT (actor), NULL, NULL, 0);
+      clutter_input_focus_reset (priv->input_focus);
       clutter_input_method_focus_out (method);
     }
 
