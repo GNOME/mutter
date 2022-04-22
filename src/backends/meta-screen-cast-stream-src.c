@@ -789,10 +789,9 @@ on_stream_param_changed (void                 *data,
 
   pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
 
-  if (!spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier))
-    buffer_types = 1 << SPA_DATA_MemFd;
-  else
-    buffer_types = 1 << SPA_DATA_DmaBuf;
+  buffer_types = 1 << SPA_DATA_MemFd;
+  if (spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier))
+    buffer_types |= 1 << SPA_DATA_DmaBuf;
 
   params[0] = spa_pod_builder_add_object (
     &pod_builder,
