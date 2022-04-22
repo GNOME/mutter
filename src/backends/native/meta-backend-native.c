@@ -160,11 +160,28 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   MetaBackend *backend = META_BACKEND (native);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  g_autoptr (GError) error = NULL;
+  g_autoptr (CoglDmaBufHandle) dmabuf_handle = NULL;
 
   if (!meta_renderer_is_hardware_accelerated (renderer))
     {
       g_message ("Disabling DMA buffer screen sharing "
                  "(not hardware accelerated)");
+      meta_screen_cast_disable_dma_bufs (screen_cast);
+    }
+
+  dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                1, 1,
+                                                &error);
+  if (!dmabuf_handle)
+    {
+      g_message ("Disabling DMA buffer screen sharing "
+                 "(implicit modifiers not supported)");
       meta_screen_cast_disable_dma_bufs (screen_cast);
     }
 }

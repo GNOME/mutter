@@ -141,4 +141,6 @@ cogl_dma_buf_handle_get_offset (CoglDmaBufHandle *dmabuf_handle);
 COGL_EXPORT int
 cogl_dma_buf_handle_get_bpp (CoglDmaBufHandle *dmabuf_handle);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglDmaBufHandle, cogl_dma_buf_handle_free)
+
 #endif /* __COGL_DMA_BUF_HANDLE_H__ */
