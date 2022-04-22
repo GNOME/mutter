@@ -356,10 +356,16 @@ clutter_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
                                              guint              len)
 {
   ClutterText *clutter_text = CLUTTER_TEXT_INPUT_FOCUS (focus)->text;
+  ClutterTextBuffer *buffer;
   int cursor;
   int start;
 
+  buffer = get_buffer (clutter_text);
+
   cursor = clutter_text_get_cursor_position (clutter_text);
+  if (cursor < 0)
+    cursor = clutter_text_buffer_get_length (buffer);
+
   start = cursor + offset;
   if (start < 0)
     {
@@ -368,7 +374,7 @@ clutter_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
       return;
     }
   if (clutter_text_get_editable (clutter_text))
-    clutter_text_delete_text (clutter_text, start, len);
+    clutter_text_delete_text (clutter_text, start, start + len);
 }
 
 static void
