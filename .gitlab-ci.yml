@@ -17,7 +17,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-03-05.0'
+    BASE_TAG: '2022-04-22.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -49,6 +49,8 @@ variables:
       dnf builddep -y xorg-x11-server-Xwayland --setopt=install_weak_deps=False &&
       dnf install -y 'pkgconfig(fontutil)' &&
       dnf install -y 'pkgconfig(libxcvt)' &&
+      # Until Mutter is using gnome-desktop-4 upstream
+      dnf install -y 'pkgconfig(gnome-desktop-4)' &&
 
       ./.gitlab-ci/install-meson-project.sh \
         -Dxwayland=true \
@@ -484,4 +486,5 @@ dist-mutter-tarball:
     paths:
       - build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz
   rules:
+    - if: '$CI_COMMIT_TAG'
     - if: '$CI_COMMIT_TAG'

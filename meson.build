@@ -149,7 +149,7 @@ have_x11 = true
 
 have_gnome_desktop = get_option('libgnome_desktop')
 if have_gnome_desktop
-  gnome_desktop_dep = dependency('gnome-desktop-3.0')
+  gnome_desktop_dep = dependency('gnome-desktop-4')
 endif
 
 have_gl = get_option('opengl')
