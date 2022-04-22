@@ -56,8 +56,6 @@ src/gtk-primary-selection-protocol.c
 src/gtk-primary-selection-server-protocol.h
 src/gtk-shell-protocol.c
 src/gtk-shell-server-protocol.h
-src/xdg-shell-unstable-v*-protocol.c
-src/xdg-shell-unstable-v*-server-protocol.h
 src/pointer-gestures-unstable-v*-protocol.c
 src/pointer-gestures-unstable-v*-server-protocol.h
 src/relative-pointer-unstable-v*-protocol.c
