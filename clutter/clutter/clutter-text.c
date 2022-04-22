@@ -375,6 +375,8 @@ clutter_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
     }
   if (clutter_text_get_editable (clutter_text))
     clutter_text_delete_text (clutter_text, start, start + len);
+
+  clutter_text_input_focus_request_surrounding (focus);
 }
 
 static void
@@ -389,6 +391,7 @@ clutter_text_input_focus_commit_text (ClutterInputFocus *focus,
       clutter_text_insert_text (clutter_text, text,
                                 clutter_text_get_cursor_position (clutter_text));
       clutter_text_set_preedit_string (clutter_text, NULL, NULL, 0);
+      clutter_text_input_focus_request_surrounding (focus);
     }
 }
 
@@ -1336,6 +1339,7 @@ update_cursor_location (ClutterText *self)
   clutter_actor_get_transformed_position (CLUTTER_ACTOR (self), &x, &y);
   graphene_rect_offset (&rect, x, y);
   clutter_input_focus_set_cursor_location (priv->input_focus, &rect);
+  clutter_text_input_focus_request_surrounding (priv->input_focus);
 }
 
 static inline void
