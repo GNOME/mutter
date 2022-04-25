@@ -1347,28 +1347,72 @@ init_format_table (MetaWaylandDmaBufManager *dma_buf_manager)
     meta_anonymous_file_new (size, (uint8_t *) format_table);
 }
 
-static void
-init_formats (MetaWaylandDmaBufManager *dma_buf_manager,
-              EGLDisplay                egl_display)
+static EGLint supported_formats[] = {
+  DRM_FORMAT_ARGB8888,
+  DRM_FORMAT_ABGR8888,
+  DRM_FORMAT_XRGB8888,
+  DRM_FORMAT_XBGR8888,
+  DRM_FORMAT_ARGB2101010,
+  DRM_FORMAT_ABGR2101010,
+  DRM_FORMAT_XRGB2101010,
+  DRM_FORMAT_XBGR2101010,
+  DRM_FORMAT_RGB565,
+  DRM_FORMAT_ABGR16161616F,
+  DRM_FORMAT_XBGR16161616F,
+  DRM_FORMAT_XRGB16161616F,
+  DRM_FORMAT_ARGB16161616F
+};
+
+static gboolean
+init_formats (MetaWaylandDmaBufManager  *dma_buf_manager,
+              EGLDisplay                 egl_display,
+              GError                   **error)
 {
+  MetaContext *context = dma_buf_manager->compositor->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  EGLint num_formats;
+  g_autofree EGLint *driver_formats = NULL;
+  int i, j;
+
   dma_buf_manager->formats = g_array_new (FALSE, FALSE,
                                           sizeof (MetaWaylandDmaBufFormat));
 
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ARGB8888);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ABGR8888);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XRGB8888);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XBGR8888);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ARGB2101010);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ABGR2101010);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XRGB2101010);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XBGR2101010);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_RGB565);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ABGR16161616F);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XBGR16161616F);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_XRGB16161616F);
-  add_format (dma_buf_manager, egl_display, DRM_FORMAT_ARGB16161616F);
+  if (!meta_egl_query_dma_buf_formats (egl, egl_display, 0, NULL, &num_formats,
+                                       error))
+    return FALSE;
+
+  if (num_formats == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "EGL doesn't support any DRM formats");
+      return FALSE;
+    }
+
+  driver_formats = g_new0 (EGLint, num_formats);
+  if (!meta_egl_query_dma_buf_formats (egl, egl_display, num_formats,
+                                       driver_formats, &num_formats, error))
+    return FALSE;
+
+  for (i = 0; i < G_N_ELEMENTS (supported_formats); i++)
+    {
+      for (j = 0; j < num_formats; j++)
+        {
+          if (supported_formats[i] == driver_formats[j])
+            add_format (dma_buf_manager, egl_display, supported_formats[i]);
+        }
+    }
+
+  if (dma_buf_manager->formats->len == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "EGL doesn't support any DRM formats supported by the "
+                   "compositor");
+      return FALSE;
+    }
 
   init_format_table (dma_buf_manager);
+  return TRUE;
 }
 
 static void
@@ -1495,6 +1539,16 @@ initialize:
 
   dma_buf_manager = g_object_new (META_TYPE_WAYLAND_DMA_BUF_MANAGER, NULL);
 
+  dma_buf_manager->compositor = compositor;
+  dma_buf_manager->main_device_id = device_id;
+
+  if (!init_formats (dma_buf_manager, egl_display, &local_error))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No supported formats detected: %s", local_error->message);
+      return NULL;
+    }
+
   if (!wl_global_create (compositor->wayland_display,
                          &zwp_linux_dmabuf_v1_interface,
                          protocol_version,
@@ -1506,10 +1560,6 @@ initialize:
       return NULL;
     }
 
-  dma_buf_manager->compositor = compositor;
-  dma_buf_manager->main_device_id = device_id;
-
-  init_formats (dma_buf_manager, egl_display);
   init_default_feedback (dma_buf_manager);
 
   return g_steal_pointer (&dma_buf_manager);
