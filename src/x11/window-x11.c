@@ -1308,11 +1308,8 @@ meta_window_x11_current_workspace_changed (MetaWindow *window)
    */
   unsigned long data[1];
 
-  if (window->workspace == NULL)
-    {
-      /* this happens when unmanaging windows */
-      return;
-    }
+  if (window->unmanaging)
+    return;
 
   data[0] = meta_window_get_net_wm_desktop (window);
 
