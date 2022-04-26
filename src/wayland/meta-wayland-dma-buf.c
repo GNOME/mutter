@@ -1282,7 +1282,7 @@ add_format (MetaWaylandDmaBufManager *dma_buf_manager,
                                          &num_modifiers, &error))
     {
       g_warning ("Failed to query modifiers for format 0x%" PRIu32 ": %s",
-                 drm_format, error ? error->message : "unknown error");
+                 drm_format, error->message);
       goto add_fallback;
     }
 
