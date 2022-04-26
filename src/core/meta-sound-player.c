@@ -21,23 +21,30 @@
 
 #include "config.h"
 
+#ifdef HAVE_SOUND_PLAYER
 #include <canberra.h>
+#endif
 
 #include "meta/meta-sound-player.h"
 
 #define EVENT_SOUNDS_KEY "event-sounds"
 #define THEME_NAME_KEY   "theme-name"
 
-typedef struct _MetaPlayRequest MetaPlayRequest;
 
 struct _MetaSoundPlayer
 {
   GObject parent;
   GThreadPool *queue;
   GSettings *settings;
+#ifdef HAVE_SOUND_PLAYER
   ca_context *context;
+#endif
   uint32_t id_pool;
 };
+
+#ifdef HAVE_SOUND_PLAYER
+
+typedef struct _MetaPlayRequest MetaPlayRequest;
 
 struct _MetaPlayRequest
 {
@@ -47,6 +54,8 @@ struct _MetaPlayRequest
   GCancellable *cancellable;
   MetaSoundPlayer *player;
 };
+
+#endif
 
 const char * const cache_allow_list[] = {
   "bell-window-system",
@@ -58,6 +67,31 @@ const char * const cache_allow_list[] = {
 };
 
 G_DEFINE_TYPE (MetaSoundPlayer, meta_sound_player, G_TYPE_OBJECT)
+
+static void
+meta_sound_player_finalize (GObject *object)
+{
+  MetaSoundPlayer *player = META_SOUND_PLAYER (object);
+
+  g_object_unref (player->settings);
+  g_thread_pool_free (player->queue, FALSE, TRUE);
+
+#ifdef HAVE_SOUND_PLAYER
+  ca_context_destroy (player->context);
+#endif
+
+  G_OBJECT_CLASS (meta_sound_player_parent_class)->finalize (object);
+}
+
+static void
+meta_sound_player_class_init (MetaSoundPlayerClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_sound_player_finalize;
+}
+
+#ifdef HAVE_SOUND_PLAYER
 
 static MetaPlayRequest *
 meta_play_request_new (MetaSoundPlayer *player,
@@ -80,26 +114,6 @@ meta_play_request_free (MetaPlayRequest *req)
   g_clear_object (&req->cancellable);
   ca_proplist_destroy (req->props);
   g_free (req);
-}
-
-static void
-meta_sound_player_finalize (GObject *object)
-{
-  MetaSoundPlayer *player = META_SOUND_PLAYER (object);
-
-  g_object_unref (player->settings);
-  g_thread_pool_free (player->queue, FALSE, TRUE);
-  ca_context_destroy (player->context);
-
-  G_OBJECT_CLASS (meta_sound_player_parent_class)->finalize (object);
-}
-
-static void
-meta_sound_player_class_init (MetaSoundPlayerClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->finalize = meta_sound_player_finalize;
 }
 
 static void
@@ -205,8 +219,20 @@ create_context (GSettings *settings)
 }
 
 static void
+build_ca_proplist (ca_proplist *props,
+                   const char  *event_property,
+                   const char  *event_id,
+                   const char  *event_description)
+{
+  ca_proplist_sets (props, event_property, event_id);
+  ca_proplist_sets (props, CA_PROP_EVENT_DESCRIPTION, event_description);
+}
+#endif /* HAVE_SOUND_PLAYER */
+
+static void
 meta_sound_player_init (MetaSoundPlayer *player)
 {
+#ifdef HAVE_SOUND_PLAYER
   player->queue = g_thread_pool_new ((GFunc) play_sound,
 				     player, 1, FALSE, NULL);
   player->settings = g_settings_new ("org.gnome.desktop.sound");
@@ -214,17 +240,9 @@ meta_sound_player_init (MetaSoundPlayer *player)
 
   g_signal_connect (player->settings, "changed",
                     G_CALLBACK (settings_changed_cb), player);
+#endif
 }
 
-static void
-build_ca_proplist (ca_proplist  *props,
-                   const char   *event_property,
-                   const char   *event_id,
-                   const char   *event_description)
-{
-  ca_proplist_sets (props, event_property, event_id);
-  ca_proplist_sets (props, CA_PROP_EVENT_DESCRIPTION, event_description);
-}
 
 /**
  * meta_sound_player_play_from_theme:
@@ -241,6 +259,7 @@ meta_sound_player_play_from_theme (MetaSoundPlayer *player,
                                    const char      *description,
                                    GCancellable    *cancellable)
 {
+#ifdef HAVE_SOUND_PLAYER
   MetaPlayRequest *req;
   ca_proplist *props;
 
@@ -258,6 +277,7 @@ meta_sound_player_play_from_theme (MetaSoundPlayer *player,
 
   req = meta_play_request_new (player, props, cancellable);
   g_thread_pool_push (player->queue, req, NULL);
+#endif
 }
 
 /**
@@ -275,6 +295,7 @@ meta_sound_player_play_from_file (MetaSoundPlayer *player,
                                   const char      *description,
                                   GCancellable    *cancellable)
 {
+#ifdef HAVE_SOUND_PLAYER
   MetaPlayRequest *req;
   ca_proplist *props;
   char *path;
@@ -293,4 +314,5 @@ meta_sound_player_play_from_file (MetaSoundPlayer *player,
 
   req = meta_play_request_new (player, props, cancellable);
   g_thread_pool_push (player->queue, req, NULL);
+#endif
 }

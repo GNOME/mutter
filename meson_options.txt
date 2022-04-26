@@ -93,6 +93,12 @@ option('libwacom',
   description: 'Enable libwacom support'
 )
 
+option('sound_player',
+  type: 'boolean',
+  value: true,
+  description: 'Enable sound player support using libcanberra',
+)
+
 option('pango_ft2',
   type: 'boolean',
   value: true,

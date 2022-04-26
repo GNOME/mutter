@@ -27,13 +27,18 @@ mutter_pkg_private_deps = [
   gmodule_no_export_dep,
   gnome_settings_daemon_dep,
   json_glib_dep,
-  libcanberra_dep,
   xkbcommon_dep,
 ]
 
 if have_gnome_desktop
   mutter_pkg_private_deps += [
     gnome_desktop_dep,
+  ]
+endif
+
+if have_sound_player
+  mutter_pkg_private_deps += [
+    libcanberra_dep,
   ]
 endif
 

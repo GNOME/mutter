@@ -61,6 +61,9 @@
 /* Defined if gnome-desktop is enabled */
 #mesondefine HAVE_GNOME_DESKTOP
 
+/* Defined if sound player is enabled */
+#mesondefine HAVE_SOUND_PLAYER
+
 /* Building with SM support */
 #mesondefine HAVE_SM
 
