@@ -37,6 +37,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-input-capture.h"
 #include "backends/meta-input-device-private.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-stage-private.h"
@@ -138,6 +139,8 @@ typedef struct _MetaDisplayPrivate
 
   guint queue_later_ids[META_N_QUEUE_TYPES];
   GList *queue_windows[META_N_QUEUE_TYPES];
+
+  gboolean enable_input_capture;
 } MetaDisplayPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaDisplay, meta_display, G_TYPE_OBJECT)
@@ -716,6 +719,64 @@ on_monitor_privacy_screen_changed (MetaDisplay        *display,
                                  : _("Privacy Screen Disabled"));
 }
 
+gboolean
+meta_display_process_captured_input (MetaDisplay        *display,
+                                     const ClutterEvent *event)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+  MetaContext *context = priv->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaInputCapture *input_capture = meta_backend_get_input_capture (backend);
+
+  if (!priv->enable_input_capture)
+    return FALSE;
+
+  /* Check for the cancel key combo, but let the event flow through, so
+   * that meta_input_capture_process_event() can account for all press
+   * and release events, even the one from the key combo itself.
+   */
+  meta_display_process_keybinding_event (display,
+                                         "cancel-input-capture",
+                                         event);
+
+  return meta_input_capture_process_event (input_capture, event);
+}
+
+void
+meta_display_cancel_input_capture (MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+  MetaContext *context = priv->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaInputCapture *input_capture = meta_backend_get_input_capture (backend);
+
+  meta_input_capture_notify_cancelled (input_capture);
+}
+
+static void
+enable_input_capture (MetaInputCapture *input_capture,
+                      gpointer          user_data)
+{
+  MetaDisplay *display = META_DISPLAY (user_data);
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_return_if_fail (!priv->enable_input_capture);
+
+  priv->enable_input_capture = TRUE;
+}
+
+static void
+disable_input_capture (MetaInputCapture *input_capture,
+                       gpointer          user_data)
+{
+  MetaDisplay *display = META_DISPLAY (user_data);
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_return_if_fail (priv->enable_input_capture);
+
+  priv->enable_input_capture = FALSE;
+}
+
 #ifdef HAVE_X11_CLIENT
 static gboolean
 meta_display_init_x11_display (MetaDisplay  *display,
@@ -868,6 +929,7 @@ meta_display_new (MetaContext  *context,
 #endif
   MetaMonitorManager *monitor_manager;
   MetaSettings *settings;
+  MetaInputCapture *input_capture;
 
   display = g_object_new (META_TYPE_DISPLAY, NULL);
 
@@ -911,6 +973,12 @@ meta_display_new (MetaContext  *context,
                            display, G_CONNECT_SWAPPED);
 
   display->pad_action_mapper = meta_pad_action_mapper_new (monitor_manager);
+
+  input_capture = meta_backend_get_input_capture (backend);
+  meta_input_capture_set_event_router (input_capture,
+                                       enable_input_capture,
+                                       disable_input_capture,
+                                       display);
 
   settings = meta_backend_get_settings (backend);
   g_signal_connect (settings, "ui-scaling-factor-changed",

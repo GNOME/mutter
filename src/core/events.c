@@ -257,6 +257,13 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
+  if (meta_display_process_captured_input (display, event))
+    {
+      bypass_clutter = TRUE;
+      bypass_wayland = TRUE;
+      goto out;
+    }
+
   device = clutter_event_get_device (event);
   clutter_input_pointer_a11y_update (device, event);
 

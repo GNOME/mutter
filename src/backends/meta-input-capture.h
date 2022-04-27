@@ -22,8 +22,15 @@
 #define META_INPUT_CAPTURE_H
 
 #include "backends/meta-dbus-session-manager.h"
+#include "backends/meta-viewport-info.h"
+#include "clutter/clutter.h"
 
 #include "meta-dbus-input-capture.h"
+
+typedef void (* MetaInputCaptureEnable) (MetaInputCapture *input_capture,
+                                         gpointer          user_data);
+typedef void (* MetaInputCaptureDisable) (MetaInputCapture *input_capture,
+                                          gpointer          user_data);
 
 #define META_TYPE_INPUT_CAPTURE (meta_input_capture_get_type ())
 G_DECLARE_FINAL_TYPE (MetaInputCapture, meta_input_capture,
@@ -31,5 +38,15 @@ G_DECLARE_FINAL_TYPE (MetaInputCapture, meta_input_capture,
                       MetaDbusSessionManager)
 
 MetaInputCapture *meta_input_capture_new (MetaBackend *backend);
+
+void meta_input_capture_set_event_router (MetaInputCapture        *input_capture,
+                                          MetaInputCaptureEnable   enable,
+                                          MetaInputCaptureDisable  disable,
+                                          gpointer                 user_data);
+
+void meta_input_capture_notify_cancelled (MetaInputCapture *input_capture);
+
+gboolean meta_input_capture_process_event (MetaInputCapture   *input_capture,
+                                           const ClutterEvent *event);
 
 #endif /* META_INPUT_CAPTURE_H */

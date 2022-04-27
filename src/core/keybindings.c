@@ -1914,8 +1914,13 @@ process_event (MetaDisplay          *display,
 
   binding = get_keybinding (keys, &resolved_combo);
 
-  if (!binding ||
-      (!window && binding->flags & META_KEY_BINDING_PER_WINDOW))
+  if (!binding)
+    goto not_found;
+
+  if (!window && binding->flags & META_KEY_BINDING_PER_WINDOW)
+    goto not_found;
+
+  if (binding->flags & META_KEY_BINDING_CUSTOM_TRIGGER)
     goto not_found;
 
   if (binding->handler == NULL)
@@ -2994,6 +2999,16 @@ handle_rotate_monitor (MetaDisplay           *display,
 }
 
 static void
+handle_cancel_input_capture (MetaDisplay           *display,
+                             MetaWindow            *window,
+                             const ClutterKeyEvent *event,
+                             MetaKeyBinding        *binding,
+                             gpointer               user_data)
+{
+  meta_display_cancel_input_capture (display);
+}
+
+static void
 handle_restore_shortcuts (MetaDisplay           *display,
                           MetaWindow            *window,
                           const ClutterKeyEvent *event,
@@ -3319,6 +3334,14 @@ init_builtin_key_bindings (MetaDisplay *display)
                           META_KEY_BINDING_NONE,
                           META_KEYBINDING_ACTION_ROTATE_MONITOR,
                           handle_rotate_monitor, 0);
+
+  add_builtin_keybinding (display,
+                          "cancel-input-capture",
+                          mutter_keybindings,
+                          META_KEY_BINDING_IGNORE_AUTOREPEAT |
+                          META_KEY_BINDING_CUSTOM_TRIGGER,
+                          META_KEYBINDING_ACTION_NONE,
+                          handle_cancel_input_capture, 0);
 
 #ifdef HAVE_NATIVE_BACKEND
   MetaContext *context = meta_display_get_context (display);
@@ -3883,4 +3906,56 @@ meta_display_init_keys (MetaDisplay *display)
                             G_CALLBACK (reload_keybindings), display);
   g_signal_connect_swapped (backend, "keymap-layout-group-changed",
                             G_CALLBACK (reload_keybindings), display);
+}
+
+static gboolean
+process_keybinding_key_event (MetaDisplay           *display,
+                              MetaKeyHandler        *handler,
+                              const ClutterKeyEvent *event)
+{
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
+  xkb_keycode_t keycode = (xkb_keycode_t) event->hardware_keycode;
+  MetaResolvedKeyCombo resolved_combo = { &keycode, 1 };
+  MetaKeyBinding *binding;
+
+  if (event->type == CLUTTER_KEY_RELEASE)
+    return FALSE;
+
+  resolved_combo.mask = mask_from_event_params (keys, event->modifier_state);
+
+  binding = get_keybinding (keys, &resolved_combo);
+  if (!binding)
+    return FALSE;
+
+  if (handler != binding->handler)
+    return FALSE;
+
+  g_return_val_if_fail (binding->flags & META_KEY_BINDING_CUSTOM_TRIGGER,
+                        FALSE);
+
+  invoke_handler (display, binding->handler, NULL, event, binding);
+  return TRUE;
+}
+
+gboolean
+meta_display_process_keybinding_event (MetaDisplay        *display,
+                                       const char         *name,
+                                       const ClutterEvent *event)
+{
+  MetaKeyHandler *handler;
+
+  handler = g_hash_table_lookup (key_handlers, name);
+  if (!handler)
+    return FALSE;
+
+  switch (event->type)
+    {
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+      return process_keybinding_key_event (display, handler,
+                                           (ClutterKeyEvent *) event);
+
+    default:
+      return FALSE;
+    }
 }

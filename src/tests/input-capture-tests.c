@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <gio/gio.h>
+#include <linux/input-event-codes.h>
 
 #include "backends/meta-backend-private.h"
 #include "meta-test/meta-context-test.h"
@@ -181,6 +182,34 @@ input_capture_test_client_finish (InputCaptureTestClient *test_client)
 }
 
 static void
+click_button (ClutterVirtualInputDevice *virtual_pointer,
+              uint32_t                   button)
+{
+  clutter_virtual_input_device_notify_button (virtual_pointer,
+                                              g_get_monotonic_time (),
+                                              button,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  clutter_virtual_input_device_notify_button (virtual_pointer,
+                                              g_get_monotonic_time (),
+                                              button,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+}
+
+static void
+press_key (ClutterVirtualInputDevice *virtual_keyboard,
+           uint32_t                   key)
+{
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           key,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           key,
+                                           CLUTTER_KEY_STATE_RELEASED);
+}
+
+static void
 meta_test_input_capture_sanity (void)
 {
   InputCaptureTestClient *test_client;
@@ -327,6 +356,119 @@ meta_test_input_capture_clear_barriers (void)
 }
 
 static void
+meta_test_input_capture_cancel_keybinding (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  InputCaptureTestClient *test_client;
+
+  virtual_monitor = meta_create_test_monitor (test_context, 800, 600, 20.0);
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+
+  test_client = input_capture_test_client_new ("cancel-keybinding");
+  input_capture_test_client_wait_for_state (test_client, "1");
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, 0.0);
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+  assert_pointer_position (seat, 0.0, 10.0);
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+  assert_pointer_position (seat, 0.0, 10.0);
+
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTMETA,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTSHIFT,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_ESC,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_ESC,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTSHIFT,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTMETA,
+                                           CLUTTER_KEY_STATE_RELEASED);
+
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+  assert_pointer_position (seat, 10.0, 20.0);
+
+  input_capture_test_client_write_state (test_client, "1");
+
+  input_capture_test_client_finish (test_client);
+}
+
+static void
+meta_test_input_capture_events (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (MetaVirtualMonitor) virtual_monitor1 = NULL;
+  g_autoptr (MetaVirtualMonitor) virtual_monitor2 = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  InputCaptureTestClient *test_client;
+
+  virtual_monitor1 = meta_create_test_monitor (test_context, 800, 600, 20.0);
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
+
+  test_client = input_capture_test_client_new ("events");
+  input_capture_test_client_wait_for_state (test_client, "1");
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, -20.0);
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       2.0, -5.0);
+  click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  press_key (virtual_keyboard, KEY_A);
+
+  input_capture_test_client_finish (test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/input-capture/sanity",
@@ -337,6 +479,10 @@ init_tests (void)
                    meta_test_input_capture_barriers);
   g_test_add_func ("/backends/native/input-capture/clear-barriers",
                    meta_test_input_capture_clear_barriers);
+  g_test_add_func ("/backends/native/input-capture/cancel-keybinding",
+                   meta_test_input_capture_cancel_keybinding);
+  g_test_add_func ("/backends/native/input-capture/events",
+                   meta_test_input_capture_events);
 }
 
 int

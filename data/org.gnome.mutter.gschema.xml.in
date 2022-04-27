@@ -179,5 +179,10 @@
       <summary>Rotates the built-in monitor configuration</summary>
     </key>
 
+    <key name="cancel-input-capture" type="as">
+      <default><![CDATA[['<Super><Shift>Escape']]]></default>
+      <summary>Cancel any active input capture session</summary>
+    </key>
+
   </schema>
 </schemalist>

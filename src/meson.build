@@ -27,6 +27,7 @@ mutter_pkg_private_deps = [
   gnome_settings_daemon_dep,
   json_glib_dep,
   xkbcommon_dep,
+  libeis_dep,
 ]
 
 if have_gnome_desktop

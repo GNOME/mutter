@@ -22,7 +22,12 @@
 
 #include <glib.h>
 #include <gio/gunixinputstream.h>
+#include <gio/gunixfdlist.h>
+#include <libei.h>
+#include <linux/input.h>
 #include <stdio.h>
+
+#include "backends/meta-fd-source.h"
 
 #include "meta-dbus-input-capture.h"
 
@@ -49,10 +54,37 @@ typedef struct _InputCapture
   MetaDBusInputCapture *proxy;
 } InputCapture;
 
+typedef struct _Event
+{
+  enum ei_event_type type;
+  struct {
+    double dx;
+    double dy;
+  } motion;
+  struct {
+    uint32_t button;
+    gboolean is_press;
+  } button;
+  struct {
+    uint32_t key;
+    gboolean is_press;
+  } key;
+} Event;
+
 typedef struct _InputCaptureSession
 {
   MetaDBusInputCaptureSession *proxy;
   unsigned int serial;
+
+  struct ei *ei;
+  GSource *ei_source;
+
+  Event *expected_events;
+  int n_expected_events;
+  int next_event;
+
+  gboolean has_pointer;
+  gboolean has_keyboard;
 } InputCaptureSession;
 
 static GDataInputStream *stdin_reader;
@@ -183,12 +215,235 @@ input_capture_session_close (InputCaptureSession *session)
 {
   GError *error = NULL;
 
+  g_clear_pointer (&session->ei, ei_unref);
+  g_clear_pointer (&session->ei_source, g_source_destroy);
+
   if (!meta_dbus_input_capture_session_call_close_sync (session->proxy,
                                                         NULL, &error))
     g_error ("Failed to close session: %s", error->message);
 
   g_object_unref (session->proxy);
   g_free (session);
+}
+
+static void
+record_event (InputCaptureSession *session,
+              const Event         *event)
+{
+  const Event *expected_event;
+
+  g_debug ("Record event #%d, with type %s",
+           session->next_event + 1, ei_event_type_to_string (event->type));
+  g_assert_nonnull (session->expected_events);
+  g_assert_cmpint (session->next_event, <, session->n_expected_events);
+
+  expected_event = &session->expected_events[session->next_event++];
+
+  g_assert_cmpint (expected_event->type, ==, event->type);
+
+  switch (event->type)
+    {
+    case EI_EVENT_POINTER_MOTION:
+      g_assert_cmpfloat_with_epsilon (event->motion.dx,
+                                      expected_event->motion.dx,
+                                      DBL_EPSILON);
+      g_assert_cmpfloat_with_epsilon (event->motion.dy,
+                                      expected_event->motion.dy,
+                                      DBL_EPSILON);
+      break;
+    case EI_EVENT_BUTTON_BUTTON:
+      g_assert_cmpint (event->button.button, ==, expected_event->button.button);
+      break;
+    case EI_EVENT_KEYBOARD_KEY:
+      g_assert_cmpint (event->key.key, ==, expected_event->key.key);
+      break;
+    case EI_EVENT_FRAME:
+      break;
+    default:
+      break;
+    }
+}
+
+static void
+process_ei_event (InputCaptureSession *session,
+                  struct ei_event     *ei_event)
+{
+  g_debug ("Processing event %s", ei_event_type_to_string (ei_event_get_type (ei_event)));
+
+  switch (ei_event_get_type (ei_event))
+    {
+    case EI_EVENT_SEAT_ADDED:
+      {
+        struct ei_seat *ei_seat = ei_event_get_seat (ei_event);
+
+        g_assert_true (ei_seat_has_capability (ei_seat, EI_DEVICE_CAP_POINTER));
+        g_assert_true (ei_seat_has_capability (ei_seat, EI_DEVICE_CAP_KEYBOARD));
+        g_assert_true (ei_seat_has_capability (ei_seat, EI_DEVICE_CAP_BUTTON));
+        g_assert_true (ei_seat_has_capability (ei_seat, EI_DEVICE_CAP_SCROLL));
+        ei_seat_bind_capabilities (ei_seat,
+                                   EI_DEVICE_CAP_POINTER,
+                                   EI_DEVICE_CAP_BUTTON,
+                                   EI_DEVICE_CAP_SCROLL,
+                                   EI_DEVICE_CAP_KEYBOARD,
+                                   NULL);
+        break;
+      }
+    case EI_EVENT_DEVICE_ADDED:
+      {
+        struct ei_device *ei_device = ei_event_get_device (ei_event);
+
+        if (ei_device_has_capability (ei_device, EI_DEVICE_CAP_POINTER) &&
+            ei_device_has_capability (ei_device, EI_DEVICE_CAP_BUTTON) &&
+            ei_device_has_capability (ei_device, EI_DEVICE_CAP_SCROLL))
+          session->has_pointer = TRUE;
+        if (ei_device_has_capability (ei_device, EI_DEVICE_CAP_KEYBOARD))
+          session->has_keyboard = TRUE;
+        break;
+      }
+    case EI_EVENT_DEVICE_REMOVED:
+      {
+        struct ei_device *ei_device = ei_event_get_device (ei_event);
+
+        if (ei_device_has_capability (ei_device, EI_DEVICE_CAP_POINTER) &&
+            ei_device_has_capability (ei_device, EI_DEVICE_CAP_BUTTON) &&
+            ei_device_has_capability (ei_device, EI_DEVICE_CAP_SCROLL))
+          session->has_pointer = FALSE;
+        if (ei_device_has_capability (ei_device, EI_DEVICE_CAP_KEYBOARD))
+          session->has_keyboard = FALSE;
+        break;
+      }
+    case EI_EVENT_POINTER_MOTION:
+      record_event (session,
+                    &(Event) {
+                      .type = EI_EVENT_POINTER_MOTION,
+                      .motion.dx = ei_event_pointer_get_dx (ei_event),
+                      .motion.dy = ei_event_pointer_get_dy (ei_event),
+                    });
+      break;
+    case EI_EVENT_BUTTON_BUTTON:
+      record_event (session,
+                    &(Event) {
+                      .type = EI_EVENT_BUTTON_BUTTON,
+                      .button.button = ei_event_button_get_button (ei_event),
+                    });
+      break;
+    case EI_EVENT_KEYBOARD_KEY:
+      record_event (session,
+                    &(Event) {
+                      .type = EI_EVENT_KEYBOARD_KEY,
+                      .key.key = ei_event_keyboard_get_key (ei_event),
+                    });
+      break;
+    case EI_EVENT_FRAME:
+      record_event (session, &(Event) { .type = EI_EVENT_FRAME });
+      break;
+    default:
+      break;
+    }
+}
+
+static gboolean
+ei_source_prepare (gpointer user_data)
+{
+  InputCaptureSession *session = user_data;
+  struct ei_event *ei_event;
+  gboolean retval;
+
+  ei_event = ei_peek_event (session->ei);
+  retval = !!ei_event;
+  ei_event_unref (ei_event);
+
+  return retval;
+}
+
+static gboolean
+ei_source_dispatch (gpointer user_data)
+{
+  InputCaptureSession *session = user_data;
+
+  ei_dispatch (session->ei);
+
+  while (TRUE)
+    {
+      struct ei_event *ei_event;
+
+      ei_event = ei_get_event (session->ei);
+      if (!ei_event)
+        break;
+
+      process_ei_event (session, ei_event);
+      ei_event_unref (ei_event);
+    }
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+set_expected_events (InputCaptureSession *session,
+                     Event               *expected_events,
+                     int                  n_expected_events)
+{
+  session->expected_events = expected_events;
+  session->n_expected_events = n_expected_events;
+  session->next_event = 0;
+}
+
+static void
+log_handler (struct ei             *ei,
+             enum ei_log_priority   priority,
+             const char            *message,
+             struct ei_log_context *ctx)
+{
+  int message_length = strlen (message);
+
+  if (priority >= EI_LOG_PRIORITY_ERROR)
+    g_critical ("libei: %.*s", message_length, message);
+  else if (priority >= EI_LOG_PRIORITY_WARNING)
+    g_warning ("libei: %.*s", message_length, message);
+  else if (priority >= EI_LOG_PRIORITY_INFO)
+    g_info ("libei: %.*s", message_length, message);
+  else
+    g_debug ("libei: %.*s", message_length, message);
+}
+
+static void
+input_capture_session_connect_to_eis (InputCaptureSession *session)
+{
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  GError *error = NULL;
+  int fd;
+  struct ei *ei;
+  int ret;
+
+  if (!meta_dbus_input_capture_session_call_connect_to_eis_sync (session->proxy,
+                                                                 NULL,
+                                                                 &fd_variant,
+                                                                 &fd_list,
+                                                                 NULL, &error))
+    g_error ("Failed to connect to EIS: %s", error->message);
+
+  fd = g_unix_fd_list_get (fd_list, g_variant_get_handle (fd_variant), &error);
+  if (fd == -1)
+    g_error ("Failed to get EIS file descriptor: %s", error->message);
+
+  ei = ei_new_receiver (session);
+  ei_log_set_handler (ei, log_handler);
+  ei_log_set_priority (ei, EI_LOG_PRIORITY_DEBUG);
+
+  ret = ei_setup_backend_fd (ei, fd);
+  if (ret < 0)
+    g_error ("Failed to setup libei backend: %s", g_strerror (errno));
+
+  session->ei = ei;
+  session->ei_source = meta_create_fd_source (ei_get_fd (ei),
+                                              "libei",
+                                              ei_source_prepare,
+                                              ei_source_dispatch,
+                                              session,
+                                              NULL);
+  g_source_attach (session->ei_source, NULL);
+  g_source_unref (session->ei_source);
 }
 
 static GList *
@@ -286,11 +541,15 @@ input_capture_session_release (InputCaptureSession *session,
                                double               y)
 {
   g_autoptr (GError) error = NULL;
-  GVariant *position;
+  GVariantBuilder options_builder;
 
-  position = g_variant_new ("(dd)", x, y);
+  g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
+  g_variant_builder_add (&options_builder, "{sv}",
+                         "cursor_position",
+                         g_variant_new ("(dd)", x, y));
+
   if (!meta_dbus_input_capture_session_call_release_sync (session->proxy,
-                                                          position,
+                                                          g_variant_builder_end (&options_builder),
                                                           NULL, &error))
     g_warning ("Failed to release pointer: %s", error->message);
 }
@@ -521,6 +780,105 @@ test_clear_barriers (void)
   input_capture_session_close (session);
 }
 
+static void
+test_cancel_keybinding (void)
+{
+  InputCapture *input_capture;
+  InputCaptureSession *session;
+  g_autolist (Zone) zones = NULL;
+
+  input_capture = input_capture_new ();
+  session = input_capture_create_session (input_capture);
+
+  zones = input_capture_session_get_zones (session);
+  input_capture_session_add_barrier (session, 0, 0, 0, 600);
+  input_capture_session_enable (session);
+
+  write_state (session, "1");
+  wait_for_state (session, "1");
+
+  input_capture_session_close (session);
+}
+
+static void
+test_events (void)
+{
+  InputCapture *input_capture;
+  InputCaptureSession *session;
+  g_autolist (Zone) zones = NULL;
+  Event expected_events[] = {
+    /* Move the pointer with deltas (10, 15) and (2, -5), then click */
+    {
+      .type = EI_EVENT_POINTER_MOTION,
+      .motion = { .dx = -10.0, .dy = -10.0 },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_POINTER_MOTION,
+      .motion = { .dx = 2.0, .dy = -5.0 },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_BUTTON_BUTTON,
+      .button = { .button = BTN_LEFT, .is_press = TRUE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_BUTTON_BUTTON,
+      .button = { .button = BTN_LEFT, .is_press = FALSE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+
+    /* Press, then release, KEY_A */
+    {
+      .type = EI_EVENT_KEYBOARD_KEY,
+      .key = { .key = KEY_A, .is_press = TRUE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_KEYBOARD_KEY,
+      .key = { .key = KEY_A, .is_press = FALSE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+  };
+
+  input_capture = input_capture_new ();
+  session = input_capture_create_session (input_capture);
+
+  input_capture_session_connect_to_eis (session);
+  zones = input_capture_session_get_zones (session);
+  input_capture_session_add_barrier (session, 0, 0, 0, 600);
+
+  input_capture_session_enable (session);
+
+  while (!session->has_pointer ||
+         !session->has_keyboard)
+    g_main_context_iteration (NULL, TRUE);
+
+  write_state (session, "1");
+
+  set_expected_events (session,
+                       expected_events,
+                       G_N_ELEMENTS (expected_events));
+
+  while (session->next_event < session->n_expected_events)
+    g_main_context_iteration (NULL, TRUE);
+
+  input_capture_session_close (session);
+}
+
 static const struct
 {
   const char *name;
@@ -530,6 +888,8 @@ static const struct
   { "zones", test_zones, },
   { "barriers", test_barriers, },
   { "clear-barriers", test_clear_barriers, },
+  { "cancel-keybinding", test_cancel_keybinding, },
+  { "events", test_events, },
 };
 
 static void

@@ -39,6 +39,7 @@ libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 harfbuzz_req = '>= 2.6'
+libei_req = '>= 1.0.0'
 
 # optional version requirements
 udev_req = '>= 228'
@@ -128,6 +129,8 @@ dbus_dep = dependency('dbus-1')
 colord_dep = dependency('colord', version: colord_req)
 lcms2_dep = dependency('lcms2', version: lcms2_req)
 harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
+libeis_dep = dependency('libeis-1.0', version: libei_req)
+libei_dep = dependency('libei-1.0', version: libei_req)
 
 have_wayland = get_option('wayland')
 # For now always require X11 support

@@ -20,16 +20,22 @@
 
 #include "config.h"
 
-#include "backends/meta-input-capture.h"
+#include "backends/meta-input-capture-private.h"
 
 #include "backends/meta-input-capture-session.h"
 #include "backends/meta-backend-private.h"
+#include "backends/meta-monitor-manager-private.h"
 #include "clutter/clutter.h"
 
 #include "meta-dbus-input-capture.h"
 
 #define META_INPUT_CAPTURE_DBUS_SERVICE "org.gnome.Mutter.InputCapture"
 #define META_INPUT_CAPTURE_DBUS_PATH "/org/gnome/Mutter/InputCapture"
+
+enum
+{
+  CANCELLED,
+};
 
 typedef enum _MetaInputCaptureCapabilities
 {
@@ -42,6 +48,14 @@ typedef enum _MetaInputCaptureCapabilities
 struct _MetaInputCapture
 {
   MetaDbusSessionManager parent;
+
+  struct {
+    MetaInputCaptureEnable enable;
+    MetaInputCaptureDisable disable;
+    gpointer user_data;
+  } event_router;
+
+  MetaInputCaptureSession *active_session;
 };
 
 G_DEFINE_TYPE (MetaInputCapture, meta_input_capture,
@@ -155,4 +169,61 @@ meta_input_capture_new (MetaBackend *backend)
     calculate_supported_capabilities (input_capture));
 
   return input_capture;
+}
+
+void
+meta_input_capture_set_event_router (MetaInputCapture        *input_capture,
+                                     MetaInputCaptureEnable   enable,
+                                     MetaInputCaptureDisable  disable,
+                                     gpointer                 user_data)
+{
+  g_warn_if_fail (!input_capture->event_router.enable &&
+                  !input_capture->event_router.disable &&
+                  !input_capture->event_router.user_data);
+
+  input_capture->event_router.enable = enable;
+  input_capture->event_router.disable = disable;
+  input_capture->event_router.user_data = user_data;
+}
+
+void
+meta_input_capture_activate (MetaInputCapture        *input_capture,
+                             MetaInputCaptureSession *session)
+{
+  g_return_if_fail (input_capture->event_router.enable);
+
+  meta_topic (META_DEBUG_INPUT, "Activating input capturing");
+  input_capture->active_session = session;
+  input_capture->event_router.enable (input_capture,
+                                      input_capture->event_router.user_data);
+}
+
+void
+meta_input_capture_deactivate (MetaInputCapture        *input_capture,
+                               MetaInputCaptureSession *session)
+{
+  g_return_if_fail (input_capture->event_router.disable);
+
+  meta_topic (META_DEBUG_INPUT, "Deactivating input capturing");
+  input_capture->event_router.disable (input_capture,
+                                       input_capture->event_router.user_data);
+  input_capture->active_session = NULL;
+}
+
+void
+meta_input_capture_notify_cancelled (MetaInputCapture *input_capture)
+{
+  g_return_if_fail (input_capture->active_session);
+
+  meta_input_capture_session_notify_cancelled (input_capture->active_session);
+}
+
+gboolean
+meta_input_capture_process_event (MetaInputCapture   *input_capture,
+                                  const ClutterEvent *event)
+{
+  g_return_val_if_fail (input_capture->active_session, FALSE);
+
+  return meta_input_capture_session_process_event (input_capture->active_session,
+                                                   event);
 }

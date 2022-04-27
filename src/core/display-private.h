@@ -348,4 +348,9 @@ void meta_display_flush_queued_window (MetaDisplay   *display,
                                        MetaWindow    *window,
                                        MetaQueueType  queue_types);
 
+gboolean meta_display_process_captured_input (MetaDisplay        *display,
+                                              const ClutterEvent *event);
+
+void meta_display_cancel_input_capture (MetaDisplay *display);
+
 #endif

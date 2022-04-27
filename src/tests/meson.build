@@ -311,6 +311,8 @@ if have_native_tests
   input_capture_client = executable('mutter-input-capture-test-client',
     sources: [
       'input-capture-test-client.c',
+      '../backends/meta-fd-source.c',
+      '../backends/meta-fd-source.h',
       dbus_input_capture_built_sources,
     ],
     include_directories: tests_includes,
@@ -320,6 +322,7 @@ if have_native_tests
     ],
     dependencies: [
       gio_unix_dep,
+      libei_dep,
     ],
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,

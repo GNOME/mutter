@@ -24,6 +24,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-input-capture.h"
+#include "backends/meta-viewport-info.h"
 #include "meta/meta-remote-access-controller.h"
 
 #define META_TYPE_INPUT_CAPTURE_SESSION (meta_input_capture_session_get_type ())
@@ -38,5 +39,10 @@ G_DECLARE_FINAL_TYPE (MetaInputCaptureSessionHandle,
                       MetaRemoteAccessHandle)
 
 char *meta_input_capture_session_get_object_path (MetaInputCaptureSession *session);
+
+gboolean meta_input_capture_session_process_event (MetaInputCaptureSession *session,
+                                                   const ClutterEvent      *event);
+
+void meta_input_capture_session_notify_cancelled (MetaInputCaptureSession *session);
 
 #endif /* META_INPUT_CAPTURE_SESSION_H */
