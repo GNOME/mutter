@@ -730,12 +730,14 @@ _clutter_is_input_pointer_a11y_enabled (ClutterInputDevice *device)
 }
 
 void
-_clutter_input_pointer_a11y_maybe_handle_event (ClutterEvent *event)
+clutter_input_pointer_a11y_update (ClutterInputDevice *device,
+                                   const ClutterEvent *event)
 {
 
-  ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterMainContext *clutter_context;
   ClutterBackend *backend;
+
+  g_return_if_fail (clutter_event_get_device (event) == device);
 
   if (!_clutter_is_input_pointer_a11y_enabled (device))
     return;

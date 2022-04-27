@@ -61,9 +61,10 @@ typedef enum
 } EventsUnfreezeMethod;
 
 static gboolean
-stage_has_key_focus (void)
+stage_has_key_focus (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterActor *stage = meta_backend_get_stage (backend);
 
   return clutter_stage_get_key_focus (CLUTTER_STAGE (stage)) == stage;
@@ -92,7 +93,10 @@ get_window_for_event (MetaDisplay        *display,
 
         /* Always use the key focused window for key events. */
         if (IS_KEY_EVENT (event))
-            return stage_has_key_focus () ? display->focus_window : NULL;
+          {
+            return stage_has_key_focus (display) ? display->focus_window
+                                                 : NULL;
+          }
 
         window_actor = meta_window_actor_from_actor (event_actor);
         if (window_actor)
@@ -112,9 +116,11 @@ get_window_for_event (MetaDisplay        *display,
 }
 
 static void
-handle_idletime_for_event (const ClutterEvent *event)
+handle_idletime_for_event (MetaDisplay        *display,
+                           const ClutterEvent *event)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaIdleManager *idle_manager;
 
   if (clutter_event_get_device (event) == NULL)
@@ -144,7 +150,8 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
     return TRUE;
 
 #ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
 
   /* When using Clutter's native input backend there is no concept of
    * pointer emulating sequence, we still must make up our own to be
@@ -213,7 +220,9 @@ meta_display_handle_event (MetaDisplay        *display,
                            const ClutterEvent *event,
                            ClutterActor       *event_actor)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterInputDevice *device;
   MetaWindow *window = NULL;
   gboolean bypass_clutter = FALSE;
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
@@ -250,6 +259,9 @@ meta_display_handle_event (MetaDisplay        *display,
           meta_compositor_grab_end (compositor);
         }
     }
+
+  device = clutter_event_get_device (event);
+  clutter_input_pointer_a11y_update (device, event);
 
   sequence = clutter_event_get_event_sequence (event);
 
@@ -312,7 +324,7 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (event->type != CLUTTER_DEVICE_ADDED &&
       event->type != CLUTTER_DEVICE_REMOVED)
-    handle_idletime_for_event (event);
+    handle_idletime_for_event (display, event);
 
 #ifdef HAVE_WAYLAND
   if (wayland_compositor && event->type == CLUTTER_MOTION)
@@ -398,7 +410,7 @@ meta_display_handle_event (MetaDisplay        *display,
    */
   if (display->event_route == META_EVENT_ROUTE_NORMAL)
     {
-      if (IS_KEY_EVENT (event) && !stage_has_key_focus ())
+      if (IS_KEY_EVENT (event) && !stage_has_key_focus (display))
         {
           bypass_wayland = TRUE;
           goto out;

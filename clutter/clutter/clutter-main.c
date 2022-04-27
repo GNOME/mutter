@@ -802,7 +802,6 @@ clutter_do_event (ClutterEvent *event)
 
   context->current_event = g_slist_prepend (context->current_event, event);
 
-  _clutter_input_pointer_a11y_maybe_handle_event (event);
   if (_clutter_event_process_filters (event, event_actor))
     {
       context->current_event =

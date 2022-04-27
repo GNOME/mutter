@@ -43,7 +43,8 @@ CLUTTER_EXPORT
 gboolean _clutter_is_input_pointer_a11y_enabled  (ClutterInputDevice     *device);
 
 CLUTTER_EXPORT
-void _clutter_input_pointer_a11y_maybe_handle_event (ClutterEvent *event);
+void clutter_input_pointer_a11y_update (ClutterInputDevice *device,
+                                        const ClutterEvent *event);
 
 G_END_DECLS
 
