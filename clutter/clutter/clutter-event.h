@@ -280,6 +280,8 @@ struct _ClutterMotionEvent
   double dy;
   double dx_unaccel;
   double dy_unaccel;
+  double dx_constrained;
+  double dy_constrained;
 };
 
 /**

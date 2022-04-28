@@ -903,8 +903,9 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                                                float               dx_unaccel,
                                                float               dy_unaccel)
 {
-  float new_x, new_y;
   ClutterEvent *event;
+  float old_x, old_y;
+  double dx_constrained, dy_constrained;
 
   meta_seat_impl_filter_relative_motion (seat_impl,
                                          input_device,
@@ -913,16 +914,23 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                                          &dx,
                                          &dy);
 
-  new_x = seat_impl->pointer_x + dx;
-  new_y = seat_impl->pointer_y + dy;
+  old_x = seat_impl->pointer_x;
+  old_y = seat_impl->pointer_y;
   event = new_absolute_motion_event (seat_impl, input_device,
-                                     time_us, new_x, new_y, NULL);
+                                     time_us,
+                                     old_x + dx,
+                                     old_y + dy,
+                                     NULL);
+  dx_constrained = event->motion.x - old_x;
+  dy_constrained = event->motion.y - old_y;
 
   event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
   event->motion.dx = dx;
   event->motion.dy = dy;
   event->motion.dx_unaccel = dx_unaccel;
   event->motion.dy_unaccel = dy_unaccel;
+  event->motion.dx_constrained = dx_constrained;
+  event->motion.dy_constrained = dy_constrained;
 
   queue_event (seat_impl, event);
 }
@@ -1595,7 +1603,9 @@ notify_relative_tool_motion_in_impl (ClutterInputDevice *input_device,
   MetaInputDeviceNative *device_native;
   ClutterEvent *event;
   MetaSeatImpl *seat_impl;
-  float x, y;
+  float old_x, old_y;
+  double dx_constrained, dy_constrained;
+
 
   device_native = META_INPUT_DEVICE_NATIVE (input_device);
   seat_impl = seat_impl_from_device (input_device);
@@ -1607,15 +1617,20 @@ notify_relative_tool_motion_in_impl (ClutterInputDevice *input_device,
                                          &dx,
                                          &dy);
 
-  x = device_native->pointer_x + dx;
-  y = device_native->pointer_y + dy;
+  old_x = device_native->pointer_x;
+  old_y = device_native->pointer_y;
 
   event = new_absolute_motion_event (seat_impl, input_device, time_us,
-                                     x, y, axes);
+                                     old_x + dx, old_y + dy, axes);
+
+  dx_constrained = event->motion.x - old_x;
+  dy_constrained = event->motion.y - old_y;
 
   event->motion.flags |= CLUTTER_EVENT_FLAG_RELATIVE_MOTION;
   event->motion.dx = dx;
   event->motion.dy = dy;
+  event->motion.dx_constrained = dx_constrained;
+  event->motion.dy_constrained = dy_constrained;
 
   queue_event (seat_impl, event);
 }
