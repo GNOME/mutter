@@ -469,6 +469,79 @@ meta_test_input_capture_events (void)
 }
 
 static void
+on_a11y_timeout_started (ClutterSeat                   *seat,
+                         ClutterInputDevice            *device,
+                         ClutterPointerA11yTimeoutType  timeout_type,
+                         unsigned int                   delay_ms,
+                         int                           *a11y_started_counter)
+{
+  (*a11y_started_counter)++;
+}
+
+static void
+meta_test_input_capture_a11y (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  InputCaptureTestClient *test_client;
+  ClutterPointerA11yDwellClickType dwell_click_type;
+  int a11y_started_counter = 0;
+  g_autoptr (GSettings) a11y_mouse_settings = NULL;
+
+  a11y_mouse_settings = g_settings_new ("org.gnome.desktop.a11y.mouse");
+
+  virtual_monitor = meta_create_test_monitor (test_context, 800, 600, 20.0);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+
+  g_settings_set_boolean (a11y_mouse_settings, "dwell-click-enabled", TRUE);
+  g_settings_set_boolean (a11y_mouse_settings, "secondary-click-enabled", TRUE);
+
+  dwell_click_type = CLUTTER_A11Y_DWELL_CLICK_TYPE_SECONDARY;
+  clutter_seat_set_pointer_a11y_dwell_click_type (seat, dwell_click_type);
+  g_signal_connect (seat, "ptr-a11y-timeout-started",
+                    G_CALLBACK (on_a11y_timeout_started),
+                    &a11y_started_counter);
+
+  click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  meta_flush_input (test_context);
+  g_assert_cmpint (a11y_started_counter, ==, 1);
+
+  test_client = input_capture_test_client_new ("a11y");
+  input_capture_test_client_wait_for_state (test_client, "1");
+
+  click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  meta_flush_input (test_context);
+  g_assert_cmpint (a11y_started_counter, ==, 2);
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, 0.0);
+
+  click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  meta_flush_input (test_context);
+  g_assert_cmpint (a11y_started_counter, ==, 2);
+
+  input_capture_test_client_write_state (test_client, "1");
+  input_capture_test_client_finish (test_client);
+
+  click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  meta_flush_input (test_context);
+  g_assert_cmpint (a11y_started_counter, ==, 3);
+
+  dwell_click_type = CLUTTER_A11Y_DWELL_CLICK_TYPE_NONE;
+  clutter_seat_set_pointer_a11y_dwell_click_type (seat, dwell_click_type);
+  g_settings_set_boolean (a11y_mouse_settings, "dwell-click-enabled", FALSE);
+  g_settings_set_boolean (a11y_mouse_settings, "secondary-click-enabled", FALSE);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/input-capture/sanity",
@@ -483,6 +556,8 @@ init_tests (void)
                    meta_test_input_capture_cancel_keybinding);
   g_test_add_func ("/backends/native/input-capture/events",
                    meta_test_input_capture_events);
+  g_test_add_func ("/backends/native/input-capture/a11y",
+                   meta_test_input_capture_a11y);
 }
 
 int
@@ -491,6 +566,8 @@ main (int    argc,
 {
   g_autoptr (MetaContext) context = NULL;
   g_autoptr (GError) error = NULL;
+
+  g_assert_cmpstr (getenv ("GSETTINGS_BACKEND"), ==, "memory");
 
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,

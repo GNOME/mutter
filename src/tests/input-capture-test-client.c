@@ -879,6 +879,57 @@ test_events (void)
   input_capture_session_close (session);
 }
 
+static void
+test_a11y (void)
+{
+  InputCapture *input_capture;
+  InputCaptureSession *session;
+  g_autolist (Zone) zones = NULL;
+  Event expected_events[] = {
+    {
+      .type = EI_EVENT_POINTER_MOTION,
+      .motion = { .dx = -10.0, .dy = 0.0 },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_BUTTON_BUTTON,
+      .button = { .button = BTN_LEFT, .is_press = TRUE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_BUTTON_BUTTON,
+      .button = { .button = BTN_LEFT, .is_press = FALSE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+  };
+
+  input_capture = input_capture_new ();
+  session = input_capture_create_session (input_capture);
+
+  input_capture_session_connect_to_eis (session);
+  zones = input_capture_session_get_zones (session);
+  input_capture_session_add_barrier (session, 0, 0, 0, 600);
+  input_capture_session_enable (session);
+
+  set_expected_events (session,
+                       expected_events,
+                       G_N_ELEMENTS (expected_events));
+  write_state (session, "1");
+
+  while (session->next_event < session->n_expected_events)
+    g_main_context_iteration (NULL, TRUE);
+
+  wait_for_state (session, "1");
+
+  input_capture_session_close (session);
+}
+
 static const struct
 {
   const char *name;
@@ -890,6 +941,7 @@ static const struct
   { "clear-barriers", test_clear_barriers, },
   { "cancel-keybinding", test_cancel_keybinding, },
   { "events", test_events, },
+  { "a11y", test_a11y, },
 };
 
 static void
