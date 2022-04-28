@@ -478,6 +478,17 @@ on_a11y_timeout_started (ClutterSeat                   *seat,
   (*a11y_started_counter)++;
 }
 
+static gboolean
+atk_key_listener (AtkKeyEventStruct *event,
+                  gpointer           user_data)
+{
+  int *a11y_key_counter = user_data;
+
+  (*a11y_key_counter)++;
+
+  return TRUE;
+}
+
 static void
 meta_test_input_capture_a11y (void)
 {
@@ -485,16 +496,24 @@ meta_test_input_capture_a11y (void)
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
   InputCaptureTestClient *test_client;
   ClutterPointerA11yDwellClickType dwell_click_type;
   int a11y_started_counter = 0;
+  int a11y_key_counter = 0;
   g_autoptr (GSettings) a11y_mouse_settings = NULL;
+  guint atk_key_listener_id;
+
+  atk_key_listener_id = atk_add_key_event_listener (atk_key_listener,
+                                                    &a11y_key_counter);
 
   a11y_mouse_settings = g_settings_new ("org.gnome.desktop.a11y.mouse");
 
   virtual_monitor = meta_create_test_monitor (test_context, 800, 600, 20.0);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
@@ -510,35 +529,48 @@ meta_test_input_capture_a11y (void)
                     &a11y_started_counter);
 
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 1);
+  g_assert_cmpint (a11y_key_counter, ==, 2);
 
   test_client = input_capture_test_client_new ("a11y");
   input_capture_test_client_wait_for_state (test_client, "1");
 
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 2);
+  g_assert_cmpint (a11y_key_counter, ==, 4);
 
   clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        -20.0, 0.0);
 
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 2);
+  g_assert_cmpint (a11y_key_counter, ==, 4);
 
   input_capture_test_client_write_state (test_client, "1");
   input_capture_test_client_finish (test_client);
 
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
+  press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 3);
+  g_assert_cmpint (a11y_key_counter, ==, 6);
 
   dwell_click_type = CLUTTER_A11Y_DWELL_CLICK_TYPE_NONE;
   clutter_seat_set_pointer_a11y_dwell_click_type (seat, dwell_click_type);
   g_settings_set_boolean (a11y_mouse_settings, "dwell-click-enabled", FALSE);
   g_settings_set_boolean (a11y_mouse_settings, "secondary-click-enabled", FALSE);
+  atk_remove_key_event_listener (atk_key_listener_id);
 }
 
 static void

@@ -907,6 +907,20 @@ test_a11y (void)
     {
       .type = EI_EVENT_FRAME,
     },
+    {
+      .type = EI_EVENT_KEYBOARD_KEY,
+      .key = { .key = KEY_A, .is_press = TRUE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
+    {
+      .type = EI_EVENT_KEYBOARD_KEY,
+      .key = { .key = KEY_A, .is_press = FALSE },
+    },
+    {
+      .type = EI_EVENT_FRAME,
+    },
   };
 
   input_capture = input_capture_new ();
