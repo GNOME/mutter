@@ -653,7 +653,7 @@ test_regions_okay (void)
   /*************************************************************/
   /* Make sure test region 5 has the right spanning rectangles */
   /*************************************************************/
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Region to merge was empty!*");
   region = get_screen_region (5);
   g_test_assert_expected_messages ();
@@ -762,7 +762,7 @@ test_clamping_to_region (void)
   rect = meta_rect (50, 50, 10000, 10000);
   min_size.width = 600;  min_size.height = 1170;
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "No rect whose size to clamp to found*");
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
@@ -794,7 +794,7 @@ test_clamping_to_region (void)
   min_size.width = 100;  min_size.height = 200;
   fixed_directions = FIXED_DIRECTION_Y;
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "No rect whose size to clamp to found*");
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,

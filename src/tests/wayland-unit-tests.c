@@ -82,9 +82,9 @@ subsurface_invalid_subsurfaces (void)
 
   wayland_test_client =
     meta_wayland_test_client_new ("invalid-subsurfaces");
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "WL: error in client communication*");
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "WL: error in client communication*");
   meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();
@@ -97,7 +97,7 @@ subsurface_invalid_xdg_shell_actions (void)
 
   wayland_test_client =
     meta_wayland_test_client_new ("invalid-xdg-shell-actions");
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Invalid geometry * set on xdg_surface*");
   meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();

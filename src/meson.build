@@ -163,7 +163,6 @@ mutter_c_args = [
   '-DCOGL_ENABLE_MUTTER_API',
   '-DCLUTTER_DISABLE_DEPRECATION_WARNINGS',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
-  '-DG_LOG_DOMAIN="mutter"',
   '-DSN_API_NOT_YET_FROZEN=1',
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
@@ -1023,7 +1022,10 @@ libmutter = shared_library(libmutter_name,
   soversion: 0,
   gnu_symbol_visibility: 'hidden',
   include_directories: mutter_includes,
-  c_args: mutter_c_args,
+  c_args: [
+    mutter_c_args,
+    '-DG_LOG_DOMAIN="libmutter"',
+  ],
   dependencies: [
     libmutter_cogl_dep,
     libmutter_clutter_dep,
@@ -1049,7 +1051,10 @@ executable('mutter',
     files('core/mutter.c'),
   ],
   include_directories: mutter_includes,
-  c_args: mutter_c_args,
+  c_args: [
+    mutter_c_args,
+    '-DG_LOG_DOMAIN="mutter"',
+  ],
   dependencies: [libmutter_dep],
   install_dir: bindir,
   install: true,
@@ -1062,7 +1067,10 @@ executable('mutter-restart-helper',
   include_directories: [
     top_includepath,
   ],
-  c_args: mutter_c_args,
+  c_args: [
+    mutter_c_args,
+    '-DG_LOG_DOMAIN="mutter-restart-helper"',
+  ],
   dependencies: [
     x11_dep,
     xcomposite_dep,

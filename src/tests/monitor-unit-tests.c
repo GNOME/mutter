@@ -1852,7 +1852,7 @@ meta_test_monitor_suggested_config_overlapping (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Suggested monitor config has overlapping region, "
                          "rejecting");
   emulate_hotplug (test_setup);
@@ -2011,7 +2011,7 @@ meta_test_monitor_suggested_config_not_adjacent (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Suggested monitor config has monitors with no "
                          "neighbors, rejecting");
   emulate_hotplug (test_setup);
@@ -2169,7 +2169,7 @@ meta_test_monitor_suggested_config_multi_dpi (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Suggested monitor config has monitors with no "
                          "neighbors, rejecting");
   emulate_hotplug (test_setup);
@@ -2298,7 +2298,7 @@ meta_test_monitor_limited_crtcs (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Failed to use linear *");
 
   emulate_hotplug (test_setup);
@@ -7992,7 +7992,7 @@ meta_test_monitor_migrated_wiggle_discard (void)
                                          &error))
     g_error ("Failed to migrate config: %s", error->message);
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Failed to finish monitors config migration: "
                          "Mode not available on monitor");
   emulate_hotplug (test_setup);

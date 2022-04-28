@@ -876,13 +876,13 @@ meta_test_monitor_store_unknown_elements (void)
     .n_configurations = 1
   };
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Unknown element <unknownundermonitors> "
                          "under <monitors>, ignoring");
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Unknown element <unknownunderconfiguration> "
                          "under <configuration>, ignoring");
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Unknown element <unknownunderlogicalmonitor> "
                          "under <logicalmonitor>, ignoring");
   meta_set_custom_monitor_config (test_context, "unknown-elements.xml");
@@ -894,7 +894,7 @@ meta_test_monitor_store_unknown_elements (void)
 static void
 meta_test_monitor_store_policy_not_allowed (void)
 {
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
                          "*Policy can only be defined in system level "
                          "configurations*");
   meta_set_custom_monitor_config (test_context, "policy.xml");
@@ -923,7 +923,7 @@ meta_test_monitor_store_policy (void)
 static void
 meta_test_monitor_store_policy_empty (void)
 {
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
                          "*Invalid store*");
   meta_set_custom_monitor_system_config (test_context, "policy-empty.xml");
   g_test_assert_expected_messages ();
@@ -932,7 +932,7 @@ meta_test_monitor_store_policy_empty (void)
 static void
 meta_test_monitor_store_policy_duplicate (void)
 {
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
                          "*Multiple identical stores*");
   meta_set_custom_monitor_system_config (test_context, "policy-duplicate.xml");
   g_test_assert_expected_messages ();
@@ -941,7 +941,7 @@ meta_test_monitor_store_policy_duplicate (void)
 static void
 meta_test_monitor_store_policy_invalid (void)
 {
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
                          "*Invalid store*");
   meta_set_custom_monitor_system_config (test_context, "policy-invalid.xml");
   g_test_assert_expected_messages ();
@@ -950,7 +950,7 @@ meta_test_monitor_store_policy_invalid (void)
 static void
 meta_test_monitor_store_policy_multiple (void)
 {
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
                          "*Multiple stores elements under policy*");
   meta_set_custom_monitor_system_config (test_context, "policy-multiple.xml");
   g_test_assert_expected_messages ();
@@ -991,7 +991,7 @@ meta_test_monitor_store_policy_dbus_invalid (void)
     meta_monitor_config_manager_get_store (config_manager);
   const MetaMonitorConfigPolicy *policy;
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
                          "*Multiple dbus elements under policy*");
   meta_set_custom_monitor_system_config (test_context,
                                          "policy-dbus-invalid.xml");
