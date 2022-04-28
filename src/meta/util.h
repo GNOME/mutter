@@ -175,10 +175,11 @@ const char * meta_topic_to_string (MetaDebugTopic topic);
     { \
       if (meta_is_topic_enabled (debug_topic)) \
         { \
-          g_autofree char *message = NULL; \
+          g_autofree char *_topic_message = NULL; \
 \
-          message = g_strdup_printf (__VA_ARGS__); \
-          g_message ("%s: %s", meta_topic_to_string (debug_topic), message); \
+          _topic_message = g_strdup_printf (__VA_ARGS__); \
+          g_message ("%s: %s", meta_topic_to_string (debug_topic), \
+                     _topic_message); \
         } \
     } \
   G_STMT_END
