@@ -233,6 +233,14 @@ struct _MetaWaylandSurface
     int dst_height;
   } viewport;
 
+  /* wp_fractional_scale */
+  struct {
+    struct wl_resource *resource;
+    gulong destroy_handler_id;
+
+    double scale;
+  } fractional_scale;
+
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;
 
@@ -312,6 +320,8 @@ void                meta_wayland_surface_drag_dest_motion    (MetaWaylandSurface
 void                meta_wayland_surface_drag_dest_focus_out (MetaWaylandSurface   *surface);
 void                meta_wayland_surface_drag_dest_drop      (MetaWaylandSurface   *surface);
 void                meta_wayland_surface_drag_dest_update    (MetaWaylandSurface   *surface);
+
+double              meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_update_outputs (MetaWaylandSurface *surface);
 

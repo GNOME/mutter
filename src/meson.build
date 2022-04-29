@@ -596,6 +596,8 @@ if have_wayland
     'wayland/meta-wayland-dnd-surface.h',
     'wayland/meta-wayland-filter-manager.c',
     'wayland/meta-wayland-filter-manager.h',
+    'wayland/meta-wayland-fractional-scale.c',
+    'wayland/meta-wayland-fractional-scale.h',
     'wayland/meta-wayland-gtk-shell.c',
     'wayland/meta-wayland-gtk-shell.h',
     'wayland/meta-wayland.h',
@@ -1005,6 +1007,7 @@ if have_wayland
   #  - protocol stability ('private', 'stable' or 'unstable')
   #  - protocol version (if stability is 'unstable')
   wayland_protocols = [
+    ['fractional-scale', 'staging', 'v1', ],
     ['gtk-shell', 'private', ],
     ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
     ['linux-dmabuf', 'unstable', 'v1', ],

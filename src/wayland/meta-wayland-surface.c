@@ -39,6 +39,7 @@
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-fractional-scale.h"
 #include "wayland/meta-wayland-gtk-shell.h"
 #include "wayland/meta-wayland-keyboard.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -1425,15 +1426,45 @@ surface_output_disconnect_signals (gpointer key,
                                         surface);
 }
 
+static void
+get_highest_output_scale (gpointer key,
+                          gpointer value,
+                          gpointer data)
+{
+  MetaWaylandOutput *wayland_output = value;
+  MetaLogicalMonitor *logical_monitor =
+    meta_wayland_output_get_logical_monitor (wayland_output);
+  double *scale = data;
+  double new_scale;
+
+  new_scale = meta_logical_monitor_get_scale (logical_monitor);
+  if (new_scale > *scale)
+    *scale = new_scale;
+}
+
+double
+meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface)
+{
+  double scale = 0.0;
+
+  g_hash_table_foreach (surface->outputs, get_highest_output_scale, &scale);
+  return scale;
+}
+
 void
 meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
 {
+  double scale;
+
   if (!surface->compositor)
     return;
 
   g_hash_table_foreach (surface->compositor->outputs,
                         update_surface_output_state,
                         surface);
+
+  scale = meta_wayland_surface_get_highest_output_scale (surface);
+  meta_wayland_fractional_scale_maybe_send_preferred_scale (surface, scale);
 }
 
 void
@@ -1594,6 +1625,7 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
   meta_wayland_xdg_shell_init (compositor);
   meta_wayland_init_gtk_shell (compositor);
   meta_wayland_init_viewporter (compositor);
+  meta_wayland_init_fractional_scale (compositor);
 }
 
 void
