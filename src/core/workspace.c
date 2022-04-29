@@ -530,7 +530,7 @@ workspace_switch_sound(MetaWorkspace *from,
     }
 
   player = meta_display_get_sound_player (from->display);
-  meta_sound_player_play_from_theme (player, e, "Desktop switched", NULL);
+  meta_sound_player_play_from_theme (player, e, _("Workspace switched"), NULL);
 
  finish:
   meta_workspace_manager_free_workspace_layout (&layout);
