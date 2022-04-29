@@ -35,10 +35,10 @@ struct _MetaScreenCastWindowStreamSrc
 
   MetaScreenCastWindow *screen_cast_window;
 
-  unsigned long screen_cast_window_damaged_handler_id;
-  unsigned long screen_cast_window_destroyed_handler_id;
-  unsigned long position_invalidated_handler_id;
-  unsigned long cursor_changed_handler_id;
+  gulong screen_cast_window_damaged_handler_id;
+  gulong screen_cast_window_destroyed_handler_id;
+  gulong position_invalidated_handler_id;
+  gulong cursor_changed_handler_id;
 
   gboolean cursor_bitmap_invalid;
 };
