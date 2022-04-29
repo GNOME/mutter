@@ -42,6 +42,7 @@ struct _MetaScreenCastVirtualStreamSrc
 
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
+  gulong prepare_frame_handler_id;
 
   gulong monitors_changed_handler_id;
 };
@@ -126,10 +127,12 @@ sync_cursor_state (MetaScreenCastVirtualStreamSrc *virtual_src)
 }
 
 static void
-pointer_position_invalidated (MetaCursorTracker              *cursor_tracker,
-                              MetaScreenCastVirtualStreamSrc *virtual_src)
+pointer_position_invalidated (MetaCursorTracker       *cursor_tracker,
+                              MetaScreenCastStreamSrc *src)
 {
-  sync_cursor_state (virtual_src);
+  ClutterStage *stage = stage_from_src (src);
+
+  clutter_stage_schedule_update (stage);
 }
 
 static void
@@ -137,6 +140,14 @@ cursor_changed (MetaCursorTracker              *cursor_tracker,
                 MetaScreenCastVirtualStreamSrc *virtual_src)
 {
   virtual_src->cursor_bitmap_invalid = TRUE;
+  sync_cursor_state (virtual_src);
+}
+
+static void
+on_prepare_frame (ClutterStage                   *stage,
+                  ClutterStageView               *stage_view,
+                  MetaScreenCastVirtualStreamSrc *virtual_src)
+{
   sync_cursor_state (virtual_src);
 }
 
@@ -220,6 +231,7 @@ init_record_callbacks (MetaScreenCastVirtualStreamSrc *virtual_src)
     meta_backend_get_monitor_manager (backend);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
+  ClutterStage *stage = stage_from_src (src);
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
@@ -231,6 +243,10 @@ init_record_callbacks (MetaScreenCastVirtualStreamSrc *virtual_src)
       virtual_src->cursor_changed_handler_id =
         g_signal_connect_after (cursor_tracker, "cursor-changed",
                                 G_CALLBACK (cursor_changed),
+                                virtual_src);
+      virtual_src->prepare_frame_handler_id =
+        g_signal_connect_after (stage, "prepare-frame",
+                                G_CALLBACK (on_prepare_frame),
                                 virtual_src);
       G_GNUC_FALLTHROUGH;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
@@ -284,6 +300,7 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  ClutterStage *stage = stage_from_src (src);
 
   if (virtual_src->hw_cursor_inhibited)
     uninhibit_hw_cursor (virtual_src);
@@ -299,6 +316,8 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
                           cursor_tracker);
   g_clear_signal_handler (&virtual_src->cursor_changed_handler_id,
                           cursor_tracker);
+  g_clear_signal_handler (&virtual_src->prepare_frame_handler_id,
+                          stage);
 
   g_clear_signal_handler (&virtual_src->monitors_changed_handler_id,
                           monitor_manager);

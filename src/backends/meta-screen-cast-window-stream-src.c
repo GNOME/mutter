@@ -39,6 +39,7 @@ struct _MetaScreenCastWindowStreamSrc
   gulong screen_cast_window_destroyed_handler_id;
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
+  gulong prepare_frame_handler_id;
 
   gboolean cursor_bitmap_invalid;
 };
@@ -57,6 +58,12 @@ get_backend (MetaScreenCastWindowStreamSrc *window_src)
     meta_screen_cast_session_get_screen_cast (session);
 
   return meta_screen_cast_get_backend (screen_cast);
+}
+
+static ClutterStage *
+get_stage (MetaScreenCastWindowStreamSrc *window_src)
+{
+  return CLUTTER_STAGE (meta_backend_get_stage (get_backend (window_src)));
 }
 
 static MetaScreenCastWindowStream *
@@ -320,6 +327,7 @@ meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_s
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = get_backend (window_src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  ClutterStage *stage = get_stage (window_src);
 
   if (!window_src->screen_cast_window)
     return;
@@ -332,6 +340,8 @@ meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_s
                           cursor_tracker);
   g_clear_signal_handler (&window_src->cursor_changed_handler_id,
                           cursor_tracker);
+  g_clear_signal_handler (&window_src->prepare_frame_handler_id,
+                          stage);
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
@@ -380,7 +390,9 @@ static void
 pointer_position_invalidated (MetaCursorTracker             *cursor_tracker,
                               MetaScreenCastWindowStreamSrc *window_src)
 {
-  sync_cursor_state (window_src);
+  ClutterStage *stage = get_stage (window_src);
+
+  clutter_stage_schedule_update (stage);
 }
 
 static void
@@ -392,11 +404,20 @@ cursor_changed (MetaCursorTracker             *cursor_tracker,
 }
 
 static void
+on_prepare_frame (ClutterStage                  *stage,
+                  ClutterStageView              *stage_view,
+                  MetaScreenCastWindowStreamSrc *window_src)
+{
+  sync_cursor_state (window_src);
+}
+
+static void
 meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
   MetaBackend *backend = get_backend (window_src);
+  ClutterStage *stage = get_stage (window_src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   MetaWindowActor *window_actor;
   MetaScreenCastStream *stream;
@@ -432,6 +453,10 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
       window_src->cursor_changed_handler_id =
         g_signal_connect_after (cursor_tracker, "cursor-changed",
                                 G_CALLBACK (cursor_changed),
+                                window_src);
+      window_src->prepare_frame_handler_id =
+        g_signal_connect_after (stage, "prepare_frame",
+                                G_CALLBACK (on_prepare_frame),
                                 window_src);
       meta_cursor_tracker_track_position (cursor_tracker);
       break;

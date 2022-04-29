@@ -48,6 +48,7 @@ struct _MetaScreenCastMonitorStreamSrc
 
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
+  gulong stage_prepare_frame_handler_id;
 
   guint maybe_record_idle_id;
 };
@@ -269,7 +270,9 @@ static void
 pointer_position_invalidated (MetaCursorTracker              *cursor_tracker,
                               MetaScreenCastMonitorStreamSrc *monitor_src)
 {
-  sync_cursor_state (monitor_src);
+  ClutterStage *stage = get_stage (monitor_src);
+
+  clutter_stage_schedule_update (stage);
 }
 
 static void
@@ -277,6 +280,14 @@ cursor_changed (MetaCursorTracker              *cursor_tracker,
                 MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   monitor_src->cursor_bitmap_invalid = TRUE;
+  sync_cursor_state (monitor_src);
+}
+
+static void
+on_prepare_frame (ClutterStage                   *stage,
+                  ClutterStageView               *stage_view,
+                  MetaScreenCastMonitorStreamSrc *monitor_src)
+{
   sync_cursor_state (monitor_src);
 }
 
@@ -402,6 +413,7 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  ClutterStage *stage = get_stage (monitor_src);
   MetaScreenCastStream *stream;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
@@ -416,6 +428,10 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
       monitor_src->cursor_changed_handler_id =
         g_signal_connect_after (cursor_tracker, "cursor-changed",
                                 G_CALLBACK (cursor_changed),
+                                monitor_src);
+      monitor_src->stage_prepare_frame_handler_id =
+        g_signal_connect_after (stage, "prepare-frame",
+                                G_CALLBACK (on_prepare_frame),
                                 monitor_src);
       meta_cursor_tracker_track_position (cursor_tracker);
       break;
@@ -465,6 +481,8 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
                           cursor_tracker);
   g_clear_signal_handler (&monitor_src->cursor_changed_handler_id,
                           cursor_tracker);
+  g_clear_signal_handler (&monitor_src->stage_prepare_frame_handler_id,
+                          stage);
 
   g_clear_handle_id (&monitor_src->maybe_record_idle_id, g_source_remove);
 

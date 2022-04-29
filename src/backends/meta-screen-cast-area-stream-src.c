@@ -44,6 +44,7 @@ struct _MetaScreenCastAreaStreamSrc
 
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
+  gulong prepare_frame_handler_id;
 
   guint maybe_record_idle_id;
 };
@@ -174,7 +175,9 @@ static void
 pointer_position_invalidated (MetaCursorTracker           *cursor_tracker,
                               MetaScreenCastAreaStreamSrc *area_src)
 {
-  sync_cursor_state (area_src);
+  ClutterStage *stage = get_stage (area_src);
+
+  clutter_stage_schedule_update (stage);
 }
 
 static void
@@ -182,6 +185,14 @@ cursor_changed (MetaCursorTracker           *cursor_tracker,
                 MetaScreenCastAreaStreamSrc *area_src)
 {
   area_src->cursor_bitmap_invalid = TRUE;
+  sync_cursor_state (area_src);
+}
+
+static void
+on_prepare_frame (ClutterStage                *stage,
+                  ClutterStageView            *stage_view,
+                  MetaScreenCastAreaStreamSrc *area_src)
+{
   sync_cursor_state (area_src);
 }
 
@@ -371,6 +382,10 @@ meta_screen_cast_area_stream_src_enable (MetaScreenCastStreamSrc *src)
         g_signal_connect_after (cursor_tracker, "cursor-changed",
                                 G_CALLBACK (cursor_changed),
                                 area_src);
+      area_src->prepare_frame_handler_id =
+        g_signal_connect_after (stage, "prepare-frame",
+                                G_CALLBACK (on_prepare_frame),
+                                area_src);
       meta_cursor_tracker_track_position (cursor_tracker);
       G_GNUC_FALLTHROUGH;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
@@ -420,6 +435,8 @@ meta_screen_cast_area_stream_src_disable (MetaScreenCastStreamSrc *src)
                           cursor_tracker);
   g_clear_signal_handler (&area_src->cursor_changed_handler_id,
                           cursor_tracker);
+  g_clear_signal_handler (&area_src->prepare_frame_handler_id,
+                          stage);
 
   g_clear_handle_id (&area_src->maybe_record_idle_id, g_source_remove);
 
