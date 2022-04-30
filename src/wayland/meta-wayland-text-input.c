@@ -79,6 +79,7 @@ struct _MetaWaylandTextInput
     char *string;
     uint32_t cursor;
     uint32_t anchor;
+    gboolean changed;
   } preedit;
 
   guint done_idle_id;
@@ -136,10 +137,15 @@ clutter_input_focus_send_done (ClutterInputFocus *focus)
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
-      zwp_text_input_v3_send_preedit_string (resource,
-                                             text_input->preedit.string,
-                                             text_input->preedit.cursor,
-                                             text_input->preedit.anchor);
+      if (text_input->preedit.string || text_input->preedit.changed)
+        {
+          zwp_text_input_v3_send_preedit_string (resource,
+                                                 text_input->preedit.string,
+                                                 text_input->preedit.cursor,
+                                                 text_input->preedit.anchor);
+          text_input->preedit.changed = FALSE;
+        }
+
       zwp_text_input_v3_send_done (resource,
                                    lookup_serial (text_input, resource));
     }
@@ -260,6 +266,7 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
 
   text_input->preedit.cursor = pos;
   text_input->preedit.anchor = pos;
+  text_input->preedit.changed = TRUE;
 
   meta_wayland_text_input_focus_defer_done (focus);
 }
