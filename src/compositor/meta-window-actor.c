@@ -447,7 +447,11 @@ meta_window_actor_dispose (GObject *object)
 
   meta_compositor_remove_window_actor (compositor, self);
 
-  g_clear_object (&priv->window);
+  if (priv->window)
+    {
+      meta_window_set_compositor_private (priv->window, NULL);
+      g_clear_object (&priv->window);
+    }
 
   if (priv->surface)
     {
