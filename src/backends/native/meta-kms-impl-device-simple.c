@@ -1209,9 +1209,16 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
       height = plane_assignment->dst_rect.height;
 
       if (plane_assignment->buffer)
-        handle_u32 = meta_drm_buffer_get_handle (plane_assignment->buffer);
+        {
+          if (!meta_drm_buffer_ensure_fb_id (plane_assignment->buffer, error))
+            return FALSE;
+
+          handle_u32 = meta_drm_buffer_get_handle (plane_assignment->buffer);
+        }
       else
-        handle_u32 = 0;
+        {
+          handle_u32 = 0;
+        }
 
       meta_topic (META_DEBUG_KMS,
                   "[simple] Setting HW cursor of CRTC %u (%s) to %u "
