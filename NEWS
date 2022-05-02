@@ -1,3 +1,40 @@
+42.1
+====
+* Send correct LEAVE events when entering windows [Jonas D.; !2321]
+* Be more forgiving with wrongly sized clients [Robert; !2335]
+* Add ClutterInputCapabilities enum and device property [Carlos; !2331]
+* Fall back if COPY_MODE_SECONDARY_GPU fails to init [Daniel; !2341]
+* Fix missing root window properties after XWayland start [Olivier; !2336]
+* wayland/shm: Add support for ABGR8888 and XBGR8888 formats [Jonas Å.; !2352]
+* Keep actors dirty if a redraw was queued up during paint() [Carlos; !2353]
+* Fix overview painting of shaped texture with layer snippets [Jonas Å.; !2278]
+* Survive missing GAMMA_LUT KMS property [Daniel; !2360]
+* Record current event when going through event filters [Jonas D.; !2327]
+* Pass events to pointer a11y before going through filters [Jonas D.; !2332]
+* Update cursor when scaled or transformed [Sebastian W.; !2363]
+* Fix screen cast when DMA buffer fails or can't be used [Jonas Å.; !2383]
+* Repick when pointer actor goes unmapped [Jonas D.; !2333]
+* Improve IM support [Carlos; !2365, !2384]
+* Allow using dumb buffers for cursor sprites [Jonas Å.; !2275]
+* wayland/dma-buf: Only advertise supported formats [Robert; !2386]
+* Fix screen cast cursor metadata with unthrottled input [Jonas Å.; !2393]
+* Fixed crashes [Olivier Daniel, Łukasz, Jonas D.; !2339, !2359, !2347, !2299]
+* Plugged memory leak [Sebastian K.; !2345]
+* Misc. bug fixes and cleanups [Christian, Jonas Å., Bartłomiej, Carlos, Daniel,
+  Sebastian W., Corentin, Jonas D., Sebastian K.; !2316, !2152, !2334, !2349,
+  !2325, !2357, !2362, !2373, !2374, !2361, !2366, !2350, !2377, !2382, !2391,
+  !2395, !2387, !2400, !2397, !2378]
+
+Contributors:
+  Jonas Dreßler, Bilal Elmoussaoui, Olivier Fourdan, Carlos Garnacho,
+  Christian Hergert, Sebastian Keller, Robert Mader, Florian Müllner,
+  Corentin Noël, Bartłomiej Piotrowski, Łukasz Spintzyk, Daniel van Vugt,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Balázs Úr [hu], Charles Monzat [fr], Milo Casagrande [it], Марко Костић [sr],
+  Nathan Follens [nl], Jordi Mas [ca], Ngọc Quân Trần [vi]
+
 42.0
 ====
 
