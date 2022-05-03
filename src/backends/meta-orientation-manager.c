@@ -122,7 +122,8 @@ sync_state (MetaOrientationManager *self)
   if (had_accel != self->has_accel)
     g_object_notify_by_pspec (G_OBJECT (self), props[PROP_HAS_ACCELEROMETER]);
 
-  if (g_settings_get_boolean (self->settings, ORIENTATION_LOCK_KEY))
+  if (self->settings != NULL &&
+      g_settings_get_boolean (self->settings, ORIENTATION_LOCK_KEY))
     return;
 
   if (self->prev_orientation == self->curr_orientation)
@@ -273,6 +274,8 @@ iio_sensor_vanished_cb (GDBusConnection *connection,
 static void
 meta_orientation_manager_init (MetaOrientationManager *self)
 {
+  GSettingsSchemaSource *schema_source = g_settings_schema_source_get_default ();
+
   self->iio_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
                                          "net.hadess.SensorProxy",
                                          G_BUS_NAME_WATCHER_FLAGS_NONE,
@@ -281,10 +284,13 @@ meta_orientation_manager_init (MetaOrientationManager *self)
                                          self,
                                          NULL);
 
-  self->settings = g_settings_new (CONF_SCHEMA);
-  g_signal_connect_object (self->settings, "changed::"ORIENTATION_LOCK_KEY,
-                           G_CALLBACK (orientation_lock_changed), self, 0);
-  sync_state (self);
+  if (g_settings_schema_source_lookup (schema_source, CONF_SCHEMA, TRUE))
+    {
+      self->settings = g_settings_new (CONF_SCHEMA);
+      g_signal_connect_object (self->settings, "changed::"ORIENTATION_LOCK_KEY,
+                               G_CALLBACK (orientation_lock_changed), self, 0);
+      sync_state (self);
+    }
 }
 
 static void
