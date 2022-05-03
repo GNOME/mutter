@@ -45,7 +45,7 @@
 #if defined (COGL_HAS_GLX_SUPPORT)
 #include <cogl/winsys/cogl-onscreen-glx.h>
 #endif
-#if defined (COGL_HAS_XLIB_SUPPORT)
+#if defined (COGL_HAS_XLIB)
 #include <cogl/winsys/cogl-onscreen-xlib.h>
 #endif
 #ifdef COGL_HAS_X11

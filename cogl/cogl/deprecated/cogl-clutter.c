@@ -40,7 +40,7 @@
 #include "cogl-context-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-onscreen-private.h"
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
 #include "cogl-xlib-renderer.h"
 #endif
 #include "winsys/cogl-winsys-private.h"

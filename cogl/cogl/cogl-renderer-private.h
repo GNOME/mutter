@@ -63,7 +63,7 @@ struct _CoglRenderer
 
   GList *outputs;
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
   Display *foreign_xdpy;
   gboolean xlib_enable_event_retrieval;
   gboolean xlib_want_reset_on_video_memory_purge;

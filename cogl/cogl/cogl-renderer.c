@@ -55,7 +55,7 @@
 #include "winsys/cogl-winsys-glx-private.h"
 #endif
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
 #include "cogl-xlib-renderer.h"
 #endif
 
@@ -202,14 +202,14 @@ cogl_renderer_new (void)
 
   _cogl_list_init (&renderer->idle_closures);
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
   renderer->xlib_enable_event_retrieval = TRUE;
 #endif
 
   return _cogl_renderer_object_new (renderer);
 }
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
 void
 cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
                                         Display *xdisplay)
@@ -243,7 +243,7 @@ cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
 
   renderer->xlib_want_reset_on_video_memory_purge = enable;
 }
-#endif /* COGL_HAS_XLIB_SUPPORT */
+#endif /* COGL_HAS_XLIB */
 
 gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,

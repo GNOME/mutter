@@ -34,11 +34,11 @@
 #include "cogl-renderer.h"
 #include "cogl-scanout.h"
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
 #include "cogl-texture-pixmap-x11-private.h"
 #endif
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
 #include <X11/Xutil.h>
 #include "cogl-texture-pixmap-x11-private.h"
 #endif
@@ -114,7 +114,7 @@ typedef struct _CoglWinsysVtable
 
   /* Optional functions */
 
-#ifdef COGL_HAS_XLIB_SUPPORT
+#ifdef COGL_HAS_XLIB
   gboolean
   (*texture_pixmap_x11_create) (CoglTexturePixmapX11 *tex_pixmap);
   void
