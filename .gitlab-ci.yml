@@ -296,6 +296,7 @@ build-without-native-backend-and-wayland@x86_64:
         -Dnative_backend=false
         -Dudev=false
         -Dwayland=false
+        -Dxwayland=false
         -Dcore_tests=false
         -Dnative_tests=false
     - meson compile -C build
