@@ -36,6 +36,8 @@ struct _MetaCompositorNative
 G_DEFINE_TYPE (MetaCompositorNative, meta_compositor_native,
                META_TYPE_COMPOSITOR_SERVER)
 
+#ifdef HAVE_WAYLAND
+
 static MetaRendererView *
 get_window_view (MetaRenderer *renderer,
                  MetaWindow   *window)
@@ -153,6 +155,7 @@ done:
                           surface);
     }
 }
+#endif /* HAVE_WAYLAND */
 
 static void
 meta_compositor_native_before_paint (MetaCompositor   *compositor,
@@ -160,7 +163,9 @@ meta_compositor_native_before_paint (MetaCompositor   *compositor,
 {
   MetaCompositorClass *parent_class;
 
+#ifdef HAVE_WAYLAND
   maybe_assign_primary_plane (compositor);
+#endif
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_native_parent_class);
   parent_class->before_paint (compositor, stage_view);
