@@ -31,6 +31,12 @@ G_DECLARE_FINAL_TYPE (MetaWindowActorWayland,
                       META, WINDOW_ACTOR_WAYLAND,
                       MetaWindowActor)
 
+#define META_TYPE_SURFACE_CONTAINER_ACTOR_WAYLAND (meta_surface_container_actor_wayland_get_type())
+G_DECLARE_FINAL_TYPE (MetaSurfaceContainerActorWayland,
+                      meta_surface_container_actor_wayland,
+                      META, SURFACE_CONTAINER_ACTOR_WAYLAND,
+                      ClutterActor)
+
 void meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor);
 
 #endif /*META_WINDOW_ACTOR_WAYLAND_H */

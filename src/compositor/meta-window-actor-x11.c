@@ -1511,6 +1511,7 @@ meta_window_actor_x11_set_frozen (MetaWindowActor *actor,
     return;
 
   actor_x11->is_frozen = frozen;
+  meta_surface_actor_set_frozen (meta_window_actor_get_surface (actor), frozen);
 
   if (frozen)
     meta_window_x11_freeze_commits (window);
@@ -1536,6 +1537,12 @@ static gboolean
 meta_window_actor_x11_is_single_surface_actor (MetaWindowActor *actor)
 {
   return clutter_actor_get_n_children (CLUTTER_ACTOR (actor)) == 1;
+}
+
+static void
+meta_window_actor_x11_sync_geometry (MetaWindowActor     *actor,
+                                     const MetaRectangle *actor_rect)
+{
 }
 
 static void
@@ -1672,6 +1679,9 @@ meta_window_actor_x11_dispose (GObject *object)
     {
       g_clear_signal_handler (&actor_x11->repaint_scheduled_id, surface_actor);
       g_clear_signal_handler (&actor_x11->size_changed_id, surface_actor);
+
+      clutter_actor_remove_child (CLUTTER_ACTOR (object),
+                                  CLUTTER_ACTOR (surface_actor));
     }
 
   g_clear_pointer (&actor_x11->shape_region, cairo_region_destroy);
@@ -1714,6 +1724,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
   window_actor_class->update_regions = meta_window_actor_x11_update_regions;
   window_actor_class->can_freeze_commits = meta_window_actor_x11_can_freeze_commits;
+  window_actor_class->sync_geometry = meta_window_actor_x11_sync_geometry;
   window_actor_class->is_single_surface_actor = meta_window_actor_x11_is_single_surface_actor;
 
   actor_class->paint = meta_window_actor_x11_paint;

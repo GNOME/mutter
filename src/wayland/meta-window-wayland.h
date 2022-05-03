@@ -81,4 +81,6 @@ gboolean meta_window_wayland_is_resize (MetaWindowWayland *wl_window,
                                         int                width,
                                         int                height);
 
+gboolean meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window);
+
 #endif

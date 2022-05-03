@@ -270,16 +270,6 @@ static void
 meta_window_actor_set_frozen (MetaWindowActor *self,
                               gboolean         frozen)
 {
-  ClutterActor *child;
-  ClutterActorIter iter;
-
-  clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self));
-  while (clutter_actor_iter_next (&iter, &child))
-    {
-      if (META_IS_SURFACE_ACTOR (child))
-        meta_surface_actor_set_frozen (META_SURFACE_ACTOR (child), frozen);
-    }
-
   META_WINDOW_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
 }
 
@@ -464,12 +454,7 @@ meta_window_actor_dispose (GObject *object)
 
   g_clear_object (&priv->window);
 
-  if (priv->surface)
-    {
-      clutter_actor_remove_child (CLUTTER_ACTOR (self),
-                                  CLUTTER_ACTOR (priv->surface));
-      g_clear_object (&priv->surface);
-    }
+  g_clear_object (&priv->surface);
 
   G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
 }
@@ -860,6 +845,8 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
    */
   if (meta_window_actor_is_frozen (self) && !did_placement)
     return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
+
+  META_WINDOW_ACTOR_GET_CLASS (self)->sync_geometry (self, &actor_rect);
 
   if (clutter_actor_has_allocation (actor))
     {

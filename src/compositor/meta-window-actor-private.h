@@ -34,6 +34,8 @@ struct _MetaWindowActorClass
   void (*update_regions) (MetaWindowActor *actor);
   gboolean (*can_freeze_commits) (MetaWindowActor *actor);
 
+  void (*sync_geometry) (MetaWindowActor     *actor,
+                         const MetaRectangle *actor_rect);
   gboolean (*is_single_surface_actor) (MetaWindowActor *actor);
 };
 

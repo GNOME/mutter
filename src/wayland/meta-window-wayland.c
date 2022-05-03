@@ -267,14 +267,13 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   configured_rect.width = constrained_rect.width;
   configured_rect.height = constrained_rect.height;
 
-  /* For wayland clients, the size is completely determined by the client,
-   * and while this allows to avoid some trickery with frames and the resulting
-   * lagging, we also need to insist a bit when the constraints would apply
-   * a different size than the client decides.
+  /* The size is determined by the client, except when the client is explicitly
+   * fullscreen, in which case the compositor compensates for the size
+   * difference between what surface configuration the client provided, and the
+   * size of the area a fullscreen window state is expected to fill.
    *
-   * Note that this is not generally a problem for normal toplevel windows (the
-   * constraints don't see the size hints, or just change the position), but
-   * it can be for maximized or fullscreen.
+   * For non-explicit-fullscreen states, since the size is always determined by
+   * the client, the we cannot use the size calculated by the constraints.
    */
 
   if (flags & META_MOVE_RESIZE_FORCE_MOVE)
@@ -283,16 +282,26 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
     }
   else if (flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE)
     {
-      /* This is a call to wl_surface_commit(), ignore the constrained_rect and
-       * update the real client size to match the buffer size.
-       */
+      MetaWaylandWindowConfiguration *configuration;
+      int new_width, new_height;
 
-      if (window->rect.width != unconstrained_rect.width ||
-          window->rect.height != unconstrained_rect.height)
+      configuration = wl_window->last_acked_configuration;
+      if (configuration && configuration->is_fullscreen)
+        {
+          new_width = constrained_rect.width;
+          new_height = constrained_rect.height;
+        }
+      else
+        {
+          new_width = unconstrained_rect.width;
+          new_height = unconstrained_rect.height;
+        }
+      if (window->rect.width != new_width ||
+          window->rect.height != new_height)
         {
           *result |= META_MOVE_RESIZE_RESULT_RESIZED;
-          window->rect.width = unconstrained_rect.width;
-          window->rect.height = unconstrained_rect.height;
+          window->rect.width = new_width;
+          window->rect.height = new_height;
         }
 
       window->buffer_rect.width =
@@ -1289,4 +1298,11 @@ meta_window_wayland_get_max_size (MetaWindow *window,
 
   scale = 1.0 / (float) meta_window_wayland_get_geometry_scale (window);
   scale_size (width, height, scale);
+}
+
+gboolean
+meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window)
+{
+  return (wl_window->last_acked_configuration &&
+          wl_window->last_acked_configuration->is_fullscreen);
 }
