@@ -1,3 +1,10 @@
+41.6
+====
+* Fix missing root window properties after XWayland start [Olivier; !2336]
+
+Contributors:
+  Olivier Fourdan
+
 41.5
 ====
 * Fix X11 → wayland drops ending up in the wrong wayland client [Olivier; !2305]
