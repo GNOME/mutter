@@ -1132,9 +1132,8 @@ meta_display_close (MetaDisplay *display,
 
   g_signal_emit (display, display_signals[CLOSING], 0);
 
-  meta_compositor_unmanage (display->compositor);
-
   meta_display_unmanage_windows (display, timestamp);
+  meta_compositor_unmanage (display->compositor);
 
   meta_prefs_remove_listener (prefs_changed_callback, display);
 
