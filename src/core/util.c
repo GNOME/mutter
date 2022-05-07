@@ -161,7 +161,9 @@ meta_add_verbose_topic (MetaDebugTopic topic)
   if (verbose_topics == META_DEBUG_VERBOSE)
     return;
 
+#ifdef WITH_VERBOSE_MODE
   ensure_logfile ();
+#endif
 
   if (topic == META_DEBUG_VERBOSE)
     verbose_topics = META_DEBUG_VERBOSE;
