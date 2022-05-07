@@ -83,18 +83,18 @@ typedef struct _ScreenCast
 
 typedef struct _PipeWireSource
 {
-  GSource base;
+  GSource source;
 
   struct pw_loop *pipewire_loop;
 } PipeWireSource;
 
-static PipeWireSource *_pipewire_source;
+static GSource *_pipewire_source;
 static struct pw_context *_pipewire_context;
 static struct pw_core *_pipewire_core;
 static struct spa_hook _pipewire_core_listener;
 
 static gboolean
-pipewire_loop_source_prepare (GSource *base,
+pipewire_loop_source_prepare (GSource *source,
                               int     *timeout)
 {
   *timeout = -1;
@@ -133,24 +133,26 @@ static GSourceFuncs pipewire_source_funcs =
   pipewire_loop_source_finalize
 };
 
-static PipeWireSource *
-create_pipewire_source (void)
+static GSource *
+create_pipewire_source (struct pw_loop *pipewire_loop)
 {
+  GSource *source;
   PipeWireSource *pipewire_source;
 
-  pipewire_source =
-    (PipeWireSource *) g_source_new (&pipewire_source_funcs,
-                                     sizeof (PipeWireSource));
-  pipewire_source->pipewire_loop = pw_loop_new (NULL);
-  g_assert_nonnull (pipewire_source->pipewire_loop);
-  g_source_add_unix_fd (&pipewire_source->base,
+  source = g_source_new (&pipewire_source_funcs,
+                         sizeof (PipeWireSource));
+
+  pipewire_source = (PipeWireSource *) source;
+  pipewire_source->pipewire_loop = pipewire_loop;
+
+  g_source_add_unix_fd (source,
                         pw_loop_get_fd (pipewire_source->pipewire_loop),
                         G_IO_IN | G_IO_ERR);
 
   pw_loop_enter (pipewire_source->pipewire_loop);
-  g_source_attach (&pipewire_source->base, NULL);
+  g_source_attach (source, NULL);
 
-  return pipewire_source;
+  return source;
 }
 
 static void
@@ -171,9 +173,15 @@ static const struct pw_core_events core_events = {
 static void
 init_pipewire (void)
 {
+  struct pw_loop *pipewire_loop;
+
   pw_init (NULL, NULL);
-  _pipewire_source = create_pipewire_source ();
-  _pipewire_context = pw_context_new (_pipewire_source->pipewire_loop,
+
+  pipewire_loop = pw_loop_new (NULL);
+  g_assert_nonnull (pipewire_loop);
+
+  _pipewire_source = create_pipewire_source (pipewire_loop);
+  _pipewire_context = pw_context_new (pipewire_loop,
                                       NULL, 0);
   g_assert_nonnull (_pipewire_context);
   _pipewire_core = pw_context_connect (_pipewire_context, NULL, 0);
@@ -192,8 +200,8 @@ release_pipewire (void)
   g_clear_pointer (&_pipewire_context, pw_context_destroy);
   if (_pipewire_source)
     {
-      g_source_destroy ((GSource *) _pipewire_source);
-      g_source_unref ((GSource *) _pipewire_source);
+      g_source_destroy (_pipewire_source);
+      g_source_unref (_pipewire_source);
       _pipewire_source = NULL;
     }
 }
