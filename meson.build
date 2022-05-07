@@ -427,6 +427,7 @@ if buildtype != 'plain'
     '-Werror=pointer-to-int-cast',
     '-Werror=empty-body',
     '-Werror=write-strings',
+    '-Werror=strict-aliasing',
     '-Wno-sign-compare',
     '-Wno-cast-function-type',
     '-Wno-unused-parameter',
