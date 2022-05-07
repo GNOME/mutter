@@ -78,7 +78,7 @@ static guint signals[N_SIGNALS];
 
 typedef struct _MetaPipeWireSource
 {
-  GSource base;
+  GSource source;
 
   MetaScreenCastStreamSrc *src;
   struct pw_loop *pipewire_loop;
@@ -90,7 +90,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
 
   struct pw_context *pipewire_context;
   struct pw_core *pipewire_core;
-  MetaPipeWireSource *pipewire_source;
+  GSource *pipewire_source;
   struct spa_hook pipewire_core_listener;
 
   gboolean is_enabled;
@@ -1145,7 +1145,7 @@ on_core_error (void       *data,
 }
 
 static gboolean
-pipewire_loop_source_prepare (GSource *base,
+pipewire_loop_source_prepare (GSource *source,
                               int     *timeout)
 {
   *timeout = -1;
@@ -1190,24 +1190,21 @@ static GSourceFuncs pipewire_source_funcs =
   pipewire_loop_source_finalize
 };
 
-static MetaPipeWireSource *
-create_pipewire_source (MetaScreenCastStreamSrc *src)
+static GSource *
+create_pipewire_source (MetaScreenCastStreamSrc *src,
+                        struct pw_loop          *pipewire_loop)
 {
   GSource *source;
   MetaPipeWireSource *pipewire_source;
 
   source = g_source_new (&pipewire_source_funcs, sizeof (MetaPipeWireSource));
   g_source_set_name (source, "[mutter] PipeWire");
+
   pipewire_source = (MetaPipeWireSource *) source;
   pipewire_source->src = src;
-  pipewire_source->pipewire_loop = pw_loop_new (NULL);
-  if (!pipewire_source->pipewire_loop)
-    {
-      g_source_unref ((GSource *) pipewire_source);
-      return NULL;
-    }
+  pipewire_source->pipewire_loop = pipewire_loop;
 
-  g_source_add_unix_fd (&pipewire_source->base,
+  g_source_add_unix_fd (source,
                         pw_loop_get_fd (pipewire_source->pipewire_loop),
                         G_IO_IN | G_IO_ERR);
 
@@ -1215,7 +1212,7 @@ create_pipewire_source (MetaScreenCastStreamSrc *src)
   g_source_attach (source, NULL);
   g_source_unref (source);
 
-  return pipewire_source;
+  return source;
 }
 
 static const struct pw_core_events core_events = {
@@ -1231,8 +1228,17 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (initable);
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  struct pw_loop *pipewire_loop;
 
-  priv->pipewire_source = create_pipewire_source (src);
+  pipewire_loop = pw_loop_new (NULL);
+  if (!pipewire_loop)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create PipeWire loop");
+      return FALSE;
+    }
+
+  priv->pipewire_source = create_pipewire_source (src, pipewire_loop);
   if (!priv->pipewire_source)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1240,7 +1246,7 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
       return FALSE;
     }
 
-  priv->pipewire_context = pw_context_new (priv->pipewire_source->pipewire_loop,
+  priv->pipewire_context = pw_context_new (pipewire_loop,
                                            NULL, 0);
   if (!priv->pipewire_context)
     {
@@ -1298,7 +1304,7 @@ meta_screen_cast_stream_src_dispose (GObject *object)
   g_clear_pointer (&priv->dmabuf_handles, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_core, pw_core_disconnect);
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
-  g_clear_pointer ((GSource **) &priv->pipewire_source, g_source_destroy);
+  g_clear_pointer (&priv->pipewire_source, g_source_destroy);
 
   G_OBJECT_CLASS (meta_screen_cast_stream_src_parent_class)->dispose (object);
 }
