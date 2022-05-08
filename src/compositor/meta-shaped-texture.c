@@ -38,7 +38,6 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "core/boxes-private.h"
 
-#include <gdk/gdk.h>
 #include <math.h>
 
 #include "cogl/cogl.h"
@@ -785,7 +784,7 @@ do_paint_content (MetaShapedTexture   *stex,
               cairo_rectangle_int_t rect;
               cairo_region_get_rectangle (blended_tex_region, i, &rect);
 
-              if (!gdk_rectangle_intersect (&content_rect, &rect, &rect))
+              if (!meta_rectangle_intersect (&content_rect, &rect, &rect))
                 continue;
 
               paint_clipped_rectangle_node (stex, root_node,

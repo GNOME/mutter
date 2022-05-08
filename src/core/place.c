@@ -26,7 +26,6 @@
 
 #include "core/place.h"
 
-#include <gdk/gdk.h>
 #include <math.h>
 #include <stdlib.h>
 

@@ -26,6 +26,7 @@
 #define META_X11_DISPLAY_PRIVATE_H
 
 #include <glib.h>
+#include <gdk/gdk.h>
 #include <X11/Xlib.h>
 
 #include "backends/meta-monitor-manager-private.h"

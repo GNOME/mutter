@@ -2,7 +2,6 @@
 
 #include "config.h"
 
-#include <gdk/gdk.h>
 #include <math.h>
 
 #include "compositor/clutter-utils.h"

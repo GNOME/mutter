@@ -21,8 +21,6 @@
 
 #include "compositor/meta-dnd-private.h"
 
-#include <gdk/gdkx.h>
-
 #include "meta/meta-backend.h"
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"

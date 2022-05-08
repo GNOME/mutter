@@ -25,7 +25,6 @@
 
 #include "backends/x11/meta-input-settings-x11.h"
 
-#include <gdk/gdkx.h>
 #include <string.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput2.h>
