@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: ka\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
 "POT-Creation-Date: 2022-05-07 09:30+0000\n"
-"PO-Revision-Date: 2022-05-07 23:32+0200\n"
+"PO-Revision-Date: 2022-05-08 05:33+0200\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: Georgian <http://mail.gnome.org/mailman/listinfo/gnome-ge-"
 "list>\n"
@@ -29,151 +29,151 @@ msgstr "ნავიგაცია"
 
 #: data/50-mutter-navigation.xml:9
 msgid "Move window to workspace 1"
-msgstr "გადატანა ფანჯარა -სკენ 1"
+msgstr "ფანჯრის სამუშაო სივრცე 1-ზე გადატანა"
 
 #: data/50-mutter-navigation.xml:12
 msgid "Move window to workspace 2"
-msgstr "გადატანა ფანჯარა -სკენ 2"
+msgstr "ფანჯრის სამუშაო სივრცე 2-ზე გადატანა"
 
 #: data/50-mutter-navigation.xml:15
 msgid "Move window to workspace 3"
-msgstr "გადატანა ფანჯარა -სკენ 3"
+msgstr "ფანჯრის სამუშაო სივრცე 3-ზე გადატანა"
 
 #: data/50-mutter-navigation.xml:18
 msgid "Move window to workspace 4"
-msgstr "გადატანა ფანჯარა -სკენ 4"
+msgstr "ფანჯრის სამუშაო სივრცე 4-ზე გადატანა"
 
 #: data/50-mutter-navigation.xml:21
 msgid "Move window to last workspace"
-msgstr "გადატანა ფანჯარა -სკენ 1"
+msgstr "ფანჯრის ბოლო სამუშაო სივრცეზე გადატანა"
 
 #: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace to the left"
-msgstr "გადატანა ფანჯარა -სკენ მარცხენა"
+msgstr "ფანჯრის ერთი სამუშაო სივრცით მარცხნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace to the right"
-msgstr "გადატანა ფანჯარა -სკენ მარჯვენა"
+msgstr "ფანჯრის ერთი სამუშაო სივრცით მარჯვნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
-msgstr "გადატანა ფანჯარა"
+msgstr "ფანჯრის ერთი სამუშაო სივრცით მაღლა გადატანა"
 
 #: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
-msgstr "გადატანა ფანჯარა"
+msgstr "ფანჯრის ერთი სამუშაო სივრცით ქვემოთ ჩამოტანა"
 
 #: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
-msgstr "გადატანა ფანჯარა -სკენ მარცხენა"
+msgstr "ფანჯრის ერთი სამუშაო ეკრანით მარცხნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
-msgstr "გადატანა ფანჯარა -სკენ მარჯვენა"
+msgstr "ფანჯრის ერთი ეკრანით მარჯვნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
-msgstr "გადატანა ფანჯარა"
+msgstr "ფანჯრის ერთი მონიტორით მაღლა ატანა"
 
 #: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
-msgstr "გადატანა ფანჯარა"
+msgstr "ფანჯრის ერთი მონიტორით დაბლა ქვემოთ ჩამოტანა"
 
 #: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
-msgstr ""
+msgstr "აპლიკაციის გადართვა"
 
 #: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
-msgstr ""
+msgstr "წინა აპლიკაციაზე გადართვა"
 
 #: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
-msgstr ""
+msgstr "ფანჯრის გადართვა"
 
 #: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
-msgstr ""
+msgstr "წინა ფანჯარაზე გადართვა"
 
 #: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
-msgstr "გადატანა"
+msgstr "აპლიკაციის ფანჯრების გადართვა"
 
 #: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
-msgstr "გადატანა"
+msgstr "აპლიკაციის წინა ფანჯარაზე გადართვა"
 
 #: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
-msgstr ""
+msgstr "სისტემური კონტროლის გადართვა"
 
 #: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
-msgstr ""
+msgstr "წინა სისტემურ კონტროლზე გადართვა"
 
 #: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
-msgstr ""
+msgstr "პირდაპირ ფანჯარაზე გადართვა"
 
 #: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
-msgstr ""
+msgstr "პირდაპირ წინა ფანჯარაზე გადართვა"
 
 #: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr "გადატანა დაუყოვნებლივ"
+msgstr "აპლიკაციის ფანჯრებზე პირდაპირ გადართვა"
 
 #: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr ""
+msgstr "აპის წინა ფანჯარაზე პირდაპირ გადართვა"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
-msgstr ""
+msgstr "სისტემურ კონტროლზე პირდაპირ გადართვა"
 
 #: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
-msgstr ""
+msgstr "წინა სისტემურ კონტროლზე პირდაპირ გადართვა"
 
 #: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
-msgstr ""
+msgstr "ყველა ნორმალური ფანჯრის დამალვა"
 
 #: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
-msgstr "გადადი გარემო 1"
+msgstr "სამუშაო სივრცე 1-ზე გადართვა"
 
 #: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
-msgstr "სამუშაო გარემო 2 გადართვა"
+msgstr "სამუშაო სივრცე 2-ზე გადართვა"
 
 #: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
-msgstr "სამუშაო გარემო 3 გადართვა"
+msgstr "სამუშაო სივრცე 3-ზე გადართვა"
 
 #: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
-msgstr "სამუშაო გარემო 4 გადართვა"
+msgstr "სამუშაო სივრცე 4-ზე გადართვა"
 
 #: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
-msgstr "გადადი გარემო 1"
+msgstr "ბოლო სამუშაო სივრცეზე გადართვა"
 
 #: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
-msgstr "გადართვა -სკენ ჩართულია მარცხენა"
+msgstr "სამუშაო სივრცის მარცხნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
-msgstr "გადართვა -სკენ ჩართულია მარჯვენა"
+msgstr "სამუშაო სივრცის მარჯვნივ გადატანა"
 
 #: data/50-mutter-navigation.xml:138
 msgid "Move to workspace above"
-msgstr "_მარცხენა გარემოში გადატანა"
+msgstr "ზედა სამუშაო სივრცეზე გადატანა"
 
 #: data/50-mutter-navigation.xml:142
 msgid "Move to workspace below"
-msgstr "ქვემ_ო გარემოში გადატანა"
+msgstr "ქვედა სამუშაო სივრცეზე გადატანა"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -181,15 +181,15 @@ msgstr "სისტემა"
 
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
-msgstr ""
+msgstr "გაშვების ბრძანების სტრიქონის ჩვენება"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr ""
+msgstr "კლავიატურის მალსახმობების აღდგენა"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
-msgstr "Windows"
+msgstr "ფანჯრები"
 
 #: data/50-mutter-windows.xml:8
 msgid "Activate the window menu"
@@ -201,7 +201,7 @@ msgstr "სრული ეკრანის რეჟიმზე გადა
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr "მთელს ეკრანზე გაშლის რეჟიმი"
+msgstr "მთელ ეკრანზე განშლადობის შესაძლებლობის გადართვა"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
@@ -209,7 +209,7 @@ msgstr "ფანჯრის გადიდება"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr "ფანჯრის ზომის შეცვლა"
+msgstr "ფანჯრის აღდგენა"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
@@ -217,7 +217,7 @@ msgstr "ფანჯრის დახურვა"
 
 #: data/50-mutter-windows.xml:20
 msgid "Hide window"
-msgstr "ფანჯრის ზომის შეცვლა"
+msgstr "ფანჯრის დამალვა"
 
 #: data/50-mutter-windows.xml:22
 msgid "Move window"
@@ -229,23 +229,23 @@ msgstr "ფანჯრის ზომის შეცვლა"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr "ყველა გარემოში გამოჩენა"
+msgstr "ფანჯრის ერთ ან ყველა სამუშაო გარემოში ჩვენების ჩართ/გამორთ"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
-msgstr "აწევა ფანჯარა"
+msgstr "ფანჯრის აწევა, თუ დაფარულია. არადა დაწევა"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
-msgstr "აწევა ფანჯარა სხვა"
+msgstr "ფანჯრის სხვა ფანჯრებზე ზემოთ აწევა"
 
 #: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
-msgstr "ჩაწევა ფანჯარა სხვა"
+msgstr "ჩაწევა ფანჯარა სხვა ფანჯრებს ქვემოთ"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
-msgstr "ფანჯრის ვერტიკალურად გაშლა"
+msgstr "ფანჯრის ვერტიკალურად მაქსიმიზაცია"
 
 #: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
@@ -253,19 +253,19 @@ msgstr "ფანჯრის ჰორიზონტალურად გა�
 
 #: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
-msgstr ""
+msgstr "ხედის მარცხნივ გაყოფა"
 
 #: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
-msgstr ""
+msgstr "ხედის მარჯვნივ გაყოფა"
 
 #: data/mutter.desktop.in:4
 msgid "Mutter"
-msgstr ""
+msgstr "Mutter"
 
 #: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
-msgstr "მოდიფიკატორი -სკენ შეცვლილია ფანჯარა"
+msgstr "ფანჯრების მართვის დამატებითი ოპერაციების მოდიფიკატორი"
 
 #: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
@@ -277,7 +277,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
-msgstr ""
+msgstr "მოდალური ფანჯრების მიბმა"
 
 #: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
@@ -299,7 +299,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
-msgstr "სამუშაო მაგიდები დინამიურად იმართება"
+msgstr "სამუშაო სივრცეები დინამიკურად იმართება"
 
 #: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
@@ -310,7 +310,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
-msgstr ""
+msgstr "სამუშაო სივრცეები მხოლოდ აქტიურ ეკრანზე"
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
@@ -320,7 +320,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
-msgstr ""
+msgstr "მხტუნავი ჩანართების გარეშე"
 
 #: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
@@ -330,7 +330,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
-msgstr ""
+msgstr "ფოკუსის შეცვლის მაჩვენებლის მოძრაობის შეწყვეტამდე დაყოვნება"
 
 #: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
@@ -341,7 +341,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
-msgstr ""
+msgstr "გადათრევადი საზღვრის სიგანე"
 
 #: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
@@ -351,7 +351,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
-msgstr ""
+msgstr "თუ ფანჯარა თითქმის მთელ ეკრანზეა, მისი სრულ ეკრანზე გაშლა"
 
 #: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
@@ -361,7 +361,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
-msgstr ""
+msgstr "ახალი ფანჯრის ცენტრში მოთავსება"
 
 #: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
@@ -392,15 +392,15 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
-msgstr ""
+msgstr "მაჩვენებლის მოსაძებნი მოდიფიკატორი"
 
 #: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
-msgstr ""
+msgstr "მალსახმობი \"მაჩვენებლის მოძებნის\" ქმედებას გაუშვებს."
 
 #: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
-msgstr ""
+msgstr "სიცოცხლის შემოწმების ვადა გავიდა"
 
 #: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
@@ -410,71 +410,71 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
-msgstr "გადატანა"
+msgstr "აირჩიეთ ფანჯარა მხტუნავი ჩანართიდან"
 
 #: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
-msgstr ""
+msgstr "ჩანართის მხტუნავი ფანჯრის გაუქმება"
 
 #: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
-msgstr ""
+msgstr "ეკრანის კონფიგურაციის გადართვა"
 
 #: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
-msgstr ""
+msgstr "ეკრანის ჩაშენებული კონფიგურაციის შემობრუნება"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
-msgstr "გადადი გარემო 1"
+msgstr "VT 1-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
-msgstr "სამუშაო გარემო 2 გადართვა"
+msgstr "VT 2-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
-msgstr "სამუშაო გარემო 3 გადართვა"
+msgstr "VT 3-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
-msgstr "სამუშაო გარემო 4 გადართვა"
+msgstr "VT 4-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
-msgstr "სამუშაო გარემო 5 გადართვა"
+msgstr "VT 5-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
-msgstr "სამუშაო გარემო 2 გადართვა"
+msgstr "VT 6-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
-msgstr "სამუშაო გარემო 7 გადართვა"
+msgstr "VT 7-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
-msgstr "სამუშაო გარემო 8 გადართვა"
+msgstr "VT 8-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
-msgstr "სამუშაო გარემო 9 გადართვა"
+msgstr "VT 9-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
-msgstr "სამუშაო გარემო 10 გადართვა"
+msgstr "VT 10-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
-msgstr "სამუშაო გარემო 11 გადართვა"
+msgstr "VT 11-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
-msgstr "სამუშაო გარემო 12 გადართვა"
+msgstr "VT 12-ზე გადართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr ""
+msgstr "მალსახმობების თავიდან ჩართვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
@@ -513,7 +513,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
-msgstr ""
+msgstr "Xwayland-ის მონიშნული X გაფართოებების გამორთვა"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:117
 msgid ""
@@ -533,14 +533,14 @@ msgstr "უცნობია"
 
 #: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
-msgstr ""
+msgstr "უცნობი ეკრანი"
 
 #: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
-msgstr ""
+msgstr "%s %s"
 
 #: src/backends/meta-monitor.c:293
 #, c-format
@@ -548,12 +548,12 @@ msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
-msgstr ""
+msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
 #: src/backends/meta-profiler.c:79
 msgid "Compositor"
-msgstr ""
+msgstr "კომპოზიტორი"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
@@ -565,23 +565,23 @@ msgstr ""
 
 #: src/core/bell.c:192
 msgid "Bell event"
-msgstr ""
+msgstr "მოვლენის ზარი"
 
 #: src/core/display.c:687
 msgid "Privacy Screen Enabled"
-msgstr ""
+msgstr "კონფიდენციალური ეკრანი ჩართულია"
 
 #: src/core/display.c:688
 msgid "Privacy Screen Disabled"
-msgstr ""
+msgstr "კონფიდენციალური ეკრანი გამორთულია"
 
 #: src/core/meta-context-main.c:555
 msgid "Replace the running window manager"
-msgstr "მიმდინარე ფანჯრების მმართველის Metacity-ით ჩანაცვლება"
+msgstr "ფანჯრების გაშვებული მმართველის შეცვლა"
 
 #: src/core/meta-context-main.c:561
 msgid "X Display to use"
-msgstr "X გამოსაყენებელი გარემო"
+msgstr "გამოყენებადი X"
 
 #: src/core/meta-context-main.c:567
 msgid "Disable connection to session manager"
@@ -597,39 +597,39 @@ msgstr "სესიის დამახსოვრებული ფაი�
 
 #: src/core/meta-context-main.c:585
 msgid "Make X calls synchronous"
-msgstr ""
+msgstr "X-ის ფუნქციების სინქრონულად გამოძახება"
 
 #: src/core/meta-context-main.c:592
 msgid "Run as a wayland compositor"
-msgstr ""
+msgstr "Wayland-ის კომპოზიტორად გაშვება"
 
 #: src/core/meta-context-main.c:598
 msgid "Run as a nested compositor"
-msgstr ""
+msgstr "ჩადგმულ კომპოზიტორად გაშვება"
 
 #: src/core/meta-context-main.c:604
 msgid "Run wayland compositor without starting Xwayland"
-msgstr ""
+msgstr "Wayland კომპოზიტორის Xwayland-ის შესრულებს გარეშე გაშვება"
 
 #: src/core/meta-context-main.c:610
 msgid "Specify Wayland display name to use"
-msgstr ""
+msgstr "მიუთითეთ Wayland-ის ეკრანის სახელი"
 
 #: src/core/meta-context-main.c:618
 msgid "Run as a full display server, rather than nested"
-msgstr ""
+msgstr "ჩადგმულის მაგიერ ეკრანის სრულ სერვერად გაშვება"
 
 #: src/core/meta-context-main.c:623
 msgid "Run as a headless display server"
-msgstr ""
+msgstr "უთავო ეკრანის სერვერად გაშვება"
 
 #: src/core/meta-context-main.c:628
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr ""
+msgstr "მუდმინი ვირტუალური ეკრანის დამატება (WxH or WxH@R)"
 
 #: src/core/meta-context-main.c:639
 msgid "Run with X11 backend"
-msgstr ""
+msgstr "X11 უკანაბოლოთი გაშვება"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -637,7 +637,7 @@ msgstr ""
 #: src/core/meta-pad-action-mapper.c:842
 #, c-format
 msgid "Mode Switch (Group %d)"
-msgstr ""
+msgstr "რეჟიმის შეცვლა (ჯგუფი %d)"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
@@ -652,25 +652,25 @@ msgstr "ეკრანზე ნაჩვენები დახმარე�
 
 #: src/core/mutter.c:74
 msgid "Print version"
-msgstr "ამოსაბეჭდი ვერსია"
+msgstr "მიმდინარე ვერსიის დაბეჭდვა"
 
 #: src/core/mutter.c:80
 msgid "Mutter plugin to use"
-msgstr ""
+msgstr "Mutter-ის დამატება"
 
 #: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
-msgstr "სამუშაო გარემო %d"
+msgstr "სამუშაო სივრცე %d"
 
 #: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
-msgstr ""
+msgstr "Mutter დამატებითი შეტყობინების მხარდაჭერის გარეშეა აგებული"
 
 #: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
-msgstr ""
+msgstr "რეჟიმის შეცვლა რეჟიმი %d"
 
 #: src/x11/meta-x11-display.c:673
 #, c-format
@@ -681,17 +681,17 @@ msgstr ""
 
 #: src/x11/meta-x11-display.c:1067
 msgid "Failed to initialize GDK"
-msgstr ""
+msgstr "GDK-ის ინიციალიზაციის შეცდომა"
 
 #: src/x11/meta-x11-display.c:1091
 #, c-format
 msgid "Failed to open X Window System display “%s”"
-msgstr ""
+msgstr "ფანჯრების X სისტემის ეკრანის (%s) გახსნის შეცდომა"
 
 #: src/x11/meta-x11-display.c:1200
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
-msgstr ""
+msgstr "ასლი \"%d\" ეკრანზე \"%s\" არასწორია"
 
 #: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
@@ -701,7 +701,7 @@ msgstr "ფორმატი მხარდაუჭერელია: %s"
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
-msgstr ""
+msgstr "%s (%s-ზე)"
 
 #~ msgid "Desktop"
 #~ msgstr "სამუშაო მაგიდა"
