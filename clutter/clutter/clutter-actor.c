@@ -7298,7 +7298,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   actor_signals[EVENT] =
     g_signal_new (I_("event"),
 		  G_TYPE_FROM_CLASS (object_class),
-		  G_SIGNAL_RUN_LAST,
+		  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
 		  G_STRUCT_OFFSET (ClutterActorClass, event),
 		  _clutter_boolean_handled_accumulator, NULL,
 		  _clutter_marshal_BOOLEAN__BOXED,
@@ -12131,7 +12131,7 @@ clutter_actor_event (ClutterActor       *actor,
     g_signal_emit (actor, actor_signals[CAPTURED_EVENT], detail, event, &retval);
   else
     {
-      g_signal_emit (actor, actor_signals[EVENT], 0, event, &retval);
+      g_signal_emit (actor, actor_signals[EVENT], detail, event, &retval);
 
       if (!retval && signal_num != -1)
         g_signal_emit (actor, actor_signals[signal_num], 0, event, &retval);
