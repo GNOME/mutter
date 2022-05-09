@@ -220,4 +220,8 @@ void meta_remove_debug_paint_flag (MetaDebugPaintFlag flag);
 META_EXPORT
 MetaDebugPaintFlag meta_get_debug_paint_flags (void);
 
+META_EXPORT
+char * meta_accelerator_name (ClutterModifierType accelerator_mods,
+                              unsigned int        accelerator_key);
+
 #endif /* META_UTIL_H */

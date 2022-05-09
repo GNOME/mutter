@@ -25,6 +25,8 @@
 #include "config.h"
 
 #include "core/meta-accel-parse.h"
+#include "clutter/clutter-keyval.h"
+#include "meta/util.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -355,4 +357,79 @@ meta_parse_modifier (const char          *accel,
 
   *mask = combo.modifiers;
   return TRUE;
+}
+
+/**
+ * meta_accelerator_name:
+ * @accelerator_mods: Accelerator modifier mask.
+ * @accelerator_key: Accelerator keyval.
+ * 
+ * Convert an accelerator keyval and modifier mask into a string parsable by `meta_parse_accelerator`.
+ * 
+ * Returns: The accelerator name.
+ */
+char *
+meta_accelerator_name (ClutterModifierType accelerator_mods,
+                       unsigned int        accelerator_key)
+{
+#define TXTLEN(s) sizeof (s) - 1
+  static const struct {
+    guint mask;
+    const char *text;
+    gsize text_len;
+  } mask_text[] = {
+    { CLUTTER_SHIFT_MASK,   "<Shift>",   TXTLEN ("<Shift>") },
+    { CLUTTER_CONTROL_MASK, "<Control>", TXTLEN ("<Control>") },
+    { CLUTTER_MOD1_MASK,    "<Alt>",     TXTLEN ("<Alt>") },
+    { CLUTTER_META_MASK,    "<Meta>",    TXTLEN ("<Meta>") },
+    { CLUTTER_SUPER_MASK,   "<Super>",   TXTLEN ("<Super>") },
+    { CLUTTER_HYPER_MASK,   "<Hyper>",   TXTLEN ("<Hyper>") }
+  };
+#undef TXTLEN
+
+  ClutterModifierType saved_mods;
+  guint l;
+  guint name_len;
+  const char *keyval_name;
+  char *accelerator;
+  int i;
+  unsigned int lower_key;
+
+  accelerator_mods &= CLUTTER_MODIFIER_MASK;
+
+  clutter_keyval_convert_case (accelerator_key, &lower_key, NULL);
+  keyval_name = clutter_keyval_name (lower_key);
+  if (!keyval_name)
+    keyval_name = "";
+
+  name_len = strlen (keyval_name);
+
+  saved_mods = accelerator_mods;
+  for (i = 0; i < G_N_ELEMENTS (mask_text); i++)
+    {
+      if (accelerator_mods & mask_text[i].mask)
+        name_len += mask_text[i].text_len;
+    }
+
+  if (name_len == 0)
+    return g_strdup (keyval_name);
+
+  name_len += 1; /* NUL byte */
+  accelerator = g_new (char, name_len);
+
+  accelerator_mods = saved_mods;
+  l = 0;
+  for (i = 0; i < G_N_ELEMENTS (mask_text); i++)
+    {
+      if (accelerator_mods & mask_text[i].mask)
+        {
+          strcpy (accelerator + l, mask_text[i].text);
+          l += mask_text[i].text_len;
+        }
+    }
+
+  strcpy (accelerator + l, keyval_name);
+  accelerator[name_len - 1] = '\0';
+
+  return accelerator;
 }
