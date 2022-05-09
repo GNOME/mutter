@@ -148,6 +148,9 @@ void                    clutter_remove_debug_flags              (ClutterDebugFla
 CLUTTER_EXPORT
 void                    clutter_debug_set_max_render_time_constant (int max_render_time_constant_us);
 
+CLUTTER_EXPORT
+ClutterTextDirection    clutter_get_text_direction (void);
+
 G_END_DECLS
 
 #endif /* _CLUTTER_MAIN_H__ */

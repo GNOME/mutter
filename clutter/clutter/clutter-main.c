@@ -50,6 +50,7 @@
 #include "clutter-build-config.h"
 
 #include <stdlib.h>
+#include <glib/gi18n-lib.h>
 
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
@@ -204,7 +205,7 @@ clutter_context_get_pango_fontmap (void)
   return self->font_map;
 }
 
-static ClutterTextDirection
+ClutterTextDirection
 clutter_get_text_direction (void)
 {
   ClutterTextDirection dir = CLUTTER_TEXT_DIRECTION_LTR;
@@ -220,8 +221,13 @@ clutter_get_text_direction (void)
     }
   else
     {
-      /* Re-use GTK+'s LTR/RTL handling */
-      const char *e = g_dgettext ("gtk30", "default:LTR");
+      /*
+       * Translate to default:RTL if you want your widgets
+       * to be RTL, otherwise translate to default:LTR.
+       * Do *not* translate it to "predefinito:LTR", if it
+       * it isn't default:LTR or default:RTL it will not work
+       */
+      const char *e = _("default:LTR");
 
       if (strcmp (e, "default:RTL") == 0)
         dir = CLUTTER_TEXT_DIRECTION_RTL;

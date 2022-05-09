@@ -1,3 +1,6 @@
+/* The prefix for our gettext translation domains. */
+#mesondefine GETTEXT_PACKAGE
+
 /* Mutter version */
 #mesondefine MUTTER_VERSION
 

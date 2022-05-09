@@ -508,11 +508,11 @@ meta_external_binding_name_for_action (guint keybinding_action)
 MetaLocaleDirection
 meta_get_locale_direction (void)
 {
-  switch (gtk_get_locale_direction ())
+  switch (clutter_get_text_direction ())
     {
-    case GTK_TEXT_DIR_LTR:
+    case CLUTTER_TEXT_DIRECTION_LTR:
       return META_LOCALE_DIRECTION_LTR;
-    case GTK_TEXT_DIR_RTL:
+    case CLUTTER_TEXT_DIRECTION_RTL:
       return META_LOCALE_DIRECTION_RTL;
     default:
       g_assert_not_reached ();
