@@ -466,17 +466,17 @@ meta_pad_action_mapper_is_button_grabbed (MetaPadActionMapper *mapper,
 
 static void
 emulate_modifiers (ClutterVirtualInputDevice *device,
-                   ClutterModifierType        mods,
+                   MetaVirtualModifier        mods,
                    ClutterKeyState            state)
 {
   guint i;
   struct {
-    ClutterModifierType mod;
+    MetaVirtualModifier mod;
     guint keyval;
   } mod_map[] = {
-    { CLUTTER_SHIFT_MASK, CLUTTER_KEY_Shift_L },
-    { CLUTTER_CONTROL_MASK, CLUTTER_KEY_Control_L },
-    { CLUTTER_MOD1_MASK, CLUTTER_KEY_Meta_L }
+    { META_VIRTUAL_SHIFT_MASK, CLUTTER_KEY_Shift_L },
+    { META_VIRTUAL_CONTROL_MASK, CLUTTER_KEY_Control_L },
+    { META_VIRTUAL_META_MASK, CLUTTER_KEY_Meta_L }
   };
 
   for (i = 0; i < G_N_ELEMENTS (mod_map); i++)
@@ -496,13 +496,16 @@ meta_pad_action_mapper_emulate_keybinding (MetaPadActionMapper *mapper,
                                            gboolean             is_press)
 {
   ClutterKeyState state;
-  guint key, mods;
+  MetaKeyCombo combo = { 0 };
 
   if (!accel || !*accel)
     return;
 
-  /* FIXME: This is appalling */
-  gtk_accelerator_parse (accel, &key, &mods);
+  if (!meta_parse_accelerator (accel, &combo))
+    {
+      g_warning ("\"%s\" is not a valid accelerator", accel);
+      return;
+    }
 
   if (!mapper->virtual_pad_keyboard)
     {
@@ -520,13 +523,13 @@ meta_pad_action_mapper_emulate_keybinding (MetaPadActionMapper *mapper,
   state = is_press ? CLUTTER_KEY_STATE_PRESSED : CLUTTER_KEY_STATE_RELEASED;
 
   if (is_press)
-    emulate_modifiers (mapper->virtual_pad_keyboard, mods, state);
+    emulate_modifiers (mapper->virtual_pad_keyboard, combo.modifiers, state);
 
   clutter_virtual_input_device_notify_keyval (mapper->virtual_pad_keyboard,
                                               clutter_get_current_event_time (),
-                                              key, state);
+                                              combo.keysym, state);
   if (!is_press)
-    emulate_modifiers (mapper->virtual_pad_keyboard, mods, state);
+    emulate_modifiers (mapper->virtual_pad_keyboard, combo.modifiers, state);
 }
 
 static gboolean
