@@ -4354,7 +4354,7 @@ meta_window_client_rect_to_frame_rect (MetaWindow    *window,
     }
   else
     {
-      const GtkBorder *extents = &window->custom_frame_extents;
+      const MetaFrameBorder *extents = &window->custom_frame_extents;
       frame_rect->x += extents->left;
       frame_rect->y += extents->top;
       if (frame_rect->width != G_MAXINT)
@@ -4395,7 +4395,7 @@ meta_window_frame_rect_to_client_rect (MetaWindow    *window,
     }
   else
     {
-      const GtkBorder *extents = &window->custom_frame_extents;
+      const MetaFrameBorder *extents = &window->custom_frame_extents;
       client_rect->x -= extents->left;
       client_rect->y -= extents->top;
       client_rect->width += extents->left + extents->right;

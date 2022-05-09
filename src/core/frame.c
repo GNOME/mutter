@@ -345,7 +345,7 @@ meta_frame_query_borders (MetaFrame        *frame,
 
   if (res == Success && nitems == 4)
     {
-      borders->invisible = (GtkBorder) {
+      borders->invisible = (MetaFrameBorder) {
         ((long *) data)[0],
         ((long *) data)[1],
         ((long *) data)[2],
@@ -371,7 +371,7 @@ meta_frame_query_borders (MetaFrame        *frame,
 
   if (res == Success && nitems == 4)
     {
-      borders->visible = (GtkBorder) {
+      borders->visible = (MetaFrameBorder) {
         ((long *) data)[0],
         ((long *) data)[1],
         ((long *) data)[2],
@@ -381,7 +381,7 @@ meta_frame_query_borders (MetaFrame        *frame,
 
   g_clear_pointer (&data, XFree);
 
-  borders->total = (GtkBorder) {
+  borders->total = (MetaFrameBorder) {
     borders->invisible.left + frame->cached_borders.visible.left,
     borders->invisible.right + frame->cached_borders.visible.right,
     borders->invisible.top + frame->cached_borders.visible.top,

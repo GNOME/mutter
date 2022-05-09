@@ -71,6 +71,21 @@ struct _MetaButtonLayout
 };
 
 /**
+ * MetaFrameBorder:
+ * @left: left border
+ * @right: right border
+ * @top: top border
+ * @bottom: bottom border
+ */
+typedef struct _MetaFrameBorder
+{
+  int16_t left;
+  int16_t right;
+  int16_t top;
+  int16_t bottom;
+} MetaFrameBorder;
+
+/**
  * MetaFrameBorders:
  * @visible: inner visible portion of frame border
  * @invisible: outer invisible portion of frame border
@@ -82,12 +97,12 @@ struct _MetaFrameBorders
   /* The frame border is made up of two pieces - an inner visible portion
    * and an outer portion that is invisible but responds to events.
    */
-  GtkBorder visible;
-  GtkBorder invisible;
+  MetaFrameBorder visible;
+  MetaFrameBorder invisible;
 
   /* For convenience, we have a "total" border which is equal to the sum
    * of the two borders above. */
-  GtkBorder total;
+  MetaFrameBorder total;
 };
 
 /* sets all dimensions to zero */

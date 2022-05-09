@@ -347,14 +347,14 @@ reload_icon_geometry (MetaWindow    *window,
 }
 
 static void
-meta_window_set_custom_frame_extents (MetaWindow *window,
-                                      GtkBorder  *extents,
-                                      gboolean    is_initial)
+meta_window_set_custom_frame_extents (MetaWindow      *window,
+                                      MetaFrameBorder *extents,
+                                      gboolean         is_initial)
 {
   if (extents)
     {
       if (window->has_custom_frame_extents &&
-          memcmp (&window->custom_frame_extents, extents, sizeof (GtkBorder)) == 0)
+          memcmp (&window->custom_frame_extents, extents, sizeof (MetaFrameBorder)) == 0)
         return;
 
       window->has_custom_frame_extents = TRUE;
@@ -397,7 +397,7 @@ reload_gtk_frame_extents (MetaWindow    *window,
         }
       else
         {
-          GtkBorder extents;
+          MetaFrameBorder extents;
           extents.left   = (int)value->v.cardinal_list.cardinals[0];
           extents.right  = (int)value->v.cardinal_list.cardinals[1];
           extents.top    = (int)value->v.cardinal_list.cardinals[2];

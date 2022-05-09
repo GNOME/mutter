@@ -1163,7 +1163,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     }
   else
     {
-      window->custom_frame_extents = (GtkBorder) { 0 };
+      window->custom_frame_extents = (MetaFrameBorder) { 0 };
     }
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
