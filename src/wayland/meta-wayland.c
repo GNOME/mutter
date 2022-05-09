@@ -31,6 +31,7 @@
 #include "clutter/clutter.h"
 #include "cogl/cogl-egl.h"
 #include "compositor/meta-surface-actor-wayland.h"
+#include "core/events.h"
 #include "core/meta-context-private.h"
 #include "wayland/meta-wayland-activation.h"
 #include "wayland/meta-wayland-buffer.h"
@@ -594,7 +595,7 @@ meta_wayland_compositor_new (MetaContext *context)
    * relating to X clients when we don't know what's happened to them
    * according to the X protocol.
    */
-  g_source_set_priority (wayland_event_source, GDK_PRIORITY_EVENTS + 1);
+  g_source_set_priority (wayland_event_source, META_PRIORITY_EVENTS + 1);
   g_source_attach (wayland_event_source, NULL);
   compositor->source = wayland_event_source;
   g_source_unref (wayland_event_source);

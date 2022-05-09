@@ -28,6 +28,8 @@
 #include <string.h>
 #include <X11/extensions/sync.h>
 
+#include "core/events.h"
+
 const char *client_id = "0";
 static gboolean wayland;
 GHashTable *windows;
@@ -156,7 +158,7 @@ ensure_xsource_handler (GdkDisplay *gdkdisplay)
   x_source->event_poll_fd.events = G_IO_IN;
   g_source_add_poll (source, &x_source->event_poll_fd);
 
-  g_source_set_priority (source, GDK_PRIORITY_EVENTS - 1);
+  g_source_set_priority (source, META_PRIORITY_EVENTS - 1);
   g_source_set_can_recurse (source, TRUE);
   g_source_attach (source, NULL);
 
