@@ -150,8 +150,6 @@ typedef struct _DisplayTilePreview
 {
   ClutterActor   *actor;
 
-  GdkRGBA        *preview_color;
-
   MetaRectangle   tile_rect;
 } DisplayTilePreview;
 
