@@ -76,6 +76,7 @@
 #include "clutter-keyframe-transition.h"
 #include "clutter-keymap.h"
 #include "clutter-keysyms.h"
+#include "clutter-keyval.h"
 #include "clutter-layout-manager.h"
 #include "clutter-layout-meta.h"
 #include "clutter-macros.h"

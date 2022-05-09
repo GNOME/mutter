@@ -50,6 +50,8 @@ clutter_headers = [
   'clutter-keyframe-transition.h',
   'clutter-keymap.h',
   'clutter-keysyms.h',
+  'clutter-keyval.c',
+  'clutter-keyval.h',
   'clutter-layout-manager.h',
   'clutter-layout-meta.h',
   'clutter-macros.h',
