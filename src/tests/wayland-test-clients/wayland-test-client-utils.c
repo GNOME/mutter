@@ -181,3 +181,10 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
 
   return display;
 }
+
+void
+wayland_display_free (WaylandDisplay *display)
+{
+  wl_display_disconnect (display->display);
+  g_free (display);
+}

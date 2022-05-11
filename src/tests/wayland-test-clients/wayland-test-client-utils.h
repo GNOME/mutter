@@ -9,6 +9,7 @@
 
 typedef enum _WaylandDisplayCapabilities
 {
+  WAYLAND_DISPLAY_CAPABILITY_NONE = 0,
   WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER = 1 << 0,
 } WaylandDisplayCapabilities;
 
@@ -28,5 +29,7 @@ typedef struct _WaylandDisplay
 int create_anonymous_file (off_t size);
 
 WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
+
+void wayland_display_free (WaylandDisplay *display);
 
 #endif /* WAYLAND_TEST_CLIENT_UTILS_H */
