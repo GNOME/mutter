@@ -445,6 +445,9 @@ meta_window_actor_x11_get_scanout_candidate (MetaWindowActor *actor)
       clutter_actor_get_last_child (CLUTTER_ACTOR (actor)))
     return NULL;
 
+  if (!meta_window_actor_is_opaque (actor))
+    return NULL;
+
   return surface_actor;
 }
 
