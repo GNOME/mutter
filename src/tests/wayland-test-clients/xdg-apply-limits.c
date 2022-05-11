@@ -20,12 +20,8 @@
 #include <glib.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <wayland-client.h>
 
 #include "wayland-test-client-utils.h"
-
-#include "test-driver-client-protocol.h"
-#include "xdg-shell-client-protocol.h"
 
 typedef enum _State
 {
@@ -37,13 +33,7 @@ typedef enum _State
   STATE_WAIT_FOR_FRAME_2
 } State;
 
-static struct wl_display *display;
-static struct wl_registry *registry;
-static struct wl_compositor *compositor;
-static struct wl_subcompositor *subcompositor;
-static struct xdg_wm_base *xdg_wm_base;
-static struct wl_shm *shm;
-static struct test_driver *test_driver;
+static WaylandDisplay *display;
 
 static struct wl_surface *surface;
 static struct xdg_surface *xdg_surface;
@@ -87,9 +77,10 @@ reset_surface (void)
 {
   struct wl_callback *callback;
 
-  if (test_driver)
+  if (display->test_driver)
     {
-      callback = test_driver_sync_actor_destroyed (test_driver, surface);
+      callback = test_driver_sync_actor_destroyed (display->test_driver,
+                                                   surface);
       wl_callback_add_listener (callback, &actor_destroy_listener, NULL);
     }
 
@@ -143,7 +134,7 @@ create_shm_buffer (int                width,
       return FALSE;
     }
 
-  pool = wl_shm_create_pool (shm, fd, size);
+  pool = wl_shm_create_pool (display->shm, fd, size);
   buffer = wl_shm_pool_create_buffer (pool, 0,
                                       width, height,
                                       stride,
@@ -236,7 +227,7 @@ handle_frame_callback (void               *data,
     {
     case STATE_WAIT_FOR_FRAME_1:
       reset_surface ();
-      test_driver_sync_point (test_driver, 1, NULL);
+      test_driver_sync_point (display->test_driver, 1, NULL);
       break;
     case STATE_WAIT_FOR_FRAME_2:
       exit (EXIT_SUCCESS);
@@ -284,103 +275,27 @@ handle_xdg_surface_configure (void               *data,
   frame_callback = wl_surface_frame (surface);
   wl_callback_add_listener (frame_callback, &frame_listener, NULL);
   wl_surface_commit (surface);
-  wl_display_flush (display);
+  wl_display_flush (display->display);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
   handle_xdg_surface_configure,
 };
 
-static void
-handle_xdg_wm_base_ping (void               *data,
-                         struct xdg_wm_base *xdg_wm_base,
-                         uint32_t            serial)
-{
-  xdg_wm_base_pong (xdg_wm_base, serial);
-}
-
-static const struct xdg_wm_base_listener xdg_wm_base_listener = {
-  handle_xdg_wm_base_ping,
-};
-
-static void
-handle_registry_global (void               *data,
-                        struct wl_registry *registry,
-                        uint32_t            id,
-                        const char         *interface,
-                        uint32_t            version)
-{
-  if (strcmp (interface, "wl_compositor") == 0)
-    {
-      compositor = wl_registry_bind (registry, id, &wl_compositor_interface, 1);
-    }
-  else if (strcmp (interface, "wl_subcompositor") == 0)
-    {
-      subcompositor = wl_registry_bind (registry,
-                                        id, &wl_subcompositor_interface, 1);
-    }
-  else if (strcmp (interface, "xdg_wm_base") == 0)
-    {
-      xdg_wm_base = wl_registry_bind (registry, id,
-                                      &xdg_wm_base_interface, 1);
-      xdg_wm_base_add_listener (xdg_wm_base, &xdg_wm_base_listener, NULL);
-    }
-  else if (strcmp (interface, "wl_shm") == 0)
-    {
-      shm = wl_registry_bind (registry,
-                              id, &wl_shm_interface, 1);
-    }
-  else if (strcmp (interface, "test_driver") == 0)
-    {
-      test_driver = wl_registry_bind (registry, id, &test_driver_interface, 1);
-    }
-}
-
-static void
-handle_registry_global_remove (void               *data,
-                               struct wl_registry *registry,
-                               uint32_t            name)
-{
-}
-
-static const struct wl_registry_listener registry_listener = {
-  handle_registry_global,
-  handle_registry_global_remove
-};
-
 int
 main (int    argc,
       char **argv)
 {
-  display = wl_display_connect (NULL);
-  registry = wl_display_get_registry (display);
-  wl_registry_add_listener (registry, &registry_listener, NULL);
-  wl_display_roundtrip (display);
+  display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
-  if (!shm)
-    {
-      fprintf (stderr, "No wl_shm global\n");
-      return EXIT_FAILURE;
-    }
-
-  if (!xdg_wm_base)
-    {
-      fprintf (stderr, "No xdg_wm_base global\n");
-      return EXIT_FAILURE;
-    }
-
-  wl_display_roundtrip (display);
-
-  g_assert_nonnull (test_driver);
-
-  surface = wl_compositor_create_surface (compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (xdg_wm_base, surface);
+  surface = wl_compositor_create_surface (display->compositor);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
   xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
 
-  subsurface_surface = wl_compositor_create_surface (compositor);
-  subsurface = wl_subcompositor_get_subsurface (subcompositor,
+  subsurface_surface = wl_compositor_create_surface (display->compositor);
+  subsurface = wl_subcompositor_get_subsurface (display->subcompositor,
                                                 subsurface_surface,
                                                 surface);
   wl_subsurface_set_position (subsurface, 100, 100);
@@ -395,12 +310,12 @@ main (int    argc,
   xdg_toplevel_set_max_size (xdg_toplevel, 700, 500);
   wl_surface_commit (surface);
 
-  test_driver_sync_point (test_driver, 0, NULL);
+  test_driver_sync_point (display->test_driver, 0, NULL);
 
   running = TRUE;
   while (running)
     {
-      if (wl_display_dispatch (display) == -1)
+      if (wl_display_dispatch (display->display) == -1)
         return EXIT_FAILURE;
     }
 

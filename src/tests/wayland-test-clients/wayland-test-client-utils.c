@@ -27,6 +27,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -85,4 +86,98 @@ create_anonymous_file (off_t size)
     }
 
   return fd;
+}
+
+static void
+handle_xdg_wm_base_ping (void               *user_data,
+                         struct xdg_wm_base *xdg_wm_base,
+                         uint32_t            serial)
+{
+  xdg_wm_base_pong (xdg_wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener xdg_wm_base_listener = {
+  handle_xdg_wm_base_ping,
+};
+
+static void
+handle_registry_global (void               *user_data,
+                        struct wl_registry *registry,
+                        uint32_t            id,
+                        const char         *interface,
+                        uint32_t            version)
+{
+  WaylandDisplay *display = user_data;
+
+  if (strcmp (interface, "wl_compositor") == 0)
+    {
+      display->compositor =
+        wl_registry_bind (registry, id, &wl_compositor_interface, 1);
+    }
+  else if (strcmp (interface, "wl_subcompositor") == 0)
+    {
+      display->subcompositor =
+        wl_registry_bind (registry, id, &wl_subcompositor_interface, 1);
+    }
+  else if (strcmp (interface, "wl_shm") == 0)
+    {
+      display->shm = wl_registry_bind (registry,
+                              id, &wl_shm_interface, 1);
+    }
+  else if (strcmp (interface, "xdg_wm_base") == 0)
+    {
+      display->xdg_wm_base = wl_registry_bind (registry, id,
+                                               &xdg_wm_base_interface, 1);
+      xdg_wm_base_add_listener (display->xdg_wm_base, &xdg_wm_base_listener,
+                                NULL);
+    }
+
+  if (display->capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
+    {
+      if (strcmp (interface, "test_driver") == 0)
+        {
+          display->test_driver =
+            wl_registry_bind (registry, id, &test_driver_interface, 1);
+        }
+    }
+}
+
+static void
+handle_registry_global_remove (void               *data,
+                               struct wl_registry *registry,
+                               uint32_t            name)
+{
+}
+
+static const struct wl_registry_listener registry_listener = {
+  handle_registry_global,
+  handle_registry_global_remove
+};
+
+WaylandDisplay *
+wayland_display_new (WaylandDisplayCapabilities capabilities)
+{
+  WaylandDisplay *display;
+
+  display = g_new0 (WaylandDisplay, 1);
+
+  display->capabilities = capabilities;
+  display->display = wl_display_connect (NULL);
+  g_assert_nonnull (display->display);
+
+  display->registry = wl_display_get_registry (display->display);
+  wl_registry_add_listener (display->registry, &registry_listener, display);
+  wl_display_roundtrip (display->display);
+
+  g_assert_nonnull (display->compositor);
+  g_assert_nonnull (display->subcompositor);
+  g_assert_nonnull (display->shm);
+  g_assert_nonnull (display->xdg_wm_base);
+
+  if (capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
+    g_assert_nonnull (display->test_driver);
+
+  wl_display_roundtrip (display->display);
+
+  return display;
 }
