@@ -19,8 +19,6 @@
 #include "config.h"
 
 #include <glib.h>
-#include <sys/mman.h>
-#include <unistd.h>
 #include <wayland-client.h>
 
 #include "wayland-test-client-utils.h"
@@ -52,110 +50,15 @@ static State state;
 static void init_surfaces (void);
 
 static void
-handle_buffer_release (void             *data,
-                       struct wl_buffer *buffer)
-{
-  wl_buffer_destroy (buffer);
-}
-
-static const struct wl_buffer_listener buffer_listener = {
-  handle_buffer_release
-};
-
-static gboolean
-create_shm_buffer (int                width,
-                   int                height,
-                   struct wl_buffer **out_buffer,
-                   void             **out_data,
-                   int               *out_size)
-{
-  struct wl_shm_pool *pool;
-  static struct wl_buffer *buffer;
-  int fd, size, stride;
-  int bytes_per_pixel;
-  void *data;
-
-  bytes_per_pixel = 4;
-  stride = width * bytes_per_pixel;
-  size = stride * height;
-
-  fd = create_anonymous_file (size);
-  if (fd < 0)
-    {
-      fprintf (stderr, "Creating a buffer file for %d B failed: %m\n",
-               size);
-      return FALSE;
-    }
-
-  data = mmap (NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  if (data == MAP_FAILED)
-    {
-      fprintf (stderr, "mmap failed: %m\n");
-      close (fd);
-      return FALSE;
-    }
-
-  pool = wl_shm_create_pool (display->shm, fd, size);
-  buffer = wl_shm_pool_create_buffer (pool, 0,
-                                      width, height,
-                                      stride,
-                                      WL_SHM_FORMAT_ARGB8888);
-  wl_buffer_add_listener (buffer, &buffer_listener, buffer);
-  wl_shm_pool_destroy (pool);
-  close (fd);
-
-  *out_buffer = buffer;
-  *out_data = data;
-  *out_size = size;
-
-  return TRUE;
-}
-
-static void
-fill (void    *buffer_data,
-      int      width,
-      int      height,
-      uint32_t color)
-{
-  uint32_t *pixels = buffer_data;
-  int x, y;
-
-  for (y = 0; y < height; y++)
-    {
-      for (x = 0; x < width; x++)
-        pixels[y * width + x] = color;
-    }
-}
-
-static void
-draw (struct wl_surface *surface,
-      int                width,
-      int                height,
-      uint32_t           color)
-{
-  struct wl_buffer *buffer;
-  void *buffer_data;
-  int size;
-
-  if (!create_shm_buffer (width, height,
-                          &buffer, &buffer_data, &size))
-    g_error ("Failed to create shm buffer");
-
-  fill (buffer_data, width, height, color);
-
-  wl_surface_attach (surface, buffer, 0, 0);
-}
-
-static void
 draw_main (void)
 {
-  draw (surface, 700, 500, 0xff00ff00);
+  draw_surface (display, surface, 700, 500, 0xff00ff00);
 }
 
 static void
 draw_subsurface (void)
 {
-  draw (subsurface_surface, 500, 300, 0xff007f00);
+  draw_surface (display, subsurface_surface, 500, 300, 0xff007f00);
 }
 
 static void

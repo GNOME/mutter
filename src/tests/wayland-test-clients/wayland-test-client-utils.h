@@ -38,4 +38,10 @@ int create_anonymous_file (off_t size);
 
 WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
 
+void draw_surface (WaylandDisplay    *display,
+                   struct wl_surface *surface,
+                   int                width,
+                   int                height,
+                   uint32_t           color);
+
 #endif /* WAYLAND_TEST_CLIENT_UTILS_H */
