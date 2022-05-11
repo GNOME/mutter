@@ -24,16 +24,10 @@
 
 #include "wayland-test-client-utils.h"
 
-#include "test-driver-client-protocol.h"
-#include "xdg-shell-client-protocol.h"
 #include "xdg-activation-v1-client-protocol.h"
 
-static struct wl_display *display;
+static WaylandDisplay *display;
 static struct wl_registry *registry;
-static struct wl_compositor *compositor;
-static struct xdg_wm_base *xdg_wm_base;
-static struct wl_seat *seat;
-static struct wl_shm *shm;
 static struct xdg_activation_v1 *activation;
 
 static struct wl_surface *surface;
@@ -94,7 +88,7 @@ create_shm_buffer (int                width,
       return FALSE;
     }
 
-  pool = wl_shm_create_pool (shm, fd, size);
+  pool = wl_shm_create_pool (display->shm, fd, size);
   buffer = wl_shm_pool_create_buffer (pool, 0,
                                       width, height,
                                       stride,
@@ -180,24 +174,12 @@ handle_xdg_surface_configure (void               *data,
   draw_main ();
   wl_surface_commit (surface);
 
-  g_assert_cmpint (wl_display_roundtrip (display), !=, -1);
+  g_assert_cmpint (wl_display_roundtrip (display->display), !=, -1);
   running = FALSE;
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
   handle_xdg_surface_configure,
-};
-
-static void
-handle_xdg_wm_base_ping (void               *data,
-                         struct xdg_wm_base *xdg_wm_base,
-                         uint32_t            serial)
-{
-  xdg_wm_base_pong (xdg_wm_base, serial);
-}
-
-static const struct xdg_wm_base_listener xdg_wm_base_listener = {
-  handle_xdg_wm_base_ping,
 };
 
 static void
@@ -207,27 +189,7 @@ handle_registry_global (void               *data,
                         const char         *interface,
                         uint32_t            version)
 {
-  if (strcmp (interface, "wl_compositor") == 0)
-    {
-      compositor = wl_registry_bind (registry, id, &wl_compositor_interface, 1);
-    }
-  else if (strcmp (interface, "xdg_wm_base") == 0)
-    {
-      xdg_wm_base = wl_registry_bind (registry, id,
-                                      &xdg_wm_base_interface, 1);
-      xdg_wm_base_add_listener (xdg_wm_base, &xdg_wm_base_listener, NULL);
-    }
-  else if (strcmp (interface, "wl_seat") == 0)
-    {
-      seat = wl_registry_bind (registry,
-                               id, &wl_seat_interface, 1);
-    }
-  else if (strcmp (interface, "wl_shm") == 0)
-    {
-      shm = wl_registry_bind (registry,
-                              id, &wl_shm_interface, 1);
-    }
-  else if (strcmp (interface, "xdg_activation_v1") == 0)
+  if (strcmp (interface, "xdg_activation_v1") == 0)
     {
       activation = wl_registry_bind (registry,
                                      id, &xdg_activation_v1_interface, 1);
@@ -275,7 +237,7 @@ get_token (void)
 
   while (!token_string)
     {
-      if (wl_display_roundtrip (display) == -1)
+      if (wl_display_roundtrip (display->display) == -1)
         break;
     }
   xdg_activation_token_v1_destroy (token);
@@ -288,22 +250,19 @@ test_startup_notifications (void)
 {
   g_autofree char *token = NULL;
 
-  display = wl_display_connect (NULL);
-  registry = wl_display_get_registry (display);
+  display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
+  registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (registry, &registry_listener, NULL);
-  wl_display_roundtrip (display);
+  wl_display_roundtrip (display->display);
 
-  g_assert_nonnull (shm);
-  g_assert_nonnull (seat);
-  g_assert_nonnull (xdg_wm_base);
   g_assert_nonnull (activation);
 
-  wl_display_roundtrip (display);
+  wl_display_roundtrip (display->display);
 
   token = get_token ();
 
-  surface = wl_compositor_create_surface (compositor);
-  xdg_surface = xdg_wm_base_get_xdg_surface (xdg_wm_base, surface);
+  surface = wl_compositor_create_surface (display->compositor);
+  xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base, surface);
   xdg_surface_add_listener (xdg_surface, &xdg_surface_listener, NULL);
   xdg_toplevel = xdg_surface_get_toplevel (xdg_surface);
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
@@ -313,21 +272,17 @@ test_startup_notifications (void)
   running = TRUE;
   while (running)
     {
-      if (wl_display_dispatch (display) == -1)
+      if (wl_display_dispatch (display->display) == -1)
         return;
     }
 
-  wl_display_roundtrip (display);
+  wl_display_roundtrip (display->display);
 
   g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&xdg_surface, xdg_surface_destroy);
-  g_clear_pointer (&xdg_wm_base, xdg_wm_base_destroy);
   g_clear_pointer (&activation, xdg_activation_v1_destroy);
-  g_clear_pointer (&compositor, wl_compositor_destroy);
-  g_clear_pointer (&seat, wl_seat_destroy);
-  g_clear_pointer (&shm, wl_shm_destroy);
   g_clear_pointer (&registry, wl_registry_destroy);
-  g_clear_pointer (&display, wl_display_disconnect);
+  g_clear_object (&display);
 }
 
 int
