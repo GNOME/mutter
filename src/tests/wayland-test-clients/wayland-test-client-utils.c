@@ -32,6 +32,14 @@
 #include <string.h>
 #include <unistd.h>
 
+enum
+{
+  SYNC_EVENT,
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 G_DEFINE_TYPE (WaylandDisplay, wayland_display, G_TYPE_OBJECT)
 
 static int
@@ -103,6 +111,20 @@ static const struct xdg_wm_base_listener xdg_wm_base_listener = {
 };
 
 static void
+test_driver_handle_sync_event (void               *user_data,
+                               struct test_driver *test_driver,
+                               uint32_t            serial)
+{
+  WaylandDisplay *display = WAYLAND_DISPLAY (user_data);
+
+  g_signal_emit (display, signals[SYNC_EVENT], 0, serial);
+}
+
+static const struct test_driver_listener test_driver_listener = {
+  test_driver_handle_sync_event,
+};
+
+static void
 handle_registry_global (void               *user_data,
                         struct wl_registry *registry,
                         uint32_t            id,
@@ -140,6 +162,8 @@ handle_registry_global (void               *user_data,
         {
           display->test_driver =
             wl_registry_bind (registry, id, &test_driver_interface, 1);
+          test_driver_add_listener (display->test_driver, &test_driver_listener,
+                                    display);
         }
     }
 }
@@ -200,6 +224,16 @@ wayland_display_class_init (WaylandDisplayClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = wayland_display_finalize;
+
+  signals[SYNC_EVENT] =
+    g_signal_new ("sync-event",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  1,
+                  G_TYPE_UINT);
 }
 
 static void
