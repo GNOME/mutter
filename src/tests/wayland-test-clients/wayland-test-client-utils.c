@@ -150,8 +150,17 @@ handle_registry_global (void               *user_data,
     }
   else if (strcmp (interface, "xdg_wm_base") == 0)
     {
+      int xdg_wm_base_version = 1;
+
+      if (display->capabilities &
+          WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4)
+        xdg_wm_base_version = 4;
+
+      g_assert_cmpint (version, >=, xdg_wm_base_version);
+
       display->xdg_wm_base = wl_registry_bind (registry, id,
-                                               &xdg_wm_base_interface, 1);
+                                               &xdg_wm_base_interface,
+                                               xdg_wm_base_version);
       xdg_wm_base_add_listener (display->xdg_wm_base, &xdg_wm_base_listener,
                                 NULL);
     }
