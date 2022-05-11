@@ -93,12 +93,18 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
 {
   ClutterActor *child_actor;
   MetaSurfaceActor *topmost_surface_actor;
+  MetaWindow *window;
 
   child_actor = clutter_actor_get_last_child (CLUTTER_ACTOR (actor));
   if (!child_actor || !META_IS_SURFACE_ACTOR_WAYLAND (child_actor))
     return NULL;
 
   topmost_surface_actor = META_SURFACE_ACTOR (child_actor);
+
+  window = meta_window_actor_get_meta_window (actor);
+  if (!meta_window_is_fullscreen (window) &&
+      !meta_surface_actor_is_opaque (topmost_surface_actor))
+    return NULL;
 
   return topmost_surface_actor;
 }
