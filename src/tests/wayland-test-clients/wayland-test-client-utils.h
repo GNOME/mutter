@@ -1,6 +1,7 @@
 #ifndef WAYLAND_TEST_CLIENT_UTILS_H
 #define WAYLAND_TEST_CLIENT_UTILS_H
 
+#include <glib-object.h>
 #include <stdio.h>
 #include <wayland-client.h>
 
@@ -15,6 +16,8 @@ typedef enum _WaylandDisplayCapabilities
 
 typedef struct _WaylandDisplay
 {
+  GObject parent;
+
   WaylandDisplayCapabilities capabilities;
 
   struct wl_display *display;
@@ -26,10 +29,12 @@ typedef struct _WaylandDisplay
   struct test_driver *test_driver;
 } WaylandDisplay;
 
+G_DECLARE_FINAL_TYPE (WaylandDisplay, wayland_display,
+                      WAYLAND, DISPLAY,
+                      GObject)
+
 int create_anonymous_file (off_t size);
 
 WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
-
-void wayland_display_free (WaylandDisplay *display);
 
 #endif /* WAYLAND_TEST_CLIENT_UTILS_H */

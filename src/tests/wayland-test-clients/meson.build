@@ -66,6 +66,7 @@ foreach test : wayland_test_clients
     c_args: tests_c_args,
     dependencies: [
       glib_dep,
+      gobject_dep,
       wayland_client_dep,
     ],
     install: have_installed_tests,

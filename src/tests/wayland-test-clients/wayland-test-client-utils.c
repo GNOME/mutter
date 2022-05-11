@@ -32,6 +32,8 @@
 #include <string.h>
 #include <unistd.h>
 
+G_DEFINE_TYPE (WaylandDisplay, wayland_display, G_TYPE_OBJECT)
+
 static int
 create_tmpfile_cloexec (char *tmpname)
 {
@@ -107,7 +109,7 @@ handle_registry_global (void               *user_data,
                         const char         *interface,
                         uint32_t            version)
 {
-  WaylandDisplay *display = user_data;
+  WaylandDisplay *display = WAYLAND_DISPLAY (user_data);
 
   if (strcmp (interface, "wl_compositor") == 0)
     {
@@ -159,7 +161,7 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
 {
   WaylandDisplay *display;
 
-  display = g_new0 (WaylandDisplay, 1);
+  display = g_object_new (wayland_display_get_type (), NULL);
 
   display->capabilities = capabilities;
   display->display = wl_display_connect (NULL);
@@ -182,9 +184,25 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
   return display;
 }
 
-void
-wayland_display_free (WaylandDisplay *display)
+static void
+wayland_display_finalize (GObject *object)
 {
+  WaylandDisplay *display = WAYLAND_DISPLAY (object);
+
   wl_display_disconnect (display->display);
-  g_free (display);
+
+  G_OBJECT_CLASS (wayland_display_parent_class)->finalize (object);
+}
+
+static void
+wayland_display_class_init (WaylandDisplayClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = wayland_display_finalize;
+}
+
+static void
+wayland_display_init (WaylandDisplay *display)
+{
 }

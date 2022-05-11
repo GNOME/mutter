@@ -24,8 +24,6 @@
 
 #include "wayland-test-client-utils.h"
 
-#include "xdg-shell-client-protocol.h"
-
 static WaylandDisplay *display;
 
 static void
@@ -40,7 +38,7 @@ connect_to_display (void)
 static void
 clean_up_display (void)
 {
-  g_clear_pointer (&display, wayland_display_free);
+  g_clear_object (&display);
 }
 
 static void

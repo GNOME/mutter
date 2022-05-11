@@ -207,7 +207,7 @@ test_empty_window_geometry (void)
 
   g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&xdg_surface, xdg_surface_destroy);
-  g_clear_pointer (&display, wayland_display_free);
+  g_clear_object (&display);
 }
 
 int
