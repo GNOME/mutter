@@ -15,7 +15,7 @@ struct _MetaWindowActorClass
                           ClutterFrameInfo *frame_info,
                           int64_t           presentation_time);
 
-  MetaSurfaceActor * (*get_topmost_surface) (MetaWindowActor *actor);
+  MetaSurfaceActor * (*get_scanout_candidate) (MetaWindowActor *actor);
 
   void (*assign_surface_actor) (MetaWindowActor  *actor,
                                 MetaSurfaceActor *surface_actor);
@@ -80,7 +80,7 @@ void meta_window_actor_effect_completed (MetaWindowActor  *actor,
 
 MetaSurfaceActor *meta_window_actor_get_surface (MetaWindowActor *self);
 
-MetaSurfaceActor * meta_window_actor_get_topmost_surface (MetaWindowActor *self);
+MetaSurfaceActor *meta_window_actor_get_scanout_candidate (MetaWindowActor *self);
 
 void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
                                              MetaSurfaceActor *surface_actor);

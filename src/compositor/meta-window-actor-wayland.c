@@ -89,19 +89,18 @@ meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
 }
 
 static MetaSurfaceActor *
-meta_window_actor_wayland_get_topmost_surface (MetaWindowActor *actor)
+meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
 {
   ClutterActor *child_actor;
+  MetaSurfaceActor *topmost_surface_actor;
 
-  for (child_actor = clutter_actor_get_last_child (CLUTTER_ACTOR (actor));
-       child_actor;
-       child_actor = clutter_actor_get_previous_sibling (child_actor))
-    {
-      if (META_IS_SURFACE_ACTOR_WAYLAND (child_actor))
-        return META_SURFACE_ACTOR (child_actor);
-    }
+  child_actor = clutter_actor_get_last_child (CLUTTER_ACTOR (actor));
+  if (!child_actor || !META_IS_SURFACE_ACTOR_WAYLAND (child_actor))
+    return NULL;
 
-  return NULL;
+  topmost_surface_actor = META_SURFACE_ACTOR (child_actor);
+
+  return topmost_surface_actor;
 }
 
 static void
@@ -193,7 +192,7 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  window_actor_class->get_topmost_surface = meta_window_actor_wayland_get_topmost_surface;
+  window_actor_class->get_scanout_candidate = meta_window_actor_wayland_get_scanout_candidate;
   window_actor_class->assign_surface_actor = meta_window_actor_wayland_assign_surface_actor;
   window_actor_class->frame_complete = meta_window_actor_wayland_frame_complete;
   window_actor_class->queue_frame_drawn = meta_window_actor_wayland_queue_frame_drawn;
