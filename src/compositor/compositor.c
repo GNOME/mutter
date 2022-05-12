@@ -757,12 +757,13 @@ sync_actor_stacking (MetaCompositor *compositor)
  * this is to avoid offscreen windows that isn't actually part of the visible
  * desktop (such as the UI frames override redirect window).
  */
-static MetaWindowActor *
-get_top_visible_window_actor (MetaCompositor *compositor)
+static void
+update_top_window_actor (MetaCompositor *compositor)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   GList *l;
+  MetaWindowActor *top_window_actor = NULL;
 
   for (l = g_list_last (priv->windows); l; l = l->prev)
     {
@@ -779,10 +780,27 @@ get_top_visible_window_actor (MetaCompositor *compositor)
                              &display_rect.width, &display_rect.height);
 
       if (meta_rectangle_overlap (&display_rect, &buffer_rect))
-        return window_actor;
+        {
+          top_window_actor = window_actor;
+          break;
+        }
     }
 
-  return NULL;
+  if (priv->top_window_actor == top_window_actor)
+    return;
+
+  g_clear_signal_handler (&priv->top_window_actor_destroy_id,
+                          priv->top_window_actor);
+
+  priv->top_window_actor = top_window_actor;
+
+  if (priv->top_window_actor)
+    {
+      priv->top_window_actor_destroy_id =
+        g_signal_connect (priv->top_window_actor, "destroy",
+                          G_CALLBACK (on_top_window_actor_destroyed),
+                          compositor);
+    }
 }
 
 static void
@@ -805,7 +823,6 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
-  MetaWindowActor *top_window_actor;
   GList *old_stack;
 
   /* This is painful because hidden windows that we are in the process
@@ -889,21 +906,7 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 
   sync_actor_stacking (compositor);
 
-  top_window_actor = get_top_visible_window_actor (compositor);
-
-  if (priv->top_window_actor == top_window_actor)
-    return;
-
-  g_clear_signal_handler (&priv->top_window_actor_destroy_id,
-                          priv->top_window_actor);
-
-  priv->top_window_actor = top_window_actor;
-
-  if (priv->top_window_actor)
-    priv->top_window_actor_destroy_id =
-      g_signal_connect (priv->top_window_actor, "destroy",
-                        G_CALLBACK (on_top_window_actor_destroyed),
-                        compositor);
+  update_top_window_actor (compositor);
 }
 
 void
