@@ -29,6 +29,8 @@ typedef struct
   GMainLoop *loop;
 } KmsRenderingTest;
 
+static MetaContext *test_context;
+
 static void
 on_after_update (ClutterStage     *stage,
                  ClutterStageView *stage_view,
@@ -44,7 +46,7 @@ on_after_update (ClutterStage     *stage,
 static void
 meta_test_kms_render_basic (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterActor *stage = meta_backend_get_stage (backend);
   KmsRenderingTest test;
 
@@ -78,6 +80,8 @@ main (int    argc,
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  test_context = context;
 
   init_tests ();
 
