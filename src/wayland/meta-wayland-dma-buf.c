@@ -133,6 +133,8 @@ struct _MetaWaylandDmaBufBuffer
 {
   GObject parent;
 
+  MetaWaylandDmaBufManager *manager;
+
   int width;
   int height;
   uint32_t drm_format;
@@ -783,7 +785,8 @@ buffer_params_create_common (struct wl_client   *client,
     wl_resource_create (client, &wl_buffer_interface, 1, buffer_id);
   wl_resource_set_implementation (buffer_resource, &dma_buf_buffer_impl,
                                   dma_buf, NULL);
-  buffer = meta_wayland_buffer_from_resource (buffer_resource);
+  buffer = meta_wayland_buffer_from_resource (dma_buf->manager->compositor,
+                                              buffer_resource);
 
   meta_wayland_buffer_realize (buffer);
   if (!meta_wayland_dma_buf_realize_texture (buffer, &error))
@@ -857,10 +860,13 @@ dma_buf_handle_create_buffer_params (struct wl_client   *client,
                                      struct wl_resource *dma_buf_resource,
                                      uint32_t            params_id)
 {
+  MetaWaylandDmaBufManager *dma_buf_manager =
+    wl_resource_get_user_data (dma_buf_resource);
   struct wl_resource *params_resource;
   MetaWaylandDmaBufBuffer *dma_buf;
 
   dma_buf = g_object_new (META_TYPE_WAYLAND_DMA_BUF_BUFFER, NULL);
+  dma_buf->manager = dma_buf_manager;
 
   params_resource =
     wl_resource_create (client,

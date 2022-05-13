@@ -57,7 +57,13 @@
 
 static char *_display_name_override;
 
-G_DEFINE_TYPE (MetaWaylandCompositor, meta_wayland_compositor, G_TYPE_OBJECT)
+typedef struct _MetaWaylandCompositorPrivate
+{
+  gboolean is_wayland_egl_display_bound;
+} MetaWaylandCompositorPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandCompositor, meta_wayland_compositor,
+                            G_TYPE_OBJECT)
 
 MetaWaylandCompositor *
 meta_wayland_compositor_get_default (void)
@@ -504,6 +510,8 @@ meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
 static void
 meta_wayland_init_egl (MetaWaylandCompositor *compositor)
 {
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
@@ -524,10 +532,12 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
   meta_topic (META_DEBUG_WAYLAND,
               "Binding Wayland EGL display");
 
-  if (!meta_egl_bind_wayland_display (egl,
-                                      egl_display,
-                                      compositor->wayland_display,
-                                      &error))
+  if (meta_egl_bind_wayland_display (egl,
+                                     egl_display,
+                                     compositor->wayland_display,
+                                     &error))
+    priv->is_wayland_egl_display_bound = TRUE;
+  else
     g_warning ("Failed to bind Wayland display: %s", error->message);
 }
 
@@ -800,4 +810,13 @@ meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
       meta_xwayland_associate_window_with_surface (window, surface);
       meta_wayland_compositor_remove_surface_association (compositor, id);
     }
+}
+
+gboolean
+meta_wayland_compositor_is_egl_display_bound (MetaWaylandCompositor *compositor)
+{
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
+
+  return priv->is_wayland_egl_display_bound;
 }

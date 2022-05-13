@@ -48,6 +48,7 @@ struct _MetaWaylandBuffer
 {
   GObject parent;
 
+  MetaWaylandCompositor *compositor;
   struct wl_resource *resource;
   struct wl_listener destroy_listener;
 
@@ -76,7 +77,8 @@ struct _MetaWaylandBuffer
 G_DECLARE_FINAL_TYPE (MetaWaylandBuffer, meta_wayland_buffer,
                       META, WAYLAND_BUFFER, GObject);
 
-MetaWaylandBuffer *     meta_wayland_buffer_from_resource       (struct wl_resource    *resource);
+MetaWaylandBuffer *     meta_wayland_buffer_from_resource       (MetaWaylandCompositor *compositor,
+                                                                 struct wl_resource    *resource);
 struct wl_resource *    meta_wayland_buffer_get_resource        (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);

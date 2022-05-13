@@ -1046,11 +1046,12 @@ wl_surface_attach (struct wl_client   *client,
 {
   MetaWaylandSurface *surface =
     wl_resource_get_user_data (surface_resource);
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandSurfaceState *pending = surface->pending_state;
   MetaWaylandBuffer *buffer;
 
   if (buffer_resource)
-    buffer = meta_wayland_buffer_from_resource (buffer_resource);
+    buffer = meta_wayland_buffer_from_resource (compositor, buffer_resource);
   else
     buffer = NULL;
 

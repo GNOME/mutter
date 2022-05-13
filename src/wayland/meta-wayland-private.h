@@ -104,4 +104,6 @@ struct _MetaWaylandCompositor
 G_DECLARE_FINAL_TYPE (MetaWaylandCompositor, meta_wayland_compositor,
                       META, WAYLAND_COMPOSITOR, GObject)
 
+gboolean meta_wayland_compositor_is_egl_display_bound (MetaWaylandCompositor *compositor);
+
 #endif /* META_WAYLAND_PRIVATE_H */
