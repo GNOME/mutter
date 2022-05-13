@@ -49,18 +49,22 @@ meta_test_kms_render_basic (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterActor *stage = meta_backend_get_stage (backend);
   KmsRenderingTest test;
+  gulong handler_id;
 
   test = (KmsRenderingTest) {
     .number_of_frames_left = 10,
     .loop = g_main_loop_new (NULL, FALSE),
   };
-  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update), &test);
+  handler_id = g_signal_connect (stage, "after-update",
+                                 G_CALLBACK (on_after_update), &test);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
   g_main_loop_run (test.loop);
   g_main_loop_unref (test.loop);
 
   g_assert_cmpint (test.number_of_frames_left, ==, 0);
+
+  g_signal_handler_disconnect (stage, handler_id);
 }
 
 static void
