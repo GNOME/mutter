@@ -4025,7 +4025,7 @@ update_window_visibilities_idle (gpointer user_data)
   g_list_foreach (should_show, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayShowWindows);
 
-  COGL_TRACE_BEGIN (MetaDisplayHideWindows, "Display: Show windows");
+  COGL_TRACE_BEGIN (MetaDisplayHideWindows, "Display: Hide windows");
   g_list_foreach (should_hide, (GFunc) meta_window_update_visibility, NULL);
   COGL_TRACE_END (MetaDisplayHideWindows);
 
