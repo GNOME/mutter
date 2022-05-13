@@ -46,7 +46,10 @@ attach_eglstream_consumer (struct wl_client   *client,
                            struct wl_resource *wl_surface,
                            struct wl_resource *wl_eglstream)
 {
-  MetaWaylandBuffer *buffer = meta_wayland_buffer_from_resource (wl_eglstream);
+  MetaWaylandCompositor *compositor = wl_resource_get_user_data (wl_eglstream);
+  MetaWaylandBuffer *buffer;
+
+  buffer = meta_wayland_buffer_from_resource (compositor, wl_eglstream);
 
   if (!meta_wayland_buffer_is_realized (buffer))
     meta_wayland_buffer_realize (buffer);
@@ -111,7 +114,7 @@ meta_wayland_eglstream_controller_init (MetaWaylandCompositor *compositor)
 
   if (wl_global_create (compositor->wayland_display,
                         wl_eglstream_controller_interface_ptr, 1,
-                        NULL,
+                        compositor,
                         bind_eglstream_controller) == NULL)
     goto fail;
 

@@ -94,7 +94,8 @@ meta_wayland_buffer_destroy_handler (struct wl_listener *listener,
 }
 
 MetaWaylandBuffer *
-meta_wayland_buffer_from_resource (struct wl_resource *resource)
+meta_wayland_buffer_from_resource (MetaWaylandCompositor *compositor,
+                                   struct wl_resource    *resource)
 {
   MetaWaylandBuffer *buffer;
   struct wl_listener *listener;
@@ -112,6 +113,7 @@ meta_wayland_buffer_from_resource (struct wl_resource *resource)
       buffer = g_object_new (META_TYPE_WAYLAND_BUFFER, NULL);
 
       buffer->resource = resource;
+      buffer->compositor = compositor;
       buffer->destroy_listener.notify = meta_wayland_buffer_destroy_handler;
       wl_resource_add_destroy_listener (resource, &buffer->destroy_listener);
     }
@@ -134,12 +136,6 @@ meta_wayland_buffer_is_realized (MetaWaylandBuffer *buffer)
 gboolean
 meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 {
-  EGLint format;
-  MetaBackend *backend = meta_get_backend ();
-  MetaEgl *egl = meta_backend_get_egl (backend);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
 #ifdef HAVE_WAYLAND_EGLSTREAM
   MetaWaylandEglStream *stream;
 #endif
@@ -170,12 +166,24 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
     }
 #endif /* HAVE_WAYLAND_EGLSTREAM */
 
-  if (meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                     EGL_TEXTURE_FORMAT, &format,
-                                     NULL))
+  if (meta_wayland_compositor_is_egl_display_bound (buffer->compositor))
     {
-      buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_IMAGE;
-      return TRUE;
+      EGLint format;
+      MetaBackend *backend = meta_get_backend ();
+      MetaEgl *egl = meta_backend_get_egl (backend);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      CoglContext *cogl_context =
+        clutter_backend_get_cogl_context (clutter_backend);
+      EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
+
+      if (meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
+                                         EGL_TEXTURE_FORMAT, &format,
+                                         NULL))
+        {
+          buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_IMAGE;
+          return TRUE;
+        }
     }
 
   dma_buf = meta_wayland_dma_buf_from_buffer (buffer);
