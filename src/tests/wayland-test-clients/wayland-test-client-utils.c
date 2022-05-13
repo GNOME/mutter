@@ -121,8 +121,22 @@ test_driver_handle_sync_event (void               *user_data,
   g_signal_emit (display, signals[SYNC_EVENT], 0, serial);
 }
 
+static void
+test_driver_handle_property (void               *user_data,
+                             struct test_driver *test_driver,
+                             const char         *name,
+                             const char         *value)
+{
+  WaylandDisplay *display = WAYLAND_DISPLAY (user_data);
+
+  g_hash_table_replace (display->properties,
+                        g_strdup (name),
+                        g_strdup (value));
+}
+
 static const struct test_driver_listener test_driver_listener = {
   test_driver_handle_sync_event,
+  test_driver_handle_property,
 };
 
 static void
@@ -198,6 +212,8 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
   display = g_object_new (wayland_display_get_type (), NULL);
 
   display->capabilities = capabilities;
+  display->properties = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                               g_free, g_free);
   display->display = wl_display_connect (NULL);
   g_assert_nonnull (display->display);
 
@@ -224,6 +240,7 @@ wayland_display_finalize (GObject *object)
   WaylandDisplay *display = WAYLAND_DISPLAY (object);
 
   wl_display_disconnect (display->display);
+  g_clear_pointer (&display->properties, g_hash_table_unref);
 
   G_OBJECT_CLASS (wayland_display_parent_class)->finalize (object);
 }
@@ -346,4 +363,11 @@ draw_surface (WaylandDisplay    *display,
   fill (buffer_data, width, height, color);
 
   wl_surface_attach (surface, buffer, 0, 0);
+}
+
+const char *
+lookup_property_value (WaylandDisplay *display,
+                       const char     *name)
+{
+  return g_hash_table_lookup (display->properties, name);
 }

@@ -28,6 +28,8 @@ typedef struct _WaylandDisplay
   struct xdg_wm_base *xdg_wm_base;
   struct wl_shm *shm;
   struct test_driver *test_driver;
+
+  GHashTable *properties;
 } WaylandDisplay;
 
 G_DECLARE_FINAL_TYPE (WaylandDisplay, wayland_display,
@@ -43,5 +45,8 @@ void draw_surface (WaylandDisplay    *display,
                    int                width,
                    int                height,
                    uint32_t           color);
+
+const char * lookup_property_value (WaylandDisplay *display,
+                                    const char     *name);
 
 #endif /* WAYLAND_TEST_CLIENT_UTILS_H */

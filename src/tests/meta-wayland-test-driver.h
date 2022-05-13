@@ -30,4 +30,8 @@ MetaWaylandTestDriver * meta_wayland_test_driver_new (MetaWaylandCompositor *com
 void meta_wayland_test_driver_emit_sync_event (MetaWaylandTestDriver *test_driver,
                                                uint32_t               serial);
 
+void meta_wayland_test_driver_set_property (MetaWaylandTestDriver *test_driver,
+                                            const char            *name,
+                                            const char            *value);
+
 #endif /* META_WAYLAND_TEST_DRIVER_H */

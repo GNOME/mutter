@@ -14,5 +14,10 @@
     <event name="sync_event">
       <arg name="sequence" type="uint"/>
     </event>
+
+    <event name="property">
+      <arg name="name" type="string"/>
+      <arg name="value" type="string"/>
+    </event>
   </interface>
 </protocol>
