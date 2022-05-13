@@ -357,6 +357,20 @@ meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
 }
 
 void
+meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
+                             MetaKmsConnector *connector,
+                             uint64_t          max_bpc)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->max_bpc.value = max_bpc;
+  connector_update->max_bpc.has_update = TRUE;
+}
+
+void
 meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma)
 {
   g_free (gamma->red);

@@ -107,6 +107,10 @@ void meta_kms_update_set_privacy_screen (MetaKmsUpdate    *update,
                                          MetaKmsConnector *connector,
                                          gboolean          enabled);
 
+void meta_kms_update_set_max_bpc (MetaKmsUpdate    *update,
+                                  MetaKmsConnector *connector,
+                                  uint64_t          max_bpc);
+
 META_EXPORT_TEST
 void meta_kms_update_set_power_save (MetaKmsUpdate *update);
 

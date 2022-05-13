@@ -82,6 +82,11 @@ typedef struct _MetaKmsConnectorUpdate
     gboolean has_update;
     gboolean is_enabled;
   } privacy_screen;
+
+  struct {
+    gboolean has_update;
+    uint64_t value;
+  } max_bpc;
 } MetaKmsConnectorUpdate;
 
 typedef struct _MetaKmsPageFlipListener
