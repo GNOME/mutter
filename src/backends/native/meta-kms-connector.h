@@ -59,6 +59,8 @@ typedef struct _MetaKmsConnectorState
   gboolean hotplug_mode_update;
 
   MetaMonitorTransform panel_orientation_transform;
+
+  MetaKmsRange max_bpc;
 } MetaKmsConnectorState;
 
 META_EXPORT_TEST
@@ -82,5 +84,7 @@ const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConne
 gboolean meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_privacy_screen_supported (MetaKmsConnector *connector);
+
+const MetaKmsRange * meta_kms_connector_get_max_bpc (MetaKmsConnector *connector);
 
 #endif /* META_KMS_CONNECTOR_H */
