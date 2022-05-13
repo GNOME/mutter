@@ -1800,11 +1800,13 @@ meta_window_flush_calc_showing (MetaWindow *window)
 {
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
-  if (priv->queued_types & META_QUEUE_CALC_SHOWING)
-    {
-      meta_window_unqueue (window, META_QUEUE_CALC_SHOWING);
-      meta_window_update_visibility (window);
-    }
+  if (!(priv->queued_types & META_QUEUE_CALC_SHOWING))
+    return;
+
+  meta_display_flush_queued_window (window->display, window,
+                                    META_QUEUE_CALC_SHOWING);
+
+  priv->queued_types &= ~META_QUEUE_CALC_SHOWING;
 }
 
 void
