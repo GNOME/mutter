@@ -48,6 +48,7 @@ int meta_drm_buffer_export_fd (MetaDrmBuffer  *buffer,
 gboolean meta_drm_buffer_ensure_fb_id (MetaDrmBuffer  *buffer,
                                        GError        **error);
 
+META_EXPORT_TEST
 uint32_t meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer);
 
 uint32_t meta_drm_buffer_get_handle (MetaDrmBuffer *buffer);

@@ -27,8 +27,10 @@
 #include "backends/native/meta-backend-native-types.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
+#include "core/util-private.h"
 
 #define META_TYPE_ONSCREEN_NATIVE (meta_onscreen_native_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaOnscreenNative, meta_onscreen_native,
                       META, ONSCREEN_NATIVE,
                       CoglOnscreenEgl)
@@ -54,6 +56,7 @@ MetaOnscreenNative * meta_onscreen_native_new (MetaRendererNative *renderer_nati
                                                int                 width,
                                                int                 height);
 
+META_EXPORT_TEST
 MetaCrtc * meta_onscreen_native_get_crtc (MetaOnscreenNative *onscreen_native);
 
 #endif /* META_ONSCREEN_NATIVE_H */

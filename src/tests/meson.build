@@ -263,7 +263,10 @@ if have_native_tests
     {
       'name': 'kms-render',
       'suite': 'backends/native/kms',
-      'sources': [ 'native-kms-render.c' ],
+      'sources': [
+        'native-kms-render.c',
+        wayland_test_utils,
+      ],
     },
     {
       'name': 'kms-device',

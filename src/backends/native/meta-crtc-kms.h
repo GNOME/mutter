@@ -35,6 +35,7 @@
 #include "backends/native/meta-kms-update.h"
 
 #define META_TYPE_CRTC_KMS (meta_crtc_kms_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaCrtcKms, meta_crtc_kms,
                       META, CRTC_KMS,
                       MetaCrtcNative)
@@ -58,6 +59,7 @@ void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
 void meta_crtc_kms_set_is_underscanning (MetaCrtcKms *crtc_kms,
                                          gboolean     is_underscanning);
 
+META_EXPORT_TEST
 MetaKmsCrtc * meta_crtc_kms_get_kms_crtc (MetaCrtcKms *crtc_kms);
 
 GArray * meta_crtc_kms_get_modifiers (MetaCrtcKms *crtc_kms,

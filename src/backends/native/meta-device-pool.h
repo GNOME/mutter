@@ -42,6 +42,7 @@ typedef enum _MetaDeviceFileTags
 typedef struct _MetaDeviceFile MetaDeviceFile;
 typedef struct _MetaDevicePool MetaDevicePool;
 
+META_EXPORT_TEST
 int meta_device_file_get_fd (MetaDeviceFile *device_file);
 
 const char * meta_device_file_get_path (MetaDeviceFile *device_file);
