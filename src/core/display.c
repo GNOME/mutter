@@ -4108,10 +4108,11 @@ meta_display_queue_window (MetaDisplay   *display,
           run_data = g_new0 (MetaQueueRunData, 1);
           run_data->display = display;
           run_data->queue_idx = queue_idx;
-          meta_laters_add (laters,
-                           window_queue_later_when[queue_idx],
-                           window_queue_run_later_func,
-                           run_data, g_free);
+          priv->queue_later_ids[queue_idx] =
+            meta_laters_add (laters,
+                             window_queue_later_when[queue_idx],
+                             window_queue_run_later_func,
+                             run_data, g_free);
         }
     }
 }
