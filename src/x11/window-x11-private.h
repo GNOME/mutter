@@ -59,6 +59,8 @@ struct _MetaWindowX11Private
 
   Atom type_atom;
 
+  XWindowAttributes attributes;
+
   /* Requested geometry */
   int border_width;
 

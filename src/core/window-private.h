@@ -648,14 +648,6 @@ struct _MetaWindowClass
 #define META_WINDOW_ALLOWS_HORIZONTAL_RESIZE(w) (META_WINDOW_ALLOWS_RESIZE_EXCEPT_HINTS (w) && (w)->size_hints.min_width < (w)->size_hints.max_width)
 #define META_WINDOW_ALLOWS_VERTICAL_RESIZE(w)   (META_WINDOW_ALLOWS_RESIZE_EXCEPT_HINTS (w) && (w)->size_hints.min_height < (w)->size_hints.max_height)
 
-MetaWindow * _meta_window_shared_new       (MetaDisplay         *display,
-                                            MetaWindowClientType client_type,
-                                            MetaWaylandSurface  *surface,
-                                            Window               xwindow,
-                                            gulong               existing_wm_state,
-                                            MetaCompEffect       effect,
-                                            XWindowAttributes   *attrs);
-
 void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
 void        meta_window_unmanage_on_idle   (MetaWindow *window);

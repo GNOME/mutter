@@ -752,6 +752,35 @@ meta_window_wayland_unmap (MetaWindow *window)
 }
 
 static void
+meta_window_wayland_constructed (GObject *object)
+{
+  MetaWindow *window = META_WINDOW (object);
+
+  window->client_type = META_WINDOW_CLIENT_TYPE_WAYLAND;
+
+  window->override_redirect = FALSE;
+  window->rect.x = 0;
+  window->rect.y = 0;
+  window->rect.width = 0;
+  window->rect.height = 0;
+  /* size_hints are the "request" */
+  window->size_hints.x = 0;
+  window->size_hints.y = 0;
+  window->size_hints.width = 0;
+  window->size_hints.height = 0;
+
+  window->depth = 24;
+  window->xvisual = NULL;
+
+  window->mapped = FALSE;
+
+  window->decorated = FALSE;
+  window->hidden = TRUE;
+
+  G_OBJECT_CLASS (meta_window_wayland_parent_class)->constructed (object);
+}
+
+static void
 meta_window_wayland_finalize (GObject *object)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (object);
@@ -771,6 +800,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
 
   object_class->finalize = meta_window_wayland_finalize;
+  object_class->constructed = meta_window_wayland_constructed;
 
   window_class->manage = meta_window_wayland_manage;
   window_class->unmanage = meta_window_wayland_unmanage;
@@ -800,31 +830,14 @@ MetaWindow *
 meta_window_wayland_new (MetaDisplay        *display,
                          MetaWaylandSurface *surface)
 {
-  XWindowAttributes attrs = { 0 };
   MetaWindowWayland *wl_window;
   MetaWindow *window;
 
-  /*
-   * Set attributes used by _meta_window_shared_new, don't bother trying to fake
-   * X11 window attributes with the rest, since they'll be ignored anyway.
-   */
-  attrs.x = 0;
-  attrs.y = 0;
-  attrs.width = 0;
-  attrs.height = 0;
-  attrs.depth = 24;
-  attrs.visual = NULL;
-  attrs.map_state = IsUnmapped;
-  attrs.override_redirect = False;
-
-  window = _meta_window_shared_new (display,
-                                    META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                    surface,
-                                    None,
-                                    WithdrawnState,
-                                    META_COMP_EFFECT_CREATE,
-                                    &attrs);
-
+  window = g_object_new (META_TYPE_WINDOW_WAYLAND,
+                         "display", display,
+                         "effect", META_COMP_EFFECT_CREATE,
+                         "surface", surface,
+                         NULL);
   wl_window = META_WINDOW_WAYLAND (window);
   set_geometry_scale_for_window (wl_window, wl_window->geometry_scale);
 

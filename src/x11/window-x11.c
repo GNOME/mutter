@@ -47,6 +47,11 @@
 #include "meta/meta-later.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
+
+#ifdef HAVE_XWAYLAND
+#include "wayland/meta-window-xwayland.h"
+#endif
+
 #include "x11/meta-x11-display-private.h"
 #include "x11/session.h"
 #include "x11/window-props.h"
@@ -67,6 +72,17 @@ enum _MetaGtkEdgeConstraints
 } MetaGtkEdgeConstraints;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWindowX11, meta_window_x11, META_TYPE_WINDOW)
+
+enum
+{
+  PROP_0,
+
+  PROP_ATTRIBUTES,
+
+  PROP_LAST,
+};
+
+static GParamSpec *obj_props[PROP_LAST];
 
 static void
 meta_window_x11_maybe_focus_delayed (MetaWindow *window,
@@ -2137,6 +2153,89 @@ meta_window_x11_is_focus_async (MetaWindow *window)
 }
 
 static void
+meta_window_x11_constructed (GObject *object)
+{
+  MetaWindow *window = META_WINDOW (object);
+  MetaWindowX11 *x11_window = META_WINDOW_X11 (object);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (x11_window);
+  XWindowAttributes attrs = priv->attributes;
+
+  meta_verbose ("attrs->map_state = %d (%s)",
+                attrs.map_state,
+                (attrs.map_state == IsUnmapped) ?
+                "IsUnmapped" :
+                (attrs.map_state == IsViewable) ?
+                "IsViewable" :
+                (attrs.map_state == IsUnviewable) ?
+                "IsUnviewable" :
+                "(unknown)");
+
+  window->client_type = META_WINDOW_CLIENT_TYPE_X11;
+  window->override_redirect = attrs.override_redirect;
+
+  window->rect.x = attrs.x;
+  window->rect.y = attrs.y;
+  window->rect.width = attrs.width;
+  window->rect.height = attrs.height;
+
+  /* size_hints are the "request" */
+  window->size_hints.x = attrs.x;
+  window->size_hints.y = attrs.y;
+  window->size_hints.width = attrs.width;
+  window->size_hints.height = attrs.height;
+
+  window->depth = attrs.depth;
+  window->xvisual = attrs.visual;
+  window->mapped = attrs.map_state != IsUnmapped;
+
+  window->decorated = TRUE;
+  window->hidden = FALSE;
+  priv->border_width = attrs.border_width;
+
+  G_OBJECT_CLASS (meta_window_x11_parent_class)->constructed (object);
+}
+
+static void
+meta_window_x11_get_property (GObject    *object,
+                              guint       prop_id,
+                              GValue     *value,
+                              GParamSpec *pspec)
+{
+  MetaWindowX11 *win = META_WINDOW_X11 (object);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (win);
+
+  switch (prop_id)
+    {
+    case PROP_ATTRIBUTES:
+      g_value_set_pointer (value, &priv->attributes);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_window_x11_set_property (GObject      *object,
+                              guint         prop_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+  MetaWindowX11 *win = META_WINDOW_X11 (object);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (win);
+
+  switch (prop_id)
+    {
+    case PROP_ATTRIBUTES:
+      priv->attributes = *((XWindowAttributes *) g_value_get_pointer (value));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_window_x11_dispose (GObject *object)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (object);
@@ -2164,7 +2263,10 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
 
+  object_class->get_property = meta_window_x11_get_property;
+  object_class->set_property = meta_window_x11_set_property;
   object_class->dispose = meta_window_x11_dispose;
+  object_class->constructed = meta_window_x11_constructed;
 
   window_class->manage = meta_window_x11_manage;
   window_class->unmanage = meta_window_x11_unmanage;
@@ -2197,6 +2299,14 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;
   klass->always_update_shape = meta_window_x11_impl_always_update_shape;
+
+  obj_props[PROP_ATTRIBUTES] =
+    g_param_spec_pointer ("attributes",
+                          "Attributes",
+                          "The corresponding attributes",
+                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+  g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
 void
@@ -3641,6 +3751,7 @@ meta_window_x11_new (MetaDisplay       *display,
   MetaX11Display *x11_display = display->x11_display;
   XWindowAttributes attrs;
   gulong existing_wm_state;
+  MetaWindowX11 *window_x11;
   MetaWindow *window = NULL;
   gulong event_mask;
 
@@ -3776,18 +3887,40 @@ meta_window_x11_new (MetaDisplay       *display,
       goto error;
     }
 
-  window = _meta_window_shared_new (display,
-                                    META_WINDOW_CLIENT_TYPE_X11,
-                                    NULL,
-                                    xwindow,
-                                    existing_wm_state,
-                                    effect,
-                                    &attrs);
+#ifdef HAVE_XWAYLAND
+  if (meta_is_wayland_compositor ())
+    {
+      window = g_object_new (META_TYPE_WINDOW_XWAYLAND,
+                             "display", display,
+                             "effect", effect,
+                             "attributes", &attrs,
+                             "xwindow", xwindow,
+                             NULL);    
+    }
+  else
+#endif
+    {
+      window = g_object_new (META_TYPE_WINDOW_X11,
+                             "display", display,
+                             "effect", effect,
+                             "attributes", &attrs,
+                             "xwindow", xwindow,
+                             NULL);
+    }
+  if (existing_wm_state == IconicState)
+    {
+      /* WM_STATE said minimized */
+      window->minimized = TRUE;
+      meta_verbose ("Window %s had preexisting WM_STATE = IconicState, minimizing",
+                    window->desc);
 
-  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+      /* Assume window was previously placed, though perhaps it's
+       * been iconic its whole life, we have no way of knowing.
+       */
+      window->placed = TRUE;
+    }
 
-  priv->border_width = attrs.border_width;
+  window_x11 = META_WINDOW_X11 (window);
 
   if (!window->override_redirect)
     meta_window_x11_update_icon (window_x11, TRUE);
