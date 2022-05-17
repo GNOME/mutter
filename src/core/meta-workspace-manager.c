@@ -289,10 +289,10 @@ meta_workspace_manager_get_workspace_by_index (MetaWorkspaceManager *workspace_m
   return g_list_nth_data (workspace_manager->workspaces, idx);
 }
 
-void
-meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager,
-                                         MetaWorkspace        *workspace,
-                                         guint32               timestamp)
+static void
+remove_workspace_internal (MetaWorkspaceManager *workspace_manager,
+                           MetaWorkspace        *workspace,
+                           guint32               timestamp)
 {
   GList *l;
   GList *next;
@@ -300,7 +300,6 @@ meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager
   int index;
   int active_index;
   gboolean active_index_changed;
-  int new_num;
 
   l = g_list_find (workspace_manager->workspaces, workspace);
   if (!l)
@@ -331,11 +330,6 @@ meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager
   /* This also removes the workspace from the displays list */
   meta_workspace_remove (workspace);
 
-  new_num = g_list_length (workspace_manager->workspaces);
-
-  if (!meta_prefs_get_dynamic_workspaces ())
-    meta_prefs_set_num_workspaces (new_num);
-
   /* If deleting a workspace before the current workspace, the active
    * workspace index changes, so we need to update that hint */
   if (active_index_changed)
@@ -357,6 +351,53 @@ meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager
   g_object_notify (G_OBJECT (workspace_manager), "n-workspaces");
 }
 
+static MetaWorkspace *
+append_workspace_internal (MetaWorkspaceManager *workspace_manager,
+                           gboolean              activate,
+                           guint32               timestamp)
+{
+  MetaWorkspace *w;
+
+  /* This also adds the workspace to the workspace manager list */
+  w = meta_workspace_new (workspace_manager);
+
+  if (!w)
+    return NULL;
+
+  if (activate)
+    meta_workspace_activate (w, timestamp);
+
+  meta_display_queue_workarea_recalc (workspace_manager->display);
+
+  g_signal_emit (workspace_manager, workspace_manager_signals[WORKSPACE_ADDED],
+                 0, meta_workspace_index (w));
+  g_object_notify (G_OBJECT (workspace_manager), "n-workspaces");
+
+  return w;
+}
+
+/**
+ * meta_workspace_manager_remove_workspace:
+ * @workspace_manager: a #MetaWorkspaceManager
+ * @workspace: the #MetaWorkspace
+ * @timestamp: if switching to a new workspace, timestamp to be used when
+ *   focusing a window on the new workspace.
+ *
+ * Remove @workspace from the workspace manager, moving its windows to a
+ * neighbouring workspace and switching to that one if @workspace was the
+ * active workspace. The only remaining workspace cannot be removed.
+ */
+void
+meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager,
+                                         MetaWorkspace        *workspace,
+                                         guint32               timestamp)
+{
+  remove_workspace_internal (workspace_manager, workspace, timestamp);
+
+  if (!meta_prefs_get_dynamic_workspaces ())
+    meta_prefs_set_num_workspaces (g_list_length (workspace_manager->workspaces));
+}
+
 /**
  * meta_workspace_manager_append_new_workspace:
  * @workspace_manager: a #MetaWorkspaceManager
@@ -368,7 +409,7 @@ meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager
  * Append a new workspace to the workspace manager and (optionally) switch to that
  * display.
  *
- * Return value: (transfer none): the newly appended workspace.
+ * Returns: (transfer none): the newly appended workspace.
  */
 MetaWorkspace *
 meta_workspace_manager_append_new_workspace (MetaWorkspaceManager *workspace_manager,
@@ -376,27 +417,11 @@ meta_workspace_manager_append_new_workspace (MetaWorkspaceManager *workspace_man
                                              guint32               timestamp)
 {
   MetaWorkspace *w;
-  int new_num;
 
-  /* This also adds the workspace to the workspace manager list */
-  w = meta_workspace_new (workspace_manager);
-
-  if (!w)
-    return NULL;
-
-  if (activate)
-    meta_workspace_activate (w, timestamp);
-
-  new_num = g_list_length (workspace_manager->workspaces);
+  w = append_workspace_internal (workspace_manager, activate, timestamp);
 
   if (!meta_prefs_get_dynamic_workspaces ())
-    meta_prefs_set_num_workspaces (new_num);
-
-  meta_display_queue_workarea_recalc (workspace_manager->display);
-
-  g_signal_emit (workspace_manager, workspace_manager_signals[WORKSPACE_ADDED],
-                 0, meta_workspace_index (w));
-  g_object_notify (G_OBJECT (workspace_manager), "n-workspaces");
+    meta_prefs_set_num_workspaces (g_list_length (workspace_manager->workspaces));
 
   return w;
 }
@@ -452,27 +477,26 @@ meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_ma
   if (need_change_space)
     meta_workspace_activate (last_remaining, timestamp);
 
-  /* Should now be safe to free the workspaces */
+  /* Should now be safe to free the workspaces. Freeze notifications so
+   * that n-workspaces is only notified once for the whole change.
+   */
+  g_object_freeze_notify (G_OBJECT (workspace_manager));
+
   for (l = extras; l; l = l->next)
     {
       MetaWorkspace *w = l->data;
 
-      meta_workspace_remove (w);
+      remove_workspace_internal (workspace_manager, w, timestamp);
     }
 
   g_list_free (extras);
 
   for (i = old_num; i < new_num; i++)
-    meta_workspace_new (workspace_manager);
+    append_workspace_internal (workspace_manager, FALSE, timestamp);
+
+  g_object_thaw_notify (G_OBJECT (workspace_manager));
 
   meta_display_queue_workarea_recalc (workspace_manager->display);
-
-  for (i = old_num; i < new_num; i++)
-    g_signal_emit (workspace_manager,
-                   workspace_manager_signals[WORKSPACE_ADDED],
-                   0, i);
-
-  g_object_notify (G_OBJECT (workspace_manager), "n-workspaces");
 }
 
 /**
