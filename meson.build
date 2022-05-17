@@ -45,7 +45,7 @@ wayland_protocols_req = '>= 1.25'
 
 # native backend version requirements
 libinput_req = '>= 1.19.0'
-gbm_req = '>= 17.3'
+gbm_req = '>= 21.3'
 
 # screen cast version requirements
 libpipewire_req = '>= 0.3.33'
