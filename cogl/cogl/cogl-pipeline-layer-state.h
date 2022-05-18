@@ -548,7 +548,7 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline        *pipeline,
                                    CoglPipelineWrapMode mode);
 
 /**
- * cogl_pipeline_add_layer_snippet: (skip)
+ * cogl_pipeline_add_layer_snippet:
  * @pipeline: A #CoglPipeline
  * @layer: The layer to hook the snippet to
  * @snippet: A #CoglSnippet

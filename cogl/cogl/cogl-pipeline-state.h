@@ -731,7 +731,7 @@ cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
                                   const float *value);
 
 /**
- * cogl_pipeline_add_snippet: (skip)
+ * cogl_pipeline_add_snippet:
  * @pipeline: A #CoglPipeline
  * @snippet: The #CoglSnippet to add to the vertex processing hook
  *
