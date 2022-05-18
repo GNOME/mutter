@@ -653,7 +653,7 @@ _clutter_backend_translate_event (ClutterBackend *backend,
 }
 
 /**
- * clutter_backend_get_cogl_context: (skip)
+ * clutter_backend_get_cogl_context:
  * @backend: a #ClutterBackend
  *
  * Retrieves the #CoglContext associated with the given clutter
