@@ -574,7 +574,7 @@ meta_wayland_pointer_constraint_maybe_remove_for_seat (MetaWaylandSeat *seat,
 static void
 meta_wayland_pointer_constraint_maybe_enable_for_window (MetaWindow *window)
 {
-  MetaWaylandSurface *surface = window->surface;
+  MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
   MetaWaylandSurfacePointerConstraintsData *surface_data;
   GList *l;
 

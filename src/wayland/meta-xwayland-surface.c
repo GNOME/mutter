@@ -26,6 +26,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "wayland/meta-wayland-actor-surface.h"
+#include "wayland/meta-window-xwayland.h"
 #include "wayland/meta-xwayland-private.h"
 
 enum
@@ -58,14 +59,15 @@ clear_window (MetaXwaylandSurface *xwayland_surface)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaSurfaceActor *surface_actor;
+  MetaWindowXwayland *xwayland_window;
 
   if (!xwayland_surface->window)
     return;
 
   g_clear_signal_handler (&xwayland_surface->unmanaging_handler_id,
                           xwayland_surface->window);
-
-  xwayland_surface->window->surface = NULL;
+  xwayland_window = META_WINDOW_XWAYLAND (xwayland_surface->window);
+  meta_window_xwayland_set_surface (xwayland_window, NULL);
   xwayland_surface->window = NULL;
 
   surface_actor = meta_wayland_surface_get_actor (surface);
@@ -90,6 +92,8 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
     META_WAYLAND_SURFACE_ROLE (xwayland_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindowXwayland *xwayland_window = META_WINDOW_XWAYLAND (window);
+  MetaWaylandSurface *window_surface = meta_window_get_wayland_surface (window);
   MetaSurfaceActor *surface_actor;
   MetaWindowActor *window_actor;
 
@@ -98,15 +102,15 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
    * decorating the window, then we need to detach the window from its old
    * surface.
    */
-  if (window->surface)
+  if (window_surface)
     {
       MetaXwaylandSurface *other_xwayland_surface;
 
-      other_xwayland_surface = META_XWAYLAND_SURFACE (window->surface->role);
+      other_xwayland_surface = META_XWAYLAND_SURFACE (window_surface->role);
       clear_window (other_xwayland_surface);
     }
 
-  window->surface = surface;
+  meta_window_xwayland_set_surface (xwayland_window, surface);
   xwayland_surface->window = window;
 
   surface_actor = meta_wayland_surface_get_actor (surface);

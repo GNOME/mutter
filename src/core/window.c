@@ -197,7 +197,6 @@ enum
   PROP_IS_ALIVE,
   PROP_DISPLAY,
   PROP_EFFECT,
-  PROP_SURFACE,
   PROP_XWINDOW,
 
   PROP_LAST,
@@ -418,9 +417,6 @@ meta_window_get_property(GObject         *object,
     case PROP_EFFECT:
       g_value_set_int (value, win->pending_compositor_effect);
       break;
-    case PROP_SURFACE:
-      g_value_set_pointer (value, win->surface);
-      break;
     case PROP_XWINDOW:
       g_value_set_ulong (value, win->xwindow);
       break;
@@ -445,9 +441,6 @@ meta_window_set_property(GObject         *object,
       break;
     case PROP_EFFECT:
       win->pending_compositor_effect = g_value_get_int (value);
-      break;
-    case PROP_SURFACE:
-      win->surface = g_value_get_pointer (value);
       break;
     case PROP_XWINDOW:
       win->xwindow = g_value_get_ulong (value);
@@ -834,9 +827,12 @@ static gboolean
 client_window_should_be_mapped (MetaWindow *window)
 {
 #ifdef HAVE_WAYLAND
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
-      !meta_wayland_surface_get_buffer (window->surface))
-    return FALSE;
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+    {
+      MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
+      if (!meta_wayland_surface_get_buffer (surface))
+        return FALSE;
+    }
 #endif
 
   return !window->shaded;
@@ -1683,9 +1679,12 @@ meta_window_should_be_showing (MetaWindow  *window)
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
 #ifdef HAVE_WAYLAND
-  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
-      !meta_wayland_surface_get_buffer (window->surface))
-    return FALSE;
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+    {
+      MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
+      if (!meta_wayland_surface_get_buffer (surface))
+        return FALSE;
+    }
 #endif
 
   /* Windows should be showing if they're located on the
@@ -4503,7 +4502,10 @@ meta_window_transient_can_focus (MetaWindow *window)
 {
 #ifdef HAVE_WAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
-    return meta_wayland_surface_get_buffer (window->surface) != NULL;
+    {
+      MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
+      return meta_wayland_surface_get_buffer (surface) != NULL;
+    }
 #endif
 
   return TRUE;
@@ -8525,6 +8527,17 @@ meta_window_calculate_layer (MetaWindow *window)
 {
   return META_WINDOW_GET_CLASS (window)->calculate_layer (window);
 }
+
+#ifdef HAVE_WAYLAND
+MetaWaylandSurface *
+meta_window_get_wayland_surface (MetaWindow *window)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+  g_return_val_if_fail (klass->get_wayland_surface != NULL, NULL);
+
+  return klass->get_wayland_surface (window);
+}
+#endif
 
 /**
  * meta_window_get_id:

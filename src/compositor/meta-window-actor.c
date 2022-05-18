@@ -375,16 +375,19 @@ init_surface_actor (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
-  MetaSurfaceActor *surface_actor;
+  MetaSurfaceActor *surface_actor = NULL;
 
   if (!meta_is_wayland_compositor ())
-    surface_actor = meta_surface_actor_x11_new (window);
+    {
+      surface_actor = meta_surface_actor_x11_new (window);
+    }
 #ifdef HAVE_WAYLAND
-  else if (window->surface)
-    surface_actor = meta_wayland_surface_get_actor (window->surface);
-#endif
   else
-    surface_actor = NULL;
+    {
+      MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
+      surface_actor = surface ? meta_wayland_surface_get_actor (surface) : NULL;
+    }
+#endif
 
   if (surface_actor)
     meta_window_actor_assign_surface_actor (self, surface_actor);

@@ -37,10 +37,10 @@ static MetaWindow *test_window = NULL;
 
 #define assert_wayland_surface_size(window, width, height) \
 { \
-  g_assert_cmpint (meta_wayland_surface_get_width (window->surface), \
+  g_assert_cmpint (meta_wayland_surface_get_width (meta_window_get_wayland_surface (window)), \
                    ==, \
                    width); \
-  g_assert_cmpint (meta_wayland_surface_get_height (window->surface), \
+  g_assert_cmpint (meta_wayland_surface_get_height (meta_window_get_wayland_surface (window)), \
                    ==, \
                    height); \
 }

@@ -27,12 +27,14 @@
 #include "x11/xprops.h"
 #include "wayland/meta-window-xwayland.h"
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-surface.h"
 
 enum
 {
   PROP_0,
 
   PROP_XWAYLAND_MAY_GRAB_KEYBOARD,
+  PROP_SURFACE,
 
   PROP_LAST
 };
@@ -42,6 +44,8 @@ static GParamSpec *obj_props[PROP_LAST];
 struct _MetaWindowXwayland
 {
   MetaWindowX11 parent;
+
+  MetaWaylandSurface *surface;
 
   gboolean xwayland_may_grab_keyboard;
   int freeze_count;
@@ -164,6 +168,14 @@ meta_window_xwayland_shortcuts_inhibited (MetaWindow         *window,
   return meta_wayland_compositor_is_shortcuts_inhibited (compositor, source);
 }
 
+static MetaWaylandSurface *
+meta_window_xwayland_get_wayland_surface (MetaWindow *window)
+{
+  MetaWindowXwayland *xwayland_window = META_WINDOW_XWAYLAND (window);
+
+  return xwayland_window->surface;
+}
+
 static void
 apply_allow_commits_x11_property (MetaWindowXwayland *xwayland_window,
                                   gboolean            allow_commits)
@@ -251,6 +263,9 @@ meta_window_xwayland_get_property (GObject    *object,
     case PROP_XWAYLAND_MAY_GRAB_KEYBOARD:
       g_value_set_boolean (value, window->xwayland_may_grab_keyboard);
       break;
+    case PROP_SURFACE:
+      g_value_set_object (value, window->surface);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -270,6 +285,9 @@ meta_window_xwayland_set_property (GObject      *object,
     case PROP_XWAYLAND_MAY_GRAB_KEYBOARD:
       window->xwayland_may_grab_keyboard = g_value_get_boolean (value);
       break;
+    case PROP_SURFACE:
+      window->surface = g_value_get_object (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -286,6 +304,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   window_class->adjust_fullscreen_monitor_rect = meta_window_xwayland_adjust_fullscreen_monitor_rect;
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
+  window_class->get_wayland_surface = meta_window_xwayland_get_wayland_surface;
 
   window_x11_class->freeze_commits = meta_window_xwayland_freeze_commits;
   window_x11_class->thaw_commits = meta_window_xwayland_thaw_commits;
@@ -301,5 +320,19 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
                           FALSE,
                           G_PARAM_READWRITE);
 
+  obj_props[PROP_SURFACE] =
+    g_param_spec_object ("surface",
+                         "Surface",
+                         "The corresponding Wayland surface",
+                         META_TYPE_WAYLAND_SURFACE,
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
+}
+
+void
+meta_window_xwayland_set_surface (MetaWindowXwayland *window,
+                                  MetaWaylandSurface *surface)
+{
+  window->surface = surface;
 }

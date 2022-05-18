@@ -143,8 +143,12 @@ void
 meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
                                          MetaWindow            *window)
 {
-  MetaWaylandSurface *surface = window ? window->surface : NULL;
+  MetaWaylandSurface *surface;
 
+  if (window)
+    surface = meta_window_get_wayland_surface (window);
+  else
+    surface = NULL;
   meta_wayland_seat_set_input_focus (compositor->seat, surface);
 }
 

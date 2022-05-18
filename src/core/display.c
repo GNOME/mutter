@@ -1437,8 +1437,11 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
     focus_window = NULL;
   else if (clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)))
     focus_window = NULL;
-  else if (display->focus_window && display->focus_window->surface)
+#ifdef HAVE_WAYLAND
+  else if (display->focus_window &&
+           meta_window_get_wayland_surface (display->focus_window))
     focus_window = display->focus_window;
+#endif
   else
     meta_topic (META_DEBUG_FOCUS, "Focus change has no effect, because there is no matching wayland surface");
 
