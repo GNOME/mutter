@@ -686,7 +686,7 @@ typedef enum
  *
  * Allocates and initializes a new snippet with the given source strings.
  *
- * Return value: (transfer full): a pointer to a new #CoglSnippet
+ * Returns: (transfer full): a pointer to a new #CoglSnippet
  *
  * Since: 1.10
  * Stability: Unstable
@@ -700,7 +700,7 @@ cogl_snippet_new (CoglSnippetHook hook,
  * cogl_snippet_get_hook:
  * @snippet: A #CoglSnippet
  *
- * Return value: (transfer none): the hook that was set when cogl_snippet_new()
+ * Returns: (transfer none): the hook that was set when cogl_snippet_new()
  *   was called.
  * Since: 1.10
  * Stability: Unstable
@@ -714,7 +714,7 @@ cogl_snippet_get_hook (CoglSnippet *snippet);
  *
  * Gets whether the given @object references an existing snippet object.
  *
- * Return value: %TRUE if the @object references a #CoglSnippet,
+ * Returns: %TRUE if the @object references a #CoglSnippet,
  *   %FALSE otherwise
  *
  * Since: 1.10
@@ -749,7 +749,7 @@ cogl_snippet_set_declarations (CoglSnippet *snippet,
  * cogl_snippet_get_declarations:
  * @snippet: A #CoglSnippet
  *
- * Return value: (transfer none): the source string that was set with
+ * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_declarations() or %NULL if none was set.
  *
  * Since: 1.10
@@ -783,7 +783,7 @@ cogl_snippet_set_pre (CoglSnippet *snippet,
  * cogl_snippet_get_pre:
  * @snippet: A #CoglSnippet
  *
- * Return value: (transfer none): the source string that was set with
+ * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_pre() or %NULL if none was set.
  *
  * Since: 1.10
@@ -817,7 +817,7 @@ cogl_snippet_set_replace (CoglSnippet *snippet,
  * cogl_snippet_get_replace:
  * @snippet: A #CoglSnippet
  *
- * Return value: (transfer none): the source string that was set with
+ * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_replace() or %NULL if none was set.
  *
  * Since: 1.10
@@ -851,7 +851,7 @@ cogl_snippet_set_post (CoglSnippet *snippet,
  * cogl_snippet_get_post:
  * @snippet: A #CoglSnippet
  *
- * Return value: (transfer none): the source string that was set with
+ * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_post() or %NULL if none was set.
  *
  * Since: 1.10
