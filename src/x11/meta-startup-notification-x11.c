@@ -20,7 +20,6 @@
 #include "meta-startup-notification-x11.h"
 
 #include <gio/gdesktopappinfo.h>
-#include <libsn/sn.h>
 
 #include "core/display-private.h"
 #include "core/startup-notification-private.h"
@@ -28,6 +27,8 @@
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_STARTUP_NOTIFICATION
+
+#include <libsn/sn.h>
 
 enum
 {
