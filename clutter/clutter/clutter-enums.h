@@ -1425,6 +1425,21 @@ typedef enum
 } ClutterContentRepeat;
 
 /**
+ * ClutterColorspace:
+ * @CLUTTER_COLORSPACE_UNKNOWN: Unknown colorspace
+ * @CLUTTER_COLORSPACE_SRGB: Default sRGB colorspace
+ * @CLUTTER_COLORSPACE_BT2020: BT2020 colorspace
+ *
+ * Colorspace informations.
+ */
+typedef enum
+{
+  CLUTTER_COLORSPACE_UNKNOWN,
+  CLUTTER_COLORSPACE_SRGB,
+  CLUTTER_COLORSPACE_BT2020
+} ClutterColorspace;
+
+/**
  * ClutterStepMode:
  * @CLUTTER_STEP_MODE_START: The change in the value of a
  *   %CLUTTER_STEP progress mode should occur at the start of

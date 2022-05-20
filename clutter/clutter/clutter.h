@@ -48,6 +48,7 @@
 #include "clutter-click-action.h"
 #include "clutter-clone.h"
 #include "clutter-color.h"
+#include "clutter-color-state.h"
 #include "clutter-color-static.h"
 #include "clutter-colorize-effect.h"
 #include "clutter-constraint.h"
