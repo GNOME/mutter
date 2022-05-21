@@ -40,6 +40,8 @@ enum
 };
 
 static guint signals[N_SIGNALS];
+static struct wl_callback *effects_complete_callback;
+static struct wl_callback *view_verification_callback;
 
 G_DEFINE_TYPE (WaylandDisplay, wayland_display, G_TYPE_OBJECT)
 
@@ -371,4 +373,63 @@ lookup_property_value (WaylandDisplay *display,
                        const char     *name)
 {
   return g_hash_table_lookup (display->properties, name);
+}
+
+static void
+effects_completed (void               *data,
+                   struct wl_callback *callback,
+                   uint32_t            serial)
+{
+  wl_callback_destroy (callback);
+  effects_complete_callback = NULL;
+}
+
+static const struct wl_callback_listener effects_complete_listener = {
+  effects_completed,
+};
+
+void
+wait_for_effects_completed (WaylandDisplay    *display,
+                            struct wl_surface *surface)
+{
+  effects_complete_callback =
+    test_driver_sync_effects_completed (display->test_driver, surface);
+  wl_callback_add_listener (effects_complete_callback,
+                            &effects_complete_listener,
+                            NULL);
+
+  while (effects_complete_callback)
+    {
+      if (wl_display_dispatch (display->display) == -1)
+        exit (EXIT_FAILURE);
+    }
+}
+
+static void
+view_verified (void               *data,
+               struct wl_callback *callback,
+               uint32_t            serial)
+{
+  wl_callback_destroy (callback);
+  view_verification_callback = NULL;
+}
+
+static const struct wl_callback_listener view_verification_listener = {
+  view_verified,
+};
+
+void
+wait_for_view_verified (WaylandDisplay *display,
+                        int             sequence)
+{
+  view_verification_callback =
+    test_driver_verify_view (display->test_driver, sequence);
+  wl_callback_add_listener (view_verification_callback,
+                            &view_verification_listener, NULL);
+
+  while (view_verification_callback)
+    {
+      if (wl_display_dispatch (display->display) == -1)
+        exit (EXIT_FAILURE);
+    }
 }

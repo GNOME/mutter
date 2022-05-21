@@ -61,6 +61,7 @@ void meta_window_actor_frame_complete (MetaWindowActor    *self,
                                        ClutterFrameInfo   *frame_info,
                                        gint64              presentation_time);
 
+META_EXPORT_TEST
 gboolean meta_window_actor_effect_in_progress  (MetaWindowActor *self);
 
 MetaWindowActorChanges meta_window_actor_sync_actor_geometry (MetaWindowActor *self,

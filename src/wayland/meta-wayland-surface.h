@@ -300,6 +300,7 @@ void                meta_wayland_surface_update_outputs (MetaWaylandSurface *sur
 
 MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surface);
 
+META_EXPORT_TEST
 MetaWindow *        meta_wayland_surface_get_window (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface);

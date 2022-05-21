@@ -21,8 +21,11 @@
 
 #include <wayland-server.h>
 
+#include "compositor/meta-window-actor-private.h"
+#include "tests/meta-ref-test.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-surface.h"
 
 #include "test-driver-server-protocol.h"
 
@@ -48,6 +51,12 @@ struct _MetaWaylandTestDriver
 
 G_DEFINE_TYPE (MetaWaylandTestDriver, meta_wayland_test_driver,
                G_TYPE_OBJECT)
+
+typedef struct _PendingEffectsData
+{
+  MetaWaylandSurface *surface;
+  struct wl_resource *callback;
+} PendingEffectsData;
 
 static void
 on_actor_destroyed (ClutterActor       *actor,
@@ -83,6 +92,71 @@ sync_actor_destroy (struct wl_client   *client,
 }
 
 static void
+on_effects_completed (ClutterActor       *actor,
+                      struct wl_resource *callback)
+{
+  g_signal_handlers_disconnect_by_data (actor, callback);
+  wl_callback_send_done (callback, 0);
+  wl_resource_destroy (callback);
+}
+
+static void
+check_for_pending_effects (ClutterStage       *stage,
+                           ClutterStageView   *view,
+                           PendingEffectsData *data)
+{
+  MetaWindow *window;
+  MetaWindowActor *window_actor;
+
+  g_signal_handlers_disconnect_by_data (stage, data);
+
+  window = meta_wayland_surface_get_window (data->surface);
+  g_assert_nonnull (window);
+
+  window_actor = meta_window_actor_from_window (window);
+  g_assert_nonnull (window_actor);
+
+  if (meta_window_actor_effect_in_progress (window_actor))
+    {
+      g_signal_connect (window_actor, "effects-completed",
+                        G_CALLBACK (on_effects_completed), data->callback);
+    }
+  else
+    {
+      on_effects_completed (CLUTTER_ACTOR (window_actor), data->callback);
+    }
+
+  g_free (data);
+}
+
+static void
+sync_effects_completed (struct wl_client   *client,
+                        struct wl_resource *resource,
+                        uint32_t            id,
+                        struct wl_resource *surface_resource)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
+  PendingEffectsData *data;
+  GList *stage_views;
+
+  g_assert_nonnull (surface);
+
+  data = g_new0 (PendingEffectsData, 1);
+  data->surface = surface;
+  data->callback = wl_resource_create (client, &wl_callback_interface, 1, id);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert (g_list_length (stage_views) > 0);
+
+  g_signal_connect (CLUTTER_STAGE (stage), "after-update",
+                    G_CALLBACK (check_for_pending_effects), data);
+
+  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+}
+
+static void
 sync_point (struct wl_client   *client,
             struct wl_resource *resource,
             uint32_t            sequence,
@@ -96,9 +170,45 @@ sync_point (struct wl_client   *client,
                  client);
 }
 
+static void
+on_after_paint (ClutterStage       *stage,
+                ClutterStageView   *view,
+                struct wl_resource *callback)
+{
+  g_signal_handlers_disconnect_by_data (stage, callback);
+  wl_callback_send_done (callback, 0);
+  wl_resource_destroy (callback);
+}
+
+static void
+verify_view (struct wl_client   *client,
+             struct wl_resource *resource,
+             uint32_t            id,
+             uint32_t            sequence)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  GList *stage_views;
+  struct wl_resource *callback;
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert (g_list_length (stage_views) > 0);
+
+  callback = wl_resource_create (client, &wl_callback_interface, 1, id);
+  g_signal_connect_after (CLUTTER_STAGE (stage), "after-paint",
+                          G_CALLBACK (on_after_paint), callback);
+
+  meta_ref_test_verify_view (CLUTTER_STAGE_VIEW (stage_views->data),
+                             g_test_get_path (),
+                             sequence,
+                             meta_ref_test_determine_ref_test_flag ());
+}
+
 static const struct test_driver_interface meta_test_driver_interface = {
   sync_actor_destroy,
+  sync_effects_completed,
   sync_point,
+  verify_view,
 };
 
 static void

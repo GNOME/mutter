@@ -56,4 +56,10 @@ void draw_surface (WaylandDisplay    *display,
 const char * lookup_property_value (WaylandDisplay *display,
                                     const char     *name);
 
+void wait_for_effects_completed (WaylandDisplay    *display,
+                                 struct wl_surface *surface);
+
+void wait_for_view_verified (WaylandDisplay *display,
+                             int             sequence);
+
 #endif /* WAYLAND_TEST_CLIENT_UTILS_H */
