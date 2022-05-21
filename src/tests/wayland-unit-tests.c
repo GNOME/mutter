@@ -66,6 +66,16 @@ subsurface_remap_toplevel (void)
 }
 
 static void
+buffer_transform (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new ("buffer-transform");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 subsurface_reparenting (void)
 {
   MetaWaylandTestClient *wayland_test_client;
@@ -656,6 +666,8 @@ on_after_tests (void)
 static void
 init_tests (void)
 {
+  g_test_add_func ("/wayland/buffer/transform",
+                   buffer_transform);
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
                    subsurface_remap_toplevel);
   g_test_add_func ("/wayland/subsurface/reparent",

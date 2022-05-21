@@ -47,6 +47,9 @@ common_sources = [
 
 wayland_test_clients = [
   {
+    'name': 'buffer-transform',
+  },
+  {
     'name': 'subsurface-remap-toplevel',
   },
   {
