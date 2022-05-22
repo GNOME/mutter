@@ -151,7 +151,8 @@ handle_registry_global (void               *user_data,
   if (strcmp (interface, "wl_compositor") == 0)
     {
       display->compositor =
-        wl_registry_bind (registry, id, &wl_compositor_interface, 1);
+        wl_registry_bind (registry, id, &wl_compositor_interface,
+                          MIN (version, 5));
     }
   else if (strcmp (interface, "wl_subcompositor") == 0)
     {
@@ -161,7 +162,7 @@ handle_registry_global (void               *user_data,
   else if (strcmp (interface, "wl_shm") == 0)
     {
       display->shm = wl_registry_bind (registry,
-                              id, &wl_shm_interface, 1);
+                                       id, &wl_shm_interface, 1);
     }
   else if (strcmp (interface, "xdg_wm_base") == 0)
     {
