@@ -280,7 +280,7 @@ static const struct wl_buffer_listener buffer_listener = {
   handle_buffer_release
 };
 
-static gboolean
+gboolean
 create_shm_buffer (WaylandDisplay    *display,
                    int                width,
                    int                height,

@@ -40,6 +40,13 @@ int create_anonymous_file (off_t size);
 
 WaylandDisplay * wayland_display_new (WaylandDisplayCapabilities capabilities);
 
+gboolean create_shm_buffer (WaylandDisplay    *display,
+                            int                width,
+                            int                height,
+                            struct wl_buffer **out_buffer,
+                            void             **out_data,
+                            int               *out_size);
+
 void draw_surface (WaylandDisplay    *display,
                    struct wl_surface *surface,
                    int                width,
