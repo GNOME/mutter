@@ -56,13 +56,13 @@
  * existing reference image is pixel identical to the newly created one.
  *
  * Updating test reference images also requires using a software OpenGL
- * renderer, which can be achieved using LIBGL_ALWAYS_SOFTWARE=1
+ * renderer, which can be achieved using MESA_LOADER_DRIVER_OVERRIDE=swrast
  *
  * For example, for the test case '/path/to/test/case', run the test
  * inside
  *
  * ```
- * env LIBGL_ALWAYS_SOFTWARE=1 MUTTER_REF_TEST_UPDATE='/path/to/test/case`
+ * env MESA_LOADER_DRIVER_OVERRIDE=swrast MUTTER_REF_TEST_UPDATE='/path/to/test/case`
  * ```
  *
  */
