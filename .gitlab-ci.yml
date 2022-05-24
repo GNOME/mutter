@@ -9,6 +9,7 @@ stages:
  - build
  - test
  - analyze
+ - docs
  - deploy
 
 variables:
@@ -17,7 +18,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-03-05.0'
+    BASE_TAG: '2022-05-25.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -33,6 +34,7 @@ variables:
       xorg-x11-proto-devel
       qemu-system-x86-core
       busybox
+      gi-docgen
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -485,3 +487,32 @@ dist-mutter-tarball:
       - build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz
   rules:
     - if: '$CI_COMMIT_TAG'
+
+reference:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:35@x86_64
+  stage: docs
+  needs:
+    - job: build-fedora-container@x86_64
+      artifacts: false
+  script:
+    - meson . build --werror -Ddocs=true -Dtests=false
+    - ninja -C build
+    - mkdir references
+    - mv build/doc/reference/{cally/cally,clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta} references/
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - references
+
+pages:
+  stage: deploy
+  needs: ['reference']
+  script:
+    - mv references public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: ($CI_DEFAULT_BRANCH == $CI_COMMIT_BRANCH && $CI_PROJECT_NAMESPACE == "GNOME")
