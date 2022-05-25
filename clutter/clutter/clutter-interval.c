@@ -23,8 +23,9 @@
  */
 
 /**
- * SECTION:clutter-interval
- * @short_description: An object holding an interval of two values
+ * ClutterInterval:
+ * 
+ * An object holding an interval of two values
  *
  * #ClutterInterval is a simple object that can hold two values
  * defining an interval. #ClutterInterval can hold any value that
@@ -40,7 +41,7 @@
  * #ClutterInterval can be subclassed to override the validation
  * and value computation.
  *
- * #ClutterInterval is available since Clutter 1.0
+ * Since: 1.0
  */
 
 #include "clutter-build-config.h"
@@ -744,11 +745,11 @@ clutter_interval_get_interval_valist (ClutterInterval *interval,
  * This function avoids using a #GValue for the initial and final values
  * of the interval:
  *
- * |[
+ * ```c
  *   interval = clutter_interval_new (G_TYPE_FLOAT, 0.0, 1.0);
  *   interval = clutter_interval_new (G_TYPE_BOOLEAN, FALSE, TRUE);
  *   interval = clutter_interval_new (G_TYPE_INT, 0, 360);
- * ]|
+ * ```
  *
  * Return value: the newly created #ClutterInterval
  *
@@ -1047,11 +1048,11 @@ clutter_interval_peek_final_value (ClutterInterval *interval)
  * and clutter_interval_set_final_value() that avoids using the
  * #GValue arguments:
  *
- * |[
+ * ```c
  *   clutter_interval_set_interval (interval, 0, 50);
  *   clutter_interval_set_interval (interval, 1.0, 0.0);
  *   clutter_interval_set_interval (interval, FALSE, TRUE);
- * ]|
+ * ```
  *
  * This function is meant for the convenience of the C API; bindings
  * should reimplement this function using the #GValue-based API.
@@ -1088,10 +1089,10 @@ out:
  * and clutter_interval_get_final_value() that avoids using the
  * #GValue arguments:
  *
- * |[
+ * ```c
  *   gint a = 0, b = 0;
  *   clutter_interval_get_interval (interval, &a, &b);
- * ]|
+ * ```
  *
  * This function is meant for the convenience of the C API; bindings
  * should reimplement this function using the #GValue-based API.

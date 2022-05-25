@@ -23,17 +23,17 @@
  */
 
 /**
- * SECTION:clutter-image
- * @Title: ClutterImage
- * @Short_Description: Image data content
+ * ClutterImage:
+ * 
+ * Image data content
  *
  * #ClutterImage is a #ClutterContent implementation that displays
- * image data inside a #ClutterActor.
+ * image data inside a [class@Actor].
  *
  * See [image.c](https://git.gnome.org/browse/clutter/tree/examples/image-content.c?h=clutter-1.18)
  * for an example of how to use #ClutterImage.
  *
- * #ClutterImage is available since Clutter 1.10.
+ * Since: 1.10.
  */
 
 #include "clutter-build-config.h"
@@ -218,7 +218,7 @@ clutter_image_new (void)
  * how to retrieve that data is left to platform specific image loaders. For
  * instance, if you use the GdkPixbuf library:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   ClutterContent *image = clutter_image_new ();
  *
  *   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
@@ -234,7 +234,7 @@ clutter_image_new (void)
  *                           &error);
  *
  *   g_object_unref (pixbuf);
- * ]|
+ * ```
  *
  * Return value: %TRUE if the image data was successfully loaded,
  *   and %FALSE otherwise.

@@ -412,8 +412,9 @@ struct _ClutterTouchEvent
  *   represented by positive deltas
  * @scale: the current scale
  *
- * Used for touchpad pinch gesture events. The current state of the
- * gesture will be determined by the @phase field.
+ * Used for touchpad pinch gesture events.
+ * 
+ * The current state of the gesture will be determined by the @phase field.
  *
  * Each event with phase %CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN
  * will report a @scale of 1.0, all later phases in the gesture
@@ -459,8 +460,9 @@ struct _ClutterTouchpadPinchEvent
  * @dy_unaccel: unaccelerated movement delta of the swipe center
  *   point in the Y axis
  *
- * Used for touchpad swipe gesture events. The current state of the
- * gesture will be determined by the @phase field.
+ * Used for touchpad swipe gesture events.
+ * 
+ * The current state of the gesture will be determined by the @phase field.
  *
  * Since: 1.24
  */
@@ -493,8 +495,9 @@ struct _ClutterTouchpadSwipeEvent
  * @x: the X coordinate of the pointer, relative to the stage
  * @y: the Y coordinate of the pointer, relative to the stage
  *
- * Used for touchpad hold gesture events. The current state of the
- * gesture will be determined by the @phase field.
+ * Used for touchpad hold gesture events.
+ * 
+ * The current state of the gesture will be determined by the @phase field.
  *
  * A hold gesture starts when the user places one or many fingers on the
  * touchpad and ends when all fingers are lifted. It is cancelled when the
@@ -586,8 +589,11 @@ struct _ClutterIMEvent
 /**
  * ClutterEvent:
  *
- * Generic event wrapper.
+ * User and window system events
  *
+ * The events usually come from the windowing backend, but can also
+ * be synthesized by Clutter itself or by the application code.
+ * 
  * Since: 0.2
  */
 union _ClutterEvent

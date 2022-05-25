@@ -37,14 +37,6 @@ G_BEGIN_DECLS
 #define CLUTTER_DESATURATE_EFFECT(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_DESATURATE_EFFECT, ClutterDesaturateEffect))
 #define CLUTTER_IS_DESATURATE_EFFECT(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_DESATURATE_EFFECT))
 
-/**
- * ClutterDesaturateEffect:
- *
- * #ClutterDesaturateEffect is an opaque structure
- * whose members cannot be directly accessed
- *
- * Since: 1.4
- */
 typedef struct _ClutterDesaturateEffect         ClutterDesaturateEffect;
 typedef struct _ClutterDesaturateEffectClass    ClutterDesaturateEffectClass;
 

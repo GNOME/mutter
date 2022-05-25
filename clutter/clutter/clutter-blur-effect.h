@@ -37,14 +37,6 @@ G_BEGIN_DECLS
 #define CLUTTER_BLUR_EFFECT(obj)        (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BLUR_EFFECT, ClutterBlurEffect))
 #define CLUTTER_IS_BLUR_EFFECT(obj)     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BLUR_EFFECT))
 
-/**
- * ClutterBlurEffect:
- *
- * #ClutterBlurEffect is an opaque structure
- * whose members cannot be accessed directly
- *
- * Since: 1.4
- */
 typedef struct _ClutterBlurEffect       ClutterBlurEffect;
 typedef struct _ClutterBlurEffectClass  ClutterBlurEffectClass;
 

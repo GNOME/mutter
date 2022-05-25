@@ -21,18 +21,6 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * SECTION:clutter-color
- * @short_description: Color management and manipulation.
- *
- * #ClutterColor is a simple type for representing colors in Clutter.
- *
- * A #ClutterColor is expressed as a 4-tuple of values ranging from
- * zero to 255, one for each color channel plus one for the alpha.
- *
- * The alpha channel is fully opaque at 255 and fully transparent at 0.
- */
-
 #include "clutter-build-config.h"
 
 #include <math.h>
@@ -803,10 +791,10 @@ clutter_color_to_string (const ClutterColor *color)
  * @v1: (type Clutter.Color): a #ClutterColor
  * @v2: (type Clutter.Color): a #ClutterColor
  *
- * Compares two #ClutterColor<!-- -->s and checks if they are the same.
+ * Compares two `ClutterColor`s and checks if they are the same.
  *
  * This function can be passed to g_hash_table_new() as the @key_equal_func
- * parameter, when using #ClutterColor<!-- -->s as keys in a #GHashTable.
+ * parameter, when using `ClutterColor`s as keys in a #GHashTable.
  *
  * Return value: %TRUE if the two colors are the same.
  *
@@ -840,7 +828,7 @@ clutter_color_equal (gconstpointer v1,
  * Converts a #ClutterColor to a hash value.
  *
  * This function can be passed to g_hash_table_new() as the @hash_func
- * parameter, when using #ClutterColor<!-- -->s as keys in a #GHashTable.
+ * parameter, when using `ClutterColor`s as keys in a #GHashTable.
  *
  * Return value: a hash value corresponding to the color
  *
@@ -859,7 +847,7 @@ clutter_color_hash (gconstpointer v)
  * @progress: the interpolation progress
  * @result: (out): return location for the interpolation
  *
- * Interpolates between @initial and @final #ClutterColor<!-- -->s
+ * Interpolates between @initial and @final `ClutterColor`s
  * using @progress
  *
  * Since: 1.6
@@ -942,9 +930,9 @@ clutter_color_free (ClutterColor *color)
  *
  * This function is the equivalent of:
  *
- * |[
+ * ```c
  *   clutter_color_init (clutter_color_alloc (), red, green, blue, alpha);
- * ]|
+ * ```
  *
  * Return value: (transfer full): the newly allocated color.
  *   Use clutter_color_free() when done

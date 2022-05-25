@@ -52,14 +52,6 @@ typedef struct _ClutterPanAction              ClutterPanAction;
 typedef struct _ClutterPanActionPrivate       ClutterPanActionPrivate;
 typedef struct _ClutterPanActionClass         ClutterPanActionClass;
 
-/**
- * ClutterPanAction:
- *
- * The #ClutterPanAction structure contains
- * only private data and should be accessed using the provided API
- *
- * Since: 1.12
- */
 struct _ClutterPanAction
 {
   /*< private >*/

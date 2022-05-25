@@ -37,14 +37,6 @@ G_BEGIN_DECLS
 #define CLUTTER_BINDING_POOL(obj)       (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BINDING_POOL, ClutterBindingPool))
 #define CLUTTER_IS_BINDING_POOL(obj)    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BINDING_POOL))
 
-/**
- * ClutterBindingPool:
- *
- * Container of key bindings. The #ClutterBindingPool struct is
- * private.
- *
- * Since: 1.0
- */
 typedef struct _ClutterBindingPool      ClutterBindingPool;
 typedef struct _ClutterBindingPoolClass ClutterBindingPoolClass;
 

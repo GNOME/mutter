@@ -38,14 +38,6 @@ G_BEGIN_DECLS
 #define CLUTTER_BRIGHTNESS_CONTRAST_EFFECT(obj)     (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT, ClutterBrightnessContrastEffect))
 #define CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT(obj)  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT))
 
-/**
- * ClutterBrightnessContrastEffect:
- *
- * #ClutterBrightnessContrastEffect is an opaque structure
- * whose members cannot be directly accessed
- *
- * Since: 1.10
- */
 typedef struct _ClutterBrightnessContrastEffect         ClutterBrightnessContrastEffect;
 typedef struct _ClutterBrightnessContrastEffectClass    ClutterBrightnessContrastEffectClass;
 

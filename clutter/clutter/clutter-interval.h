@@ -43,14 +43,6 @@ G_BEGIN_DECLS
 typedef struct _ClutterIntervalPrivate          ClutterIntervalPrivate;
 typedef struct _ClutterIntervalClass            ClutterIntervalClass;
 
-/**
- * ClutterInterval:
- *
- * The #ClutterInterval structure contains only private data and should
- * be accessed using the provided functions.
- *
- * Since: 1.0
- */
 struct _ClutterInterval
 {
   /*< private >*/

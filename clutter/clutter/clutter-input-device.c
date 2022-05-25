@@ -22,8 +22,9 @@
  */
 
 /**
- * SECTION:clutter-input-device
- * @short_description: An input device managed by Clutter
+ * ClutterInputDevice:
+ * 
+ * An input device managed by Clutter
  *
  * #ClutterInputDevice represents an input device known to Clutter.
  *

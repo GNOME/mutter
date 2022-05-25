@@ -45,14 +45,6 @@ typedef struct _ClutterDeformEffect             ClutterDeformEffect;
 typedef struct _ClutterDeformEffectPrivate      ClutterDeformEffectPrivate;
 typedef struct _ClutterDeformEffectClass        ClutterDeformEffectClass;
 
-/**
- * ClutterDeformEffect:
- *
- * The #ClutterDeformEffect structure contains
- * only private data and should be accessed using the provided API
- *
- * Since: 1.4
- */
 struct _ClutterDeformEffect
 {
   /*< private >*/

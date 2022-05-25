@@ -38,14 +38,6 @@ G_BEGIN_DECLS
 #define CLUTTER_COLORIZE_EFFECT(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_COLORIZE_EFFECT, ClutterColorizeEffect))
 #define CLUTTER_IS_COLORIZE_EFFECT(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_COLORIZE_EFFECT))
 
-/**
- * ClutterColorizeEffect:
- *
- * #ClutterColorizeEffect is an opaque structure
- * whose members cannot be directly accessed
- *
- * Since: 1.4
- */
 typedef struct _ClutterColorizeEffect           ClutterColorizeEffect;
 typedef struct _ClutterColorizeEffectClass      ClutterColorizeEffectClass;
 

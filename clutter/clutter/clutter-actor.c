@@ -23,46 +23,47 @@
  */
 
 /**
- * SECTION:clutter-actor
- * @short_description: The basic element of the scene graph 
+ * ClutterActor:
+ * 
+ * The basic element of the scene graph 
  *
  * The ClutterActor class is the basic element of the scene graph in Clutter,
  * and it encapsulates the position, size, and transformations of a node in
  * the graph.
  *
- * ## Actor transformations ## {#clutter-actor-transformations}
+ * ## Actor transformations
  *
- * Each actor can be transformed using methods like clutter_actor_set_scale()
- * or clutter_actor_set_rotation(). The order in which the transformations are
+ * Each actor can be transformed using methods like [method@Actor.set_scale]
+ * or [method@Actor.set_rotation_angle]. The order in which the transformations are
  * applied is decided by Clutter and it is the following:
  *
- *  1. translation by the origin of the #ClutterActor:allocation property
- *  2. translation by the actor's #ClutterActor:z-position property
- *  3. translation by the actor's #ClutterActor:pivot-point property
- *  4. scaling by the #ClutterActor:scale-x and #ClutterActor:scale-y factors
- *  5. rotation around the #ClutterActor:rotation-angle-x and #ClutterActor:rotation-center-x
- *  6. rotation around the #ClutterActor:rotation-angle-y and #ClutterActor:rotation-center-y
- *  7. rotation around the #ClutterActor:rotation-angle-z and #ClutterActor:rotation-center-z
- *  8. negative translation by the actor's #ClutterActor:pivot-point
+ *  1. translation by the origin of the [property@Actor:allocation] property
+ *  2. translation by the actor's [property@Actor:z-position] property
+ *  3. translation by the actor's [property@Actor:pivot-point] property
+ *  4. scaling by the [property@Actor:scale-x] and [property@Actor:scale-y] factors
+ *  5. rotation around the [property@Actor:rotation-angle-x]
+ *  6. rotation around the [property@Actor:rotation-angle-y]
+ *  7. rotation around the [property@Actor:rotation-angle-z]
+ *  8. negative translation by the actor's [property@Actor:pivot-point]
  *
- * ## Modifying an actor's geometry ## {#clutter-actor-geometry}
+ * ## Modifying an actor's geometry
  *
- * Each actor has a bounding box, called #ClutterActor:allocation
+ * Each actor has a bounding box, called [property@Actor:allocation]
  * which is either set by its parent or explicitly through the
- * clutter_actor_set_position() and clutter_actor_set_size() methods.
+ * [method@Actor.set_position] and [method@Actor.set_size] methods.
  * Each actor also has an implicit preferred size.
  *
  * An actor’s preferred size can be defined by any subclass by
- * overriding the #ClutterActorClass.get_preferred_width() and the
- * #ClutterActorClass.get_preferred_height() virtual functions, or it can
- * be explicitly set by using clutter_actor_set_width() and
- * clutter_actor_set_height().
+ * overriding the [vfunc@Actor.get_preferred_width] and the
+ * [vfunc@Actor.get_preferred_height] virtual functions, or it can
+ * be explicitly set by using [method@Actor.set_width] and
+ * [method@Actor.set_height].
  *
  * An actor’s position can be set explicitly by using
- * clutter_actor_set_x() and clutter_actor_set_y(); the coordinates are
+ * [method@Actor.set_x] and [method@Actor.set_y]; the coordinates are
  * relative to the origin of the actor’s parent.
  *
- * ## Managing actor children ## {#clutter-actor-children}
+ * ## Managing actor children
  *
  * Each actor can have multiple children, by calling
  * clutter_actor_add_child() to add a new child actor, and
@@ -71,7 +72,7 @@
  * the child is removed from its parent, or destroyed using
  * clutter_actor_destroy().
  *
- * |[<!-- language="C" -->
+ * ```c
  *  ClutterActor *actor = clutter_actor_new ();
  *
  *  // set the bounding box of the actor
@@ -91,7 +92,7 @@
  *
  *  // add the child to the actor
  *  clutter_actor_add_child (actor, child);
- * ]|
+ * ```
  *
  * Children can be inserted at a given index, or above and below
  * another child actor. The order of insertion determines the order of the
@@ -109,7 +110,7 @@
  *
  * See [basic-actor.c](https://git.gnome.org/browse/clutter/tree/examples/basic-actor.c?h=clutter-1.18).
  *
- * ## Painting an actor ## {#clutter-actor-painting}
+ * ## Painting an actor
  *
  * There are three ways to paint an actor:
  *
@@ -123,7 +124,7 @@
  * and before calling the actor's own implementation of the
  * #ClutterActorClass.paint_node() virtual function.
  *
- * |[<!-- language="C" -->
+ * ```c
  * ClutterActor *actor = clutter_actor_new ();
  *
  * // set the bounding box
@@ -132,7 +133,7 @@
  *
  * // set the content; the image_content variable is set elsewhere
  * clutter_actor_set_content (actor, image_content);
- * ]|
+ * ```
  *
  * The #ClutterActorClass.paint_node() virtual function is invoked whenever
  * an actor needs to be painted. The implementation of the virtual function
@@ -143,7 +144,7 @@
  * the render tree; any node added to it will be rendered at the correct
  * position, as defined by the actor's #ClutterActor:allocation.
  *
- * |[<!-- language="C" -->
+ * ```c
  * static void
  * my_actor_paint_node (ClutterActor     *actor,
  *                      ClutterPaintNode *root)
@@ -166,6 +167,7 @@
  *   clutter_paint_node_add_child (root, node);
  *   clutter_paint_node_unref (node);
  * }
+ * ```
  *
  * The #ClutterActorClass.paint() virtual function function gives total
  * control to the paint sequence of the actor itself, including the
@@ -173,7 +175,7 @@
  * the #ClutterActorClass.paint() virtual function and it will be removed
  * when the Clutter API changes.
  *
- * ## Handling events on an actor ## {#clutter-actor-event-handling}
+ * ## Handling events on an actor
  *
  * A #ClutterActor can receive and handle input device events, for
  * instance pointer events and key events, as long as its
@@ -193,7 +195,7 @@
  * through the scene graph by returning %CLUTTER_EVENT_STOP; otherwise, they can
  * continue the propagation by returning %CLUTTER_EVENT_PROPAGATE.
  *
- * ## Animation ## {#clutter-actor-animation}
+ * ## Animation
  *
  * Animation is a core concept of modern user interfaces; Clutter provides a
  * complete and powerful animation framework that automatically tweens the
@@ -217,7 +219,7 @@
  * the default easing state for an actor you should call the
  * clutter_actor_save_easing_state() function:
  *
- * |[<!-- language="C" -->
+ * ```c
  * // assume that the actor is currently positioned at (100, 100)
  *
  * // store the current easing state and reset the new easing state to
@@ -229,7 +231,7 @@
  *
  * // restore the previously saved easing state
  * clutter_actor_restore_easing_state (actor);
- * ]|
+ * ```
  *
  * The example above will trigger an implicit animation of the
  * actor between its current position to a new position.
@@ -243,7 +245,7 @@
  * at the same time, and you can animate multiple actors at the same
  * time as well, for instance:
  *
- * |[<!-- language="C" -->
+ * ```c
  * clutter_actor_save_easing_state (actor);
  *
  * // animate the actor's opacity and depth
@@ -259,7 +261,7 @@
  * clutter_actor_set_z_position (another_actor, 100);
  *
  * clutter_actor_restore_easing_state (another_actor);
- * ]|
+ * ```
  *
  * Changing the easing state will affect all the following property
  * transitions, but will not affect existing transitions.
@@ -270,7 +272,7 @@
  * mode by using the current easing state; for instance, in the following
  * example:
  *
- * |[<!-- language="C" -->
+ * ```c
  * clutter_actor_save_easing_state (actor);
  * clutter_actor_set_easing_duration (actor, 1000);
  * clutter_actor_set_x (actor, 200);
@@ -280,7 +282,7 @@
  * clutter_actor_set_easing_duration (actor, 500);
  * clutter_actor_set_x (actor, 100);
  * clutter_actor_restore_easing_state (actor);
- * ]|
+ * ```
  *
  * the first call to clutter_actor_set_x() will begin a transition
  * of the #ClutterActor:x property from the current value to the value of
@@ -303,7 +305,7 @@
  * and final values. The transition will not start unless you add it to the
  * #ClutterActor.
  *
- * |[<!-- language="C" -->
+ * ```c
  * ClutterTransition *transition;
  *
  * transition = clutter_property_transition_new_for_actor (actor, "opacity");
@@ -314,7 +316,7 @@
  * clutter_transition_set_to (transition, G_TYPE_UINT, 0);
  *
  * clutter_actor_add_transition (actor, "animate-opacity", transition);
- * ]|
+ * ```
  *
  * The example above will animate the #ClutterActor:opacity property
  * of an actor between fully opaque and fully transparent, and back, over
@@ -334,7 +336,7 @@
  * Finally, explicit animations are useful for creating animations
  * that run continuously, for instance:
  *
- * |[<!-- language="C" -->
+ * ```c
  * // this animation will pulse the actor's opacity continuously
  * ClutterTransition *transition;
  * ClutterInterval *interval;
@@ -358,9 +360,9 @@
  *
  * // add the transition to the desired actor to start it
  * clutter_actor_add_transition (actor, "opacityAnimation", transition);
- * ]|
+ * ```
  *
- * ## Implementing an actor ## {#clutter-actor-implementing}
+ * ## Implementing an actor
  *
  * Careful consideration should be given when deciding to implement
  * a #ClutterActor sub-class. It is generally recommended to implement a
@@ -378,16 +380,16 @@
  * In general, it is strongly encouraged to use delegation and composition
  * instead of direct subclassing.
  *
- * ## ClutterActor custom properties for ClutterScript ## {#clutter-actor-custom-script}
+ * ## ClutterActor custom properties for ClutterScript
  *
  * #ClutterActor defines a custom "rotation" property which allows a short-hand
  * description of the rotations to be applied to an actor.
  *
  * The syntax of the "rotation" property is the following:
  *
- * |[
+ * ```
  * "rotation" : [ { "<axis>" : [ <angle>, [ <center-point> ] ] } ]
- * ]|
+ * ```
  *
  * where:
  *
@@ -400,7 +402,7 @@
  *
  * #ClutterActor also defines a scriptable "margin" property which follows the CSS "margin" shorthand.
  *
- * |[
+ * ```
  *   // 4 values
  *   "margin" : [ top, right, bottom, left ]
  *   // 3 values
@@ -409,7 +411,7 @@
  *   "margin" : [ top/bottom, left/right ]
  *   // 1 value
  *   "margin" : [ top/right/bottom/left ]
- * ]|
+ * ```
  *
  * #ClutterActor will also parse every positional and dimensional
  * property defined as a string through clutter_units_from_string(); you
@@ -428,9 +430,9 @@
  *
  * The property can be accessed using the following syntax:
  *
- * |[
+ * ```
  *   @<section>.<meta-name>.<property-name>
- * ]|
+ * ```
  *
  *  - the initial `@` is mandatory
  *  - the `section` fragment can be one between "actions", "constraints", "content",
@@ -448,11 +450,11 @@
  * As the actor has only one #ClutterLayoutManager, the syntax for accessing its
  * properties is simpler:
  *
- * |[
+ * ```
  *   @layout.<property-name>
- * ]|
+ * ```
  *
- * |[<!-- language="C" -->
+ * ```c
  * constraint = clutter_bind_constraint_new (origin, CLUTTER_BIND_X, 0.0);
  * clutter_actor_meta_set_name (CLUTTER_ACTOR_META (constraint), "bind-x");
  * clutter_actor_add_constraint (rect, constraint);
@@ -466,13 +468,13 @@
  * g_signal_connect (origin, "button-press-event",
  *                   G_CALLBACK (on_button_press),
  *                   rect);
- * ]|
+ * ```
  *
  * On button press, the rectangle "slides" from behind the actor to
  * which is bound to, using the #ClutterBindConstraint:offset property to
  * achieve the effect:
  *
- * |[<!-- language="C" -->
+ * ```c
  * gboolean
  * on_button_press (ClutterActor *origin,
  *                  ClutterEvent *event,
@@ -512,7 +514,7 @@
  *   // we handled the event
  *   return CLUTTER_EVENT_STOP;
  * }
- * ]|
+ * ```
  */
 
 /**
@@ -6324,7 +6326,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * For instance:
    *
-   * |[<!-- language="C" -->
+   * ```c
    *   ClutterRequestMode mode;
    *   gfloat natural_width, min_width;
    *   gfloat natural_height, min_height;
@@ -6358,7 +6360,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *       if (content != NULL)
    *         clutter_content_get_preferred_size (content, &natural_width, &natural_height);
    *     }
-   * ]|
+   * ```
    *
    * will retrieve the minimum and natural width and height depending on the
    * preferred request mode of the #ClutterActor "child".
@@ -7348,10 +7350,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::destroy:
    * @actor: the #ClutterActor which emitted the signal
    *
-   * The ::destroy signal notifies that all references held on the
+   * The signal notifies that all references held on the
    * actor which emitted it should be released.
    *
-   * The ::destroy signal should be used by all holders of a reference
+   * The signal should be used by all holders of a reference
    * on @actor.
    *
    * This signal might result in the finalization of the #ClutterActor
@@ -7376,7 +7378,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::show:
    * @actor: the object which received the signal
    *
-   * The ::show signal is emitted when an actor is visible and
+   * The signal is emitted when an actor is visible and
    * rendered on the stage.
    *
    * Since: 0.2
@@ -7392,7 +7394,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::hide:
    * @actor: the object which received the signal
    *
-   * The ::hide signal is emitted when an actor is no longer rendered
+   * The signal is emitted when an actor is no longer rendered
    * on the stage.
    *
    * Since: 0.2
@@ -7426,7 +7428,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::queue-relayout:
    * @actor: the actor being queued for relayout
    *
-   * The ::queue_layout signal is emitted when clutter_actor_queue_relayout()
+   * The signal is emitted when clutter_actor_queue_relayout()
    * is called on an actor.
    *
    * The default implementation for #ClutterActor chains up to the
@@ -7453,7 +7455,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: a #ClutterEvent
    *
-   * The ::event signal is emitted each time an event is received
+   * The signal is emitted each time an event is received
    * by the @actor. This signal will be emitted on every actor,
    * following the hierarchy chain, until it reaches the top-level
    * container (the #ClutterStage).
@@ -7480,7 +7482,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: (type ClutterButtonEvent): a #ClutterButtonEvent
    *
-   * The ::button-press-event signal is emitted each time a mouse button
+   * The signal is emitted each time a mouse button
    * is pressed on @actor.
    *
    * Return value: %TRUE if the event has been handled by the actor,
@@ -7505,7 +7507,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: (type ClutterButtonEvent): a #ClutterButtonEvent
    *
-   * The ::button-release-event signal is emitted each time a mouse button
+   * The signal is emitted each time a mouse button
    * is released on @actor.
    *
    * Return value: %TRUE if the event has been handled by the actor,
@@ -7530,7 +7532,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: (type ClutterScrollEvent): a #ClutterScrollEvent
    *
-   * The ::scroll-event signal is emitted each time the mouse is
+   * The signal is emitted each time the mouse is
    * scrolled on @actor
    *
    * Return value: %TRUE if the event has been handled by the actor,
@@ -7555,7 +7557,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: (type ClutterKeyEvent): a #ClutterKeyEvent
    *
-   * The ::key-press-event signal is emitted each time a keyboard button
+   * The signal is emitted each time a keyboard button
    * is pressed while @actor has key focus (see clutter_stage_set_key_focus()).
    *
    * Return value: %TRUE if the event has been handled by the actor,
@@ -7580,7 +7582,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: (type ClutterKeyEvent): a #ClutterKeyEvent
    *
-   * The ::key-release-event signal is emitted each time a keyboard button
+   * The signal is emitted each time a keyboard button
    * is released while @actor has key focus (see
    * clutter_stage_set_key_focus()).
    *
@@ -7606,7 +7608,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the event
    * @event: (type ClutterMotionEvent): a #ClutterMotionEvent
    *
-   * The ::motion-event signal is emitted each time the mouse pointer is
+   * The signal is emitted each time the mouse pointer is
    * moved over @actor.
    *
    * Return value: %TRUE if the event has been handled by the actor,
@@ -7631,7 +7633,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::key-focus-in:
    * @actor: the actor which now has key focus
    *
-   * The ::key-focus-in signal is emitted when @actor receives key focus.
+   * The signal is emitted when @actor receives key focus.
    *
    * Since: 0.6
    */
@@ -7647,7 +7649,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::key-focus-out:
    * @actor: the actor which now has key focus
    *
-   * The ::key-focus-out signal is emitted when @actor loses key focus.
+   * The signal is emitted when @actor loses key focus.
    *
    * Since: 0.6
    */
@@ -7664,7 +7666,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which the pointer has entered.
    * @event: (type ClutterCrossingEvent): a #ClutterCrossingEvent
    *
-   * The ::enter-event signal is emitted when the pointer enters the @actor
+   * The signal is emitted when the pointer enters the @actor
    *
    * Return value: %TRUE if the event has been handled by the actor,
    *   or %FALSE to continue the emission.
@@ -7689,7 +7691,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which the pointer has left
    * @event: (type ClutterCrossingEvent): a #ClutterCrossingEvent
    *
-   * The ::leave-event signal is emitted when the pointer leaves the @actor.
+   * The signal is emitted when the pointer leaves the @actor.
    *
    * Return value: %TRUE if the event has been handled by the actor,
    *   or %FALSE to continue the emission.
@@ -7714,7 +7716,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the actor which received the signal
    * @event: a #ClutterEvent
    *
-   * The ::captured-event signal is emitted when an event is captured
+   * The signal is emitted when an event is captured
    * by Clutter. This signal will be emitted starting from the top-level
    * container (the #ClutterStage) to the actor which received the event
    * going down the hierarchy. This signal can be used to intercept every
@@ -7744,7 +7746,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::realize:
    * @actor: the #ClutterActor that received the signal
    *
-   * The ::realize signal is emitted each time an actor is being
+   * The signal is emitted each time an actor is being
    * realized.
    *
    * Since: 0.8
@@ -7763,7 +7765,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::unrealize:
    * @actor: the #ClutterActor that received the signal
    *
-   * The ::unrealize signal is emitted each time an actor is being
+   * The signal is emitted each time an actor is being
    * unrealized.
    *
    * Since: 0.8
@@ -7784,14 +7786,14 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: the #ClutterActor that received the signal
    * @pick_context: a #ClutterPickContext
    *
-   * The ::pick signal is emitted each time an actor is being painted
+   * The signal is emitted each time an actor is being painted
    * in "pick mode". The pick mode is used to identify the actor during
    * the event handling phase, or by clutter_stage_get_actor_at_pos().
    *
    * Subclasses of #ClutterActor should override the class signal handler
    * and paint themselves in that function.
    *
-   * It is possible to connect a handler to the ::pick signal in order
+   * It is possible to connect a handler to the signal in order
    * to set up some custom aspect of a paint in pick mode.
    *
    * Since: 1.0
@@ -7811,7 +7813,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::transitions-completed:
    * @actor: a #ClutterActor
    *
-   * The ::transitions-completed signal is emitted once all transitions
+   * The signal is emitted once all transitions
    * involving @actor are complete.
    *
    * Since: 1.10
@@ -7830,7 +7832,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @name: the name of the transition
    * @is_finished: whether the transition was finished, or stopped
    *
-   * The ::transition-stopped signal is emitted once a transition
+   * The signal is emitted once a transition
    * is stopped; a transition is stopped once it reached its total
    * duration (including eventual repeats), it has been stopped
    * using clutter_timeline_stop(), or it has been removed from the
@@ -7858,7 +7860,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * @actor: a #ClutterActor
    * @event: a #ClutterEvent
    *
-   * The ::touch-event signal is emitted each time a touch
+   * The signal is emitted each time a touch
    * begin/end/update/cancel event.
    *
    * Return value: %CLUTTER_EVENT_STOP if the event has been handled by
@@ -7883,7 +7885,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::stage-views-changed:
    * @actor: a #ClutterActor
    *
-   * The ::stage-views-changed signal is emitted when the position or
+   * The signal is emitted when the position or
    * size an actor is being painted at have changed so that it's visible
    * on different stage views.
    *
@@ -7903,7 +7905,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::resource-scale-changed:
    * @actor: a #ClutterActor
    *
-   * The ::resource-scale-changed signal is emitted when the resource scale
+   * The signal is emitted when the resource scale
    * value returned by clutter_actor_get_resource_scale() changes.
    *
    * This signal can be used to get notified about the correct resource scale
@@ -11260,7 +11262,7 @@ clutter_actor_get_clip (ClutterActor *self,
  * Retrieves the list of children of @self.
  *
  * Return value: (transfer container) (element-type ClutterActor): A newly
- *   allocated #GList of #ClutterActor<!-- -->s. Use g_list_free() when
+ *   allocated #GList of `ClutterActor`s. Use g_list_free() when
  *   done.
  *
  * Since: 1.10
@@ -13723,7 +13725,7 @@ clutter_actor_get_stage (ClutterActor *actor)
  *
  * The implementation of this function is equivalent to:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   if (request_mode == CLUTTER_REQUEST_HEIGHT_FOR_WIDTH)
  *     {
  *       clutter_actor_get_preferred_width (self, available_height,
@@ -13760,7 +13762,7 @@ clutter_actor_get_stage (ClutterActor *actor)
  *   box.x2 = box.x1 + available_width;
  *   box.y2 = box.y1 + available_height;
  *   clutter_actor_allocate (self, &box);
- * ]|
+ * ```
  *
  * This function can be used by fluid layout managers to allocate
  * an actor's preferred size without making it bigger than the area
@@ -14895,10 +14897,10 @@ clutter_actor_add_action (ClutterActor  *self,
  *
  * This function is the logical equivalent of:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   clutter_actor_meta_set_name (CLUTTER_ACTOR_META (action), name);
  *   clutter_actor_add_action (self, action);
- * ]|
+ * ```
  *
  * Since: 1.4
  */
@@ -15005,7 +15007,7 @@ clutter_actor_remove_action_by_name (ClutterActor *self,
  * Retrieves the list of actions applied to @self
  *
  * Return value: (transfer container) (element-type Clutter.Action): a copy
- *   of the list of #ClutterAction<!-- -->s. The contents of the list are
+ *   of the list of `ClutterAction`s. The contents of the list are
  *   owned by the #ClutterActor. Use g_list_free() to free the resources
  *   allocated by the returned #GList
  *
@@ -15073,7 +15075,7 @@ clutter_actor_clear_actions (ClutterActor *self)
  * @self: a #ClutterActor
  * @constraint: a #ClutterConstraint
  *
- * Adds @constraint to the list of #ClutterConstraint<!-- -->s applied
+ * Adds @constraint to the list`of `ClutterConstraint`s applied
  * to @self
  *
  * The #ClutterActor will hold a reference on the @constraint until
@@ -15117,10 +15119,10 @@ clutter_actor_add_constraint (ClutterActor      *self,
  *
  * This function is the logical equivalent of:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   clutter_actor_meta_set_name (CLUTTER_ACTOR_META (constraint), name);
  *   clutter_actor_add_constraint (self, constraint);
- * ]|
+ * ```
  *
  * Since: 1.4
  */
@@ -15213,7 +15215,7 @@ clutter_actor_remove_constraint_by_name (ClutterActor *self,
  * Retrieves the list of constraints applied to @self
  *
  * Return value: (transfer container) (element-type Clutter.Constraint): a copy
- *   of the list of #ClutterConstraint<!-- -->s. The contents of the list are
+ *   of the list of `ClutterConstraint`s. The contents of the list are
  *   owned by the #ClutterActor. Use g_list_free() to free the resources
  *   allocated by the returned #GList
  *
@@ -15335,7 +15337,7 @@ clutter_actor_get_clip_to_allocation (ClutterActor *self)
  * @self: a #ClutterActor
  * @effect: a #ClutterEffect
  *
- * Adds @effect to the list of #ClutterEffect<!-- -->s applied to @self
+ * Adds @effect to the list of `ClutterEffect`s applied to @self
  *
  * The #ClutterActor will hold a reference on the @effect until either
  * clutter_actor_remove_effect() or clutter_actor_clear_effects() is
@@ -15368,10 +15370,10 @@ clutter_actor_add_effect (ClutterActor  *self,
  *
  * This function is the logical equivalent of:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   clutter_actor_meta_set_name (CLUTTER_ACTOR_META (effect), name);
  *   clutter_actor_add_effect (self, effect);
- * ]|
+ * ```
  *
  * Since: 1.4
  */
@@ -15449,10 +15451,10 @@ clutter_actor_remove_effect_by_name (ClutterActor *self,
  * clutter_actor_get_effects:
  * @self: a #ClutterActor
  *
- * Retrieves the #ClutterEffect<!-- -->s applied on @self, if any
+ * Retrieves the `ClutterEffect`s applied on @self, if any
  *
  * Return value: (transfer container) (element-type Clutter.Effect): a list
- *   of #ClutterEffect<!-- -->s, or %NULL. The elements of the returned
+ *   of `ClutterEffect`s, or %NULL. The elements of the returned
  *   list are owned by Clutter and they should not be freed. You should
  *   free the returned list using g_list_free() when done
  *
@@ -16089,7 +16091,7 @@ clutter_actor_finish_layout (ClutterActor *self,
  * clutter_actor_peek_stage_views:
  * @self: A #ClutterActor
  *
- * Retrieves the list of #ClutterStageView<!-- -->s the actor is being
+ * Retrieves the list of `ClutterStageView`s the actor is being
  * painted on.
  *
  * If this function is called during the paint cycle, the list is guaranteed
@@ -16105,7 +16107,7 @@ clutter_actor_finish_layout (ClutterActor *self,
  * always return an empty list.
  *
  * Returns: (transfer none) (element-type Clutter.StageView): The list of
- *   #ClutterStageView<!-- -->s the actor is being painted on. The list and
+ *   `ClutterStageView`s the actor is being painted on. The list and
  *   its contents are owned by the #ClutterActor and the list may not be
  *   freed or modified.
  */
@@ -17284,7 +17286,7 @@ typedef struct _RealActorIter
  * Modifying the scene graph section that contains @root will invalidate
  * the iterator.
  *
- * |[<!-- language="C" -->
+ * ```c
  *   ClutterActorIter iter;
  *   ClutterActor *child;
  *
@@ -17293,7 +17295,7 @@ typedef struct _RealActorIter
  *     {
  *       // do something with child
  *     }
- * ]|
+ * ```
  *
  * Since: 1.10
  */
@@ -18217,7 +18219,7 @@ clutter_actor_get_easing_delay (ClutterActor *self)
  * Transitions created for animatable properties use the name of the
  * property itself, for instance the code below:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   clutter_actor_set_easing_duration (actor, 1000);
  *   clutter_actor_set_rotation_angle (actor, CLUTTER_Y_AXIS, 360.0);
  *
@@ -18225,7 +18227,7 @@ clutter_actor_get_easing_delay (ClutterActor *self)
  *   g_signal_connect (transition, "stopped",
  *                     G_CALLBACK (on_transition_stopped),
  *                     actor);
- * ]|
+ * ```
  *
  * will call the `on_transition_stopped` callback when the transition
  * is finished.
@@ -19627,7 +19629,7 @@ bind_child_with_properties (gpointer item,
  * items inside the @model to the corresponding properties on the child,
  * for instance:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   clutter_actor_bind_model_with_properties (actor, model,
  *                                             MY_TYPE_CHILD_VIEW,
  *                                             "label", "text", G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE,
@@ -19635,12 +19637,12 @@ bind_child_with_properties (gpointer item,
  *                                             "selected", "selected", G_BINDING_BIDIRECTIONAL,
  *                                             "active", "active", G_BINDING_BIDIRECTIONAL,
  *                                             NULL);
- * ]|
+ * ```
  *
  * is the equivalent of calling clutter_actor_bind_model() with a
  * #ClutterActorCreateChildFunc of:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   ClutterActor *res = g_object_new (MY_TYPE_CHILD_VIEW, NULL);
  *
  *   g_object_bind_property (item, "label", res, "text", G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
@@ -19649,7 +19651,7 @@ bind_child_with_properties (gpointer item,
  *   g_object_bind_property (item, "active", res, "active", G_BINDING_BIDIRECTIONAL);
  *
  *   return res;
- * ]|
+ * ```
  *
  * If the #ClutterActor was already bound to a #GListModel, the previous
  * binding is destroyed.

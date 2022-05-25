@@ -22,8 +22,9 @@
  */
 
 /**
- * SECTION:clutter-clone
- * @short_description: An actor that displays a clone of a source actor
+ * ClutterClone:
+ * 
+ * An actor that displays a clone of a source actor
  *
  * #ClutterClone is a #ClutterActor which draws with the paint
  * function of another actor, scaled to fit its own allocation.
@@ -34,7 +35,7 @@
  * the presence of support for FBOs in the underlying GL or GLES
  * implementation.
  *
- * #ClutterClone is available since Clutter 1.0
+ * Since: 1.0
  */
 
 #include "clutter-build-config.h"

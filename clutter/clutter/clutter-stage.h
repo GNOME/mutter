@@ -46,14 +46,6 @@ G_BEGIN_DECLS
 typedef struct _ClutterStageClass   ClutterStageClass;
 typedef struct _ClutterStagePrivate ClutterStagePrivate;
 
-/**
- * ClutterStage:
- *
- * The #ClutterStage structure contains only private data
- * and should be accessed using the provided API
- *
- * Since: 0.2
- */
 struct _ClutterStage
 {
   /*< private >*/

@@ -23,11 +23,11 @@
  */
 
 /**
- * SECTION:clutter-rotate-action
- * @Title: ClutterRotateAction
- * @Short_Description: Action to rotate an actor
+ * ClutterRotateAction:
+ * 
+ * Action to rotate an actor
  *
- * #ClutterRotateAction is a sub-class of #ClutterGestureAction that implements
+ * #ClutterRotateAction is a sub-class of [class@GestureAction] that implements
  * the logic for recognizing rotate gestures using two touch points.
  *
  * Since: 1.12
@@ -188,7 +188,7 @@ clutter_rotate_action_class_init (ClutterRotateActionClass *klass)
    * @angle: the difference of angle of rotation between the initial
    * rotation and the current rotation
    *
-   * The ::rotate signal is emitted when a rotate gesture is
+   * The signal is emitted when a rotate gesture is
    * recognized on the attached actor and when the gesture is
    * cancelled (in this case with an angle value of 0).
    *

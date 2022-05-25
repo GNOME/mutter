@@ -44,14 +44,6 @@ typedef struct _ClutterShaderEffect             ClutterShaderEffect;
 typedef struct _ClutterShaderEffectPrivate      ClutterShaderEffectPrivate;
 typedef struct _ClutterShaderEffectClass        ClutterShaderEffectClass;
 
-/**
- * ClutterShaderEffect:
- *
- * The #ClutterShaderEffect structure contains
- * only private data and should be accessed using the provided API
- *
- * Since: 1.4
- */
 struct _ClutterShaderEffect
 {
   /*< private >*/

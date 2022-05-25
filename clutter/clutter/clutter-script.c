@@ -24,8 +24,9 @@
  */
 
 /**
- * SECTION:clutter-script
- * @short_description: Loads a scene from UI definition data
+ * ClutterScript:
+ * 
+ * Loads a scene from UI definition data
  *
  * #ClutterScript is an object used for loading and building parts or a
  * complete scenegraph from external definition data in forms of string
@@ -47,7 +48,7 @@
  *
  * A simple object might be defined as:
  *
- * <informalexample><programlisting><![CDATA[
+ * ```json
  * {
  *   "id"     : "red-button",
  *   "type"   : "ClutterActor",
@@ -55,20 +56,20 @@
  *   "height" : 100,
  *   "background-color" : "&num;ff0000ff"
  * }
- * ]]></programlisting></informalexample>
+ * ```
  *
- * This will produce a red #ClutterActor, 100x100 pixels wide, and
+ * This will produce a red [class@Actor], 100x100 pixels wide, and
  * with a ClutterScript id of "red-button"; it can be retrieved by calling:
  *
- * |[
+ * ```c
  * ClutterActor *red_button;
  *
  * red_button = CLUTTER_ACTOR (clutter_script_get_object (script, "red-button"));
- * ]|
+ * ```
  *
  * and then manipulated with the Clutter API. For every object created
  * using ClutterScript it is possible to check the id by calling
- * clutter_get_script_id().
+ * [method@Scriptable.get_id].
  *
  * Packing can be represented using the "children" member, and passing an
  * array of objects or ids of objects already defined (but not packed: the
@@ -77,9 +78,9 @@
  *
  * Signal handlers can be defined inside a Clutter UI definition file and
  * then autoconnected to their respective signals using the
- * clutter_script_connect_signals() function:
+ * [method@Script.connect_signals] function:
  *
- * <informalexample><programlisting><![CDATA[
+ * ```json
  *   ...
  *   "signals" : [
  *     { "name" : "button-press-event", "handler" : "on_button_press" },
@@ -90,7 +91,7 @@
  *     },
  *   ],
  *   ...
- * ]]></programlisting></informalexample>
+ * ```
  *
  * Signal handler definitions must have a "name" and a "handler" members;
  * they can also have the "after" and "swapped" boolean members (for the
@@ -102,7 +103,7 @@
  * through the usual GObject registration process should avoid using these
  * names to avoid collisions:
  *
- * <programlisting><![CDATA[
+ * ```
  *   "id"         := the unique name of a ClutterScript object
  *   "type"       := the class literal name, also used to infer the type
  *                   function
@@ -112,9 +113,9 @@
  *   "is-default" := a boolean flag used when defining the #ClutterStage;
  *                   if set to "true" the default stage will be used instead
  *                   of creating a new #ClutterStage instance
- * ]]></programlisting>
+ * ```
  *
- * #ClutterScript is available since Clutter 0.6
+ * Since: 0.6
  */
 
 #include "clutter-build-config.h"
@@ -334,9 +335,9 @@ clutter_script_class_init (ClutterScriptClass *klass)
   /**
    * ClutterScript:filename-set:
    *
-   * Whether the #ClutterScript:filename property is set. If this property
+   * Whether the [property@Script:filename] property is set. If this property
    * is %TRUE then the currently parsed data comes from a file, and the
-   * file name is stored inside the #ClutterScript:filename property.
+   * file name is stored inside the [property@Script:filename] property.
    *
    * Since: 0.6
    */
@@ -350,7 +351,7 @@ clutter_script_class_init (ClutterScriptClass *klass)
   /**
    * ClutterScript:filename:
    *
-   * The path of the currently parsed file. If #ClutterScript:filename-set
+   * The path of the currently parsed file. If [property@Script:filename-set]
    * is %FALSE then the value of this property is undefined.
    *
    * Since: 0.6
@@ -368,7 +369,7 @@ clutter_script_class_init (ClutterScriptClass *klass)
    * The translation domain, used to localize strings marked as translatable
    * inside a UI definition.
    *
-   * If #ClutterScript:translation-domain is set to %NULL, #ClutterScript
+   * If [property@Script:translation-domain] is set to %NULL, #ClutterScript
    * will use gettext(), otherwise g_dgettext() will be used.
    *
    * Since: 1.10
@@ -437,7 +438,7 @@ clutter_script_new (void)
  *
  * Return value: on error, zero is returned and @error is set
  *   accordingly. On success, the merge id for the UI definitions is
- *   returned. You can use the merge id with clutter_script_unmerge_objects().
+ *   returned. You can use the merge id with [method@Script.unmerge_objects].
  *
  * Since: 0.6
  */
@@ -486,7 +487,7 @@ clutter_script_load_from_file (ClutterScript  *script,
  *
  * Return value: on error, zero is returned and @error is set
  *   accordingly. On success, the merge id for the UI definitions is
- *   returned. You can use the merge id with clutter_script_unmerge_objects().
+ *   returned. You can use the merge id with [method@Script.unmerge_objects].
  *
  * Since: 0.6
  */
@@ -537,7 +538,7 @@ clutter_script_load_from_data (ClutterScript  *script,
  *
  * Return value: on error, zero is returned and @error is set
  *   accordingly. On success, the merge id for the UI definitions is
- *   returned. You can use the merge id with clutter_script_unmerge_objects().
+ *   returned. You can use the merge id with [method@Script.unmerge_objects].
  *
  * Since: 1.10
  */
@@ -633,7 +634,7 @@ clutter_script_get_objects_valist (ClutterScript *script,
  * names/return location pairs should be listed, with a %NULL pointer
  * ending the list, like:
  *
- * |[
+ * ```c
  *   GObject *my_label, *a_button, *main_timeline;
  *
  *   clutter_script_get_objects (script,
@@ -641,7 +642,7 @@ clutter_script_get_objects_valist (ClutterScript *script,
  *                               "a-button", &a_button,
  *                               "main-timeline", &main_timeline,
  *                               NULL);
- * ]|
+ * ```
  *
  * Note: This function does not increment the reference count of the
  * returned objects.
@@ -883,7 +884,7 @@ clutter_script_default_connect (ClutterScript *script,
  * Connects all the signals defined into a UI definition file to their
  * handlers.
  *
- * This method invokes clutter_script_connect_signals_full() internally
+ * This method invokes [method@Script.connect_signals_full] internally
  * and uses  #GModule's introspective features (by opening the current
  * module's scope) to look at the application's symbol table.
  * 
@@ -994,7 +995,7 @@ connect_each_object (gpointer key,
  * names using the native API, but it can also be used on platforms
  * that do not support GModule.
  *
- * Applications should use clutter_script_connect_signals().
+ * Applications should use [method@Script.connect_signals].
  *
  * Since: 0.6
  */
@@ -1030,7 +1031,7 @@ clutter_script_error_quark (void)
  *
  * Adds @paths to the list of search paths held by @script.
  *
- * The search paths are used by clutter_script_lookup_filename(), which
+ * The search paths are used by [method@Script.lookup_filename], which
  * can be used to define search paths for the textures source file name
  * or other custom, file-based properties.
  *
@@ -1157,7 +1158,7 @@ clutter_script_lookup_filename (ClutterScript *script,
  * objects it returns.
  *
  * Return value: (transfer container) (element-type GObject.Object): a list
- *   of #GObject<!-- -->s, or %NULL. The objects are owned by the
+ *   of `GObject`s, or %NULL. The objects are owned by the
  *   #ClutterScript instance. Use g_list_free() on the returned list when
  *   done.
  *
@@ -1219,7 +1220,7 @@ clutter_script_set_translation_domain (ClutterScript *script,
  * @script: a #ClutterScript
  *
  * Retrieves the translation domain set using
- * clutter_script_set_translation_domain().
+ * [method@Script.set_translation_domain].
  *
  * Return value: (transfer none): the translation domain, if any is set,
  *   or %NULL

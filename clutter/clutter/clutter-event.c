@@ -33,16 +33,6 @@
 
 #include <math.h>
 
-/**
- * SECTION:clutter-event
- * @short_description: User and window system events
- *
- * Windowing events handled by Clutter.
- *
- * The events usually come from the windowing backend, but can also
- * be synthesized by Clutter itself or by the application code.
- */
-
 typedef struct _ClutterEventPrivate {
   ClutterEvent base;
 

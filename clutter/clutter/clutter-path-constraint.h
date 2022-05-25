@@ -38,14 +38,6 @@ G_BEGIN_DECLS
 #define CLUTTER_PATH_CONSTRAINT(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_PATH_CONSTRAINT, ClutterPathConstraint))
 #define CLUTTER_IS_PATH_CONSTRAINT(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_PATH_CONSTRAINT))
 
-/**
- * ClutterPathConstraint:
- *
- * #ClutterPathConstraint is an opaque structure
- * whose members cannot be directly accessed
- *
- * Since: 1.6
- */
 typedef struct _ClutterPathConstraint           ClutterPathConstraint;
 typedef struct _ClutterPathConstraintClass      ClutterPathConstraintClass;
 

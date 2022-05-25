@@ -289,13 +289,13 @@ clutter_paint_volume_set_width (ClutterPaintVolume *pv,
  * around the volume. It returns the size of that bounding box as
  * measured along the x-axis.
  *
- * If, for example, clutter_actor_get_transformed_paint_volume()
+ * If, for example, [method@Actor.get_transformed_paint_volume]
  * is used to transform a 2D child actor that is 100px wide, 100px
  * high and 0px deep into container coordinates then the width might
  * not simply be 100px if the child actor has a 3D rotation applied to
  * it.
  * 
- * Remember: if clutter_actor_get_transformed_paint_volume() is
+ * Remember: if [method@Actor.get_transformed_paint_volume] is
  * used then a transformed child volume will be defined relative to the
  * ancestor container actor and so a 2D child actor can have a 3D
  * bounding volume.
@@ -381,13 +381,13 @@ clutter_paint_volume_set_height (ClutterPaintVolume *pv,
  * around the volume. It returns the size of that bounding box as
  * measured along the y-axis.
  *
- * If, for example, clutter_actor_get_transformed_paint_volume()
+ * If, for example, [method@Actor.get_transformed_paint_volume]
  * is used to transform a 2D child actor that is 100px wide, 100px
  * high and 0px deep into container coordinates then the height might
  * not simply be 100px if the child actor has a 3D rotation applied to
  * it.
  *
- * Remember: if clutter_actor_get_transformed_paint_volume() is
+ * Remember: if [method@Actor.get_transformed_paint_volume] is
  * used then a transformed child volume will be defined relative to the
  * ancestor container actor and so a 2D child actor
  * can have a 3D bounding volume.
@@ -474,13 +474,13 @@ clutter_paint_volume_set_depth (ClutterPaintVolume *pv,
  * around the volume. It returns the size of that bounding box as
  * measured along the z-axis.
  *
- * If, for example, clutter_actor_get_transformed_paint_volume()
+ * If, for example, [method@Actor.get_transformed_paint_volume]
  * is used to transform a 2D child actor that is 100px wide, 100px
  * high and 0px deep into container coordinates then the depth might
  * not simply be 0px if the child actor has a 3D rotation applied to
  * it.
  *
- * Remember: if clutter_actor_get_transformed_paint_volume() is
+ * Remember: if [method@Actor.get_transformed_paint_volume] is
  * used then the transformed volume will be defined relative to the
  * container actor and in container coordinates a 2D child actor
  * can have a 3D bounding volume.
@@ -607,7 +607,7 @@ done:
  *
  * Unions the 2D region represented by @box to a #ClutterPaintVolume.
  *
- * This function is similar to clutter_paint_volume_union(), but it is
+ * This function is similar to [method@PaintVolume.union], but it is
  * specific for 2D regions.
  *
  * Since: 1.10
@@ -985,19 +985,19 @@ _clutter_actor_set_default_paint_volume (ClutterActor       *self,
  * Sets the #ClutterPaintVolume from the allocation of @actor.
  *
  * This function should be used when overriding the
- * #ClutterActorClass.get_paint_volume() by #ClutterActor sub-classes
+ * [vfunc@Actor.get_paint_volume] by [class@Actor] sub-classes
  * that do not paint outside their allocation.
  *
  * A typical example is:
  *
- * |[
+ * ```c
  * static gboolean
  * my_actor_get_paint_volume (ClutterActor       *self,
  *                            ClutterPaintVolume *volume)
  * {
  *   return clutter_paint_volume_set_from_allocation (volume, self);
  * }
- * ]|
+ * ```
  *
  * Return value: %TRUE if the paint volume was successfully set, and %FALSE
  *   otherwise

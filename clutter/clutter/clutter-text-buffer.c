@@ -28,14 +28,14 @@
 #include <string.h>
 
 /**
- * SECTION:clutter-text-buffer
- * @title: ClutterTextBuffer
- * @short_description: Text buffer for ClutterText
+ * ClutterTextBuffer:
+ * 
+ * Text buffer for [class@Text]
  *
  * The #ClutterTextBuffer class contains the actual text displayed in a
- * #ClutterText widget.
+ * [class@Text] widget.
  *
- * A single #ClutterTextBuffer object can be shared by multiple #ClutterText
+ * A single #ClutterTextBuffer object can be shared by multiple [class@Text]
  * widgets which will then share the same text content, but not the cursor
  * position, visibility attributes, icon etc.
  *
@@ -494,7 +494,7 @@ clutter_text_buffer_get_length (ClutterTextBuffer *buffer)
  * @buffer: a #ClutterTextBuffer
  *
  * Retrieves the length in bytes of the buffer.
- * See clutter_text_buffer_get_length().
+ * See [method@TextBuffer.get_length].
  *
  * Return value: The byte length of the buffer.
  *
@@ -552,8 +552,8 @@ clutter_text_buffer_get_text (ClutterTextBuffer *buffer)
  *
  * Sets the text in the buffer.
  *
- * This is roughly equivalent to calling clutter_text_buffer_delete_text()
- * and clutter_text_buffer_insert_text().
+ * This is roughly equivalent to calling [method@TextBuffer.delete_text]
+ * and [method@TextBuffer.insert_text].
  *
  * Note that @n_chars is in characters, not in bytes.
  *
@@ -580,9 +580,10 @@ clutter_text_buffer_set_text (ClutterTextBuffer *buffer,
  *   (other than the maximum length of entries.) The value passed in will
  *   be clamped to the range [ 0, %CLUTTER_TEXT_BUFFER_MAX_SIZE ].
  *
- * Sets the maximum allowed length of the contents of the buffer. If
- * the current contents are longer than the given length, then they
- * will be truncated to fit.
+ * Sets the maximum allowed length of the contents of the buffer. 
+ * 
+ * If the current contents are longer than the given length,
+ * then they will be truncated to fit.
  *
  * Since: 1.10
  **/
@@ -606,7 +607,7 @@ clutter_text_buffer_set_max_length (ClutterTextBuffer *buffer,
  * @buffer: a #ClutterTextBuffer
  *
  * Retrieves the maximum allowed length of the text in
- * @buffer. See clutter_text_buffer_set_max_length().
+ * @buffer. See [method@TextBuffer.set_max_length].
  *
  * Return value: the maximum allowed number of characters
  *               in #ClutterTextBuffer, or 0 if there is no maximum.
@@ -728,7 +729,7 @@ clutter_text_buffer_delete_text (ClutterTextBuffer *buffer,
  * @chars: text that was inserted
  * @n_chars: number of characters inserted
  *
- * Emits the #ClutterTextBuffer::inserted-text signal on @buffer.
+ * Emits the [signal@TextBuffer::inserted-text] signal on @buffer.
  *
  * Used when subclassing #ClutterTextBuffer
  *
@@ -750,7 +751,7 @@ clutter_text_buffer_emit_inserted_text (ClutterTextBuffer *buffer,
  * @position: position at which text was deleted
  * @n_chars: number of characters deleted
  *
- * Emits the #ClutterTextBuffer::deleted-text signal on @buffer.
+ * Emits the [signal@TextBuffer::deleted-text] signal on @buffer.
  *
  * Used when subclassing #ClutterTextBuffer
  *

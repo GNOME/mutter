@@ -60,14 +60,6 @@ typedef gdouble (* ClutterTimelineProgressFunc) (ClutterTimeline *timeline,
                                                  gdouble          total,
                                                  gpointer         user_data);
 
-/**
- * ClutterTimeline:
- *
- * The #ClutterTimeline structure contains only private data
- * and should be accessed using the provided API
- *
- * Since: 0.2
- */
 struct _ClutterTimeline
 {
   /*< private >*/

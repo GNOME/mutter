@@ -22,12 +22,14 @@
  */
 
 /**
- * SECTION:clutter-transition
- * @Title: ClutterTransition
- * @Short_Description: Transition between two values
+ * ClutterTransition:
+ * 
+ * Transition between two values
  *
- * #ClutterTransition is an abstract subclass of #ClutterTimeline that
- * computes the interpolation between two values, stored by a #ClutterInterval.
+ * #ClutterTransition is an abstract subclass of [class@Timeline] that
+ * computes the interpolation between two values, stored by a [class@Interval].
+ * 
+ * Since: 1.10
  */
 
 #include "clutter-build-config.h"
@@ -231,7 +233,7 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
   /**
    * ClutterTransition:interval:
    *
-   * The #ClutterInterval used to describe the initial and final states
+   * The [class@Interval] used to describe the initial and final states
    * of the transition.
    *
    * Since: 1.10
@@ -247,7 +249,7 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
   /**
    * ClutterTransition:animatable:
    *
-   * The #ClutterAnimatable instance currently being animated.
+   * The [iface@Animatable] instance currently being animated.
    *
    * Since: 1.10
    */
@@ -263,11 +265,11 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    * ClutterTransition:remove-on-complete:
    *
    * Whether the #ClutterTransition should be automatically detached
-   * from the #ClutterTransition:animatable instance whenever the
-   * #ClutterTimeline::stopped signal is emitted.
+   * from the [property@Transition:animatable] instance whenever the
+   * [signal@Timeline::stopped] signal is emitted.
    *
-   * The #ClutterTransition:remove-on-complete property takes into
-   * account the value of the #ClutterTimeline:repeat-count property,
+   * The [property@Transition:remove-on-complete] property takes into
+   * account the value of the [property@Timeline:repeat-count] property,
    * and it only detaches the transition if the transition is not
    * repeating.
    *
@@ -294,7 +296,7 @@ clutter_transition_init (ClutterTransition *self)
  * @transition: a #ClutterTransition
  * @interval: (allow-none): a #ClutterInterval, or %NULL
  *
- * Sets the #ClutterTransition:interval property using @interval.
+ * Sets the [property@Transition:interval] property using @interval.
  *
  * The @transition will acquire a reference on the @interval, sinking
  * the floating flag on it if necessary.
@@ -327,9 +329,9 @@ clutter_transition_set_interval (ClutterTransition *transition,
  * clutter_transition_get_interval:
  * @transition: a #ClutterTransition
  *
- * Retrieves the interval set using clutter_transition_set_interval()
+ * Retrieves the interval set using [method@Transition.set_interval]
  *
- * Return value: (transfer none): a #ClutterInterval, or %NULL; the returned
+ * Return value: (transfer none): a [class@Interval], or %NULL; the returned
  *   interval is owned by the #ClutterTransition and it should not be freed
  *   directly
  *
@@ -348,13 +350,13 @@ clutter_transition_get_interval (ClutterTransition *transition)
  * @transition: a #ClutterTransition
  * @animatable: (allow-none): a #ClutterAnimatable, or %NULL
  *
- * Sets the #ClutterTransition:animatable property.
+ * Sets the [property@Transition:animatable] property.
  *
  * The @transition will acquire a reference to the @animatable instance,
- * and will call the #ClutterTransitionClass.attached() virtual function.
+ * and will call the [vfunc@Transition.attached] virtual function.
  *
- * If an existing #ClutterAnimatable is attached to @transition, the
- * reference will be released, and the #ClutterTransitionClass.detached()
+ * If an existing [iface@Animatable] is attached to @transition, the
+ * reference will be released, and the [vfunc@Transition.detached]
  * virtual function will be called.
  *
  * Since: 1.10
@@ -393,9 +395,9 @@ clutter_transition_set_animatable (ClutterTransition *transition,
  * clutter_transition_get_animatable:
  * @transition: a #ClutterTransition
  *
- * Retrieves the #ClutterAnimatable set using clutter_transition_set_animatable().
+ * Retrieves the [iface@Animatable] set using [method@Transition.set_animatable].
  *
- * Return value: (transfer none): a #ClutterAnimatable, or %NULL; the returned
+ * Return value: (transfer none): a [iface@Animatable], or %NULL; the returned
  *   animatable is owned by the #ClutterTransition, and it should not be freed
  *   directly.
  *
@@ -414,9 +416,9 @@ clutter_transition_get_animatable (ClutterTransition *transition)
  * @transition: a #ClutterTransition
  * @remove_complete: whether to detach @transition when complete
  *
- * Sets whether @transition should be detached from the #ClutterAnimatable
- * set using clutter_transition_set_animatable() when the
- * #ClutterTimeline::completed signal is emitted.
+ * Sets whether @transition should be detached from the [iface@Animatable]
+ * set using [method@Transition.set_animatable] when the
+ * [signal@Timeline::completed] signal is emitted.
  *
  * Since: 1.10
  */
@@ -441,7 +443,7 @@ clutter_transition_set_remove_on_complete (ClutterTransition *transition,
  * clutter_transition_get_remove_on_complete:
  * @transition: a #ClutterTransition
  *
- * Retrieves the value of the #ClutterTransition:remove-on-complete property.
+ * Retrieves the value of the [property@Transition:remove-on-complete] property.
  *
  * Return value: %TRUE if the @transition should be detached when complete,
  *   and %FALSE otherwise
@@ -517,15 +519,15 @@ clutter_transition_set_value (ClutterTransition *transition,
  * Sets the initial value of the transition.
  *
  * This is a convenience function that will either create the
- * #ClutterInterval used by @transition, or will update it if
- * the #ClutterTransition:interval is already set.
+ * [class@Interval] used by @transition, or will update it if
+ * the [property@Transition:interval] is already set.
  *
  * This function will copy the contents of @value, so it is
- * safe to call g_value_unset() after it returns.
+ * safe to call [method@GObject.Value.unset] after it returns.
  *
- * If @transition already has a #ClutterTransition:interval set,
+ * If @transition already has a [property@Transition:interval] set,
  * then @value must hold the same type, or a transformable type,
- * as the interval's #ClutterInterval:value-type property.
+ * as the interval's [property@Interval:value-type] property.
  *
  * This function is meant to be used by language bindings.
  *
@@ -552,14 +554,14 @@ clutter_transition_set_from_value (ClutterTransition *transition,
  *
  * This is a convenience function that will either create the
  * #ClutterInterval used by @transition, or will update it if
- * the #ClutterTransition:interval is already set.
+ * the [property@Transition:interval] is already set.
  *
  * This function will copy the contents of @value, so it is
- * safe to call g_value_unset() after it returns.
+ * safe to call [method@GObject.Value.unset] after it returns.
  *
- * If @transition already has a #ClutterTransition:interval set,
+ * If @transition already has a [property@Transition:interval] set,
  * then @value must hold the same type, or a transformable type,
- * as the interval's #ClutterInterval:value-type property.
+ * as the interval's [property@Interval:value-type] property.
  *
  * This function is meant to be used by language bindings.
  *
@@ -587,14 +589,14 @@ clutter_transition_set_to_value (ClutterTransition *transition,
  *
  * This is a convenience function that will either create the
  * #ClutterInterval used by @transition, or will update it if
- * the #ClutterTransition:interval is already set.
+ * the [property@Transition:interval] is already set.
  *
- * If @transition already has a #ClutterTransition:interval set,
+ * If @transition already has a [property@Transition:interval] set,
  * then @value must hold the same type, or a transformable type,
- * as the interval's #ClutterInterval:value-type property.
+ * as the interval's [property@Interval:value-type] property.
  *
  * This is a convenience function for the C API; language bindings
- * should use clutter_transition_set_from_value() instead.
+ * should use [method@Transition.set_from_value] instead.
  *
  * Since: 1.12
  */
@@ -640,14 +642,14 @@ clutter_transition_set_from (ClutterTransition *transition,
  *
  * This is a convenience function that will either create the
  * #ClutterInterval used by @transition, or will update it if
- * the #ClutterTransition:interval is already set.
+ * the [property@Transition:interval] is already set.
  *
- * If @transition already has a #ClutterTransition:interval set,
+ * If @transition already has a [property@Transition:interval] set,
  * then @value must hold the same type, or a transformable type,
- * as the interval's #ClutterInterval:value-type property.
+ * as the interval's [property@Interval:value-type] property.
  *
  * This is a convenience function for the C API; language bindings
- * should use clutter_transition_set_to_value() instead.
+ * should use [method@Transition.set_to_value] instead.
  *
  * Since: 1.12
  */

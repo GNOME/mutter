@@ -22,11 +22,11 @@
  */
 
 /**
- * SECTION:clutter-transition-group
- * @Title: ClutterTransitionGroup
- * @Short_Description: Group transitions together
+ * ClutterTransitionGroup:
+ * 
+ * Group transitions together
  *
- * The #ClutterTransitionGroup allows running multiple #ClutterTransition
+ * The #ClutterTransitionGroup allows running multiple [class@Transition]
  * instances concurrently.
  *
  * The transitions inside a group will run within the boundaries of the
@@ -34,7 +34,7 @@
  * the group that contains it has a duration of 5 seconds, only the first
  * 5 seconds of the transition will be played.
  *
- * #ClutterTransitionGroup is available since Clutter 1.12
+ * Since: 1.12
  */
 
 #include "clutter-build-config.h"
@@ -177,7 +177,7 @@ clutter_transition_group_init (ClutterTransitionGroup *self)
  * Creates a new #ClutterTransitionGroup instance.
  *
  * Return value: the newly created #ClutterTransitionGroup. Use
- *   g_object_unref() when done to deallocate the resources it
+ *   [method@GObject.Object.unref] when done to deallocate the resources it
  *   uses
  *
  * Since: 1.12
@@ -196,7 +196,7 @@ clutter_transition_group_new (void)
  * Adds @transition to @group.
  *
  * This function acquires a reference on @transition that will be released
- * when calling clutter_transition_group_remove_transition().
+ * when calling [method@TransitionGroup.remove_transition].
  *
  * Since: 1.12
  */
@@ -218,7 +218,7 @@ clutter_transition_group_add_transition (ClutterTransitionGroup *group,
  * Removes @transition from @group.
  *
  * This function releases the reference acquired on @transition when
- * calling clutter_transition_group_add_transition().
+ * calling [method@TransitionGroup.add_transition].
  *
  * Since: 1.12
  */
@@ -238,7 +238,7 @@ clutter_transition_group_remove_transition (ClutterTransitionGroup *group,
  * Removes all transitions from @group.
  *
  * This function releases the reference acquired when calling
- * clutter_transition_group_add_transition().
+ * [method@TransitionGroup.add_transition].
  *
  * Since: 1.12
  */

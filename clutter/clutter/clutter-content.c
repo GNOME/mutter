@@ -23,17 +23,17 @@
  */
 
 /**
- * SECTION:clutter-content
- * @Title: ClutterContent
- * @Short_Description: Delegate for painting the content of an actor
+ * ClutterContent:
+ * 
+ * Delegate for painting the content of an actor
  *
  * #ClutterContent is an interface to implement types responsible for
- * painting the content of a #ClutterActor.
+ * painting the content of a [class@Actor].
  *
  * Multiple actors can use the same #ClutterContent instance, in order
  * to share the resources associated with painting the same content.
  *
- * #ClutterContent is available since Clutter 1.10.
+ * Since: 1.10.
  */
 
 #include "clutter-build-config.h"

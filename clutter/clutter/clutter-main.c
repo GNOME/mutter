@@ -286,7 +286,7 @@ _clutter_threads_dispatch_free (gpointer data)
  * it will call @function while holding the Clutter lock. It is logically
  * equivalent to the following implementation:
  *
- * |[
+ * ```c
  * static gboolean
  * idle_safe_callback (gpointer data)
  * {
@@ -314,7 +314,7 @@ _clutter_threads_dispatch_free (gpointer data)
  *                           closure,
  *                           g_free)
  * }
- *]|
+ * ```
  *
  * This function should be used by threaded applications to make sure
  * that @func is emitted under the Clutter threads lock and invoked
@@ -322,7 +322,7 @@ _clutter_threads_dispatch_free (gpointer data)
  * it can be used to update the UI using the results from a worker
  * thread:
  *
- * |[
+ * ```c
  * static gboolean
  * update_ui (gpointer data)
  * {
@@ -351,7 +351,7 @@ _clutter_threads_dispatch_free (gpointer data)
  *                                  update_ui,
  *                                  closure,
  *                                  NULL);
- * ]|
+ * ```
  *
  * Return value: the ID (greater than 0) of the event source.
  *
@@ -1239,7 +1239,7 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
  * environment variable.
  *
  * The default text direction can be overridden on a per-actor basis by using
- * clutter_actor_set_text_direction().
+ * [method@Actor.set_text_direction].
  *
  * Return value: the default text direction
  *

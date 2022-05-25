@@ -46,18 +46,6 @@ G_BEGIN_DECLS
 
 typedef struct _ClutterLayoutMetaClass          ClutterLayoutMetaClass;
 
-/**
- * ClutterLayoutMeta:
- * @manager: the layout manager handling this data
- *
- * Sub-class of #ClutterChildMeta specific for layout managers
- *
- * A #ClutterLayoutManager sub-class should create a #ClutterLayoutMeta
- * instance by overriding the #ClutterLayoutManager::create_child_meta()
- * virtual function
- *
- * Since: 1.2
- */
 struct _ClutterLayoutMeta
 {
   /*< private >*/

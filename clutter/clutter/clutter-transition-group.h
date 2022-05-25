@@ -43,14 +43,6 @@ G_BEGIN_DECLS
 typedef struct _ClutterTransitionGroupPrivate           ClutterTransitionGroupPrivate;
 typedef struct _ClutterTransitionGroupClass             ClutterTransitionGroupClass;
 
-/**
- * ClutterTransitionGroup:
- *
- * The #ClutterTransitionGroup structure contains
- * private data and should only be accessed using the provided API.
- *
- * Since: 1.12
- */
 struct _ClutterTransitionGroup
 {
   /*< private >*/

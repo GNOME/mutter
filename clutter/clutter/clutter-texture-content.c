@@ -111,15 +111,15 @@ clutter_content_iface_init (ClutterContentInterface *iface)
  * @texture: a #CoglTexture
  * @clip: (nullable): A clipping rectangle
  *
- * Creates a new #ClutterTextureContent instance for @texture, taking an
+ * Creates a new [class@TextureContent] instance for @texture, taking an
  * internal reference to @texture.
  *
- * If you change the contents of the #CoglTexture you will need
- * to manually invalidate the @texture_content with clutter_content_invalidate()
+ * If you change the contents of the [iface@Cogl.Texture] you will need
+ * to manually invalidate the @texture_content with [method@Content.invalidate]
  * in order to update the actors using @texture_content as their content.
  *
  * Return value: (transfer full): the newly created #ClutterTextureContent instance.
- *   Use g_object_unref() when done.
+ *   Use [method@GObject.Object.unref] when done.
  */
 ClutterContent *
 clutter_texture_content_new_from_texture (CoglTexture           *texture,
@@ -155,13 +155,13 @@ clutter_texture_content_new_from_texture (CoglTexture           *texture,
  * clutter_texture_content_get_texture:
  * @texture_content: a #ClutterTextureContent
  *
- * Retrieves a pointer to the #CoglTexture used by @texture_content.
+ * Retrieves a pointer to the [iface@Cogl.Texture] used by @texture_content.
  *
- * If you change the contents of the returned #CoglTexture you will need
- * to manually invalidate the @texture_content with clutter_content_invalidate()
+ * If you change the contents of the returned [iface@Cogl.Texture] you will need
+ * to manually invalidate the @texture_content with [method@Content.invalidate]
  * in order to update the actors using @texture_content as their content.
  *
- * Return value: (transfer none): a pointer to the #CoglTexture
+ * Return value: (transfer none): a pointer to the [iface@Cogl.Texture]
  */
 CoglTexture *
 clutter_texture_content_get_texture (ClutterTextureContent *texture_content)

@@ -23,22 +23,22 @@
  */
 
 /**
- * SECTION:clutter-zoom-action
- * @Title: ClutterZoomAction
- * @Short_Description: Action enabling zooming on actors
+ * ClutterZoomAction:
+ * 
+ * Action enabling zooming on actors
  *
- * #ClutterZoomAction is a sub-class of #ClutterGestureAction that
+ * #ClutterZoomAction is a sub-class of [class@GestureAction] that
  * implements all the necessary logic for zooming actors using a "pinch"
  * gesture between two touch points.
  *
- * The simplest usage of #ClutterZoomAction consists in adding it to
- * a #ClutterActor and setting it as reactive; for instance, the following
+ * The simplest usage of [class@ZoomAction] consists in adding it to
+ * a [class@Actor] and setting it as reactive; for instance, the following
  * code:
  *
- * |[
+ * ```c
  *   clutter_actor_add_action (actor, clutter_zoom_action_new ());
  *   clutter_actor_set_reactive (actor, TRUE);
- * ]|
+ * ```
  *
  * will automatically result in the actor to be scale according to the
  * distance between two touch points.
@@ -258,11 +258,11 @@ clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
    * @focal_point: the focal point of the zoom
    * @factor: the initial distance between the 2 touch points
    *
-   * The ::zoom signal is emitted for each series of touch events that
+   * The signal is emitted for each series of touch events that
    * change the distance and focal point between the touch points.
    *
    * The default handler of the signal will call
-   * clutter_actor_set_scale() on @actor using the ratio of the first
+   * [method@Actor.set_scale] on @actor using the ratio of the first
    * distance between the touch points and the current distance. To
    * override the default behaviour, connect to this signal and return
    * %FALSE.

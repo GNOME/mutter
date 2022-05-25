@@ -22,14 +22,6 @@
  *   Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-/**
- * SECTION:clutter-paint-nodes
- * @Title: Paint Nodes
- * @Short_Description: ClutterPaintNode implementations
- *
- * Clutter provides a set of predefined #ClutterPaintNode implementations
- * that cover all the state changes available.
- */
 
 #include "clutter-build-config.h"
 
@@ -82,9 +74,9 @@ clutter_paint_node_init_types (ClutterBackend *clutter_backend)
 }
 
 /*
- * Root node
+ * ClutterRootNode:
  *
- * any frame can only have a since RootNode instance for each
+ * Any frame can only have a since RootNode instance for each
  * top-level actor.
  */
 
@@ -183,7 +175,9 @@ clutter_root_node_new (CoglFramebuffer    *framebuffer,
 }
 
 /*
- * ClutterTransformNode
+ * ClutterTransformNode:
+ *
+ * Since: 1.10
  */
 
 struct _ClutterTransformNode
@@ -362,8 +356,10 @@ _clutter_dummy_node_new (ClutterActor    *actor,
   return res;
 }
 
-/*
- * Pipeline node
+/**
+ * ClutterPipelineNode:
+ * 
+ * Since: 1.10
  */
 
 struct _ClutterPipelineNode
@@ -586,8 +582,10 @@ clutter_pipeline_node_new (CoglPipeline *pipeline)
   return (ClutterPaintNode *) res;
 }
 
-/*
- * Color node
+/**
+ * ClutterColorNode:
+ *
+ * Since: 1.10
  */
 
 struct _ClutterColorNode
@@ -661,8 +659,11 @@ clutter_color_node_new (const ClutterColor *color)
   return (ClutterPaintNode *) cnode;
 }
 
-/*
- * Texture node
+/**
+ * ClutterTextureNode:
+ *
+ *
+ * Since: 1.10
  */
 
 struct _ClutterTextureNode
@@ -775,10 +776,12 @@ clutter_texture_node_new (CoglTexture          *texture,
   return (ClutterPaintNode *) tnode;
 }
 
-/*
- * Text node
- */
 
+/**
+ * ClutterTextNode:
+ *
+ * Since: 1.10
+ */
 struct _ClutterTextNode
 {
   ClutterPaintNode parent_instance;
@@ -986,8 +989,10 @@ clutter_text_node_new (PangoLayout        *layout,
   return (ClutterPaintNode *) res;
 }
 
-/*
- * Clip node
+/**
+ * ClutterClipNode:
+ * 
+ * Since: 1.10
  */
 struct _ClutterClipNode
 {
@@ -1115,8 +1120,8 @@ clutter_clip_node_new (void)
   return _clutter_paint_node_create (CLUTTER_TYPE_CLIP_NODE);
 }
 
-/*
- * ClutterActorNode
+/**
+ * ClutterActorNode:
  */
 
 struct _ClutterActorNode
@@ -1769,7 +1774,7 @@ clutter_blit_node_init (ClutterBlitNode *self)
  * Creates a new #ClutterBlitNode that blits @src into the current
  * draw framebuffer.
  *
- * You must only add rectangles using clutter_blit_node_add_blit_rectangle().
+ * You must only add rectangles using [method@BlitNode.add_blit_rectangle].
  *
  * Return value: (transfer full): the newly created #ClutterBlitNode.
  *   Use clutter_paint_node_unref() when done.
@@ -1798,7 +1803,7 @@ clutter_blit_node_new (CoglFramebuffer *src)
  * @height: Height of region to copy
  *
  * Adds a new blit rectangle to the stack of rectangles. All the
- * constraints of cogl_blit_framebuffer() apply here.
+ * constraints of [func@Cogl.blit_framebuffer] apply here.
  */
 void
 clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
@@ -1824,8 +1829,8 @@ clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
                                             dst_y + height);
 }
 
-/*
- * ClutterBlurNode
+/**
+ * ClutterBlurNode:
  */
 
 struct _ClutterBlurNode

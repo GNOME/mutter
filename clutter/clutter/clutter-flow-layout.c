@@ -23,8 +23,9 @@
  */
 
 /**
- * SECTION:clutter-flow-layout
- * @short_description: A reflowing layout manager
+ * ClutterFlowLayout:
+ * 
+ * A reflowing layout manager
  *
  * #ClutterFlowLayout is a layout manager which implements the following
  * policy:
@@ -49,7 +50,7 @@
  * The [flow-layout example](https://git.gnome.org/browse/clutter/tree/examples/flow-layout.c?h=clutter-1.18)
  * shows how to use the #ClutterFlowLayout.
  *
- * #ClutterFlowLayout is available since Clutter 1.2
+ * Since: 1.2
  */
 
 #include "clutter-build-config.h"

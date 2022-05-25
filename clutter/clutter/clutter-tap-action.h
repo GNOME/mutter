@@ -53,14 +53,6 @@ typedef struct _ClutterTapAction              ClutterTapAction;
 typedef struct _ClutterTapActionPrivate       ClutterTapActionPrivate;
 typedef struct _ClutterTapActionClass         ClutterTapActionClass;
 
-/**
- * ClutterTapAction:
- *
- * The #ClutterTapAction structure contains
- * only private data and should be accessed using the provided API
- *
- * Since: 1.14
- */
 struct _ClutterTapAction
 {
   /*< private >*/

@@ -138,7 +138,7 @@ clutter_pick_context_log_overlap (ClutterPickContext *pick_context,
  * @box: a #ClutterActorBox
  *
  * Pushes a clip rectangle defined by @box into the pick stack. Pop with
- * clutter_pick_context_pop_clip() when done.
+ * [method@PickContext.pop_clip] when done.
  */
 void
 clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
@@ -152,7 +152,7 @@ clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
  * @pick_context: a #ClutterPickContext
  *
  * Pops the current clip rectangle from the clip stack. It is a programming
- * error to call this without a corresponding clutter_pick_context_push_clip()
+ * error to call this without a corresponding [method@PickContext.push_clip]
  * call first.
  */
 void
@@ -167,7 +167,7 @@ clutter_pick_context_pop_clip (ClutterPickContext *pick_context)
  * @transform: a #graphene_matrix_t
  *
  * Pushes @transform into the pick stack. Pop with
- * clutter_pick_context_pop_transform() when done.
+ * [method@PickContext.pop_transform] when done.
  */
 void
 clutter_pick_context_push_transform (ClutterPickContext      *pick_context,
@@ -195,7 +195,7 @@ clutter_pick_context_get_transform (ClutterPickContext *pick_context,
  * @pick_context: a #ClutterPickContext
  *
  * Pops the current transform from the clip stack. It is a programming error
- * to call this without a corresponding clutter_pick_context_push_transform()
+ * to call this without a corresponding [method@PickContext.push_transform]
  * call first.
  */
 void

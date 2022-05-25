@@ -23,14 +23,14 @@
  */
 
 /**
- * SECTION:clutter-brightness-contrast-effect
- * @short_description: Increase/decrease brightness and/or contrast of actor.
- * @see_also: #ClutterEffect, #ClutterOffscreenEffect
+ * ClutterBrightnessContrastEffect:
+ * 
+ * Increase/decrease brightness and/or contrast of actor.
  *
  * #ClutterBrightnessContrastEffect is a sub-class of #ClutterEffect that
  * changes the overall brightness of a #ClutterActor.
  *
- * #ClutterBrightnessContrastEffect is available since Clutter 1.10
+ * Since: 1.10
  */
 
 #define CLUTTER_BRIGHTNESS_CONTRAST_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT, ClutterBrightnessContrastEffectClass))

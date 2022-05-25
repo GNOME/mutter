@@ -23,8 +23,9 @@
  */
 
 /**
- * SECTION:clutter-bin-layout
- * @short_description: A simple layout manager
+ * ClutterBinLayout:
+ * 
+ * A simple layout manager
  *
  * #ClutterBinLayout is a layout manager which implements the following
  * policy:
@@ -40,7 +41,7 @@
  * The [bin-layout example](https://git.gnome.org/browse/clutter/tree/examples/bin-layout.c?h=clutter-1.18)
  * shows how to pack actors inside a #ClutterBinLayout.
  *
- * #ClutterBinLayout is available since Clutter 1.2
+ * Since: 1.2
  */
 
 #include "clutter-build-config.h"

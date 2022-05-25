@@ -48,14 +48,6 @@ typedef struct _ClutterGridLayout                ClutterGridLayout;
 typedef struct _ClutterGridLayoutPrivate         ClutterGridLayoutPrivate;
 typedef struct _ClutterGridLayoutClass           ClutterGridLayoutClass;
 
-/**
- * ClutterGridLayout:
- *
- * The #ClutterGridLayout structure contains only private data
- * and should be accessed using the provided API
- *
- * Since: 1.12
- */
 struct _ClutterGridLayout
 {
   /*< private >*/

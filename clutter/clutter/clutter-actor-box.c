@@ -14,19 +14,19 @@
  * @x_2: X coordinate of the bottom right point
  * @y_2: Y coordinate of the bottom right point
  *
- * Allocates a new #ClutterActorBox using the passed coordinates
+ * Allocates a new [struct@ActorBox] using the passed coordinates
  * for the top left and bottom right points.
  *
  * This function is the logical equivalent of:
  *
- * |[
+ * ```c
  *   clutter_actor_box_init (clutter_actor_box_alloc (),
  *                           x_1, y_1,
  *                           x_2, y_2);
- * ]|
+ * ```
  *
  * Return value: (transfer full): the newly allocated #ClutterActorBox.
- *   Use clutter_actor_box_free() to free the resources
+ *   Use [method@ActorBox.free] to free the resources
  *
  * Since: 1.0
  */
@@ -44,10 +44,10 @@ clutter_actor_box_new (gfloat x_1,
 /**
  * clutter_actor_box_alloc:
  *
- * Allocates a new #ClutterActorBox.
+ * Allocates a new [struct@ActorBox].
  *
  * Return value: (transfer full): the newly allocated #ClutterActorBox.
- *   Use clutter_actor_box_free() to free its resources
+ *   Use [method@ActorBox.free] to free its resources
  *
  * Since: 1.12
  */
@@ -122,7 +122,7 @@ clutter_actor_box_init_rect (ClutterActorBox *box,
  * Copies @box
  *
  * Return value: a newly allocated copy of #ClutterActorBox. Use
- *   clutter_actor_box_free() to free the allocated resources
+ *   [method@ActorBox.free] to free the allocated resources
  *
  * Since: 1.0
  */
@@ -139,8 +139,8 @@ clutter_actor_box_copy (const ClutterActorBox *box)
  * clutter_actor_box_free:
  * @box: a #ClutterActorBox
  *
- * Frees a #ClutterActorBox allocated using clutter_actor_box_new()
- * or clutter_actor_box_copy()
+ * Frees a #ClutterActorBox allocated using [ctor@ActorBox.new]
+ * or [method@ActorBox.copy].
  *
  * Since: 1.0
  */
@@ -343,7 +343,7 @@ clutter_actor_box_contains (const ClutterActorBox *box,
  * @verts: (array fixed-size=4): array of four #graphene_point3d_t
  *
  * Calculates the bounding box represented by the four vertices; for details
- * of the vertex array see clutter_actor_get_abs_allocation_vertices().
+ * of the vertex array see [method@Actor.get_abs_allocation_vertices].
  *
  * Since: 1.0
  */
@@ -412,7 +412,7 @@ clutter_actor_box_from_vertices (ClutterActorBox          *box,
  * @progress: the interpolation progress
  * @result: (out): return location for the interpolation
  *
- * Interpolates between @initial and @final #ClutterActorBox<!-- -->es
+ * Interpolates between @initial and @final `ClutterActorBox`es
  * using @progress
  *
  * Since: 1.2

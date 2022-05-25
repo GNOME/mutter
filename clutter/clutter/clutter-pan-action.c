@@ -31,21 +31,21 @@
  */
 
 /**
- * SECTION:clutter-pan-action
- * @Title: ClutterPanAction
- * @Short_Description: Action for pan gestures
+ * ClutterPanAction:
+ * 
+ * Action for pan gestures
  *
- * #ClutterPanAction is a sub-class of #ClutterGestureAction that implements
+ * #ClutterPanAction is a sub-class of [class@GestureAction] that implements
  * the logic for recognizing pan gestures.
  *
  * The simplest usage of #ClutterPanAction consists in adding it to
- * a #ClutterActor with a child and setting it as reactive; for instance,
+ * a [class@Actor] with a child and setting it as reactive; for instance,
  * the following code:
  *
- * |[
+ * ```c
  *   clutter_actor_add_action (actor, clutter_pan_action_new ());
  *   clutter_actor_set_reactive (actor, TRUE);
- * ]|
+ * ```
  *
  * will automatically result in the actor children to be moved
  * when dragging.
@@ -551,7 +551,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
    * @is_interpolated: if the event is the result of interpolating
    *                   the motion velocity at the end of the drag
    *
-   * The ::pan signal is emitted to keep track of the motion during
+   * The signal is emitted to keep track of the motion during
    * a pan gesture. @is_interpolated is set to %TRUE during the
    * interpolation phase of the pan, after the drag has ended and
    * the :interpolate property was set to %TRUE.
@@ -576,7 +576,7 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
    * @action: the #ClutterPanAction that emitted the signal
    * @actor: the #ClutterActor attached to the @action
    *
-   * The ::pan-stopped signal is emitted at the end of the interpolation
+   * The signal is emitted at the end of the interpolation
    * phase of the pan action, only when :interpolate is set to %TRUE.
    *
    * Since: 1.12
@@ -648,7 +648,7 @@ clutter_pan_action_set_pan_axis (ClutterPanAction *self,
  * clutter_pan_action_get_pan_axis:
  * @self: a #ClutterPanAction
  *
- * Retrieves the axis constraint set by clutter_pan_action_set_pan_axis()
+ * Retrieves the axis constraint set by [method@PanAction.set_pan_axis]
  *
  * Return value: the axis constraint
  *
@@ -801,7 +801,7 @@ clutter_pan_action_get_acceleration_factor (ClutterPanAction *self)
  *   interpolated event's Y coordinate
  *
  * Retrieves the coordinates, in stage space, of the latest interpolated
- * event, analogous to clutter_gesture_action_get_motion_coords().
+ * event, analogous to [method@GestureAction.get_motion_coords].
  *
  * Since: 1.12
  */
@@ -832,7 +832,7 @@ clutter_pan_action_get_interpolated_coords (ClutterPanAction *self,
  *   the latest interpolated event
  *
  * Retrieves the delta, in stage space, since the latest interpolated
- * event, analogous to clutter_gesture_action_get_motion_delta().
+ * event, analogous to [method@GestureAction.get_motion_delta].
  *
  * Return value: the distance since the latest interpolated event
  *
@@ -868,7 +868,7 @@ clutter_pan_action_get_interpolated_delta (ClutterPanAction *self,
  *
  * Retrieves the delta, in stage space, dependent on the current state
  * of the #ClutterPanAction, and respecting the constraint specified by the
- * #ClutterPanAction:pan-axis property.
+ * [property@PanAction:pan-axis] property.
  *
  * Return value: the distance since last motion event
  *
@@ -932,10 +932,10 @@ clutter_pan_action_get_constrained_motion_delta (ClutterPanAction *self,
  * Retrieves the delta, in stage space, dependent on the current state
  * of the #ClutterPanAction. If it is inactive, both fields will be
  * set to 0. If it is panning by user action, the values will be equivalent
- * to those returned by clutter_gesture_action_get_motion_delta().
+ * to those returned by [method@GestureAction.get_motion_delta].
  * If it is interpolating with some form of kinetic scrolling, the values
  * will be equivalent to those returned by
- * clutter_pan_action_get_interpolated_delta(). This is a convenience
+ * [method@PanAction.get_interpolated_delta]. This is a convenience
  * method designed to be used in replacement "pan" signal handlers.
  *
  * Since: 1.14
@@ -984,10 +984,10 @@ clutter_pan_action_get_motion_delta (ClutterPanAction *self,
  * Retrieves the coordinates, in stage space, dependent on the current state
  * of the #ClutterPanAction. If it is inactive, both fields will be
  * set to 0. If it is panning by user action, the values will be equivalent
- * to those returned by clutter_gesture_action_get_motion_coords().
+ * to those returned by [method@GestureAction.get_motion_coords].
  * If it is interpolating with some form of kinetic scrolling, the values
  * will be equivalent to those returned by
- * clutter_pan_action_get_interpolated_coords(). This is a convenience
+ * [method@PanAction.get_interpolated_coords]. This is a convenience
  * method designed to be used in replacement "pan" signal handlers.
  *
  * Since: 1.14

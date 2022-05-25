@@ -46,14 +46,6 @@ typedef struct _ClutterZoomAction               ClutterZoomAction;
 typedef struct _ClutterZoomActionPrivate        ClutterZoomActionPrivate;
 typedef struct _ClutterZoomActionClass          ClutterZoomActionClass;
 
-/**
- * ClutterZoomAction:
- *
- * The #ClutterZoomAction structure contains only
- * private data and should be accessed using the provided API
- *
- * Since: 1.12
- */
 struct _ClutterZoomAction
 {
   /*< private >*/

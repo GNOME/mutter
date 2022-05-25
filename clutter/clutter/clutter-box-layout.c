@@ -26,8 +26,9 @@
  */
 
 /**
- * SECTION:clutter-box-layout
- * @short_description: A layout manager arranging children on a single line
+ * ClutterBoxLayout:
+ * 
+ * A layout manager arranging children on a single line
  *
  * The #ClutterBoxLayout is a #ClutterLayoutManager implementing the
  * following layout policy:
@@ -44,7 +45,7 @@
  * It is possible to control the spacing between children of a
  * #ClutterBoxLayout by using clutter_box_layout_set_spacing().
  *
- * #ClutterBoxLayout is available since Clutter 1.2
+ * Since: 1.2
  */
 
 #include "clutter-build-config.h"

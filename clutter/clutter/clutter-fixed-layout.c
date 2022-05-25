@@ -25,13 +25,14 @@
  */
 
 /**
- * SECTION:clutter-fixed-layout
- * @short_description: A fixed layout manager
+ * ClutterFixedLayout:
+ * 
+ * A fixed layout manager
  *
  * #ClutterFixedLayout is a layout manager implementing the same
  * layout policies as #ClutterGroup.
  *
- * #ClutterFixedLayout is available since Clutter 1.2
+ * Since: 1.2
  */
 
 #include "clutter-build-config.h"

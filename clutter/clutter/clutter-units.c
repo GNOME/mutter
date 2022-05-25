@@ -26,21 +26,22 @@
  */
 
 /**
- * SECTION:clutter-units
- * @short_description: A logical distance unit
+ * ClutterUnits:
+ * 
+ * A logical distance unit
  *
  * #ClutterUnits is a structure holding a logical distance value along with
- * its type, expressed as a value of the #ClutterUnitType enumeration. It is
+ * its type, expressed as a value of the [enum@UnitType] enumeration. It is
  * possible to use #ClutterUnits to store a position or a size in units
  * different than pixels, and convert them whenever needed (for instance
- * inside the #ClutterActorClass.allocate() virtual function, or inside the
- * #ClutterActorClass.get_preferred_width() and #ClutterActorClass.get_preferred_height()
+ * inside the [vfunc@Actor.allocate] virtual function, or inside the
+ * [vfunc@Actor.get_preferred_width] and [vfunc@Actor.get_preferred_height]
  * virtual functions.
  *
- * In order to register a #ClutterUnits property, the #ClutterParamSpecUnits
- * #GParamSpec sub-class should be used:
+ * In order to register a #ClutterUnits property, the [class@ParamSpecUnit]
+ * [class@GObject.ParamSpec] sub-class should be used:
  *
- * |[
+ * ```c
  *   GParamSpec *pspec;
  *
  *   pspec = clutter_param_spec_units ("active-width",
@@ -51,15 +52,15 @@
  *                                     12.0,
  *                                     G_PARAM_READWRITE);
  *   g_object_class_install_property (gobject_class, PROP_WIDTH, pspec);
- * ]|
+ * ```
  *
- * A #GValue holding units can be manipulated using clutter_value_set_units()
- * and clutter_value_get_units(). #GValue<!-- -->s containing a #ClutterUnits
- * value can also be transformed to #GValue<!-- -->s initialized with
+ * A [struct@GObject.Value] holding units can be manipulated using [func@value_set_units]
+ * and [func@value_get_units]. [struct@GObject.Value]s containing a #ClutterUnits
+ * value can also be transformed to [struct@GObject.Value]s initialized with
  * %G_TYPE_INT, %G_TYPE_FLOAT and %G_TYPE_STRING through implicit conversion
- * and using g_value_transform().
+ * and using [method@GObject.Value.transform].
  *
- * #ClutterUnits is available since Clutter 1.0
+ * Since: 1.0
  */
 
 #include "clutter-build-config.h"
@@ -223,7 +224,7 @@ clutter_units_from_pt (ClutterUnits *units,
  * @em: em
  *
  * Stores a value in em inside @units, using the default font
- * name as returned by clutter_backend_get_font_name()
+ * name
  *
  * Since: 1.0
  */
@@ -341,7 +342,7 @@ clutter_units_get_unit_value (const ClutterUnits *units)
  * Copies @units
  *
  * Return value: (transfer full): the newly created copy of a
- *   #ClutterUnits structure. Use clutter_units_free() to free
+ *   #ClutterUnits structure. Use [method@Units.free] to free
  *   the allocated resources
  *
  * Since: 1.0
@@ -362,7 +363,7 @@ clutter_units_copy (const ClutterUnits *units)
  * Frees the resources allocated by @units
  *
  * You should only call this function on a #ClutterUnits
- * created using clutter_units_copy()
+ * created using [method@Units.copy]
  *
  * Since: 1.0
  */
@@ -436,7 +437,7 @@ clutter_units_to_pixels (ClutterUnits *units)
  *
  * A #ClutterUnits expressed in string should match:
  *
- * |[
+ * ```
  *   units: wsp* unit-value wsp* unit-name? wsp*
  *   unit-value: number
  *   unit-name: 'px' | 'pt' | 'mm' | 'em' | 'cm'
@@ -445,24 +446,24 @@ clutter_units_to_pixels (ClutterUnits *units)
  *   sep: '.' | ','
  *   digit: '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
  *   wsp: (#0x20 | #0x9 | #0xA | #0xB | #0xC | #0xD)+
- * ]|
+ * ```
  *
  * For instance, these are valid strings:
  *
- * |[
+ * ```
  *   10 px
  *   5.1 em
  *   24 pt
  *   12.6 mm
  *   .3 cm
- * ]|
+ * ```
  *
  * While these are not:
  *
- * |[
+ * ```
  *   42 cats
  *   omg!1!ponies
- * ]|
+ * ```
  *
  * If no unit is specified, pixels are assumed.
  *
@@ -590,7 +591,7 @@ clutter_unit_type_name (ClutterUnitType unit_type)
  *
  * Converts @units into a string
  *
- * See clutter_units_from_string() for the units syntax and for
+ * See [func@Units.from_string] for the units syntax and for
  * examples of output
  *
  * Fractional values are truncated to the second decimal
@@ -598,7 +599,7 @@ clutter_unit_type_name (ClutterUnitType unit_type)
  * typographic points. Pixels are integers.
  *
  * Return value: a newly allocated string containing the encoded
- *   #ClutterUnits value. Use g_free() to free the string
+ *   #ClutterUnits value. Use [func@GLib.free] to free the string
  *
  * Since: 1.0
  */
@@ -767,7 +768,7 @@ clutter_value_set_units (GValue             *value,
  *
  * Gets the #ClutterUnits contained in @value.
  *
- * Return value: the units inside the passed #GValue
+ * Return value: the units inside the passed [struct@GObject.Value]
  *
  * Since: 0.8
  */
@@ -898,9 +899,9 @@ clutter_param_units_get_type (void)
  * @default_value: default value
  * @flags: flags for the param spec
  *
- * Creates a #GParamSpec for properties using #ClutterUnits.
+ * Creates a [class@GObject.ParamSpec] for properties using [struct@Units].
  *
- * Return value: the newly created #GParamSpec
+ * Return value: the newly created [class@GObject.ParamSpec]
  *
  * Since: 1.0
  */

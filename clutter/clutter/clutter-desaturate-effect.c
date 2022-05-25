@@ -23,16 +23,16 @@
  */
 
 /**
- * SECTION:clutter-desaturate-effect
- * @short_description: A desaturation effect
- * @see_also: #ClutterEffect, #ClutterOffscreenEffect
+ * ClutterDesaturateEffect:
+ * 
+ * A desaturation effect
  *
  * #ClutterDesaturateEffect is a sub-class of #ClutterEffect that
  * desaturates the color of an actor and its contents. The strength
  * of the desaturation effect is controllable and animatable through
  * the #ClutterDesaturateEffect:factor property.
  *
- * #ClutterDesaturateEffect is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #define CLUTTER_DESATURATE_EFFECT_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_DESATURATE_EFFECT, ClutterDesaturateEffectClass))

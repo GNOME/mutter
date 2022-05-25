@@ -37,14 +37,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * ClutterUnits:
- *
- * An opaque structure, to be used to store sizing and positioning
- * values along with their unit.
- *
- * Since: 1.0
- */
 typedef struct _ClutterUnits    ClutterUnits;
 
 struct _ClutterUnits

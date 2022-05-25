@@ -25,8 +25,9 @@
  */
 
 /**
- * SECTION:clutter-backend
- * @short_description: Backend abstraction
+ * ClutterBackend:
+ * 
+ * Backend abstraction
  *
  * Clutter can be compiled against different backends. Each backend
  * has to implement a set of functions, in order to be used by Clutter.
@@ -35,7 +36,7 @@
  * it provides a basic API to query the backend for generic information
  * and settings.
  *
- * #ClutterBackend is available since Clutter 0.4
+ * Since: 0.4
  */
 
 #include "clutter-build-config.h"
@@ -376,7 +377,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
    * ClutterBackend::resolution-changed:
    * @backend: the #ClutterBackend that emitted the signal
    *
-   * The ::resolution-changed signal is emitted each time the font
+   * The signal is emitted each time the font
    * resolutions has been changed through #ClutterSettings.
    *
    * Since: 1.0
@@ -393,7 +394,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
    * ClutterBackend::font-changed:
    * @backend: the #ClutterBackend that emitted the signal
    *
-   * The ::font-changed signal is emitted each time the font options
+   * The signal is emitted each time the font options
    * have been changed through #ClutterSettings.
    *
    * Since: 1.0
@@ -410,7 +411,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
    * ClutterBackend::settings-changed:
    * @backend: the #ClutterBackend that emitted the signal
    *
-   * The ::settings-changed signal is emitted each time the #ClutterSettings
+   * The signal is emitted each time the #ClutterSettings
    * properties have been changed.
    *
    * Since: 1.4

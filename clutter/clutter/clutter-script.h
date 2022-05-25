@@ -97,14 +97,6 @@ typedef enum
 CLUTTER_EXPORT
 GQuark clutter_script_error_quark (void);
 
-/**
- * ClutterScript:
- *
- * The #ClutterScript structure contains only private data
- * and should be accessed using the provided API
- *
- * Since: 0.6
- */
 struct _ClutterScript
 {
   /*< private >*/

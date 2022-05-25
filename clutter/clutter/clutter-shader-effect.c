@@ -23,29 +23,28 @@
  */
 
 /**
- * SECTION:clutter-shader-effect
- * @short_description: Base class for shader effects
- * @See_Also: #ClutterEffect, #ClutterOffscreenEffect
- *
+ * ClutterShaderEffect:
+ * 
+ * Base class for shader effects
+ * 
  * #ClutterShaderEffect is a class that implements all the plumbing for
- * creating #ClutterEffect<!-- -->s using GLSL shaders.
+ * creating [class@Effect]s using GLSL shaders.
  *
  * #ClutterShaderEffect creates an offscreen buffer and then applies the
  * GLSL shader (after checking whether the compilation and linking were
  * successful) to the buffer before painting it on screen.
  *
- * #ClutterShaderEffect is available since Clutter 1.4
  *
  * ## Implementing a ClutterShaderEffect
  *
  * Creating a sub-class of #ClutterShaderEffect requires the
- * overriding of the #ClutterOffscreenEffectClass.paint_target() virtual
- * function from the #ClutterOffscreenEffect class. It is also convenient
- * to implement the #ClutterShaderEffectClass.get_static_shader_source()
+ * overriding of the [vfunc@OffscreenEffect.paint_target] virtual
+ * function from the [class@OffscreenEffect] class. It is also convenient
+ * to implement the [vfunc@ShaderEffect.get_static_shader_source]
  * virtual function in case you are planning to create more than one
  * instance of the effect.
  *
- * The #ClutterShaderEffectClass.get_static_shader_source()
+ * The [vfunc@ShaderEffect.get_static_shader_source]
  * function should return a copy of the shader source to use. This
  * function is only called once per subclass of #ClutterShaderEffect
  * regardless of how many instances of the effect are created. The
@@ -53,20 +52,20 @@
  * string which is returned from this function via
  * g_strdup().
  *
- * The #ClutterOffscreenEffectClass.paint_target() should set the
+ * The [vfunc@OffscreenEffect.paint_target] should set the
  * shader's uniforms if any. This is done by calling
- * clutter_shader_effect_set_uniform_value() or
- * clutter_shader_effect_set_uniform(). The sub-class should then
+ * [method@ShaderEffect.set_uniform_value] or
+ * [method@ShaderEffect.set_uniform]. The sub-class should then
  * chain up to the #ClutterShaderEffect implementation.
  *
  * ## Setting uniforms on a ClutterShaderEffect
  *
  * The example below shows a typical implementation of the
- * #ClutterShaderEffectClass.get_static_shader_source() and
- * #ClutterOffscreenEffectClass.paint_target() virtual functions
+ * [vfunc@ShaderEffect.get_static_shader_source] and
+ * [vfunc@OffscreenEffect.paint_target] virtual functions
  * for a #ClutterShaderEffect subclass.
  *
- * |[<!-- language="C" -->
+ * ```c
  *  static gchar *
  *  my_effect_get_static_shader_source (ClutterShaderEffect *effect)
  *  {
@@ -108,7 +107,9 @@
  *    parent_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (my_effect_parent_class);
  *    return parent_class->paint_target (effect);
  *  }
- * ]|
+ * ```
+ * 
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -486,9 +487,9 @@ clutter_shader_effect_init (ClutterShaderEffect *effect)
  *   or %CLUTTER_VERTEX_SHADER
  *
  * Creates a new #ClutterShaderEffect, to be applied to an actor using
- * clutter_actor_add_effect().
+ * [method@Actor.add_effect].
  *
- * The effect will be empty until clutter_shader_effect_set_shader_source()
+ * The effect will be empty until [method@ShaderEffect.set_shader_source]
  * is called.
  *
  * Return value: the newly created #ClutterShaderEffect.
@@ -780,16 +781,16 @@ add_uniform:
  * argument, and by the @gtype argument. For instance, a uniform named
  * "sampler0" and containing a single integer value is set using:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   clutter_shader_effect_set_uniform (effect, "sampler0",
  *                                      G_TYPE_INT, 1,
  *                                      0);
- * ]|
+ * ```
  *
  * While a uniform named "components" and containing a 3-elements vector
  * of floating point values (a "vec3") can be set using:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   gfloat component_r, component_g, component_b;
  *
  *   clutter_shader_effect_set_uniform (effect, "components",
@@ -797,28 +798,28 @@ add_uniform:
  *                                      component_r,
  *                                      component_g,
  *                                      component_b);
- * ]|
+ * ```
  *
  * or can be set using:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   gfloat component_vec[3];
  *
  *   clutter_shader_effect_set_uniform (effect, "components",
  *                                      CLUTTER_TYPE_SHADER_FLOAT, 3,
  *                                      component_vec);
- * ]|
+ * ```
  *
  * Finally, a uniform named "map" and containing a matrix can be set using:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   float v[16];
  *
  *   cogl_matrix_to_float (&matrix, v);
  *   clutter_shader_effect_set_uniform (effect, "map",
  *                                      CLUTTER_TYPE_SHADER_MATRIX,
  *                                      1, v);
- * ]|
+ * ```
  *
  * Since: 1.4
  */

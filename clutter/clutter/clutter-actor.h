@@ -118,12 +118,7 @@ typedef void (*ClutterCallback) (ClutterActor *actor,
  */
 #define CLUTTER_CALLBACK(f)        ((ClutterCallback) (f))
 
-/**
- * ClutterActor:
- * @flags: #ClutterActorFlags
- *
- * Base class for actors.
- */
+
 struct _ClutterActor
 {
   /*< private >*/

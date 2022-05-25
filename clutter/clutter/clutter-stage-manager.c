@@ -22,18 +22,19 @@
  */
 
 /**
- * SECTION:clutter-stage-manager
- * @short_description: Maintains the list of stages
+ * ClutterStageManager:
+ * 
+ * Maintains the list of stages
  *
  * #ClutterStageManager is a singleton object, owned by Clutter, which
  * maintains the list of currently active stages
  *
- * Every newly-created #ClutterStage will cause the emission of the
- * #ClutterStageManager::stage-added signal; once a #ClutterStage has
- * been destroyed, the #ClutterStageManager::stage-removed signal will
+ * Every newly-created [class@Stage] will cause the emission of the
+ * [signal@StageManager::stage-added] signal; once a [class@Stage] has
+ * been destroyed, the [signal@StageManager::stage-removed] signal will
  * be emitted
  *
- * #ClutterStageManager is available since Clutter 0.8
+ * Since: 0.8
  */
 
 #include "clutter-build-config.h"
@@ -122,7 +123,7 @@ clutter_stage_manager_class_init (ClutterStageManagerClass *klass)
    * @stage_manager: the object which received the signal
    * @stage: the added stage
    *
-   * The ::stage-added signal is emitted each time a new #ClutterStage
+   * The signal is emitted each time a new #ClutterStage
    * has been added to the stage manager.
    *
    * Since: 0.8
@@ -140,7 +141,7 @@ clutter_stage_manager_class_init (ClutterStageManagerClass *klass)
    * @stage_manager: the object which received the signal
    * @stage: the removed stage
    *
-   * The ::stage-removed signal is emitted each time a #ClutterStage
+   * The signal is emitted each time a #ClutterStage
    * has been removed from the stage manager.
    *
    * Since: 0.8

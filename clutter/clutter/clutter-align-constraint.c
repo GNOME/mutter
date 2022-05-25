@@ -23,15 +23,15 @@
  */
 
 /**
- * SECTION:clutter-align-constraint
- * @Title: ClutterAlignConstraint
- * @Short_Description: A constraint aligning the position of an actor
+ * ClutterAlignConstraint:
+ * 
+ * A constraint aligning the position of an actor
  *
- * #ClutterAlignConstraint is a #ClutterConstraint that aligns the position
- * of the #ClutterActor to which it is applied to the size of another
- * #ClutterActor using an alignment factor
+ * #ClutterAlignConstraint is a [class@Constraint] that aligns the position
+ * of the [class@Actor] to which it is applied to the size of another
+ * [class@Actor] using an alignment factor
  *
- * #ClutterAlignConstraint is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"

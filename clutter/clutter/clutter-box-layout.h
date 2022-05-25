@@ -47,14 +47,6 @@ typedef struct _ClutterBoxLayout                ClutterBoxLayout;
 typedef struct _ClutterBoxLayoutPrivate         ClutterBoxLayoutPrivate;
 typedef struct _ClutterBoxLayoutClass           ClutterBoxLayoutClass;
 
-/**
- * ClutterBoxLayout:
- *
- * The #ClutterBoxLayout structure contains only private data
- * and should be accessed using the provided API
- *
- * Since: 1.2
- */
 struct _ClutterBoxLayout
 {
   /*< private >*/

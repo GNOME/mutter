@@ -8,11 +8,12 @@
 #include "clutter-private.h"
 
 /**
- * SECTION:clutter-stage-window
- * @short_description: Handles the implementation for ClutterStage
+ * ClutterStageWindow:
+ * 
+ * Handles the implementation for [class@Stage]
  *
  * #ClutterStageWindow is an interface that provides the implementation for the
- * #ClutterStage actor, abstracting away the specifics of the windowing system.
+ * [class@Stage] actor, abstracting away the specifics of the windowing system.
  */
 
 G_DEFINE_INTERFACE (ClutterStageWindow, clutter_stage_window, G_TYPE_OBJECT);

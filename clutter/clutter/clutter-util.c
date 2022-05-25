@@ -304,18 +304,18 @@ progress_data_destroy (gpointer data_)
  *
  * Sets the progress function for a given @value_type, like:
  *
- * |[
+ * ```c
  *   clutter_interval_register_progress_func (MY_TYPE_FOO,
  *                                            my_foo_progress);
- * ]|
+ * ```
  *
- * Whenever a #ClutterInterval instance using the default
- * #ClutterInterval::compute_value implementation is set as an
- * interval between two #GValue of type @value_type, it will call
+ * Whenever a [class@Interval] instance using the default
+ * [method@Interval.compute_value] implementation is set as an
+ * interval between two [struct@GObject.Value] of type @value_type, it will call
  * @func to establish the value depending on the given progress,
  * for instance:
  *
- * |[
+ * ```c
  *   static gboolean
  *   my_int_progress (const GValue *a,
  *                    const GValue *b,
@@ -332,9 +332,9 @@ progress_data_destroy (gpointer data_)
  *   }
  *
  *   clutter_interval_register_progress_func (G_TYPE_INT, my_int_progress);
- * ]|
+ * ```
  *
- * To unset a previously set progress function of a #GType, pass %NULL
+ * To unset a previously set progress function of a [alias@GObject.Type], pass %NULL
  * for @func.
  *
  * Since: 1.0

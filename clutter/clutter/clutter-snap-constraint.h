@@ -37,14 +37,6 @@ G_BEGIN_DECLS
 #define CLUTTER_SNAP_CONSTRAINT(obj)    (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_SNAP_CONSTRAINT, ClutterSnapConstraint))
 #define CLUTTER_IS_SNAP_CONSTRAINT(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_SNAP_CONSTRAINT))
 
-/**
- * ClutterSnapConstraint:
- *
- * #ClutterSnapConstraint is an opaque structure
- * whose members cannot be directly accesses
- *
- * Since: 1.6
- */
 typedef struct _ClutterSnapConstraint           ClutterSnapConstraint;
 typedef struct _ClutterSnapConstraintClass      ClutterSnapConstraintClass;
 

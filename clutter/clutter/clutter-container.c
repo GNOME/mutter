@@ -63,20 +63,16 @@
         } G_STMT_END
 
 /**
- * SECTION:clutter-container
- * @short_description: An interface for container actors
+ * ClutterContainer:
+ * 
+ * An interface for container actors
  *
- * #ClutterContainer is an interface implemented by #ClutterActor, and
+ * #ClutterContainer is an interface implemented by [class@Actor], and
  * it provides some common API for notifying when a child actor is added
  * or removed, as well as the infrastructure for accessing child properties
- * through #ClutterChildMeta.
- *
- * Until Clutter 1.10, the #ClutterContainer interface was also the public
- * API for implementing container actors; this part of the interface has
- * been deprecated: #ClutterContainer has a default implementation which
- * defers to #ClutterActor the child addition and removal, as well as the
- * iteration. See the documentation of #ClutterContainerIface for the list
- * of virtual functions that should be overridden.
+ * through [class@ChildMeta].
+ * 
+ * Since: 0.4
  */
 
 enum
@@ -132,7 +128,7 @@ clutter_container_default_init (ClutterContainerInterface *iface)
    * @container: the actor which received the signal
    * @actor: the new child that has been added to @container
    *
-   * The ::actor-added signal is emitted each time an actor
+   * The signal is emitted each time an actor
    * has been added to @container.
    *
    * Since: 0.4
@@ -150,7 +146,7 @@ clutter_container_default_init (ClutterContainerInterface *iface)
    * @container: the actor which received the signal
    * @actor: the child that has been removed from @container
    *
-   * The ::actor-removed signal is emitted each time an actor
+   * The signal is emitted each time an actor
    * is removed from @container.
    *
    * Since: 0.4
@@ -170,7 +166,7 @@ clutter_container_default_init (ClutterContainerInterface *iface)
    * @actor: the child that has had a property set
    * @pspec: (type GParamSpec): the #GParamSpec of the property set
    *
-   * The ::child-notify signal is emitted each time a property is
+   * The signal is emitted each time a property is
    * being set through the clutter_container_child_set() and
    * clutter_container_child_set_property() calls.
    *
@@ -301,7 +297,7 @@ container_remove_valist (ClutterContainer *container,
  * @first_actor: the first #ClutterActor to add
  * @...: %NULL terminated list of actors to add
  *
- * Adds a list of #ClutterActor<!-- -->s to @container. Each time and
+ * Adds a list of `ClutterActor`s to @container. Each time and
  * actor is added, the "actor-added" signal is emitted. Each actor should
  * be parented to @container, which takes a reference on the actor. You
  * cannot add a #ClutterActor to more than one #ClutterContainer.
@@ -363,7 +359,7 @@ clutter_container_add_actor (ClutterContainer *container,
  * @first_actor: first #ClutterActor to remove
  * @...: a %NULL-terminated list of actors to remove
  *
- * Removes a %NULL terminated list of #ClutterActor<!-- -->s from
+ * Removes a %NULL terminated list of `ClutterActor`s from
  * @container. Each actor should be unparented, so if you want to keep it
  * around you must hold a reference to it yourself, using g_object_ref().
  * Each time an actor is removed, the "actor-removed" signal is
@@ -541,7 +537,7 @@ destroy_child_meta (ClutterContainer *container,
  *
  * Return value: (transfer none): the #ClutterChildMeta for the @actor child
  *   of @container or %NULL if the specifiec actor does not exist or the
- *   container is not configured to provide #ClutterChildMeta<!-- -->s
+ *   container is not configured to provide `ClutterChildMeta`s
  *
  * Since: 0.8
  */
@@ -678,7 +674,7 @@ clutter_container_class_find_child_property (GObjectClass *klass,
  * Returns an array of #GParamSpec for all child properties.
  *
  * Return value: (array length=n_properties) (transfer full): an array
- *   of #GParamSpec<!-- -->s which should be freed after use.
+ *   of `GParamSpec`s which should be freed after use.
  *
  * Since: 0.8
  */

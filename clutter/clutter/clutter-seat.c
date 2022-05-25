@@ -140,7 +140,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * @latched_mask: the latched modifier mask from stickykeys
    * @locked_mask:  the locked modifier mask from stickykeys
    *
-   * The ::kbd-a11y-mods-state-changed signal is emitted each time either the
+   * The signal is emitted each time either the
    * latched modifiers mask or locked modifiers mask are changed as the
    * result of keyboard accessibilty's sticky keys operations.
    */
@@ -163,9 +163,8 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * @settings_flags: the new ClutterKeyboardA11yFlags configuration
    * @changed_mask: the ClutterKeyboardA11yFlags changed
    *
-   * The ::kbd-a11y-flags-changed signal is emitted each time the
-   * ClutterKeyboardA11yFlags configuration is changed as the result of
-   * keyboard accessibility operations.
+   * The signal is emitted each time the ClutterKeyboardA11yFlags
+   * configuration is changed as the result of keyboard accessibility operations.
    */
   signals[KBD_A11Y_FLAGS_CHANGED] =
     g_signal_new (I_("kbd-a11y-flags-changed"),
@@ -185,9 +184,8 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * @seat: the #ClutterSeat that emitted the signal
    * @click_type: the new #ClutterPointerA11yDwellClickType mode
    *
-   * The ::ptr-a11y-dwell-click-type-changed signal is emitted each time
-   * the ClutterPointerA11yDwellClickType mode is changed as the result
-   * of pointer accessibility operations.
+   * The signal is emitted each time the ClutterPointerA11yDwellClickType
+   * mode is changed as the result of pointer accessibility operations.
    */
   signals[PTR_A11Y_DWELL_CLICK_TYPE_CHANGED] =
     g_signal_new (I_("ptr-a11y-dwell-click-type-changed"),
@@ -204,9 +202,8 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
    * @delay: the delay in ms before secondary-click is triggered.
    *
-   * The ::ptr-a11y-timeout-started signal is emitted when a
-   * pointer accessibility timeout delay is started, so that upper
-   * layers can notify the user with some visual feedback.
+   * The signal is emitted when a pointer accessibility timeout delay is started,
+   * so that upper layers can notify the user with some visual feedback.
    */
   signals[PTR_A11Y_TIMEOUT_STARTED] =
     g_signal_new (I_("ptr-a11y-timeout-started"),
@@ -229,10 +226,10 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
    * @clicked: %TRUE if the timeout finished and triggered a click
    *
-   * The ::ptr-a11y-timeout-stopped signal is emitted when a running
-   * pointer accessibility timeout delay is stopped, either because
-   * it's triggered at the end of the delay or cancelled, so that
-   * upper layers can notify the user with some visual feedback.
+   * The signal is emitted when a running pointer accessibility timeout
+   * delay is stopped, either because it's triggered at the end of
+   * the delay or cancelled, so that upper layers can notify the user
+   * with some visual feedback.
    */
   signals[PTR_A11Y_TIMEOUT_STOPPED] =
     g_signal_new (I_("ptr-a11y-timeout-stopped"),
@@ -252,10 +249,10 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * ClutterSeat::is-unfocus-inhibited-changed:
    * @seat: the #ClutterSeat that emitted the signal
    *
-   * The ::is-unfocus-inhibited-changed signal is emitted when the
-   * property to inhibit the unsetting of the focus-surface of the
-   * #ClutterSeat changed. To get the current state of this property,
-   * use clutter_seat_is_unfocus_inhibited().
+   * The signal is emitted when the property to inhibit the unsetting
+   * of the focus-surface of the #ClutterSeat changed.
+   *  
+   * To get the current state of this property, use [method@Seat.is_unfocus_inhibited].
    */
   signals[IS_UNFOCUS_INHIBITED_CHANGED] =
     g_signal_new (I_("is-unfocus-inhibited-changed"),
@@ -268,7 +265,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
    * ClutterSeat:touch-mode:
    *
    * The current touch-mode of the #ClutterSeat, it is set to %TRUE if the
-   * requirements documented in clutter_seat_get_touch_mode() are fulfilled.
+   * requirements documented in [method@Seat.get_touch_mode] are fulfilled.
    **/
   props[PROP_TOUCH_MODE] =
     g_param_spec_boolean ("touch-mode",
@@ -477,8 +474,8 @@ clutter_seat_set_pointer_a11y_dwell_click_type (ClutterSeat                     
  * Inhibits unsetting of the pointer focus-surface for the #ClutterSeat @seat,
  * this allows to keep using the pointer even when it's hidden.
  *
- * This property is refcounted, so clutter_seat_uninhibit_unfocus() must be
- * called the exact same number of times as clutter_seat_inhibit_unfocus()
+ * This property is refcounted, so [method@Seat.uninhibit_unfocus] must be
+ * called the exact same number of times as [method@Seat.inhibit_unfocus]
  * was called before.
  **/
 void
@@ -501,10 +498,10 @@ clutter_seat_inhibit_unfocus (ClutterSeat *seat)
  * @seat: a #ClutterSeat
  *
  * Disables the inhibiting of unsetting of the pointer focus-surface
- * previously enabled by calling clutter_seat_inhibit_unfocus().
+ * previously enabled by calling [method@Seat.inhibit_unfocus].
  *
- * This property is refcounted, so clutter_seat_uninhibit_unfocus() must be
- * called the exact same number of times as clutter_seat_inhibit_unfocus()
+ * This property is refcounted, so [method@Seat.uninhibit_unfocus] must be
+ * called the exact same number of times as [method@Seat.inhibit_unfocus]
  * was called before.
  **/
 void
@@ -634,7 +631,7 @@ clutter_seat_warp_pointer (ClutterSeat *seat,
  * @seat: a #ClutterSeat
  *
  * Gets the current touch-mode state of the #ClutterSeat @seat.
- * The #ClutterSeat:touch-mode property is set to %TRUE if the following
+ * The [property@Seat:touch-mode] property is set to %TRUE if the following
  * requirements are fulfilled:
  *
  *  - A touchscreen is available

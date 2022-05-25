@@ -44,14 +44,6 @@ typedef struct _ClutterBinLayout                ClutterBinLayout;
 typedef struct _ClutterBinLayoutPrivate         ClutterBinLayoutPrivate;
 typedef struct _ClutterBinLayoutClass           ClutterBinLayoutClass;
 
-/**
- * ClutterBinLayout:
- *
- * The #ClutterBinLayout structure contains only private data
- * and should be accessed using the provided API
- *
- * Since: 1.2
- */
 struct _ClutterBinLayout
 {
   /*< private >*/

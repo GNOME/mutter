@@ -40,14 +40,6 @@ G_BEGIN_DECLS
 #define CLUTTER_PAGE_TURN_EFFECT(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_PAGE_TURN_EFFECT, ClutterPageTurnEffect))
 #define CLUTTER_IS_PAGE_TURN_EFFECT(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_PAGE_TURN_EFFECT))
 
-/**
- * ClutterPageTurnEffect:
- *
- * #ClutterPageTurnEffect is an opaque structure
- * whose members can only be accessed using the provided API
- *
- * Since: 1.4
- */
 typedef struct _ClutterPageTurnEffect           ClutterPageTurnEffect;
 typedef struct _ClutterPageTurnEffectClass      ClutterPageTurnEffectClass;
 

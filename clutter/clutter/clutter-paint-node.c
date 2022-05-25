@@ -23,9 +23,9 @@
  */
 
 /**
- * SECTION:clutter-paint-node
- * @Title: ClutterPaintNode
- * @Short_Description: Paint objects
+ * ClutterPaintNode:(ref-func clutter_paint_node_ref) (unref-func clutter_paint_node_unref) (set-value-func clutter_value_set_paint_node) (get-value-func clutter_value_get_paint_node)
+ * 
+ * Paint objects
  *
  * #ClutterPaintNode is an element in the render graph.
  *
@@ -37,16 +37,9 @@
  * elements also respond to events. The render graph, instead, is only
  * composed by nodes that will be painted.
  *
- * Each #ClutterActor can submit multiple #ClutterPaintNode<!-- -->s to
+ * Each #ClutterActor can submit multiple `ClutterPaintNode`s to
  * the render graph.
- */
-
-/**
- * ClutterPaintNode: (ref-func clutter_paint_node_ref) (unref-func clutter_paint_node_unref) (set-value-func clutter_value_set_paint_node) (get-value-func clutter_value_get_paint_node)
- *
- * The `ClutterPaintNode` structure contains only private data
- * and it should be accessed using the provided API.
- *
+ * 
  * Since: 1.10
  */
 

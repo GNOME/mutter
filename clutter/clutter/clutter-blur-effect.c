@@ -23,14 +23,14 @@
  */
 
 /**
- * SECTION:clutter-blur-effect
- * @short_description: A blur effect
- * @see_also: #ClutterEffect, #ClutterOffscreenEffect
+ * ClutterBlurEffect:
+ * 
+ * A blur effect
  *
  * #ClutterBlurEffect is a sub-class of #ClutterEffect that allows blurring a
  * actor and its contents.
  *
- * #ClutterBlurEffect is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #define CLUTTER_BLUR_EFFECT_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BLUR_EFFECT, ClutterBlurEffectClass))

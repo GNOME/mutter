@@ -50,14 +50,6 @@ typedef struct _ClutterTextBuffer            ClutterTextBuffer;
 typedef struct _ClutterTextBufferClass       ClutterTextBufferClass;
 typedef struct _ClutterTextBufferPrivate     ClutterTextBufferPrivate;
 
-/**
- * ClutterTextBuffer:
- *
- * The #ClutterTextBuffer structure contains private
- * data and it should only be accessed using the provided API.
- *
- * Since: 1.10
- */
 struct _ClutterTextBuffer
 {
   /*< private >*/

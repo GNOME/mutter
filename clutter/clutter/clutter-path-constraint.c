@@ -23,17 +23,17 @@
  */
 
 /**
- * SECTION:clutter-path-constraint
- * @Title: ClutterPathConstraint
- * @Short_Description: A constraint that follows a path
+ * ClutterPathConstraint:
+ * 
+ * A constraint that follows a path
  *
  * #ClutterPathConstraint is a simple constraint that modifies the allocation
- * of the #ClutterActor to which it has been applied using a #ClutterPath.
+ * of the [class@Actor] to which it has been applied using a [class@Path].
  *
- * By setting the #ClutterPathConstraint:offset property it is possible to
- * control how far along the path the #ClutterActor should be.
+ * By setting the [property@PathConstraint:offset] property it is possible to
+ * control how far along the path the [class@Actor] should be.
  *
- * ClutterPathConstraint is available since Clutter 1.6.
+ * Since: 1.6.
  */
 
 #include "clutter-build-config.h"
@@ -244,7 +244,7 @@ clutter_path_constraint_class_init (ClutterPathConstraintClass *klass)
    * @actor: the #ClutterActor using the @constraint
    * @index: the index of the node that has been reached
    *
-   * The ::node-reached signal is emitted each time a
+   * The signal is emitted each time a
    * #ClutterPathConstraint:offset value results in the actor
    * passing a #ClutterPathNode
    *
@@ -379,7 +379,7 @@ clutter_path_constraint_set_offset (ClutterPathConstraint *constraint,
  * clutter_path_constraint_get_offset:
  * @constraint: a #ClutterPathConstraint
  *
- * Retrieves the offset along the #ClutterPath used by @constraint.
+ * Retrieves the offset along the [class@Path] used by @constraint.
  *
  * Return value: the offset
  *

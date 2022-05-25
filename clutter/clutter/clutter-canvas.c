@@ -23,10 +23,9 @@
  */
 
 /**
- * SECTION:clutter-canvas
- * @Title: ClutterCanvas
- * @Short_Description: Content for 2D painting
- * @See_Also: #ClutterContent
+ * ClutterCanvas:
+ * 
+ * Content for 2D painting
  *
  * The #ClutterCanvas class is a #ClutterContent implementation that allows
  * drawing using the Cairo API on a 2D surface.
@@ -39,7 +38,7 @@
  * See [canvas.c](https://git.gnome.org/browse/clutter/tree/examples/canvas.c?h=clutter-1.18)
  * for an example of how to use #ClutterCanvas.
  *
- * #ClutterCanvas is available since Clutter 1.10.
+ * Since: 1.10.
  */
 
 #include "clutter-build-config.h"
@@ -575,10 +574,10 @@ clutter_canvas_invalidate_internal (ClutterCanvas *canvas,
  * the size, you can use the return value of the function to conditionally
  * call clutter_content_invalidate():
  *
- * |[
+ * ```c
  *   if (!clutter_canvas_set_size (canvas, width, height))
  *     clutter_content_invalidate (CLUTTER_CONTENT (canvas));
- * ]|
+ * ```
  *
  * Return value: this function returns %TRUE if the size change
  *   caused a content invalidation, and %FALSE otherwise

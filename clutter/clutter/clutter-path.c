@@ -22,9 +22,9 @@
  */
 
 /**
- * SECTION:clutter-path
- * @short_description: An object describing a path with straight lines
- * and bezier curves.
+ * ClutterPath:
+ * 
+ * An object describing a path with straight lines and bezier curves.
  *
  * A #ClutterPath contains a description of a path consisting of
  * straight lines and bezier curves.
@@ -42,7 +42,7 @@
  *  - %CLUTTER_PATH_CURVE_TO, creates a bezier curve. The end of the
  *  last node is used as the first control point and the three
  *  subsequent coordinates given in the node as used as the other three.
- *  -%CLUTTER_PATH_CLOSE, creates a straight line from the last node to
+ *  - %CLUTTER_PATH_CLOSE, creates a straight line from the last node to
  *  the last %CLUTTER_PATH_MOVE_TO node. This can be used to close a
  *  path so that it will appear as a loop when animated.
  *
@@ -53,11 +53,11 @@
  * direct screen positions.
  *
  * You can build a path using the node adding functions such as
- * clutter_path_add_line_to(). Alternatively the path can be described
+ * [method@Path.add_line_to]. Alternatively the path can be described
  * in a string using a subset of the SVG path syntax. See
- * clutter_path_add_string() for details.
+ * [method@Path.add_string] for details.
  *
- * #ClutterPath is available since Clutter 1.0
+ * Since: 1.0
  */
 
 #include "clutter-build-config.h"
@@ -260,7 +260,7 @@ clutter_path_new (void)
  * @desc: a string describing the path
  *
  * Creates a new #ClutterPath instance with the nodes described in
- * @desc. See clutter_path_add_string() for details of the format of
+ * @desc. See [method@Path.add_string] for details of the format of
  * the string.
  *
  * Return value: the newly created #ClutterPath
@@ -370,7 +370,7 @@ clutter_path_add_move_to (ClutterPath *path,
  * @x: the x coordinate
  * @y: the y coordinate
  *
- * Same as clutter_path_add_move_to() except the coordinates are
+ * Same as [method@Path.add_move_to] except the coordinates are
  * relative to the previous node.
  *
  * Since: 1.0
@@ -412,7 +412,7 @@ clutter_path_add_line_to (ClutterPath *path,
  * @x: the x coordinate
  * @y: the y coordinate
  *
- * Same as clutter_path_add_line_to() except the coordinates are
+ * Same as [method@Path.add_line_to] except the coordinates are
  * relative to the previous node.
  *
  * Since: 1.0
@@ -470,7 +470,7 @@ clutter_path_add_curve_to (ClutterPath *path,
  * @x_3: the x coordinate of the third control point
  * @y_3: the y coordinate of the third control point
  *
- * Same as clutter_path_add_curve_to() except the coordinates are
+ * Same as [method@Path.add_curve_to] except the coordinates are
  * relative to the previous node.
  *
  * Since: 1.0
@@ -698,9 +698,9 @@ clutter_path_add_nodes (ClutterPath *path,
  * For example, to move an actor in a 100 by 100 pixel square centered
  * on the point 300,300 you could use the following path:
  *
- * |[
+ * ```
  *   M 250,350 l 0 -100 L 350,250 l 0 100 z
- * ]|
+ * ```
  *
  * If the path description isn't valid %FALSE will be returned and no
  * nodes will be added.
@@ -924,11 +924,12 @@ clutter_path_get_node (ClutterPath     *path,
  * clutter_path_get_nodes:
  * @path: a #ClutterPath
  *
- * Returns a #GSList of #ClutterPathNode<!-- -->s. The list should be
- * freed with g_slist_free(). The nodes are owned by the path and
- * should not be freed. Altering the path may cause the nodes in the
- * list to become invalid so you should copy them if you want to keep
- * the list.
+ * Returns a #GSList of [struct@PathNode]s.
+ * 
+ * The list should be freed with g_slist_free(). The nodes are owned 
+ * by the path and should not be freed. Altering the path may cause
+ * the nodes in the list to become invalid so you should copy them
+ * if you want to keep the list.
  *
  * Return value: (transfer container) (element-type Clutter.PathNode): a
  *   list of nodes in the path.
@@ -1088,7 +1089,7 @@ clutter_path_replace_node (ClutterPath           *path,
  * @str: a string describing the path
  *
  * Replaces all of the nodes in the path with nodes described by
- * @str. See clutter_path_add_string() for details of the format.
+ * @str. See [method@Path.add_string] for details of the format.
  *
  * If the string is invalid then %FALSE is returned and the path is
  * unaltered.
@@ -1122,7 +1123,7 @@ clutter_path_set_description (ClutterPath *path,
  * @path: a #ClutterPath
  *
  * Returns a newly allocated string describing the path in the same
- * format as used by clutter_path_add_string().
+ * format as used by [method@Path.add_string].
  *
  * Return value: a string description of the path. Free with g_free().
  *

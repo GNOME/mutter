@@ -41,10 +41,9 @@
 #include "clutter-private.h"
 
 /**
- * SECTION:clutter-grid-layout
- * @Short_description: A layout manager for a grid of actors
- * @Title: ClutterGridLayout
- * @See_also: #ClutterBoxLayout
+ * ClutterGridLayout:
+ * 
+ * A layout manager for a grid of actors
  *
  * #ClutterGridLayout is a layout manager which arranges its child widgets in
  * rows and columns. It is a very similar to #ClutterBoxLayout, but it

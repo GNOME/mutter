@@ -386,7 +386,7 @@ clutter_shader_matrix_get_type (void)
  * @size: number of floating point values in @floats
  * @floats: (array length=size): an array of floating point values
  *
- * Sets @floats as the contents of @value. The passed #GValue
+ * Sets @floats as the contents of @value. The passed [struct@GObject.Value]
  * must have been initialized using %CLUTTER_TYPE_SHADER_FLOAT.
  *
  * Since: 0.8
@@ -416,7 +416,7 @@ clutter_value_set_shader_float (GValue         *value,
  * @size: number of integer values in @ints
  * @ints: (array length=size): an array of integer values
  *
- * Sets @ints as the contents of @value. The passed #GValue
+ * Sets @ints as the contents of @value. The passed [struct@GObject.Value]
  * must have been initialized using %CLUTTER_TYPE_SHADER_INT.
  *
  * Since: 0.8
@@ -446,7 +446,7 @@ clutter_value_set_shader_int (GValue     *value,
  * @size: number of floating point values in @floats
  * @matrix: (array length=size): a matrix of floating point values
  *
- * Sets @matrix as the contents of @value. The passed #GValue
+ * Sets @matrix as the contents of @value. The passed [struct@GObject.Value]
  * must have been initialized using %CLUTTER_TYPE_SHADER_MATRIX.
  *
  * Since: 0.8
@@ -477,7 +477,7 @@ clutter_value_set_shader_matrix (GValue       *value,
  *   point values, or %NULL
  *
  * Retrieves the list of floating point values stored inside
- * the passed #GValue. @value must have been initialized with
+ * the passed [struct@GObject.Value]. @value must have been initialized with
  * %CLUTTER_TYPE_SHADER_FLOAT.
  *
  * Return value: (array length=length): the pointer to a list of
@@ -509,7 +509,7 @@ clutter_value_get_shader_float (const GValue *value,
  *   values, or %NULL
  *
  * Retrieves the list of integer values stored inside the passed
- * #GValue. @value must have been initialized with
+ * [struct@GObject.Value]. @value must have been initialized with
  * %CLUTTER_TYPE_SHADER_INT.
  *
  * Return value: (array length=length): the pointer to a list of
@@ -541,7 +541,7 @@ clutter_value_get_shader_int (const GValue *value,
  *   point values, or %NULL
  *
  * Retrieves a matrix of floating point values stored inside
- * the passed #GValue. @value must have been initialized with
+ * the passed [struct@GObject.Value]. @value must have been initialized with
  * %CLUTTER_TYPE_SHADER_MATRIX.
  *
  * Return value: (array length=length) (transfer none): the pointer to a matrix

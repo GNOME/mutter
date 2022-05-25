@@ -22,9 +22,9 @@
  */
 
 /**
- * SECTION:clutter-keyframe-transition
- * @Title: ClutterKeyframeTransition
- * @Short_Description: Keyframe property transition
+ * ClutterKeyframeTransition:
+ * 
+ * Keyframe property transition
  *
  * #ClutterKeyframeTransition allows animating a property by defining
  * "key frames": values at a normalized position on the transition
@@ -36,7 +36,7 @@
  * Setting up a #ClutterKeyframeTransition means providing the times,
  * values, and easing modes between these key frames, for instance:
  *
- * |[
+ * ```c
  *   ClutterTransition *keyframe;
  *
  *   keyframe = clutter_keyframe_transition_new ("opacity");
@@ -46,7 +46,7 @@
  *                                    G_TYPE_UINT,
  *                                    1, /&ast; number of key frames &ast;/
  *                                    0.5, 128, CLUTTER_EASE_IN_OUT_CUBIC);
- * ]|
+ * ```
  *
  * The example above sets up a keyframe transition for the #ClutterActor:opacity
  * property of a #ClutterActor; the transition starts and sets the value of the
@@ -59,7 +59,7 @@
  * and the 1.0 value, to interpolate to the final value of the transition's
  * interval.
  *
- * #ClutterKeyframeTransition is available since Clutter 1.12.
+ * Since: 1.12.
  */
 
 #include "clutter-build-config.h"

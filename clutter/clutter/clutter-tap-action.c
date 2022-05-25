@@ -32,23 +32,23 @@
  */
 
 /**
- * SECTION:clutter-tap-action
- * @Title: ClutterTapAction
- * @Short_Description: Action for tap gestures
+ * ClutterTapAction:
+ * 
+ * Action for tap gestures
  *
- * #ClutterTapAction is a sub-class of #ClutterGestureAction that implements
+ * #ClutterTapAction is a sub-class of [class@GestureAction] that implements
  * the logic for recognizing mouse clicks and touch tap gestures.
  *
  * The simplest usage of #ClutterTapAction consists in adding it to
- * a #ClutterActor, setting it as reactive and connecting a
- * callback for the #ClutterTapAction::tap signal, along the lines of the
+ * a [class@Actor], setting it as reactive and connecting a
+ * callback for the [signal@TapAction::tap] signal, along the lines of the
  * following code:
  *
- * |[
+ * ```c
  *   clutter_actor_add_action (actor, clutter_tap_action_new ());
  *   clutter_actor_set_reactive (actor, TRUE);
  *   g_signal_connect (action, "tap", G_CALLBACK (on_tap_callback), NULL);
- * ]|
+ * ```
  *
  * Since: 1.14
  */
@@ -113,7 +113,7 @@ clutter_tap_action_class_init (ClutterTapActionClass *klass)
    * @action: the #ClutterTapAction that emitted the signal
    * @actor: the #ClutterActor attached to the @action
    *
-   * The ::tap signal is emitted when the tap gesture is complete.
+   * The signal is emitted when the tap gesture is complete.
    *
    * Since: 1.14
    */

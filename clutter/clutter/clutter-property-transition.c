@@ -20,14 +20,14 @@
  */
 
 /**
- * SECTION:clutter-property-transition
- * @Title: ClutterPropertyTransition
- * @Short_Description: Property transitions
+ * ClutterPropertyTransition:
+ * 
+ * Property transitions
  *
- * #ClutterPropertyTransition is a specialized #ClutterTransition that
- * can be used to tween a property of a #ClutterAnimatable instance.
+ * #ClutterPropertyTransition is a specialized [class@Transition] that
+ * can be used to tween a property of a [iface@Animatable] instance.
  *
- * #ClutterPropertyTransition is available since Clutter 1.10
+ * Since: 1.10
  */
 
 #include "clutter-build-config.h"
@@ -258,7 +258,7 @@ clutter_property_transition_class_init (ClutterPropertyTransitionClass *klass)
   /**
    * ClutterPropertyTransition:property-name:
    *
-   * The name of the property of a #ClutterAnimatable to animate.
+   * The name of the property of a [iface@Animatable] to animate.
    *
    * Since: 1.10
    */
@@ -322,7 +322,7 @@ clutter_property_transition_new (const char *property_name)
  * @transition: a #ClutterPropertyTransition
  * @property_name: (allow-none): a property name
  *
- * Sets the #ClutterPropertyTransition:property-name property of @transition.
+ * Sets the [property@PropertyTransition:property-name] property of @transition.
  *
  * Since: 1.10
  */
@@ -360,7 +360,7 @@ clutter_property_transition_set_property_name (ClutterPropertyTransition *transi
  * clutter_property_transition_get_property_name:
  * @transition: a #ClutterPropertyTransition
  *
- * Retrieves the value of the #ClutterPropertyTransition:property-name
+ * Retrieves the value of the [property@PropertyTransition:property-name]
  * property.
  *
  * Return value: the name of the property being animated, or %NULL if

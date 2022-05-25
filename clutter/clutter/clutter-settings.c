@@ -1,7 +1,7 @@
 /**
- * SECTION:clutter-settings
- * @Title: ClutterSettings
- * @Short_Description: Settings configuration
+ * ClutterSettings:
+ * 
+ * Settings configuration
  *
  * Clutter depends on some settings to perform operations like detecting
  * multiple button press events, or font options to render text.
@@ -14,7 +14,7 @@
  * the #ClutterSettings properties when implementing new UI elements,
  * for instance the default font name.
  *
- * #ClutterSettings is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -53,14 +53,6 @@ typedef struct
   const char *clutter_font_subpixel_order;
 } FontSettings;
 
-/**
- * ClutterSettings:
- *
- * `ClutterSettings` is an opaque structure whose
- * members cannot be directly accessed.
- *
- * Since: 1.4
- */
 struct _ClutterSettings
 {
   GObject parent_instance;
@@ -787,7 +779,7 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
   /**
    * ClutterSettings:backend:
    *
-   * A back pointer to the #ClutterBackend
+   * A back pointer to the [class@Backend]
    *
    * Since: 1.4
    *
@@ -854,7 +846,7 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
    * ClutterSettings:font-name:
    *
    * The default font name that should be used by text actors, as
-   * a string that can be passed to pango_font_description_from_string().
+   * a string that can be passed to [func@Pango.FontDescription.from_string].
    *
    * Since: 1.4
    */
@@ -971,7 +963,7 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
    * Sets the minimum duration for a press to be recognized as a long press
    * gesture. The duration is expressed in milliseconds.
    *
-   * See also #ClutterClickAction:long-press-duration.
+   * See also [property@ClickAction:long-press-duration].
    *
    * Since: 1.8
    */
@@ -995,7 +987,7 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
    * ClutterText:password-hint-time:
    *
    * How long should Clutter show the last input character in editable
-   * ClutterText actors. The value is in milliseconds. A value of 0
+   * [class@Text] actors. The value is in milliseconds. A value of 0
    * disables showing the password hint. 600 is a good value for
    * enabling the hint.
    *

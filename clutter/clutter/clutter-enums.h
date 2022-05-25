@@ -43,9 +43,11 @@ G_BEGIN_DECLS
  * @CLUTTER_GRAVITY_NORTH_WEST: Scale from the top left corner
  * @CLUTTER_GRAVITY_CENTER: Scale from the center.
  *
- * Gravity of the scaling operations. When a gravity different than
- * %CLUTTER_GRAVITY_NONE is used, an actor is scaled keeping the position
- * of the specified portion at the same coordinates.
+ * Gravity of the scaling operations.
+ * 
+ * When a gravity different than %CLUTTER_GRAVITY_NONE is used, 
+ * an actor is scaled keeping the position of the specified portion 
+ * at the same coordinates.
  *
  * Since: 0.2
  *
@@ -190,8 +192,9 @@ typedef enum /*< prefix=CLUTTER_REQUEST >*/
  * @CLUTTER_ANIMATION_LAST: last animation mode, used as a guard for
  *   registered global alpha functions
  *
- * The animation modes used by #ClutterAnimatable. This
- * enumeration can be expanded in later versions of Clutter.
+ * The animation modes used by [iface@Animatable]. 
+ * 
+ * This enumeration can be expanded in later versions of Clutter.
  *
  * <figure id="easing-modes">
  *   <title>Easing modes provided by Clutter</title>
@@ -284,7 +287,7 @@ typedef enum
  * @CLUTTER_TEXT_DIRECTION_LTR: Use left-to-right text direction
  * @CLUTTER_TEXT_DIRECTION_RTL: Use right-to-left text direction
  *
- * The text direction to be used by #ClutterActor<!-- -->s
+ * The text direction to be used by [class@Actor]s
  *
  * Since: 1.2
  */
@@ -1338,8 +1341,8 @@ typedef enum
  *   mipmap generation; this filter linearly interpolates on every axis,
  *   as well as between mipmap levels.
  *
- * The scaling filters to be used with the #ClutterActor:minification-filter
- * and #ClutterActor:magnification-filter properties.
+ * The scaling filters to be used with the [property@Actor:minification-filter]
+ * and [property@Actor:magnification-filter] properties.
  *
  * Since: 1.10
  */
@@ -1472,7 +1475,7 @@ typedef enum
  * the gesture must begin immediately and that it must be cancelled
  * once the drag exceed the configured threshold.
  *
- * Enum passed to the clutter_gesture_action_set_threshold_trigger_edge()
+ * Enum passed to the [method@GestureAction.set_threshold_trigger_edge]
  * function.
  *
  * Since: 1.18
@@ -1493,9 +1496,11 @@ typedef enum
  * @CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL: The gesture was cancelled, all
  *   changes should be undone.
  *
- * The phase of a touchpad gesture event. All gestures are guaranteed to
- * begin with an event of type %CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN,
- * followed by a number of %CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE (possibly 0).
+ * The phase of a touchpad gesture event. 
+ * 
+ * All gestures are guaranteed to begin with an event of type 
+ * %CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN, followed by a number
+ * of %CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE (possibly 0).
  *
  * A finished gesture may have 2 possible outcomes, an event with phase
  * %CLUTTER_TOUCHPAD_GESTURE_PHASE_END will be emitted when the gesture is
@@ -1531,9 +1536,10 @@ typedef enum
  * @CLUTTER_SCROLL_SOURCE_CONTINUOUS: The scroll event is originated by the
  *   motion of some device (eg. a scroll button is set).
  *
- * The scroll source determines the source of the scroll event. Keep in mind
- * that the source device #ClutterInputDeviceType is not enough to infer
- * the scroll source.
+ * The scroll source determines the source of the scroll event. 
+ * 
+ * Keep in mind that the source device #ClutterInputDeviceType is not enough
+ * to infer the scroll source.
  *
  * Since: 1.26
  */
@@ -1552,6 +1558,7 @@ typedef enum
  * @CLUTTER_SCROLL_FINISHED_VERTICAL: The vertical axis stopped.
  *
  * Flags used to notify the axes that were stopped in a #ClutterScrollEvent.
+ * 
  * These can be used to trigger post-scroll effects like kinetic scrolling.
  *
  * Since: 1.26

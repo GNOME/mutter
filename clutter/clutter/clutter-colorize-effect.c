@@ -23,14 +23,14 @@
  */
 
 /**
- * SECTION:clutter-colorize-effect
- * @short_description: A colorization effect
- * @see_also: #ClutterEffect, #ClutterOffscreenEffect
+ * ClutterColorizeEffect:
+ * 
+ * A colorization effect
  *
  * #ClutterColorizeEffect is a sub-class of #ClutterEffect that
  * colorizes an actor with the given tint.
  *
- * #ClutterColorizeEffect is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #define CLUTTER_COLORIZE_EFFECT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_COLORIZE_EFFECT, ClutterColorizeEffectClass))

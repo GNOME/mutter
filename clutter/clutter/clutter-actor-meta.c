@@ -23,22 +23,21 @@
  */
 
 /**
- * SECTION:clutter-actor-meta
- * @Title: ClutterActorMeta
- * @Short_Description: Base class of actor modifiers
- * @See_Also: #ClutterAction, #ClutterConstraint
+ * ClutterActorMeta:
+ * 
+ * Base class of actor modifiers
  *
  * #ClutterActorMeta is an abstract class providing a common API for
- * modifiers of #ClutterActor behaviour, appearance or layout.
+ * modifiers of [class@Actor] behaviour, appearance or layout.
  *
- * A #ClutterActorMeta can only be owned by a single #ClutterActor at
+ * A #ClutterActorMeta can only be owned by a single [class@Actor] at
  * any time.
  *
  * Every sub-class of #ClutterActorMeta should check if the
- * #ClutterActorMeta:enabled property is set to %TRUE before applying
+ * [property@ActorMeta:enabled] property is set to %TRUE before applying
  * any kind of modification.
  *
- * #ClutterActorMeta is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -298,7 +297,7 @@ clutter_actor_meta_set_name (ClutterActorMeta *meta,
  * clutter_actor_meta_get_name:
  * @meta: a #ClutterActorMeta
  *
- * Retrieves the name set using clutter_actor_meta_set_name()
+ * Retrieves the name set using [method@ActorMeta.set_name]
  *
  * Return value: (transfer none): the name of the #ClutterActorMeta
  *   instance, or %NULL if none was set. The returned string is owned
@@ -391,7 +390,7 @@ _clutter_actor_meta_set_actor (ClutterActorMeta *meta,
  * clutter_actor_meta_get_actor:
  * @meta: a #ClutterActorMeta
  *
- * Retrieves a pointer to the #ClutterActor that owns @meta
+ * Retrieves a pointer to the [class@Actor] that owns @meta
  *
  * Return value: (transfer none): a pointer to a #ClutterActor or %NULL
  *

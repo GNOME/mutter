@@ -26,13 +26,13 @@
  */
 
 /**
- * SECTION:clutter-page-turn-effect
- * @Title: ClutterPageTurnEffect
- * @Short_Description: A page turning effect
+ * ClutterPageTurnEffect:
+ * 
+ * A page turning effect
  *
  * A simple page turning effect
  *
- * #ClutterPageTurnEffect is available since Clutter 1.4
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -326,7 +326,7 @@ clutter_page_turn_effect_set_period (ClutterPageTurnEffect *effect,
  * clutter_page_turn_effect_get_period:
  * @effect: a #ClutterPageTurnEffect
  *
- * Retrieves the value set using clutter_page_turn_effect_get_period()
+ * Retrieves the value set using [method@PageTurnEffect.get_period]
  *
  * Return value: the period of the page curling
  *
@@ -367,7 +367,7 @@ clutter_page_turn_effect_set_angle (ClutterPageTurnEffect *effect,
  * clutter_page_turn_effect_get_angle:
  * @effect: a #ClutterPageTurnEffect:
  *
- * Retrieves the value set using clutter_page_turn_effect_get_angle()
+ * Retrieves the value set using [method@PageTurnEffect.get_angle]
  *
  * Return value: the angle of the page curling
  *
@@ -407,7 +407,7 @@ clutter_page_turn_effect_set_radius (ClutterPageTurnEffect *effect,
  * clutter_page_turn_effect_get_radius:
  * @effect: a #ClutterPageTurnEffect
  *
- * Retrieves the value set using clutter_page_turn_effect_set_radius()
+ * Retrieves the value set using [method@PageTurnEffect.set_radius]
  *
  * Return value: the radius of the page curling
  *

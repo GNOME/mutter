@@ -25,15 +25,16 @@
  */
 
 /**
- * SECTION:clutter-scriptable
- * @short_description: Override the UI definition parsing
+ * ClutterScriptable:
+ * 
+ * Override the UI definition parsing
  *
- * The #ClutterScriptableIface interface exposes the UI definition parsing
+ * The #ClutterScriptable interface exposes the UI definition parsing
  * process to external classes. By implementing this interface, a class can
  * override the UI definition parsing and transform complex data types into
- * GObject properties, or allow custom properties.
+ * [class@GObject.Object] properties, or allow custom properties.
  *
- * #ClutterScriptable is available since Clutter 0.6
+ * Since: 0.6
  */
 
 #include "clutter-build-config.h"
@@ -68,7 +69,7 @@ clutter_scriptable_default_init (ClutterScriptableInterface *iface)
  *
  * This name can be used by user interface designer applications to
  * define a unique name for an object constructable using the UI
- * definition language parsed by #ClutterScript.
+ * definition language parsed by [class@Script].
  *
  * Since: 0.6
  */
@@ -95,7 +96,7 @@ clutter_scriptable_set_id (ClutterScriptable *scriptable,
  * clutter_scriptable_get_id:
  * @scriptable: a #ClutterScriptable
  *
- * Retrieves the id of @scriptable set using clutter_scriptable_set_id().
+ * Retrieves the id of @scriptable set using [method@Clutter.Scriptable.set_id].
  *
  * Return value: the id of the object. The returned string is owned by
  *   the scriptable object and should never be modified of freed
@@ -125,7 +126,7 @@ clutter_scriptable_get_id (ClutterScriptable *scriptable)
  * @node: the JSON node to be parsed
  *
  * Parses the passed JSON node. The implementation must set the type
- * of the passed #GValue pointer using g_value_init().
+ * of the passed [struct@GObject.Value] pointer using g_value_init().
  *
  * Return value: %TRUE if the node was successfully parsed, %FALSE otherwise.
  *

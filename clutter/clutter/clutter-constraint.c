@@ -23,10 +23,9 @@
  */
 
 /**
- * SECTION:clutter-constraint
- * @Title: ClutterConstraint
- * @Short_Description: Abstract class for constraints on position or size
- * @See_Also: #ClutterAction
+ * ClutterConstraint:
+ * 
+ * Abstract class for constraints on position or size
  *
  * #ClutterConstraint is a base abstract class for modifiers of a #ClutterActor
  * position or size.
@@ -36,8 +35,6 @@
  * updating the actor's allocation. Each #ClutterConstraint can change the
  * allocation of the actor to which they are applied by overriding the
  * #ClutterConstraintClass.update_allocation() virtual function.
- *
- * #ClutterConstraint is available since Clutter 1.4
  *
  * ## Using Constraints
  *
@@ -126,6 +123,8 @@
  * call clutter_actor_queue_relayout() on the actor to which it is attached
  * to whenever any parameter is changed. The actor to which it is attached
  * can be recovered at any point using clutter_actor_meta_get_actor().
+ * 
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"

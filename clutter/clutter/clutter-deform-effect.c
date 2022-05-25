@@ -26,10 +26,9 @@
  */
 
 /**
- * SECTION:clutter-deform-effect
- * @Title: ClutterDeformEffect
- * @Short_Description: A base class for effects deforming the geometry
- *   of an actor
+ * ClutterDeformEffect:
+ * 
+ * A base class for effects deforming the geometry of an actor
  *
  * #ClutterDeformEffect is an abstract class providing all the plumbing
  * for creating effects that result in the deformation of an actor's
@@ -39,8 +38,6 @@
  * a #ClutterActor and then the Cogl vertex buffers API to submit the
  * geometry to the GPU.
  *
- * #ClutterDeformEffect is available since Clutter 1.4
- *
  * ## Implementing ClutterDeformEffect
  *
  * Sub-classes of #ClutterDeformEffect should override the
@@ -49,6 +46,8 @@
  * Each passed vertex is an in-out parameter that initially contains the
  * position of the vertex and should be modified according to a specific
  * deformation algorithm.
+ * 
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -803,7 +802,7 @@ clutter_deform_effect_get_n_tiles (ClutterDeformEffect *effect,
  * clutter_deform_effect_invalidate:
  * @effect: a #ClutterDeformEffect
  *
- * Invalidates the @effect<!-- -->'s vertices and, if it is associated
+ * Invalidates the `effect`'s vertices and, if it is associated
  * to an actor, it will queue a redraw
  *
  * Since: 1.4

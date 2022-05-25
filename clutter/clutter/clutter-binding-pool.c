@@ -22,8 +22,9 @@
  */
 
 /**
- * SECTION:clutter-binding-pool
- * @short_description: Pool for key bindings
+ * ClutterBindingPool
+ * 
+ * Pool for key bindings
  *
  * #ClutterBindingPool is a data structure holding a set of key bindings.
  * Each key binding associates a key symbol (eventually with modifiers)
@@ -38,7 +39,7 @@
  * inside their class initialization function and then install actions
  * like this:
  *
- * |[<!-- language="C" -->
+ * ```c
  * static void
  * foo_class_init (FooClass *klass)
  * {
@@ -55,23 +56,23 @@
  *                                        G_CALLBACK (foo_action_move_up),
  *                                        NULL, NULL);
  * }
- * ]|
+ * ```
  *
  * The callback has a signature of:
  *
- * |[<!-- language="C" -->
+ * ```c
  *    gboolean (* callback) (GObject             *instance,
  *                           const gchar         *action_name,
  *                           guint                key_val,
  *                           ClutterModifierType  modifiers,
  *                           gpointer             user_data);
- * ]|
+ * ```
  *
- * The actor should then override the #ClutterActor::key-press-event and
- * use clutter_binding_pool_activate() to match a #ClutterKeyEvent structure
+ * The actor should then override the [signal@Actor::key-press-event] and
+ * use [method@BindingPool.activate] to match a [struct@KeyEvent] structure
  * to one of the actions:
  *
- * |[<!-- language="C" -->
+ * ```c
  *   ClutterBindingPool *pool;
  *
  *   // retrieve the binding pool for the type of the actor
@@ -84,14 +85,14 @@
  *                                         key_event->keyval,
  *                                         key_event->modifier_state,
  *                                         G_OBJECT (actor));
- * ]|
+ * ```
  *
- * The clutter_binding_pool_activate() function will return %FALSE if
+ * The [method@BindingPool.activate] function will return %FALSE if
  * no action for the given key binding was found, if the action was
- * blocked (using clutter_binding_pool_block_action()) or if the
+ * blocked (using [method@BindingPool.block_action]) or if the
  * key binding handler returned %FALSE.
  *
- * #ClutterBindingPool is available since Clutter 1.0
+ * Since: 1.0
  */
 
 #include "clutter-build-config.h"
@@ -382,9 +383,9 @@ clutter_binding_pool_new (const gchar *name)
  * A binding pool for a class can also be retrieved using
  * clutter_binding_pool_find() with the class type name:
  *
- * |[
+ * ```
  *   pool = clutter_binding_pool_find (G_OBJECT_TYPE_NAME (instance));
- * ]|
+ * ```
  *
  * Return value: (transfer none): the binding pool for the given class.
  *   The returned #ClutterBindingPool is owned by Clutter and should not
@@ -832,13 +833,13 @@ clutter_binding_entry_invoke (ClutterBindingEntry *entry,
  *
  * The callback has the following signature:
  *
- * |[
+ * ```
  *   void (* callback) (GObject             *gobject,
  *                      const gchar         *action_name,
  *                      guint                key_val,
  *                      ClutterModifierType  modifiers,
  *                      gpointer             user_data);
- * ]|
+ * ```
  *
  * Where the #GObject instance is @gobject and the user data
  * is the one passed when installing the action with

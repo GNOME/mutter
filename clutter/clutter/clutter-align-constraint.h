@@ -37,14 +37,6 @@ G_BEGIN_DECLS
 #define CLUTTER_ALIGN_CONSTRAINT(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ALIGN_CONSTRAINT, ClutterAlignConstraint))
 #define CLUTTER_IS_ALIGN_CONSTRAINT(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ALIGN_CONSTRAINT))
 
-/**
- * ClutterAlignConstraint:
- *
- * #ClutterAlignConstraint is an opaque structure
- * whose members cannot be directly accesses
- *
- * Since: 1.4
- */
 typedef struct _ClutterAlignConstraint          ClutterAlignConstraint;
 typedef struct _ClutterAlignConstraintClass     ClutterAlignConstraintClass;
 
