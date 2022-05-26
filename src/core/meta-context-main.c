@@ -466,8 +466,10 @@ meta_context_main_create_backend (MetaContext  *context,
   compositor_type = meta_context_get_compositor_type (context);
   switch (compositor_type)
     {
+#ifdef HAVE_X11
     case META_COMPOSITOR_TYPE_X11:
       return create_x11_cm_backend (context, error);
+#endif
     case META_COMPOSITOR_TYPE_WAYLAND:
 #ifdef HAVE_WAYLAND
       if (context_main->options.nested)
@@ -549,6 +551,7 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
 {
   MetaContext *context = META_CONTEXT (context_main);
   GOptionEntry options[] = {
+#ifdef HAVE_X11
     {
       "replace", 'r', 0, G_OPTION_ARG_NONE,
       &context_main->options.x11.replace,
@@ -585,6 +588,7 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Make X calls synchronous"),
       NULL
     },
+#endif
 #ifdef HAVE_WAYLAND
     {
       "wayland", 0, 0, G_OPTION_ARG_NONE,
@@ -633,11 +637,13 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       &context_main->options.unsafe_mode,
       "Run in unsafe mode"
     },
+#ifdef HAVE_X11
     {
       "x11", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.x11.force,
       N_("Run with X11 backend")
     },
+#endif
     { NULL }
   };
 
