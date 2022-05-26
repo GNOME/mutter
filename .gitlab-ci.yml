@@ -17,8 +17,8 @@ variables:
 
 .mutter.fedora@common:
   variables:
-    FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-08-02.0'
+    FDO_DISTRIBUTION_VERSION: 36
+    BASE_TAG: '2022-08-18.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -40,30 +40,11 @@ variables:
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
 
-      dnf builddep -y gsettings-desktop-schemas --setopt=install_weak_deps=False &&
       dnf builddep -y mutter --setopt=install_weak_deps=False &&
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False &&
-      dnf builddep -y libinput --setopt=install_weak_deps=False &&
       dnf builddep -y wayland --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
       dnf builddep -y kernel --setopt=install_weak_deps=False &&
-
-      # For Xwayland
-      dnf builddep -y xorg-x11-server-Xwayland --setopt=install_weak_deps=False &&
-      dnf install -y 'pkgconfig(fontutil)' &&
-      dnf install -y 'pkgconfig(libxcvt)' &&
-
-      ./.gitlab-ci/install-meson-project.sh \
-        -Dxwayland_eglstream=true \
-        -Dxvfb=false \
-        -Dvendor_name="Mutter CI" \
-        -Dxdmcp=false \
-        -Dxcsecurity=true \
-        -Dglamor=true \
-        -Ddri3=true \
-        https://gitlab.freedesktop.org/xorg/xserver.git \
-        xwayland-22.1.0 \
-        . &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gjs.git \
@@ -80,10 +61,6 @@ variables:
         3.90.0 . &&
 
       ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-        42.beta . &&
-
-      ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.freedesktop.org/wayland/wayland.git \
         1.21.0 . &&
 
@@ -91,10 +68,11 @@ variables:
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
         1.26 . &&
 
-      ./.gitlab-ci/install-meson-project.sh \
-        -Dgtk_doc=false \
-        https://gitlab.gnome.org/GNOME/libgweather.git \
-        main . 1f687f6375a3f3f006600119f7eee7df7348ade5 &&
+      git clone https://github.com/zatrazz/glibc-tools.git &&
+      cd glibc-tools &&
+      ./configure && make && make install &&
+      cd .. &&
+      rm -rf glibc-tools &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
@@ -108,9 +86,11 @@ variables:
         mkdir -p /opt/mutter &&
         cp build/src/tests/kvm/bzImage /opt/mutter/bzImage &&
 
+        dnf install -y python3-pyelftools &&
+
         git clone https://github.com/jadahl/virtme.git &&
         cd virtme &&
-        git checkout e7ee481efa10098ed0d62c9e033d61b2379b9b95 &&
+        git checkout 87bcebe63f61e2a3ccd418b0903eab90113a47ae &&
         ./setup.py install --prefix=/usr &&
         cd .. &&
         rm -rf virtme
