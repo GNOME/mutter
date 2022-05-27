@@ -1997,8 +1997,7 @@ meta_display_end_grab_op (MetaDisplay *display,
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Ending grab op %u at time %u", grab_op, timestamp);
 
-  if (display->event_route == META_EVENT_ROUTE_NORMAL ||
-      display->event_route == META_EVENT_ROUTE_COMPOSITOR_GRAB)
+  if (display->event_route == META_EVENT_ROUTE_NORMAL)
     return;
 
   g_assert (grab_window != NULL);
