@@ -15,7 +15,7 @@ stages:
 variables:
   FDO_UPSTREAM_REPO: GNOME/mutter
 
-.mutter.fedora:35@common:
+.mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
     BASE_TAG: '2022-08-02.0'
@@ -132,13 +132,13 @@ default:
       - 'scheduler_failure'
       - 'api_failure'
 
-.mutter.fedora:35@x86_64:
-  extends: .mutter.fedora:35@common
+.mutter.fedora@x86_64:
+  extends: .mutter.fedora@common
   variables:
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
-.mutter.fedora:35@aarch64:
-  extends: .mutter.fedora:35@common
+.mutter.fedora@aarch64:
+  extends: .mutter.fedora@common
   variables:
     FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
   tags:
@@ -219,7 +219,7 @@ check-merge-request:
 build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora@x86_64
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: prepare
   needs:
     - check-commit-log
@@ -230,7 +230,7 @@ build-fedora-container@x86_64:
 build-fedora-container@aarch64:
   extends:
     - .fdo.container-build@fedora@aarch64
-    - .mutter.fedora:35@aarch64
+    - .mutter.fedora@aarch64
   stage: prepare
   needs:
     - check-commit-log
@@ -241,7 +241,7 @@ build-fedora-container@aarch64:
 check-code-style:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: code-review
   needs:
     - build-fedora-container@x86_64
@@ -292,21 +292,21 @@ build-mutter@x86_64:
       -Dkvm_kernel_image=/opt/mutter/bzImage
   extends:
     - .build-mutter
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   needs:
     - build-fedora-container@x86_64
 
 build-mutter@aarch64:
   extends:
     - .build-mutter
-    - .mutter.fedora:35@aarch64
+    - .mutter.fedora@aarch64
   needs:
     - build-fedora-container@aarch64
 
 build-without-opengl-and-glx@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: build
   needs:
     - build-fedora-container@x86_64
@@ -326,7 +326,7 @@ build-without-opengl-and-glx@x86_64:
 build-without-native-backend-and-wayland@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: build
   needs:
     - build-fedora-container@x86_64
@@ -398,14 +398,14 @@ build-without-native-backend-and-wayland@x86_64:
 test-mutter@x86_64:
   extends:
     - .test-mutter
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   needs:
     - build-mutter@x86_64
 
 test-mutter-kvm@x86_64:
   extends:
     - .test-mutter-base
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   tags:
     - kvm
   script:
@@ -423,14 +423,14 @@ test-mutter-kvm@x86_64:
 test-mutter@aarch64:
   extends:
     - .test-mutter
-    - .mutter.fedora:35@aarch64
+    - .mutter.fedora@aarch64
   needs:
     - build-mutter@aarch64
 
 coverage:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: analyze
   script:
     - mkdir coveragereport
@@ -448,7 +448,7 @@ coverage:
 can-build-gnome-shell@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: test
   needs:
     - build-mutter@x86_64
@@ -467,7 +467,7 @@ test-mutter-coverity:
       when: 'manual'
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   needs:
     - build-fedora-container@x86_64
   stage: analyze
@@ -489,7 +489,7 @@ test-mutter-coverity:
 dist-mutter:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
     - .build-mutter-base
   <<: *test-setup
   stage: deploy
@@ -521,7 +521,7 @@ dist-mutter-tarball:
 reference:
   extends:
     - .fdo.distribution-image@fedora
-    - .mutter.fedora:35@x86_64
+    - .mutter.fedora@x86_64
   stage: docs
   needs:
     - job: build-fedora-container@x86_64
