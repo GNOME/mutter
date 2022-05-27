@@ -409,3 +409,18 @@ if have_kvm_tests or have_tty_tests
     endforeach
   endif
 endif
+
+if have_x11
+  test('x11', xvfb,
+    args: [
+      xvfb_args,
+      find_program('x11-test.sh').full_path(),
+      mutter.full_path(),
+    ],
+    depends: [mutter],
+    suite: ['core', 'mutter/x11'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+endif

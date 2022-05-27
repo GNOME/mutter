@@ -362,13 +362,21 @@ if have_tests
 
   add_test_setup('plain')
 
+  xvfb = find_program('xvfb-run')
+  xvfb_args = [
+    '-a',
+    '-s',
+    '+iglx -noreset',
+  ]
+  xvfb_command = [xvfb] + xvfb_args
+
   add_test_setup('CI',
     env: [
       'MUTTER_DEBUG_DUMMY_MODE_SPECS=800x600@10.0',
     ],
     exe_wrapper: [
       default_test_wrappers,
-      find_program('xvfb-run'), '-a', '-s', '+iglx -noreset',
+      xvfb_command,
     ],
     timeout_multiplier: 10,
   )

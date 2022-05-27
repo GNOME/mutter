@@ -1050,7 +1050,7 @@ libmutter_dep = declare_dependency(
   ],
 )
 
-executable('mutter',
+mutter = executable('mutter',
   sources: [
     files('core/mutter.c'),
   ],
