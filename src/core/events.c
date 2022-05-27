@@ -91,6 +91,9 @@ get_window_for_event (MetaDisplay        *display,
       {
         MetaWindowActor *window_actor;
 
+        if (stage_has_grab (display))
+          return NULL;
+
         /* Always use the key focused window for key events. */
         if (IS_KEY_EVENT (event))
           {
@@ -105,7 +108,6 @@ get_window_for_event (MetaDisplay        *display,
           return NULL;
       }
     case META_EVENT_ROUTE_WINDOW_OP:
-    case META_EVENT_ROUTE_COMPOSITOR_GRAB:
     case META_EVENT_ROUTE_WAYLAND_POPUP:
     case META_EVENT_ROUTE_FRAME_BUTTON:
       return display->grab_window;
