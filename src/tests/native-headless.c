@@ -25,9 +25,9 @@
 #include "tests/native-virtual-monitor.h"
 
 static void
-init_tests (void)
+init_tests (MetaContext *context)
 {
-  init_virtual_monitor_tests ();
+  init_virtual_monitor_tests (context);
   init_screen_cast_tests ();
 }
 
@@ -41,7 +41,7 @@ main (int    argc,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
-  init_tests ();
+  init_tests (context);
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);

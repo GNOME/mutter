@@ -129,7 +129,7 @@ meta_context_test_setup (MetaContext  *context,
                                                                    error))
     return FALSE;
 
-  backend = meta_get_backend ();
+  backend = meta_context_get_backend (context);
   settings = meta_backend_get_settings (backend);
   meta_settings_override_experimental_features (settings);
   meta_settings_enable_experimental_feature (

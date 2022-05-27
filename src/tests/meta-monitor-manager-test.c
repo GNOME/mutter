@@ -357,9 +357,9 @@ meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager        
 }
 
 static gboolean
-is_monitor_framebuffer_scaled (void)
+is_monitor_framebuffer_scaled (MetaMonitorManager *manager)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaSettings *settings = meta_backend_get_settings (backend);
 
   return meta_settings_is_experimental_feature_enabled (
@@ -373,7 +373,7 @@ meta_monitor_manager_test_get_capabilities (MetaMonitorManager *manager)
   MetaMonitorManagerCapability capabilities =
     META_MONITOR_MANAGER_CAPABILITY_NONE;
 
-  if (is_monitor_framebuffer_scaled ())
+  if (is_monitor_framebuffer_scaled (manager))
     capabilities |= META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE;
 
   return capabilities;
@@ -390,7 +390,7 @@ meta_monitor_manager_test_get_max_screen_size (MetaMonitorManager *manager,
 static MetaLogicalMonitorLayoutMode
 meta_monitor_manager_test_get_default_layout_mode (MetaMonitorManager *manager)
 {
-  if (is_monitor_framebuffer_scaled ())
+  if (is_monitor_framebuffer_scaled (manager))
     return META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
   else
     return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;

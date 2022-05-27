@@ -23,12 +23,14 @@
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-ref-test.h"
 
+static MetaContext *test_context;
+
 static MetaVirtualMonitor *virtual_monitor;
 
 static void
 setup_test_environment (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaSettings *settings = meta_backend_get_settings (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -61,7 +63,7 @@ setup_test_environment (void)
 static void
 tear_down_test_environment (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -72,7 +74,7 @@ tear_down_test_environment (void)
 static ClutterStageView *
 get_view (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   return CLUTTER_STAGE_VIEW (meta_renderer_get_views (renderer)->data);
@@ -81,7 +83,7 @@ get_view (void)
 static void
 meta_test_ref_test_sanity (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterActor *stage = meta_backend_get_stage (backend);
   ClutterActor *actor1;
   ClutterActor *actor2;
@@ -143,6 +145,8 @@ main (int    argc,
                     G_CALLBACK (setup_test_environment), NULL);
   g_signal_connect (context, "after-tests",
                     G_CALLBACK (tear_down_test_environment), NULL);
+
+  test_context = context;
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);

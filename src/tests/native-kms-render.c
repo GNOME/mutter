@@ -205,7 +205,7 @@ meta_test_kms_render_client_scanout (void)
                                          meta_kms_device_get_path (kms_device));
 
   wayland_test_client =
-    meta_wayland_test_client_new ("dma-buf-scanout");
+    meta_wayland_test_client_new (test_context, "dma-buf-scanout");
   g_assert_nonnull (wayland_test_client);
 
   test = (KmsRenderingTest) {
@@ -310,6 +310,8 @@ main (int    argc,
   test_context = context;
 
   init_tests ();
+
+  test_context = context;
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_CAN_SKIP);

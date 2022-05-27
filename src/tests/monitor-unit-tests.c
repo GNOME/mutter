@@ -261,7 +261,7 @@ meta_test_monitor_initial_linear_config (void)
 static void
 emulate_hotplug (MetaMonitorTestSetup *test_setup)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -275,7 +275,7 @@ static void
 meta_test_monitor_config_store_set_current_on_empty (void)
 {
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -306,7 +306,7 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
   g_autoptr (MetaMonitorsConfig) child_config3 = NULL;
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
   g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -403,7 +403,7 @@ meta_test_monitor_config_store_set_current (void)
 {
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
   g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -443,7 +443,7 @@ meta_test_monitor_config_store_set_current_with_parent (void)
   g_autoptr (MetaMonitorsConfig) other_child = NULL;
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
   g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -524,7 +524,7 @@ meta_test_monitor_config_store_set_current_max_size (void)
   /* Keep this in sync with CONFIG_HISTORY_MAX_SIZE */
   const unsigned int config_history_max_size = 3;
   g_autolist (MetaMonitorsConfig) added = NULL;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -592,7 +592,7 @@ meta_test_monitor_config_store_set_current_max_size (void)
 static void
 meta_test_monitor_config_store_set_current_null (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -2418,7 +2418,7 @@ meta_test_monitor_lid_switch_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -2603,7 +2603,7 @@ meta_test_monitor_lid_opened_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -2718,7 +2718,7 @@ meta_test_monitor_lid_closed_no_external (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
 
   test_setup = meta_create_monitor_test_setup (test_backend,
                                                &test_case.setup,
@@ -2858,7 +2858,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
 
   /*
    * The first part of this test emulate the following:
@@ -3069,7 +3069,7 @@ meta_test_monitor_lid_scaled_closed_opened (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -3612,7 +3612,7 @@ meta_test_monitor_switch_external_without_external (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -3762,9 +3762,8 @@ meta_test_monitor_switch_config_remember_scale (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
+    meta_backend_get_monitor_manager (test_backend);
 
   /*
    * Check that default configuration is non-scaled linear.
@@ -3943,7 +3942,7 @@ typedef MetaSensorsProxyMock MetaSensorsProxyAutoResetMock;
 static void
 meta_sensors_proxy_reset (MetaSensorsProxyMock *proxy)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaOrientationManager *orientation_manager =
     meta_backend_get_orientation_manager (backend);
 
@@ -3960,7 +3959,7 @@ typedef ClutterInputDevice ClutterAutoRemoveInputDevice;
 static void
 input_device_test_remove (ClutterAutoRemoveInputDevice *device)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
 
   meta_backend_test_remove_device (META_BACKEND_TEST (backend), device);
   g_object_unref (device);
@@ -4051,7 +4050,7 @@ meta_test_monitor_orientation_is_managed (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaOrientationManager *orientation_manager =
     meta_backend_get_orientation_manager (backend);
   MetaMonitorManager *monitor_manager =
@@ -4247,7 +4246,7 @@ meta_test_monitor_orientation_initial_rotated (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaOrientationManager *orientation_manager =
     meta_backend_get_orientation_manager (backend);
   g_autoptr (MetaSensorsProxyAutoResetMock) orientation_mock = NULL;
@@ -4360,7 +4359,7 @@ meta_test_monitor_orientation_initial_rotated_no_touch_mode (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaOrientationManager *orientation_manager =
     meta_backend_get_orientation_manager (backend);
   g_autoptr (MetaSensorsProxyAutoResetMock) orientation_mock = NULL;
@@ -4469,7 +4468,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaOrientationManager *orientation_manager =
@@ -4627,7 +4626,7 @@ meta_test_monitor_orientation_initial_stored_rotated_no_touch (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaOrientationManager *orientation_manager =
@@ -4749,7 +4748,7 @@ meta_test_monitor_orientation_changes (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -4949,7 +4948,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -5215,7 +5214,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaOrientationManager *orientation_manager =
     meta_backend_get_orientation_manager (backend);
   g_autoptr (ClutterAutoRemoveInputDevice) touch_device = NULL;
@@ -7195,7 +7194,7 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -7394,7 +7393,7 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -7544,7 +7543,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -7942,7 +7941,7 @@ meta_test_monitor_custom_lid_switch_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
 
   test_setup = meta_create_monitor_test_setup (test_backend,
                                                &test_case.setup,
@@ -8113,7 +8112,7 @@ meta_test_monitor_migrated_rotated (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -8259,7 +8258,7 @@ meta_test_monitor_migrated_wiggle_discard (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -8539,7 +8538,7 @@ meta_test_monitor_migrated_wiggle (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -9337,7 +9336,7 @@ static void
 test_case_setup (void       **fixture,
                  const void   *data)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =

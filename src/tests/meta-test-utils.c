@@ -39,6 +39,8 @@
 
 struct _MetaTestClient
 {
+  MetaContext *context;
+
   char *id;
   MetaWindowClientType type;
   GSubprocess *subprocess;
@@ -388,7 +390,7 @@ meta_test_client_find_window (MetaTestClient  *client,
                               const char      *window_id,
                               GError         **error)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (client->context);
   g_autofree char *expected_title = NULL;
   MetaWindow *window;
 
@@ -614,6 +616,7 @@ meta_test_client_new (MetaContext           *context,
                                  process_handler);
 
   client = g_new0 (MetaTestClient, 1);
+  client->context = context;
   client->type = type;
   client->id = g_strdup (id);
   client->cancellable = g_cancellable_new ();
@@ -669,7 +672,7 @@ meta_test_client_quit (MetaTestClient  *client,
 void
 meta_test_client_destroy (MetaTestClient *client)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (client->context);
   MetaX11Display *x11_display;
   GError *error = NULL;
 

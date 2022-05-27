@@ -42,6 +42,8 @@ struct _MetaWaylandTestDriver
 {
   GObject parent;
 
+  MetaWaylandCompositor *compositor;
+
   struct wl_global *test_driver;
 
   GList *resources;
@@ -135,7 +137,10 @@ sync_effects_completed (struct wl_client   *client,
                         uint32_t            id,
                         struct wl_resource *surface_resource)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaWaylandTestDriver *test_driver = wl_resource_get_user_data (resource);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (test_driver->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   PendingEffectsData *data;
@@ -186,7 +191,10 @@ verify_view (struct wl_client   *client,
              uint32_t            id,
              uint32_t            sequence)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaWaylandTestDriver *test_driver = wl_resource_get_user_data (resource);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (test_driver->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterActor *stage = meta_backend_get_stage (backend);
   GList *stage_views;
   struct wl_resource *callback;
@@ -298,6 +306,7 @@ meta_wayland_test_driver_new (MetaWaylandCompositor *compositor)
   MetaWaylandTestDriver *test_driver;
 
   test_driver = g_object_new (META_TYPE_WAYLAND_TEST_DRIVER, NULL);
+  test_driver->compositor = compositor;
   test_driver->test_driver = wl_global_create (compositor->wayland_display,
                                                &test_driver_interface,
                                                1,

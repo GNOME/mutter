@@ -79,7 +79,7 @@ static MonitorTestCaseSetup initial_test_case_setup = {
 static void
 meta_test_stage_views_exist (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage;
   GList *stage_views;
 
@@ -154,7 +154,7 @@ is_on_stage_views (ClutterActor *actor,
 static void
 meta_test_actor_stage_views (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage, *container, *test_actor;
   GList *stage_views;
   gboolean stage_views_changed_container = FALSE;
@@ -235,7 +235,7 @@ on_relayout_actor_frame (ClutterTimeline *timeline,
                          int              msec,
                          ClutterActor    *actor)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage = meta_backend_get_stage (backend);
 
   clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
@@ -244,7 +244,7 @@ on_relayout_actor_frame (ClutterTimeline *timeline,
 static void
 meta_test_actor_stage_views_relayout (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage, *actor;
   ClutterTransition *transition;
   GMainLoop *main_loop;
@@ -279,7 +279,7 @@ meta_test_actor_stage_views_relayout (void)
 static void
 meta_test_actor_stage_views_reparent (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage, *container, *test_actor;
   GList *stage_views;
   gboolean stage_views_changed_container = FALSE;
@@ -386,7 +386,7 @@ meta_test_actor_stage_views_reparent (void)
 static void
 meta_test_actor_stage_views_hide_parent (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage, *outer_container, *inner_container, *test_actor;
   GList *stage_views;
   gboolean stage_views_changed_outer_container = FALSE;
@@ -519,7 +519,7 @@ assert_is_stage_view (ClutterStageView *stage_view,
 static void
 meta_test_actor_stage_views_hot_plug (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -588,7 +588,7 @@ meta_test_actor_stage_views_hot_plug (void)
 static void
 meta_test_actor_stage_views_frame_clock (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -732,7 +732,7 @@ static void
 meta_test_actor_stage_views_timeline (void)
 {
   TimelineTest test = { 0 };
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -813,7 +813,7 @@ meta_test_actor_stage_views_timeline (void)
 static void
 meta_test_actor_stage_views_parent_views_rebuilt (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -899,7 +899,7 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
 static void
 meta_test_actor_stage_views_parent_views_changed (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -975,7 +975,7 @@ meta_test_actor_stage_views_parent_views_changed (void)
 static void
 meta_test_actor_stage_views_and_frame_clocks_freed (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -1080,7 +1080,7 @@ meta_test_actor_stage_views_and_frame_clocks_freed (void)
 static void
 ensure_view_count (int n_views)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -1207,7 +1207,7 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
 static void
 meta_test_timeline_actor_destroyed (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = test_backend;
   ClutterActor *stage;
   GList *stage_views;
   ClutterActor *persistent_actor;

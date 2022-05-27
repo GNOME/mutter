@@ -21,6 +21,8 @@
 #ifndef NATIVE_VIRTUAL_MONITOR_H
 #define NATIVE_VIRTUAL_MONITOR_H
 
-void init_virtual_monitor_tests (void);
+typedef struct _MetaContext MetaContext;
+
+void init_virtual_monitor_tests (MetaContext *context);
 
 #endif /* NATIVE_VIRTUAL_MONITOR_H */

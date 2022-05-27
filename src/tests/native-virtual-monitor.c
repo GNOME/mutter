@@ -29,10 +29,12 @@
 #include "backends/native/meta-renderer-native.h"
 #include "tests/meta-ref-test.h"
 
+static MetaContext *test_context;
+
 static void
 meta_test_virtual_monitor_create (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager =
     meta_monitor_manager_get_config_manager (monitor_manager);
@@ -128,8 +130,10 @@ meta_test_virtual_monitor_create (void)
 }
 
 void
-init_virtual_monitor_tests (void)
+init_virtual_monitor_tests (MetaContext *context)
 {
+  test_context = context;
+
   g_test_add_func ("/backends/native/virtual-monitor/create",
                    meta_test_virtual_monitor_create);
 }

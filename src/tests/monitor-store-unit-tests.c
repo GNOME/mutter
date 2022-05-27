@@ -210,7 +210,7 @@ check_monitor_store_configuration (MetaMonitorConfigStore        *config_store,
 static void
 check_monitor_store_configurations (MonitorStoreTestExpect *expect)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
@@ -938,7 +938,7 @@ meta_test_monitor_store_policy_not_allowed (void)
 static void
 meta_test_monitor_store_policy (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;

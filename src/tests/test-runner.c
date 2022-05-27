@@ -84,7 +84,7 @@ test_case_new (MetaContext *context)
   else
     {
       test->x11_display_opened_handler_id =
-        g_signal_connect (meta_get_display (), "x11-display-opened",
+        g_signal_connect (display, "x11-display-opened",
                           G_CALLBACK (on_x11_display_opened),
                           test);
     }
@@ -223,7 +223,7 @@ test_case_assert_stacking (TestCase       *test,
                            MetaWorkspace  *workspace,
                            GError        **error)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (test->context);
   guint64 *windows;
   int n_windows;
   GString *stack_string = g_string_new (NULL);
@@ -295,7 +295,7 @@ test_case_assert_focused (TestCase    *test,
                           const char  *expected_window,
                           GError     **error)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (test->context);
 
   if (!display->focus_window)
     {
@@ -355,7 +355,7 @@ static gboolean
 test_case_check_xserver_stacking (TestCase *test,
                                   GError  **error)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (test->context);
   GString *local_string = g_string_new (NULL);
   GString *x11_string = g_string_new (NULL);
   int i;
@@ -846,7 +846,7 @@ test_case_do (TestCase *test,
       else
         return FALSE;
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
       MetaRectangle rect = { x, y, width, height };
@@ -869,7 +869,7 @@ test_case_do (TestCase *test,
       if (argc != 1)
         BAD_COMMAND("usage: %s", argv[0]);
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
       GList *workspaces =
@@ -1026,7 +1026,7 @@ test_case_do (TestCase *test,
       if (argc != 2)
         BAD_COMMAND("usage: %s <num>", argv[0]);
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
       uint32_t timestamp = meta_display_get_current_time_roundtrip (display);
@@ -1039,7 +1039,7 @@ test_case_do (TestCase *test,
       if (argc != 2)
         BAD_COMMAND("usage: %s <workspace-index>", argv[0]);
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
 
@@ -1068,7 +1068,7 @@ test_case_do (TestCase *test,
       if (!window)
         return FALSE;
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
 
@@ -1087,7 +1087,7 @@ test_case_do (TestCase *test,
       if (argc < 2)
         BAD_COMMAND("usage: %s <workspace-index> [<window-id1> ...]", argv[0]);
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
 
@@ -1120,7 +1120,7 @@ test_case_do (TestCase *test,
       if (!window)
         return FALSE;
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
         meta_display_get_workspace_manager (display);
 
@@ -1162,7 +1162,7 @@ test_case_do (TestCase *test,
       if (argc != 1)
         BAD_COMMAND("usage: %s", argv[0]);
 
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (test->context);
       uint32_t timestamp = meta_display_get_current_time_roundtrip (display);
 
       meta_display_focus_default_window (display, timestamp);
@@ -1207,7 +1207,7 @@ test_case_destroy (TestCase *test,
 
   g_clear_pointer (&test->waiter, meta_async_waiter_destroy);
 
-  display = meta_get_display ();
+  display = meta_context_get_display (test->context);
   g_clear_signal_handler (&test->x11_display_opened_handler_id, display);
   if (display->x11_display && test->alarm_filter)
     {

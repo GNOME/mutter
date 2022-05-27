@@ -75,6 +75,8 @@
 #include <glib.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-crtc.h"
+#include "backends/meta-gpu.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter/clutter-stage-view-private.h"
 
@@ -207,9 +209,12 @@ compare_images (cairo_surface_t *ref_image,
 }
 
 static void
-assert_software_rendered (void)
+assert_software_rendered (ClutterStageView *stage_view)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaRendererView *view = META_RENDERER_VIEW (stage_view);
+  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
 
   g_assert_false (meta_backend_is_rendering_hardware_accelerated (backend));
 }
@@ -302,19 +307,21 @@ on_after_paint (MetaStage           *stage,
 }
 
 static cairo_surface_t *
-capture_view (ClutterStageView *view)
+capture_view (ClutterStageView *stage_view)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaRendererView *view = META_RENDERER_VIEW (stage_view);
+  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+  MetaBackend *backend = meta_crtc_get_backend (crtc);
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
   CaptureViewData data = { 0 };
 
   data.loop = g_main_loop_new (NULL, FALSE);
-  data.watch = meta_stage_watch_view (stage, view,
+  data.watch = meta_stage_watch_view (stage, stage_view,
                                       META_STAGE_WATCH_AFTER_PAINT,
                                       on_after_paint,
                                       &data);
-  clutter_stage_view_add_redraw_clip (view, NULL);
-  clutter_stage_view_schedule_update (view);
+  clutter_stage_view_add_redraw_clip (stage_view, NULL);
+  clutter_stage_view_schedule_update (stage_view);
 
   g_main_loop_run (data.loop);
   g_main_loop_unref (data.loop);
@@ -459,7 +466,7 @@ meta_ref_test_verify_view (ClutterStageView *view,
   cairo_status_t ref_status;
 
   if (flags & META_REFTEST_FLAG_UPDATE_REF)
-    assert_software_rendered ();
+    assert_software_rendered (view);
 
   view_image = capture_view (view);
 

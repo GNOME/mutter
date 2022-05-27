@@ -26,10 +26,12 @@
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-manager-test.h"
 
+static MetaContext *test_context;
+
 static void
 meta_test_headless_start (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *gpus;
@@ -59,7 +61,7 @@ meta_test_headless_monitor_getters (void)
   MetaDisplay *display;
   int index;
 
-  display = meta_get_display ();
+  display = meta_context_get_display (test_context);
 
   index = meta_display_get_monitor_index_for_rect (display,
                                                    &(MetaRectangle) { 0 });
@@ -69,7 +71,7 @@ meta_test_headless_monitor_getters (void)
 static void
 meta_test_headless_monitor_connect (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
@@ -99,7 +101,7 @@ meta_test_headless_monitor_connect (void)
                             NULL);
   test_setup->modes = g_list_append (NULL, crtc_mode);
 
-  gpu = META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);
+  gpu = META_GPU (meta_backend_get_gpus (backend)->data);
   crtc = g_object_new (META_TYPE_CRTC_TEST,
                        "id", (uint64_t) 1,
                        "backend", backend,
@@ -176,6 +178,8 @@ main (int argc, char *argv[])
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
+
+  test_context = context;
 
   return meta_context_test_run_tests (META_CONTEXT_TEST (context),
                                       META_TEST_RUN_FLAG_NONE);

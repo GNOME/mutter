@@ -71,7 +71,8 @@ clutter_test_init (int    *argc,
 ClutterActor *
 clutter_test_get_stage (void)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = test_environ->context;
+  MetaBackend *backend = meta_context_get_backend (context);
 
   return meta_backend_get_stage (backend);
 }

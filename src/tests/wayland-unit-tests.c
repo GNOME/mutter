@@ -39,7 +39,7 @@ static ClutterVirtualInputDevice *virtual_pointer;
 static MetaWindow *
 find_client_window (const char *title)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_context_get_display (test_context);
   g_autoptr (GSList) windows = NULL;
   GSList *l;
 
@@ -61,7 +61,7 @@ subsurface_remap_toplevel (void)
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new ("subsurface-remap-toplevel");
+    meta_wayland_test_client_new (test_context, "subsurface-remap-toplevel");
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
@@ -71,7 +71,7 @@ buffer_transform (void)
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new ("buffer-transform");
+    meta_wayland_test_client_new (test_context, "buffer-transform");
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
@@ -81,7 +81,7 @@ single_pixel_buffer (void)
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new ("single-pixel-buffer");
+    meta_wayland_test_client_new (test_context, "single-pixel-buffer");
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
@@ -91,7 +91,7 @@ subsurface_reparenting (void)
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new ("subsurface-reparenting");
+    meta_wayland_test_client_new (test_context, "subsurface-reparenting");
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
@@ -101,7 +101,7 @@ subsurface_invalid_subsurfaces (void)
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new ("invalid-subsurfaces");
+    meta_wayland_test_client_new (test_context, "invalid-subsurfaces");
   g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "WL: error in client communication*");
   g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
@@ -116,7 +116,7 @@ subsurface_invalid_xdg_shell_actions (void)
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new ("invalid-xdg-shell-actions");
+    meta_wayland_test_client_new (test_context, "invalid-xdg-shell-actions");
   g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Invalid geometry * set on xdg_surface*");
   meta_wayland_test_client_finish (wayland_test_client);
@@ -287,7 +287,7 @@ subsurface_parent_unmapped (void)
                                                         CLUTTER_POINTER_DEVICE);
 
   wayland_test_client =
-    meta_wayland_test_client_new ("subsurface-parent-unmapped");
+    meta_wayland_test_client_new (test_context, "subsurface-parent-unmapped");
 
   window_added_id =
     g_signal_connect (display->stack, "window-added",
@@ -364,7 +364,8 @@ toplevel_apply_limits (void)
   gulong handler_id;
 
   data.loop = g_main_loop_new (NULL, FALSE);
-  data.wayland_test_client = meta_wayland_test_client_new ("xdg-apply-limits");
+  data.wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-apply-limits");
   handler_id = g_signal_connect (test_driver, "sync-point",
                                  G_CALLBACK (on_apply_limits_sync_point),
                                  &data);
@@ -381,7 +382,8 @@ toplevel_activation (void)
   ApplyLimitData data = {};
 
   data.loop = g_main_loop_new (NULL, FALSE);
-  data.wayland_test_client = meta_wayland_test_client_new ("xdg-activation");
+  data.wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-activation");
   meta_wayland_test_client_finish (data.wayland_test_client);
 }
 
@@ -505,7 +507,8 @@ toplevel_bounds_struts (void)
               },
               META_SIDE_TOP);
 
-  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-toplevel-bounds");
 
   wait_for_sync_point (1);
   wait_until_after_paint ();
@@ -525,7 +528,8 @@ toplevel_bounds_struts (void)
 
   clear_struts ();
 
-  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-toplevel-bounds");
 
   wait_for_sync_point (1);
   wait_until_after_paint ();
@@ -595,7 +599,8 @@ toplevel_bounds_monitors (void)
               },
               META_SIDE_TOP);
 
-  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-toplevel-bounds");
 
   wait_for_sync_point (1);
   wait_until_after_paint ();
@@ -618,7 +623,8 @@ toplevel_bounds_monitors (void)
                                                        550.0, 100.0);
   wait_for_cursor_position (550.0, 100.0);
 
-  wayland_test_client = meta_wayland_test_client_new ("xdg-toplevel-bounds");
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-toplevel-bounds");
 
   wait_for_sync_point (1);
   wait_until_after_paint ();

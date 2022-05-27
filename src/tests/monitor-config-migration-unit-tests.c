@@ -30,12 +30,13 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-monitor-config-migration.h"
 #include "tests/meta-monitor-test-utils.h"
+#include "tests/unit-tests.h"
 
 static void
 test_migration (const char *old_config,
                 const char *new_config)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;

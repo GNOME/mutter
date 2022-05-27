@@ -42,7 +42,8 @@ get_test_client_path (const char *test_client_name)
 }
 
 MetaWaylandTestClient *
-meta_wayland_test_client_new (const char *test_client_name)
+meta_wayland_test_client_new (MetaContext *context,
+                              const char  *test_client_name)
 {
   MetaWaylandCompositor *compositor;
   const char *wayland_display_name;
@@ -52,7 +53,7 @@ meta_wayland_test_client_new (const char *test_client_name)
   GError *error = NULL;
   MetaWaylandTestClient *wayland_test_client;
 
-  compositor = meta_wayland_compositor_get_default ();
+  compositor = meta_context_get_wayland_compositor (context);
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
   test_client_path = get_test_client_path (test_client_name);
 
