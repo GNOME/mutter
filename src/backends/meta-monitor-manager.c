@@ -3881,6 +3881,7 @@ meta_monitor_manager_post_init (MetaMonitorManager *manager)
 MetaViewportInfo *
 meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
 {
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaViewportInfo *info;
   GArray *views, *scales;
   GList *logical_monitors, *l;
@@ -3906,7 +3907,7 @@ meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
   info = meta_viewport_info_new ((cairo_rectangle_int_t *) views->data,
                                  (float *) scales->data,
                                  views->len,
-                                 meta_is_stage_views_scaled ());
+                                 meta_backend_is_stage_views_scaled (backend));
   g_array_unref (views);
   g_array_unref (scales);
 

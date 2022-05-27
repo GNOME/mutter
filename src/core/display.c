@@ -1741,7 +1741,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
   MetaBackend *backend = meta_get_backend ();
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     {
       if (best_scale != 0.0f)
         {

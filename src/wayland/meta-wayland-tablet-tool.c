@@ -372,7 +372,7 @@ tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
       meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
                                                   (int) ceiled_scale);
 
-      if (meta_is_stage_views_scaled ())
+      if (meta_backend_is_stage_views_scaled (backend))
         meta_cursor_sprite_set_texture_scale (cursor_sprite,
                                               1.0 / ceiled_scale);
       else

@@ -24,6 +24,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-window.h"
 #include "backends/meta-screen-cast-window-stream-src.h"
 #include "compositor/meta-window-actor-private.h"
@@ -211,6 +212,11 @@ meta_screen_cast_window_stream_initable_init (GInitable     *initable,
 {
   MetaScreenCastWindowStream *window_stream =
     META_SCREEN_CAST_WINDOW_STREAM (initable);
+  MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (initable);
+  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
   MetaWindow *window = window_stream->window;
   MetaLogicalMonitor *logical_monitor;
   int scale;
@@ -228,7 +234,7 @@ meta_screen_cast_window_stream_initable_init (GInitable     *initable,
                               G_CALLBACK (on_window_unmanaged),
                               window_stream);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     scale = (int) ceilf (meta_logical_monitor_get_scale (logical_monitor));
   else
     scale = 1;

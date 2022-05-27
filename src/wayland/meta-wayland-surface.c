@@ -2247,7 +2247,11 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
     }
   else
     {
-      if (meta_is_stage_views_scaled ())
+      MetaContext *context =
+        meta_wayland_compositor_get_context (surface->compositor);
+      MetaBackend *backend = meta_context_get_backend (context);
+
+      if (meta_backend_is_stage_views_scaled (backend))
         {
           float view_scale;
 

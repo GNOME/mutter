@@ -101,9 +101,11 @@ set_geometry_scale_for_window (MetaWindowWayland *wl_window,
 static int
 get_window_geometry_scale_for_logical_monitor (MetaLogicalMonitor *logical_monitor)
 {
-  g_assert (logical_monitor);
+  MetaMonitor *monitor =
+    meta_logical_monitor_get_monitors (logical_monitor)->data;
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     return 1;
   else
     return meta_logical_monitor_get_scale (logical_monitor);
@@ -566,7 +568,7 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
       return;
     }
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     {
       window->monitor = to;
       return;

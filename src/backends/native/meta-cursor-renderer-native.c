@@ -373,10 +373,11 @@ assign_cursor_plane (MetaCursorRendererNative *native,
 }
 
 static float
-calculate_cursor_crtc_sprite_scale (MetaCursorSprite   *cursor_sprite,
+calculate_cursor_crtc_sprite_scale (MetaBackend        *backend,
+                                    MetaCursorSprite   *cursor_sprite,
                                     MetaLogicalMonitor *logical_monitor)
 {
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     {
       return (meta_logical_monitor_get_scale (logical_monitor) *
               meta_cursor_sprite_get_texture_scale (cursor_sprite));
@@ -393,6 +394,8 @@ set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
                  MetaCrtc                 *crtc,
                  MetaCursorSprite         *cursor_sprite)
 {
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
   MetaCursorRenderer *cursor_renderer =
     META_CURSOR_RENDERER (cursor_renderer_native);
   MetaOutput *output = meta_crtc_get_outputs (crtc)->data;
@@ -438,7 +441,8 @@ set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
   tex_height = cogl_texture_get_height (texture);
 
   cursor_crtc_scale =
-    calculate_cursor_crtc_sprite_scale (cursor_sprite,
+    calculate_cursor_crtc_sprite_scale (priv->backend,
+                                        cursor_sprite,
                                         logical_monitor);
 
   cursor_rect = (MetaRectangle) {
@@ -763,7 +767,9 @@ get_common_crtc_sprite_scale_for_logical_monitors (MetaCursorRenderer *renderer,
         continue;
 
       tmp_scale =
-        calculate_cursor_crtc_sprite_scale (cursor_sprite, logical_monitor);
+        calculate_cursor_crtc_sprite_scale (backend,
+                                            cursor_sprite,
+                                            logical_monitor);
 
       if (has_visible_crtc_sprite && scale != tmp_scale)
         return FALSE;

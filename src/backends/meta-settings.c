@@ -98,7 +98,7 @@ update_ui_scaling_factor (MetaSettings *settings)
 {
   int ui_scaling_factor;
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (settings->backend))
     ui_scaling_factor = 1;
   else
     ui_scaling_factor = calculate_ui_scaling_factor (settings);

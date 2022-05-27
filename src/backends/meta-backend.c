@@ -1598,9 +1598,8 @@ meta_backend_get_capabilities (MetaBackend *backend)
 }
 
 gboolean
-meta_is_stage_views_scaled (void)
+meta_backend_is_stage_views_scaled (MetaBackend *backend)
 {
-  MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitorLayoutMode layout_mode;

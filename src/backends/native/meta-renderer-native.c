@@ -1372,7 +1372,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
         g_error ("Failed to allocate back buffer texture: %s", error->message);
     }
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     scale = meta_logical_monitor_get_scale (logical_monitor);
   else
     scale = 1.0;

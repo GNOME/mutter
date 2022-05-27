@@ -62,6 +62,18 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCastMonitorStreamSrc,
                          G_IMPLEMENT_INTERFACE (META_TYPE_HW_CURSOR_INHIBITOR,
                                                 hw_cursor_inhibitor_iface_init))
 
+static MetaBackend *
+get_backend (MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+
+  return meta_screen_cast_get_backend (screen_cast);
+}
+
 static ClutterStage *
 get_stage (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
@@ -98,6 +110,7 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
+  MetaBackend *backend = get_backend (monitor_src);
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   float scale;
@@ -107,7 +120,7 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   mode = meta_monitor_get_current_mode (monitor);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     scale = logical_monitor->scale;
   else
     scale = 1.0;
@@ -173,18 +186,6 @@ before_stage_painted (MetaStage           *stage,
 
   flags = META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
-}
-
-static MetaBackend *
-get_backend (MetaScreenCastMonitorStreamSrc *monitor_src)
-{
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-
-  return meta_screen_cast_get_backend (screen_cast);
 }
 
 static gboolean
@@ -508,6 +509,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaBackend *backend = get_backend (monitor_src);
   ClutterStage *stage;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
@@ -518,7 +520,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   stage = get_stage (monitor_src);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     scale = meta_logical_monitor_get_scale (logical_monitor);
   else
     scale = 1.0;
@@ -553,6 +555,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaBackend *backend = get_backend (monitor_src);
   ClutterStage *stage = get_stage (monitor_src);
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
@@ -564,7 +567,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     view_scale = meta_logical_monitor_get_scale (logical_monitor);
   else
     view_scale = 1.0;
@@ -667,7 +670,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   logical_monitor_rect =
     meta_rectangle_to_graphene_rect (&logical_monitor_layout);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     view_scale = meta_logical_monitor_get_scale (logical_monitor);
   else
     view_scale = 1.0;

@@ -391,6 +391,8 @@ setup_pipeline (MetaBackgroundContent *self,
                 ClutterPaintContext   *paint_context,
                 cairo_rectangle_int_t *actor_pixel_rect)
 {
+  MetaContext *context = meta_display_get_context (self->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   PipelineFlags pipeline_flags = 0;
   guint8 opacity;
   float color_component;
@@ -478,7 +480,7 @@ setup_pipeline (MetaBackgroundContent *self,
       float bounds_x1, bounds_x2, bounds_y1, bounds_y2;
       float clip_radius;
 
-      monitor_scale = meta_is_stage_views_scaled ()
+      monitor_scale = meta_backend_is_stage_views_scaled (backend)
         ? meta_display_get_monitor_scale (self->display, self->monitor)
         : 1.0;
 
@@ -566,12 +568,14 @@ static void
 set_glsl_parameters (MetaBackgroundContent *self,
                      cairo_rectangle_int_t *actor_pixel_rect)
 {
+  MetaContext *context = meta_display_get_context (self->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   float monitor_scale;
   float scale[2];
   float offset[2];
   int pixel_step_uniform_location;
 
-  monitor_scale = meta_is_stage_views_scaled ()
+  monitor_scale = meta_backend_is_stage_views_scaled (backend)
     ? meta_display_get_monitor_scale (self->display, self->monitor)
     : 1.0;
 

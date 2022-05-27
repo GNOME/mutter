@@ -87,7 +87,13 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
 static int
 dnd_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
-  if (meta_is_stage_views_scaled ())
+  MetaWaylandSurfaceRole *role = META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface = meta_wayland_surface_role_get_surface (role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+
+  if (meta_backend_is_stage_views_scaled (backend))
     {
       return 1;
     }

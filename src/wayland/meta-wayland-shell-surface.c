@@ -256,10 +256,14 @@ meta_wayland_shell_surface_get_geometry_scale (MetaWaylandActorSurface *actor_su
     META_WAYLAND_SURFACE_ROLE (actor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaWindow *toplevel_window;
 
   toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
-  if (meta_is_stage_views_scaled () || !toplevel_window)
+  if (meta_backend_is_stage_views_scaled (backend) ||
+      !toplevel_window)
     return 1;
   else
     return meta_window_wayland_get_geometry_scale (toplevel_window);

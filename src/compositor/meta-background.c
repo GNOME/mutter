@@ -799,11 +799,13 @@ meta_background_get_texture (MetaBackground         *self,
 
   if (monitor->dirty)
     {
+      MetaContext *context = meta_display_get_context (self->display);
+      MetaBackend *backend = meta_context_get_backend (context);
       GError *catch_error = NULL;
       gboolean bare_region_visible = FALSE;
       int texture_width, texture_height;
 
-      if (meta_is_stage_views_scaled ())
+      if (meta_backend_is_stage_views_scaled (backend))
         {
           texture_width = monitor_area.width * monitor_scale;
           texture_height = monitor_area.height * monitor_scale;

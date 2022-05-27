@@ -158,7 +158,7 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
           float scale;
 
           clutter_backend = meta_backend_get_clutter_backend (backend);
-          scale = meta_is_stage_views_scaled ()
+          scale = meta_backend_is_stage_views_scaled (backend)
             ? meta_logical_monitor_get_scale (logical_monitor)
             : 1.f;
 

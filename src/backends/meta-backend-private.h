@@ -172,7 +172,7 @@ void meta_backend_set_client_pointer_constraint (MetaBackend *backend,
 
 void meta_backend_monitors_changed (MetaBackend *backend);
 
-gboolean meta_is_stage_views_scaled (void);
+gboolean meta_backend_is_stage_views_scaled (MetaBackend *backend);
 
 MetaInputMapper *meta_backend_get_input_mapper (MetaBackend *backend);
 MetaInputSettings *meta_backend_get_input_settings (MetaBackend *backend);

@@ -196,7 +196,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
 
   view_transform = calculate_view_transform (monitor_manager, logical_monitor);
 
-  if (meta_is_stage_views_scaled ())
+  if (meta_backend_is_stage_views_scaled (backend))
     view_scale = logical_monitor->scale;
   else
     view_scale = 1.0;
