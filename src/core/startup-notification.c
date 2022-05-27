@@ -49,6 +49,7 @@ enum
 enum
 {
   PROP_SEQ_0,
+  PROP_SEQ_DISPLAY,
   PROP_SEQ_ID,
   PROP_SEQ_TIMESTAMP,
   PROP_SEQ_ICON_NAME,
@@ -93,7 +94,10 @@ struct _MetaStartupNotification
   guint startup_sequence_timeout_id;
 };
 
-typedef struct {
+typedef struct
+{
+  MetaDisplay *display;
+
   char *wmclass;
   char *name;
   char *application_id;
@@ -183,6 +187,9 @@ meta_startup_sequence_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_SEQ_DISPLAY:
+      priv->display = g_value_get_object (value);
+      break;
     case PROP_SEQ_ID:
       priv->id = g_value_dup_string (value);
       break;
@@ -224,6 +231,9 @@ meta_startup_sequence_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_SEQ_DISPLAY:
+      g_value_set_object (value, priv->display);
+      break;
     case PROP_SEQ_ID:
       g_value_set_string (value, priv->id);
       break;
@@ -275,6 +285,13 @@ meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
+  seq_props[PROP_SEQ_DISPLAY] =
+    g_param_spec_object ("display",
+                         "Display",
+                         "Display",
+                         META_TYPE_DISPLAY,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
   seq_props[PROP_SEQ_ID] =
     g_param_spec_string ("id",
                          "ID",
@@ -453,6 +470,17 @@ meta_startup_sequence_get_wmclass (MetaStartupSequence *seq)
 
   priv = meta_startup_sequence_get_instance_private (seq);
   return priv->wmclass;
+}
+
+MetaDisplay *
+meta_startup_sequence_get_display (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), NULL);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->display;
 }
 
 static void

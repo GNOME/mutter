@@ -1420,6 +1420,10 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
                      gboolean               grab,
                      MetaResolvedKeyCombo  *resolved_combo)
 {
+  MetaBackendX11 *backend_x11;
+  Display *xdisplay;
+  GArray *mods;
+  int i;
   unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
 
@@ -1429,10 +1433,8 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
   if (meta_is_wayland_compositor ())
     return;
 
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
-  GArray *mods;
-  int i;
+  backend_x11 = META_BACKEND_X11 (keys->backend);
+  xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   /* Grab keycode/modmask, together with
    * all combinations of ignored modifiers.
@@ -1753,10 +1755,13 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
 }
 
 static gboolean
-grab_keyboard (Window  xwindow,
-               guint32 timestamp,
-               int     grab_mode)
+grab_keyboard (MetaBackend *backend,
+               Window       xwindow,
+               uint32_t     timestamp,
+               int          grab_mode)
 {
+  MetaBackendX11 *backend_x11;
+  Display *xdisplay;
   int grab_status;
 
   unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
@@ -1772,8 +1777,8 @@ grab_keyboard (Window  xwindow,
    * presses
    */
 
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
+  backend_x11 = META_BACKEND_X11 (backend);
+  xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   /* Strictly, we only need to set grab_mode on the keyboard device
    * while the pointer should always be XIGrabModeAsync. Unfortunately
@@ -1797,13 +1802,17 @@ grab_keyboard (Window  xwindow,
 }
 
 static void
-ungrab_keyboard (guint32 timestamp)
+ungrab_keyboard (MetaBackend *backend,
+                 uint32_t     timestamp)
 {
+  MetaBackendX11 *backend_x11;
+  Display *xdisplay;
+
   if (meta_is_wayland_compositor ())
     return;
 
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
+  backend_x11 = META_BACKEND_X11 (backend);
+  xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   XIUngrabDevice (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
 }
@@ -1812,6 +1821,9 @@ gboolean
 meta_window_grab_all_keys (MetaWindow  *window,
                            guint32      timestamp)
 {
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   Window grabwindow;
   gboolean retval = TRUE;
 
@@ -1835,7 +1847,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
 
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Grabbing all keys on window %s", window->desc);
-      retval = grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
+      retval = grab_keyboard (backend, grabwindow, timestamp, XIGrabModeAsync);
     }
   if (retval)
     {
@@ -1854,7 +1866,13 @@ meta_window_ungrab_all_keys (MetaWindow *window,
   if (window->all_keys_grabbed)
     {
       if (!meta_is_wayland_compositor())
-        ungrab_keyboard (timestamp);
+        {
+          MetaDisplay *display = meta_window_get_display (window);
+          MetaContext *context = meta_display_get_context (display);
+          MetaBackend *backend = meta_context_get_backend (context);
+
+          ungrab_keyboard (backend, timestamp);
+        }
 
       window->grab_on_frame = FALSE;
       window->all_keys_grabbed = FALSE;
@@ -1868,25 +1886,30 @@ meta_window_ungrab_all_keys (MetaWindow *window,
 void
 meta_display_freeze_keyboard (MetaDisplay *display, guint32 timestamp)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
 
   if (!META_IS_BACKEND_X11 (backend))
     return;
 
   Window window = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
-  grab_keyboard (window, timestamp, XIGrabModeSync);
+  grab_keyboard (backend, window, timestamp, XIGrabModeSync);
 }
 
 void
 meta_display_ungrab_keyboard (MetaDisplay *display, guint32 timestamp)
 {
-  ungrab_keyboard (timestamp);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+
+  ungrab_keyboard (backend, timestamp);
 }
 
 void
 meta_display_unfreeze_keyboard (MetaDisplay *display, guint32 timestamp)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
 
   if (!META_IS_BACKEND_X11 (backend))
     return;
@@ -2259,7 +2282,9 @@ process_key_event (MetaDisplay     *display,
     }
 
   {
-    MetaBackend *backend = meta_get_backend ();
+    MetaContext *context = meta_display_get_context (display);
+    MetaBackend *backend = meta_context_get_backend (context);
+
     if (META_IS_BACKEND_X11 (backend))
       {
         Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
@@ -3473,7 +3498,8 @@ handle_move_to_monitor (MetaDisplay    *display,
                         MetaKeyBinding *binding,
                         gpointer        dummy)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   gint which = binding->handler->data;
@@ -3594,7 +3620,8 @@ handle_switch_monitor (MetaDisplay    *display,
                        MetaKeyBinding *binding,
                        gpointer        dummy)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorSwitchConfigType config_type =
@@ -3614,7 +3641,8 @@ handle_rotate_monitor (MetaDisplay    *display,
                        MetaKeyBinding *binding,
                        gpointer        dummy)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -3949,7 +3977,8 @@ init_builtin_key_bindings (MetaDisplay *display)
                           handle_rotate_monitor, 0);
 
 #ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   if (META_IS_BACKEND_NATIVE (backend))
     {
       add_builtin_keybinding (display,
@@ -4452,7 +4481,8 @@ void
 meta_display_init_keys (MetaDisplay *display)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaKeyHandler *handler;
 
   keys->backend = backend;

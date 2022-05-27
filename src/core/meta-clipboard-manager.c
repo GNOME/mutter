@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "core/meta-clipboard-manager.h"
+#include "core/meta-selection-private.h"
 #include "meta/meta-selection-source-memory.h"
 
 #define MAX_TEXT_SIZE (4 * 1024 * 1024) /* 4MB */
@@ -68,7 +69,7 @@ transfer_cb (MetaSelection *selection,
              GAsyncResult  *result,
              GOutputStream *output)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_selection_get_display (selection);
   GError *error = NULL;
 
   if (!meta_selection_transfer_finish (selection, result, &error))

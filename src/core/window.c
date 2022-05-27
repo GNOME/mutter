@@ -224,6 +224,15 @@ enum
 
 static guint window_signals[LAST_SIGNAL] = { 0 };
 
+static MetaBackend *
+backend_from_window (MetaWindow *window)
+{
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+
+  return meta_context_get_backend (context);
+}
+
 static void
 prefs_changed_callback (MetaPreference pref,
                         gpointer       data)
@@ -986,7 +995,7 @@ meta_window_main_monitor_changed (MetaWindow               *window,
 MetaLogicalMonitor *
 meta_window_find_monitor_from_frame_rect (MetaWindow *window)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaRectangle window_rect;
@@ -3634,7 +3643,7 @@ static MetaLogicalMonitor *
 find_monitor_by_winsys_id (MetaWindow *window,
                            uint64_t    winsys_id)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
@@ -4626,7 +4635,7 @@ meta_window_focus (MetaWindow  *window,
         }
     }
 
-  backend = meta_get_backend ();
+  backend = backend_from_window (window);
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   if (window->display->event_route == META_EVENT_ROUTE_NORMAL &&
@@ -5771,7 +5780,7 @@ update_move_maybe_tile (MetaWindow *window,
                         int         x,
                         int         y)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -5927,7 +5936,7 @@ update_move (MetaWindow              *window,
   else if ((window->shaken_loose || META_WINDOW_MAXIMIZED (window)) &&
            window->tile_mode != META_TILE_LEFT && window->tile_mode != META_TILE_RIGHT)
     {
-      MetaBackend *backend = meta_get_backend ();
+      MetaBackend *backend = backend_from_window (window);
       MetaMonitorManager *monitor_manager =
         meta_backend_get_monitor_manager (backend);
       int n_logical_monitors;
@@ -6418,7 +6427,7 @@ meta_window_get_work_area_for_monitor (MetaWindow    *window,
                                        int            which_monitor,
                                        MetaRectangle *area)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
 
@@ -8106,7 +8115,7 @@ window_has_pointer_wayland (MetaWindow *window)
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   dev = clutter_seat_get_pointer (seat);
-  stage = CLUTTER_STAGE (meta_backend_get_stage (meta_get_backend ()));
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend_from_window (window)));
   pointer_actor = clutter_stage_get_device_actor (stage, dev, NULL);
   window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
 
@@ -8151,7 +8160,7 @@ window_focus_on_pointer_rest_callback (gpointer data)
   MetaFocusData *focus_data = data;
   MetaWindow *window = focus_data->window;
   MetaDisplay *display = window->display;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_window (window);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   graphene_point_t point;
   guint32 timestamp;

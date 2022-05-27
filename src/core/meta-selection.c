@@ -488,3 +488,9 @@ meta_selection_get_current_owner (MetaSelection     *selection,
 
   return selection->owners[selection_type];
 }
+
+MetaDisplay *
+meta_selection_get_display (MetaSelection *selection)
+{
+  return selection->display;
+}

@@ -850,7 +850,8 @@ copy_strut_list(GSList *original)
 static void
 ensure_work_areas_validated (MetaWorkspace *workspace)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (workspace->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *windows;
@@ -1070,7 +1071,8 @@ void
 meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
                                    GSList        *struts)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (workspace->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaDisplay *display = workspace->display;
@@ -1163,7 +1165,8 @@ meta_workspace_get_work_area_for_monitor (MetaWorkspace *workspace,
                                           int            which_monitor,
                                           MetaRectangle *area)
 {
-  MetaBackend *backend = meta_get_backend();
+  MetaContext *context = meta_display_get_context (workspace->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -1550,7 +1553,8 @@ static MetaWindow *
 get_pointer_window (MetaWorkspace *workspace,
                     MetaWindow    *not_this_one)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (workspace->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   graphene_point_t point;
 

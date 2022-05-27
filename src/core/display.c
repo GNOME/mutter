@@ -211,6 +211,24 @@ meta_display_show_osd (MetaDisplay *display,
                        const gchar *icon_name,
                        const gchar *message);
 
+static MetaBackend *
+backend_from_display (MetaDisplay *display)
+{
+  MetaContext *context = meta_display_get_context (display);
+
+  return meta_context_get_backend (context);
+}
+
+#ifdef HAVE_WAYLAND
+static MetaWaylandCompositor *
+wayland_compositor_from_display (MetaDisplay *display)
+{
+  MetaContext *context = meta_display_get_context (display);
+
+  return meta_context_get_wayland_compositor (context);
+}
+#endif
+
 static void
 meta_display_get_property(GObject         *object,
                           guint            prop_id,
@@ -614,7 +632,7 @@ meta_display_remove_pending_pings_for_window (MetaDisplay *display,
 static MetaCompositor *
 create_compositor (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
 
 #ifdef HAVE_WAYLAND
 #ifdef HAVE_NATIVE_BACKEND
@@ -643,7 +661,7 @@ meta_display_cancel_touch (MetaDisplay *display)
   if (!meta_is_wayland_compositor ())
     return;
 
-  compositor = meta_wayland_compositor_get_default ();
+  compositor = wayland_compositor_from_display (display);
   meta_wayland_touch_cancel (compositor->seat->touch);
 #endif
 }
@@ -667,7 +685,7 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
       {
         MetaBackend *backend;
 
-        backend = meta_get_backend ();
+        backend = backend_from_display (display);
         meta_backend_finish_touch_sequence (backend, sequence, state);
         break;
       }
@@ -795,7 +813,7 @@ meta_display_init_x11 (MetaDisplay         *display,
                        GAsyncReadyCallback  callback,
                        gpointer             user_data)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = wayland_compositor_from_display (display);
 
   g_autoptr (GTask) task = NULL;
 
@@ -933,7 +951,7 @@ meta_display_new (MetaContext  *context,
   if (meta_is_wayland_compositor ())
     {
       MetaWaylandCompositor *wayland_compositor =
-        meta_wayland_compositor_get_default ();
+        wayland_compositor_from_display (display);
       MetaX11DisplayPolicy x11_display_policy;
 
       meta_wayland_compositor_init_display (wayland_compositor, display);
@@ -1277,7 +1295,7 @@ meta_grab_op_is_moving (MetaGrabOp op)
 gboolean
 meta_display_windows_are_interactable (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
 
   if (clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)))
@@ -1427,9 +1445,9 @@ void
 meta_display_sync_wayland_input_focus (MetaDisplay *display)
 {
 #ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = wayland_compositor_from_display (display);
   MetaWindow *focus_window = NULL;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
@@ -1739,7 +1757,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
                         MetaDisplay             *display)
 {
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
 
   if (meta_backend_is_stage_views_scaled (backend))
     {
@@ -1787,7 +1805,7 @@ meta_display_reload_cursor (MetaDisplay *display)
 {
   MetaCursor cursor = display->current_cursor;
   MetaCursorSpriteXcursor *sprite_xcursor;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   sprite_xcursor = meta_cursor_sprite_xcursor_new (cursor, cursor_tracker);
@@ -1882,7 +1900,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
                             int          root_x,
                             int          root_y)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaWindow *grab_window = NULL;
   MetaEventRoute event_route;
 
@@ -1931,7 +1949,8 @@ meta_display_begin_grab_op (MetaDisplay *display,
   if (pointer_already_grabbed)
     display->grab_have_pointer = TRUE;
 
-  if (META_IS_BACKEND_X11 (meta_get_backend ()) && display->x11_display)
+  if (META_IS_BACKEND_X11 (backend_from_display (display)) &&
+      display->x11_display)
     {
       /* Since grab operations often happen as a result of implicit
        * pointer operations on the display X11 connection, we need
@@ -2046,7 +2065,7 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   if (display->grab_have_pointer)
     {
-      MetaBackend *backend = meta_get_backend ();
+      MetaBackend *backend = backend_from_display (display);
       meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
     }
 
@@ -2896,7 +2915,7 @@ meta_display_get_size (MetaDisplay *display,
                        int         *width,
                        int         *height)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   int display_width, display_height;
@@ -3015,7 +3034,7 @@ meta_display_request_pad_osd (MetaDisplay        *display,
                               ClutterInputDevice *pad,
                               gboolean            edition_mode)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaInputMapper *input_mapper;
   const gchar *layout_path = NULL;
   ClutterActor *osd;
@@ -3032,7 +3051,7 @@ meta_display_request_pad_osd (MetaDisplay        *display,
   if (display->current_pad_osd)
     return;
 
-  input_mapper = meta_backend_get_input_mapper (meta_get_backend ());
+  input_mapper = meta_backend_get_input_mapper (backend_from_display (display));
 
   if (input_mapper)
     {
@@ -3086,7 +3105,7 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
       MetaWaylandTabletSeat *tablet_seat;
       MetaWaylandTabletPad *tablet_pad = NULL;
 
-      compositor = meta_wayland_compositor_get_default ();
+      compositor = wayland_compositor_from_display (display);
       tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager,
                                                              compositor->seat);
       if (tablet_seat)
@@ -3124,7 +3143,7 @@ lookup_tablet_monitor (MetaDisplay        *display,
   MetaLogicalMonitor *monitor;
   gint monitor_idx = -1;
 
-  input_mapper = meta_backend_get_input_mapper (meta_get_backend ());
+  input_mapper = meta_backend_get_input_mapper (backend_from_display (display));
   if (!input_mapper)
     return -1;
 
@@ -3488,7 +3507,7 @@ static gboolean
 check_fullscreen_func (gpointer data)
 {
   MetaDisplay *display = data;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
@@ -3605,7 +3624,7 @@ int
 meta_display_get_monitor_index_for_rect (MetaDisplay   *display,
                                          MetaRectangle *rect)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -3623,7 +3642,7 @@ meta_display_get_monitor_neighbor_index (MetaDisplay         *display,
                                          int                  which_monitor,
                                          MetaDisplayDirection direction)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -3649,7 +3668,7 @@ meta_display_get_monitor_neighbor_index (MetaDisplay         *display,
 int
 meta_display_get_current_monitor (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaLogicalMonitor *logical_monitor;
 
   logical_monitor = meta_backend_get_current_logical_monitor (backend);
@@ -3672,7 +3691,7 @@ meta_display_get_current_monitor (MetaDisplay *display)
 int
 meta_display_get_n_monitors (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -3692,7 +3711,7 @@ meta_display_get_n_monitors (MetaDisplay *display)
 int
 meta_display_get_primary_monitor (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -3720,7 +3739,7 @@ meta_display_get_monitor_geometry (MetaDisplay   *display,
                                    int            monitor,
                                    MetaRectangle *geometry)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -3752,7 +3771,7 @@ float
 meta_display_get_monitor_scale (MetaDisplay *display,
                                 int          monitor)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
@@ -3788,7 +3807,7 @@ gboolean
 meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
                                         int          monitor)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_display (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;

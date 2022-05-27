@@ -49,4 +49,6 @@ MetaStartupSequence *
          meta_startup_notification_lookup_sequence (MetaStartupNotification *sn,
                                                     const gchar             *id);
 
+MetaDisplay * meta_startup_sequence_get_display (MetaStartupSequence *seq);
+
 #endif /* META_STARTUP_NOTIFICATION_PRIVATE_H */

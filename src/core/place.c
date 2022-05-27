@@ -84,7 +84,9 @@ find_next_cascade (MetaWindow *window,
                    int        *new_x,
                    int        *new_y)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   GList *tmp;
   GList *sorted;
   int cascade_x, cascade_y;
@@ -665,7 +667,9 @@ meta_window_place (MetaWindow        *window,
                    int               *new_x,
                    int               *new_y)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   GList *windows = NULL;
   MetaLogicalMonitor *logical_monitor;
 

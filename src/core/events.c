@@ -231,11 +231,12 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
   gboolean has_grab;
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *wayland_compositor;
+#endif
 
 #ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *wayland_compositor = NULL;
-  if (meta_is_wayland_compositor ())
-    wayland_compositor = meta_wayland_compositor_get_default ();
+  wayland_compositor = meta_context_get_wayland_compositor (context);
 #endif
 
   has_grab = stage_has_grab (display);

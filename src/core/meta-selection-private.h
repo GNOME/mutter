@@ -29,4 +29,6 @@ MetaSelectionSource *
   meta_selection_get_current_owner (MetaSelection     *selection,
                                     MetaSelectionType  selection_type);
 
+MetaDisplay * meta_selection_get_display (MetaSelection *selection);
+
 #endif /* META_SELECTION_PRIVATE_H */

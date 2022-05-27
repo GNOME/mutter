@@ -176,6 +176,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
 
       sn = meta_display_get_startup_notification (context->display);
       seq = g_object_new (META_TYPE_STARTUP_SEQUENCE,
+                          "display", context->display,
                           "id", startup_id,
                           "application-id", application_id,
                           "name", g_app_info_get_name (info),

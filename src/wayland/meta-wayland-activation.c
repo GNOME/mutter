@@ -56,6 +56,15 @@ struct _MetaXdgActivationToken
   gboolean committed;
 };
 
+static MetaDisplay *
+display_from_activation (MetaWaylandActivation *activation)
+{
+  MetaContext *context =
+    meta_wayland_compositor_get_context (activation->compositor);
+
+  return meta_context_get_display (context);
+}
+
 static void
 unbind_resource (struct wl_resource *resource)
 {
@@ -104,7 +113,7 @@ sequence_complete_cb (MetaStartupSequence    *sequence,
                       MetaXdgActivationToken *token)
 {
   MetaWaylandActivation *activation = token->activation;
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = meta_startup_sequence_get_display (sequence);
 
   if (!g_hash_table_contains (activation->tokens, token->token))
     return;
@@ -148,7 +157,7 @@ token_commit (struct wl_client   *client,
 {
   MetaXdgActivationToken *token = wl_resource_get_user_data (resource);
   MetaWaylandActivation *activation = token->activation;
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_activation (activation);
   uint64_t timestamp;
 
   if (token->committed)
@@ -164,6 +173,7 @@ token_commit (struct wl_client   *client,
   token->committed = TRUE;
   token->token = create_startup_token (activation, display);
   token->sequence = g_object_new (META_TYPE_STARTUP_SEQUENCE,
+                                  "display", display,
                                   "id", token->token,
                                   "application-id", token->app_id,
                                   "timestamp", timestamp,
@@ -321,7 +331,7 @@ activation_activate (struct wl_client   *client,
 {
   MetaWaylandActivation *activation = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_activation (activation);
   MetaXdgActivationToken *token;
   MetaStartupSequence *sequence;
   MetaWindow *window;

@@ -121,6 +121,8 @@ typedef enum
 
 typedef struct
 {
+  MetaBackend *backend;
+
   MetaRectangle        orig;
   MetaRectangle        current;
   MetaRectangle        temporary;
@@ -205,7 +207,8 @@ static gboolean constrain_partially_onscreen (MetaWindow         *window,
                                               ConstraintPriority  priority,
                                               gboolean            check_only);
 
-static void setup_constraint_info        (ConstraintInfo      *info,
+static void setup_constraint_info        (MetaBackend         *backend,
+                                          ConstraintInfo      *info,
                                           MetaWindow          *window,
                                           MetaMoveResizeFlags  flags,
                                           MetaGravity          resize_gravity,
@@ -291,6 +294,9 @@ meta_window_constrain (MetaWindow          *window,
                        int                 *rel_x,
                        int                 *rel_y)
 {
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   ConstraintInfo info;
   ConstraintPriority priority = PRIORITY_MINIMUM;
   gboolean satisfied = FALSE;
@@ -301,7 +307,8 @@ meta_window_constrain (MetaWindow          *window,
               orig->x, orig->y, orig->width, orig->height,
               new->x,  new->y,  new->width,  new->height);
 
-  setup_constraint_info (&info,
+  setup_constraint_info (backend,
+                         &info,
                          window,
                          flags,
                          resize_gravity,
@@ -338,20 +345,21 @@ meta_window_constrain (MetaWindow          *window,
 }
 
 static void
-setup_constraint_info (ConstraintInfo      *info,
+setup_constraint_info (MetaBackend         *backend,
+                       ConstraintInfo      *info,
                        MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
                        MetaGravity          resize_gravity,
                        const MetaRectangle *orig,
                        MetaRectangle       *new)
 {
-  MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitor *logical_monitor;
   MetaWorkspace *cur_workspace;
   MetaPlacementRule *placement_rule;
 
+  info->backend = backend;
   info->orig    = *orig;
   info->current = *new;
   info->temporary = *orig;
@@ -532,9 +540,8 @@ place_window_if_needed(MetaWindow     *window,
       !window->minimized &&
       !window->fullscreen)
     {
-      MetaBackend *backend = meta_get_backend ();
       MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
+        meta_backend_get_monitor_manager (info->backend);
       MetaRectangle orig_rect;
       MetaRectangle placed_rect;
       MetaWorkspace *cur_workspace;
@@ -1688,9 +1695,8 @@ constrain_to_single_monitor (MetaWindow         *window,
                              ConstraintPriority  priority,
                              gboolean            check_only)
 {
-  MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
+    meta_backend_get_monitor_manager (info->backend);
 
   if (priority > PRIORITY_ENTIRELY_VISIBLE_ON_SINGLE_MONITOR)
     return TRUE;

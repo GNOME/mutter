@@ -584,7 +584,13 @@ void
 meta_stack_tracker_free (MetaStackTracker *tracker)
 {
   if (tracker->sync_stack_later)
-    meta_later_remove (tracker->sync_stack_later);
+    {
+      MetaCompositor *compositor =
+        meta_display_get_compositor (tracker->display);
+      MetaLaters *laters = meta_compositor_get_laters (compositor);
+
+      meta_laters_remove (laters, tracker->sync_stack_later);
+    }
 
   g_array_free (tracker->verified_stack, TRUE);
   if (tracker->predicted_stack)
@@ -919,7 +925,10 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
 
   if (tracker->sync_stack_later)
     {
-      meta_later_remove (tracker->sync_stack_later);
+      MetaLaters *laters;
+
+      laters = meta_compositor_get_laters (tracker->display->compositor);
+      meta_laters_remove (laters, tracker->sync_stack_later);
       tracker->sync_stack_later = 0;
     }
 
@@ -987,12 +996,15 @@ stack_tracker_sync_stack_later (gpointer data)
 void
 meta_stack_tracker_queue_sync_stack (MetaStackTracker *tracker)
 {
-  if (tracker->sync_stack_later == 0)
-    {
-      tracker->sync_stack_later = meta_later_add (META_LATER_SYNC_STACK,
-                                                  stack_tracker_sync_stack_later,
-                                                  tracker, NULL);
-    }
+  MetaLaters *laters;
+
+  if (tracker->sync_stack_later != 0)
+    return;
+
+  laters = meta_compositor_get_laters (tracker->display->compositor);
+  tracker->sync_stack_later = meta_laters_add (laters, META_LATER_SYNC_STACK,
+                                               stack_tracker_sync_stack_later,
+                                               tracker, NULL);
 }
 
 /* When moving an X window we sometimes need an X based sibling.

@@ -343,7 +343,8 @@ static gboolean
 add_persistent_virtual_monitors (MetaContextMain  *context_main,
                                  GError          **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = META_CONTEXT (context_main);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *l;
