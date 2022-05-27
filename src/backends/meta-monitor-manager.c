@@ -3103,21 +3103,6 @@ initialize_dbus_interface (MetaMonitorManager *manager)
 }
 
 /**
- * meta_monitor_manager_get:
- *
- * Accessor for the singleton MetaMonitorManager.
- *
- * Returns: (transfer none): The only #MetaMonitorManager there is.
- */
-MetaMonitorManager *
-meta_monitor_manager_get (void)
-{
-  MetaBackend *backend = meta_get_backend ();
-
-  return meta_backend_get_monitor_manager (backend);
-}
-
-/**
  * meta_monitor_manager_get_num_logical_monitors:
  * @manager: A #MetaMonitorManager object
  *
