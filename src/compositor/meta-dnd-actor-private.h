@@ -38,9 +38,10 @@ G_DECLARE_FINAL_TYPE (MetaDnDActor,
                       MetaFeedbackActor)
 
 
-ClutterActor *meta_dnd_actor_new (ClutterActor *drag_origin,
-                                  int           start_x,
-                                  int           start_y);
+ClutterActor *meta_dnd_actor_new (MetaCompositor *compositor,
+                                  ClutterActor   *drag_origin,
+                                  int             start_x,
+                                  int             start_y);
 
 void          meta_dnd_actor_drag_finish (MetaDnDActor *self,
                                           gboolean      success);

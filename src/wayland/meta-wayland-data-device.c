@@ -655,6 +655,8 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
 
   if (icon_surface)
     {
+      MetaDisplay *display = display_from_data_device (data_device);
+      MetaCompositor *compositor = meta_display_get_compositor (display);
       ClutterActor *drag_surface_actor;
 
       drag_grab->drag_surface = icon_surface;
@@ -667,7 +669,8 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
         CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_surface));
 
       drag_grab->feedback_actor =
-        meta_dnd_actor_new (CLUTTER_ACTOR (surface_actor),
+        meta_dnd_actor_new (compositor,
+                            CLUTTER_ACTOR (surface_actor),
                             drag_grab->drag_start_x,
                             drag_grab->drag_start_y);
       meta_feedback_actor_set_anchor (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),

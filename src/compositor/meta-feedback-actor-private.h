@@ -24,6 +24,7 @@
 #define META_FEEDBACK_ACTOR_PRIVATE_H
 
 #include "clutter/clutter.h"
+#include "meta/types.h"
 
 /**
  * MetaFeedbackActor:
@@ -45,8 +46,9 @@ struct _MetaFeedbackActorClass
 };
 
 
-ClutterActor *meta_feedback_actor_new (float anchor_x,
-                                       float anchor_y);
+ClutterActor * meta_feedback_actor_new (MetaCompositor *compositor,
+                                        float           anchor_x,
+                                        float           anchor_y);
 
 void meta_feedback_actor_set_anchor (MetaFeedbackActor *actor,
                                      float              anchor_x,

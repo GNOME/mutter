@@ -32,6 +32,7 @@
 #include "meta/meta-background-actor.h"
 #include "meta/meta-background-content.h"
 #include "meta/meta-background-group.h"
+#include "meta/meta-context.h"
 #include "meta/meta-monitor-manager.h"
 #include "meta/meta-plugin.h"
 #include "meta/util.h"
@@ -413,7 +414,8 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
 }
 
 static void
-init_keymap (MetaDefaultPlugin *self)
+init_keymap (MetaDefaultPlugin *self,
+             MetaBackend       *backend)
 {
   g_autoptr (GError) error = NULL;
   g_autoptr (GDBusProxy) proxy = NULL;
@@ -469,8 +471,7 @@ init_keymap (MetaDefaultPlugin *self)
   if (!g_variant_lookup (props, "X11Variant", "s", &x11_variant))
     x11_variant = g_strdup ("");
 
-  meta_backend_set_keymap (meta_get_backend (),
-                           x11_layout, x11_variant, x11_options);
+  meta_backend_set_keymap (backend, x11_layout, x11_variant, x11_options);
 }
 
 static void
@@ -485,8 +486,10 @@ start (MetaPlugin *plugin)
 {
   MetaDefaultPlugin *self = META_DEFAULT_PLUGIN (plugin);
   MetaDisplay *display = meta_plugin_get_display (plugin);
-  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
   self->priv->background_group = meta_background_group_new ();
   clutter_actor_insert_child_below (meta_get_window_group_for_display (display),
@@ -502,7 +505,7 @@ start (MetaPlugin *plugin)
                     self);
 
   if (meta_is_wayland_compositor ())
-    init_keymap (self);
+    init_keymap (self, backend);
 
   clutter_actor_show (meta_get_stage_for_display (display));
 }

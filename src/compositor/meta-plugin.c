@@ -164,8 +164,10 @@ void
 meta_plugin_complete_display_change (MetaPlugin *plugin,
                                      gboolean    ok)
 {
-  MetaMonitorManager *manager;
+  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
+  MetaBackend *backend = meta_compositor_get_backend (priv->compositor);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
-  manager = meta_monitor_manager_get ();
-  meta_monitor_manager_confirm_configuration (manager, ok);
+  meta_monitor_manager_confirm_configuration (monitor_manager, ok);
 }

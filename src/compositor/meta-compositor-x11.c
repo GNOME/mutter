@@ -141,10 +141,11 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaX11Display *x11_display = display->x11_display;
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   int composite_version;
-  MetaBackend *backend = meta_get_backend ();
   Window xwindow;
 
   if (!META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ||
@@ -446,7 +447,10 @@ meta_compositor_x11_monotonic_to_high_res_xserver_time (MetaCompositor *composit
 static void
 meta_compositor_x11_grab_begin (MetaCompositor *compositor)
 {
-  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (meta_get_backend ());
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
 
   meta_backend_x11_sync_pointer (backend_x11);
 }
@@ -454,7 +458,10 @@ meta_compositor_x11_grab_begin (MetaCompositor *compositor)
 static void
 meta_compositor_x11_grab_end (MetaCompositor *compositor)
 {
-  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (meta_get_backend ());
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
 
   meta_backend_x11_sync_pointer (backend_x11);
 }

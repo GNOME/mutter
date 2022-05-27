@@ -1222,13 +1222,16 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
       meta_cursor_sprite_get_cogl_texture (cursor_sprite) &&
       out_cursor_scale)
     {
+      MetaDisplay *display = meta_compositor_get_display (priv->compositor);
+      MetaContext *context = meta_display_get_context (display);
+      MetaBackend *backend = meta_context_get_backend (context);
       MetaLogicalMonitor *logical_monitor;
       float view_scale;
       float cursor_texture_scale;
 
       logical_monitor = meta_window_get_main_logical_monitor (window);
 
-      if (meta_is_stage_views_scaled ())
+      if (meta_backend_is_stage_views_scaled (backend))
         view_scale = meta_logical_monitor_get_scale (logical_monitor);
       else
         view_scale = 1.0;
@@ -1436,8 +1439,11 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
                                       MetaRectangle    *clip,
                                       GError          **error)
 {
+  MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
-  MetaBackend *backend = meta_get_backend ();
+  MetaDisplay *display = meta_compositor_get_display (priv->compositor);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);

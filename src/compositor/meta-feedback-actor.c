@@ -32,14 +32,21 @@
 
 enum
 {
-  PROP_ANCHOR_X = 1,
-  PROP_ANCHOR_Y
+  PROP_0,
+
+  PROP_COMPOSITOR,
+  PROP_ANCHOR_X,
+  PROP_ANCHOR_Y,
+
+  N_PROPS
 };
 
 typedef struct _MetaFeedbackActorPrivate MetaFeedbackActorPrivate;
 
 struct _MetaFeedbackActorPrivate
 {
+  MetaCompositor *compositor;
+
   float anchor_x;
   float anchor_y;
   float pos_x;
@@ -53,11 +60,13 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE
 static void
 meta_feedback_actor_constructed (GObject *object)
 {
-  MetaDisplay *display;
+  MetaFeedbackActor *self = META_FEEDBACK_ACTOR (object);
+  MetaFeedbackActorPrivate *priv =
+    meta_feedback_actor_get_instance_private (self);
+  MetaDisplay *display = meta_compositor_get_display (priv->compositor);
   ClutterActor *feedback_group;
 
-  display = meta_get_display ();
-  feedback_group = meta_get_feedback_group_for_display (display);
+  feedback_group = meta_compositor_get_feedback_group (priv->compositor);
   clutter_actor_add_child (feedback_group, CLUTTER_ACTOR (object));
   meta_disable_unredirect_for_display (display);
 }
@@ -65,7 +74,12 @@ meta_feedback_actor_constructed (GObject *object)
 static void
 meta_feedback_actor_finalize (GObject *object)
 {
-  meta_enable_unredirect_for_display (meta_get_display ());
+  MetaFeedbackActor *self = META_FEEDBACK_ACTOR (object);
+  MetaFeedbackActorPrivate *priv =
+    meta_feedback_actor_get_instance_private (self);
+  MetaDisplay *display = meta_compositor_get_display (priv->compositor);
+
+  meta_enable_unredirect_for_display (display);
 
   G_OBJECT_CLASS (meta_feedback_actor_parent_class)->finalize (object);
 }
@@ -93,6 +107,9 @@ meta_feedback_actor_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_COMPOSITOR:
+      priv->compositor = g_value_get_object (value);
+      break;
     case PROP_ANCHOR_X:
       priv->anchor_x = g_value_get_int (value);
       meta_feedback_actor_update_position (self);
@@ -118,6 +135,9 @@ meta_feedback_actor_get_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_COMPOSITOR:
+      g_value_set_object (value, priv->compositor);
+      break;
     case PROP_ANCHOR_X:
       g_value_set_float (value, priv->anchor_x);
       break;
@@ -140,6 +160,18 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
   object_class->finalize = meta_feedback_actor_finalize;
   object_class->set_property = meta_feedback_actor_set_property;
   object_class->get_property = meta_feedback_actor_get_property;
+
+  pspec = g_param_spec_object ("compositor",
+                               "compositor",
+                               "The compositor instance",
+                               META_TYPE_COMPOSITOR,
+                               G_PARAM_READWRITE |
+                               G_PARAM_STATIC_STRINGS |
+                               G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_property (object_class,
+                                   PROP_COMPOSITOR,
+                                   pspec);
 
   pspec = g_param_spec_float ("anchor-x",
                               "Anchor X",
@@ -178,12 +210,14 @@ meta_feedback_actor_init (MetaFeedbackActor *self)
  * Return value: the newly created background actor
  */
 ClutterActor *
-meta_feedback_actor_new (float anchor_x,
-                         float anchor_y)
+meta_feedback_actor_new (MetaCompositor *compositor,
+                         float           anchor_x,
+                         float           anchor_y)
 {
   MetaFeedbackActor *self;
 
   self = g_object_new (META_TYPE_FEEDBACK_ACTOR,
+                       "compositor", compositor,
                        "anchor-x", anchor_x,
                        "anchor-y", anchor_y,
                        NULL);

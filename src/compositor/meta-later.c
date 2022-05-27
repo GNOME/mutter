@@ -28,6 +28,8 @@
 
 typedef struct _MetaLater
 {
+  MetaLaters *laters;
+
   unsigned int id;
   unsigned int ref_count;
   MetaLaterType when;
@@ -198,7 +200,7 @@ invoke_later_idle (gpointer data)
 
   if (!later->func (later->user_data))
     {
-      meta_later_remove (later->id);
+      meta_laters_remove (later->laters, later->id);
       return FALSE;
     }
   else
@@ -237,6 +239,7 @@ meta_laters_add (MetaLaters     *laters,
   MetaLater *later = g_new0 (MetaLater, 1);
 
   later->id = ++laters->last_later_id;
+  later->laters = laters;
   later->ref_count = 1;
   later->when = when;
   later->func = func;

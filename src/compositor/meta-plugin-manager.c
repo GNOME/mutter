@@ -117,9 +117,11 @@ on_prepare_shutdown (MetaContext       *context,
 MetaPluginManager *
 meta_plugin_manager_new (MetaCompositor *compositor)
 {
+  MetaBackend *backend = meta_compositor_get_backend (compositor);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaPluginManager *plugin_mgr;
   MetaPlugin *plugin;
-  MetaMonitorManager *monitors;
   MetaDisplay *display;
   MetaContext *context;
 
@@ -130,8 +132,7 @@ meta_plugin_manager_new (MetaCompositor *compositor)
 
   _meta_plugin_set_compositor (plugin, compositor);
 
-  monitors = meta_monitor_manager_get ();
-  g_signal_connect (monitors, "confirm-display-change",
+  g_signal_connect (monitor_manager, "confirm-display-change",
                     G_CALLBACK (on_confirm_display_change), plugin_mgr);
 
   display = meta_compositor_get_display (compositor);

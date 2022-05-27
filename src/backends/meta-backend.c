@@ -67,6 +67,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter-seat-private.h"
+#include "compositor/meta-dnd-private.h"
 #include "core/meta-context-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
@@ -1210,7 +1211,7 @@ meta_backend_initable_init (GInitable     *initable,
   priv->cursor_tracker =
     META_BACKEND_GET_CLASS (backend)->create_cursor_tracker (backend);
 
-  priv->dnd = g_object_new (META_TYPE_DND, NULL);
+  priv->dnd = meta_dnd_new (backend);
 
   priv->cancellable = g_cancellable_new ();
   g_bus_get (G_BUS_TYPE_SYSTEM,

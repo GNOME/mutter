@@ -316,8 +316,11 @@ meta_background_finalize (GObject *object)
 static void
 meta_background_constructed (GObject *object)
 {
-  MetaBackground        *self = META_BACKGROUND (object);
-  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
+  MetaBackground *self = META_BACKGROUND (object);
+  MetaContext *context = meta_display_get_context (self->display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
   G_OBJECT_CLASS (meta_background_parent_class)->constructed (object);
 
