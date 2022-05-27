@@ -108,7 +108,7 @@ meta_renderer_x11_nested_resize_legacy_view (MetaRendererX11Nested *renderer_x11
                                              int                    height)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_x11_nested);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   MetaRendererView *legacy_view;
@@ -142,7 +142,7 @@ meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11
                                              int                    height)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_x11_nested);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   cairo_rectangle_int_t view_layout;

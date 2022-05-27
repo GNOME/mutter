@@ -33,6 +33,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-cogl-utils.h"
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-private.h"
 
 struct _MetaDrmBufferGbm
@@ -236,7 +237,9 @@ meta_drm_buffer_gbm_fill_timings (MetaDrmBuffer  *buffer,
                                   GError        **error)
 {
   MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
-  MetaBackend *backend = meta_get_backend ();
+  MetaDeviceFile *device_file = meta_drm_buffer_get_device_file (buffer);
+  MetaDevicePool *device_pool = meta_device_file_get_pool (device_file);
+  MetaBackend *backend = meta_device_pool_get_backend (device_pool);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
@@ -354,7 +357,10 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                          GError          **error)
 {
   MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (scanout);
-  MetaBackend *backend = meta_get_backend ();
+  MetaDrmBuffer *buffer = META_DRM_BUFFER (buffer_gbm);
+  MetaDeviceFile *device_file = meta_drm_buffer_get_device_file (buffer);
+  MetaDevicePool *device_pool = meta_device_file_get_pool (device_file);
+  MetaBackend *backend = meta_device_pool_get_backend (device_pool);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);

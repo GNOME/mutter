@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-launcher.h"
 
@@ -30,6 +31,6 @@ G_DECLARE_FINAL_TYPE (MetaDevicePool, meta_device_pool,
                       META, DEVICE_POOL,
                       GObject)
 
-MetaDevicePool * meta_device_pool_new (MetaLauncher *launcher);
+MetaDevicePool * meta_device_pool_new (MetaBackendNative *backend_native);
 
 #endif /* META_DEVICE_POOL_PRIVATE_H */

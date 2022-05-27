@@ -28,6 +28,7 @@ enum
   PROP_0,
 
   PROP_ID,
+  PROP_BACKEND,
   PROP_GPU,
   PROP_ALL_TRANSFORMS,
 
@@ -40,6 +41,7 @@ typedef struct _MetaCrtcPrivate
 {
   uint64_t id;
 
+  MetaBackend *backend;
   MetaGpu *gpu;
 
   MetaMonitorTransform all_transforms;
@@ -56,6 +58,14 @@ meta_crtc_get_id (MetaCrtc *crtc)
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
 
   return priv->id;
+}
+
+MetaBackend *
+meta_crtc_get_backend (MetaCrtc *crtc)
+{
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  return priv->backend;
 }
 
 MetaGpu *
@@ -179,6 +189,9 @@ meta_crtc_set_property (GObject      *object,
     case PROP_ID:
       priv->id = g_value_get_uint64 (value);
       break;
+    case PROP_BACKEND:
+      priv->backend = g_value_get_object (value);
+      break;
     case PROP_GPU:
       priv->gpu = g_value_get_object (value);
       break;
@@ -203,6 +216,9 @@ meta_crtc_get_property (GObject    *object,
     {
     case PROP_ID:
       g_value_set_uint64 (value, priv->id);
+      break;
+    case PROP_BACKEND:
+      g_value_set_object (value, priv->backend);
       break;
     case PROP_GPU:
       g_value_set_object (value, priv->gpu);
@@ -249,6 +265,14 @@ meta_crtc_class_init (MetaCrtcClass *klass)
                          "id",
                          "CRTC id",
                          0, UINT64_MAX, 0,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);

@@ -124,6 +124,16 @@ G_DEFINE_TYPE (MetaRemoteDesktopSessionHandle,
 static MetaRemoteDesktopSessionHandle *
 meta_remote_desktop_session_handle_new (MetaRemoteDesktopSession *session);
 
+static MetaDisplay *
+display_from_session (MetaRemoteDesktopSession *session)
+{
+  MetaRemoteDesktop *remote_desktop = session->remote_desktop;
+  MetaBackend *backend = meta_remote_desktop_get_backend (remote_desktop);
+  MetaContext *context = meta_backend_get_context (backend);
+
+  return meta_context_get_display (context);
+}
+
 static gboolean
 meta_remote_desktop_session_is_running (MetaRemoteDesktopSession *session)
 {
@@ -133,7 +143,8 @@ meta_remote_desktop_session_is_running (MetaRemoteDesktopSession *session)
 static void
 init_remote_access_handle (MetaRemoteDesktopSession *session)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaRemoteDesktop *remote_desktop = session->remote_desktop;
+  MetaBackend *backend = meta_remote_desktop_get_backend (remote_desktop);
   MetaRemoteAccessController *remote_access_controller;
   MetaRemoteAccessHandle *remote_access_handle;
 
@@ -1076,7 +1087,7 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
   GVariant *mime_types_variant;
   g_autoptr (GError) error = NULL;
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_session (session);
   MetaSelection *selection = meta_display_get_selection (display);
   g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
 
@@ -1188,7 +1199,7 @@ transfer_request_cleanup_timout (gpointer user_data)
 static void
 reset_current_selection_source (MetaRemoteDesktopSession *session)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_session (session);
   MetaSelection *selection = meta_display_get_selection (display);
 
   if (!session->current_source)
@@ -1218,7 +1229,7 @@ handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                           GDBusMethodInvocation        *invocation)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_session (session);
   MetaSelection *selection = meta_display_get_selection (display);
 
   meta_topic (META_DEBUG_REMOTE_DESKTOP,
@@ -1273,7 +1284,7 @@ handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
   if (mime_types_variant)
     {
       g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = display_from_session (session);
 
       source_remote = create_remote_desktop_source (session,
                                                     mime_types_variant,
@@ -1545,7 +1556,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                        const char                   *mime_type)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_session (session);
   MetaSelection *selection = meta_display_get_selection (display);
   MetaSelectionSource *source;
   g_autoptr (GError) error = NULL;
@@ -1680,7 +1691,7 @@ static void
 meta_remote_desktop_session_finalize (GObject *object)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (object);
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_session (session);
   MetaSelection *selection = meta_display_get_selection (display);
 
   g_assert (!meta_remote_desktop_session_is_running (session));

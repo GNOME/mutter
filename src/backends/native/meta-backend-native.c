@@ -789,12 +789,14 @@ meta_backend_native_initable_init (GInitable     *initable,
           break;
         }
 
-      native->launcher = meta_launcher_new (session_id, seat_id, error);
+      native->launcher = meta_launcher_new (backend,
+                                            session_id, seat_id,
+                                            error);
       if (!native->launcher)
         return FALSE;
     }
 
-  native->device_pool = meta_device_pool_new (native->launcher);
+  native->device_pool = meta_device_pool_new (native);
   native->udev = meta_udev_new (native);
 
   kms_flags = META_KMS_FLAG_NONE;

@@ -77,4 +77,6 @@ ClutterInputDevice * meta_cursor_renderer_get_input_device (MetaCursorRenderer *
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 MetaCursorSprite   *cursor_sprite);
 
+MetaBackend * meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer);
+
 #endif /* META_CURSOR_RENDERER_H */

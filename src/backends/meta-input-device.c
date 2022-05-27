@@ -26,6 +26,8 @@ typedef struct _MetaInputDevicePrivate MetaInputDevicePrivate;
 
 struct _MetaInputDevicePrivate
 {
+  MetaBackend *backend;
+
 #ifdef HAVE_LIBWACOM
   WacomDevice *wacom_device;
 #else
@@ -38,6 +40,7 @@ enum
 {
   PROP_0,
 
+  PROP_BACKEND,
   PROP_WACOM_DEVICE,
 
   N_PROPS
@@ -69,7 +72,7 @@ meta_input_device_constructed (GObject *object)
 #ifdef HAVE_LIBWACOM
   input_device = META_INPUT_DEVICE (object);
   priv = meta_input_device_get_instance_private (input_device);
-  wacom_db = meta_backend_get_wacom_database (meta_get_backend ());
+  wacom_db = meta_backend_get_wacom_database (priv->backend);
   node = clutter_input_device_get_device_node (CLUTTER_INPUT_DEVICE (input_device));
   priv->wacom_device = libwacom_new_from_path (wacom_db, node,
                                                WFALLBACK_NONE, NULL);
@@ -88,6 +91,26 @@ meta_input_device_finalize (GObject *object)
 #endif /* HAVE_LIBWACOM */
 
   G_OBJECT_CLASS (meta_input_device_parent_class)->finalize (object);
+}
+
+static void
+meta_input_device_set_property (GObject      *object,
+                                guint         prop_id,
+                                const GValue *value,
+                                GParamSpec   *pspec)
+{
+  MetaInputDevicePrivate *priv;
+
+  priv = meta_input_device_get_instance_private (META_INPUT_DEVICE (object));
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      priv->backend = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
 }
 
 static void
@@ -117,8 +140,17 @@ meta_input_device_class_init (MetaInputDeviceClass *klass)
 
   object_class->constructed = meta_input_device_constructed;
   object_class->finalize = meta_input_device_finalize;
+  object_class->set_property = meta_input_device_set_property;
   object_class->get_property = meta_input_device_get_property;
 
+  props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   props[PROP_WACOM_DEVICE] =
     g_param_spec_pointer ("wacom-device",
                           "Wacom device",
@@ -140,3 +172,12 @@ meta_input_device_get_wacom_device (MetaInputDevice *input_device)
   return priv->wacom_device;
 }
 #endif /* HAVE_LIBWACOM */
+
+MetaBackend *
+meta_input_device_get_backend (MetaInputDevice *input_device)
+{
+  MetaInputDevicePrivate *priv =
+    meta_input_device_get_instance_private (input_device);
+
+  return priv->backend;
+}

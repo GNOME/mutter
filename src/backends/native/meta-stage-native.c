@@ -59,7 +59,8 @@ G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
 void
 meta_stage_native_rebuild_views (MetaStageNative *stage_native)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_native);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterActor *stage = meta_backend_get_stage (backend);
 
@@ -77,7 +78,8 @@ static void
 meta_stage_native_get_geometry (ClutterStageWindow    *stage_window,
                                 cairo_rectangle_int_t *geometry)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
@@ -103,7 +105,8 @@ meta_stage_native_get_geometry (ClutterStageWindow    *stage_window,
 static GList *
 meta_stage_native_get_views (ClutterStageWindow *stage_window)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   return meta_renderer_get_views (renderer);
@@ -114,7 +117,8 @@ meta_stage_native_prepare_frame (ClutterStageWindow *stage_window,
                                  ClutterStageView   *stage_view,
                                  ClutterFrame       *frame)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaCursorRenderer *cursor_renderer =
@@ -152,7 +156,8 @@ meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
                                 ClutterStageView   *stage_view,
                                 ClutterFrame       *frame)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   meta_renderer_native_finish_frame (META_RENDERER_NATIVE (renderer),

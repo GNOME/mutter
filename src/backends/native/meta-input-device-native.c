@@ -1461,6 +1461,7 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
     }
 
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
+                         "backend", meta_seat_impl_get_backend (seat_impl),
                          "name", libinput_device_get_name (libinput_device),
                          "device-type", type,
                          "capabilities", capabilities,
@@ -1532,6 +1533,7 @@ meta_input_device_native_new_virtual (MetaSeatImpl           *seat_impl,
     };
 
   device = g_object_new (META_TYPE_INPUT_DEVICE_NATIVE,
+                         "backend", meta_seat_impl_get_backend (seat_impl),
                          "name", name,
                          "device-type", type,
                          "device-mode", mode,

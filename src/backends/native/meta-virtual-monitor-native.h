@@ -39,7 +39,8 @@ MetaCrtc * meta_virtual_monitor_native_get_crtc (MetaVirtualMonitorNative *virtu
 
 MetaOutput * meta_virtual_monitor_native_get_output (MetaVirtualMonitorNative *virtual_monitor_native);
 
-MetaVirtualMonitorNative * meta_virtual_monitor_native_new (uint64_t                      id,
+MetaVirtualMonitorNative * meta_virtual_monitor_native_new (MetaBackend                  *backend,
+                                                            uint64_t                      id,
                                                             const MetaVirtualMonitorInfo *info);
 
 #endif /* META_VIRTUAL_MONITOR_NATIVE_H */

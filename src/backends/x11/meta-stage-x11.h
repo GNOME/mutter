@@ -52,8 +52,6 @@ struct _MetaStageX11
 {
   MetaStageImpl parent_instance;
 
-  MetaBackend *backend;
-
   CoglOnscreen *onscreen;
   Window xwin;
   gint xwin_width;

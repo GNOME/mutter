@@ -109,7 +109,8 @@ update_displayed_cursor (MetaCursorTracker *tracker)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
-  MetaDisplay *display = meta_get_display ();
+  MetaContext *context = meta_backend_get_context (priv->backend);
+  MetaDisplay *display = meta_context_get_display (context);
   MetaCursorSprite *cursor = NULL;
 
   if (display && meta_display_windows_are_interactable (display) &&
@@ -323,7 +324,8 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 MetaCursorTracker *
 meta_cursor_tracker_get_for_display (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaCursorTracker *tracker = meta_backend_get_cursor_tracker (backend);
 
   g_assert (tracker);

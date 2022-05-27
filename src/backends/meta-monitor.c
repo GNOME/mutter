@@ -1879,7 +1879,7 @@ meta_monitor_calculate_mode_scale (MetaMonitor                *monitor,
                                    MetaMonitorMode            *monitor_mode,
                                    MetaMonitorScalesConstraint constraints)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
   MetaSettings *settings = meta_backend_get_settings (backend);
   int global_scaling_factor;
 

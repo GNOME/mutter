@@ -31,9 +31,11 @@ struct _MetaCrtcVirtual
 G_DEFINE_TYPE (MetaCrtcVirtual, meta_crtc_virtual, META_TYPE_CRTC_NATIVE)
 
 MetaCrtcVirtual *
-meta_crtc_virtual_new (uint64_t id)
+meta_crtc_virtual_new (MetaBackend *backend,
+                       uint64_t     id)
 {
   return g_object_new (META_TYPE_CRTC_VIRTUAL,
+                       "backend", backend,
                        "id", META_CRTC_VIRTUAL_ID_BIT | id,
                        NULL);
 }

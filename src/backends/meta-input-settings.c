@@ -39,6 +39,17 @@
 #include "core/display-private.h"
 #include "meta/util.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_BACKEND,
+
+  N_PROPS
+};
+
+static GParamSpec *props[N_PROPS] = { 0 };
+
 static GQuark quark_tool_settings = 0;
 
 typedef struct _MetaInputSettingsPrivate MetaInputSettingsPrivate;
@@ -66,6 +77,8 @@ struct _DeviceMappingInfo
 
 struct _MetaInputSettingsPrivate
 {
+  MetaBackend *backend;
+
   ClutterSeat *seat;
   gulong monitors_changed_id;
 
@@ -1712,12 +1725,43 @@ meta_input_settings_constructed (GObject *object)
 }
 
 static void
+meta_input_settings_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaInputSettings *settings = META_INPUT_SETTINGS (object);
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (settings);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      priv->backend = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
 meta_input_settings_class_init (MetaInputSettingsClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_input_settings_dispose;
   object_class->constructed = meta_input_settings_constructed;
+  object_class->set_property = meta_input_settings_set_property;
+
+  props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, props);
 
   quark_tool_settings =
     g_quark_from_static_string ("meta-input-settings-tool-settings");
@@ -1863,4 +1907,13 @@ meta_input_settings_get_kbd_a11y_settings (MetaInputSettings   *input_settings,
   priv = meta_input_settings_get_instance_private (input_settings);
 
   *a11y_settings = priv->kbd_a11y_settings;
+}
+
+MetaBackend *
+meta_input_settings_get_backend (MetaInputSettings *settings)
+{
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (settings);
+
+  return priv->backend;
 }

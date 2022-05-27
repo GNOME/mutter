@@ -478,3 +478,12 @@ meta_cursor_renderer_get_input_device (MetaCursorRenderer *renderer)
 
   return priv->device;
 }
+
+MetaBackend *
+meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+
+  return priv->backend;
+}

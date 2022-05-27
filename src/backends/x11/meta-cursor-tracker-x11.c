@@ -49,7 +49,11 @@ gboolean
 meta_cursor_tracker_x11_handle_xevent (MetaCursorTrackerX11 *tracker_x11,
                                        XEvent               *xevent)
 {
-  MetaX11Display *x11_display = meta_get_display ()->x11_display;
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (tracker_x11);
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaDisplay *display = meta_context_get_display (context);
+  MetaX11Display *x11_display = meta_display_get_x11_display (display);
   XFixesCursorNotifyEvent *notify_event;
 
   if (xevent->xany.type != x11_display->xfixes_event_base + XFixesCursorNotify)
@@ -76,7 +80,10 @@ update_position (MetaCursorTrackerX11 *tracker_x11)
 static gboolean
 ensure_xfixes_cursor (MetaCursorTrackerX11 *tracker_x11)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (tracker_x11);
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaDisplay *display = meta_context_get_display (context);
   MetaCursorTracker *cursor_tracker;
   g_autoptr (GError) error = NULL;
 

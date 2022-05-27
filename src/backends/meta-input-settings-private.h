@@ -182,4 +182,6 @@ void meta_input_settings_notify_kbd_a11y_change (MetaInputSettings     *input_se
                                                  MetaKeyboardA11yFlags  new_flags,
                                                  MetaKeyboardA11yFlags  what_changed);
 
+MetaBackend * meta_input_settings_get_backend (MetaInputSettings *input_settings);
+
 #endif /* META_INPUT_SETTINGS_PRIVATE_H */

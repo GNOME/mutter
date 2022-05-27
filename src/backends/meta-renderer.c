@@ -138,7 +138,7 @@ static void
 meta_renderer_real_rebuild_views (MetaRenderer *renderer)
 {
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = priv->backend;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;

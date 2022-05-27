@@ -252,4 +252,6 @@ void meta_seat_impl_queue_main_thread_idle (MetaSeatImpl   *seat_impl,
                                             gpointer        user_data,
                                             GDestroyNotify  destroy_notify);
 
+MetaBackend * meta_seat_impl_get_backend (MetaSeatImpl *seat_impl);
+
 #endif /* META_SEAT_IMPL_H */

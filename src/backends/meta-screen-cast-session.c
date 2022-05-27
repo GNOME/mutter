@@ -86,7 +86,8 @@ meta_screen_cast_session_handle_new (MetaScreenCastSession *session);
 static void
 init_remote_access_handle (MetaScreenCastSession *session)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend =
+    meta_screen_cast_get_backend (session->screen_cast);
   MetaRemoteAccessController *remote_access_controller;
   MetaRemoteAccessHandle *remote_access_handle;
 
@@ -323,7 +324,8 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend =
+    meta_screen_cast_get_backend (session->screen_cast);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitor *monitor;
@@ -422,6 +424,10 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
                       GVariant                  *properties_variant)
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
+  MetaBackend *backend =
+    meta_screen_cast_get_backend (session->screen_cast);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaDisplay *display = meta_context_get_display (context);
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
   MetaWindow *window;
@@ -429,7 +435,6 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   gboolean is_recording;
   MetaScreenCastFlag flags;
   GError *error = NULL;
-  MetaDisplay *display;
   GVariant *window_id_variant = NULL;
   MetaScreenCastWindowStream *window_stream;
   MetaScreenCastStream *stream;
@@ -448,7 +453,6 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
                                                 "window-id",
                                                 G_VARIANT_TYPE ("t"));
 
-  display = meta_get_display ();
   if (window_id_variant)
     {
       uint64_t window_id;

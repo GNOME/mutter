@@ -645,6 +645,7 @@ create_device (MetaSeatX11    *seat_x11,
     get_pad_features (info, &num_rings, &num_strips);
 
   retval = g_object_new (META_TYPE_INPUT_DEVICE_X11,
+                         "backend", seat_x11->backend,
                          "name", info->name,
                          "id", info->deviceid,
                          "has-cursor", (info->use == XIMasterPointer),
@@ -1604,7 +1605,9 @@ meta_seat_x11_peek_devices (ClutterSeat *seat)
 static void
 meta_seat_x11_bell_notify (ClutterSeat *seat)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaContext *context = meta_backend_get_context (seat_x11->backend);
+  MetaDisplay *display = meta_context_get_display (context);
 
   meta_bell_notify (display, NULL);
 }
@@ -1798,7 +1801,7 @@ meta_seat_x11_grab (ClutterSeat *seat,
                     uint32_t     time)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = seat_x11->backend;
   ClutterGrabState state = CLUTTER_GRAB_STATE_NONE;
 
   g_return_val_if_fail (seat_x11->grab_state == CLUTTER_GRAB_STATE_NONE,
@@ -1824,7 +1827,7 @@ meta_seat_x11_ungrab (ClutterSeat *seat,
                       uint32_t     time)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = seat_x11->backend;
 
   if ((seat_x11->grab_state & CLUTTER_GRAB_STATE_POINTER) != 0)
     {

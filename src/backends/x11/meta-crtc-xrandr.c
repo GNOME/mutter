@@ -245,6 +245,7 @@ meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
     meta_monitor_transform_from_xrandr_all (xrandr_crtc->rotations);
   crtc_xrandr = g_object_new (META_TYPE_CRTC_XRANDR,
                               "id", (uint64_t) crtc_id,
+                              "backend", backend,
                               "gpu", gpu,
                               "all-transforms", all_transforms,
                               NULL);

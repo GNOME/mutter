@@ -664,6 +664,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 
       crtc = g_object_new (META_TYPE_CRTC_TEST,
                            "id", (uint64_t) i + 1,
+                           "backend", backend,
                            "gpu", meta_test_get_gpu (backend),
                            NULL);
       if (setup->crtcs[i].disable_gamma_lut)

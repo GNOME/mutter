@@ -34,7 +34,7 @@ G_DECLARE_FINAL_TYPE (MetaInputMapper, meta_input_mapper,
                       META, INPUT_MAPPER,
                       MetaDBusInputMappingSkeleton)
 
-MetaInputMapper * meta_input_mapper_new      (void);
+MetaInputMapper * meta_input_mapper_new (MetaBackend *backend);
 
 void meta_input_mapper_add_device    (MetaInputMapper    *mapper,
                                       ClutterInputDevice *device);

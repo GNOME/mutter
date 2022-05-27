@@ -33,6 +33,17 @@
 
 #define MAX_SIZE_MATCH_DIFF 0.05
 
+enum
+{
+  PROP_0,
+
+  PROP_BACKEND,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct _MetaMapperInputInfo MetaMapperInputInfo;
 typedef struct _MetaMapperOutputInfo MetaMapperOutputInfo;
 typedef struct _MappingHelper MappingHelper;
@@ -42,6 +53,8 @@ typedef struct _DeviceMatch DeviceMatch;
 struct _MetaInputMapper
 {
   MetaDBusInputMappingSkeleton parent_instance;
+
+  MetaBackend *backend;
   MetaMonitorManager *monitor_manager;
   ClutterSeat *seat;
   GHashTable *input_devices; /* ClutterInputDevice -> MetaMapperInputInfo */
@@ -683,6 +696,44 @@ input_mapper_device_removed_cb (ClutterSeat        *seat,
 }
 
 static void
+meta_input_mapper_set_property (GObject      *object,
+                                guint         prop_id,
+                                const GValue *value,
+                                GParamSpec   *pspec)
+{
+  MetaInputMapper *mapper = META_INPUT_MAPPER (object);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      mapper->backend = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_input_mapper_get_property (GObject    *object,
+                                guint       prop_id,
+                                GValue     *value,
+                                GParamSpec *pspec)
+{
+  MetaInputMapper *mapper = META_INPUT_MAPPER (object);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      g_value_set_object (value, mapper->backend);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_input_mapper_finalize (GObject *object)
 {
   MetaInputMapper *mapper = META_INPUT_MAPPER (object);
@@ -706,7 +757,6 @@ static void
 meta_input_mapper_constructed (GObject *object)
 {
   MetaInputMapper *mapper = META_INPUT_MAPPER (object);
-  MetaBackend *backend;
 
   G_OBJECT_CLASS (meta_input_mapper_parent_class)->constructed (object);
 
@@ -714,8 +764,7 @@ meta_input_mapper_constructed (GObject *object)
   g_signal_connect (mapper->seat, "device-removed",
                     G_CALLBACK (input_mapper_device_removed_cb), mapper);
 
-  backend = meta_get_backend ();
-  mapper->monitor_manager = meta_backend_get_monitor_manager (backend);
+  mapper->monitor_manager = meta_backend_get_monitor_manager (mapper->backend);
   g_signal_connect (mapper->monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (input_mapper_monitors_changed_cb), mapper);
   g_signal_connect (mapper->monitor_manager, "power-save-mode-changed",
@@ -732,6 +781,18 @@ meta_input_mapper_class_init (MetaInputMapperClass *klass)
 
   object_class->constructed = meta_input_mapper_constructed;
   object_class->finalize = meta_input_mapper_finalize;
+  object_class->set_property = meta_input_mapper_set_property;
+  object_class->get_property = meta_input_mapper_get_property;
+
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[DEVICE_MAPPED] =
     g_signal_new ("device-mapped",
@@ -882,9 +943,11 @@ meta_input_mapping_init_iface (MetaDBusInputMappingIface *iface)
 
 
 MetaInputMapper *
-meta_input_mapper_new (void)
+meta_input_mapper_new (MetaBackend *backend)
 {
-  return g_object_new (META_TYPE_INPUT_MAPPER, NULL);
+  return g_object_new (META_TYPE_INPUT_MAPPER,
+                       "backend", backend,
+                       NULL);
 }
 
 void

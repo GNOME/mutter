@@ -3747,3 +3747,9 @@ meta_seat_impl_get_input_settings (MetaSeatImpl *seat_impl)
 {
   return seat_impl->input_settings;
 }
+
+MetaBackend *
+meta_seat_impl_get_backend (MetaSeatImpl *seat_impl)
+{
+  return meta_seat_native_get_backend (seat_impl->seat_native);
+}

@@ -525,6 +525,7 @@ meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
                                                          kms_crtc);
   crtc_kms = g_object_new (META_TYPE_CRTC_KMS,
                            "id", (uint64_t) meta_kms_crtc_get_id (kms_crtc),
+                           "backend", meta_gpu_get_backend (gpu),
                            "gpu", gpu,
                            NULL);
 

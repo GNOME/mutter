@@ -266,7 +266,7 @@ meta_idle_manager_get_monitor (MetaIdleManager    *idle_manager,
 MetaIdleMonitor *
 meta_idle_manager_get_core_monitor (MetaIdleManager *idle_manager)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = idle_manager->backend;
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
 

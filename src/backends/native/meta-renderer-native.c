@@ -415,7 +415,8 @@ meta_renderer_native_choose_egl_config (CoglDisplay  *cogl_display,
 {
   CoglRenderer *cogl_renderer = cogl_display->renderer;
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
-  MetaBackend *backend = meta_get_backend ();
+  MetaRenderer *renderer = cogl_renderer->custom_winsys_user_data;
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaEgl *egl = meta_backend_get_egl (backend);
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   EGLDisplay egl_display = cogl_renderer_egl->edpy;
@@ -486,10 +487,12 @@ meta_renderer_native_destroy_egl_display (CoglDisplay *cogl_display)
 }
 
 static EGLSurface
-create_dummy_pbuffer_surface (EGLDisplay egl_display,
-                              GError   **error)
+create_dummy_pbuffer_surface (CoglRenderer  *cogl_renderer,
+                              EGLDisplay     egl_display,
+                              GError       **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaRenderer *renderer = cogl_renderer->custom_winsys_user_data;
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaEgl *egl = meta_backend_get_egl (backend);
   EGLConfig pbuffer_config;
   static const EGLint pbuffer_config_attribs[] = {
@@ -528,7 +531,9 @@ meta_renderer_native_egl_context_created (CoglDisplay *cogl_display,
        COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT) == 0)
     {
       cogl_display_egl->dummy_surface =
-        create_dummy_pbuffer_surface (cogl_renderer_egl->edpy, error);
+        create_dummy_pbuffer_surface (cogl_renderer,
+                                      cogl_renderer_egl->edpy,
+                                      error);
       if (cogl_display_egl->dummy_surface == EGL_NO_SURFACE)
         return FALSE;
     }

@@ -75,7 +75,8 @@ meta_stage_x11_nested_can_clip_redraws (ClutterStageWindow *stage_window)
 static GList *
 meta_stage_x11_nested_get_views (ClutterStageWindow *stage_window)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   return meta_renderer_get_views (renderer);
@@ -153,7 +154,8 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window,
 {
   MetaStageX11Nested *stage_nested = META_STAGE_X11_NESTED (stage_window);
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-  MetaBackend *backend = meta_get_backend ();
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglFramebuffer *onscreen = COGL_FRAMEBUFFER (stage_x11->onscreen);

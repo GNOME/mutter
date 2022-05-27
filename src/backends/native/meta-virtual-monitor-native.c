@@ -72,7 +72,8 @@ meta_virtual_monitor_native_get_id (MetaVirtualMonitorNative *virtual_monitor_na
 }
 
 MetaVirtualMonitorNative *
-meta_virtual_monitor_native_new (uint64_t                      id,
+meta_virtual_monitor_native_new (MetaBackend                  *backend,
+                                 uint64_t                      id,
                                  const MetaVirtualMonitorInfo *info)
 {
   MetaVirtualMonitorNative *virtual_monitor_native;
@@ -80,7 +81,7 @@ meta_virtual_monitor_native_new (uint64_t                      id,
   MetaCrtcModeVirtual *crtc_mode_virtual;
   MetaOutputVirtual *output_virtual;
 
-  crtc_virtual = meta_crtc_virtual_new (id);
+  crtc_virtual = meta_crtc_virtual_new (backend, id);
   crtc_mode_virtual = meta_crtc_mode_virtual_new (mode_id++, &info->mode_info);
   output_virtual = meta_output_virtual_new (id, info,
                                             crtc_virtual,

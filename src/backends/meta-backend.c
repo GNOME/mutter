@@ -556,7 +556,7 @@ meta_backend_real_post_init (MetaBackend *backend)
                            G_CALLBACK (on_device_removed), backend,
                            G_CONNECT_AFTER);
 
-  priv->input_mapper = meta_input_mapper_new ();
+  priv->input_mapper = meta_input_mapper_new (backend);
 
   input_settings = meta_backend_get_input_settings (backend);
 

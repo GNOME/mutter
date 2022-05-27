@@ -68,6 +68,8 @@ MetaDeviceFile * meta_device_pool_open (MetaDevicePool       *pool,
                                         MetaDeviceFileFlags   flags,
                                         GError              **error);
 
+MetaBackend * meta_device_pool_get_backend (MetaDevicePool *pool);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaDeviceFile, meta_device_file_release)
 
 #endif /* META_DEVICE_FILE_POOL_H */

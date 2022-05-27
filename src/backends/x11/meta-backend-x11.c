@@ -346,6 +346,7 @@ handle_host_xevent (MetaBackend *backend,
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaContext *context = meta_backend_get_context (backend);
   gboolean bypass_clutter = FALSE;
   MetaDisplay *display;
 
@@ -362,7 +363,7 @@ handle_host_xevent (MetaBackend *backend,
 
   XGetEventData (priv->xdisplay, &event->xcookie);
 
-  display = meta_get_display ();
+  display = meta_context_get_display (context);
   if (display)
     {
       MetaCompositor *compositor = display->compositor;

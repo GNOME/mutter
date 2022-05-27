@@ -95,7 +95,9 @@ meta_backend_x11_nested_get_input_settings (MetaBackend *backend)
   if (!priv->input_settings)
     {
       priv->input_settings =
-        g_object_new (META_TYPE_INPUT_SETTINGS_DUMMY, NULL);
+        g_object_new (META_TYPE_INPUT_SETTINGS_DUMMY,
+                      "backend", backend,
+                      NULL);
     }
 
   return priv->input_settings;
@@ -191,8 +193,10 @@ meta_backend_x11_nested_handle_host_xevent (MetaBackendX11 *x11,
 
       if (event->xfocus.window == xwin)
         {
+          MetaBackend *backend = META_BACKEND (x11);
+          MetaContext *context = meta_backend_get_context (backend);
           MetaWaylandCompositor *compositor =
-            meta_wayland_compositor_get_default ();
+            meta_context_get_wayland_compositor (context);
           Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
 
           /*

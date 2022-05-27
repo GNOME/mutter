@@ -831,6 +831,7 @@ MetaInputSettings *
 meta_input_settings_native_new_in_impl (MetaSeatImpl *seat_impl)
 {
   return g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE,
+                       "backend", meta_seat_impl_get_backend (seat_impl),
                        "seat-impl", seat_impl,
                        NULL);
 }

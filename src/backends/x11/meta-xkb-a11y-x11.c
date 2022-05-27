@@ -89,6 +89,8 @@ set_xkb_desc_rec (Display    *xdisplay,
 static void
 check_settings_changed (ClutterSeat *seat)
 {
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackend *backend = meta_seat_x11_get_backend (META_SEAT_X11 (seat_x11));
   Display *xdisplay = xdisplay_from_seat (seat);
   MetaKbdA11ySettings kbd_a11y_settings;
   MetaKeyboardA11yFlags what_changed = 0;
@@ -99,7 +101,7 @@ check_settings_changed (ClutterSeat *seat)
   if (!desc)
     return;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  input_settings = meta_backend_get_input_settings (backend);
   meta_input_settings_get_kbd_a11y_settings (input_settings,
                                              &kbd_a11y_settings);
 
@@ -335,7 +337,8 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
 gboolean
 meta_seat_x11_a11y_init (ClutterSeat *seat)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackend *backend = meta_seat_x11_get_backend (META_SEAT_X11 (seat_x11));
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaClutterBackendX11 *clutter_backend_x11 =
     META_CLUTTER_BACKEND_X11 (clutter_backend);

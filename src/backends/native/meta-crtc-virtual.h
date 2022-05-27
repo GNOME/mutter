@@ -27,6 +27,7 @@ G_DECLARE_FINAL_TYPE (MetaCrtcVirtual, meta_crtc_virtual,
                       META, CRTC_VIRTUAL,
                       MetaCrtcNative)
 
-MetaCrtcVirtual * meta_crtc_virtual_new (uint64_t id);
+MetaCrtcVirtual * meta_crtc_virtual_new (MetaBackend *backend,
+                                         uint64_t     id);
 
 #endif /* META_CRTC_VIRTUAL_H */

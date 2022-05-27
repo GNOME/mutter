@@ -498,8 +498,9 @@ meta_stage_x11_can_clip_redraws (ClutterStageWindow *stage_window)
 static GList *
 meta_stage_x11_get_views (ClutterStageWindow *stage_window)
 {
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-  MetaRenderer *renderer = meta_backend_get_renderer (stage_x11->backend);
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   return meta_renderer_get_views (renderer);
 }
@@ -541,9 +542,6 @@ meta_stage_x11_init (MetaStageX11 *stage)
   stage->wm_state = STAGE_X11_WITHDRAWN;
 
   stage->title = NULL;
-
-  stage->backend = meta_get_backend ();
-  g_assert (stage->backend);
 }
 
 static void

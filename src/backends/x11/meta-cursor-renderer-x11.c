@@ -46,10 +46,10 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
 {
   MetaCursorRendererX11 *x11 = META_CURSOR_RENDERER_X11 (renderer);
   MetaCursorRendererX11Private *priv = meta_cursor_renderer_x11_get_instance_private (x11);
-
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Window xwindow = meta_backend_x11_get_xwindow (backend);
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
+  MetaBackend *backend = meta_cursor_renderer_get_backend (renderer);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  Window xwindow = meta_backend_x11_get_xwindow (backend_x11);
+  Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   if (xwindow == None)
     {

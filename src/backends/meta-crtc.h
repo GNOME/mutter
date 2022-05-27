@@ -55,6 +55,9 @@ META_EXPORT_TEST
 uint64_t meta_crtc_get_id (MetaCrtc *crtc);
 
 META_EXPORT_TEST
+MetaBackend * meta_crtc_get_backend (MetaCrtc *crtc);
+
+META_EXPORT_TEST
 MetaGpu * meta_crtc_get_gpu (MetaCrtc *crtc);
 
 META_EXPORT_TEST

@@ -71,11 +71,15 @@ create_empty_cursor (Display *xdisplay)
 }
 
 static void
-meta_cursor_renderer_x11_nested_init (MetaCursorRendererX11Nested *x11_nested)
+meta_cursor_renderer_x11_nested_constructed (GObject *object)
 {
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Window xwindow = meta_backend_x11_get_xwindow (backend);
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
+  MetaCursorRendererX11Nested *x11_nested =
+    META_CURSOR_RENDERER_X11_NESTED (object);
+  MetaCursorRenderer *cursor_renderer = META_CURSOR_RENDERER (x11_nested);
+  MetaBackend *backend = meta_cursor_renderer_get_backend (cursor_renderer);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  Window xwindow = meta_backend_x11_get_xwindow (backend_x11);
+  Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   Cursor empty_xcursor = create_empty_cursor (xdisplay);
   XDefineCursor (xdisplay, xwindow, empty_xcursor);
@@ -85,7 +89,15 @@ meta_cursor_renderer_x11_nested_init (MetaCursorRendererX11Nested *x11_nested)
 static void
 meta_cursor_renderer_x11_nested_class_init (MetaCursorRendererX11NestedClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaCursorRendererClass *renderer_class = META_CURSOR_RENDERER_CLASS (klass);
 
+  object_class->constructed = meta_cursor_renderer_x11_nested_constructed;
+
   renderer_class->update_cursor = meta_cursor_renderer_x11_nested_update_cursor;
+}
+
+static void
+meta_cursor_renderer_x11_nested_init (MetaCursorRendererX11Nested *x11_nested)
+{
 }

@@ -261,7 +261,9 @@ meta_seat_native_peek_devices (ClutterSeat *seat)
 static void
 meta_seat_native_bell_notify (ClutterSeat *seat)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  MetaContext *context = meta_backend_get_context (seat_native->backend);
+  MetaDisplay *display = meta_context_get_display (context);
 
   meta_bell_notify (display, NULL);
 }
@@ -595,7 +597,7 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
           MetaCursorRendererNative *cursor_renderer_native;
 
           cursor_renderer_native =
-            meta_cursor_renderer_native_new (meta_get_backend (),
+            meta_cursor_renderer_native_new (seat_native->backend,
                                              seat_native->core_pointer);
           seat_native->cursor_renderer =
             META_CURSOR_RENDERER (cursor_renderer_native);
@@ -622,7 +624,7 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
 
       if (!cursor_renderer)
         {
-          cursor_renderer = meta_cursor_renderer_new (meta_get_backend (),
+          cursor_renderer = meta_cursor_renderer_new (seat_native->backend,
                                                       device);
           g_hash_table_insert (seat_native->tablet_cursors,
                                device, cursor_renderer);
