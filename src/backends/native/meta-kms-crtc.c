@@ -105,20 +105,14 @@ read_gamma_state (MetaKmsCrtc       *crtc,
                   MetaKmsImplDevice *impl_device,
                   drmModeCrtc       *drm_crtc)
 {
-  if (crtc_state->gamma.size != drm_crtc->gamma_size)
-    {
-      crtc_state->gamma.size = drm_crtc->gamma_size;
+  g_assert (!crtc_state->gamma.red &&
+            !crtc_state->gamma.green &&
+            !crtc_state->gamma.blue);
 
-      crtc_state->gamma.red = g_realloc_n (crtc_state->gamma.red,
-                                           drm_crtc->gamma_size,
-                                           sizeof (uint16_t));
-      crtc_state->gamma.green = g_realloc_n (crtc_state->gamma.green,
-                                             drm_crtc->gamma_size,
-                                             sizeof (uint16_t));
-      crtc_state->gamma.blue = g_realloc_n (crtc_state->gamma.blue,
-                                            drm_crtc->gamma_size,
-                                            sizeof (uint16_t));
-    }
+  crtc_state->gamma.size = drm_crtc->gamma_size;
+  crtc_state->gamma.red = g_new0 (uint16_t, drm_crtc->gamma_size);
+  crtc_state->gamma.green = g_new0 (uint16_t, drm_crtc->gamma_size);
+  crtc_state->gamma.blue = g_new0 (uint16_t, drm_crtc->gamma_size);
 
   drmModeCrtcGetGamma (meta_kms_impl_device_get_fd (impl_device),
                        crtc->id,
@@ -209,7 +203,6 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
 
   crtc_state.is_drm_mode_valid = drm_crtc->mode_valid;
   crtc_state.drm_mode = drm_crtc->mode;
-  crtc_state.gamma.size = 0;
 
   active_prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_ACTIVE];
   if (active_prop->prop_id)
@@ -224,6 +217,8 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
       crtc_state.is_active = drm_crtc->mode_valid;
     }
 
+  read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
+
   if (!crtc_state.is_active)
     {
       if (crtc->current_state.is_active)
@@ -231,7 +226,6 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
     }
   else
     {
-      read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
       changes = meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
     }
 
