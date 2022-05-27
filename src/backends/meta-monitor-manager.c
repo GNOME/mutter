@@ -3509,7 +3509,7 @@ meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager)
 
       if (!meta_gpu_read_current (gpu, &error))
         {
-          g_warning ("Failed to read current KMS state: %s", error->message);
+          g_warning ("Failed to read current monitor state: %s", error->message);
           g_clear_error (&error);
         }
     }
