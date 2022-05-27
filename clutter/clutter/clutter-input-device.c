@@ -52,8 +52,6 @@ enum
 {
   PROP_0,
 
-  PROP_BACKEND,
-
   PROP_NAME,
 
   PROP_DEVICE_TYPE,
@@ -88,8 +86,6 @@ struct _ClutterInputDevicePrivate
   char *device_name;
 
   ClutterSeat *seat;
-
-  ClutterBackend *backend;
 
   char *vendor_id;
   char *product_id;
@@ -198,10 +194,6 @@ clutter_input_device_set_property (GObject      *gobject,
       priv->device_mode = g_value_get_enum (value);
       break;
 
-    case PROP_BACKEND:
-      priv->backend = g_value_get_object (value);
-      break;
-
     case PROP_NAME:
       priv->device_name = g_value_dup_string (value);
       break;
@@ -270,10 +262,6 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_DEVICE_MODE:
       g_value_set_enum (value, priv->device_mode);
-      break;
-
-    case PROP_BACKEND:
-      g_value_set_object (value, priv->backend);
       break;
 
     case PROP_NAME:
@@ -399,18 +387,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                           P_("Whether the device has a cursor"),
                           FALSE,
                           CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterInputDevice:backend:
-   *
-   * The #ClutterBackend that created the device.
-   */
-  obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         P_("Backend"),
-                         P_("The backend instance"),
-                         CLUTTER_TYPE_BACKEND,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:vendor-id:
