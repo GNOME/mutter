@@ -304,7 +304,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       frame_clock->got_measurements_last_frame = TRUE;
     }
 
-  if (frame_info->refresh_rate > 1)
+  if (frame_info->refresh_rate > 1.0)
     {
       clutter_frame_clock_set_refresh_rate (frame_clock,
                                             frame_info->refresh_rate);
