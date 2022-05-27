@@ -327,7 +327,9 @@ static gboolean
 meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                       GError            **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
@@ -546,7 +548,9 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
                                           CoglOnscreen            *onscreen)
 {
 #ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (dma_buf->manager->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   int n_planes;
@@ -963,6 +967,9 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
                         MetaCrtc                         *crtc)
 {
   MetaWaylandDmaBufManager *dma_buf_manager = surface_feedback->dma_buf_manager;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (dma_buf_manager->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaWaylandDmaBufFeedback *feedback = surface_feedback->feedback;
   MetaCrtcKms *crtc_kms;
   MetaWaylandDmaBufTranche *tranche;
@@ -988,7 +995,7 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
     }
 
   formats = g_array_new (FALSE, FALSE, sizeof (MetaWaylandDmaBufFormat));
-  if (should_send_modifiers (meta_get_backend ()))
+  if (should_send_modifiers (backend))
     {
       for (i = 0; i < dma_buf_manager->formats->len; i++)
         {
@@ -1451,7 +1458,9 @@ MetaWaylandDmaBufManager *
 meta_wayland_dma_buf_manager_new (MetaWaylandCompositor  *compositor,
                                   GError                **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
