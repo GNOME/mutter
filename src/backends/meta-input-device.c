@@ -36,7 +36,10 @@ struct _MetaInputDevicePrivate
 
 enum
 {
-  PROP_WACOM_DEVICE = 1,
+  PROP_0,
+
+  PROP_WACOM_DEVICE,
+
   N_PROPS
 };
 
@@ -120,7 +123,8 @@ meta_input_device_class_init (MetaInputDeviceClass *klass)
     g_param_spec_pointer ("wacom-device",
                           "Wacom device",
                           "Wacom device",
-                          G_PARAM_READABLE);
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
