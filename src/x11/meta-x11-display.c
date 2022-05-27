@@ -1303,8 +1303,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                                               xroot,
                                               PropertyChangeMask);
 
-  init_event_masks (x11_display);
-
   /* Select for cursor changes so the cursor tracker is up to date. */
   XFixesSelectCursorInput (xdisplay, xroot, XFixesDisplayCursorNotifyMask);
 
@@ -1417,6 +1415,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   x11_display->wm_sn_selection_window = new_wm_sn_owner;
   x11_display->wm_sn_atom = wm_sn_atom;
   x11_display->wm_sn_timestamp = timestamp;
+
+  init_event_masks (x11_display);
 
   return x11_display;
 }
