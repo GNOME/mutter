@@ -38,7 +38,9 @@ META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaBackendNative, meta_backend_native,
                       META, BACKEND_NATIVE, MetaBackend)
 
-gboolean meta_activate_vt (int vt, GError **error);
+gboolean meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
+                                          int                 vt,
+                                          GError            **error);
 
 void meta_backend_native_pause (MetaBackendNative *backend_native);
 

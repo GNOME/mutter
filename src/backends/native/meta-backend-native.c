@@ -916,13 +916,13 @@ meta_backend_native_get_kms (MetaBackendNative *native)
 }
 
 gboolean
-meta_activate_vt (int vt, GError **error)
+meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
+                                 int                 vt,
+                                 GError            **error)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
-  MetaLauncher *launcher = meta_backend_native_get_launcher (native);
+  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
 
-  switch (native->mode)
+  switch (backend_native->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
       return meta_launcher_activate_vt (launcher, vt, error);

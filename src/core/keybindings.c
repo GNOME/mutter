@@ -3573,10 +3573,13 @@ handle_switch_vt (MetaDisplay     *display,
                   MetaKeyBinding  *binding,
                   gpointer         dummy)
 {
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   gint vt = binding->handler->data;
   GError *error = NULL;
 
-  if (!meta_activate_vt (vt, &error))
+  if (!meta_backend_native_activate_vt (META_BACKEND_NATIVE (backend),
+                                        vt, &error))
     {
       g_warning ("Failed to switch VT: %s", error->message);
       g_error_free (error);
