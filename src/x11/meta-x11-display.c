@@ -1300,13 +1300,9 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   meta_x11_display_init_events (x11_display);
 
   set_wm_icon_size_hint (x11_display);
-
   set_supported_hint (x11_display);
-
   set_wm_check_hint (x11_display);
-
   set_desktop_viewport_hint (x11_display);
-
   set_desktop_geometry_hint (x11_display);
 
   x11_display->ui = meta_ui_new (x11_display);
