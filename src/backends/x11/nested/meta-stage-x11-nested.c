@@ -63,17 +63,6 @@ meta_stage_x11_nested_resize (ClutterStageWindow *stage_window,
                               gint                width,
                               gint                height)
 {
-  if (!meta_is_stage_views_enabled ())
-    {
-      MetaBackend *backend = meta_get_backend ();
-      MetaRenderer *renderer = meta_backend_get_renderer (backend);
-      MetaRendererX11Nested *renderer_x11_nested =
-        META_RENDERER_X11_NESTED (renderer);
-
-      meta_renderer_x11_nested_ensure_legacy_view (renderer_x11_nested,
-                                                   width, height);
-    }
-
   clutter_stage_window_parent_iface->resize (stage_window, width, height);
 }
 

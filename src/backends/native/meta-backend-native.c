@@ -764,13 +764,6 @@ meta_backend_native_initable_init (GInitable     *initable,
   MetaBackend *backend = META_BACKEND (native);
   MetaKmsFlags kms_flags;
 
-  if (!meta_is_stage_views_enabled ())
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "The native backend requires stage views");
-      return FALSE;
-    }
-
   if (!meta_backend_is_headless (backend))
     {
       const char *session_id = NULL;

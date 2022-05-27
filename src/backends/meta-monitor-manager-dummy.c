@@ -486,10 +486,7 @@ meta_monitor_manager_dummy_ensure_initial_config (MetaMonitorManager *manager)
 
   config = meta_monitor_manager_ensure_configured (manager);
 
-  if (meta_is_stage_views_enabled ())
-    meta_monitor_manager_update_logical_state (manager, config);
-  else
-    meta_monitor_manager_update_logical_state_derived (manager, NULL);
+  meta_monitor_manager_update_logical_state (manager, config);
 }
 
 static void
@@ -708,21 +705,12 @@ meta_monitor_manager_dummy_get_max_screen_size (MetaMonitorManager *manager,
                                                 int                *max_width,
                                                 int                *max_height)
 {
-  if (meta_is_stage_views_enabled ())
-    return FALSE;
-
-  *max_width = 65535;
-  *max_height = 65535;
-
-  return TRUE;
+  return FALSE;
 }
 
 static MetaLogicalMonitorLayoutMode
 meta_monitor_manager_dummy_get_default_layout_mode (MetaMonitorManager *manager)
 {
-  if (!meta_is_stage_views_enabled ())
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
-
   if (is_monitor_framebuffers_scaled ())
     return META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
   else

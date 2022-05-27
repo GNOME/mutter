@@ -121,8 +121,6 @@ static guint signals[N_SIGNALS];
 
 static MetaBackend *_backend;
 
-static gboolean stage_views_disabled = FALSE;
-
 #define HIDDEN_POINTER_TIMEOUT 300 /* ms */
 
 /**
@@ -874,7 +872,6 @@ meta_backend_get_property (GObject    *object,
 static void
 meta_backend_class_init (MetaBackendClass *klass)
 {
-  const gchar *mutter_stage_views;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_backend_dispose;
@@ -955,9 +952,6 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
-
-  mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
-  stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
 }
 
 static MetaMonitorManager *
@@ -1615,23 +1609,6 @@ meta_backend_get_capabilities (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->get_capabilities (backend);
 }
 
-/**
- * meta_is_stage_views_enabled:
- *
- * Returns whether the #ClutterStage can be rendered using multiple stage views.
- * In practice, this means we can define a separate framebuffer for each
- * #MetaLogicalMonitor, rather than rendering everything into a single
- * framebuffer. For example: in X11, onle one single framebuffer is allowed.
- */
-gboolean
-meta_is_stage_views_enabled (void)
-{
-  if (!meta_is_wayland_compositor ())
-    return FALSE;
-
-  return !stage_views_disabled;
-}
-
 gboolean
 meta_is_stage_views_scaled (void)
 {
@@ -1639,9 +1616,6 @@ meta_is_stage_views_scaled (void)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaLogicalMonitorLayoutMode layout_mode;
-
-  if (!meta_is_stage_views_enabled ())
-    return FALSE;
 
   layout_mode = monitor_manager->layout_mode;
 

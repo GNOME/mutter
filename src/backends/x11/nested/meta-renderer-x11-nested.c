@@ -179,7 +179,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
                                       MetaOutput         *output,
                                       MetaCrtc           *crtc)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);

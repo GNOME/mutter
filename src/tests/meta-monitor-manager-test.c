@@ -112,8 +112,6 @@ void
 meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *manager_test,
                                                   gboolean                handles_transforms)
 {
-  g_assert (handles_transforms || meta_is_stage_views_enabled());
-
   manager_test->handles_transforms = handles_transforms;
 }
 
@@ -145,14 +143,7 @@ meta_monitor_manager_test_ensure_initial_config (MetaMonitorManager *manager)
 
   config = meta_monitor_manager_ensure_configured (manager);
 
-  if (meta_is_stage_views_enabled ())
-    {
-      meta_monitor_manager_update_logical_state (manager, config);
-    }
-  else
-    {
-      meta_monitor_manager_update_logical_state_derived (manager, NULL);
-    }
+  meta_monitor_manager_update_logical_state (manager, config);
 }
 
 static void
@@ -261,10 +252,7 @@ meta_monitor_manager_test_apply_monitors_config (MetaMonitorManager      *manage
       manager->screen_width = META_MONITOR_MANAGER_MIN_SCREEN_WIDTH;
       manager->screen_height = META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT;
 
-      if (meta_is_stage_views_enabled ())
-        meta_monitor_manager_rebuild (manager, NULL);
-      else
-        meta_monitor_manager_rebuild_derived (manager, config);
+      meta_monitor_manager_rebuild (manager, NULL);
 
       return TRUE;
     }
@@ -293,10 +281,7 @@ meta_monitor_manager_test_apply_monitors_config (MetaMonitorManager      *manage
 
   update_screen_size (manager, config);
 
-  if (meta_is_stage_views_enabled ())
-    meta_monitor_manager_rebuild (manager, config);
-  else
-    meta_monitor_manager_rebuild_derived (manager, config);
+  meta_monitor_manager_rebuild (manager, config);
 
   return TRUE;
 }
@@ -399,21 +384,12 @@ meta_monitor_manager_test_get_max_screen_size (MetaMonitorManager *manager,
                                                int                *max_width,
                                                int                *max_height)
 {
-  if (meta_is_stage_views_enabled ())
-    return FALSE;
-
-  *max_width = 65535;
-  *max_height = 65535;
-
-  return TRUE;
+  return FALSE;
 }
 
 static MetaLogicalMonitorLayoutMode
 meta_monitor_manager_test_get_default_layout_mode (MetaMonitorManager *manager)
 {
-  if (!meta_is_stage_views_enabled ())
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
-
   if (is_monitor_framebuffer_scaled ())
     return META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
   else
