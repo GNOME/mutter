@@ -123,7 +123,7 @@ META_EXPORT
 const char* meta_preference_to_string (MetaPreference pref);
 
 META_EXPORT
-MetaVirtualModifier         meta_prefs_get_mouse_button_mods  (void);
+ClutterModifierType         meta_prefs_get_mouse_button_mods  (void);
 
 META_EXPORT
 gint                        meta_prefs_get_mouse_button_resize (void);

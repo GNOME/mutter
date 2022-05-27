@@ -466,17 +466,17 @@ meta_pad_action_mapper_is_button_grabbed (MetaPadActionMapper *mapper,
 
 static void
 emulate_modifiers (ClutterVirtualInputDevice *device,
-                   MetaVirtualModifier        mods,
+                   ClutterModifierType        mods,
                    ClutterKeyState            state)
 {
   guint i;
   struct {
-    MetaVirtualModifier mod;
+    ClutterModifierType mod;
     guint keyval;
   } mod_map[] = {
-    { META_VIRTUAL_SHIFT_MASK, CLUTTER_KEY_Shift_L },
-    { META_VIRTUAL_CONTROL_MASK, CLUTTER_KEY_Control_L },
-    { META_VIRTUAL_META_MASK, CLUTTER_KEY_Meta_L }
+    { CLUTTER_SHIFT_MASK, CLUTTER_KEY_Shift_L },
+    { CLUTTER_CONTROL_MASK, CLUTTER_KEY_Control_L },
+    { CLUTTER_META_MASK, CLUTTER_KEY_Meta_L }
   };
 
   for (i = 0; i < G_N_ELEMENTS (mod_map); i++)

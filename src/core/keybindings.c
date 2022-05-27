@@ -152,7 +152,7 @@ meta_key_binding_get_name (MetaKeyBinding *binding)
   return binding->name;
 }
 
-MetaVirtualModifier
+ClutterModifierType
 meta_key_binding_get_modifiers (MetaKeyBinding *binding)
 {
   return binding->combo.modifiers;
@@ -540,30 +540,30 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
 
 static void
 devirtualize_modifiers (MetaKeyBindingManager *keys,
-                        MetaVirtualModifier    modifiers,
+                        ClutterModifierType    modifiers,
                         unsigned int          *mask)
 {
   *mask = 0;
 
-  if (modifiers & META_VIRTUAL_SHIFT_MASK)
+  if (modifiers & CLUTTER_SHIFT_MASK)
     *mask |= ShiftMask;
-  if (modifiers & META_VIRTUAL_CONTROL_MASK)
+  if (modifiers & CLUTTER_CONTROL_MASK)
     *mask |= ControlMask;
-  if (modifiers & META_VIRTUAL_ALT_MASK)
+  if (modifiers & CLUTTER_MOD1_MASK)
     *mask |= Mod1Mask;
-  if (modifiers & META_VIRTUAL_META_MASK)
+  if (modifiers & CLUTTER_META_MASK)
     *mask |= keys->meta_mask;
-  if (modifiers & META_VIRTUAL_HYPER_MASK)
+  if (modifiers & CLUTTER_HYPER_MASK)
     *mask |= keys->hyper_mask;
-  if (modifiers & META_VIRTUAL_SUPER_MASK)
+  if (modifiers & CLUTTER_SUPER_MASK)
     *mask |= keys->super_mask;
-  if (modifiers & META_VIRTUAL_MOD2_MASK)
+  if (modifiers & CLUTTER_MOD2_MASK)
     *mask |= Mod2Mask;
-  if (modifiers & META_VIRTUAL_MOD3_MASK)
+  if (modifiers & CLUTTER_MOD3_MASK)
     *mask |= Mod3Mask;
-  if (modifiers & META_VIRTUAL_MOD4_MASK)
+  if (modifiers & CLUTTER_MOD4_MASK)
     *mask |= Mod4Mask;
-  if (modifiers & META_VIRTUAL_MOD5_MASK)
+  if (modifiers & CLUTTER_MOD5_MASK)
     *mask |= Mod5Mask;
 }
 
@@ -1300,7 +1300,7 @@ static void
 update_window_grab_modifiers (MetaDisplay *display)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
-  MetaVirtualModifier virtual_mods;
+  ClutterModifierType virtual_mods;
   unsigned int mods;
 
   virtual_mods = meta_prefs_get_mouse_button_mods ();

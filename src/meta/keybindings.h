@@ -27,7 +27,7 @@ META_EXPORT
 const char          *meta_key_binding_get_name      (MetaKeyBinding *binding);
 
 META_EXPORT
-MetaVirtualModifier  meta_key_binding_get_modifiers (MetaKeyBinding *binding);
+ClutterModifierType  meta_key_binding_get_modifiers (MetaKeyBinding *binding);
 
 META_EXPORT
 guint                meta_key_binding_get_mask      (MetaKeyBinding *binding);

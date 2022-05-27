@@ -80,7 +80,7 @@ static GHashTable *settings_schemas;
 
 static gboolean use_system_font = FALSE;
 static PangoFontDescription *titlebar_font = NULL;
-static MetaVirtualModifier mouse_button_mods = Mod1Mask;
+static ClutterModifierType mouse_button_mods = CLUTTER_MOD1_MASK;
 static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
 static MetaKeyCombo locate_pointer_key_combo = { 0, 0, 0 };
 static GDesktopFocusMode focus_mode = G_DESKTOP_FOCUS_MODE_CLICK;
@@ -1162,7 +1162,7 @@ maybe_give_disable_workarounds_warning (void)
     }
 }
 
-MetaVirtualModifier
+ClutterModifierType
 meta_prefs_get_mouse_button_mods  (void)
 {
   return mouse_button_mods;
@@ -1278,7 +1278,7 @@ mouse_button_mods_handler (GVariant *value,
                            gpointer *result,
                            gpointer  data)
 {
-  MetaVirtualModifier mods;
+  ClutterModifierType mods;
   const gchar *string_value;
 
   *result = NULL; /* ignored */

@@ -39,6 +39,6 @@ typedef struct _MetaKeyCombo MetaKeyCombo;
 gboolean meta_parse_accelerator (const char   *accel,
                                  MetaKeyCombo *combo);
 gboolean meta_parse_modifier    (const char          *accel,
-                                 MetaVirtualModifier *mask);
+                                 ClutterModifierType *mask);
 
 #endif /* META_ACCEL_PARSE_H */

@@ -61,7 +61,7 @@ struct _MetaKeyCombo
 {
   unsigned int keysym;
   unsigned int keycode;
-  MetaVirtualModifier modifiers;
+  ClutterModifierType modifiers;
 };
 
 struct _MetaKeyBinding
