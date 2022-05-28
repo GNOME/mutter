@@ -455,15 +455,7 @@ meta_xwayland_terminate (MetaXWaylandManager *manager)
 static int
 x_io_error (Display *display)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
-  MetaX11DisplayPolicy x11_display_policy;
-
   g_warning ("Connection to xwayland lost");
-
-  x11_display_policy =
-    meta_context_get_x11_display_policy (compositor->context);
-  if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
-    meta_exit (META_EXIT_ERROR);
 
   return 0;
 }
@@ -474,21 +466,30 @@ x_io_error_noop (Display *display)
   return 0;
 }
 
-#ifdef HAVE_XSETIOERROREXITHANDLER
 static void
 x_io_error_exit (Display *display,
                  void    *data)
 {
   MetaXWaylandManager *manager = data;
+  MetaContext *context = manager->compositor->context;
   MetaX11DisplayPolicy x11_display_policy;
 
   x11_display_policy =
-    meta_context_get_x11_display_policy (manager->compositor->context);
+    meta_context_get_x11_display_policy (context);
 
   if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
-    g_warning ("X Wayland crashed (X IO error)");
+    {
+      GError *error;
+
+      g_warning ("Xwayland terminated, exiting since it was mandatory");
+      error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED,
+                           "Xwayland exited unexpectedly");
+      meta_context_terminate_with_error (context, error);
+    }
   else
-    meta_topic (META_DEBUG_WAYLAND, "Xwayland disappeared");
+    {
+      meta_topic (META_DEBUG_WAYLAND, "Xwayland disappeared");
+    }
 }
 
 static void
@@ -496,7 +497,6 @@ x_io_error_exit_noop (Display *display,
                       void    *data)
 {
 }
-#endif
 
 void
 meta_xwayland_override_display_number (int number)
@@ -1114,9 +1114,7 @@ meta_xwayland_setup_xdisplay (MetaXWaylandManager *manager,
      we won't reset the tty).
   */
   XSetIOErrorHandler (x_io_error);
-#ifdef HAVE_XSETIOERROREXITHANDLER
   XSetIOErrorExitHandler (xdisplay, x_io_error_exit, manager);
-#endif
 
   XFixesSetClientDisconnectMode (xdisplay, XFixesClientDisconnectFlagTerminate);
 }
@@ -1131,23 +1129,19 @@ meta_xwayland_connection_release (MetaXWaylandConnection *connection)
 void
 meta_xwayland_shutdown (MetaXWaylandManager *manager)
 {
-#ifdef HAVE_XSETIOERROREXITHANDLER
   MetaDisplay *display = meta_get_display ();
   MetaX11Display *x11_display;
-#endif
   char path[256];
 
   g_cancellable_cancel (manager->xserver_died_cancellable);
 
   XSetIOErrorHandler (x_io_error_noop);
-#ifdef HAVE_XSETIOERROREXITHANDLER
   x11_display = display->x11_display;
   if (x11_display)
     {
       XSetIOErrorExitHandler (meta_x11_display_get_xdisplay (x11_display),
                               x_io_error_exit_noop, NULL);
     }
-#endif
 
   meta_xwayland_terminate (manager);
 

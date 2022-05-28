@@ -28,6 +28,7 @@ cairo_req = '>= 1.10.0'
 pangocairo_req = '>= 1.20'
 gsettings_desktop_schemas_req = '>= 40.alpha'
 json_glib_req = '>= 0.12.0'
+x11_req = '>= 1.7.0'
 xcomposite_req = '>= 0.4'
 xkbcommon_req = '>= 0.4.3'
 xfixes_req = '>= 6'
@@ -145,7 +146,7 @@ if not have_wayland and not have_x11
 endif
 
 if have_x11_client
-  x11_dep = dependency('x11')
+  x11_dep = dependency('x11', version: x11_req)
   xcomposite_dep = dependency('xcomposite', version: xcomposite_req)
   xcursor_dep = dependency('xcursor')
   xdamage_dep = dependency('xdamage')
@@ -591,15 +592,6 @@ if have_xwayland
   endif
 endif
 
-have_xsetioerrorexithandler = false
-if have_x11_client
-  if cc.has_function('XSetIOErrorExitHandler', dependencies: x11_dep,
-                    prefix: '''#include <X11/Xlib.h>''')
-    have_xsetioerrorexithandler = true
-    cdata.set('HAVE_XSETIOERROREXITHANDLER', 1)
-  endif
-endif
-
 optional_functions = [
   'mkostemp',
   'posix_fallocate',
@@ -678,7 +670,6 @@ summary('Documentation', have_documentation, section: 'Options')
 summary('Profiler', have_profiler, section: 'Options')
 summary('Xwayland initfd', have_xwayland_initfd, section: 'Options')
 summary('Xwayland listenfd', have_xwayland_listenfd, section: 'Options')
-summary('Safe X11 I/O errors', have_xsetioerrorexithandler, section: 'Options')
 summary('Xwayland terminate delay', have_xwayland_terminate_delay, section: 'Options')
 
 summary('Enabled', have_tests, section: 'Tests')

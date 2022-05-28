@@ -95,9 +95,6 @@
 /* Whether Xwayland has -listenfd option */
 #mesondefine HAVE_XWAYLAND_LISTENFD
 
-/* Whether libX11 has XSetIOErrorExitHandler */
-#mesondefine HAVE_XSETIOERROREXITHANDLER
-
 /* Whether the mkostemp function exists */
 #mesondefine HAVE_MKOSTEMP
 
