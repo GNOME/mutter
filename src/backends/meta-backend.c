@@ -116,22 +116,7 @@ enum
 
 static guint signals[N_SIGNALS];
 
-static MetaBackend *_backend;
-
 #define HIDDEN_POINTER_TIMEOUT 300 /* ms */
-
-/**
- * meta_get_backend:
- *
- * Accessor for the singleton MetaBackend.
- *
- * Returns: (transfer none): The only #MetaBackend there is.
- */
-MetaBackend *
-meta_get_backend (void)
-{
-  return _backend;
-}
 
 struct _MetaBackendPrivate
 {
@@ -212,8 +197,6 @@ meta_backend_dispose (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  _backend = NULL;
 
   g_clear_pointer (&priv->cursor_tracker, meta_cursor_tracker_destroy);
   g_clear_object (&priv->current_device);
@@ -1236,7 +1219,6 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_init (MetaBackend *backend)
 {
-  _backend = backend;
 }
 
 /**

@@ -44,9 +44,6 @@ META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
 
 META_EXPORT
-MetaBackend * meta_get_backend (void);
-
-META_EXPORT
 void meta_backend_set_keymap (MetaBackend *backend,
                               const char  *layouts,
                               const char  *variants,
