@@ -1,3 +1,11 @@
+41.7
+====
+* KMS: Survive missing GAMMA_LUT property [Daniel; !2360]
+* Fix --replace again [Jonas; !2432]
+
+Contributors:
+  Daniel van Vugt, Jonas Ådahl
+
 41.6
 ====
 * Fix missing root window properties after XWayland start [Olivier; !2336]
