@@ -1121,7 +1121,8 @@ on_window_visibility_updated (MetaDisplay    *display,
  * it already has a window manager, and sets the error appropriately.
  */
 MetaX11Display *
-meta_x11_display_new (MetaDisplay *display, GError **error)
+meta_x11_display_new (MetaDisplay  *display,
+                      GError      **error)
 {
   MetaContext *context = meta_display_get_context (display);
   MetaX11Display *x11_display;
