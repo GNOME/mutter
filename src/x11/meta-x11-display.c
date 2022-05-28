@@ -80,8 +80,6 @@ typedef struct _MetaX11DisplayLogicalMonitorData
   int xinerama_index;
 } MetaX11DisplayLogicalMonitorData;
 
-static GdkDisplay *prepared_gdk_display = NULL;
-
 static char *get_screen_name (Display *xdisplay,
                               int      number);
 
@@ -985,27 +983,24 @@ set_work_area_hint (MetaDisplay    *display,
   g_free (data);
 }
 
-const gchar *
-meta_x11_get_display_name (void)
+static const char *
+get_display_name (MetaDisplay *display)
 {
 #ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    {
-      MetaWaylandCompositor *compositor;
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
 
-      compositor = meta_wayland_compositor_get_default ();
-
-      return meta_wayland_get_private_xwayland_display_name (compositor);
-    }
+  if (compositor)
+    return meta_wayland_get_private_xwayland_display_name (compositor);
   else
 #endif
-    {
-      return g_getenv ("DISPLAY");
-    }
+    return g_getenv ("DISPLAY");
 }
 
-gboolean
-meta_x11_init_gdk_display (GError **error)
+static GdkDisplay *
+open_gdk_display (MetaDisplay  *display,
+                  GError      **error)
 {
   const char *xdisplay_name;
   GdkDisplay *gdk_display;
@@ -1014,12 +1009,12 @@ meta_x11_init_gdk_display (GError **error)
   const char *old_no_at_bridge;
   Display *xdisplay;
 
-  xdisplay_name = meta_x11_get_display_name ();
+  xdisplay_name = get_display_name (display);
   if (!xdisplay_name)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Unable to open display, DISPLAY not set");
-      return FALSE;
+      return NULL;
     }
 
   gdk_set_allowed_backends ("x11");
@@ -1036,7 +1031,7 @@ meta_x11_init_gdk_display (GError **error)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to initialize gtk");
-      return FALSE;
+      return NULL;
     }
 
   old_no_at_bridge = g_getenv ("NO_AT_BRIDGE");
@@ -1054,8 +1049,7 @@ meta_x11_init_gdk_display (GError **error)
 
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to initialize GDK");
-
-      return FALSE;
+      return NULL;
     }
 
   if (gdk_backend_env)
@@ -1085,12 +1079,16 @@ meta_x11_init_gdk_display (GError **error)
 
       gdk_display_close (gdk_display);
 
-      return FALSE;
+      return NULL;
     }
 
-  prepared_gdk_display = gdk_display;
+  return gdk_display;
+}
 
-  return TRUE;
+gboolean
+meta_x11_init_gdk_display (GError **error)
+{
+  return !!open_gdk_display (meta_get_display (), error);
 }
 
 static void
@@ -1151,11 +1149,10 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   };
   Atom atoms[G_N_ELEMENTS(atom_names)];
 
-  if (!meta_x11_init_gdk_display (error))
+  gdk_display = open_gdk_display (display, error);
+  if (!gdk_display)
     return NULL;
 
-  g_assert (prepared_gdk_display);
-  gdk_display = g_steal_pointer (&prepared_gdk_display);
   xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display);
 
   XSynchronize (xdisplay, meta_context_is_x11_sync (context));
