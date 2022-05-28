@@ -943,6 +943,8 @@ handle_input_xevent (MetaX11Display *x11_display,
   MetaWindow *window;
   MetaDisplay *display = x11_display->display;
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
+  MetaBackend *backend = meta_get_backend ();
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   if (input_event == NULL)
     return FALSE;
@@ -973,6 +975,9 @@ handle_input_xevent (MetaX11Display *x11_display,
       if (display->event_route != META_EVENT_ROUTE_NORMAL)
         break;
 
+      if (clutter_stage_get_grab_actor (stage) != NULL)
+        break;
+
       /* Check if we've entered a window; do this even if window->has_focus to
        * avoid races.
        */
@@ -990,6 +995,9 @@ handle_input_xevent (MetaX11Display *x11_display,
       break;
     case XI_Leave:
       if (display->event_route != META_EVENT_ROUTE_NORMAL)
+        break;
+
+      if (clutter_stage_get_grab_actor (stage) != NULL)
         break;
 
       if (window != NULL &&
