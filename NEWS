@@ -1,3 +1,22 @@
+42.2
+====
+* Don't use direct scanout for transparent windows [Sebastian; !2409]
+* Fix initialization of privacy mode in displays that support it [Marco; !2372]
+* Fix --replace again [Jonas; !2432]
+* Improve picking a window for direct scanout [Sebastian; !2413]
+* Do not allow windows to steal focus when the shell has a grab [Carlos; !2433]
+* Fix night light without GAMMA_LUT property [Jonas; !2435]
+* Fixed crash [Jonas; !2415]
+* Misc. bug fixes [Jonas, Kazuki, Sebastian, Florian; !2403, !2405,
+  !2414, !2436]
+
+Contributors:
+  Marco Trevisan (Treviño), Carlos Garnacho, Kazuki Hashimoto, Sebastian Keller,
+  Florian Müllner, Jonas Ådahl
+
+Translators:
+  Pawan Chitrakar [ne]
+
 42.1
 ====
 * Send correct LEAVE events when entering windows [Jonas D.; !2321]
