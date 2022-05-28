@@ -39,9 +39,6 @@ void                    meta_wayland_compositor_prepare_shutdown (MetaWaylandCom
 void                    meta_wayland_compositor_init_display    (MetaWaylandCompositor *compositor,
                                                                  MetaDisplay           *display);
 
-META_EXPORT_TEST
-MetaWaylandCompositor  *meta_wayland_compositor_get_default     (void);
-
 void                    meta_wayland_compositor_update          (MetaWaylandCompositor *compositor,
                                                                  const ClutterEvent    *event);
 

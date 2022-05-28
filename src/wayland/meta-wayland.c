@@ -66,21 +66,6 @@ typedef struct _MetaWaylandCompositorPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandCompositor, meta_wayland_compositor,
                             G_TYPE_OBJECT)
 
-MetaWaylandCompositor *
-meta_wayland_compositor_get_default (void)
-{
-  MetaBackend *backend;
-  MetaContext *context;
-  MetaWaylandCompositor *wayland_compositor;
-
-  backend = meta_get_backend ();
-  context = meta_backend_get_context (backend);
-  wayland_compositor = meta_context_get_wayland_compositor (context);
-  g_assert (wayland_compositor);
-
-  return wayland_compositor;
-}
-
 typedef struct
 {
   GSource source;
