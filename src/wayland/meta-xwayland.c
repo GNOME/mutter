@@ -793,14 +793,6 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
                              GAsyncReadyCallback  callback,
                              gpointer             user_data)
 {
-  struct {
-    const char *extension_name;
-    MetaXwaylandExtension disable_extension;
-  } x11_extension_names[] = {
-    { "SECURITY", META_XWAYLAND_EXTENSION_SECURITY },
-    { "XTEST", META_XWAYLAND_EXTENSION_XTEST },
-  };
-
   int xwayland_client_fd[2];
   int displayfd[2];
   g_autoptr(GSubprocessLauncher) launcher = NULL;
@@ -818,6 +810,13 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   MetaX11DisplayPolicy x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
 #endif
+  struct {
+    const char *extension_name;
+    MetaXwaylandExtension disable_extension;
+  } x11_extension_names[] = {
+    { "SECURITY", META_XWAYLAND_EXTENSION_SECURITY },
+    { "XTEST", META_XWAYLAND_EXTENSION_XTEST },
+  };
 
   task = g_task_new (NULL, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_xwayland_start_xserver);
