@@ -1003,7 +1003,7 @@ meta_compositor_real_after_paint (MetaCompositor   *compositor,
          a wayland compositor but in that case we shouldn't get here
          since we don't enable robustness in that case. */
       g_assert (!meta_is_wayland_compositor ());
-      meta_restart (NULL);
+      meta_restart (NULL, meta_display_get_context (priv->display));
       break;
     }
 

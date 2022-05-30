@@ -56,11 +56,11 @@ meta_set_is_restart (gboolean whether)
 }
 
 static void
-restart_check_ready (void)
+restart_check_ready (MetaContext *context)
 {
   if (restart_helper_started && restart_message_shown)
     {
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_context_get_display (context);
 
       if (!meta_display_request_restart (display))
         meta_display_show_restart_message (display, NULL);
@@ -72,6 +72,7 @@ restart_helper_read_line_callback (GObject      *source_object,
                                    GAsyncResult *res,
                                    gpointer      user_data)
 {
+  MetaContext *context = user_data;
   GError *error = NULL;
   gsize length;
   char *line = g_data_input_stream_read_line_finish_utf8 (G_DATA_INPUT_STREAM (source_object),
@@ -89,14 +90,16 @@ restart_helper_read_line_callback (GObject      *source_object,
   g_object_unref (source_object);
 
   restart_helper_started = TRUE;
-  restart_check_ready ();
+  restart_check_ready (context);
 }
 
 static gboolean
-restart_message_painted (gpointer data)
+restart_message_painted (gpointer user_data)
 {
+  MetaContext *context = user_data;
+
   restart_message_shown = TRUE;
-  restart_check_ready ();
+  restart_check_ready (context);
 
   return FALSE;
 }
@@ -113,6 +116,7 @@ child_setup (gpointer user_data)
 /**
  * meta_restart:
  * @message: (allow-none): message to display to the user, or %NULL
+ * @context: a #MetaContext
  *
  * Starts the process of restarting the compositor. Note that Mutter's
  * involvement here is to make the restart visually smooth for the
@@ -123,9 +127,10 @@ child_setup (gpointer user_data)
  * reexec the compositor.
  */
 void
-meta_restart (const char *message)
+meta_restart (const char  *message,
+              MetaContext *context)
 {
-  MetaDisplay *display = meta_get_display();
+  MetaDisplay *display;
   GInputStream *unix_stream;
   GDataInputStream *data_stream;
   GError *error = NULL;
@@ -135,19 +140,23 @@ meta_restart (const char *message)
     MUTTER_LIBEXECDIR "/mutter-restart-helper", NULL
   };
 
+  g_return_if_fail (META_IS_CONTEXT (context));
+
+  display = meta_context_get_display (context);
+
   if (message && meta_display_show_restart_message (display, message))
     {
       /* Wait until the stage was painted */
       clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                              restart_message_painted,
-                                             NULL, NULL);
+                                             context, NULL);
     }
   else
     {
       /* Can't show the message, show the message as soon as the
        * restart helper starts
        */
-      restart_message_painted (NULL);
+      restart_message_painted (context);
     }
 
   /* We also need to wait for the restart helper to get its
@@ -174,7 +183,7 @@ meta_restart (const char *message)
 
   g_data_input_stream_read_line_async (data_stream, G_PRIORITY_DEFAULT,
                                        NULL, restart_helper_read_line_callback,
-                                       NULL);
+                                       context);
 
   return;
 
@@ -184,7 +193,7 @@ meta_restart (const char *message)
    * will be destroyed and recreated, but otherwise it will work fine.
    */
   restart_helper_started = TRUE;
-  restart_check_ready ();
+  restart_check_ready (context);
 
   return;
 }

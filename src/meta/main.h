@@ -27,7 +27,8 @@
 #include <meta/common.h>
 
 META_EXPORT
-void            meta_restart                (const char *message);
+void            meta_restart                (const char  *message,
+                                             MetaContext *context);
 
 META_EXPORT
 gboolean        meta_is_restart             (void);
