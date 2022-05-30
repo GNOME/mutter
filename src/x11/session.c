@@ -71,6 +71,16 @@ meta_window_release_saved_state (const MetaWindowSessionInfo *info)
 #include "meta/main.h"
 #include "meta/workspace.h"
 
+typedef struct
+{
+  grefcount ref_count;
+
+  MetaContext *context;
+
+  gboolean shutdown;
+  gboolean successful;
+} SessionState;
+
 typedef struct _MetaIceConnection
 {
   IceConn ice_connection;
@@ -82,11 +92,40 @@ static void ice_io_error_handler (IceConn connection);
 static void new_ice_connection (IceConn connection, IcePointer client_data,
 				Bool opening, IcePointer *watch_data);
 
-static void        save_state         (void);
+static void        save_state         (MetaContext *context);
 static char*       load_state         (const char *previous_save_file);
 static void        regenerate_save_file (void);
 static const char* full_save_file       (void);
 static void        disconnect         (void);
+
+static SessionState *
+session_state_new (MetaContext *context,
+                   Bool         shutdown)
+{
+  SessionState *state;
+
+  state = g_new0 (SessionState, 1);
+  g_ref_count_init (&state->ref_count);
+  state->successful = TRUE;
+  state->shutdown = shutdown;
+  state->context = context;
+
+  return state;
+}
+
+static SessionState *
+session_state_ref (SessionState *state)
+{
+  g_ref_count_inc (&state->ref_count);
+  return state;
+}
+
+static void
+session_state_unref (SessionState *state)
+{
+  if (g_ref_count_dec (&state->ref_count))
+    g_free (state);
+}
 
 /* This is called when data is available on an ICE connection.  */
 static gboolean
@@ -289,7 +328,7 @@ meta_session_init (MetaContext *context,
 
   session_connection =
     SmcOpenConnection (NULL, /* use SESSION_MANAGER env */
-                       NULL, /* means use existing ICE connection */
+                       context,
                        SmProtoMajor,
                        SmProtoMinor,
                        mask,
@@ -403,12 +442,11 @@ disconnect (void)
 }
 
 static void
-save_yourself_possibly_done (gboolean shutdown,
-                             gboolean successful)
+save_yourself_possibly_done (SessionState *state)
 {
   meta_topic (META_DEBUG_SM,
               "save possibly done shutdown = %d success = %d",
-              shutdown, successful);
+              state->shutdown, state->successful);
 
   if (current_state == STATE_SAVING_PHASE_1)
     {
@@ -416,10 +454,12 @@ save_yourself_possibly_done (gboolean shutdown,
 
       status = SmcRequestSaveYourselfPhase2 (session_connection,
                                              save_phase_2_callback,
-                                             GINT_TO_POINTER (shutdown));
+                                             session_state_ref (state));
 
       if (status)
         current_state = STATE_WAITING_FOR_PHASE_2;
+      else
+        session_state_unref (state);
 
       meta_topic (META_DEBUG_SM,
                   "Requested phase 2, status = %d", status);
@@ -436,10 +476,12 @@ save_yourself_possibly_done (gboolean shutdown,
                                     */
                                    SmDialogNormal,
                                    interact_callback,
-                                   GINT_TO_POINTER (shutdown));
+                                   session_state_ref (state));
 
       if (status)
         current_state = STATE_WAITING_FOR_INTERACT;
+      else
+        session_state_unref (state);
 
       meta_topic (META_DEBUG_SM,
                   "Requested interact, status = %d", status);
@@ -453,29 +495,31 @@ save_yourself_possibly_done (gboolean shutdown,
       meta_topic (META_DEBUG_SM, "Sending SaveYourselfDone");
 
       SmcSaveYourselfDone (session_connection,
-                           successful);
+                           state->successful);
 
-      if (shutdown)
+      if (state->shutdown)
         current_state = STATE_FROZEN;
       else
         current_state = STATE_IDLE;
     }
+
+  session_state_unref (state);
 }
 
 static void
 save_phase_2_callback (SmcConn smc_conn, SmPointer client_data)
 {
-  gboolean shutdown;
+  SessionState *state = client_data;
 
   meta_topic (META_DEBUG_SM, "Phase 2 save");
 
-  shutdown = GPOINTER_TO_INT (client_data);
-
   current_state = STATE_SAVING_PHASE_2;
 
-  save_state ();
+  save_state (state->context);
 
-  save_yourself_possibly_done (shutdown, TRUE);
+  state->successful = TRUE;
+
+  save_yourself_possibly_done (state);
 }
 
 static void
@@ -486,11 +530,10 @@ save_yourself_callback (SmcConn   smc_conn,
                         int       interact_style,
                         Bool      fast)
 {
-  gboolean successful;
+  MetaContext *context = META_CONTEXT (client_data);
+  SessionState *state;
 
   meta_topic (META_DEBUG_SM, "SaveYourself received");
-
-  successful = TRUE;
 
   /* The first SaveYourself after registering for the first time
    * is a special case (SM specs 7.2).
@@ -513,6 +556,8 @@ save_yourself_callback (SmcConn   smc_conn,
     }
 #endif
 
+  state = session_state_new (context, shutdown);
+
   /* ignore Global style saves
    *
    * This interpretaion of the Local/Global/Both styles
@@ -523,7 +568,7 @@ save_yourself_callback (SmcConn   smc_conn,
   if (save_style == SmSaveGlobal)
     {
       current_state = STATE_SKIPPING_GLOBAL_SAVE;
-      save_yourself_possibly_done (shutdown, successful);
+      save_yourself_possibly_done (session_state_ref (state));
       return;
     }
 
@@ -535,7 +580,8 @@ save_yourself_callback (SmcConn   smc_conn,
 
   set_clone_restart_commands ();
 
-  save_yourself_possibly_done (shutdown, successful);
+  save_yourself_possibly_done (session_state_ref (state));
+  session_state_unref (state);
 }
 
 
@@ -586,18 +632,17 @@ shutdown_cancelled_callback (SmcConn smc_conn, SmPointer client_data)
 static void
 interact_callback (SmcConn smc_conn, SmPointer client_data)
 {
-  /* nothing */
-  gboolean shutdown;
+  SessionState *state = client_data;
 
   meta_topic (META_DEBUG_SM, "Interaction permission received");
-
-  shutdown = GPOINTER_TO_INT (client_data);
 
   current_state = STATE_DONE_WITH_INTERACT;
 
   SmcInteractDone (session_connection, False /* don't cancel logout */);
 
-  save_yourself_possibly_done (shutdown, TRUE);
+  state->successful = TRUE;
+
+  save_yourself_possibly_done (state);
 }
 
 static void
@@ -840,8 +885,9 @@ decode_text_from_utf8 (const char *text)
 }
 
 static void
-save_state (void)
+save_state (MetaContext *context)
 {
+  MetaDisplay *display = meta_context_get_display (context);
   char *mutter_dir;
   char *session_dir;
   FILE *outfile;
@@ -913,7 +959,7 @@ save_state (void)
   fprintf (outfile, "<mutter_session id=\"%s\">\n",
            client_id);
 
-  windows = meta_display_list_windows (meta_get_display (), META_LIST_DEFAULT);
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
   stack_position = 0;
 
   windows = g_slist_sort (windows, meta_display_stack_cmp);
