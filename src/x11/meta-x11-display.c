@@ -1137,6 +1137,7 @@ meta_x11_display_new (MetaDisplay  *display,
   guint32 timestamp;
   Atom atom_restart_helper;
   Window restart_helper_window = None;
+  gboolean is_restart = FALSE;
   GdkDisplay *gdk_display;
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -1202,7 +1203,10 @@ meta_x11_display_new (MetaDisplay  *display,
   atom_restart_helper = XInternAtom (xdisplay, "_MUTTER_RESTART_HELPER", False);
   restart_helper_window = XGetSelectionOwner (xdisplay, atom_restart_helper);
   if (restart_helper_window)
-    meta_set_is_restart (TRUE);
+    {
+      is_restart = TRUE;
+      meta_set_is_restart (TRUE);
+    }
 
   x11_display = g_object_new (META_TYPE_X11_DISPLAY, NULL);
   x11_display->gdk_display = gdk_display;
@@ -1299,7 +1303,7 @@ meta_x11_display_new (MetaDisplay  *display,
 
   /* Now that we've gotten taken a reference count on the COW, we
    * can close the helper that is holding on to it */
-  if (meta_is_restart ())
+  if (is_restart)
     XSetSelectionOwner (xdisplay, atom_restart_helper, None, META_CURRENT_TIME);
 
   /* Handle creating a no_focus_window for this screen */
