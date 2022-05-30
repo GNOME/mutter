@@ -78,9 +78,6 @@ static const gchar *atom_names[] = {
 /* various flags corresponding to pre init setup calls */
 static gboolean clutter_enable_stereo = FALSE;
 
-/* options */
-static gboolean clutter_synchronise = FALSE;
-
 /* X error trap */
 static int TrappedErrorCode = 0;
 static int (* old_error_handler) (Display *, XErrorEvent *);
@@ -128,9 +125,6 @@ meta_clutter_backend_x11_finish_init (ClutterBackend  *clutter_backend,
   meta_clutter_backend_x11_add_filter (clutter_backend_x11,
                                        cogl_xlib_filter,
                                        clutter_backend);
-
-  if (clutter_synchronise)
-    XSynchronize (clutter_backend_x11->xdisplay, True);
 
   XInternAtoms (clutter_backend_x11->xdisplay,
                 (char **) atom_names, N_ATOM_NAMES,
