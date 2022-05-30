@@ -42,6 +42,7 @@ META_EXPORT
 ClutterActor *meta_get_top_window_group_for_display (MetaDisplay *display);
 
 META_EXPORT
+G_DEPRECATED_FOR (meta_compositor_get_feedback_group)
 ClutterActor *meta_get_feedback_group_for_display   (MetaDisplay *display);
 
 META_EXPORT
