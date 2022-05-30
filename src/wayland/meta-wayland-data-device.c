@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include "compositor/meta-dnd-actor-private.h"
+#include "core/meta-selection-private.h"
 #include "meta/meta-selection-source-memory.h"
 #include "wayland/meta-selection-source-wayland-private.h"
 #include "wayland/meta-wayland-dnd-surface.h"
@@ -52,6 +53,16 @@ drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
 
 static struct wl_resource * create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
                                                              struct wl_resource    *target);
+
+static MetaDisplay *
+display_from_data_device (MetaWaylandDataDevice *data_device)
+{
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (data_device->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_display (context);
+}
 
 static void
 move_resources (struct wl_list *destination,
@@ -94,12 +105,16 @@ static struct wl_resource *
 create_and_send_dnd_offer (MetaWaylandDataSource *source,
                            struct wl_resource *target)
 {
+  MetaWaylandCompositor *compositor;
   MetaWaylandDataOffer *offer;
   struct wl_array *mime_types;
   struct wl_resource *resource;
   char **p;
 
-  offer = meta_wayland_data_offer_new (META_SELECTION_DND, source, target);
+  compositor = meta_wayland_data_source_get_compositor (source);
+  offer = meta_wayland_data_offer_new (compositor,
+                                       META_SELECTION_DND,
+                                       source, target);
   resource = meta_wayland_data_offer_get_resource (offer);
 
   wl_data_device_send_data_offer (target, resource);
@@ -150,7 +165,7 @@ set_selection_source (MetaWaylandDataDevice *data_device,
                       MetaSelectionSource   *selection_source)
 
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_data_device (data_device);
 
   meta_selection_set_owner (meta_display_get_selection (display),
                             selection_type, selection_source);
@@ -161,7 +176,7 @@ static void
 unset_selection_source (MetaWaylandDataDevice *data_device,
                         MetaSelectionType      selection_type)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_data_device (data_device);
 
   if (!data_device->owners[selection_type])
     return;
@@ -354,6 +369,8 @@ drag_grab_motion (MetaWaylandPointerGrab *grab,
 static void
 data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
 {
+  MetaWaylandDataDevice *data_device = &drag_grab->seat->data_device;
+
   meta_wayland_drag_grab_set_source (drag_grab, NULL);
   meta_wayland_drag_grab_set_focus (drag_grab, NULL);
 
@@ -382,9 +399,11 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
    */
   if (drag_grab->generic.pointer->grab == (MetaWaylandPointerGrab *) drag_grab)
     {
+      MetaDisplay *display = display_from_data_device (data_device);
+
       meta_wayland_pointer_end_grab (drag_grab->generic.pointer);
       meta_wayland_keyboard_end_grab (drag_grab->keyboard_grab.keyboard);
-      meta_display_sync_wayland_input_focus (meta_get_display ());
+      meta_display_sync_wayland_input_focus (display);
     }
 
   g_free (drag_grab);
@@ -975,11 +994,12 @@ create_data_source (struct wl_client   *client,
                     struct wl_resource *resource,
                     uint32_t            id)
 {
+  MetaWaylandCompositor *compositor = wl_resource_get_user_data (resource);
   struct wl_resource *source_resource;
 
   source_resource = wl_resource_create (client, &wl_data_source_interface,
                                         wl_resource_get_version (resource), id);
-  meta_wayland_data_source_new (source_resource);
+  meta_wayland_data_source_new (compositor, source_resource);
 }
 
 static void
@@ -988,7 +1008,10 @@ owner_changed_cb (MetaSelection         *selection,
                   MetaSelectionSource   *new_owner,
                   MetaWaylandDataDevice *data_device)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaDisplay *display = meta_selection_get_display (selection);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
   MetaWaylandSeat *seat = compositor->seat;
   struct wl_resource *data_device_resource;
   struct wl_client *focus_client;
@@ -1018,11 +1041,14 @@ owner_changed_cb (MetaSelection         *selection,
 static void
 ensure_owners_changed_handler_connected (MetaWaylandDataDevice *data_device)
 {
+  MetaDisplay *display;
+
   if (data_device->selection_owner_signal_id != 0)
     return;
 
+  display = display_from_data_device (data_device);
   data_device->selection_owner_signal_id =
-    g_signal_connect (meta_display_get_selection (meta_get_display ()),
+    g_signal_connect (meta_display_get_selection (display),
                       "owner-changed",
                       G_CALLBACK (owner_changed_cb), data_device);
 }
@@ -1066,11 +1092,13 @@ bind_manager (struct wl_client *client,
               uint32_t          version,
               uint32_t          id)
 {
+  MetaWaylandCompositor *compositor = data;
   struct wl_resource *resource;
 
   resource = wl_resource_create (client, &wl_data_device_manager_interface,
                                  version, id);
-  wl_resource_set_implementation (resource, &manager_interface, NULL, NULL);
+  wl_resource_set_implementation (resource, &manager_interface,
+                                  compositor, NULL);
 }
 
 void
@@ -1079,15 +1107,23 @@ meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor)
   if (wl_global_create (compositor->wayland_display,
 			&wl_data_device_manager_interface,
 			META_WL_DATA_DEVICE_MANAGER_VERSION,
-			NULL, bind_manager) == NULL)
+			compositor, bind_manager) == NULL)
     g_error ("Could not create data_device");
 }
 
 void
-meta_wayland_data_device_init (MetaWaylandDataDevice *data_device)
+meta_wayland_data_device_init (MetaWaylandDataDevice *data_device,
+                               MetaWaylandSeat       *seat)
 {
+  data_device->seat = seat;
   wl_list_init (&data_device->resource_list);
   wl_list_init (&data_device->focus_resource_list);
+}
+
+MetaWaylandSeat *
+meta_wayland_data_device_get_seat (MetaWaylandDataDevice *data_device)
+{
+  return data_device->seat;
 }
 
 static struct wl_resource *
@@ -1095,7 +1131,10 @@ create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
                                  struct wl_resource    *target)
 {
   MetaWaylandDataOffer *offer;
-  MetaDisplay *display = meta_get_display ();
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (data_device->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
   struct wl_resource *resource;
   GList *mimetypes, *l;
 
@@ -1104,7 +1143,9 @@ create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
   if (!mimetypes)
     return NULL;
 
-  offer = meta_wayland_data_offer_new (META_SELECTION_CLIPBOARD, NULL, target);
+  offer = meta_wayland_data_offer_new (compositor,
+                                       META_SELECTION_CLIPBOARD,
+                                       NULL, target);
   resource = meta_wayland_data_offer_get_resource (offer);
 
   wl_data_device_send_data_offer (target, resource);

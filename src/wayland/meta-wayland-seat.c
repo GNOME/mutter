@@ -158,12 +158,15 @@ meta_wayland_seat_set_capabilities (MetaWaylandSeat *seat,
 
   if (CAPABILITY_ENABLED (prev_flags, flags, WL_SEAT_CAPABILITY_KEYBOARD))
     {
+      MetaWaylandCompositor *compositor =
+        meta_wayland_seat_get_compositor (seat);
+      MetaContext *context = meta_wayland_compositor_get_context (compositor);
       MetaDisplay *display;
 
       meta_wayland_keyboard_enable (seat->keyboard);
-      display = meta_get_display ();
 
       /* Post-initialization, ensure the input focus is in sync */
+      display = meta_context_get_display (context);
       if (display)
         meta_display_sync_wayland_input_focus (display);
     }
@@ -204,8 +207,11 @@ static MetaWaylandSeat *
 meta_wayland_seat_new (MetaWaylandCompositor *compositor,
                        struct wl_display     *display)
 {
-  MetaWaylandSeat *seat = g_new0 (MetaWaylandSeat, 1);
+  MetaWaylandSeat *seat;
   ClutterSeat *clutter_seat;
+
+  seat = g_new0 (MetaWaylandSeat, 1);
+  seat->compositor = compositor;
 
   wl_list_init (&seat->base_resource_list);
   seat->wl_display = display;
@@ -222,8 +228,8 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
 
   seat->text_input = meta_wayland_text_input_new (seat);
 
-  meta_wayland_data_device_init (&seat->data_device);
-  meta_wayland_data_device_primary_init (&seat->primary_data_device);
+  meta_wayland_data_device_init (&seat->data_device, seat);
+  meta_wayland_data_device_primary_init (&seat->primary_data_device, seat);
 
   clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   meta_wayland_seat_update_capabilities (seat, clutter_seat);
@@ -410,8 +416,8 @@ void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaWaylandTabletSeat *tablet_seat;
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
 
   if (meta_wayland_seat_has_keyboard (seat))
     {
@@ -438,7 +444,7 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
   MetaWaylandTabletSeat *tablet_seat;
   GList *tools, *l;
 
-  compositor = meta_wayland_compositor_get_default ();
+  compositor = meta_wayland_seat_get_compositor (seat);
   tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
   tools = g_hash_table_get_values (tablet_seat->tools);
 
@@ -495,7 +501,7 @@ meta_wayland_seat_can_popup (MetaWaylandSeat *seat,
   MetaWaylandCompositor *compositor;
   MetaWaylandTabletSeat *tablet_seat;
 
-  compositor = meta_wayland_compositor_get_default ();
+  compositor = meta_wayland_seat_get_compositor (seat);
   tablet_seat =
     meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
 
@@ -521,4 +527,10 @@ gboolean
 meta_wayland_seat_has_touch (MetaWaylandSeat *seat)
 {
   return (seat->capabilities & WL_SEAT_CAPABILITY_TOUCH) != 0;
+}
+
+MetaWaylandCompositor *
+meta_wayland_seat_get_compositor (MetaWaylandSeat *seat)
+{
+  return seat->compositor;
 }

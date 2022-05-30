@@ -94,6 +94,28 @@ meta_wayland_pointer_reset_grab (MetaWaylandPointer *pointer);
 static void
 meta_wayland_pointer_cancel_grab (MetaWaylandPointer *pointer);
 
+static MetaBackend *
+backend_from_pointer (MetaWaylandPointer *pointer)
+{
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_backend (context);
+}
+
+static MetaDisplay *
+display_from_pointer (MetaWaylandPointer *pointer)
+{
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_display (context);
+}
+
 static MetaWaylandPointerClient *
 meta_wayland_pointer_client_new (void)
 {
@@ -287,8 +309,8 @@ surface_get_effective_window (MetaWaylandSurface *surface)
 static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
-  MetaDisplay *display = meta_get_display ();
-  MetaBackend *backend = meta_get_backend ();
+  MetaDisplay *display = display_from_pointer (pointer);
+  MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
@@ -461,8 +483,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
 {
   MetaWaylandPointer *pointer = grab->pointer;
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
-  MetaDisplay *display = meta_get_display ();
-  MetaBackend *backend = meta_get_backend ();
+  MetaDisplay *display = display_from_pointer (pointer);
+  MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
@@ -542,7 +564,7 @@ meta_wayland_pointer_on_cursor_changed (MetaCursorTracker *cursor_tracker,
 void
 meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterSeat *clutter_seat;
 
@@ -570,7 +592,7 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
 void
 meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
@@ -1017,7 +1039,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                 MetaWaylandSurface *surface)
 {
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
@@ -1181,7 +1203,7 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 					       wl_fixed_t         *sx,
 					       wl_fixed_t         *sy)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_pointer (pointer);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   float xf = 0.0f, yf = 0.0f;
   graphene_point_t pos;
@@ -1196,7 +1218,7 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 void
 meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   if (pointer->current)
@@ -1302,7 +1324,7 @@ pointer_set_cursor (struct wl_client *client,
         clutter_backend_get_default_seat (clutter_backend);
       ClutterInputDevice *device = clutter_seat_get_pointer (clutter_seat);
       MetaCursorRenderer *cursor_renderer =
-        meta_backend_get_cursor_renderer_for_device (meta_get_backend (),
+        meta_backend_get_cursor_renderer_for_device (backend_from_pointer (pointer),
                                                      device);
       MetaWaylandCursorSurface *cursor_surface;
       MetaCursorSprite *cursor_sprite;
@@ -1490,7 +1512,10 @@ meta_wayland_relative_pointer_init (MetaWaylandCompositor *compositor)
    * so lets just advertise the extension when the native backend is used.
    */
 #ifdef HAVE_NATIVE_BACKEND
-  if (!META_IS_BACKEND_NATIVE (meta_get_backend ()))
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+
+  if (!META_IS_BACKEND_NATIVE (backend))
     return;
 #else
   return;

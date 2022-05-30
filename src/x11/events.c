@@ -1882,11 +1882,15 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
                                 XEvent         *event)
 {
   MetaDisplay *display = x11_display->display;
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   Window modified;
   gboolean bypass_compositor = FALSE, bypass_gtk = FALSE;
   XIEvent *input_event;
   MetaCursorTracker *cursor_tracker;
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *wayland_compositor;
+#endif
 
   COGL_TRACE_BEGIN (MetaX11DisplayHandleXevent,
                     "X11Display (handle X11 event)");
@@ -1902,8 +1906,9 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     }
 
 #ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor () &&
-      meta_xwayland_handle_xevent (event))
+  wayland_compositor = meta_context_get_wayland_compositor (context);
+  if (wayland_compositor &&
+      meta_wayland_compositor_handle_xwayland_xevent (wayland_compositor, event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;

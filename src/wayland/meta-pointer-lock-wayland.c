@@ -52,7 +52,11 @@ G_DEFINE_TYPE (MetaPointerLockWayland, meta_pointer_lock_wayland,
 static MetaPointerConstraint *
 meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *confinement)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaPointerLockWayland *lock_wayland = META_POINTER_LOCK_WAYLAND (confinement);
+  MetaWaylandCompositor *compositor =
+    meta_wayland_pointer_constraint_get_compositor (lock_wayland->constraint);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);

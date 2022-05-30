@@ -170,8 +170,10 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 
   if (meta_wayland_compositor_is_egl_display_bound (buffer->compositor))
     {
+      MetaContext *context =
+        meta_wayland_compositor_get_context (buffer->compositor);
+      MetaBackend *backend = meta_context_get_backend (context);
       EGLint format;
-      MetaBackend *backend = meta_get_backend ();
       MetaEgl *egl = meta_backend_get_egl (backend);
       ClutterBackend *clutter_backend =
         meta_backend_get_clutter_backend (backend);
@@ -289,11 +291,14 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
 }
 
 static gboolean
-shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
+shm_buffer_get_cogl_pixel_format (MetaWaylandBuffer     *buffer,
+                                  struct wl_shm_buffer  *shm_buffer,
                                   CoglPixelFormat       *format_out,
                                   CoglTextureComponents *components_out)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
@@ -343,7 +348,9 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
                    CoglTexture       **texture,
                    GError            **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   struct wl_shm_buffer *shm_buffer;
@@ -358,7 +365,8 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   stride = wl_shm_buffer_get_stride (shm_buffer);
   width = wl_shm_buffer_get_width (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
-  if (!shm_buffer_get_cogl_pixel_format (shm_buffer, &format, &components))
+  if (!shm_buffer_get_cogl_pixel_format (buffer, shm_buffer,
+                                         &format, &components))
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Invalid shm pixel format");
@@ -433,7 +441,9 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
                          CoglTexture       **texture,
                          GError            **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
@@ -661,7 +671,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
 
-  shm_buffer_get_cogl_pixel_format (shm_buffer, &format, NULL);
+  shm_buffer_get_cogl_pixel_format (buffer, shm_buffer, &format, NULL);
   g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
 
   wl_shm_buffer_begin_access (shm_buffer);
@@ -738,7 +748,9 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer *buffer,
                                CoglOnscreen      *onscreen)
 {
 #ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaGpuKms *gpu_kms;
@@ -871,7 +883,8 @@ meta_wayland_buffer_class_init (MetaWaylandBufferClass *klass)
 void
 meta_wayland_init_shm (MetaWaylandCompositor *compositor)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);

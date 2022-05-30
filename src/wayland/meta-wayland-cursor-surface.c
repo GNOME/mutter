@@ -91,7 +91,13 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
 
   if (!meta_xwayland_is_xwayland_surface (surface))
     {
-      MetaBackend *backend = meta_get_backend ();
+      MetaWaylandSurfaceRole *surface_role =
+        META_WAYLAND_SURFACE_ROLE (cursor_surface);
+      MetaWaylandSurface *surface =
+        meta_wayland_surface_role_get_surface (surface_role);
+      MetaContext *context =
+        meta_wayland_compositor_get_context (surface->compositor);
+      MetaBackend *backend = meta_context_get_backend (context);
       MetaMonitorManager *monitor_manager =
         meta_backend_get_monitor_manager (backend);
       MetaLogicalMonitor *logical_monitor;
@@ -342,8 +348,12 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   guint32 time = (guint32) (g_get_monotonic_time () / 1000);
-  MetaBackend *backend = meta_get_backend ();
-  MetaContext *context = meta_backend_get_context (backend);
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (cursor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (context);
 

@@ -111,7 +111,9 @@ meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
                                          CoglTexture       **texture,
                                          GError            **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);

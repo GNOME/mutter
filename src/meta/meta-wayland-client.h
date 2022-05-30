@@ -34,7 +34,8 @@ META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaWaylandClient, meta_wayland_client, META, WAYLAND_CLIENT, GObject)
 
 META_EXPORT
-MetaWaylandClient *meta_wayland_client_new (GSubprocessLauncher  *launcher,
+MetaWaylandClient *meta_wayland_client_new (MetaContext          *context,
+                                            GSubprocessLauncher  *launcher,
                                             GError              **error);
 
 META_EXPORT

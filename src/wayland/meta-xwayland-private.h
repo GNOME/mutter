@@ -48,7 +48,8 @@ meta_xwayland_handle_xevent (XEvent *event);
 void meta_xwayland_init_dnd (MetaX11Display *x11_display);
 void meta_xwayland_shutdown_dnd (MetaXWaylandManager *manager,
                                  MetaX11Display      *x11_display);
-gboolean meta_xwayland_dnd_handle_event (XEvent *xevent);
+gboolean meta_xwayland_dnd_handle_xevent (MetaXWaylandManager *manger,
+                                          XEvent              *xevent);
 
 const MetaWaylandDragDestFuncs * meta_xwayland_selection_get_drag_dest_funcs (void);
 
@@ -59,5 +60,8 @@ void meta_xwayland_start_xserver (MetaXWaylandManager *manager,
 gboolean meta_xwayland_start_xserver_finish (MetaXWaylandManager  *manager,
                                              GAsyncResult         *result,
                                              GError              **error);
+
+gboolean meta_xwayland_manager_handle_xevent (MetaXWaylandManager *manager,
+                                              XEvent              *xevent);
 
 #endif /* META_XWAYLAND_PRIVATE_H */

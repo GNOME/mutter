@@ -126,9 +126,11 @@ appears_focused_changed (MetaWindow *window,
                          GParamSpec *pspec,
                          gpointer    user_data)
 {
-  MetaWaylandCompositor *wayland_compositor;
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
 
-  wayland_compositor = meta_wayland_compositor_get_default ();
   meta_wayland_pointer_constraint_maybe_remove_for_seat (wayland_compositor->seat,
                                                          window);
 
@@ -477,7 +479,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
 
   if (meta_xwayland_is_xwayland_surface (constraint->surface))
     {
-      MetaDisplay *display = meta_get_display ();
+      MetaDisplay *display = meta_window_get_display (window);
 
       /*
        * We need to handle Xwayland surfaces differently in order to allow
@@ -643,6 +645,12 @@ MetaWaylandSurface *
 meta_wayland_pointer_constraint_get_surface (MetaWaylandPointerConstraint *constraint)
 {
   return constraint->surface;
+}
+
+MetaWaylandCompositor *
+meta_wayland_pointer_constraint_get_compositor (MetaWaylandPointerConstraint *constraint)
+{
+  return constraint->surface->compositor;
 }
 
 static void

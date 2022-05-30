@@ -1624,7 +1624,7 @@ void
 meta_wayland_surface_drag_dest_focus_in (MetaWaylandSurface   *surface,
                                          MetaWaylandDataOffer *offer)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
 
   surface->dnd.funcs->focus_in (data_device, surface, offer);
@@ -1634,7 +1634,7 @@ void
 meta_wayland_surface_drag_dest_motion (MetaWaylandSurface *surface,
                                        const ClutterEvent *event)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
 
   surface->dnd.funcs->motion (data_device, surface, event);
@@ -1643,7 +1643,7 @@ meta_wayland_surface_drag_dest_motion (MetaWaylandSurface *surface,
 void
 meta_wayland_surface_drag_dest_focus_out (MetaWaylandSurface *surface)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
 
   surface->dnd.funcs->focus_out (data_device, surface);
@@ -1652,7 +1652,7 @@ meta_wayland_surface_drag_dest_focus_out (MetaWaylandSurface *surface)
 void
 meta_wayland_surface_drag_dest_drop (MetaWaylandSurface *surface)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
 
   surface->dnd.funcs->drop (data_device, surface);
@@ -1661,7 +1661,7 @@ meta_wayland_surface_drag_dest_drop (MetaWaylandSurface *surface)
 void
 meta_wayland_surface_drag_dest_update (MetaWaylandSurface *surface)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
 
   surface->dnd.funcs->update (data_device, surface);

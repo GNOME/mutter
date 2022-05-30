@@ -72,7 +72,13 @@ dnd_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
 static MetaLogicalMonitor *
 dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
   MetaMonitorManager *monitor_manager =

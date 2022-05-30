@@ -44,4 +44,6 @@ cairo_region_t * meta_wayland_pointer_constraint_calculate_effective_region (Met
 
 MetaWaylandSurface * meta_wayland_pointer_constraint_get_surface (MetaWaylandPointerConstraint *constraint);
 
+MetaWaylandCompositor * meta_wayland_pointer_constraint_get_compositor (MetaWaylandPointerConstraint *constraint);
+
 #endif /* META_WAYLAND_POINTER_CONSTRAINTS_H */

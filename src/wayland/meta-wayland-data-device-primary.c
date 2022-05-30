@@ -26,6 +26,7 @@
 
 #include "wayland/meta-wayland-data-device-primary.h"
 
+#include "core/meta-selection-private.h"
 #include "compositor/meta-dnd-actor-private.h"
 #include "meta/meta-selection-source-memory.h"
 #include "wayland/meta-selection-source-wayland-private.h"
@@ -40,6 +41,16 @@
 
 static struct wl_resource * create_and_send_primary_offer   (MetaWaylandDataDevicePrimary *data_device,
                                                              struct wl_resource           *target);
+
+static MetaDisplay *
+display_from_data_device (MetaWaylandDataDevicePrimary *data_device)
+{
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (data_device->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_display (context);
+}
 
 static void
 move_resources (struct wl_list *destination,
@@ -83,7 +94,7 @@ set_selection_source (MetaWaylandDataDevicePrimary *data_device,
                       MetaSelectionSource          *selection_source)
 
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_data_device (data_device);
 
   meta_selection_set_owner (meta_display_get_selection (display),
                             META_SELECTION_PRIMARY,
@@ -94,7 +105,7 @@ set_selection_source (MetaWaylandDataDevicePrimary *data_device,
 static void
 unset_selection_source (MetaWaylandDataDevicePrimary *data_device)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_data_device (data_device);
 
   if (!data_device->owner)
     return;
@@ -192,7 +203,10 @@ owner_changed_cb (MetaSelection                *selection,
                   MetaSelectionSource          *new_owner,
                   MetaWaylandDataDevicePrimary *data_device)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaDisplay *display = meta_selection_get_display (selection);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
   MetaWaylandSeat *seat = compositor->seat;
   struct wl_resource *data_device_resource;
   struct wl_client *focus_client;
@@ -222,11 +236,13 @@ owner_changed_cb (MetaSelection                *selection,
 static void
 ensure_owners_changed_handler_connected (MetaWaylandDataDevicePrimary *data_device)
 {
+  MetaDisplay *display = display_from_data_device (data_device);
+
   if (data_device->selection_owner_signal_id != 0)
     return;
 
   data_device->selection_owner_signal_id =
-    g_signal_connect (meta_display_get_selection (meta_get_display ()),
+    g_signal_connect (meta_display_get_selection (display),
                       "owner-changed",
                       G_CALLBACK (owner_changed_cb), data_device);
 }
@@ -293,8 +309,10 @@ meta_wayland_data_device_primary_manager_init (MetaWaylandCompositor *compositor
 }
 
 void
-meta_wayland_data_device_primary_init (MetaWaylandDataDevicePrimary *data_device)
+meta_wayland_data_device_primary_init (MetaWaylandDataDevicePrimary *data_device,
+                                       MetaWaylandSeat              *seat)
 {
+  data_device->seat = seat;
   wl_list_init (&data_device->resource_list);
   wl_list_init (&data_device->focus_resource_list);
 }
@@ -303,8 +321,11 @@ static struct wl_resource *
 create_and_send_primary_offer (MetaWaylandDataDevicePrimary *data_device,
                                struct wl_resource           *target)
 {
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (data_device->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
   MetaWaylandDataOffer *offer;
-  MetaDisplay *display = meta_get_display ();
   struct wl_resource *resource;
   GList *mimetypes, *l;
 
@@ -313,7 +334,7 @@ create_and_send_primary_offer (MetaWaylandDataDevicePrimary *data_device,
   if (!mimetypes)
     return NULL;
 
-  offer = meta_wayland_data_offer_primary_new (target);
+  offer = meta_wayland_data_offer_primary_new (compositor, target);
   resource = meta_wayland_data_offer_get_resource (offer);
 
   zwp_primary_selection_device_v1_send_data_offer (target, resource);

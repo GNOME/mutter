@@ -29,6 +29,8 @@
 
 struct _MetaWaylandDataOffer
 {
+  MetaWaylandCompositor *compositor;
+
   struct wl_resource *resource;
   MetaWaylandDataSource *source;
   struct wl_listener source_destroy_listener;
@@ -39,7 +41,8 @@ struct _MetaWaylandDataOffer
   MetaSelectionType selection_type;
 };
 
-MetaWaylandDataOffer * meta_wayland_data_offer_new (MetaSelectionType      selection_type,
+MetaWaylandDataOffer * meta_wayland_data_offer_new (MetaWaylandCompositor *compositor,
+                                                    MetaSelectionType      selection_type,
                                                     MetaWaylandDataSource *source,
                                                     struct wl_resource    *resource);
 

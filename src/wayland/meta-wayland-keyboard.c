@@ -64,6 +64,17 @@ G_DEFINE_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
 static void meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard);
 static void notify_modifiers (MetaWaylandKeyboard *keyboard);
 
+static MetaBackend *
+backend_from_keyboard (MetaWaylandKeyboard *keyboard)
+{
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (keyboard);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_backend (context);
+}
+
 static void
 unbind_resource (struct wl_resource *resource)
 {
@@ -281,9 +292,10 @@ add_vmod (xkb_mod_mask_t mask,
 }
 
 static xkb_mod_mask_t
-add_virtual_mods (xkb_mod_mask_t mask)
+add_virtual_mods (MetaDisplay    *display,
+                  xkb_mod_mask_t  mask)
 {
-  MetaKeyBindingManager *keys = &(meta_get_display ()->key_binding_manager);
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
   xkb_mod_mask_t added;
   guint i;
   /* Order is important here: if multiple vmods share the same real
@@ -309,12 +321,20 @@ keyboard_send_modifiers (MetaWaylandKeyboard *keyboard,
                          struct wl_resource  *resource,
                          uint32_t             serial)
 {
+  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (keyboard);
+  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
+  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
   struct xkb_state *state = keyboard->xkb_info.state;
   xkb_mod_mask_t depressed, latched, locked;
 
-  depressed = add_virtual_mods (xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED));
-  latched = add_virtual_mods (xkb_state_serialize_mods (state, XKB_STATE_MODS_LATCHED));
-  locked = add_virtual_mods (xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED));
+  depressed = add_virtual_mods (display,
+                                xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED));
+  latched = add_virtual_mods (display,
+                              xkb_state_serialize_mods (state, XKB_STATE_MODS_LATCHED));
+  locked = add_virtual_mods (display,
+                             xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED));
 
   wl_keyboard_send_modifiers (resource, serial, depressed, latched, locked,
                               xkb_state_serialize_layout (state, XKB_STATE_LAYOUT_EFFECTIVE));
@@ -353,7 +373,7 @@ meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
 {
   MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
   xkb_mod_mask_t latched, locked, numlock;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_keyboard (keyboard);
   xkb_layout_index_t layout_idx;
   ClutterKeymap *keymap;
   ClutterSeat *seat;
@@ -510,7 +530,7 @@ static const MetaWaylandKeyboardGrabInterface default_keyboard_grab_interface = 
 void
 meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_keyboard (keyboard);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
 
   keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
@@ -543,7 +563,7 @@ meta_wayland_xkb_info_destroy (MetaWaylandXkbInfo *xkb_info)
 void
 meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_keyboard (keyboard);
 
   g_signal_handlers_disconnect_by_func (backend, on_keymap_changed, keyboard);
   g_signal_handlers_disconnect_by_func (backend, on_keymap_layout_group_changed, keyboard);

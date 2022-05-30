@@ -149,7 +149,9 @@ MetaWaylandEglStream *
 meta_wayland_egl_stream_new (MetaWaylandBuffer *buffer,
                              GError           **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
@@ -193,12 +195,14 @@ alloc_egl_stream_texture (CoglTexture2D *texture,
                           gpointer       user_data,
                           GError       **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaWaylandEglStream *stream = user_data;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (stream->buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
-  MetaWaylandEglStream *stream = user_data;
 
   return meta_egl_stream_consumer_gl_texture_external (egl, egl_display,
                                                        stream->egl_stream,
@@ -209,7 +213,9 @@ CoglTexture2D *
 meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
                                         GError              **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (stream->buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
@@ -265,7 +271,9 @@ gboolean
 meta_wayland_egl_stream_attach (MetaWaylandEglStream *stream,
                                 GError              **error)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (stream->buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
@@ -316,7 +324,9 @@ meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream)
 gboolean
 meta_wayland_is_egl_stream_buffer (MetaWaylandBuffer *buffer)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
@@ -341,7 +351,9 @@ static void
 meta_wayland_egl_stream_finalize (GObject *object)
 {
   MetaWaylandEglStream *stream = META_WAYLAND_EGL_STREAM (object);
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (stream->buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);

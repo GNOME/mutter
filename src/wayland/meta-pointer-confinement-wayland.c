@@ -46,6 +46,7 @@
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland.h"
 
 typedef struct _MetaPointerConfinementWaylandPrivate MetaPointerConfinementWaylandPrivate;
 
@@ -68,6 +69,18 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaPointerConfinementWayland,
                             meta_pointer_confinement_wayland,
                             G_TYPE_OBJECT)
 
+static MetaBackend *
+backend_from_confinement (MetaPointerConfinementWayland *confinement)
+{
+  MetaPointerConfinementWaylandPrivate *priv =
+    meta_pointer_confinement_wayland_get_instance_private (confinement);
+  MetaWaylandCompositor *compositor =
+    meta_wayland_pointer_constraint_get_compositor (priv->constraint);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_backend (context);
+}
+
 static void
 meta_pointer_confinement_wayland_update (MetaPointerConfinementWayland *self)
 {
@@ -75,7 +88,8 @@ meta_pointer_confinement_wayland_update (MetaPointerConfinementWayland *self)
 
   constraint =
     META_POINTER_CONFINEMENT_WAYLAND_GET_CLASS (self)->create_constraint (self);
-  meta_backend_set_client_pointer_constraint (meta_get_backend (), constraint);
+  meta_backend_set_client_pointer_constraint (backend_from_confinement (self),
+                                              constraint);
   g_object_unref (constraint);
 }
 
@@ -134,6 +148,7 @@ meta_pointer_confinement_wayland_disable (MetaPointerConfinementWayland *confine
   MetaWaylandPointerConstraint *constraint;
   MetaWaylandSurface *surface;
   MetaWindow *window;
+  MetaBackend *backend;
 
   priv = meta_pointer_confinement_wayland_get_instance_private (confinement);
   constraint = priv->constraint;
@@ -151,7 +166,8 @@ meta_pointer_confinement_wayland_disable (MetaPointerConfinementWayland *confine
                                             confinement);
     }
 
-  meta_backend_set_client_pointer_constraint (meta_get_backend (), NULL);
+  backend = backend_from_confinement (confinement);
+  meta_backend_set_client_pointer_constraint (backend, NULL);
 }
 
 static void

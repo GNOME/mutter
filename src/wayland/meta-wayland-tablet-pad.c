@@ -40,6 +40,16 @@
 
 #include "tablet-unstable-v2-server-protocol.h"
 
+static MetaDisplay *
+display_from_pad (MetaWaylandTabletPad *pad)
+{
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (pad->tablet_seat->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+
+  return meta_context_get_display (context);
+}
+
 static void
 unbind_resource (struct wl_resource *resource)
 {
@@ -202,7 +212,7 @@ tablet_pad_set_feedback (struct wl_client   *client,
   if (!group || group->mode_switch_serial != serial)
     return;
 
-  mapper = meta_get_display ()->pad_action_mapper;
+  mapper = display_from_pad (pad)->pad_action_mapper;
 
   if (meta_pad_action_mapper_is_button_grabbed (mapper, pad->device, button))
     return;
@@ -323,7 +333,7 @@ meta_wayland_tablet_pad_handle_event_action (MetaWaylandTabletPad *pad,
   ClutterInputDevice *device;
 
   device = clutter_event_get_source_device (event);
-  mapper = meta_get_display ()->pad_action_mapper;
+  mapper = display_from_pad (pad)->pad_action_mapper;
 
   if (meta_pad_action_mapper_is_button_grabbed (mapper, device,
                                                 event->pad_button.button))

@@ -52,6 +52,7 @@ enum
 
 typedef struct _MetaWaylandXdgShellClient
 {
+  MetaWaylandCompositor *compositor;
   struct wl_resource *resource;
   GList *surfaces;
   GList *surface_constructors;
@@ -179,6 +180,15 @@ static MetaWaylandSurface *
 surface_from_xdg_toplevel_resource (struct wl_resource *resource)
 {
   return surface_from_xdg_surface_resource (resource);
+}
+
+static MetaDisplay *
+display_from_surface (MetaWaylandSurface *surface)
+{
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+
+  return meta_context_get_display (context);
 }
 
 static MetaWaylandXdgPopup *
@@ -909,7 +919,7 @@ meta_wayland_xdg_toplevel_reset (MetaWaylandXdgSurface *xdg_surface)
   meta_wayland_shell_surface_destroy_window (shell_surface);
 
   meta_wayland_actor_surface_reset_actor (META_WAYLAND_ACTOR_SURFACE (surface_role));
-  window = meta_window_wayland_new (meta_get_display (), surface);
+  window = meta_window_wayland_new (display_from_surface (surface), surface);
   meta_wayland_shell_surface_set_window (shell_surface, window);
 
   xdg_surface_class->reset (xdg_surface);
@@ -1064,7 +1074,7 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
   MetaWaylandSurface *parent_surface;
   MetaWaylandSeat *seat;
   uint32_t serial;
-  MetaDisplay *display = meta_get_display ();
+  MetaDisplay *display = display_from_surface (surface);
   MetaWindow *window;
   MetaWindow *parent_window;
   MetaPlacementRule placement_rule;
@@ -1972,7 +1982,7 @@ xdg_surface_constructor_get_toplevel (struct wl_client   *client,
   xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
   meta_wayland_xdg_surface_constructor_finalize (constructor, xdg_surface);
 
-  window = meta_window_wayland_new (meta_get_display (), surface);
+  window = meta_window_wayland_new (display_from_surface (surface), surface);
   shell_surface = META_WAYLAND_SHELL_SURFACE (xdg_surface);
   meta_wayland_shell_surface_set_window (shell_surface, window);
 }
@@ -2490,7 +2500,11 @@ xdg_wm_base_pong (struct wl_client   *client,
                   struct wl_resource *resource,
                   uint32_t            serial)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaWaylandXdgShellClient *shell_client =
+    wl_resource_get_user_data (resource);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (shell_client->compositor);
+  MetaDisplay *display = meta_context_get_display (context);
 
   meta_display_pong_for_serial (display, serial);
 }
@@ -2541,10 +2555,12 @@ bind_xdg_wm_base (struct wl_client *client,
                   uint32_t          version,
                   uint32_t          id)
 {
+  MetaWaylandCompositor *compositor = data;
   MetaWaylandXdgShellClient *shell_client;
 
   shell_client = g_new0 (MetaWaylandXdgShellClient, 1);
 
+  shell_client->compositor = compositor;
   shell_client->resource = wl_resource_create (client,
                                                &xdg_wm_base_interface,
                                                version, id);

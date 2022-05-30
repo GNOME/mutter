@@ -154,7 +154,10 @@ static void
 meta_window_xwayland_force_restore_shortcuts (MetaWindow         *window,
                                               ClutterInputDevice *source)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
 
   meta_wayland_compositor_restore_shortcuts (compositor, source);
 }
@@ -163,7 +166,10 @@ static gboolean
 meta_window_xwayland_shortcuts_inhibited (MetaWindow         *window,
                                           ClutterInputDevice *source)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
 
   return meta_wayland_compositor_is_shortcuts_inhibited (compositor, source);
 }

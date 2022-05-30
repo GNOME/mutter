@@ -37,6 +37,8 @@ typedef struct _MetaWaylandDataSourceFuncs MetaWaylandDataSourceFuncs;
 
 struct _MetaWaylandDataDevice
 {
+  MetaWaylandSeat *seat;
+
   uint32_t selection_serial;
   MetaWaylandDataSource *selection_data_source;
   MetaWaylandDataSource *dnd_data_source;
@@ -52,7 +54,10 @@ struct _MetaWaylandDataDevice
 
 void meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor);
 
-void meta_wayland_data_device_init (MetaWaylandDataDevice *data_device);
+void meta_wayland_data_device_init (MetaWaylandDataDevice *data_device,
+                                    MetaWaylandSeat       *seat);
+
+MetaWaylandSeat * meta_wayland_data_device_get_seat (MetaWaylandDataDevice *data_device);
 
 void meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device);
 

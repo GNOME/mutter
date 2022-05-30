@@ -512,7 +512,10 @@ gtk_shell_system_bell (struct wl_client   *client,
                        struct wl_resource *resource,
                        struct wl_resource *gtk_surface_resource)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaWaylandGtkShell *gtk_shell = wl_resource_get_user_data (resource);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (gtk_shell->compositor);
+  MetaDisplay *display = meta_context_get_display (context);
 
   if (gtk_surface_resource)
     {
@@ -538,7 +541,10 @@ gtk_shell_notify_launch (struct wl_client   *client,
                          struct wl_resource *resource,
                          const char         *startup_id)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaWaylandGtkShell *gtk_shell = wl_resource_get_user_data (resource);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (gtk_shell->compositor);
+  MetaDisplay *display = meta_context_get_display (context);
   MetaStartupSequence *sequence;
   uint64_t timestamp;
 

@@ -54,7 +54,10 @@ struct _MetaWaylandDataSourceClass
   void (* drag_finished)  (MetaWaylandDataSource *source);
 };
 
-MetaWaylandDataSource * meta_wayland_data_source_new (struct wl_resource *resource);
+MetaWaylandDataSource * meta_wayland_data_source_new (MetaWaylandCompositor *compositor,
+                                                      struct wl_resource    *resource);
+
+MetaWaylandCompositor * meta_wayland_data_source_get_compositor (MetaWaylandDataSource *source);
 
 struct wl_resource * meta_wayland_data_source_get_resource (MetaWaylandDataSource *source);
 void                 meta_wayland_data_source_set_resource (MetaWaylandDataSource *source,

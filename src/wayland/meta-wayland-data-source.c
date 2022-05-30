@@ -34,6 +34,8 @@
 
 typedef struct _MetaWaylandDataSourcePrivate
 {
+  MetaWaylandCompositor *compositor;
+
   struct wl_resource *resource;
   MetaWaylandDataOffer *offer;
   struct wl_array mime_types;
@@ -240,13 +242,15 @@ destroy_data_source (struct wl_resource *resource)
 }
 
 MetaWaylandDataSource *
-meta_wayland_data_source_new (struct wl_resource *resource)
+meta_wayland_data_source_new (MetaWaylandCompositor *compositor,
+                              struct wl_resource    *resource)
 {
   MetaWaylandDataSource *source =
     g_object_new (META_TYPE_WAYLAND_DATA_SOURCE, NULL);
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
 
+  priv->compositor = compositor;
   meta_wayland_data_source_set_resource (source, resource);
   wl_resource_set_implementation (resource, &data_source_interface,
                                   source, destroy_data_source);
@@ -520,4 +524,13 @@ meta_wayland_data_source_has_mime_type (MetaWaylandDataSource *source,
     }
 
   return FALSE;
+}
+
+MetaWaylandCompositor *
+meta_wayland_data_source_get_compositor (MetaWaylandDataSource *source)
+{
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+
+  return priv->compositor;
 }

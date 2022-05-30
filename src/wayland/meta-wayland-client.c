@@ -47,6 +47,7 @@ struct _MetaWaylandClient
 {
   GObject parent_instance;
 
+  MetaContext *context;
   GSubprocessLauncher *launcher;
   GSubprocess *subprocess;
   GCancellable *died_cancellable;
@@ -104,6 +105,7 @@ child_setup (gpointer user_data)
 
 /**
  * meta_wayland_client_new:
+ * @context: (not nullable): a #MetaContext
  * @launcher: (not nullable): a GSubprocessLauncher to use to launch the subprocess
  * @error: (nullable): Error
  *
@@ -114,7 +116,8 @@ child_setup (gpointer user_data)
  * g_object_unref().
  */
 MetaWaylandClient *
-meta_wayland_client_new (GSubprocessLauncher  *launcher,
+meta_wayland_client_new (MetaContext          *context,
+                         GSubprocessLauncher  *launcher,
                          GError              **error)
 {
   MetaWaylandClient *client;
@@ -140,6 +143,7 @@ meta_wayland_client_new (GSubprocessLauncher  *launcher,
     }
 
   client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
+  client->context = context;
   client->launcher = g_object_ref (launcher);
   return client;
 }
@@ -203,7 +207,7 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
       return NULL;
     }
 
-  compositor = meta_wayland_compositor_get_default ();
+  compositor = meta_context_get_wayland_compositor (client->context);
   g_subprocess_launcher_take_fd (client->launcher, client_fd[1], 3);
   g_subprocess_launcher_setenv (client->launcher, "WAYLAND_SOCKET", "3", TRUE);
   g_subprocess_launcher_set_child_setup (client->launcher,

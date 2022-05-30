@@ -37,6 +37,8 @@
 
 struct _MetaWaylandSeat
 {
+  MetaWaylandCompositor *compositor;
+
   struct wl_list base_resource_list;
   struct wl_display *wl_display;
 
@@ -79,5 +81,7 @@ gboolean meta_wayland_seat_has_keyboard (MetaWaylandSeat *seat);
 gboolean meta_wayland_seat_has_pointer (MetaWaylandSeat *seat);
 
 gboolean meta_wayland_seat_has_touch (MetaWaylandSeat *seat);
+
+MetaWaylandCompositor * meta_wayland_seat_get_compositor (MetaWaylandSeat *seat);
 
 #endif /* META_WAYLAND_SEAT_H */

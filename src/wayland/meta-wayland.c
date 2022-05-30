@@ -535,7 +535,8 @@ meta_wayland_init_egl (MetaWaylandCompositor *compositor)
 {
   MetaWaylandCompositorPrivate *priv =
     meta_wayland_compositor_get_instance_private (compositor);
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
@@ -802,7 +803,10 @@ static void
 on_scheduled_association_unmanaged (MetaWindow *window,
                                     gpointer    user_data)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
 
   meta_wayland_compositor_remove_surface_association (compositor,
                                                       GPOINTER_TO_INT (user_data));
@@ -855,4 +859,12 @@ MetaContext *
 meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor)
 {
   return compositor->context;
+}
+
+gboolean
+meta_wayland_compositor_handle_xwayland_xevent (MetaWaylandCompositor *compositor,
+                                                XEvent                *xevent)
+{
+  return meta_xwayland_manager_handle_xevent (&compositor->xwayland_manager,
+                                              xevent);
 }

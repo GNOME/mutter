@@ -707,7 +707,9 @@ MetaWaylandDmaBufBuffer *
 meta_wayland_dma_buf_fds_for_wayland_buffer (MetaWaylandBuffer *buffer)
 {
 #ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context =
+    meta_wayland_compositor_get_context (buffer->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaGpuKms *gpu_kms;

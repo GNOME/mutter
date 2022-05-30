@@ -329,7 +329,11 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
 {
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (META_WAYLAND_ACTOR_SURFACE (surface_role));
-  MetaBackend *backend = meta_get_backend ();
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterActor *actor = CLUTTER_ACTOR (priv->actor);
   MetaRectangle logical_monitor_layout;

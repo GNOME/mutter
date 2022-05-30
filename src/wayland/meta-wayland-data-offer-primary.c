@@ -36,6 +36,16 @@
 #include "core/display-private.h"
 #include "primary-selection-unstable-v1-server-protocol.h"
 #include "wayland/meta-wayland-data-offer.h"
+#include "wayland/meta-wayland-private.h"
+
+static MetaDisplay *
+display_from_offer (MetaWaylandDataOffer *offer)
+{
+  MetaContext *context =
+    meta_wayland_compositor_get_context (offer->compositor);
+
+  return meta_context_get_display (context);
+}
 
 static void
 transfer_cb (MetaSelection *selection,
@@ -60,7 +70,8 @@ primary_offer_receive (struct wl_client   *client,
                        const char         *mime_type,
 		       int32_t             fd)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
+  MetaDisplay *display = display_from_offer (offer);
   GOutputStream *stream;
   GList *mime_types;
   gboolean found;
@@ -117,16 +128,18 @@ destroy_primary_offer (struct wl_resource *resource)
       offer->source = NULL;
     }
 
-  meta_display_sync_wayland_input_focus (meta_get_display ());
+  meta_display_sync_wayland_input_focus (display_from_offer (offer));
   g_free (offer);
 }
 
 MetaWaylandDataOffer *
-meta_wayland_data_offer_primary_new (struct wl_resource *target)
+meta_wayland_data_offer_primary_new (MetaWaylandCompositor *compositor,
+                                     struct wl_resource    *target)
 {
   MetaWaylandDataOffer *offer;
 
   offer = g_new0 (MetaWaylandDataOffer, 1);
+  offer->compositor = compositor;
   offer->selection_type = META_SELECTION_PRIMARY;
   offer->resource = wl_resource_create (wl_resource_get_client (target),
                                         &zwp_primary_selection_offer_v1_interface,

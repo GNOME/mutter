@@ -728,13 +728,16 @@ meta_wayland_outputs_finalize (MetaWaylandCompositor *compositor)
 void
 meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
 {
-  MetaMonitorManager *monitors;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
-  monitors = meta_monitor_manager_get ();
-  g_signal_connect (monitors, "monitors-changed-internal",
+  g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), compositor);
 
-  compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
+  compositor->outputs =
+    meta_wayland_compositor_update_outputs (compositor, monitor_manager);
 
   wl_global_create (compositor->wayland_display,
                     &zxdg_output_manager_v1_interface,
