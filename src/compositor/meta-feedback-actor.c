@@ -135,7 +135,8 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
                               "Anchor X",
                               "The X axis of the anchor point",
                               0, G_MAXFLOAT, 0,
-                              G_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_property (object_class,
                                    PROP_ANCHOR_X,
@@ -145,7 +146,8 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
                               "Anchor Y",
                               "The Y axis of the anchor point",
                               0, G_MAXFLOAT, 0,
-                              G_PARAM_READWRITE);
+                              G_PARAM_READWRITE |
+                              G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_property (object_class,
                                    PROP_ANCHOR_Y,
