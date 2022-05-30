@@ -516,20 +516,21 @@ input_mapper_device_aspect_ratio_cb (MetaInputMapper    *mapper,
 }
 
 static void
-on_stage_shown_cb (MetaBackend *backend)
+on_prepare_shutdown (MetaContext *context,
+                     MetaBackend *backend)
+{
+  g_signal_emit (backend, signals[PREPARE_SHUTDOWN], 0);
+}
+
+static void
+on_started (MetaContext *context,
+            MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterSeat *seat = priv->default_seat;
 
   meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
                                            determine_hotplug_pointer_visibility (seat));
-}
-
-static void
-on_prepare_shutdown (MetaContext *context,
-                     MetaBackend *backend)
-{
-  g_signal_emit (backend, signals[PREPARE_SHUTDOWN], 0);
 }
 
 static void
@@ -542,9 +543,6 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
   META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
-  g_signal_connect_object (priv->stage, "show",
-                           G_CALLBACK (on_stage_shown_cb), backend,
-                           G_CONNECT_SWAPPED);
 
   meta_monitor_manager_setup (priv->monitor_manager);
 
@@ -595,6 +593,8 @@ meta_backend_real_post_init (MetaBackend *backend)
 
   g_signal_connect (priv->context, "prepare-shutdown",
                     G_CALLBACK (on_prepare_shutdown), backend);
+  g_signal_connect (priv->context, "started",
+                    G_CALLBACK (on_started), backend);
 }
 
 static gboolean
