@@ -441,7 +441,8 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
   MetaWaylandSeat *seat = drag_grab->seat;
   ClutterEventType event_type = clutter_event_type (event);
 
-  if (drag_grab->generic.pointer->grab_button == clutter_event_get_button (event) &&
+  if (drag_grab->generic.pointer->grab_button ==
+      clutter_event_get_button (event) &&
       event_type == CLUTTER_BUTTON_RELEASE)
     {
       MetaWaylandDataSource *source = drag_grab->drag_data_source;
@@ -460,7 +461,8 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
       else if (!drag_grab->drag_focus && source &&
                meta_wayland_data_source_has_target (source) &&
                meta_wayland_data_source_get_current_action (source) &&
-               meta_wayland_data_source_has_mime_type (source, ROOTWINDOW_DROP_MIME))
+               meta_wayland_data_source_has_mime_type (source,
+                                                       ROOTWINDOW_DROP_MIME))
         {
           /* Perform a fake read, that will lead to notify_finish() being called */
           meta_wayland_data_source_fake_read (source, ROOTWINDOW_DROP_MIME);
@@ -476,7 +478,8 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
         }
 
       /* Finish drag and let actor self-destruct */
-      meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor), success);
+      meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor),
+                                  success);
       drag_grab->feedback_actor = NULL;
     }
 
@@ -501,8 +504,10 @@ keyboard_drag_grab_key (MetaWaylandKeyboardGrab *grab,
 
       drag_grab = wl_container_of (grab, drag_grab, keyboard_grab);
       meta_wayland_data_source_cancel (drag_grab->drag_data_source);
-      meta_wayland_data_source_set_current_offer (drag_grab->drag_data_source, NULL);
-      meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor), FALSE);
+      meta_wayland_data_source_set_current_offer (drag_grab->drag_data_source,
+                                                  NULL);
+      meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor),
+                                  FALSE);
       drag_grab->feedback_actor = NULL;
       data_device_end_drag_grab (drag_grab);
 
@@ -540,7 +545,8 @@ static const MetaWaylandKeyboardGrabInterface keyboard_drag_grab_interface = {
 };
 
 static void
-destroy_data_device_origin (struct wl_listener *listener, void *data)
+destroy_data_device_origin (struct wl_listener *listener,
+                            void               *data)
 {
   MetaWaylandDragGrab *drag_grab =
     wl_container_of (listener, drag_grab, drag_origin_listener);
@@ -553,7 +559,8 @@ destroy_data_device_origin (struct wl_listener *listener, void *data)
 }
 
 static void
-drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was)
+drag_grab_data_source_destroyed (gpointer  data,
+                                 GObject  *where_the_object_was)
 {
   MetaWaylandDragGrab *drag_grab = data;
 
@@ -637,11 +644,13 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
       wl_resource_add_destroy_listener (icon_surface->resource,
                                         &drag_grab->drag_icon_listener);
 
-      drag_surface_actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_surface));
+      drag_surface_actor =
+        CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_surface));
 
-      drag_grab->feedback_actor = meta_dnd_actor_new (CLUTTER_ACTOR (surface_actor),
-                                                      drag_grab->drag_start_x,
-                                                      drag_grab->drag_start_y);
+      drag_grab->feedback_actor =
+        meta_dnd_actor_new (CLUTTER_ACTOR (surface_actor),
+                            drag_grab->drag_start_x,
+                            drag_grab->drag_start_y);
       meta_feedback_actor_set_anchor (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
                                       0, 0);
       clutter_actor_add_child (drag_grab->feedback_actor, drag_surface_actor);
@@ -665,11 +674,12 @@ meta_wayland_data_device_end_drag (MetaWaylandDataDevice *data_device)
 }
 
 static void
-data_device_start_drag (struct wl_client *client,
+data_device_start_drag (struct wl_client  *client,
                         struct wl_resource *resource,
                         struct wl_resource *source_resource,
                         struct wl_resource *origin_resource,
-                        struct wl_resource *icon_resource, guint32 serial)
+                        struct wl_resource *icon_resource,
+                        uint32_t            serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
@@ -877,7 +887,7 @@ meta_wayland_data_device_set_dnd_source (MetaWaylandDataDevice *data_device,
 void
 meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
                                         MetaWaylandDataSource *source,
-                                        guint32 serial)
+                                        uint32_t               serial)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   MetaSelectionSource *selection_source;
@@ -917,10 +927,10 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
 }
 
 static void
-data_device_set_selection (struct wl_client *client,
+data_device_set_selection (struct wl_client   *client,
                            struct wl_resource *resource,
                            struct wl_resource *source_resource,
-                           guint32 serial)
+                           uint32_t            serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
@@ -961,8 +971,9 @@ static const struct wl_data_device_interface data_device_interface = {
 };
 
 static void
-create_data_source (struct wl_client *client,
-                    struct wl_resource *resource, guint32 id)
+create_data_source (struct wl_client   *client,
+                    struct wl_resource *resource,
+                    uint32_t            id)
 {
   struct wl_resource *source_resource;
 
@@ -988,7 +999,8 @@ owner_changed_cb (MetaSelection         *selection,
 
   if (selection_type == META_SELECTION_CLIPBOARD)
     {
-      wl_resource_for_each (data_device_resource, &data_device->focus_resource_list)
+      wl_resource_for_each (data_device_resource,
+                            &data_device->focus_resource_list)
         {
           struct wl_resource *offer = NULL;
 
@@ -1016,16 +1028,19 @@ ensure_owners_changed_handler_connected (MetaWaylandDataDevice *data_device)
 }
 
 static void
-get_data_device (struct wl_client *client,
+get_data_device (struct wl_client   *client,
                  struct wl_resource *manager_resource,
-                 guint32 id, struct wl_resource *seat_resource)
+                 uint32_t            id,
+                 struct wl_resource *seat_resource)
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   struct wl_resource *cr;
   struct wl_resource *data_device_resource;
 
-  cr = wl_resource_create (client, &wl_data_device_interface, wl_resource_get_version (manager_resource), id);
-  wl_resource_set_implementation (cr, &data_device_interface, &seat->data_device, unbind_resource);
+  cr = wl_resource_create (client, &wl_data_device_interface,
+                           wl_resource_get_version (manager_resource), id);
+  wl_resource_set_implementation (cr, &data_device_interface,
+                                  &seat->data_device, unbind_resource);
 
   data_device_resource =
     wl_resource_find_for_client (&seat->data_device.resource_list, client);
@@ -1047,10 +1062,14 @@ static const struct wl_data_device_manager_interface manager_interface = {
 
 static void
 bind_manager (struct wl_client *client,
-              void *data, guint32 version, guint32 id)
+              void             *data,
+              uint32_t          version,
+              uint32_t          id)
 {
   struct wl_resource *resource;
-  resource = wl_resource_create (client, &wl_data_device_manager_interface, version, id);
+
+  resource = wl_resource_create (client, &wl_data_device_manager_interface,
+                                 version, id);
   wl_resource_set_implementation (resource, &manager_interface, NULL, NULL);
 }
 
@@ -1125,7 +1144,8 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
     {
       struct wl_resource *offer;
 
-      offer = create_and_send_clipboard_offer (data_device, data_device_resource);
+      offer = create_and_send_clipboard_offer (data_device,
+                                               data_device_resource);
       wl_data_device_send_selection (data_device_resource, offer);
     }
 }
