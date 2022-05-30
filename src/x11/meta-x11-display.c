@@ -1136,6 +1136,7 @@ on_window_visibility_updated (MetaDisplay    *display,
 MetaX11Display *
 meta_x11_display_new (MetaDisplay *display, GError **error)
 {
+  MetaContext *context = meta_display_get_context (display);
   MetaX11Display *x11_display;
   Display *xdisplay;
   Screen *xscreen;
@@ -1168,19 +1169,17 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   gdk_display = g_steal_pointer (&prepared_gdk_display);
   xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display);
 
+  XSynchronize (xdisplay, meta_context_is_x11_sync (context));
+
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     {
-      MetaContext *context = meta_display_get_context (display);
       MetaWaylandCompositor *compositor =
         meta_context_get_wayland_compositor (context);
 
       meta_xwayland_setup_xdisplay (&compositor->xwayland_manager, xdisplay);
     }
 #endif
-
-  if (meta_is_syncing ())
-    XSynchronize (xdisplay, True);
 
   replace_current_wm =
     meta_context_is_replacing (meta_backend_get_context (backend));

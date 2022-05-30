@@ -49,6 +49,10 @@ struct _MetaContextClass
                                     GError      **error);
 
   void (* notify_ready) (MetaContext *context);
+
+#ifdef HAVE_X11
+  gboolean (* is_x11_sync) (MetaContext *context);
+#endif
 };
 
 const char * meta_context_get_name (MetaContext *context);
@@ -63,5 +67,10 @@ META_EXPORT_TEST
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
 
 MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
+
+#ifdef HAVE_X11
+META_EXPORT_TEST
+gboolean meta_context_is_x11_sync (MetaContext *context);
+#endif
 
 #endif /* META_CONTEXT_PRIVATE_H */

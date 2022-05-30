@@ -136,8 +136,6 @@ meta_context_test_setup (MetaContext  *context,
     settings,
     META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
 
-  meta_set_syncing (!!g_getenv ("MUTTER_SYNC"));
-
   return TRUE;
 }
 
@@ -202,6 +200,14 @@ static void
 meta_context_test_notify_ready (MetaContext *context)
 {
 }
+
+#ifdef HAVE_X11
+static gboolean
+meta_context_test_is_x11_sync (MetaContext *context)
+{
+  return !!g_getenv ("MUTTER_SYNC");
+}
+#endif
 
 static gboolean
 run_tests_idle (gpointer user_data)
@@ -329,6 +335,9 @@ meta_context_test_class_init (MetaContextTestClass *klass)
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
   context_class->notify_ready = meta_context_test_notify_ready;
+#ifdef HAVE_X11
+  context_class->is_x11_sync = meta_context_test_is_x11_sync;
+#endif
 
   signals[BEFORE_TESTS] =
     g_signal_new ("before-tests",

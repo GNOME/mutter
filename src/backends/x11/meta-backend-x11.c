@@ -821,6 +821,7 @@ meta_backend_x11_initable_init (GInitable    *initable,
                                 GCancellable *cancellable,
                                 GError      **error)
 {
+  MetaContext *context = meta_backend_get_context (META_BACKEND (initable));
   MetaBackendX11 *x11 = META_BACKEND_X11 (initable);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   Display *xdisplay;
@@ -841,6 +842,8 @@ meta_backend_x11_initable_init (GInitable    *initable,
                    "Unable to open display '%s'", xdisplay_name);
       return FALSE;
     }
+
+  XSynchronize (xdisplay, meta_context_is_x11_sync (context));
 
   priv->xdisplay = xdisplay;
   priv->xscreen = DefaultScreenOfDisplay (xdisplay);

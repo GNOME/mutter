@@ -391,7 +391,6 @@ meta_context_main_setup (MetaContext  *context,
     return FALSE;
 
   meta_context_set_unsafe_mode (context, context_main->options.unsafe_mode);
-  meta_set_syncing (context_main->options.x11.sync || g_getenv ("MUTTER_SYNC"));
 
 #ifdef HAVE_NATIVE_BACKEND
   if (!add_persistent_virtual_monitors (context_main, error))
@@ -502,6 +501,16 @@ meta_context_main_notify_ready (MetaContext *context)
   g_clear_pointer (&context_main->options.sm.client_id, g_free);
   g_clear_pointer (&context_main->options.sm.save_file, g_free);
 }
+
+#ifdef HAVE_X11
+static gboolean
+meta_context_main_is_x11_sync (MetaContext *context)
+{
+  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+
+  return context_main->options.x11.sync || g_getenv ("MUTTER_SYNC");
+}
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 static gboolean
@@ -706,6 +715,9 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
   context_class->notify_ready = meta_context_main_notify_ready;
+#ifdef HAVE_X11
+  context_class->is_x11_sync = meta_context_main_is_x11_sync;
+#endif
 }
 
 static void

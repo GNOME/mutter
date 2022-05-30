@@ -2117,47 +2117,6 @@ meta_display_queue_retheme_all_windows (MetaDisplay *display)
   g_slist_free (windows);
 }
 
-/*
- * Stores whether syncing is currently enabled.
- */
-static gboolean is_syncing = FALSE;
-
-/**
- * meta_is_syncing:
- *
- * Returns whether X synchronisation is currently enabled.
- *
- * FIXME: This is *only* called by meta_display_open(), but by that time
- * we have already turned syncing on or off on startup, and we don't
- * have any way to do so while Mutter is running, so it's rather
- * pointless.
- *
- * Returns: %TRUE if we must wait for events whenever we send X requests;
- * %FALSE otherwise.
- */
-gboolean
-meta_is_syncing (void)
-{
-  return is_syncing;
-}
-
-/**
- * meta_set_syncing:
- * @setting: whether to turn syncing on or off
- *
- * A handy way to turn on synchronisation on or off for every display.
- */
-void
-meta_set_syncing (gboolean setting)
-{
-  if (setting != is_syncing)
-    {
-      is_syncing = setting;
-      if (meta_get_display ())
-        XSynchronize (meta_get_display ()->x11_display->xdisplay, is_syncing);
-    }
-}
-
 /**
  * meta_display_ping_timeout:
  * @data: All the information about this ping. It is a #MetaPingData
