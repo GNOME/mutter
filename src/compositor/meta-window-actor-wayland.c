@@ -20,6 +20,8 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
+#include "config.h"
+
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "meta/meta-window-actor.h"
