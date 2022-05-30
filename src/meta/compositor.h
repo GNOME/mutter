@@ -166,4 +166,7 @@ void meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
 META_EXPORT
 MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
 
+META_EXPORT
+ClutterActor * meta_compositor_get_feedback_group (MetaCompositor *compositor);
+
 #endif /* META_COMPOSITOR_H */

@@ -267,6 +267,23 @@ meta_get_top_window_group_for_display (MetaDisplay *display)
 }
 
 /**
+ * meta_compositor_get_feedback_group:
+ * @compositor: a #MetaCompositor
+ *
+ * Returns: (transfer none): The feedback group corresponding to @display
+ */
+ClutterActor *
+meta_compositor_get_feedback_group (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
+
+  return priv->feedback_group;
+}
+
+/**
  * meta_get_feedback_group_for_display:
  * @display: a #MetaDisplay
  *
@@ -276,15 +293,11 @@ ClutterActor *
 meta_get_feedback_group_for_display (MetaDisplay *display)
 {
   MetaCompositor *compositor;
-  MetaCompositorPrivate *priv;
 
   g_return_val_if_fail (display, NULL);
 
   compositor = get_compositor_for_display (display);
-  g_return_val_if_fail (compositor, NULL);
-  priv = meta_compositor_get_instance_private (compositor);
-
-  return priv->feedback_group;
+  return meta_compositor_get_feedback_group (compositor);
 }
 
 /**
