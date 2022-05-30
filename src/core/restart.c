@@ -174,13 +174,7 @@ meta_restart (const char *message)
 
   g_data_input_stream_read_line_async (data_stream, G_PRIORITY_DEFAULT,
                                        NULL, restart_helper_read_line_callback,
-                                       &error);
-  if (error != NULL)
-    {
-      meta_warning ("Failed to read from restart helper: %s", error->message);
-      g_object_unref (data_stream);
-      goto error;
-    }
+                                       NULL);
 
   return;
 
