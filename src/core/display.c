@@ -1143,7 +1143,8 @@ void
 meta_display_close (MetaDisplay *display,
                     guint32      timestamp)
 {
-  g_assert (display != NULL);
+  MetaCompositor *compositor;
+  MetaLaters *laters;
 
   if (display->closing != 0)
     {
@@ -1169,10 +1170,12 @@ meta_display_close (MetaDisplay *display,
   g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
   g_clear_handle_id (&display->tile_preview_timeout_id, g_source_remove);
 
+  compositor = meta_display_get_compositor (display);
+  laters = meta_compositor_get_laters (compositor);
   if (display->work_area_later != 0)
-    meta_later_remove (display->work_area_later);
+    meta_laters_remove (laters, display->work_area_later);
   if (display->check_fullscreen_later != 0)
-    meta_later_remove (display->check_fullscreen_later);
+    meta_laters_remove (laters, display->check_fullscreen_later);
 
   /* Stop caring about events */
   meta_display_free_events (display);
@@ -3468,13 +3471,15 @@ meta_display_queue_workarea_recalc (MetaDisplay *display)
   /* Recompute work area later before redrawing */
   if (display->work_area_later == 0)
     {
+      MetaLaters *laters = meta_compositor_get_laters (display->compositor);
+
       meta_topic (META_DEBUG_WORKAREA,
                   "Adding work area hint computation function");
       display->work_area_later =
-        meta_later_add (META_LATER_BEFORE_REDRAW,
-                        (GSourceFunc) set_work_area_later_func,
-                        display,
-                        NULL);
+        meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                         (GSourceFunc) set_work_area_later_func,
+                         display,
+                         NULL);
     }
 }
 
@@ -3589,10 +3594,16 @@ check_fullscreen_func (gpointer data)
 void
 meta_display_queue_check_fullscreen (MetaDisplay *display)
 {
-  if (!display->check_fullscreen_later)
-    display->check_fullscreen_later = meta_later_add (META_LATER_CHECK_FULLSCREEN,
-                                                      check_fullscreen_func,
-                                                      display, NULL);
+  MetaLaters *laters;
+
+  if (display->check_fullscreen_later)
+    return;
+
+  laters = meta_compositor_get_laters (display->compositor);
+  display->check_fullscreen_later = meta_laters_add (laters,
+                                                     META_LATER_CHECK_FULLSCREEN,
+                                                     check_fullscreen_func,
+                                                     display, NULL);
 }
 
 int

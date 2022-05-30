@@ -28,7 +28,9 @@
 #include <meta/util.h>
 
 #include "core/boxes-private.h"
+#include "core/display-private.h"
 #include "meta-test/meta-context-test.h"
+#include "meta/compositor.h"
 #include "meta/meta-context.h"
 #include "tests/boxes-tests.h"
 #include "tests/monitor-config-migration-unit-tests.h"
@@ -64,6 +66,9 @@ test_later_order_callback (gpointer user_data)
 static void
 meta_test_util_later_order (void)
 {
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
   GMainLoop *loop;
   int expected_callback_num;
   int i;
@@ -82,10 +87,10 @@ meta_test_util_later_order (void)
         .callback_num = i,
         .expected_callback_num = &expected_callback_num,
       };
-      meta_later_add (META_LATER_BEFORE_REDRAW,
-                      test_later_order_callback,
-                      &callback_data[i],
-                      NULL);
+      meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                       test_later_order_callback,
+                       &callback_data[i],
+                       NULL);
     }
 
   /* Check that the callbacks are invoked in the opposite order that they were
@@ -119,13 +124,16 @@ static gboolean
 test_later_schedule_from_later_calc_showing_callback (gpointer user_data)
 {
   MetaTestLaterScheduleFromLaterData *data = user_data;
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
 
   g_assert_cmpint (data->state, ==, META_TEST_LATER_EXPECT_CALC_SHOWING);
 
-  meta_later_add (META_LATER_SYNC_STACK,
-                  test_later_schedule_from_later_sync_stack_callback,
-                  data,
-                  NULL);
+  meta_laters_add (laters, META_LATER_SYNC_STACK,
+                   test_later_schedule_from_later_sync_stack_callback,
+                   data,
+                   NULL);
 
   data->state = META_TEST_LATER_EXPECT_SYNC_STACK;
 
@@ -160,6 +168,9 @@ static void
 meta_test_util_later_schedule_from_later (void)
 {
   MetaTestLaterScheduleFromLaterData data;
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
 
   data.loop = g_main_loop_new (NULL, FALSE);
 
@@ -170,14 +181,14 @@ meta_test_util_later_schedule_from_later (void)
    * The first and last callback is queued here. The one to be invoked in
    * between is invoked in test_later_schedule_from_later_calc_showing_callback.
    */
-  meta_later_add (META_LATER_CALC_SHOWING,
-                  test_later_schedule_from_later_calc_showing_callback,
-                  &data,
-                  NULL);
-  meta_later_add (META_LATER_BEFORE_REDRAW,
-                  test_later_schedule_from_later_before_redraw_callback,
-                  &data,
-                  NULL);
+  meta_laters_add (laters, META_LATER_CALC_SHOWING,
+                   test_later_schedule_from_later_calc_showing_callback,
+                   &data,
+                   NULL);
+  meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                   test_later_schedule_from_later_before_redraw_callback,
+                   &data,
+                   NULL);
 
   data.state = META_TEST_LATER_EXPECT_CALC_SHOWING;
 

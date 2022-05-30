@@ -113,16 +113,19 @@ test_case_dispatch (TestCase *test,
 {
   MetaBackend *backend = meta_context_get_backend (test->context);
   ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaDisplay *display = meta_context_get_display (test->context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
 
   /* Wait until we've done any outstanding queued up work.
    * Though we add this as BEFORE_REDRAW, the iteration that runs the
    * BEFORE_REDRAW idles will proceed on and do the redraw, so we're
    * waiting until after *all* frame processing.
    */
-  meta_later_add (META_LATER_BEFORE_REDRAW,
-                  test_case_loop_quit,
-                  test,
-                  NULL);
+  meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                   test_case_loop_quit,
+                   test,
+                   NULL);
 
   clutter_stage_schedule_update (CLUTTER_STAGE (stage));
   g_main_loop_run (test->loop);

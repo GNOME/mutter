@@ -462,7 +462,7 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
  * coalesce multiple things together, the appropriate place to
  * do it is usually META_PRIORITY_BEFORE_REDRAW.
  *
- * Note that its usually better to use meta_later_add() rather
+ * Note that its usually better to use meta_laters_add() rather
  * than calling g_idle_add() directly; this will make sure things
  * get run when added from a clutter event handler without
  * waiting for another repaint cycle.

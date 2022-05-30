@@ -447,14 +447,18 @@ void
 meta_test_client_wait_for_window_shown (MetaTestClient *client,
                                         MetaWindow     *window)
 {
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
+
   WaitForShownData data = {
     .loop = g_main_loop_new (NULL, FALSE),
     .window = window,
   };
-  meta_later_add (META_LATER_BEFORE_REDRAW,
-                  wait_for_showing_before_redraw,
-                  &data,
-                  NULL);
+  meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                   wait_for_showing_before_redraw,
+                   &data,
+                   NULL);
   g_main_loop_run (data.loop);
   g_clear_signal_handler (&data.shown_handler_id, window);
   g_main_loop_unref (data.loop);

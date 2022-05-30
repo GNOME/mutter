@@ -8338,13 +8338,16 @@ quit_main_loop (gpointer data)
 static void
 dispatch (void)
 {
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaLaters *laters = meta_compositor_get_laters (compositor);
   GMainLoop *loop;
 
   loop = g_main_loop_new (NULL, FALSE);
-  meta_later_add (META_LATER_BEFORE_REDRAW,
-                  quit_main_loop,
-                  loop,
-                  NULL);
+  meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                   quit_main_loop,
+                   loop,
+                   NULL);
   g_main_loop_run (loop);
 }
 
