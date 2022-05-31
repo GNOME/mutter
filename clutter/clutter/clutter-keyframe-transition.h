@@ -56,8 +56,6 @@ struct _ClutterKeyframeTransition
  *
  * The `ClutterKeyframeTransitionClass` structure contains only
  * private data.
- *
- * Since: 1.12
  */
 struct _ClutterKeyframeTransitionClass
 {

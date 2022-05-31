@@ -54,8 +54,6 @@ struct _CallyClone
  *
  * The <structname>CallyCloneClass</structname> structure contains only
  * private data
- *
- * Since: 1.4
  */
 struct _CallyCloneClass
 {

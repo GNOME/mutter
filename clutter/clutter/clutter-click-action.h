@@ -52,8 +52,6 @@ typedef struct _ClutterClickActionPrivate ClutterClickActionPrivate;
  *
  * The #ClutterClickActionClass structure
  * contains only private data
- *
- * Since: 1.4
  */
 struct _ClutterClickActionClass
 {

@@ -64,8 +64,6 @@ struct _ClutterSwipeAction
  *
  * The #ClutterSwipeActionClass structure contains
  * only private data.
- *
- * Since: 1.8
  */
 struct _ClutterSwipeActionClass
 {

@@ -31,9 +31,7 @@
  * of the [class@Actor] to which it has been applied using a [class@Path].
  *
  * By setting the [property@PathConstraint:offset] property it is possible to
- * control how far along the path the [class@Actor] should be.
- *
- * Since: 1.6.
+ * control how far along the path the [class@Actor] should be..
  */
 
 #include "clutter-build-config.h"
@@ -202,8 +200,6 @@ clutter_path_constraint_class_init (ClutterPathConstraintClass *klass)
    * ClutterPathConstraint:path:
    *
    * The #ClutterPath used to constrain the position of an actor.
-   *
-   * Since: 1.6
    */
   path_properties[PROP_PATH] =
     g_param_spec_object ("path",
@@ -216,8 +212,6 @@ clutter_path_constraint_class_init (ClutterPathConstraintClass *klass)
    * ClutterPathConstraint:offset:
    *
    * The offset along the #ClutterPathConstraint:path, between -1.0 and 2.0.
-   *
-   * Since: 1.6
    */
   path_properties[PROP_OFFSET] =
     g_param_spec_float ("offset",
@@ -247,8 +241,6 @@ clutter_path_constraint_class_init (ClutterPathConstraintClass *klass)
    * The signal is emitted each time a
    * #ClutterPathConstraint:offset value results in the actor
    * passing a #ClutterPathNode
-   *
-   * Since: 1.6
    */
   path_signals[NODE_REACHED] =
     g_signal_new (I_("node-reached"),
@@ -277,8 +269,6 @@ clutter_path_constraint_init (ClutterPathConstraint *self)
  * Creates a new #ClutterPathConstraint with the given @path and @offset
  *
  * Return value: the newly created #ClutterPathConstraint
- *
- * Since: 1.6
  */
 ClutterConstraint *
 clutter_path_constraint_new (ClutterPath *path,
@@ -301,8 +291,6 @@ clutter_path_constraint_new (ClutterPath *path,
  *
  * The @constraint will take ownership of the #ClutterPath passed to this
  * function.
- *
- * Since: 1.6
  */
 void
 clutter_path_constraint_set_path (ClutterPathConstraint *constraint,
@@ -338,8 +326,6 @@ clutter_path_constraint_set_path (ClutterPathConstraint *constraint,
  * Return value: (transfer none): the #ClutterPath used by the
  *   #ClutterPathConstraint, or %NULL. The returned #ClutterPath is owned
  *   by the constraint and it should not be unreferenced
- *
- * Since: 1.6
  */
 ClutterPath *
 clutter_path_constraint_get_path (ClutterPathConstraint *constraint)
@@ -355,8 +341,6 @@ clutter_path_constraint_get_path (ClutterPathConstraint *constraint)
  * @offset: the offset along the path
  *
  * Sets the offset along the #ClutterPath used by @constraint.
- *
- * Since: 1.6
  */
 void
 clutter_path_constraint_set_offset (ClutterPathConstraint *constraint,
@@ -382,8 +366,6 @@ clutter_path_constraint_set_offset (ClutterPathConstraint *constraint,
  * Retrieves the offset along the [class@Path] used by @constraint.
  *
  * Return value: the offset
- *
- * Since: 1.6
  */
 gfloat
 clutter_path_constraint_get_offset (ClutterPathConstraint *constraint)

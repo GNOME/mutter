@@ -34,8 +34,6 @@
  * Unlike clutter_texture_new_from_actor(), #ClutterClone does not require
  * the presence of support for FBOs in the underlying GL or GLES
  * implementation.
- *
- * Since: 1.0
  */
 
 #include "clutter-build-config.h"
@@ -355,8 +353,6 @@ clutter_clone_class_init (ClutterCloneClass *klass)
    * ClutterClone:source:
    *
    * This property specifies the source actor being cloned.
-   *
-   * Since: 1.0
    */
   obj_props[PROP_SOURCE] =
     g_param_spec_object ("source",
@@ -385,8 +381,6 @@ clutter_clone_init (ClutterClone *self)
  * Creates a new #ClutterActor which clones @source/
  *
  * Return value: the newly created #ClutterClone
- *
- * Since: 1.0
  */
 ClutterActor *
 clutter_clone_new (ClutterActor *source)
@@ -437,8 +431,6 @@ clutter_clone_set_source_internal (ClutterClone *self,
  * @source: (allow-none): a #ClutterActor, or %NULL
  *
  * Sets @source as the source actor to be cloned by @self.
- *
- * Since: 1.0
  */
 void
 clutter_clone_set_source (ClutterClone *self,
@@ -458,8 +450,6 @@ clutter_clone_set_source (ClutterClone *self,
  * Retrieves the source #ClutterActor being cloned by @self.
  *
  * Return value: (transfer none): the actor source for the clone
- *
- * Since: 1.0
  */
 ClutterActor *
 clutter_clone_get_source (ClutterClone *self)

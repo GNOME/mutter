@@ -40,8 +40,6 @@ G_BEGIN_DECLS
  * CLUTTER_PRIORITY_EVENTS:
  *
  * Priority for event handling.
- *
- * Since: 0.4
  */
 #define CLUTTER_PRIORITY_EVENTS         (G_PRIORITY_DEFAULT)
 
@@ -49,8 +47,6 @@ G_BEGIN_DECLS
  * CLUTTER_CURRENT_TIME:
  *
  * Default value for "now".
- *
- * Since: 0.4
  */
 #define CLUTTER_CURRENT_TIME            (0L)
 
@@ -59,8 +55,6 @@ G_BEGIN_DECLS
  *
  * Continues the propagation of an event; this macro should be
  * used in event-related signals.
- *
- * Since: 1.10
  */
 #define CLUTTER_EVENT_PROPAGATE         (FALSE)
 
@@ -69,8 +63,6 @@ G_BEGIN_DECLS
  *
  * Stops the propagation of an event; this macro should be used
  * in event-related signals.
- *
- * Since: 1.10
  */
 #define CLUTTER_EVENT_STOP              (TRUE)
 
@@ -81,8 +73,6 @@ G_BEGIN_DECLS
  *
  * This is typically the left mouse button in a right-handed
  * mouse configuration.
- *
- * Since: 1.10
  */
 #define CLUTTER_BUTTON_PRIMARY          (1)
 
@@ -90,8 +80,6 @@ G_BEGIN_DECLS
  * CLUTTER_BUTTON_MIDDLE:
  *
  * The middle button of a pointer device.
- *
- * Since: 1.10
  */
 #define CLUTTER_BUTTON_MIDDLE           (2)
 
@@ -102,8 +90,6 @@ G_BEGIN_DECLS
  *
  * This is typically the right mouse button in a right-handed
  * mouse configuration.
- *
- * Since: 1.10
  */
 #define CLUTTER_BUTTON_SECONDARY        (3)
 
@@ -132,8 +118,6 @@ typedef struct _ClutterIMEvent          ClutterIMEvent;
  * @source: event source actor
  *
  * Common members for a #ClutterEvent
- *
- * Since: 0.2
  */
 struct _ClutterAnyEvent
 {
@@ -158,8 +142,6 @@ struct _ClutterAnyEvent
  * device the event originated from, use clutter_event_get_source_device()
  *
  * Key event
- *
- * Since: 0.2
  */
 struct _ClutterKeyEvent
 {
@@ -196,8 +178,6 @@ struct _ClutterKeyEvent
  * The event coordinates are relative to the stage that received the
  * event, and can be transformed into actor-relative coordinates by
  * using clutter_actor_transform_stage_point().
- *
- * Since: 0.2
  */
 struct _ClutterButtonEvent
 {
@@ -225,9 +205,7 @@ struct _ClutterButtonEvent
  * @device: the device that originated the event. If you want the physical
  * device the event originated from, use clutter_event_get_source_device()
  *
- * Event for tool proximity in tablet devices
- *
- * Since: 1.28
+ * Event for tool proximity in tablet devices8
  */
 struct _ClutterProximityEvent
 {
@@ -252,8 +230,6 @@ struct _ClutterProximityEvent
  * device the event originated from, use clutter_event_get_source_device()
  *
  * Event for the movement of the pointer across different actors
- *
- * Since: 0.2
  */
 struct _ClutterCrossingEvent
 {
@@ -284,8 +260,6 @@ struct _ClutterCrossingEvent
  * device the event originated from, use clutter_event_get_source_device()
  *
  * Event for the pointer motion
- *
- * Since: 0.2
  */
 struct _ClutterMotionEvent
 {
@@ -325,8 +299,6 @@ struct _ClutterMotionEvent
  * @finish_flags: the axes that were stopped in this event. This field is available since 1.26
  *
  * Scroll wheel (or similar device) event
- *
- * Since: 0.2
  */
 struct _ClutterScrollEvent
 {
@@ -374,8 +346,6 @@ struct _ClutterScrollEvent
  *
  * With multi-touch capable devices there can be multiple event sequence
  * running at the same time.
- *
- * Since: 1.10
  */
 struct _ClutterTouchEvent
 {
@@ -419,9 +389,7 @@ struct _ClutterTouchEvent
  * Each event with phase %CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN
  * will report a @scale of 1.0, all later phases in the gesture
  * report the current scale relative to the initial 1.0 value
- * (eg. 0.5 being half the size, 2.0 twice as big).
- *
- * Since: 1.24
+ * (eg. 0.5 being half the size, 2.0 twice as big).4
  */
 struct _ClutterTouchpadPinchEvent
 {
@@ -462,9 +430,7 @@ struct _ClutterTouchpadPinchEvent
  *
  * Used for touchpad swipe gesture events.
  * 
- * The current state of the gesture will be determined by the @phase field.
- *
- * Since: 1.24
+ * The current state of the gesture will be determined by the @phase field.4
  */
 struct _ClutterTouchpadSwipeEvent
 {
@@ -593,8 +559,6 @@ struct _ClutterIMEvent
  *
  * The events usually come from the windowing backend, but can also
  * be synthesized by Clutter itself or by the application code.
- * 
- * Since: 0.2
  */
 union _ClutterEvent
 {
@@ -632,8 +596,6 @@ union _ClutterEvent
  *   has been handled or %CLUTTER_EVENT_PROPAGATE otherwise.
  *   Returning %CLUTTER_EVENT_STOP skips any further filter
  *   functions and prevents the signal emission for the event.
- *
- * Since: 1.18
  */
 typedef gboolean (* ClutterEventFilterFunc) (const ClutterEvent *event,
                                              ClutterActor       *event_actor,

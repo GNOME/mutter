@@ -48,8 +48,6 @@ typedef struct _ClutterActorMetaPrivate ClutterActorMetaPrivate;
  *
  * The #ClutterActorMetaClass structure contains
  * only private data
- *
- * Since: 1.4
  */
 struct _ClutterActorMetaClass
 {

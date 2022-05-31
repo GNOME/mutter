@@ -33,8 +33,6 @@
  * group; for instance, if a transition has a duration of 10 seconds, and
  * the group that contains it has a duration of 5 seconds, only the first
  * 5 seconds of the transition will be played.
- *
- * Since: 1.12
  */
 
 #include "clutter-build-config.h"
@@ -179,8 +177,6 @@ clutter_transition_group_init (ClutterTransitionGroup *self)
  * Return value: the newly created #ClutterTransitionGroup. Use
  *   [method@GObject.Object.unref] when done to deallocate the resources it
  *   uses
- *
- * Since: 1.12
  */
 ClutterTransition *
 clutter_transition_group_new (void)
@@ -197,8 +193,6 @@ clutter_transition_group_new (void)
  *
  * This function acquires a reference on @transition that will be released
  * when calling [method@TransitionGroup.remove_transition].
- *
- * Since: 1.12
  */
 void
 clutter_transition_group_add_transition (ClutterTransitionGroup *group,
@@ -219,8 +213,6 @@ clutter_transition_group_add_transition (ClutterTransitionGroup *group,
  *
  * This function releases the reference acquired on @transition when
  * calling [method@TransitionGroup.add_transition].
- *
- * Since: 1.12
  */
 void
 clutter_transition_group_remove_transition (ClutterTransitionGroup *group,
@@ -239,8 +231,6 @@ clutter_transition_group_remove_transition (ClutterTransitionGroup *group,
  *
  * This function releases the reference acquired when calling
  * [method@TransitionGroup.add_transition].
- *
- * Since: 1.12
  */
 void
 clutter_transition_group_remove_all (ClutterTransitionGroup *group)

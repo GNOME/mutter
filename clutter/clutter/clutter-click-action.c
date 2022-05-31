@@ -85,8 +85,6 @@
  *       }
  *   }
  * ```
- *
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -544,8 +542,6 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * ClutterClickAction:pressed:
    *
    * Whether the clickable actor should be in "pressed" state
-   *
-   * Since: 1.4
    */
   obj_props[PROP_PRESSED] =
     g_param_spec_boolean ("pressed",
@@ -558,8 +554,6 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * ClutterClickAction:held:
    *
    * Whether the clickable actor has the pointer grabbed
-   *
-   * Since: 1.4
    */
   obj_props[PROP_HELD] =
     g_param_spec_boolean ("held",
@@ -576,8 +570,6 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    *
    * A value of -1 will make the #ClutterClickAction use the value of
    * the [property@Settings:long-press-duration] property.
-   *
-   * Since: 1.8
    */
   obj_props[PROP_LONG_PRESS_DURATION] =
     g_param_spec_int ("long-press-duration",
@@ -595,8 +587,6 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    *
    * A value of -1 will make the #ClutterClickAction use the value of
    * the [property@Settings:dnd-drag-threshold] property.
-   *
-   * Since: 1.8
    */
   obj_props[PROP_LONG_PRESS_THRESHOLD] =
     g_param_spec_int ("long-press-threshold",
@@ -618,8 +608,6 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    * The signal is emitted when the [class@Actor] to which
    * a #ClutterClickAction has been applied should respond to a
    * pointer button press and release events
-   *
-   * Since: 1.4
    */
   click_signals[CLICKED] =
     g_signal_new (I_("clicked"),
@@ -654,8 +642,6 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
    *
    * Return value: Only the %CLUTTER_LONG_PRESS_QUERY state uses the
    *   returned value of the handler; other states will ignore it
-   *
-   * Since: 1.8
    */
   click_signals[LONG_PRESS] =
     g_signal_new (I_("long-press"),
@@ -685,8 +671,6 @@ clutter_click_action_init (ClutterClickAction *self)
  * Creates a new #ClutterClickAction instance
  *
  * Return value: the newly created #ClutterClickAction
- *
- * Since: 1.4
  */
 ClutterAction *
 clutter_click_action_new (void)
@@ -706,8 +690,6 @@ clutter_click_action_new (void)
  *
  * This function is useful to break a grab, for instance after a certain
  * amount of time has passed.
- *
- * Since: 1.4
  */
 void
 clutter_click_action_release (ClutterClickAction *action)
@@ -733,8 +715,6 @@ clutter_click_action_release (ClutterClickAction *action)
  * Retrieves the button that was pressed.
  *
  * Return value: the button value
- *
- * Since: 1.4
  */
 guint
 clutter_click_action_get_button (ClutterClickAction *action)
@@ -755,8 +735,6 @@ clutter_click_action_get_button (ClutterClickAction *action)
  * Retrieves the modifier state of the click action.
  *
  * Return value: the modifier state parameter, or 0
- *
- * Since: 1.6
  */
 ClutterModifierType
 clutter_click_action_get_state (ClutterClickAction *action)
@@ -777,8 +755,6 @@ clutter_click_action_get_state (ClutterClickAction *action)
  * @press_y: (out): return location for the Y coordinate, or %NULL
  *
  * Retrieves the screen coordinates of the button press.
- *
- * Since: 1.8
  */
 void
 clutter_click_action_get_coords (ClutterClickAction *action,

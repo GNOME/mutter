@@ -59,8 +59,6 @@ struct _ClutterOffscreenEffect
  * @paint_target: virtual function
  *
  * The #ClutterOffscreenEffectClass structure contains only private data
- *
- * Since: 1.4
  */
 struct _ClutterOffscreenEffectClass
 {

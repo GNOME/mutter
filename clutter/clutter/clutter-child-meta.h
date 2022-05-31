@@ -60,8 +60,6 @@ struct _ClutterChildMeta
  * ClutterChildMetaClass:
  *
  * The #ClutterChildMetaClass contains only private data
- *
- * Since: 0.8
  */
 struct _ClutterChildMetaClass
 {

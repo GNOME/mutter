@@ -37,9 +37,7 @@
  * nor does it provide visible scroll handles.
  *
  * See [scroll-actor.c](https://git.gnome.org/browse/clutter/tree/examples/scroll-actor.c?h=clutter-1.18)
- * for an example of how to use #ClutterScrollActor.
- *
- * Since: 1.12.
+ * for an example of how to use #ClutterScrollActor..
  */
 
 #include "clutter-build-config.h"
@@ -175,8 +173,6 @@ clutter_scroll_actor_class_init (ClutterScrollActorClass *klass)
    * ClutterScrollActor:scroll-mode:
    *
    * The scrolling direction.
-   *
-   * Since: 1.12
    */
   obj_props[PROP_SCROLL_MODE] =
     g_param_spec_flags ("scroll-mode",
@@ -266,8 +262,6 @@ clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
  *
  * Return value: The newly created #ClutterScrollActor
  *   instance.
- *
- * Since: 1.12
  */
 ClutterActor *
 clutter_scroll_actor_new (void)
@@ -281,8 +275,6 @@ clutter_scroll_actor_new (void)
  * @mode: a #ClutterScrollMode
  *
  * Sets the [property@ScrollActor:scroll-mode] property.
- *
- * Since: 1.12
  */
 void
 clutter_scroll_actor_set_scroll_mode (ClutterScrollActor *actor,
@@ -309,8 +301,6 @@ clutter_scroll_actor_set_scroll_mode (ClutterScrollActor *actor,
  * Retrieves the [property@ScrollActor:scroll-mode] property
  *
  * Return value: the scrolling mode
- *
- * Since: 1.12
  */
 ClutterScrollMode
 clutter_scroll_actor_get_scroll_mode (ClutterScrollActor *actor)
@@ -332,8 +322,6 @@ clutter_scroll_actor_get_scroll_mode (ClutterScrollActor *actor)
  *
  * This function will use the currently set easing state of the @actor
  * to transition from the current scroll origin to the new one.
- *
- * Since: 1.12
  */
 void
 clutter_scroll_actor_scroll_to_point (ClutterScrollActor     *actor,
@@ -414,8 +402,6 @@ clutter_scroll_actor_scroll_to_point (ClutterScrollActor     *actor,
  * @rect: a #ClutterRect
  *
  * Scrolls @actor so that @rect is in the visible portion.
- *
- * Since: 1.12
  */
 void
 clutter_scroll_actor_scroll_to_rect (ClutterScrollActor    *actor,

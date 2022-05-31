@@ -54,8 +54,6 @@ struct _ClutterScrollActor
  *
  * The #ClutterScrollActor structure contains only
  * private data.
- *
- * Since: 1.12
  */
 struct _ClutterScrollActorClass
 {

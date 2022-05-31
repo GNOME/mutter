@@ -29,8 +29,6 @@
  *
  * In particular it sets a proper role for the clone, as just a image,
  * as it is the sanest and simplest approach.
- * 
- * Since: 1.4
  */
 
 /* Design rationale for CallyClone:
@@ -104,8 +102,6 @@ cally_clone_init (CallyClone *clone)
  * [class@Clutter.Clone].
  *
  * Return value: the newly created #AtkObject
- *
- * Since: 1.4
  */
 AtkObject*
 cally_clone_new (ClutterActor *actor)

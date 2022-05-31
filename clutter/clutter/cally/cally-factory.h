@@ -42,8 +42,6 @@
  * It assumes that the accessibility object provides a
  * @opt_create_accessible method in order to create the accessibility
  * object. It returns a @type GType object.
- *
- * Since: 1.4
  */
 #define CALLY_ACCESSIBLE_FACTORY(type, type_as_function, opt_create_accessible)	\
 										\
@@ -106,8 +104,6 @@ type_as_function ## _factory_get_type (void)					\
  *
  * Sets the #AtkObjectFactory to be used in order to instantiate
  * accessibility objects for the actor which GType is @widget_type.
- *
- * Since: 1.4
  */
 #define CALLY_ACTOR_SET_FACTORY(widget_type, type_as_function)			\
 	atk_registry_set_factory_type (atk_get_default_registry (),		\

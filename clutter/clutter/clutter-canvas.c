@@ -36,9 +36,7 @@
  * signal when invalidated using clutter_content_invalidate().
  *
  * See [canvas.c](https://git.gnome.org/browse/clutter/tree/examples/canvas.c?h=clutter-1.18)
- * for an example of how to use #ClutterCanvas.
- *
- * Since: 1.10.
+ * for an example of how to use #ClutterCanvas..
  */
 
 #include "clutter-build-config.h"
@@ -234,8 +232,6 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
    * ClutterCanvas:width:
    *
    * The width of the canvas.
-   *
-   * Since: 1.10
    */
   obj_props[PROP_WIDTH] =
     g_param_spec_int ("width",
@@ -250,8 +246,6 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
    * ClutterCanvas:height:
    *
    * The height of the canvas.
-   *
-   * Since: 1.10
    */
   obj_props[PROP_HEIGHT] =
     g_param_spec_int ("height",
@@ -292,8 +286,6 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
    *
    * Return value: %TRUE if the signal emission should stop, and
    *   %FALSE otherwise
-   *
-   * Since: 1.10
    */
   canvas_signals[DRAW] =
     g_signal_new (I_("draw"),
@@ -510,8 +502,6 @@ clutter_content_iface_init (ClutterContentInterface *iface)
  *
  * Return value: (transfer full): The newly allocated instance of
  *   #ClutterCanvas. Use g_object_unref() when done.
- *
- * Since: 1.10
  */
 ClutterContent *
 clutter_canvas_new (void)
@@ -581,8 +571,6 @@ clutter_canvas_invalidate_internal (ClutterCanvas *canvas,
  *
  * Return value: this function returns %TRUE if the size change
  *   caused a content invalidation, and %FALSE otherwise
- *
- * Since: 1.10
  */
 gboolean
 clutter_canvas_set_size (ClutterCanvas *canvas,

@@ -51,8 +51,6 @@
  * Return value: (transfer full): a newly allocated #ClutterMargin. Use
  *   clutter_margin_free() to free the resources associated with it when
  *   done.
- *
- * Since: 1.10
  */
 ClutterMargin *
 clutter_margin_new (void)
@@ -68,8 +66,6 @@ clutter_margin_new (void)
  * the newly created structure.
  *
  * Return value: (transfer full): a copy of the #ClutterMargin.
- *
- * Since: 1.10
  */
 ClutterMargin *
 clutter_margin_copy (const ClutterMargin *margin_)
@@ -86,8 +82,6 @@ clutter_margin_copy (const ClutterMargin *margin_)
  *
  * Frees the resources allocated by clutter_margin_new() and
  * clutter_margin_copy().
- *
- * Since: 1.10
  */
 void
 clutter_margin_free (ClutterMargin *margin_)

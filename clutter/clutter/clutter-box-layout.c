@@ -44,8 +44,6 @@
  *
  * It is possible to control the spacing between children of a
  * #ClutterBoxLayout by using clutter_box_layout_set_spacing().
- *
- * Since: 1.2
  */
 
 #include "clutter-build-config.h"
@@ -940,8 +938,6 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    *
    * The orientation of the #ClutterBoxLayout, either horizontal
    * or vertical
-   *
-   * Since: 1.12
    */
   obj_props[PROP_ORIENTATION] =
     g_param_spec_enum ("orientation",
@@ -957,8 +953,6 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    *
    * Whether the #ClutterBoxLayout should arrange its children
    * homogeneously, i.e. all children get the same size
-   *
-   * Since: 1.4
    */
   obj_props[PROP_HOMOGENEOUS] =
     g_param_spec_boolean ("homogeneous",
@@ -984,8 +978,6 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    * ClutterBoxLayout:spacing:
    *
    * The spacing between children of the #ClutterBoxLayout, in pixels
-   *
-   * Since: 1.2
    */
   obj_props[PROP_SPACING] =
     g_param_spec_uint ("spacing",
@@ -1018,8 +1010,6 @@ clutter_box_layout_init (ClutterBoxLayout *self)
  * Creates a new #ClutterBoxLayout layout manager
  *
  * Return value: the newly created #ClutterBoxLayout
- *
- * Since: 1.2
  */
 ClutterLayoutManager *
 clutter_box_layout_new (void)
@@ -1033,8 +1023,6 @@ clutter_box_layout_new (void)
  * @spacing: the spacing between children of the layout, in pixels
  *
  * Sets the spacing between children of @layout
- *
- * Since: 1.2
  */
 void
 clutter_box_layout_set_spacing (ClutterBoxLayout *layout,
@@ -1067,8 +1055,6 @@ clutter_box_layout_set_spacing (ClutterBoxLayout *layout,
  * Retrieves the spacing set using clutter_box_layout_set_spacing()
  *
  * Return value: the spacing between children of the #ClutterBoxLayout
- *
- * Since: 1.2
  */
 guint
 clutter_box_layout_get_spacing (ClutterBoxLayout *layout)
@@ -1084,8 +1070,6 @@ clutter_box_layout_get_spacing (ClutterBoxLayout *layout)
  * @orientation: the orientation of the #ClutterBoxLayout
  *
  * Sets the orientation of the #ClutterBoxLayout layout manager.
- *
- * Since: 1.12
  */
 void
 clutter_box_layout_set_orientation (ClutterBoxLayout   *layout,
@@ -1117,8 +1101,6 @@ clutter_box_layout_set_orientation (ClutterBoxLayout   *layout,
  * Retrieves the orientation of the @layout.
  *
  * Return value: the orientation of the layout
- *
- * Since: 1.12
  */
 ClutterOrientation
 clutter_box_layout_get_orientation (ClutterBoxLayout *layout)
@@ -1136,8 +1118,6 @@ clutter_box_layout_get_orientation (ClutterBoxLayout *layout)
  *
  * Sets whether the size of @layout children should be
  * homogeneous
- *
- * Since: 1.4
  */
 void
 clutter_box_layout_set_homogeneous (ClutterBoxLayout *layout,
@@ -1171,8 +1151,6 @@ clutter_box_layout_set_homogeneous (ClutterBoxLayout *layout,
  *
  * Return value: %TRUE if the #ClutterBoxLayout is arranging its children
  *   homogeneously, and %FALSE otherwise
- *
- * Since: 1.4
  */
 gboolean
 clutter_box_layout_get_homogeneous (ClutterBoxLayout *layout)

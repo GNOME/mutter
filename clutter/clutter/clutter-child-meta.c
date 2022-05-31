@@ -62,8 +62,6 @@
  * instantiation by overriding the #ClutterContainerIface virtual functions
  * #ClutterContainerIface.create_child_meta(), #ClutterContainerIface.destroy_child_meta(),
  * and #ClutterContainerIface.get_child_meta().
- *
- * Since: 0.8
  */
 
 #include "clutter-build-config.h"
@@ -147,8 +145,6 @@ clutter_child_meta_class_init (ClutterChildMetaClass *klass)
    * ClutterChildMeta:container:
    *
    * The #ClutterContainer that created this #ClutterChildMeta.
-   *
-   * Since: 0.8
    */
   obj_props[PROP_CONTAINER] =
     g_param_spec_object ("container",
@@ -162,8 +158,6 @@ clutter_child_meta_class_init (ClutterChildMetaClass *klass)
    * ClutterChildMeta:actor:
    *
    * The #ClutterActor being wrapped by this #ClutterChildMeta
-   *
-   * Since: 0.8
    */
   obj_props[PROP_ACTOR] =
     g_param_spec_object ("actor",
@@ -190,8 +184,6 @@ clutter_child_meta_init (ClutterChildMeta *self)
  * Retrieves the container using @data
  *
  * Return value: (transfer none): a #ClutterContainer
- *
- * Since: 0.8
  */
 ClutterContainer *
 clutter_child_meta_get_container (ClutterChildMeta *data)
@@ -208,8 +200,6 @@ clutter_child_meta_get_container (ClutterChildMeta *data)
  * Retrieves the actor wrapped by @data
  *
  * Return value: (transfer none): a #ClutterActor
- *
- * Since: 0.8
  */
 ClutterActor *
 clutter_child_meta_get_actor (ClutterChildMeta *data)

@@ -54,8 +54,6 @@ struct _CallyStage
  *
  * The <structname>CallyStageClass</structname> structure contains only
  * private data
- *
- * Since: 1.4
  */
 struct _CallyStageClass
 {

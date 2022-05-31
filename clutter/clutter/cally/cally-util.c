@@ -35,8 +35,6 @@
  * For instance, it defines atk_get_root(), the method that returns
  * the root object in the hierarchy. Without it, you don't have
  * available any accessible object.
- * 
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"

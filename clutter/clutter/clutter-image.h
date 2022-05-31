@@ -44,8 +44,6 @@ G_DECLARE_DERIVABLE_TYPE (ClutterImage, clutter_image, CLUTTER, IMAGE, GObject)
  *
  * The #ClutterImageClass structure contains
  * private data.
- *
- * Since: 1.10
  */
 struct _ClutterImageClass
 {

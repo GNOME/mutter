@@ -336,8 +336,6 @@ progress_data_destroy (gpointer data_)
  *
  * To unset a previously set progress function of a [alias@GObject.Type], pass %NULL
  * for @func.
- *
- * Since: 1.0
  */
 void
 clutter_interval_register_progress_func (GType               value_type,

@@ -53,8 +53,6 @@ typedef struct _ClutterGestureActionPrivate ClutterGestureActionPrivate;
  *
  * The #ClutterGestureClass structure contains only
  * private data.
- *
- * Since: 1.8
  */
 struct _ClutterGestureActionClass
 {

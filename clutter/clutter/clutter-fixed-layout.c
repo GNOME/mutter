@@ -31,8 +31,6 @@
  *
  * #ClutterFixedLayout is a layout manager implementing the same
  * layout policies as #ClutterGroup.
- *
- * Since: 1.2
  */
 
 #include "clutter-build-config.h"
@@ -178,8 +176,6 @@ clutter_fixed_layout_init (ClutterFixedLayout *self)
  * Creates a new #ClutterFixedLayout
  *
  * Return value: the newly created #ClutterFixedLayout
- *
- * Since: 1.2
  */
 ClutterLayoutManager *
 clutter_fixed_layout_new (void)

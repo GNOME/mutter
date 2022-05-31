@@ -54,8 +54,6 @@ typedef struct _ClutterScriptableIface          ClutterScriptableIface;
  * Interface for implementing "scriptable" objects. An object implementing
  * this interface can override the parsing and properties setting sequence
  * when loading a UI definition data with #ClutterScript
- *
- * Since: 0.6
  */
 struct _ClutterScriptableIface
 {

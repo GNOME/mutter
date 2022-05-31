@@ -65,8 +65,6 @@ struct _ClutterLayoutMeta
  *
  * The #ClutterLayoutMetaClass contains only private data and
  * should never be accessed directly
- *
- * Since: 1.2
  */
 struct _ClutterLayoutMetaClass
 {

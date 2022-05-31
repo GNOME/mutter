@@ -36,8 +36,6 @@
  * Every sub-class of #ClutterActorMeta should check if the
  * [property@ActorMeta:enabled] property is set to %TRUE before applying
  * any kind of modification.
- *
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -206,8 +204,6 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
    * ClutterActorMeta:actor:
    *
    * The #ClutterActor attached to the #ClutterActorMeta instance
-   *
-   * Since: 1.4
    */
   obj_props[PROP_ACTOR] =
     g_param_spec_object ("actor",
@@ -221,8 +217,6 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
    * ClutterActorMeta:name:
    *
    * The unique name to access the #ClutterActorMeta
-   *
-   * Since: 1.4
    */
   obj_props[PROP_NAME] =
     g_param_spec_string ("name",
@@ -235,8 +229,6 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
    * ClutterActorMeta:enabled:
    *
    * Whether or not the #ClutterActorMeta is enabled
-   *
-   * Since: 1.4
    */
   obj_props[PROP_ENABLED] =
     g_param_spec_boolean ("enabled",
@@ -271,8 +263,6 @@ clutter_actor_meta_init (ClutterActorMeta *self)
  * Sets the name of @meta
  *
  * The name can be used to identify the #ClutterActorMeta instance
- *
- * Since: 1.4
  */
 void
 clutter_actor_meta_set_name (ClutterActorMeta *meta,
@@ -303,8 +293,6 @@ clutter_actor_meta_set_name (ClutterActorMeta *meta,
  *   instance, or %NULL if none was set. The returned string is owned
  *   by the #ClutterActorMeta instance and it should not be modified
  *   or freed
- *
- * Since: 1.4
  */
 const gchar *
 clutter_actor_meta_get_name (ClutterActorMeta *meta)
@@ -324,8 +312,6 @@ clutter_actor_meta_get_name (ClutterActorMeta *meta)
  * @is_enabled: whether @meta is enabled
  *
  * Sets whether @meta should be enabled or not
- *
- * Since: 1.4
  */
 void
 clutter_actor_meta_set_enabled (ClutterActorMeta *meta,
@@ -351,8 +337,6 @@ clutter_actor_meta_set_enabled (ClutterActorMeta *meta,
  * Retrieves whether @meta is enabled
  *
  * Return value: %TRUE if the #ClutterActorMeta instance is enabled
- *
- * Since: 1.4
  */
 gboolean
 clutter_actor_meta_get_enabled (ClutterActorMeta *meta)
@@ -373,8 +357,6 @@ clutter_actor_meta_get_enabled (ClutterActorMeta *meta)
  *
  * Sets or unsets a back pointer to the #ClutterActor that owns
  * the @meta
- *
- * Since: 1.4
  */
 void
 _clutter_actor_meta_set_actor (ClutterActorMeta *meta,
@@ -393,8 +375,6 @@ _clutter_actor_meta_set_actor (ClutterActorMeta *meta,
  * Retrieves a pointer to the [class@Actor] that owns @meta
  *
  * Return value: (transfer none): a pointer to a #ClutterActor or %NULL
- *
- * Since: 1.4
  */
 ClutterActor *
 clutter_actor_meta_get_actor (ClutterActorMeta *meta)

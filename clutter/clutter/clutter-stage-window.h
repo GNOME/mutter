@@ -18,8 +18,6 @@ G_DECLARE_INTERFACE (ClutterStageWindow, clutter_stage_window,
  * ClutterStageWindowInterface: (skip)
  *
  * The interface implemented by backends for stage windows
- *
- * Since: 0.8
  */
 struct _ClutterStageWindowInterface
 {

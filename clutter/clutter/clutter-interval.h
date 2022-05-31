@@ -59,8 +59,6 @@ struct _ClutterInterval
  *   inside an interval using an adimensional factor between 0 and 1
  *
  * The #ClutterIntervalClass contains only private data.
- *
- * Since: 1.0
  */
 struct _ClutterIntervalClass
 {

@@ -125,8 +125,6 @@
  *   ]
  * }
  * ```
- *
- * Since: 1.2
  */
 
 #include "clutter-build-config.h"
@@ -340,8 +338,6 @@ clutter_layout_manager_class_init (ClutterLayoutManagerClass *klass)
    * can be controlled or changed using parameters should emit the
    * ::layout-changed signal whenever one of the parameters changes,
    * by using clutter_layout_manager_layout_changed().
-   *
-   * Since: 1.2
    */
   manager_signals[LAYOUT_CHANGED] =
     g_signal_new (I_("layout-changed"),
@@ -372,8 +368,6 @@ clutter_layout_manager_init (ClutterLayoutManager *manager)
  * to @manager.
  *
  * See also clutter_actor_get_preferred_width()
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
@@ -407,8 +401,6 @@ clutter_layout_manager_get_preferred_width (ClutterLayoutManager *manager,
  * to @manager.
  *
  * See also clutter_actor_get_preferred_height()
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
@@ -438,8 +430,6 @@ clutter_layout_manager_get_preferred_height (ClutterLayoutManager *manager,
  * Allocates the children of @container given an area
  *
  * See also clutter_actor_allocate()
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_allocate (ClutterLayoutManager   *manager,
@@ -464,8 +454,6 @@ clutter_layout_manager_allocate (ClutterLayoutManager   *manager,
  *
  * This function should only be called by implementations of the
  * #ClutterLayoutManager class
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_layout_changed (ClutterLayoutManager *manager)
@@ -494,8 +482,6 @@ clutter_layout_manager_layout_changed (ClutterLayoutManager *manager)
  *
  * The layout manager should not increase the reference
  * count of the @container
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_set_container (ClutterLayoutManager *manager,
@@ -586,8 +572,6 @@ get_child_meta (ClutterLayoutManager *manager,
  *   #ClutterLayoutManager does not have layout properties. The returned
  *   layout meta instance is owned by the #ClutterLayoutManager and it
  *   should not be unreferenced
- *
- * Since: 1.0
  */
 ClutterLayoutMeta *
 clutter_layout_manager_get_child_meta (ClutterLayoutManager *manager,
@@ -660,8 +644,6 @@ layout_get_property_internal (ClutterLayoutManager *manager,
  *
  * Languages bindings should use clutter_layout_manager_child_set_property()
  * instead
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_child_set (ClutterLayoutManager *manager,
@@ -746,8 +728,6 @@ clutter_layout_manager_child_set (ClutterLayoutManager *manager,
  *
  * Sets a property on the #ClutterLayoutMeta created by @manager and
  * attached to a child of @container
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_child_set_property (ClutterLayoutManager *manager,
@@ -800,8 +780,6 @@ clutter_layout_manager_child_set_property (ClutterLayoutManager *manager,
  * Retrieves the values for a list of properties out of the
  * #ClutterLayoutMeta created by @manager and attached to the
  * child of a @container
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_child_get (ClutterLayoutManager *manager,
@@ -892,8 +870,6 @@ clutter_layout_manager_child_get (ClutterLayoutManager *manager,
  * The #GValue must already be initialized to the type of the property
  * and has to be unset with g_value_unset() after extracting the real
  * value out of it
- *
- * Since: 1.2
  */
 void
 clutter_layout_manager_child_get_property (ClutterLayoutManager *manager,
@@ -947,8 +923,6 @@ clutter_layout_manager_child_get_property (ClutterLayoutManager *manager,
  *   or %NULL if no property with that name exists. The returned
  *   #GParamSpec is owned by the layout manager and should not be
  *   modified or freed
- *
- * Since: 1.2
  */
 GParamSpec *
 clutter_layout_manager_find_child_property (ClutterLayoutManager *manager,
@@ -985,8 +959,6 @@ clutter_layout_manager_find_child_property (ClutterLayoutManager *manager,
  * Return value: (transfer full) (array length=n_pspecs): the newly-allocated,
  *   %NULL-terminated array of `GParamSpec`s. Use g_free() to free the
  *   resources allocated for the array
- *
- * Since: 1.2
  */
 GParamSpec **
 clutter_layout_manager_list_child_properties (ClutterLayoutManager *manager,

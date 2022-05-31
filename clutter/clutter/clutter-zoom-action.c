@@ -42,8 +42,6 @@
  *
  * will automatically result in the actor to be scale according to the
  * distance between two touch points.
- *
- * Since: 1.12
  */
 
 #include "clutter-build-config.h"
@@ -269,8 +267,6 @@ clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
    *
    * Return value: %TRUE if the zoom should continue, and %FALSE if
    *   the zoom should be cancelled.
-   *
-   * Since: 1.12
    */
   zoom_signals[ZOOM] =
     g_signal_new (I_("zoom"),
@@ -301,8 +297,6 @@ clutter_zoom_action_init (ClutterZoomAction *self)
  * Creates a new #ClutterZoomAction instance
  *
  * Return value: the newly created #ClutterZoomAction
- *
- * Since: 1.12
  */
 ClutterAction *
 clutter_zoom_action_new (void)
@@ -316,8 +310,6 @@ clutter_zoom_action_new (void)
  * @point: (out): a #graphene_point_t
  *
  * Retrieves the focal point of the current zoom
- *
- * Since: 1.12
  */
 void
 clutter_zoom_action_get_focal_point (ClutterZoomAction *action,
@@ -336,8 +328,6 @@ clutter_zoom_action_get_focal_point (ClutterZoomAction *action,
  *
  * Retrieves the focal point relative to the actor's coordinates of
  * the current zoom
- *
- * Since: 1.12
  */
 void
 clutter_zoom_action_get_transformed_focal_point (ClutterZoomAction *action,

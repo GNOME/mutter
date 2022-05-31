@@ -28,8 +28,6 @@
  *
  * #ClutterTransition is an abstract subclass of [class@Timeline] that
  * computes the interpolation between two values, stored by a [class@Interval].
- * 
- * Since: 1.10
  */
 
 #include "clutter-build-config.h"
@@ -235,8 +233,6 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    *
    * The [class@Interval] used to describe the initial and final states
    * of the transition.
-   *
-   * Since: 1.10
    */
   obj_props[PROP_INTERVAL] =
     g_param_spec_object ("interval",
@@ -250,8 +246,6 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    * ClutterTransition:animatable:
    *
    * The [iface@Animatable] instance currently being animated.
-   *
-   * Since: 1.10
    */
   obj_props[PROP_ANIMATABLE] =
     g_param_spec_object ("animatable",
@@ -272,8 +266,6 @@ clutter_transition_class_init (ClutterTransitionClass *klass)
    * account the value of the [property@Timeline:repeat-count] property,
    * and it only detaches the transition if the transition is not
    * repeating.
-   *
-   * Since: 1.10
    */
   obj_props[PROP_REMOVE_ON_COMPLETE] =
     g_param_spec_boolean ("remove-on-complete",
@@ -300,8 +292,6 @@ clutter_transition_init (ClutterTransition *self)
  *
  * The @transition will acquire a reference on the @interval, sinking
  * the floating flag on it if necessary.
- *
- * Since: 1.10
  */
 void
 clutter_transition_set_interval (ClutterTransition *transition,
@@ -334,8 +324,6 @@ clutter_transition_set_interval (ClutterTransition *transition,
  * Return value: (transfer none): a [class@Interval], or %NULL; the returned
  *   interval is owned by the #ClutterTransition and it should not be freed
  *   directly
- *
- * Since: 1.10
  */
 ClutterInterval *
 clutter_transition_get_interval (ClutterTransition *transition)
@@ -358,8 +346,6 @@ clutter_transition_get_interval (ClutterTransition *transition)
  * If an existing [iface@Animatable] is attached to @transition, the
  * reference will be released, and the [vfunc@Transition.detached]
  * virtual function will be called.
- *
- * Since: 1.10
  */
 void
 clutter_transition_set_animatable (ClutterTransition *transition,
@@ -400,8 +386,6 @@ clutter_transition_set_animatable (ClutterTransition *transition,
  * Return value: (transfer none): a [iface@Animatable], or %NULL; the returned
  *   animatable is owned by the #ClutterTransition, and it should not be freed
  *   directly.
- *
- * Since: 1.10
  */
 ClutterAnimatable *
 clutter_transition_get_animatable (ClutterTransition *transition)
@@ -419,8 +403,6 @@ clutter_transition_get_animatable (ClutterTransition *transition)
  * Sets whether @transition should be detached from the [iface@Animatable]
  * set using [method@Transition.set_animatable] when the
  * [signal@Timeline::completed] signal is emitted.
- *
- * Since: 1.10
  */
 void
 clutter_transition_set_remove_on_complete (ClutterTransition *transition,
@@ -447,8 +429,6 @@ clutter_transition_set_remove_on_complete (ClutterTransition *transition,
  *
  * Return value: %TRUE if the @transition should be detached when complete,
  *   and %FALSE otherwise
- *
- * Since: 1.10
  */
 gboolean
 clutter_transition_get_remove_on_complete (ClutterTransition *transition)
@@ -530,8 +510,6 @@ clutter_transition_set_value (ClutterTransition *transition,
  * as the interval's [property@Interval:value-type] property.
  *
  * This function is meant to be used by language bindings.
- *
- * Since: 1.12
  */
 void
 clutter_transition_set_from_value (ClutterTransition *transition,
@@ -564,8 +542,6 @@ clutter_transition_set_from_value (ClutterTransition *transition,
  * as the interval's [property@Interval:value-type] property.
  *
  * This function is meant to be used by language bindings.
- *
- * Since: 1.12
  */
 void
 clutter_transition_set_to_value (ClutterTransition *transition,
@@ -597,8 +573,6 @@ clutter_transition_set_to_value (ClutterTransition *transition,
  *
  * This is a convenience function for the C API; language bindings
  * should use [method@Transition.set_from_value] instead.
- *
- * Since: 1.12
  */
 void
 clutter_transition_set_from (ClutterTransition *transition,
@@ -650,8 +624,6 @@ clutter_transition_set_from (ClutterTransition *transition,
  *
  * This is a convenience function for the C API; language bindings
  * should use [method@Transition.set_to_value] instead.
- *
- * Since: 1.12
  */
 void
 clutter_transition_set_to (ClutterTransition *transition,

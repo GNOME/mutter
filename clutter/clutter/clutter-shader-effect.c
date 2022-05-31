@@ -108,8 +108,6 @@
  *    return parent_class->paint_target (effect);
  *  }
  * ```
- * 
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -452,8 +450,6 @@ clutter_shader_effect_class_init (ClutterShaderEffectClass *klass)
    * The type of shader that is used by the effect. This property
    * should be set by the constructor of #ClutterShaderEffect
    * sub-classes.
-   *
-   * Since: 1.4
    */
   obj_props[PROP_SHADER_TYPE] =
     g_param_spec_enum ("shader-type",
@@ -494,8 +490,6 @@ clutter_shader_effect_init (ClutterShaderEffect *effect)
  *
  * Return value: the newly created #ClutterShaderEffect.
  *   Use g_object_unref() when done.
- *
- * Since: 1.8
  */
 ClutterEffect *
 clutter_shader_effect_new (ClutterShaderType shader_type)
@@ -513,8 +507,6 @@ clutter_shader_effect_new (ClutterShaderType shader_type)
  *
  * Return value: (transfer none): a pointer to the shader's handle,
  *   or %NULL
- *
- * Since: 1.4
  */
 CoglHandle
 clutter_shader_effect_get_shader (ClutterShaderEffect *effect)
@@ -533,8 +525,6 @@ clutter_shader_effect_get_shader (ClutterShaderEffect *effect)
  *
  * Return value: (transfer none): a pointer to the program's handle,
  *   or %NULL
- *
- * Since: 1.4
  */
 CoglHandle
 clutter_shader_effect_get_program (ClutterShaderEffect *effect)
@@ -630,8 +620,6 @@ clutter_shader_effect_add_uniform (ClutterShaderEffect *effect,
  * and %CLUTTER_TYPE_SHADER_MATRIX, for a matrix of floating point
  * values. It also accepts %G_TYPE_DOUBLE for compatibility with other
  * languages than C.
- *
- * Since: 1.4
  */
 void
 clutter_shader_effect_set_uniform_value (ClutterShaderEffect *effect,
@@ -820,8 +808,6 @@ add_uniform:
  *                                      CLUTTER_TYPE_SHADER_MATRIX,
  *                                      1, v);
  * ```
- *
- * Since: 1.4
  */
 void
 clutter_shader_effect_set_uniform (ClutterShaderEffect *effect,
@@ -859,8 +845,6 @@ clutter_shader_effect_set_uniform (ClutterShaderEffect *effect,
  * yield no result.
  *
  * Return value: %TRUE if the source was set
- *
- * Since: 1.4
  */
 gboolean
 clutter_shader_effect_set_shader_source (ClutterShaderEffect *effect,

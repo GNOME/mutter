@@ -49,8 +49,6 @@ G_BEGIN_DECLS
  * an actor is scaled keeping the position of the specified portion 
  * at the same coordinates.
  *
- * Since: 0.2
- *
  * Deprecated: 1.22: Use the normalized #ClutterActor pivot point instead
  */
 typedef enum /*< prefix=CLUTTER_GRAVITY >*/
@@ -74,8 +72,6 @@ typedef enum /*< prefix=CLUTTER_GRAVITY >*/
  * @CLUTTER_Z_AXIS: Rotate around the Z axis
  *
  * Axis of a rotation.
- *
- * Since: 0.4
  */
 typedef enum /*< prefix=CLUTTER >*/
 {
@@ -90,8 +86,6 @@ typedef enum /*< prefix=CLUTTER >*/
  * @CLUTTER_ROTATE_CCW: Counter-clockwise rotation
  *
  * Direction of a rotation.
- *
- * Since: 0.4
  *
  * Deprecated: 1.22
  */
@@ -109,8 +103,6 @@ typedef enum /*< prefix=CLUTTER_ROTATE >*/
  *   #ClutterContent, if it has any (available since 1.22)
  *
  * Specifies the type of requests for a #ClutterActor.
- *
- * Since: 0.8
  */
 typedef enum /*< prefix=CLUTTER_REQUEST >*/
 {
@@ -204,8 +196,6 @@ typedef enum /*< prefix=CLUTTER_REQUEST >*/
  * Every global alpha function registered using clutter_alpha_register_func()
  * or clutter_alpha_register_closure() will have a logical id greater than
  * %CLUTTER_ANIMATION_LAST.
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -288,8 +278,6 @@ typedef enum
  * @CLUTTER_TEXT_DIRECTION_RTL: Use right-to-left text direction
  *
  * The text direction to be used by [class@Actor]s
- *
- * Since: 1.2
  */
 typedef enum
 {
@@ -304,8 +292,6 @@ typedef enum
  * @CLUTTER_FRAGMENT_SHADER: a fragment shader
  *
  * The type of GLSL shader program
- *
- * Since: 1.4
  */
 typedef enum
 {
@@ -340,8 +326,6 @@ typedef enum
  * reserved values such as %CLUTTER_MODIFIER_RESERVED_13_MASK.  Your code
  * should preserve and ignore them.  You can use %CLUTTER_MODIFIER_MASK to
  * remove all reserved values.
- *
- * Since: 0.4
  */
 typedef enum
 {
@@ -509,8 +493,6 @@ typedef enum /*< prefix=CLUTTER_ACTOR >*/
  *   on stage.
  *
  * Possible flags to pass to clutter_actor_set_offscreen_redirect().
- *
- * Since: 1.8
  */
 typedef enum /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
 {
@@ -527,8 +509,6 @@ typedef enum /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
  *
  * Specifies the axis on which #ClutterAlignConstraint should maintain
  * the alignment.
- *
- * Since: 1.4
  */
 typedef enum /*< prefix=CLUTTER_ALIGN >*/
 {
@@ -543,8 +523,6 @@ typedef enum /*< prefix=CLUTTER_ALIGN >*/
  * @CLUTTER_INTERPOLATION_CUBIC: cubic interpolation
  *
  * The mode of interpolation between key frames
- *
- * Since: 1.2
  *
  * Deprecated: 1.22
  */
@@ -568,8 +546,6 @@ typedef enum
  *   center of the container, depending on the axis
  *
  * The alignment policies available on each axis for #ClutterBinLayout
- *
- * Since: 1.2
  *
  * Deprecated: 1.12: Use #ClutterActorAlign and the #ClutterActor
  *   API instead
@@ -597,8 +573,6 @@ typedef enum
  *   %CLUTTER_BIND_SIZE (added in Clutter 1.10)
  *
  * Specifies which property should be used in a binding
- *
- * Since: 1.4
  */
 typedef enum /*< prefix=CLUTTER_BIND >*/
 {
@@ -637,8 +611,6 @@ typedef enum /*< prefix=CLUTTER_EFFECT_PAINT >*/
  *   the right, depending on the used axis
  *
  * The alignment policies available on each axis of the #ClutterBoxLayout
- *
- * Since: 1.2
  */
 typedef enum
 {
@@ -655,8 +627,6 @@ typedef enum
  * @CLUTTER_LONG_PRESS_CANCEL: The long press was cancelled
  *
  * The states for the #ClutterClickAction::long-press signal.
- *
- * Since: 1.8
  */
 typedef enum /*< prefix=CLUTTER_LONG_PRESS >*/
 {
@@ -714,8 +684,6 @@ typedef enum /*< prefix=CLUTTER_LONG_PRESS >*/
  * @CLUTTER_COLOR_TRANSPARENT: Transparent color (00000000)
  *
  * Named colors, for accessing global colors defined by Clutter
- *
- * Since: 1.6
  */
 typedef enum /*< prefix=CLUTTER_COLOR >*/
 {
@@ -779,8 +747,6 @@ typedef enum /*< prefix=CLUTTER_COLOR >*/
  *
  * The axis of the constraint that should be applied on the
  * dragging action
- *
- * Since: 1.4
  */
 typedef enum /*< prefix=CLUTTER_DRAG >*/
 {
@@ -797,8 +763,6 @@ typedef enum /*< prefix=CLUTTER_DRAG >*/
  * @CLUTTER_EVENT_FLAG_REPEATED: Auto-repeated event
  *
  * Flags for the #ClutterEvent
- *
- * Since: 0.6
  */
 typedef enum /*< flags prefix=CLUTTER_EVENT >*/
 {
@@ -846,8 +810,6 @@ typedef enum /*< flags prefix=CLUTTER_EVENT >*/
  *   added in 1.10
  *
  * Types of events.
- *
- * Since: 0.4
  */
 typedef enum /*< prefix=CLUTTER >*/
 {
@@ -894,8 +856,6 @@ typedef enum /*< prefix=CLUTTER >*/
  *
  * The %CLUTTER_SCROLL_SMOOTH value implies that the #ClutterScrollEvent
  * has precise scrolling delta information.
- *
- * Since: 0.4
  */
 typedef enum /*< prefix=CLUTTER_SCROLL >*/
 {
@@ -915,8 +875,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  *
  * The direction of the arrangement of the children inside
  * a #ClutterFlowLayout
- *
- * Since: 1.2
  */
 typedef enum /*< prefix=CLUTTER_FLOW >*/
 {
@@ -966,8 +924,6 @@ typedef enum /*< prefix=CLUTTER_INPUT_CAPABILITY >*/
  *
  * The #ClutterInputDeviceType enumeration can be extended at later
  * date; not every platform supports every input device type.
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -995,8 +951,6 @@ typedef enum
  *   to a logical device
  *
  * The mode for input devices available.
- *
- * Since: 1.6
  */
 typedef enum
 {
@@ -1021,8 +975,6 @@ typedef enum
  *   useful when iterating over the enumeration values (Since 1.12)
  *
  * The type of axes Clutter recognizes on a #ClutterInputDevice
- *
- * Since: 1.6
  */
 typedef enum
 {
@@ -1063,8 +1015,6 @@ typedef enum
  * @CLUTTER_SNAP_EDGE_LEFT: the left edge
  *
  * The edge to snap
- *
- * Since: 1.6
  */
 typedef enum
 {
@@ -1081,8 +1031,6 @@ typedef enum
  * @CLUTTER_PICK_ALL: Paint all actors
  *
  * Controls the paint cycle of the scene graph when in pick mode
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -1099,8 +1047,6 @@ typedef enum
  * @CLUTTER_SWIPE_DIRECTION_RIGHT: Rightwards swipe gesture
  *
  * The main direction of the swipe gesture
- *
- * Since: 1.8
  */
 typedef enum /*< prefix=CLUTTER_SWIPE_DIRECTION >*/
 {
@@ -1120,8 +1066,6 @@ typedef enum /*< prefix=CLUTTER_SWIPE_DIRECTION >*/
  *
  * The axis of the constraint that should be applied on the
  * panning action
- *
- * Since: 1.12
  */
 typedef enum /*< prefix=CLUTTER_PAN >*/
 {
@@ -1141,8 +1085,6 @@ typedef enum /*< prefix=CLUTTER_PAN >*/
  * @CLUTTER_TEXTURE_YUV_FLAG_YUV2: Unused flag
  *
  * Flags for clutter_texture_set_from_rgb_data().
- *
- * Since: 0.4
  *
  * Deprecated: 1.22: The #ClutterTexture class was the only user of
  *   this API
@@ -1166,8 +1108,6 @@ typedef enum /*< prefix=CLUTTER_TEXTURE >*/
  *
  * Enumaration controlling the texture quality.
  *
- * Since: 0.8
- *
  * Deprecated: 1.22: The #ClutterTexture class was the only user of
  *   this API; use #ClutterImage and clutter_actor_set_content_scaling_filters()
  *   instead.
@@ -1185,8 +1125,6 @@ typedef enum /*< prefix=CLUTTER_TEXTURE_QUALITY >*/
  * @CLUTTER_TIMELINE_BACKWARD: backward direction for a timeline
  *
  * The direction of a #ClutterTimeline
- *
- * Since: 0.6
  */
 typedef enum
 {
@@ -1205,8 +1143,6 @@ typedef enum
  * The type of unit in which a value is expressed
  *
  * This enumeration might be expanded at later date
- *
- * Since: 1.0
  */
 typedef enum /*< prefix=CLUTTER_UNIT >*/
 {
@@ -1236,8 +1172,6 @@ typedef enum /*< prefix=CLUTTER_UNIT >*/
  *   coordinates relative to the last node.
  *
  * Types of nodes in a #ClutterPath.
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -1268,8 +1202,6 @@ typedef enum
  * Alignment only matters if the allocated space given to an actor is
  * bigger than its natural size; for example, when the #ClutterActor:x-expand
  * or the #ClutterActor:y-expand properties of #ClutterActor are set to %TRUE.
- *
- * Since: 1.10
  */
 typedef enum
 {
@@ -1287,8 +1219,6 @@ typedef enum
  *   painting the stages
  *
  * Flags to pass to clutter_threads_add_repaint_func_full().
- *
- * Since: 1.10
  */
 typedef enum
 {
@@ -1312,8 +1242,6 @@ typedef enum
  *   allocation, while maintaining the aspect ratio
  *
  * Controls the alignment of the #ClutterContent inside a #ClutterActor.
- *
- * Since: 1.10
  */
 typedef enum
 {
@@ -1343,8 +1271,6 @@ typedef enum
  *
  * The scaling filters to be used with the [property@Actor:minification-filter]
  * and [property@Actor:magnification-filter] properties.
- *
- * Since: 1.10
  */
 typedef enum
 {
@@ -1359,8 +1285,6 @@ typedef enum
  * @CLUTTER_ORIENTATION_VERTICAL: A vertical orientation
  *
  * Represents the orientation of actors or layout managers.
- *
- * Since: 1.12
  */
 typedef enum
 {
@@ -1376,8 +1300,6 @@ typedef enum
  * @CLUTTER_SCROLL_BOTH: Scroll in both directions
  *
  * Scroll modes.
- *
- * Since: 1.12
  */
 typedef enum /*< prefix=CLUTTER_SCROLL >*/
 {
@@ -1397,8 +1319,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  * @CLUTTER_GRID_POSITION_BOTTOM: bottom position
  *
  * Grid position modes.
- *
- * Since: 1.12
  */
 typedef enum
 {
@@ -1416,8 +1336,6 @@ typedef enum
  * @CLUTTER_REPEAT_BOTH: Repeat the content on both axis
  *
  * Content repeat modes.
- *
- * Since: 1.12
  */
 typedef enum
 {
@@ -1454,8 +1372,6 @@ typedef enum
  * Change the value transition of a step function.
  *
  * See clutter_timeline_set_step_progress().
- *
- * Since: 1.12
  */
 typedef enum
 {
@@ -1477,8 +1393,6 @@ typedef enum
  *
  * Enum passed to the [method@GestureAction.set_threshold_trigger_edge]
  * function.
- *
- * Since: 1.18
  */
 typedef enum
 {
@@ -1515,9 +1429,7 @@ typedef enum
  * to undo any visible/permanent changes that were done throughout the
  * progress of the gesture.
  *
- * See also #ClutterTouchpadPinchEvent and #ClutterTouchpadPinchEvent.
- *
- * Since: 1.24
+ * See also #ClutterTouchpadPinchEvent and #ClutterTouchpadPinchEvent.4
  */
 typedef enum
 {
@@ -1539,9 +1451,7 @@ typedef enum
  * The scroll source determines the source of the scroll event. 
  * 
  * Keep in mind that the source device #ClutterInputDeviceType is not enough
- * to infer the scroll source.
- *
- * Since: 1.26
+ * to infer the scroll source.6
  */
 typedef enum
 {
@@ -1559,9 +1469,7 @@ typedef enum
  *
  * Flags used to notify the axes that were stopped in a #ClutterScrollEvent.
  * 
- * These can be used to trigger post-scroll effects like kinetic scrolling.
- *
- * Since: 1.26
+ * These can be used to trigger post-scroll effects like kinetic scrolling.6
  */
 typedef enum
 {
@@ -1581,9 +1489,7 @@ typedef enum
  * @CLUTTER_INPUT_DEVICE_TOOL_MOUSE: The tool is a mouse
  * @CLUTTER_INPUT_DEVICE_TOOL_LENS: The tool is a lens
  *
- * Defines the type of tool that a #ClutterInputDeviceTool represents.
- *
- * Since: 1.28
+ * Defines the type of tool that a #ClutterInputDeviceTool represents.8
  */
 typedef enum
 {

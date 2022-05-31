@@ -62,8 +62,6 @@ struct _ClutterTransition
  *
  * The #ClutterTransitionClass structure contains
  * private data.
- *
- * Since: 1.10
  */
 struct _ClutterTransitionClass
 {

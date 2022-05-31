@@ -49,8 +49,6 @@
  *
  * The [flow-layout example](https://git.gnome.org/browse/clutter/tree/examples/flow-layout.c?h=clutter-1.18)
  * shows how to use the #ClutterFlowLayout.
- *
- * Since: 1.2
  */
 
 #include "clutter-build-config.h"
@@ -917,8 +915,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * of the layout will be laid out following the orientation.
    *
    * This property also controls the overflowing directions
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_ORIENTATION] =
     g_param_spec_enum ("orientation",
@@ -933,8 +929,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    *
    * Whether each child inside the #ClutterFlowLayout should receive
    * the same allocation
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_HOMOGENEOUS] =
     g_param_spec_boolean ("homogeneous",
@@ -949,8 +943,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * The spacing between columns, in pixels; the value of this
    * property is honoured by horizontal non-overflowing layouts
    * and by vertical overflowing layouts
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_COLUMN_SPACING] =
     g_param_spec_float ("column-spacing",
@@ -966,8 +958,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * The spacing between rows, in pixels; the value of this
    * property is honoured by vertical non-overflowing layouts and
    * by horizontal overflowing layouts
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_ROW_SPACING] =
     g_param_spec_float ("row-spacing",
@@ -981,8 +971,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * ClutterFlowLayout:min-column-width:
    *
    * Minimum width for each column in the layout, in pixels
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_MIN_COLUMN_WIDTH] =
     g_param_spec_float ("min-column-width",
@@ -997,8 +985,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    *
    * Maximum width for each column in the layout, in pixels. If
    * set to -1 the width will be the maximum child width
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_MAX_COLUMN_WIDTH] =
     g_param_spec_float ("max-column-width",
@@ -1012,8 +998,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * ClutterFlowLayout:min-row-height:
    *
    * Minimum height for each row in the layout, in pixels
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_MIN_ROW_HEGHT] =
     g_param_spec_float ("min-row-height",
@@ -1028,8 +1012,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    *
    * Maximum height for each row in the layout, in pixels. If
    * set to -1 the width will be the maximum child height
-   *
-   * Since: 1.2
    */
   flow_properties[PROP_MAX_ROW_HEIGHT] =
     g_param_spec_float ("max-row-height",
@@ -1044,8 +1026,6 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    *
    * Whether the #ClutterFlowLayout should arrange its children
    * on a grid
-   *
-   * Since: 1.16
    */
   flow_properties[PROP_SNAP_TO_GRID] =
     g_param_spec_boolean ("snap-to-grid",
@@ -1089,8 +1069,6 @@ clutter_flow_layout_init (ClutterFlowLayout *self)
  * Creates a new #ClutterFlowLayout with the given @orientation
  *
  * Return value: the newly created #ClutterFlowLayout
- *
- * Since: 1.2
  */
 ClutterLayoutManager *
 clutter_flow_layout_new (ClutterFlowOrientation orientation)
@@ -1110,8 +1088,6 @@ clutter_flow_layout_new (ClutterFlowOrientation orientation)
  * The orientation controls the direction used to allocate
  * the children: either horizontally or vertically. The
  * orientation also controls the direction of the overflowing
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_set_orientation (ClutterFlowLayout      *layout,
@@ -1158,8 +1134,6 @@ clutter_flow_layout_set_orientation (ClutterFlowLayout      *layout,
  * Retrieves the orientation of the @layout
  *
  * Return value: the orientation of the #ClutterFlowLayout
- *
- * Since: 1.2
  */
 ClutterFlowOrientation
 clutter_flow_layout_get_orientation (ClutterFlowLayout *layout)
@@ -1177,8 +1151,6 @@ clutter_flow_layout_get_orientation (ClutterFlowLayout *layout)
  *
  * Sets whether the @layout should allocate the same space for
  * each child
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_set_homogeneous (ClutterFlowLayout *layout,
@@ -1211,8 +1183,6 @@ clutter_flow_layout_set_homogeneous (ClutterFlowLayout *layout,
  * Retrieves whether the @layout is homogeneous
  *
  * Return value: %TRUE if the #ClutterFlowLayout is homogeneous
- *
- * Since: 1.2
  */
 gboolean
 clutter_flow_layout_get_homogeneous (ClutterFlowLayout *layout)
@@ -1228,8 +1198,6 @@ clutter_flow_layout_get_homogeneous (ClutterFlowLayout *layout)
  * @spacing: the space between columns
  *
  * Sets the space between columns, in pixels
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_set_column_spacing (ClutterFlowLayout *layout,
@@ -1263,8 +1231,6 @@ clutter_flow_layout_set_column_spacing (ClutterFlowLayout *layout,
  *
  * Return value: the spacing between columns of the #ClutterFlowLayout,
  *   in pixels
- *
- * Since: 1.2
  */
 gfloat
 clutter_flow_layout_get_column_spacing (ClutterFlowLayout *layout)
@@ -1280,8 +1246,6 @@ clutter_flow_layout_get_column_spacing (ClutterFlowLayout *layout)
  * @spacing: the space between rows
  *
  * Sets the spacing between rows, in pixels
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_set_row_spacing (ClutterFlowLayout *layout,
@@ -1315,8 +1279,6 @@ clutter_flow_layout_set_row_spacing (ClutterFlowLayout *layout,
  *
  * Return value: the spacing between rows of the #ClutterFlowLayout,
  *   in pixels
- *
- * Since: 1.2
  */
 gfloat
 clutter_flow_layout_get_row_spacing (ClutterFlowLayout *layout)
@@ -1333,8 +1295,6 @@ clutter_flow_layout_get_row_spacing (ClutterFlowLayout *layout)
  * @max_width: maximum width of a column
  *
  * Sets the minimum and maximum widths that a column can have
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_set_column_width (ClutterFlowLayout *layout,
@@ -1389,8 +1349,6 @@ clutter_flow_layout_set_column_width (ClutterFlowLayout *layout,
  * @max_width: (out): return location for the maximum column width, or %NULL
  *
  * Retrieves the minimum and maximum column widths
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_get_column_width (ClutterFlowLayout *layout,
@@ -1413,8 +1371,6 @@ clutter_flow_layout_get_column_width (ClutterFlowLayout *layout,
  * @max_height: the maximum height of a row
  *
  * Sets the minimum and maximum heights that a row can have
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_set_row_height (ClutterFlowLayout *layout,
@@ -1469,8 +1425,6 @@ clutter_flow_layout_set_row_height (ClutterFlowLayout *layout,
  * @max_height: (out): return location for the maximum row height, or %NULL
  *
  * Retrieves the minimum and maximum row heights
- *
- * Since: 1.2
  */
 void
 clutter_flow_layout_get_row_height (ClutterFlowLayout *layout,
@@ -1492,8 +1446,6 @@ clutter_flow_layout_get_row_height (ClutterFlowLayout *layout,
  * @snap_to_grid: %TRUE if @layout should place its children on a grid
  *
  * Whether the @layout should place its children on a grid.
- *
- * Since: 1.16
  */
 void
 clutter_flow_layout_set_snap_to_grid (ClutterFlowLayout *layout,
@@ -1523,8 +1475,6 @@ clutter_flow_layout_set_snap_to_grid (ClutterFlowLayout *layout,
  * Retrieves the value of #ClutterFlowLayout:snap-to-grid property
  *
  * Return value: %TRUE if the @layout is placing its children on a grid
- *
- * Since: 1.16
  */
 gboolean
 clutter_flow_layout_get_snap_to_grid (ClutterFlowLayout *layout)

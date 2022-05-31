@@ -49,8 +49,6 @@
  *   clutter_actor_set_reactive (actor, TRUE);
  *   g_signal_connect (action, "tap", G_CALLBACK (on_tap_callback), NULL);
  * ```
- *
- * Since: 1.14
  */
 
 #include "clutter-build-config.h"
@@ -114,8 +112,6 @@ clutter_tap_action_class_init (ClutterTapActionClass *klass)
    * @actor: the #ClutterActor attached to the @action
    *
    * The signal is emitted when the tap gesture is complete.
-   *
-   * Since: 1.14
    */
   tap_signals[TAP] =
     g_signal_new (I_("tap"),
@@ -138,8 +134,6 @@ clutter_tap_action_init (ClutterTapAction *self)
  * Creates a new #ClutterTapAction instance
  *
  * Return value: the newly created #ClutterTapAction
- *
- * Since: 1.14
  */
 ClutterAction *
 clutter_tap_action_new (void)

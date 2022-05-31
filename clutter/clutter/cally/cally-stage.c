@@ -32,8 +32,6 @@
  * related signals), although the real purpose of [class@Clutter.Stage] is
  * being a canvas. Anyway, this is required for applications using
  * just clutter, or directly [class@Clutter.Stage]
- * 
- * Since: 1.4
  */
 #include "clutter-build-config.h"
 
@@ -97,8 +95,6 @@ cally_stage_init (CallyStage *cally_stage)
  * [class@Clutter.Stage].
  *
  * Return value: the newly created #AtkObject
- *
- * Since: 1.4
  */
 AtkObject*
 cally_stage_new (ClutterActor *actor)

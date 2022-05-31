@@ -160,9 +160,7 @@ clutter_input_device_tool_init (ClutterInputDeviceTool *tool)
  * Gets the serial of this tool, this value can be used to identify a
  * physical tool (eg. a tablet pen) across program executions.
  *
- * Returns: The serial ID for this tool
- *
- * Since: 1.28
+ * Returns: The serial ID for this tool8
  **/
 guint64
 clutter_input_device_tool_get_serial (ClutterInputDeviceTool *tool)
@@ -183,9 +181,7 @@ clutter_input_device_tool_get_serial (ClutterInputDeviceTool *tool)
  *
  * Gets the tool type of this tool.
  *
- * Returns: The tool type of this tool
- *
- * Since: 1.28
+ * Returns: The tool type of this tool8
  **/
 ClutterInputDeviceToolType
 clutter_input_device_tool_get_tool_type (ClutterInputDeviceTool *tool)

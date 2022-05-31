@@ -34,8 +34,6 @@
  * [vfunc@Animatable.interpolate_value] virtual function of the
  * interface to compute the animation state between two values of an interval
  * depending on a progress factor, expressed as a floating point value.
- *
- * Since: 1.0
  */
 
 #include "clutter-build-config.h"
@@ -61,8 +59,6 @@ clutter_animatable_default_init (ClutterAnimatableInterface *iface)
  *
  * Return value: (transfer none): The #GParamSpec for the given property
  *   or %NULL
- *
- * Since: 1.4
  */
 GParamSpec *
 clutter_animatable_find_property (ClutterAnimatable *animatable,
@@ -90,8 +86,6 @@ clutter_animatable_find_property (ClutterAnimatable *animatable,
  * @value: a #GValue initialized to the type of the property to retrieve
  *
  * Retrieves the current state of @property_name and sets @value with it
- *
- * Since: 1.4
  */
 void
 clutter_animatable_get_initial_state (ClutterAnimatable *animatable,
@@ -119,8 +113,6 @@ clutter_animatable_get_initial_state (ClutterAnimatable *animatable,
  * @value: the value of the animatable property to set
  *
  * Sets the current state of @property_name to @value
- *
- * Since: 1.4
  */
 void
 clutter_animatable_set_final_state (ClutterAnimatable *animatable,
@@ -163,8 +155,6 @@ clutter_animatable_set_final_state (ClutterAnimatable *animatable,
  *
  * Return value: %TRUE if the interpolation was successful,
  *   and %FALSE otherwise
- *
- * Since: 1.8
  */
 gboolean
 clutter_animatable_interpolate_value (ClutterAnimatable *animatable,

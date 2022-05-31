@@ -29,8 +29,6 @@
  *
  * #ClutterBlurEffect is a sub-class of #ClutterEffect that allows blurring a
  * actor and its contents.
- *
- * Since: 1.4
  */
 
 #define CLUTTER_BLUR_EFFECT_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BLUR_EFFECT, ClutterBlurEffectClass))
@@ -209,8 +207,6 @@ clutter_blur_effect_init (ClutterBlurEffect *self)
  * clutter_actor_add_effect()
  *
  * Return value: the newly created #ClutterBlurEffect or %NULL
- *
- * Since: 1.4
  */
 ClutterEffect *
 clutter_blur_effect_new (void)

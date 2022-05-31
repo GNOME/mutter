@@ -36,8 +36,6 @@ G_BEGIN_DECLS
  * The #CoglPixelFormat to be used when uploading image data from
  * and to a Cairo image surface using %CAIRO_FORMAT_ARGB32 and
  * %CAIRO_FORMAT_RGB24 as #cairo_format_t.
- *
- * Since: 1.8
  */
 
 /* Cairo stores the data in native byte order as ARGB but Cogl's pixel

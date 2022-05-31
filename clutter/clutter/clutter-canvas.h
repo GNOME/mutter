@@ -58,8 +58,6 @@ struct _ClutterCanvas
  *
  * The #ClutterCanvasClass structure contains
  * private data.
- *
- * Since: 1.10
  */
 struct _ClutterCanvasClass
 {

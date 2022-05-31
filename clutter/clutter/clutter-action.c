@@ -36,8 +36,6 @@
  * provide behavioral changes when dealing with user input - for instance
  * drag and drop capabilities, or scrolling, or panning - by using the
  * various event-related signals provided by [class@Actor] itself.
- *
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"

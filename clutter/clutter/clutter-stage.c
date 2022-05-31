@@ -33,8 +33,6 @@
  * (a #StageWindow) of the windowing system. It is possible to subclass
  * #ClutterStage, as long as every overridden virtual function chains up to the
  * parent class corresponding function.
- * 
- * Since: 0.2
  */
 
 #include "clutter-build-config.h"
@@ -1327,8 +1325,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * The parameters used for the perspective projection from 3D
    * coordinates to 2D
-   *
-   * Since: 0.8
    */
   obj_props[PROP_PERSPECTIVE] =
       g_param_spec_boxed ("perspective",
@@ -1342,8 +1338,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * ClutterStage:title:
    *
    * The stage's title - usually displayed in stage windows title decorations.
-   *
-   * Since: 0.4
    */
   obj_props[PROP_TITLE] =
       g_param_spec_string ("title",
@@ -1360,8 +1354,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * windowing system.
    *
    * If %NULL, the #ClutterStage will receive the events.
-   *
-   * Since: 1.2
    */
   obj_props[PROP_KEY_FOCUS] =
       g_param_spec_object ("key-focus",
@@ -1379,8 +1371,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * The signal is emitted when the stage receives key focus
    * from the underlying window system.
-   *
-   * Since: 0.6
    */
   stage_signals[ACTIVATE] =
     g_signal_new (I_("activate"),
@@ -1395,8 +1385,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * The signal is emitted when the stage loses key focus
    * from the underlying window system.
-   *
-   * Since: 0.6
    */
   stage_signals[DEACTIVATE] =
     g_signal_new (I_("deactivate"),
@@ -1457,9 +1445,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * @view: a #ClutterStageView
    *
    * The signal is emitted after the stage is painted,
-   * but before the results are displayed on the screen.
-   *
-   * Since: 1.20
+   * but before the results are displayed on the screen.0
    */
   stage_signals[AFTER_PAINT] =
     g_signal_new (I_("after-paint"),
@@ -1663,8 +1649,6 @@ clutter_stage_get_perspective (ClutterStage       *stage,
  *
  * Retrieves the @stage's projection matrix. This is derived from the
  * current perspective.
- *
- * Since: 1.6
  */
 void
 _clutter_stage_get_projection_matrix (ClutterStage      *stage,
@@ -1730,8 +1714,6 @@ _clutter_stage_dirty_projection (ClutterStage *stage)
  * offsets and sizes for viewports but the interface takes floats because
  * OpenGL 4.0 has introduced floating point viewports which we might
  * want to expose via this API eventually.
- *
- * Since: 1.6
  */
 static void
 clutter_stage_set_viewport (ClutterStage *stage,
@@ -1805,8 +1787,6 @@ _clutter_stage_dirty_viewport (ClutterStage *stage)
  * clutter_stage_set_viewport() or if the "viewport-mimics-window" property
  * is TRUE then @x and @y will be set to 0 and @width and @height will equal
  * the width if the stage window.
- *
- * Since: 1.6
  */
 void
 _clutter_stage_get_viewport (ClutterStage *stage,
@@ -1963,8 +1943,6 @@ clutter_stage_get_actor_at_pos (ClutterStage    *stage,
  * @title: A utf8 string for the stage windows title.
  *
  * Sets the stage title.
- *
- * Since: 0.4
  **/
 void
 clutter_stage_set_title (ClutterStage       *stage,
@@ -1996,8 +1974,6 @@ clutter_stage_set_title (ClutterStage       *stage,
  * Return value: pointer to the title string for the stage. The
  * returned string is owned by the actor and should not
  * be modified or freed.
- *
- * Since: 0.4
  **/
 const gchar *
 clutter_stage_get_title (ClutterStage       *stage)
@@ -2015,8 +1991,6 @@ clutter_stage_get_title (ClutterStage       *stage)
  * Sets the key focus on @actor. An actor with key focus will receive
  * all the key events. If @actor is %NULL, the stage will receive
  * focus.
- *
- * Since: 0.6
  */
 void
 clutter_stage_set_key_focus (ClutterStage *stage,
@@ -2088,8 +2062,6 @@ clutter_stage_set_key_focus (ClutterStage *stage,
  * Retrieves the actor that is currently under key focus.
  *
  * Return value: (transfer none): the actor with key focus, or the stage
- *
- * Since: 0.6
  */
 ClutterActor *
 clutter_stage_get_key_focus (ClutterStage *stage)
@@ -2136,8 +2108,6 @@ G_DEFINE_BOXED_TYPE (ClutterPerspective, clutter_perspective,
  * This function should not be called by applications; it is used
  * when embedding a #ClutterStage into a toolkit with another
  * windowing system, like GTK+.
- *
- * Since: 1.0
  */
 void
 clutter_stage_ensure_viewport (ClutterStage *stage)

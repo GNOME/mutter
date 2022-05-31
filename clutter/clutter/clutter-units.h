@@ -121,8 +121,6 @@ gchar *         clutter_units_to_string        (const ClutterUnits *units);
  * @x: a #GValue
  *
  * Evaluates to %TRUE if @x holds a #ClutterUnits value
- *
- * Since: 0.8
  */
 #define CLUTTER_VALUE_HOLDS_UNITS(x)    (G_VALUE_HOLDS ((x), CLUTTER_TYPE_UNITS))
 
@@ -136,8 +134,6 @@ typedef struct _ClutterParamSpecUnits   ClutterParamSpecUnits;
  * @maximum: higher boundary
  *
  * #GParamSpec subclass for unit based properties.
- *
- * Since: 1.0
  */
 struct _ClutterParamSpecUnits
 {

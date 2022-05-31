@@ -91,8 +91,6 @@ G_DEFINE_BOXED_TYPE (ClutterEventSequence, clutter_event_sequence,
  * Retrieves the pointer to platform-specific data inside an event
  *
  * Return value: a pointer to platform-specific data
- *
- * Since: 1.4
  */
 gpointer
 _clutter_event_get_platform_data (const ClutterEvent *event)
@@ -106,8 +104,6 @@ _clutter_event_get_platform_data (const ClutterEvent *event)
  * @data: a pointer to platform-specific data
  *
  * Sets the pointer to platform-specific data inside an event
- *
- * Since: 1.4
  */
 void
 _clutter_event_set_platform_data (ClutterEvent *event,
@@ -146,8 +142,6 @@ clutter_event_type (const ClutterEvent *event)
  * Retrieves the time of the event.
  *
  * Return value: the time of the event, or %CLUTTER_CURRENT_TIME
- *
- * Since: 0.4
  */
 guint32
 clutter_event_get_time (const ClutterEvent *event)
@@ -163,8 +157,6 @@ clutter_event_get_time (const ClutterEvent *event)
  * @time_: the time of the event
  *
  * Sets the time of the event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_time (ClutterEvent *event,
@@ -184,8 +176,6 @@ clutter_event_set_time (ClutterEvent *event,
  * the effective state.
  *
  * Return value: the modifier state parameter, or 0
- *
- * Since: 0.4
  */
 ClutterModifierType
 clutter_event_get_state (const ClutterEvent *event)
@@ -227,8 +217,6 @@ clutter_event_get_state (const ClutterEvent *event)
  * @state: the modifier state to set
  *
  * Sets the modifier state of the event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_state (ClutterEvent        *event,
@@ -298,8 +286,6 @@ _clutter_event_set_state_full (ClutterEvent        *event,
  * Retrieves the decomposition of the keyboard state into button, base,
  * latched, locked and effective. This can be used to transmit to other
  * applications, for example when implementing a wayland compositor.
- *
- * Since: 1.16
  */
 void
 clutter_event_get_state_full (const ClutterEvent  *event,
@@ -332,8 +318,6 @@ clutter_event_get_state_full (const ClutterEvent  *event,
  * @y: (out): return location for the Y coordinate, or %NULL
  *
  * Retrieves the coordinates of @event and puts them into @x and @y.
- *
- * Since: 0.4
  */
 void
 clutter_event_get_coords (const ClutterEvent *event,
@@ -359,8 +343,6 @@ clutter_event_get_coords (const ClutterEvent *event,
  * @position: a #graphene_point_t
  *
  * Retrieves the event coordinates as a #graphene_point_t.
- *
- * Since: 1.12
  */
 void
 clutter_event_get_position (const ClutterEvent *event,
@@ -439,8 +421,6 @@ clutter_event_get_position (const ClutterEvent *event,
  * @y: the Y coordinate of the event
  *
  * Sets the coordinates of the @event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_coords (ClutterEvent *event,
@@ -523,8 +503,6 @@ clutter_event_set_coords (ClutterEvent *event,
  * NULL if the event has no source.
  *
  * Return value: (transfer none): a #ClutterActor
- *
- * Since: 0.6
  */
 ClutterActor *
 clutter_event_get_source (const ClutterEvent *event)
@@ -541,8 +519,6 @@ clutter_event_get_source (const ClutterEvent *event)
  * @actor: (allow-none): a #ClutterActor, or %NULL
  *
  * Sets the source #ClutterActor of @event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_source (ClutterEvent *event,
@@ -558,8 +534,6 @@ clutter_event_set_source (ClutterEvent *event,
  * %NULL if the event has no stage.
  *
  * Return value: (transfer none): a #ClutterStage
- *
- * Since: 0.8
  */
 ClutterStage *
 clutter_event_get_stage (const ClutterEvent *event)
@@ -575,8 +549,6 @@ clutter_event_get_stage (const ClutterEvent *event)
  * @stage: (allow-none): a #ClutterStage, or %NULL
  *
  * Sets the source #ClutterStage of the event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_stage (ClutterEvent *event,
@@ -598,8 +570,6 @@ clutter_event_set_stage (ClutterEvent *event,
  * Retrieves the #ClutterEventFlags of @event
  *
  * Return value: the event flags
- *
- * Since: 1.0
  */
 ClutterEventFlags
 clutter_event_get_flags (const ClutterEvent *event)
@@ -615,8 +585,6 @@ clutter_event_get_flags (const ClutterEvent *event)
  * @flags: a binary OR of #ClutterEventFlags values
  *
  * Sets the #ClutterEventFlags of @event
- *
- * Since: 1.8
  */
 void
 clutter_event_set_flags (ClutterEvent      *event,
@@ -639,8 +607,6 @@ clutter_event_set_flags (ClutterEvent      *event,
  * Retrieves the related actor of a crossing event.
  *
  * Return value: (transfer none): the related #ClutterActor, or %NULL
- *
- * Since: 1.0
  */
 ClutterActor *
 clutter_event_get_related (const ClutterEvent *event)
@@ -658,8 +624,6 @@ clutter_event_get_related (const ClutterEvent *event)
  * @actor: (allow-none): a #ClutterActor or %NULL
  *
  * Sets the related actor of a crossing event
- *
- * Since: 1.8
  */
 void
 clutter_event_set_related (ClutterEvent *event,
@@ -683,8 +647,6 @@ clutter_event_set_related (ClutterEvent *event,
  * @dy: delta on the vertical axis
  *
  * Sets the precise scrolling information of @event.
- *
- * Since: 1.10
  */
 void
 clutter_event_set_scroll_delta (ClutterEvent *event,
@@ -710,8 +672,6 @@ clutter_event_set_scroll_delta (ClutterEvent *event,
  *
  * The @event has to have a #ClutterScrollEvent.direction value
  * of %CLUTTER_SCROLL_SMOOTH.
- *
- * Since: 1.10
  */
 void
 clutter_event_get_scroll_delta (const ClutterEvent *event,
@@ -741,8 +701,6 @@ clutter_event_get_scroll_delta (const ClutterEvent *event,
  * Retrieves the direction of the scrolling of @event
  *
  * Return value: the scrolling direction
- *
- * Since: 1.0
  */
 ClutterScrollDirection
 clutter_event_get_scroll_direction (const ClutterEvent *event)
@@ -759,8 +717,6 @@ clutter_event_get_scroll_direction (const ClutterEvent *event)
  * @direction: the scrolling direction
  *
  * Sets the direction of the scrolling of @event
- *
- * Since: 1.8
  */
 void
 clutter_event_set_scroll_direction (ClutterEvent           *event,
@@ -780,8 +736,6 @@ clutter_event_set_scroll_direction (ClutterEvent           *event,
  * Retrieves the button number of @event
  *
  * Return value: the button number
- *
- * Since: 1.0
  */
 guint32
 clutter_event_get_button (const ClutterEvent *event)
@@ -806,8 +760,6 @@ clutter_event_get_button (const ClutterEvent *event)
  * @button: the button number
  *
  * Sets the button number of @event
- *
- * Since: 1.8
  */
 void
 clutter_event_set_button (ClutterEvent *event,
@@ -830,8 +782,6 @@ clutter_event_set_button (ClutterEvent *event,
  * Retrieves the key symbol of @event
  *
  * Return value: the key symbol representing the key
- *
- * Since: 1.0
  */
 guint
 clutter_event_get_key_symbol (const ClutterEvent *event)
@@ -850,8 +800,6 @@ clutter_event_get_key_symbol (const ClutterEvent *event)
  * @key_sym: the key symbol representing the key
  *
  * Sets the key symbol of @event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_key_symbol (ClutterEvent *event,
@@ -872,8 +820,6 @@ clutter_event_set_key_symbol (ClutterEvent *event,
  * Retrieves the keycode of the key that caused @event
  *
  * Return value: The keycode representing the key
- *
- * Since: 1.0
  */
 guint16
 clutter_event_get_key_code (const ClutterEvent *event)
@@ -892,8 +838,6 @@ clutter_event_get_key_code (const ClutterEvent *event)
  * @key_code: the keycode representing the key
  *
  * Sets the keycode of the @event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_key_code (ClutterEvent *event,
@@ -935,8 +879,6 @@ clutter_event_get_key_unicode (const ClutterEvent *event)
  * @key_unicode: the Unicode value representing the key
  *
  * Sets the Unicode value of @event.
- *
- * Since: 1.8
  */
 void
 clutter_event_set_key_unicode (ClutterEvent *event,
@@ -958,8 +900,6 @@ clutter_event_set_key_unicode (ClutterEvent *event,
  * Retrieves the #ClutterEventSequence of @event.
  *
  * Return value: (transfer none): the event sequence, or %NULL
- *
- * Since: 1.10
  */
 ClutterEventSequence *
 clutter_event_get_event_sequence (const ClutterEvent *event)
@@ -986,8 +926,6 @@ clutter_event_get_event_sequence (const ClutterEvent *event)
  *
  * Return value: the #ClutterInputDeviceType for the device, if
  *   any is set
- *
- * Since: 1.0
  */
 ClutterInputDeviceType
 clutter_event_get_device_type (const ClutterEvent *event)
@@ -1009,8 +947,6 @@ clutter_event_get_device_type (const ClutterEvent *event)
  * @device: (allow-none): a #ClutterInputDevice, or %NULL
  *
  * Sets the device for @event.
- *
- * Since: 1.6
  */
 void
 clutter_event_set_device (ClutterEvent       *event,
@@ -1107,8 +1043,6 @@ clutter_event_set_device (ClutterEvent       *event,
  * Return value: (transfer none): the #ClutterInputDevice or %NULL. The
  *   returned device is owned by the #ClutterEvent and it should not
  *   be unreferenced
- *
- * Since: 1.0
  */
 ClutterInputDevice *
 clutter_event_get_device (const ClutterEvent *event)
@@ -1198,9 +1132,7 @@ clutter_event_get_device (const ClutterEvent *event)
  * @event: a #ClutterEvent
  * @tool: (nullable): a #ClutterInputDeviceTool
  *
- * Sets the tool in use for this event
- *
- * Since: 1.28
+ * Sets the tool in use for this event8
  **/
 void
 clutter_event_set_device_tool (ClutterEvent           *event,
@@ -1219,9 +1151,7 @@ clutter_event_set_device_tool (ClutterEvent           *event,
  *
  * Returns the device tool that originated this event
  *
- * Returns: (transfer none): The tool of this event
- *
- * Since: 1.28
+ * Returns: (transfer none): The tool of this event8
  **/
 ClutterInputDeviceTool *
 clutter_event_get_device_tool (const ClutterEvent *event)
@@ -1404,8 +1334,6 @@ clutter_event_free (ClutterEvent *event)
  * this.
  *
  * Return value: A #ClutterEvent or NULL if queue empty
- *
- * Since: 0.4
  */
 ClutterEvent *
 clutter_event_get (void)
@@ -1447,8 +1375,6 @@ _clutter_event_push (const ClutterEvent *event,
  * event signals will be emitted for this source and capture/bubbling for
  * its ancestors. If the source is not set it will be generated by picking
  * or use the actor that currently has keyboard focus
- *
- * Since: 0.6
  */
 void
 clutter_event_put (const ClutterEvent *event)
@@ -1462,8 +1388,6 @@ clutter_event_put (const ClutterEvent *event)
  * Checks if events are pending in the event queue.
  *
  * Return value: TRUE if there are pending events, FALSE otherwise.
- *
- * Since: 0.4
  */
 gboolean
 clutter_events_pending (void)
@@ -1482,8 +1406,6 @@ clutter_events_pending (void)
  * event or if the event has a timestamp.
  *
  * Return value: the event timestamp, or %CLUTTER_CURRENT_TIME
- *
- * Since: 1.0
  */
 guint32
 clutter_get_current_event_time (void)
@@ -1508,8 +1430,6 @@ clutter_get_current_event_time (void)
  * event.
  *
  * Return value: (transfer none): The current ClutterEvent, or %NULL if none
- *
- * Since: 1.2
  */
 const ClutterEvent *
 clutter_get_current_event (void)
@@ -1534,8 +1454,6 @@ clutter_get_current_event (void)
  *
  * Return value: (transfer none): a pointer to a #ClutterInputDevice
  *   or %NULL
- *
- * Since: 1.6
  */
 ClutterInputDevice *
 clutter_event_get_source_device (const ClutterEvent *event)
@@ -1558,8 +1476,6 @@ clutter_event_get_source_device (const ClutterEvent *event)
  * Sets the source #ClutterInputDevice for @event.
  *
  * The #ClutterEvent must have been created using clutter_event_new().
- *
- * Since: 1.8
  */
 void
 clutter_event_set_source_device (ClutterEvent       *event,
@@ -1582,8 +1498,6 @@ clutter_event_set_source_device (ClutterEvent       *event,
  * Retrieves the array of axes values attached to the event.
  *
  * Return value: (transfer none): an array of axis values
- *
- * Since: 1.6
  */
 gdouble *
 clutter_event_get_axes (const ClutterEvent *event,
@@ -1652,8 +1566,6 @@ clutter_event_get_axes (const ClutterEvent *event,
  * Retrieves the distance between two events, a @source and a @target.
  *
  * Return value: the distance between two #ClutterEvent
- *
- * Since: 1.12
  */
 float
 clutter_event_get_distance (const ClutterEvent *source,
@@ -1678,8 +1590,6 @@ clutter_event_get_distance (const ClutterEvent *source,
  * the positive Y axis.
  *
  * Return value: the angle between two #ClutterEvent
- *
- * Since: 1.12
  */
 double
 clutter_event_get_angle (const ClutterEvent *source,
@@ -1716,8 +1626,6 @@ clutter_event_get_angle (const ClutterEvent *source,
  * Checks whether @event has the Shift modifier mask set.
  *
  * Return value: %TRUE if the event has the Shift modifier mask set
- *
- * Since: 1.12
  */
 gboolean
 clutter_event_has_shift_modifier (const ClutterEvent *event)
@@ -1732,8 +1640,6 @@ clutter_event_has_shift_modifier (const ClutterEvent *event)
  * Checks whether @event has the Control modifier mask set.
  *
  * Return value: %TRUE if the event has the Control modifier mask set
- *
- * Since: 1.12
  */
 gboolean
 clutter_event_has_control_modifier (const ClutterEvent *event)
@@ -1750,8 +1656,6 @@ clutter_event_has_control_modifier (const ClutterEvent *event)
  * synthesized by the windowing system itself (as opposed by Clutter).
  *
  * Return value: %TRUE if the event is pointer emulated
- *
- * Since: 1.12
  */
 gboolean
 clutter_event_is_pointer_emulated (const ClutterEvent *event)
@@ -1800,8 +1704,6 @@ _clutter_event_process_filters (ClutterEvent *event,
  *
  * Return value: an identifier for the event filter, to be used
  *   with clutter_event_remove_filter().
- *
- * Since: 1.18
  */
 guint
 clutter_event_add_filter (ClutterStage          *stage,
@@ -1832,8 +1734,6 @@ clutter_event_add_filter (ClutterStage          *stage,
  *
  * Removes an event filter that was previously added with
  * clutter_event_add_filter().
- *
- * Since: 1.18
  */
 void
 clutter_event_remove_filter (guint id)
@@ -1865,9 +1765,7 @@ clutter_event_remove_filter (guint id)
  *
  * Returns the number of fingers that is triggering the touchpad gesture.
  *
- * Returns: the number of fingers in the gesture.
- *
- * Since: 1.24
+ * Returns: the number of fingers in the gesture.4
  **/
 guint
 clutter_event_get_touchpad_gesture_finger_count (const ClutterEvent *event)
@@ -1893,9 +1791,7 @@ clutter_event_get_touchpad_gesture_finger_count (const ClutterEvent *event)
  *
  * Returns the angle delta reported by this specific event.
  *
- * Returns: The angle delta relative to the previous event.
- *
- * Since: 1.24
+ * Returns: The angle delta relative to the previous event.4
  **/
 gdouble
 clutter_event_get_gesture_pinch_angle_delta (const ClutterEvent *event)
@@ -1915,9 +1811,7 @@ clutter_event_get_gesture_pinch_angle_delta (const ClutterEvent *event)
  * %CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN is received.
  * is received.
  *
- * Returns: the current pinch gesture scale
- *
- * Since: 1.24
+ * Returns: the current pinch gesture scale4
  **/
 gdouble
 clutter_event_get_gesture_pinch_scale (const ClutterEvent *event)
@@ -1964,9 +1858,7 @@ clutter_event_get_gesture_phase (const ClutterEvent *event)
  *      position in the Y axis, or %NULL
  *
  * Returns the gesture motion deltas relative to the current pointer
- * position.
- *
- * Since: 1.24
+ * position.4
  **/
 void
 clutter_event_get_gesture_motion_delta (const ClutterEvent *event,
@@ -2051,9 +1943,7 @@ clutter_event_get_gesture_motion_delta_unaccelerated (const ClutterEvent *event,
  *
  * Returns the #ClutterScrollSource that applies to an scroll event.
  *
- * Returns: The source of scroll events
- *
- * Since: 1.26
+ * Returns: The source of scroll events6
  **/
 ClutterScrollSource
 clutter_event_get_scroll_source (const ClutterEvent *event)
@@ -2073,9 +1963,7 @@ clutter_event_get_scroll_source (const ClutterEvent *event)
  * can be used to determine whether post-scroll effects like kinetic
  * scrolling should be applied.
  *
- * Returns: The scroll finish flags
- *
- * Since: 1.26
+ * Returns: The scroll finish flags6
  **/
 ClutterScrollFinishFlags
 clutter_event_get_scroll_finish_flags (const ClutterEvent *event)

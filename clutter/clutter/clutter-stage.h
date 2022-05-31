@@ -59,8 +59,6 @@ struct _ClutterStage
  * @deactivate: handler for the #ClutterStage::deactivate signal
  *
  * The #ClutterStageClass structure contains only private data
- *
- * Since: 0.2
  */
 
 struct _ClutterStageClass
@@ -96,8 +94,6 @@ struct _ClutterStageClass
  *   plane (always positive)
  *
  * Stage perspective definition.
- *
- * Since: 0.4
  */
 struct _ClutterPerspective
 {

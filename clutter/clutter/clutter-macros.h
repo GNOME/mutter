@@ -31,8 +31,6 @@
  *
  * GL Windowing system used
  *
- * Since: 0.4
- *
  * Deprecated: 1.10: The macro evaluates to "deprecated" as Clutter can be
  *   compiled with multiple windowing system backends. Use the various
  *   CLUTTER_WINDOWING_* macros to detect the windowing system that Clutter
@@ -47,8 +45,6 @@
  * Cogl (internal GL abstraction utility library) backend. Can be "gl" or
  * "gles" currently
  *
- * Since: 0.4
- *
  * Deprecated: 1.10: The macro evaluates to "deprecated" as Cogl can be
  *   compiled against multiple GL implementations.
  */
@@ -58,8 +54,6 @@
  * CLUTTER_STAGE_TYPE:
  *
  * The default GObject type for the Clutter stage.
- *
- * Since: 0.8
  *
  * Deprecated: 1.10: The macro evaluates to "deprecated" as Clutter can
  *   be compiled against multiple windowing systems. You can use the

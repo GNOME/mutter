@@ -60,8 +60,6 @@ struct _ClutterZoomAction
  *
  * The #ClutterZoomActionClass structure contains
  * only private data
- *
- * Since: 1.12
  */
 struct _ClutterZoomActionClass
 {

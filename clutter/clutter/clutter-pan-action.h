@@ -67,8 +67,6 @@ struct _ClutterPanAction
  *
  * The #ClutterPanActionClass structure contains
  * only private data.
- *
- * Since: 1.12
  */
 struct _ClutterPanActionClass
 {

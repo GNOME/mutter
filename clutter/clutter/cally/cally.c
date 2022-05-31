@@ -61,8 +61,6 @@ CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_CLONE, cally_clone, cally_clone_new)
  *
  * Return value: %TRUE if accessibility support has been correctly
  * initialized.
- *
- * Since: 1.4
  */
 gboolean
 cally_accessibility_init (void)
@@ -88,8 +86,6 @@ cally_accessibility_init (void)
  *
  * Return value: %TRUE if accessibility support has been correctly
  * initialized.
- *
- * Since: 1.4
  */
 gboolean cally_get_cally_initialized (void)
 {

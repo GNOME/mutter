@@ -327,8 +327,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
    * ClutterInputDevice:name:
    *
    * The name of the device
-   *
-   * Since: 1.2
    */
   obj_props[PROP_NAME] =
     g_param_spec_string ("name",
@@ -342,8 +340,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
    * ClutterInputDevice:device-type:
    *
    * The type of the device
-   *
-   * Since: 1.2
    */
   obj_props[PROP_DEVICE_TYPE] =
     g_param_spec_enum ("device-type",
@@ -383,8 +379,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
    * ClutterInputDevice:mode:
    *
    * The mode of the device.
-   *
-   * Since: 1.6
    */
   obj_props[PROP_DEVICE_MODE] =
     g_param_spec_enum ("device-mode",
@@ -398,8 +392,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
    * ClutterInputDevice:has-cursor:
    *
    * Whether the device has an on screen cursor following its movement.
-   *
-   * Since: 1.6
    */
   obj_props[PROP_HAS_CURSOR] =
     g_param_spec_boolean ("has-cursor",
@@ -412,8 +404,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
    * ClutterInputDevice:backend:
    *
    * The #ClutterBackend that created the device.
-   *
-   * Since: 1.6
    */
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
@@ -425,9 +415,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   /**
    * ClutterInputDevice:vendor-id:
    *
-   * Vendor ID of this device.
-   *
-   * Since: 1.22
+   * Vendor ID of this device.2
    */
   obj_props[PROP_VENDOR_ID] =
     g_param_spec_string ("vendor-id",
@@ -439,9 +427,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   /**
    * ClutterInputDevice:product-id:
    *
-   * Product ID of this device.
-   *
-   * Since: 1.22
+   * Product ID of this device.2
    */
   obj_props[PROP_PRODUCT_ID] =
     g_param_spec_string ("product-id",
@@ -508,8 +494,6 @@ clutter_input_device_init (ClutterInputDevice *self)
  * Retrieves the type of @device
  *
  * Return value: the type of the device
- *
- * Since: 1.0
  */
 ClutterInputDeviceType
 clutter_input_device_get_device_type (ClutterInputDevice *device)
@@ -551,8 +535,6 @@ clutter_input_device_get_capabilities (ClutterInputDevice *device)
  * Return value: the name of the device, or %NULL. The returned string
  *   is owned by the #ClutterInputDevice and should never be modified
  *   or freed
- *
- * Since: 1.2
  */
 const gchar *
 clutter_input_device_get_device_name (ClutterInputDevice *device)
@@ -573,8 +555,6 @@ clutter_input_device_get_device_name (ClutterInputDevice *device)
  * device motion.
  *
  * Return value: %TRUE if the device has a cursor
- *
- * Since: 1.6
  */
 gboolean
 clutter_input_device_get_has_cursor (ClutterInputDevice *device)
@@ -594,8 +574,6 @@ clutter_input_device_get_has_cursor (ClutterInputDevice *device)
  * Retrieves the #ClutterInputMode of @device.
  *
  * Return value: the device mode
- *
- * Since: 1.6
  */
 ClutterInputMode
 clutter_input_device_get_device_mode (ClutterInputDevice *device)
@@ -615,9 +593,7 @@ clutter_input_device_get_device_mode (ClutterInputDevice *device)
  *
  * Gets the vendor ID of this device.
  *
- * Returns: the vendor ID
- *
- * Since: 1.22
+ * Returns: the vendor ID2
  */
 const gchar *
 clutter_input_device_get_vendor_id (ClutterInputDevice *device)
@@ -637,9 +613,7 @@ clutter_input_device_get_vendor_id (ClutterInputDevice *device)
  *
  * Gets the product ID of this device.
  *
- * Returns: the product ID
- *
- * Since: 1.22
+ * Returns: the product ID2
  */
 const gchar *
 clutter_input_device_get_product_id (ClutterInputDevice *device)

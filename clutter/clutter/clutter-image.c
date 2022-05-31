@@ -31,9 +31,7 @@
  * image data inside a [class@Actor].
  *
  * See [image.c](https://git.gnome.org/browse/clutter/tree/examples/image-content.c?h=clutter-1.18)
- * for an example of how to use #ClutterImage.
- *
- * Since: 1.10.
+ * for an example of how to use #ClutterImage..
  */
 
 #include "clutter-build-config.h"
@@ -186,8 +184,6 @@ clutter_content_iface_init (ClutterContentInterface *iface)
  *
  * Return value: (transfer full): the newly created #ClutterImage instance.
  *   Use g_object_unref() when done.
- *
- * Since: 1.10
  */
 ClutterContent *
 clutter_image_new (void)
@@ -238,8 +234,6 @@ clutter_image_new (void)
  *
  * Return value: %TRUE if the image data was successfully loaded,
  *   and %FALSE otherwise.
- *
- * Since: 1.10
  */
 gboolean
 clutter_image_set_data (ClutterImage     *image,
@@ -298,8 +292,6 @@ clutter_image_set_data (ClutterImage     *image,
  *
  * Return value: %TRUE if the image data was successfully loaded,
  *   and %FALSE otherwise.
- *
- * Since: 1.12
  */
 gboolean
 clutter_image_set_bytes (ClutterImage     *image,
@@ -362,8 +354,6 @@ clutter_image_set_bytes (ClutterImage     *image,
  *
  * Return value: %TRUE if the image data was successfully loaded,
  *   and %FALSE otherwise.
- *
- * Since: 1.10
  */
 gboolean
 clutter_image_set_area (ClutterImage                 *image,
@@ -430,8 +420,6 @@ clutter_image_set_area (ClutterImage                 *image,
  * in order to update the actors using @image as their content.
  *
  * Return value: (transfer none): a pointer to the Cogl texture, or %NULL
- *
- * Since: 1.10
  * Stability: unstable
  */
 CoglTexture *

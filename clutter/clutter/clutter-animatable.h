@@ -51,8 +51,6 @@ G_DECLARE_INTERFACE (ClutterAnimatable, clutter_animatable,
  * @interpolate_value: virtual function for interpolating the progress
  *   of a property
  * @get_actor: virtual function for getting associated actor
- *
- * Since: 1.0
  */
 struct _ClutterAnimatableInterface
 {

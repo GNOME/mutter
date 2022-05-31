@@ -151,8 +151,6 @@ _clutter_context_get_show_fps (void)
  * implementation available
  *
  * Return value: %TRUE if Clutter has accessibility support enabled
- *
- * Since: 1.4
  */
 gboolean
 clutter_get_accessibility_enabled (void)
@@ -167,8 +165,6 @@ clutter_get_accessibility_enabled (void)
  * as setting the environment variable
  * CLUTTER_DISABLE_ACCESSIBILITY. For the same reason, this method
  * should be called before clutter_init().
- *
- * Since: 1.14
  */
 void
 clutter_disable_accessibility (void)
@@ -354,8 +350,6 @@ _clutter_threads_dispatch_free (gpointer data)
  * ```
  *
  * Return value: the ID (greater than 0) of the event source.
- *
- * Since: 0.4
  */
 guint
 clutter_threads_add_idle_full (gint           priority,
@@ -386,8 +380,6 @@ clutter_threads_add_idle_full (gint           priority,
  * default priority.
  *
  * Return value: the ID (greater than 0) of the event source.
- *
- * Since: 0.4
  */
 guint
 clutter_threads_add_idle (GSourceFunc func,
@@ -424,8 +416,6 @@ clutter_threads_add_idle (GSourceFunc func,
  * See also clutter_threads_add_idle_full().
  *
  * Return value: the ID (greater than 0) of the event source.
- *
- * Since: 0.4
  */
 guint
 clutter_threads_add_timeout_full (gint           priority,
@@ -458,8 +448,6 @@ clutter_threads_add_timeout_full (gint           priority,
  * Simple wrapper around clutter_threads_add_timeout_full().
  *
  * Return value: the ID (greater than 0) of the event source.
- *
- * Since: 0.4
  */
 guint
 clutter_threads_add_timeout (guint       interval,
@@ -755,8 +743,6 @@ remove_device_for_event (ClutterStage *stage,
  *
  * This function is only useful when embedding Clutter inside another
  * toolkit, and it should never be called by applications.
- *
- * Since: 0.4
  */
 void
 clutter_do_event (ClutterEvent *event)
@@ -996,8 +982,6 @@ _clutter_process_event (ClutterEvent *event)
  *
  * Return value: (transfer none): the #PangoFontMap instance. The returned
  *   value is owned by Clutter and it should never be unreferenced.
- *
- * Since: 1.0
  */
 PangoFontMap *
 clutter_get_font_map (void)
@@ -1019,8 +1003,6 @@ typedef struct _ClutterRepaintFunction
  * @handle_id: an unsigned integer greater than zero
  *
  * Removes the repaint function with @handle_id as its id
- *
- * Since: 1.0
  */
 void
 clutter_threads_remove_repaint_func (guint handle_id)
@@ -1091,8 +1073,6 @@ clutter_threads_remove_repaint_func (guint handle_id)
  * Return value: the ID (greater than 0) of the repaint function. You
  *   can use the returned integer to remove the repaint function by
  *   calling clutter_threads_remove_repaint_func().
- *
- * Since: 1.0
  */
 guint
 clutter_threads_add_repaint_func (GSourceFunc    func,
@@ -1138,8 +1118,6 @@ clutter_threads_add_repaint_func (GSourceFunc    func,
  * Return value: the ID (greater than 0) of the repaint function. You
  *   can use the returned integer to remove the repaint function by
  *   calling clutter_threads_remove_repaint_func().
- *
- * Since: 1.10
  */
 guint
 clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
@@ -1242,8 +1220,6 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
  * [method@Actor.set_text_direction].
  *
  * Return value: the default text direction
- *
- * Since: 1.2
  */
 ClutterTextDirection
 clutter_get_default_text_direction (void)

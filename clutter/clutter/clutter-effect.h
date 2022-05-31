@@ -59,8 +59,6 @@ struct _ClutterEffect
  * @pick: virtual function
  *
  * The #ClutterEffectClass structure contains only private data
- *
- * Since: 1.4
  */
 struct _ClutterEffectClass
 {

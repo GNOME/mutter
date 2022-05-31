@@ -1643,8 +1643,6 @@ static const int clutter_unicode_to_keysym_tab_size =
  * 
  * Return value: the corresponding Clutter key symbol, if one exists.
  *   or, if there is no corresponding symbol, wc | 0x01000000
- *
- * Since: 1.10
  */
 guint
 clutter_unicode_to_keysym (guint32 wc)

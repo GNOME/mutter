@@ -53,8 +53,6 @@ G_DECLARE_INTERFACE (ClutterContent, clutter_content, CLUTTER, CONTENT, GObject)
  *
  * The #ClutterContentInterface structure contains only
  * private data.
- *
- * Since: 1.10
  */
 struct _ClutterContentInterface
 {

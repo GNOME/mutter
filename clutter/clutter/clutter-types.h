@@ -95,8 +95,6 @@ typedef union _ClutterEvent                     ClutterEvent;
  *
  * The #ClutterEventSequence structure is an opaque
  * type used to denote the event sequence of a touch event.
- *
- * Since: 1.12
  */
 typedef struct _ClutterEventSequence            ClutterEventSequence;
 
@@ -114,8 +112,6 @@ typedef struct _ClutterShader                   ClutterShader; /* deprecated */
  *
  * Other internal representation and methods for describing the
  * bounding volume may be added in the future.
- *
- * Since: 1.4
  */
 typedef struct _ClutterPaintVolume      ClutterPaintVolume;
 
@@ -154,8 +150,6 @@ struct _ClutterActorBox
  * ```c
  *   ClutterActorBox box = CLUTTER_ACTOR_BOX_INIT (0, 0, 400, 600);
  * ```
- *
- * Since: 1.10
  */
 #define CLUTTER_ACTOR_BOX_INIT(x_1,y_1,x_2,y_2)         { (x_1), (y_1), (x_2), (y_2) }
 
@@ -168,8 +162,6 @@ struct _ClutterActorBox
  * ```c
  *   ClutterActorBox box = CLUTTER_ACTOR_BOX_INIT_ZERO;
  * ```
- *
- * Since: 1.12
  */
 #define CLUTTER_ACTOR_BOX_INIT_ZERO                     CLUTTER_ACTOR_BOX_INIT (0.f, 0.f, 0.f, 0.f)
 
@@ -274,8 +266,6 @@ gboolean         clutter_actor_box_is_initialized (ClutterActorBox       *box);
  * @y: Y coordinate of the knot
  *
  * Point in a path behaviour.
- *
- * Since: 0.2
  */
 struct _ClutterKnot
 {
@@ -304,8 +294,6 @@ gboolean     clutter_knot_equal    (const ClutterKnot *knot_a,
  * types. %CLUTTER_PATH_MOVE_TO and %CLUTTER_PATH_LINE_TO use only one
  * pair of coordinates, %CLUTTER_PATH_CURVE_TO uses all three and
  * %CLUTTER_PATH_CLOSE uses none.
- *
- * Since: 1.0
  */
 struct _ClutterPathNode
 {
@@ -377,8 +365,6 @@ gboolean            clutter_paint_volume_set_from_allocation (ClutterPaintVolume
  * @bottom: the margin from the bottom
  *
  * A representation of the components of a margin.
- *
- * Since: 1.10
  */
 struct _ClutterMargin
 {
@@ -418,8 +404,6 @@ void            clutter_margin_free     (ClutterMargin       *margin_);
  *
  * Return value: %TRUE if the function successfully computed
  *   the value and stored it inside @retval
- *
- * Since: 1.0
  */
 typedef gboolean (* ClutterProgressFunc) (const GValue *a,
                                           const GValue *b,

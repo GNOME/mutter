@@ -157,8 +157,6 @@
  *    klass->paint = my_effect_paint;
  *  }
  * ```
- *
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -378,8 +376,6 @@ _clutter_effect_has_custom_paint_volume (ClutterEffect *effect)
  * one then that will override this call. In that case this effect
  * will instead be called with the %CLUTTER_EFFECT_PAINT_ACTOR_DIRTY
  * flag set.
- *
- * Since: 1.8
  */
 void
 clutter_effect_queue_repaint (ClutterEffect *effect)

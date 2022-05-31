@@ -58,8 +58,6 @@ struct _ClutterConstraint
  *
  * The #ClutterConstraintClass structure contains
  * only private data
- *
- * Since: 1.4
  */
 struct _ClutterConstraintClass
 {

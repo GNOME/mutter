@@ -60,8 +60,6 @@ struct _ClutterDeformEffect
  *
  * The #ClutterDeformEffectClass structure contains
  * only private data
- *
- * Since: 1.4
  */
 struct _ClutterDeformEffectClass
 {

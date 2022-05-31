@@ -83,8 +83,6 @@
  *
  * In both cases, the "Pipeline" node is created with the return value
  * of [vfunc@OffscreenEffect.create_pipeline].
- * 
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -629,8 +627,6 @@ clutter_offscreen_effect_init (ClutterOffscreenEffect *self)
  * Return value: (transfer none): a #CoglHandle or %NULL. The
  *   returned texture is owned by Clutter and it should not be
  *   modified or freed
- *
- * Since: 1.10
  */
 CoglHandle
 clutter_offscreen_effect_get_texture (ClutterOffscreenEffect *effect)
@@ -654,8 +650,6 @@ clutter_offscreen_effect_get_texture (ClutterOffscreenEffect *effect)
  * Return value: (transfer none)(nullable): a #CoglPipeline. The
  *   pipeline is owned by Clutter and it should not be modified
  *   or freed
- *
- * Since: 1.4
  */
 CoglPipeline *
 clutter_offscreen_effect_get_pipeline (ClutterOffscreenEffect *effect)
@@ -673,8 +667,6 @@ clutter_offscreen_effect_get_pipeline (ClutterOffscreenEffect *effect)
  * @paint_context: a #ClutterPaintContext
  *
  * Calls the [vfunc@OffscreenEffect.paint_target] virtual function of the @effect
- *
- * Since: 1.4
  */
 void
 clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
@@ -699,8 +691,6 @@ clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
  * Return value: (transfer full): a handle to a Cogl texture, or
  *   %NULL. The returned handle has its reference
  *   count increased.
- *
- * Since: 1.4
  */
 CoglHandle
 clutter_offscreen_effect_create_texture (ClutterOffscreenEffect *effect,
@@ -730,8 +720,6 @@ clutter_offscreen_effect_create_texture (ClutterOffscreenEffect *effect,
  *
  * Return value: %TRUE if the offscreen buffer has a valid size,
  *   and %FALSE otherwise
- *
- * Since: 1.8
  */
 gboolean
 clutter_offscreen_effect_get_target_size (ClutterOffscreenEffect *effect,

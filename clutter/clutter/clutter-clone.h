@@ -55,8 +55,6 @@ struct _ClutterClone
  * ClutterCloneClass:
  *
  * The #ClutterCloneClass structure contains only private data
- *
- * Since: 1.0
  */
 struct _ClutterCloneClass
 {

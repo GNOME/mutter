@@ -57,8 +57,6 @@ struct _ClutterFlowLayout
  *
  * The #ClutterFlowLayoutClass structure contains only private data
  * and should be accessed using the provided API
- *
- * Since: 1.2
  */
 struct _ClutterFlowLayoutClass
 {

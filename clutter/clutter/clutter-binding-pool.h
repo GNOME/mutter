@@ -54,8 +54,6 @@ typedef struct _ClutterBindingPoolClass ClutterBindingPoolClass;
  *
  * Return value: the function should return %TRUE if the key
  *   binding has been handled, and return %FALSE otherwise
- *
- * Since: 1.0
  */
 typedef gboolean (* ClutterBindingActionFunc) (GObject             *gobject,
                                                const gchar         *action_name,

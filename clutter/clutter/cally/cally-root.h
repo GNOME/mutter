@@ -54,8 +54,6 @@ struct _CallyRoot
  *
  * The <structname>CallyRootClass</structname> structure contains only
  * private data
- *
- * Since: 1.4
  */
 struct _CallyRootClass
 {

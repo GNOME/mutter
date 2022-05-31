@@ -79,8 +79,6 @@
  *                        "opacity", 255,
  *                        NULL);
  * ```
- *
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -392,8 +390,6 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
    *
    * The #ClutterActor must not be contained inside the actor associated
    * to the constraint.
-   *
-   * Since: 1.4
    */
   obj_props[PROP_SOURCE] =
     g_param_spec_object ("source",
@@ -406,8 +402,6 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
    * ClutterBindConstraint:coordinate:
    *
    * The coordinate to be bound
-   *
-   * Since: 1.4
    */
   obj_props[PROP_COORDINATE] =
     g_param_spec_enum ("coordinate",
@@ -421,8 +415,6 @@ clutter_bind_constraint_class_init (ClutterBindConstraintClass *klass)
    * ClutterBindConstraint:offset:
    *
    * The offset, in pixels, to be applied to the binding
-   *
-   * Since: 1.4
    */
   obj_props[PROP_OFFSET] =
     g_param_spec_float ("offset",
@@ -457,8 +449,6 @@ clutter_bind_constraint_init (ClutterBindConstraint *self)
  * the given @coordinate of the position of @source
  *
  * Return value: the newly created #ClutterBindConstraint
- *
- * Since: 1.4
  */
 ClutterConstraint *
 clutter_bind_constraint_new (ClutterActor          *source,
@@ -480,8 +470,6 @@ clutter_bind_constraint_new (ClutterActor          *source,
  * @source: (allow-none): a #ClutterActor, or %NULL to unset the source
  *
  * Sets the source #ClutterActor for the constraint
- *
- * Since: 1.4
  */
 void
 clutter_bind_constraint_set_source (ClutterBindConstraint *constraint,
@@ -547,8 +535,6 @@ clutter_bind_constraint_set_source (ClutterBindConstraint *constraint,
  * Retrieves the #ClutterActor set using clutter_bind_constraint_set_source()
  *
  * Return value: (transfer none): a pointer to the source actor
- *
- * Since: 1.4
  */
 ClutterActor *
 clutter_bind_constraint_get_source (ClutterBindConstraint *constraint)
@@ -564,8 +550,6 @@ clutter_bind_constraint_get_source (ClutterBindConstraint *constraint)
  * @coordinate: the coordinate to bind
  *
  * Sets the coordinate to bind in the constraint
- *
- * Since: 1.4
  */
 void
 clutter_bind_constraint_set_coordinate (ClutterBindConstraint *constraint,
@@ -591,8 +575,6 @@ clutter_bind_constraint_set_coordinate (ClutterBindConstraint *constraint,
  * Retrieves the bound coordinate of the constraint
  *
  * Return value: the bound coordinate
- *
- * Since: 1.4
  */
 ClutterBindCoordinate
 clutter_bind_constraint_get_coordinate (ClutterBindConstraint *constraint)
@@ -609,8 +591,6 @@ clutter_bind_constraint_get_coordinate (ClutterBindConstraint *constraint)
  * @offset: the offset to apply, in pixels
  *
  * Sets the offset to be applied to the constraint
- *
- * Since: 1.4
  */
 void
 clutter_bind_constraint_set_offset (ClutterBindConstraint *constraint,
@@ -636,8 +616,6 @@ clutter_bind_constraint_set_offset (ClutterBindConstraint *constraint,
  * Retrieves the offset set using clutter_bind_constraint_set_offset()
  *
  * Return value: the offset, in pixels
- *
- * Since: 1.4
  */
 gfloat
 clutter_bind_constraint_get_offset (ClutterBindConstraint *bind)

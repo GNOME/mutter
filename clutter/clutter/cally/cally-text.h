@@ -54,8 +54,6 @@ struct _CallyText
  *
  * The <structname>CallyTextClass</structname> structure contains only
  * private data
- *
- * Since: 1.4
  */
 struct _CallyTextClass
 {

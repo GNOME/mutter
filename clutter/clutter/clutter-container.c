@@ -71,8 +71,6 @@
  * it provides some common API for notifying when a child actor is added
  * or removed, as well as the infrastructure for accessing child properties
  * through [class@ChildMeta].
- * 
- * Since: 0.4
  */
 
 enum
@@ -130,8 +128,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
    *
    * The signal is emitted each time an actor
    * has been added to @container.
-   *
-   * Since: 0.4
    */
   container_signals[ACTOR_ADDED] =
     g_signal_new (I_("actor-added"),
@@ -148,8 +144,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
    *
    * The signal is emitted each time an actor
    * is removed from @container.
-   *
-   * Since: 0.4
    */
   container_signals[ACTOR_REMOVED] =
     g_signal_new (I_("actor-removed"),
@@ -169,8 +163,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
    * The signal is emitted each time a property is
    * being set through the clutter_container_child_set() and
    * clutter_container_child_set_property() calls.
-   *
-   * Since: 0.8
    */
   container_signals[CHILD_NOTIFY] =
     g_signal_new (I_("child-notify"),
@@ -306,8 +298,6 @@ container_remove_valist (ClutterContainer *container,
  * deprecated virtual function. The default implementation will
  * call clutter_actor_add_child().
  *
- * Since: 0.4
- *
  * Deprecated: 1.10: Use clutter_actor_add_child() instead.
  */
 void
@@ -339,8 +329,6 @@ clutter_container_add (ClutterContainer *container,
  * deprecated virtual function. The default implementation will
  * call clutter_actor_add_child().
  *
- * Since: 0.4
- *
  * Deprecated: 1.10: Use clutter_actor_add_child() instead.
  */
 void
@@ -368,8 +356,6 @@ clutter_container_add_actor (ClutterContainer *container,
  * This function will call #ClutterContainerIface.remove(), which is a
  * deprecated virtual function. The default implementation will call
  * clutter_actor_remove_child().
- *
- * Since: 0.4
  *
  * Deprecated: 1.10: Use clutter_actor_remove_child() instead.
  */
@@ -402,8 +388,6 @@ clutter_container_remove (ClutterContainer *container,
  * deprecated virtual function. The default implementation will call
  * clutter_actor_remove_child().
  *
- * Since: 0.4
- *
  * Deprecated: 1.10: Use clutter_actor_remove_child() instead.
  */
 void
@@ -426,8 +410,6 @@ clutter_container_remove_actor (ClutterContainer *container,
  *
  * Return value: (transfer none): The child actor with the requested name,
  *   or %NULL if no actor with that name was found.
- *
- * Since: 0.6
  */
 ClutterActor *
 clutter_container_find_child_by_name (ClutterContainer *container,
@@ -538,8 +520,6 @@ destroy_child_meta (ClutterContainer *container,
  * Return value: (transfer none): the #ClutterChildMeta for the @actor child
  *   of @container or %NULL if the specifiec actor does not exist or the
  *   container is not configured to provide `ClutterChildMeta`s
- *
- * Since: 0.8
  */
 ClutterChildMeta *
 clutter_container_get_child_meta (ClutterContainer *container,
@@ -570,8 +550,6 @@ clutter_container_get_child_meta (ClutterContainer *container,
  * #ClutterContainer::add() virtual function implementation.
  *
  * Applications should not call this function.
- *
- * Since: 1.2
  */
 void
 clutter_container_create_child_meta (ClutterContainer *container,
@@ -606,8 +584,6 @@ clutter_container_create_child_meta (ClutterContainer *container,
  * #ClutterContainer::add() virtual function implementation.
  *
  * Applications should not call this function.
- *
- * Since: 1.2
  */
 void
 clutter_container_destroy_child_meta (ClutterContainer *container,
@@ -636,8 +612,6 @@ clutter_container_destroy_child_meta (ClutterContainer *container,
  *
  * Return value: (transfer none): The #GParamSpec for the property or %NULL
  *   if no such property exist.
- *
- * Since: 0.8
  */
 GParamSpec *
 clutter_container_class_find_child_property (GObjectClass *klass,
@@ -675,8 +649,6 @@ clutter_container_class_find_child_property (GObjectClass *klass,
  *
  * Return value: (array length=n_properties) (transfer full): an array
  *   of `GParamSpec`s which should be freed after use.
- *
- * Since: 0.8
  */
 GParamSpec **
 clutter_container_class_list_child_properties (GObjectClass *klass,
@@ -737,8 +709,6 @@ container_set_child_property (ClutterContainer *container,
  * @value: the value.
  *
  * Sets a container-specific property on a child of @container.
- *
- * Since: 0.8
  */
 void
 clutter_container_child_set_property (ClutterContainer *container,
@@ -785,8 +755,6 @@ clutter_container_child_set_property (ClutterContainer *container,
  * pairs terminated with NULL.
  *
  * Sets container specific properties on the child of a container.
- *
- * Since: 0.8
  */
 void
 clutter_container_child_set (ClutterContainer *container,
@@ -880,8 +848,6 @@ container_get_child_property (ClutterContainer *container,
  * Note that clutter_container_child_set_property() is really intended for
  * language bindings, clutter_container_child_set() is much more convenient
  * for C programming.
- *
- * Since: 0.8
  */
 void
 clutter_container_child_get_property (ClutterContainer *container,
@@ -933,8 +899,6 @@ clutter_container_child_get_property (ClutterContainer *container,
  * In general, a copy is made of the property contents and the caller is
  * responsible for freeing the memory in the appropriate manner for the type, for
  * instance by calling g_free() or g_object_unref(). 
- *
- * Since: 0.8
  */
 void
 clutter_container_child_get (ClutterContainer *container,
@@ -1005,8 +969,6 @@ clutter_container_child_get (ClutterContainer *container,
  * Calls the #ClutterContainerIface.child_notify() virtual function
  * of #ClutterContainer. The default implementation will emit the
  * #ClutterContainer::child-notify signal.
- *
- * Since: 1.6
  */
 void
 clutter_container_child_notify (ClutterContainer *container,

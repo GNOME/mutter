@@ -29,8 +29,6 @@
  *
  * #CallyActor implements the required ATK interfaces of [class@Clutter.Actor]
  * exposing the common elements on each actor (position, extents, etc).
- * 
- * Since: 1.4
  */
 
 /*
@@ -195,8 +193,6 @@ G_DEFINE_TYPE_WITH_CODE (CallyActor,
  * Creates a new #CallyActor for the given @actor
  *
  * Return value: the newly created #AtkObject
- *
- * Since: 1.4
  */
 AtkObject *
 cally_actor_new (ClutterActor *actor)
@@ -1036,8 +1032,6 @@ _cally_actor_get_action_info (CallyActor *cally_actor,
  * Adds a new action to be accessed with the #AtkAction interface.
  *
  * Return value: added action id, or -1 if failure
- *
- * Since: 1.4
  */
 guint
 cally_actor_add_action (CallyActor      *cally_actor,
@@ -1067,8 +1061,6 @@ cally_actor_add_action (CallyActor      *cally_actor,
  * Adds a new action to be accessed with the #AtkAction interface.
  *
  * Return value: added action id, or -1 if failure
- *
- * Since: 1.6
  */
 guint
 cally_actor_add_action_full (CallyActor          *cally_actor,
@@ -1108,8 +1100,6 @@ cally_actor_add_action_full (CallyActor          *cally_actor,
  * Removes a action, using the @action_id returned by [method@Actor.add_action]
  *
  * Return value: %TRUE if the operation was successful, %FALSE otherwise
- *
- * Since: 1.4
  */
 gboolean
 cally_actor_remove_action (CallyActor *cally_actor,
@@ -1142,8 +1132,6 @@ cally_actor_remove_action (CallyActor *cally_actor,
  * with [method@Actor.add_action]
  *
  * Return value: %TRUE if the operation was successful, %FALSE otherwise
- *
- * Since: 1.4
  */
 gboolean
 cally_actor_remove_action_by_name (CallyActor  *cally_actor,

@@ -56,8 +56,6 @@ struct _ClutterPropertyTransition
  *
  * The #ClutterPropertyTransitionClass structure
  * contains private data.
- *
- * Since: 1.10
  */
 struct _ClutterPropertyTransitionClass
 {

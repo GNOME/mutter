@@ -62,8 +62,6 @@ struct _ClutterText
  * @cursor_changed: class handler for the #ClutterText::cursor-changed signal
  *
  * The #ClutterTextClass struct contains only private data.
- *
- * Since: 1.0
  */
 struct _ClutterTextClass
 {

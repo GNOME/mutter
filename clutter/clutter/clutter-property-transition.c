@@ -26,8 +26,6 @@
  *
  * #ClutterPropertyTransition is a specialized [class@Transition] that
  * can be used to tween a property of a [iface@Animatable] instance.
- *
- * Since: 1.10
  */
 
 #include "clutter-build-config.h"
@@ -259,8 +257,6 @@ clutter_property_transition_class_init (ClutterPropertyTransitionClass *klass)
    * ClutterPropertyTransition:property-name:
    *
    * The name of the property of a [iface@Animatable] to animate.
-   *
-   * Since: 1.10
    */
   obj_props[PROP_PROPERTY_NAME] =
     g_param_spec_string ("property-name",
@@ -306,8 +302,6 @@ clutter_property_transition_new_for_actor (ClutterActor *actor,
  *
  * Return value: (transfer full): the newly created #ClutterPropertyTransition.
  *   Use g_object_unref() when done
- *
- * Since: 1.10
  */
 ClutterTransition *
 clutter_property_transition_new (const char *property_name)
@@ -323,8 +317,6 @@ clutter_property_transition_new (const char *property_name)
  * @property_name: (allow-none): a property name
  *
  * Sets the [property@PropertyTransition:property-name] property of @transition.
- *
- * Since: 1.10
  */
 void
 clutter_property_transition_set_property_name (ClutterPropertyTransition *transition,
@@ -366,8 +358,6 @@ clutter_property_transition_set_property_name (ClutterPropertyTransition *transi
  * Return value: the name of the property being animated, or %NULL if
  *   none is set. The returned string is owned by the @transition and
  *   it should not be freed.
- *
- * Since: 1.10
  */
 const char *
 clutter_property_transition_get_property_name (ClutterPropertyTransition *transition)

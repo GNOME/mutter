@@ -51,8 +51,6 @@ typedef struct _CallyActorPrivate    CallyActorPrivate;
  *
  * Action function, to be used on #AtkAction implementations as a individual
  * action
- *
- * Since: 1.4
  */
 typedef void (* CallyActionFunc) (CallyActor *cally_actor);
 
@@ -66,8 +64,6 @@ typedef void (* CallyActionFunc) (CallyActor *cally_actor);
  * 
  * Unlike #CallyActionFunc, this function uses the @user_data 
  * argument passed to [method@Actor.add_action_full].
- *
- * Since: 1.6
  */
 typedef void (* CallyActionCallback) (CallyActor *cally_actor,
                                       gpointer    user_data);
@@ -90,8 +86,6 @@ struct _CallyActor
  *
  * The <structname>CallyActorClass</structname> structure contains
  * only private data
- *
- * Since: 1.4
  */
 struct _CallyActorClass
 {

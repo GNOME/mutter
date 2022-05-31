@@ -54,8 +54,6 @@ struct _CallyUtil
  *
  * The <structname>CallyUtilClass</structname> structure contains only
  * private data
- *
- * Since: 1.4
  */
 struct _CallyUtilClass
 {

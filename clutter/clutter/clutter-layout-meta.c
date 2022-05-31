@@ -32,8 +32,6 @@
  *
  * A #ClutterLayoutMeta wraps a [class@Actor] inside a [iface@Container]
  * using a [class@LayoutManager].
- *
- * Since: 1.2
  */
 
 #include "clutter-build-config.h"
@@ -110,8 +108,6 @@ clutter_layout_meta_class_init (ClutterLayoutMetaClass *klass)
    * ClutterLayoutMeta:manager:
    *
    * The [class@LayoutManager] that created this #ClutterLayoutMeta.
-   *
-   * Since: 1.2
    */
   pspec = g_param_spec_object ("manager",
                                P_("Manager"),
@@ -135,8 +131,6 @@ clutter_layout_meta_init (ClutterLayoutMeta *self)
  * Retrieves the actor wrapped by @data
  *
  * Return value: (transfer none): a #ClutterLayoutManager
- *
- * Since: 1.2
  */
 ClutterLayoutManager *
 clutter_layout_meta_get_manager (ClutterLayoutMeta *data)

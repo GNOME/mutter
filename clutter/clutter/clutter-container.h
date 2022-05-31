@@ -67,8 +67,6 @@ typedef struct _ClutterContainerIface   ClutterContainerIface;
  * Base interface for container actors. The @add and @remove
  * virtual functions must be provided by any implementation; the other
  * virtual functions are optional.
- *
- * Since: 0.4
  */
 struct _ClutterContainerIface
 {

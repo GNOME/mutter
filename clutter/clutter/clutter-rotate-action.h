@@ -58,8 +58,6 @@ struct _ClutterRotateAction
  *
  * The #ClutterRotateActionClass structure contains
  * only private data.
- *
- * Since: 1.12
  */
 struct _ClutterRotateActionClass
 {

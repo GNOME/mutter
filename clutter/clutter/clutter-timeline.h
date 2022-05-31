@@ -52,8 +52,6 @@ typedef struct _ClutterTimelinePrivate ClutterTimelinePrivate;
  * A function for defining a custom progress.
  *
  * Return value: the progress, as a floating point value between -1.0 and 2.0.
- *
- * Since: 1.10
  */
 typedef gdouble (* ClutterTimelineProgressFunc) (ClutterTimeline *timeline,
                                                  gdouble          elapsed,
@@ -78,8 +76,6 @@ struct _ClutterTimeline
  * @stopped: class handler for the #ClutterTimeline::stopped signal
  *
  * The #ClutterTimelineClass structure contains only private data
- *
- * Since: 0.2
  */
 struct _ClutterTimelineClass
 {

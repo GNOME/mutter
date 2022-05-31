@@ -43,8 +43,6 @@ G_DECLARE_DERIVABLE_TYPE (ClutterAction, clutter_action,
  * ClutterActionClass:
  *
  * The ClutterActionClass structure contains only private data
- *
- * Since: 1.4
  */
 struct _ClutterActionClass
 {

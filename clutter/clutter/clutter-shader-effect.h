@@ -62,8 +62,6 @@ struct _ClutterShaderEffect
  *
  * The #ClutterShaderEffectClass structure contains
  * only private data
- *
- * Since: 1.4
  */
 struct _ClutterShaderEffectClass
 {

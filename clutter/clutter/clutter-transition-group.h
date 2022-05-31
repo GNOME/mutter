@@ -56,8 +56,6 @@ struct _ClutterTransitionGroup
  *
  * The #ClutterTransitionGroupClass structure
  * contains only private data.
- *
- * Since: 1.12
  */
 struct _ClutterTransitionGroupClass
 {

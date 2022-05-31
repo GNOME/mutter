@@ -29,8 +29,6 @@
  *
  * #ClutterRotateAction is a sub-class of [class@GestureAction] that implements
  * the logic for recognizing rotate gestures using two touch points.
- *
- * Since: 1.12
  */
 
 #include "clutter-build-config.h"
@@ -194,8 +192,6 @@ clutter_rotate_action_class_init (ClutterRotateActionClass *klass)
    *
    * Return value: %TRUE if the rotation should continue, and %FALSE if
    *   the rotation should be cancelled.
-   *
-   * Since: 1.12
    */
   rotate_signals[ROTATE] =
     g_signal_new (I_("rotate"),
@@ -225,8 +221,6 @@ clutter_rotate_action_init (ClutterRotateAction *self)
  * Creates a new #ClutterRotateAction instance
  *
  * Return value: the newly created #ClutterRotateAction
- *
- * Since: 1.12
  */
 ClutterAction *
 clutter_rotate_action_new (void)

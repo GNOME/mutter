@@ -123,8 +123,6 @@
  * call clutter_actor_queue_relayout() on the actor to which it is attached
  * to whenever any parameter is changed. The actor to which it is attached
  * can be recovered at any point using clutter_actor_meta_get_actor().
- * 
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"

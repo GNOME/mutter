@@ -85,8 +85,6 @@ typedef enum
  * GTK+ and Clutter it's more likely that the Clutter part will be
  * continually animating (and thus able to starve GTK+) than
  * vice-versa.
- *
- * Since: 0.8
  */
 #define CLUTTER_PRIORITY_REDRAW         (G_PRIORITY_HIGH_IDLE + 50)
 

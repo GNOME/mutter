@@ -35,8 +35,6 @@
  *
  * #CallyText implements the required ATK interfaces of
  * [class@Clutter.Text], #AtkText and #AtkEditableText
- *
- * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -260,8 +258,6 @@ cally_text_finalize   (GObject *obj)
  * [class@Clutter.Text].
  *
  * Return value: the newly created #AtkObject
- *
- * Since: 1.4
  */
 AtkObject*
 cally_text_new (ClutterActor *actor)
