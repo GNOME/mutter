@@ -29,14 +29,14 @@
  */
 
 /**
- * SECTION:cally-text
- * @short_description: Implementation of the ATK interfaces for a #ClutterText
- * @see_also: #ClutterText
+ * CallyText:
+ * 
+ * Implementation of the ATK interfaces for a [class@Clutter.Text]
  *
  * #CallyText implements the required ATK interfaces of
- * #ClutterText, #AtkText and #AtkEditableText
+ * [class@Clutter.Text], #AtkText and #AtkEditableText
  *
- *
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"
@@ -257,7 +257,7 @@ cally_text_finalize   (GObject *obj)
  * @actor: a #ClutterActor
  *
  * Creates a new #CallyText for the given @actor. @actor must be a
- * #ClutterText.
+ * [class@Clutter.Text].
  *
  * Return value: the newly created #AtkObject
  *

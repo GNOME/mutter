@@ -24,10 +24,9 @@
  */
 
 /**
- * SECTION:cally-util
- * @Title: CallyUtil
- * @short_description: #AtkUtil implementation
- * @see_also: #ClutterActor
+ * CallyUtil:
+ * 
+ * #AtkUtil implementation
  *
  * #CallyUtil implements #AtkUtil abstract methods. Although it
  * includes the name "Util" it is in fact one of the most important
@@ -36,6 +35,8 @@
  * For instance, it defines atk_get_root(), the method that returns
  * the root object in the hierarchy. Without it, you don't have
  * available any accessible object.
+ * 
+ * Since: 1.4
  */
 
 #include "clutter-build-config.h"

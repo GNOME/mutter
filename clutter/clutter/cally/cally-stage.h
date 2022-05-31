@@ -41,14 +41,6 @@ typedef struct _CallyStage        CallyStage;
 typedef struct _CallyStageClass   CallyStageClass;
 typedef struct _CallyStagePrivate CallyStagePrivate;
 
-/**
- * CallyStage:
- *
- * The <structname>CallyStage</structname> structure contains only
- * private data and should be accessed using the provided API
- *
- * Since: 1.4
- */
 struct _CallyStage
 {
   /*< private >*/

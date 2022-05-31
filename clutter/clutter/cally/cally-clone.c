@@ -21,15 +21,16 @@
  */
 
 /**
- * SECTION:cally-clone
- * @Title: CallyClone
- * @short_description: Implementation of the ATK interfaces for a #ClutterClone
- * @see_also: #ClutterClone
+ * CallyClone:
+ * 
+ * Implementation of the ATK interfaces for a #ClutterClone
  *
- * #CallyClone implements the required ATK interfaces of #ClutterClone
+ * #CallyClone implements the required ATK interfaces of [class@Clutter.Clone]
  *
  * In particular it sets a proper role for the clone, as just a image,
  * as it is the sanest and simplest approach.
+ * 
+ * Since: 1.4
  */
 
 /* Design rationale for CallyClone:
@@ -100,7 +101,7 @@ cally_clone_init (CallyClone *clone)
  * @actor: a #ClutterActor
  *
  * Creates a new #CallyClone for the given @actor. @actor must be a
- * #ClutterClone.
+ * [class@Clutter.Clone].
  *
  * Return value: the newly created #AtkObject
  *

@@ -23,13 +23,14 @@
  */
 
 /**
- * SECTION:cally-actor
- * @Title: CallyActor
- * @short_description: Implementation of the ATK interfaces for #ClutterActor
- * @see_also: #ClutterActor
+ * CallyActor:
+ * 
+ * Implementation of the ATK interfaces for [class@Clutter.Actor]
  *
- * #CallyActor implements the required ATK interfaces of #ClutterActor
+ * #CallyActor implements the required ATK interfaces of [class@Clutter.Actor]
  * exposing the common elements on each actor (position, extents, etc).
+ * 
+ * Since: 1.4
  */
 
 /*
@@ -1104,7 +1105,7 @@ cally_actor_add_action_full (CallyActor          *cally_actor,
  * @cally_actor: a #CallyActor
  * @action_id: the action id
  *
- * Removes a action, using the @action_id returned by cally_actor_add_action()
+ * Removes a action, using the @action_id returned by [method@Actor.add_action]
  *
  * Return value: %TRUE if the operation was successful, %FALSE otherwise
  *
@@ -1138,7 +1139,7 @@ cally_actor_remove_action (CallyActor *cally_actor,
  * @action_name: the name of the action to remove
  *
  * Removes an action, using the @action_name used when the action was added
- * with cally_actor_add_action()
+ * with [method@Actor.add_action]
  *
  * Return value: %TRUE if the operation was successful, %FALSE otherwise
  *

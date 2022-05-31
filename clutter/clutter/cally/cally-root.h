@@ -41,14 +41,6 @@ typedef struct _CallyRoot        CallyRoot;
 typedef struct _CallyRootClass   CallyRootClass;
 typedef struct _CallyRootPrivate CallyRootPrivate;
 
-/**
- * CallyRoot:
- *
- * The <structname>CallyRoot</structname> structure contains only private
- * data and should be accessed using the provided API
- *
- * Since: 1.4
- */
 struct _CallyRoot
 {
   /*< private >*/

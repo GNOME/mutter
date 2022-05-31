@@ -41,14 +41,6 @@ typedef struct _CallyUtil        CallyUtil;
 typedef struct _CallyUtilClass   CallyUtilClass;
 typedef struct _CallyUtilPrivate CallyUtilPrivate;
 
-/**
- * CallyUtil:
- *
- * The <structname>CallyUtil</structname> structure contains only
- * private data and should be accessed using the provided API
- *
- * Since: 1.4
- */
 struct _CallyUtil
 {
   /*< private >*/
