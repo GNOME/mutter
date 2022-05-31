@@ -2346,3 +2346,47 @@ meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display)
   meta_x11_display_set_stage_input_region (x11_display,
                                            x11_display->empty_region);
 }
+
+void
+meta_x11_display_redirect_windows (MetaX11Display *x11_display)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_backend_get_context (backend);
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
+  Window xroot = meta_x11_display_get_xroot (x11_display);
+  int screen_number = meta_x11_display_get_screen_number (x11_display);
+  guint n_retries;
+  guint max_retries;
+
+  if (meta_context_is_replacing (context))
+    max_retries = 5;
+  else
+    max_retries = 1;
+
+  n_retries = 0;
+
+  /* Some compositors (like old versions of Mutter) might not properly unredirect
+   * subwindows before destroying the WM selection window; so we wait a while
+   * for such a compositor to exit before giving up.
+   */
+  while (TRUE)
+    {
+      meta_x11_error_trap_push (x11_display);
+      XCompositeRedirectSubwindows (xdisplay, xroot, CompositeRedirectManual);
+      XSync (xdisplay, FALSE);
+
+      if (!meta_x11_error_trap_pop_with_return (x11_display))
+        break;
+
+      if (n_retries == max_retries)
+        {
+          /* This probably means that a non-WM compositor like xcompmgr is running;
+           * we have no way to get it to exit */
+          meta_fatal (_("Another compositing manager is already running on screen %i on display “%s”."),
+                      screen_number, x11_display->name);
+        }
+
+      n_retries++;
+      g_usleep (G_USEC_PER_SEC);
+    }
+}

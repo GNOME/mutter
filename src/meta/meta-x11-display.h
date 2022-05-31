@@ -70,4 +70,6 @@ void     meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
 META_EXPORT
 void     meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
 
+META_EXPORT
+void     meta_x11_display_redirect_windows (MetaX11Display *x11_display);
 #endif /* META_X11_DISPLAY_H */

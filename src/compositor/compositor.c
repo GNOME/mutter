@@ -54,15 +54,9 @@
 
 #include "compositor/compositor-private.h"
 
-#include <X11/extensions/Xcomposite.h>
-
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-event-x11.h"
-#include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
 #include "compositor/meta-later-private.h"
-#include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
 #include "core/frame.h"
@@ -75,14 +69,25 @@
 #include "meta/meta-background-group.h"
 #include "meta/meta-context.h"
 #include "meta/meta-shadow-factory.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "meta/window.h"
-#include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
 #include "compositor/meta-window-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
+#endif
+
+#ifdef HAVE_X11_CLIENT
+#include <X11/extensions/Xcomposite.h>
+
+#include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-stage-x11.h"
+
+#include "compositor/meta-window-actor-x11.h"
+
+#include "meta/meta-x11-errors.h"
+#include "x11/meta-x11-display-private.h"
 #endif
 
 enum
@@ -305,6 +310,7 @@ void
 meta_focus_stage_window (MetaDisplay *display,
                          guint32      timestamp)
 {
+#ifdef HAVE_X11_CLIENT
   ClutterStage *stage;
   Window window;
 
@@ -320,18 +326,19 @@ meta_focus_stage_window (MetaDisplay *display,
   meta_x11_display_set_input_focus_xwindow (display->x11_display,
                                             window,
                                             timestamp);
+#endif
 }
 
 gboolean
 meta_stage_is_focused (MetaDisplay *display)
 {
-  ClutterStage *stage;
-  Window window;
-
   if (meta_is_wayland_compositor ())
     return TRUE;
 
-  stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+#ifdef HAVE_X11_CLIENT
+  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  Window window;
+
   if (!stage)
     return FALSE;
 
@@ -341,6 +348,9 @@ meta_stage_is_focused (MetaDisplay *display)
     return FALSE;
 
   return (display->x11_display->focus_xwindow == window);
+#else
+  return FALSE;
+#endif
 }
 
 void
@@ -353,61 +363,6 @@ void
 meta_compositor_grab_end (MetaCompositor *compositor)
 {
   META_COMPOSITOR_GET_CLASS (compositor)->grab_end (compositor);
-}
-
-static void
-redirect_windows (MetaX11Display *x11_display)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaContext *context = meta_backend_get_context (backend);
-  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
-  Window xroot = meta_x11_display_get_xroot (x11_display);
-  int screen_number = meta_x11_display_get_screen_number (x11_display);
-  guint n_retries;
-  guint max_retries;
-
-  if (meta_context_is_replacing (context))
-    max_retries = 5;
-  else
-    max_retries = 1;
-
-  n_retries = 0;
-
-  /* Some compositors (like old versions of Mutter) might not properly unredirect
-   * subwindows before destroying the WM selection window; so we wait a while
-   * for such a compositor to exit before giving up.
-   */
-  while (TRUE)
-    {
-      meta_x11_error_trap_push (x11_display);
-      XCompositeRedirectSubwindows (xdisplay, xroot, CompositeRedirectManual);
-      XSync (xdisplay, FALSE);
-
-      if (!meta_x11_error_trap_pop_with_return (x11_display))
-        break;
-
-      if (n_retries == max_retries)
-        {
-          /* This probably means that a non-WM compositor like xcompmgr is running;
-           * we have no way to get it to exit */
-          meta_fatal (_("Another compositing manager is already running on screen %i on display “%s”."),
-                      screen_number, x11_display->name);
-        }
-
-      n_retries++;
-      g_usleep (G_USEC_PER_SEC);
-    }
-}
-
-void
-meta_compositor_redirect_x11_windows (MetaCompositor *compositor)
-{
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
-  MetaDisplay *display = priv->display;
-
-  if (display->x11_display)
-    redirect_windows (display->x11_display);
 }
 
 gboolean
@@ -483,9 +438,11 @@ meta_compositor_add_window (MetaCompositor    *compositor,
 
   switch (window->client_type)
     {
+#ifdef HAVE_X11_CLIENT
     case META_WINDOW_CLIENT_TYPE_X11:
       window_actor_type = META_TYPE_WINDOW_ACTOR_X11;
       break;
+#endif
 
 #ifdef HAVE_WAYLAND
     case META_WINDOW_CLIENT_TYPE_WAYLAND:
@@ -571,7 +528,9 @@ meta_compositor_window_shape_changed (MetaCompositor *compositor,
   if (!window_actor)
     return;
 
+#ifdef HAVE_X11_CLIENT
   meta_window_actor_x11_update_shape (META_WINDOW_ACTOR_X11 (window_actor));
+#endif
 }
 
 void
