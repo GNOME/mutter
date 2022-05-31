@@ -638,7 +638,7 @@ create_compositor (MetaDisplay *display)
 }
 
 static void
-meta_display_init (MetaDisplay *disp)
+meta_display_init (MetaDisplay *display)
 {
   /* Some stuff could go in here that's currently in _open,
    * but it doesn't really matter. */
@@ -704,6 +704,7 @@ on_monitor_privacy_screen_changed (MetaDisplay        *display,
                                  : _("Privacy Screen Disabled"));
 }
 
+#ifdef HAVE_X11_CLIENT
 static gboolean
 meta_display_init_x11_display (MetaDisplay  *display,
                                GError      **error)
@@ -723,13 +724,12 @@ meta_display_init_x11_display (MetaDisplay  *display,
     {
       g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
       meta_display_manage_all_xwindows (display);
-      meta_compositor_redirect_x11_windows (display->compositor);
+      meta_x11_display_redirect_windows (x11_display, display);
     }
 
   return TRUE;
 }
 
-#ifdef HAVE_WAYLAND
 gboolean
 meta_display_init_x11_finish (MetaDisplay   *display,
                               GAsyncResult  *result,
@@ -763,7 +763,7 @@ meta_display_init_x11_finish (MetaDisplay   *display,
     {
       g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
       meta_display_manage_all_xwindows (display);
-      meta_compositor_redirect_x11_windows (display->compositor);
+      meta_x11_display_redirect_windows (x11_display, display);
     }
 
   return TRUE;
@@ -834,7 +834,7 @@ on_x11_initialized (MetaDisplay  *display,
   if (!meta_display_init_x11_finish (display, result, &error))
     g_critical ("Failed to init X11 display: %s", error->message);
 }
-#endif
+#endif /* HAVE_X11_CLIENT */
 
 void
 meta_display_shutdown_x11 (MetaDisplay *display)
@@ -931,9 +931,11 @@ meta_display_new (MetaContext  *context,
     {
       MetaWaylandCompositor *wayland_compositor =
         wayland_compositor_from_display (display);
-      MetaX11DisplayPolicy x11_display_policy;
 
       meta_wayland_compositor_init_display (wayland_compositor, display);
+
+#ifdef HAVE_XWAYLAND
+      MetaX11DisplayPolicy x11_display_policy;
 
       x11_display_policy = meta_context_get_x11_display_policy (context);
       if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
@@ -942,11 +944,12 @@ meta_display_new (MetaContext  *context,
                                  (GAsyncReadyCallback) on_x11_initialized,
                                  NULL);
         }
-
+#endif /* HAVE_XWAYLAND */
       timestamp = meta_display_get_current_time_roundtrip (display);
     }
   else
-#endif
+#endif /* HAVE_WAYLAND */
+#ifdef HAVE_X11
     {
       if (!meta_display_init_x11_display (display, error))
         {
@@ -956,6 +959,11 @@ meta_display_new (MetaContext  *context,
 
       timestamp = display->x11_display->timestamp;
     }
+#else
+    {
+      g_assert_not_reached ();
+    }
+#endif
 
   display->last_focus_time = timestamp;
   display->last_user_time = timestamp;

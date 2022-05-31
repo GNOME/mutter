@@ -56,4 +56,7 @@ META_EXPORT
 void meta_x11_display_remove_event_func (MetaX11Display *x11_display,
                                          unsigned int    id);
 
+META_EXPORT
+void     meta_x11_display_redirect_windows (MetaX11Display *x11_display,
+                                            MetaDisplay    *display);
 #endif /* META_X11_DISPLAY_H */
