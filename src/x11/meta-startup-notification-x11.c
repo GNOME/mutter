@@ -51,6 +51,8 @@ struct _MetaX11StartupNotification
 
 static GParamSpec *seq_x11_props[N_SEQ_X11_PROPS];
 
+static GList *displays;
+
 G_DEFINE_TYPE (MetaStartupSequenceX11,
                meta_startup_sequence_x11,
                META_TYPE_STARTUP_SEQUENCE)
@@ -168,13 +170,36 @@ meta_startup_sequence_x11_new (MetaDisplay       *display,
                        NULL);
 }
 
+static MetaDisplay *
+find_display (Display *xdisplay)
+{
+  GList *l;
+
+  for (l = displays; l; l = l->next)
+    {
+      MetaDisplay *display = l->data;
+      MetaX11Display *x11_display;
+
+      x11_display = display->x11_display;
+      if (!x11_display)
+        continue;
+
+      if (x11_display->xdisplay != xdisplay)
+        continue;
+
+      return display;
+    }
+
+  return NULL;
+}
+
 static void
 sn_error_trap_push (SnDisplay *sn_display,
                     Display   *xdisplay)
 {
   MetaDisplay *display;
 
-  display = meta_display_for_x_display (xdisplay);
+  display = find_display (xdisplay);
   if (display != NULL)
     meta_x11_error_trap_push (display->x11_display);
 }
@@ -185,7 +210,7 @@ sn_error_trap_pop (SnDisplay *sn_display,
 {
   MetaDisplay *display;
 
-  display = meta_display_for_x_display (xdisplay);
+  display = find_display (xdisplay);
   if (display != NULL)
     meta_x11_error_trap_pop (display->x11_display);
 }
@@ -253,13 +278,21 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
 
   sn_startup_sequence_unref (sequence);
 }
-#endif
+
+static void
+on_x11_display_closing (MetaDisplay *display)
+{
+  g_signal_handlers_disconnect_by_func (display, on_x11_display_closing, NULL);
+  displays = g_list_remove (displays, display);
+}
+#endif /* HAVE_STARTUP_NOTIFICATION */
 
 void
 meta_x11_startup_notification_init (MetaX11Display *x11_display)
 {
 #ifdef HAVE_STARTUP_NOTIFICATION
   MetaX11StartupNotification *x11_sn;
+  MetaDisplay *display;
 
   x11_sn = g_new0 (MetaX11StartupNotification, 1);
   x11_sn->sn_display = sn_display_new (x11_display->xdisplay,
@@ -273,6 +306,14 @@ meta_x11_startup_notification_init (MetaX11Display *x11_display)
                             NULL);
 
   x11_display->startup_notification = x11_sn;
+
+  display = meta_x11_display_get_display (x11_display);
+  if (!g_list_find (displays, display))
+    {
+      displays = g_list_prepend (displays, display);
+      g_signal_connect (display, "x11-display-closing",
+                        G_CALLBACK (on_x11_display_closing), NULL);
+    }
 #endif
 }
 

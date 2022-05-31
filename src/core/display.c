@@ -1206,31 +1206,6 @@ meta_display_close (MetaDisplay *display,
 }
 
 /**
- * meta_display_for_x_display:
- * @xdisplay: An X display
- *
- * Returns the singleton MetaDisplay if @xdisplay matches the X display it's
- * managing; otherwise gives a warning and returns %NULL.  When we were claiming
- * to be able to manage multiple displays, this was supposed to find the
- * display out of the list which matched that display.  Now it's merely an
- * extra sanity check.
- *
- * Returns: The singleton X display, or %NULL if @xdisplay isn't the one
- *          we're managing.
- */
-MetaDisplay*
-meta_display_for_x_display (Display *xdisplay)
-{
-  if (the_display->x11_display->xdisplay == xdisplay)
-    return the_display;
-
-  meta_warning ("Could not find display for X display %p, probably going to crash",
-                xdisplay);
-
-  return NULL;
-}
-
-/**
  * meta_get_display:
  *
  * Accessor for the singleton MetaDisplay.
