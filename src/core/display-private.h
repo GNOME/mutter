@@ -256,7 +256,10 @@ struct _MetaDisplayClass
 MetaDisplay * meta_display_new (MetaContext  *context,
                                 GError      **error);
 
+#ifdef HAVE_X11_CLIENT
 void meta_display_manage_all_xwindows (MetaDisplay *display);
+#endif
+
 void meta_display_unmanage_windows   (MetaDisplay *display,
                                       guint32      timestamp);
 
@@ -300,7 +303,9 @@ META_EXPORT_TEST
 GSList*     meta_display_list_windows        (MetaDisplay          *display,
                                               MetaListWindowsFlags  flags);
 
+#ifdef HAVE_X11_CLIENT
 MetaDisplay* meta_display_for_x_display  (Display     *xdisplay);
+#endif
 
 META_EXPORT_TEST
 MetaDisplay* meta_get_display            (void);
