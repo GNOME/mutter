@@ -190,7 +190,10 @@ struct _MetaDisplayClass
 MetaDisplay * meta_display_new (MetaContext  *context,
                                 GError      **error);
 
+#ifdef HAVE_X11_CLIENT
 void meta_display_manage_all_xwindows (MetaDisplay *display);
+#endif
+
 void meta_display_unmanage_windows   (MetaDisplay *display,
                                       guint32      timestamp);
 

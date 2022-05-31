@@ -290,6 +290,14 @@ meta_x11_display_dispose (GObject *object)
 }
 
 static void
+on_x11_display_opened (MetaX11Display *x11_display,
+                       MetaDisplay    *display)
+{
+  meta_display_manage_all_xwindows (display);
+  meta_x11_display_redirect_windows (x11_display, display);
+}
+
+static void
 meta_x11_display_class_init (MetaX11DisplayClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -1274,6 +1282,11 @@ meta_x11_display_new (MetaDisplay  *display,
                            G_CALLBACK (on_window_visibility_updated),
                            x11_display, 0);
 
+  g_signal_connect_object (display,
+                           "x11-display-opened",
+                           G_CALLBACK (on_x11_display_opened),
+                           x11_display,
+                           G_CONNECT_SWAPPED);
   update_cursor_theme (x11_display);
 
   x11_display->xids = g_hash_table_new (meta_unsigned_long_hash,
