@@ -260,8 +260,8 @@ meta_x11_startup_notification_init (MetaX11Display *x11_display)
 
   x11_sn = g_new0 (MetaX11StartupNotification, 1);
   x11_sn->sn_display = sn_display_new (x11_display->xdisplay,
-                                            sn_error_trap_push,
-                                            sn_error_trap_pop);
+                                       sn_error_trap_push,
+                                       sn_error_trap_pop);
   x11_sn->sn_context =
     sn_monitor_context_new (x11_sn->sn_display,
                             meta_x11_display_get_screen_number (x11_display),
