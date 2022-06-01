@@ -894,6 +894,7 @@ meta_wayland_get_wayland_display_name (MetaWaylandCompositor *compositor)
   return compositor->display_name;
 }
 
+#ifdef HAVE_XWAYLAND
 const char *
 meta_wayland_get_public_xwayland_display_name (MetaWaylandCompositor *compositor)
 {
@@ -905,6 +906,7 @@ meta_wayland_get_private_xwayland_display_name (MetaWaylandCompositor *composito
 {
   return compositor->xwayland_manager.private_connection.name;
 }
+#endif /* HAVE_XWAYLAND */
 
 void
 meta_wayland_compositor_restore_shortcuts (MetaWaylandCompositor *compositor,
@@ -1004,7 +1006,9 @@ meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
                                 GINT_TO_POINTER (id));
   if (window)
     {
+#ifdef HAVE_XWAYLAND
       meta_xwayland_associate_window_with_surface (window, surface);
+#endif
       meta_wayland_compositor_remove_surface_association (compositor, id);
     }
 }

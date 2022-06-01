@@ -613,7 +613,9 @@ meta_test_client_new (MetaContext           *context,
   ClientProcessHandler *process_handler;
   MetaWaylandCompositor *compositor;
   const char *wayland_display_name;
+#ifdef HAVE_XWAYLAND
   const char *x11_display_name;
+#endif
 
   launcher =  g_subprocess_launcher_new ((G_SUBPROCESS_FLAGS_STDIN_PIPE |
                                           G_SUBPROCESS_FLAGS_STDOUT_PIPE));
@@ -621,8 +623,9 @@ meta_test_client_new (MetaContext           *context,
   g_assert (meta_is_wayland_compositor ());
   compositor = meta_context_get_wayland_compositor (context);
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
+#ifdef HAVE_XWAYLAND
   x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
-
+#endif
   if (wayland_display_name)
     {
       g_subprocess_launcher_setenv (launcher,
@@ -630,12 +633,14 @@ meta_test_client_new (MetaContext           *context,
                                     TRUE);
     }
 
+#ifdef HAVE_XWAYLAND
   if (x11_display_name)
     {
       g_subprocess_launcher_setenv (launcher,
                                     "DISPLAY", x11_display_name,
                                     TRUE);
     }
+#endif
 
   subprocess = g_subprocess_launcher_spawn (launcher,
                                             error,

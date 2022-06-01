@@ -92,7 +92,9 @@ struct _MetaWaylandCompositor
   GHashTable *outputs;
   GList *frame_callback_surfaces;
 
+#ifdef HAVE_XWAYLAND
   MetaXWaylandManager xwayland_manager;
+#endif
 
   MetaWaylandSeat *seat;
   MetaWaylandTabletManager *tablet_manager;

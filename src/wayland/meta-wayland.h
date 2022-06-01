@@ -72,10 +72,12 @@ GQueue                 *meta_wayland_compositor_get_committed_transactions (Meta
 META_EXPORT_TEST
 const char             *meta_wayland_get_wayland_display_name   (MetaWaylandCompositor *compositor);
 
+#ifdef HAVE_XWAYLAND
 META_EXPORT_TEST
 const char             *meta_wayland_get_public_xwayland_display_name  (MetaWaylandCompositor *compositor);
 
 const char             *meta_wayland_get_private_xwayland_display_name (MetaWaylandCompositor *compositor);
+#endif
 
 void                    meta_wayland_compositor_restore_shortcuts      (MetaWaylandCompositor *compositor,
                                                                         ClutterInputDevice    *source);
@@ -94,8 +96,10 @@ void                    meta_wayland_compositor_notify_surface_id (MetaWaylandCo
                                                                    int                    id,
                                                                    MetaWaylandSurface    *surface);
 
+#ifdef HAVE_XWAYLAND
 META_EXPORT_TEST
 MetaXWaylandManager *   meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor);
+#endif
 
 #endif
 
