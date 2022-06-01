@@ -987,7 +987,7 @@ meta_xwayland_dnd_handle_xfixes_selection_notify (MetaWaylandCompositor *composi
   focus = compositor->seat->pointer->focus_surface;
 
   if (event->owner != None && event->owner != x11_display->selection.xwindow &&
-      focus && meta_xwayland_is_xwayland_surface (focus))
+      focus && meta_wayland_surface_is_xwayland (focus))
     {
       dnd->source = meta_wayland_data_source_xwayland_new (dnd);
       meta_wayland_data_device_set_dnd_source (&compositor->seat->data_device,

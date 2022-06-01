@@ -89,7 +89,7 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
   MetaWaylandSurfaceRole *role = META_WAYLAND_SURFACE_ROLE (cursor_surface);
   MetaWaylandSurface *surface = meta_wayland_surface_role_get_surface (role);
 
-  if (!meta_xwayland_is_xwayland_surface (surface))
+  if (!meta_wayland_surface_is_xwayland (surface))
     {
       MetaBackend *backend = meta_get_backend ();
       MetaMonitorManager *monitor_manager =
