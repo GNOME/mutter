@@ -27,13 +27,16 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-manager.h"
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -178,6 +181,7 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
   return FALSE;
 }
 
+#ifdef HAVE_X11_CLIENT
 static void
 maybe_unfreeze_pointer_events (MetaBackend          *backend,
                                const ClutterEvent   *event,
@@ -216,6 +220,7 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
   xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   XIAllowEvents (xdisplay, device_id, event_mode, event->button.time);
 }
+#endif
 
 static gboolean
 meta_display_handle_event (MetaDisplay        *display,
@@ -501,8 +506,9 @@ meta_display_handle_event (MetaDisplay        *display,
         {
           /* Only replay button press events, since that's where we
            * have the synchronous grab. */
+#ifdef HAVE_X11_CLIENT
           maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_REPLAY);
-
+#endif
           /* If the focus window has an active close dialog let clutter
            * events go through, so fancy clutter dialogs can get to handle
            * all events.
@@ -522,7 +528,9 @@ meta_display_handle_event (MetaDisplay        *display,
       /* We could not match the event with a window, make sure we sync
        * the pointer to discard the sequence and don't keep events frozen.
        */
-       maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_SYNC);
+#ifdef HAVE_X11_CLIENT
+      maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_SYNC);
+#endif
     }
 
  out:
