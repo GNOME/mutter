@@ -108,6 +108,7 @@ meta_dnd_init (MetaDnd *dnd)
 {
 }
 
+#ifdef HAVE_X11
 void
 meta_dnd_init_xdnd (MetaX11Display *x11_display)
 {
@@ -136,6 +137,7 @@ meta_dnd_init_xdnd (MetaX11Display *x11_display)
                    XInternAtom (xdisplay, "XdndProxy", TRUE), XA_WINDOW,
                    32, PropModeReplace, (const unsigned char *) &xwindow, 1);
 }
+#endif
 
 static void
 meta_dnd_notify_dnd_enter (MetaDnd *dnd)
@@ -165,6 +167,7 @@ meta_dnd_notify_dnd_leave (MetaDnd *dnd)
  *
  * http://www.freedesktop.org/wiki/Specifications/XDND
  */
+#ifdef HAVE_X11
 gboolean
 meta_dnd_handle_xdnd_event (MetaBackend       *backend,
                             MetaCompositorX11 *compositor_x11,
@@ -224,6 +227,7 @@ meta_dnd_handle_xdnd_event (MetaBackend       *backend,
 
   return FALSE;
 }
+#endif
 
 #ifdef HAVE_WAYLAND
 static void
