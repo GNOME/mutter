@@ -2396,3 +2396,17 @@ meta_wayland_surface_get_compositor (MetaWaylandSurface *surface)
 {
   return surface->compositor;
 }
+
+gboolean
+meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface)
+{
+#ifdef HAVE_XWAYLAND
+  MetaWaylandCompositor *compositor = surface->compositor;
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+
+  return surface->resource != NULL &&
+         wl_resource_get_client (surface->resource) == manager->client;
+#else
+  return FALSE;
+#endif
+}

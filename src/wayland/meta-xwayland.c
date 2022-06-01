@@ -146,16 +146,6 @@ meta_xwayland_handle_wl_surface_id (MetaWindow *window,
     }
 }
 
-gboolean
-meta_xwayland_is_xwayland_surface (MetaWaylandSurface *surface)
-{
-  MetaWaylandCompositor *compositor = surface->compositor;
-  MetaXWaylandManager *manager = &compositor->xwayland_manager;
-
-  return surface->resource != NULL &&
-         wl_resource_get_client (surface->resource) == manager->client;
-}
-
 static gboolean
 try_display (int      display,
              char   **filename_out,

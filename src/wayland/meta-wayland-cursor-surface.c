@@ -92,8 +92,7 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
   MetaWaylandSurfaceRole *role = META_WAYLAND_SURFACE_ROLE (cursor_surface);
   MetaWaylandSurface *surface = meta_wayland_surface_role_get_surface (role);
 
-#ifdef HAVE_XWAYLAND
-  if (!meta_xwayland_is_xwayland_surface (surface))
+  if (!meta_wayland_surface_is_xwayland (surface))
     {
       MetaWaylandSurfaceRole *surface_role =
         META_WAYLAND_SURFACE_ROLE (cursor_surface);
@@ -123,7 +122,6 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
                                                     surface->buffer_transform);
         }
     }
-#endif
 
   meta_wayland_surface_update_outputs (surface);
 }
