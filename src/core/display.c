@@ -942,12 +942,13 @@ meta_display_new (MetaContext  *context,
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
     {
+
+#ifdef HAVE_XWAYLAND
       MetaWaylandCompositor *wayland_compositor =
         meta_wayland_compositor_get_default ();
 
       meta_wayland_compositor_init_display (wayland_compositor, display);
 
-#ifdef HAVE_XWAYLAND
       MetaX11DisplayPolicy x11_display_policy;
 
       x11_display_policy = meta_context_get_x11_display_policy (context);

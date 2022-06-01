@@ -155,6 +155,7 @@ connect_window (MetaWaylandSurfacePointerConstraintsData *data,
                       G_CALLBACK (window_raised), NULL);
 }
 
+#ifdef HAVE_XWAYLAND
 static void
 window_associated (MetaWaylandSurfaceRole                   *surface_role,
                    MetaWaylandSurfacePointerConstraintsData *data)
@@ -168,6 +169,7 @@ window_associated (MetaWaylandSurfaceRole                   *surface_role,
 
   meta_wayland_pointer_constraint_maybe_enable_for_window (window);
 }
+#endif
 
 static MetaWaylandSurfacePointerConstraintsData *
 surface_constraint_data_new (MetaWaylandSurface *surface)
@@ -184,6 +186,7 @@ surface_constraint_data_new (MetaWaylandSurface *surface)
     {
       connect_window (data, window);
     }
+#ifdef HAVE_XWAYLAND
   else if (meta_xwayland_is_xwayland_surface (surface))
     {
       data->window_associated_handler_id =
@@ -191,6 +194,7 @@ surface_constraint_data_new (MetaWaylandSurface *surface)
                           G_CALLBACK (window_associated),
                           data);
     }
+#endif
   else
     {
       /* TODO: Support constraints on non-toplevel windows, such as subsurfaces.
@@ -464,7 +468,9 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
        * Locks from Xwayland may come before we have had the opportunity to
        * associate the X11 Window with the wl_surface.
        */
+#ifdef HAVE_XWAYLAND
       g_warn_if_fail (meta_xwayland_is_xwayland_surface (constraint->surface));
+#endif
       return FALSE;
     }
 
@@ -474,6 +480,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
   if (constraint->seat->pointer->focus_surface != constraint->surface)
     return FALSE;
 
+#ifdef HAVE_XWAYLAND
   if (meta_xwayland_is_xwayland_surface (constraint->surface))
     {
       MetaDisplay *display = meta_get_display ();
@@ -497,6 +504,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
         return FALSE;
     }
   else
+#endif
     {
       if (!meta_window_appears_focused (window))
         return FALSE;
@@ -618,8 +626,9 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
       MetaFrame *frame = window->frame;
       int actual_width, actual_height;
 
+#ifdef HAVE_XWAYLAND
       g_assert (meta_xwayland_is_xwayland_surface (constraint->surface));
-
+#endif
       actual_width = window->buffer_rect.width - (frame->child_x +
                                                   frame->right_width);
       actual_height = window->buffer_rect.height - (frame->child_y +
