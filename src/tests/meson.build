@@ -429,3 +429,16 @@ if have_x11
     timeout: 60,
   )
 endif
+
+test('get-state-tool', mutter,
+  args: [
+    '--headless',
+    '--mutter-plugin=@0@'.format(default_plugin.full_path()),
+    '--virtual-monitor', '800x600',
+    get_state_tool.full_path(),
+  ],
+  suite: ['tools'],
+  env: test_env,
+  is_parallel: false,
+  timeout: 60,
+)
