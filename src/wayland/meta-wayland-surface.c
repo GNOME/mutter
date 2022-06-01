@@ -2268,3 +2268,12 @@ meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface)
   actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
   return meta_wayland_actor_surface_get_geometry_scale (actor_surface);
 }
+
+gboolean
+meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface)
+{
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+
+  return wl_resource_get_client (surface->resource) == manager->client;
+}
