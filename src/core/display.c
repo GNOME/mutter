@@ -55,7 +55,6 @@
 #include "core/boxes-private.h"
 #include "core/display-private.h"
 #include "core/events.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-clipboard-manager.h"
 #include "core/meta-workspace-manager-private.h"
@@ -77,6 +76,8 @@
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "compositor/meta-compositor-x11.h"
+#include "core/frame.h"
+
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
@@ -2147,12 +2148,13 @@ meta_display_queue_retheme_all_windows (MetaDisplay *display)
       MetaWindow *window = tmp->data;
 
       meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+#ifdef HAVE_X11_CLIENT
       meta_window_frame_size_changed (window);
       if (window->frame)
         {
           meta_frame_queue_draw (window->frame);
         }
-
+#endif
       tmp = tmp->next;
     }
 

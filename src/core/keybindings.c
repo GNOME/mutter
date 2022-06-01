@@ -37,7 +37,6 @@
 #include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
 #include "core/edge-resistance.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-accel-parse.h"
 #include "core/meta-workspace-manager-private.h"
@@ -47,6 +46,10 @@
 #include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -1622,6 +1625,7 @@ meta_window_grab_keys (MetaWindow  *window)
 void
 meta_window_ungrab_keys (MetaWindow  *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (!meta_is_wayland_compositor () && window->keys_grabbed)
     {
       MetaDisplay *display = window->display;
@@ -1635,6 +1639,7 @@ meta_window_ungrab_keys (MetaWindow  *window)
 
       window->keys_grabbed = FALSE;
     }
+#endif
 }
 
 static void

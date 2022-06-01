@@ -59,7 +59,6 @@
 #include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
-#include "core/frame.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
 #include "meta/compositor-mutter.h"
@@ -85,6 +84,7 @@
 #include "backends/x11/meta-stage-x11.h"
 
 #include "compositor/meta-window-actor-x11.h"
+#include "core/frame.h"
 
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"

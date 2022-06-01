@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include "core/events.h"
-#include "core/frame.h"
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-dnd-private.h"
@@ -37,6 +36,8 @@
 #ifdef HAVE_X11_CLIENT
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
+
+#include "core/frame.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -482,12 +483,14 @@ meta_display_handle_event (MetaDisplay        *display,
        * event to Wayland if it was handled by the frame UI.
        * See: https://gitlab.gnome.org/GNOME/mutter/issues/88
        */
+#ifdef HAVE_X11_CLIENT
       if (meta_frame_handle_event (window->frame, event))
         {
           bypass_wayland = (event->type == CLUTTER_BUTTON_PRESS ||
                             event->type == CLUTTER_TOUCH_BEGIN);
         }
       else
+#endif
         {
           bypass_wayland = meta_window_has_modals (window);
           meta_window_handle_ungrabbed_event (window, event);

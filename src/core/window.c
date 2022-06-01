@@ -71,7 +71,6 @@
 #include "core/boxes-private.h"
 #include "core/constraints.h"
 #include "core/edge-resistance.h"
-#include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
@@ -89,6 +88,10 @@
 #include "x11/window-props.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
+#endif
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
@@ -2951,9 +2954,10 @@ meta_window_tile (MetaWindow   *window,
                                      META_MOVE_RESIZE_STATE_CHANGED),
                                     META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
-
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     meta_frame_queue_draw (window->frame);
+#endif
 }
 
 MetaTileMode
@@ -4165,18 +4169,24 @@ meta_window_get_gravity_position (MetaWindow  *window,
   if (gravity == META_GRAVITY_STATIC)
     {
       frame_extents = window->rect;
+#ifdef HAVE_X11_CLIENT
       if (window->frame)
         {
           frame_extents.x = window->frame->rect.x + window->frame->child_x;
           frame_extents.y = window->frame->rect.y + window->frame->child_y;
         }
+#endif
     }
   else
     {
+#ifdef HAVE_X11_CLIENT
       if (window->frame == NULL)
         frame_extents = window->rect;
       else
         frame_extents = window->frame->rect;
+#else
+      frame_extents = window->rect;
+#endif
     }
 
   x = frame_extents.x;
@@ -4293,6 +4303,7 @@ meta_window_client_rect_to_frame_rect (MetaWindow    *window,
    * constraints.c:get_size_limits() and not something that we provide
    * in other locations or document.
    */
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     {
       MetaFrameBorders borders;
@@ -4306,6 +4317,7 @@ meta_window_client_rect_to_frame_rect (MetaWindow    *window,
         frame_rect->height += borders.visible.top  + borders.visible.bottom;
     }
   else
+#endif
     {
       const GtkBorder *extents = &window->custom_frame_extents;
       frame_rect->x += extents->left;
@@ -4336,6 +4348,7 @@ meta_window_frame_rect_to_client_rect (MetaWindow    *window,
 
   *client_rect = *frame_rect;
 
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     {
       MetaFrameBorders borders;
@@ -4347,6 +4360,7 @@ meta_window_frame_rect_to_client_rect (MetaWindow    *window,
       client_rect->height -= borders.visible.top  + borders.visible.bottom;
     }
   else
+#endif
     {
       const GtkBorder *extents = &window->custom_frame_extents;
       client_rect->x -= extents->left;
@@ -4386,18 +4400,26 @@ void
 meta_window_get_client_area_rect (const MetaWindow      *window,
                                   cairo_rectangle_int_t *rect)
 {
+  int top, left, right, bottom;
+#ifdef HAVE_X11_CLIENT
   MetaFrameBorders borders;
-
   meta_frame_calc_borders (window->frame, &borders);
 
-  rect->x = borders.total.left;
-  rect->y = borders.total.top;
+  left = borders.total.left;
+  right = borders.total.right;
+  bottom = borders.total.bottom;
+  top = borders.total.top;
+#else
+  top = left = right = bottom = 0;
+#endif
+  rect->x = left;
+  rect->y = top;
 
-  rect->width = window->buffer_rect.width - borders.total.left - borders.total.right;
+  rect->width = window->buffer_rect.width - left - right;
   if (window->shaded)
     rect->height = 0;
   else
-    rect->height = window->buffer_rect.height - borders.total.top - borders.total.bottom;
+    rect->height = window->buffer_rect.height - top - bottom;
 }
 
 void
@@ -4410,11 +4432,13 @@ meta_window_get_titlebar_rect (MetaWindow    *window,
   rect->x = 0;
   rect->y = 0;
 
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     {
       rect->height = window->frame->child_y;
     }
   else
+#endif
     {
       /* Pick an arbitrary height for a titlebar. We might want to
        * eventually have CSD windows expose their borders to us. */
@@ -5018,8 +5042,10 @@ meta_window_update_appears_focused (MetaWindow *window)
 
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_APPEARS_FOCUSED]);
 
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     meta_frame_queue_draw (window->frame);
+#endif
 }
 
 static gboolean
@@ -5139,9 +5165,10 @@ meta_window_set_focused_internal (MetaWindow *window,
                             window);
         }
 
+#ifdef HAVE_X11_CLIENT
       if (window->frame)
         meta_frame_queue_draw (window->frame);
-
+#endif
       /* Ungrab click to focus button since the sync grab can interfere
        * with some things you might do inside the focused window, by
        * causing the client to get funky enter/leave events.
@@ -5313,11 +5340,12 @@ meta_window_type_changed (MetaWindow *window)
     set_net_wm_state (window);
 
   /* Update frame */
+#ifdef HAVE_X11_CLIENT
   if (window->decorated)
     meta_window_ensure_frame (window);
   else
     meta_window_destroy_frame (window);
-
+#endif
   /* update stacking constraints */
   meta_window_update_layer (window);
 
@@ -5347,8 +5375,10 @@ meta_window_set_type (MetaWindow     *window,
 void
 meta_window_frame_size_changed (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     meta_frame_clear_cached_borders (window->frame);
+#endif
 }
 
 static void
@@ -5943,12 +5973,13 @@ update_move (MetaWindow              *window,
                   window->saved_rect.x = work_area.x;
                   window->saved_rect.y = work_area.y;
 
+#ifdef HAVE_X11_CLIENT
                   if (window->frame)
                     {
                       window->saved_rect.x += window->frame->child_x;
                       window->saved_rect.y += window->frame->child_y;
                     }
-
+#endif
                   window->unconstrained_rect.x = window->saved_rect.x;
                   window->unconstrained_rect.y = window->saved_rect.y;
 
@@ -7598,11 +7629,13 @@ meta_window_get_frame_type (MetaWindow *window)
 cairo_region_t *
 meta_window_get_frame_bounds (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   if (!window->frame_bounds)
     {
       if (window->frame)
         window->frame_bounds = meta_frame_get_frame_bounds (window->frame);
     }
+#endif
 
   return window->frame_bounds;
 }
@@ -7814,9 +7847,10 @@ meta_window_set_title (MetaWindow *window,
   g_free (window->title);
   window->title = g_strdup (title);
 
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     meta_frame_update_title (window->frame);
-
+#endif
   meta_window_update_desc (window);
 
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TITLE]);

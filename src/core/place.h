@@ -22,7 +22,6 @@
 #ifndef META_PLACE_H
 #define META_PLACE_H
 
-#include "core/frame.h"
 #include "core/window-private.h"
 
 void meta_window_process_placement (MetaWindow        *window,

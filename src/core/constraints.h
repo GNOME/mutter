@@ -23,7 +23,6 @@
 #ifndef META_CONSTRAINTS_H
 #define META_CONSTRAINTS_H
 
-#include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/util.h"
 

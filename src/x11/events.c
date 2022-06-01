@@ -50,6 +50,10 @@
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
+#endif
+
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-xwayland-private.h"

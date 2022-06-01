@@ -18,7 +18,6 @@
  */
 
 #include "core/display-private.h"
-#include "core/frame.h"
 
 struct _MetaBell
 {

@@ -31,7 +31,6 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "cogl/cogl.h"
-#include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
@@ -39,6 +38,10 @@
 #include "meta/prefs.h"
 #include "meta/workspace.h"
 #include "x11/meta-x11-display-private.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
+#endif
 
 #define WINDOW_TRANSIENT_FOR_WHOLE_GROUP(w)        \
   (meta_window_has_transient_type (w) && w->transient_for == NULL)
@@ -101,10 +104,12 @@ on_stack_changed (MetaStack *stack)
       meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
 		  w->layer, w->stack_position, w->desc);
 
+#ifdef HAVE_X11_CLIENT
       if (w->frame)
-	top_level_window = w->frame->xwindow;
+	      top_level_window = w->frame->xwindow;
       else
-	top_level_window = w->xwindow;
+#endif
+	      top_level_window = w->xwindow;
 
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
         stack_id = top_level_window;

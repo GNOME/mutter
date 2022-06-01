@@ -37,6 +37,10 @@
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "core/frame.h"
+#endif
+
 #if 0
  // This is the short and sweet version of how to hack on this file; see
  // doc/how-constraints-works.txt for the gory details.  The basics of
@@ -1794,6 +1798,7 @@ constrain_titlebar_visible (MetaWindow         *window,
   /* Allow the titlebar to touch the bottom panel;  If there is no titlebar,
    * require vert_amount to remain on the screen.
    */
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     {
       MetaFrameBorders borders;
@@ -1803,6 +1808,7 @@ constrain_titlebar_visible (MetaWindow         *window,
       vert_amount_onscreen = borders.visible.top;
     }
   else
+#endif
     bottom_amount = vert_amount_offscreen;
 
   /* Extend the region, have a helper function handle the constraint,
@@ -1873,6 +1879,7 @@ constrain_partially_onscreen (MetaWindow         *window,
   /* Allow the titlebar to touch the bottom panel;  If there is no titlebar,
    * require vert_amount to remain on the screen.
    */
+#ifdef HAVE_X11_CLIENT
   if (window->frame)
     {
       MetaFrameBorders borders;
@@ -1882,6 +1889,7 @@ constrain_partially_onscreen (MetaWindow         *window,
       vert_amount_onscreen = borders.visible.top;
     }
   else
+#endif
     bottom_amount = vert_amount_offscreen;
 
   /* Extend the region, have a helper function handle the constraint,
