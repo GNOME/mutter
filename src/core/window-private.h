@@ -832,9 +832,6 @@ void meta_window_handle_enter (MetaWindow  *window,
                                guint        root_y);
 void meta_window_handle_leave (MetaWindow  *window);
 
-gboolean meta_window_handle_ui_frame_event (MetaWindow         *window,
-                                            const ClutterEvent *event);
-
 void meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          const ClutterEvent *event);
 

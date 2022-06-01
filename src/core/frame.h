@@ -82,4 +82,7 @@ void meta_frame_set_screen_cursor (MetaFrame	*frame,
 void meta_frame_update_style (MetaFrame *frame);
 void meta_frame_update_title (MetaFrame *frame);
 
+gboolean meta_frame_handle_event (MetaFrame         *frame,
+                                  const ClutterEvent *event);
+
 #endif

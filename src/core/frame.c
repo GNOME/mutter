@@ -425,3 +425,13 @@ meta_frame_update_title (MetaFrame *frame)
   if (frame->window->title)
     meta_ui_frame_set_title (frame->ui_frame, frame->window->title);
 }
+
+gboolean
+meta_frame_handle_event (MetaFrame          *frame,
+                         const ClutterEvent *event)
+{
+  if (!frame)
+    return FALSE;
+
+  return meta_ui_frame_handle_event (frame->ui_frame, event);
+}
