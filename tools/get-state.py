@@ -16,6 +16,7 @@ class Source(enum.Enum):
 parser = argparse.ArgumentParser(description='Get display state')
 parser.add_argument('file', metavar='FILE', type=str, nargs='?',
                     help='Read the output from gdbus call instead of calling D-Bus')
+parser.add_argument('--short', action='store_true')
 
 args = parser.parse_args()
 
@@ -24,6 +25,8 @@ if args.file:
   path = args.file
 else:
   source = Source.DBUS
+
+short = args.short
 
 type_signature = '(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})'
 variant_type = GLib.VariantType.new(type_signature)
@@ -106,7 +109,15 @@ for monitor in monitors:
     properties = monitor[2]
     print_data(0, is_last, lines, 'Monitor {}'.format(spec[0]))
     print_data(1, False, lines, f'EDID: vendor: {spec[1]}, product: {spec[2]}, serial: {spec[3]}')
-    print_data(1, False, lines, f'Modes ({len(modes)})')
+
+    mode_count = len(modes)
+    if short:
+        modes = [mode for mode in modes if len(mode[6]) > 0]
+        print_data(1, False, lines,
+                   f'Modes ({len(modes)}, {mode_count - len(modes)} omitted)')
+    else:
+        print_data(1, False, lines,
+                   f'Modes ({len(modes)})')
 
     for mode in modes:
         is_last = mode == modes[-1]
