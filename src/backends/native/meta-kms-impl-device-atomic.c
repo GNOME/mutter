@@ -48,6 +48,16 @@ static GInitableIface *initable_parent_iface;
 static void
 initable_iface_init (GInitableIface *iface);
 
+/*
+ * Fallback while the patch updating the uAPI header has not landed.
+ * Should be removed afterward.
+ * Clients which do set cursor hotspot and treat the cursor plane
+ * like a mouse cursor should set this property.
+ */
+#ifndef DRM_CLIENT_CAP_CURSOR_PLANE_HOTSPOT
+#define DRM_CLIENT_CAP_CURSOR_PLANE_HOTSPOT	6
+#endif
+
 G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDeviceAtomic, meta_kms_impl_device_atomic,
                          META_TYPE_KMS_IMPL_DEVICE,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
@@ -1234,6 +1244,20 @@ meta_kms_impl_device_atomic_finalize (GObject *object)
   G_OBJECT_CLASS (meta_kms_impl_device_atomic_parent_class)->finalize (object);
 }
 
+static gboolean
+requires_hotspots (const char *driver_name)
+{
+  const char *atomic_driver_hotspots[] = {
+    "qxl",
+    "vboxvideo",
+    "virtio_gpu",
+    "vmwgfx",
+    NULL,
+  };
+
+  return g_strv_contains (atomic_driver_hotspots, driver_name);
+}
+
 static MetaDeviceFile *
 meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
                                               const char         *path,
@@ -1285,13 +1309,29 @@ meta_kms_impl_device_atomic_open_device_file (MetaKmsImplDevice  *impl_device,
 }
 
 static gboolean
+has_cursor_hotspot_properties (MetaKmsImplDevice *impl_device)
+{
+  GList *planes;
+  GList *l;
+
+  planes = meta_kms_impl_device_peek_planes (impl_device);
+  for (l = planes; l; l = l->next)
+    {
+      MetaKmsPlane *plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (plane) != META_KMS_PLANE_TYPE_CURSOR)
+        continue;
+
+      return meta_kms_plane_supports_cursor_hotspot (plane);
+    }
+
+  return FALSE;
+}
+
+static gboolean
 is_atomic_allowed (const char *driver_name)
 {
   const char *atomic_driver_deny_list[] = {
-    "qxl",
-    "vmwgfx",
-    "vboxvideo",
-    "virtio_gpu",
     "xlnx",
     NULL,
   };
@@ -1318,6 +1358,25 @@ meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
 
   if (!meta_kms_impl_device_init_mode_setting (impl_device, error))
     return FALSE;
+
+  if (requires_hotspots (meta_kms_impl_device_get_driver_name (impl_device)))
+    {
+      if (drmSetClientCap (meta_kms_impl_device_get_fd (impl_device),
+                           DRM_CLIENT_CAP_CURSOR_PLANE_HOTSPOT, 1) != 0)
+        {
+          g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                       "Kernel has no support for virtual cursor plane on %s",
+                       meta_kms_impl_device_get_driver_name (impl_device));
+          return FALSE;
+        }
+      if (!has_cursor_hotspot_properties (impl_device))
+        {
+          g_set_error (error, META_KMS_ERROR, META_KMS_ERROR_NOT_SUPPORTED,
+                       "Plane cursor with hotspot properties is missing on %s",
+                       meta_kms_impl_device_get_driver_name (impl_device));
+          return FALSE;
+        }
+    }
 
   g_message ("Added device '%s' (%s) using atomic mode setting.",
              meta_kms_impl_device_get_path (impl_device),
