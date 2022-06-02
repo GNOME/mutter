@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import enum
 import subprocess
 import sys
@@ -12,29 +13,17 @@ class Source(enum.Enum):
     FILE = 2
 
 
-def print_usage():
-    print(f'Usage: {sys.argv[0]} [--help] [FILE]')
+parser = argparse.ArgumentParser(description='Get display state')
+parser.add_argument('file', metavar='FILE', type=str, nargs='?',
+                    help='Read the output from gdbus call instead of calling D-Bus')
 
-def print_help():
-    print(f'Without any argument this command queries the GNOME display server '
-           'using D-Bus and pretty prints the result')
-    print()
-    print(f'  --help        Show this help screen')
-    print(f'  FILE          Read the output from gdbus call instead of calling D-Bus')
+args = parser.parse_args()
 
-
-if len(sys.argv) > 2:
-    print_usage()
-    sys.exit(1)
-elif len(sys.argv) == 1:
-    source = Source.DBUS
-elif sys.argv[1] == '--help':
-    print_usage()
-    print_help()
-    sys.exit(0)
+if args.file:
+  source = Source.FILE
+  path = args.file
 else:
-    source = Source.FILE
-    path = sys.argv[1]
+  source = Source.DBUS
 
 type_signature = '(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})'
 variant_type = GLib.VariantType.new(type_signature)
