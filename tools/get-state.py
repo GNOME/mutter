@@ -5,12 +5,12 @@ import enum
 import subprocess
 import sys
 
-from gi.repository import GLib
+from gi.repository import GLib, Gio
 
 
-class Source(enum.Enum):
-    DBUS = 1
-    FILE = 2
+NAME = 'org.gnome.Mutter.DisplayConfig'
+INTERFACE = 'org.gnome.Mutter.DisplayConfig'
+OBJECT_PATH = '/org/gnome/Mutter/DisplayConfig'
 
 TRANSFORM_STRINGS = {
     0: 'normal',
@@ -22,6 +22,69 @@ TRANSFORM_STRINGS = {
     6: 'flipped-180',
     7: 'flipped-270',
 }
+
+
+class Source(enum.Enum):
+    DBUS = 1
+    COMMAND_LINE = 2
+    FILE = 3
+
+
+class MonitorConfig:
+    CONFIG_VARIANT_TYPE = GLib.VariantType.new(
+        '(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})')
+
+    def get_current_state(self) -> GLib.Variant:
+        raise NotImplementedError()
+
+
+class MonitorConfigDBus(MonitorConfig):
+    def __init__(self):
+        self._proxy = Gio.DBusProxy.new_for_bus_sync(
+            bus_type=Gio.BusType.SESSION,
+            flags=Gio.DBusProxyFlags.NONE,
+            info=None,
+            name=NAME,
+            object_path=OBJECT_PATH,
+            interface_name=INTERFACE,
+            cancellable=None,
+        )
+
+    def get_current_state(self) -> GLib.Variant:
+        variant = self._proxy.call_sync(
+            method_name='GetCurrentState',
+            parameters=None,
+            flags=Gio.DBusCallFlags.NO_AUTO_START,
+            timeout_msec=-1,
+            cancellable=None
+        )
+        assert variant.get_type().equal(self.CONFIG_VARIANT_TYPE)
+        return variant
+
+
+class MonitorConfigCommandLine(MonitorConfig):
+    def get_current_state(self) -> GLib.Variant:
+        command = ('gdbus call -e '
+                   f'-d {NAME} '
+                   f'-o {OBJECT_PATH} '
+                   f'-m {INTERFACE}.GetCurrentState')
+
+        result = subprocess.run(command, shell=True,
+                                check=True, capture_output=True, text=True)
+        return GLib.variant_parse(self.CONFIG_VARIANT_TYPE, result.stdout)
+
+
+class MonitorConfigFile(MonitorConfig):
+    def __init__(self, file_path):
+        if file_path == '-':
+            self._data = sys.stdin.read()
+        else:
+            with open(file_path) as file:
+                self._data = file.read()
+
+    def get_current_state(self) -> GLib.Variant:
+        return GLib.variant_parse(self.CONFIG_VARIANT_TYPE, self._data)
+
 
 def print_data(level, is_last, lines, data):
     if is_last:
@@ -61,34 +124,9 @@ def print_properties(level, lines, properties):
         print_data(level + 1, is_last, lines,
                 f'{property} ⇒ {properties[property]}')
 
-def print_current_state(args):
-    if args.file:
-        source = Source.FILE
-        path = args.file
-    else:
-        source = Source.DBUS
 
-    short = args.short
-
-    type_signature = '(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})'
-    variant_type = GLib.VariantType.new(type_signature)
-
-    if source == Source.DBUS:
-        command = 'gdbus call -e '\
-            '-d org.gnome.Mutter.DisplayConfig '\
-            '-o /org/gnome/Mutter/DisplayConfig '\
-            '-m org.gnome.Mutter.DisplayConfig.GetCurrentState'
-        result = subprocess.run(command,
-                                shell=True, check=True, capture_output=True, text=True)
-        data = result.stdout
-    else:
-        if path == '-':
-            data = sys.stdin.read()
-        else:
-            with open(path) as file:
-                data = file.read()
-
-    variant = GLib.variant_parse(variant_type, data)
+def print_current_state(monitor_config, short):
+    variant = monitor_config.get_current_state()
 
     print('Serial: {}'.format(variant[0]))
     print()
@@ -162,10 +200,21 @@ def print_current_state(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get display state')
-    parser.add_argument('file', metavar='FILE', type=str, nargs='?',
+    parser.add_argument('--file', metavar='FILE', type=str, nargs='?',
                         help='Read the output from gdbus call instead of calling D-Bus')
+    parser.add_argument('--gdbus', action='store_true')
     parser.add_argument('--short', action='store_true')
 
     args = parser.parse_args()
 
-    print_current_state(args)
+    if args.file and args.gdbus:
+        raise argparse.ArgumentTypeError('Incompatible arguments')
+
+    if args.file:
+        monitor_config = MonitorConfigFile(args.file)
+    elif args.gdbus:
+        monitor_config = MonitorConfigCommandLine()
+    else:
+        monitor_config = MonitorConfigDBus()
+
+    print_current_state(monitor_config, short=args.short)
