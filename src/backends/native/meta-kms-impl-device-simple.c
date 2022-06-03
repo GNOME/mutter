@@ -1414,6 +1414,7 @@ perform_update_test (MetaKmsImplDevice *impl_device,
       MetaKmsCrtc *crtc = plane_assignment->crtc;
       MetaDrmBuffer *buffer = plane_assignment->buffer;
       CachedModeSet *cached_mode_set;
+      g_autoptr (GError) error = NULL;
 
       if (!plane_assignment->crtc ||
           !plane_assignment->buffer)
@@ -1428,6 +1429,17 @@ perform_update_test (MetaKmsImplDevice *impl_device,
           plane_feedback =
             meta_kms_plane_feedback_new_failed (plane, crtc,
                                                 "No existing mode set");
+          failed_planes = g_list_append (failed_planes, plane_feedback);
+          continue;
+        }
+
+      if (!meta_drm_buffer_ensure_fb_id (plane_assignment->buffer, &error))
+        {
+          MetaKmsPlaneFeedback *plane_feedback;
+
+          plane_feedback =
+            meta_kms_plane_feedback_new_take_error (plane, crtc,
+                                                    g_steal_pointer (&error));
           failed_planes = g_list_append (failed_planes, plane_feedback);
           continue;
         }
