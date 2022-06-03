@@ -37,6 +37,122 @@ class MonitorConfig:
     def get_current_state(self) -> GLib.Variant:
         raise NotImplementedError()
 
+    def parse_data(self):
+        """TODO: add data parser so that can be used for reconfiguring"""
+
+    def print_data(self, level, is_last, lines, data):
+        if is_last:
+            link = '└'
+        else:
+            link = '├'
+        padding = ' '
+
+        if level >= 0:
+            indent = level
+            buffer = f'{link:{padding}>{indent * 4}}──{data}'
+            buffer = list(buffer)
+            for line in lines:
+                if line == level:
+                    continue
+                index = line * 4
+                if line > 0:
+                    index -= 1
+                buffer[index] = '│'
+            buffer = ''.join(buffer)
+        else:
+            buffer = data
+
+        print(buffer)
+
+        if is_last and level in lines:
+            lines.remove(level)
+        elif not is_last and level not in lines:
+            lines.append(level)
+
+    def print_properties(self, level, lines, properties):
+        property_list = list(properties)
+
+        self.print_data(level, True, lines,
+                        f'Properties: ({len(property_list)})')
+        for property in property_list:
+            is_last = property == property_list[-1]
+            self.print_data(level + 1, is_last, lines,
+                            f'{property} ⇒ {properties[property]}')
+
+    def print_current_state(self, short):
+        variant = self.get_current_state()
+
+        print('Serial: {}'.format(variant[0]))
+        print()
+        print('Monitors:')
+        monitors = variant[1]
+        lines = []
+        for monitor in monitors:
+            is_last = monitor == monitors[-1]
+            spec = monitor[0]
+            modes = monitor[1]
+            properties = monitor[2]
+            self.print_data(0, is_last, lines, 'Monitor {}'.format(spec[0]))
+            self.print_data(
+                1, False, lines, f'EDID: vendor: {spec[1]}, product: {spec[2]}, serial: {spec[3]}')
+
+            mode_count = len(modes)
+            if short:
+                modes = [mode for mode in modes if len(mode[6]) > 0]
+                self.print_data(1, False, lines,
+                                f'Modes ({len(modes)}, {mode_count - len(modes)} omitted)')
+            else:
+                self.print_data(1, False, lines,
+                                f'Modes ({len(modes)})')
+
+            for mode in modes:
+                is_last = mode == modes[-1]
+                self.print_data(2, is_last, lines, f'{mode[0]}')
+                self.print_data(3, False, lines,
+                                f'Dimension: {mode[1]}x{mode[2]}')
+                self.print_data(3, False, lines, f'Refresh rate: {mode[3]}')
+                self.print_data(3, False, lines, f'Preferred scale: {mode[4]}')
+                self.print_data(3, False, lines,
+                                f'Supported scales: {mode[5]}')
+
+                mode_properties = mode[6]
+                self.print_properties(3, lines, mode_properties)
+
+            self.print_properties(1, lines, properties)
+
+        print()
+        print('Logical monitors:')
+        logical_monitors = variant[2]
+        index = 1
+        for logical_monitor in logical_monitors:
+            is_last = logical_monitor == logical_monitors[-1]
+            properties = logical_monitor[2]
+            self.print_data(0, is_last, lines, f'Logical monitor #{index}')
+            self.print_data(1, False, lines,
+                            f'Position: ({logical_monitor[0]}, {logical_monitor[1]})')
+            self.print_data(1, False, lines,
+                            f'Scale: {logical_monitor[2]}')
+            self.print_data(1, False, lines,
+                            f'Transform: {TRANSFORM_STRINGS.get(logical_monitor[3])}')
+            self.print_data(1, False, lines,
+                            f'Primary: {logical_monitor[4]}')
+            monitors = logical_monitor[5]
+            self.print_data(1, False, lines,
+                            f'Monitors: ({len(monitors)})')
+            for monitor in monitors:
+                is_last = monitor == monitors[-1]
+                self.print_data(2, is_last, lines,
+                                f'{monitor[0]} ({monitor[1]}, {monitor[2]}, {monitor[3]})')
+
+            properties = logical_monitor[6]
+            self.print_properties(1, lines, properties)
+
+            index += 1
+
+        properties = variant[3]
+        print()
+        self.print_properties(-1, lines, properties)
+
 
 class MonitorConfigDBus(MonitorConfig):
     def __init__(self):
@@ -86,118 +202,6 @@ class MonitorConfigFile(MonitorConfig):
         return GLib.variant_parse(self.CONFIG_VARIANT_TYPE, self._data)
 
 
-def print_data(level, is_last, lines, data):
-    if is_last:
-        link = '└'
-    else:
-        link = '├'
-    padding = ' '
-
-    if level >= 0:
-        indent = level
-        buffer = f'{link:{padding}>{indent * 4}}──{data}'
-        buffer = list(buffer)
-        for line in lines:
-            if line == level:
-                continue
-            index = line * 4
-            if line > 0:
-                index -= 1
-            buffer[index] = '│'
-        buffer = ''.join(buffer)
-    else:
-        buffer = data
-
-    print(buffer)
-
-    if is_last and level in lines:
-        lines.remove(level)
-    elif not is_last and level not in lines:
-        lines.append(level)
-
-def print_properties(level, lines, properties):
-    property_list = list(properties)
-
-    print_data(level, True, lines, f'Properties: ({len(property_list)})')
-    for property in property_list:
-        is_last = property == property_list[-1]
-        print_data(level + 1, is_last, lines,
-                f'{property} ⇒ {properties[property]}')
-
-
-def print_current_state(monitor_config, short):
-    variant = monitor_config.get_current_state()
-
-    print('Serial: {}'.format(variant[0]))
-    print()
-    print('Monitors:')
-    monitors = variant[1]
-    lines = []
-    for monitor in monitors:
-        is_last = monitor == monitors[-1]
-        spec = monitor[0]
-        modes = monitor[1]
-        properties = monitor[2]
-        print_data(0, is_last, lines, 'Monitor {}'.format(spec[0]))
-        print_data(
-            1, False, lines, f'EDID: vendor: {spec[1]}, product: {spec[2]}, serial: {spec[3]}')
-
-        mode_count = len(modes)
-        if short:
-            modes = [mode for mode in modes if len(mode[6]) > 0]
-            print_data(1, False, lines,
-                       f'Modes ({len(modes)}, {mode_count - len(modes)} omitted)')
-        else:
-            print_data(1, False, lines,
-                       f'Modes ({len(modes)})')
-
-        for mode in modes:
-            is_last = mode == modes[-1]
-            print_data(2, is_last, lines, f'{mode[0]}')
-            print_data(3, False, lines, f'Dimension: {mode[1]}x{mode[2]}')
-            print_data(3, False, lines, f'Refresh rate: {mode[3]}')
-            print_data(3, False, lines, f'Preferred scale: {mode[4]}')
-            print_data(3, False, lines, f'Supported scales: {mode[5]}')
-
-            mode_properties = mode[6]
-            print_properties(3, lines, mode_properties)
-
-        print_properties(1, lines, properties)
-
-    print()
-    print('Logical monitors:')
-    logical_monitors = variant[2]
-    index = 1
-    for logical_monitor in logical_monitors:
-        is_last = logical_monitor == logical_monitors[-1]
-        properties = logical_monitor[2]
-        print_data(0, is_last, lines, f'Logical monitor #{index}')
-        print_data(1, False, lines,
-                   f'Position: ({logical_monitor[0]}, {logical_monitor[1]})')
-        print_data(1, False, lines,
-                   f'Scale: {logical_monitor[2]}')
-        print_data(1, False, lines,
-                   f'Transform: {TRANSFORM_STRINGS.get(logical_monitor[3])}')
-        print_data(1, False, lines,
-                   f'Primary: {logical_monitor[4]}')
-        monitors = logical_monitor[5]
-        print_data(1, False, lines,
-                   f'Monitors: ({len(monitors)})')
-        for monitor in monitors:
-            is_last = monitor == monitors[-1]
-            print_data(2, is_last, lines,
-                       f'{monitor[0]} ({monitor[1]}, {monitor[2]}, {monitor[3]})')
-
-        properties = logical_monitor[6]
-        print_properties(1, lines, properties)
-
-        index += 1
-
-    properties = variant[3]
-    print()
-    print_properties(-1, lines, properties)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get display state')
     parser.add_argument('--file', metavar='FILE', type=str, nargs='?',
@@ -217,4 +221,4 @@ if __name__ == '__main__':
     else:
         monitor_config = MonitorConfigDBus()
 
-    print_current_state(monitor_config, short=args.short)
+    monitor_config.print_current_state(short=args.short)
