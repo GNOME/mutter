@@ -12,17 +12,16 @@ class Source(enum.Enum):
     DBUS = 1
     FILE = 2
 
-
-def transform_to_string(transform):
-    match transform:
-        case 0: return 'normal'
-        case 1: return '90'
-        case 2: return '180'
-        case 3: return '270'
-        case 4: return 'flipped'
-        case 5: return 'flipped-90'
-        case 6: return 'flipped-180'
-        case 7: return 'flipped-270'
+TRANSFORM_STRINGS = {
+    0: 'normal',
+    1: '90',
+    2: '180',
+    3: '270',
+    4: 'flipped',
+    5: 'flipped-90',
+    6: 'flipped-180',
+    7: 'flipped-270',
+}
 
 def print_data(level, is_last, lines, data):
     if is_last:
@@ -140,7 +139,7 @@ def print_current_state(args):
         print_data(1, False, lines,
                    f'Scale: {logical_monitor[2]}')
         print_data(1, False, lines,
-                   f'Transform: {transform_to_string(logical_monitor[3])}')
+                   f'Transform: {TRANSFORM_STRINGS.get(logical_monitor[3])}')
         print_data(1, False, lines,
                    f'Primary: {logical_monitor[4]}')
         monitors = logical_monitor[5]
