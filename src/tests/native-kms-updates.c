@@ -33,6 +33,12 @@
 
 static MetaContext *test_context;
 
+typedef enum
+{
+  POPULATE_UPDATE_FLAG_PLANE = 1 << 0,
+  POPULATE_UPDATE_FLAG_MODE = 1 << 1,
+} PopulateUpdateFlags;
+
 const MetaKmsCrtcState *
 meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc)
 {
@@ -52,6 +58,46 @@ meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc)
   mock_state.gamma.size = 3;
 
   return &mock_state;
+}
+
+static void
+populate_update (MetaKmsUpdate        *update,
+                 MetaDrmBuffer       **buffer,
+                 PopulateUpdateFlags   flags)
+{
+  MetaKmsDevice *device;
+  MetaKmsCrtc *crtc;
+  MetaKmsConnector *connector;
+  MetaKmsMode *mode;
+
+  device = meta_get_test_kms_device (test_context);
+  crtc = meta_get_test_kms_crtc (device);
+  connector = meta_get_test_kms_connector (device);
+  mode = meta_kms_connector_get_preferred_mode (connector);
+
+  if (flags & POPULATE_UPDATE_FLAG_MODE)
+    {
+      meta_kms_update_mode_set (update, crtc,
+                                g_list_append (NULL, connector),
+                                mode);
+    }
+
+  if (flags & (POPULATE_UPDATE_FLAG_PLANE |
+               POPULATE_UPDATE_FLAG_MODE))
+    {
+      MetaKmsPlane *primary_plane;
+
+      *buffer = meta_create_test_mode_dumb_buffer (device, mode);
+
+      primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
+      meta_kms_update_assign_plane (update,
+                                    crtc,
+                                    primary_plane,
+                                    *buffer,
+                                    meta_get_mode_fixed_rect_16 (mode),
+                                    meta_get_mode_rect (mode),
+                                    META_KMS_ASSIGN_PLANE_FLAG_NONE);
+    }
 }
 
 static void
@@ -612,11 +658,8 @@ off_thread_page_flip_thread_func (gpointer user_data)
   MetaKms *kms;
   MetaKmsUpdate *update;
   MetaKmsCrtc *crtc;
-  MetaKmsConnector *connector;
-  MetaKmsMode *mode;
   g_autoptr (MetaDrmBuffer) primary_buffer1 = NULL;
   g_autoptr (MetaDrmBuffer) primary_buffer2 = NULL;
-  MetaKmsPlane *primary_plane;
   PageFlipData page_flip_data = {};
   MetaKmsFeedback *feedback;
 
@@ -626,28 +669,12 @@ off_thread_page_flip_thread_func (gpointer user_data)
   device = meta_get_test_kms_device (test_context);
   kms = meta_kms_device_get_kms (device);
   crtc = meta_get_test_kms_crtc (device);
-  connector = meta_get_test_kms_connector (device);
-  mode = meta_kms_connector_get_preferred_mode (connector);
 
   meta_thread_register_callback_context (META_THREAD (kms),
                                          data->main_context);
 
   update = meta_kms_update_new (device);
-
-  meta_kms_update_mode_set (update, crtc,
-                            g_list_append (NULL, connector),
-                            mode);
-
-  primary_buffer1 = meta_create_test_mode_dumb_buffer (device, mode);
-
-  primary_plane = meta_kms_device_get_primary_plane_for (device, crtc);
-  meta_kms_update_assign_plane (update,
-                                crtc,
-                                primary_plane,
-                                primary_buffer1,
-                                meta_get_mode_fixed_rect_16 (mode),
-                                meta_get_mode_rect (mode),
-                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  populate_update (update, &primary_buffer1, POPULATE_UPDATE_FLAG_MODE);
 
   page_flip_data.loop = g_main_loop_new (data->main_context, FALSE);
   page_flip_data.thread = g_thread_self ();
@@ -667,15 +694,10 @@ off_thread_page_flip_thread_func (gpointer user_data)
   g_assert_cmpint (page_flip_data.state, ==, DESTROYED);
 
   page_flip_data.state = INIT;
+
   update = meta_kms_update_new (device);
-  primary_buffer2 = meta_create_test_mode_dumb_buffer (device, mode);
-  meta_kms_update_assign_plane (update,
-                                crtc,
-                                primary_plane,
-                                primary_buffer2,
-                                meta_get_mode_fixed_rect_16 (mode),
-                                meta_get_mode_rect (mode),
-                                META_KMS_ASSIGN_PLANE_FLAG_NONE);
+  populate_update (update, &primary_buffer2, POPULATE_UPDATE_FLAG_PLANE);
+
   meta_kms_update_add_page_flip_listener (update, crtc,
                                           &page_flip_listener_vtable,
                                           META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
