@@ -113,9 +113,6 @@ meta_backend_native_dispose (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
 
-  if (native->kms)
-    meta_kms_prepare_shutdown (native->kms);
-
   G_OBJECT_CLASS (meta_backend_native_parent_class)->dispose (object);
 
   g_clear_pointer (&native->startup_render_devices, g_hash_table_unref);
