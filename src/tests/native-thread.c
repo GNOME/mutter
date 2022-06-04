@@ -244,6 +244,18 @@ async_func (MetaThreadImpl  *thread_impl,
 }
 
 static void
+async_destroy (gpointer user_data)
+{
+  AsyncData *async_data = user_data;
+
+  g_mutex_lock (&async_data->mutex);
+  g_assert_cmpint (async_data->state, ==, 2);
+  async_data->state = 3;
+  g_main_loop_quit (async_data->loop);
+  g_mutex_unlock (&async_data->mutex);
+}
+
+static void
 async_feedback_func (gpointer      retval,
                      const GError *error,
                      gpointer      user_data)
@@ -255,7 +267,6 @@ async_feedback_func (gpointer      retval,
   g_mutex_lock (&async_data->mutex);
   g_assert_cmpint (async_data->state, ==, 1);
   async_data->state = 2;
-  g_main_loop_quit (async_data->loop);
   g_mutex_unlock (&async_data->mutex);
 }
 
@@ -606,7 +617,8 @@ non_default_callback_thread_func (gpointer user_data)
                                          callback_data->thread_main_context);
 
   meta_thread_post_impl_task (callback_data->thread,
-                              queue_non_default_callback_func, callback_data,
+                              queue_non_default_callback_func,
+                              callback_data, NULL,
                               non_default_thread_feedback_func,
                               callback_data);
 
@@ -701,13 +713,13 @@ run_thread_tests (MetaThread *thread)
   async_data.thread = thread;
   async_data.loop = g_main_loop_new (NULL, FALSE);
   g_mutex_lock (&async_data.mutex);
-  meta_thread_post_impl_task (thread, async_func, &async_data,
+  meta_thread_post_impl_task (thread, async_func, &async_data, async_destroy,
                               async_feedback_func, &async_data);
   g_assert_cmpint (async_data.state, ==, 0);
   g_mutex_unlock (&async_data.mutex);
   g_main_loop_run (async_data.loop);
   g_mutex_lock (&async_data.mutex);
-  g_assert_cmpint (async_data.state, ==, 2);
+  g_assert_cmpint (async_data.state, ==, 3);
   g_mutex_unlock (&async_data.mutex);
   g_main_loop_unref (async_data.loop);
   g_mutex_clear (&async_data.mutex);
@@ -719,11 +731,11 @@ run_thread_tests (MetaThread *thread)
   async_data.thread = thread;
   async_data.loop = g_main_loop_new (NULL, FALSE);
   g_mutex_lock (&async_data.mutex);
-  meta_thread_post_impl_task (thread, multiple_async_func1, &async_data,
+  meta_thread_post_impl_task (thread, multiple_async_func1, &async_data, NULL,
                               multiple_async_feedback_func1, &async_data);
-  meta_thread_post_impl_task (thread, multiple_async_func2, &async_data,
+  meta_thread_post_impl_task (thread, multiple_async_func2, &async_data, NULL,
                               multiple_async_feedback_func2, &async_data);
-  meta_thread_post_impl_task (thread, multiple_async_func3, &async_data,
+  meta_thread_post_impl_task (thread, multiple_async_func3, &async_data, NULL,
                               multiple_async_feedback_func3, &async_data);
   g_assert_cmpint (async_data.state, ==, 0);
   g_mutex_unlock (&async_data.mutex);
@@ -740,7 +752,7 @@ run_thread_tests (MetaThread *thread)
   g_mutex_init (&mixed_data.mutex);
   mixed_data.thread = thread;
   g_mutex_lock (&mixed_data.mutex);
-  meta_thread_post_impl_task (thread, mixed_async_func, &mixed_data,
+  meta_thread_post_impl_task (thread, mixed_async_func, &mixed_data, NULL,
                               mixed_async_feedback_func, &mixed_data);
   g_assert_cmpint (mixed_data.state, ==, 0);
   g_mutex_unlock (&mixed_data.mutex);
@@ -780,7 +792,7 @@ run_thread_tests (MetaThread *thread)
   g_mutex_unlock (&flush_data1.init_mutex);
   meta_thread_post_impl_task (thread,
                               queue_slow_callback,
-                              &flush_data1,
+                              &flush_data1, NULL,
                               quit_main_loop_feedback_func,
                               &loop_user);
   flush_data2 = (FlushData) {
@@ -798,7 +810,7 @@ run_thread_tests (MetaThread *thread)
   g_mutex_unlock (&flush_data2.init_mutex);
   meta_thread_post_impl_task (thread,
                               queue_slow_callback,
-                              &flush_data2,
+                              &flush_data2, NULL,
                               quit_main_loop_feedback_func,
                               &loop_user);
 
@@ -918,7 +930,7 @@ meta_test_thread_late_callbacks_common (MetaThreadType thread_type)
   g_assert_nonnull (thread);
   g_assert_null (error);
 
-  meta_thread_post_impl_task (thread, late_callback, &done, NULL, NULL);
+  meta_thread_post_impl_task (thread, late_callback, &done, NULL, NULL, NULL);
 
   g_object_unref (thread);
   g_assert_null (thread);

@@ -62,6 +62,7 @@ struct _MetaThreadTask
 {
   MetaThreadTaskFunc func;
   gpointer user_data;
+  GDestroyNotify user_data_destroy;
 
   MetaThreadTaskFeedbackFunc feedback_func;
   gpointer feedback_user_data;
@@ -269,6 +270,7 @@ meta_thread_impl_get_main_context (MetaThreadImpl *thread_impl)
 MetaThreadTask *
 meta_thread_task_new (MetaThreadTaskFunc          func,
                       gpointer                    user_data,
+                      GDestroyNotify              user_data_destroy,
                       MetaThreadTaskFeedbackFunc  feedback_func,
                       gpointer                    feedback_user_data,
                       GMainContext               *feedback_main_context)
@@ -279,6 +281,7 @@ meta_thread_task_new (MetaThreadTaskFunc          func,
   *task = (MetaThreadTask) {
     .func = func,
     .user_data = user_data,
+    .user_data_destroy = user_data_destroy,
     .feedback_func = feedback_func,
     .feedback_user_data = feedback_user_data,
     .feedback_main_context = feedback_main_context,
@@ -290,6 +293,8 @@ meta_thread_task_new (MetaThreadTaskFunc          func,
 void
 meta_thread_task_free (MetaThreadTask *task)
 {
+  if (task->user_data_destroy)
+    task->user_data_destroy (task->user_data);
   g_clear_error (&task->error);
   g_free (task);
 }

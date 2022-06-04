@@ -82,6 +82,7 @@ META_EXPORT_TEST
 void meta_thread_post_impl_task (MetaThread                 *thread,
                                  MetaThreadTaskFunc          func,
                                  gpointer                    user_data,
+                                 GDestroyNotify              user_data_destroy,
                                  MetaThreadTaskFeedbackFunc  feedback_func,
                                  gpointer                    feedback_user_data);
 

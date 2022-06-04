@@ -75,6 +75,7 @@ gboolean meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl);
 
 MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc          func,
                                        gpointer                    user_data,
+                                       GDestroyNotify              user_data_destroy,
                                        MetaThreadTaskFeedbackFunc  feedback_func,
                                        gpointer                    feedback_user_data,
                                        GMainContext               *feedback_main_context);

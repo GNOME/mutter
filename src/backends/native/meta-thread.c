@@ -587,7 +587,7 @@ run_impl_task_sync_user (MetaThread          *thread,
   MetaThreadTask *task;
   MetaSyncTaskData data = { 0 };
 
-  task = meta_thread_task_new (func, user_data,
+  task = meta_thread_task_new (func, user_data, NULL,
                                sync_task_done_user_in_impl, &data,
                                meta_thread_impl_get_main_context (priv->impl));
   meta_thread_impl_queue_task (priv->impl, task);
@@ -636,7 +636,7 @@ run_impl_task_sync_kernel (MetaThread          *thread,
   g_mutex_lock (&data.kernel.mutex);
   priv->waiting_for_impl_task = TRUE;
 
-  task = meta_thread_task_new (func, user_data,
+  task = meta_thread_task_new (func, user_data, NULL,
                                sync_task_done_kernel_in_impl, &data,
                                meta_thread_impl_get_main_context (priv->impl));
   meta_thread_impl_queue_task (priv->impl, task);
@@ -683,13 +683,14 @@ void
 meta_thread_post_impl_task (MetaThread                 *thread,
                             MetaThreadTaskFunc          func,
                             gpointer                    user_data,
+                            GDestroyNotify              user_data_destroy,
                             MetaThreadTaskFeedbackFunc  feedback_func,
                             gpointer                    feedback_user_data)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   MetaThreadTask *task;
 
-  task = meta_thread_task_new (func, user_data,
+  task = meta_thread_task_new (func, user_data, user_data_destroy,
                                feedback_func, feedback_user_data,
                                g_main_context_get_thread_default ());
   meta_thread_impl_queue_task (priv->impl, task);
