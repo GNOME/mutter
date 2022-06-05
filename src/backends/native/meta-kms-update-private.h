@@ -104,6 +104,8 @@ typedef struct _MetaKmsConnectorUpdate
 
 typedef struct _MetaKmsPageFlipListener
 {
+  gatomicrefcount ref_count;
+
   MetaKmsCrtc *crtc;
   const MetaKmsPageFlipListenerVtable *vtable;
   MetaKmsPageFlipListenerFlag flags;

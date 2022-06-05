@@ -171,8 +171,11 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
 }
 
 static void
-meta_kms_page_flip_listener_free (MetaKmsPageFlipListener *listener)
+meta_kms_page_flip_listener_unref (MetaKmsPageFlipListener *listener)
 {
+  if (!g_atomic_ref_count_dec (&listener->ref_count))
+    return;
+
   g_clear_pointer (&listener->user_data, listener->destroy_notify);
   g_free (listener);
 }
@@ -453,6 +456,7 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
     .user_data = user_data,
     .destroy_notify = destroy_notify,
   };
+  g_atomic_ref_count_init (&listener->ref_count);
 
   update->page_flip_listeners = g_list_prepend (update->page_flip_listeners,
                                                 listener);
@@ -471,7 +475,7 @@ meta_kms_update_drop_defunct_page_flip_listeners (MetaKmsUpdate *update)
 
       if (listener->flags & META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR)
         {
-          meta_kms_page_flip_listener_free (listener);
+          meta_kms_page_flip_listener_unref (listener);
           update->page_flip_listeners =
             g_list_delete_link (update->page_flip_listeners, l);
         }
@@ -902,7 +906,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->mode_sets,
                     (GDestroyNotify) meta_kms_mode_set_free);
   g_list_free_full (update->page_flip_listeners,
-                    (GDestroyNotify) meta_kms_page_flip_listener_free);
+                    (GDestroyNotify) meta_kms_page_flip_listener_unref);
   g_list_free_full (update->connector_updates, g_free);
   g_list_free_full (update->crtc_color_updates,
                     (GDestroyNotify) meta_kms_crtc_color_updates_free);
