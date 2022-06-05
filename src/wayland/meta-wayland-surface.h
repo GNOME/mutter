@@ -307,11 +307,6 @@ gboolean            meta_wayland_surface_should_cache_state (MetaWaylandSurface 
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
 
-void                meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface);
-
-void                meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface      *surface,
-                                                                              MetaWaylandSurfaceState *pending);
-
 void                meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
                                                                    float               abs_x,
                                                                    float               abs_y,
