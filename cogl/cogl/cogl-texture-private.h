@@ -151,7 +151,7 @@ struct _CoglTextureVtable
 };
 
 typedef enum _CoglTextureSoureType {
-  COGL_TEXTURE_SOURCE_TYPE_SIZED = 1,
+  COGL_TEXTURE_SOURCE_TYPE_SIZE = 1,
   COGL_TEXTURE_SOURCE_TYPE_BITMAP,
   COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE,
   COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL
@@ -165,6 +165,7 @@ typedef struct _CoglTextureLoader
       int width;
       int height;
       int depth; /* for 3d textures */
+      CoglPixelFormat format;
     } sized;
     struct {
       CoglBitmap *bitmap;

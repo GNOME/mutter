@@ -111,6 +111,26 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 }
 
 CoglTexture2D *
+cogl_texture_2d_new_with_format (CoglContext     *ctx,
+                                 int              width,
+                                 int              height,
+                                 CoglPixelFormat  format)
+{
+  CoglTextureLoader *loader;
+
+  g_return_val_if_fail (width >= 1, NULL);
+  g_return_val_if_fail (height >= 1, NULL);
+
+  loader = _cogl_texture_create_loader ();
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
+  loader->src.sized.width = width;
+  loader->src.sized.height = height;
+  loader->src.sized.format = format;
+
+  return _cogl_texture_2d_create_base (ctx, width, height, format, loader);
+}
+
+CoglTexture2D *
 cogl_texture_2d_new_with_size (CoglContext *ctx,
                                int width,
                                int height)
@@ -121,9 +141,10 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
   g_return_val_if_fail (height >= 1, NULL);
 
   loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
   loader->src.sized.width = width;
   loader->src.sized.height = height;
+  loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
 
   return _cogl_texture_2d_create_base (ctx, width, height,
                                        COGL_PIXEL_FORMAT_RGBA_8888_PRE, loader);

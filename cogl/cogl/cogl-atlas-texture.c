@@ -693,9 +693,10 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
   g_return_val_if_fail (width > 0 && height > 0, NULL);
 
   loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
   loader->src.sized.width = width;
   loader->src.sized.height = height;
+  loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
 
   return _cogl_atlas_texture_create_base (ctx, width, height,
                                           COGL_PIXEL_FORMAT_RGBA_8888_PRE,
@@ -782,7 +783,11 @@ allocate_with_size (CoglAtlasTexture *atlas_tex,
                     GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (atlas_tex);
-  CoglPixelFormat internal_format =
+  CoglPixelFormat internal_format;
+
+  g_warn_if_fail (loader->src.sized.format == COGL_PIXEL_FORMAT_ANY);
+
+  internal_format =
     _cogl_texture_determine_internal_format (tex, COGL_PIXEL_FORMAT_ANY);
 
   if (allocate_space (atlas_tex,
@@ -873,7 +878,7 @@ _cogl_atlas_texture_allocate (CoglTexture *tex,
 
   switch (loader->src_type)
     {
-    case COGL_TEXTURE_SOURCE_TYPE_SIZED:
+    case COGL_TEXTURE_SOURCE_TYPE_SIZE:
       return allocate_with_size (atlas_tex, loader, error);
     case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
       return allocate_from_bitmap (atlas_tex, loader, error);

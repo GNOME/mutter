@@ -88,6 +88,37 @@ COGL_EXPORT gboolean
 cogl_is_texture_2d (void *object);
 
 /**
+ * cogl_texture_2d_new_with_format: (skip)
+ * @ctx: A #CoglContext
+ * @width: Width of the texture to allocate
+ * @height: Height of the texture to allocate
+ * @format: format of the texture to allocate
+ *
+ * Creates a low-level #CoglTexture2D texture with a given @width and
+ * @height that your GPU can texture from directly.
+ *
+ * The storage for the texture is not allocated before this function
+ * returns. You can call cogl_texture_allocate() to explicitly
+ * allocate the underlying storage or preferably let Cogl
+ * automatically allocate storage lazily when it may know more about
+ * how the texture is being used and can optimize how it is allocated.
+ *
+ * The texture is still configurable until it has been allocated so
+ * for example you can influence the internal format of the texture
+ * using cogl_texture_set_components() and
+ * cogl_texture_set_premultiplied().
+ *
+ * Returns: (transfer full): A new #CoglTexture2D object with no storage yet allocated.
+ *
+ * Since: 2.0
+ */
+COGL_EXPORT CoglTexture2D *
+cogl_texture_2d_new_with_format (CoglContext *ctx,
+                                 int width,
+                                 int height,
+                                 CoglPixelFormat format);
+
+/**
  * cogl_texture_2d_new_with_size: (skip)
  * @ctx: A #CoglContext
  * @width: Width of the texture to allocate

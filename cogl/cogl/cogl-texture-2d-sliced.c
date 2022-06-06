@@ -872,9 +872,10 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
                                       int max_waste)
 {
   CoglTextureLoader *loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
+  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
   loader->src.sized.width = width;
   loader->src.sized.height = height;
+  loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
 
   return _cogl_texture_2d_sliced_create_base (ctx,
                                               width,
@@ -987,7 +988,11 @@ allocate_with_size (CoglTexture2DSliced *tex_2ds,
                     GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2ds);
-  CoglPixelFormat internal_format =
+  CoglPixelFormat internal_format;
+
+  g_warn_if_fail (loader->src.sized.format == COGL_PIXEL_FORMAT_ANY);
+
+  internal_format =
     _cogl_texture_determine_internal_format (tex, COGL_PIXEL_FORMAT_ANY);
 
   if (allocate_slices (tex_2ds,
@@ -1071,7 +1076,7 @@ _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
 
   switch (loader->src_type)
     {
-    case COGL_TEXTURE_SOURCE_TYPE_SIZED:
+    case COGL_TEXTURE_SOURCE_TYPE_SIZE:
       return allocate_with_size (tex_2ds, loader, error);
     case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
       return allocate_from_bitmap (tex_2ds, loader, error);

@@ -137,7 +137,7 @@ allocate_with_size (CoglTexture2D *tex_2d,
   GLenum gl_texture;
 
   internal_format =
-    _cogl_texture_determine_internal_format (tex, COGL_PIXEL_FORMAT_ANY);
+    _cogl_texture_determine_internal_format (tex, loader->src.sized.format);
 
   if (!_cogl_texture_2d_gl_can_create (ctx,
                                        width,
@@ -428,7 +428,7 @@ _cogl_texture_2d_gl_allocate (CoglTexture *tex,
 
   switch (loader->src_type)
     {
-    case COGL_TEXTURE_SOURCE_TYPE_SIZED:
+    case COGL_TEXTURE_SOURCE_TYPE_SIZE:
       return allocate_with_size (tex_2d, loader, error);
     case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
       return allocate_from_bitmap (tex_2d, loader, error);

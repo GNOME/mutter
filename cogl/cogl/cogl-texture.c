@@ -147,7 +147,7 @@ _cogl_texture_free_loader (CoglTexture *texture)
       CoglTextureLoader *loader = texture->loader;
       switch (loader->src_type)
         {
-        case COGL_TEXTURE_SOURCE_TYPE_SIZED:
+        case COGL_TEXTURE_SOURCE_TYPE_SIZE:
         case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
         case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
           break;
