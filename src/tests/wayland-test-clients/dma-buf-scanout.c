@@ -46,6 +46,7 @@
 #include <fcntl.h>
 #include <gbm.h>
 #include <glib.h>
+#include <unistd.h>
 #include <wayland-client.h>
 
 #include "wayland-test-client-utils.h"
