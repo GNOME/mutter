@@ -97,6 +97,36 @@ meta_output_kms_set_underscan (MetaOutputKms *output_kms,
     }
 }
 
+void
+meta_output_kms_set_max_bpc (MetaOutputKms *output_kms,
+                             MetaKmsUpdate *kms_update)
+{
+  MetaKmsConnector *kms_connector = output_kms->kms_connector;
+  const MetaKmsRange *range;
+
+  range = meta_kms_connector_get_max_bpc (kms_connector);
+  if (range)
+    {
+      MetaOutput *output = META_OUTPUT (output_kms);
+      unsigned int max_bpc;
+
+      if (!meta_output_get_max_bpc (output, &max_bpc))
+        return;
+
+      if (max_bpc >= range->min_value && max_bpc <= range->max_value)
+        {
+          meta_kms_update_set_max_bpc (kms_update, kms_connector, max_bpc);
+        }
+      else
+        {
+          g_warning ("Ignoring out of range value %u for max bpc (%u-%u)",
+                     max_bpc,
+                     (unsigned) range->min_value,
+                     (unsigned) range->max_value);
+        }
+    }
+}
+
 static MetaPrivacyScreenState
 meta_output_kms_get_privacy_screen_state (MetaOutput *output)
 {
@@ -362,6 +392,7 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   const MetaKmsConnectorState *connector_state;
   GArray *crtcs;
   GList *l;
+  const MetaKmsRange *max_bpc_range;
 
   gpu_id = meta_gpu_kms_get_id (gpu_kms);
   connector_id = meta_kms_connector_get_id (kms_connector);
@@ -408,6 +439,13 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   output_info->hotplug_mode_update = connector_state->hotplug_mode_update;
   output_info->supports_underscanning =
     meta_kms_connector_is_underscanning_supported (kms_connector);
+
+  max_bpc_range = meta_kms_connector_get_max_bpc (kms_connector);
+  if (max_bpc_range)
+    {
+      output_info->max_bpc_min = max_bpc_range->min_value;
+      output_info->max_bpc_max = max_bpc_range->max_value;
+    }
 
   meta_output_info_parse_edid (output_info, connector_state->edid_data);
 
