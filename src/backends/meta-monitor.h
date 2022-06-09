@@ -118,6 +118,9 @@ gboolean meta_monitor_supports_underscanning (MetaMonitor *monitor);
 
 gboolean meta_monitor_is_underscanning (MetaMonitor *monitor);
 
+gboolean meta_monitor_get_max_bpc (MetaMonitor  *monitor,
+                                   unsigned int *max_bpc);
+
 gboolean meta_monitor_is_laptop_panel (MetaMonitor *monitor);
 
 gboolean meta_monitor_is_same_as (MetaMonitor *monitor,

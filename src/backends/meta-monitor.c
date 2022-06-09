@@ -359,6 +359,17 @@ meta_monitor_is_underscanning (MetaMonitor *monitor)
 }
 
 gboolean
+meta_monitor_get_max_bpc (MetaMonitor  *monitor,
+                          unsigned int *max_bpc)
+{
+  MetaOutput *output;
+
+  output = meta_monitor_get_main_output (monitor);
+
+  return meta_output_get_max_bpc (output, max_bpc);
+}
+
+gboolean
 meta_monitor_is_laptop_panel (MetaMonitor *monitor)
 {
   const MetaOutputInfo *output_info =
