@@ -533,6 +533,8 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
   meta_crtc_kms_set_mode (crtc_kms, kms_update);
   meta_output_kms_set_underscan (META_OUTPUT_KMS (onscreen_native->output),
                                  kms_update);
+  meta_output_kms_set_max_bpc (META_OUTPUT_KMS (onscreen_native->output),
+                               kms_update);
 }
 
 static void
