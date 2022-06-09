@@ -430,6 +430,7 @@ schedule_update_now_hw_callback (gpointer user_data)
   UpdateNowFrameClockTest *test = user_data;
   ClutterFrameClock *frame_clock = test->base.fake_hw_clock->frame_clock;
 
+  clutter_frame_clock_schedule_update (frame_clock);
   clutter_frame_clock_schedule_update_now (frame_clock);
   g_assert (!test->idle_source_id);
   test->idle_source_id = g_idle_add (assert_not_reached_idle, NULL);

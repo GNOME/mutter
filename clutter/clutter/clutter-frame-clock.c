@@ -632,10 +632,9 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
     {
     case CLUTTER_FRAME_CLOCK_STATE_INIT:
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
       next_update_time_us = g_get_monotonic_time ();
       break;
-    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
-      return;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
     case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
       frame_clock->pending_reschedule = TRUE;
