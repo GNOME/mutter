@@ -286,7 +286,9 @@ assign_monitor_crtc (MetaMonitor         *monitor,
     .output = output,
     .is_primary = assign_output_as_primary,
     .is_presentation = assign_output_as_presentation,
-    .is_underscanning = data->monitor_config->enable_underscanning
+    .is_underscanning = data->monitor_config->enable_underscanning,
+    .has_max_bpc = data->monitor_config->has_max_bpc,
+    .max_bpc = data->monitor_config->max_bpc
   };
 
   g_ptr_array_add (data->crtc_assignments, crtc_assignment);
@@ -694,6 +696,9 @@ create_monitor_config (MetaMonitor     *monitor,
     .enable_underscanning = meta_monitor_is_underscanning (monitor)
   };
 
+  monitor_config->has_max_bpc =
+    meta_monitor_get_max_bpc (monitor, &monitor_config->max_bpc);
+
   return monitor_config;
 }
 
@@ -1041,7 +1046,9 @@ clone_monitor_config_list (GList *monitor_configs_in)
         .monitor_spec = meta_monitor_spec_clone (monitor_config_in->monitor_spec),
         .mode_spec = g_memdup2 (monitor_config_in->mode_spec,
                                 sizeof (MetaMonitorModeSpec)),
-        .enable_underscanning = monitor_config_in->enable_underscanning
+        .enable_underscanning = monitor_config_in->enable_underscanning,
+        .has_max_bpc = monitor_config_in->has_max_bpc,
+        .max_bpc = monitor_config_in->max_bpc
       };
       monitor_configs_out =
         g_list_append (monitor_configs_out, monitor_config_out);
