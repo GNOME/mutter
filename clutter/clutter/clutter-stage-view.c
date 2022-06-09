@@ -1099,6 +1099,15 @@ clutter_stage_view_schedule_update (ClutterStageView *view)
   clutter_frame_clock_schedule_update (priv->frame_clock);
 }
 
+void
+clutter_stage_view_schedule_update_now (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  clutter_frame_clock_schedule_update_now (priv->frame_clock);
+}
+
 float
 clutter_stage_view_get_refresh_rate (ClutterStageView *view)
 {
