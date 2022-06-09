@@ -1332,7 +1332,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
         }
     }
 
-  ensure_crtc_modes (onscreen);
   meta_onscreen_native_flip_crtc (onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
