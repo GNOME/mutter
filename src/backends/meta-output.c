@@ -55,6 +55,9 @@ typedef struct _MetaOutputPrivate
 
   gboolean is_underscanning;
 
+  gboolean has_max_bpc;
+  unsigned int max_bpc;
+
   int backlight;
 } MetaOutputPrivate;
 
@@ -177,6 +180,18 @@ meta_output_is_underscanning (MetaOutput *output)
   return priv->is_underscanning;
 }
 
+gboolean
+meta_output_get_max_bpc (MetaOutput   *output,
+                         unsigned int *max_bpc)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  if (priv->has_max_bpc && max_bpc)
+    *max_bpc = priv->max_bpc;
+
+  return priv->has_max_bpc;
+}
+
 void
 meta_output_set_backlight (MetaOutput *output,
                            int         backlight)
@@ -235,6 +250,10 @@ meta_output_assign_crtc (MetaOutput                 *output,
   priv->is_primary = output_assignment->is_primary;
   priv->is_presentation = output_assignment->is_presentation;
   priv->is_underscanning = output_assignment->is_underscanning;
+
+  priv->has_max_bpc = output_assignment->has_max_bpc;
+  if (priv->has_max_bpc)
+    priv->max_bpc = output_assignment->max_bpc;
 }
 
 void
