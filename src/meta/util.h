@@ -157,6 +157,9 @@ char* meta_g_utf8_strndup (const gchar *src, gsize n);
 
 const char * meta_topic_to_string (MetaDebugTopic topic);
 
+META_EXPORT
+void meta_log (const char *format, ...) G_GNUC_PRINTF (1, 2);
+
 #define meta_topic(debug_topic, ...) \
   G_STMT_START \
     { \
@@ -165,7 +168,7 @@ const char * meta_topic_to_string (MetaDebugTopic topic);
           g_autofree char *_topic_message = NULL; \
 \
           _topic_message = g_strdup_printf (__VA_ARGS__); \
-          g_message ("%s: %s", meta_topic_to_string (debug_topic), \
+          meta_log ("%s: %s", meta_topic_to_string (debug_topic), \
                      _topic_message); \
         } \
     } \
