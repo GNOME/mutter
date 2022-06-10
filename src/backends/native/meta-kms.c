@@ -266,13 +266,13 @@ meta_kms_queue_result_callback (MetaKms               *kms,
                             (GDestroyNotify) meta_kms_result_listener_free);
 }
 
-MetaKmsFeedback *
+void
 meta_kms_post_pending_update_sync (MetaKms           *kms,
                                    MetaKmsDevice     *device,
                                    MetaKmsUpdateFlag  flags)
 {
   MetaKmsUpdate *update;
-  MetaKmsFeedback *feedback;
+  g_autoptr (MetaKmsFeedback) feedback = NULL;
   GList *result_listeners;
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
@@ -280,7 +280,7 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
 
   update = meta_kms_take_pending_update (kms, device);
   if (!update)
-    return NULL;
+    return;
 
   feedback = meta_kms_device_process_update_sync (device, update, flags);
 
@@ -289,8 +289,6 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
   meta_kms_update_free (update);
 
   meta_kms_feedback_dispatch_result (feedback, kms, result_listeners);
-
-  return feedback;
 }
 
 static gpointer

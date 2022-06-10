@@ -1131,15 +1131,14 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
                            MetaKmsUpdateFlag   flags,
                            GError            **error)
 {
-  g_autoptr (GList) page_flip_datas = NULL;
-  GList *l;
+  g_autolist (MetaKmsPageFlipData) page_flip_datas = NULL;
 
   page_flip_datas = generate_page_flip_datas (impl_device, update);
 
   while (page_flip_datas)
     {
       g_autoptr (GList) l = NULL;
-      MetaKmsPageFlipData *page_flip_data;
+      g_autoptr (MetaKmsPageFlipData) page_flip_data = NULL;
 
       l = page_flip_datas;
       page_flip_datas = g_list_remove_link (page_flip_datas, l);
@@ -1166,21 +1165,17 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
               *failed_planes = g_list_prepend (*failed_planes, plane_feedback);
             }
 
-          meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
-
           goto err;
+        }
+      else
+        {
+          meta_kms_page_flip_data_ref (page_flip_data);
         }
     }
 
   return TRUE;
 
 err:
-  for (l = page_flip_datas; l; l = l->next)
-    {
-      MetaKmsPageFlipData *page_flip_data = l->data;
-
-      meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
-    }
   g_list_free (page_flip_datas);
 
   return FALSE;

@@ -816,6 +816,20 @@ clear_detached_onscreens (MetaRendererNative *renderer_native)
                 g_object_unref);
 }
 
+static void
+on_mode_sets_update_result (const MetaKmsFeedback *kms_feedback,
+                            gpointer               user_data)
+{
+  const GError *feedback_error;
+
+  feedback_error = meta_kms_feedback_get_error (kms_feedback);
+  if (feedback_error &&
+      !g_error_matches (feedback_error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_PERMISSION_DENIED))
+    g_warning ("Failed to post KMS update: %s", feedback_error->message);
+}
+
 void
 meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
 {
@@ -828,9 +842,6 @@ meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
     {
       MetaKmsDevice *kms_device = l->data;
       MetaKmsUpdate *kms_update;
-      MetaKmsUpdateFlag flags;
-      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-      const GError *feedback_error;
 
       configure_disabled_crtcs (kms_device);
 
@@ -838,21 +849,12 @@ meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
       if (!kms_update)
         continue;
 
-      flags = META_KMS_UPDATE_FLAG_NONE;
-      kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
+      meta_kms_update_add_result_listener (kms_update,
+                                           on_mode_sets_update_result,
+                                           NULL);
 
-      switch (meta_kms_feedback_get_result (kms_feedback))
-        {
-        case META_KMS_FEEDBACK_PASSED:
-          break;
-        case META_KMS_FEEDBACK_FAILED:
-          feedback_error = meta_kms_feedback_get_error (kms_feedback);
-          if (!g_error_matches (feedback_error,
-                                G_IO_ERROR,
-                                G_IO_ERROR_PERMISSION_DENIED))
-            g_warning ("Failed to post KMS update: %s", feedback_error->message);
-          break;
-        }
+      meta_kms_post_pending_update_sync (kms, kms_device,
+                                         META_KMS_UPDATE_FLAG_NONE);
     }
 
   clear_detached_onscreens (renderer_native);
@@ -876,40 +878,28 @@ unset_disabled_crtcs (MetaBackend *backend,
       MetaKmsDevice *kms_device =
         meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
       GList *k;
-      gboolean did_mode_set = FALSE;
-      MetaKmsUpdateFlag flags;
       g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+      MetaKmsUpdate *kms_update = NULL;
 
       for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
         {
           MetaCrtc *crtc = k->data;
-          MetaKmsUpdate *kms_update;
 
           if (meta_crtc_get_config (crtc))
             continue;
 
           kms_update = meta_kms_ensure_pending_update (kms, kms_device);
           meta_crtc_kms_set_mode (META_CRTC_KMS (crtc), kms_update);
-
-          did_mode_set = TRUE;
         }
 
-      if (!did_mode_set)
+      if (!kms_update)
         continue;
 
-      flags = META_KMS_UPDATE_FLAG_NONE;
-      kms_feedback = meta_kms_post_pending_update_sync (kms,
-                                                        kms_device,
-                                                        flags);
-      if (meta_kms_feedback_get_result (kms_feedback) !=
-          META_KMS_FEEDBACK_PASSED)
-        {
-          const GError *error = meta_kms_feedback_get_error (kms_feedback);
-
-          if (!g_error_matches (error, G_IO_ERROR,
-                                G_IO_ERROR_PERMISSION_DENIED))
-            g_warning ("Failed to post KMS update: %s", error->message);
-        }
+      meta_kms_update_add_result_listener (kms_update,
+                                           on_mode_sets_update_result,
+                                           NULL);
+      meta_kms_post_pending_update_sync (kms, kms_device,
+                                         META_KMS_UPDATE_FLAG_NONE);
     }
 }
 

@@ -712,43 +712,6 @@ process_page_flip_listener (MetaKmsImplDevice  *impl_device,
 }
 
 static gboolean
-discard_page_flip_listener (MetaKmsImplDevice  *impl_device,
-                            MetaKmsUpdate      *update,
-                            drmModeAtomicReq   *req,
-                            GArray             *blob_ids,
-                            gpointer            update_entry,
-                            gpointer            user_data,
-                            GError            **error)
-{
-  MetaKmsPageFlipListener *listener = update_entry;
-  GError *commit_error = user_data;
-  MetaKmsPageFlipData *page_flip_data;
-  gpointer listener_user_data;
-  GDestroyNotify listener_destroy_notify;
-
-  page_flip_data = meta_kms_page_flip_data_new (impl_device,
-                                                listener->crtc);
-
-  meta_topic (META_DEBUG_KMS,
-              "[atomic] Creating transient page flip data for (%u, %s): %p",
-              meta_kms_crtc_get_id (listener->crtc),
-              meta_kms_impl_device_get_path (impl_device),
-              page_flip_data);
-
-  listener_user_data = g_steal_pointer (&listener->user_data);
-  listener_destroy_notify = g_steal_pointer (&listener->destroy_notify);
-  meta_kms_page_flip_data_add_listener (page_flip_data,
-                                        listener->vtable,
-                                        listener->flags,
-                                        listener_user_data,
-                                        listener_destroy_notify);
-
-  meta_kms_page_flip_data_discard_in_impl (page_flip_data, commit_error);
-
-  return TRUE;
-}
-
-static gboolean
 process_entries (MetaKmsImplDevice         *impl_device,
                  MetaKmsUpdate             *update,
                  drmModeAtomicReq          *req,
@@ -1045,15 +1008,6 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
 
 err:
   meta_topic (META_DEBUG_KMS, "[atomic] KMS update failed: %s", error->message);
-
-  process_entries (impl_device,
-                   update,
-                   req,
-                   blob_ids,
-                   meta_kms_update_get_page_flip_listeners (update),
-                   error,
-                   discard_page_flip_listener,
-                   NULL);
 
   if (req)
     drmModeAtomicFree (req);

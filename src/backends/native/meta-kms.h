@@ -42,9 +42,9 @@ MetaKmsUpdate * meta_kms_ensure_pending_update (MetaKms       *kms,
 MetaKmsUpdate * meta_kms_get_pending_update (MetaKms       *kms,
                                              MetaKmsDevice *device);
 
-MetaKmsFeedback * meta_kms_post_pending_update_sync (MetaKms           *kms,
-                                                     MetaKmsDevice     *device,
-                                                     MetaKmsUpdateFlag  flags);
+void meta_kms_post_pending_update_sync (MetaKms           *kms,
+                                        MetaKmsDevice     *device,
+                                        MetaKmsUpdateFlag  flags);
 
 void meta_kms_discard_pending_page_flips (MetaKms *kms);
 

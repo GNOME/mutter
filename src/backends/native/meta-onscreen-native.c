@@ -1018,6 +1018,35 @@ ensure_crtc_modes (CoglOnscreen *onscreen)
 }
 
 static void
+on_swap_buffer_update_result (const MetaKmsFeedback *kms_feedback,
+                              gpointer               user_data)
+{
+  CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
+  const GError *error;
+  CoglFrameInfo *frame_info;
+
+  /*
+   * Page flipping failed, but we want to fail gracefully, so to avoid freezing
+   * the frame clock, emit a symbolic flip.
+   */
+
+  error = meta_kms_feedback_get_error (kms_feedback);
+  if (!error)
+    return;
+
+  if (!g_error_matches (error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_PERMISSION_DENIED))
+    g_warning ("Page flip failed: %s", error->message);
+
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+
+  meta_onscreen_native_notify_frame_complete (onscreen);
+  meta_onscreen_native_clear_next_fb (onscreen);
+}
+
+static void
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                                const int     *rectangles,
                                                int            n_rectangles,
@@ -1051,9 +1080,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   g_autoptr (MetaDrmBuffer) secondary_gpu_fb = NULL;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
-  MetaKmsUpdateFlag flags;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-  const GError *feedback_error;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Onscreen (swap-buffers)");
@@ -1136,9 +1162,19 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   if (egl_context_changed)
     _cogl_winsys_egl_ensure_current (cogl_display);
 
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode == META_POWER_SAVE_ON)
     {
+      MetaKmsUpdate *kms_update;
+
+      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+      meta_kms_update_add_result_listener (kms_update,
+                                           on_swap_buffer_update_result,
+                                           onscreen_native);
+
       ensure_crtc_modes (onscreen);
       meta_onscreen_native_flip_crtc (onscreen,
                                       onscreen_native->view,
@@ -1158,8 +1194,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativePostKmsUpdate,
                            "Onscreen (post pending update)");
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
 
   switch (renderer_gpu_data->mode)
     {
@@ -1209,26 +1243,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
-  flags = META_KMS_UPDATE_FLAG_NONE;
-  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
-
-  switch (meta_kms_feedback_get_result (kms_feedback))
-    {
-    case META_KMS_FEEDBACK_PASSED:
-      clutter_frame_set_result (frame,
-                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
-      break;
-    case META_KMS_FEEDBACK_FAILED:
-      clutter_frame_set_result (frame,
-                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
-
-      feedback_error = meta_kms_feedback_get_error (kms_feedback);
-      if (!g_error_matches (feedback_error,
-                            G_IO_ERROR,
-                            G_IO_ERROR_PERMISSION_DENIED))
-        g_warning ("Failed to post KMS update: %s", feedback_error->message);
-      break;
-    }
+  meta_kms_post_pending_update_sync (kms, kms_device, META_KMS_UPDATE_FLAG_NONE);
+  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
 gboolean
@@ -1473,10 +1489,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
   MetaKms *kms = meta_kms_device_get_kms (kms_device);
-  MetaKmsUpdateFlag flags;
   MetaKmsUpdate *kms_update;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-  const GError *error;
 
   kms_update = meta_kms_get_pending_update (kms, kms_device);
   if (!kms_update)
@@ -1491,30 +1504,15 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
                                           META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                           g_object_ref (onscreen_native->view),
                                           g_object_unref);
+  add_onscreen_frame_info (crtc);
 
-  flags = META_KMS_UPDATE_FLAG_NONE;
-  kms_feedback = meta_kms_post_pending_update_sync (kms,
-                                                    kms_device,
-                                                    flags);
-  switch (meta_kms_feedback_get_result (kms_feedback))
-    {
-    case META_KMS_FEEDBACK_PASSED:
-      add_onscreen_frame_info (crtc);
-      clutter_frame_set_result (frame,
-                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
-      break;
-    case META_KMS_FEEDBACK_FAILED:
-      add_onscreen_frame_info (crtc);
-      clutter_frame_set_result (frame,
-                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+  meta_topic (META_DEBUG_KMS,
+              "Posting non-primary plane update for CRTC %u (%s)",
+              meta_kms_crtc_get_id (kms_crtc),
+              meta_kms_device_get_path (kms_device));
 
-      error = meta_kms_feedback_get_error (kms_feedback);
-      if (!g_error_matches (error,
-                            G_IO_ERROR,
-                            G_IO_ERROR_PERMISSION_DENIED))
-        g_warning ("Failed to post KMS update: %s", error->message);
-      break;
-    }
+  meta_kms_post_pending_update_sync (kms, kms_device, META_KMS_UPDATE_FLAG_NONE);
+  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
 static gboolean
