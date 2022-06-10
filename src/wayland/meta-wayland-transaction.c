@@ -23,7 +23,10 @@
 
 #include "wayland/meta-wayland-transaction.h"
 
+#include <glib-unix.h>
+
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-dma-buf.h"
 
 #define META_WAYLAND_TRANSACTION_NONE ((void *)(uintptr_t) G_MAXSIZE)
 
@@ -39,6 +42,9 @@ struct _MetaWaylandTransaction
    * Values: Pointer to MetaWaylandTransactionEntry for the surface
    */
   GHashTable *entries;
+
+  /* Sources for buffers which are not ready yet */
+  GHashTable *buf_sources;
 };
 
 struct _MetaWaylandTransactionEntry
@@ -161,6 +167,9 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
   MetaWaylandTransactionEntry *entry;
   int i;
 
+  if (g_hash_table_size (transaction->entries) == 0)
+    goto free;
+
   surfaces = (MetaWaylandSurface **)
     g_hash_table_get_keys_as_array (transaction->entries, &num_surfaces);
   states = g_new (MetaWaylandSurfaceState *, num_surfaces);
@@ -214,14 +223,19 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
         meta_wayland_transaction_sync_child_states (surfaces[i]);
     }
 
+free:
   meta_wayland_transaction_free (transaction);
 }
 
 static gboolean
-has_unapplied_dependencies (MetaWaylandTransaction *transaction)
+has_dependencies (MetaWaylandTransaction *transaction)
 {
   GHashTableIter iter;
   MetaWaylandSurface *surface;
+
+  if (transaction->buf_sources &&
+      g_hash_table_size (transaction->buf_sources) > 0)
+    return TRUE;
 
   g_hash_table_iter_init (&iter, transaction->entries);
   while (g_hash_table_iter_next (&iter, (gpointer *) &surface, NULL))
@@ -237,7 +251,7 @@ static void
 meta_wayland_transaction_maybe_apply_one (MetaWaylandTransaction  *transaction,
                                           MetaWaylandTransaction **first_candidate)
 {
-  if (has_unapplied_dependencies (transaction))
+  if (has_dependencies (transaction))
     return;
 
   meta_wayland_transaction_apply (transaction, first_candidate);
@@ -261,6 +275,49 @@ meta_wayland_transaction_maybe_apply (MetaWaylandTransaction *transaction)
     }
 }
 
+static void
+meta_wayland_transaction_dma_buf_dispatch (MetaWaylandBuffer *buffer,
+                                           gpointer           user_data)
+{
+  MetaWaylandTransaction *transaction = user_data;
+
+  if (!transaction->buf_sources ||
+      !g_hash_table_remove (transaction->buf_sources, buffer))
+    return;
+
+  meta_wayland_transaction_maybe_apply (transaction);
+}
+
+static gboolean
+meta_wayland_transaction_add_dma_buf_source (MetaWaylandTransaction *transaction,
+                                             MetaWaylandBuffer      *buffer)
+{
+  GSource *source;
+
+  if (transaction->buf_sources &&
+      g_hash_table_contains (transaction->buf_sources, buffer))
+    return FALSE;
+
+  source = meta_wayland_dma_buf_create_source (buffer,
+                                               meta_wayland_transaction_dma_buf_dispatch,
+                                               transaction);
+  if (!source)
+    return FALSE;
+
+  if (!transaction->buf_sources)
+    {
+      transaction->buf_sources =
+        g_hash_table_new_full (NULL, NULL, NULL,
+                               (GDestroyNotify) g_source_destroy);
+    }
+
+  g_hash_table_insert (transaction->buf_sources, buffer, source);
+  g_source_attach (source, NULL);
+  g_source_unref (source);
+
+  return TRUE;
+}
+
 void
 meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
 {
@@ -269,6 +326,21 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
   gboolean maybe_apply = TRUE;
   GHashTableIter iter;
   MetaWaylandSurface *surface;
+  MetaWaylandTransactionEntry *entry;
+
+  g_hash_table_iter_init (&iter, transaction->entries);
+  while (g_hash_table_iter_next (&iter,
+                                 (gpointer *) &surface, (gpointer *) &entry))
+    {
+      if (entry && entry->state)
+        {
+          MetaWaylandBuffer *buffer = entry->state->buffer;
+
+          if (buffer &&
+              meta_wayland_transaction_add_dma_buf_source (transaction, buffer))
+            maybe_apply = FALSE;
+        }
+    }
 
   transaction->committed_sequence = ++committed_sequence;
   transaction->node.data = transaction;
@@ -504,6 +576,7 @@ meta_wayland_transaction_free (MetaWaylandTransaction *transaction)
       g_queue_unlink (committed_queue, &transaction->node);
     }
 
+  g_clear_pointer (&transaction->buf_sources, g_hash_table_destroy);
   g_hash_table_destroy (transaction->entries);
   g_free (transaction);
 }
