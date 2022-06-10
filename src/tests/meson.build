@@ -567,7 +567,10 @@ if have_kvm_tests or have_tty_tests
         tests_c_args,
         '-DG_LOG_DOMAIN="mutter-@0@-test"'.format(test_case['name']),
       ],
-      dependencies: libmutter_test_dep,
+      dependencies: [
+        libmutter_test_dep,
+        drm_mock_dep
+      ],
       install: have_installed_tests,
       install_dir: mutter_installed_tests_libexecdir,
       install_rpath: pkglibdir,

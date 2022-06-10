@@ -36,6 +36,7 @@ G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, GObject)
 
 void meta_kms_discard_pending_updates (MetaKms *kms);
 
+META_EXPORT_TEST
 MetaKmsUpdate * meta_kms_ensure_pending_update (MetaKms       *kms,
                                                 MetaKmsDevice *device);
 

@@ -165,6 +165,7 @@ void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane
                                                    int                     x,
                                                    int                     y);
 
+META_EXPORT_TEST
 void meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
                                           MetaKmsResultListenerFunc  func,
                                           gpointer                   user_data);

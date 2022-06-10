@@ -29,9 +29,12 @@
 #include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-device-private.h"
+#include "backends/native/meta-kms-impl-device-atomic.h"
 #include "core/display-private.h"
 #include "meta/meta-backend.h"
 #include "meta-test/meta-context-test.h"
+#include "tests/drm-mock/drm-mock.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
@@ -47,9 +50,26 @@ typedef struct
   } scanout;
 
   gboolean wait_for_scanout;
+
+  struct {
+    gboolean scanout_sabotaged;
+    gboolean fallback_painted;
+    guint repaint_guard_id;
+    ClutterStageView *scanout_failed_view;
+  } scanout_fallback;
 } KmsRenderingTest;
 
 static MetaContext *test_context;
+
+static gboolean
+is_atomic_mode_setting (MetaKmsDevice *kms_device)
+{
+  MetaKmsImplDevice *kms_impl_device;
+
+  kms_impl_device = meta_kms_device_get_impl_device (kms_device);
+
+  return META_IS_KMS_IMPL_DEVICE_ATOMIC (kms_impl_device);
+}
 
 static void
 on_after_update (ClutterStage     *stage,
@@ -292,6 +312,151 @@ meta_test_kms_render_client_scanout (void)
   g_main_loop_unref (test.loop);
 }
 
+static gboolean
+needs_repainted_guard (gpointer user_data)
+{
+  g_assert_not_reached ();
+  return G_SOURCE_REMOVE;
+}
+
+static void
+on_scanout_fallback_result (const MetaKmsFeedback *kms_feedback,
+                            gpointer               user_data)
+{
+  KmsRenderingTest *test = user_data;
+
+  g_assert_cmpuint (test->scanout_fallback.repaint_guard_id, ==, 0);
+  g_assert_nonnull (test->scanout_fallback.scanout_failed_view);
+
+  test->scanout_fallback.repaint_guard_id =
+    g_idle_add_full (G_PRIORITY_LOW, needs_repainted_guard, test, NULL);
+}
+
+static void
+on_scanout_fallback_before_paint (ClutterStage     *stage,
+                                  ClutterStageView *stage_view,
+                                  ClutterFrame     *frame,
+                                  KmsRenderingTest *test)
+{
+  MetaRendererView *view = META_RENDERER_VIEW (stage_view);
+  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
+  CoglScanout *scanout;
+  MetaKmsUpdate *kms_update;
+
+  scanout = clutter_stage_view_peek_scanout (stage_view);
+  if (!scanout)
+    return;
+
+  g_assert_false (test->scanout_fallback.scanout_sabotaged);
+
+  if (is_atomic_mode_setting (kms_device))
+    {
+      drm_mock_queue_error (DRM_MOCK_CALL_ATOMIC_COMMIT, EINVAL);
+    }
+  else
+    {
+      drm_mock_queue_error (DRM_MOCK_CALL_PAGE_FLIP, EINVAL);
+      drm_mock_queue_error (DRM_MOCK_CALL_SET_CRTC, EINVAL);
+    }
+
+  test->scanout_fallback.scanout_sabotaged = TRUE;
+
+  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+  meta_kms_update_add_result_listener (kms_update,
+                                       on_scanout_fallback_result, test);
+
+  test->scanout_fallback.scanout_failed_view = stage_view;
+}
+
+static void
+on_scanout_fallback_paint_view (ClutterStage     *stage,
+                                ClutterStageView *stage_view,
+                                cairo_region_t   *region,
+                                ClutterFrame     *frame,
+                                KmsRenderingTest *test)
+{
+  if (test->scanout_fallback.scanout_sabotaged)
+    {
+      g_assert_cmpuint (test->scanout_fallback.repaint_guard_id, !=, 0);
+      g_clear_handle_id (&test->scanout_fallback.repaint_guard_id,
+                         g_source_remove);
+      test->scanout_fallback.fallback_painted = TRUE;
+    }
+}
+
+static void
+on_scanout_fallback_presented (ClutterStage     *stage,
+                               ClutterStageView *stage_view,
+                               ClutterFrameInfo *frame_info,
+                               KmsRenderingTest *test)
+{
+  if (!test->scanout_fallback.scanout_sabotaged)
+    return;
+
+  g_assert_true (test->scanout_fallback.fallback_painted);
+  g_main_loop_quit (test->loop);
+}
+
+static void
+meta_test_kms_render_client_scanout_fallback (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (test_context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  MetaKmsDevice *kms_device = meta_kms_get_devices (kms)->data;
+  KmsRenderingTest test;
+  MetaWaylandTestClient *wayland_test_client;
+  g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
+  gulong before_paint_handler_id;
+  gulong paint_view_handler_id;
+  gulong presented_handler_id;
+
+  test_driver = meta_wayland_test_driver_new (wayland_compositor);
+  meta_wayland_test_driver_set_property (test_driver,
+                                         "gpu-path",
+                                         meta_kms_device_get_path (kms_device));
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "dma-buf-scanout");
+  g_assert_nonnull (wayland_test_client);
+
+  test = (KmsRenderingTest) {
+    .loop = g_main_loop_new (NULL, FALSE),
+  };
+
+  before_paint_handler_id =
+    g_signal_connect (stage, "before-paint",
+                      G_CALLBACK (on_scanout_fallback_before_paint), &test);
+  paint_view_handler_id =
+    g_signal_connect (stage, "paint-view",
+                      G_CALLBACK (on_scanout_fallback_paint_view), &test);
+  presented_handler_id =
+    g_signal_connect (stage, "presented",
+                      G_CALLBACK (on_scanout_fallback_presented), &test);
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "*Direct scanout page flip failed*");
+
+  g_main_loop_run (test.loop);
+  g_main_loop_unref (test.loop);
+
+  g_test_assert_expected_messages ();
+
+  g_signal_handler_disconnect (stage, before_paint_handler_id);
+  g_signal_handler_disconnect (stage, paint_view_handler_id);
+  g_signal_handler_disconnect (stage, presented_handler_id);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
 static void
 init_tests (void)
 {
@@ -299,6 +464,8 @@ init_tests (void)
                    meta_test_kms_render_basic);
   g_test_add_func ("/backends/native/kms/render/client-scanout",
                    meta_test_kms_render_client_scanout);
+  g_test_add_func ("/backends/native/kms/render/client-scanout-fallabck",
+                   meta_test_kms_render_client_scanout_fallback);
 }
 
 int
