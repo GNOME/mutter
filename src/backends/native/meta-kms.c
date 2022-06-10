@@ -270,28 +270,7 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
 
   result_listeners = meta_kms_update_take_result_listeners (update);
 
-  if (feedback->error &&
-      flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR)
-    {
-      GList *l;
-
-      meta_kms_update_unlock (update);
-
-      for (l = feedback->failed_planes; l; l = l->next)
-        {
-          MetaKmsPlane *plane = l->data;
-
-          meta_kms_update_drop_plane_assignment (update, plane);
-        }
-
-      meta_kms_update_drop_defunct_page_flip_listeners (update);
-
-      meta_kms_add_pending_update (kms, update);
-    }
-  else
-    {
-      meta_kms_update_free (update);
-    }
+  meta_kms_update_free (update);
 
   for (l = result_listeners; l; l = l->next)
     {

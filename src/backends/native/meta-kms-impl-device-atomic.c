@@ -1046,17 +1046,14 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
 err:
   meta_topic (META_DEBUG_KMS, "[atomic] KMS update failed: %s", error->message);
 
-  if (!(flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR))
-    {
-      process_entries (impl_device,
-                       update,
-                       req,
-                       blob_ids,
-                       meta_kms_update_get_page_flip_listeners (update),
-                       error,
-                       discard_page_flip_listener,
-                       NULL);
-    }
+  process_entries (impl_device,
+                   update,
+                   req,
+                   blob_ids,
+                   meta_kms_update_get_page_flip_listeners (update),
+                   error,
+                   discard_page_flip_listener,
+                   NULL);
 
   if (req)
     drmModeAtomicFree (req);

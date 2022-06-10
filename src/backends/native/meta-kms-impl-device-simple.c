@@ -1166,8 +1166,7 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
               *failed_planes = g_list_prepend (*failed_planes, plane_feedback);
             }
 
-          if (!(flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR))
-            meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
+          meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
 
           goto err;
         }
@@ -1176,14 +1175,11 @@ maybe_dispatch_page_flips (MetaKmsImplDevice  *impl_device,
   return TRUE;
 
 err:
-  if (!(flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR))
+  for (l = page_flip_datas; l; l = l->next)
     {
-      for (l = page_flip_datas; l; l = l->next)
-        {
-          MetaKmsPageFlipData *page_flip_data = l->data;
+      MetaKmsPageFlipData *page_flip_data = l->data;
 
-          meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
-        }
+      meta_kms_page_flip_data_discard_in_impl (page_flip_data, *error);
     }
   g_list_free (page_flip_datas);
 

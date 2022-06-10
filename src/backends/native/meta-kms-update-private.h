@@ -170,8 +170,6 @@ GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
 META_EXPORT_TEST
 GList * meta_kms_update_get_page_flip_listeners (MetaKmsUpdate *update);
 
-void meta_kms_update_drop_defunct_page_flip_listeners (MetaKmsUpdate *update);
-
 META_EXPORT_TEST
 GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
 

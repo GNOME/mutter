@@ -80,6 +80,8 @@ struct _MetaWaylandBuffer
     MetaWaylandSinglePixelBuffer *single_pixel_buffer;
     CoglTexture *texture;
   } single_pixel;
+
+  GHashTable *tainted_scanout_onscreens;
 };
 
 #define META_TYPE_WAYLAND_BUFFER (meta_wayland_buffer_get_type ())

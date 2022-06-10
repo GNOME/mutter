@@ -1266,6 +1266,40 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
   return result == META_KMS_FEEDBACK_PASSED;
 }
 
+static void
+on_scanout_update_result (const MetaKmsFeedback *kms_feedback,
+                          gpointer               user_data)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (user_data);
+  CoglOnscreen *onscreen = COGL_ONSCREEN (onscreen_native);
+  const GError *error;
+  CoglFrameInfo *frame_info;
+
+  error = meta_kms_feedback_get_error (kms_feedback);
+  if (!error)
+    return;
+
+  if (!g_error_matches (error,
+                        G_IO_ERROR,
+                        G_IO_ERROR_PERMISSION_DENIED))
+    {
+      ClutterStageView *view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+      g_warning ("Direct scanout page flip failed: %s", error->message);
+
+      cogl_scanout_notify_failed (COGL_SCANOUT (onscreen_native->gbm.next_fb),
+                                  onscreen);
+      clutter_stage_view_add_redraw_clip (view, NULL);
+      clutter_stage_view_schedule_update_now (view);
+    }
+
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+  frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+
+  meta_onscreen_native_notify_frame_complete (onscreen);
+  meta_onscreen_native_clear_next_fb (onscreen);
+}
+
 static gboolean
 meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                      CoglScanout    *scanout,
@@ -1293,9 +1327,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   GError *fill_timings_error = NULL;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
-  MetaKmsUpdateFlag flags;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
-  const GError *feedback_error;
+  MetaKmsUpdate *kms_update;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode != META_POWER_SAVE_ON)
@@ -1351,40 +1383,28 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
         }
     }
 
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+
+  meta_kms_update_add_result_listener (kms_update,
+                                       on_scanout_update_result,
+                                       onscreen_native);
+
   meta_onscreen_native_flip_crtc (onscreen,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
-                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR,
+                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
                                   NULL,
                                   0);
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
 
   meta_topic (META_DEBUG_KMS,
               "Posting direct scanout update for CRTC %u (%s)",
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
-  flags = META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR;
-  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
-  switch (meta_kms_feedback_get_result (kms_feedback))
-    {
-    case META_KMS_FEEDBACK_PASSED:
-      clutter_frame_set_result (frame,
-                                CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
-      break;
-    case META_KMS_FEEDBACK_FAILED:
-      feedback_error = meta_kms_feedback_get_error (kms_feedback);
-
-      if (g_error_matches (feedback_error,
-                           G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        break;
-
-      g_clear_object (&onscreen_native->gbm.next_fb);
-      g_propagate_error (error, g_error_copy (feedback_error));
-      return FALSE;
-    }
+  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+  meta_kms_post_pending_update_sync (kms, kms_device, META_KMS_UPDATE_FLAG_NONE);
 
   return TRUE;
 }

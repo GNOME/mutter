@@ -547,6 +547,43 @@ egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
 }
 #endif /* HAVE_WAYLAND_EGLSTREAM */
 
+static void
+on_onscreen_destroyed (gpointer  user_data,
+                       GObject  *where_the_onscreen_was)
+{
+  MetaWaylandBuffer *buffer = user_data;
+
+  g_hash_table_remove (buffer->tainted_scanout_onscreens,
+                       where_the_onscreen_was);
+}
+
+static void
+on_scanout_failed (CoglScanout       *scanout,
+                   CoglOnscreen      *onscreen,
+                   MetaWaylandBuffer *buffer)
+{
+  if (!buffer->tainted_scanout_onscreens)
+    buffer->tainted_scanout_onscreens = g_hash_table_new (NULL, NULL);
+
+  g_hash_table_add (buffer->tainted_scanout_onscreens, onscreen);
+  g_object_weak_ref (G_OBJECT (onscreen), on_onscreen_destroyed, buffer);
+}
+
+static void
+clear_tainted_scanout_onscreens (MetaWaylandBuffer *buffer)
+{
+  GHashTableIter iter;
+  CoglOnscreen *onscreen;
+
+  if (!buffer->tainted_scanout_onscreens)
+    return;
+
+  g_hash_table_iter_init (&iter, buffer->tainted_scanout_onscreens);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &onscreen, NULL))
+    g_object_weak_unref (G_OBJECT (onscreen), on_onscreen_destroyed, buffer);
+  g_hash_table_remove_all (buffer->tainted_scanout_onscreens);
+}
+
 /**
  * meta_wayland_buffer_attach:
  * @buffer: a pointer to a #MetaWaylandBuffer
@@ -572,6 +609,8 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
                             GError            **error)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferAttach, "WaylandBuffer (attach)");
+
+  clear_tainted_scanout_onscreens (buffer);
 
   if (!meta_wayland_buffer_is_realized (buffer))
     {
@@ -797,24 +836,31 @@ CoglScanout *
 meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
                                          CoglOnscreen      *onscreen)
 {
+  CoglScanout *scanout = NULL;
+
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferTryScanout,
                            "WaylandBuffer (try scanout)");
+
+  if (buffer->tainted_scanout_onscreens &&
+      g_hash_table_lookup (buffer->tainted_scanout_onscreens, onscreen))
+    {
+      meta_topic (META_DEBUG_RENDER, "Buffer scanout capability tainted");
+      return NULL;
+    }
 
   switch (buffer->type)
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
     case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
+#ifdef HAVE_WAYLAND_EGLSTREAM
+    case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
+#endif
       meta_topic (META_DEBUG_RENDER,
                   "Buffer type not scanout compatible");
       return NULL;
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
-      return try_acquire_egl_image_scanout (buffer, onscreen);
-#ifdef HAVE_WAYLAND_EGLSTREAM
-    case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
-      meta_topic (META_DEBUG_RENDER,
-                  "Buffer type not scanout compatible");
-      return NULL;
-#endif
+      scanout = try_acquire_egl_image_scanout (buffer, onscreen);
+      break;
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       {
         MetaWaylandDmaBufBuffer *dma_buf;
@@ -823,15 +869,20 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
         if (!dma_buf)
           return NULL;
 
-        return meta_wayland_dma_buf_try_acquire_scanout (dma_buf, onscreen);
+        scanout = meta_wayland_dma_buf_try_acquire_scanout (dma_buf, onscreen);
+        break;
       }
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
       g_warn_if_reached ();
       return NULL;
     }
 
-  g_assert_not_reached ();
-  return NULL;
+  g_return_val_if_fail (scanout, NULL);
+
+  g_signal_connect (scanout, "scanout-failed",
+                    G_CALLBACK (on_scanout_failed), buffer);
+
+  return scanout;
 }
 
 static void
@@ -840,6 +891,9 @@ meta_wayland_buffer_finalize (GObject *object)
   MetaWaylandBuffer *buffer = META_WAYLAND_BUFFER (object);
 
   g_warn_if_fail (buffer->use_count == 0);
+
+  clear_tainted_scanout_onscreens (buffer);
+  g_clear_pointer (&buffer->tainted_scanout_onscreens, g_hash_table_unref);
 
   g_clear_pointer (&buffer->egl_image.texture, cogl_object_unref);
 #ifdef HAVE_WAYLAND_EGLSTREAM
