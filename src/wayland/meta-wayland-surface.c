@@ -713,7 +713,7 @@ meta_wayland_surface_discard_presentation_feedback (MetaWaylandSurface *surface)
     }
 }
 
-static void
+void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
 {

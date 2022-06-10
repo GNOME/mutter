@@ -263,6 +263,9 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
                                                  struct wl_resource    *compositor_resource,
                                                  guint32                id);
 
+void                meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
+                                                      MetaWaylandSurfaceState *state);
+
 MetaWaylandSurfaceState *
                     meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
