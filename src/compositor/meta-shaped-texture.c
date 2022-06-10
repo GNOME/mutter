@@ -41,6 +41,7 @@
 
 #include "cogl/cogl.h"
 #include "compositor/clutter-utils.h"
+#include "compositor/meta-texture-mipmap.h"
 #include "compositor/region-utils.h"
 #include "core/boxes-private.h"
 #include "meta/meta-shaped-texture.h"
@@ -93,10 +94,7 @@ struct _MetaShapedTexture
   CoglPipeline *unblended_pipeline;
   CoglPipeline *unblended_tower_pipeline;
 
-  CoglTexture *mipmap_texture;
-  gboolean mipmap_texture_out_of_date;
-  CoglFramebuffer *mipmap_fb;
-  CoglPipeline *mipmap_pipeline;
+  MetaTextureMipmap *texture_mipmap;
 
   gboolean is_y_inverted;
 
@@ -156,6 +154,7 @@ invalidate_size (MetaShapedTexture *stex)
 static void
 meta_shaped_texture_init (MetaShapedTexture *stex)
 {
+  stex->texture_mipmap = meta_texture_mipmap_new ();
   stex->buffer_scale = 1;
   stex->texture = NULL;
   stex->mask_texture = NULL;
@@ -253,21 +252,13 @@ meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 }
 
 static void
-free_mipmaps (MetaShapedTexture *stex)
-{
-  g_clear_object (&stex->mipmap_fb);
-  cogl_clear_object (&stex->mipmap_texture);
-}
-
-static void
 meta_shaped_texture_dispose (GObject *object)
 {
   MetaShapedTexture *stex = (MetaShapedTexture *) object;
 
   g_clear_handle_id (&stex->remipmap_timeout_id, g_source_remove);
 
-  free_mipmaps (stex);
-  cogl_clear_object (&stex->mipmap_pipeline);
+  g_clear_pointer (&stex->texture_mipmap, meta_texture_mipmap_free);
 
   g_clear_pointer (&stex->texture, cogl_object_unref);
 
@@ -624,7 +615,8 @@ set_cogl_texture (MetaShapedTexture *stex,
       update_size (stex);
     }
 
-  stex->mipmap_texture_out_of_date = TRUE;
+  meta_texture_mipmap_set_base_texture (stex->texture_mipmap, stex->texture);
+  meta_texture_mipmap_invalidate (stex->texture_mipmap);
 }
 
 static gboolean
@@ -723,7 +715,7 @@ do_paint_content (MetaShapedTexture   *stex,
       mag_filter = COGL_PIPELINE_FILTER_NEAREST;
 
       /* Back to normal desktop viewing. Save some memory */
-      free_mipmaps (stex);
+      meta_texture_mipmap_clear (stex->texture_mipmap);
     }
   else
     {
@@ -740,8 +732,6 @@ do_paint_content (MetaShapedTexture   *stex,
           transforms.y_scale < 0.5)
         {
           paint_tex = select_texture_for_paint (stex, paint_context);
-          if (paint_tex == stex->mipmap_texture)
-            min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
         }
     }
 
@@ -922,94 +912,6 @@ do_paint_content (MetaShapedTexture   *stex,
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
 }
 
-static void
-ensure_mipmap_texture (MetaShapedTexture *stex)
-{
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  int width, height;
-
-  /* Let's avoid spending any texture memory copying the base level texture
-   * because we'll never need that one and it would have used most of the
-   * memory;
-   *    S(0) = W x H
-   *    S(n) = S(n-1) / 4
-   *    sum to infinity of S(n) = 4/3 * S(0)
-   * So subtracting S(0) means even infinite mipmap levels only need one third
-   * of the original texture's memory. Finite levels need less.
-   *
-   * The fact that mipmap level 0 of stex->mipmap_texture is half the
-   * resolution of stex->texture makes no visual difference, so long as you're
-   * never trying to view a level of detail higher than half. If you need that
-   * then just use stex->texture instead of stex->mipmap_texture, which is
-   * faster anyway.
-   */
-  width = cogl_texture_get_width (stex->texture) / 2;
-  height = cogl_texture_get_height (stex->texture) / 2;
-
-  if (!width || !height)
-    {
-      free_mipmaps (stex);
-      return;
-    }
-
-  if (!stex->mipmap_texture ||
-      cogl_texture_get_width (stex->mipmap_texture) != width ||
-      cogl_texture_get_height (stex->mipmap_texture) != height)
-    {
-      CoglOffscreen *offscreen;
-      CoglTexture2D *tex2d;
-
-      free_mipmaps (stex);
-
-      tex2d = cogl_texture_2d_new_with_size (ctx, width, height);
-      if (!tex2d)
-        return;
-
-      stex->mipmap_texture = COGL_TEXTURE (tex2d);
-
-      offscreen = cogl_offscreen_new_with_texture (stex->mipmap_texture);
-      if (!offscreen)
-        {
-          free_mipmaps (stex);
-          return;
-        }
-
-      stex->mipmap_fb = COGL_FRAMEBUFFER (offscreen);
-
-      if (!cogl_framebuffer_allocate (stex->mipmap_fb, NULL))
-        {
-          free_mipmaps (stex);
-          return;
-        }
-
-      cogl_framebuffer_orthographic (stex->mipmap_fb,
-                                     0, 0, width, height, -1.0, 1.0);
-
-      stex->mipmap_texture_out_of_date = TRUE;
-    }
-
-  if (stex->mipmap_texture_out_of_date)
-    {
-      if (!stex->mipmap_pipeline)
-        {
-          stex->mipmap_pipeline = cogl_pipeline_new (ctx);
-          cogl_pipeline_set_blend (stex->mipmap_pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
-          cogl_pipeline_set_layer_filters (stex->mipmap_pipeline, 0,
-                                           COGL_PIPELINE_FILTER_LINEAR,
-                                           COGL_PIPELINE_FILTER_LINEAR);
-        }
-
-      cogl_pipeline_set_layer_texture (stex->mipmap_pipeline, 0, stex->texture);
-      cogl_framebuffer_draw_textured_rectangle (stex->mipmap_fb,
-                                                stex->mipmap_pipeline,
-                                                0, 0, width, height,
-                                                0.0, 0.0, 1.0, 1.0);
-
-      stex->mipmap_texture_out_of_date = FALSE;
-    }
-}
-
 static CoglTexture *
 select_texture_for_paint (MetaShapedTexture   *stex,
                           ClutterPaintContext *paint_context)
@@ -1029,8 +931,7 @@ select_texture_for_paint (MetaShapedTexture   *stex,
       if (age >= MIN_MIPMAP_AGE_USEC ||
           stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
         {
-          ensure_mipmap_texture (stex);
-          texture = stex->mipmap_texture;
+          texture = meta_texture_mipmap_get_paint_texture (stex->texture_mipmap);
         }
     }
 
@@ -1129,7 +1030,7 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
       stex->create_mipmaps = create_mipmaps;
 
       if (!stex->create_mipmaps)
-        free_mipmaps (stex);
+        meta_texture_mipmap_clear (stex->texture_mipmap);
     }
 }
 
@@ -1258,7 +1159,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                      clip);
     }
 
-  stex->mipmap_texture_out_of_date = TRUE;
+  meta_texture_mipmap_invalidate (stex->texture_mipmap);
+
   stex->prev_invalidation = stex->last_invalidation;
   stex->last_invalidation = g_get_monotonic_time ();
 
