@@ -1317,8 +1317,8 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 
   meta_frame_calc_borders (window->frame, &borders);
 
-  size_dx = constrained_rect.x - window->rect.width;
-  size_dy = constrained_rect.y - window->rect.height;
+  size_dx = constrained_rect.width - window->rect.width;
+  size_dy = constrained_rect.height - window->rect.height;
 
   window->rect = constrained_rect;
 
