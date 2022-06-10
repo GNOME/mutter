@@ -58,6 +58,7 @@ FunctionName args_type \
 { \
   static int (* real_function) args_type; \
   int ret; \
+\
   if (G_UNLIKELY (!real_function)) \
     real_function = dlsym (RTLD_NEXT, #FunctionName); \
 \
