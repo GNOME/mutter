@@ -1019,13 +1019,14 @@ meta_kms_impl_device_atomic_process_update (MetaKmsImplDevice *impl_device,
 
   fd = meta_kms_impl_device_get_fd (impl_device);
   ret = drmModeAtomicCommit (fd, req, commit_flags, impl_device);
-  drmModeAtomicFree (req);
   if (ret < 0)
     {
       g_set_error (&error, G_IO_ERROR, g_io_error_from_errno (-ret),
                    "drmModeAtomicCommit: %s", g_strerror (-ret));
       goto err;
     }
+
+  drmModeAtomicFree (req);
 
   process_entries (impl_device,
                    update,
@@ -1054,6 +1055,9 @@ err:
                        discard_page_flip_listener,
                        NULL);
     }
+
+  if (req)
+    drmModeAtomicFree (req);
 
   release_blob_ids (impl_device, blob_ids);
 
