@@ -146,6 +146,14 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 }
 
 static void
+meta_onscreen_native_clear_next_fb (CoglOnscreen *onscreen)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+
+  g_clear_object (&onscreen_native->gbm.next_fb);
+}
+
+static void
 maybe_update_frame_info (MetaCrtc         *crtc,
                          CoglFrameInfo    *frame_info,
                          int64_t           time_us,
@@ -327,7 +335,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
-  meta_onscreen_native_swap_drm_fb (onscreen);
+  meta_onscreen_native_clear_next_fb (onscreen);
 }
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
