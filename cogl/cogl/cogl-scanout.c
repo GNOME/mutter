@@ -29,11 +29,27 @@
 
 #include "cogl-scanout.h"
 
+enum
+{
+  SCANOUT_FAILED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 G_DEFINE_INTERFACE (CoglScanout, cogl_scanout, G_TYPE_OBJECT)
 
 static void
 cogl_scanout_default_init (CoglScanoutInterface *iface)
 {
+  signals[SCANOUT_FAILED] =
+    g_signal_new ("scanout-failed",
+                  G_TYPE_FROM_INTERFACE (iface),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  COGL_TYPE_ONSCREEN);
 }
 
 gboolean
@@ -53,4 +69,11 @@ cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
     return iface->blit_to_framebuffer (scanout, framebuffer, x, y, error);
   else
     return FALSE;
+}
+
+void
+cogl_scanout_notify_failed (CoglScanout  *scanout,
+                            CoglOnscreen *onscreen)
+{
+  g_signal_emit (scanout, signals[SCANOUT_FAILED], 0, onscreen);
 }
