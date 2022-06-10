@@ -269,10 +269,13 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (CLUTTER_STAGE_VIEW (view));
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglFrameInfo *frame_info;
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
+
+  g_warn_if_fail (!onscreen_native->gbm.next_fb);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
 }
