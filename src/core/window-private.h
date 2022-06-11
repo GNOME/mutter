@@ -707,6 +707,9 @@ void        meta_window_get_session_geometry (MetaWindow  *window,
                                               int         *width,
                                               int         *height);
 
+gboolean    meta_window_geometry_contains_rect (MetaWindow   *window,
+                                                MtkRectangle *rect);
+
 void        meta_window_update_appears_focused (MetaWindow *window);
 
 void     meta_window_set_focused_internal (MetaWindow *window,
