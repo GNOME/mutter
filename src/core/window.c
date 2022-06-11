@@ -1666,7 +1666,6 @@ ancestor_is_minimized (MetaWindow *window)
 gboolean
 meta_window_showing_on_its_workspace (MetaWindow *window)
 {
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   gboolean showing;
   gboolean is_desktop_or_dock;
   MetaWorkspace* workspace_of_window;
@@ -1685,12 +1684,7 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
   meta_window_foreach_ancestor (window, is_desktop_or_dock_foreach,
                                 &is_desktop_or_dock);
 
-  if (window->on_all_workspaces)
-    workspace_of_window = workspace_manager->active_workspace;
-  else if (window->workspace)
-    workspace_of_window = window->workspace;
-  else /* This only seems to be needed for startup */
-    workspace_of_window = NULL;
+  workspace_of_window = meta_window_get_workspace (window);
 
   if (showing &&
       workspace_of_window && workspace_of_window->showing_desktop &&
