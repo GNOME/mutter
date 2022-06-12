@@ -227,7 +227,7 @@ meta_wayland_subsurface_notify_subsurface_state_changed (MetaWaylandSurfaceRole 
     return meta_wayland_surface_notify_subsurface_state_changed (parent);
 }
 
-static double
+static int
 meta_wayland_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
   MetaWaylandSurfaceRole *surface_role =

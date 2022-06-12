@@ -234,7 +234,7 @@ meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWindow *window;
   MetaWaylandBuffer *buffer;
-  double geometry_scale;
+  int geometry_scale;
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_shell_surface_parent_class);
@@ -285,7 +285,7 @@ meta_wayland_shell_surface_notify_subsurface_state_changed (MetaWaylandSurfaceRo
   meta_window_actor_wayland_rebuild_surface_tree (window_actor);
 }
 
-static double
+static int
 meta_wayland_shell_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
   MetaWaylandSurfaceRole *surface_role =

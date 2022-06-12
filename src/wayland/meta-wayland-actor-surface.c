@@ -157,7 +157,7 @@ meta_wayland_actor_surface_emit_frame_callbacks (MetaWaylandActorSurface *actor_
     }
 }
 
-double
+int
 meta_wayland_actor_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
   MetaWaylandActorSurfaceClass *actor_surface_class =

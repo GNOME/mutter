@@ -84,7 +84,7 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
                                                       point.x, point.y);
 }
 
-static double
+static int
 dnd_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
   if (meta_is_stage_views_scaled ())
@@ -96,7 +96,7 @@ dnd_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
       MetaLogicalMonitor *logical_monitor;
 
       logical_monitor = dnd_surface_find_logical_monitor (actor_surface);
-      return meta_logical_monitor_get_scale (logical_monitor);
+      return (int) roundf (meta_logical_monitor_get_scale (logical_monitor));
     }
 }
 

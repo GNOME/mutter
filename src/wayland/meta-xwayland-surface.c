@@ -184,7 +184,7 @@ meta_xwayland_surface_get_window (MetaWaylandSurfaceRole *surface_role)
   return xwayland_surface->window;
 }
 
-static double
+static int
 meta_xwayland_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
   return 1;
