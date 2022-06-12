@@ -145,8 +145,8 @@ meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                      META_KMS_PLANE_ROTATION_REFLECT_X;
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_180:
-      kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_180 |
-                     META_KMS_PLANE_ROTATION_REFLECT_X;
+      kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_0 |
+                     META_KMS_PLANE_ROTATION_REFLECT_Y;
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_270:
       kms_rotation = META_KMS_PLANE_ROTATION_ROTATE_270 |
@@ -170,11 +170,11 @@ meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
     case META_MONITOR_TRANSFORM_180:
       return plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_180;
     case META_MONITOR_TRANSFORM_FLIPPED:
-      return plane->rotations & (META_KMS_PLANE_ROTATION_ROTATE_0 |
-                                 META_KMS_PLANE_ROTATION_REFLECT_X);
+      return (plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_0) &&
+             (plane->rotations & META_KMS_PLANE_ROTATION_REFLECT_X);
     case META_MONITOR_TRANSFORM_FLIPPED_180:
-      return plane->rotations & (META_KMS_PLANE_ROTATION_ROTATE_180 |
-                                 META_KMS_PLANE_ROTATION_REFLECT_X);
+      return (plane->rotations & META_KMS_PLANE_ROTATION_ROTATE_0) &&
+             (plane->rotations & META_KMS_PLANE_ROTATION_REFLECT_Y);
     /*
      * Deny these transforms as testing shows that they don't work
      * anyway, e.g. due to the wrong buffer modifiers. They might as well be
