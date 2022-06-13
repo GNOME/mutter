@@ -44,12 +44,6 @@ MetaSurfaceActor * meta_surface_actor_wayland_new (MetaWaylandSurface *surface);
 MetaWaylandSurface * meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self);
 void meta_surface_actor_wayland_surface_destroyed (MetaSurfaceActorWayland *self);
 
-void meta_surface_actor_wayland_get_subsurface_rect (MetaSurfaceActorWayland *self,
-                                                     MetaRectangle           *rect);
-
-void meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
-                                                     struct wl_list *frame_callbacks);
-
 CoglScanout * meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
                                                               CoglOnscreen            *onscreen);
 
