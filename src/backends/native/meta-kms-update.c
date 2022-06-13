@@ -32,7 +32,7 @@ struct _MetaKmsUpdate
 {
   MetaKmsDevice *device;
 
-  gboolean is_locked;
+  gboolean is_sealed;
 
   GList *mode_sets;
   GList *plane_assignments;
@@ -224,7 +224,7 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   MetaKmsPlaneAssignment *plane_assignment;
   MetaKmsAssignPlaneFlag old_flags;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
   g_assert (meta_kms_plane_get_plane_type (plane) !=
@@ -261,7 +261,7 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
 {
   MetaKmsPlaneAssignment *plane_assignment;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
 
@@ -287,7 +287,7 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
 {
   MetaKmsModeSet *mode_set;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   mode_set = g_new0 (MetaKmsModeSet, 1);
@@ -332,7 +332,7 @@ meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -348,7 +348,7 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -417,7 +417,7 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
   MetaGammaLut *gamma_update = NULL;
   const MetaKmsCrtcState *crtc_state = meta_kms_crtc_get_current_state (crtc);
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   if (gamma)
@@ -445,7 +445,7 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
 {
   MetaKmsPageFlipListener *listener;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   listener = g_new0 (MetaKmsPageFlipListener, 1);
@@ -469,7 +469,7 @@ meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
 {
   MetaKmsCustomPageFlip *custom_page_flip;
 
-  g_assert (!meta_kms_update_is_locked (update));
+  g_assert (!meta_kms_update_is_sealed (update));
 
   custom_page_flip = g_new0 (MetaKmsCustomPageFlip, 1);
   custom_page_flip->func = func;
@@ -509,7 +509,7 @@ void
 meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                         MetaKmsPlaneRotation    rotation)
 {
-  g_assert (!meta_kms_update_is_locked (plane_assignment->update));
+  g_assert (!meta_kms_update_is_sealed (plane_assignment->update));
   g_warn_if_fail (rotation);
 
   plane_assignment->rotation = rotation;
@@ -630,21 +630,17 @@ meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update)
 }
 
 void
-meta_kms_update_lock (MetaKmsUpdate *update)
+meta_kms_update_seal (MetaKmsUpdate *update)
 {
-  update->is_locked = TRUE;
-}
+  g_warn_if_fail (!update->is_sealed);
 
-void
-meta_kms_update_unlock (MetaKmsUpdate *update)
-{
-  update->is_locked = FALSE;
+  update->is_sealed = TRUE;
 }
 
 gboolean
-meta_kms_update_is_locked (MetaKmsUpdate *update)
+meta_kms_update_is_sealed (MetaKmsUpdate *update)
 {
-  return update->is_locked;
+  return update->is_sealed;
 }
 
 MetaKmsDevice *

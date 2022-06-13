@@ -140,12 +140,10 @@ MetaKmsFeedback * meta_kms_feedback_new_passed (GList *failed_planes);
 MetaKmsFeedback * meta_kms_feedback_new_failed (GList  *failed_planes,
                                                 GError *error);
 
-void meta_kms_update_lock (MetaKmsUpdate *update);
-
-void meta_kms_update_unlock (MetaKmsUpdate *update);
+void meta_kms_update_seal (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
-gboolean meta_kms_update_is_locked (MetaKmsUpdate *update);
+gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
 MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);

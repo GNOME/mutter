@@ -264,8 +264,6 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
   if (!update)
     return NULL;
 
-  meta_kms_update_lock (update);
-
   feedback = meta_kms_device_process_update_sync (device, update, flags);
 
   result_listeners = meta_kms_update_take_result_listeners (update);
@@ -294,8 +292,6 @@ meta_kms_post_test_update_sync (MetaKms       *kms,
   g_assert (!meta_kms_update_get_page_flip_listeners (update));
   g_assert (!meta_kms_update_get_mode_sets (update));
   g_assert (!meta_kms_update_get_connector_updates (update));
-
-  meta_kms_update_lock (update);
 
   flags = META_KMS_UPDATE_FLAG_TEST_ONLY;
   return meta_kms_device_process_update_sync (device, update, flags);
