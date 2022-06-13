@@ -1079,7 +1079,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   g_autoptr (MetaDrmBuffer) secondary_gpu_fb = NULL;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Onscreen (swap-buffers)");
@@ -1255,9 +1254,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
               meta_kms_device_get_path (kms_device));
 
   kms_update = meta_frame_native_steal_kms_update (frame_native);
-  kms_feedback =
-    meta_kms_device_process_update_sync (kms_device, kms_update,
-                                         META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_device_post_update (kms_device, kms_update,
+                               META_KMS_UPDATE_FLAG_NONE);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
@@ -1354,7 +1352,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsUpdate *kms_update;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode != META_POWER_SAVE_ON)
@@ -1408,9 +1405,8 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
               meta_kms_device_get_path (kms_device));
 
   kms_update = meta_frame_native_steal_kms_update (frame_native);
-  kms_feedback =
-    meta_kms_device_process_update_sync (kms_device, kms_update,
-                                         META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_device_post_update (kms_device, kms_update,
+                               META_KMS_UPDATE_FLAG_NONE);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 
   return TRUE;
@@ -1534,7 +1530,6 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   MetaKmsUpdate *kms_update;
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   kms_update = meta_frame_native_steal_kms_update (frame_native);
   if (!kms_update)
@@ -1562,9 +1557,8 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
-  kms_feedback =
-    meta_kms_device_process_update_sync (kms_device, kms_update,
-                                         META_KMS_UPDATE_FLAG_NONE);
+  meta_kms_device_post_update (kms_device, kms_update,
+                               META_KMS_UPDATE_FLAG_NONE);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
