@@ -374,6 +374,8 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                                                 MetaRendererView   *view,
                                                 int                 geometry_scale);
 
+int meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface);
+
 static inline GNode *
 meta_get_next_subsurface_sibling (GNode *n)
 {

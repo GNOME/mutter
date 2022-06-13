@@ -41,6 +41,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-pointer-constraint.h"
+#include "compositor/region-utils.h"
 #include "wayland/meta-wayland-pointer-constraints.h"
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-seat.h"
@@ -211,6 +212,7 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
   MetaPointerConstraint *constraint;
   MetaWaylandSurface *surface;
   cairo_region_t *region;
+  int geometry_scale;
   float dx, dy;
   double min_edge_distance;
 
@@ -220,10 +222,20 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
   region =
     meta_wayland_pointer_constraint_calculate_effective_region (priv->constraint);
 
+  geometry_scale = meta_wayland_surface_get_geometry_scale (surface);
+  if (geometry_scale != 1)
+    {
+      cairo_region_t *scaled_region;
+
+      scaled_region = meta_region_scale (region, geometry_scale);
+      cairo_region_destroy (region);
+      region = scaled_region;
+    }
+
   meta_wayland_surface_get_absolute_coordinates (surface, 0, 0, &dx, &dy);
   cairo_region_translate (region, dx, dy);
 
-  min_edge_distance = wl_fixed_to_double (1);
+  min_edge_distance = wl_fixed_to_double (1) * geometry_scale;
   constraint = meta_pointer_constraint_new (region, min_edge_distance);
   cairo_region_destroy (region);
 

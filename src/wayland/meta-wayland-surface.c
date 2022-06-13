@@ -2257,3 +2257,14 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
 
   return TRUE;
 }
+
+int
+meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface)
+{
+  MetaWaylandActorSurface *actor_surface;
+
+  g_return_val_if_fail (META_IS_WAYLAND_ACTOR_SURFACE (surface->role), 1);
+
+  actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
+  return meta_wayland_actor_surface_get_geometry_scale (actor_surface);
+}
