@@ -35,6 +35,10 @@ struct _MetaWaylandTransaction
   MetaWaylandTransaction *next_candidate;
   uint64_t committed_sequence;
 
+  /*
+   * Keys:   All surfaces referenced in the transaction
+   * Values: Pointer to MetaWaylandTransactionEntry for the surface
+   */
   GHashTable *entries;
 };
 
@@ -303,7 +307,7 @@ meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,
     return entry;
 
   entry = g_new0 (MetaWaylandTransactionEntry, 1);
-  g_hash_table_insert (transaction->entries, surface, entry);
+  g_hash_table_insert (transaction->entries, g_object_ref (surface), entry);
 
   return entry;
 }
@@ -313,6 +317,39 @@ meta_wayland_transaction_entry_free (MetaWaylandTransactionEntry *entry)
 {
   g_clear_object (&entry->state);
   g_free (entry);
+}
+
+static void
+meta_wayland_transaction_add_placement_surfaces (MetaWaylandTransaction  *transaction,
+                                                 MetaWaylandSurface      *surface,
+                                                 MetaWaylandSurfaceState *state)
+{
+  GSList *l;
+
+  for (l = state->subsurface_placement_ops; l; l = l->next)
+    {
+      MetaWaylandSubsurfacePlacementOp *op = l->data;
+
+      if (op->surface)
+        meta_wayland_transaction_ensure_entry (transaction, op->surface);
+
+      if (op->sibling)
+        meta_wayland_transaction_ensure_entry (transaction, op->sibling);
+    }
+}
+
+static void
+meta_wayland_transaction_add_entry (MetaWaylandTransaction      *transaction,
+                                    MetaWaylandSurface          *surface,
+                                    MetaWaylandTransactionEntry *entry)
+{
+  g_hash_table_insert (transaction->entries, g_object_ref (surface), entry);
+
+  if (entry->state)
+    {
+      meta_wayland_transaction_add_placement_surfaces (transaction, surface,
+                                                       entry->state);
+    }
 }
 
 void
@@ -347,7 +384,7 @@ meta_wayland_transaction_entry_merge_into (MetaWaylandTransactionEntry *from,
       return;
     }
 
-  to->state = from->state;
+  to->state = g_steal_pointer (&from->state);
 }
 
 void
@@ -362,16 +399,23 @@ meta_wayland_transaction_merge_into (MetaWaylandTransaction *from,
   while (g_hash_table_iter_next (&iter, (gpointer *) &surface,
                                  (gpointer *) &from_entry))
     {
-      g_hash_table_iter_steal (&iter);
       to_entry = meta_wayland_transaction_get_entry (to, surface);
       if (!to_entry)
         {
-          g_hash_table_insert (to->entries, surface, from_entry);
+          g_hash_table_iter_steal (&iter);
+          meta_wayland_transaction_add_entry (to, surface, from_entry);
+          g_object_unref (surface);
           continue;
         }
 
+      if (from_entry->state)
+        {
+          meta_wayland_transaction_add_placement_surfaces (to, surface,
+                                                           from_entry->state);
+        }
+
       meta_wayland_transaction_entry_merge_into (from_entry, to_entry);
-      meta_wayland_transaction_entry_free (from_entry);
+      g_hash_table_iter_remove (&iter);
     }
 
   meta_wayland_transaction_free (from);
@@ -405,7 +449,7 @@ meta_wayland_transaction_new (MetaWaylandCompositor *compositor)
   transaction = g_new0 (MetaWaylandTransaction, 1);
 
   transaction->compositor = compositor;
-  transaction->entries = g_hash_table_new_full (NULL, NULL, NULL,
+  transaction->entries = g_hash_table_new_full (NULL, NULL, g_object_unref,
                                                 (GDestroyNotify) meta_wayland_transaction_entry_free);
 
   return transaction;
