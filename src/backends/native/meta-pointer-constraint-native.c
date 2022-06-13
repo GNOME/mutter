@@ -409,23 +409,13 @@ clamp_to_border (MetaBorder *border,
    * clamped so that the destination coordinate does not end up on the border
    * (see weston_pointer_clamp_event_to_region). Do this by clamping such
    * motions to the border minus the smallest possible wl_fixed_t value.
-   *
-   * When clamping in either leftward or upward motion, the resulting coordinate
-   * needs to be clamped so that it is enough on the inside to avoid the
-   * inaccuracies of clutter's stage to actor transformation algorithm (the one
-   * used in clutter_actor_transform_stage_point) to make it end up outside the
-   * next motion. It also needs to be clamped so that to the wl_fixed_t
-   * coordinate may still be right on the border (i.e. at .0). Testing shows
-   * that the smallest wl_fixed_t value divided by 10 is small enough to make
-   * the wl_fixed_t coordinate .0 and large enough to avoid the inaccuracies of
-   * clutters transform algorithm.
    */
   if (meta_border_is_horizontal (border))
     {
       if (*motion_dir & META_BORDER_MOTION_DIRECTION_POSITIVE_Y)
         motion->b.y = border->line.a.y - wl_fixed_to_double (1);
       else
-        motion->b.y = border->line.a.y + wl_fixed_to_double (1) / 10;
+        motion->b.y = border->line.a.y;
       *motion_dir &= ~(META_BORDER_MOTION_DIRECTION_POSITIVE_Y |
                        META_BORDER_MOTION_DIRECTION_NEGATIVE_Y);
     }
@@ -434,7 +424,7 @@ clamp_to_border (MetaBorder *border,
       if (*motion_dir & META_BORDER_MOTION_DIRECTION_POSITIVE_X)
         motion->b.x = border->line.a.x - wl_fixed_to_double (1);
       else
-        motion->b.x = border->line.a.x + wl_fixed_to_double (1) / 10;
+        motion->b.x = border->line.a.x;
       *motion_dir &= ~(META_BORDER_MOTION_DIRECTION_POSITIVE_X |
                        META_BORDER_MOTION_DIRECTION_NEGATIVE_X);
     }
