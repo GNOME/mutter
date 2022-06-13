@@ -94,6 +94,9 @@
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-window-wayland.h"
+#endif
+
+#ifdef HAVE_XWAYLAND
 #include "wayland/meta-window-xwayland.h"
 #endif
 

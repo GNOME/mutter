@@ -81,9 +81,17 @@
 #ifdef HAVE_WAYLAND
 #include "compositor/meta-compositor-native.h"
 #include "compositor/meta-compositor-server.h"
-#include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-input-device.h"
+#include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-tablet-pad.h"
+#include "wayland/meta-wayland-tablet-manager.h"
+#include "wayland/meta-wayland-touch.h"
+#endif
+
+#ifdef HAVE_XWAYLAND
+#include "wayland/meta-xwayland-private.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -770,6 +778,7 @@ meta_display_init_x11_finish (MetaDisplay   *display,
   return TRUE;
 }
 
+#ifdef HAVE_XWAYLAND
 static void
 on_xserver_started (MetaXWaylandManager *manager,
                     GAsyncResult        *result,
@@ -798,6 +807,7 @@ on_xserver_started (MetaXWaylandManager *manager,
       g_task_return_boolean (task, TRUE);
     }
 }
+#endif /* HAVE_XWAYLAND */
 
 void
 meta_display_init_x11 (MetaDisplay         *display,
@@ -805,17 +815,22 @@ meta_display_init_x11 (MetaDisplay         *display,
                        GAsyncReadyCallback  callback,
                        gpointer             user_data)
 {
-  MetaWaylandCompositor *compositor = wayland_compositor_from_display (display);
-
   g_autoptr (GTask) task = NULL;
+#ifdef HAVE_XWAYLAND
+  MetaWaylandCompositor *compositor;
+#endif
 
   task = g_task_new (display, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_display_init_x11);
+
+#ifdef HAVE_XWAYLAND
+  compositor = wayland_compositor_from_display (display);
 
   meta_xwayland_start_xserver (&compositor->xwayland_manager,
                                cancellable,
                                (GAsyncReadyCallback) on_xserver_started,
                                g_steal_pointer (&task));
+#endif
 }
 
 static void

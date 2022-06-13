@@ -132,7 +132,7 @@ lcms2_dep = dependency('lcms2', version: lcms2_req)
 have_wayland = get_option('wayland')
 # For now always require X11 support
 have_x11 = true
-have_xwayland = have_wayland # for now default to have_wayland
+have_xwayland = get_option('xwayland')
 have_x11_client = have_x11 or have_xwayland
 
 if have_xwayland and not have_wayland

@@ -41,7 +41,10 @@
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-subsurface.h"
 #include "wayland/meta-wayland-surface.h"
+
+#ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland.h"
+#endif
 
 #include "pointer-constraints-unstable-v1-server-protocol.h"
 
@@ -158,6 +161,7 @@ connect_window (MetaWaylandSurfacePointerConstraintsData *data,
                       G_CALLBACK (window_raised), NULL);
 }
 
+#ifdef HAVE_XWAYLAND
 static void
 window_associated (MetaWaylandSurfaceRole                   *surface_role,
                    MetaWaylandSurfacePointerConstraintsData *data)
@@ -171,6 +175,7 @@ window_associated (MetaWaylandSurfaceRole                   *surface_role,
 
   meta_wayland_pointer_constraint_maybe_enable_for_window (window);
 }
+#endif
 
 static MetaWaylandSurfacePointerConstraintsData *
 surface_constraint_data_new (MetaWaylandSurface *surface)
@@ -187,6 +192,7 @@ surface_constraint_data_new (MetaWaylandSurface *surface)
     {
       connect_window (data, window);
     }
+#ifdef HAVE_XWAYLAND
   else if (meta_xwayland_is_xwayland_surface (surface))
     {
       data->window_associated_handler_id =
@@ -194,6 +200,7 @@ surface_constraint_data_new (MetaWaylandSurface *surface)
                           G_CALLBACK (window_associated),
                           data);
     }
+#endif
   else
     {
       g_warn_if_reached ();
@@ -459,6 +466,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
   MetaWindow *window;
 
   window = meta_wayland_surface_get_window (constraint->surface);
+#ifdef HAVE_XWAYLAND
   if (!window)
     {
       /*
@@ -470,6 +478,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
                       META_IS_WAYLAND_SUBSURFACE (constraint->surface->role));
       return FALSE;
     }
+#endif
 
   if (window->unmanaging)
     return FALSE;
@@ -477,6 +486,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
   if (constraint->seat->pointer->focus_surface != constraint->surface)
     return FALSE;
 
+#ifdef HAVE_XWAYLAND
   if (meta_xwayland_is_xwayland_surface (constraint->surface))
     {
       MetaDisplay *display = meta_window_get_display (window);
@@ -499,11 +509,10 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
           display->focus_window->client_type != META_WINDOW_CLIENT_TYPE_X11)
         return FALSE;
     }
-  else
-    {
-      if (!meta_window_appears_focused (window))
-        return FALSE;
-    }
+#endif
+
+  if (!meta_window_appears_focused (window))
+    return FALSE;
 
   return TRUE;
 }
@@ -621,7 +630,9 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
       MetaFrame *frame = window->frame;
       int actual_width, actual_height;
 
+#ifdef HAVE_XWAYLAND
       g_assert (meta_xwayland_is_xwayland_surface (constraint->surface));
+#endif
 
       actual_width = window->buffer_rect.width - (frame->child_x +
                                                   frame->right_width);

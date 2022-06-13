@@ -62,7 +62,10 @@
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-surface.h"
+
+#ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"

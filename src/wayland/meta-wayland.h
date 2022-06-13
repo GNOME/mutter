@@ -89,6 +89,7 @@ void                    meta_wayland_compositor_schedule_surface_association (Me
                                                                               int                    id,
                                                                               MetaWindow            *window);
 
+#ifdef HAVE_XWAYLAND
 void                    meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
                                                                    int                    id,
                                                                    MetaWaylandSurface    *surface);
@@ -96,10 +97,10 @@ void                    meta_wayland_compositor_notify_surface_id (MetaWaylandCo
 META_EXPORT_TEST
 MetaXWaylandManager *   meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor);
 
+#endif
+
 META_EXPORT_TEST
 MetaContext * meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor);
 
-gboolean meta_wayland_compositor_handle_xwayland_xevent (MetaWaylandCompositor *compositor,
-                                                         XEvent                *event);
 
 #endif

@@ -50,9 +50,12 @@
 #include "wayland/meta-wayland-tablet-manager.h"
 #include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-wayland-xdg-foreign.h"
+
+#ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland-grab-keyboard.h"
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-renderer-native.h"
@@ -409,7 +412,9 @@ void
 meta_wayland_compositor_init_display (MetaWaylandCompositor *compositor,
                                       MetaDisplay           *display)
 {
+#ifdef HAVE_XWAYLAND
   meta_xwayland_init_display (&compositor->xwayland_manager, display);
+#endif
 }
 
 static void meta_wayland_log_func (const char *, va_list) G_GNUC_PRINTF (1, 0);
@@ -426,12 +431,14 @@ meta_wayland_log_func (const char *fmt,
 void
 meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
 {
+#ifdef HAVE_XWAYLAND
   MetaX11DisplayPolicy x11_display_policy;
 
   x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
   if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     meta_xwayland_shutdown (&compositor->xwayland_manager);
+#endif
 
   if (compositor->wayland_display)
     wl_display_destroy_clients (compositor->wayland_display);
@@ -487,6 +494,7 @@ meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
   object_class->finalize = meta_wayland_compositor_finalize;
 }
 
+#ifdef HAVE_XWAYLAND
 static bool
 meta_xwayland_global_filter (const struct wl_client *client,
                              const struct wl_global *global,
@@ -503,6 +511,7 @@ meta_xwayland_global_filter (const struct wl_client *client,
   /* All others are visible to all clients */
   return true;
 }
+#endif
 
 void
 meta_wayland_override_display_name (const char *display_name)
@@ -635,11 +644,13 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_activation_init (compositor);
   meta_wayland_transaction_init (compositor);
 
+#ifdef HAVE_XWAYLAND
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   if (meta_xwayland_grab_keyboard_init (compositor))
     wl_display_set_global_filter (compositor->wayland_display,
                                   meta_xwayland_global_filter,
                                   compositor);
+#endif
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
@@ -664,6 +675,7 @@ meta_wayland_compositor_new (MetaContext *context)
 
   x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
+#ifdef HAVE_XWAYLAND
   if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
     {
       g_autoptr (GError) error = NULL;
@@ -674,6 +686,7 @@ meta_wayland_compositor_new (MetaContext *context)
                                &error))
         g_error ("Failed to start X Wayland: %s", error->message);
     }
+#endif
 
   if (_display_name_override)
     {
@@ -812,6 +825,7 @@ meta_wayland_compositor_schedule_surface_association (MetaWaylandCompositor *com
                        GINT_TO_POINTER (id), window);
 }
 
+#ifdef HAVE_XWAYLAND
 void
 meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
                                            int                    id,
@@ -827,6 +841,7 @@ meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
       meta_wayland_compositor_remove_surface_association (compositor, id);
     }
 }
+#endif
 
 gboolean
 meta_wayland_compositor_is_egl_display_bound (MetaWaylandCompositor *compositor)
@@ -837,22 +852,16 @@ meta_wayland_compositor_is_egl_display_bound (MetaWaylandCompositor *compositor)
   return priv->is_wayland_egl_display_bound;
 }
 
+#ifdef HAVE_XWAYLAND
 MetaXWaylandManager *
 meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor)
 {
   return &compositor->xwayland_manager;
 }
+#endif
 
 MetaContext *
 meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor)
 {
   return compositor->context;
-}
-
-gboolean
-meta_wayland_compositor_handle_xwayland_xevent (MetaWaylandCompositor *compositor,
-                                                XEvent                *xevent)
-{
-  return meta_xwayland_manager_handle_xevent (&compositor->xwayland_manager,
-                                              xevent);
 }

@@ -51,6 +51,7 @@
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-x11-errors.h"
+#include "wayland/meta-xwayland-grab-keyboard.h"
 #include "wayland/meta-xwayland-surface.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -70,6 +71,7 @@ static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
 
 static void
 meta_xwayland_set_primary_output (MetaX11Display *x11_display);
+
 
 static MetaMonitorManager *
 monitor_manager_from_x11_display (MetaX11Display *x11_display)
