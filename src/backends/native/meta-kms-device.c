@@ -289,9 +289,9 @@ typedef struct
 } PostUpdateData;
 
 static gpointer
-process_update_in_impl (MetaThreadImpl  *thread_impl,
-                        gpointer         user_data,
-                        GError         **error)
+process_sync_update_in_impl (MetaThreadImpl  *thread_impl,
+                             gpointer         user_data,
+                             GError         **error)
 {
   PostUpdateData *data = user_data;
   MetaKmsUpdate *update = data->update;
@@ -315,8 +315,50 @@ meta_kms_device_process_update_sync (MetaKmsDevice     *device,
     .update = update,
     .flags = flags,
   };
-  return meta_kms_run_impl_task_sync (kms, process_update_in_impl,
+  return meta_kms_run_impl_task_sync (kms, process_sync_update_in_impl,
                                       &data, NULL);
+}
+
+static gpointer
+process_async_update_in_impl (MetaThreadImpl  *thread_impl,
+                              gpointer         user_data,
+                              GError         **error)
+{
+  PostUpdateData *data = user_data;
+  MetaKmsUpdate *update = data->update;
+  MetaKmsDevice *device = meta_kms_update_get_device (update);
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaKmsFeedback *feedback;
+
+  feedback = meta_kms_impl_device_process_update (impl_device, update,
+                                                  data->flags);
+  meta_kms_feedback_unref (feedback);
+
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_kms_device_post_update (MetaKmsDevice       *device,
+                             MetaKmsUpdate       *update,
+                             MetaKmsUpdateFlag    flags)
+{
+  MetaKms *kms = META_KMS (meta_kms_device_get_kms (device));
+  PostUpdateData *data;
+
+  g_return_if_fail (meta_kms_update_get_device (update) == device);
+
+  meta_kms_update_seal (update);
+
+  data = g_new0 (PostUpdateData, 1);
+  *data = (PostUpdateData) {
+    .update = update,
+    .flags = flags,
+  };
+
+  meta_thread_post_impl_task (META_THREAD (kms),
+                              process_async_update_in_impl,
+                              data, g_free,
+                              NULL, NULL);
 }
 
 void

@@ -79,6 +79,11 @@ MetaKmsFeedback * meta_kms_device_process_update_sync (MetaKmsDevice     *device
   G_GNUC_WARN_UNUSED_RESULT;
 
 META_EXPORT_TEST
+void meta_kms_device_post_update (MetaKmsDevice     *device,
+                                  MetaKmsUpdate     *update,
+                                  MetaKmsUpdateFlag  flags);
+
+META_EXPORT_TEST
 void meta_kms_device_disable (MetaKmsDevice *device);
 
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
