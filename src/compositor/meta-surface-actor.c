@@ -537,6 +537,22 @@ meta_surface_actor_is_obscured_on_stage_view (MetaSurfaceActor *self,
                                                       stage_view);
 }
 
+gboolean
+meta_surface_actor_contains_rect (MetaSurfaceActor *surface_actor,
+                                  MtkRectangle     *rect)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (surface_actor);
+  graphene_rect_t bounding_rect;
+  graphene_rect_t bound_rect;
+
+  clutter_actor_get_transformed_extents (actor, &bounding_rect);
+
+  bound_rect = mtk_rectangle_to_graphene_rect (rect);
+
+  return graphene_rect_contains_rect (&bounding_rect,
+                                      &bound_rect);
+}
+
 void
 meta_surface_actor_set_input_region (MetaSurfaceActor *self,
                                      MtkRegion        *region)
