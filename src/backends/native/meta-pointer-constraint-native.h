@@ -39,7 +39,8 @@ G_DECLARE_FINAL_TYPE (MetaPointerConstraintImplNative,
                       MetaPointerConstraintImpl)
 
 MetaPointerConstraintImpl * meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint_impl,
-                                                                     const cairo_region_t  *region);
+                                                                     const cairo_region_t  *region,
+                                                                     double                 min_edge_distance);
 
 G_END_DECLS
 

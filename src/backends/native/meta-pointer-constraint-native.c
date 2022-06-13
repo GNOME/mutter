@@ -35,6 +35,7 @@ struct _MetaPointerConstraintImplNative
   MetaPointerConstraintImpl parent;
   MetaPointerConstraint *constraint;
   cairo_region_t *region;
+  double min_edge_distance;
 };
 
 G_DEFINE_TYPE (MetaPointerConstraintImplNative,
@@ -402,18 +403,13 @@ get_closest_border (GArray    *borders,
 static void
 clamp_to_border (MetaBorder *border,
                  MetaLine2  *motion,
-                 uint32_t   *motion_dir)
+                 uint32_t   *motion_dir,
+                 double      min_edge_distance)
 {
-  /*
-   * When clamping either rightward or downward motions, the motion needs to be
-   * clamped so that the destination coordinate does not end up on the border
-   * (see weston_pointer_clamp_event_to_region). Do this by clamping such
-   * motions to the border minus the smallest possible wl_fixed_t value.
-   */
   if (meta_border_is_horizontal (border))
     {
       if (*motion_dir & META_BORDER_MOTION_DIRECTION_POSITIVE_Y)
-        motion->b.y = border->line.a.y - wl_fixed_to_double (1);
+        motion->b.y = border->line.a.y - min_edge_distance;
       else
         motion->b.y = border->line.a.y;
       *motion_dir &= ~(META_BORDER_MOTION_DIRECTION_POSITIVE_Y |
@@ -422,7 +418,7 @@ clamp_to_border (MetaBorder *border,
   else
     {
       if (*motion_dir & META_BORDER_MOTION_DIRECTION_POSITIVE_X)
-        motion->b.x = border->line.a.x - wl_fixed_to_double (1);
+        motion->b.x = border->line.a.x - min_edge_distance;
       else
         motion->b.x = border->line.a.x;
       *motion_dir &= ~(META_BORDER_MOTION_DIRECTION_POSITIVE_X |
@@ -510,9 +506,14 @@ meta_pointer_constraint_impl_native_constraint (MetaPointerConstraintImpl *const
                                            &motion,
                                            directions);
       if (closest_border)
-        clamp_to_border (closest_border, &motion, &directions);
+        {
+          clamp_to_border (closest_border, &motion, &directions,
+                           constraint_impl_native->min_edge_distance);
+        }
       else
-        break;
+        {
+          break;
+        }
     }
 
   *x_inout = motion.b.x;
@@ -671,7 +672,8 @@ meta_pointer_constraint_impl_native_class_init (MetaPointerConstraintImplNativeC
 
 MetaPointerConstraintImpl *
 meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint,
-                                         const cairo_region_t  *region)
+                                         const cairo_region_t  *region,
+                                         double                 min_edge_distance)
 {
   MetaPointerConstraintImplNative *constraint_impl;
 
@@ -679,6 +681,7 @@ meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint,
                                   NULL);
   constraint_impl->constraint = constraint;
   constraint_impl->region = cairo_region_copy (region);
+  constraint_impl->min_edge_distance = min_edge_distance;
 
   return META_POINTER_CONSTRAINT_IMPL (constraint_impl);
 }

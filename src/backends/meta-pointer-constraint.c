@@ -50,6 +50,7 @@ struct _MetaPointerConstraint
 {
   GObject parent_instance;
   cairo_region_t *region;
+  double min_edge_distance;
 };
 
 G_DEFINE_TYPE (MetaPointerConstraint, meta_pointer_constraint, G_TYPE_OBJECT);
@@ -82,12 +83,14 @@ meta_pointer_constraint_class_init (MetaPointerConstraintClass *klass)
 
 
 MetaPointerConstraint *
-meta_pointer_constraint_new (const cairo_region_t *region)
+meta_pointer_constraint_new (const cairo_region_t *region,
+                             double                min_edge_distance)
 {
   MetaPointerConstraint *constraint;
 
   constraint = g_object_new (META_TYPE_POINTER_CONSTRAINT, NULL);
   constraint->region = cairo_region_copy (region);
+  constraint->min_edge_distance = min_edge_distance;
 
   return constraint;
 }
@@ -96,6 +99,12 @@ cairo_region_t *
 meta_pointer_constraint_get_region (MetaPointerConstraint *constraint)
 {
   return constraint->region;
+}
+
+double
+meta_pointer_constraint_get_min_edge_distance (MetaPointerConstraint *constraint)
+{
+  return constraint->min_edge_distance;
 }
 
 static void

@@ -35,8 +35,12 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (MetaPointerConstraint, meta_pointer_constraint,
                       META, POINTER_CONSTRAINT, GObject);
 
-MetaPointerConstraint * meta_pointer_constraint_new (const cairo_region_t *region);
+MetaPointerConstraint * meta_pointer_constraint_new (const cairo_region_t *region,
+                                                     double                min_edge_distance);
+
 cairo_region_t * meta_pointer_constraint_get_region (MetaPointerConstraint *constraint);
+
+double meta_pointer_constraint_get_min_edge_distance (MetaPointerConstraint *constraint);
 
 #define META_TYPE_POINTER_CONSTRAINT_IMPL (meta_pointer_constraint_impl_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaPointerConstraintImpl, meta_pointer_constraint_impl,

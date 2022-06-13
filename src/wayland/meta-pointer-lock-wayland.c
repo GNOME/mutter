@@ -74,7 +74,7 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
   region = cairo_region_create_rectangle (&(cairo_rectangle_int_t) { (int) x, (int) y, 1 , 1 });
 
-  constraint = meta_pointer_constraint_new (region);
+  constraint = meta_pointer_constraint_new (region, 0.0);
   cairo_region_destroy (region);
 
   return constraint;

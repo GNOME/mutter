@@ -212,6 +212,7 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
   MetaWaylandSurface *surface;
   cairo_region_t *region;
   float dx, dy;
+  double min_edge_distance;
 
   priv = meta_pointer_confinement_wayland_get_instance_private (confinement);
 
@@ -222,7 +223,8 @@ meta_pointer_confinement_wayland_create_constraint (MetaPointerConfinementWaylan
   meta_wayland_surface_get_absolute_coordinates (surface, 0, 0, &dx, &dy);
   cairo_region_translate (region, dx, dy);
 
-  constraint = meta_pointer_constraint_new (region);
+  min_edge_distance = wl_fixed_to_double (1);
+  constraint = meta_pointer_constraint_new (region, min_edge_distance);
   cairo_region_destroy (region);
 
   return constraint;
