@@ -2068,6 +2068,19 @@ meta_rectangle_scale_double (const MetaRectangle  *rect,
   meta_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
 }
 
+/**
+ * meta_rectangle_transform:
+ * @rect: the #MetaRectangle to be transformed
+ * @transform: the #MetaMonitorTransform
+ * @width: the width of the target space
+ * @height: the height of the target space
+ * @dest: the transformed #MetaRectangle
+ *
+ * This function transforms the values in @rect in order to compensate for
+ * @transform applied to a #MetaMonitor, making them match the viewport. Note
+ * that compensating implies that for a clockwise rotation of the #MetaMonitor
+ * an anti-clockwise rotation has to be applied to @rect.
+ */
 void
 meta_rectangle_transform (const MetaRectangle  *rect,
                           MetaMonitorTransform  transform,
@@ -2082,8 +2095,8 @@ meta_rectangle_transform (const MetaRectangle  *rect,
       break;
     case META_MONITOR_TRANSFORM_90:
       *dest = (MetaRectangle) {
-        .x = width - (rect->y + rect->height),
-        .y = rect->x,
+        .x = rect->y,
+        .y = height - (rect->x + rect->width),
         .width = rect->height,
         .height = rect->width,
       };
@@ -2098,8 +2111,8 @@ meta_rectangle_transform (const MetaRectangle  *rect,
       break;
     case META_MONITOR_TRANSFORM_270:
       *dest = (MetaRectangle) {
-        .x = rect->y,
-        .y = height - (rect->x + rect->width),
+        .x = width - (rect->y + rect->height),
+        .y = rect->x,
         .width = rect->height,
         .height = rect->width,
       };
@@ -2114,8 +2127,8 @@ meta_rectangle_transform (const MetaRectangle  *rect,
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_90:
       *dest = (MetaRectangle) {
-        .x = width - (rect->y + rect->height),
-        .y = height - (rect->x + rect->width),
+        .x = rect->y,
+        .y = rect->x,
         .width = rect->height,
         .height = rect->width,
       };
@@ -2130,8 +2143,8 @@ meta_rectangle_transform (const MetaRectangle  *rect,
       break;
     case META_MONITOR_TRANSFORM_FLIPPED_270:
       *dest = (MetaRectangle) {
-        .x = rect->y,
-        .y = rect->x,
+        .x = width - (rect->y + rect->height),
+        .y = height - (rect->x + rect->width),
         .width = rect->height,
         .height = rect->width,
       };
