@@ -30,29 +30,12 @@
 
 #include "backends/meta-backend-types.h"
 #include "clutter/clutter.h"
+#include "meta/common.h"
 #include "meta/display.h"
 
 #define META_TYPE_INPUT_SETTINGS (meta_input_settings_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaInputSettings, meta_input_settings,
                           META, INPUT_SETTINGS, GObject)
-
-typedef enum
-{
-  META_A11Y_KEYBOARD_ENABLED = 1 << 0,
-  META_A11Y_TIMEOUT_ENABLED = 1 << 1,
-  META_A11Y_MOUSE_KEYS_ENABLED = 1 << 2,
-  META_A11Y_SLOW_KEYS_ENABLED = 1 << 3,
-  META_A11Y_SLOW_KEYS_BEEP_PRESS = 1 << 4,
-  META_A11Y_SLOW_KEYS_BEEP_ACCEPT = 1 << 5,
-  META_A11Y_SLOW_KEYS_BEEP_REJECT = 1 << 6,
-  META_A11Y_BOUNCE_KEYS_ENABLED = 1 << 7,
-  META_A11Y_BOUNCE_KEYS_BEEP_REJECT = 1 << 8,
-  META_A11Y_TOGGLE_KEYS_ENABLED = 1 << 9,
-  META_A11Y_STICKY_KEYS_ENABLED = 1 << 10,
-  META_A11Y_STICKY_KEYS_TWO_KEY_OFF = 1 << 11,
-  META_A11Y_STICKY_KEYS_BEEP = 1 << 12,
-  META_A11Y_FEATURE_STATE_CHANGE_BEEP = 1 << 13,
-} MetaKeyboardA11yFlags;
 
 /**
  * MetaKbdA11ySettings:
