@@ -305,6 +305,26 @@ build-without-native-backend-and-wayland@x86_64:
     paths:
       - build/meson-logs
 
+build-wayland-only@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora@x86_64
+  stage: build
+  needs:
+    - build-fedora-container@x86_64
+  script:
+    - meson . build --werror --prefix /usr
+        -Dbuildtype=debugoptimized
+        -Dwayland=true
+        -Dxwayland=false
+        -Dcore_tests=false
+        -Dnative_tests=false
+    - meson compile -C build
+    - meson install -C build
+  artifacts:
+    paths:
+      - build/meson-logs
+
 .test-setup: &test-setup
   variables:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
