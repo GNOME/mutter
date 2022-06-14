@@ -410,7 +410,6 @@ set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
   float cursor_crtc_scale;
   MetaRectangle cursor_rect;
   MetaMonitorTransform transform;
-  MetaMonitorTransform inverted_transform;
   MetaMonitorMode *monitor_mode;
   MetaMonitorCrtcMode *monitor_crtc_mode;
   const MetaCrtcModeInfo *crtc_mode_info;
@@ -452,15 +451,13 @@ set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
   transform = meta_logical_monitor_get_transform (logical_monitor);
   transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
 
-  inverted_transform = meta_monitor_transform_invert (transform);
-
   monitor_mode = meta_monitor_get_current_mode (monitor);
   monitor_crtc_mode = meta_monitor_get_crtc_mode_for_output (monitor,
                                                              monitor_mode,
                                                              output);
   crtc_mode_info = meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
   meta_rectangle_transform (&cursor_rect,
-                            inverted_transform,
+                            transform,
                             crtc_mode_info->width,
                             crtc_mode_info->height,
                             &cursor_rect);
@@ -898,8 +895,6 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
     return TRUE;
   else
     return get_can_preprocess (cursor_sprite);
-
-  return TRUE;
 }
 
 static gboolean
@@ -1494,19 +1489,19 @@ scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
           cairo_rotate (cr, M_PI * 0.5);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED:
-          cairo_scale (cr, 1, -1);
+          cairo_scale (cr, -1, 1);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_90:
-          cairo_rotate (cr, M_PI * 1.5);
           cairo_scale (cr, -1, 1);
+          cairo_rotate (cr, M_PI * 0.5);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_180:
+          cairo_scale (cr, -1, 1);
           cairo_rotate (cr, M_PI);
-          cairo_scale (cr, 1, -1);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_270:
-          cairo_rotate (cr, M_PI * 0.5);
           cairo_scale (cr, -1, 1);
+          cairo_rotate (cr, M_PI * 1.5);
           break;
         case META_MONITOR_TRANSFORM_NORMAL:
           g_assert_not_reached ();
