@@ -136,12 +136,9 @@ meta_renderer_view_transform_rect_to_onscreen (ClutterStageView            *view
                                                cairo_rectangle_int_t       *dst_rect)
 {
   MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
-  MetaMonitorTransform inverted_transform;
 
-  inverted_transform =
-    meta_monitor_transform_invert (renderer_view->transform);
   return meta_rectangle_transform (src_rect,
-                                   inverted_transform,
+                                   renderer_view->transform,
                                    dst_width,
                                    dst_height,
                                    dst_rect);
