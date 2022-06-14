@@ -341,7 +341,7 @@ get_base_pipeline (MetaShapedTexture *stex,
       switch (stex->transform)
         {
         case META_MONITOR_TRANSFORM_90:
-          graphene_euler_init_with_order (&euler, 0.0, 0.0, 90.0,
+          graphene_euler_init_with_order (&euler, 0.0, 0.0, 270.0,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_180:
@@ -349,7 +349,7 @@ get_base_pipeline (MetaShapedTexture *stex,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_270:
-          graphene_euler_init_with_order (&euler, 0.0, 0.0, 270.0,
+          graphene_euler_init_with_order (&euler, 0.0, 0.0, 90.0,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED:
@@ -357,7 +357,7 @@ get_base_pipeline (MetaShapedTexture *stex,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_90:
-          graphene_euler_init_with_order (&euler, 180.0, 0.0, 90.0,
+          graphene_euler_init_with_order (&euler, 0.0, 180.0, 90.0,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_180:
@@ -365,7 +365,7 @@ get_base_pipeline (MetaShapedTexture *stex,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_270:
-          graphene_euler_init_with_order (&euler, 180.0, 0.0, 270.0,
+          graphene_euler_init_with_order (&euler, 0.0, 180.0, 270.0,
                                           GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_NORMAL:
