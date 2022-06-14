@@ -64,6 +64,9 @@ struct _MetaKmsProp
   MetaKmsEnum *enum_values;
   uint64_t default_value;
 
+  uint64_t range_min;
+  uint64_t range_max;
+
   uint32_t prop_id;
   uint64_t value;
 };
