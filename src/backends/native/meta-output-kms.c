@@ -38,7 +38,7 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-mode-kms.h"
 
-#define SYNC_TOLERANCE 0.01    /* 1 percent */
+#define SYNC_TOLERANCE_HZ 0.001
 
 struct _MetaOutputKms
 {
@@ -204,7 +204,7 @@ add_common_modes (MetaOutputInfo *output_info,
     }
 
   max_refresh_rate = MAX (max_refresh_rate, 60.0);
-  max_refresh_rate *= (1 + SYNC_TOLERANCE);
+  max_refresh_rate += SYNC_TOLERANCE_HZ;
 
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
 
@@ -240,8 +240,8 @@ add_common_modes (MetaOutputInfo *output_info,
 
           if (drm_mode->hdisplay == crtc_mode_info->width &&
               drm_mode->vdisplay == crtc_mode_info->height &&
-              fabs (1 - (refresh_rate / crtc_mode_info->refresh_rate)) <
-              SYNC_TOLERANCE)
+              (fabs (refresh_rate - crtc_mode_info->refresh_rate) <
+               SYNC_TOLERANCE_HZ))
             {
               is_duplicate = TRUE;
               break;
