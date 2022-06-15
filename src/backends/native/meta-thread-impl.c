@@ -174,10 +174,9 @@ static GSourceFuncs impl_source_funcs = {
   .dispatch = impl_source_dispatch,
 };
 
-static void
-meta_thread_impl_constructed (GObject *object)
+static GSource *
+create_impl_source (MetaThreadImpl *thread_impl)
 {
-  MetaThreadImpl *thread_impl = META_THREAD_IMPL (object);
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
   GSource *source;
@@ -193,8 +192,17 @@ meta_thread_impl_constructed (GObject *object)
   g_source_attach (source, priv->thread_context);
   g_source_unref (source);
 
-  priv->impl_source = source;
+  return source;
+}
 
+static void
+meta_thread_impl_constructed (GObject *object)
+{
+  MetaThreadImpl *thread_impl = META_THREAD_IMPL (object);
+  MetaThreadImplPrivate *priv =
+    meta_thread_impl_get_instance_private (thread_impl);
+
+  priv->impl_source = create_impl_source (thread_impl);
   priv->task_queue = g_async_queue_new ();
 
   G_OBJECT_CLASS (meta_thread_impl_parent_class)->constructed (object);
@@ -239,7 +247,7 @@ meta_thread_impl_class_init (MetaThreadImplClass *klass)
                         "GMainContext",
                         G_TYPE_MAIN_CONTEXT,
                         G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

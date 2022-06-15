@@ -55,6 +55,10 @@ typedef void (* MetaThreadTaskFeedbackFunc) (gpointer      retval,
                                              gpointer      user_data);
 
 META_EXPORT_TEST
+void meta_thread_reset_thread_type (MetaThread     *thread,
+                                    MetaThreadType  thread_type);
+
+META_EXPORT_TEST
 void meta_thread_register_callback_context (MetaThread   *thread,
                                             GMainContext *main_context);
 
