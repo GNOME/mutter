@@ -123,8 +123,10 @@
 static guint64 next_window_stamp = G_GUINT64_CONSTANT(0x100000000);
 
 static void     invalidate_work_areas     (MetaWindow     *window);
+#ifdef HAVE_X11_CLIENT
 static void     set_wm_state              (MetaWindow     *window);
 static void     set_net_wm_state          (MetaWindow     *window);
+#endif
 static void     meta_window_set_above     (MetaWindow     *window,
                                            gboolean        new_value);
 
@@ -1327,6 +1329,7 @@ meta_window_constructed (GObject *object)
   else if (window->override_redirect)
     window->layer = META_LAYER_OVERRIDE_REDIRECT; /* otherwise set by MetaStack */
 
+#ifdef HAVE_X11_CLIENT
   if (!window->override_redirect)
     {
       /* FIXME we have a tendency to set this then immediately
@@ -1335,6 +1338,7 @@ meta_window_constructed (GObject *object)
       set_wm_state (window);
       set_net_wm_state (window);
     }
+#endif
 
   meta_compositor_add_window (display->compositor, window);
   window->known_to_compositor = TRUE;
@@ -1581,6 +1585,7 @@ meta_window_unmanage (MetaWindow  *window,
   g_object_unref (window);
 }
 
+#ifdef HAVE_X11_CLIENT
 static void
 set_wm_state (MetaWindow *window)
 {
@@ -1601,6 +1606,7 @@ set_allowed_actions_hint (MetaWindow *window)
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_allowed_actions_hint (window);
 }
+#endif /* HAVE_X11_CLIENT */
 
 /**
  * meta_window_located_on_workspace:
@@ -2199,12 +2205,13 @@ meta_window_show (MetaWindow *window)
   gboolean needs_stacking_adjustment;
   MetaWindow *focus_window;
   gboolean notify_demands_attention = FALSE;
+  MetaDisplay *display = window->display;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
               "Showing window %s, iconic: %d placed: %d",
               window->desc, window->iconic, window->placed);
 
-  focus_window = window->display->focus_window;  /* May be NULL! */
+  focus_window = display->focus_window;  /* May be NULL! */
   did_show = FALSE;
   window_state_on_map (window, &takes_focus_on_map, &place_on_top_on_map);
   needs_stacking_adjustment = FALSE;
@@ -2315,16 +2322,18 @@ meta_window_show (MetaWindow *window)
 
   if (window->hidden)
     {
-      meta_stack_freeze (window->display->stack);
+      meta_stack_freeze (display->stack);
       window->hidden = FALSE;
-      meta_stack_thaw (window->display->stack);
+      meta_stack_thaw (display->stack);
       did_show = TRUE;
     }
 
   if (window->iconic)
     {
       window->iconic = FALSE;
+#ifdef HAVE_X11_CLIENT
       set_wm_state (window);
+#endif
     }
 
   if (!window->visible_to_compositor && window_has_buffer (window))
@@ -2345,7 +2354,7 @@ meta_window_show (MetaWindow *window)
           break;
         }
 
-      meta_compositor_show_window (window->display->compositor,
+      meta_compositor_show_window (display->compositor,
                                    window, effect);
       window->pending_compositor_effect = META_COMP_EFFECT_NONE;
     }
@@ -2361,7 +2370,7 @@ meta_window_show (MetaWindow *window)
         {
           guint32     timestamp;
 
-          timestamp = meta_display_get_current_time_roundtrip (window->display);
+          timestamp = meta_display_get_current_time_roundtrip (display);
 
           if (meta_display_windows_are_interactable (window->display))
             meta_window_focus (window, timestamp);
@@ -2370,7 +2379,9 @@ meta_window_show (MetaWindow *window)
         }
     }
 
+#ifdef HAVE_X11_CLIENT
   set_net_wm_state (window);
+#endif
 
   if (did_show && window->struts)
     {
@@ -2381,7 +2392,7 @@ meta_window_show (MetaWindow *window)
     }
 
   if (did_show)
-    meta_display_queue_check_fullscreen (window->display);
+    meta_display_queue_check_fullscreen (display);
 
   /*
    * Now that we have shown the window, we no longer want to consider the
@@ -2395,7 +2406,7 @@ meta_window_show (MetaWindow *window)
   if (notify_demands_attention)
     {
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_DEMANDS_ATTENTION]);
-      g_signal_emit_by_name (window->display, "window-demands-attention",
+      g_signal_emit_by_name (display, "window-demands-attention",
                              window);
     }
 
@@ -2450,10 +2461,14 @@ meta_window_hide (MetaWindow *window)
   if (!window->iconic)
     {
       window->iconic = TRUE;
+#ifdef HAVE_X11_CLIENT
       set_wm_state (window);
+#endif
     }
 
+#ifdef HAVE_X11_CLIENT
   set_net_wm_state (window);
+#endif
 
   if (did_hide && window->struts)
     {
@@ -2648,7 +2663,9 @@ meta_window_maximize_internal (MetaWindow        *window,
   update_edge_constraints (window);
 
   meta_window_recalc_features (window);
+#ifdef HAVE_X11_CLIENT
   set_net_wm_state (window);
+#endif
 
   if (window->monitor && window->monitor->in_fullscreen)
     meta_display_queue_check_fullscreen (window->display);
@@ -3067,7 +3084,9 @@ unmaximize_window_before_freeing (MetaWindow        *window)
   if (window->withdrawn)                /* See bug #137185 */
     {
       window->rect = window->saved_rect;
+#ifdef HAVE_X11_CLIENT
       set_net_wm_state (window);
+#endif
     }
 #ifdef HAVE_WAYLAND
   else if (!meta_is_wayland_compositor ())
@@ -3214,7 +3233,9 @@ meta_window_unmaximize (MetaWindow        *window,
                                         target_rect);
 
       meta_window_recalc_features (window);
+#ifdef HAVE_X11_CLIENT
       set_net_wm_state (window);
+#endif
       if (!window->monitor->in_fullscreen)
         meta_display_queue_check_fullscreen (window->display);
     }
@@ -3253,7 +3274,9 @@ meta_window_set_above (MetaWindow *window,
 
   window->wm_state_above = new_value;
   meta_window_update_layer (window);
+#ifdef HAVE_X11_CLIENT
   set_net_wm_state (window);
+#endif
   meta_window_frame_size_changed (window);
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_ABOVE]);
 }
@@ -3276,8 +3299,9 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
       meta_stack_thaw (window->display->stack);
 
       meta_window_recalc_features (window);
+#ifdef HAVE_X11_CLIENT
       set_net_wm_state (window);
-
+#endif
       /* For the auto-minimize feature, if we fail to get focus */
       meta_display_queue_check_fullscreen (window->display);
 
@@ -3345,8 +3369,9 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
       /* Need to update window->has_resize_func before we move_resize()
        */
       meta_window_recalc_features (window);
+#ifdef HAVE_X11_CLIENT
       set_net_wm_state (window);
-
+#endif
       meta_compositor_size_change_window (window->display->compositor,
                                           window, META_SIZE_CHANGE_UNFULLSCREEN,
                                           &old_frame_rect, &old_buffer_rect);
@@ -5178,7 +5203,9 @@ meta_window_update_appears_focused (MetaWindow *window)
 
   window->appears_focused = appears_focused;
 
+#ifdef HAVE_X11_CLIENT
   set_net_wm_state (window);
+#endif
   meta_window_frame_size_changed (window);
 
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_APPEARS_FOCUSED]);
@@ -5437,8 +5464,10 @@ meta_window_type_changed (MetaWindow *window)
   window->attached = meta_window_should_attach_to_parent (window);
   meta_window_recalc_features (window);
 
+#ifdef HAVE_X11_CLIENT
   if (!window->override_redirect)
     set_net_wm_state (window);
+#endif
 
   /* Update frame */
   if (window->decorated)
@@ -5534,18 +5563,22 @@ meta_window_recalc_skip_features (MetaWindow *window)
 void
 meta_window_recalc_features (MetaWindow *window)
 {
+#ifdef HAVE_X11_CLIENT
   gboolean old_has_close_func;
   gboolean old_has_minimize_func;
   gboolean old_has_move_func;
-  gboolean old_has_resize_func;
   gboolean old_always_sticky;
+#endif
+  gboolean old_has_resize_func;
   gboolean old_skip_taskbar;
 
+#ifdef HAVE_X11_CLIENT
   old_has_close_func = window->has_close_func;
   old_has_minimize_func = window->has_minimize_func;
   old_has_move_func = window->has_move_func;
-  old_has_resize_func = window->has_resize_func;
   old_always_sticky = window->always_sticky;
+#endif
+  old_has_resize_func = window->has_resize_func;
   old_skip_taskbar = window->skip_taskbar;
 
   /* Use MWM hints initially */
@@ -5707,6 +5740,7 @@ meta_window_recalc_features (MetaWindow *window)
    * The fix is to only recalc_features when something has
    * actually changed.
    */
+#ifdef HAVE_X11_CLIENT
   if (window->constructing                               ||
       old_has_close_func != window->has_close_func       ||
       old_has_minimize_func != window->has_minimize_func ||
@@ -5714,6 +5748,7 @@ meta_window_recalc_features (MetaWindow *window)
       old_has_resize_func != window->has_resize_func     ||
       old_always_sticky != window->always_sticky)
     set_allowed_actions_hint (window);
+#endif
 
   if (window->has_resize_func != old_has_resize_func)
     g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_RESIZEABLE]);
@@ -6403,7 +6438,9 @@ meta_window_set_demands_attention (MetaWindow *window)
                   window->desc);
 
       window->wm_state_demands_attention = TRUE;
+#ifdef HAVE_X11_CLIENT
       set_net_wm_state (window);
+#endif
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_DEMANDS_ATTENTION]);
       g_signal_emit_by_name (window->display, "window-demands-attention",
                              window);
@@ -6428,7 +6465,9 @@ meta_window_unset_demands_attention (MetaWindow *window)
   if (window->wm_state_demands_attention)
     {
       window->wm_state_demands_attention = FALSE;
+#ifdef HAVE_X11_CLIENT
       set_net_wm_state (window);
+#endif
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_DEMANDS_ATTENTION]);
     }
 }
@@ -6780,9 +6819,11 @@ meta_window_get_transient_for (MetaWindow *window)
 
   if (window->transient_for)
     return window->transient_for;
+#ifdef HAVE_X11_CLIENT
   else if (window->xtransient_for)
     return meta_x11_display_lookup_x_window (window->display->x11_display,
                                              window->xtransient_for);
+#endif
   else
     return NULL;
 }
@@ -7337,6 +7378,7 @@ meta_window_set_transient_for (MetaWindow *window,
   if (window->appears_focused && window->transient_for != NULL)
     meta_window_propagate_focus_appearance (window, FALSE);
 
+#ifdef HAVE_X11_CLIENT
   /* may now be a dialog */
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
@@ -7361,7 +7403,9 @@ meta_window_set_transient_for (MetaWindow *window,
             }
         }
     }
-  else if (window->attached && parent == NULL)
+  else
+#endif
+  if (window->attached && parent == NULL)
     {
       guint32 timestamp;
 
@@ -7426,6 +7470,7 @@ window_has_pointer_wayland (MetaWindow *window)
   return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);
 }
 
+#ifdef HAVE_X11_CLIENT
 static gboolean
 window_has_pointer_x11 (MetaWindow *window)
 {
@@ -7448,14 +7493,19 @@ window_has_pointer_x11 (MetaWindow *window)
 
   return meta_x11_display_lookup_x_window (x11_display, child) == window;
 }
+#endif
 
 gboolean
 meta_window_has_pointer (MetaWindow *window)
 {
   if (meta_is_wayland_compositor ())
     return window_has_pointer_wayland (window);
+#ifdef HAVE_X11_CLIENT
   else
     return window_has_pointer_x11 (window);
+#else
+  g_assert_not_reached ();
+#endif
 }
 
 void
