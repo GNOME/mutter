@@ -540,17 +540,14 @@ static char *
 generate_mode_id (MetaMonitorModeSpec *monitor_mode_spec)
 {
   gboolean is_interlaced;
-  char refresh_rate_str[G_ASCII_DTOSTR_BUF_SIZE];
 
   is_interlaced = !!(monitor_mode_spec->flags & META_CRTC_MODE_FLAG_INTERLACE);
-  g_ascii_dtostr (refresh_rate_str, G_ASCII_DTOSTR_BUF_SIZE,
-                  monitor_mode_spec->refresh_rate);
 
-  return g_strdup_printf ("%dx%d%s@%s",
+  return g_strdup_printf ("%dx%d%s@%.3f",
                           monitor_mode_spec->width,
                           monitor_mode_spec->height,
                           is_interlaced ? "i" : "",
-                          refresh_rate_str);
+                          monitor_mode_spec->refresh_rate);
 }
 
 static gboolean
