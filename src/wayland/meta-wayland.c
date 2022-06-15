@@ -61,6 +61,15 @@
 #include "backends/native/meta-renderer-native.h"
 #endif
 
+enum
+{
+  PREPARE_SHUTDOWN,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 static char *_display_name_override;
 
 typedef struct _MetaWaylandCompositorPrivate
@@ -431,14 +440,7 @@ meta_wayland_log_func (const char *fmt,
 void
 meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
 {
-#ifdef HAVE_XWAYLAND
-  MetaX11DisplayPolicy x11_display_policy;
-
-  x11_display_policy =
-    meta_context_get_x11_display_policy (compositor->context);
-  if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)
-    meta_xwayland_shutdown (&compositor->xwayland_manager);
-#endif
+  g_signal_emit (compositor, signals[PREPARE_SHUTDOWN], 0, NULL);
 
   if (compositor->wayland_display)
     wl_display_destroy_clients (compositor->wayland_display);
@@ -492,6 +494,14 @@ meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_wayland_compositor_finalize;
+
+  signals[PREPARE_SHUTDOWN] =
+    g_signal_new ("prepare-shutdown",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 #ifdef HAVE_XWAYLAND

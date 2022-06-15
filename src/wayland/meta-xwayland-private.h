@@ -38,9 +38,6 @@ void
 meta_xwayland_setup_xdisplay (MetaXWaylandManager *manager,
                               Display             *xdisplay);
 
-void
-meta_xwayland_shutdown (MetaXWaylandManager *manager);
-
 gboolean
 meta_xwayland_handle_xevent (XEvent *event);
 

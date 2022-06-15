@@ -62,6 +62,8 @@ struct _MetaXWaylandManager
   guint abstract_fd_watch_id;
   guint unix_fd_watch_id;
 
+  gulong prepare_shutdown_id;
+
   struct wl_display *wayland_display;
   struct wl_client *client;
   struct wl_resource *xserver_resource;
