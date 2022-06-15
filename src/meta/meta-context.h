@@ -24,7 +24,6 @@
 #include <glib-object.h>
 
 #include "meta/common.h"
-#include "meta/meta-enums.h"
 #include "meta/types.h"
 
 #define META_TYPE_CONTEXT (meta_context_get_type ())
