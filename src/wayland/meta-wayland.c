@@ -504,25 +504,6 @@ meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
                   G_TYPE_NONE, 0);
 }
 
-#ifdef HAVE_XWAYLAND
-static bool
-meta_xwayland_global_filter (const struct wl_client *client,
-                             const struct wl_global *global,
-                             void                   *data)
-{
-  MetaWaylandCompositor *compositor = (MetaWaylandCompositor *) data;
-  MetaXWaylandManager *xwayland_manager = &compositor->xwayland_manager;
-
-  /* Keyboard grabbing protocol is for Xwayland only */
-  if (client != xwayland_manager->client)
-    return (wl_global_get_interface (global) !=
-            &zwp_xwayland_keyboard_grab_manager_v1_interface);
-
-  /* All others are visible to all clients */
-  return true;
-}
-#endif
-
 void
 meta_wayland_override_display_name (const char *display_name)
 {
@@ -653,14 +634,6 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_init_presentation_time (compositor);
   meta_wayland_activation_init (compositor);
   meta_wayland_transaction_init (compositor);
-
-#ifdef HAVE_XWAYLAND
-  /* Xwayland specific protocol, needs to be filtered out for all other clients */
-  if (meta_xwayland_grab_keyboard_init (compositor))
-    wl_display_set_global_filter (compositor->wayland_display,
-                                  meta_xwayland_global_filter,
-                                  compositor);
-#endif
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
