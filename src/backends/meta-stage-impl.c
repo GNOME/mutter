@@ -681,7 +681,7 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
   MetaStageImplPrivate *priv =
     meta_stage_impl_get_instance_private (stage_impl);
   CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_framebuffer (stage_view);
+    clutter_stage_view_get_onscreen (stage_view);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
