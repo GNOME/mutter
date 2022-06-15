@@ -29,23 +29,28 @@
 #include <systemd/sd-login.h>
 #endif
 
+#include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
-#include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "meta/meta-backend.h"
+
+#ifdef HAVE_X11
+#include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "x11/session.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
 
-#ifdef HAVE_WAYLAND
+#ifdef HAVE_XWAYLAND
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "wayland/meta-wayland.h"
 #endif
 
 typedef struct _MetaContextMainOptions
 {
+#ifdef HAVE_X11
   struct {
     char *display_name;
     gboolean replace;
@@ -57,10 +62,13 @@ typedef struct _MetaContextMainOptions
     char *client_id;
     gboolean disable;
   } sm;
+#endif
 #ifdef HAVE_WAYLAND
   gboolean wayland;
+#ifdef HAVE_XWAYLAND
   gboolean nested;
   gboolean no_x11;
+#endif
   char *wayland_display;
 #endif
 #ifdef HAVE_NATIVE_BACKEND
@@ -92,7 +100,7 @@ static gboolean
 check_configuration (MetaContextMain  *context_main,
                      GError          **error)
 {
-#ifdef HAVE_WAYLAND
+#if defined(HAVE_XWAYLAND) && defined(HAVE_X11)
   if (context_main->options.x11.force && context_main->options.no_x11)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
@@ -111,9 +119,9 @@ check_configuration (MetaContextMain  *context_main,
                    "Can't run in X11 mode nested");
       return FALSE;
     }
-#endif /* HAVE_WAYLAND */
+#endif /* defined(HAVE_XWAYLAND) && defined(HAVE_X11) */
 
-#ifdef HAVE_NATIVE_BACKEND
+#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_X11)
   if (context_main->options.x11.force && context_main->options.display_server)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
@@ -134,8 +142,9 @@ check_configuration (MetaContextMain  *context_main,
                    "Can't run in display server mode headlessly");
       return FALSE;
     }
-#endif /* HAVE_NATIVE_BACKEND */
+#endif /* defined(HAVE_NATIVE_BACKEND) && defined(HAVE_X11) */
 
+#ifdef HAVE_X11
   if (context_main->options.sm.save_file &&
       context_main->options.sm.client_id)
     {
@@ -143,6 +152,7 @@ check_configuration (MetaContextMain  *context_main,
                    "Can't specify both SM save file and SM client id");
       return FALSE;
     }
+#endif
 
   return TRUE;
 }
@@ -237,17 +247,22 @@ determine_compositor_type (MetaContextMain  *context_main,
   g_autofree char *session_type = NULL;
 
 #ifdef HAVE_WAYLAND
-  if (context_main->options.wayland ||
+  if (context_main->options.wayland
 #ifdef HAVE_NATIVE_BACKEND
-      context_main->options.display_server ||
-      context_main->options.headless ||
+      || context_main->options.display_server
+      || context_main->options.headless
 #endif /* HAVE_NATIVE_BACKEND */
-      context_main->options.nested)
+#ifdef HAVE_XWAYLAND
+      || context_main->options.nested
+#endif /* HAVE_XWAYLAND */
+      )
     return META_COMPOSITOR_TYPE_WAYLAND;
 #endif /* HAVE_WAYLAND */
 
+#ifdef HAVE_X11
   if (context_main->options.x11.force)
     return META_COMPOSITOR_TYPE_X11;
+#endif
 
   session_type = find_session_type (error);
   if (!session_type)
@@ -289,6 +304,7 @@ meta_context_main_configure (MetaContext   *context,
     meta_wayland_override_display_name (context_main->options.wayland_display);
 #endif
 
+#ifdef HAVE_X11
   if (!context_main->options.sm.client_id)
     {
       const char *desktop_autostart_id;
@@ -310,6 +326,7 @@ meta_context_main_configure (MetaContext   *context,
     }
 
   g_unsetenv ("DESKTOP_AUTOSTART_ID");
+#endif
 
   return TRUE;
 }
@@ -326,7 +343,7 @@ static MetaX11DisplayPolicy
 meta_context_main_get_x11_display_policy (MetaContext *context)
 {
   MetaCompositorType compositor_type;
-#ifdef HAVE_WAYLAND
+#ifdef HAVE_XWAYLAND
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
   g_autofree char *unit = NULL;
 #endif
@@ -337,16 +354,16 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
     case META_COMPOSITOR_TYPE_X11:
       return META_X11_DISPLAY_POLICY_MANDATORY;
     case META_COMPOSITOR_TYPE_WAYLAND:
-#ifdef HAVE_WAYLAND
+#ifdef HAVE_XWAYLAND
       if (context_main->options.no_x11)
         return META_X11_DISPLAY_POLICY_DISABLED;
       else if (sd_pid_get_user_unit (0, &unit) < 0)
         return META_X11_DISPLAY_POLICY_MANDATORY;
       else
         return META_X11_DISPLAY_POLICY_ON_DEMAND;
-#else /* HAVE_WAYLAND */
+#else /* HAVE_XWAYLAND */
       g_assert_not_reached ();
-#endif /* HAVE_WAYLAND */
+#endif /* HAVE_XWAYLAND */
     }
 
   g_assert_not_reached ();
@@ -355,9 +372,13 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
 static gboolean
 meta_context_main_is_replacing (MetaContext *context)
 {
+#ifdef HAVE_X11
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
 
   return context_main->options.x11.replace;
+#else
+  return FALSE;
+#endif
 }
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -423,6 +444,7 @@ meta_context_main_setup (MetaContext  *context,
   return TRUE;
 }
 
+#ifdef HAVE_X11
 static MetaBackend *
 create_x11_cm_backend (MetaContext  *context,
                        GError      **error)
@@ -440,8 +462,10 @@ create_x11_cm_backend (MetaContext  *context,
                          "display-name", context_main->options.x11.display_name,
                          NULL);
 }
+#endif
 
 #ifdef HAVE_WAYLAND
+#ifdef HAVE_XWAYLAND
 static MetaBackend *
 create_nested_backend (MetaContext  *context,
                        GError      **error)
@@ -451,6 +475,7 @@ create_nested_backend (MetaContext  *context,
                          "context", context,
                          NULL);
 }
+#endif /* HAVE_XWAYLAND */
 
 #ifdef HAVE_NATIVE_BACKEND
 static MetaBackend *
@@ -488,16 +513,20 @@ meta_context_main_create_backend (MetaContext  *context,
   compositor_type = meta_context_get_compositor_type (context);
   switch (compositor_type)
     {
-#ifdef HAVE_X11
     case META_COMPOSITOR_TYPE_X11:
+#ifdef HAVE_X11
       return create_x11_cm_backend (context, error);
+#else
+      g_assert_not_reached ();
 #endif
     case META_COMPOSITOR_TYPE_WAYLAND:
 #ifdef HAVE_WAYLAND
+#ifdef HAVE_XWAYLAND /* HAVE_XWAYLAND */
       if (context_main->options.nested)
         return create_nested_backend (context, error);
+#endif /* HAVE_XWAYLAND */
 #ifdef HAVE_NATIVE_BACKEND
-      else if (context_main->options.headless)
+      if (context_main->options.headless)
         return create_headless_backend (context, error);
       else
         return create_native_backend (context, error);
@@ -513,6 +542,7 @@ meta_context_main_create_backend (MetaContext  *context,
 static void
 meta_context_main_notify_ready (MetaContext *context)
 {
+#ifdef HAVE_X11
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
 
   if (!context_main->options.sm.disable)
@@ -523,6 +553,7 @@ meta_context_main_notify_ready (MetaContext *context)
     }
   g_clear_pointer (&context_main->options.sm.client_id, g_free);
   g_clear_pointer (&context_main->options.sm.save_file, g_free);
+#endif
 }
 
 #ifdef HAVE_X11
@@ -625,6 +656,7 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run as a wayland compositor"),
       NULL
     },
+#ifdef HAVE_XWAYLAND
     {
       "nested", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.nested,
@@ -637,6 +669,7 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run wayland compositor without starting Xwayland"),
       NULL
     },
+#endif
     {
       "wayland-display", 0, 0, G_OPTION_ARG_STRING,
       &context_main->options.wayland_display,
