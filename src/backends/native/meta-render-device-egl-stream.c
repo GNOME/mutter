@@ -23,10 +23,14 @@
 #include "backends/native/meta-render-device-egl-stream.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-kms.h"
 
 struct _MetaRenderDeviceEglStream
 {
   MetaRenderDevice parent;
+
+  gboolean inhibited_kms_kernel_thread;
 
   EGLDeviceEXT egl_device;
 };
@@ -169,6 +173,7 @@ meta_render_device_egl_stream_initable_init (GInitable     *initable,
   MetaRenderDeviceEglStream *render_device_egl_stream =
     META_RENDER_DEVICE_EGL_STREAM (initable);
   MetaBackend *backend = meta_render_device_get_backend (render_device);
+  MetaKms *kms;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
   g_autofree const char **missing_extensions = NULL;
@@ -197,6 +202,10 @@ meta_render_device_egl_stream_initable_init (GInitable     *initable,
                    "EGLStream render device requires an EGL display");
       return FALSE;
     }
+
+  kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  meta_kms_inhibit_kernel_thread (kms);
+  render_device_egl_stream->inhibited_kms_kernel_thread = TRUE;
 
   return TRUE;
 }
@@ -260,9 +269,30 @@ meta_render_device_egl_stream_create_egl_display (MetaRenderDevice  *render_devi
 }
 
 static void
+meta_render_device_egl_stream_finalize (GObject *object)
+{
+  MetaRenderDevice *render_device = META_RENDER_DEVICE (object);
+  MetaRenderDeviceEglStream *render_device_egl_stream =
+    META_RENDER_DEVICE_EGL_STREAM (render_device);
+
+  if (render_device_egl_stream->inhibited_kms_kernel_thread)
+    {
+      MetaBackend *backend = meta_render_device_get_backend (render_device);
+      MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+
+      meta_kms_uninhibit_kernel_thread (kms);
+    }
+
+  G_OBJECT_CLASS (meta_render_device_egl_stream_parent_class)->finalize (object);
+}
+
+static void
 meta_render_device_egl_stream_class_init (MetaRenderDeviceEglStreamClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaRenderDeviceClass *render_device_class = META_RENDER_DEVICE_CLASS (klass);
+
+  object_class->finalize = meta_render_device_egl_stream_finalize;
 
   render_device_class->create_egl_display =
     meta_render_device_egl_stream_create_egl_display;

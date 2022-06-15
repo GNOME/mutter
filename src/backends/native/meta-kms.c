@@ -152,6 +152,8 @@ struct _MetaKms
 
   GList *pending_callbacks;
   guint callback_source_id;
+
+  int kernel_thread_inhibit_count;
 };
 
 G_DEFINE_TYPE (MetaKms, meta_kms, META_TYPE_THREAD)
@@ -441,7 +443,7 @@ meta_kms_new (MetaBackend   *backend,
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
   const char *thread_type_string;
-  MetaThreadType thread_type = META_THREAD_TYPE_USER;
+  MetaThreadType thread_type = META_THREAD_TYPE_KERNEL;
 
   thread_type_string = g_getenv ("MUTTER_DEBUG_KMS_THREAD_TYPE");
   if (thread_type_string)
@@ -531,4 +533,24 @@ meta_kms_emit_resources_changed (MetaKms                *kms,
                                  MetaKmsResourceChanges  changes)
 {
   g_signal_emit (kms, signals[RESOURCES_CHANGED], 0, changes);
+}
+
+void
+meta_kms_inhibit_kernel_thread (MetaKms *kms)
+{
+  kms->kernel_thread_inhibit_count++;
+
+  if (kms->kernel_thread_inhibit_count == 1)
+    meta_thread_reset_thread_type (META_THREAD (kms), META_THREAD_TYPE_USER);
+}
+
+void
+meta_kms_uninhibit_kernel_thread (MetaKms *kms)
+{
+  g_return_if_fail (kms->kernel_thread_inhibit_count > 0);
+
+  kms->kernel_thread_inhibit_count--;
+
+  if (kms->kernel_thread_inhibit_count == 0)
+    meta_thread_reset_thread_type (META_THREAD (kms), META_THREAD_TYPE_KERNEL);
 }
