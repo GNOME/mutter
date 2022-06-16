@@ -14,7 +14,7 @@
         <mode>
           <width>3840</width>
           <height>2160</height>
-          <rate>29.981103897094727</rate>
+          <rate>29.981</rate>
         </mode>
       </monitor>
     </logicalmonitor>
@@ -32,7 +32,7 @@
         <mode>
           <width>1920</width>
           <height>1080</height>
-          <rate>60.049972534179688</rate>
+          <rate>60.050</rate>
         </mode>
       </monitor>
     </logicalmonitor>
@@ -52,7 +52,7 @@
         <mode>
           <width>1920</width>
           <height>1080</height>
-          <rate>60</rate>
+          <rate>60.000</rate>
         </mode>
       </monitor>
     </logicalmonitor>
@@ -70,7 +70,7 @@
         <mode>
           <width>1920</width>
           <height>1080</height>
-          <rate>60.049468994140625</rate>
+          <rate>60.049</rate>
         </mode>
       </monitor>
     </logicalmonitor>
