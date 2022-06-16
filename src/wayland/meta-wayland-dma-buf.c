@@ -1104,6 +1104,8 @@ surface_feedback_surface_destroyed_cb (gpointer user_data)
                   NULL);
   g_list_free (surface_feedback->resources);
 
+  meta_wayland_dma_buf_feedback_free (surface_feedback->feedback);
+
   g_free (surface_feedback);
 }
 
