@@ -35,10 +35,13 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
-#include "meta/group.h"
 #include "meta/prefs.h"
 #include "meta/workspace.h"
+
+#ifdef HAVE_X11_CLIENT
+#include "meta/group.h"
 #include "x11/meta-x11-display-private.h"
+#endif
 
 #define WINDOW_TRANSIENT_FOR_WHOLE_GROUP(w)        \
   (meta_window_has_transient_type (w) && w->transient_for == NULL)
@@ -123,6 +126,7 @@ on_stack_changed (MetaStack *stack)
       g_array_append_val (all_root_children_stacked, stack_id);
     }
 
+#ifdef HAVE_X11_CLIENT
   if (display->x11_display)
     {
       uint64_t guard_window_id;
@@ -132,7 +136,7 @@ on_stack_changed (MetaStack *stack)
       guard_window_id = display->x11_display->guard_window;
       g_array_append_val (hidden_stack_ids, guard_window_id);
     }
-
+#endif
   /* Sync to server */
 
   meta_topic (META_DEBUG_STACK, "Restacking %u windows",
@@ -584,6 +588,7 @@ create_constraints (Constraint **constraints,
           continue;
         }
 
+#ifdef HAVE_X11_CLIENT
       if (WINDOW_TRANSIENT_FOR_WHOLE_GROUP (w))
         {
           GSList *group_windows;
@@ -632,7 +637,9 @@ create_constraints (Constraint **constraints,
 
           g_slist_free (group_windows);
         }
-      else if (w->transient_for != NULL)
+      else
+#endif /* HAVE_X11_CLIENT */
+      if (w->transient_for != NULL)
         {
           MetaWindow *parent;
 

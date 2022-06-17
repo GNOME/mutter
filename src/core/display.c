@@ -2315,7 +2315,7 @@ meta_display_pong_for_serial (MetaDisplay    *display,
         }
     }
 }
-
+#ifdef HAVE_X11_CLIENT
 static MetaGroup *
 get_focused_group (MetaDisplay *display)
 {
@@ -2329,6 +2329,12 @@ get_focused_group (MetaDisplay *display)
     || ((t) == META_TAB_LIST_DOCKS && META_WINDOW_IN_DOCK_TAB_CHAIN (w)) \
     || ((t) == META_TAB_LIST_GROUP && META_WINDOW_IN_GROUP_TAB_CHAIN (w, get_focused_group (w->display))) \
     || ((t) == META_TAB_LIST_NORMAL_ALL && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w)))
+
+#else
+#define IN_TAB_CHAIN(w,t) (((t) == META_TAB_LIST_NORMAL && META_WINDOW_IN_NORMAL_TAB_CHAIN (w)) \
+    || ((t) == META_TAB_LIST_DOCKS && META_WINDOW_IN_DOCK_TAB_CHAIN (w)) \
+    || ((t) == META_TAB_LIST_NORMAL_ALL && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w)))
+#endif /* HAVE_X11_CLIENT */
 
 static MetaWindow*
 find_tab_forward (MetaDisplay   *display,
