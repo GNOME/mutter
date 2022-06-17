@@ -102,7 +102,7 @@ static gboolean
 is_sibling (MetaWaylandSurface *surface,
             MetaWaylandSurface *sibling)
 {
-  return surface->sub.parent == sibling->sub.parent;
+  return surface != sibling && surface->sub.parent == sibling->sub.parent;
 }
 
 static gboolean
