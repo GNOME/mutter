@@ -25,7 +25,10 @@
 
 #include "core/display-private.h"
 #include "meta/meta-launch-context.h"
+
+#ifdef HAVE_X11_CLIENT
 #include "x11/meta-startup-notification-x11.h"
+#endif
 
 typedef struct _MetaLaunchContext MetaLaunchContext;
 
@@ -143,6 +146,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
   if (context->workspace)
     workspace_idx = meta_workspace_index (context->workspace);
 
+#ifdef HAVE_X11_CLIENT
   if (display->x11_display)
     {
       /* If there is a X11 display, we prefer going entirely through
@@ -156,6 +160,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
                                               context->timestamp,
                                               workspace_idx);
     }
+#endif
 
   if (!startup_id)
     {
@@ -174,7 +179,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
             g_desktop_app_info_get_filename (G_DESKTOP_APP_INFO (info));
         }
 
-      sn = meta_display_get_startup_notification (context->display);
+      sn = meta_display_get_startup_notification (display);
       seq = g_object_new (META_TYPE_STARTUP_SEQUENCE,
                           "id", startup_id,
                           "application-id", application_id,
