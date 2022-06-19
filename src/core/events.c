@@ -328,8 +328,7 @@ meta_display_handle_event (MetaDisplay        *display,
       event->type != CLUTTER_DEVICE_REMOVED)
     handle_idletime_for_event (display, event);
 
-#ifdef HAVE_WAYLAND
-  if (wayland_compositor && event->type == CLUTTER_MOTION)
+  if (event->type == CLUTTER_MOTION)
     {
       MetaCursorRenderer *cursor_renderer;
       ClutterInputDevice *device;
@@ -348,7 +347,6 @@ meta_display_handle_event (MetaDisplay        *display,
           meta_cursor_tracker_invalidate_position (cursor_tracker);
         }
     }
-#endif
 
   window = get_window_for_event (display, event, event_actor);
 
