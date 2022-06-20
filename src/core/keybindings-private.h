@@ -154,7 +154,9 @@ void meta_prefs_get_locate_pointer_binding (MetaKeyCombo *combo);
 const char *meta_prefs_get_iso_next_group_option (void);
 gboolean meta_prefs_is_locate_pointer_enabled (void);
 
+#ifdef HAVE_X11_CLIENT
 void meta_x11_display_grab_keys   (MetaX11Display *x11_display);
 void meta_x11_display_ungrab_keys (MetaX11Display *x11_display);
+#endif
 
 #endif
