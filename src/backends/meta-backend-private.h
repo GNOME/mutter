@@ -84,6 +84,19 @@ struct _MetaBackendClass
                               int          device_id,
                               uint32_t     timestamp);
 
+  void (* freeze_keyboard) (MetaBackend *backend,
+                            uint32_t     timestamp);
+
+  void (* unfreeze_keyboard) (MetaBackend *backend,
+                              uint32_t     timestamp);
+
+  gboolean (* grab_keyboard ) (MetaBackend *backend,
+                               MetaWindow  *window,
+                               uint32_t    timestamp);
+
+  void (* ungrab_keyboard) (MetaBackend *backend,
+                            uint32_t     timestamp);
+
   void (* finish_touch_sequence) (MetaBackend          *backend,
                                   ClutterEventSequence *sequence,
                                   MetaSequenceState     state);

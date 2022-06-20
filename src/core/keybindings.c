@@ -1752,68 +1752,12 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
   return TRUE;
 }
 
-static gboolean
-grab_keyboard (Window  xwindow,
-               guint32 timestamp,
-               int     grab_mode)
-{
-  int grab_status;
-
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
-
-  XISetMask (mask.mask, XI_KeyPress);
-  XISetMask (mask.mask, XI_KeyRelease);
-
-  if (meta_is_wayland_compositor ())
-    return TRUE;
-
-  /* Grab the keyboard, so we get key releases and all key
-   * presses
-   */
-
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
-
-  /* Strictly, we only need to set grab_mode on the keyboard device
-   * while the pointer should always be XIGrabModeAsync. Unfortunately
-   * there is a bug in the X server, only fixed (link below) in 1.15,
-   * which swaps these arguments for keyboard devices. As such, we set
-   * both the device and the paired device mode which works around
-   * that bug and also works on fixed X servers.
-   *
-   * http://cgit.freedesktop.org/xorg/xserver/commit/?id=9003399708936481083424b4ff8f18a16b88b7b3
-   */
-  grab_status = XIGrabDevice (xdisplay,
-                              META_VIRTUAL_CORE_KEYBOARD_ID,
-                              xwindow,
-                              timestamp,
-                              None,
-                              grab_mode, grab_mode,
-                              False, /* owner_events */
-                              &mask);
-
-  return (grab_status == Success);
-}
-
-static void
-ungrab_keyboard (guint32 timestamp)
-{
-  if (meta_is_wayland_compositor ())
-    return;
-
-  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
-
-  XIUngrabDevice (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
-}
-
 gboolean
 meta_window_grab_all_keys (MetaWindow  *window,
                            guint32      timestamp)
 {
-  Window grabwindow;
   gboolean retval = TRUE;
+  MetaBackend *backend = meta_get_backend ();
 
   if (window->all_keys_grabbed)
     return FALSE;
@@ -1829,14 +1773,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
               window->desc);
   meta_window_focus (window, timestamp);
 
-  if (!meta_is_wayland_compositor ())
-    {
-      grabwindow = meta_window_x11_get_toplevel_xwindow (window);
-
-      meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Grabbing all keys on window %s", window->desc);
-      retval = grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
-    }
+  retval = META_BACKEND_GET_CLASS (backend)->grab_keyboard (backend, window, timestamp);
   if (retval)
     {
       window->keys_grabbed = FALSE;
@@ -1853,8 +1790,7 @@ meta_window_ungrab_all_keys (MetaWindow *window,
 {
   if (window->all_keys_grabbed)
     {
-      if (!meta_is_wayland_compositor())
-        ungrab_keyboard (timestamp);
+      meta_display_ungrab_keyboard (window->display, timestamp);
 
       window->grab_on_frame = FALSE;
       window->all_keys_grabbed = FALSE;
@@ -1869,37 +1805,21 @@ void
 meta_display_freeze_keyboard (MetaDisplay *display, guint32 timestamp)
 {
   MetaBackend *backend = meta_get_backend ();
-
-  if (!META_IS_BACKEND_X11 (backend))
-    return;
-
-  Window window = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
-  grab_keyboard (window, timestamp, XIGrabModeSync);
+  META_BACKEND_GET_CLASS (backend)->freeze_keyboard (backend, timestamp);
 }
 
 void
 meta_display_ungrab_keyboard (MetaDisplay *display, guint32 timestamp)
 {
-  ungrab_keyboard (timestamp);
+  MetaBackend *backend = meta_get_backend ();
+  META_BACKEND_GET_CLASS (backend)->ungrab_keyboard (backend, timestamp);
 }
 
 void
 meta_display_unfreeze_keyboard (MetaDisplay *display, guint32 timestamp)
 {
   MetaBackend *backend = meta_get_backend ();
-
-  if (!META_IS_BACKEND_X11 (backend))
-    return;
-
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-
-  XIAllowEvents (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID,
-                 XIAsyncDevice, timestamp);
-  /* We shouldn't need to unfreeze the pointer device here, however we
-   * have to, due to the workaround we do in grab_keyboard().
-   */
-  XIAllowEvents (xdisplay, META_VIRTUAL_CORE_POINTER_ID,
-                 XIAsyncDevice, timestamp);
+  META_BACKEND_GET_CLASS (backend)->unfreeze_keyboard (backend, timestamp);
 }
 
 static gboolean

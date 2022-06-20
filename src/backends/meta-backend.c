@@ -638,6 +638,36 @@ meta_backend_real_is_headless (MetaBackend *backend)
   return FALSE;
 }
 
+static void
+meta_backend_real_freeze_keyboard (MetaBackend *backend,
+                                   uint32_t     timestamp)
+{
+  /* Do nothing */
+}
+
+static void
+meta_backend_real_unfreeze_keyboard (MetaBackend *backend,
+                                     uint32_t     timestamp)
+{
+  /* Do nothing */
+}
+
+static gboolean
+meta_backend_real_grab_keyboard (MetaBackend *backend,
+                                 MetaWindow  *window,
+                                 uint32_t     timestamp)
+{
+  /* Do nothing */
+  return FALSE;
+}
+
+static void
+meta_backend_real_ungrab_keyboard (MetaBackend *backend,
+                                   uint32_t     timestamp)
+{
+  /* Do nothing */
+}
+
 gboolean
 meta_backend_is_lid_closed (MetaBackend *backend)
 {
@@ -874,6 +904,10 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
   klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
   klass->is_headless = meta_backend_real_is_headless;
+  klass->freeze_keyboard = meta_backend_real_freeze_keyboard;
+  klass->unfreeze_keyboard = meta_backend_real_unfreeze_keyboard;
+  klass->grab_keyboard = meta_backend_real_grab_keyboard;
+  klass->ungrab_keyboard = meta_backend_real_ungrab_keyboard;
 
   obj_props[PROP_CONTEXT] =
     g_param_spec_object ("context",

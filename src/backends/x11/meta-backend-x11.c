@@ -55,8 +55,10 @@
 #include "clutter/clutter.h"
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
+#include "core/window-private.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/util.h"
+#include "x11/window-x11.h"
 
 struct _MetaBackendX11Private
 {
@@ -523,6 +525,47 @@ on_kbd_a11y_changed (MetaInputSettings   *input_settings,
   meta_seat_x11_apply_kbd_a11y_settings (seat, a11y_settings);
 }
 
+static gboolean
+grab_keyboard (Window  xwindow,
+               guint32 timestamp,
+               int     grab_mode)
+{
+  int grab_status;
+
+  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
+  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+
+  XISetMask (mask.mask, XI_KeyPress);
+  XISetMask (mask.mask, XI_KeyRelease);
+
+  /* Grab the keyboard, so we get key releases and all key
+   * presses
+   */
+
+  MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
+  Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
+
+  /* Strictly, we only need to set grab_mode on the keyboard device
+   * while the pointer should always be XIGrabModeAsync. Unfortunately
+   * there is a bug in the X server, only fixed (link below) in 1.15,
+   * which swaps these arguments for keyboard devices. As such, we set
+   * both the device and the paired device mode which works around
+   * that bug and also works on fixed X servers.
+   *
+   * http://cgit.freedesktop.org/xorg/xserver/commit/?id=9003399708936481083424b4ff8f18a16b88b7b3
+   */
+  grab_status = XIGrabDevice (xdisplay,
+                              META_VIRTUAL_CORE_KEYBOARD_ID,
+                              xwindow,
+                              timestamp,
+                              None,
+                              grab_mode, grab_mode,
+                              False, /* owner_events */
+                              &mask);
+
+  return (grab_status == Success);
+}
+
 static void
 meta_backend_x11_post_init (MetaBackend *backend)
 {
@@ -679,6 +722,52 @@ meta_backend_x11_ungrab_device (MetaBackend *backend,
   XFlush (priv->xdisplay);
 
   return (ret == Success);
+}
+
+static void
+meta_backend_x11_freeze_keyboard (MetaBackend *backend,
+                                  uint32_t     timestamp)
+{
+  Window window = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
+  grab_keyboard (window, timestamp, XIGrabModeSync);
+}
+
+static void
+meta_backend_x11_unfreeze_keyboard (MetaBackend *backend,
+                                    uint32_t     timestamp)
+{
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+
+  XIAllowEvents (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID,
+                 XIAsyncDevice, timestamp);
+  /* We shouldn't need to unfreeze the pointer device here, however we
+   * have to, due to the workaround we do in grab_keyboard().
+   */
+  XIAllowEvents (xdisplay, META_VIRTUAL_CORE_POINTER_ID,
+                 XIAsyncDevice, timestamp);
+}
+
+static gboolean
+meta_backend_x11_grab_keyboard (MetaBackend *backend,
+                                MetaWindow  *window,
+                                uint32_t     timestamp)
+{
+    Window grabwindow;
+
+    grabwindow = meta_window_x11_get_toplevel_xwindow (window);
+
+    meta_topic (META_DEBUG_KEYBINDINGS,
+                "Grabbing all keys on window %s", window->desc);
+    return grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
+}
+
+static void
+meta_backend_x11_ungrab_keyboard (MetaBackend *backend,
+                                  uint32_t     timestamp)
+{
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+
+  XIUngrabDevice (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
 }
 
 static void
@@ -957,6 +1046,10 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
+  backend_class->freeze_keyboard = meta_backend_x11_freeze_keyboard;
+  backend_class->unfreeze_keyboard = meta_backend_x11_unfreeze_keyboard;
+  backend_class->grab_keyboard = meta_backend_x11_grab_keyboard;
+  backend_class->ungrab_keyboard = meta_backend_x11_ungrab_keyboard;
   backend_class->finish_touch_sequence = meta_backend_x11_finish_touch_sequence;
   backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
