@@ -174,18 +174,6 @@ META_EXPORT
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
 META_EXPORT
-void meta_display_freeze_keyboard (MetaDisplay *display,
-                                   guint32      timestamp);
-
-META_EXPORT
-void meta_display_ungrab_keyboard (MetaDisplay *display,
-                                   guint32      timestamp);
-
-META_EXPORT
-void meta_display_unfreeze_keyboard (MetaDisplay *display,
-                                     guint32      timestamp);
-
-META_EXPORT
 gboolean meta_display_is_pointer_emulating_sequence (MetaDisplay          *display,
                                                      ClutterEventSequence *sequence);
 

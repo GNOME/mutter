@@ -1762,111 +1762,6 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
   return TRUE;
 }
 
-static gboolean
-grab_keyboard (MetaBackend *backend,
-               Window       xwindow,
-               uint32_t     timestamp,
-               int          grab_mode)
-{
-  MetaBackendX11 *backend_x11;
-  Display *xdisplay;
-  int grab_status;
-
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
-
-  XISetMask (mask.mask, XI_KeyPress);
-  XISetMask (mask.mask, XI_KeyRelease);
-
-  if (meta_is_wayland_compositor ())
-    return TRUE;
-
-  /* Grab the keyboard, so we get key releases and all key
-   * presses
-   */
-
-  backend_x11 = META_BACKEND_X11 (backend);
-  xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
-
-  /* Strictly, we only need to set grab_mode on the keyboard device
-   * while the pointer should always be XIGrabModeAsync. Unfortunately
-   * there is a bug in the X server, only fixed (link below) in 1.15,
-   * which swaps these arguments for keyboard devices. As such, we set
-   * both the device and the paired device mode which works around
-   * that bug and also works on fixed X servers.
-   *
-   * http://cgit.freedesktop.org/xorg/xserver/commit/?id=9003399708936481083424b4ff8f18a16b88b7b3
-   */
-  grab_status = XIGrabDevice (xdisplay,
-                              META_VIRTUAL_CORE_KEYBOARD_ID,
-                              xwindow,
-                              timestamp,
-                              None,
-                              grab_mode, grab_mode,
-                              False, /* owner_events */
-                              &mask);
-
-  return (grab_status == Success);
-}
-
-static void
-ungrab_keyboard (MetaBackend *backend,
-                 uint32_t     timestamp)
-{
-  MetaBackendX11 *backend_x11;
-  Display *xdisplay;
-
-  if (meta_is_wayland_compositor ())
-    return;
-
-  backend_x11 = META_BACKEND_X11 (backend);
-  xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
-
-  XIUngrabDevice (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
-}
-
-void
-meta_display_freeze_keyboard (MetaDisplay *display, guint32 timestamp)
-{
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-
-  if (!META_IS_BACKEND_X11 (backend))
-    return;
-
-  Window window = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
-  grab_keyboard (backend, window, timestamp, XIGrabModeSync);
-}
-
-void
-meta_display_ungrab_keyboard (MetaDisplay *display, guint32 timestamp)
-{
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-
-  ungrab_keyboard (backend, timestamp);
-}
-
-void
-meta_display_unfreeze_keyboard (MetaDisplay *display, guint32 timestamp)
-{
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-
-  if (!META_IS_BACKEND_X11 (backend))
-    return;
-
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-
-  XIAllowEvents (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID,
-                 XIAsyncDevice, timestamp);
-  /* We shouldn't need to unfreeze the pointer device here, however we
-   * have to, due to the workaround we do in grab_keyboard().
-   */
-  XIAllowEvents (xdisplay, META_VIRTUAL_CORE_POINTER_ID,
-                 XIAsyncDevice, timestamp);
-}
-
 static void
 invoke_handler (MetaDisplay           *display,
                 MetaKeyHandler        *handler,
@@ -2173,6 +2068,8 @@ static gboolean
 process_iso_next_group (MetaDisplay *display,
                         ClutterKeyEvent *event)
 {
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   gboolean activate;
   xkb_keycode_t keycode =
@@ -2199,7 +2096,7 @@ process_iso_next_group (MetaDisplay *display,
                  remain frozen. It's the signal handler's responsibility
                  to unfreeze it. */
               if (!meta_display_modifiers_accelerator_activate (display))
-                meta_display_unfreeze_keyboard (display,
+                meta_backend_unfreeze_keyboard (backend,
                                                 clutter_event_get_time ((ClutterEvent *) event));
               activate = TRUE;
               break;

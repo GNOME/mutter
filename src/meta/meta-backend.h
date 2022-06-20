@@ -79,4 +79,16 @@ META_EXPORT
 gboolean meta_backend_is_headless (MetaBackend *backend);
 
 META_EXPORT
+void meta_backend_freeze_keyboard (MetaBackend *backend,
+                                   uint32_t     timestamp);
+
+META_EXPORT
+void meta_backend_ungrab_keyboard (MetaBackend *backend,
+                                   uint32_t     timestamp);
+
+META_EXPORT
+void meta_backend_unfreeze_keyboard (MetaBackend *backend,
+                                     uint32_t     timestamp);
+
+META_EXPORT
 MetaBackendCapabilities meta_backend_get_capabilities (MetaBackend *backend);
