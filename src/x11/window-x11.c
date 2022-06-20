@@ -47,6 +47,7 @@
 #include "meta/meta-later.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
+#include "x11/keybindings-x11-private.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/session.h"
 #include "x11/window-props.h"

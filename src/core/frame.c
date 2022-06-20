@@ -27,8 +27,8 @@
 
 #include "backends/x11/meta-backend-x11.h"
 #include "core/bell.h"
-#include "core/keybindings-private.h"
 #include "meta/meta-x11-errors.h"
+#include "x11/keybindings-x11-private.h"
 #include "x11/meta-x11-display-private.h"
 
 #define EVENT_MASK (SubstructureRedirectMask |                     \

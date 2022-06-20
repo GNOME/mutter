@@ -253,4 +253,14 @@ MetaDisplay * meta_x11_display_get_display (MetaX11Display *x11_display);
 
 const gchar * meta_x11_get_display_name (void);
 
+
+void meta_display_grab_window_buttons        (MetaDisplay *display,
+                                              Window       xwindow);
+void meta_display_ungrab_window_buttons      (MetaDisplay *display,
+                                              Window       xwindow);
+void meta_display_grab_focus_window_button   (MetaDisplay *display,
+                                              MetaWindow  *window);
+void meta_display_ungrab_focus_window_button (MetaDisplay *display,
+                                              MetaWindow  *window);
+
 #endif /* META_X11_DISPLAY_PRIVATE_H */
