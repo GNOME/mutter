@@ -282,12 +282,8 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
   if (!update)
     return;
 
-  feedback = meta_kms_device_process_update_sync (device, update, flags);
-
   result_listeners = meta_kms_update_take_result_listeners (update);
-
-  meta_kms_update_free (update);
-
+  feedback = meta_kms_device_process_update_sync (device, update, flags);
   meta_kms_feedback_dispatch_result (feedback, kms, result_listeners);
 }
 

@@ -1013,13 +1013,18 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   if (!ensure_device_file (impl_device, &error))
-    return meta_kms_feedback_new_failed (NULL, g_steal_pointer (&error));
+    {
+      meta_kms_update_free (update);
+      return meta_kms_feedback_new_failed (NULL, g_steal_pointer (&error));
+    }
 
   meta_kms_impl_device_hold_fd (impl_device);
   feedback = klass->process_update (impl_device, update, flags);
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
     changes = meta_kms_impl_device_predict_states (impl_device, update);
   meta_kms_impl_device_unhold_fd (impl_device);
+
+  meta_kms_update_free (update);
 
   if (changes != META_KMS_RESOURCE_CHANGE_NONE)
     {

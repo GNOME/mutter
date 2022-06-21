@@ -1276,7 +1276,6 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
   kms_feedback =
     meta_kms_device_process_update_sync (kms_device, test_update,
                                          META_KMS_UPDATE_FLAG_TEST_ONLY);
-  meta_kms_update_free (test_update);
 
   result = meta_kms_feedback_get_result (kms_feedback);
   return result == META_KMS_FEEDBACK_PASSED;

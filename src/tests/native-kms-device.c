@@ -285,7 +285,6 @@ meta_test_kms_device_mode_set (void)
   feedback = meta_kms_device_process_update_sync (device, update,
                                                   META_KMS_UPDATE_FLAG_NONE);
   meta_kms_feedback_unref (feedback);
-  meta_kms_update_free (update);
 
   g_assert_nonnull (meta_kms_crtc_get_current_state (crtc));
   crtc_state = copy_crtc_state (meta_kms_crtc_get_current_state (crtc));
@@ -350,7 +349,6 @@ meta_test_kms_device_power_save (void)
   feedback = meta_kms_device_process_update_sync (device, update,
                                                   META_KMS_UPDATE_FLAG_NONE);
   meta_kms_feedback_unref (feedback);
-  meta_kms_update_free (update);
 
   g_assert_true (meta_kms_crtc_is_active (crtc));
 
@@ -388,7 +386,6 @@ meta_test_kms_device_power_save (void)
   feedback = meta_kms_device_process_update_sync (device, update,
                                                   META_KMS_UPDATE_FLAG_NONE);
   meta_kms_feedback_unref (feedback);
-  meta_kms_update_free (update);
 
   g_assert_true (meta_kms_crtc_is_active (crtc));
   connector_state = meta_kms_connector_get_current_state (connector);
