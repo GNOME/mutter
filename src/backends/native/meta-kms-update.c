@@ -25,6 +25,7 @@
 #include "backends/meta-display-config-shared.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
+#include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
@@ -44,6 +45,8 @@ struct _MetaKmsUpdate
 
   GList *page_flip_listeners;
   GList *result_listeners;
+
+  MetaKmsImplDevice *impl_device;
 };
 
 void
@@ -902,6 +905,9 @@ meta_kms_update_new (MetaKmsDevice *device)
 void
 meta_kms_update_free (MetaKmsUpdate *update)
 {
+  if (update->impl_device)
+    meta_kms_impl_device_unhold_fd (update->impl_device);
+
   g_list_free_full (update->result_listeners,
                     (GDestroyNotify) meta_kms_result_listener_free);
   g_list_free_full (update->plane_assignments,
@@ -916,4 +922,12 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
 
   g_free (update);
+}
+
+void
+meta_kms_update_realize (MetaKmsUpdate     *update,
+                         MetaKmsImplDevice *impl_device)
+{
+  update->impl_device = impl_device;
+  meta_kms_impl_device_hold_fd (impl_device);
 }
