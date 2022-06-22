@@ -135,8 +135,9 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
-  CoglTexture *texture;
+  CoglTexture *texture = NULL;
   graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
+  MetaMonitorTransform buffer_transform = META_MONITOR_TRANSFORM_NORMAL;
 
   g_set_object (&priv->overlay_cursor, cursor_sprite);
 
@@ -150,13 +151,15 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
     priv->stage_overlay = meta_stage_create_cursor_overlay (META_STAGE (stage));
 
   if (cursor_sprite)
-    texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
-  else
-    texture = NULL;
+    {
+      texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+      buffer_transform =
+        meta_cursor_sprite_get_texture_transform (cursor_sprite);
+    }
 
   meta_overlay_set_visible (priv->stage_overlay, !priv->handled_by_backend);
   meta_stage_update_cursor_overlay (META_STAGE (stage), priv->stage_overlay,
-                                    texture, &rect);
+                                    texture, &rect, buffer_transform);
 }
 
 static void

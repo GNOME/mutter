@@ -50,10 +50,11 @@ MetaOverlay      *meta_stage_create_cursor_overlay   (MetaStage   *stage);
 void              meta_stage_remove_cursor_overlay   (MetaStage   *stage,
 						      MetaOverlay *overlay);
 
-void              meta_stage_update_cursor_overlay   (MetaStage       *stage,
-                                                      MetaOverlay     *overlay,
-                                                      CoglTexture     *texture,
-                                                      graphene_rect_t *rect);
+void              meta_stage_update_cursor_overlay   (MetaStage            *stage,
+                                                      MetaOverlay          *overlay,
+                                                      CoglTexture          *texture,
+                                                      graphene_rect_t      *rect,
+                                                      MetaMonitorTransform  buffer_transform);
 
 void meta_overlay_set_visible (MetaOverlay *overlay,
                                gboolean     is_visible);
