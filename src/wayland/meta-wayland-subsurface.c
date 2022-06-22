@@ -58,7 +58,7 @@ transform_subsurface_position (MetaWaylandSurface *surface,
 static gboolean
 should_show (MetaWaylandSurface *surface)
 {
-  if (!surface->buffer_ref->buffer)
+  if (!surface->buffer)
     return FALSE;
   else if (surface->output_state.parent)
     return should_show (surface->output_state.parent);
@@ -126,7 +126,7 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
     .height = meta_wayland_surface_get_height (surface),
   };
 
-  if (surface->buffer_ref->buffer)
+  if (surface->buffer)
     meta_rectangle_union (out_geometry, &geometry, out_geometry);
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,

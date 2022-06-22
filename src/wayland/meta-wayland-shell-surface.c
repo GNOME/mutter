@@ -215,7 +215,7 @@ meta_wayland_shell_surface_surface_pre_apply_state (MetaWaylandSurfaceRole  *sur
     meta_wayland_surface_role_get_surface (surface_role);
 
   if (pending->newly_attached &&
-      !surface->buffer_ref->buffer &&
+      !surface->buffer &&
       priv->window)
     meta_window_queue (priv->window, META_QUEUE_CALC_SHOWING);
 }

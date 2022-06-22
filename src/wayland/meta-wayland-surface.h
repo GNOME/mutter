@@ -155,13 +155,6 @@ struct _MetaWaylandDragDestFuncs
                       MetaWaylandSurface    *surface);
 };
 
-typedef struct _MetaWaylandBufferRef
-{
-  grefcount ref_count;
-  MetaWaylandBuffer *buffer;
-  unsigned int use_count;
-} MetaWaylandBufferRef;
-
 struct _MetaWaylandSurface
 {
   GObject parent;
@@ -178,7 +171,7 @@ struct _MetaWaylandSurface
   MetaMonitorTransform buffer_transform;
 
   /* Buffer reference state. */
-  MetaWaylandBufferRef *buffer_ref;
+  MetaWaylandBuffer *buffer;
 
   /* Buffer renderer state. */
   gboolean buffer_held;
@@ -300,10 +293,6 @@ gboolean            meta_wayland_surface_assign_role (MetaWaylandSurface *surfac
                                                       ...);
 
 MetaWaylandBuffer  *meta_wayland_surface_get_buffer (MetaWaylandSurface *surface);
-
-void                meta_wayland_surface_ref_buffer_use_count (MetaWaylandSurface *surface);
-
-void                meta_wayland_surface_unref_buffer_use_count (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                                      MetaWindow         *window);

@@ -26,6 +26,7 @@
 #include <glib-unix.h>
 
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-dma-buf.h"
 
 #define META_WAYLAND_TRANSACTION_NONE ((void *)(uintptr_t) G_MAXSIZE)
@@ -392,7 +393,14 @@ meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,
 static void
 meta_wayland_transaction_entry_free (MetaWaylandTransactionEntry *entry)
 {
-  g_clear_object (&entry->state);
+  if (entry->state)
+    {
+      if (entry->state->buffer)
+        meta_wayland_buffer_dec_use_count (entry->state->buffer);
+
+      g_clear_object (&entry->state);
+    }
+
   g_free (entry);
 }
 

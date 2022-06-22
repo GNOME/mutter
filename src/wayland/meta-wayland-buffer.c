@@ -621,6 +621,25 @@ meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
 #endif /* HAVE_WAYLAND_EGLSTREAM */
 }
 
+void
+meta_wayland_buffer_inc_use_count (MetaWaylandBuffer *buffer)
+{
+  g_warn_if_fail (buffer->resource);
+
+  buffer->use_count++;
+}
+
+void
+meta_wayland_buffer_dec_use_count (MetaWaylandBuffer *buffer)
+{
+  g_return_if_fail (buffer->use_count > 0);
+
+  buffer->use_count--;
+
+  if (buffer->use_count == 0 && buffer->resource)
+    wl_buffer_send_release (buffer->resource);
+}
+
 gboolean
 meta_wayland_buffer_is_y_inverted (MetaWaylandBuffer *buffer)
 {
@@ -803,6 +822,8 @@ static void
 meta_wayland_buffer_finalize (GObject *object)
 {
   MetaWaylandBuffer *buffer = META_WAYLAND_BUFFER (object);
+
+  g_warn_if_fail (buffer->use_count == 0);
 
   g_clear_pointer (&buffer->egl_image.texture, cogl_object_unref);
 #ifdef HAVE_WAYLAND_EGLSTREAM
