@@ -109,6 +109,8 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
                              surface->scale);
 
           meta_cursor_sprite_set_texture_scale (cursor_sprite, texture_scale);
+          meta_cursor_sprite_set_texture_transform (cursor_sprite,
+                                                    surface->buffer_transform);
         }
     }
   meta_wayland_surface_update_outputs (surface);
