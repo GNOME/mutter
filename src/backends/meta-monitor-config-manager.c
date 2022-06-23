@@ -716,6 +716,29 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
   return meta_monitor_transform_from_orientation (orientation);
 }
 
+static void
+scale_logical_monitor_width (MetaLogicalMonitorLayoutMode  layout_mode,
+                             float                         scale,
+                             int                           mode_width,
+                             int                           mode_height,
+                             int                          *width,
+                             int                          *height)
+{
+  switch (layout_mode)
+    {
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
+      *width = (int) roundf (mode_width / scale);
+      *height = (int) roundf (mode_height / scale);
+      return;
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
+      *width = mode_width;
+      *height = mode_height;
+      return;
+    }
+
+  g_assert_not_reached ();
+}
+
 static MetaLogicalMonitorConfig *
 create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_manager,
                                          MetaMonitor                 *monitor,
@@ -732,16 +755,8 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
 
   mode = meta_monitor_get_preferred_mode (monitor);
   meta_monitor_mode_get_resolution (mode, &width, &height);
-
-  switch (layout_mode)
-    {
-    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      width = (int) roundf (width / scale);
-      height = (int) roundf (height / scale);
-      break;
-    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
-      break;
-    }
+  scale_logical_monitor_width (layout_mode, scale,
+                               width, height, &width, &height);
 
   monitor_config = create_monitor_config (monitor, mode);
 
