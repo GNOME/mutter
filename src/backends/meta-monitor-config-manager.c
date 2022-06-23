@@ -1180,6 +1180,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
   GList *monitors;
   GList *l;
   MetaMonitorsConfig *monitors_config;
+  int width, height;
 
   layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
@@ -1261,13 +1262,17 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
     }
 
+  scale_logical_monitor_width (layout_mode, best_scale,
+                               common_mode_w, common_mode_h,
+                               &width, &height);
+
   logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
     .layout = (MetaRectangle) {
       .x = 0,
       .y = 0,
-      .width = common_mode_w,
-      .height = common_mode_h
+      .width = width,
+      .height = height
     },
     .scale = best_scale,
     .monitor_configs = monitor_configs
