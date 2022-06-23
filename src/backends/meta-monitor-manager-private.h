@@ -348,6 +348,7 @@ gboolean           meta_monitor_manager_has_hotplug_mode_update (MetaMonitorMana
 
 void               meta_monitor_manager_read_current_state (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 void               meta_monitor_manager_reconfigure (MetaMonitorManager *manager);
 
 META_EXPORT_TEST

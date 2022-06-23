@@ -3562,6 +3562,254 @@ meta_test_monitor_switch_external_without_external (void)
 }
 
 static void
+meta_test_monitor_switch_config_remember_scale (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 1920,
+          .height = 1080,
+          .refresh_rate = 60.0
+        }
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .is_laptop_panel = TRUE,
+          .serial = "0x1000",
+        },
+        {
+          .crtc = 1,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 1 },
+          .n_possible_crtcs = 1,
+          .width_mm = 220,
+          .height_mm = 124,
+          .serial = "0x1001",
+        }
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0
+        },
+        {
+          .current_mode = 0
+        }
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1920,
+              .height = 1080,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        },
+        {
+          .outputs = { 1 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1920,
+              .height = 1080,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 1,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 220,
+          .height_mm = 124
+        }
+      },
+      .n_monitors = 2,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1920, .height = 1080 },
+          .scale = 1
+        },
+        {
+          .monitors = { 1 },
+          .n_monitors = 1,
+          .layout = { .x = 1920, .y = 0, .width = 1920, .height = 1080 },
+          .scale = 1
+        }
+      },
+      .n_logical_monitors = 2,
+      .primary_logical_monitor = 0,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        },
+        {
+          .current_mode = 0,
+          .x = 1920,
+        }
+      },
+      .n_crtcs = 2,
+      .n_tiled_monitors = 0,
+      .screen_width = 1920 * 2,
+      .screen_height = 1080
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  /*
+   * Check that default configuration is non-scaled linear.
+   */
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NONE);
+  emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+
+  /*
+   * Reconfigure to both monitors having scale 2.
+   */
+
+  test_case.expect.logical_monitors[0] = (MonitorTestCaseLogicalMonitor) {
+    .monitors = { 0 },
+    .layout = {.x = 0, .y = 0, .width = 960, .height = 540 },
+    .scale = 2,
+    .n_monitors = 1,
+  };
+  test_case.expect.logical_monitors[1] = (MonitorTestCaseLogicalMonitor) {
+    .monitors = { 1 },
+    .layout = {.x = 960, .y = 0, .width = 960, .height = 540 },
+    .scale = 2,
+    .n_monitors = 1,
+  };
+  test_case.expect.n_logical_monitors = 2;
+  test_case.expect.crtcs[1].x = 960;
+  test_case.expect.screen_width = 960 * 2;
+  test_case.expect.screen_height = 540;
+
+  meta_set_custom_monitor_config (test_context, "switch-remember-scale.xml");
+  meta_monitor_manager_reconfigure (monitor_manager);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+
+  /*
+   * Check that switch to 'builtin' uses scale 2.
+   */
+
+  test_case.expect.n_logical_monitors = 1;
+  test_case.expect.screen_width = 960;
+  test_case.expect.monitors[1].current_mode = -1;
+  test_case.expect.crtcs[1].current_mode = -1;
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_BUILTIN);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+
+  /*
+   * Check that switch to 'external' uses scale 2.
+   */
+
+  test_case.expect.logical_monitors[0].monitors[0] = 1;
+  test_case.expect.n_logical_monitors = 1;
+  test_case.expect.screen_width = 960;
+  test_case.expect.monitors[0].current_mode = -1;
+  test_case.expect.monitors[1].current_mode = 0;
+  test_case.expect.crtcs[0].current_mode = -1;
+  test_case.expect.crtcs[1].current_mode = 0;
+  test_case.expect.crtcs[1].x = 0;
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_EXTERNAL);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+
+  /*
+   * Check that switch to 'linear' uses scale 2 for both.
+   */
+
+  test_case.expect.logical_monitors[0].monitors[0] = 1;
+  test_case.expect.logical_monitors[1].monitors[0] = 0;
+  test_case.expect.n_logical_monitors = 2;
+  test_case.expect.screen_width = 960 * 2;
+  test_case.expect.monitors[0].current_mode = 0;
+  test_case.expect.crtcs[0].current_mode = 0;
+  test_case.expect.crtcs[0].x = 960;
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+
+  /*
+   * Check that switch to 'mirror' uses scale 2 for both.
+   */
+
+  test_case.expect.logical_monitors[0].monitors[0] = 0;
+  test_case.expect.logical_monitors[0].monitors[1] = 1;
+  test_case.expect.logical_monitors[0].n_monitors = 2;
+  test_case.expect.n_logical_monitors = 1;
+  test_case.expect.screen_width = 960;
+  test_case.expect.crtcs[0].x = 0;
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_ALL_MIRROR);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+}
+
+static void
 check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
                                              unsigned int     monitor_index,
                                              MetaOrientation  orientation,
@@ -9124,6 +9372,8 @@ init_monitor_tests (void)
                     meta_test_monitor_non_upright_panel);
   add_monitor_test ("/backends/monitor/switch-external-without-external",
                     meta_test_monitor_switch_external_without_external);
+  add_monitor_test ("/backends/monitor/switch-config-remember-scale",
+                    meta_test_monitor_switch_config_remember_scale);
 
   add_monitor_test ("/backends/monitor/orientation/is-managed",
                     meta_test_monitor_orientation_is_managed);
