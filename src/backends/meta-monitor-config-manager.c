@@ -1169,6 +1169,7 @@ static MetaMonitorsConfig *
 create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
 {
   MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
+  MetaMonitor *primary_monitor;
   MetaLogicalMonitorLayoutMode layout_mode;
   MetaLogicalMonitorConfig *logical_monitor_config = NULL;
   GList *logical_monitor_configs;
@@ -1181,6 +1182,11 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
   GList *l;
   MetaMonitorsConfig *monitors_config;
   int width, height;
+
+  primary_monitor = find_primary_monitor (monitor_manager,
+                                          MONITOR_MATCH_ALLOW_FALLBACK);
+  if (!primary_monitor)
+    return NULL;
 
   layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
@@ -1255,9 +1261,8 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       if (!mode)
         continue;
 
-      scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager,
-                                                                 layout_mode,
-                                                                 monitor, mode);
+      scale = compute_scale_for_monitor (config_manager, monitor,
+                                         primary_monitor);
       best_scale = MAX (best_scale, scale);
       monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
     }
