@@ -44,6 +44,9 @@ struct _MetaWaylandTransaction
 
 typedef struct _MetaWaylandTransactionEntry
 {
+  /* Next committed transaction with entry for the same surface */
+  MetaWaylandTransaction *next_transaction;
+
   MetaWaylandSurfaceState *state;
 
   /* Sub-surface position */
@@ -127,24 +130,6 @@ meta_wayland_transaction_compare (const void *key1,
           meta_wayland_surface_get_toplevel (surface2)) ? -1 : 1;
 }
 
-static MetaWaylandTransaction *
-find_next_transaction_for_surface (MetaWaylandTransaction *transaction,
-                                   MetaWaylandSurface     *surface)
-{
-  GList *node;
-
-  for (node = transaction->node.next; node; node = node->next)
-    {
-      MetaWaylandTransaction *next = node->data;
-
-      if (surface->transaction.last_committed == next ||
-          g_hash_table_contains (next->entries, surface))
-        return next;
-    }
-
-  return NULL;
-}
-
 static void
 ensure_next_candidate (MetaWaylandTransaction  *transaction,
                        MetaWaylandTransaction **first_candidate)
@@ -200,9 +185,8 @@ meta_wayland_transaction_apply (MetaWaylandTransaction  *transaction,
         }
       else
         {
-          MetaWaylandTransaction *next_transaction;
+          MetaWaylandTransaction *next_transaction = entry->next_transaction;
 
-          next_transaction = find_next_transaction_for_surface (transaction, surface);
           if (next_transaction)
             {
               surface->transaction.first_committed = next_transaction;
@@ -284,12 +268,21 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
   g_hash_table_iter_init (&iter, transaction->entries);
   while (g_hash_table_iter_next (&iter, (gpointer *) &surface, NULL))
     {
-      surface->transaction.last_committed = transaction;
+      if (surface->transaction.first_committed)
+        {
+          MetaWaylandTransactionEntry *entry;
 
-      if (!surface->transaction.first_committed)
-        surface->transaction.first_committed = transaction;
+          entry = g_hash_table_lookup (surface->transaction.last_committed->entries,
+                                       surface);
+          entry->next_transaction = transaction;
+          maybe_apply = FALSE;
+        }
       else
-        maybe_apply = FALSE;
+        {
+          surface->transaction.first_committed = transaction;
+        }
+
+      surface->transaction.last_committed = transaction;
     }
 
   if (maybe_apply)
