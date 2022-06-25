@@ -78,6 +78,8 @@ typedef struct _ClutterStageViewPrivate
 
   gboolean has_redraw_clip;
   cairo_region_t *redraw_clip;
+  gboolean has_accumulated_redraw_clip;
+  cairo_region_t *accumulated_redraw_clip;
 
   float refresh_rate;
   int64_t vblank_duration_us;
@@ -920,6 +922,23 @@ clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
   view_class->get_offscreen_transformation_matrix (view, matrix);
 }
 
+static void
+maybe_mark_full_redraw (ClutterStageView  *view,
+                        cairo_region_t   **region)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  if (cairo_region_num_rectangles (*region) == 1)
+    {
+      cairo_rectangle_int_t region_extents;
+
+      cairo_region_get_extents (*region, &region_extents);
+      if (clutter_util_rectangle_equal (&priv->layout, &region_extents))
+        g_clear_pointer (region, cairo_region_destroy);
+    }
+}
+
 void
 clutter_stage_view_add_redraw_clip (ClutterStageView            *view,
                                     const cairo_rectangle_int_t *clip)
@@ -948,15 +967,7 @@ clutter_stage_view_add_redraw_clip (ClutterStageView            *view,
   else
     {
       cairo_region_union_rectangle (priv->redraw_clip, clip);
-
-      if (cairo_region_num_rectangles (priv->redraw_clip) == 1)
-        {
-          cairo_rectangle_int_t redraw_clip_extents;
-
-          cairo_region_get_extents (priv->redraw_clip, &redraw_clip_extents);
-          if (clutter_util_rectangle_equal (&priv->layout, &redraw_clip_extents))
-            g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
-        }
+      maybe_mark_full_redraw (view, &priv->redraw_clip);
     }
 
   priv->has_redraw_clip = TRUE;
@@ -998,6 +1009,47 @@ clutter_stage_view_take_redraw_clip (ClutterStageView *view)
   priv->has_redraw_clip = FALSE;
 
   return g_steal_pointer (&priv->redraw_clip);
+}
+
+cairo_region_t *
+clutter_stage_view_take_accumulated_redraw_clip (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  g_return_val_if_fail (priv->has_redraw_clip, NULL);
+
+  clutter_stage_view_accumulate_redraw_clip (view);
+
+  priv->has_accumulated_redraw_clip = FALSE;
+  return g_steal_pointer (&priv->accumulated_redraw_clip);
+}
+
+void
+clutter_stage_view_accumulate_redraw_clip (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  g_return_if_fail (priv->has_redraw_clip);
+
+  if (priv->redraw_clip && priv->accumulated_redraw_clip)
+    {
+      cairo_region_union (priv->accumulated_redraw_clip, priv->redraw_clip);
+      maybe_mark_full_redraw (view, &priv->accumulated_redraw_clip);
+    }
+  else if (priv->redraw_clip && !priv->has_accumulated_redraw_clip)
+    {
+      priv->accumulated_redraw_clip = g_steal_pointer (&priv->redraw_clip);
+    }
+  else
+    {
+      g_clear_pointer (&priv->accumulated_redraw_clip, cairo_region_destroy);
+    }
+
+  g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+  priv->has_accumulated_redraw_clip = TRUE;
+  priv->has_redraw_clip = FALSE;
 }
 
 static void
@@ -1400,6 +1452,7 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_object (&priv->offscreen);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&priv->accumulated_redraw_clip, cairo_region_destroy);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);

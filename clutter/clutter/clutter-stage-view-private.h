@@ -60,6 +60,12 @@ CLUTTER_EXPORT
 cairo_region_t * clutter_stage_view_take_redraw_clip (ClutterStageView *view);
 
 CLUTTER_EXPORT
+cairo_region_t * clutter_stage_view_take_accumulated_redraw_clip (ClutterStageView *view);
+
+CLUTTER_EXPORT
+void clutter_stage_view_accumulate_redraw_clip (ClutterStageView *view);
+
+CLUTTER_EXPORT
 CoglScanout * clutter_stage_view_take_scanout (ClutterStageView *view);
 
 CLUTTER_EXPORT

@@ -473,7 +473,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     COGL_IS_ONSCREEN (onscreen) &&
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 
-  redraw_clip = clutter_stage_view_take_redraw_clip (stage_view);
+  redraw_clip = clutter_stage_view_take_accumulated_redraw_clip (stage_view);
 
   /* NB: a NULL redraw clip == full stage redraw */
   if (!redraw_clip)
@@ -725,7 +725,10 @@ meta_stage_impl_redraw_view (ClutterStageWindow *stage_window,
                                         scanout,
                                         frame,
                                         &error))
-        return;
+        {
+          clutter_stage_view_accumulate_redraw_clip (stage_view);
+          return;
+        }
 
       if (!g_error_matches (error,
                             COGL_SCANOUT_ERROR,
