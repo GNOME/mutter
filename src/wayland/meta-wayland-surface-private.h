@@ -384,17 +384,13 @@ META_EXPORT_TEST
 int                 meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface);
 
 CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
-                                                              CoglOnscreen       *onscreen);
+                                                              CoglOnscreen       *onscreen,
+                                                              ClutterStageView   *stage_view);
 
 MetaCrtc * meta_wayland_surface_get_scanout_candidate (MetaWaylandSurface *surface);
 
 void meta_wayland_surface_set_scanout_candidate (MetaWaylandSurface *surface,
                                                  MetaCrtc           *crtc);
-
-gboolean
-meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
-                                                MetaRendererView   *view,
-                                                int                 geometry_scale);
 
 int meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface);
 

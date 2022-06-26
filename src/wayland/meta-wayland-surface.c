@@ -2255,18 +2255,87 @@ meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface)
 
 CoglScanout *
 meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
-                                          CoglOnscreen       *onscreen)
+                                          CoglOnscreen       *onscreen,
+                                          ClutterStageView   *stage_view)
 {
+  MetaRendererView *renderer_view;
+  MetaSurfaceActor *surface_actor;
+  MetaMonitorTransform view_transform;
+  ClutterActorBox actor_box;
+  MtkRectangle *dst_rect_ptr = NULL;
+  MtkRectangle dst_rect;
+  graphene_rect_t *src_rect_ptr = NULL;
+  graphene_rect_t src_rect;
+  MtkRectangle view_rect;
+  float view_scale;
+  int untransformed_view_width;
+  int untransformed_view_height;
+
   if (!surface->buffer)
     return NULL;
 
   if (surface->buffer->use_count == 0)
     return NULL;
 
+  renderer_view = META_RENDERER_VIEW (stage_view);
+  view_transform = meta_renderer_view_get_transform (renderer_view);
+  if (view_transform != surface->buffer_transform)
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "Surface can not be scanned out: buffer transform does not "
+                  "match renderer-view transform");
+      return NULL;
+    }
+
+  surface_actor = meta_wayland_surface_get_actor (surface);
+  if (!surface_actor ||
+      !clutter_actor_get_paint_box (CLUTTER_ACTOR (surface_actor), &actor_box))
+    return NULL;
+
+  clutter_stage_view_get_layout (stage_view, &view_rect);
+  view_scale = clutter_stage_view_get_scale (stage_view);
+
+  dst_rect = (MtkRectangle) {
+    .x = roundf ((actor_box.x1 - view_rect.x) * view_scale),
+    .y = roundf ((actor_box.y1 - view_rect.y) * view_scale),
+    .width = roundf ((actor_box.x2 - actor_box.x1) * view_scale),
+    .height = roundf ((actor_box.y2 - actor_box.y1) * view_scale),
+  };
+
+  if (meta_monitor_transform_is_rotated (view_transform))
+    {
+      untransformed_view_width = view_rect.height;
+      untransformed_view_height = view_rect.width;
+    }
+  else
+    {
+      untransformed_view_width = view_rect.width;
+      untransformed_view_height = view_rect.height;
+    }
+
+  meta_rectangle_transform (&dst_rect,
+                            view_transform,
+                            untransformed_view_width,
+                            untransformed_view_height,
+                            &dst_rect);
+
+  /* Use an implicit destination rect when possible */
+  if (surface->viewport.has_dst_size ||
+      dst_rect.x != 0 || dst_rect.y != 0 ||
+      dst_rect.width != untransformed_view_width ||
+      dst_rect.height != untransformed_view_height)
+    dst_rect_ptr = &dst_rect;
+
+  if (surface->viewport.has_src_rect)
+    {
+      src_rect = surface->viewport.src_rect;
+      src_rect_ptr = &src_rect;
+    }
+
   return meta_wayland_buffer_try_acquire_scanout (surface->buffer,
                                                   onscreen,
-                                                  NULL,
-                                                  NULL);
+                                                  src_rect_ptr,
+                                                  dst_rect_ptr);
 }
 
 MetaCrtc *
@@ -2285,120 +2354,6 @@ meta_wayland_surface_set_scanout_candidate (MetaWaylandSurface *surface,
   g_set_object (&surface->scanout_candidate, crtc);
   g_object_notify_by_pspec (G_OBJECT (surface),
                             obj_props[PROP_SCANOUT_CANDIDATE]);
-}
-
-gboolean
-meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
-                                                MetaRendererView   *view,
-                                                int                 geometry_scale)
-{
-  int surface_scale = surface->applied_state.scale;
-
-  if (meta_renderer_view_get_transform (view) != surface->buffer_transform)
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "Surface can not be scanned out untransformed: buffer "
-                  "transform does not match renderer-view transform");
-      return FALSE;
-    }
-
-  if (surface->viewport.has_dst_size)
-    {
-      MtkRectangle view_layout;
-      float view_scale;
-      float untransformed_layout_width;
-      float untransformed_layout_height;
-
-      clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
-      view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
-
-      if (meta_monitor_transform_is_rotated (meta_renderer_view_get_transform (view)))
-        {
-          untransformed_layout_width = view_layout.height * view_scale;
-          untransformed_layout_height = view_layout.width * view_scale;
-        }
-      else
-        {
-          untransformed_layout_width = view_layout.width * view_scale;
-          untransformed_layout_height = view_layout.height * view_scale;
-        }
-
-      if ((view_layout.width / geometry_scale) != surface->viewport.dst_width ||
-          (view_layout.height / geometry_scale) != surface->viewport.dst_height ||
-          !G_APPROX_VALUE (untransformed_layout_width,
-                           meta_wayland_surface_get_buffer_width (surface),
-                           FLT_EPSILON) ||
-          !G_APPROX_VALUE (untransformed_layout_height,
-                           meta_wayland_surface_get_buffer_height (surface),
-                           FLT_EPSILON))
-        {
-          meta_topic (META_DEBUG_RENDER,
-                      "Surface can not be scanned out untransformed: viewport "
-                      "destination or buffer size does not match stage-view "
-                      "layout. (%d/%d != %d || %d/%d != %d || %f != %d %f != %d)",
-                      view_layout.width, geometry_scale, surface->viewport.dst_width,
-                      view_layout.height, geometry_scale, surface->viewport.dst_height,
-                      untransformed_layout_width,
-                      meta_wayland_surface_get_buffer_width (surface),
-                      untransformed_layout_height,
-                      meta_wayland_surface_get_buffer_height (surface));
-          return FALSE;
-        }
-    }
-  else
-    {
-      MetaContext *context =
-        meta_wayland_compositor_get_context (surface->compositor);
-      MetaBackend *backend = meta_context_get_backend (context);
-
-      if (meta_backend_is_stage_views_scaled (backend))
-        {
-          float view_scale;
-
-          view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
-          if (!G_APPROX_VALUE (view_scale, surface_scale, FLT_EPSILON))
-            {
-              meta_topic (META_DEBUG_RENDER,
-                          "Surface can not be scanned out untransformed: "
-                          "buffer scale does not match stage-view scale");
-              return FALSE;
-            }
-        }
-      else
-        {
-          if (geometry_scale != surface_scale)
-            {
-              meta_topic (META_DEBUG_RENDER,
-                          "Surface can not be scanned out untransformed: "
-                          "buffer scale does not match actor geometry scale");
-              return FALSE;
-            }
-        }
-    }
-
-  if (surface->viewport.has_src_rect)
-    {
-      if (!G_APPROX_VALUE (surface->viewport.src_rect.origin.x, 0.0,
-                           FLT_EPSILON) ||
-          !G_APPROX_VALUE (surface->viewport.src_rect.origin.y, 0.0,
-                           FLT_EPSILON) ||
-          !G_APPROX_VALUE (surface->viewport.src_rect.size.width *
-                           surface_scale,
-                           meta_wayland_surface_get_buffer_width (surface),
-                           FLT_EPSILON) ||
-          !G_APPROX_VALUE (surface->viewport.src_rect.size.height *
-                           surface_scale,
-                           meta_wayland_surface_get_buffer_height (surface),
-                           FLT_EPSILON))
-        {
-          meta_topic (META_DEBUG_RENDER,
-                      "Surface can not be scanned out untransformed: viewport "
-                      "source rect does not cover the whole buffer");
-          return FALSE;
-        }
-    }
-
-  return TRUE;
 }
 
 int
