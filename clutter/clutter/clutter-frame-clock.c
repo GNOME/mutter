@@ -270,7 +270,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
 #endif
 
-  frame_clock->last_presentation_time_us = frame_info->presentation_time;
+  if (frame_info->presentation_time > 0)
+    frame_clock->last_presentation_time_us = frame_info->presentation_time;
 
   frame_clock->got_measurements_last_frame = FALSE;
 
