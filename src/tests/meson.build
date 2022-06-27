@@ -430,15 +430,19 @@ if have_x11
   )
 endif
 
+tools_test_env = test_env
+tools_test_env.set('G_DEBUG', 'fatal-warnings')
+
 test('get-state-tool-gio', mutter,
   args: [
     '--headless',
     '--mutter-plugin=@0@'.format(default_plugin.full_path()),
     '--virtual-monitor', '800x600',
+    '--wayland-display', 'get-state-gio',
     get_state_tool.full_path(),
   ],
   suite: ['tools'],
-  env: test_env,
+  env: tools_test_env,
   is_parallel: false,
   timeout: 60,
 )
@@ -448,12 +452,13 @@ test('get-state-tool-gdbus', mutter,
     '--headless',
     '--mutter-plugin=@0@'.format(default_plugin.full_path()),
     '--virtual-monitor', '800x600',
+    '--wayland-display', 'get-state-gdbus',
     '--',
     get_state_tool.full_path(),
     '--gdbus',
   ],
   suite: ['tools'],
-  env: test_env,
+  env: tools_test_env,
   is_parallel: false,
   timeout: 60,
 )
