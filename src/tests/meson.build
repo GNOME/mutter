@@ -430,12 +430,27 @@ if have_x11
   )
 endif
 
-test('get-state-tool', mutter,
+test('get-state-tool-gio', mutter,
   args: [
     '--headless',
     '--mutter-plugin=@0@'.format(default_plugin.full_path()),
     '--virtual-monitor', '800x600',
     get_state_tool.full_path(),
+  ],
+  suite: ['tools'],
+  env: test_env,
+  is_parallel: false,
+  timeout: 60,
+)
+
+test('get-state-tool-gdbus', mutter,
+  args: [
+    '--headless',
+    '--mutter-plugin=@0@'.format(default_plugin.full_path()),
+    '--virtual-monitor', '800x600',
+    '--',
+    get_state_tool.full_path(),
+    '--gdbus',
   ],
   suite: ['tools'],
   env: test_env,
