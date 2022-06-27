@@ -551,24 +551,31 @@ update_prop_value (MetaKmsProp *prop,
     case DRM_MODE_PROP_ENUM:
       {
         int i;
+        uint64_t result = prop->default_value;
+        uint64_t supported = 0;
 
         for (i = 0; i < prop->num_enum_values; i++)
           {
-            if (prop->enum_values[i].valid &&
-                prop->enum_values[i].value == drm_value)
+            if (!prop->enum_values[i].valid)
+              continue;
+
+            if (prop->enum_values[i].value == drm_value)
               {
-                prop->value = i;
-                return;
+                result = i;
               }
+
+            supported |= (1 << i);
           }
 
-        prop->value = prop->default_value;
+        prop->value = result;
+        prop->supported_variants = supported;
         return;
       }
     case DRM_MODE_PROP_BITMASK:
       {
         int i;
         uint64_t result = 0;
+        uint64_t supported = 0;
 
         for (i = 0; i < prop->num_enum_values; i++)
           {
@@ -580,11 +587,15 @@ update_prop_value (MetaKmsProp *prop,
                 result |= prop->enum_values[i].bitmask;
                 drm_value &= ~(1 << prop->enum_values[i].value);
               }
+
+            supported |= prop->enum_values[i].bitmask;
           }
-        if (drm_value  != 0)
+
+        if (drm_value != 0)
           result |= prop->default_value;
 
         prop->value = result;
+        prop->supported_variants = supported;
         return;
       }
     default:
