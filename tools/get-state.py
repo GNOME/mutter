@@ -40,7 +40,7 @@ class MonitorConfig:
     def parse_data(self):
         """TODO: add data parser so that can be used for reconfiguring"""
 
-    def print_data(self, level, is_last, lines, data):
+    def print_data(self, *, level, is_last, lines, data):
         if is_last:
             link = '└'
         else:
@@ -69,15 +69,15 @@ class MonitorConfig:
         elif not is_last and level not in lines:
             lines.append(level)
 
-    def print_properties(self, level, lines, properties):
+    def print_properties(self, *, level, lines, properties):
         property_list = list(properties)
 
-        self.print_data(level, True, lines,
-                        f'Properties: ({len(property_list)})')
+        self.print_data(level=level, is_last=True, lines=lines,
+                        data=f'Properties: ({len(property_list)})')
         for property in property_list:
             is_last = property == property_list[-1]
-            self.print_data(level + 1, is_last, lines,
-                            f'{property} ⇒ {properties[property]}')
+            self.print_data(level=level + 1, is_last=is_last, lines=lines,
+                            data=f'{property} ⇒ {properties[property]}')
 
     def print_current_state(self, short):
         variant = self.get_current_state()
@@ -92,33 +92,38 @@ class MonitorConfig:
             spec = monitor[0]
             modes = monitor[1]
             properties = monitor[2]
-            self.print_data(0, is_last, lines, 'Monitor {}'.format(spec[0]))
-            self.print_data(
-                1, False, lines, f'EDID: vendor: {spec[1]}, product: {spec[2]}, serial: {spec[3]}')
+            self.print_data(level=0, is_last=is_last, lines=lines,
+                            data='Monitor {}'.format(spec[0]))
+            self.print_data(level=1, is_last=False, lines=lines,
+                            data=f'EDID: vendor: {spec[1]}, product: {spec[2]}, serial: {spec[3]}')
 
             mode_count = len(modes)
             if short:
                 modes = [mode for mode in modes if len(mode[6]) > 0]
-                self.print_data(1, False, lines,
-                                f'Modes ({len(modes)}, {mode_count - len(modes)} omitted)')
+                self.print_data(level=1, is_last=False, lines=lines,
+                                data=f'Modes ({len(modes)}, {mode_count - len(modes)} omitted)')
             else:
-                self.print_data(1, False, lines,
-                                f'Modes ({len(modes)})')
+                self.print_data(level=1, is_last=False, lines=lines,
+                                data=f'Modes ({len(modes)})')
 
             for mode in modes:
                 is_last = mode == modes[-1]
-                self.print_data(2, is_last, lines, f'{mode[0]}')
-                self.print_data(3, False, lines,
-                                f'Dimension: {mode[1]}x{mode[2]}')
-                self.print_data(3, False, lines, f'Refresh rate: {mode[3]}')
-                self.print_data(3, False, lines, f'Preferred scale: {mode[4]}')
-                self.print_data(3, False, lines,
-                                f'Supported scales: {mode[5]}')
+                self.print_data(level=2, is_last=is_last, lines=lines,
+                                data=f'{mode[0]}')
+                self.print_data(level=3, is_last=False, lines=lines,
+                                data=f'Dimension: {mode[1]}x{mode[2]}')
+                self.print_data(level=3, is_last=False, lines=lines,
+                                data=f'Refresh rate: {mode[3]}')
+                self.print_data(level=3, is_last=False, lines=lines,
+                                data=f'Preferred scale: {mode[4]}')
+                self.print_data(level=3, is_last=False, lines=lines,
+                                data=f'Supported scales: {mode[5]}')
 
                 mode_properties = mode[6]
-                self.print_properties(3, lines, mode_properties)
+                self.print_properties(level=3, lines=lines,
+                                      properties=mode_properties)
 
-            self.print_properties(1, lines, properties)
+            self.print_properties(level=1, lines=lines, properties=properties)
 
         print()
         print('Logical monitors:')
@@ -127,31 +132,32 @@ class MonitorConfig:
         for logical_monitor in logical_monitors:
             is_last = logical_monitor == logical_monitors[-1]
             properties = logical_monitor[2]
-            self.print_data(0, is_last, lines, f'Logical monitor #{index}')
-            self.print_data(1, False, lines,
-                            f'Position: ({logical_monitor[0]}, {logical_monitor[1]})')
-            self.print_data(1, False, lines,
-                            f'Scale: {logical_monitor[2]}')
-            self.print_data(1, False, lines,
-                            f'Transform: {TRANSFORM_STRINGS.get(logical_monitor[3])}')
-            self.print_data(1, False, lines,
-                            f'Primary: {logical_monitor[4]}')
+            self.print_data(level=0, is_last=is_last, lines=lines,
+                            data=f'Logical monitor #{index}')
+            self.print_data(level=1, is_last=False, lines=lines,
+                            data=f'Position: ({logical_monitor[0]}, {logical_monitor[1]})')
+            self.print_data(level=1, is_last=False, lines=lines,
+                            data=f'Scale: {logical_monitor[2]}')
+            self.print_data(level=1, is_last=False, lines=lines,
+                            data=f'Transform: {TRANSFORM_STRINGS.get(logical_monitor[3])}')
+            self.print_data(level=1, is_last=False, lines=lines,
+                            data=f'Primary: {logical_monitor[4]}')
             monitors = logical_monitor[5]
-            self.print_data(1, False, lines,
-                            f'Monitors: ({len(monitors)})')
+            self.print_data(level=1, is_last=False, lines=lines,
+                            data=f'Monitors: ({len(monitors)})')
             for monitor in monitors:
                 is_last = monitor == monitors[-1]
-                self.print_data(2, is_last, lines,
-                                f'{monitor[0]} ({monitor[1]}, {monitor[2]}, {monitor[3]})')
+                self.print_data(level=2, is_last=is_last, lines=lines,
+                                data=f'{monitor[0]} ({monitor[1]}, {monitor[2]}, {monitor[3]})')
 
             properties = logical_monitor[6]
-            self.print_properties(1, lines, properties)
+            self.print_properties(level=1, lines=lines, properties=properties)
 
             index += 1
 
         properties = variant[3]
         print()
-        self.print_properties(-1, lines, properties)
+        self.print_properties(level=-1, lines=lines, properties=properties)
 
 
 class MonitorConfigDBus(MonitorConfig):
