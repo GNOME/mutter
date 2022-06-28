@@ -18,7 +18,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-05-25.0'
+    BASE_TAG: '2022-06-28.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
