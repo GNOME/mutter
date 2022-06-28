@@ -122,6 +122,8 @@ meta_test_xwayland_restart_selection (void)
                                      tests_alarm_filter,
                                      test_client);
 
+  g_assert_null (x11_display->selection.owners[META_SELECTION_CLIPBOARD]);
+
   test_client_do_check (test_client,
                         "create", window_name,
                         NULL);
@@ -129,6 +131,9 @@ meta_test_xwayland_restart_selection (void)
                         "clipboard-set", "application/mutter-test", "hello",
                         NULL);
   test_client_wait_check (test_client);
+
+  while (!x11_display->selection.owners[META_SELECTION_CLIPBOARD])
+    g_main_context_iteration (NULL, TRUE);
 
   g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "*Connection to xwayland lost*");
