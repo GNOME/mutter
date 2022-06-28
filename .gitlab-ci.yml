@@ -53,14 +53,12 @@ variables:
       dnf install -y 'pkgconfig(libxcvt)' &&
 
       ./.gitlab-ci/install-meson-project.sh \
-        -Dxwayland=true \
         -Dxwayland_eglstream=true \
-        -D{xorg,xnest,xvfb}=false \
+        -Dxvfb=false \
         -Dvendor_name="Mutter CI" \
-        -D{xdmcp,udev,udev_kms}=false \
+        -Dxdmcp=false \
         -Dxcsecurity=true \
         -Dglamor=true \
-        -D{dri1,dri2}=false \
         -Ddri3=true \
         https://gitlab.freedesktop.org/xorg/xserver.git \
         xwayland-22.1.0 \
