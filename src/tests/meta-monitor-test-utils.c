@@ -387,11 +387,17 @@ meta_check_monitor_configuration (MetaContext           *context,
         {
           MetaOutput *output = l_output->data;
           uint64_t winsys_id = expect->monitors[i].outputs[j];
+          unsigned int output_max_bpc;
 
           g_assert (output == output_from_winsys_id (backend, winsys_id));
           g_assert_cmpint (expect->monitors[i].is_underscanning,
                            ==,
                            meta_output_is_underscanning (output));
+
+          if (!meta_output_get_max_bpc (output, &output_max_bpc))
+            output_max_bpc = 0;
+
+          g_assert_cmpint (expect->monitors[i].max_bpc, ==, output_max_bpc);
         }
 
       meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
@@ -778,6 +784,8 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 
           output_assignment = (MetaOutputAssignment) {
             .is_underscanning = setup->outputs[i].is_underscanning,
+            .has_max_bpc = !!setup->outputs[i].max_bpc,
+            .max_bpc = setup->outputs[i].max_bpc,
           };
           meta_output_assign_crtc (output, crtc, &output_assignment);
         }
