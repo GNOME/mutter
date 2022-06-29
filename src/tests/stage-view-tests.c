@@ -395,6 +395,7 @@ meta_test_actor_stage_views_hide_parent (void)
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
 
   outer_container = clutter_actor_new ();
+  clutter_actor_set_size (outer_container, 50, 50);
   clutter_actor_add_child (stage, outer_container);
 
   inner_container = clutter_actor_new ();
