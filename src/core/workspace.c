@@ -50,7 +50,7 @@
 #include "x11/meta-x11-display-private.h"
 
 void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
-static void focus_ancestor_or_top_window (MetaWorkspace *workspace,
+static void focus_ancestor_or_mru_window (MetaWorkspace *workspace,
                                           MetaWindow    *not_this_one,
                                           guint32        timestamp);
 
@@ -1313,20 +1313,6 @@ meta_workspace_get_name (MetaWorkspace *workspace)
   return meta_prefs_get_workspace_name (meta_workspace_index (workspace));
 }
 
-MetaWindow *
-meta_workspace_get_default_focus_window (MetaWorkspace *workspace)
-{
-  if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
-    {
-      return meta_stack_get_default_focus_window (workspace->display->stack,
-                                                  workspace, NULL);
-    }
-  else
-    {
-      return NULL;
-    }
-}
-
 void
 meta_workspace_focus_default_window (MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one,
@@ -1338,7 +1324,9 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
 
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
       !workspace->display->mouse_mode)
-    focus_ancestor_or_top_window (workspace, not_this_one, timestamp);
+    {
+      focus_ancestor_or_mru_window (workspace, not_this_one, timestamp);
+    }
   else
     {
       MetaWindow * window;
@@ -1375,7 +1363,9 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
             }
         }
       else if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_SLOPPY)
-        focus_ancestor_or_top_window (workspace, not_this_one, timestamp);
+        {
+          focus_ancestor_or_mru_window (workspace, not_this_one, timestamp);
+        }
       else if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_MOUSE)
         {
           meta_topic (META_DEBUG_FOCUS,
@@ -1387,23 +1377,66 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
 }
 
 static gboolean
+is_focusable (MetaWindow    *window,
+              MetaWorkspace *workspace)
+{
+  return !window->unmanaging &&
+         window->mapped &&
+         meta_window_is_focusable (window) &&
+         meta_window_located_on_workspace (window, workspace) &&
+         meta_window_showing_on_its_workspace (window);
+}
+
+static gboolean
 find_focusable_ancestor (MetaWindow *window,
                          gpointer    user_data)
 {
   MetaWorkspaceFocusableAncestorData *data = user_data;
 
-  if (!window->unmanaging &&
-      window->mapped &&
-      !window->hidden &&
-      meta_window_is_focusable (window) &&
-      meta_window_located_on_workspace (window, data->workspace) &&
-      meta_window_showing_on_its_workspace (window))
+  if (is_focusable (window, data->workspace) && !window->hidden)
     {
       data->out_window = window;
       return FALSE;
     }
 
   return TRUE;
+}
+
+static MetaWindow *
+get_default_focus_window (MetaWorkspace *workspace,
+                          MetaWindow    *not_this_one)
+{
+  GList *l;
+
+  for (l = workspace->mru_list; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      g_assert (window);
+
+      if (window == not_this_one)
+        continue;
+
+      if (!is_focusable (window, workspace))
+        continue;
+
+      return window;
+    }
+
+  return NULL;
+}
+
+MetaWindow *
+meta_workspace_get_default_focus_window (MetaWorkspace *workspace)
+{
+  if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+    {
+      return get_default_focus_window (workspace, NULL);
+    }
+  else
+    {
+      return NULL;
+    }
 }
 
 static gboolean
@@ -1440,7 +1473,7 @@ try_to_set_focus_and_check (MetaWindow *window,
 
 /* Focus ancestor of not_this_one if there is one */
 static void
-focus_ancestor_or_top_window (MetaWorkspace *workspace,
+focus_ancestor_or_mru_window (MetaWorkspace *workspace,
                               MetaWindow    *not_this_one,
                               guint32        timestamp)
 {
@@ -1482,9 +1515,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
         }
     }
 
-  window = meta_stack_get_default_focus_window (workspace->display->stack,
-                                                workspace,
-                                                not_this_one);
+  window = get_default_focus_window (workspace, not_this_one);
 
   if (window)
     {
