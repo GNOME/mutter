@@ -977,8 +977,7 @@ clutter_frame_clock_uninhibit (ClutterFrameClock *frame_clock)
 static gboolean
 want_triple_buffering (ClutterFrameClock *frame_clock)
 {
-  /* disabled until test cases are updated */
-  return FALSE;
+  return TRUE;
 }
 
 void
