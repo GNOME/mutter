@@ -2463,6 +2463,13 @@ meta_window_minimize (MetaWindow  *window)
 {
   g_return_if_fail (!window->override_redirect);
 
+  if (!window->has_minimize_func)
+    {
+      g_warning ("Window %s cannot be minimized, but something tried "
+                 "anyways. Not having it!", window->desc);
+      return;
+    }
+
   if (!window->minimized)
     {
       window->minimized = TRUE;
