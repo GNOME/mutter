@@ -39,6 +39,10 @@ void clutter_action_set_phase (ClutterAction     *action,
 gboolean clutter_action_handle_event (ClutterAction      *action,
                                       const ClutterEvent *event);
 
+void clutter_action_sequence_cancelled (ClutterAction        *action,
+                                        ClutterInputDevice   *device,
+                                        ClutterEventSequence *sequence);
+
 G_END_DECLS
 
 #endif /* CLUTTER_ACTION_PRIVATE_H */

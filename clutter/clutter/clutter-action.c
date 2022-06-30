@@ -101,3 +101,14 @@ clutter_action_handle_event (ClutterAction      *action,
 {
   return CLUTTER_ACTION_GET_CLASS (action)->handle_event (action, event);
 }
+
+void
+clutter_action_sequence_cancelled (ClutterAction        *action,
+                                   ClutterInputDevice   *device,
+                                   ClutterEventSequence *sequence)
+{
+  ClutterActionClass *action_class = CLUTTER_ACTION_GET_CLASS (action);
+
+  if (action_class->sequence_cancelled)
+    action_class->sequence_cancelled (action, device, sequence);
+}
