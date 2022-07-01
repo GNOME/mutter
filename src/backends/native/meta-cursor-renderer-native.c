@@ -816,8 +816,9 @@ get_common_crtc_sprite_transform_for_logical_monitors (MetaCursorRenderer   *ren
         {
           MetaMonitor *monitor = l_mon->data;
 
-          tmp_transform = meta_monitor_transform_relative_transform (
-            meta_cursor_sprite_get_texture_transform (cursor_sprite),
+          tmp_transform = meta_monitor_transform_transform (
+            meta_monitor_transform_invert (
+              meta_cursor_sprite_get_texture_transform (cursor_sprite)),
             meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
           if (has_visible_crtc_sprite && transform != tmp_transform)

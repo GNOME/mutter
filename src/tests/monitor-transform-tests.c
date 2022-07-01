@@ -83,6 +83,7 @@ test_transform (void)
     },
   };
   int i;
+  MetaMonitorTransform transform;
 
   for (i = 0; i < G_N_ELEMENTS (tests); i++)
     {
@@ -91,6 +92,34 @@ test_transform (void)
       result = meta_monitor_transform_transform (tests[i].transform,
                                                  tests[i].other);
       g_assert_cmpint (result, ==, tests[i].expect);
+    }
+
+  for (transform = 0; transform <= META_MONITOR_TRANSFORM_FLIPPED_270; transform++)
+    {
+      MetaMonitorTransform other;
+      MetaMonitorTransform result1;
+
+      result1 =
+        meta_monitor_transform_transform (transform,
+                                          meta_monitor_transform_invert (transform));
+      g_assert_cmpint (result1, ==, META_MONITOR_TRANSFORM_NORMAL);
+
+      for (other = 0; other <= META_MONITOR_TRANSFORM_FLIPPED_270; other++)
+        {
+          MetaMonitorTransform result2;
+
+          result1 = meta_monitor_transform_transform (transform, other);
+          result2 =
+            meta_monitor_transform_transform (result1,
+                                              meta_monitor_transform_invert (other));
+          g_assert_cmpint (result2, ==, transform);
+
+          result1 =
+            meta_monitor_transform_transform (meta_monitor_transform_invert (transform),
+                                              other);
+          result2 = meta_monitor_transform_transform (transform, result1);
+          g_assert_cmpint (result2, ==, other);
+        }
     }
 }
 

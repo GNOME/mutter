@@ -58,45 +58,54 @@ meta_monitor_transform_invert (MetaMonitorTransform transform)
   return 0;
 }
 
+static MetaMonitorTransform
+meta_monitor_transform_flip (MetaMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      return META_MONITOR_TRANSFORM_FLIPPED;
+    case META_MONITOR_TRANSFORM_90:
+      return META_MONITOR_TRANSFORM_FLIPPED_270;
+    case META_MONITOR_TRANSFORM_180:
+      return META_MONITOR_TRANSFORM_FLIPPED_180;
+    case META_MONITOR_TRANSFORM_270:
+      return META_MONITOR_TRANSFORM_FLIPPED_90;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      return META_MONITOR_TRANSFORM_NORMAL;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      return META_MONITOR_TRANSFORM_270;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      return META_MONITOR_TRANSFORM_180;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return META_MONITOR_TRANSFORM_90;
+    }
+  g_assert_not_reached ();
+  return 0;
+}
+
 MetaMonitorTransform
 meta_monitor_transform_transform (MetaMonitorTransform transform,
                                   MetaMonitorTransform other)
 {
   MetaMonitorTransform new_transform;
+  gboolean needs_flip = FALSE;
 
-  new_transform = (transform + other) % META_MONITOR_TRANSFORM_FLIPPED;
-  if (meta_monitor_transform_is_flipped (transform) !=
-      meta_monitor_transform_is_flipped (other))
+  if (meta_monitor_transform_is_flipped (other))
+    new_transform = meta_monitor_transform_flip (transform);
+  else
+    new_transform = transform;
+
+  if (meta_monitor_transform_is_flipped (new_transform))
+    needs_flip = TRUE;
+
+  new_transform += other;
+  new_transform %= META_MONITOR_TRANSFORM_FLIPPED;
+
+  if (needs_flip)
     new_transform += META_MONITOR_TRANSFORM_FLIPPED;
 
   return new_transform;
-}
-
-/**
- * meta_monitor_transform_relative_transform:
- * @transform: The transform to start from
- * @other: The transform to go to
- *
- * Return value: a transform to get from @transform to @other
- */
-MetaMonitorTransform
-meta_monitor_transform_relative_transform (MetaMonitorTransform transform,
-                                           MetaMonitorTransform other)
-{
-  MetaMonitorTransform relative_transform;
-
-  relative_transform = ((other % META_MONITOR_TRANSFORM_FLIPPED -
-                         transform % META_MONITOR_TRANSFORM_FLIPPED) %
-                        META_MONITOR_TRANSFORM_FLIPPED);
-
-  if (meta_monitor_transform_is_flipped (transform) !=
-      meta_monitor_transform_is_flipped (other))
-    {
-      relative_transform = (meta_monitor_transform_invert (relative_transform) +
-                            META_MONITOR_TRANSFORM_FLIPPED);
-    }
-
-  return relative_transform;
 }
 
 void

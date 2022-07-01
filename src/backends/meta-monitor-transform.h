@@ -64,9 +64,6 @@ META_EXPORT_TEST
 MetaMonitorTransform meta_monitor_transform_transform (MetaMonitorTransform transform,
                                                        MetaMonitorTransform other);
 
-MetaMonitorTransform meta_monitor_transform_relative_transform (MetaMonitorTransform transform,
-                                                                MetaMonitorTransform other);
-
 void meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
                                              int                   area_width,
                                              int                   area_height,
