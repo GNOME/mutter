@@ -55,6 +55,7 @@ typedef struct _MetaCrtcModeInfo
   int height;
   float refresh_rate;
   int64_t vblank_duration_us;
+  uint32_t pixel_clock_khz;
   MetaCrtcModeFlag flags;
 } MetaCrtcModeInfo;
 

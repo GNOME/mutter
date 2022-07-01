@@ -178,7 +178,7 @@ add_common_modes (MetaOutputInfo *output_info,
   unsigned max_hdisplay = 0;
   unsigned max_vdisplay = 0;
   float max_refresh_rate = 0.0;
-  float max_bandwidth = 0.0;
+  uint32_t max_pixel_clock = 0;
   MetaKmsDevice *kms_device;
   MetaKmsModeFlag flag_filter;
   GList *l;
@@ -187,14 +187,11 @@ add_common_modes (MetaOutputInfo *output_info,
     {
       const MetaCrtcModeInfo *crtc_mode_info =
         meta_crtc_mode_get_info (output_info->modes[i]);
-      float bandwidth;
 
-      bandwidth = crtc_mode_info->refresh_rate * crtc_mode_info->width *
-                  crtc_mode_info->height;
       max_hdisplay = MAX (max_hdisplay, crtc_mode_info->width);
       max_vdisplay = MAX (max_vdisplay, crtc_mode_info->height);
       max_refresh_rate = MAX (max_refresh_rate, crtc_mode_info->refresh_rate);
-      max_bandwidth = MAX (max_bandwidth, bandwidth);
+      max_pixel_clock = MAX (max_pixel_clock, crtc_mode_info->pixel_clock_khz);
     }
 
   max_refresh_rate = MAX (max_refresh_rate, 60.0);
@@ -213,7 +210,6 @@ add_common_modes (MetaOutputInfo *output_info,
     {
       MetaKmsMode *fallback_mode = l->data;
       const drmModeModeInfo *drm_mode;
-      float bandwidth;
       float refresh_rate;
       gboolean is_duplicate = FALSE;
 
@@ -222,11 +218,10 @@ add_common_modes (MetaOutputInfo *output_info,
 
       drm_mode = meta_kms_mode_get_drm_mode (fallback_mode);
       refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
-      bandwidth = refresh_rate * drm_mode->hdisplay * drm_mode->vdisplay;
       if (drm_mode->hdisplay > max_hdisplay ||
           drm_mode->vdisplay > max_vdisplay ||
           refresh_rate > max_refresh_rate ||
-          bandwidth > max_bandwidth)
+          drm_mode->clock > max_pixel_clock)
         continue;
 
       for (i = 0; i < output_info->n_modes; i++)
