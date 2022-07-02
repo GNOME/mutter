@@ -130,6 +130,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   cairo_surface_t *stream_surface;
   int width, height;
   float scale;
+  MetaMonitorTransform transform;
   int hotspot_x, hotspot_y;
   cairo_t *cr;
 
@@ -147,6 +148,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                                           cursor_sprite,
                                                           &cursor_position,
                                                           &scale,
+                                                          &transform,
                                                           &relative_cursor_position))
     return;
 
@@ -161,6 +163,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   if (!meta_screen_cast_stream_src_draw_cursor_into (src,
                                                      cursor_texture,
                                                      scale,
+                                                     transform,
                                                      cursor_surface_data,
                                                      &error))
     {
@@ -208,8 +211,10 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   CoglPipeline *pipeline;
   int width, height;
   float scale;
+  MetaMonitorTransform transform;
   int hotspot_x, hotspot_y;
   float x, y;
+  graphene_matrix_t matrix;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (!cursor_sprite)
@@ -225,6 +230,7 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                                           cursor_sprite,
                                                           &cursor_position,
                                                           &scale,
+                                                          &transform,
                                                           &relative_cursor_position))
     return;
 
@@ -240,6 +246,11 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   cogl_pipeline_set_layer_filters (pipeline, 0,
                                    COGL_PIPELINE_FILTER_LINEAR,
                                    COGL_PIPELINE_FILTER_LINEAR);
+
+  graphene_matrix_init_identity (&matrix);
+  meta_monitor_transform_transform_matrix (transform,
+                                           &matrix);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   cogl_framebuffer_draw_rectangle (framebuffer,
                                    pipeline,
@@ -557,6 +568,7 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
   MetaCursorSprite *cursor_sprite;
   graphene_point_t cursor_position;
   float scale;
+  MetaMonitorTransform transform;
   graphene_point_t relative_cursor_position;
   int x, y;
 
@@ -568,6 +580,7 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
                                                           cursor_sprite,
                                                           &cursor_position,
                                                           &scale,
+                                                          &transform,
                                                           &relative_cursor_position))
     {
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
@@ -586,7 +599,8 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
                                                                   spa_meta_cursor,
                                                                   cursor_sprite,
                                                                   x, y,
-                                                                  scale);
+                                                                  scale,
+                                                                  transform);
         }
       else
         {

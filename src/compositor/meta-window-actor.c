@@ -1241,6 +1241,7 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
                                              MetaCursorSprite     *cursor_sprite,
                                              graphene_point_t     *cursor_position,
                                              float                *out_cursor_scale,
+                                             MetaMonitorTransform *out_cursor_transform,
                                              graphene_point_t     *out_relative_cursor_position)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
@@ -1265,6 +1266,14 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
       cursor_texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
 
       *out_cursor_scale = texture_scale / cursor_texture_scale;
+    }
+
+  if (cursor_sprite &&
+      meta_cursor_sprite_get_cogl_texture (cursor_sprite) &&
+      out_cursor_transform)
+    {
+      *out_cursor_transform =
+        meta_cursor_sprite_get_texture_transform (cursor_sprite);
     }
 
   if (out_relative_cursor_position)

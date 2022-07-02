@@ -249,6 +249,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                   CoglTexture              *cursor_texture,
                                   int                       bitmap_width,
                                   int                       bitmap_height,
+                                  MetaMonitorTransform      transform,
                                   uint8_t                  *bitmap_data,
                                   GError                  **error)
 {
@@ -265,6 +266,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   CoglFramebuffer *fb;
   CoglPipeline *pipeline;
   CoglColor clear_color;
+  graphene_matrix_t matrix;
 
   bitmap_texture = cogl_texture_2d_new_with_size (cogl_context,
                                                   bitmap_width, bitmap_height);
@@ -290,6 +292,12 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   cogl_pipeline_set_layer_filters (pipeline, 0,
                                    COGL_PIPELINE_FILTER_LINEAR,
                                    COGL_PIPELINE_FILTER_LINEAR);
+
+  graphene_matrix_init_identity (&matrix);
+  meta_monitor_transform_transform_matrix (transform,
+                                           &matrix);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+
   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_draw_rectangle (fb, pipeline,
@@ -310,6 +318,7 @@ gboolean
 meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                               CoglTexture              *cursor_texture,
                                               float                     scale,
+                                              MetaMonitorTransform      transform,
                                               uint8_t                  *data,
                                               GError                  **error)
 {
@@ -322,7 +331,8 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
   height = texture_height * scale;
 
   if (texture_width == width &&
-      texture_height == height)
+      texture_height == height &&
+      transform == META_MONITOR_TRANSFORM_NORMAL)
     {
       cogl_texture_get_data (cursor_texture,
                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
@@ -335,6 +345,7 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                              cursor_texture,
                                              width,
                                              height,
+                                             transform,
                                              data,
                                              error))
         return FALSE;
@@ -396,7 +407,8 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                                                         MetaCursorSprite        *cursor_sprite,
                                                         int                      x,
                                                         int                      y,
-                                                        float                    scale)
+                                                        float                    scale,
+                                                        MetaMonitorTransform     transform)
 {
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;
@@ -447,6 +459,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   if (!meta_screen_cast_stream_src_draw_cursor_into (src,
                                                      cursor_texture,
                                                      scale,
+                                                     transform,
                                                      bitmap_data,
                                                      &error))
     {
