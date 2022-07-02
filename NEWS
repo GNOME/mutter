@@ -1,3 +1,14 @@
+42.3
+====
+* wayland: Fix rotation transform [Robert; !1055]
+* Fix dma-buf screencast regression [Jonas; !2462]
+* Fix monitor mirroring in some cases [Jonas; !2492]
+* Fixed crash [Jonas; !2364]
+* Plugged leak [Michel; !2469]
+
+Contributors:
+  Michel Dänzer, Robert Mader, Jonas Ådahl
+
 42.2
 ====
 * Don't use direct scanout for transparent windows [Sebastian; !2409]
