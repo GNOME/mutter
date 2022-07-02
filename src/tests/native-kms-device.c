@@ -111,6 +111,8 @@ assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
                        crtc_state2->drm_mode.name);
     }
 
+  g_assert_true (crtc_state1->vrr_enabled == crtc_state2->vrr_enabled);
+
   g_assert_true (meta_gamma_lut_equal (crtc_state1->gamma.value,
                                        crtc_state2->gamma.value));
 }
@@ -208,6 +210,9 @@ copy_crtc_state (const MetaKmsCrtcState *crtc_state)
   g_assert_nonnull (crtc_state);
 
   new_state = *crtc_state;
+
+  new_state.vrr_enabled = crtc_state->vrr_enabled;
+
   if (crtc_state->gamma.value)
     new_state.gamma.value = meta_gamma_lut_copy (crtc_state->gamma.value);
   else

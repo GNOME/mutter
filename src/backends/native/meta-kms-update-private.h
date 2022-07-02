@@ -117,6 +117,16 @@ typedef struct _MetaKmsConnectorUpdate
   } broadcast_rgb;
 } MetaKmsConnectorUpdate;
 
+typedef struct _MetaKmsCrtcUpdate
+{
+  MetaKmsCrtc *crtc;
+
+  struct {
+    gboolean has_update;
+    gboolean is_enabled;
+  } vrr;
+} MetaKmsCrtcUpdate;
+
 typedef struct _MetaKmsPageFlipListener
 {
   gatomicrefcount ref_count;
@@ -181,6 +191,9 @@ GList * meta_kms_update_get_page_flip_listeners (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
 GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
+
+META_EXPORT_TEST
+GList * meta_kms_update_get_crtc_updates (MetaKmsUpdate *update);
 
 META_EXPORT_TEST
 GList * meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update);

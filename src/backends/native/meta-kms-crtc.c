@@ -227,6 +227,9 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   if (!meta_drm_mode_equal (&state->drm_mode, &other_state->drm_mode))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
+  if (state->vrr_enabled != other_state->vrr_enabled)
+    return META_KMS_RESOURCE_CHANGE_FULL;
+
   if (!gamma_equal (state, other_state))
     return META_KMS_RESOURCE_CHANGE_GAMMA;
 
@@ -241,7 +244,7 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
 {
   MetaKmsCrtcState crtc_state = {0};
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
-  MetaKmsProp *active_prop;
+  MetaKmsProp *prop;
 
   meta_kms_impl_device_update_prop_table (impl_device,
                                           drm_props->props,
@@ -260,12 +263,16 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   crtc_state.is_drm_mode_valid = drm_crtc->mode_valid;
   crtc_state.drm_mode = drm_crtc->mode;
 
-  active_prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_ACTIVE];
+  prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_ACTIVE];
 
-  if (active_prop->prop_id)
-    crtc_state.is_active = !!active_prop->value;
+  if (prop->prop_id)
+    crtc_state.is_active = !!prop->value;
   else
     crtc_state.is_active = drm_crtc->mode_valid;
+
+  prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_VRR_ENABLED];
+  if (prop->prop_id)
+    crtc_state.vrr_enabled = !!prop->value;
 
   read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
 
@@ -343,6 +350,7 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
                                      MetaKmsUpdate *update)
 {
   GList *mode_sets;
+  GList *crtc_updates;
   GList *crtc_color_updates;
   GList *l;
 
@@ -376,6 +384,20 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
           crtc->current_state.is_drm_mode_valid = FALSE;
           crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
         }
+
+      break;
+    }
+
+  crtc_updates = meta_kms_update_get_crtc_updates (update);
+  for (l = crtc_updates; l; l = l->next)
+    {
+      MetaKmsCrtcUpdate *crtc_update = l->data;
+
+      if (crtc_update->crtc != crtc)
+        continue;
+
+      if (crtc_update->vrr.has_update)
+        crtc->current_state.vrr_enabled = !!crtc_update->vrr.is_enabled;
 
       break;
     }
@@ -428,6 +450,11 @@ init_properties (MetaKmsCrtc       *crtc,
       [META_KMS_CRTC_PROP_GAMMA_LUT_SIZE] =
         {
           .name = "GAMMA_LUT_SIZE",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CRTC_PROP_VRR_ENABLED] =
+        {
+          .name = "VRR_ENABLED",
           .type = DRM_MODE_PROP_RANGE,
         },
     }

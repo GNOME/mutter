@@ -40,6 +40,7 @@ struct _MetaKmsUpdate
   GList *mode_sets;
   GList *plane_assignments;
   GList *connector_updates;
+  GList *crtc_updates;
   GList *crtc_color_updates;
 
   MetaKmsCustomPageFlip *custom_page_flip;
@@ -481,6 +482,46 @@ meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
   connector_update->broadcast_rgb.value = rgb_range;
 }
 
+static MetaKmsCrtcUpdate *
+ensure_crtc_update (MetaKmsUpdate *update,
+                    MetaKmsCrtc   *crtc)
+{
+  GList *l;
+  MetaKmsCrtcUpdate *crtc_update;
+
+  for (l = update->crtc_updates; l; l = l->next)
+    {
+      crtc_update = l->data;
+
+      if (crtc_update->crtc == crtc)
+        return crtc_update;
+    }
+
+  crtc_update = g_new0 (MetaKmsCrtcUpdate, 1);
+  crtc_update->crtc = crtc;
+
+  update->crtc_updates = g_list_prepend (update->crtc_updates,
+                                         crtc_update);
+
+  return crtc_update;
+}
+
+void
+meta_kms_update_set_vrr (MetaKmsUpdate *update,
+                         MetaKmsCrtc   *crtc,
+                         gboolean       enabled)
+{
+  MetaKmsCrtcUpdate *crtc_update;
+
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+
+  crtc_update = ensure_crtc_update (update, crtc);
+  crtc_update->vrr.has_update = TRUE;
+  crtc_update->vrr.is_enabled = enabled;
+
+  update_latch_crtc (update, crtc);
+}
+
 static MetaKmsCrtcColorUpdate *
 ensure_color_update (MetaKmsUpdate *update,
                      MetaKmsCrtc   *crtc)
@@ -747,6 +788,12 @@ meta_kms_update_get_connector_updates (MetaKmsUpdate *update)
 }
 
 GList *
+meta_kms_update_get_crtc_updates (MetaKmsUpdate *update)
+{
+  return update->crtc_updates;
+}
+
+GList *
 meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update)
 {
   return update->crtc_color_updates;
@@ -922,6 +969,55 @@ merge_crtc_color_updates_from (MetaKmsUpdate *update,
 }
 
 static GList *
+find_crtc_update_link_for (MetaKmsUpdate *update,
+                           MetaKmsCrtc   *crtc)
+{
+  GList *l;
+
+  for (l = update->crtc_updates; l; l = l->next)
+    {
+      MetaKmsCrtcUpdate *crtc_update = l->data;
+
+      if (crtc_update->crtc == crtc)
+        return l;
+    }
+
+  return NULL;
+}
+
+static void
+merge_crtc_updates_from (MetaKmsUpdate *update,
+                         MetaKmsUpdate *other_update)
+{
+  while (other_update->crtc_updates)
+    {
+      GList *l = other_update->crtc_updates;
+      MetaKmsCrtcUpdate *other_crtc_update = l->data;
+      MetaKmsCrtc *crtc = other_crtc_update->crtc;
+      GList *el;
+
+      other_update->crtc_updates =
+        g_list_remove_link (other_update->crtc_updates, l);
+
+      el = find_crtc_update_link_for (update, crtc);
+      if (el)
+        {
+          MetaKmsCrtcUpdate *crtc_update = el->data;
+
+          if (other_crtc_update->vrr.has_update)
+            crtc_update->vrr = other_crtc_update->vrr;
+        }
+      else
+        {
+          update->crtc_updates =
+            g_list_insert_before_link (update->crtc_updates,
+                                       update->crtc_updates,
+                                       l);
+        }
+    }
+}
+
+static GList *
 find_connector_update_link_for (MetaKmsUpdate    *update,
                                 MetaKmsConnector *connector)
 {
@@ -1034,6 +1130,7 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
 
   merge_mode_sets (update, other_update);
   merge_plane_assignments_from (update, other_update);
+  merge_crtc_updates_from (update, other_update);
   merge_crtc_color_updates_from (update, other_update);
   merge_connector_updates_from (update, other_update);
   merge_custom_page_flip_from (update, other_update);
@@ -1074,6 +1171,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->page_flip_listeners,
                     (GDestroyNotify) meta_kms_page_flip_listener_unref);
   g_list_free_full (update->connector_updates, g_free);
+  g_list_free_full (update->crtc_updates, g_free);
   g_list_free_full (update->crtc_color_updates,
                     (GDestroyNotify) meta_kms_crtc_color_updates_free);
   g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
@@ -1108,5 +1206,6 @@ meta_kms_update_is_empty (MetaKmsUpdate *update)
   return (!update->mode_sets &&
           !update->plane_assignments &&
           !update->connector_updates &&
+          !update->crtc_updates &&
           !update->crtc_color_updates);
 }

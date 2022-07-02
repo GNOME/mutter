@@ -180,6 +180,47 @@ set_connector_property (MetaKmsImplDevice     *impl_device,
 }
 
 static gboolean
+set_crtc_property (MetaKmsImplDevice  *impl_device,
+                   MetaKmsCrtc        *crtc,
+                   MetaKmsCrtcProp     prop,
+                   uint64_t            value,
+                   GError            **error)
+{
+  uint32_t prop_id;
+  int fd;
+  int ret;
+
+  prop_id = meta_kms_crtc_get_prop_id (crtc, prop);
+  if (!prop_id)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Property (%s) not found on CRTC %u",
+                   meta_kms_crtc_get_prop_name (crtc, prop),
+                   meta_kms_crtc_get_id (crtc));
+      return FALSE;
+    }
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  ret = drmModeObjectSetProperty (fd,
+                                  meta_kms_crtc_get_id (crtc),
+                                  DRM_MODE_OBJECT_CRTC,
+                                  prop_id,
+                                  value);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "Failed to set CRTC %u property %u: %s",
+                   meta_kms_crtc_get_id (crtc),
+                   prop_id,
+                   g_strerror (-ret));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 process_connector_update (MetaKmsImplDevice  *impl_device,
                           MetaKmsUpdate      *update,
                           gpointer            update_entry,
@@ -262,6 +303,28 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
                                    META_KMS_CONNECTOR_PROP_MAX_BPC,
                                    connector_update->max_bpc.value,
                                    error))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+process_crtc_update (MetaKmsImplDevice  *impl_device,
+                     MetaKmsUpdate      *update,
+                     gpointer            update_entry,
+                     GError            **error)
+{
+  MetaKmsCrtcUpdate *crtc_update = update_entry;
+  MetaKmsCrtc *crtc = crtc_update->crtc;
+
+  if (crtc_update->vrr.has_update)
+    {
+      if (!set_crtc_property (impl_device,
+                              crtc,
+                              META_KMS_CRTC_PROP_VRR_ENABLED,
+                              !!crtc_update->vrr.is_enabled,
+                              error))
         return FALSE;
     }
 
@@ -1545,6 +1608,13 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
                         update,
                         meta_kms_update_get_crtc_color_updates (update),
                         process_crtc_color_updates,
+                        &error))
+    goto err;
+
+  if (!process_entries (impl_device,
+                        update,
+                        meta_kms_update_get_crtc_updates (update),
+                        process_crtc_update,
                         &error))
     goto err;
 
