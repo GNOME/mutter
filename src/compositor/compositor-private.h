@@ -43,6 +43,8 @@ gboolean meta_compositor_do_manage (MetaCompositor  *compositor,
 void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
                                           MetaWindowActor *window_actor);
 
+void meta_compositor_window_actor_stage_views_changed (MetaCompositor *compositor);
+
 void meta_switch_workspace_completed (MetaCompositor *compositor);
 
 MetaPluginManager * meta_compositor_get_plugin_manager (MetaCompositor *compositor);

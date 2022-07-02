@@ -53,6 +53,8 @@ typedef struct _MetaWindowActorPrivate
   MetaWindow *window;
   MetaCompositor *compositor;
 
+  gulong stage_views_changed_id;
+
   MetaSurfaceActor *surface;
 
   int geometry_scale;
@@ -403,6 +405,15 @@ init_surface_actor (MetaWindowActor *self)
 }
 
 static void
+on_stage_views_changed (MetaWindowActor *self)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
+
+  meta_compositor_window_actor_stage_views_changed (priv->compositor);
+}
+
+static void
 meta_window_actor_constructed (GObject *object)
 {
   MetaWindowActor *self = META_WINDOW_ACTOR (object);
@@ -411,6 +422,12 @@ meta_window_actor_constructed (GObject *object)
   MetaWindow *window = priv->window;
 
   priv->compositor = window->display->compositor;
+
+  priv->stage_views_changed_id =
+    g_signal_connect (self,
+                      "stage-views-changed",
+                      G_CALLBACK (on_stage_views_changed),
+                      NULL);
 
   /* Hang our compositor window state off the MetaWindow for fast retrieval */
   meta_window_set_compositor_private (window, object);
@@ -444,6 +461,8 @@ meta_window_actor_dispose (GObject *object)
     }
 
   priv->disposed = TRUE;
+
+  g_clear_signal_handler (&priv->stage_views_changed_id, self);
 
   meta_compositor_remove_window_actor (compositor, self);
 

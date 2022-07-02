@@ -26,6 +26,10 @@
 
 #include "compositor/meta-compositor-view.h"
 
+#include "core/window-private.h"
+#include "meta/boxes.h"
+#include "meta/window.h"
+
 enum
 {
   PROP_0,
@@ -40,6 +44,8 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MetaCompositorViewPrivate
 {
   ClutterStageView *stage_view;
+
+  MetaWindowActor *top_window_actor;
 } MetaCompositorViewPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCompositorView, meta_compositor_view,
@@ -53,6 +59,58 @@ meta_compositor_view_new (ClutterStageView *stage_view)
   return g_object_new (META_TYPE_COMPOSITOR_VIEW,
                        "stage-view", stage_view,
                        NULL);
+}
+
+static MetaWindowActor *
+find_top_window_actor_on_view (ClutterStageView *stage_view,
+                               GList            *window_actors)
+{
+  GList *l;
+
+  for (l = g_list_last (window_actors); l; l = l->prev)
+    {
+      MetaWindowActor *window_actor = l->data;
+      MetaWindow *window =
+        meta_window_actor_get_meta_window (window_actor);
+      MetaRectangle buffer_rect;
+      MetaRectangle view_layout;
+
+      if (!window->visible_to_compositor)
+        continue;
+
+      meta_window_get_buffer_rect (window, &buffer_rect);
+      clutter_stage_view_get_layout (stage_view,
+                                     &view_layout);
+
+      if (meta_rectangle_overlap (&view_layout, &buffer_rect))
+        return window_actor;
+    }
+
+  return NULL;
+}
+
+void
+meta_compositor_view_update_top_window_actor (MetaCompositorView *compositor_view,
+                                              GList              *window_actors)
+{
+  MetaCompositorViewPrivate *priv =
+    meta_compositor_view_get_instance_private (compositor_view);
+  MetaWindowActor *top_window_actor;
+
+  top_window_actor = find_top_window_actor_on_view (priv->stage_view,
+                                                    window_actors);
+
+  g_set_weak_pointer (&priv->top_window_actor,
+                      top_window_actor);
+}
+
+MetaWindowActor *
+meta_compositor_view_get_top_window_actor (MetaCompositorView *compositor_view)
+{
+  MetaCompositorViewPrivate *priv =
+    meta_compositor_view_get_instance_private (compositor_view);
+
+  return priv->top_window_actor;
 }
 
 ClutterStageView *
@@ -105,12 +163,23 @@ meta_compositor_view_get_property (GObject    *object,
 }
 
 static void
+meta_compositor_view_finalize (GObject *object)
+{
+  MetaCompositorView *compositor_view = META_COMPOSITOR_VIEW (object);
+  MetaCompositorViewPrivate *priv =
+    meta_compositor_view_get_instance_private (compositor_view);
+
+  g_clear_weak_pointer (&priv->top_window_actor);
+}
+
+static void
 meta_compositor_view_class_init (MetaCompositorViewClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->set_property = meta_compositor_view_set_property;
   object_class->get_property = meta_compositor_view_get_property;
+  object_class->finalize = meta_compositor_view_finalize;
 
   obj_props[PROP_STAGE_VIEW] =
     g_param_spec_object ("stage-view",

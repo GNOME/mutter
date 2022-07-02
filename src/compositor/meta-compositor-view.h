@@ -28,6 +28,7 @@
 #include <glib-object.h>
 
 #include "clutter/clutter-mutter.h"
+#include "meta/meta-window-actor.h"
 
 struct _MetaCompositorViewClass
 {
@@ -39,6 +40,11 @@ G_DECLARE_FINAL_TYPE (MetaCompositorView, meta_compositor_view,
                       META, COMPOSITOR_VIEW, GObject)
 
 MetaCompositorView *meta_compositor_view_new (ClutterStageView *stage_view);
+
+void meta_compositor_view_update_top_window_actor (MetaCompositorView *compositor_view,
+                                                   GList              *window_actors);
+
+MetaWindowActor *meta_compositor_view_get_top_window_actor (MetaCompositorView *compositor_view);
 
 ClutterStageView *meta_compositor_view_get_stage_view (MetaCompositorView *compositor_view);
 
