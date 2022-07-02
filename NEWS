@@ -1,3 +1,13 @@
+41.8
+====
+* Fix night light without GAMMA_LUT property [Jonas; !2435]
+* wayland: Fix rotation transform [Robert; !1055]
+* Fixed crash [Jonas; !2364]
+* Misc. bug fixes [Olivier; !2463]
+
+Contributors:
+  Olivier Fourdan, Robert Mader, Jonas Ådahl
+
 41.7
 ====
 * KMS: Survive missing GAMMA_LUT property [Daniel; !2360]
