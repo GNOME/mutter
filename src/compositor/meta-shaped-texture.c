@@ -310,49 +310,8 @@ get_base_pipeline (MetaShapedTexture *stex,
         }
     }
 
-  if (stex->transform != META_MONITOR_TRANSFORM_NORMAL)
-    {
-      graphene_euler_t euler;
-
-      graphene_matrix_translate (&matrix,
-                                 &GRAPHENE_POINT3D_INIT (-0.5, -0.5, 0.0));
-      switch (stex->transform)
-        {
-        case META_MONITOR_TRANSFORM_90:
-          graphene_euler_init_with_order (&euler, 0.0, 0.0, 270.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_180:
-          graphene_euler_init_with_order (&euler, 0.0, 0.0, 180.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_270:
-          graphene_euler_init_with_order (&euler, 0.0, 0.0, 90.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED:
-          graphene_euler_init_with_order (&euler, 0.0, 180.0, 0.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_90:
-          graphene_euler_init_with_order (&euler, 0.0, 180.0, 90.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_180:
-          graphene_euler_init_with_order (&euler, 0.0, 180.0, 180.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_270:
-          graphene_euler_init_with_order (&euler, 0.0, 180.0, 270.0,
-                                          GRAPHENE_EULER_ORDER_SYXZ);
-          break;
-        case META_MONITOR_TRANSFORM_NORMAL:
-          g_assert_not_reached ();
-        }
-      graphene_matrix_rotate_euler (&matrix, &euler);
-      graphene_matrix_translate (&matrix,
-                                 &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0.0));
-    }
+  meta_monitor_transform_transform_matrix (stex->transform,
+                                           &matrix);
 
   cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
 

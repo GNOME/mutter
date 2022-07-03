@@ -72,4 +72,7 @@ void meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
                                              int                  *out_x,
                                              int                  *out_y);
 
+void meta_monitor_transform_transform_matrix (MetaMonitorTransform  transform,
+                                              graphene_matrix_t    *matrix);
+
 #endif /* META_MONITOR_TRANSFORM_H */
