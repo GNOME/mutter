@@ -34,17 +34,6 @@ enum
 
 static guint signals[N_SIGNALS];
 
-/* An estimate queue holds several int64_t values. Adding a new value to the
- * queue overwrites the oldest value.
- */
-#define ESTIMATE_QUEUE_LENGTH 16
-
-typedef struct _EstimateQueue
-{
-  int64_t values[ESTIMATE_QUEUE_LENGTH];
-  int next_index;
-} EstimateQueue;
-
 #define SYNC_DELAY_FALLBACK_FRACTION 0.875
 
 typedef struct _ClutterFrameListener
@@ -97,14 +86,21 @@ struct _ClutterFrameClock
   /* Last KMS buffer submission time. */
   int64_t last_flip_time_us;
 
-  /* Last few durations between desired and effective dispatch start. */
-  EstimateQueue dispatch_lateness_us;
-  /* Last few durations between dispatch start and buffer swap. */
-  EstimateQueue dispatch_to_swap_us;
-  /* Last few durations between buffer swap and GPU rendering finish. */
-  EstimateQueue swap_to_rendering_done_us;
-  /* Last few durations between buffer swap and KMS submission. */
-  EstimateQueue swap_to_flip_us;
+  /* Last time we promoted short term durations to long term ones */
+  int64_t longterm_promotion_us;
+
+  /* Short & long term maximum values */
+  struct {
+    /* Duration between desired and effective dispatch start. */
+    int64_t max_dispatch_lateness_us;
+    /* Duration between dispatch start and buffer swap. */
+    int64_t max_dispatch_to_swap_us;
+    /* Duration between buffer swap and GPU rendering finish. */
+    int64_t max_swap_to_rendering_done_us;
+    /* Duration between buffer swap and KMS submission. */
+    int64_t max_swap_to_flip_us;
+  } shortterm, longterm;
+
   /* If we got new measurements last frame. */
   gboolean got_measurements_last_frame;
 
@@ -118,14 +114,6 @@ struct _ClutterFrameClock
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
-
-static void
-estimate_queue_add_value (EstimateQueue *queue,
-                          int64_t        value)
-{
-  queue->values[queue->next_index] = value;
-  queue->next_index = (queue->next_index + 1) % ESTIMATE_QUEUE_LENGTH;
-}
 
 float
 clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock)
@@ -227,6 +215,23 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
     }
 }
 
+static void
+update_longterm_max (int64_t *longterm_max,
+                     int64_t *shortterm_max)
+{
+  /* Do not update long term max if there has been no measurement in over a second. */
+  if (!*shortterm_max)
+    return;
+
+  if (*longterm_max > *shortterm_max)
+    /* Exponential drop-off toward the short term max */
+    *longterm_max -= (*longterm_max - *shortterm_max) / 2;
+  else
+    *longterm_max = *shortterm_max;
+
+  *shortterm_max = 0;
+}
+
 void
 clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
@@ -276,9 +281,6 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   if (frame_info->presentation_time > 0)
     frame_clock->last_presentation_time_us = frame_info->presentation_time;
 
-  estimate_queue_add_value (&frame_clock->dispatch_lateness_us,
-                            frame_clock->last_dispatch_lateness_us);
-
   frame_clock->got_measurements_last_frame = FALSE;
 
   if (frame_info->cpu_time_before_buffer_swap_us != 0 &&
@@ -302,12 +304,12 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                     swap_to_rendering_done_us,
                     swap_to_flip_us);
 
-      estimate_queue_add_value (&frame_clock->dispatch_to_swap_us,
-                                dispatch_to_swap_us);
-      estimate_queue_add_value (&frame_clock->swap_to_rendering_done_us,
-                                swap_to_rendering_done_us);
-      estimate_queue_add_value (&frame_clock->swap_to_flip_us,
-                                swap_to_flip_us);
+      frame_clock->shortterm.max_dispatch_to_swap_us =
+        MAX (frame_clock->shortterm.max_dispatch_to_swap_us, dispatch_to_swap_us);
+      frame_clock->shortterm.max_swap_to_rendering_done_us =
+        MAX (frame_clock->shortterm.max_swap_to_rendering_done_us, swap_to_rendering_done_us);
+      frame_clock->shortterm.max_swap_to_flip_us =
+        MAX (frame_clock->shortterm.max_swap_to_flip_us, swap_to_flip_us);
 
       frame_clock->got_measurements_last_frame = TRUE;
     }
@@ -315,6 +317,20 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     {
       CLUTTER_NOTE (FRAME_TIMINGS, "update2dispatch %ld µs",
                     frame_clock->last_dispatch_lateness_us);
+    }
+
+  if (frame_info->presentation_time - frame_clock->longterm_promotion_us > G_USEC_PER_SEC)
+    {
+      update_longterm_max (&frame_clock->longterm.max_dispatch_lateness_us,
+                           &frame_clock->shortterm.max_dispatch_lateness_us);
+      update_longterm_max (&frame_clock->longterm.max_dispatch_to_swap_us,
+                           &frame_clock->shortterm.max_dispatch_to_swap_us);
+      update_longterm_max (&frame_clock->longterm.max_swap_to_rendering_done_us,
+                           &frame_clock->shortterm.max_swap_to_rendering_done_us);
+      update_longterm_max (&frame_clock->longterm.max_swap_to_flip_us,
+                           &frame_clock->shortterm.max_swap_to_flip_us);
+
+      frame_clock->longterm_promotion_us = frame_info->presentation_time;
     }
 
   if (frame_info->refresh_rate > 1.0)
@@ -362,12 +378,11 @@ static int64_t
 clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
 {
   int64_t refresh_interval_us;
-  int64_t max_dispatch_lateness_us = 0;
-  int64_t max_dispatch_to_swap_us = 0;
-  int64_t max_swap_to_rendering_done_us = 0;
-  int64_t max_swap_to_flip_us = 0;
+  int64_t max_dispatch_lateness_us;
+  int64_t max_dispatch_to_swap_us;
+  int64_t max_swap_to_rendering_done_us;
+  int64_t max_swap_to_flip_us;
   int64_t max_render_time_us;
-  int i;
 
   refresh_interval_us = frame_clock->refresh_interval_us;
 
@@ -376,21 +391,18 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock)
                   CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
     return refresh_interval_us * SYNC_DELAY_FALLBACK_FRACTION;
 
-  for (i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
-    {
-      max_dispatch_lateness_us =
-        MAX (max_dispatch_lateness_us,
-             frame_clock->dispatch_lateness_us.values[i]);
-      max_dispatch_to_swap_us =
-        MAX (max_dispatch_to_swap_us,
-             frame_clock->dispatch_to_swap_us.values[i]);
-      max_swap_to_rendering_done_us =
-        MAX (max_swap_to_rendering_done_us,
-             frame_clock->swap_to_rendering_done_us.values[i]);
-      max_swap_to_flip_us =
-        MAX (max_swap_to_flip_us,
-             frame_clock->swap_to_flip_us.values[i]);
-    }
+  max_dispatch_lateness_us =
+    MAX (frame_clock->longterm.max_dispatch_lateness_us,
+         frame_clock->shortterm.max_dispatch_lateness_us);
+  max_dispatch_to_swap_us =
+    MAX (frame_clock->longterm.max_dispatch_to_swap_us,
+         frame_clock->shortterm.max_dispatch_to_swap_us);
+  max_swap_to_rendering_done_us =
+    MAX (frame_clock->longterm.max_swap_to_rendering_done_us,
+         frame_clock->shortterm.max_swap_to_rendering_done_us);
+  max_swap_to_flip_us =
+    MAX (frame_clock->longterm.max_swap_to_flip_us,
+         frame_clock->shortterm.max_swap_to_flip_us);
 
   /* Max render time shows how early the frame clock needs to be dispatched
    * to make it to the predicted next presentation time. It is composed of:
@@ -706,6 +718,10 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   else
     frame_clock->last_dispatch_lateness_us = lateness_us;
 
+  frame_clock->shortterm.max_dispatch_lateness_us =
+    MAX (frame_clock->shortterm.max_dispatch_lateness_us,
+         frame_clock->last_dispatch_lateness_us);
+
   frame_clock->last_dispatch_time_us = time_us;
   g_source_set_ready_time (frame_clock->source, -1);
 
@@ -794,11 +810,10 @@ clutter_frame_clock_record_flip_time (ClutterFrameClock *frame_clock,
 GString *
 clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clock)
 {
-  int64_t max_dispatch_lateness_us = 0;
-  int64_t max_dispatch_to_swap_us = 0;
-  int64_t max_swap_to_rendering_done_us = 0;
-  int64_t max_swap_to_flip_us = 0;
-  int i;
+  int64_t max_dispatch_lateness_us;
+  int64_t max_dispatch_to_swap_us;
+  int64_t max_swap_to_rendering_done_us;
+  int64_t max_swap_to_flip_us;
   GString *string;
 
   string = g_string_new (NULL);
@@ -810,21 +825,18 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
   else
     g_string_append_printf (string, " (no measurements last frame)");
 
-  for (i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
-    {
-      max_dispatch_lateness_us =
-        MAX (max_dispatch_lateness_us,
-             frame_clock->dispatch_lateness_us.values[i]);
-      max_dispatch_to_swap_us =
-        MAX (max_dispatch_to_swap_us,
-             frame_clock->dispatch_to_swap_us.values[i]);
-      max_swap_to_rendering_done_us =
-        MAX (max_swap_to_rendering_done_us,
-             frame_clock->swap_to_rendering_done_us.values[i]);
-      max_swap_to_flip_us =
-        MAX (max_swap_to_flip_us,
-             frame_clock->swap_to_flip_us.values[i]);
-    }
+  max_dispatch_lateness_us =
+    MAX (frame_clock->longterm.max_dispatch_lateness_us,
+         frame_clock->shortterm.max_dispatch_lateness_us);
+  max_dispatch_to_swap_us =
+    MAX (frame_clock->longterm.max_dispatch_to_swap_us,
+         frame_clock->shortterm.max_dispatch_to_swap_us);
+  max_swap_to_rendering_done_us =
+    MAX (frame_clock->longterm.max_swap_to_rendering_done_us,
+         frame_clock->shortterm.max_swap_to_rendering_done_us);
+  max_swap_to_flip_us =
+    MAX (frame_clock->longterm.max_swap_to_flip_us,
+         frame_clock->shortterm.max_swap_to_flip_us);
 
   g_string_append_printf (string, "\nVblank duration: %ld µs +",
                           frame_clock->vblank_duration_us);
