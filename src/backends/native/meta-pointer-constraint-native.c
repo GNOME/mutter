@@ -469,7 +469,7 @@ meta_pointer_constraint_impl_native_constraint (MetaPointerConstraintImpl *const
   MetaPointerConstraintImplNative *constraint_impl_native;
   cairo_region_t *region;
   float x, y;
-  GArray *borders;
+  g_autoptr (GArray) borders = NULL;
   MetaLine2 motion;
   MetaBorder *closest_border;
   uint32_t directions;
@@ -527,7 +527,6 @@ meta_pointer_constraint_impl_native_constraint (MetaPointerConstraintImpl *const
 
   *x_inout = motion.b.x;
   *y_inout = motion.b.y;
-  g_array_free (borders, FALSE);
 }
 
 static float
@@ -616,7 +615,7 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
 
   if (!cairo_region_contains_point (region, (int) x, (int) y))
     {
-      GArray *borders;
+      g_autoptr (GArray) borders = NULL;
       float closest_distance_2 = FLT_MAX;
       MetaBorder *closest_border = NULL;
       ClutterSeat *seat;
