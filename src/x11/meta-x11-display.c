@@ -1028,6 +1028,7 @@ meta_x11_init_gdk_display (GError **error)
 {
   const char *xdisplay_name;
   GdkDisplay *gdk_display;
+  const char *gdk_backend_env = NULL;
   const char *gdk_gl_env = NULL;
   const char *old_no_at_bridge;
   Display *xdisplay;
@@ -1041,6 +1042,10 @@ meta_x11_init_gdk_display (GError **error)
     }
 
   gdk_set_allowed_backends ("x11");
+
+  gdk_backend_env = g_getenv ("GDK_BACKEND");
+  /* GDK would fail to initialize with e.g. GDK_BACKEND=wayland */
+  g_unsetenv ("GDK_BACKEND");
 
   gdk_gl_env = g_getenv ("GDK_GL");
   g_setenv ("GDK_GL", "disable", TRUE);
@@ -1071,6 +1076,9 @@ meta_x11_init_gdk_display (GError **error)
 
       return FALSE;
     }
+
+  if (gdk_backend_env)
+    g_setenv("GDK_BACKEND", gdk_backend_env, TRUE);
 
   if (gdk_gl_env)
     g_setenv("GDK_GL", gdk_gl_env, TRUE);
