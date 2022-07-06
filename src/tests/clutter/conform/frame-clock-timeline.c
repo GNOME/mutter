@@ -6,7 +6,7 @@ static const int64_t refresh_interval_us = G_USEC_PER_SEC / refresh_rate;
 
 static ClutterFrameResult
 timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
-                            int64_t            frame_count,
+                            ClutterFrame      *frame,
                             gpointer           user_data)
 {
   ClutterFrameInfo frame_info;

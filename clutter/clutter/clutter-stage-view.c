@@ -1131,7 +1131,7 @@ clutter_stage_view_has_shadowfb (ClutterStageView *view)
 
 static void
 handle_frame_clock_before_frame (ClutterFrameClock *frame_clock,
-                                 int64_t            frame_count,
+                                 ClutterFrame      *frame,
                                  gpointer           user_data)
 {
   ClutterStageView *view = user_data;
@@ -1207,7 +1207,7 @@ end_frame_timing_measurement (ClutterStageView *view)
 
 static ClutterFrameResult
 handle_frame_clock_frame (ClutterFrameClock *frame_clock,
-                          int64_t            frame_count,
+                          ClutterFrame      *frame,
                           gpointer           user_data)
 {
   ClutterStageView *view = user_data;
@@ -1216,7 +1216,6 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   ClutterStage *stage = priv->stage;
   ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
   g_autoptr (GSList) devices = NULL;
-  ClutterFrame frame;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return CLUTTER_FRAME_RESULT_IDLE;
@@ -1241,16 +1240,14 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   if (priv->needs_update_devices)
     devices = clutter_stage_find_updated_devices (stage, view);
 
-  frame = CLUTTER_FRAME_INIT;
-
-  _clutter_stage_window_prepare_frame (stage_window, view, &frame);
+  _clutter_stage_window_prepare_frame (stage_window, view, frame);
   clutter_stage_emit_prepare_frame (stage, view);
 
   if (clutter_stage_view_has_redraw_clip (view))
     {
       clutter_stage_emit_before_paint (stage, view);
 
-      _clutter_stage_window_redraw_view (stage_window, view, &frame);
+      _clutter_stage_window_redraw_view (stage_window, view, frame);
 
       clutter_frame_clock_record_flip_time (frame_clock,
                                             g_get_monotonic_time ());
@@ -1261,7 +1258,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
         end_frame_timing_measurement (view);
     }
 
-  _clutter_stage_window_finish_frame (stage_window, view, &frame);
+  _clutter_stage_window_finish_frame (stage_window, view, frame);
 
   clutter_stage_update_devices (stage, devices);
   priv->needs_update_devices = FALSE;
@@ -1269,7 +1266,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
   clutter_stage_emit_after_update (stage, view);
 
-  return clutter_frame_get_result (&frame);
+  return clutter_frame_get_result (frame);
 }
 
 static const ClutterFrameListenerIface frame_clock_listener_iface = {

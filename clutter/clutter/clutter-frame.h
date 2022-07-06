@@ -27,10 +27,15 @@
 typedef struct _ClutterFrame ClutterFrame;
 
 CLUTTER_EXPORT
+int64_t clutter_frame_get_count (ClutterFrame *frame);
+
+CLUTTER_EXPORT
 void clutter_frame_set_result (ClutterFrame       *frame,
                                ClutterFrameResult  result);
 
 CLUTTER_EXPORT
 gboolean clutter_frame_has_result (ClutterFrame *frame);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterFrame, g_free)
 
 #endif /* CLUTTER_FRAME_H */

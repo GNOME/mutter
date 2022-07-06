@@ -22,11 +22,11 @@
 
 struct _ClutterFrame
 {
+  int64_t frame_count;
+
   gboolean has_result;
   ClutterFrameResult result;
 };
-
-#define CLUTTER_FRAME_INIT ((ClutterFrame) { 0 })
 
 ClutterFrameResult clutter_frame_get_result (ClutterFrame *frame);
 

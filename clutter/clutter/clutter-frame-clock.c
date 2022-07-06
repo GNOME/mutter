@@ -20,6 +20,7 @@
 #include "clutter/clutter-frame-clock.h"
 
 #include "clutter/clutter-debug.h"
+#include "clutter/clutter-frame-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-timeline-private.h"
@@ -691,6 +692,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
                               int64_t            time_us)
 {
   const ClutterFrameListenerIface *iface = frame_clock->listener.iface;
+  g_autoptr (ClutterFrame) frame = NULL;
   int64_t frame_count;
   ClutterFrameResult result;
   int64_t ideal_dispatch_time_us, lateness_us;
@@ -729,13 +731,12 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   frame_count = frame_clock->frame_count++;
 
+  frame = g_new0 (ClutterFrame, 1);
+  frame->frame_count = frame_count;
+
   COGL_TRACE_BEGIN (ClutterFrameClockEvents, "Frame Clock (before frame)");
   if (iface->before_frame)
-    {
-      iface->before_frame (frame_clock,
-                           frame_count,
-                           frame_clock->listener.user_data);
-    }
+    iface->before_frame (frame_clock, frame, frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockEvents);
 
   COGL_TRACE_BEGIN (ClutterFrameClockTimelines, "Frame Clock (timelines)");
@@ -745,9 +746,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   COGL_TRACE_END (ClutterFrameClockTimelines);
 
   COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
-  result = iface->frame (frame_clock,
-                         frame_count,
-                         frame_clock->listener.user_data);
+  result = iface->frame (frame_clock, frame, frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockFrame);
 
   switch (frame_clock->state)

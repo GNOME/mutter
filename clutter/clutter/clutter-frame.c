@@ -17,6 +17,12 @@
 
 #include "clutter/clutter-frame-private.h"
 
+int64_t
+clutter_frame_get_count (ClutterFrame *frame)
+{
+  return frame->frame_count;
+}
+
 ClutterFrameResult
 clutter_frame_get_result (ClutterFrame *frame)
 {
