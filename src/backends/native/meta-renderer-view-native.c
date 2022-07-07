@@ -24,6 +24,8 @@
 
 #include "backends/native/meta-renderer-view-native.h"
 
+#include "backends/native/meta-frame-native.h"
+
 struct _MetaRendererViewNative
 {
   MetaRendererView parent;
@@ -32,9 +34,18 @@ struct _MetaRendererViewNative
 G_DEFINE_TYPE (MetaRendererViewNative, meta_renderer_view_native,
                META_TYPE_RENDERER_VIEW)
 
+static ClutterFrame *
+meta_renderer_view_native_new_frame (ClutterStageView *stage_view)
+{
+  return (ClutterFrame *) meta_frame_native_new ();
+}
+
 static void
 meta_renderer_view_native_class_init (MetaRendererViewNativeClass *klass)
 {
+  ClutterStageViewClass *stage_view_class = CLUTTER_STAGE_VIEW_CLASS (klass);
+
+  stage_view_class->new_frame = meta_renderer_view_native_new_frame;
 }
 
 static void

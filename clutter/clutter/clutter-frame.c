@@ -35,12 +35,14 @@ clutter_frame_unref (ClutterFrame *frame)
     g_free (frame);
 }
 
-ClutterFrame *
-clutter_frame_new (void)
+gpointer
+(clutter_frame_new) (size_t size)
 {
   ClutterFrame *frame;
 
-  frame = g_new0 (ClutterFrame, 1);
+  g_assert (size >= sizeof (ClutterFrame));
+
+  frame = g_malloc0 (size);
   g_ref_count_init (&frame->ref_count);
 
   return frame;

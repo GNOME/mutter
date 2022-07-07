@@ -34,7 +34,10 @@ struct _ClutterFrame
 };
 
 CLUTTER_EXPORT
-ClutterFrame * clutter_frame_new (void);
+gpointer clutter_frame_new (size_t size);
+
+#define clutter_frame_new(FrameType) \
+  ((FrameType *) (clutter_frame_new (sizeof (FrameType))))
 
 ClutterFrameResult clutter_frame_get_result (ClutterFrame *frame);
 

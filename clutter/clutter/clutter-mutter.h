@@ -29,6 +29,7 @@
 #include "clutter-backend-private.h"
 #include "clutter-damage-history.h"
 #include "clutter-event-private.h"
+#include "clutter-frame-private.h"
 #include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-macros.h"
