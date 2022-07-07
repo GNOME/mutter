@@ -1392,10 +1392,12 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (onscreen_native->output);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
 
   meta_crtc_kms_maybe_set_gamma (crtc_kms, kms_device);
+  meta_output_kms_maybe_set_privacy_screen (output_kms, kms_device);
 }
 
 void
