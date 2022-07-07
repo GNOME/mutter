@@ -24,6 +24,9 @@ struct _ClutterFrame
 {
   int64_t frame_count;
 
+  gboolean has_target_presentation_time;
+  int64_t target_presentation_time_us;
+
   gboolean has_result;
   ClutterFrameResult result;
 };

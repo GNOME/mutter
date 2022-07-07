@@ -23,6 +23,21 @@ clutter_frame_get_count (ClutterFrame *frame)
   return frame->frame_count;
 }
 
+gboolean
+clutter_frame_get_target_presentation_time (ClutterFrame *frame,
+                                            int64_t      *target_presentation_time_us)
+{
+  if (frame->has_target_presentation_time)
+    {
+      *target_presentation_time_us = frame->target_presentation_time_us;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 ClutterFrameResult
 clutter_frame_get_result (ClutterFrame *frame)
 {

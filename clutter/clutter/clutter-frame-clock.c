@@ -733,6 +733,8 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   frame = g_new0 (ClutterFrame, 1);
   frame->frame_count = frame_count;
+  frame->has_target_presentation_time = frame_clock->is_next_presentation_time_valid;
+  frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
 
   COGL_TRACE_BEGIN (ClutterFrameClockEvents, "Frame Clock (before frame)");
   if (iface->before_frame)

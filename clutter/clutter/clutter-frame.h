@@ -30,6 +30,10 @@ CLUTTER_EXPORT
 int64_t clutter_frame_get_count (ClutterFrame *frame);
 
 CLUTTER_EXPORT
+gboolean clutter_frame_get_target_presentation_time (ClutterFrame *frame,
+                                                     int64_t      *target_presentation_time_us);
+
+CLUTTER_EXPORT
 void clutter_frame_set_result (ClutterFrame       *frame,
                                ClutterFrameResult  result);
 
