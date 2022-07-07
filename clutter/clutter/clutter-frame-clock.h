@@ -51,6 +51,8 @@ typedef struct _ClutterFrameListenerIface
   ClutterFrameResult (* frame) (ClutterFrameClock *frame_clock,
                                 ClutterFrame      *frame,
                                 gpointer           user_data);
+  ClutterFrame * (* new_frame) (ClutterFrameClock *frame_clock,
+                                gpointer           user_data);
 } ClutterFrameListenerIface;
 
 CLUTTER_EXPORT

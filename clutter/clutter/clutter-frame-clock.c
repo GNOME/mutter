@@ -732,7 +732,11 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   frame_count = frame_clock->frame_count++;
 
-  frame = clutter_frame_new ();
+  if (iface->new_frame)
+    frame = iface->new_frame (frame_clock, frame_clock->listener.user_data);
+  if (!frame)
+    frame = clutter_frame_new ();
+
   frame->frame_count = frame_count;
   frame->has_target_presentation_time = frame_clock->is_next_presentation_time_valid;
   frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
