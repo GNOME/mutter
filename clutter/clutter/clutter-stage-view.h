@@ -50,6 +50,8 @@ struct _ClutterStageViewClass
                                        int                          dst_width,
                                        int                          dst_height,
                                        cairo_rectangle_int_t       *dst_rect);
+
+  ClutterFrame * (* new_frame) (ClutterStageView *view);
 };
 
 CLUTTER_EXPORT

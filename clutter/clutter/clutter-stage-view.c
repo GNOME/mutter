@@ -1278,9 +1278,23 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   return clutter_frame_get_result (frame);
 }
 
+static ClutterFrame *
+handle_frame_clock_new_frame (ClutterFrameClock *frame_clock,
+                              gpointer           user_data)
+{
+  ClutterStageView *view = CLUTTER_STAGE_VIEW (user_data);
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
+
+  if (view_class->new_frame)
+    return view_class->new_frame (view);
+  else
+    return NULL;
+}
+
 static const ClutterFrameListenerIface frame_clock_listener_iface = {
   .before_frame = handle_frame_clock_before_frame,
   .frame = handle_frame_clock_frame,
+  .new_frame = handle_frame_clock_new_frame,
 };
 
 void
