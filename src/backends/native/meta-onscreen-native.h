@@ -37,6 +37,9 @@ G_DECLARE_FINAL_TYPE (MetaOnscreenNative, meta_onscreen_native,
 
 void meta_renderer_native_release_onscreen (CoglOnscreen *onscreen);
 
+void meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
+                                         ClutterFrame *frame);
+
 void meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
                                         ClutterFrame *frame);
 
