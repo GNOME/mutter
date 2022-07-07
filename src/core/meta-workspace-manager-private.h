@@ -89,6 +89,7 @@ void meta_workspace_manager_workspace_switched (MetaWorkspaceManager *workspace_
                                                 int                   to,
                                                 MetaMotionDirection   direction);
 
+META_EXPORT_TEST
 void meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_manager,
                                                    guint32               timestamp,
                                                    int                   new_num);

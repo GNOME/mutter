@@ -440,6 +440,8 @@ stacking_tests = [
   'map-fixed-size',
   'client-resize-respect-constraints',
   'map-on-hotplug',
+  'workspace-basic',
+  'workspace-test',
 ]
 
 foreach stacking_test: stacking_tests
