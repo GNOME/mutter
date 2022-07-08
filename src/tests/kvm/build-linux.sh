@@ -63,7 +63,7 @@ echo Enabling ${CONFIGS[@]}...
 ./scripts/config ${CONFIGS[@]/#/--enable }
 
 make oldconfig
-make -j8
+make -j8 WERROR=0
 
 popd
 
