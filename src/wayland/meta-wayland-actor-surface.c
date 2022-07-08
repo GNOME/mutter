@@ -321,42 +321,29 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
 {
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (META_WAYLAND_ACTOR_SURFACE (surface_role));
+  MetaBackend *backend = meta_get_backend ();
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterActor *actor = CLUTTER_ACTOR (priv->actor);
-  float x, y, width, height;
-  cairo_rectangle_int_t actor_rect;
-  cairo_region_t *region;
   MetaRectangle logical_monitor_layout;
-  gboolean is_on_monitor;
-
-  if (!clutter_actor_is_mapped (actor) &&
-      !clutter_actor_has_mapped_clones (actor))
-    return FALSE;
-
-  clutter_actor_get_transformed_position (actor, &x, &y);
-  clutter_actor_get_transformed_size (actor, &width, &height);
-
-  actor_rect.x = (int) roundf (x);
-  actor_rect.y = (int) roundf (y);
-  actor_rect.width = (int) roundf (x + width) - actor_rect.x;
-  actor_rect.height = (int) roundf (y + height) - actor_rect.y;
-
-  /* Calculate the scaled surface actor region. */
-  region = cairo_region_create_rectangle (&actor_rect);
+  GList *l;
 
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
 
-  cairo_region_intersect_rectangle (region,
-				    &((cairo_rectangle_int_t) {
-				      .x = logical_monitor_layout.x,
-				      .y = logical_monitor_layout.y,
-				      .width = logical_monitor_layout.width,
-				      .height = logical_monitor_layout.height,
-				    }));
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      MetaRectangle view_layout;
 
-  is_on_monitor = !cairo_region_is_empty (region);
-  cairo_region_destroy (region);
+      clutter_stage_view_get_layout (stage_view, &view_layout);
 
-  return is_on_monitor;
+      if (meta_rectangle_overlap (&logical_monitor_layout,
+                                  &view_layout) &&
+          clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
+                                                      stage_view))
+        return TRUE;
+    }
+
+  return FALSE;
 }
 
 static void
