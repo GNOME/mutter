@@ -1148,6 +1148,29 @@ test_case_do (TestCase *test,
 
       meta_window_change_workspace (window, workspace);
     }
+  else if (strcmp (argv[0], "make_above") == 0)
+    {
+      if (argc != 3 ||
+          (g_ascii_strcasecmp (argv[2], "true") != 0 &&
+           g_ascii_strcasecmp (argv[2], "false") != 0))
+        BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
+                    argv[0]);
+
+      MetaTestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      MetaWindow *window;
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      if (g_ascii_strcasecmp (argv[2], "true") == 0)
+        meta_window_make_above (window);
+      else
+        meta_window_unmake_above (window);
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);

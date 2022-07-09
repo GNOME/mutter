@@ -442,6 +442,7 @@ stacking_tests = [
   'map-on-hotplug',
   'workspace-basic',
   'workspace-test',
+  'always-on-top',
 ]
 
 foreach stacking_test: stacking_tests

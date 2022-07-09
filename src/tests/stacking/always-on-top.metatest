@@ -1,0 +1,51 @@
+num_workspaces 2
+
+new_client 1 wayland
+create 1/1
+show 1/1
+create 1/2
+show 1/2
+create 1/3
+show 1/3
+wait
+
+assert_stacking_workspace 0 1/1 1/2 1/3
+assert_stacking_workspace 1
+assert_focused 1/3
+
+local_activate 1/1
+
+assert_stacking_workspace 0 1/2 1/3 1/1
+assert_stacking_workspace 1
+assert_focused 1/1
+
+make_above 1/3 true
+
+assert_stacking_workspace 0 1/2 1/1 1/3
+assert_stacking_workspace 1
+assert_focused 1/1
+
+local_activate 1/2
+
+assert_stacking_workspace 0 1/1 1/2 1/3
+assert_stacking_workspace 1
+assert_focused 1/2
+
+activate_workspace 1
+
+assert_stacking_workspace 0 1/1 1/2 1/3
+assert_stacking_workspace 1
+assert_focused none
+
+activate_workspace 0
+
+assert_stacking_workspace 0 1/1 1/2 1/3
+assert_stacking_workspace 1
+assert_focused 1/2
+
+make_above 1/3 false
+local_activate 1/1
+
+assert_stacking_workspace 0 1/2 1/3 1/1
+assert_stacking_workspace 1
+assert_focused 1/1
