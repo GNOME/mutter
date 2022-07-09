@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include <gio/gio.h>
+#include <wayland-client.h>
 
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-backend-native.h"

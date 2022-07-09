@@ -1110,132 +1110,97 @@ wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []
 wayland_protocol_sources = []
 
-wayland_protocol_files = {}
-
 if have_wayland
   # Format:
   #  - protocol name
-  #  - protocol stability ('private', 'stable' or 'unstable')
-  #  - protocol version (if stability is 'unstable')
+  #  - protocol type ('stable', 'staging', 'unstable', 'private', 'eglstreams')
+  #    * 'stable', 'staging' and 'unstable' are from wayland-protocols
+  #    * 'private' are shipped in this repo
+  #    * 'eglstreams' are from wayland-eglstream-protocols
+  #  - protocol version (optional for 'stable', 'staging' and 'unstable')
   wayland_protocols = [
-    ['color-management', 'staging', 'v1', ],
-    ['commit-timing', 'staging', 'v1', ],
+    ['color-management', 'staging', 1, ],
+    ['commit-timing', 'staging', 1, ],
     ['cursor-shape-v1', 'private', ],
-    ['drm-lease', 'staging', 'v1', ],
-    ['fractional-scale', 'staging', 'v1', ],
-    ['fifo', 'staging', 'v1', ],
+    ['drm-lease', 'staging', 1, ],
+    ['fractional-scale', 'staging', 1, ],
+    ['fifo', 'staging', 1, ],
     ['gtk-shell', 'private', ],
-    ['idle-inhibit', 'unstable', 'v1', ],
-    ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
-    ['linux-dmabuf', 'stable', 'v1', ],
+    ['idle-inhibit', 'unstable', 1, ],
+    ['keyboard-shortcuts-inhibit', 'unstable', 1, ],
+    ['linux-dmabuf', 'stable', 1, ],
     ['linux-drm-syncobj-v1', 'private', ],
-    ['pointer-constraints', 'unstable', 'v1', ],
-    ['pointer-gestures', 'unstable', 'v1', ],
+    ['pointer-constraints', 'unstable', 1, ],
+    ['pointer-gestures', 'unstable', 1, ],
     ['presentation-time', 'stable', ],
-    ['primary-selection', 'unstable', 'v1', ],
-    ['relative-pointer', 'unstable', 'v1', ],
+    ['primary-selection', 'unstable', 1, ],
+    ['relative-pointer', 'unstable', 1, ],
     ['session-management-v1', 'private', ],
-    ['single-pixel-buffer', 'staging', 'v1', ],
-    ['tablet', 'stable', 'v2', ],
-    ['text-input', 'unstable', 'v3', ],
+    ['single-pixel-buffer', 'staging', 1, ],
+    ['tablet', 'stable', 2, ],
+    ['text-input', 'unstable', 3, ],
     ['viewporter', 'stable', ],
-    ['xdg-activation', 'staging', 'v1', ],
-    ['xdg-dialog', 'staging', 'v1', ],
-    ['xdg-foreign', 'unstable', 'v1', ],
-    ['xdg-foreign', 'unstable', 'v2', ],
-    ['xdg-output', 'unstable', 'v1', ],
+    ['xdg-activation', 'staging', 1, ],
+    ['xdg-dialog', 'staging', 1, ],
+    ['xdg-foreign', 'unstable', 1, ],
+    ['xdg-foreign', 'unstable', 2, ],
+    ['xdg-output', 'unstable', 1, ],
     ['xdg-shell', 'stable', ],
-    ['xdg-system-bell', 'staging', 'v1', ],
-    ['xdg-toplevel-drag', 'staging', 'v1'],
-    ['xwayland-keyboard-grab', 'unstable', 'v1', ],
+    ['xdg-system-bell', 'staging', 1, ],
+    ['xdg-toplevel-drag', 'staging', 1, ],
+    ['xwayland-keyboard-grab', 'unstable', 1, ],
   ]
-  if have_wayland_eglstream
-    wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
-    wayland_protocols += [
-      ['wayland-eglstream-controller', 'third-party', wayland_eglstream_protocols_dir],
-    ]
-  endif
   if have_xwayland
     wayland_protocols += [
       ['mutter-x11-interop', 'private', ],
     ]
   endif
+  if have_wayland_eglstream
+    wayland_protocols += [
+      ['wayland-eglstream-controller', 'eglstreams', ],
+    ]
+    wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
+  endif
 
-  wayland_scanner = find_program('wayland-scanner')
-  protocols_dir = wayland_protocols_dep.get_variable('pkgdatadir')
-  assert(protocols_dir != '', 'Could not get pkgdatadir from wayland-protocols.pc')
+  protocol_xmls = files()
 
   foreach p: wayland_protocols
     protocol_name = p.get(0)
     protocol_type = p.get(1)
 
-    if protocol_type == 'stable'
-      if p.length() == 3
-        protocol_version = p.get(2)
-        output_base = '@0@-@1@'.format(protocol_name, protocol_version)
-      else
-        output_base = protocol_name
-      endif
-      input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
-    elif protocol_type == 'staging'
-      protocol_version = p.get(2)
-      output_base = '@0@-@1@'.format(protocol_name, protocol_version)
-      input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
-    elif protocol_type == 'private'
-      output_base = protocol_name
-      input = 'wayland/protocol/@0@.xml'.format(protocol_name)
-    elif protocol_type == 'third-party'
-      output_base = protocol_name
-      protocol_dir = p.get(2)
-      input = protocol_dir / '@0@.xml'.format(protocol_name)
+    if protocol_type == 'private'
+      protocol_xmls += files(
+        'wayland/protocol/@0@.xml'.format(protocol_name)
+      )
+    elif protocol_type == 'eglstreams'
+      protocol_xmls += files(
+        '@0@/@1@.xml'.format(wayland_eglstream_protocols_dir, protocol_name)
+      )
     else
-      protocol_version = p.get(2)
-      output_base = '@0@-@1@-@2@'.format(protocol_name,
-                                         protocol_type,
-                                         protocol_version)
-      input = protocols_dir / protocol_type / protocol_name / '@0@.xml'.format(output_base)
+      if p.length() > 2
+        protocol_xmls += wl_mod.find_protocol(
+          protocol_name,
+          state: protocol_type,
+          version: p.get(2))
+      else
+        protocol_xmls += wl_mod.find_protocol(
+          protocol_name,
+          state: protocol_type)
+      endif
     endif
-
-    server_header = custom_target('@0@ server header'.format(output_base),
-      input: input,
-      output: '@0@-server-protocol.h'.format(output_base),
-      command: [
-        wayland_scanner,
-        'server-header',
-        '@INPUT@', '@OUTPUT@',
-      ]
-    )
-    client_header = custom_target('@0@ client header'.format(output_base),
-      input: input,
-      output: '@0@-client-protocol.h'.format(output_base),
-      command: [
-        wayland_scanner,
-        'client-header',
-        '@INPUT@', '@OUTPUT@',
-      ]
-    )
-    protocol_code = custom_target('@0@ source'.format(output_base),
-      input: input,
-      output: '@0@-protocol.c'.format(output_base),
-      command: [
-        wayland_scanner,
-        'private-code',
-        '@INPUT@', '@OUTPUT@',
-      ]
-    )
-
-    wayland_protocol_files += {
-      protocol_name: {
-        'server-header': server_header,
-        'client-header': client_header,
-        'protocol-code': protocol_code,
-      },
-    }
-
-    wayland_protocol_server_headers += server_header
-    wayland_protocol_client_headers += client_header
-    wayland_protocol_sources += protocol_code
   endforeach
+
+  foreach xml: protocol_xmls
+    generated = wl_mod.scan_xml(xml,
+      client: true,
+      server: true)
+
+    wayland_protocol_sources += generated[0]
+    wayland_protocol_client_headers += generated[1]
+    wayland_protocol_server_headers += generated[2]
+  endforeach
+
+  message('Generated code for @0@ wayland protocols'.format(wayland_protocol_sources.length()))
 endif
 
 mutter_built_sources += wayland_protocol_server_headers

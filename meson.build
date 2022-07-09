@@ -228,6 +228,12 @@ if not have_gl and not have_gles2
 endif
 
 if have_wayland
+  if meson.version().version_compare('>= 1.8.0')
+    wl_mod = import('wayland')
+  else
+    wl_mod = import('unstable-wayland')
+  endif
+
   wayland_server_dep = dependency('wayland-server', version: wayland_server_req)
   wayland_client_dep = dependency('wayland-client', version: wayland_server_req)
   wayland_cursor_dep = dependency('wayland-cursor')
