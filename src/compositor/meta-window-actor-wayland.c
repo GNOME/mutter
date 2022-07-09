@@ -55,23 +55,26 @@ set_surface_actor_index (GNode    *node,
                          gpointer  data)
 {
   MetaWaylandSurface *surface = node->data;
-  MetaSurfaceActor *surface_actor = meta_wayland_surface_get_actor (surface);
   SurfaceTreeTraverseData *traverse_data = data;
+  ClutterActor *window_actor = CLUTTER_ACTOR (traverse_data->window_actor);
+  ClutterActor *surface_actor =
+    CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
 
-  if (clutter_actor_contains (CLUTTER_ACTOR (traverse_data->window_actor),
-                              CLUTTER_ACTOR (surface_actor)))
+  if (clutter_actor_contains (window_actor, surface_actor))
     {
-      clutter_actor_set_child_at_index (
-        CLUTTER_ACTOR (traverse_data->window_actor),
-        CLUTTER_ACTOR (surface_actor),
-        traverse_data->index);
+      if (clutter_actor_get_child_at_index (window_actor, traverse_data->index) !=
+          surface_actor)
+        {
+          clutter_actor_set_child_at_index (window_actor,
+                                            surface_actor,
+                                            traverse_data->index);
+        }
     }
   else
     {
-      clutter_actor_insert_child_at_index (
-        CLUTTER_ACTOR (traverse_data->window_actor),
-        CLUTTER_ACTOR (surface_actor),
-        traverse_data->index);
+      clutter_actor_insert_child_at_index (window_actor,
+                                           surface_actor,
+                                           traverse_data->index);
     }
   traverse_data->index++;
 
