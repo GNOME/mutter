@@ -471,11 +471,19 @@ init_keymap (MetaDefaultPlugin *self)
 }
 
 static void
+prepare_shutdown (MetaBackend       *backend,
+                  MetaDefaultPlugin *plugin)
+{
+  kill_switch_workspace (META_PLUGIN (plugin));
+}
+
+static void
 start (MetaPlugin *plugin)
 {
   MetaDefaultPlugin *self = META_DEFAULT_PLUGIN (plugin);
   MetaDisplay *display = meta_plugin_get_display (plugin);
   MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
+  MetaBackend *backend = meta_get_backend ();
 
   self->priv->background_group = meta_background_group_new ();
   clutter_actor_insert_child_below (meta_get_window_group_for_display (display),
@@ -485,6 +493,10 @@ start (MetaPlugin *plugin)
                     G_CALLBACK (on_monitors_changed), plugin);
 
   on_monitors_changed (monitor_manager, plugin);
+
+  g_signal_connect (backend, "prepare-shutdown",
+                    G_CALLBACK (prepare_shutdown),
+                    self);
 
   if (meta_is_wayland_compositor ())
     init_keymap (self);
