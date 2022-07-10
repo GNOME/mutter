@@ -61,6 +61,7 @@
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
+#include "compositor/meta-compositor-view.h"
 #include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-private.h"
@@ -108,6 +109,7 @@ typedef struct _MetaCompositorPrivate
   gulong before_paint_handler_id;
   gulong after_paint_handler_id;
   gulong window_visibility_updated_id;
+  gulong monitors_changed_internal_id;
 
   int64_t server_time_query_time;
   int64_t server_time_offset;
@@ -136,6 +138,8 @@ typedef struct _MetaCompositorPrivate
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCompositor, meta_compositor,
                                      G_TYPE_OBJECT)
+
+static GQuark quark_compositor_view;
 
 static void
 on_presented (ClutterStage     *stage,
@@ -927,6 +931,35 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
 }
 
 static void
+meta_compositor_ensure_compositor_views (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+  ClutterStage *stage =
+    CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
+  GList *l;
+
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      MetaCompositorView *compositor_view;
+
+      compositor_view = g_object_get_qdata (G_OBJECT (stage_view),
+                                            quark_compositor_view);
+
+      if (compositor_view)
+        continue;
+
+      compositor_view = meta_compositor_view_new (stage_view);
+
+      g_object_set_qdata_full (G_OBJECT (stage_view),
+                               quark_compositor_view,
+                               compositor_view,
+                               g_object_unref);
+    }
+}
+
+static void
 on_presented (ClutterStage     *stage,
               ClutterStageView *stage_view,
               ClutterFrameInfo *frame_info,
@@ -1054,6 +1087,13 @@ on_window_visibility_updated (MetaDisplay    *display,
 }
 
 static void
+on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
+                              MetaCompositor     *compositor)
+{
+  meta_compositor_ensure_compositor_views (compositor);
+}
+
+static void
 meta_compositor_set_property (GObject      *object,
                               guint         prop_id,
                               const GValue *value,
@@ -1113,6 +1153,8 @@ meta_compositor_constructed (GObject *object)
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (priv->backend);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
 
   priv->context = clutter_backend->cogl_context;
 
@@ -1133,9 +1175,17 @@ meta_compositor_constructed (GObject *object)
                       G_CALLBACK (on_window_visibility_updated),
                       compositor);
 
+  priv->monitors_changed_internal_id =
+    g_signal_connect (monitor_manager,
+                      "monitors-changed-internal",
+                      G_CALLBACK (on_monitors_changed_internal),
+                      compositor);
+
   priv->laters = meta_laters_new (compositor);
 
   G_OBJECT_CLASS (meta_compositor_parent_class)->constructed (object);
+
+  meta_compositor_ensure_compositor_views (compositor);
 }
 
 static void
@@ -1190,6 +1240,9 @@ meta_compositor_class_init (MetaCompositorClass *klass)
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  quark_compositor_view =
+    g_quark_from_static_string ("-meta-compositor-view");
 }
 
 /**
