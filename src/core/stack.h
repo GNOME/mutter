@@ -258,72 +258,6 @@ MetaWindow * meta_stack_get_below (MetaStack  *stack,
                                    gboolean    only_within_layer);
 
 /**
- * meta_stack_get_default_focus_window:
- * @stack: The stack to search.
- * @workspace: %NULL to search all workspaces; otherwise only windows
- *             from that workspace will be returned.
- * @not_this_one: Window to ignore because it's being unfocussed or
- *                going away.
- *
- * Find the topmost, focusable, mapped, window in a stack. If you supply
- * a window as @not_this_one, we won't return that one (presumably
- * because it's going to be going away).  But if you do supply @not_this_one
- * and we find its parent, we'll return that; and if @not_this_one is in
- * a group, we'll return the top window of that group.
- *
- * Also, we are prejudiced against dock windows.  Every kind of window, even
- * the desktop, will be returned in preference to a dock window.
- *
- * Returns: The window matching all these constraints or %NULL if none does.
-  */
-MetaWindow * meta_stack_get_default_focus_window (MetaStack     *stack,
-                                                  MetaWorkspace *workspace,
-                                                  MetaWindow    *not_this_one);
-
-/**
- * meta_stack_get_default_focus_window_at_point:
- * @stack: The stack to search.
- * @workspace: %NULL to search all workspaces; otherwise only windows
- *             from that workspace will be returned.
- * @not_this_one: Window to ignore because it's being unfocussed or
- *                going away.
- * @root_x: The returned window must contain this point,
- *          unless it's a dock.
- * @root_y: See root_x.
- *
- * Find the topmost, focusable, mapped, window in a stack.  If you supply
- * a window as @not_this_one, we won't return that one (presumably
- * because it's going to be going away).  But if you do supply @not_this_one
- * and we find its parent, we'll return that; and if @not_this_one is in
- * a group, we'll return the top window of that group.
- *
- * Also, we are prejudiced against dock windows.  Every kind of window, even
- * the desktop, will be returned in preference to a dock window.
- *
- * Returns: The window matching all these constraints or %NULL if none does.
- */
-MetaWindow * meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
-                                                           MetaWorkspace *workspace,
-                                                           MetaWindow    *not_this_one,
-                                                           int            root_x,
-                                                           int            root_y);
-
-/**
- * meta_stack_get_default_focus_candidates:
- * @stack: The stack to examine.
- * @workspace: If not %NULL, only windows on this workspace will be
- *             returned; otherwise all windows in the stack will be
- *             returned.
- *
- * Returns all the focus candidate windows in the stack, in order.
- *
- * Returns: (transfer container) (element-type Meta.Window):
- *     A #GList of #MetaWindow, in stacking order, honouring layers.
- */
-GList * meta_stack_get_default_focus_candidates (MetaStack     *stack,
-                                                 MetaWorkspace *workspace);
-
-/**
  * meta_stack_list_windows:
  * @stack: The stack to examine.
  * @workspace: If not %NULL, only windows on this workspace will be
@@ -403,4 +337,5 @@ void meta_stack_set_positions (MetaStack *stack,
 
 void meta_stack_update_window_tile_matches (MetaStack     *stack,
                                             MetaWorkspace *workspace);
+
 #endif

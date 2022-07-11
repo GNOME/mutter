@@ -35,6 +35,7 @@
 #include <X11/extensions/Xfixes.h>
 
 #include "core/meta-workspace-manager-private.h"
+#include "core/workspace-private.h"
 #include "meta/meta-x11-errors.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-xwayland-private.h"
@@ -726,10 +727,9 @@ pick_drop_surface (MetaWaylandCompositor *compositor,
   graphene_point_t pos;
 
   clutter_event_get_coords (event, &pos.x, &pos.y);
-  focus_window = meta_stack_get_default_focus_window_at_point (display->stack,
-                                                               workspace,
-                                                               NULL,
-                                                               pos.x, pos.y);
+  focus_window = meta_workspace_get_default_focus_window_at_point (workspace,
+                                                                   NULL,
+                                                                   pos.x, pos.y);
   return focus_window ? focus_window->surface : NULL;
 }
 

@@ -901,7 +901,6 @@ maybe_focus_default_window (MetaDisplay *display,
                             guint32      timestamp)
 {
   MetaWorkspace *workspace;
-  MetaStack *stack = display->stack;
   g_autoptr (GList) focusable_windows = NULL;
   g_autoptr (GQueue) focus_candidates = NULL;
   GList *l;
@@ -917,7 +916,7 @@ maybe_focus_default_window (MetaDisplay *display,
     * focused window, will stop the chained requests.
     */
   focusable_windows =
-    meta_stack_get_default_focus_candidates (stack, workspace);
+    meta_workspace_get_default_focus_candidates (workspace);
   focus_candidates = g_queue_new ();
 
   for (l = g_list_last (focusable_windows); l; l = l->prev)

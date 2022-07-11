@@ -3794,30 +3794,6 @@ meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
   purposes */ return logical_monitor->in_fullscreen == TRUE;
 }
 
-MetaWindow *
-meta_display_get_pointer_window (MetaDisplay *display,
-                                 MetaWindow  *not_this_one)
-{
-  MetaWorkspaceManager *workspace_manager = display->workspace_manager;
-  MetaBackend *backend = meta_get_backend ();
-  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  MetaWindow *window;
-  graphene_point_t point;
-
-  if (not_this_one)
-    meta_topic (META_DEBUG_FOCUS,
-                "Focusing mouse window excluding %s", not_this_one->desc);
-
-  meta_cursor_tracker_get_pointer (cursor_tracker, &point, NULL);
-
-  window = meta_stack_get_default_focus_window_at_point (display->stack,
-                                                         workspace_manager->active_workspace,
-                                                         not_this_one,
-                                                         point.x, point.y);
-
-  return window;
-}
-
 void
 meta_display_focus_default_window (MetaDisplay *display,
                                    guint32      timestamp)

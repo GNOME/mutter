@@ -5058,9 +5058,15 @@ meta_window_update_appears_focused (MetaWindow *window)
   workspace = meta_window_get_workspace (window);
 
   if (workspace && workspace != workspace_manager->active_workspace)
-    appears_focused = window == meta_workspace_get_default_focus_window (workspace);
+    {
+      appears_focused =
+        window == meta_workspace_get_default_focus_window (workspace, NULL) &&
+        meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK;
+    }
   else
-    appears_focused = window->has_focus || window->attached_focus_window;
+    {
+      appears_focused = window->has_focus || window->attached_focus_window;
+    }
 
   if (window->appears_focused == appears_focused)
     return;
