@@ -61,7 +61,6 @@
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
-#include "compositor/meta-compositor-view.h"
 #include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-private.h"
@@ -130,6 +129,8 @@ typedef struct _MetaCompositorPrivate
   int disable_unredirect_count;
 
   int switch_workspace_in_progress;
+
+  gboolean frame_in_progress;
 
   MetaPluginManager *plugin_mgr;
 
@@ -986,34 +987,44 @@ on_presented (ClutterStage     *stage,
 }
 
 static void
-meta_compositor_real_before_paint (MetaCompositor   *compositor,
-                                   ClutterStageView *stage_view)
+meta_compositor_real_before_paint (MetaCompositor     *compositor,
+                                   MetaCompositorView *compositor_view)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
+  ClutterStageView *stage_view;
   GList *l;
+
+  stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
   for (l = priv->windows; l; l = l->next)
     meta_window_actor_before_paint (l->data, stage_view);
 }
 
 static void
-meta_compositor_before_paint (MetaCompositor   *compositor,
-                              ClutterStageView *stage_view)
+meta_compositor_before_paint (MetaCompositor     *compositor,
+                              MetaCompositorView *compositor_view)
 {
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPrePaint,
                            "Compositor (before-paint)");
-  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor, stage_view);
+
+  priv->frame_in_progress = TRUE;
+
+  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor, compositor_view);
 }
 
 static void
-meta_compositor_real_after_paint (MetaCompositor   *compositor,
-                                  ClutterStageView *stage_view)
+meta_compositor_real_after_paint (MetaCompositor     *compositor,
+                                  MetaCompositorView *compositor_view)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   ClutterActor *stage_actor = meta_backend_get_stage (priv->backend);
   CoglGraphicsResetStatus status;
+  ClutterStageView *stage_view;
   GList *l;
 
   status = cogl_get_graphics_reset_status (priv->context);
@@ -1040,6 +1051,8 @@ meta_compositor_real_after_paint (MetaCompositor   *compositor,
       break;
     }
 
+  stage_view = meta_compositor_view_get_stage_view (compositor_view);
+
   for (l = priv->windows; l; l = l->next)
     {
       ClutterActor *actor = l->data;
@@ -1052,12 +1065,17 @@ meta_compositor_real_after_paint (MetaCompositor   *compositor,
 }
 
 static void
-meta_compositor_after_paint (MetaCompositor   *compositor,
-                             ClutterStageView *stage_view)
+meta_compositor_after_paint (MetaCompositor     *compositor,
+                             MetaCompositorView *compositor_view)
 {
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPostPaint,
                            "Compositor (after-paint)");
-  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor, stage_view);
+  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor, compositor_view);
+
+  priv->frame_in_progress = FALSE;
 }
 
 static void
@@ -1065,7 +1083,14 @@ on_before_paint (ClutterStage     *stage,
                  ClutterStageView *stage_view,
                  MetaCompositor   *compositor)
 {
-  meta_compositor_before_paint (compositor, stage_view);
+  MetaCompositorView *compositor_view;
+
+  compositor_view = g_object_get_qdata (G_OBJECT (stage_view),
+                                        quark_compositor_view);
+
+  g_assert (compositor_view != NULL);
+
+  meta_compositor_before_paint (compositor, compositor_view);
 }
 
 static void
@@ -1073,7 +1098,14 @@ on_after_paint (ClutterStage     *stage,
                 ClutterStageView *stage_view,
                 MetaCompositor   *compositor)
 {
-  meta_compositor_after_paint (compositor, stage_view);
+  MetaCompositorView *compositor_view;
+
+  compositor_view = g_object_get_qdata (G_OBJECT (stage_view),
+                                        quark_compositor_view);
+
+  g_assert (compositor_view != NULL);
+
+  meta_compositor_after_paint (compositor, compositor_view);
 }
 
 static void

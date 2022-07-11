@@ -7,6 +7,7 @@
 
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
+#include "compositor/meta-compositor-view.h"
 #include "compositor/meta-plugin-manager.h"
 #include "compositor/meta-window-actor-private.h"
 #include "meta/compositor.h"
@@ -24,10 +25,10 @@ struct _MetaCompositorClass
   gboolean (* manage) (MetaCompositor  *compositor,
                        GError         **error);
   void (* unmanage) (MetaCompositor *compositor);
-  void (* before_paint) (MetaCompositor   *compositor,
-                         ClutterStageView *stage_view);
-  void (* after_paint) (MetaCompositor   *compositor,
-                        ClutterStageView *stage_view);
+  void (* before_paint) (MetaCompositor     *compositor,
+                         MetaCompositorView *compositor_view);
+  void (* after_paint) (MetaCompositor     *compositor,
+                        MetaCompositorView *compositor_view);
   void (* remove_window) (MetaCompositor *compositor,
                           MetaWindow     *window);
   int64_t (* monotonic_to_high_res_xserver_time) (MetaCompositor *compositor,

@@ -156,8 +156,8 @@ done:
 #endif /* HAVE_WAYLAND */
 
 static void
-meta_compositor_native_before_paint (MetaCompositor   *compositor,
-                                     ClutterStageView *stage_view)
+meta_compositor_native_before_paint (MetaCompositor     *compositor,
+                                     MetaCompositorView *compositor_view)
 {
   MetaCompositorClass *parent_class;
 
@@ -166,7 +166,7 @@ meta_compositor_native_before_paint (MetaCompositor   *compositor,
 #endif
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_native_parent_class);
-  parent_class->before_paint (compositor, stage_view);
+  parent_class->before_paint (compositor, compositor_view);
 }
 
 MetaCompositorNative *

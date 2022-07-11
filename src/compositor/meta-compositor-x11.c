@@ -385,8 +385,8 @@ on_after_update (ClutterStage     *stage,
 }
 
 static void
-meta_compositor_x11_before_paint (MetaCompositor   *compositor,
-                                  ClutterStageView *stage_view)
+meta_compositor_x11_before_paint (MetaCompositor     *compositor,
+                                  MetaCompositorView *compositor_view)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
@@ -394,7 +394,7 @@ meta_compositor_x11_before_paint (MetaCompositor   *compositor,
   maybe_unredirect_top_window (compositor_x11);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->before_paint (compositor, stage_view);
+  parent_class->before_paint (compositor, compositor_view);
 }
 
 static void
