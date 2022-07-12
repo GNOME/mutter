@@ -27,11 +27,17 @@
 
 #include "clutter/clutter-mutter.h"
 #include "compositor/meta-compositor-view.h"
+#include "meta/compositor.h"
 
 #define META_TYPE_COMPOSITOR_VIEW_NATIVE (meta_compositor_view_native_get_type ())
 G_DECLARE_FINAL_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
                       META, COMPOSITOR_VIEW_NATIVE, MetaCompositorView)
 
 MetaCompositorViewNative *meta_compositor_view_native_new (ClutterStageView *stage_view);
+
+#ifdef HAVE_WAYLAND
+void meta_compositor_view_native_maybe_assign_scanout (MetaCompositorViewNative *view_native,
+                                                       MetaCompositor           *compositor);
+#endif /* HAVE_WAYLAND */
 
 #endif /* META_COMPOSITOR_VIEW_NATIVE_H */

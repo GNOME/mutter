@@ -26,13 +26,165 @@
 
 #include "compositor/meta-compositor-view-native.h"
 
+#include "backends/meta-crtc.h"
+#include "backends/native/meta-crtc-kms.h"
+#include "compositor/compositor-private.h"
+#include "compositor/meta-window-actor-private.h"
+
+#ifdef HAVE_WAYLAND
+#include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-surface.h"
+#endif /* HAVE_WAYLAND */
+
 struct _MetaCompositorViewNative
 {
   MetaCompositorView parent;
+
+#ifdef HAVE_WAYLAND
+  MetaWaylandSurface *scanout_candidate;
+#endif /* HAVE_WAYLAND */
 };
 
 G_DEFINE_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
                META_TYPE_COMPOSITOR_VIEW)
+
+#ifdef HAVE_WAYLAND
+static void
+update_scanout_candidate (MetaCompositorViewNative *view_native,
+                          MetaWaylandSurface       *surface,
+                          MetaCrtc                 *crtc)
+{
+  if (view_native->scanout_candidate &&
+      view_native->scanout_candidate != surface)
+    {
+      meta_wayland_surface_set_scanout_candidate (view_native->scanout_candidate,
+                                                  NULL);
+      g_clear_weak_pointer (&view_native->scanout_candidate);
+    }
+
+  if (surface)
+    {
+      meta_wayland_surface_set_scanout_candidate (surface, crtc);
+      g_set_weak_pointer (&view_native->scanout_candidate,
+                          surface);
+    }
+}
+
+static gboolean
+find_scanout_candidate (MetaCompositorView  *compositor_view,
+                        MetaCompositor      *compositor,
+                        MetaCrtc           **crtc_out,
+                        CoglOnscreen       **onscreen_out,
+                        MetaWaylandSurface **surface_out)
+{
+  ClutterStageView *stage_view;
+  MetaRendererView *renderer_view;
+  MetaCrtc *crtc;
+  CoglFramebuffer *framebuffer;
+  MetaWindowActor *window_actor;
+  MetaWindow *window;
+  MetaSurfaceActor *surface_actor;
+  MetaSurfaceActorWayland *surface_actor_wayland;
+  MetaWaylandSurface *surface;
+  int geometry_scale;
+
+  if (meta_compositor_is_unredirect_inhibited (compositor))
+    return FALSE;
+
+  stage_view = meta_compositor_view_get_stage_view (compositor_view);
+  renderer_view = META_RENDERER_VIEW (stage_view);
+
+  crtc = meta_renderer_view_get_crtc (renderer_view);
+  if (!META_IS_CRTC_KMS (crtc))
+    return FALSE;
+
+  framebuffer = clutter_stage_view_get_framebuffer (stage_view);
+  if (!COGL_IS_ONSCREEN (framebuffer))
+    return FALSE;
+
+  window_actor = meta_compositor_view_get_top_window_actor (compositor_view);
+  if (!window_actor)
+    return FALSE;
+
+  if (meta_window_actor_effect_in_progress (window_actor))
+    return FALSE;
+
+  if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
+    return FALSE;
+
+  window = meta_window_actor_get_meta_window (window_actor);
+  if (!window)
+    return FALSE;
+
+  surface_actor = meta_window_actor_get_scanout_candidate (window_actor);
+  if (!surface_actor)
+    return FALSE;
+
+  if (meta_surface_actor_is_obscured (surface_actor))
+    return FALSE;
+
+  surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);
+  surface = meta_surface_actor_wayland_get_surface (surface_actor_wayland);
+  if (!surface)
+    return FALSE;
+
+  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
+
+  if (!meta_wayland_surface_can_scanout_untransformed (surface,
+                                                       renderer_view,
+                                                       geometry_scale))
+    return FALSE;
+
+  *crtc_out = crtc;
+  *onscreen_out = COGL_ONSCREEN (framebuffer);
+  *surface_out = surface;
+
+  return TRUE;
+}
+
+static void
+try_assign_next_scanout (MetaCompositorView *compositor_view,
+                         CoglOnscreen       *onscreen,
+                         MetaWaylandSurface *surface)
+{
+  ClutterStageView *stage_view;
+  g_autoptr (CoglScanout) scanout = NULL;
+
+  scanout = meta_wayland_surface_try_acquire_scanout (surface,
+                                                      onscreen);
+  if (!scanout)
+    return;
+
+  stage_view = meta_compositor_view_get_stage_view (compositor_view);
+
+  clutter_stage_view_assign_next_scanout (stage_view, scanout);
+}
+
+void
+meta_compositor_view_native_maybe_assign_scanout (MetaCompositorViewNative *view_native,
+                                                  MetaCompositor           *compositor)
+{
+  MetaCompositorView *compositor_view = META_COMPOSITOR_VIEW (view_native);
+  MetaCrtc *crtc = NULL;
+  CoglOnscreen *onscreen = NULL;
+  MetaWaylandSurface *surface = NULL;
+  gboolean candidate_found;
+
+  candidate_found = find_scanout_candidate (compositor_view,
+                                            compositor,
+                                            &crtc,
+                                            &onscreen,
+                                            &surface);
+  if (candidate_found)
+    {
+      try_assign_next_scanout (compositor_view,
+                               onscreen,
+                               surface);
+    }
+
+  update_scanout_candidate (view_native, surface, crtc);
+}
+#endif /* HAVE_WAYLAND */
 
 MetaCompositorViewNative *
 meta_compositor_view_native_new (ClutterStageView *stage_view)
@@ -45,8 +197,23 @@ meta_compositor_view_native_new (ClutterStageView *stage_view)
 }
 
 static void
+meta_compositor_view_native_finalize (GObject *object)
+{
+#ifdef HAVE_WAYLAND
+  MetaCompositorViewNative *view_native = META_COMPOSITOR_VIEW_NATIVE (object);
+
+  g_clear_weak_pointer (&view_native->scanout_candidate);
+#endif /* HAVE_WAYLAND */
+
+  G_OBJECT_CLASS (meta_compositor_view_native_parent_class)->finalize (object);
+}
+
+static void
 meta_compositor_view_native_class_init (MetaCompositorViewNativeClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_compositor_view_native_finalize;
 }
 
 static void
