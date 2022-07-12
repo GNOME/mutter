@@ -1024,7 +1024,7 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
           if (format.drm_modifier != DRM_FORMAT_MOD_INVALID)
             continue;
 
-          if (!meta_crtc_kms_get_modifiers (crtc_kms, format.drm_format))
+          if (!meta_crtc_kms_supports_format (crtc_kms, format.drm_format))
             continue;
 
           g_array_append_val (formats, format);
