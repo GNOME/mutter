@@ -1104,11 +1104,11 @@ unset_crtc_cursor_renderer_privates (MetaGpu       *gpu,
   for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
       MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
-      MetaDrmBuffer *crtc_buffer;
+      CrtcCursorData *crtc_cursor_data;
 
-      crtc_buffer = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
-      if (buffer == crtc_buffer)
-        meta_crtc_kms_set_cursor_renderer_private (crtc_kms, NULL, NULL);
+      crtc_cursor_data = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
+      if (crtc_cursor_data && buffer == crtc_cursor_data->buffer)
+        crtc_cursor_data->buffer = NULL;
     }
 }
 
