@@ -266,7 +266,7 @@ handle_start_element (GMarkupParseContext  *context,
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
                          "Missing config file format version");
           }
-        
+
         if (g_str_equal (version, "1"))
           {
             g_set_error_literal (error,
