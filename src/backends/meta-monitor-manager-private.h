@@ -82,11 +82,11 @@ typedef enum
  */
 struct _MetaCrtcAssignment
 {
-  MetaCrtc                 *crtc;
-  MetaCrtcMode             *mode;
-  graphene_rect_t           layout;
-  MetaMonitorTransform      transform;
-  GPtrArray                *outputs;
+  MetaCrtc *crtc;
+  MetaCrtcMode *mode;
+  graphene_rect_t layout;
+  MetaMonitorTransform transform;
+  GPtrArray *outputs;
 };
 
 /*
@@ -97,10 +97,10 @@ struct _MetaCrtcAssignment
  */
 struct _MetaOutputAssignment
 {
-  MetaOutput  *output;
-  gboolean     is_primary;
-  gboolean     is_presentation;
-  gboolean     is_underscanning;
+  MetaOutput *output;
+  gboolean is_primary;
+  gboolean is_presentation;
+  gboolean is_underscanning;
 };
 
 /*
