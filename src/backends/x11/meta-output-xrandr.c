@@ -903,8 +903,7 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
   output_info->panel_orientation_transform =
     output_get_panel_orientation_transform (xdisplay, output_id);
 
-  if (meta_monitor_transform_is_rotated (
-                                output_info->panel_orientation_transform))
+  if (meta_monitor_transform_is_rotated (output_info->panel_orientation_transform))
     {
       output_info->width_mm = xrandr_output->mm_height;
       output_info->height_mm = xrandr_output->mm_width;
