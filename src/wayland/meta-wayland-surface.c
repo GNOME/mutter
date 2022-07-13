@@ -311,7 +311,7 @@ get_buffer_width (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_width (surface->texture);
+    return cogl_texture_get_width (surface->output_state.texture);
   else
     return 0;
 }
@@ -322,7 +322,7 @@ get_buffer_height (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_height (surface->texture);
+    return cogl_texture_get_height (surface->output_state.texture);
   else
     return 0;
 }
@@ -418,7 +418,8 @@ surface_process_damage (MetaWaylandSurface *surface,
 
   cairo_region_intersect_rectangle (buffer_region, &buffer_rect);
 
-  meta_wayland_buffer_process_damage (buffer, surface->texture, buffer_region);
+  meta_wayland_buffer_process_damage (buffer, surface->output_state.texture,
+                                      buffer_region);
 
   actor = meta_wayland_surface_get_actor (surface);
   if (actor)
@@ -469,6 +470,7 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
 {
   state->newly_attached = FALSE;
   state->buffer = NULL;
+  state->texture = NULL;
   state->buffer_destroy_handler_id = 0;
   state->dx = 0;
   state->dy = 0;
@@ -514,6 +516,8 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
 {
   MetaWaylandFrameCallback *cb, *next;
 
+  cogl_clear_object (&state->texture);
+
   g_clear_pointer (&state->surface_damage, cairo_region_destroy);
   g_clear_pointer (&state->buffer_damage, cairo_region_destroy);
   g_clear_pointer (&state->input_region, cairo_region_destroy);
@@ -549,6 +553,9 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
 
       to->newly_attached = TRUE;
       to->buffer = from->buffer;
+
+      cogl_clear_object (&to->texture);
+      to->texture = g_steal_pointer (&from->texture);
     }
 
   to->dx += from->dx;
@@ -799,30 +806,8 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
       if (state->buffer)
         meta_wayland_surface_ref_buffer_use_count (surface);
 
-      if (state->buffer)
-        {
-          GError *error = NULL;
-
-          if (!meta_wayland_buffer_attach (state->buffer,
-                                           &surface->texture,
-                                           &error))
-            {
-              g_warning ("Could not import pending buffer: %s", error->message);
-              if (surface->resource)
-                {
-                  wl_resource_post_error (surface->resource, WL_DISPLAY_ERROR_NO_MEMORY,
-                                          "Failed to attach buffer to surface %i: %s",
-                                          wl_resource_get_id (surface->resource),
-                                          error->message);
-                }
-              g_error_free (error);
-              goto cleanup;
-            }
-        }
-      else
-        {
-          cogl_clear_object (&surface->texture);
-        }
+      cogl_clear_object (&surface->output_state.texture);
+      surface->output_state.texture = g_steal_pointer (&state->texture);
 
       /* If the newly attached buffer is going to be accessed directly without
        * making a copy, such as an EGL buffer, mark it as in-use don't release
@@ -949,7 +934,6 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if (state->subsurface_placement_ops)
     meta_wayland_surface_notify_subsurface_state_changed (surface);
 
-cleanup:
   /* If we have a buffer that we are not using, decrease the use count so it may
    * be released if no-one else has a use-reference to it.
    */
@@ -1000,15 +984,39 @@ static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
   MetaWaylandSurfaceState *pending = surface->pending_state;
+  MetaWaylandBuffer *buffer = pending->buffer;
   MetaWaylandTransaction *transaction;
   MetaWaylandSurface *subsurface_surface;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
                            "WaylandSurface (commit)");
 
-  if (pending->buffer &&
-      !meta_wayland_buffer_is_realized (pending->buffer))
-    meta_wayland_buffer_realize (pending->buffer);
+  if (buffer)
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (!meta_wayland_buffer_is_realized (buffer))
+        meta_wayland_buffer_realize (buffer);
+
+      if (!meta_wayland_buffer_attach (buffer,
+                                       &surface->protocol_state.texture,
+                                       &error))
+        {
+          g_warning ("Could not import pending buffer: %s", error->message);
+
+          wl_resource_post_error (surface->resource, WL_DISPLAY_ERROR_NO_MEMORY,
+                                  "Failed to attach buffer to surface %i: %s",
+                                  wl_resource_get_id (surface->resource),
+                                  error->message);
+          return;
+        }
+
+      pending->texture = cogl_object_ref (surface->protocol_state.texture);
+    }
+  else if (pending->newly_attached)
+    {
+      cogl_clear_object (&surface->protocol_state.texture);
+    }
 
   if (meta_wayland_surface_is_synchronized (surface))
     transaction = meta_wayland_surface_ensure_transaction (surface);
@@ -1483,7 +1491,7 @@ meta_wayland_surface_finalize (GObject *object)
 
   if (surface->buffer_held)
     meta_wayland_surface_unref_buffer_use_count (surface);
-  g_clear_pointer (&surface->texture, cogl_object_unref);
+  g_clear_pointer (&surface->output_state.texture, cogl_object_unref);
   g_clear_pointer (&surface->buffer_ref, meta_wayland_buffer_ref_unref);
 
   if (surface->opaque_region)
@@ -1534,6 +1542,8 @@ wl_surface_destructor (struct wl_resource *resource)
 
   g_clear_pointer (&surface->wl_subsurface, wl_resource_destroy);
   g_clear_pointer (&surface->protocol_state.subsurface_branch_node, g_node_destroy);
+
+  cogl_clear_object (&surface->protocol_state.texture);
 
   /*
    * Any transactions referencing this surface will keep it alive until they get
@@ -2117,7 +2127,7 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
 CoglTexture *
 meta_wayland_surface_get_texture (MetaWaylandSurface *surface)
 {
-  return surface->texture;
+  return surface->output_state.texture;
 }
 
 MetaSurfaceActor *

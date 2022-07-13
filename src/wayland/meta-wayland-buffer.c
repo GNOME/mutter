@@ -561,8 +561,6 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
                             CoglTexture       **texture,
                             GError            **error)
 {
-  g_return_val_if_fail (buffer->resource, FALSE);
-
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandBufferAttach, "WaylandBuffer (attach)");
 
   if (!meta_wayland_buffer_is_realized (buffer))

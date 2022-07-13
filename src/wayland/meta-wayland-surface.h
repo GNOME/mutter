@@ -80,6 +80,7 @@ struct _MetaWaylandSurfaceState
   /* wl_surface.attach */
   gboolean newly_attached;
   MetaWaylandBuffer *buffer;
+  CoglTexture *texture;
   gulong buffer_destroy_handler_id;
   int32_t dx;
   int32_t dy;
@@ -169,8 +170,6 @@ struct _MetaWaylandSurface
   GHashTable *outputs;
   MetaMonitorTransform buffer_transform;
 
-  CoglTexture *texture;
-
   /* Buffer reference state. */
   MetaWaylandBufferRef *buffer_ref;
 
@@ -194,6 +193,7 @@ struct _MetaWaylandSurface
     MetaWaylandSurface *parent;
     GNode *subsurface_branch_node;
     GNode *subsurface_leaf_node;
+    CoglTexture *texture;
   } output_state, protocol_state;
 
   /* Extension resources. */
