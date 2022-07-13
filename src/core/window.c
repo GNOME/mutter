@@ -4576,6 +4576,34 @@ meta_window_focus (MetaWindow  *window,
 
   META_WINDOW_GET_CLASS (window)->focus (window, timestamp);
 
+  /* Move to the front of the focusing workspace's MRU list.
+   * We should only be "removing" it from the MRU list if it's
+   * not already there.  Note that it's possible that we might
+   * be processing this FocusIn after we've changed to a
+   * different workspace; we should therefore update the MRU
+   * list only if the window is actually on the active
+   * workspace.
+   */
+  if (workspace_manager->active_workspace &&
+      meta_window_located_on_workspace (window,
+                                        workspace_manager->active_workspace))
+    {
+      GList *link;
+
+      link = g_list_find (workspace_manager->active_workspace->mru_list,
+                          window);
+      g_assert (link);
+
+      workspace_manager->active_workspace->mru_list =
+        g_list_remove_link (workspace_manager->active_workspace->mru_list,
+                            link);
+      g_list_free (link);
+
+      workspace_manager->active_workspace->mru_list =
+        g_list_prepend (workspace_manager->active_workspace->mru_list,
+                        window);
+    }
+
   backend = meta_get_backend ();
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
@@ -5130,40 +5158,11 @@ void
 meta_window_set_focused_internal (MetaWindow *window,
                                   gboolean    focused)
 {
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
-
   if (focused)
     {
       window->has_focus = TRUE;
       if (window->override_redirect)
         return;
-
-      /* Move to the front of the focusing workspace's MRU list.
-       * We should only be "removing" it from the MRU list if it's
-       * not already there.  Note that it's possible that we might
-       * be processing this FocusIn after we've changed to a
-       * different workspace; we should therefore update the MRU
-       * list only if the window is actually on the active
-       * workspace.
-       */
-      if (workspace_manager->active_workspace &&
-          meta_window_located_on_workspace (window,
-                                            workspace_manager->active_workspace))
-        {
-          GList* link;
-          link = g_list_find (workspace_manager->active_workspace->mru_list,
-                              window);
-          g_assert (link);
-
-          workspace_manager->active_workspace->mru_list =
-            g_list_remove_link (workspace_manager->active_workspace->mru_list,
-                                link);
-          g_list_free (link);
-
-          workspace_manager->active_workspace->mru_list =
-            g_list_prepend (workspace_manager->active_workspace->mru_list,
-                            window);
-        }
 
       if (window->frame)
         meta_frame_queue_draw (window->frame);
