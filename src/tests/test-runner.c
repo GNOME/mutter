@@ -1171,6 +1171,16 @@ test_case_do (TestCase *test,
       else
         meta_window_unmake_above (window);
     }
+  else if (strcmp (argv[0], "focus_default_window") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      MetaDisplay *display = meta_get_display ();
+      uint32_t timestamp = meta_display_get_current_time_roundtrip (display);
+
+      meta_display_focus_default_window (display, timestamp);
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);

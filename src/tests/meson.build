@@ -443,6 +443,7 @@ stacking_tests = [
   'workspace-basic',
   'workspace-test',
   'always-on-top',
+  'focus-default-window-globally-active-input',
 ]
 
 foreach stacking_test: stacking_tests
