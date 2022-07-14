@@ -317,7 +317,9 @@ actor_animate (ClutterActor         *actor,
 }
 
 static void
-on_switch_workspace_effect_complete (ClutterTimeline *timeline, gpointer data)
+on_switch_workspace_effect_stopped (ClutterTimeline *timeline,
+                                    gboolean         is_finished,
+                                    gpointer         data)
 {
   MetaPlugin               *plugin  = META_PLUGIN (data);
   MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
@@ -598,8 +600,8 @@ switch_workspace (MetaPlugin *plugin,
                                                "scale-y", 1.0,
                                                NULL);
   g_signal_connect (priv->tml_switch_workspace1,
-                    "completed",
-                    G_CALLBACK (on_switch_workspace_effect_complete),
+                    "stopped",
+                    G_CALLBACK (on_switch_workspace_effect_stopped),
                     plugin);
 
   priv->tml_switch_workspace2 = actor_animate (workspace2, CLUTTER_EASE_IN_SINE,
@@ -615,7 +617,9 @@ switch_workspace (MetaPlugin *plugin,
  * calls the manager callback function.
  */
 static void
-on_minimize_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data)
+on_minimize_effect_stopped (ClutterTimeline    *timeline,
+                            gboolean            is_finished,
+                            EffectCompleteData *data)
 {
   /*
    * Must reverse the effect of the effect; must hide it first to ensure
@@ -682,8 +686,8 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
       apriv->tml_minimize = timeline;
       data->plugin = plugin;
       data->actor = actor;
-      g_signal_connect (apriv->tml_minimize, "completed",
-                        G_CALLBACK (on_minimize_effect_complete),
+      g_signal_connect (apriv->tml_minimize, "stopped",
+                        G_CALLBACK (on_minimize_effect_stopped),
                         data);
     }
   else
@@ -691,7 +695,9 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
 }
 
 static void
-on_map_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data)
+on_map_effect_stopped (ClutterTimeline    *timeline,
+                       gboolean            is_finished,
+                       EffectCompleteData *data)
 {
   /*
    * Must reverse the effect of the effect.
@@ -742,8 +748,8 @@ map (MetaPlugin *plugin, MetaWindowActor *window_actor)
         {
           data->actor = actor;
           data->plugin = plugin;
-          g_signal_connect (apriv->tml_map, "completed",
-                            G_CALLBACK (on_map_effect_complete),
+          g_signal_connect (apriv->tml_map, "stopped",
+                            G_CALLBACK (on_map_effect_stopped),
                             data);
         }
       else
@@ -761,7 +767,9 @@ map (MetaPlugin *plugin, MetaWindowActor *window_actor)
  * further action than notifying the manager that the effect is completed.
  */
 static void
-on_destroy_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data)
+on_destroy_effect_stopped (ClutterTimeline    *timeline,
+                           gboolean            is_finished,
+                           EffectCompleteData *data)
 {
   MetaPlugin *plugin = data->plugin;
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (data->actor);
@@ -804,8 +812,8 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
       apriv->tml_destroy = timeline;
       data->plugin = plugin;
       data->actor = actor;
-      g_signal_connect (apriv->tml_destroy, "completed",
-                        G_CALLBACK (on_destroy_effect_complete),
+      g_signal_connect (apriv->tml_destroy, "stopped",
+                        G_CALLBACK (on_destroy_effect_stopped),
                         data);
     }
   else
@@ -910,7 +918,6 @@ finish_timeline (ClutterTimeline *timeline)
 {
   g_object_ref (timeline);
   clutter_timeline_stop (timeline);
-  g_signal_emit_by_name (timeline, "completed", NULL);
   g_object_unref (timeline);
 }
 
