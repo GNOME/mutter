@@ -422,8 +422,10 @@ coverage:
     - gcovr --add-tracefile 'coverage-*.json'
         --html-details --print-summary --output coveragereport/index.html
   artifacts:
+    expose_as: 'Coverage Report'
     paths:
       - coveragereport
+      - coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   needs:
     - test-mutter@x86_64
@@ -516,8 +518,9 @@ reference:
     - mv build/doc/reference/{cally/cally,clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta} references/
   artifacts:
     expire_in: 1 week
+    expose_as: 'Documentation'
     paths:
-      - references
+      - references/
 
 pages:
   stage: deploy
