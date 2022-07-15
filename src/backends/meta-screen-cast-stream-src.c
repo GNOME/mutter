@@ -598,6 +598,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   MetaRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
+  struct spa_meta_header *header;
   uint8_t *data = NULL;
   uint64_t now_us;
   g_autoptr (GError) error = NULL;
@@ -640,9 +641,17 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   spa_buffer = buffer->buffer;
   data = spa_buffer->datas[0].data;
 
+  header = spa_buffer_find_meta_data (spa_buffer,
+                                      SPA_META_Header,
+                                      sizeof (*header));
+
   if (spa_buffer->datas[0].type != SPA_DATA_DmaBuf && !data)
     {
       g_critical ("Invalid buffer data");
+      if (header)
+        header->flags = SPA_META_HEADER_FLAG_CORRUPTED;
+
+      pw_stream_queue_buffer (priv->pipewire_stream, buffer);
       return;
     }
 
@@ -699,6 +708,9 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   maybe_record_cursor (src, spa_buffer);
 
   priv->last_frame_timestamp_us = now_us;
+
+  if (header)
+    header->flags = 0;
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
@@ -795,7 +807,7 @@ on_stream_param_changed (void                 *data,
   uint8_t params_buffer[1024];
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[3];
+  const struct spa_pod *params[4];
   const int bpp = 4;
   int buffer_types;
 
@@ -839,6 +851,12 @@ on_stream_param_changed (void                 *data,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Cursor),
     SPA_PARAM_META_size, SPA_POD_Int (CURSOR_META_SIZE (384, 384)));
+
+  params[3] = spa_pod_builder_add_object (
+    &pod_builder,
+    SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
+    SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Header),
+    SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
 
   pw_stream_update_params (priv->pipewire_stream, params, G_N_ELEMENTS (params));
 
