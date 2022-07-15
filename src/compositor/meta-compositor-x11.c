@@ -28,6 +28,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
+#include "compositor/meta-compositor-view.h"
 #include "compositor/meta-sync-ring.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "core/display-private.h"
@@ -458,6 +459,13 @@ meta_compositor_x11_grab_end (MetaCompositor *compositor)
   meta_backend_x11_sync_pointer (backend_x11);
 }
 
+static MetaCompositorView *
+meta_compositor_x11_create_view (MetaCompositor   *compositor,
+                                 ClutterStageView *stage_view)
+{
+  return meta_compositor_view_new (stage_view);
+}
+
 Window
 meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11)
 {
@@ -532,4 +540,5 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
    meta_compositor_x11_monotonic_to_high_res_xserver_time;
   compositor_class->grab_begin = meta_compositor_x11_grab_begin;
   compositor_class->grab_end = meta_compositor_x11_grab_end;
+  compositor_class->create_view = meta_compositor_x11_create_view;
 }

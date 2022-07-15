@@ -35,6 +35,9 @@ struct _MetaCompositorClass
                                                   int64_t         time_us);
   void (* grab_begin) (MetaCompositor *compositor);
   void (* grab_end) (MetaCompositor *compositor);
+
+  MetaCompositorView * (* create_view) (MetaCompositor   *compositor,
+                                        ClutterStageView *stage_view);
 };
 
 gboolean meta_compositor_do_manage (MetaCompositor  *compositor,

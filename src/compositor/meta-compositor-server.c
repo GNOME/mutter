@@ -22,6 +22,7 @@
 
 #include "backends/meta-dnd-private.h"
 #include "compositor/meta-compositor-server.h"
+#include "compositor/meta-compositor-view.h"
 #include "core/display-private.h"
 
 G_DEFINE_TYPE (MetaCompositorServer, meta_compositor_server, META_TYPE_COMPOSITOR)
@@ -66,6 +67,13 @@ meta_compositor_server_grab_end (MetaCompositor *compositor)
   meta_display_sync_wayland_input_focus (display);
 }
 
+static MetaCompositorView *
+meta_compositor_server_create_view (MetaCompositor   *compositor,
+                                    ClutterStageView *stage_view)
+{
+  return meta_compositor_view_new (stage_view);
+}
+
 MetaCompositorServer *
 meta_compositor_server_new (MetaDisplay *display,
                             MetaBackend *backend)
@@ -91,4 +99,5 @@ meta_compositor_server_class_init (MetaCompositorServerClass *klass)
    meta_compositor_server_monotonic_to_high_res_xserver_time;
   compositor_class->grab_begin = meta_compositor_server_grab_begin;
   compositor_class->grab_end = meta_compositor_server_grab_end;
+  compositor_class->create_view = meta_compositor_server_create_view;
 }

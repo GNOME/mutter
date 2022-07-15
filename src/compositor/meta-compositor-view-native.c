@@ -22,30 +22,34 @@
  *     Dor Askayo <dor.askayo@gmail.com>
  */
 
-#ifndef META_COMPOSITOR_VIEW_H
-#define META_COMPOSITOR_VIEW_H
+#include "config.h"
 
-#include <glib-object.h>
+#include "compositor/meta-compositor-view-native.h"
 
-#include "clutter/clutter-mutter.h"
-#include "meta/meta-window-actor.h"
-
-struct _MetaCompositorViewClass
+struct _MetaCompositorViewNative
 {
-  GObjectClass parent_class;
+  MetaCompositorView parent;
 };
 
-#define META_TYPE_COMPOSITOR_VIEW (meta_compositor_view_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaCompositorView, meta_compositor_view,
-                          META, COMPOSITOR_VIEW, GObject)
+G_DEFINE_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
+               META_TYPE_COMPOSITOR_VIEW)
 
-MetaCompositorView *meta_compositor_view_new (ClutterStageView *stage_view);
+MetaCompositorViewNative *
+meta_compositor_view_native_new (ClutterStageView *stage_view)
+{
+  g_assert (stage_view != NULL);
 
-void meta_compositor_view_update_top_window_actor (MetaCompositorView *compositor_view,
-                                                   GList              *window_actors);
+  return g_object_new (META_TYPE_COMPOSITOR_VIEW_NATIVE,
+                       "stage-view", stage_view,
+                       NULL);
+}
 
-MetaWindowActor *meta_compositor_view_get_top_window_actor (MetaCompositorView *compositor_view);
+static void
+meta_compositor_view_native_class_init (MetaCompositorViewNativeClass *klass)
+{
+}
 
-ClutterStageView *meta_compositor_view_get_stage_view (MetaCompositorView *compositor_view);
-
-#endif /* META_COMPOSITOR_VIEW_H */
+static void
+meta_compositor_view_native_init (MetaCompositorViewNative *view_native)
+{
+}

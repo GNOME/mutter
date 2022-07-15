@@ -417,6 +417,14 @@ meta_compositor_redirect_x11_windows (MetaCompositor *compositor)
     redirect_windows (display->x11_display);
 }
 
+static MetaCompositorView *
+meta_compositor_create_view (MetaCompositor   *compositor,
+                             ClutterStageView *stage_view)
+{
+  return META_COMPOSITOR_GET_CLASS (compositor)->create_view (compositor,
+                                                              stage_view);
+}
+
 gboolean
 meta_compositor_do_manage (MetaCompositor  *compositor,
                            GError         **error)
@@ -1004,7 +1012,8 @@ meta_compositor_ensure_compositor_views (MetaCompositor *compositor)
       if (compositor_view)
         continue;
 
-      compositor_view = meta_compositor_view_new (stage_view);
+      compositor_view = meta_compositor_create_view (compositor,
+                                                     stage_view);
 
       g_object_set_qdata_full (G_OBJECT (stage_view),
                                quark_compositor_view,

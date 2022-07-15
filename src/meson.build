@@ -793,6 +793,8 @@ if have_native_backend
     'backends/native/meta-xkb-utils.h',
     'compositor/meta-compositor-native.c',
     'compositor/meta-compositor-native.h',
+    'compositor/meta-compositor-view-native.c',
+    'compositor/meta-compositor-view-native.h',
   ]
 endif
 

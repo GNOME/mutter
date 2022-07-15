@@ -24,6 +24,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "compositor/meta-compositor-view-native.h"
 #include "compositor/meta-surface-actor-wayland.h"
 
 struct _MetaCompositorNative
@@ -169,6 +170,17 @@ meta_compositor_native_before_paint (MetaCompositor     *compositor,
   parent_class->before_paint (compositor, compositor_view);
 }
 
+static MetaCompositorView *
+meta_compositor_native_create_view (MetaCompositor   *compositor,
+                                    ClutterStageView *stage_view)
+{
+  MetaCompositorViewNative *compositor_view_native;
+
+  compositor_view_native = meta_compositor_view_native_new (stage_view);
+
+  return META_COMPOSITOR_VIEW (compositor_view_native);
+}
+
 MetaCompositorNative *
 meta_compositor_native_new (MetaDisplay *display,
                             MetaBackend *backend)
@@ -203,4 +215,5 @@ meta_compositor_native_class_init (MetaCompositorNativeClass *klass)
   object_class->finalize = meta_compositor_native_finalize;
 
   compositor_class->before_paint = meta_compositor_native_before_paint;
+  compositor_class->create_view = meta_compositor_native_create_view;
 }
