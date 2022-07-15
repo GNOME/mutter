@@ -710,7 +710,10 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   priv->last_frame_timestamp_us = now_us;
 
   if (header)
-    header->flags = 0;
+    {
+      header->pts = now_us * SPA_NSEC_PER_USEC;
+      header->flags = 0;
+    }
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
