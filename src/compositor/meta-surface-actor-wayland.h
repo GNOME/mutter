@@ -44,9 +44,6 @@ MetaSurfaceActor * meta_surface_actor_wayland_new (MetaWaylandSurface *surface);
 MetaWaylandSurface * meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self);
 void meta_surface_actor_wayland_surface_destroyed (MetaSurfaceActorWayland *self);
 
-CoglScanout * meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
-                                                              CoglOnscreen            *onscreen);
-
 ClutterStageView * meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
                                                                         ClutterStage     *stage);
 

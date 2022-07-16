@@ -135,8 +135,8 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
   new_candidate = surface;
 
   onscreen = COGL_ONSCREEN (framebuffer);
-  scanout = meta_surface_actor_wayland_try_acquire_scanout (surface_actor_wayland,
-                                                            onscreen);
+  scanout = meta_wayland_surface_try_acquire_scanout (surface,
+                                                      onscreen);
   if (!scanout)
     goto done;
 
