@@ -119,6 +119,9 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
   if (!surface_actor)
     goto done;
 
+  if (meta_surface_actor_is_obscured (surface_actor))
+    goto done;
+
   surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);
   surface = meta_surface_actor_wayland_get_surface (surface_actor_wayland);
   if (!surface)
