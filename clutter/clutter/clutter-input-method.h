@@ -77,6 +77,7 @@ CLUTTER_EXPORT
 void clutter_input_method_set_preedit_text (ClutterInputMethod      *im,
                                             const gchar             *preedit,
                                             unsigned int             cursor,
+                                            unsigned int             anchor,
                                             ClutterPreeditResetMode  mode);
 
 CLUTTER_EXPORT

@@ -359,12 +359,13 @@ void
 clutter_input_method_set_preedit_text (ClutterInputMethod      *im,
                                        const gchar             *preedit,
                                        unsigned int             cursor,
+                                       unsigned int             anchor,
                                        ClutterPreeditResetMode  mode)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
   clutter_input_method_put_im_event (im, CLUTTER_IM_PREEDIT, preedit,
-                                     cursor, cursor, 0, mode);
+                                     cursor, anchor, 0, mode);
 }
 
 void
