@@ -398,7 +398,8 @@ clutter_text_input_focus_commit_text (ClutterInputFocus *focus,
 static void
 clutter_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                            const gchar       *preedit_text,
-                                           guint              cursor_pos)
+                                           unsigned int       cursor_pos,
+                                           unsigned int       anchor_pos)
 {
   ClutterText *clutter_text = CLUTTER_TEXT_INPUT_FOCUS (focus)->text;
 

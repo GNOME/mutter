@@ -35,6 +35,7 @@ void clutter_input_focus_request_surrounding (ClutterInputFocus *focus);
 
 void clutter_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                            const gchar       *preedit,
-                                           guint              cursor);
+                                           unsigned int       cursor,
+                                           unsigned int       anchor);
 
 #endif /* __CLUTTER_INPUT_FOCUS_PRIVATE_H__ */

@@ -248,7 +248,8 @@ meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
 static void
 meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                                 const gchar       *text,
-                                                guint              cursor)
+                                                unsigned int       cursor,
+                                                unsigned int       anchor)
 {
   MetaWaylandTextInput *text_input;
   gsize pos = 0;
@@ -265,7 +266,7 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
     pos = g_utf8_offset_to_pointer (text, cursor) - text;
 
   text_input->preedit.cursor = pos;
-  text_input->preedit.anchor = pos;
+  text_input->preedit.anchor = anchor;
   text_input->preedit.changed = TRUE;
 
   meta_wayland_text_input_focus_defer_done (focus);

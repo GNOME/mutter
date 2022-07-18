@@ -48,7 +48,8 @@ struct _ClutterInputFocusClass
 
   void (* set_preedit_text) (ClutterInputFocus *focus,
                              const gchar       *preedit,
-                             guint              cursor);
+                             guint              cursor,
+                             guint              anchor);
 };
 
 CLUTTER_EXPORT
