@@ -282,6 +282,7 @@ clutter_input_method_put_im_event (ClutterInputMethod      *im,
                                    ClutterEventType         event_type,
                                    const char              *text,
                                    int32_t                  offset,
+                                   int32_t                  anchor,
                                    uint32_t                 len,
                                    ClutterPreeditResetMode  mode)
 {
@@ -299,6 +300,7 @@ clutter_input_method_put_im_event (ClutterInputMethod      *im,
   event = clutter_event_new (event_type);
   event->im.text = g_strdup (text);
   event->im.offset = offset;
+  event->im.anchor = anchor;
   event->im.len = len;
   event->im.mode = mode;
   clutter_event_set_device (event, keyboard);
@@ -317,7 +319,7 @@ clutter_input_method_commit (ClutterInputMethod *im,
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  clutter_input_method_put_im_event (im, CLUTTER_IM_COMMIT, text, 0, 0,
+  clutter_input_method_put_im_event (im, CLUTTER_IM_COMMIT, text, 0, 0, 0,
                                      CLUTTER_PREEDIT_RESET_CLEAR);
 }
 
@@ -328,7 +330,8 @@ clutter_input_method_delete_surrounding (ClutterInputMethod *im,
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  clutter_input_method_put_im_event (im, CLUTTER_IM_DELETE, NULL, offset, len,
+  clutter_input_method_put_im_event (im, CLUTTER_IM_DELETE, NULL,
+                                     offset, offset, len,
                                      CLUTTER_PREEDIT_RESET_CLEAR);
 }
 
@@ -361,7 +364,7 @@ clutter_input_method_set_preedit_text (ClutterInputMethod      *im,
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
   clutter_input_method_put_im_event (im, CLUTTER_IM_PREEDIT, preedit,
-                                     cursor, 0, mode);
+                                     cursor, cursor, 0, mode);
 }
 
 void
