@@ -1245,3 +1245,32 @@ clutter_sprite_get_cursor (ClutterSprite *sprite)
 
   return priv->cursor;
 }
+
+void
+clutter_sprite_setup_sequence_actions_special (ClutterSprite *sprite)
+{
+  ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
+  unsigned int i, j;
+
+  g_assert (priv->press_count > 0);
+
+  for (i = 0; i < priv->event_emission_chain->len; i++)
+    {
+      EventReceiver *receiver_1 = &g_array_index (priv->event_emission_chain, EventReceiver, i);
+
+      if (!receiver_1->action)
+        continue;
+
+      for (j = i + 1; j < priv->event_emission_chain->len; j++)
+        {
+          EventReceiver *receiver_2 = &g_array_index (priv->event_emission_chain, EventReceiver, j);
+
+          if (!receiver_2->action)
+            continue;
+
+          clutter_action_setup_sequence_relationship (receiver_1->action,
+                                                      receiver_2->action,
+                                                      sprite);
+        }
+    }
+}

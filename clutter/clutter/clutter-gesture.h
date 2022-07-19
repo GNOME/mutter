@@ -164,4 +164,7 @@ CLUTTER_EXPORT
 void clutter_gesture_require_failure_of (ClutterGesture *self,
                                          ClutterGesture *other_gesture);
 
+CLUTTER_EXPORT
+void clutter_gesture_relationships_changed (ClutterGesture *self);
+
 G_END_DECLS

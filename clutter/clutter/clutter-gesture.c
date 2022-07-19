@@ -89,6 +89,7 @@
 #include "clutter-enum-types.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
+#include "clutter-sprite-private.h"
 #include "clutter-stage-private.h"
 
 #include <graphene.h>
@@ -1283,17 +1284,26 @@ clutter_gesture_setup_sequence_relationship (ClutterAction *action_1,
   gboolean cancel_1_on_recognizing, inhibit_1_until_cancelled;
   gboolean cancel_2_on_recognizing, inhibit_2_until_cancelled;
 
+  /* redo relationship() might make us end here */
+  if (!get_sequence_data (gesture_1, sprite, NULL) ||
+      !get_sequence_data (gesture_2, sprite, NULL))
+    return 0;
+
   /* When CANCELLED or COMPLETED, we refuse to accept new points in
    * register_sequence(). Also when WAITING it's impossible to have points,
    * that leaves only two states, POSSIBLE and RECOGNIZING.
    */
-  g_assert (priv_1->state == CLUTTER_GESTURE_STATE_POSSIBLE ||
-            priv_1->state == CLUTTER_GESTURE_STATE_RECOGNIZING);
-  g_assert (priv_2->state == CLUTTER_GESTURE_STATE_POSSIBLE ||
-            priv_2->state == CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert (priv_1->state != CLUTTER_GESTURE_STATE_WAITING &&
+            priv_2->state != CLUTTER_GESTURE_STATE_WAITING);
 
-  g_assert (get_sequence_data (gesture_1, sprite, NULL) != NULL &&
-            get_sequence_data (gesture_2, sprite, NULL) != NULL);
+  /* When CANCELLED or COMPLETED, we can still enter from redo_sequence_relationships()
+   * if that happens, return.
+   */
+  if (priv_1->state == CLUTTER_GESTURE_STATE_CANCELLED ||
+      priv_1->state == CLUTTER_GESTURE_STATE_COMPLETED ||
+      priv_2->state == CLUTTER_GESTURE_STATE_CANCELLED ||
+      priv_2->state == CLUTTER_GESTURE_STATE_COMPLETED)
+    return 0;
 
   /* If gesture 1 knows gesture 2 (this implies vice-versa), everything's
    * figured out already, we won't negotiate again for any new shared sequences!
@@ -2114,4 +2124,55 @@ clutter_gesture_require_failure_of (ClutterGesture *self,
   g_object_weak_ref (G_OBJECT (other_gesture),
                      (GWeakNotify) other_gesture_disposed,
                      priv->require_failure_of);
+}
+
+void
+clutter_gesture_relationships_changed (ClutterGesture *self)
+{
+  ClutterGesturePrivate *priv;
+  GHashTableIter iter;
+  ClutterGesture *other_gesture;
+  ClutterActor *actor;
+  ClutterStage *stage;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE (self));
+
+  priv = clutter_gesture_get_instance_private (self);
+
+
+  g_hash_table_iter_init (&iter, priv->in_relationship_with);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &other_gesture, NULL))
+    {
+      ClutterGesturePrivate *other_priv =
+        clutter_gesture_get_instance_private (other_gesture);
+      gboolean removed;
+
+      removed = g_hash_table_remove (other_priv->in_relationship_with, self);
+      g_assert (removed);
+
+      g_ptr_array_remove (other_priv->cancel_on_recognizing, self);
+      g_ptr_array_remove (other_priv->inhibit_until_cancelled, self);
+
+      g_hash_table_iter_remove (&iter);
+    }
+
+  g_ptr_array_set_size (priv->cancel_on_recognizing, 0);
+  g_ptr_array_set_size (priv->inhibit_until_cancelled, 0);
+
+  priv->inhibited_count = 0;
+
+  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
+  stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+
+  if (stage)
+    {
+      unsigned int i;
+
+      for (i = 0; i < priv->sequences->len; i++)
+        {
+          GestureSequenceData *seq_data = &g_array_index (priv->sequences, GestureSequenceData, i);
+
+          clutter_sprite_setup_sequence_actions_special (seq_data->sprite);
+        }
+    }
 }
