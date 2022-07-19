@@ -287,6 +287,9 @@ clutter_pan_gesture_point_began (ClutterGesture *gesture,
   if (active_n_points < priv->min_n_points)
     return;
 
+  if (priv->min_n_points > 1)
+    clutter_gesture_relationships_changed (gesture);
+
   if (clutter_event_type (event) == CLUTTER_BUTTON_PRESS &&
       priv->required_button != 0 &&
       clutter_event_get_button (event) != priv->required_button)
