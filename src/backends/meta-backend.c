@@ -417,7 +417,12 @@ determine_hotplug_pointer_visibility (ClutterSeat *seat)
       if (device_type == CLUTTER_TABLET_DEVICE ||
           device_type == CLUTTER_PEN_DEVICE ||
           device_type == CLUTTER_ERASER_DEVICE)
-        has_tablet = TRUE;
+        {
+          if (meta_is_wayland_compositor ())
+            has_tablet = TRUE;
+          else
+            has_pointer = TRUE;
+        }
     }
 
   return has_pointer && !has_touchscreen && !has_tablet;
