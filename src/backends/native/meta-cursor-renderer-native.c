@@ -502,12 +502,9 @@ unset_crtc_cursor (MetaCursorRendererNative *native,
 }
 
 static void
-disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
-                            const GError *error)
+disable_hw_cursor_for_gpu (MetaGpuKms   *gpu_kms,
+                           const GError *error)
 {
-  MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
-  MetaCrtc *crtc = META_CRTC (crtc_kms);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
 
@@ -515,6 +512,17 @@ disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
              "using OpenGL from now on",
              error->message);
   cursor_renderer_gpu_data->hw_cursor_broken = TRUE;
+}
+
+static void
+disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
+                            const GError *error)
+{
+  MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+
+  disable_hw_cursor_for_gpu (gpu_kms, error);
 }
 
 void
@@ -1384,6 +1392,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
       g_warning ("Failed to open '%s' for updating the cursor: %s",
                  meta_gpu_kms_get_file_path (gpu_kms),
                  error->message);
+      disable_hw_cursor_for_gpu (gpu_kms, error);
       return;
     }
 
@@ -1397,6 +1406,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
   if (!buffer)
     {
       g_warning ("Realizing HW cursor failed: %s", error->message);
+      disable_hw_cursor_for_gpu (gpu_kms, error);
       return;
     }
 
