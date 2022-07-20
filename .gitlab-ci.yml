@@ -421,11 +421,20 @@ coverage:
     - mkdir coveragereport
     - gcovr --add-tracefile 'coverage-*.json'
         --html-details --print-summary --output coveragereport/index.html
+    - gcovr --add-tracefile 'coverage-*.json'
+        --xml --output coveragereport/coverage.xml
   artifacts:
     expose_as: 'Coverage Report'
     paths:
       - coveragereport
       - coveragereport/index.html
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        # TODO: we may need to split this file once it will reach the
+        # gitlab limit size of 10M, or it will stop working:
+        #  https://gitlab.com/gitlab-org/gitlab/-/issues/328772
+        path: coveragereport/coverage.xml
   coverage: '/^lines: (\d+\.\d+\%)/'
   needs:
     - test-mutter@x86_64
