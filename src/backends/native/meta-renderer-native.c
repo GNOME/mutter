@@ -416,12 +416,28 @@ meta_renderer_native_choose_egl_config (CoglDisplay  *cogl_display,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      return choose_egl_config_from_gbm_format (egl,
-                                                egl_display,
-                                                attributes,
-                                                GBM_FORMAT_XRGB8888,
-                                                out_config,
-                                                error);
+      {
+        static const uint32_t formats[] = {
+          GBM_FORMAT_XRGB8888,
+          GBM_FORMAT_ARGB8888,
+        };
+        int i;
+
+        for (i = 0; i < G_N_ELEMENTS (formats); i++)
+          {
+            g_clear_error (error);
+
+            if (choose_egl_config_from_gbm_format (egl,
+                                                   egl_display,
+                                                   attributes,
+                                                   formats[i],
+                                                   out_config,
+                                                   error))
+              return TRUE;
+          }
+
+        return FALSE;
+      }
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       *out_config = EGL_NO_CONFIG_KHR;
       return TRUE;
