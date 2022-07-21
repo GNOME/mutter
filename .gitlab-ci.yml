@@ -18,7 +18,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-07-11.0'
+    BASE_TAG: '2022-07-21.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -66,7 +66,7 @@ variables:
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gjs.git \
-        1.71.1 . &&
+        1.73.1 . &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
