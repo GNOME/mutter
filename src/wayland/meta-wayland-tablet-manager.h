@@ -37,7 +37,7 @@ struct _MetaWaylandTabletManager
 };
 
 void     meta_wayland_tablet_manager_init (MetaWaylandCompositor    *compositor);
-void     meta_wayland_tablet_manager_free (MetaWaylandTabletManager *tablet_manager);
+void     meta_wayland_tablet_manager_finalize (MetaWaylandCompositor *compositor);
 
 gboolean meta_wayland_tablet_manager_consumes_event (MetaWaylandTabletManager *manager,
                                                      const ClutterEvent       *event);
