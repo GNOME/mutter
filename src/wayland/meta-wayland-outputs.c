@@ -705,6 +705,19 @@ bind_xdg_output_manager (struct wl_client *client,
 }
 
 void
+meta_wayland_outputs_finalize (MetaWaylandCompositor *compositor)
+{
+  MetaBackend *backend = meta_context_get_backend (compositor->context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  g_signal_handlers_disconnect_by_func (monitor_manager, on_monitors_changed,
+                                        compositor);
+
+  g_hash_table_destroy (compositor->outputs);
+}
+
+void
 meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
 {
   MetaMonitorManager *monitors;
