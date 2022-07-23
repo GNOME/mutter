@@ -448,6 +448,8 @@ meta_wayland_compositor_finalize (GObject *object)
   MetaBackend *backend = meta_context_get_backend (compositor->context);
   ClutterActor *stage = meta_backend_get_stage (backend);
 
+  g_hash_table_destroy (compositor->scheduled_surface_associations);
+
   g_signal_handlers_disconnect_by_func (stage, on_after_update, compositor);
   g_signal_handlers_disconnect_by_func (stage, on_presented, compositor);
 
