@@ -376,6 +376,13 @@ bind_activation (struct wl_client *client,
 }
 
 void
+meta_wayland_activation_finalize (MetaWaylandCompositor *compositor)
+{
+  g_hash_table_destroy (compositor->activation->tokens);
+  g_clear_pointer (&compositor->activation, g_free);
+}
+
+void
 meta_wayland_activation_init (MetaWaylandCompositor *compositor)
 {
   MetaWaylandActivation *activation;

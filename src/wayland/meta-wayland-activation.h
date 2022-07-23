@@ -27,6 +27,8 @@
 
 #include "wayland/meta-wayland-types.h"
 
+void meta_wayland_activation_finalize (MetaWaylandCompositor *compositor);
+
 void meta_wayland_activation_init (MetaWaylandCompositor *compositor);
 
 #endif /* META_WAYLAND_ACTIVATION_H */
