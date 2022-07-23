@@ -445,6 +445,11 @@ static void
 meta_wayland_compositor_finalize (GObject *object)
 {
   MetaWaylandCompositor *compositor = META_WAYLAND_COMPOSITOR (object);
+  MetaBackend *backend = meta_context_get_backend (compositor->context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, compositor);
+  g_signal_handlers_disconnect_by_func (stage, on_presented, compositor);
 
   g_clear_object (&compositor->dma_buf_manager);
 
