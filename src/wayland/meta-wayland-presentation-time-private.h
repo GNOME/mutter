@@ -49,6 +49,8 @@ typedef struct _MetaWaylandPresentationTime
   GHashTable *feedbacks;
 } MetaWaylandPresentationTime;
 
+void meta_wayland_presentation_time_finalize (MetaWaylandCompositor *compositor);
+
 void meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor);
 
 void meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback *feedback);

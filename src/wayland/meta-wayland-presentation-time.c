@@ -210,6 +210,21 @@ on_monitors_changed (MetaMonitorManager    *manager,
 }
 
 void
+meta_wayland_presentation_time_finalize (MetaWaylandCompositor *compositor)
+{
+  MetaBackend *backend = meta_context_get_backend (compositor->context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  g_hash_table_destroy (compositor->presentation_time.feedbacks);
+
+  g_signal_handlers_disconnect_by_func (monitor_manager, on_monitors_changed,
+                                        compositor);
+  g_signal_handlers_disconnect_by_func (monitor_manager, on_after_paint,
+                                        compositor);
+}
+
+void
 meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor)
 {
   MetaContext *context = compositor->context;

@@ -449,6 +449,7 @@ meta_wayland_compositor_finalize (GObject *object)
   ClutterActor *stage = meta_backend_get_stage (backend);
 
   meta_wayland_activation_finalize (compositor);
+  meta_wayland_presentation_time_finalize (compositor);
 
   g_hash_table_destroy (compositor->scheduled_surface_associations);
 
