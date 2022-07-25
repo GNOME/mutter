@@ -5792,36 +5792,7 @@ static gboolean
 clutter_actor_real_get_paint_volume (ClutterActor       *self,
                                      ClutterPaintVolume *volume)
 {
-  ClutterActorClass *klass;
-  gboolean res;
-
-  klass = CLUTTER_ACTOR_GET_CLASS (self);
-
-  /* XXX - this thoroughly sucks, but we don't want to penalize users
-   * who use ClutterActor as a "new ClutterGroup" by forcing a full-stage
-   * redraw. This should go away in 2.0.
-   */
-  if (klass->paint == clutter_actor_real_paint &&
-      klass->get_paint_volume == clutter_actor_real_get_paint_volume)
-    {
-      res = TRUE;
-    }
-  else
-    {
-      /* this is the default return value: we cannot know if a class
-       * is going to paint outside its allocation, so we take the
-       * conservative approach.
-       */
-      res = FALSE;
-    }
-
-  /* update_default_paint_volume() should only fail if one of the children
-   * reported an invalid, or no, paint volume
-   */
-  if (!clutter_actor_update_default_paint_volume (self, volume))
-    return FALSE;
-
-  return res;
+  return clutter_actor_update_default_paint_volume (self, volume);
 }
 
 /**
