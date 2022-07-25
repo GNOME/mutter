@@ -1770,6 +1770,18 @@ clutter_actor_real_show (ClutterActor *self)
    * and the branch of the scene graph is in a stable state
    */
   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
+
+  if (clutter_actor_has_mapped_clones (self))
+    {
+      ClutterActorPrivate *priv = self->priv;
+
+      /* Avoid the early return in clutter_actor_queue_relayout() */
+      priv->needs_width_request = FALSE;
+      priv->needs_height_request = FALSE;
+      priv->needs_allocation = FALSE;
+
+      clutter_actor_queue_relayout (self);
+    }
 }
 
 static inline void
@@ -11705,6 +11717,18 @@ clutter_actor_add_child_internal (ClutterActor              *self,
    */
   if (CLUTTER_ACTOR_IS_MAPPED (child))
     clutter_actor_queue_redraw (child);
+
+  if (clutter_actor_has_mapped_clones (self))
+    {
+      ClutterActorPrivate *priv = self->priv;
+
+      /* Avoid the early return in clutter_actor_queue_relayout() */
+      priv->needs_width_request = FALSE;
+      priv->needs_height_request = FALSE;
+      priv->needs_allocation = FALSE;
+
+      clutter_actor_queue_relayout (self);
+    }
 
   if (emit_actor_added)
     _clutter_container_emit_actor_added (CLUTTER_CONTAINER (self), child);
