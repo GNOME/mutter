@@ -16034,7 +16034,8 @@ clutter_actor_finish_layout (ClutterActor *self,
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *child;
 
-  if (!CLUTTER_ACTOR_IS_MAPPED (self) ||
+  if ((!CLUTTER_ACTOR_IS_MAPPED (self) &&
+       !clutter_actor_has_mapped_clones (self)) ||
       CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
 
