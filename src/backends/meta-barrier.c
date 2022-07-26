@@ -26,19 +26,15 @@
 struct _MetaBarrier
 {
   GObject parent;
-};
 
-typedef struct _MetaBarrierPrivate
-{
   MetaBackend *backend;
   MetaBorder border;
   MetaBarrierImpl *impl;
-} MetaBarrierPrivate;
+};
 
 static void initable_iface_init (GInitableIface *initable_iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaBarrier, meta_barrier, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (MetaBarrier)
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
@@ -104,31 +100,30 @@ meta_barrier_get_property (GObject    *object,
                            GParamSpec *pspec)
 {
   MetaBarrier *barrier = META_BARRIER (object);
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   switch (prop_id)
     {
     case PROP_BACKEND:
-      g_value_set_object (value, priv->backend);
+      g_value_set_object (value, barrier->backend);
       break;
     case PROP_DISPLAY:
-      g_value_set_object (value, display_from_backend (priv->backend));
+      g_value_set_object (value, display_from_backend (barrier->backend));
       break;
     case PROP_X1:
-      g_value_set_int (value, priv->border.line.a.x);
+      g_value_set_int (value, barrier->border.line.a.x);
       break;
     case PROP_Y1:
-      g_value_set_int (value, priv->border.line.a.y);
+      g_value_set_int (value, barrier->border.line.a.y);
       break;
     case PROP_X2:
-      g_value_set_int (value, priv->border.line.b.x);
+      g_value_set_int (value, barrier->border.line.b.x);
       break;
     case PROP_Y2:
-      g_value_set_int (value, priv->border.line.b.y);
+      g_value_set_int (value, barrier->border.line.b.y);
       break;
     case PROP_DIRECTIONS:
       g_value_set_flags (value,
-                         meta_border_get_allows_directions (&priv->border));
+                         meta_border_get_allows_directions (&barrier->border));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -143,12 +138,11 @@ meta_barrier_set_property (GObject      *object,
                            GParamSpec   *pspec)
 {
   MetaBarrier *barrier = META_BARRIER (object);
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   switch (prop_id)
     {
     case PROP_BACKEND:
-      priv->backend = g_value_get_object (value);
+      barrier->backend = g_value_get_object (value);
       break;
     case PROP_DISPLAY:
       {
@@ -156,23 +150,23 @@ meta_barrier_set_property (GObject      *object,
 
         display = g_value_get_object (value);
         if (display)
-          priv->backend = backend_from_display (g_value_get_object (value));
+          barrier->backend = backend_from_display (g_value_get_object (value));
         break;
       }
     case PROP_X1:
-      priv->border.line.a.x = g_value_get_int (value);
+      barrier->border.line.a.x = g_value_get_int (value);
       break;
     case PROP_Y1:
-      priv->border.line.a.y = g_value_get_int (value);
+      barrier->border.line.a.y = g_value_get_int (value);
       break;
     case PROP_X2:
-      priv->border.line.b.x = g_value_get_int (value);
+      barrier->border.line.b.x = g_value_get_int (value);
       break;
     case PROP_Y2:
-      priv->border.line.b.y = g_value_get_int (value);
+      barrier->border.line.b.y = g_value_get_int (value);
       break;
     case PROP_DIRECTIONS:
-      meta_border_set_allows_directions (&priv->border,
+      meta_border_set_allows_directions (&barrier->border,
                                          g_value_get_flags (value));
       break;
     default:
@@ -185,7 +179,6 @@ static void
 meta_barrier_dispose (GObject *object)
 {
   MetaBarrier *barrier = META_BARRIER (object);
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
   if (meta_barrier_is_active (barrier))
     {
@@ -193,7 +186,7 @@ meta_barrier_dispose (GObject *object)
                 barrier);
     }
 
-  g_clear_object (&priv->impl);
+  g_clear_object (&barrier->impl);
 
   G_OBJECT_CLASS (meta_barrier_parent_class)->dispose (object);
 }
@@ -201,8 +194,7 @@ meta_barrier_dispose (GObject *object)
 gboolean
 meta_barrier_is_active (MetaBarrier *barrier)
 {
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
-  MetaBarrierImpl *impl = priv->impl;
+  MetaBarrierImpl *impl = barrier->impl;
 
   if (impl)
     return META_BARRIER_IMPL_GET_CLASS (impl)->is_active (impl);
@@ -224,8 +216,7 @@ void
 meta_barrier_release (MetaBarrier      *barrier,
                       MetaBarrierEvent *event)
 {
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
-  MetaBarrierImpl *impl = priv->impl;
+  MetaBarrierImpl *impl = barrier->impl;
 
   if (impl)
     META_BARRIER_IMPL_GET_CLASS (impl)->release (impl, event);
@@ -237,10 +228,8 @@ meta_barrier_initable_init (GInitable     *initable,
                             GError       **error)
 {
   MetaBarrier *barrier = META_BARRIER (initable);
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
 
-  priv = meta_barrier_get_instance_private (barrier);
-  if (!priv->impl)
+  if (!barrier->impl)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Failed to create barrier impl");
@@ -259,25 +248,23 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 init_barrier_impl (MetaBarrier *barrier)
 {
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
-
-  g_return_if_fail (priv->backend);
-  g_return_if_fail (priv->border.line.a.x == priv->border.line.b.x ||
-                    priv->border.line.a.y == priv->border.line.b.y);
-  g_return_if_fail (priv->border.line.a.x >= 0);
-  g_return_if_fail (priv->border.line.a.y >= 0);
-  g_return_if_fail (priv->border.line.b.x >= 0);
-  g_return_if_fail (priv->border.line.b.y >= 0);
+  g_return_if_fail (barrier->backend);
+  g_return_if_fail (barrier->border.line.a.x == barrier->border.line.b.x ||
+                    barrier->border.line.a.y == barrier->border.line.b.y);
+  g_return_if_fail (barrier->border.line.a.x >= 0);
+  g_return_if_fail (barrier->border.line.a.y >= 0);
+  g_return_if_fail (barrier->border.line.b.x >= 0);
+  g_return_if_fail (barrier->border.line.b.y >= 0);
 
 #if defined(HAVE_NATIVE_BACKEND)
-  if (META_IS_BACKEND_NATIVE (priv->backend))
-    priv->impl = meta_barrier_impl_native_new (barrier);
+  if (META_IS_BACKEND_NATIVE (barrier->backend))
+    barrier->impl = meta_barrier_impl_native_new (barrier);
 #endif
-  if (META_IS_BACKEND_X11 (priv->backend) &&
+  if (META_IS_BACKEND_X11 (barrier->backend) &&
       !meta_is_wayland_compositor ())
-    priv->impl = meta_barrier_impl_x11_new (barrier);
+    barrier->impl = meta_barrier_impl_x11_new (barrier);
 
-  g_warn_if_fail (priv->impl);
+  g_warn_if_fail (barrier->impl);
 }
 
 static void
@@ -410,8 +397,7 @@ meta_barrier_class_init (MetaBarrierClass *klass)
 void
 meta_barrier_destroy (MetaBarrier *barrier)
 {
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
-  MetaBarrierImpl *impl = priv->impl;
+  MetaBarrierImpl *impl = barrier->impl;
 
   if (impl)
     META_BARRIER_IMPL_GET_CLASS (impl)->destroy (impl);
@@ -461,17 +447,13 @@ meta_barrier_emit_left_signal (MetaBarrier      *barrier,
 MetaBackend *
 meta_barrier_get_backend (MetaBarrier *barrier)
 {
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
-
-  return priv->backend;
+  return barrier->backend;
 }
 
 MetaBorder *
 meta_barrier_get_border (MetaBarrier *barrier)
 {
-  MetaBarrierPrivate *priv = meta_barrier_get_instance_private (barrier);
-
-  return &priv->border;
+  return &barrier->border;
 }
 
 static void
