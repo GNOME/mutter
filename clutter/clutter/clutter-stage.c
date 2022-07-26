@@ -3175,8 +3175,8 @@ clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage)
 }
 
 void
-clutter_stage_invalidate_focus (ClutterStage *self,
-                                ClutterActor *actor)
+clutter_stage_maybe_invalidate_focus (ClutterStage *self,
+                                      ClutterActor *actor)
 {
   ClutterStagePrivate *priv = self->priv;
   GHashTableIter iter;
@@ -3184,8 +3184,6 @@ clutter_stage_invalidate_focus (ClutterStage *self,
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
-
-  g_assert (!clutter_actor_is_mapped (actor) || !clutter_actor_get_reactive (actor));
 
   g_hash_table_iter_init (&iter, priv->pointer_devices);
   while (g_hash_table_iter_next (&iter, NULL, &value))
@@ -3220,6 +3218,18 @@ clutter_stage_invalidate_focus (ClutterStage *self,
                                             entry->coords,
                                             CLUTTER_CURRENT_TIME);
     }
+}
+
+void
+clutter_stage_invalidate_focus (ClutterStage *self,
+                                ClutterActor *actor)
+{
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
+    return;
+
+  g_assert (!clutter_actor_is_mapped (actor) || !clutter_actor_get_reactive (actor));
+
+  clutter_stage_maybe_invalidate_focus (self, actor);
 
   if (actor != CLUTTER_ACTOR (self))
     g_assert (!clutter_actor_has_pointer (actor));

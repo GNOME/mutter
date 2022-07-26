@@ -159,6 +159,9 @@ void clutter_stage_unlink_grab (ClutterStage *self,
 void clutter_stage_invalidate_focus (ClutterStage *self,
                                      ClutterActor *actor);
 
+void clutter_stage_maybe_invalidate_focus (ClutterStage *self,
+                                           ClutterActor *actor);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
