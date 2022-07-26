@@ -12494,6 +12494,30 @@ clutter_actor_set_reactive (ClutterActor *actor,
 
       clutter_stage_invalidate_focus (CLUTTER_STAGE (stage), actor);
     }
+  else if (CLUTTER_ACTOR_IS_REACTIVE (actor))
+    {
+      ClutterActor *parent;
+
+      /* Check whether the closest parent has pointer focus,
+       * and whether it should move to this actor.
+       */
+      parent = priv->parent;
+
+      while (parent)
+        {
+          if (CLUTTER_ACTOR_IS_REACTIVE (parent))
+            break;
+
+          parent = parent->priv->parent;
+        }
+
+      if (parent && parent->priv->has_pointer)
+        {
+          ClutterActor *stage = _clutter_actor_get_stage_internal (actor);
+
+          clutter_stage_maybe_invalidate_focus (CLUTTER_STAGE (stage), parent);
+        }
+    }
 }
 
 /**
