@@ -11558,7 +11558,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   if (self == child)
     {
       g_warning ("Cannot add the actor '%s' to itself.",
-                  _clutter_actor_get_debug_name (self));
+                 _clutter_actor_get_debug_name (self));
       return;
     }
 
