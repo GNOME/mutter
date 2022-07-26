@@ -5753,7 +5753,9 @@ clutter_actor_update_default_paint_volume (ClutterActor       *self,
            * allocation, because apparently some code above Clutter allows
            * them.
            */
-          if (!CLUTTER_ACTOR_IS_MAPPED (child) || !clutter_actor_has_allocation (child))
+          if ((!CLUTTER_ACTOR_IS_MAPPED (child) &&
+               !clutter_actor_has_mapped_clones (child)) ||
+              !clutter_actor_has_allocation (child))
             continue;
 
           child_volume = clutter_actor_get_transformed_paint_volume (child, self);
