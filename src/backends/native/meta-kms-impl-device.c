@@ -923,12 +923,7 @@ meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
   MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
   GList *l;
 
-  for (l = priv->crtcs; l; l = l->next)
-    {
-      MetaKmsCrtc *crtc = l->data;
-
-      changes |= meta_kms_crtc_predict_state (crtc, update);
-    }
+  g_list_foreach (priv->crtcs, (GFunc) meta_kms_crtc_predict_state, update);
 
   for (l = priv->connectors; l; l = l->next)
     {

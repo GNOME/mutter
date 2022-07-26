@@ -278,14 +278,13 @@ meta_kms_crtc_disable (MetaKmsCrtc *crtc)
   crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
 }
 
-MetaKmsResourceChanges
+void
 meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
                              MetaKmsUpdate *update)
 {
   GList *mode_sets;
   GList *crtc_gammas;
   GList *l;
-  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
 
   mode_sets = meta_kms_update_get_mode_sets (update);
   for (l = mode_sets; l; l = l->next)
@@ -338,11 +337,8 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
       crtc->current_state.gamma.blue =
         g_memdup2 (gamma->blue, gamma->size * sizeof (uint16_t));
 
-      changes |= META_KMS_RESOURCE_CHANGE_GAMMA;
       break;
     }
-
-  return changes;
 }
 
 static void

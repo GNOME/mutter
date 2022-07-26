@@ -42,8 +42,8 @@ MetaKmsResourceChanges meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
 
 void meta_kms_crtc_disable (MetaKmsCrtc *crtc);
 
-MetaKmsResourceChanges meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
-                                                    MetaKmsUpdate *update);
+void meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+                                  MetaKmsUpdate *update);
 
 uint32_t meta_kms_crtc_get_prop_id (MetaKmsCrtc     *crtc,
                                     MetaKmsCrtcProp  prop);
