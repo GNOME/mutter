@@ -196,6 +196,11 @@ test_cases += [
     'sources': [ 'monitor-unit-tests.c', ],
   },
   {
+    'name': 'monitor-utils',
+    'suite': 'unit',
+    'sources': [ 'monitor-util-tests.c', ],
+  },
+  {
     'name': 'headless-start',
     'suite': 'backend',
     'sources': [ 'headless-start-test.c', ],

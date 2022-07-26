@@ -183,6 +183,10 @@ MetaMonitorMode * meta_monitor_get_mode_from_id (MetaMonitor *monitor,
                                                  const char  *monitor_mode_id);
 
 META_EXPORT_TEST
+gboolean meta_monitor_mode_spec_has_similar_size (MetaMonitorModeSpec *monitor_mode_spec,
+                                                  MetaMonitorModeSpec *other_monitor_mode_spec);
+
+META_EXPORT_TEST
 MetaMonitorMode * meta_monitor_get_mode_from_spec (MetaMonitor         *monitor,
                                                    MetaMonitorModeSpec *monitor_mode_spec);
 

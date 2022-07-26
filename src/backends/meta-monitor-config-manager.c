@@ -1261,7 +1261,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       if (!mode)
         continue;
 
-      scale = compute_scale_for_monitor (config_manager, monitor,
+      scale = compute_scale_for_monitor (monitor_manager, monitor,
                                          primary_monitor);
       best_scale = MAX (best_scale, scale);
       monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
