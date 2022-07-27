@@ -734,6 +734,8 @@ do_paint_content (MetaShapedTexture   *stex,
           transforms.y_scale < 0.5)
         {
           paint_tex = select_texture_for_paint (stex, paint_context);
+          if (paint_tex != stex->texture)
+            min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
         }
     }
 
