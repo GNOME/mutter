@@ -5,6 +5,8 @@
  * Mipmap management object using OpenGL
  *
  * Copyright (C) 2009 Red Hat, Inc.
+ * Copyright (C) 2021 Canonical Ltd.
+ * Copyright (C) 2022 Neil Moore
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
