@@ -59,7 +59,6 @@ pkg.generate(libmutter_test,
   filebase: 'libmutter-test-' + libmutter_api_version,
   description: 'Mutter test framework',
   subdirs: pkgname,
-  requires: ['libmutter-' + libmutter_api_version],
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,

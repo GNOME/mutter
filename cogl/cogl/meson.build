@@ -492,7 +492,6 @@ pkg.generate(libmutter_cogl,
   description: 'An object oriented GL/GLES Abstraction/Utility Layer in mutter',
   libraries: [m_dep],
   subdirs: join_paths(pkgname, 'cogl'),
-  requires: [cogl_pkg_deps],
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,

@@ -1128,7 +1128,6 @@ pkg.generate(libmutter,
   filebase: 'libmutter-' + libmutter_api_version,
   description: 'Mutter compositor and window manager library',
   subdirs: pkgname,
-  requires: [mutter_pkg_deps, libmutter_clutter_name],
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,
