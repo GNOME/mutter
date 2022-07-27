@@ -48,20 +48,6 @@
 #include "core/boxes-private.h"
 #include "meta/meta-shaped-texture.h"
 
-/* MAX_MIPMAPPING_FPS needs to be as small as possible for the best GPU
- * performance, but higher than the refresh rate of commonly slow updating
- * windows like top or a blinking cursor, so that such windows do get
- * mipmapped.
- */
-#define MAX_MIPMAPPING_FPS 5
-#define MIN_MIPMAP_AGE_USEC (G_USEC_PER_SEC / MAX_MIPMAPPING_FPS)
-
-/* MIN_FAST_UPDATES_BEFORE_UNMIPMAP allows windows to update themselves
- * occasionally without causing mipmapping to be disabled, so long as such
- * an update takes fewer update_area calls than:
- */
-#define MIN_FAST_UPDATES_BEFORE_UNMIPMAP 20
-
 static void meta_shaped_texture_dispose  (GObject    *object);
 
 static void clutter_content_iface_init (ClutterContentInterface *iface);
@@ -117,11 +103,6 @@ struct _MetaShapedTexture
   int tex_width, tex_height;
   int fallback_width, fallback_height;
   int dst_width, dst_height;
-
-  gint64 prev_invalidation, last_invalidation;
-  guint fast_updates;
-  guint remipmap_timeout_id;
-  gint64 earliest_remipmap;
 
   int buffer_scale;
 
@@ -257,8 +238,6 @@ static void
 meta_shaped_texture_dispose (GObject *object)
 {
   MetaShapedTexture *stex = (MetaShapedTexture *) object;
-
-  g_clear_handle_id (&stex->remipmap_timeout_id, g_source_remove);
 
   g_clear_pointer (&stex->texture_mipmap, meta_texture_mipmap_free);
 
@@ -621,20 +600,6 @@ set_cogl_texture (MetaShapedTexture *stex,
   meta_texture_mipmap_invalidate (stex->texture_mipmap);
 }
 
-static gboolean
-texture_is_idle_and_not_mipmapped (gpointer user_data)
-{
-  MetaShapedTexture *stex = META_SHAPED_TEXTURE (user_data);
-
-  if ((g_get_monotonic_time () - stex->earliest_remipmap) < 0)
-    return G_SOURCE_CONTINUE;
-
-  clutter_content_invalidate (CLUTTER_CONTENT (stex));
-  stex->remipmap_timeout_id = 0;
-
-  return G_SOURCE_REMOVE;
-}
-
 static inline void
 flip_ints (int *x,
            int *y)
@@ -645,10 +610,6 @@ flip_ints (int *x,
   *x = *y;
   *y = tmp;
 }
-
-static CoglTexture *
-select_texture_for_paint (MetaShapedTexture   *stex,
-                          ClutterPaintContext *paint_context);
 
 static void
 do_paint_content (MetaShapedTexture   *stex,
@@ -733,9 +694,8 @@ do_paint_content (MetaShapedTexture   *stex,
           transforms.x_scale < 0.5 &&
           transforms.y_scale < 0.5)
         {
-          paint_tex = select_texture_for_paint (stex, paint_context);
-          if (paint_tex != stex->texture)
-            min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
+          paint_tex = meta_texture_mipmap_get_paint_texture (stex->texture_mipmap);
+          min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
         }
     }
 
@@ -914,49 +874,6 @@ do_paint_content (MetaShapedTexture   *stex,
     }
 
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
-}
-
-static CoglTexture *
-select_texture_for_paint (MetaShapedTexture   *stex,
-                          ClutterPaintContext *paint_context)
-{
-  CoglTexture *texture = NULL;
-  int64_t now;
-
-  if (!stex->texture)
-    return NULL;
-
-  now = g_get_monotonic_time ();
-
-  if (stex->create_mipmaps && stex->last_invalidation)
-    {
-      int64_t age = now - stex->last_invalidation;
-
-      if (age >= MIN_MIPMAP_AGE_USEC ||
-          stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
-        {
-          texture = meta_texture_mipmap_get_paint_texture (stex->texture_mipmap);
-        }
-    }
-
-  if (!texture)
-    {
-      texture = stex->texture;
-
-      if (stex->create_mipmaps)
-        {
-          /* Minus 1000 to ensure we don't fail the age test in timeout */
-          stex->earliest_remipmap = now + MIN_MIPMAP_AGE_USEC - 1000;
-
-          if (!stex->remipmap_timeout_id)
-            stex->remipmap_timeout_id =
-              g_timeout_add (MIN_MIPMAP_AGE_USEC / 1000,
-                             texture_is_idle_and_not_mipmapped,
-                             stex);
-        }
-    }
-
-  return texture;
 }
 
 static void
@@ -1164,20 +1081,6 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
     }
 
   meta_texture_mipmap_invalidate (stex->texture_mipmap);
-
-  stex->prev_invalidation = stex->last_invalidation;
-  stex->last_invalidation = g_get_monotonic_time ();
-
-  if (stex->prev_invalidation)
-    {
-      gint64 interval = stex->last_invalidation - stex->prev_invalidation;
-      gboolean fast_update = interval < MIN_MIPMAP_AGE_USEC;
-
-      if (!fast_update)
-        stex->fast_updates = 0;
-      else if (stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
-        stex->fast_updates++;
-    }
 
   return TRUE;
 }
