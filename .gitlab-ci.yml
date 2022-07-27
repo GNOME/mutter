@@ -18,7 +18,7 @@ variables:
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 36
-    BASE_TAG: '2022-08-18.1'
+    BASE_TAG: '2022-09-01.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -36,6 +36,8 @@ variables:
       busybox
       gi-docgen
       pkgconfig(libgcrypt)
+      pkgconfig(colord)
+      pkgconfig(lcms2)
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
