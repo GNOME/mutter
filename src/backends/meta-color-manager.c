@@ -68,6 +68,8 @@ typedef struct _MetaColorManagerPrivate
 {
   MetaBackend *backend;
 
+  cmsContext lcms_context;
+
   CdClient *cd_client;
   GCancellable *cancellable;
 
@@ -243,6 +245,8 @@ meta_color_manager_constructed (GObject *object)
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
 
+  priv->lcms_context = cmsCreateContext (NULL, NULL);
+
   priv->cancellable = g_cancellable_new ();
 
   priv->cd_client = cd_client_new ();
@@ -270,6 +274,7 @@ meta_color_manager_finalize (GObject *object)
   g_clear_object (&priv->cancellable);
   g_clear_pointer (&priv->devices, g_hash_table_unref);
   g_clear_object (&priv->gsd_color);
+  g_clear_pointer (&priv->lcms_context, cmsDeleteContext);
 
   G_OBJECT_CLASS (meta_color_manager_parent_class)->finalize (object);
 }
@@ -388,4 +393,13 @@ meta_color_manager_get_num_color_devices (MetaColorManager *color_manager)
     meta_color_manager_get_instance_private (color_manager);
 
   return g_hash_table_size (priv->devices);
+}
+
+cmsContext
+meta_color_manager_get_lcms_context (MetaColorManager *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+
+  return priv->lcms_context;
 }
