@@ -98,6 +98,8 @@ struct _MetaFrames
   MetaStyleInfo *normal_style;
   GHashTable *style_variants;
 
+  GSettings *interface_settings;
+
   MetaGrabOp current_grab_op;
   MetaUIFrame *grab_frame;
   guint grab_button;

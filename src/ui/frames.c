@@ -26,6 +26,7 @@
 #include <cairo-xlib.h>
 #include <math.h>
 #include <string.h>
+#include <gdesktop-enums.h>
 
 #include "core/frame.h"
 #include "core/window-private.h"
@@ -61,6 +62,7 @@ static void meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
 
 static void meta_frames_font_changed          (MetaFrames *frames);
 static void meta_frames_button_layout_changed (MetaFrames *frames);
+static void meta_frames_reattach_all_styles   (MetaFrames *frames);
 
 
 static GdkRectangle*    control_rect (MetaFrameControl   control,
@@ -207,6 +209,12 @@ update_style_contexts (MetaFrames *frames)
 static void
 meta_frames_init (MetaFrames *frames)
 {
+  frames->interface_settings = g_settings_new ("org.gnome.desktop.interface");
+  g_signal_connect_swapped (frames->interface_settings,
+                            "changed::color-scheme",
+                            G_CALLBACK (meta_frames_reattach_all_styles),
+                            frames);
+
   frames->text_heights = g_hash_table_new (NULL, NULL);
 
   frames->frames = g_hash_table_new (unsigned_long_hash, unsigned_long_equal);
@@ -259,6 +267,8 @@ meta_frames_destroy (GtkWidget *object)
       g_hash_table_destroy (frames->style_variants);
       frames->style_variants = NULL;
     }
+
+  g_clear_object (&frames->interface_settings);
 
   GTK_WIDGET_CLASS (meta_frames_parent_class)->destroy (object);
 }
@@ -332,6 +342,13 @@ reattach_style_func (gpointer key, gpointer value, gpointer data)
 }
 
 static void
+meta_frames_reattach_all_styles (MetaFrames *frames)
+{
+  g_hash_table_foreach (frames->frames, reattach_style_func, NULL);
+  meta_display_queue_retheme_all_windows (meta_get_display ());
+}
+
+static void
 meta_frames_style_updated  (GtkWidget *widget)
 {
   MetaFrames *frames;
@@ -342,9 +359,7 @@ meta_frames_style_updated  (GtkWidget *widget)
 
   update_style_contexts (frames);
 
-  g_hash_table_foreach (frames->frames, reattach_style_func, NULL);
-
-  meta_display_queue_retheme_all_windows (meta_get_display ());
+  meta_frames_reattach_all_styles (frames);
 
   GTK_WIDGET_CLASS (meta_frames_parent_class)->style_updated (widget);
 }
@@ -478,6 +493,17 @@ get_global_theme_variant (MetaFrames *frames)
   return NULL;
 }
 
+static const char *
+get_color_scheme_variant (MetaFrames *frames)
+{
+  int color_scheme = g_settings_get_enum (frames->interface_settings, "color-scheme");
+
+  if (color_scheme == G_DESKTOP_COLOR_SCHEME_PREFER_DARK)
+    return "dark";
+
+  return NULL;
+}
+
 /* In order to use a style with a window it has to be attached to that
  * window. Actually, the colormaps just have to match, but since GTK+
  * already takes care of making sure that its cheap to attach a style
@@ -496,6 +522,8 @@ meta_ui_frame_attach_style (MetaUIFrame *frame)
   variant = frame->meta_window->gtk_theme_variant;
   if (variant == NULL)
     variant = get_global_theme_variant (frame->frames);
+  if (variant == NULL)
+    variant = get_color_scheme_variant (frame->frames);
 
   if (variant == NULL || *variant == '\0')
     frame->style_info = meta_style_info_ref (frames->normal_style);
