@@ -76,6 +76,16 @@ buffer_transform (void)
 }
 
 static void
+single_pixel_buffer (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new ("single-pixel-buffer");
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 subsurface_reparenting (void)
 {
   MetaWaylandTestClient *wayland_test_client;
@@ -668,6 +678,8 @@ init_tests (void)
 {
   g_test_add_func ("/wayland/buffer/transform",
                    buffer_transform);
+  g_test_add_func ("/wayland/buffer/single_pixel_buffer",
+                   single_pixel_buffer);
   g_test_add_func ("/wayland/subsurface/remap-toplevel",
                    subsurface_remap_toplevel);
   g_test_add_func ("/wayland/subsurface/reparent",

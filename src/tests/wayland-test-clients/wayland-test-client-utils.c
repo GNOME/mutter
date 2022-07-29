@@ -166,6 +166,17 @@ handle_registry_global (void               *user_data,
       display->shm = wl_registry_bind (registry,
                                        id, &wl_shm_interface, 1);
     }
+  else if (strcmp (interface, "wp_single_pixel_buffer_manager_v1") == 0)
+    {
+      display->single_pixel_mgr =
+        wl_registry_bind (registry, id,
+                          &wp_single_pixel_buffer_manager_v1_interface, 1);
+    }
+  else if (strcmp (interface, "wp_viewporter") == 0)
+    {
+      display->viewporter = wl_registry_bind (registry, id,
+                                              &wp_viewporter_interface, 1);
+    }
   else if (strcmp (interface, "xdg_wm_base") == 0)
     {
       int xdg_wm_base_version = 1;
@@ -227,6 +238,8 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
   g_assert_nonnull (display->compositor);
   g_assert_nonnull (display->subcompositor);
   g_assert_nonnull (display->shm);
+  g_assert_nonnull (display->single_pixel_mgr);
+  g_assert_nonnull (display->viewporter);
   g_assert_nonnull (display->xdg_wm_base);
 
   if (capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)

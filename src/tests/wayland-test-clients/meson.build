@@ -50,6 +50,9 @@ wayland_test_clients = [
     'name': 'buffer-transform',
   },
   {
+    'name': 'single-pixel-buffer',
+  },
+  {
     'name': 'subsurface-remap-toplevel',
   },
   {

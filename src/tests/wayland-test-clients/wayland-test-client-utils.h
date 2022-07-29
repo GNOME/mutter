@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <wayland-client.h>
 
+#include "single-pixel-buffer-v1-client-protocol.h"
 #include "test-driver-client-protocol.h"
+#include "viewporter-client-protocol.h"
 #include "xdg-shell-client-protocol.h"
 
 typedef enum _WaylandDisplayCapabilities
@@ -25,8 +27,10 @@ typedef struct _WaylandDisplay
   struct wl_registry *registry;
   struct wl_compositor *compositor;
   struct wl_subcompositor *subcompositor;
-  struct xdg_wm_base *xdg_wm_base;
   struct wl_shm *shm;
+  struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
+  struct wp_viewporter *viewporter;
+  struct xdg_wm_base *xdg_wm_base;
   struct test_driver *test_driver;
 
   GHashTable *properties;
