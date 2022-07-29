@@ -14,7 +14,7 @@ window compositing, focus tracking, workspace management, keybindings and
 monitor configuration.
 
 Internally it uses a fork of Cogl, a hardware acceleration abstraction library
-used to simplify usage of OpenGL pipelines, as well as a fork af Clutter, a
+used to simplify usage of OpenGL pipelines, as well as a fork of Clutter, a
 scene graph and user interface toolkit.
 
 Mutter is used by, for example, GNOME Shell, the GNOME core user interface, and
