@@ -401,7 +401,7 @@ wait_for_effects_completed (WaylandDisplay    *display,
   while (effects_complete_callback)
     {
       if (wl_display_dispatch (display->display) == -1)
-        exit (EXIT_FAILURE);
+        g_error ("%s: Failed to dispatch Wayland display", __func__);
     }
 }
 
@@ -430,6 +430,6 @@ wait_for_view_verified (WaylandDisplay *display,
   while (view_verification_callback)
     {
       if (wl_display_dispatch (display->display) == -1)
-        exit (EXIT_FAILURE);
+        g_error ("%s: Failed to dispatch Wayland display", __func__);
     }
 }
