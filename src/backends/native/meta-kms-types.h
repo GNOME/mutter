@@ -63,6 +63,7 @@ typedef enum _MetaKmsDeviceFlag
   META_KMS_DEVICE_FLAG_HAS_ADDFB2 = 1 << 5,
   META_KMS_DEVICE_FLAG_FORCE_LEGACY = 1 << 6,
   META_KMS_DEVICE_FLAG_DISABLE_CLIENT_MODIFIERS = 1 << 7,
+  META_KMS_DEVICE_FLAG_DISABLE_VRR = 1 << 8,
 } MetaKmsDeviceFlag;
 
 typedef enum _MetaKmsResourceChanges

@@ -101,6 +101,13 @@ meta_is_udev_device_disable_modifiers (GUdevDevice *device)
 }
 
 gboolean
+meta_is_udev_device_disable_vrr (GUdevDevice *device)
+{
+  return meta_has_udev_device_tag (device,
+                                   "mutter-device-disable-vrr");
+}
+
+gboolean
 meta_is_udev_device_ignore (GUdevDevice *device)
 {
   return meta_has_udev_device_tag (device, "mutter-device-ignore");
