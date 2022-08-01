@@ -47,7 +47,6 @@ gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
 
 gboolean meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms);
 gboolean meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms);
-gboolean meta_gpu_kms_disable_modifiers (MetaGpuKms *gpu_kms);
 
 MetaKmsDevice * meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms);
 
