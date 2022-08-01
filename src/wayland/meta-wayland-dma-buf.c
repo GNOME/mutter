@@ -56,6 +56,7 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-renderer-native.h"
@@ -155,22 +156,18 @@ static GQuark quark_dma_buf_surface_feedback;
 static gboolean
 should_send_modifiers (MetaBackend *backend)
 {
-  MetaSettings *settings = meta_backend_get_settings (backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaGpuKms *gpu_kms;
+  MetaKmsDevice *kms_device;
+  MetaKmsDeviceFlag flags;
 
-  if (meta_settings_is_experimental_feature_enabled (
-        settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
-    return TRUE;
+  gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
 
-#ifdef HAVE_NATIVE_BACKEND
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      MetaRenderer *renderer = meta_backend_get_renderer (backend);
-      MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-      return meta_renderer_native_use_modifiers (renderer_native);
-    }
-#endif
+  flags = meta_kms_device_get_flags (kms_device);
 
-  return FALSE;
+  return !!(flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2);
 }
 
 static gint
