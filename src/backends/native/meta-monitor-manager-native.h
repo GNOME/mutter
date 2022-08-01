@@ -46,4 +46,8 @@ uint64_t meta_power_save_to_dpms_state (MetaPowerSave power_save);
 MetaKmsCrtcGamma * meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                                       MetaCrtcKms              *crtc_kms);
 
+void meta_monitor_manager_native_update_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
+                                                           MetaCrtcKms              *crtc_kms,
+                                                           MetaKmsCrtcGamma         *gamma_lut);
+
 #endif /* META_MONITOR_MANAGER_NATIVE_H */

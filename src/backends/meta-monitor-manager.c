@@ -1152,33 +1152,6 @@ update_has_builtin_panel (MetaMonitorManager *manager)
                             obj_props[PROP_HAS_BUILTIN_PANEL]);
 }
 
-void
-meta_monitor_manager_get_crtc_gamma (MetaMonitorManager  *manager,
-                                     MetaCrtc            *crtc,
-                                     size_t              *size,
-                                     unsigned short     **red,
-                                     unsigned short     **green,
-                                     unsigned short     **blue)
-{
-  MetaMonitorManagerClass *klass = META_MONITOR_MANAGER_GET_CLASS (manager);
-
-  if (klass->get_crtc_gamma)
-    {
-      klass->get_crtc_gamma (manager, crtc, size, red, green, blue);
-    }
-  else
-    {
-      if (size)
-        *size = 0;
-      if (red)
-        *red = NULL;
-      if (green)
-        *green = NULL;
-      if (blue)
-        *blue = NULL;
-    }
-}
-
 static void
 update_night_light_supported (MetaMonitorManager *manager)
 {
@@ -1198,9 +1171,7 @@ update_night_light_supported (MetaMonitorManager *manager)
           MetaCrtc *crtc = l_crtc->data;
           size_t gamma_lut_size;
 
-          meta_monitor_manager_get_crtc_gamma (manager, crtc,
-                                               &gamma_lut_size,
-                                               NULL, NULL, NULL);
+          meta_crtc_get_gamma_lut (crtc, &gamma_lut_size, NULL, NULL, NULL);
           if (gamma_lut_size > 0)
             {
               night_light_supported = TRUE;
@@ -2918,8 +2889,7 @@ meta_monitor_manager_handle_get_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
   crtc = g_list_nth_data (combined_crtcs, crtc_id);
   g_list_free (combined_crtcs);
 
-  meta_monitor_manager_get_crtc_gamma (manager, crtc,
-                                       &size, &red, &green, &blue);
+  meta_crtc_get_gamma_lut (crtc, &size, &red, &green, &blue);
 
   red_bytes = g_bytes_new_take (red, size * sizeof (unsigned short));
   green_bytes = g_bytes_new_take (green, size * sizeof (unsigned short));
@@ -2949,7 +2919,6 @@ meta_monitor_manager_handle_set_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
                                              GVariant              *blue_v,
                                              MetaMonitorManager    *manager)
 {
-  MetaMonitorManagerClass *klass;
   GList *combined_crtcs;
   MetaCrtc *crtc;
   gsize size, dummy;
@@ -2989,9 +2958,7 @@ meta_monitor_manager_handle_set_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
   green = (unsigned short*) g_bytes_get_data (green_bytes, &dummy);
   blue = (unsigned short*) g_bytes_get_data (blue_bytes, &dummy);
 
-  klass = META_MONITOR_MANAGER_GET_CLASS (manager);
-  if (klass->set_crtc_gamma)
-    klass->set_crtc_gamma (manager, crtc, size, red, green, blue);
+  meta_crtc_set_gamma_lut (crtc, size, red, green, blue);
   meta_dbus_display_config_complete_set_crtc_gamma (skeleton, invocation);
 
   g_bytes_unref (red_bytes);
@@ -3952,18 +3919,4 @@ meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager)
     meta_monitor_manager_get_instance_private (manager);
 
   return priv->virtual_monitors;
-}
-
-void
-meta_monitor_manager_set_crtc_gamma (MetaMonitorManager *manager,
-                                     MetaCrtc           *crtc,
-                                     size_t              size,
-                                     unsigned short     *red,
-                                     unsigned short     *green,
-                                     unsigned short     *blue)
-{
-  MetaMonitorManagerClass *manager_class =
-    META_MONITOR_MANAGER_GET_CLASS (manager);
-
-  manager_class->set_crtc_gamma (manager, crtc, size, red, green, blue);
 }

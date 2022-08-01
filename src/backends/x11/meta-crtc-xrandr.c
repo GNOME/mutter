@@ -298,6 +298,55 @@ meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
 }
 
 static void
+meta_crtc_xrandr_get_gamma_lut (MetaCrtc        *crtc,
+                                size_t          *size,
+                                unsigned short **red,
+                                unsigned short **green,
+                                unsigned short **blue)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XRRCrtcGamma *gamma;
+
+  gamma = XRRGetCrtcGamma (xdisplay, (XID) meta_crtc_get_id (crtc));
+
+  *size = gamma->size;
+  if (red)
+    *red = g_memdup2 (gamma->red, sizeof (unsigned short) * gamma->size);
+  if (green)
+    *green = g_memdup2 (gamma->green, sizeof (unsigned short) * gamma->size);
+  if (blue)
+    *blue = g_memdup2 (gamma->blue, sizeof (unsigned short) * gamma->size);
+
+  XRRFreeGamma (gamma);
+}
+
+static void
+meta_crtc_xrandr_set_gamma_lut (MetaCrtc       *crtc,
+                                size_t          size,
+                                unsigned short *red,
+                                unsigned short *green,
+                                unsigned short *blue)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XRRCrtcGamma *gamma;
+
+  gamma = XRRAllocGamma (size);
+  memcpy (gamma->red, red, sizeof (unsigned short) * size);
+  memcpy (gamma->green, green, sizeof (unsigned short) * size);
+  memcpy (gamma->blue, blue, sizeof (unsigned short) * size);
+
+  XRRSetCrtcGamma (xdisplay, (XID) meta_crtc_get_id (crtc), gamma);
+
+  XRRFreeGamma (gamma);
+}
+
+static void
 meta_crtc_xrandr_init (MetaCrtcXrandr *crtc_xrandr)
 {
 }
@@ -305,4 +354,8 @@ meta_crtc_xrandr_init (MetaCrtcXrandr *crtc_xrandr)
 static void
 meta_crtc_xrandr_class_init (MetaCrtcXrandrClass *klass)
 {
+  MetaCrtcClass *crtc_class = META_CRTC_CLASS (klass);
+
+  crtc_class->get_gamma_lut = meta_crtc_xrandr_get_gamma_lut;
+  crtc_class->set_gamma_lut = meta_crtc_xrandr_set_gamma_lut;
 }

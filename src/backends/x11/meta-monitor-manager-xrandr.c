@@ -660,54 +660,6 @@ meta_monitor_manager_xrandr_change_backlight (MetaMonitorManager *manager,
   meta_output_xrandr_change_backlight (META_OUTPUT_XRANDR (output), value);
 }
 
-static void
-meta_monitor_manager_xrandr_get_crtc_gamma (MetaMonitorManager  *manager,
-					    MetaCrtc            *crtc,
-					    gsize               *size,
-					    unsigned short     **red,
-					    unsigned short     **green,
-					    unsigned short     **blue)
-{
-  MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
-  XRRCrtcGamma *gamma;
-
-  gamma = XRRGetCrtcGamma (manager_xrandr->xdisplay,
-                           (XID) meta_crtc_get_id (crtc));
-
-  *size = gamma->size;
-  if (red)
-    *red = g_memdup2 (gamma->red, sizeof (unsigned short) * gamma->size);
-  if (green)
-    *green = g_memdup2 (gamma->green, sizeof (unsigned short) * gamma->size);
-  if (blue)
-    *blue = g_memdup2 (gamma->blue, sizeof (unsigned short) * gamma->size);
-
-  XRRFreeGamma (gamma);
-}
-
-static void
-meta_monitor_manager_xrandr_set_crtc_gamma (MetaMonitorManager *manager,
-					    MetaCrtc           *crtc,
-					    gsize               size,
-					    unsigned short     *red,
-					    unsigned short     *green,
-					    unsigned short     *blue)
-{
-  MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
-  XRRCrtcGamma *gamma;
-
-  gamma = XRRAllocGamma (size);
-  memcpy (gamma->red, red, sizeof (unsigned short) * size);
-  memcpy (gamma->green, green, sizeof (unsigned short) * size);
-  memcpy (gamma->blue, blue, sizeof (unsigned short) * size);
-
-  XRRSetCrtcGamma (manager_xrandr->xdisplay,
-                   (XID) meta_crtc_get_id (crtc),
-                   gamma);
-
-  XRRFreeGamma (gamma);
-}
-
 static MetaMonitorXrandrData *
 meta_monitor_xrandr_data_from_monitor (MetaMonitor *monitor)
 {
@@ -1015,8 +967,6 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
   manager_class->apply_monitors_config = meta_monitor_manager_xrandr_apply_monitors_config;
   manager_class->set_power_save_mode = meta_monitor_manager_xrandr_set_power_save_mode;
   manager_class->change_backlight = meta_monitor_manager_xrandr_change_backlight;
-  manager_class->get_crtc_gamma = meta_monitor_manager_xrandr_get_crtc_gamma;
-  manager_class->set_crtc_gamma = meta_monitor_manager_xrandr_set_crtc_gamma;
   manager_class->tiled_monitor_added = meta_monitor_manager_xrandr_tiled_monitor_added;
   manager_class->tiled_monitor_removed = meta_monitor_manager_xrandr_tiled_monitor_removed;
   manager_class->is_transform_handled = meta_monitor_manager_xrandr_is_transform_handled;

@@ -42,6 +42,18 @@ G_DECLARE_DERIVABLE_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
 struct _MetaCrtcClass
 {
   GObjectClass parent_class;
+
+  void (* get_gamma_lut) (MetaCrtc        *crtc,
+                          size_t          *size,
+                          unsigned short **red,
+                          unsigned short **green,
+                          unsigned short **blue);
+
+  void (* set_gamma_lut) (MetaCrtc       *crtc,
+                          size_t          size,
+                          unsigned short *red,
+                          unsigned short *green,
+                          unsigned short *blue);
 };
 
 META_EXPORT_TEST
@@ -73,5 +85,17 @@ void meta_crtc_unset_config (MetaCrtc *crtc);
 
 META_EXPORT_TEST
 const MetaCrtcConfig * meta_crtc_get_config (MetaCrtc *crtc);
+
+void meta_crtc_get_gamma_lut (MetaCrtc        *crtc,
+                              size_t          *size,
+                              unsigned short **red,
+                              unsigned short **green,
+                              unsigned short **blue);
+
+void meta_crtc_set_gamma_lut (MetaCrtc       *crtc,
+                              size_t          size,
+                              unsigned short *red,
+                              unsigned short *green,
+                              unsigned short *blue);
 
 #endif /* META_CRTC_H */

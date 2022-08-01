@@ -350,126 +350,6 @@ meta_monitor_manager_native_apply_monitors_config (MetaMonitorManager        *ma
   return TRUE;
 }
 
-static void
-meta_monitor_manager_native_get_crtc_gamma (MetaMonitorManager  *manager,
-                                            MetaCrtc            *crtc,
-                                            gsize               *size,
-                                            unsigned short     **red,
-                                            unsigned short     **green,
-                                            unsigned short     **blue)
-{
-  MetaMonitorManagerNative *manager_native =
-    META_MONITOR_MANAGER_NATIVE (manager);
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaKmsCrtcGamma *crtc_gamma;
-  MetaKmsCrtc *kms_crtc;
-  const MetaKmsCrtcState *crtc_state;
-
-  if (!META_IS_CRTC_KMS (crtc))
-    {
-      if (size)
-        *size = 0;
-      if (red)
-        *red = NULL;
-      if (green)
-        *green = NULL;
-      if (blue)
-        *blue = NULL;
-      return;
-    }
-
-  crtc_gamma =
-    meta_monitor_manager_native_get_cached_crtc_gamma (manager_native,
-                                                       crtc_kms);
-  if (crtc_gamma)
-    {
-      if (size)
-        *size = crtc_gamma->size;
-      if (red)
-        *red = g_memdup2 (crtc_gamma->red, *size * sizeof **red);
-      if (green)
-        *green = g_memdup2 (crtc_gamma->green, *size * sizeof **green);
-      if (blue)
-        *blue = g_memdup2 (crtc_gamma->blue, *size * sizeof **blue);
-      return;
-    }
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
-
-  if (size)
-    *size = crtc_state->gamma.size;
-  if (red)
-    *red = g_memdup2 (crtc_state->gamma.red, *size * sizeof **red);
-  if (green)
-    *green = g_memdup2 (crtc_state->gamma.green, *size * sizeof **green);
-  if (blue)
-    *blue = g_memdup2 (crtc_state->gamma.blue, *size * sizeof **blue);
-}
-
-static char *
-generate_gamma_ramp_string (size_t          size,
-                            unsigned short *red,
-                            unsigned short *green,
-                            unsigned short *blue)
-{
-  GString *string;
-  int color;
-
-  string = g_string_new ("[");
-  for (color = 0; color < 3; color++)
-    {
-      unsigned short **color_ptr = NULL;
-      char color_char;
-      size_t i;
-
-      switch (color)
-        {
-        case 0:
-          color_ptr = &red;
-          color_char = 'r';
-          break;
-        case 1:
-          color_ptr = &green;
-          color_char = 'g';
-          break;
-        case 2:
-          color_ptr = &blue;
-          color_char = 'b';
-          break;
-        }
-
-      g_assert (color_ptr);
-      g_string_append_printf (string, " %c: ", color_char);
-      for (i = 0; i < MIN (4, size); i++)
-        {
-          int j;
-
-          if (size > 4)
-            {
-              if (i == 2)
-                g_string_append (string, ",...");
-
-              if (i >= 2)
-                j = i + (size - 4);
-              else
-                j = i;
-            }
-          else
-            {
-              j = i;
-            }
-          g_string_append_printf (string, "%s%hu",
-                                  j == 0 ? "" : ",",
-                                  (*color_ptr)[i]);
-        }
-    }
-
-  g_string_append (string, " ]");
-
-  return g_string_free (string, FALSE);
-}
-
 MetaKmsCrtcGamma *
 meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
                                                    MetaCrtcKms              *crtc_kms)
@@ -481,51 +361,16 @@ meta_monitor_manager_native_get_cached_crtc_gamma (MetaMonitorManagerNative *man
                               GUINT_TO_POINTER (crtc_id));
 }
 
-static void
-meta_monitor_manager_native_set_crtc_gamma (MetaMonitorManager *manager,
-                                            MetaCrtc           *crtc,
-                                            gsize               size,
-                                            unsigned short     *red,
-                                            unsigned short     *green,
-                                            unsigned short     *blue)
+void
+meta_monitor_manager_native_update_cached_crtc_gamma (MetaMonitorManagerNative *manager_native,
+                                                      MetaCrtcKms              *crtc_kms,
+                                                      MetaKmsCrtcGamma         *crtc_gamma)
 {
-  MetaMonitorManagerNative *manager_native =
-    META_MONITOR_MANAGER_NATIVE (manager);
-  MetaCrtcKms *crtc_kms;
-  MetaKmsCrtc *kms_crtc;
-  const MetaKmsCrtcState *crtc_state;
-  g_autofree char *gamma_ramp_string = NULL;
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-
-  g_return_if_fail (META_IS_CRTC_KMS (crtc));
-
-  crtc_kms = META_CRTC_KMS (crtc);
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
-
-  if (size != crtc_state->gamma.size)
-    {
-      MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
-
-      g_warning ("Tried to set a different gamma LUT size on %u (%s)",
-                 meta_kms_crtc_get_id (kms_crtc),
-                 meta_kms_device_get_path (kms_device));
-      return;
-    }
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
 
   g_hash_table_replace (manager_native->crtc_gamma_cache,
                         GUINT_TO_POINTER (meta_crtc_get_id (crtc)),
-                        meta_kms_crtc_gamma_new (kms_crtc, size,
-                                                 red, green, blue));
-
-  gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
-  meta_topic (META_DEBUG_COLOR,
-              "Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
-              meta_crtc_get_id (crtc), gamma_ramp_string);
-
-  meta_crtc_kms_invalidate_gamma (crtc_kms);
-  clutter_stage_schedule_update (stage);
+                        crtc_gamma);
 }
 
 static void
@@ -902,10 +747,6 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
     meta_monitor_manager_native_apply_monitors_config;
   manager_class->set_power_save_mode =
     meta_monitor_manager_native_set_power_save_mode;
-  manager_class->get_crtc_gamma =
-    meta_monitor_manager_native_get_crtc_gamma;
-  manager_class->set_crtc_gamma =
-    meta_monitor_manager_native_set_crtc_gamma;
   manager_class->is_transform_handled =
     meta_monitor_manager_native_is_transform_handled;
   manager_class->calculate_monitor_mode_scale =

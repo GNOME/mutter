@@ -182,13 +182,6 @@ struct _MetaMonitorManager
  * @change_backlight: Changes the backlight intensity to the given value (in
  *   percent).
  *
- * @get_crtc_gamma: Queries and returns the gamma rampQueries and returns the
- *   gamma ramp.
- *
- * @set_crtc_gamma: Sets custom display LUT (look up table) for each primary
- *   color. Each table is indexed by a value that represents input intensity,
- *   and yields a value that represents output intensity.
- *
  * @tiled_monitor_added: Should be called by a #MetaMonitor when it is created.
  *
  * @tiled_monitor_removed: Should be called by a #MetaMonitor when it is
@@ -229,19 +222,6 @@ struct _MetaMonitorManagerClass
   void (* change_backlight) (MetaMonitorManager *manager,
                              MetaOutput         *output,
                              int                 backlight);
-
-  void (* get_crtc_gamma) (MetaMonitorManager  *manager,
-                           MetaCrtc            *crtc,
-                           size_t              *size,
-                           unsigned short     **red,
-                           unsigned short     **green,
-                           unsigned short     **blue);
-  void (* set_crtc_gamma) (MetaMonitorManager *manager,
-                           MetaCrtc           *crtc,
-                           size_t              size,
-                           unsigned short     *red,
-                           unsigned short     *green,
-                           unsigned short     *blue);
 
   void (* tiled_monitor_added) (MetaMonitorManager *manager,
                                 MetaMonitor        *monitor);
@@ -451,19 +431,5 @@ MetaViewportInfo * meta_monitor_manager_get_viewports (MetaMonitorManager *manag
 GList * meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager);
 
 void meta_monitor_manager_maybe_emit_privacy_screen_change (MetaMonitorManager *manager);
-
-void meta_monitor_manager_get_crtc_gamma (MetaMonitorManager  *manager,
-                                          MetaCrtc            *crtc,
-                                          size_t              *size,
-                                          unsigned short     **red,
-                                          unsigned short     **green,
-                                          unsigned short     **blue);
-
-void meta_monitor_manager_set_crtc_gamma (MetaMonitorManager *manager,
-                                          MetaCrtc           *crtc,
-                                          size_t              size,
-                                          unsigned short     *red,
-                                          unsigned short     *green,
-                                          unsigned short     *blue);
 
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */

@@ -687,17 +687,13 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
 size_t
 meta_monitor_get_gamma_lut_size (MetaMonitor *monitor)
 {
-  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (priv->backend);
   MetaOutput *output;
   MetaCrtc *crtc;
   size_t size;
 
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
-  meta_monitor_manager_get_crtc_gamma (monitor_manager, crtc,
-                                       &size, NULL, NULL, NULL);
+  meta_crtc_get_gamma_lut (crtc, &size, NULL, NULL, NULL);
   return size;
 }
 
@@ -717,19 +713,15 @@ set_gamma_lut (MetaMonitor          *monitor,
                GError              **error)
 {
   LutData *lut_data = user_data;
-  MetaBackend *backend = meta_monitor_get_backend (monitor);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   MetaCrtc *crtc;
 
   crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
 
-  meta_monitor_manager_set_crtc_gamma (monitor_manager,
-                                       crtc,
-                                       lut_data->size,
-                                       lut_data->red,
-                                       lut_data->green,
-                                       lut_data->blue);
+  meta_crtc_set_gamma_lut (crtc,
+                           lut_data->size,
+                           lut_data->red,
+                           lut_data->green,
+                           lut_data->blue);
   return TRUE;
 }
 

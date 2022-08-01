@@ -137,6 +137,30 @@ meta_crtc_get_config (MetaCrtc *crtc)
   return priv->config;
 }
 
+void
+meta_crtc_get_gamma_lut (MetaCrtc        *crtc,
+                         size_t          *size,
+                         unsigned short **red,
+                         unsigned short **green,
+                         unsigned short **blue)
+{
+  MetaCrtcClass *crtc_class = META_CRTC_GET_CLASS (crtc);
+
+  crtc_class->get_gamma_lut (crtc, size, red, green, blue);
+}
+
+void
+meta_crtc_set_gamma_lut (MetaCrtc       *crtc,
+                         size_t          size,
+                         unsigned short *red,
+                         unsigned short *green,
+                         unsigned short *blue)
+{
+  MetaCrtcClass *crtc_class = META_CRTC_GET_CLASS (crtc);
+
+  crtc_class->set_gamma_lut (crtc, size, red, green, blue);
+}
+
 static void
 meta_crtc_set_property (GObject      *object,
                         guint         prop_id,

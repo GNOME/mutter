@@ -56,6 +56,17 @@ static GQuark kms_crtc_crtc_kms_quark;
 
 G_DEFINE_TYPE (MetaCrtcKms, meta_crtc_kms, META_TYPE_CRTC_NATIVE)
 
+static MetaMonitorManagerNative *
+monitor_manager_from_crtc (MetaCrtc *crtc)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  return META_MONITOR_MANAGER_NATIVE (monitor_manager);
+}
+
 gpointer
 meta_crtc_kms_get_cursor_renderer_private (MetaCrtcKms *crtc_kms)
 {
@@ -72,6 +83,155 @@ meta_crtc_kms_set_cursor_renderer_private (MetaCrtcKms    *crtc_kms,
 
   crtc_kms->cursor_renderer_private = cursor_renderer_private;
   crtc_kms->cursor_renderer_private_destroy_notify = destroy_notify;
+}
+
+static void
+meta_crtc_kms_get_gamma_lut (MetaCrtc        *crtc,
+                             size_t          *size,
+                             unsigned short **red,
+                             unsigned short **green,
+                             unsigned short **blue)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaMonitorManagerNative *monitor_manager_native =
+    monitor_manager_from_crtc (crtc);
+  const MetaKmsCrtcState *crtc_state;
+  MetaKmsCrtcGamma *crtc_gamma;
+
+  crtc_gamma =
+    meta_monitor_manager_native_get_cached_crtc_gamma (monitor_manager_native,
+                                                       crtc_kms);
+  if (crtc_gamma)
+    {
+      if (size)
+        *size = crtc_gamma->size;
+      if (red)
+        *red = g_memdup2 (crtc_gamma->red, *size * sizeof **red);
+      if (green)
+        *green = g_memdup2 (crtc_gamma->green, *size * sizeof **green);
+      if (blue)
+        *blue = g_memdup2 (crtc_gamma->blue, *size * sizeof **blue);
+      return;
+    }
+
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+
+  if (size)
+    *size = crtc_state->gamma.size;
+  if (red)
+    *red = g_memdup2 (crtc_state->gamma.red, *size * sizeof **red);
+  if (green)
+    *green = g_memdup2 (crtc_state->gamma.green, *size * sizeof **green);
+  if (blue)
+    *blue = g_memdup2 (crtc_state->gamma.blue, *size * sizeof **blue);
+}
+
+static char *
+generate_gamma_ramp_string (size_t          size,
+                            unsigned short *red,
+                            unsigned short *green,
+                            unsigned short *blue)
+{
+  GString *string;
+  int color;
+
+  string = g_string_new ("[");
+  for (color = 0; color < 3; color++)
+    {
+      unsigned short **color_ptr = NULL;
+      char color_char;
+      size_t i;
+
+      switch (color)
+        {
+        case 0:
+          color_ptr = &red;
+          color_char = 'r';
+          break;
+        case 1:
+          color_ptr = &green;
+          color_char = 'g';
+          break;
+        case 2:
+          color_ptr = &blue;
+          color_char = 'b';
+          break;
+        }
+
+      g_assert (color_ptr);
+      g_string_append_printf (string, " %c: ", color_char);
+      for (i = 0; i < MIN (4, size); i++)
+        {
+          int j;
+
+          if (size > 4)
+            {
+              if (i == 2)
+                g_string_append (string, ",...");
+
+              if (i >= 2)
+                j = i + (size - 4);
+              else
+                j = i;
+            }
+          else
+            {
+              j = i;
+            }
+          g_string_append_printf (string, "%s%hu",
+                                  j == 0 ? "" : ",",
+                                  (*color_ptr)[i]);
+        }
+    }
+
+  g_string_append (string, " ]");
+
+  return g_string_free (string, FALSE);
+}
+
+static void
+meta_crtc_kms_set_gamma_lut (MetaCrtc       *crtc,
+                             size_t          size,
+                             unsigned short *red,
+                             unsigned short *green,
+                             unsigned short *blue)
+{
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaBackend *backend = meta_gpu_get_backend (meta_crtc_get_gpu (crtc));
+  MetaMonitorManagerNative *monitor_manager_native =
+    monitor_manager_from_crtc (crtc);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  const MetaKmsCrtcState *crtc_state;
+  g_autofree char *gamma_ramp_string = NULL;
+  MetaKmsCrtcGamma *crtc_gamma;
+
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
+
+  if (size != crtc_state->gamma.size)
+    {
+      MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+      g_warning ("Tried to set a different gamma LUT size on %u (%s)",
+                 meta_kms_crtc_get_id (kms_crtc),
+                 meta_kms_device_get_path (kms_device));
+      return;
+    }
+
+  gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
+  meta_topic (META_DEBUG_COLOR,
+              "Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
+              meta_crtc_get_id (crtc), gamma_ramp_string);
+
+  crtc_gamma = meta_kms_crtc_gamma_new (kms_crtc, size,
+                                        red, green, blue);
+  meta_monitor_manager_native_update_cached_crtc_gamma (monitor_manager_native,
+                                                        crtc_kms,
+                                                        crtc_gamma);
+
+  meta_crtc_kms_invalidate_gamma (crtc_kms);
+  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
 }
 
 static gboolean
@@ -394,9 +554,13 @@ static void
 meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  MetaCrtcClass *crtc_class = META_CRTC_CLASS (klass);
   MetaCrtcNativeClass *crtc_native_class = META_CRTC_NATIVE_CLASS (klass);
 
   object_class->dispose = meta_crtc_kms_dispose;
+
+  crtc_class->get_gamma_lut = meta_crtc_kms_get_gamma_lut;
+  crtc_class->set_gamma_lut = meta_crtc_kms_set_gamma_lut;
 
   crtc_native_class->is_transform_handled = meta_crtc_kms_is_transform_handled;
   crtc_native_class->is_hw_cursor_supported = meta_crtc_kms_is_hw_cursor_supported;
