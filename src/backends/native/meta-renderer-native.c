@@ -2125,8 +2125,14 @@ meta_renderer_native_initable_init (GInitable     *initable,
         }
       else
         {
+          MetaKmsDevice *kms_device =
+            meta_gpu_kms_get_kms_device (renderer_native->primary_gpu_kms);
+          MetaKmsDeviceFlag flags;
+
+          flags = meta_kms_device_get_flags (kms_device);
           renderer_native->use_modifiers =
-            !meta_gpu_kms_disable_modifiers (renderer_native->primary_gpu_kms);
+            !(flags & META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS) &&
+            flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2;
         }
 
       meta_topic (META_DEBUG_KMS, "Usage of KMS modifiers is %s",
