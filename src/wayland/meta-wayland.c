@@ -837,3 +837,9 @@ meta_wayland_compositor_get_xwayland_manager (MetaWaylandCompositor *compositor)
 {
   return &compositor->xwayland_manager;
 }
+
+MetaContext *
+meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor)
+{
+  return compositor->context;
+}
