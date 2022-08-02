@@ -168,6 +168,7 @@ meta_screen_cast_monitor_stream_set_parameters (MetaScreenCastStream *stream,
   MetaScreenCastMonitorStream *monitor_stream =
     META_SCREEN_CAST_MONITOR_STREAM (stream);
   MetaRectangle logical_monitor_layout;
+  const char *output_name;
 
   logical_monitor_layout =
     meta_logical_monitor_get_layout (monitor_stream->logical_monitor);
@@ -182,6 +183,10 @@ meta_screen_cast_monitor_stream_set_parameters (MetaScreenCastStream *stream,
                          g_variant_new ("(ii)",
                                         logical_monitor_layout.width,
                                         logical_monitor_layout.height));
+
+  output_name = meta_monitor_get_connector (monitor_stream->monitor);
+  g_variant_builder_add (parameters_builder, "{sv}", "output-name",
+                         g_variant_new ("s", output_name));
 }
 
 static gboolean
