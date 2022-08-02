@@ -18,7 +18,7 @@ variables:
 .mutter.fedora:35@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 35
-    BASE_TAG: '2022-07-29.0'
+    BASE_TAG: '2022-08-02.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -35,6 +35,7 @@ variables:
       qemu-system-x86-core
       busybox
       gi-docgen
+      pkgconfig(libgcrypt)
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -67,6 +68,16 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gjs.git \
         1.73.1 . &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        -Dvapi=false \
+        -Dgtk3=false \
+        -Dgtk4=false \
+        -Dgtk_doc=false \
+        -Dssh_agent=false \
+        -Dsystemd=disabled \
+        https://gitlab.gnome.org/GNOME/gcr.git \
+        3.90.0 . &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
