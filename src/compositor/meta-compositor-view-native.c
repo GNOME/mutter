@@ -98,8 +98,11 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   if (!META_IS_CRTC_KMS (crtc))
     return FALSE;
 
-  framebuffer = clutter_stage_view_get_framebuffer (stage_view);
+  framebuffer = clutter_stage_view_get_onscreen (stage_view);
   if (!COGL_IS_ONSCREEN (framebuffer))
+    return FALSE;
+
+  if (clutter_stage_view_has_shadowfb (stage_view))
     return FALSE;
 
   window_actor = meta_compositor_view_get_top_window_actor (compositor_view);
