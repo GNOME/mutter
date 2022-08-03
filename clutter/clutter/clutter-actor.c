@@ -19195,3 +19195,14 @@ clutter_actor_collect_event_actors (ClutterActor *self,
       g_ptr_array_add (actors, g_object_ref (self));
     }
 }
+
+const GList *
+clutter_actor_peek_actions (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (priv->actions == NULL)
+    return NULL;
+
+  return _clutter_meta_group_peek_metas (priv->actions);
+}

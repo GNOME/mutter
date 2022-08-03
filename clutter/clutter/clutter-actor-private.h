@@ -279,6 +279,8 @@ void clutter_actor_collect_event_actors (ClutterActor *self,
                                          ClutterActor *deepmost,
                                          GPtrArray    *actors);
 
+const GList * clutter_actor_peek_actions (ClutterActor *self);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_PRIVATE_H__ */
