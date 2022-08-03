@@ -1,0 +1,20 @@
+# Test that monitor hotplugs with unmapped windows are handled
+
+new_client w wayland
+
+create w/1 csd
+freeze w/1
+resize w/1 100 200
+show w/1 async
+
+resize_monitor primary 1024 768
+
+wait
+
+thaw w/1
+wait
+sync_shown w/1
+assert_stacking w/1
+assert_size w/1 100 200
+
+destroy w/1

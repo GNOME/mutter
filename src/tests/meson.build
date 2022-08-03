@@ -354,6 +354,7 @@ stacking_tests = [
   'modals',
   'map-fixed-size',
   'client-resize-respect-constraints',
+  'map-on-hotplug',
 ]
 
 foreach stacking_test: stacking_tests
