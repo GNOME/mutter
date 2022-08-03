@@ -42,6 +42,7 @@ typedef struct {
   GString *warning_messages;
   GMainLoop *loop;
   gulong x11_display_opened_handler_id;
+  MetaVirtualMonitor *virtual_monitor;
 } TestCase;
 
 static gboolean
@@ -98,6 +99,7 @@ test_case_new (MetaContext *context)
   test->context = context;
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
   test->loop = g_main_loop_new (NULL, FALSE);
+  test->virtual_monitor = meta_create_test_monitor (context, 800, 600, 60.0);
 
   return test;
 }
@@ -1033,6 +1035,7 @@ test_case_destroy (TestCase *test,
     meta_x11_display_set_alarm_filter (display->x11_display, NULL, NULL);
 
   g_hash_table_destroy (test->clients);
+  g_object_unref (test->virtual_monitor);
   g_free (test);
 
   return TRUE;
@@ -1158,9 +1161,6 @@ run_tests (MetaContext  *context,
 {
   int i;
   gboolean success = TRUE;
-  MetaVirtualMonitor *virtual_monitor;
-
-  virtual_monitor = meta_create_test_monitor (context, 800, 600, 60.0);
 
   g_print ("1..%d\n", info->n_tests);
 
@@ -1170,7 +1170,6 @@ run_tests (MetaContext  *context,
         success = FALSE;
     }
 
-  g_object_unref (virtual_monitor);
 
   return success ? 0 : 1;
 }
