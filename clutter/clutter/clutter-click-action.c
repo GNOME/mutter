@@ -360,7 +360,7 @@ clutter_click_action_handle_event (ClutterAction      *action,
       G_GNUC_FALLTHROUGH;
     case CLUTTER_BUTTON_RELEASE:
       if (!priv->is_held)
-        return CLUTTER_EVENT_STOP;
+        return CLUTTER_EVENT_PROPAGATE;
 
       if ((has_button && clutter_event_get_button (event) != priv->press_button) ||
           clutter_event_get_device (event) != priv->press_device ||
