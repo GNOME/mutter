@@ -70,6 +70,7 @@ void meta_virtual_monitor_info_free (MetaVirtualMonitorInfo *info);
 
 MetaCrtc * meta_virtual_monitor_get_crtc (MetaVirtualMonitor *virtual_monitor);
 
+META_EXPORT_TEST
 MetaCrtcMode * meta_virtual_monitor_get_crtc_mode (MetaVirtualMonitor *virtual_monitor);
 
 META_EXPORT_TEST
