@@ -82,20 +82,16 @@ test_case_new (MetaContext *context)
   TestCase *test = g_new0 (TestCase, 1);
   MetaDisplay *display = meta_context_get_display (context);
 
-  if (!meta_is_wayland_compositor ())
+  if (display->x11_display)
     {
-      meta_context_test_wait_for_x11_display (META_CONTEXT_TEST (context));
       on_x11_display_opened (display, test);
     }
   else
     {
-      if (display->x11_display)
-        on_x11_display_opened (display, test);
-      else
-        test->x11_display_opened_handler_id =
-          g_signal_connect (meta_get_display (), "x11-display-opened",
-                            G_CALLBACK (on_x11_display_opened),
-                            test);
+      test->x11_display_opened_handler_id =
+        g_signal_connect (meta_get_display (), "x11-display-opened",
+                          G_CALLBACK (on_x11_display_opened),
+                          test);
     }
 
   test->context = context;
