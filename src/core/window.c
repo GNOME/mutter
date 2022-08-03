@@ -3646,6 +3646,31 @@ find_monitor_by_winsys_id (MetaWindow *window,
   return NULL;
 }
 
+MetaLogicalMonitor *
+meta_window_find_monitor_from_id (MetaWindow *window)
+{
+  MetaContext *context = meta_display_get_context (window->display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *old_monitor = window->monitor;
+  MetaLogicalMonitor *new_monitor;
+
+  new_monitor = find_monitor_by_winsys_id (window,
+                                           window->preferred_output_winsys_id);
+
+  if (old_monitor && !new_monitor)
+    new_monitor = find_monitor_by_winsys_id (window, old_monitor->winsys_id);
+
+  if (!new_monitor)
+    {
+      new_monitor =
+        meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+    }
+
+  return new_monitor;
+}
+
 /* This is called when the monitor setup has changed. The window->monitor
  * reference is still "valid", but refer to the previous monitor setup */
 void
@@ -3668,17 +3693,7 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
     }
 
   old = window->monitor;
-
-  /* Try the preferred output first */
-  new = find_monitor_by_winsys_id (window, window->preferred_output_winsys_id);
-
-  /* Otherwise, try to find the old output on a new monitor */
-  if (old && !new)
-    new = find_monitor_by_winsys_id (window, old->winsys_id);
-
-  /* Fall back to primary if everything else failed */
-  if (!new)
-    new = meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+  new = meta_window_find_monitor_from_id (window);
 
   if (window->tile_mode != META_TILE_NONE)
     {
