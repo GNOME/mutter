@@ -4,6 +4,8 @@
 #  3. Resize such that the following resize will extend beyond the screen
 #  4. Check that the window was moved to the position that would allow it to fit on the screen
 
+resize_monitor primary 800 600
+
 new_client w wayland
 create w/1 csd
 
