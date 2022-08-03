@@ -3652,7 +3652,8 @@ find_monitor_by_winsys_id (MetaWindow *window,
 void
 meta_window_update_for_monitors_changed (MetaWindow *window)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaContext *context = meta_display_get_context (window->display);
+  MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   const MetaLogicalMonitor *old, *new;
