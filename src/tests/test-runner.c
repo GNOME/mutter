@@ -443,7 +443,7 @@ parse_window_size (MetaWindow *window,
   MetaRectangle logical_monitor_layout;
   int value;
 
-  logical_monitor = meta_window_calculate_main_logical_monitor (window);
+  logical_monitor = meta_window_find_monitor_from_frame_rect (window);
   g_assert_nonnull (logical_monitor);
 
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);

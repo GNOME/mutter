@@ -849,7 +849,7 @@ void meta_window_activate_full (MetaWindow     *window,
                                 MetaWorkspace  *workspace);
 
 META_EXPORT_TEST
-MetaLogicalMonitor * meta_window_calculate_main_logical_monitor (MetaWindow *window);
+MetaLogicalMonitor * meta_window_find_monitor_from_frame_rect (MetaWindow *window);
 
 MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
 void meta_window_update_monitor (MetaWindow                   *window,

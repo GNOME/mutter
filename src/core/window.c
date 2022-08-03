@@ -934,7 +934,7 @@ meta_window_main_monitor_changed (MetaWindow               *window,
 }
 
 MetaLogicalMonitor *
-meta_window_calculate_main_logical_monitor (MetaWindow *window)
+meta_window_find_monitor_from_frame_rect (MetaWindow *window)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -1160,7 +1160,7 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->compositor_private = NULL;
 
   if (window->rect.width > 0 && window->rect.height > 0)
-    window->monitor = meta_window_calculate_main_logical_monitor (window);
+    window->monitor = meta_window_find_monitor_from_frame_rect (window);
   else
     window->monitor = meta_backend_get_current_logical_monitor (backend);
 
