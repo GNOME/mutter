@@ -989,6 +989,29 @@ test_case_do (TestCase *test,
       if (!meta_test_client_do (client, error, argv[0], argv[2], argv[3], NULL))
         return FALSE;
     }
+  else if (strcmp (argv[0], "resize_monitor") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaCrtcMode *crtc_mode;
+      const MetaCrtcModeInfo *crtc_mode_info;
+
+      if (argc != 4)
+        BAD_COMMAND ("usage: %s <monitor-id> <width> <height>", argv[0]);
+
+      if (strcmp (argv[1], "0") != 0 &&
+          strcmp (argv[1], "primary") != 0)
+        BAD_COMMAND ("Unknown monitor %s", argv[1]);
+
+      crtc_mode = meta_virtual_monitor_get_crtc_mode (test->virtual_monitor);
+      crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
+      meta_virtual_monitor_set_mode (test->virtual_monitor,
+                                     atoi (argv[2]),
+                                     atoi (argv[3]),
+                                     crtc_mode_info->refresh_rate);
+      meta_monitor_manager_reload (monitor_manager);
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);
