@@ -242,6 +242,7 @@ struct _ClutterCrossingEvent
   gfloat y;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
+  ClutterActor *source;
   ClutterActor *related;
 };
 

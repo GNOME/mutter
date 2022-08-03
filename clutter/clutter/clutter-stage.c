@@ -3400,6 +3400,7 @@ create_crossing_event (ClutterStage         *stage,
   event->crossing.stage = stage;
   event->crossing.x = coords.x;
   event->crossing.y = coords.y;
+  event->crossing.source = source;
   event->crossing.related = related;
   event->crossing.sequence = sequence;
   clutter_event_set_device (event, device);
