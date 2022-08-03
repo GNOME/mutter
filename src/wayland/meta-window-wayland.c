@@ -490,7 +490,10 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
     }
 
   if (window->rect.width == 0 || window->rect.height == 0)
-    return;
+    {
+      window->monitor = meta_window_find_monitor_from_id (window);
+      return;
+    }
 
   /* Require both the current and the new monitor would be the new main monitor,
    * even given the resulting scale the window would end up having. This is
