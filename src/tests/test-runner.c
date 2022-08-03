@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "backends/meta-virtual-monitor.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "meta/util.h"
@@ -115,6 +116,9 @@ static gboolean
 test_case_dispatch (TestCase *test,
                     GError  **error)
 {
+  MetaBackend *backend = meta_context_get_backend (test->context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
   /* Wait until we've done any outstanding queued up work.
    * Though we add this as BEFORE_REDRAW, the iteration that runs the
    * BEFORE_REDRAW idles will proceed on and do the redraw, so we're
@@ -124,6 +128,8 @@ test_case_dispatch (TestCase *test,
                   test_case_loop_quit,
                   test,
                   NULL);
+
+  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
   g_main_loop_run (test->loop);
 
   return TRUE;
@@ -1152,6 +1158,9 @@ run_tests (MetaContext  *context,
 {
   int i;
   gboolean success = TRUE;
+  MetaVirtualMonitor *virtual_monitor;
+
+  virtual_monitor = meta_create_test_monitor (context, 800, 600, 60.0);
 
   g_print ("1..%d\n", info->n_tests);
 
@@ -1160,6 +1169,8 @@ run_tests (MetaContext  *context,
       if (!run_test (context, info->tests[i], i + 1))
         success = FALSE;
     }
+
+  g_object_unref (virtual_monitor);
 
   return success ? 0 : 1;
 }
@@ -1239,7 +1250,7 @@ main (int argc, char **argv)
   GPtrArray *tests;
   RunTestsInfo info;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_TEST_CLIENT);
 
   meta_context_add_option_entries (context, options, NULL);
