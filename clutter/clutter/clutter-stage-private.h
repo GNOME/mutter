@@ -171,6 +171,13 @@ void clutter_stage_maybe_invalidate_focus (ClutterStage *self,
 void clutter_stage_emit_event (ClutterStage       *self,
                                const ClutterEvent *event);
 
+void clutter_stage_maybe_lost_implicit_grab (ClutterStage         *self,
+                                             ClutterInputDevice   *device,
+                                             ClutterEventSequence *sequence);
+
+void clutter_stage_implicit_grab_actor_unmapped (ClutterStage *self,
+                                                 ClutterActor *actor);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */

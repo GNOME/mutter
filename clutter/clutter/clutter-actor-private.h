@@ -281,6 +281,9 @@ void clutter_actor_collect_event_actors (ClutterActor *self,
 
 const GList * clutter_actor_peek_actions (ClutterActor *self);
 
+void clutter_actor_set_implicitly_grabbed (ClutterActor *actor,
+                                           gboolean      is_implicitly_grabbed);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_PRIVATE_H__ */

@@ -809,8 +809,24 @@ clutter_do_event (ClutterEvent *event)
   context->current_event =
     g_slist_delete_link (context->current_event, context->current_event);
 
-  if (!filtered)
-    _clutter_stage_queue_event (event->any.stage, event, TRUE);
+  if (filtered)
+    {
+      if (event->type == CLUTTER_MOTION ||
+          event->type == CLUTTER_BUTTON_RELEASE ||
+          event->type == CLUTTER_TOUCH_UPDATE ||
+          event->type == CLUTTER_TOUCH_END ||
+          event->type == CLUTTER_TOUCH_CANCEL)
+        {
+          ClutterInputDevice *device = clutter_event_get_device (event);
+          ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+
+          clutter_stage_maybe_lost_implicit_grab (event->any.stage, device, sequence);
+        }
+    }
+  else
+    {
+      _clutter_stage_queue_event (event->any.stage, event, TRUE);
+    }
 
   if (event->type == CLUTTER_TOUCH_END ||
       event->type == CLUTTER_TOUCH_CANCEL ||

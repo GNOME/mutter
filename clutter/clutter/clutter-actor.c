@@ -803,6 +803,7 @@ struct _ClutterActorPrivate
   GList *grabs;
 
   unsigned int n_pointers;
+  unsigned int implicitly_grabbed_count;
 
   /* bitfields: KEEP AT THE END */
 
@@ -1616,11 +1617,16 @@ clutter_actor_clear_grabs (ClutterActor *self)
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *stage;
 
-  if (!priv->grabs)
+  if (!priv->grabs && !priv->implicitly_grabbed_count)
     return;
 
   stage = _clutter_actor_get_stage_internal (self);
   g_assert (stage != NULL);
+
+  if (priv->implicitly_grabbed_count > 0)
+    clutter_stage_implicit_grab_actor_unmapped (CLUTTER_STAGE (stage), self);
+
+  g_assert (priv->implicitly_grabbed_count == 0);
 
   /* Undo every grab that the actor may hold, priv->grabs
    * will be updated internally in clutter_stage_unlink_grab().
@@ -19135,7 +19141,7 @@ clutter_actor_collect_event_actors (ClutterActor *self,
 
       if (CLUTTER_ACTOR_IS_REACTIVE (iter) || /* an actor must be reactive */
           parent == NULL)                     /* unless it's the stage */
-        g_ptr_array_add (actors, g_object_ref (iter));
+        g_ptr_array_add (actors, iter);
 
       if (iter == self)
         {
@@ -19153,7 +19159,7 @@ clutter_actor_collect_event_actors (ClutterActor *self,
   if (!in_root)
     {
       g_ptr_array_remove_range (actors, 0, actors->len);
-      g_ptr_array_add (actors, g_object_ref (self));
+      g_ptr_array_add (actors, self);
     }
 }
 
@@ -19166,4 +19172,17 @@ clutter_actor_peek_actions (ClutterActor *self)
     return NULL;
 
   return _clutter_meta_group_peek_metas (priv->actions);
+}
+
+void clutter_actor_set_implicitly_grabbed (ClutterActor *self,
+                                           gboolean      is_implicitly_grabbed)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (is_implicitly_grabbed)
+    priv->implicitly_grabbed_count++;
+  else
+    priv->implicitly_grabbed_count--;
+
+  g_assert (priv->implicitly_grabbed_count >= 0);
 }
