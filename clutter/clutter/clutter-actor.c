@@ -18527,68 +18527,6 @@ clutter_actor_get_color_state (ClutterActor *self)
   return self->priv->color_state;
 }
 
-void
-_clutter_actor_handle_event (ClutterActor       *self,
-                             ClutterActor       *root,
-                             const ClutterEvent *event)
-{
-  GPtrArray *event_tree;
-  ClutterActor *iter;
-  gboolean in_root = FALSE;
-  gint i = 0;
-
-  event_tree = g_ptr_array_sized_new (64);
-  g_ptr_array_set_free_func (event_tree, (GDestroyNotify) g_object_unref);
-
-  /* build the list of of emitters for the event */
-  iter = self;
-  while (iter != NULL)
-    {
-      ClutterActor *parent = iter->priv->parent;
-
-      if (CLUTTER_ACTOR_IS_REACTIVE (iter) || /* an actor must be reactive */
-          parent == NULL)                     /* unless it's the stage */
-        {
-          /* keep a reference on the actor, so that it remains valid
-           * for the duration of the signal emission
-           */
-          g_ptr_array_add (event_tree, g_object_ref (iter));
-        }
-
-      if (iter == root)
-        {
-          in_root = TRUE;
-          break;
-        }
-
-      iter = parent;
-    }
-
-  /* The grab root conceptually extends infinitely in all
-   * directions, so it handles the events that fall outside of
-   * the actor.
-   */
-  if (root && !in_root)
-    {
-      if (!clutter_actor_event (root, event, TRUE))
-        clutter_actor_event (root, event, FALSE);
-      goto done;
-    }
-
-  /* Capture: from top-level downwards */
-  for (i = event_tree->len - 1; i >= 0; i--)
-    if (clutter_actor_event (g_ptr_array_index (event_tree, i), event, TRUE))
-      goto done;
-
-  /* Bubble: from source upwards */
-  for (i = 0; i < event_tree->len; i++)
-    if (clutter_actor_event (g_ptr_array_index (event_tree, i), event, FALSE))
-      goto done;
-
-done:
-  g_ptr_array_free (event_tree, TRUE);
-}
-
 static void
 clutter_actor_set_child_transform_internal (ClutterActor            *self,
                                             const graphene_matrix_t *transform)
@@ -19217,4 +19155,43 @@ clutter_actor_detach_grab (ClutterActor *self,
   ClutterActorPrivate *priv = self->priv;
 
   priv->grabs = g_list_remove (priv->grabs, grab);
+}
+
+void
+clutter_actor_collect_event_actors (ClutterActor *self,
+                                    ClutterActor *deepmost,
+                                    GPtrArray    *actors)
+{
+  ClutterActor *iter;
+  gboolean in_root = FALSE;
+
+  g_assert (actors->len == 0);
+
+  iter = deepmost;
+  while (iter != NULL)
+    {
+      ClutterActor *parent = iter->priv->parent;
+
+      if (CLUTTER_ACTOR_IS_REACTIVE (iter) || /* an actor must be reactive */
+          parent == NULL)                     /* unless it's the stage */
+        g_ptr_array_add (actors, g_object_ref (iter));
+
+      if (iter == self)
+        {
+          in_root = TRUE;
+          break;
+        }
+
+      iter = parent;
+    }
+
+  /* The grab root conceptually extends infinitely in all
+   * directions, so it handles the events that fall outside of
+   * the actor.
+   */
+  if (!in_root)
+    {
+      g_ptr_array_remove_range (actors, 0, actors->len);
+      g_ptr_array_add (actors, g_object_ref (self));
+    }
 }

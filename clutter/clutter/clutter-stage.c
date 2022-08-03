@@ -121,6 +121,7 @@ struct _ClutterStagePrivate
   ClutterGrabState grab_state;
 
   GQueue *event_queue;
+  GPtrArray *cur_event_actors;
 
   GArray *paint_volume_stack;
 
@@ -1222,6 +1223,9 @@ clutter_stage_finalize (GObject *object)
   g_queue_foreach (priv->event_queue, (GFunc) clutter_event_free, NULL);
   g_queue_free (priv->event_queue);
 
+  g_assert (priv->cur_event_actors->len == 0);
+  g_ptr_array_free (priv->cur_event_actors, TRUE);
+
   g_hash_table_destroy (priv->pointer_devices);
   g_hash_table_destroy (priv->touch_sequences);
 
@@ -1574,6 +1578,9 @@ clutter_stage_init (ClutterStage *self)
     }
 
   priv->event_queue = g_queue_new ();
+  priv->cur_event_actors = g_ptr_array_sized_new (32);
+  g_ptr_array_set_free_func (priv->cur_event_actors,
+                             (GDestroyNotify) g_object_unref);
 
   priv->pointer_devices =
     g_hash_table_new_full (NULL, NULL,
@@ -3413,13 +3420,74 @@ create_crossing_event (ClutterStage         *stage,
   return event;
 }
 
+typedef enum
+{
+  EVENT_NOT_HANDLED,
+  EVENT_HANDLED_BY_ACTOR
+} EventHandledState;
+
+static EventHandledState
+emit_event (const ClutterEvent *event,
+            GPtrArray          *actors)
+{
+  int i;
+
+  /* Capture: from top-level downwards */
+  for (i = actors->len - 1; i >= 0; i--)
+    {
+      ClutterActor *actor = g_ptr_array_index (actors, i);
+
+      if (clutter_actor_event (actor, event, TRUE))
+        return EVENT_HANDLED_BY_ACTOR;
+    }
+
+  /* Bubble: from source upwards */
+  for (i = 0; i < actors->len; i++)
+    {
+      ClutterActor *actor = g_ptr_array_index (actors, i);
+
+      if (clutter_actor_event (actor, event, FALSE))
+        return EVENT_HANDLED_BY_ACTOR;
+    }
+
+  return EVENT_NOT_HANDLED;
+}
+
 static void
 clutter_stage_emit_crossing_event (ClutterStage       *self,
                                    const ClutterEvent *event,
                                    ClutterActor       *deepmost,
                                    ClutterActor       *topmost)
 {
-  _clutter_actor_handle_event (deepmost, topmost, event);
+  ClutterStagePrivate *priv = self->priv;
+  gboolean in_event_emission;
+  GPtrArray *event_actors;
+
+  if (topmost == NULL)
+    topmost = CLUTTER_ACTOR (self);
+
+  /* Crossings can happen while we're in the middle of event emission
+   * (for example when an actor goes unmapped or gets grabbed), so we
+   * can't reuse our priv->cur_event_actors here, it might already be in use.
+   */
+  in_event_emission = priv->cur_event_actors->len != 0;
+
+  if (in_event_emission)
+    {
+      event_actors = g_ptr_array_sized_new (32);
+      g_ptr_array_set_free_func (event_actors, g_object_unref);
+    }
+  else
+    {
+      event_actors = g_ptr_array_ref (priv->cur_event_actors);
+    }
+
+  clutter_actor_collect_event_actors (topmost, deepmost, event_actors);
+
+  emit_event (event, event_actors);
+
+  g_ptr_array_remove_range (event_actors, 0, event_actors->len);
+  g_ptr_array_unref (event_actors);
 }
 
 void
@@ -4028,7 +4096,7 @@ clutter_stage_emit_event (ClutterStage       *self,
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   PointerDeviceEntry *entry;
-  ClutterActor *target_actor = NULL;
+  ClutterActor *target_actor = NULL, *seat_grab_actor = NULL;
 
   if (sequence != NULL)
     entry = g_hash_table_lookup (priv->touch_sequences, sequence);
@@ -4094,8 +4162,12 @@ clutter_stage_emit_event (ClutterStage       *self,
     }
 
   g_assert (target_actor != NULL);
+  seat_grab_actor = priv->topmost_grab ? priv->topmost_grab->actor : CLUTTER_ACTOR (self);
 
-  _clutter_actor_handle_event (target_actor,
-                               clutter_stage_get_grab_actor (self),
-                               event);
+  clutter_actor_collect_event_actors (seat_grab_actor, target_actor, priv->cur_event_actors);
+
+  emit_event (event, priv->cur_event_actors);
+
+  g_ptr_array_remove_range (priv->cur_event_actors, 0,
+                            priv->cur_event_actors->len);
 }
