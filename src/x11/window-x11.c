@@ -1860,7 +1860,7 @@ static void
 meta_window_x11_update_main_monitor (MetaWindow                   *window,
                                      MetaWindowUpdateMonitorFlags  flags)
 {
-  window->monitor = meta_window_calculate_main_logical_monitor (window);
+  window->monitor = meta_window_find_monitor_from_frame_rect (window);
 }
 
 static void
