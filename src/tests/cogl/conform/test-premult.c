@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define QUAD_WIDTH 32
 
@@ -110,7 +109,7 @@ check_texture (CoglPipeline *pipeline,
   test_utils_check_pixel (test_fb, x * QUAD_WIDTH + QUAD_WIDTH / 2, y * QUAD_WIDTH + QUAD_WIDTH / 2, expected_result);
 }
 
-void
+static void
 test_premult (void)
 {
   CoglPipeline *pipeline;
@@ -284,3 +283,6 @@ test_premult (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/premult", test_premult);
+)

@@ -9,6 +9,7 @@ cogl_tests = [
   'test-pipeline-user-matrix',
   'test-pipeline-uniforms',
   'test-pixel-buffer',
+  'test-premult',
 ]
 
 cogl_test_conformance_includes = [
