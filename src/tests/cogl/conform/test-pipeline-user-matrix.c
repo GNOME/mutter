@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef struct _TestState
 {
@@ -128,7 +127,7 @@ paint (TestState *state)
   cogl_object_unref (pipeline);
 }
 
-void
+static void
 test_pipeline_user_matrix (void)
 {
   TestState state;
@@ -142,3 +141,7 @@ test_pipeline_user_matrix (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/pipeline/user-matrix", test_pipeline_user_matrix);
+)

@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-pipeline-user-matrix.c',
   'test-pipeline-uniforms.c',
   'test-pixel-buffer.c',
   'test-premult.c',

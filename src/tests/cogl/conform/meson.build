@@ -6,6 +6,7 @@ cogl_tests = [
   'test-color-hsl',
   'test-backface-culling',
   'test-just-vertex-shader',
+  'test-pipeline-user-matrix',
 ]
 
 cogl_test_conformance_includes = [

@@ -1,7 +1,6 @@
 #ifndef COGL_TEST_DECLARATIONS_H
 #define COGL_TEST_DECLARATIONS_H
 
-void test_pipeline_user_matrix (void);
 void test_premult (void);
 void test_path (void);
 void test_path_clip (void);
