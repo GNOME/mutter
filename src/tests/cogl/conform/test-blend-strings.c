@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define QUAD_WIDTH 20
 
@@ -357,7 +356,7 @@ paint (TestState *state)
                     0x2a2a2abb); /* expected */
 }
 
-void
+static void
 test_blend_strings (void)
 {
   TestState state;
@@ -374,3 +373,6 @@ test_blend_strings (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/blend-strings", test_blend_strings);
+)
