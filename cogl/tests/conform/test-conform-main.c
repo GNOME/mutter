@@ -70,8 +70,6 @@ main (int argc, char **argv)
   UNPORTED_TEST (test_vertex_buffer_interleved);
   UNPORTED_TEST (test_vertex_buffer_mutability);
 
-  ADD_TEST (test_primitive_and_journal, 0, 0);
-
   ADD_TEST (test_copy_replace_texture, 0, 0);
 
   ADD_TEST (test_pipeline_cache_unrefs_texture, 0, 0);

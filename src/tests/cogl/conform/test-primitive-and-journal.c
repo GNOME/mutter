@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef CoglVertexP2C4 Vertex;
 
@@ -63,7 +62,7 @@ create_pipeline (void)
   return pipeline;
 }
 
-void
+static void
 test_primitive_and_journal (void)
 {
   CoglPrimitive *primitives[2];
@@ -118,3 +117,6 @@ test_primitive_and_journal (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/primitive-and-journal", test_primitive_and_journal);
+)

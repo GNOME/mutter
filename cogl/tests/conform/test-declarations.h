@@ -5,7 +5,6 @@ void test_path (void);
 void test_path_clip (void);
 void test_depth_test (void);
 void test_backface_culling (void);
-void test_primitive_and_journal (void);
 void test_copy_replace_texture (void);
 void test_pipeline_cache_unrefs_texture (void);
 void test_pipeline_shader_state (void);
