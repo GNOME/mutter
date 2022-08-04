@@ -78,13 +78,6 @@ main (int argc, char **argv)
             TEST_REQUIREMENT_GL,
             0);
 
-  ADD_TEST (test_point_sprite,
-            0, 0);
-  ADD_TEST (test_point_sprite_orientation,
-            0, TEST_KNOWN_FAILURE);
-  ADD_TEST (test_point_sprite_glsl,
-            0, 0);
-
   ADD_TEST (test_alpha_test, 0, 0);
 
   ADD_TEST (test_map_buffer_range, TEST_REQUIREMENT_MAP_WRITE, 0);

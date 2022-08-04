@@ -22,6 +22,8 @@ cogl_tests = [
   [ 'test-write-texture-formats', [] ],
   [ 'test-point-size', [] ],
   [ 'test-point-size-attribute', [] ],
+  [ 'test-point-sprite', [] ],
+  [ 'test-point-sprite-known-failure', ['gl', 'gl3', 'gles2'] ],
 ]
 
 cogl_test_conformance_includes = [

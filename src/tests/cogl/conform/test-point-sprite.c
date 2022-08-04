@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define POINT_SIZE 8
 
@@ -173,23 +172,21 @@ do_test (gboolean check_orientation,
     g_print ("OK\n");
 }
 
-void
+static void
 test_point_sprite (void)
 {
   do_test (FALSE /* don't check orientation */,
            FALSE /* don't use GLSL */);
 }
 
-void
-test_point_sprite_orientation (void)
-{
-  do_test (TRUE /* check orientation */,
-           FALSE /* don't use GLSL */);
-}
-
-void
+static void
 test_point_sprite_glsl (void)
 {
   do_test (FALSE /* don't check orientation */,
            TRUE /* use GLSL */);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/point-sprite/basic", test_point_sprite);
+  g_test_add_func ("/point-sprite/glsl", test_point_sprite_glsl);
+)
