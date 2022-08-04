@@ -66,6 +66,18 @@ main (int    argc, \
                                       META_TEST_RUN_FLAG_NONE); \
 }
 
+#define COGL_TEST_SUITE_MINIMAL(units) \
+int \
+main (int    argc, \
+      char **argv) \
+{ \
+  g_test_init (&argc, &argv, NULL); \
+\
+  units \
+\
+  return g_test_run (); \
+}
+
 MetaContext * meta_create_cogl_test_context (int    argc,
                                              char **argv);
 
