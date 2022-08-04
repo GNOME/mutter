@@ -66,7 +66,6 @@ main (int argc, char **argv)
   UNPORTED_TEST (test_texture_rectangle);
   UNPORTED_TEST (test_texture_pixmap_x11);
   ADD_TEST (test_texture_get_set_data, 0, 0);
-  ADD_TEST (test_alpha_textures, 0, 0);
 
   UNPORTED_TEST (test_vertex_buffer_contiguous);
   UNPORTED_TEST (test_vertex_buffer_interleved);

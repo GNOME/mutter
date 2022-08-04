@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 static void
 create_pipeline (CoglTexture **tex_out,
@@ -45,7 +44,7 @@ create_pipeline (CoglTexture **tex_out,
   *tex_out = tex;
 }
 
-void
+static void
 test_alpha_textures (void)
 {
   CoglTexture *tex1, *tex2;
@@ -122,3 +121,6 @@ test_alpha_textures (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/alpha-textures", test_alpha_textures);
+)

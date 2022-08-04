@@ -6,7 +6,6 @@ void test_path_clip (void);
 void test_depth_test (void);
 void test_backface_culling (void);
 void test_texture_get_set_data (void);
-void test_alpha_textures (void);
 void test_framebuffer_get_bits (void);
 void test_primitive_and_journal (void);
 void test_copy_replace_texture (void);

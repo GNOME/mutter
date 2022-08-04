@@ -29,6 +29,7 @@ cogl_tests = [
   [ 'test-alpha-test', [] ],
   [ 'test-map-buffer-range', [] ],
   [ 'test-npot-texture', [] ],
+  [ 'test-alpha-textures', [] ],
 ]
 
 cogl_test_conformance_includes = [
