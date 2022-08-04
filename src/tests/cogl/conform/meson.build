@@ -5,6 +5,7 @@ cogl_tests = [
   'test-depth-test',
   'test-color-hsl',
   'test-backface-culling',
+  'test-just-vertex-shader',
 ]
 
 cogl_test_conformance_includes = [

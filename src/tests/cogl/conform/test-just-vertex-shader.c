@@ -1,11 +1,8 @@
-#define COGL_VERSION_MIN_REQUIRED COGL_VERSION_1_0
-
 #include <cogl/cogl.h>
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef struct _TestState
 {
@@ -100,7 +97,7 @@ validate_result (CoglFramebuffer *framebuffer)
   test_utils_check_pixel (framebuffer, 75, 25, 0x00ff0000);
 }
 
-void
+static void
 test_just_vertex_shader (void)
 {
   TestState state;
@@ -118,3 +115,7 @@ test_just_vertex_shader (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/just-vertex-shader", test_just_vertex_shader);
+)
