@@ -1,10 +1,7 @@
-#define COGL_VERSION_MIN_REQUIRED COGL_VERSION_1_0
-
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define TEX_SIZE 4
 
@@ -225,7 +222,7 @@ paint (TestState *state)
   validate_result (state);
 }
 
-void
+static void
 test_wrap_modes (void)
 {
   TestState state;
@@ -245,3 +242,7 @@ test_wrap_modes (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/wrap-modes", test_wrap_modes);
+)

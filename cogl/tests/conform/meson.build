@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-wrap-modes.c',
   'test-sub-texture.c',
   'test-custom-attributes.c',
   'test-offscreen.c',

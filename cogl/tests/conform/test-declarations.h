@@ -9,7 +9,6 @@ void test_layer_remove (void);
 void test_sparse_pipeline (void);
 void test_npot_texture (void);
 void test_sub_texture (void);
-void test_wrap_modes (void);
 void test_texture_get_set_data (void);
 void test_read_texture_formats (void);
 void test_write_texture_formats (void);

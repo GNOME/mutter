@@ -69,7 +69,6 @@ main (int argc, char **argv)
   UNPORTED_TEST (test_texture_mipmaps);
   ADD_TEST (test_sub_texture, 0, 0);
   UNPORTED_TEST (test_texture_rectangle);
-  ADD_TEST (test_wrap_modes, 0, 0);
   UNPORTED_TEST (test_texture_pixmap_x11);
   ADD_TEST (test_texture_get_set_data, 0, 0);
   ADD_TEST (test_read_texture_formats, 0, TEST_KNOWN_FAILURE);

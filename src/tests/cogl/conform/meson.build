@@ -11,6 +11,7 @@ cogl_tests = [
   'test-pixel-buffer',
   'test-premult',
   'test-snippets',
+  'test-wrap-modes',
 ]
 
 cogl_test_conformance_includes = [
