@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef struct _TestState
 {
@@ -796,7 +795,7 @@ run_tests (TestState *state)
     }
 }
 
-void
+static void
 test_snippets (void)
 {
   TestState state;
@@ -816,3 +815,7 @@ test_snippets (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/snippets", test_snippets);
+)

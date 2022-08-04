@@ -10,6 +10,7 @@ cogl_tests = [
   'test-pipeline-uniforms',
   'test-pixel-buffer',
   'test-premult',
+  'test-snippets',
 ]
 
 cogl_test_conformance_includes = [
