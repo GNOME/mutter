@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-depth-test.c',
   'test-color-hsl.c',
   'test-backface-culling.c',
   'test-just-vertex-shader.c',

@@ -1,11 +1,8 @@
-#define COGL_VERSION_MIN_REQUIRED COGL_VERSION_1_0
-
 #include <cogl/cogl.h>
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define QUAD_WIDTH 20
 
@@ -252,7 +249,7 @@ paint (TestState *state)
   }
 }
 
-void
+static void
 test_depth_test (void)
 {
   TestState state;
@@ -269,3 +266,6 @@ test_depth_test (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/depth-test", test_depth_test);
+)
