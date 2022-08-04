@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* Non-power-of-two sized texture that should cause slicing */
 #define TEXTURE_SIZE        384
@@ -142,7 +141,7 @@ paint (void)
   cogl_object_unref (texture);
 }
 
-void
+static void
 test_npot_texture (void)
 {
   cogl_framebuffer_orthographic (test_fb,
@@ -159,3 +158,6 @@ test_npot_texture (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/npot-texture", test_npot_texture);
+)

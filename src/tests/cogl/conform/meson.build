@@ -28,6 +28,7 @@ cogl_tests = [
   [ 'test-layer-remove', [] ],
   [ 'test-alpha-test', [] ],
   [ 'test-map-buffer-range', [] ],
+  [ 'test-npot-texture', [] ],
 ]
 
 cogl_test_conformance_includes = [

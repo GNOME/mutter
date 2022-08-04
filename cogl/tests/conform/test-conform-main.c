@@ -61,7 +61,6 @@ main (int argc, char **argv)
   UNPORTED_TEST (test_materials);
   UNPORTED_TEST (test_readpixels);
 
-  ADD_TEST (test_npot_texture, 0, 0);
   UNPORTED_TEST (test_multitexture);
   UNPORTED_TEST (test_texture_mipmaps);
   UNPORTED_TEST (test_texture_rectangle);
