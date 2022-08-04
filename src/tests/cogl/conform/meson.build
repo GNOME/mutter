@@ -41,6 +41,16 @@ cogl_tests = [
   [ 'test-fence', [] ],
 ]
 
+#unported = [
+#  "test-multitexture",
+#  "test-npot-texture",
+#  "test-object",
+#  "test-readpixels",
+#  "test-texture-mipmaps",
+#  "test-texture-pixmap-x11",
+#  "test-viewport",
+#]
+
 cogl_test_conformance_includes = [
   tests_includepath,
   cogl_includepath,

@@ -18,5 +18,4 @@ cogl_config_env = configure_file(
   install_dir: cogl_installed_tests_libexecdir,
 )
 
-subdir('conform')
 subdir('unit')
