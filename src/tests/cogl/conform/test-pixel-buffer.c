@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define BITMAP_SIZE 256
 
@@ -135,7 +134,7 @@ check_colours (uint32_t color0,
                            color3);
 }
 
-void
+static void
 test_pixel_buffer_map (void)
 {
   CoglBitmap *bitmap = create_and_fill_bitmap ();
@@ -163,7 +162,7 @@ test_pixel_buffer_map (void)
     g_print ("OK\n");
 }
 
-void
+static void
 test_pixel_buffer_set_data (void)
 {
   CoglBitmap *bitmap = create_bitmap ();
@@ -229,7 +228,7 @@ create_white_texture (void)
   return texture;
 }
 
-void
+static void
 test_pixel_buffer_sub_region (void)
 {
   CoglBitmap *bitmap = create_and_fill_bitmap ();
@@ -268,3 +267,9 @@ test_pixel_buffer_sub_region (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/pixel-buffer/map", test_pixel_buffer_map);
+  g_test_add_func ("/pixel-buffer/set-data", test_pixel_buffer_set_data);
+  g_test_add_func ("/pixel-buffer/sub-region", test_pixel_buffer_sub_region);
+)

@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-pixel-buffer.c',
   'test-premult.c',
   'test-snippets.c',
   'test-wrap-modes.c',

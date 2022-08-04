@@ -8,6 +8,7 @@ cogl_tests = [
   'test-just-vertex-shader',
   'test-pipeline-user-matrix',
   'test-pipeline-uniforms',
+  'test-pixel-buffer',
 ]
 
 cogl_test_conformance_includes = [
