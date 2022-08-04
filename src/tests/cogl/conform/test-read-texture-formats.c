@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <stdarg.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /*
  * This tests reading back an RGBA texture in all of the available
@@ -159,7 +158,7 @@ test_read_int (CoglTexture2D *tex_2d,
   g_free (expected_value_str);
 }
 
-void
+static void
 test_read_texture_formats (void)
 {
   CoglTexture2D *tex_2d;
@@ -221,3 +220,7 @@ test_read_texture_formats (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/read-texture-formats", test_read_texture_formats);
+)
