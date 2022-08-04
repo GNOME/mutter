@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define SOURCE_SIZE        32
 #define SOURCE_DIVISIONS_X 2
@@ -301,7 +300,7 @@ validate_result (TestState *state)
   cogl_object_unref (test_tex);
 }
 
-void
+static void
 test_sub_texture (void)
 {
   TestState state;
@@ -324,3 +323,6 @@ test_sub_texture (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/sub-texture", test_sub_texture);
+)
