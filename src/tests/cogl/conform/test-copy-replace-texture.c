@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* Keep track of the number of textures that we've created and are
  * still alive */
@@ -54,7 +53,7 @@ create_texture (void)
   return tex_2d;
 }
 
-void
+static void
 test_copy_replace_texture (void)
 {
   CoglPipeline *pipelines[N_PIPELINES];
@@ -119,3 +118,7 @@ test_copy_replace_texture (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/copy-replace-texture", test_copy_replace_texture);
+)

@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-copy-replace-texture.c',
   'test-pipeline-cache-unrefs-texture.c',
   'test-texture-no-allocate.c',
   'test-pipeline-shader-state.c',

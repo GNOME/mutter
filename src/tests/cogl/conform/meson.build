@@ -33,6 +33,7 @@ cogl_tests = [
   [ 'test-texture-get-set-data', [] ],
   [ 'test-framebuffer-get-bits', [] ],
   [ 'test-primitive-and-journal', [] ],
+  [ 'test-copy-replace-texture', [] ],
 ]
 
 cogl_test_conformance_includes = [
