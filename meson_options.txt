@@ -206,3 +206,9 @@ option('xwayland_initfd',
   value: 'auto',
   description: 'Whether -initfd argument is passed to Xwayland to guarantee services (e.g. gsd-xsettings) startup before applications'
 )
+
+option('catch',
+  type: 'boolean',
+  value: false,
+  description: 'Use catch to catch backtraces'
+)

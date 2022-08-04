@@ -27,6 +27,12 @@ endif
 
 virtme_run = find_program('virtme-run.sh')
 
+if get_option('catch')
+  kvm_wrapper = catch.full_path()
+else
+  kvm_wrapper = []
+endif
+
 foreach test_case: privileged_tests
   vm_env_entries = []
   foreach name, value: test_case['variables']
@@ -47,6 +53,7 @@ foreach test_case: privileged_tests
       '--kvm',
       meson.current_build_dir(),
       vm_env,
+      kvm_wrapper,
       test_case['executable'].full_path(),
     ],
     is_parallel: false,

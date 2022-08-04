@@ -353,7 +353,15 @@ if have_tests
   meta_dbus_runner = find_program('src/tests/meta-dbus-runner.py')
   default_test_wrappers = [
     meta_dbus_runner,
+    '--',
   ]
+
+  if get_option('catch')
+    catch = find_program('catch')
+    default_test_wrappers += [
+      catch,
+    ]
+  endif
 
   add_test_setup('default',
     is_default: true,
