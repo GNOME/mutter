@@ -17,6 +17,7 @@ cogl_tests = [
   'test-offscreen',
   'test-journal',
   'test-primitive',
+  'test-sparse-pipeline',
 ]
 
 cogl_test_conformance_includes = [

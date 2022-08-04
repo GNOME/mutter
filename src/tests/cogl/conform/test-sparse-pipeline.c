@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef struct _TestState
 {
@@ -43,7 +42,7 @@ test_sparse_layer_combine (TestState *state)
   cogl_object_unref (tex2);
 }
 
-void
+static void
 test_sparse_pipeline (void)
 {
   TestState state;
@@ -61,3 +60,6 @@ test_sparse_pipeline (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/sparse-pipeline", test_sparse_pipeline);
+)
