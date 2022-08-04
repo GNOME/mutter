@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 static void
 check_texture (int width, int height, TestUtilsTextureFlags flags)
@@ -129,7 +128,7 @@ check_texture (int width, int height, TestUtilsTextureFlags flags)
   g_free (data);
 }
 
-void
+static void
 test_texture_get_set_data (void)
 {
   /* First try without atlasing */
@@ -143,3 +142,7 @@ test_texture_get_set_data (void)
   /* And in the other direction. */
   check_texture (5128, 4, TEST_UTILS_TEXTURE_NO_ATLAS);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/texture/get-set-data", test_texture_get_set_data);
+)
