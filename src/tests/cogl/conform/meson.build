@@ -27,6 +27,7 @@ cogl_tests = [
   [ 'test-no-gl-header', [] ],
   [ 'test-layer-remove', [] ],
   [ 'test-alpha-test', [] ],
+  [ 'test-map-buffer-range', [] ],
 ]
 
 cogl_test_conformance_includes = [

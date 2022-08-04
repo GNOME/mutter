@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 static uint8_t
 tex_data[2 * 2 * 4] =
@@ -23,7 +22,7 @@ vertex_data[4] =
     { 1, 1, 0, 0 }
   };
 
-void
+static void
 test_map_buffer_range (void)
 {
   CoglTexture2D *tex;
@@ -34,6 +33,12 @@ test_map_buffer_range (void)
   CoglAttribute *pos_attribute;
   CoglAttribute *tex_coord_attribute;
   CoglPrimitive *primitive;
+
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE))
+    {
+      g_test_skip ("Missing map buffer for write capability");
+      return;
+    }
 
   tex = cogl_texture_2d_new_from_data (test_ctx,
                                        2, 2, /* width/height */
@@ -122,3 +127,7 @@ test_map_buffer_range (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/map-buffer-range", test_map_buffer_range);
+)
