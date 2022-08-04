@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* Keep track of the number of textures that we've created and are
  * still alive */
@@ -40,7 +39,7 @@ create_texture (void)
   return tex_2d;
 }
 
-void
+static void
 test_pipeline_cache_unrefs_texture (void)
 {
   CoglPipeline *pipeline = cogl_pipeline_new (test_ctx);
@@ -90,3 +89,7 @@ test_pipeline_cache_unrefs_texture (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/pipeline-cache-unref-texture", test_pipeline_cache_unrefs_texture);
+)

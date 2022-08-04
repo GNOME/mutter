@@ -34,6 +34,7 @@ cogl_tests = [
   [ 'test-framebuffer-get-bits', [] ],
   [ 'test-primitive-and-journal', [] ],
   [ 'test-copy-replace-texture', [] ],
+  [ 'test-pipeline-cache-unrefs-texture', [] ],
 ]
 
 cogl_test_conformance_includes = [
