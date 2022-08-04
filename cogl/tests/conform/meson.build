@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-layer-remove.c',
   'test-alpha-test.c',
   'test-map-buffer-range.c',
   'test-npot-texture.c',

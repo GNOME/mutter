@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define TEST_SQUARE_SIZE 10
 
@@ -50,7 +49,7 @@ test_color (CoglPipeline *pipeline,
                           color);
 }
 
-void
+static void
 test_layer_remove (void)
 {
   CoglPipeline *pipeline0, *pipeline1;
@@ -144,3 +143,7 @@ test_layer_remove (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/layer/remove", test_layer_remove);
+)
