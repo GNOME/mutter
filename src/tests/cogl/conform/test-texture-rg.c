@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define TEX_WIDTH 8
 #define TEX_HEIGHT 8
@@ -29,13 +28,19 @@ make_texture (void)
                                         NULL);
 }
 
-void
+static void
 test_texture_rg (void)
 {
   CoglPipeline *pipeline;
   CoglTexture2D *tex;
   int fb_width, fb_height;
   int x, y;
+
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RG))
+    {
+      g_test_skip ("Missing TEXTURE_RG feature");
+      return;
+    }
 
   fb_width = cogl_framebuffer_get_width (test_fb);
   fb_height = cogl_framebuffer_get_height (test_fb);
@@ -73,3 +78,7 @@ test_texture_rg (void)
   cogl_object_unref (pipeline);
   cogl_object_unref (tex);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/texture/rg", test_texture_rg);
+)

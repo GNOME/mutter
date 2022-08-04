@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-texture-rg.c',
   'test-fence.c',
 ]
 

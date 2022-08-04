@@ -37,6 +37,7 @@ cogl_tests = [
   [ 'test-pipeline-cache-unrefs-texture', [] ],
   [ 'test-texture-no-allocate', [] ],
   [ 'test-pipeline-shader-state', [] ],
+  [ 'test-texture-rg', [] ],
 ]
 
 cogl_test_conformance_includes = [
