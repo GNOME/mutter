@@ -3,10 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
-void
+static void
 test_journal_unref_flush (void)
 {
   CoglTexture2D *texture;
@@ -44,3 +43,7 @@ test_journal_unref_flush (void)
 
   cogl_object_unref (texture);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/journal/unref-flush", test_journal_unref_flush);
+)

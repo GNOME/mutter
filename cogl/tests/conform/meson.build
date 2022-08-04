@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-journal.c',
   'test-primitive.c',
   'test-sparse-pipeline.c',
   'test-read-texture-formats.c',

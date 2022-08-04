@@ -13,7 +13,6 @@ void test_read_texture_formats (void);
 void test_write_texture_formats (void);
 void test_alpha_textures (void);
 void test_primitive (void);
-void test_journal_unref_flush (void);
 void test_framebuffer_get_bits (void);
 void test_point_size (void);
 void test_point_size_attribute (void);

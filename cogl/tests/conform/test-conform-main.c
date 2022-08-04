@@ -80,7 +80,6 @@ main (int argc, char **argv)
 
   ADD_TEST (test_primitive, 0, 0);
 
-  ADD_TEST (test_journal_unref_flush, 0, 0);
   ADD_TEST (test_framebuffer_get_bits,
             TEST_REQUIREMENT_GL,
             0);
