@@ -20,6 +20,7 @@ cogl_tests = [
   [ 'test-sparse-pipeline', [] ],
   [ 'test-read-texture-formats', ['gl', 'gl3'] ],
   [ 'test-write-texture-formats', [] ],
+  [ 'test-point-size', [] ],
 ]
 
 cogl_test_conformance_includes = [

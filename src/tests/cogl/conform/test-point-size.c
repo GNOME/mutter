@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* This test assumes the GL driver supports point sizes up to 16
    pixels. Cogl should probably have some way of querying the size so
@@ -46,7 +45,7 @@ verify_point_size (CoglFramebuffer *test_fb,
       }
 }
 
-void
+static void
 test_point_size (void)
 {
   int fb_width = cogl_framebuffer_get_width (test_fb);
@@ -99,3 +98,7 @@ test_point_size (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/point-size", test_point_size);
+)

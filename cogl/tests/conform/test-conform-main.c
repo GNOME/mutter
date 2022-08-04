@@ -78,7 +78,6 @@ main (int argc, char **argv)
             TEST_REQUIREMENT_GL,
             0);
 
-  ADD_TEST (test_point_size, 0, 0);
   ADD_TEST (test_point_size_attribute,
             0, 0);
   ADD_TEST (test_point_size_attribute_snippet,

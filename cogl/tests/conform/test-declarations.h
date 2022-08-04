@@ -10,7 +10,6 @@ void test_npot_texture (void);
 void test_texture_get_set_data (void);
 void test_alpha_textures (void);
 void test_framebuffer_get_bits (void);
-void test_point_size (void);
 void test_point_size_attribute (void);
 void test_point_size_attribute_snippet (void);
 void test_point_sprite (void);
