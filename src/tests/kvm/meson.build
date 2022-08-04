@@ -45,9 +45,9 @@ foreach test_case: privileged_tests
       kernel_image_path,
       meta_dbus_runner.full_path(),
       '--kvm',
-      test_case['executable'].full_path(),
       meson.current_build_dir(),
       vm_env,
+      test_case['executable'].full_path(),
     ],
     is_parallel: false,
   )
