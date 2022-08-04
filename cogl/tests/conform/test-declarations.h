@@ -13,7 +13,6 @@ void test_read_texture_formats (void);
 void test_write_texture_formats (void);
 void test_alpha_textures (void);
 void test_primitive (void);
-void test_custom_attributes (void);
 void test_offscreen (void);
 void test_journal_unref_flush (void);
 void test_framebuffer_get_bits (void);

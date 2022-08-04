@@ -13,6 +13,7 @@ cogl_tests = [
   'test-snippets',
   'test-wrap-modes',
   'test-sub-texture',
+  'test-custom-attributes',
 ]
 
 cogl_test_conformance_includes = [

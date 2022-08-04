@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef struct _TestState
 {
@@ -273,7 +272,7 @@ paint (TestState *state)
   test_short_verts (state, 0, 20);
 }
 
-void
+static void
 test_custom_attributes (void)
 {
   CoglSnippet *snippet;
@@ -300,3 +299,7 @@ test_custom_attributes (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/custom-attributes", test_custom_attributes);
+)
