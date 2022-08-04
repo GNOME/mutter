@@ -31,6 +31,7 @@ cogl_tests = [
   [ 'test-npot-texture', [] ],
   [ 'test-alpha-textures', [] ],
   [ 'test-texture-get-set-data', [] ],
+  [ 'test-framebuffer-get-bits', [] ],
 ]
 
 cogl_test_conformance_includes = [

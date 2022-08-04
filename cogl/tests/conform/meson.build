@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-framebuffer-get-bits.c',
   'test-primitive-and-journal.c',
   'test-copy-replace-texture.c',
   'test-pipeline-cache-unrefs-texture.c',
