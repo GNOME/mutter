@@ -18,6 +18,11 @@ mutter_test_sources = [
 
 libmutter_test_name = 'mutter-test-' + libmutter_api_version
 
+cogl_test_utils = files (
+  'cogl-test-utils.c',
+  'cogl-test-utils.h',
+)
+
 clutter_test_utils = files (
   'clutter-test-utils.c',
   'clutter-test-utils.h',
@@ -66,6 +71,10 @@ pkg.generate(libmutter_test,
   ],
   install_dir: pcdir,
 )
+
+if have_cogl_tests
+  subdir('cogl')
+endif
 
 if have_clutter_tests
   subdir('clutter')
