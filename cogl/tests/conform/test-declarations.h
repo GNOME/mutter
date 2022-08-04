@@ -10,7 +10,6 @@ void test_gles2_context (void);
 void test_gles2_context_fbo (void);
 void test_gles2_context_copy_tex_image (void);
 void test_fence (void);
-void test_texture_no_allocate (void);
 void test_texture_rg (void);
 
 #endif /* COGL_TEST_DECLARATIONS_H */

@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* Tests that the various texture types can be freed without being
  * allocated */
@@ -11,7 +10,7 @@
 #define BIG_TEX_WIDTH 16384
 #define BIG_TEX_HEIGHT 128
 
-void
+static void
 test_texture_no_allocate (void)
 {
   uint8_t *tex_data;
@@ -61,3 +60,7 @@ test_texture_no_allocate (void)
                                               64, 64);
   cogl_object_unref (texture_2d);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/texture/no-allocate", test_texture_no_allocate);
+)

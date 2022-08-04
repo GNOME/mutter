@@ -35,6 +35,7 @@ cogl_tests = [
   [ 'test-primitive-and-journal', [] ],
   [ 'test-copy-replace-texture', [] ],
   [ 'test-pipeline-cache-unrefs-texture', [] ],
+  [ 'test-texture-no-allocate', [] ],
 ]
 
 cogl_test_conformance_includes = [
