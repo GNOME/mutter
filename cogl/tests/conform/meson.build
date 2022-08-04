@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-point-size-attribute.c',
   'test-point-sprite.c',
   'test-no-gl-header.c',
   'test-version.c',

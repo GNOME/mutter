@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* This test assumes the GL driver supports point sizes up to 16
    pixels. Cogl should probably have some way of querying the size so
@@ -139,7 +138,7 @@ do_test (const char *attribute_name,
     g_print ("OK\n");
 }
 
-void
+static void
 test_point_size_attribute (void)
 {
   do_test ("cogl_point_size_in", NULL);
@@ -161,8 +160,13 @@ setup_snippet (CoglPipeline *pipeline)
   cogl_object_unref (snippet);
 }
 
-void
+static void
 test_point_size_attribute_snippet (void)
 {
   do_test ("my_super_duper_point_size_attrib", setup_snippet);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/point-size/attribute", test_point_size_attribute);
+  g_test_add_func ("/point-size/attribute-snippet", test_point_size_attribute_snippet);
+)
