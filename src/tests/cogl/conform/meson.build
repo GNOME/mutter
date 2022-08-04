@@ -4,6 +4,7 @@ cogl_tests = [
   'test-blend',
   'test-depth-test',
   'test-color-hsl',
+  'test-backface-culling',
 ]
 
 cogl_test_conformance_includes = [

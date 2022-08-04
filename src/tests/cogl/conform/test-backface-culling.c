@@ -1,11 +1,8 @@
-#define COGL_VERSION_MIN_REQUIRED COGL_VERSION_1_0
-
 #include <cogl/cogl.h>
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /* Size the texture so that it is just off a power of two to encourage
    it so use software tiling when NPOTs aren't available */
@@ -286,7 +283,7 @@ make_texture (void)
   return tex;
 }
 
-void
+static void
 test_backface_culling (void)
 {
   TestState state;
@@ -316,3 +313,6 @@ test_backface_culling (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/backface-culling", test_backface_culling);
+)
