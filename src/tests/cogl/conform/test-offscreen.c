@@ -2,8 +2,7 @@
 
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define RED 0
 #define GREEN 1
@@ -192,7 +191,7 @@ test_flush (TestState *state)
   cogl_object_unref (pipeline);
 }
 
-void
+static void
 test_offscreen (void)
 {
   TestState state;
@@ -206,3 +205,7 @@ test_offscreen (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/offscreen", test_offscreen);
+)

@@ -14,6 +14,7 @@ cogl_tests = [
   'test-wrap-modes',
   'test-sub-texture',
   'test-custom-attributes',
+  'test-offscreen',
 ]
 
 cogl_test_conformance_includes = [
