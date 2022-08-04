@@ -1,23 +1,23 @@
 cogl_tests = [
-  'test-atlas-migration',
-  'test-blend-strings',
-  'test-blend',
-  'test-depth-test',
-  'test-color-hsl',
-  'test-backface-culling',
-  'test-just-vertex-shader',
-  'test-pipeline-user-matrix',
-  'test-pipeline-uniforms',
-  'test-pixel-buffer',
-  'test-premult',
-  'test-snippets',
-  'test-wrap-modes',
-  'test-sub-texture',
-  'test-custom-attributes',
-  'test-offscreen',
-  'test-journal',
-  'test-primitive',
-  'test-sparse-pipeline',
+  [ 'test-atlas-migration', [] ],
+  [ 'test-blend-strings', [] ],
+  [ 'test-blend', [] ],
+  [ 'test-depth-test', [] ],
+  [ 'test-color-hsl', [] ],
+  [ 'test-backface-culling', [] ],
+  [ 'test-just-vertex-shader', [] ],
+  [ 'test-pipeline-user-matrix', [] ],
+  [ 'test-pipeline-uniforms', [] ],
+  [ 'test-pixel-buffer', [] ],
+  [ 'test-premult', [] ],
+  [ 'test-snippets', [] ],
+  [ 'test-wrap-modes', [] ],
+  [ 'test-sub-texture', [] ],
+  [ 'test-custom-attributes', [] ],
+  [ 'test-offscreen', [] ],
+  [ 'test-journal', [] ],
+  [ 'test-primitive', [] ],
+  [ 'test-sparse-pipeline', [] ],
 ]
 
 cogl_test_conformance_includes = [
@@ -43,11 +43,13 @@ test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path())
 cogl_test_variants = [ 'gl', 'gl3', 'gles2' ]
 
 foreach cogl_test: cogl_tests
-  test_name = 'cogl-' + cogl_test
+  test_case = cogl_test[0]
+  known_failures = cogl_test[1]
+  test_name = 'cogl-' + test_case
   test_executable = executable(test_name,
     sources: [
       cogl_test_utils,
-      cogl_test + '.c',
+      test_case + '.c',
     ],
     c_args: cogl_test_c_args,
     include_directories: cogl_test_conformance_includes,
@@ -65,6 +67,7 @@ foreach cogl_test: cogl_tests
       suite: ['cogl', 'cogl/conform'],
       env: variant_test_env,
       is_parallel: false,
+      should_fail: variant in known_failures,
     )
   endforeach
 endforeach
