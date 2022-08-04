@@ -51,7 +51,6 @@
 #include "cogl-xlib-renderer.h"
 #include "cogl-util.h"
 #include "cogl-poll-private.h"
-#include "cogl-version.h"
 #include "cogl-glx.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "winsys/cogl-onscreen-glx.h"

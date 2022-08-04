@@ -113,7 +113,6 @@ cogl_nonintrospected_headers = [
   'cogl-pixel-buffer.h',
   'cogl-macros.h',
   'cogl-fence.h',
-  'cogl-version.h',
   'cogl-gtype-private.h',
   'cogl-glib-source.h',
   'cogl-scanout.h',
