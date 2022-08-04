@@ -152,12 +152,15 @@ static GQuark quark_dma_buf_surface_feedback;
 static gboolean
 should_send_modifiers (MetaBackend *backend)
 {
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaRendererNative *renderer_native;
   MetaGpuKms *gpu_kms;
   MetaKmsDevice *kms_device;
   MetaKmsDeviceFlag flags;
 
+  if (!META_IS_BACKEND_NATIVE (backend))
+    return FALSE;
+
+  renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
 
