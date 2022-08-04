@@ -1,4 +1,5 @@
 cogl_unit_tests = [
+  'test-bitmask',
 ]
 
 test_env = environment()

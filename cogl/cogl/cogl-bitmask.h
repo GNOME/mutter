@@ -90,31 +90,31 @@ typedef struct _CoglBitmaskImaginaryType *CoglBitmask;
 #define _cogl_bitmask_init(bitmask) \
   G_STMT_START { *(bitmask) = _cogl_bitmask_from_bits (0); } G_STMT_END
 
-gboolean
+COGL_EXPORT_TEST gboolean
 _cogl_bitmask_get_from_array (const CoglBitmask *bitmask,
                               unsigned int bit_num);
 
-void
+COGL_EXPORT_TEST void
 _cogl_bitmask_set_in_array (CoglBitmask *bitmask,
                             unsigned int bit_num,
                             gboolean value);
 
-void
+COGL_EXPORT_TEST void
 _cogl_bitmask_set_range_in_array (CoglBitmask *bitmask,
                                   unsigned int n_bits,
                                   gboolean value);
 
-void
+COGL_EXPORT_TEST void
 _cogl_bitmask_clear_all_in_array (CoglBitmask *bitmask);
 
 void
 _cogl_bitmask_set_flags_array (const CoglBitmask *bitmask,
                                unsigned long *flags);
 
-int
+COGL_EXPORT_TEST int
 _cogl_bitmask_popcount_in_array (const CoglBitmask *bitmask);
 
-int
+COGL_EXPORT_TEST int
 _cogl_bitmask_popcount_upto_in_array (const CoglBitmask *bitmask,
                                       int upto);
 
@@ -126,7 +126,7 @@ _cogl_bitmask_popcount_upto_in_array (const CoglBitmask *bitmask,
  * This makes sure that all of the bits that are set in @src are also
  * set in @dst. Any unset bits in @src are left alone in @dst.
  */
-void
+COGL_EXPORT_TEST void
 _cogl_bitmask_set_bits (CoglBitmask *dst,
                         const CoglBitmask *src);
 
@@ -138,7 +138,7 @@ _cogl_bitmask_set_bits (CoglBitmask *dst,
  * For every bit that is set in src, the corresponding bit in dst is
  * inverted.
  */
-void
+COGL_EXPORT_TEST void
 _cogl_bitmask_xor_bits (CoglBitmask *dst,
                         const CoglBitmask *src);
 
@@ -153,7 +153,7 @@ typedef gboolean (* CoglBitmaskForeachFunc) (int bit_num, void *user_data);
  *
  * This calls @func for each bit that is set in @bitmask.
  */
-void
+COGL_EXPORT_TEST void
 _cogl_bitmask_foreach (const CoglBitmask *bitmask,
                        CoglBitmaskForeachFunc func,
                        void *user_data);
