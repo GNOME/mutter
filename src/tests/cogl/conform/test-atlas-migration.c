@@ -1,7 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define N_TEXTURES 128
 
@@ -112,7 +111,7 @@ verify_texture (CoglTexture *texture, int size)
   g_free (data);
 }
 
-void
+static void
 test_atlas_migration (void)
 {
   CoglTexture *textures[N_TEXTURES];
@@ -144,3 +143,7 @@ test_atlas_migration (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/atlas-migration", test_atlas_migration);
+)

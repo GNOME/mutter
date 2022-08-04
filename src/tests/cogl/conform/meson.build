@@ -1,4 +1,5 @@
 cogl_tests = [
+  'test-atlas-migration',
 ]
 
 cogl_test_conformance_includes = [
