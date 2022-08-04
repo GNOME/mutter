@@ -9,7 +9,6 @@ void test_npot_texture (void);
 void test_texture_get_set_data (void);
 void test_alpha_textures (void);
 void test_framebuffer_get_bits (void);
-void test_alpha_test (void);
 void test_map_buffer_range (void);
 void test_primitive_and_journal (void);
 void test_copy_replace_texture (void);

@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 static CoglTexture2D *
 create_texture (CoglContext *context)
@@ -21,7 +20,7 @@ create_texture (CoglContext *context)
                                         NULL /* error */);
 }
 
-void
+static void
 test_alpha_test (void)
 {
   CoglTexture *tex = create_texture (test_ctx);
@@ -72,3 +71,6 @@ test_alpha_test (void)
     g_print ("OK\n");
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/alpha-test", test_alpha_test);
+)
