@@ -5,7 +5,6 @@ set -e
 WRAPPER="$1"
 WRAPPER_ARGS="$2"
 TEST_RESULT="$3"
-TEST_EXECUTABLE="$4"
 
 export XDG_RUNTIME_DIR="/tmp/sub-runtime-dir-$UID"
 export GSETTINGS_SCHEMA_DIR="$PWD/build/data"
@@ -18,6 +17,6 @@ mkdir -p -m 700 $XDG_RUNTIME_DIR
 
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
 
-"$WRAPPER" $WRAPPER_ARGS "$TEST_EXECUTABLE"
+"$WRAPPER" $WRAPPER_ARGS "${@:4}"
 
 echo $? > $TEST_RESULT
