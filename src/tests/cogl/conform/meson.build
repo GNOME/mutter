@@ -16,6 +16,7 @@ cogl_tests = [
   'test-custom-attributes',
   'test-offscreen',
   'test-journal',
+  'test-primitive',
 ]
 
 cogl_test_conformance_includes = [

@@ -2,8 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 typedef struct _TestState
 {
@@ -312,7 +311,7 @@ test_copy (TestState *state)
   cogl_object_unref (buffer);
 }
 
-void
+static void
 test_primitive (void)
 {
   TestState state;
@@ -333,3 +332,7 @@ test_primitive (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/primitive", test_primitive);
+)
