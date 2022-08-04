@@ -3,12 +3,11 @@
 
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define TEST_CASE_EPSILON 0.0001
 
-void
+static void
 test_color_hsl (void)
 {
   CoglColor color;
@@ -44,3 +43,7 @@ test_color_hsl (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/color/hsl", test_color_hsl);
+)

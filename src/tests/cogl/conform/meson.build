@@ -3,6 +3,7 @@ cogl_tests = [
   'test-blend-strings',
   'test-blend',
   'test-depth-test',
+  'test-color-hsl',
 ]
 
 cogl_test_conformance_includes = [
