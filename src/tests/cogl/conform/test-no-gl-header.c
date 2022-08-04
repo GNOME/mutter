@@ -7,10 +7,9 @@
 #error "Including cogl.h shouldn't be including any GL headers"
 #endif
 
-void test_no_gl_header (void);
-
-void
-test_no_gl_header (void)
+int
+main (int    argc,
+      char **argv)
 {
+  return EXIT_SUCCESS;
 }
-
