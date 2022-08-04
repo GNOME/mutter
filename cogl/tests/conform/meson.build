@@ -1,6 +1,5 @@
 cogl_test_conformance_sources = [
   'test-conform-main.c',
-  'test-write-texture-formats.c',
   'test-point-size.c',
   'test-point-size-attribute.c',
   'test-point-sprite.c',

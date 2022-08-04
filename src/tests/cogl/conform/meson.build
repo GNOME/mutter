@@ -19,6 +19,7 @@ cogl_tests = [
   [ 'test-primitive', [] ],
   [ 'test-sparse-pipeline', [] ],
   [ 'test-read-texture-formats', ['gl', 'gl3'] ],
+  [ 'test-write-texture-formats', [] ],
 ]
 
 cogl_test_conformance_includes = [

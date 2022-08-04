@@ -1,8 +1,7 @@
 #include <cogl/cogl.h>
 #include <stdarg.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 /*
  * This tests writing data to an RGBA texture in all of the available
@@ -131,7 +130,7 @@ test_write_int (CoglContext *context,
   cogl_object_unref (texture);
 }
 
-void
+static void
 test_write_texture_formats (void)
 {
   test_write_byte (test_ctx, COGL_PIXEL_FORMAT_A_8, 0x34, 0x00000034);
@@ -183,3 +182,7 @@ test_write_texture_formats (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/write-texture-formats ", test_write_texture_formats);
+)
