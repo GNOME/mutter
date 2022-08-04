@@ -155,7 +155,7 @@ create_pipelines (CoglPipeline **pipelines,
 }
 
 UNIT_TEST (check_pipeline_pruning,
-           TEST_REQUIREMENT_GLSL, /* requirements */
+           0, /* requirements */
            0 /* no failure cases */)
 {
   CoglPipeline *pipelines[18];

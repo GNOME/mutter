@@ -62,7 +62,7 @@ main (int argc, char **argv)
   ADD_TEST (test_pipeline_user_matrix, 0, 0);
   ADD_TEST (test_premult, 0, 0);
   UNPORTED_TEST (test_readpixels);
-  ADD_TEST (test_backface_culling, 0, TEST_REQUIREMENT_NPOT);
+  ADD_TEST (test_backface_culling, 0, 0);
   ADD_TEST (test_layer_remove, 0, 0);
 
   ADD_TEST (test_sparse_pipeline, 0, 0);
@@ -88,33 +88,28 @@ main (int argc, char **argv)
 
   ADD_TEST (test_primitive, 0, 0);
 
-  ADD_TEST (test_just_vertex_shader, TEST_REQUIREMENT_GLSL, 0);
-  ADD_TEST (test_pipeline_uniforms, TEST_REQUIREMENT_GLSL, 0);
-  ADD_TEST (test_snippets, TEST_REQUIREMENT_GLSL, 0);
-  ADD_TEST (test_custom_attributes, TEST_REQUIREMENT_GLSL, 0);
+  ADD_TEST (test_just_vertex_shader, 0, 0);
+  ADD_TEST (test_pipeline_uniforms, 0, 0);
+  ADD_TEST (test_snippets, 0, 0);
+  ADD_TEST (test_custom_attributes, 0, 0);
 
   ADD_TEST (test_offscreen, 0, 0);
   ADD_TEST (test_journal_unref_flush, 0, 0);
   ADD_TEST (test_framebuffer_get_bits,
-            TEST_REQUIREMENT_OFFSCREEN | TEST_REQUIREMENT_GL,
+            TEST_REQUIREMENT_GL,
             0);
 
   ADD_TEST (test_point_size, 0, 0);
   ADD_TEST (test_point_size_attribute,
-            TEST_REQUIREMENT_PER_VERTEX_POINT_SIZE, 0);
+            0, 0);
   ADD_TEST (test_point_size_attribute_snippet,
-            TEST_REQUIREMENT_PER_VERTEX_POINT_SIZE |
-            TEST_REQUIREMENT_GLSL, 0);
+            0, 0);
   ADD_TEST (test_point_sprite,
-            TEST_REQUIREMENT_POINT_SPRITE,
-            0);
+            0, 0);
   ADD_TEST (test_point_sprite_orientation,
-            TEST_REQUIREMENT_POINT_SPRITE,
-            TEST_KNOWN_FAILURE);
+            0, TEST_KNOWN_FAILURE);
   ADD_TEST (test_point_sprite_glsl,
-            TEST_REQUIREMENT_POINT_SPRITE |
-            TEST_REQUIREMENT_GLSL,
-            0);
+            0, 0);
 
   ADD_TEST (test_alpha_test, 0, 0);
 
@@ -125,7 +120,7 @@ main (int argc, char **argv)
   ADD_TEST (test_copy_replace_texture, 0, 0);
 
   ADD_TEST (test_pipeline_cache_unrefs_texture, 0, 0);
-  ADD_TEST (test_pipeline_shader_state, TEST_REQUIREMENT_GLSL, 0);
+  ADD_TEST (test_pipeline_shader_state, 0, 0);
 
   UNPORTED_TEST (test_viewport);
 
