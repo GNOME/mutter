@@ -2,10 +2,9 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
-void
+static void
 test_pipeline_shader_state (void)
 {
   CoglOffscreen *offscreen;
@@ -92,3 +91,7 @@ test_pipeline_shader_state (void)
   test_utils_check_region (test_fb, 0, 0, width, height,
                            0x0000ffff);
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/pipeline/shader-state", test_pipeline_shader_state);
+)
