@@ -38,6 +38,7 @@ cogl_tests = [
   [ 'test-texture-no-allocate', [] ],
   [ 'test-pipeline-shader-state', [] ],
   [ 'test-texture-rg', [] ],
+  [ 'test-fence', [] ],
 ]
 
 cogl_test_conformance_includes = [

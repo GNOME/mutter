@@ -72,8 +72,6 @@ main (int argc, char **argv)
 
   UNPORTED_TEST (test_viewport);
 
-  ADD_TEST (test_fence, TEST_REQUIREMENT_FENCE, 0);
-
   g_printerr ("Unknown test name \"%s\"\n", argv[1]);
 
   return 1;

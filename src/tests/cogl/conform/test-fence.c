@@ -1,8 +1,6 @@
 #include <cogl/cogl.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
-#include "cogl-config.h"
+#include "tests/cogl-test-utils.h"
 
 /* I'm writing this on the train after having dinner at a churrascuria. */
 #define MAGIC_CHUNK_O_DATA ((void *) 0xdeadbeef)
@@ -30,13 +28,19 @@ callback (CoglFence *fence,
   g_main_loop_quit (loop);
 }
 
-void
+static void
 test_fence (void)
 {
   GSource *cogl_source;
   int fb_width = cogl_framebuffer_get_width (test_fb);
   int fb_height = cogl_framebuffer_get_height (test_fb);
   CoglFenceClosure *closure;
+
+  if (!cogl_has_feature (test_ctx, COGL_FEATURE_ID_FENCE))
+    {
+      g_test_skip ("Missing fence support");
+      return;
+    }
 
   cogl_source = cogl_glib_source_new (test_ctx, G_PRIORITY_DEFAULT);
   g_source_attach (cogl_source, NULL);
@@ -58,3 +62,7 @@ test_fence (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/fence", test_fence);
+)

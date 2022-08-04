@@ -8,6 +8,5 @@ void test_backface_culling (void);
 void test_gles2_context (void);
 void test_gles2_context_fbo (void);
 void test_gles2_context_copy_tex_image (void);
-void test_fence (void);
 
 #endif /* COGL_TEST_DECLARATIONS_H */
