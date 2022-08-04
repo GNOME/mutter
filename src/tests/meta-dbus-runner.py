@@ -176,13 +176,17 @@ if __name__ == '__main__':
     parser.add_argument('--kvm', action='store_true', default=False)
     (args, rest) = parser.parse_known_args(sys.argv)
 
+    rest.pop(0)
+    if rest[0] == '--':
+      rest.pop(0)
+
     MutterDBusTestCase.setUpClass(args.kvm)
     test_case = MutterDBusTestCase()
-    test_case.assertGreater(len(rest), 1)
+    test_case.assertGreater(len(rest), 0)
     result = 1
     try:
         print('Running test case...', file=sys.stderr)
-        result = test_case.wrap_call(rest[1:])
+        result = test_case.wrap_call(rest)
     finally:
         MutterDBusTestCase.tearDownClass()
     sys.exit(result)
