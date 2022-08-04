@@ -1,6 +1,7 @@
 cogl_tests = [
   'test-atlas-migration',
   'test-blend-strings',
+  'test-blend',
 ]
 
 cogl_test_conformance_includes = [

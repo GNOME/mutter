@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 static void
 paint (void)
@@ -51,7 +50,7 @@ paint (void)
                                     0x80808080);
 }
 
-void
+static void
 test_blend (void)
 {
   cogl_framebuffer_orthographic (test_fb, 0, 0,
@@ -63,3 +62,6 @@ test_blend (void)
   paint ();
 }
 
+COGL_TEST_SUITE (
+  g_test_add_func ("/blend", test_blend);
+)
