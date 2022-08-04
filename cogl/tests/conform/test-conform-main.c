@@ -86,7 +86,6 @@ main (int argc, char **argv)
 
   ADD_TEST (test_primitive, 0, 0);
 
-  ADD_TEST (test_pipeline_uniforms, 0, 0);
   ADD_TEST (test_snippets, 0, 0);
   ADD_TEST (test_custom_attributes, 0, 0);
 

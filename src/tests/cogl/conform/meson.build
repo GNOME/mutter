@@ -7,6 +7,7 @@ cogl_tests = [
   'test-backface-culling',
   'test-just-vertex-shader',
   'test-pipeline-user-matrix',
+  'test-pipeline-uniforms',
 ]
 
 cogl_test_conformance_includes = [

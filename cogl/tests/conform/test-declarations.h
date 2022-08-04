@@ -19,7 +19,6 @@ void test_read_texture_formats (void);
 void test_write_texture_formats (void);
 void test_alpha_textures (void);
 void test_primitive (void);
-void test_pipeline_uniforms (void);
 void test_snippets (void);
 void test_custom_attributes (void);
 void test_offscreen (void);

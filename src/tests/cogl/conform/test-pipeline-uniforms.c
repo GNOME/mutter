@@ -2,8 +2,7 @@
 
 #include <string.h>
 
-#include "test-declarations.h"
-#include "test-utils.h"
+#include "tests/cogl-test-utils.h"
 
 #define LONG_ARRAY_SIZE 128
 
@@ -381,7 +380,7 @@ validate_long_pipeline_result (void)
   check_pos (15, 0xff0000ff);
 }
 
-void
+static void
 test_pipeline_uniforms (void)
 {
   TestState state;
@@ -414,3 +413,7 @@ test_pipeline_uniforms (void)
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
+
+COGL_TEST_SUITE (
+  g_test_add_func ("/pipeline/uniforms", test_pipeline_uniforms);
+)
