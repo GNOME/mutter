@@ -1,9 +1,12 @@
+all_variants = ['gl', 'gl3', 'gles2']
+any_variant = ['any']
+
 cogl_unit_tests = [
-  ['test-bitmask', true],
-  ['test-pipeline-cache', true],
-  ['test-pipeline-state-known-failure', false],
-  ['test-pipeline-state', true],
-  ['test-pipeline-glsl', true],
+  ['test-bitmask', true, any_variant],
+  ['test-pipeline-cache', true, all_variants],
+  ['test-pipeline-state-known-failure', false, all_variants],
+  ['test-pipeline-state', true, all_variants],
+  ['test-pipeline-glsl', true, all_variants],
 ]
 
 test_env = environment()
@@ -15,6 +18,7 @@ test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path())
 foreach unit_test: cogl_unit_tests
   test_name = 'cogl-' + unit_test[0]
   should_pass = unit_test[1]
+  variants = unit_test[2]
 
   test_executable = executable(test_name,
     sources: [
@@ -36,10 +40,19 @@ foreach unit_test: cogl_unit_tests
     ],
   )
 
-  test(test_name, test_executable,
-    suite: ['cogl', 'cogl/unit'],
-    env: test_env,
-    is_parallel: false,
-    should_fail: not should_pass,
-  )
+  foreach variant: variants
+    if variant == 'any'
+      variant_test_env = test_env
+    else
+      variant_test_env = test_env
+      variant_test_env.set('COGL_DRIVER', variant)
+    endif
+
+    test('@0@-@1@'.format(test_name, variant), test_executable,
+      suite: ['cogl', 'cogl/unit'],
+      env: variant_test_env,
+      is_parallel: false,
+      should_fail: not should_pass,
+    )
+  endforeach
 endforeach
