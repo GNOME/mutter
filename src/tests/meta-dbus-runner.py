@@ -168,7 +168,7 @@ ret = (unix_fd, False)
             args = wrapper.split(' ') + args
 
         p = subprocess.Popen(args, env=env)
-        self.assertEqual(p.wait(), 0)
+        return p.wait()
 
 
 if __name__ == '__main__':
@@ -179,8 +179,10 @@ if __name__ == '__main__':
     MutterDBusTestCase.setUpClass(args.kvm)
     test_case = MutterDBusTestCase()
     test_case.assertGreater(len(rest), 1)
+    result = 1
     try:
         print('Running test case...', file=sys.stderr)
-        test_case.wrap_call(rest[1:])
+        result = test_case.wrap_call(rest[1:])
     finally:
         MutterDBusTestCase.tearDownClass()
+    sys.exit(result)
