@@ -1,6 +1,6 @@
 cogl_unit_tests = [
-  'test-bitmask',
-  'test-pipeline-cache',
+  ['test-bitmask', true],
+  ['test-pipeline-cache', true],
 ]
 
 test_env = environment()
@@ -10,11 +10,12 @@ test_env.set('G_ENABLE_DIAGNOSTIC', '0')
 test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
 
 foreach unit_test: cogl_unit_tests
-  test_name = 'cogl-' + unit_test
+  test_name = 'cogl-' + unit_test[0]
+  should_pass = unit_test[1]
 
   test_executable = executable(test_name,
     sources: [
-      unit_test + '.c',
+      unit_test[0] + '.c',
       cogl_test_utils,
     ],
     c_args: [
@@ -36,5 +37,6 @@ foreach unit_test: cogl_unit_tests
     suite: ['cogl', 'cogl/unit'],
     env: test_env,
     is_parallel: false,
+    should_fail: not should_pass,
   )
 endforeach
