@@ -1624,38 +1624,3 @@ UNIT_TEST (check_blend_constant_ancestry,
 
   cogl_object_unref (pipeline);
 }
-
-UNIT_TEST (check_uniform_ancestry,
-           0 /* no requirements */,
-           TEST_KNOWN_FAILURE)
-{
-  CoglPipeline *pipeline = cogl_pipeline_new (test_ctx);
-  CoglNode *node;
-  int pipeline_length = 0;
-  int i;
-
-  /* Repeatedly making a copy of a pipeline and changing a uniform
-   * shouldn't cause a long chain of pipelines to be created */
-
-  for (i = 0; i < 20; i++)
-    {
-      CoglPipeline *tmp_pipeline;
-      int uniform_location;
-
-      tmp_pipeline = cogl_pipeline_copy (pipeline);
-      cogl_object_unref (pipeline);
-      pipeline = tmp_pipeline;
-
-      uniform_location =
-        cogl_pipeline_get_uniform_location (pipeline, "a_uniform");
-
-      cogl_pipeline_set_uniform_1i (pipeline, uniform_location, i);
-    }
-
-  for (node = (CoglNode *) pipeline; node; node = node->parent)
-    pipeline_length++;
-
-  g_assert_cmpint (pipeline_length, <=, 2);
-
-  cogl_object_unref (pipeline);
-}
