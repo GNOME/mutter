@@ -1,5 +1,6 @@
 cogl_unit_tests = [
   'test-bitmask',
+  'test-pipeline-cache',
 ]
 
 test_env = environment()

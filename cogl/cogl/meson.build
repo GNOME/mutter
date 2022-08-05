@@ -273,6 +273,7 @@ cogl_sources = [
   'cogl-glsl-shader-boilerplate.h',
   'cogl-pipeline-snippet-private.h',
   'cogl-pipeline-snippet.c',
+  'cogl-pipeline-cache-private.h',
   'cogl-pipeline-cache.h',
   'cogl-pipeline-cache.c',
   'cogl-pipeline-hash-table.h',
