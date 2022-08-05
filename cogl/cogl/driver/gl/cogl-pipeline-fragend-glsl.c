@@ -99,7 +99,7 @@ typedef struct
   CoglList layers;
 
   CoglPipelineCacheEntry *cache_entry;
-} CoglPipelineShaderState;
+} CoglPipelineFragendShaderState;
 
 static CoglUserDataKey shader_state_key;
 
@@ -107,13 +107,13 @@ static void
 ensure_layer_generated (CoglPipeline *pipeline,
                         int layer_num);
 
-static CoglPipelineShaderState *
+static CoglPipelineFragendShaderState *
 shader_state_new (int n_layers,
                   CoglPipelineCacheEntry *cache_entry)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineFragendShaderState *shader_state;
 
-  shader_state = g_new0 (CoglPipelineShaderState, 1);
+  shader_state = g_new0 (CoglPipelineFragendShaderState, 1);
   shader_state->ref_count = 1;
   shader_state->unit_state = g_new0 (UnitState, n_layers);
   shader_state->cache_entry = cache_entry;
@@ -121,7 +121,7 @@ shader_state_new (int n_layers,
   return shader_state;
 }
 
-static CoglPipelineShaderState *
+static CoglPipelineFragendShaderState *
 get_shader_state (CoglPipeline *pipeline)
 {
   return cogl_object_get_user_data (COGL_OBJECT (pipeline), &shader_state_key);
@@ -131,7 +131,7 @@ static void
 destroy_shader_state (void *user_data,
                       void *instance)
 {
-  CoglPipelineShaderState *shader_state = user_data;
+  CoglPipelineFragendShaderState *shader_state = user_data;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -151,7 +151,7 @@ destroy_shader_state (void *user_data,
 }
 
 static void
-set_shader_state (CoglPipeline *pipeline, CoglPipelineShaderState *shader_state)
+set_shader_state (CoglPipeline *pipeline, CoglPipelineFragendShaderState *shader_state)
 {
   if (shader_state)
     {
@@ -182,7 +182,7 @@ dirty_shader_state (CoglPipeline *pipeline)
 GLuint
 _cogl_pipeline_fragend_glsl_get_shader (CoglPipeline *pipeline)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
 
   if (shader_state)
     return shader_state->gl_shader;
@@ -230,7 +230,7 @@ static gboolean
 add_layer_declaration_cb (CoglPipelineLayer *layer,
                           void *user_data)
 {
-  CoglPipelineShaderState *shader_state = user_data;
+  CoglPipelineFragendShaderState *shader_state = user_data;
 
   g_string_append_printf (shader_state->header,
                           "uniform sampler2D cogl_sampler%i;\n",
@@ -241,7 +241,7 @@ add_layer_declaration_cb (CoglPipelineLayer *layer,
 
 static void
 add_layer_declarations (CoglPipeline *pipeline,
-                        CoglPipelineShaderState *shader_state)
+                        CoglPipelineFragendShaderState *shader_state)
 {
   /* We always emit sampler uniforms in case there will be custom
    * layer snippets that want to sample arbitrary layers. */
@@ -253,7 +253,7 @@ add_layer_declarations (CoglPipeline *pipeline,
 
 static void
 add_global_declarations (CoglPipeline *pipeline,
-                         CoglPipelineShaderState *shader_state)
+                         CoglPipelineFragendShaderState *shader_state)
 {
   CoglSnippetHook hook = COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS;
   CoglPipelineSnippetList *snippets = get_fragment_snippets (pipeline);
@@ -271,7 +271,7 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
                                    int n_layers,
                                    unsigned long pipelines_difference)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineFragendShaderState *shader_state;
   CoglPipeline *authority;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
@@ -386,7 +386,7 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
 }
 
 static void
-add_constant_lookup (CoglPipelineShaderState *shader_state,
+add_constant_lookup (CoglPipelineFragendShaderState *shader_state,
                      CoglPipeline *pipeline,
                      CoglPipelineLayer *layer,
                      const char *swizzle)
@@ -397,7 +397,7 @@ add_constant_lookup (CoglPipelineShaderState *shader_state,
 }
 
 static void
-ensure_texture_lookup_generated (CoglPipelineShaderState *shader_state,
+ensure_texture_lookup_generated (CoglPipelineFragendShaderState *shader_state,
                                  CoglPipeline *pipeline,
                                  CoglPipelineLayer *layer)
 {
@@ -481,7 +481,7 @@ ensure_texture_lookup_generated (CoglPipelineShaderState *shader_state,
 }
 
 static void
-add_arg (CoglPipelineShaderState *shader_state,
+add_arg (CoglPipelineFragendShaderState *shader_state,
          CoglPipeline *pipeline,
          CoglPipelineLayer *layer,
          int previous_layer_index,
@@ -577,7 +577,7 @@ ensure_arg_generated (CoglPipeline *pipeline,
                       int previous_layer_index,
                       CoglPipelineCombineSource src)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
 
   switch (src)
     {
@@ -650,7 +650,7 @@ append_masked_combine (CoglPipeline *pipeline,
                        CoglPipelineCombineSource *src,
                        CoglPipelineCombineOp *op)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
   GString *shader_source = shader_state->header;
 
   g_string_append_printf (shader_state->header,
@@ -747,7 +747,7 @@ static void
 ensure_layer_generated (CoglPipeline *pipeline,
                         int layer_index)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
   CoglPipelineLayer *combine_authority;
   CoglPipelineLayerBigState *big_state;
   CoglPipelineLayer *layer;
@@ -877,7 +877,7 @@ _cogl_pipeline_fragend_glsl_add_layer (CoglPipeline *pipeline,
                                         CoglPipelineLayer *layer,
                                         unsigned long layers_difference)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
   LayerData *layer_data;
 
   if (!shader_state->source)
@@ -910,7 +910,7 @@ _cogl_pipeline_fragend_glsl_add_layer (CoglPipeline *pipeline,
 
 static void
 add_alpha_test_snippet (CoglPipeline *pipeline,
-                        CoglPipelineShaderState *shader_state)
+                        CoglPipelineFragendShaderState *shader_state)
 {
   CoglPipelineAlphaFunc alpha_func;
 
@@ -974,7 +974,7 @@ static gboolean
 _cogl_pipeline_fragend_glsl_end (CoglPipeline *pipeline,
                                  unsigned long pipelines_difference)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineFragendShaderState *shader_state = get_shader_state (pipeline);
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 

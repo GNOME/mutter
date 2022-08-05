@@ -59,23 +59,23 @@ typedef struct
   GString *header, *source;
 
   CoglPipelineCacheEntry *cache_entry;
-} CoglPipelineShaderState;
+} CoglPipelineVertendShaderState;
 
 static CoglUserDataKey shader_state_key;
 
-static CoglPipelineShaderState *
+static CoglPipelineVertendShaderState *
 shader_state_new (CoglPipelineCacheEntry *cache_entry)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineVertendShaderState *shader_state;
 
-  shader_state = g_new0 (CoglPipelineShaderState, 1);
+  shader_state = g_new0 (CoglPipelineVertendShaderState, 1);
   shader_state->ref_count = 1;
   shader_state->cache_entry = cache_entry;
 
   return shader_state;
 }
 
-static CoglPipelineShaderState *
+static CoglPipelineVertendShaderState *
 get_shader_state (CoglPipeline *pipeline)
 {
   return cogl_object_get_user_data (COGL_OBJECT (pipeline), &shader_state_key);
@@ -85,7 +85,7 @@ static void
 destroy_shader_state (void *user_data,
                       void *instance)
 {
-  CoglPipelineShaderState *shader_state = user_data;
+  CoglPipelineVertendShaderState *shader_state = user_data;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -104,7 +104,7 @@ destroy_shader_state (void *user_data,
 
 static void
 set_shader_state (CoglPipeline *pipeline,
-                  CoglPipelineShaderState *shader_state)
+                  CoglPipelineVertendShaderState *shader_state)
 {
   if (shader_state)
     {
@@ -279,7 +279,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
 GLuint
 _cogl_pipeline_vertend_glsl_get_shader (CoglPipeline *pipeline)
 {
-  CoglPipelineShaderState *shader_state = get_shader_state (pipeline);
+  CoglPipelineVertendShaderState *shader_state = get_shader_state (pipeline);
 
   if (shader_state)
     return shader_state->gl_shader;
@@ -310,7 +310,7 @@ static gboolean
 add_layer_declaration_cb (CoglPipelineLayer *layer,
                           void *user_data)
 {
-  CoglPipelineShaderState *shader_state = user_data;
+  CoglPipelineVertendShaderState *shader_state = user_data;
 
   g_string_append_printf (shader_state->header,
                           "uniform sampler2D cogl_sampler%i;\n",
@@ -321,7 +321,7 @@ add_layer_declaration_cb (CoglPipelineLayer *layer,
 
 static void
 add_layer_declarations (CoglPipeline *pipeline,
-                        CoglPipelineShaderState *shader_state)
+                        CoglPipelineVertendShaderState *shader_state)
 {
   /* We always emit sampler uniforms in case there will be custom
    * layer snippets that want to sample arbitrary layers. */
@@ -333,7 +333,7 @@ add_layer_declarations (CoglPipeline *pipeline,
 
 static void
 add_global_declarations (CoglPipeline *pipeline,
-                         CoglPipelineShaderState *shader_state)
+                         CoglPipelineVertendShaderState *shader_state)
 {
   CoglSnippetHook hook = COGL_SNIPPET_HOOK_VERTEX_GLOBALS;
   CoglPipelineSnippetList *snippets = get_vertex_snippets (pipeline);
@@ -351,7 +351,7 @@ _cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
                                    int n_layers,
                                    unsigned long pipelines_difference)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineVertendShaderState *shader_state;
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
 
@@ -473,7 +473,7 @@ _cogl_pipeline_vertend_glsl_add_layer (CoglPipeline *pipeline,
                                        unsigned long layers_difference,
                                        CoglFramebuffer *framebuffer)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineVertendShaderState *shader_state;
   CoglPipelineSnippetData snippet_data;
   int layer_index = layer->index;
 
@@ -544,7 +544,7 @@ static gboolean
 _cogl_pipeline_vertend_glsl_end (CoglPipeline *pipeline,
                                  unsigned long pipelines_difference)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineVertendShaderState *shader_state;
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 
@@ -712,7 +712,7 @@ _cogl_pipeline_vertend_glsl_layer_pre_change_notify (
                                                 CoglPipelineLayer *layer,
                                                 CoglPipelineLayerState change)
 {
-  CoglPipelineShaderState *shader_state;
+  CoglPipelineVertendShaderState *shader_state;
 
   shader_state = get_shader_state (owner);
   if (!shader_state)
@@ -743,7 +743,7 @@ UNIT_TEST (check_point_size_shader,
            0 /* no failure cases */)
 {
   CoglPipeline *pipelines[4];
-  CoglPipelineShaderState *shader_states[G_N_ELEMENTS (pipelines)];
+  CoglPipelineVertendShaderState *shader_states[G_N_ELEMENTS (pipelines)];
   int i;
 
   /* Default pipeline with zero point size */
