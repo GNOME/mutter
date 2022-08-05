@@ -38,7 +38,6 @@
 #include "backends/meta-viewport-info.h"
 #include "core/util-private.h"
 #include "meta/display.h"
-#include "meta/meta-enum-types.h"
 #include "meta/meta-monitor-manager.h"
 
 #define META_MONITOR_MANAGER_MIN_SCREEN_WIDTH 640

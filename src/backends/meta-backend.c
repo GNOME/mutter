@@ -71,6 +71,7 @@
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
+#include "meta/meta-enum-types.h"
 #include "meta/util.h"
 
 #ifdef HAVE_PROFILER
