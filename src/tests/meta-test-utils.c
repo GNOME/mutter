@@ -62,6 +62,11 @@ struct _MetaAsyncWaiter
   int counter_wait_value;
 };
 
+typedef struct
+{
+  GList *subprocesses;
+} ClientProcessHandler;
+
 G_DEFINE_QUARK (meta-test-client-error-quark, meta_test_client_error)
 
 static char *test_client_path;
@@ -478,6 +483,66 @@ spawn_xwayland (gpointer user_data)
   return NULL;
 }
 
+static void
+on_prepare_shutdown (MetaBackend          *backend,
+                     ClientProcessHandler *process_handler)
+{
+  g_debug ("Waiting for test clients to exit before shutting down");
+  while (process_handler->subprocesses)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+static void
+wait_check_cb (GObject      *source_object,
+               GAsyncResult *result,
+               gpointer      user_data)
+{
+  GSubprocess *subprocess = G_SUBPROCESS (source_object);
+  ClientProcessHandler *process_handler = user_data;
+  g_autoptr (GError) error = NULL;
+
+  if (!g_subprocess_wait_check_finish (subprocess, result, &error))
+    {
+      if (g_error_matches (error, G_SPAWN_EXIT_ERROR, 1))
+        {
+          g_debug ("Test client process %s exited with exit status 1",
+                   g_subprocess_get_identifier (subprocess));
+        }
+      else
+        {
+          g_warning ("Test client process %s crashed with status %d",
+                     g_subprocess_get_identifier (subprocess),
+                     error->code);
+        }
+    }
+
+  process_handler->subprocesses = g_list_remove (process_handler->subprocesses,
+                                                 subprocess);
+}
+
+static ClientProcessHandler *
+ensure_process_handler (MetaContext *context)
+{
+  ClientProcessHandler *process_handler;
+  const char data_key[] = "test-client-subprocess-handler";
+  MetaBackend *backend;
+
+  process_handler = g_object_get_data (G_OBJECT (context), data_key);
+  if (process_handler)
+    return process_handler;
+
+  process_handler = g_new0 (ClientProcessHandler, 1);
+  g_object_set_data_full (G_OBJECT (context), data_key,
+                          process_handler, g_free);
+
+  backend = meta_context_get_backend (context);
+  g_signal_connect (backend, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown),
+                    process_handler);
+
+  return process_handler;
+}
+
 MetaTestClient *
 meta_test_client_new (MetaContext           *context,
                       const char            *id,
@@ -487,6 +552,7 @@ meta_test_client_new (MetaContext           *context,
   MetaTestClient *client;
   GSubprocessLauncher *launcher;
   GSubprocess *subprocess;
+  ClientProcessHandler *process_handler;
   MetaWaylandCompositor *compositor;
   const char *wayland_display_name;
   const char *x11_display_name;
@@ -525,6 +591,13 @@ meta_test_client_new (MetaContext           *context,
 
   if (!subprocess)
     return NULL;
+
+  process_handler = ensure_process_handler (context);
+  process_handler->subprocesses = g_list_prepend (process_handler->subprocesses,
+                                                  subprocess);
+  g_subprocess_wait_check_async (subprocess, NULL,
+                                 wait_check_cb,
+                                 process_handler);
 
   client = g_new0 (MetaTestClient, 1);
   client->type = type;
