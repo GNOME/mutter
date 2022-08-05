@@ -7,6 +7,7 @@ cogl_unit_tests = [
   ['test-pipeline-state-known-failure', false, all_variants],
   ['test-pipeline-state', true, all_variants],
   ['test-pipeline-glsl', true, all_variants],
+  ['test-pipeline-vertend-glsl', true, all_variants],
 ]
 
 test_env = environment()

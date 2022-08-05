@@ -36,10 +36,15 @@
 
 #include "cogl-pipeline-private.h"
 
+typedef struct _CoglPipelineVertendShaderState CoglPipelineVertendShaderState;
+
 extern const CoglPipelineVertend _cogl_pipeline_glsl_vertend;
 
 GLuint
 _cogl_pipeline_vertend_glsl_get_shader (CoglPipeline *pipeline);
+
+COGL_EXPORT_TEST
+CoglPipelineVertendShaderState * cogl_pipeline_vertend_glsl_get_shader_state (CoglPipeline *pipeline);
 
 #endif /* __COGL_PIPELINE_VERTEND_GLSL_PRIVATE_H */
 
