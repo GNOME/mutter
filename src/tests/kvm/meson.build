@@ -48,6 +48,7 @@ foreach test_case: privileged_tests
       test_case['executable'].full_path(),
       meson.current_build_dir(),
       vm_env,
-    ]
+    ],
+    is_parallel: false,
   )
 endforeach
