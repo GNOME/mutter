@@ -426,12 +426,6 @@ cogl_headers_all = [
   cogl_deprecated_headers,
 ]
 
-cogl_test_deps = []
-
-if have_cogl_tests
-  cogl_test_deps += [libmutter_cogl_test_fixtures_dep]
-endif
-
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
 libmutter_cogl = shared_library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],
@@ -439,7 +433,7 @@ libmutter_cogl = shared_library(libmutter_cogl_name,
   soversion: 0,
   c_args: cogl_c_args,
   include_directories: cogl_includepath,
-  dependencies: [cogl_deps, cogl_test_deps],
+  dependencies: cogl_deps,
   gnu_symbol_visibility: 'hidden',
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
