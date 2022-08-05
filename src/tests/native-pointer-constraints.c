@@ -117,6 +117,8 @@ meta_test_warp_on_hotplug (void)
                                    &coords, NULL);
 
   g_assert_nonnull (meta_backend_get_current_logical_monitor (backend));
+
+  meta_test_client_destroy (test_client);
 }
 
 static void
