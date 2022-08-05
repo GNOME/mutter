@@ -196,7 +196,7 @@ void
 _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
                                   CoglFramebuffer *dependency);
 
-void
+COGL_EXPORT_TEST void
 _cogl_framebuffer_flush_journal (CoglFramebuffer *framebuffer);
 
 void
