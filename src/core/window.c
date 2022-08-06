@@ -4089,8 +4089,17 @@ meta_window_move_to_monitor (MetaWindow  *window,
     }
   else
     {
+      MetaRectangle old_frame_rect, old_buffer_rect;
+
       if (monitor == window->monitor->number)
         return;
+
+      meta_window_get_frame_rect (window, &old_frame_rect);
+      meta_window_get_buffer_rect (window, &old_buffer_rect);
+
+      meta_compositor_size_change_window (window->display->compositor, window,
+                                          META_SIZE_CHANGE_MONITOR_MOVE,
+                                          &old_frame_rect, &old_buffer_rect);
 
       meta_window_move_between_rects (window, 0, &old_area, &new_area);
     }
