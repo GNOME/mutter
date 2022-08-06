@@ -51,6 +51,11 @@ MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
 
 void meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast);
 
+bool meta_screen_cast_query_modifiers (MetaScreenCast   *screen_cast,
+                                       CoglPixelFormat   format,
+                                       uint64_t        **modifiers,
+                                       int              *n_modifiers);
+
 CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *screen_cast,
                                                            CoglPixelFormat  format,
                                                            int              width,

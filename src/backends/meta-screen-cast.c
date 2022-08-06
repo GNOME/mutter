@@ -24,6 +24,10 @@
 
 #include <pipewire/pipewire.h>
 
+#ifdef HAVE_NATIVE_BACKEND
+#include <drm_fourcc.h>
+#endif
+
 #include "backends/meta-backend-private.h"
 #include "backends/meta-remote-desktop-session.h"
 #include "backends/meta-screen-cast-session.h"
@@ -54,6 +58,52 @@ void
 meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast)
 {
   screen_cast->disable_dma_bufs = TRUE;
+}
+
+bool
+meta_screen_cast_query_modifiers (MetaScreenCast   *screen_cast,
+                                  CoglPixelFormat   format,
+                                  uint64_t        **modifiers,
+                                  int              *n_modifiers)
+{
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (screen_cast);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session_manager);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  g_autoptr (GError) error = NULL;
+  bool ret;
+
+  if (screen_cast->disable_dma_bufs)
+    return FALSE;
+
+  if (!cogl_renderer_is_dma_buf_supported (cogl_renderer))
+    return FALSE;
+
+  // TODO: query cogl_renderer for modifiers
+  // BEGIN stub
+#ifdef HAVE_NATIVE_BACKEND
+  uint64_t *modifier_list;
+
+  modifier_list = calloc (1, sizeof (uint64_t));
+  modifier_list[0] = DRM_FORMAT_MOD_INVALID;
+
+  *modifiers = modifier_list;
+  *n_modifiers = 1;
+  ret = TRUE;
+#else
+  ret = FALSE;
+#endif
+  // END stub
+
+  if (!ret)
+    g_warning ("Failed to query supported modifiers: %s",
+               error->message);
+  return ret;
 }
 
 CoglDmaBufHandle *
