@@ -1065,6 +1065,21 @@ build_format_params (MetaScreenCastStreamSrc *src,
 }
 
 static void
+renegotiate_pipewire_stream (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  uint8_t buffer[1024];
+  struct spa_pod_builder pod_builder;
+  const struct spa_pod *params[4];
+  int n_params;
+
+  pod_builder = SPA_POD_BUILDER_INIT (buffer, sizeof (buffer));
+  n_params = build_format_params (src, &pod_builder, params);
+  pw_stream_update_params (priv->pipewire_stream, params, n_params);
+}
+
+static void
 on_stream_state_changed (void                 *data,
                          enum pw_stream_state  old,
                          enum pw_stream_state  state,
@@ -1145,9 +1160,10 @@ on_stream_param_changed (void                 *data,
 
   pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
 
-  buffer_types = 1 << SPA_DATA_MemFd;
   if (spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier))
-    buffer_types |= 1 << SPA_DATA_DmaBuf;
+    buffer_types = 1 << SPA_DATA_DmaBuf;
+  else
+    buffer_types = 1 << SPA_DATA_MemFd;
 
   params[n_params++] = spa_pod_builder_add_object (
     &pod_builder,
@@ -1210,34 +1226,23 @@ on_stream_add_buffer (void             *data,
 
       if (!cogl_pixel_format_from_spa_video_format (priv->video_format.format,
                                                     &cogl_format))
-        {
-          cogl_format = DEFAULT_COGL_PIXEL_FORMAT;
-        }
+        g_assert_not_reached ();
 
       dmabuf_handle =
         meta_screen_cast_create_dma_buf_handle (screen_cast,
                                                 cogl_format,
                                                 priv->video_format.size.width,
                                                 priv->video_format.size.height);
-
-      if (!dmabuf_handle && cogl_format != DEFAULT_COGL_PIXEL_FORMAT)
+      if (!dmabuf_handle)
         {
-          dmabuf_handle =
-            meta_screen_cast_create_dma_buf_handle (screen_cast,
-                                                    DEFAULT_COGL_PIXEL_FORMAT,
-                                                    priv->video_format.size.width,
-                                                    priv->video_format.size.height);
+          // TODO: Drop dmabuf support more granular
+          meta_screen_cast_disable_dma_bufs (screen_cast);
+          renegotiate_pipewire_stream (src);
+          return;
         }
-    }
-  else
-    {
-      dmabuf_handle = NULL;
-    }
 
-  priv->uses_dma_bufs = !!dmabuf_handle;
+      priv->uses_dma_bufs = TRUE;
 
-  if (dmabuf_handle)
-    {
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Allocating DMA buffer for pw_stream %u",
                   pw_stream_get_node_id (priv->pipewire_stream));
@@ -1256,6 +1261,8 @@ on_stream_add_buffer (void             *data,
   else
     {
       unsigned int seals;
+
+      priv->uses_dma_bufs = FALSE;
 
       if (!(spa_data->type & (1 << SPA_DATA_MemFd)))
         {
