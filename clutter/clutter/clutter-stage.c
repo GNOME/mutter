@@ -3296,7 +3296,7 @@ clutter_stage_remove_device_entry (ClutterStage         *self,
  * Retrieves the [class@Clutter.Actor] underneath the pointer or touch point
  * of @device and @sequence.
  *
- * Return value: (transfer none): a pointer to the #ClutterActor or %NULL
+ * Returns: (transfer none) (nullable): a pointer to the #ClutterActor or %NULL
  */
 ClutterActor *
 clutter_stage_get_device_actor (ClutterStage         *stage,
@@ -3905,7 +3905,7 @@ clutter_grab_get_seat_state (ClutterGrab *grab)
  *
  * Gets the actor that currently holds a grab.
  *
- * Returns: (transfer none): The grabbing actor
+ * Returns: (transfer none) (nullable): The grabbing actor
  **/
 ClutterActor *
 clutter_stage_get_grab_actor (ClutterStage *stage)
@@ -3933,7 +3933,7 @@ clutter_stage_get_grab_actor (ClutterStage *stage)
  * and may differ from the actor that the stage originally
  * delivered the event to.
  *
- * Return value: (transfer none): a pointer to the #ClutterActor or %NULL
+ * Returns: (transfer none) (nullable): a pointer to the #ClutterActor or %NULL
  **/
 ClutterActor *
 clutter_stage_get_event_actor (ClutterStage       *stage,
