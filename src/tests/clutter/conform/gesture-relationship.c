@@ -744,6 +744,530 @@ gesture_relationship_unmap_child_on_press_cancels_on_parent (void)
   g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
 }
 
+static void
+gesture_relationship_failure_requirement_1 (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+
+  clutter_gesture_require_failure_of (gesture_1, gesture_2);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_COMPLETED);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_failure_requirement_2 (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+
+  clutter_gesture_require_failure_of (gesture_1, gesture_2);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_failure_requirement_3 (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+
+  clutter_gesture_require_failure_of (gesture_1, gesture_2);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_failure_requirement_4 (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+  ClutterGestureState gesture_1_state;
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+
+  clutter_gesture_require_failure_of (gesture_1, gesture_2);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  g_signal_connect (gesture_1, "notify::state",
+                    G_CALLBACK (gesture_changed_state_once),
+                    &gesture_1_state);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_CANCELLED);
+
+  g_assert_true (gesture_1_state == CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_influencing_cascade (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  ClutterGesture *gesture_3 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-3", NULL));
+  ClutterGesture *gesture_4 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-4", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_3));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_4));
+
+  clutter_gesture_require_failure_of (gesture_1, gesture_2);
+  clutter_gesture_can_not_cancel (gesture_1, gesture_4);
+  clutter_gesture_require_failure_of (gesture_4, gesture_3);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_COMPLETED);
+  clutter_gesture_set_state (gesture_4, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+
+  clutter_gesture_set_state (gesture_4, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_3));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_4));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_influencing_cascade_2 (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  ClutterGesture *gesture_3 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-3", NULL));
+  ClutterGesture *gesture_4 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-4", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+  ClutterGestureState gesture_1_state, gesture_4_state;
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_3));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_4));
+
+  clutter_gesture_require_failure_of (gesture_1, gesture_2);
+  clutter_gesture_can_not_cancel (gesture_1, gesture_4);
+  clutter_gesture_can_not_cancel (gesture_4, gesture_1);
+  clutter_gesture_require_failure_of (gesture_4, gesture_3);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_POSSIBLE);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  clutter_gesture_set_state (gesture_4, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+
+  g_signal_connect (gesture_1, "notify::state",
+                    G_CALLBACK (gesture_changed_state_once),
+                    &gesture_1_state);
+  g_signal_connect (gesture_4, "notify::state",
+                    G_CALLBACK (gesture_changed_state_once),
+                    &gesture_4_state);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_COMPLETED);
+  clutter_gesture_set_state (gesture_4, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (gesture_1_state == CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (gesture_4_state == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_4) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_3));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_4));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_influencing_execution_order (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  ClutterGesture *gesture_3 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-3", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_3));
+
+  /* gesture_1 cancels gesture_3, but gesture_1 recognizing recursively
+   * triggers gesture_3 to recognize via gesture_2.
+   * gesture_3 should be cancelled before that happens.
+   */
+  clutter_gesture_require_failure_of (gesture_3, gesture_2);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  clutter_gesture_set_state (gesture_3, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_POSSIBLE);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_CANCELLED);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_CANCELLED);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_3));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
+static void
+gesture_relationship_event_order (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterGesture *gesture_1 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-1", NULL));
+  ClutterGesture *gesture_2 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-2", NULL));
+  ClutterGesture *gesture_3 = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, "name", "gesture-3", NULL));
+  gboolean was_updated;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  ClutterActor *second_actor = clutter_actor_new ();
+
+  clutter_actor_set_size (second_actor, 200, 200);
+  clutter_actor_set_reactive (second_actor, true);
+  clutter_actor_add_child (stage, second_actor);
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_add_action (stage, CLUTTER_ACTION (gesture_2));
+  clutter_actor_add_action (second_actor, CLUTTER_ACTION (gesture_3));
+
+  clutter_gesture_require_failure_of (gesture_2, gesture_1);
+  clutter_gesture_require_failure_of (gesture_3, gesture_1);
+  clutter_gesture_can_not_cancel (gesture_1, gesture_2);
+  clutter_gesture_can_not_cancel (gesture_1, gesture_3);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer, now_us, 15, 15);
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_PRESSED);
+  wait_stage_updated (&was_updated);
+  clutter_gesture_set_state (gesture_2, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  clutter_gesture_set_state (gesture_3, CLUTTER_GESTURE_STATE_RECOGNIZING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_RECOGNIZE_PENDING);
+
+  clutter_gesture_set_state (gesture_1, CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_RECOGNIZING);
+
+  clutter_virtual_input_device_notify_button (virtual_pointer, now_us,
+                                              CLUTTER_BUTTON_PRIMARY,
+                                              CLUTTER_BUTTON_STATE_RELEASED);
+  wait_stage_updated (&was_updated);
+  clutter_gesture_set_state (gesture_3, CLUTTER_GESTURE_STATE_COMPLETED);
+  g_assert_true (clutter_gesture_get_state (gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (gesture_3) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_destroy (second_actor);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_1));
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (gesture_2));
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/gesture/relationship/freed-despite-relationship", gesture_relationship_freed_despite_relationship);
   CLUTTER_TEST_UNIT ("/gesture/relationship/cancel-on-recognize", gesture_relationship_cancel_on_recognize);
@@ -754,4 +1278,12 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/gesture/relationship/claim-new-sequence-while-already-recognizing-2", gesture_relationship_claim_new_sequence_while_already_recognizing_2);
   CLUTTER_TEST_UNIT ("/gesture/relationship/unmap-before-points-added", gesture_relationship_unmap_before_points_added);
   CLUTTER_TEST_UNIT ("/gesture/relationship/unmap-child-on-press-cancels-on-parent", gesture_relationship_unmap_child_on_press_cancels_on_parent);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/failure-requirement-1", gesture_relationship_failure_requirement_1);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/failure-requirement-2", gesture_relationship_failure_requirement_2);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/failure-requirement-3", gesture_relationship_failure_requirement_3);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/failure-requirement-4", gesture_relationship_failure_requirement_4);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/influencing-cascade", gesture_relationship_influencing_cascade);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/influencing-cascade-2", gesture_relationship_influencing_cascade_2);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/influencing-execution-order", gesture_relationship_influencing_execution_order);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/influencing-event-order", gesture_relationship_event_order);
 )
