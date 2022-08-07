@@ -25,6 +25,7 @@
 #include <glib.h>
 
 #include <meta/common.h>
+#include <meta/meta-context.h>
 
 META_EXPORT
 void            meta_restart                (const char  *message,
