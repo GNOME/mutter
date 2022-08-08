@@ -36,6 +36,7 @@ SCRIPT="\
   $(printf "\"%s\" " "${@:6}")\
 "
 
+echo Running tests in virtual machine ...
 virtme-run \
   --memory=256M \
   --rw \
@@ -43,8 +44,16 @@ virtme-run \
   --kimg "$IMAGE" \
   --script-sh "sh -c \"$SCRIPT\"" \
   --qemu-opts -cpu host,pdcm=off -smp 2
+VM_RESULT=$?
+if [ $VM_RESULT != 0 ]; then
+  echo Virtual machine exited with a failure: $VM_RESULT
+else
+  echo Virtual machine terminated.
+fi
 
 TEST_RESULT="$(cat "$TEST_RESULT_FILE")"
 rm "$TEST_RESULT_FILE"
+
+echo Test result exit status: $TEST_RESULT
 
 exit "$TEST_RESULT"
