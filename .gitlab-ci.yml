@@ -478,8 +478,6 @@ dist-mutter:
   script:
     - meson . build --werror --prefix /usr
         -Dbuildtype=debugoptimized
-        $BASE_MESON_OPTIONS
-        -Dkvm_tests=false
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - dbus-run-session -- xvfb-run -a -s "$XVFB_SERVER_ARGS"
         ./.gitlab-ci/run-meson.sh dist -C build
