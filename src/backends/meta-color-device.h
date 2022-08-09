@@ -65,4 +65,7 @@ gboolean meta_color_device_is_ready (MetaColorDevice *color_device);
 void meta_color_device_update (MetaColorDevice *color_device,
                                unsigned int     temperature);
 
+META_EXPORT_TEST
+void meta_set_color_efivar_test_path (const char *path);
+
 #endif /* META_COLOR_DEVICE_H */

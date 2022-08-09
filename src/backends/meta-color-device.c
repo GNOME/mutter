@@ -77,6 +77,8 @@ struct _MetaColorDevice
 G_DEFINE_TYPE (MetaColorDevice, meta_color_device,
                G_TYPE_OBJECT)
 
+static const char *efivar_test_path = NULL;
+
 /*
  * Generate a colord DeviceId according to
  * `device-and-profiling-naming-spec.txt`.
@@ -1024,6 +1026,12 @@ on_efi_panel_color_info_loaded (GObject      *source_object,
 }
 
 void
+meta_set_color_efivar_test_path (const char *path)
+{
+  efivar_test_path = path;
+}
+
+void
 meta_color_device_generate_profile (MetaColorDevice     *color_device,
                                     const char          *file_path,
                                     GCancellable        *cancellable,
@@ -1042,12 +1050,17 @@ meta_color_device_generate_profile (MetaColorDevice     *color_device,
   g_task_set_task_data (task, data,
                         (GDestroyNotify) generate_profile_data_free);
 
-  if (meta_monitor_is_laptop_panel (color_device->monitor) &&
-      meta_monitor_supports_color_transform (color_device->monitor))
+  if ((meta_monitor_is_laptop_panel (color_device->monitor) &&
+       meta_monitor_supports_color_transform (color_device->monitor)) ||
+      efivar_test_path)
     {
       g_autoptr (GFile) file = NULL;
 
-      file = g_file_new_for_path (EFI_PANEL_COLOR_INFO_PATH);
+      if (efivar_test_path)
+        file = g_file_new_for_path (efivar_test_path);
+      else
+        file = g_file_new_for_path (EFI_PANEL_COLOR_INFO_PATH);
+
       g_file_load_contents_async (file,
                                   cancellable,
                                   on_efi_panel_color_info_loaded,
