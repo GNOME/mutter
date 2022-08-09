@@ -1,3 +1,45 @@
+43.beta
+=======
+* Fix glitches in apps using subsurfaces [Robert; !2501, !2530]
+* Reduce client work when entering overview [Robert; !2502]
+* Support direct scanout on GPUs without modifiers support [Dor; !2510]
+* screencast: Set correct stride when using dmabufs [Pascal; !2513]
+* High-resolution scroll wheel support [José, Carlos; !1962]
+* screencast: Use flag to signal failed recording [columbarius; !2516]
+* Fix cursor visibility on X11 with only tablets as input [Carlos; !2518]
+* Notify about privacy screen changes via predictions [Jonas Å.; !2340, !2531]
+* Highlight actors becoming reactive under the pointer [Carlos; !2532]
+* Replace MetaTextureTower with native GL mipmapping [Daniel, Neil; !2506]
+* Add tool to pretty print display configuration [Jonas Å., Marco; !2448]
+* Remove mipmap framerate limiting [Daniel; !2538]
+* Fall back to ARGB if XRGB is not supported [Daniel; !2519]
+* Add basic color-scheme support for server-side decorations [Florian; !2541]
+* Don't skip frames after skipped KMS updates [Michel; !2498]
+* Add support for multi-monitor direct scanout [Dor; !2526]
+* Continue gi-docgen migration [Bilal; !2441]
+* Always send modifiers to clients if supported [Jonas Å.; !2546]
+* Defer and accumulate redraw-clip on scanout [Robert; !2480]
+* Add single pixel buffer support [Robert, Jonas Å.; !2246]
+* Report actual monitor transform [Robert; !344]
+* Better integrate cogl tests with existing infrastructure [Jonas Å.; !2555]
+* Fix registering as X11 window manager if GDK_BACKEND is set [Michel; !2496]
+* Don't skip vblank sync on missing presentation timestamp [Dor; !2481]
+* Fix cursor showing on Xilinx [Daniel; !2520]
+* Plugged leaks [Michel, Daniel; !2527, !2562]
+* Fixed crashes [Robert, Jonas Å.; !2459, !2553]
+* Misc. bug fixes and cleanups [columbarius, Daniel, Carlos, Michel, Jonas Å.,
+  Florian, Jonas D., Julia, Corentin; !2323, !2074, !2517, !2525, !2524, !2442,
+  !2523, !2535, !2348, !2537, !2456, !2542, !2547,  !2556,  !2559, !2564, !2511]
+
+Contributors:
+  Marco Trevisan (Treviño), Dor Askayo, Jonas Dreßler, Michel Dänzer,
+  Bilal Elmoussaoui, José Expósito, Carlos Garnacho, Julia Johannesen,
+  Robert Mader, Neil Moore, Florian Müllner, Pascal Nowack, Corentin Noël,
+  Nart Tlisha, Daniel van Vugt, columbarius, Jonas Ådahl
+
+Translators:
+  Nart Tlisha [ab]
+
 43.alpha
 ========
 * Drop zenity dependency [Bilal; !2370]
