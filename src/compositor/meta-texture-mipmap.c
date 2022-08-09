@@ -68,8 +68,9 @@ meta_texture_mipmap_free (MetaTextureMipmap *mipmap)
   g_return_if_fail (mipmap != NULL);
 
   cogl_clear_object (&mipmap->pipeline);
-
-  meta_texture_mipmap_set_base_texture (mipmap, NULL);
+  cogl_clear_object (&mipmap->base_texture);
+  cogl_clear_object (&mipmap->mipmap_texture);
+  g_clear_object (&mipmap->fb);
 
   g_free (mipmap);
 }
@@ -86,17 +87,14 @@ meta_texture_mipmap_free (MetaTextureMipmap *mipmap)
  */
 void
 meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
-                                      CoglTexture      *texture)
+                                      CoglTexture       *texture)
 {
   g_return_if_fail (mipmap != NULL);
 
   if (texture == mipmap->base_texture)
     return;
 
-  if (mipmap->base_texture != NULL)
-    {
-      cogl_object_unref (mipmap->base_texture);
-    }
+  cogl_clear_object (&mipmap->base_texture);
 
   mipmap->base_texture = texture;
 
