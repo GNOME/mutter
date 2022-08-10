@@ -115,6 +115,10 @@ variables:
         cd .. &&
         rm -rf virtme
       fi
+  retry:
+    max: 2
+    when:
+      - 'always'
 
 default:
   # Cancel jobs if newer commits are pushed to the branch
