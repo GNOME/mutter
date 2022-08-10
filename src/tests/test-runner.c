@@ -638,6 +638,24 @@ test_case_do (TestCase *test,
       if (!show_async)
         meta_test_client_wait_for_window_shown (client, window);
     }
+  else if (strcmp (argv[0], "sync_shown") == 0)
+    {
+      MetaWindow *window;
+      MetaTestClient *client;
+      const char *window_id;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      meta_test_client_wait_for_window_shown (client, window);
+    }
   else if (strcmp (argv[0], "resize") == 0)
     {
       if (argc != 4)
