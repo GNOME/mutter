@@ -1,3 +1,20 @@
+42.4
+====
+* screencast: Set correct stride when using dmabufs [Pascal; !2514]
+* Fix glitches in apps using subsurfaces [Robert; !2501, !2530]
+* Reduce client work when entering overview [Robert; !2502]
+* Highlight actors becoming reactive under the pointer [Carlos; !2533]
+* Fall back to ARGB if XRGB is not supported [Daniel; !2519]
+* Support direct scanout on GPUs without modifiers support [Dor; !2510]
+* Fix registering as X11 window manager if GDK_BACKEND is set [Michel; !2496]
+* Fixed crash [Jonas Å.; !2554]
+* Plugged leak [Sebastian; !2497]
+* Misc. bug fixes and cleanups [Jonas D., Dor; !2348, !2406]
+
+Contributors:
+  Dor Askayo, Jonas Dreßler, Michel Dänzer, Carlos Garnacho, Sebastian Keller,
+  Robert Mader, Pascal Nowack, Daniel van Vugt, Jonas Ådahl
+
 42.3
 ====
 * wayland: Fix rotation transform [Robert; !1055]
