@@ -482,7 +482,7 @@ lookup_grouped_devices (ClutterInputDevice       *device,
     {
       if (l->data == device)
         continue;
-      if ((clutter_input_device_get_capabilities (l->data) & capabilities) ==
+      if ((clutter_input_device_get_capabilities (l->data) & capabilities) !=
           capabilities)
         continue;
 
