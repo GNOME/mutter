@@ -411,7 +411,7 @@ endif
 have_profiler = get_option('profiler')
 if have_profiler
   # libsysprof-capture support
-  sysprof_dep = dependency('sysprof-capture-4',
+  libsysprof_capture_dep = dependency('sysprof-capture-4',
     required: true,
     default_options: [
       'examples=false',
@@ -424,6 +424,13 @@ if have_profiler
     ],
     fallback: ['sysprof', 'libsysprof_capture_dep'],
   )
+
+  if libsysprof_capture_dep.type_name() == 'pkgconfig'
+    sysprof_dep = dependency('sysprof-4')
+    sysprof_dbus_interfaces_dir = join_paths(sysprof_dep.get_variable('datadir'), 'dbus-1', 'interfaces')
+  else
+    sysprof_dbus_interfaces_dir = join_paths(mutter_srcdir, 'subprojects', 'sysprof', 'src')
+  endif
 endif
 
 required_functions = [
