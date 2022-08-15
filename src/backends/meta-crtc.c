@@ -195,6 +195,22 @@ meta_gamma_lut_new (int             size,
 }
 
 MetaGammaLut *
+meta_gamma_lut_new_sized (int size)
+{
+  MetaGammaLut *gamma;
+
+  gamma = g_new0 (MetaGammaLut, 1);
+  *gamma = (MetaGammaLut) {
+    .size = size,
+    .red = g_new0 (uint16_t, size),
+    .green = g_new0 (uint16_t, size),
+    .blue = g_new0 (uint16_t, size),
+  };
+
+  return gamma;
+}
+
+MetaGammaLut *
 meta_gamma_lut_copy (const MetaGammaLut *gamma)
 {
   g_return_val_if_fail (gamma != NULL, NULL);

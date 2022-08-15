@@ -24,6 +24,8 @@
 
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-impl-device-atomic.h"
+#include "backends/native/meta-kms-impl-device-simple.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update-private.h"
 
@@ -102,13 +104,69 @@ meta_kms_crtc_is_active (MetaKmsCrtc *crtc)
 }
 
 static void
-read_gamma_state (MetaKmsCrtc       *crtc,
-                  MetaKmsCrtcState  *crtc_state,
-                  MetaKmsImplDevice *impl_device,
-                  drmModeCrtc       *drm_crtc)
+read_crtc_gamma (MetaKmsCrtc       *crtc,
+                 MetaKmsCrtcState  *crtc_state,
+                 MetaKmsImplDevice *impl_device,
+                 drmModeCrtc       *drm_crtc)
 {
-  g_assert (crtc_state->gamma.value == NULL);
+  MetaKmsProp *prop_lut;
+  MetaKmsProp *prop_size;
+  uint64_t blob_id;
+  uint64_t lut_size;
+  int fd;
+  drmModePropertyBlobPtr blob;
+  int drm_lut_size;
+  struct drm_color_lut *drm_lut;
+  int i;
 
+  prop_lut = &crtc->prop_table.props[META_KMS_CRTC_PROP_GAMMA_LUT];
+  prop_size = &crtc->prop_table.props[META_KMS_CRTC_PROP_GAMMA_LUT_SIZE];
+
+  if (!prop_lut->prop_id || !prop_size->prop_id)
+    return;
+
+  blob_id = prop_lut->value;
+  if (blob_id == 0)
+    return;
+
+  lut_size = prop_size->value;
+  if (lut_size <= 0)
+    return;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  blob = drmModeGetPropertyBlob (fd, blob_id);
+  if (!blob)
+    return;
+
+  drm_lut_size = blob->length / sizeof (struct drm_color_lut);
+  if (drm_lut_size == 0)
+    {
+      drmModeFreePropertyBlob (blob);
+      return;
+    }
+
+  drm_lut = blob->data;
+
+  crtc_state->gamma.size = lut_size;
+  crtc_state->gamma.supported = TRUE;
+  crtc_state->gamma.value = meta_gamma_lut_new_sized (drm_lut_size);
+
+  for (i = 0; i < drm_lut_size; i++)
+    {
+      crtc_state->gamma.value->red[i] = drm_lut[i].red;
+      crtc_state->gamma.value->green[i] = drm_lut[i].green;
+      crtc_state->gamma.value->blue[i] = drm_lut[i].blue;
+    }
+
+  drmModeFreePropertyBlob (blob);
+}
+
+static void
+read_crtc_legacy_gamma (MetaKmsCrtc       *crtc,
+                        MetaKmsCrtcState  *crtc_state,
+                        MetaKmsImplDevice *impl_device,
+                        drmModeCrtc       *drm_crtc)
+{
   crtc_state->gamma.size = drm_crtc->gamma_size;
   crtc_state->gamma.supported = drm_crtc->gamma_size != 0;
   crtc_state->gamma.value = meta_gamma_lut_new (drm_crtc->gamma_size,
@@ -124,6 +182,23 @@ read_gamma_state (MetaKmsCrtc       *crtc,
                        crtc_state->gamma.value->red,
                        crtc_state->gamma.value->green,
                        crtc_state->gamma.value->blue);
+}
+
+static void
+read_gamma_state (MetaKmsCrtc       *crtc,
+                  MetaKmsCrtcState  *crtc_state,
+                  MetaKmsImplDevice *impl_device,
+                  drmModeCrtc       *drm_crtc)
+{
+  g_assert_null (crtc_state->gamma.value);
+
+  crtc_state->gamma.size = 0;
+  crtc_state->gamma.supported = FALSE;
+
+  if (META_IS_KMS_IMPL_DEVICE_ATOMIC (impl_device))
+    read_crtc_gamma (crtc, crtc_state, impl_device, drm_crtc);
+  else if (META_IS_KMS_IMPL_DEVICE_SIMPLE (impl_device))
+    read_crtc_legacy_gamma (crtc, crtc_state, impl_device, drm_crtc);
 }
 
 static gboolean
@@ -348,6 +423,11 @@ init_properties (MetaKmsCrtc       *crtc,
         {
           .name = "GAMMA_LUT",
           .type = DRM_MODE_PROP_BLOB,
+        },
+      [META_KMS_CRTC_PROP_GAMMA_LUT_SIZE] =
+        {
+          .name = "GAMMA_LUT_SIZE",
+          .type = DRM_MODE_PROP_RANGE,
         },
     }
   };

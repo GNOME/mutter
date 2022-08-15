@@ -99,6 +99,8 @@ MetaGammaLut * meta_gamma_lut_new (int             size,
                                    const uint16_t *green,
                                    const uint16_t *blue);
 
+MetaGammaLut * meta_gamma_lut_new_sized (int size);
+
 META_EXPORT_TEST
 MetaGammaLut * meta_gamma_lut_copy (const MetaGammaLut *gamma);
 
