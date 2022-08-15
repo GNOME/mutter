@@ -72,6 +72,7 @@ enum
   PROP_BACKEND,
   PROP_PANEL_ORIENTATION_MANAGED,
   PROP_HAS_BUILTIN_PANEL,
+  PROP_NIGHT_LIGHT_SUPPORTED,
 
   PROP_LAST
 };
@@ -112,6 +113,7 @@ typedef struct _MetaMonitorManagerPrivate
   gboolean shutting_down;
 
   gboolean has_builtin_panel;
+  gboolean night_light_supported;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -1177,10 +1179,14 @@ meta_monitor_manager_get_crtc_gamma (MetaMonitorManager  *manager,
     }
 }
 
-static gboolean
-is_night_light_supported (MetaMonitorManager *manager)
+static void
+update_night_light_supported (MetaMonitorManager *manager)
 {
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
   GList *l;
+
+  gboolean night_light_supported = FALSE;
 
   for (l = meta_backend_get_gpus (manager->backend); l; l = l->next)
     {
@@ -1196,11 +1202,19 @@ is_night_light_supported (MetaMonitorManager *manager)
                                                &gamma_lut_size,
                                                NULL, NULL, NULL);
           if (gamma_lut_size > 0)
-            return TRUE;
+            {
+              night_light_supported = TRUE;
+              break;
+            }
         }
     }
 
-  return FALSE;
+  if (priv->night_light_supported == night_light_supported)
+    return;
+
+  priv->night_light_supported = night_light_supported;
+  g_object_notify_by_pspec (G_OBJECT (manager),
+                            obj_props[PROP_NIGHT_LIGHT_SUPPORTED]);
 }
 
 void
@@ -1208,7 +1222,8 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
 {
   MetaMonitorConfigStore *config_store;
   const MetaMonitorConfigPolicy *policy;
-  gboolean night_light_supported;
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
 
   manager->in_init = TRUE;
 
@@ -1219,9 +1234,8 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
   meta_dbus_display_config_set_apply_monitors_config_allowed (manager->display_config,
                                                               policy->enable_dbus);
 
-  night_light_supported = is_night_light_supported (manager);
   meta_dbus_display_config_set_night_light_supported (manager->display_config,
-                                                      night_light_supported);
+                                                      priv->night_light_supported);
 
   meta_monitor_manager_read_current_state (manager);
 
@@ -1337,6 +1351,7 @@ meta_monitor_manager_set_property (GObject      *object,
       break;
     case PROP_PANEL_ORIENTATION_MANAGED:
     case PROP_HAS_BUILTIN_PANEL:
+    case PROP_NIGHT_LIGHT_SUPPORTED:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -1362,6 +1377,9 @@ meta_monitor_manager_get_property (GObject    *object,
       break;
     case PROP_HAS_BUILTIN_PANEL:
       g_value_set_boolean (value, priv->has_builtin_panel);
+      break;
+    case PROP_NIGHT_LIGHT_SUPPORTED:
+      g_value_set_boolean (value, priv->night_light_supported);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1451,6 +1469,15 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
     g_param_spec_boolean ("has-builtin-panel",
                           "Has builtin panel",
                           "The system has a built in panel",
+                          FALSE,
+                          G_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY |
+                          G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_NIGHT_LIGHT_SUPPORTED] =
+    g_param_spec_boolean ("night-light-supported",
+                          "Night light supported",
+                          "Night light is supported",
                           FALSE,
                           G_PARAM_READABLE |
                           G_PARAM_EXPLICIT_NOTIFY |
@@ -3443,6 +3470,7 @@ rebuild_monitors (MetaMonitorManager *manager)
 
   update_panel_orientation_managed (manager);
   update_has_builtin_panel (manager);
+  update_night_light_supported (manager);
 }
 
 void
