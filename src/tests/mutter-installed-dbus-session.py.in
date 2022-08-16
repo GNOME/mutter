@@ -2,6 +2,8 @@
 
 import sys
 
+sys.path.insert(1, '@tests_datadir@')
+
 from mutter_dbusrunner import MutterDBusRunner, meta_run
 
 if __name__ == '__main__':

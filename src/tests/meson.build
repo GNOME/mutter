@@ -68,6 +68,7 @@ pkg.generate(libmutter_test,
   version: meson.project_version(),
   variables: [
     'apiversion=' + libmutter_api_version,
+    'tests_datadir=${prefix}/share/mutter-' + libmutter_api_version + '/tests',
   ],
   install_dir: pcdir,
 )
@@ -148,11 +149,22 @@ test_runner = executable('mutter-test-runner',
 
 meta_dbus_runner = find_program('meta-dbus-runner.py')
 
+tests_datadir = join_paths(pkgdatadir, 'tests')
+
+install_data('mutter_dbusrunner.py',
+  install_dir: tests_datadir,
+)
+install_subdir('dbusmock-templates',
+  install_dir: tests_datadir,
+)
+
 if have_installed_tests
-  install_data('meta-dbus-runner.py',
-    install_dir: mutter_installed_tests_libexecdir,
-  )
-  install_subdir('dbusmock-templates',
+  configure_file(
+    input: 'mutter-installed-dbus-session.py.in',
+    output: 'mutter-installed-dbus-session.py',
+    configuration: {'tests_datadir': tests_datadir},
+    install: true,
+    install_mode: 'rwxr-xr-x',
     install_dir: mutter_installed_tests_libexecdir,
   )
 endif
