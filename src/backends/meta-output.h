@@ -38,7 +38,7 @@ struct _MetaTileInfo
   guint32 tile_h;
 };
 
-/* This matches the values in drm_mode.h */
+/* These 21 match the values in drm_mode.h  */
 typedef enum
 {
   META_CONNECTOR_TYPE_Unknown = 0,
@@ -58,6 +58,11 @@ typedef enum
   META_CONNECTOR_TYPE_eDP = 14,
   META_CONNECTOR_TYPE_VIRTUAL = 15,
   META_CONNECTOR_TYPE_DSI = 16,
+  META_CONNECTOR_TYPE_DPI = 17,
+  META_CONNECTOR_TYPE_WRITEBACK = 18,
+  META_CONNECTOR_TYPE_SPI = 19,
+  META_CONNECTOR_TYPE_USB = 20,
+
 } MetaConnectorType;
 
 typedef struct _MetaOutputInfo
