@@ -1457,6 +1457,10 @@ get_connector_type_name (MetaConnectorType connector_type)
     case META_CONNECTOR_TYPE_eDP: return "eDP";
     case META_CONNECTOR_TYPE_VIRTUAL: return "VIRTUAL";
     case META_CONNECTOR_TYPE_DSI: return "DSI";
+    case META_CONNECTOR_TYPE_DPI: return "DPI";
+    case META_CONNECTOR_TYPE_WRITEBACK: return "WRITEBACK";
+    case META_CONNECTOR_TYPE_SPI: return "SPI";
+    case META_CONNECTOR_TYPE_USB: return "USB";
     default: g_assert_not_reached ();
     }
   return NULL;
