@@ -32,6 +32,7 @@ typedef struct _MetaCrtcModeVirtual MetaCrtcModeVirtual;
 typedef struct _MetaDevicePool MetaDevicePool;
 typedef struct _MetaDeviceFile MetaDeviceFile;
 typedef struct _MetaDrmBuffer MetaDrmBuffer;
+typedef struct _MetaRenderDevice MetaRenderDevice;
 
 typedef enum _MetaSeatNativeFlag
 {

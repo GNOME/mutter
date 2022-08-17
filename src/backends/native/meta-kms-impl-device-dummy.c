@@ -55,31 +55,8 @@ meta_kms_impl_device_dummy_open_device_file (MetaKmsImplDevice  *impl_device,
   MetaBackend *backend = meta_kms_get_backend (kms);
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (META_BACKEND_NATIVE (backend));
-  g_autoptr (MetaDeviceFile) device_file = NULL;
-  int fd;
-  g_autofree char *render_node_path = NULL;
 
-  device_file = meta_device_pool_open (device_pool, path,
-                                       META_DEVICE_FILE_FLAG_NONE,
-                                       error);
-  if (!device_file)
-    return NULL;
-
-  fd = meta_device_file_get_fd (device_file);
-  render_node_path = drmGetRenderDeviceNameFromFd (fd);
-  if (!render_node_path)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Couldn't find render node device for '%s' (%s)",
-                   meta_kms_impl_device_get_path (impl_device),
-                   meta_kms_impl_device_get_driver_name (impl_device));
-      return NULL;
-    }
-
-  meta_topic (META_DEBUG_KMS, "Found render node '%s' from '%s'",
-              render_node_path, path);
-
-  return meta_device_pool_open (device_pool, render_node_path,
+  return meta_device_pool_open (device_pool, path,
                                 META_DEVICE_FILE_FLAG_NONE,
                                 error);
 }
