@@ -113,7 +113,7 @@ class MonitorConfig:
                 self.print_data(level=3, is_last=False, lines=lines,
                                 data=f'Dimension: {mode[1]}x{mode[2]}')
                 self.print_data(level=3, is_last=False, lines=lines,
-                                data=f'Refresh rate: {mode[3]}')
+                                data=f'Refresh rate: {mode[3]:.3f}')
                 self.print_data(level=3, is_last=False, lines=lines,
                                 data=f'Preferred scale: {mode[4]}')
                 self.print_data(level=3, is_last=False, lines=lines,
