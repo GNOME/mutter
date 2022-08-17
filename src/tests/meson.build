@@ -119,6 +119,7 @@ test_client = executable('mutter-test-client',
   ],
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
+  install_rpath: pkglibdir,
 )
 
 test_runner = executable('mutter-test-runner',
@@ -133,6 +134,7 @@ test_runner = executable('mutter-test-runner',
   dependencies: libmutter_test_dep,
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
+  install_rpath: pkglibdir,
 )
 
 meta_dbus_runner = find_program('meta-dbus-runner.py')
@@ -221,6 +223,7 @@ if have_native_tests
     ],
     install: have_installed_tests,
     install_dir: mutter_installed_tests_libexecdir,
+    install_rpath: pkglibdir,
   )
 
   # Native backend tests
@@ -315,6 +318,7 @@ if have_native_tests
       dependencies: libmutter_test_dep,
       install: have_installed_tests,
       install_dir: mutter_installed_tests_libexecdir,
+      install_rpath: pkglibdir,
     )
 
     test(test_case['name'], test_executable,
@@ -382,6 +386,7 @@ if have_kvm_tests or have_tty_tests
       dependencies: libmutter_test_dep,
       install: have_installed_tests,
       install_dir: mutter_installed_tests_libexecdir,
+      install_rpath: pkglibdir,
     )
     privileged_tests += [
       {
