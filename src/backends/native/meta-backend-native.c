@@ -604,6 +604,11 @@ add_drm_device (MetaBackendNative  *backend_native,
   if (!render_device)
     return FALSE;
 
+#ifdef HAVE_EGL_DEVICE
+  if (META_IS_RENDER_DEVICE_EGL_STREAM (render_device))
+    flags |= META_KMS_DEVICE_FLAG_FORCE_LEGACY;
+#endif
+
   kms_device = meta_kms_create_device (backend_native->kms, device_path, flags,
                                        error);
   if (!kms_device)

@@ -1214,7 +1214,6 @@ is_atomic_allowed (const char *driver_name)
     "qxl",
     "vmwgfx",
     "vboxvideo",
-    "nvidia-drm",
     "virtio_gpu",
     "xlnx",
     NULL,
