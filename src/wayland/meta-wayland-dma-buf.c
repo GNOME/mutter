@@ -166,6 +166,9 @@ should_send_modifiers (MetaBackend *backend)
 
   renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
+  if (!gpu_kms)
+    return TRUE;
+
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
 
   flags = meta_kms_device_get_flags (kms_device);
