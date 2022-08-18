@@ -525,8 +525,20 @@ on_udev_device_added (MetaUdev          *udev,
   new_gpu_kms = create_gpu_from_udev_device (native, device, &error);
   if (!new_gpu_kms)
     {
-      g_warning ("Failed to hotplug secondary gpu '%s': %s",
-                 device_path, error->message);
+      if (meta_backend_is_headless (backend) &&
+          g_error_matches (error, G_IO_ERROR,
+                           G_IO_ERROR_PERMISSION_DENIED))
+        {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Ignoring unavailable secondary gpu '%s': %s",
+                      device_path, error->message);
+        }
+      else
+        {
+          g_warning ("Failed to hotplug secondary gpu '%s': %s",
+                     device_path, error->message);
+        }
+
       return;
     }
 
@@ -563,9 +575,22 @@ init_gpus (MetaBackendNative  *native,
 
       if (!gpu_kms)
         {
-          g_warning ("Failed to open gpu '%s': %s",
-                     g_udev_device_get_device_file (device),
-                     local_error->message);
+          if (meta_backend_is_headless (backend) &&
+              g_error_matches (local_error, G_IO_ERROR,
+                               G_IO_ERROR_PERMISSION_DENIED))
+            {
+              meta_topic (META_DEBUG_BACKEND,
+                          "Ignoring unavailable gpu '%s': %s'",
+                          g_udev_device_get_device_file (device),
+                          local_error->message);
+            }
+          else
+            {
+              g_warning ("Failed to open gpu '%s': %s",
+                         g_udev_device_get_device_file (device),
+                         local_error->message);
+            }
+
           g_clear_error (&local_error);
           continue;
         }
