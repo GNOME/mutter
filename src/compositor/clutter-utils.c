@@ -25,6 +25,9 @@
 
 #include <math.h>
 
+#define FIXED_SHIFT 8
+#define FIXED_ONE (1 << FIXED_SHIFT)
+
 /* This file uses pixel-aligned region computation to determine what
  * can be clipped out. This only really works if everything is aligned
  * to the pixel grid - not scaled or rotated and at integer offsets.
@@ -46,12 +49,12 @@
  */
 
 /* The definition of "close enough" to integral pixel values is
- * equality when we convert to 24.8 fixed-point.
+ * equality when we convert to fixed-point.
  */
 static inline int
 round_to_fixed (float x)
 {
-  return roundf (x * 256);
+  return roundf (x * FIXED_ONE);
 }
 
 /* Help macros to scale from OpenGL <-1,1> coordinates system to
@@ -84,10 +87,10 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
   v3x = round_to_fixed (verts[3].x); v3y = round_to_fixed (verts[3].y);
 
   /* Using shifting for converting fixed => int, gets things right for
-   * negative values. / 256. wouldn't do the same
+   * negative values. / FIXED_ONE wouldn't do the same
    */
-  x = v0x >> 8;
-  y = v0y >> 8;
+  x = v0x >> FIXED_SHIFT;
+  y = v0y >> FIXED_SHIFT;
 
   if (out_transforms)
     {
@@ -98,7 +101,7 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
     }
 
   /* At integral coordinates? */
-  if (x * 256 != v0x || y * 256 != v0y)
+  if (x * FIXED_ONE != v0x || y * FIXED_ONE != v0y)
     return FALSE;
 
   /* Not scaled? */
