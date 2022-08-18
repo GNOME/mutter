@@ -278,6 +278,45 @@ compare_modes (const void *one,
 }
 
 static gboolean
+are_all_modes_equally_sized (MetaOutputInfo *output_info)
+{
+  const MetaCrtcModeInfo *base =
+    meta_crtc_mode_get_info (output_info->modes[0]);
+  int i;
+
+  for (i = 1; i < output_info->n_modes; i++)
+    {
+      const MetaCrtcModeInfo *mode_info =
+        meta_crtc_mode_get_info (output_info->modes[i]);
+
+      if (base->width != mode_info->width ||
+          base->height != mode_info->height)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static void
+maybe_add_fallback_modes (const MetaKmsConnectorState *connector_state,
+                          MetaOutputInfo              *output_info,
+                          MetaGpuKms                  *gpu_kms,
+                          MetaKmsConnector            *kms_connector)
+{
+  if (!connector_state->has_scaling)
+    return;
+
+  if (output_info->connector_type == DRM_MODE_CONNECTOR_eDP &&
+      !are_all_modes_equally_sized (output_info))
+    return;
+
+  meta_topic (META_DEBUG_KMS, "Adding common modes to connector %u on %s",
+              meta_kms_connector_get_id (kms_connector),
+              meta_gpu_kms_get_file_path (gpu_kms));
+  add_common_modes (output_info, gpu_kms);
+}
+
+static gboolean
 init_output_modes (MetaOutputInfo    *output_info,
                    MetaGpuKms        *gpu_kms,
                    MetaKmsConnector  *kms_connector,
@@ -305,14 +344,7 @@ init_output_modes (MetaOutputInfo    *output_info,
         output_info->preferred_mode = output_info->modes[i];
     }
 
-  if (connector_state->has_scaling)
-    {
-      meta_topic (META_DEBUG_KMS, "Adding common modes to connector %u on %s",
-                  meta_kms_connector_get_id (kms_connector),
-                  meta_gpu_kms_get_file_path (gpu_kms));
-      add_common_modes (output_info, gpu_kms);
-    }
-
+  maybe_add_fallback_modes (connector_state, output_info, gpu_kms, kms_connector);
   if (!output_info->modes)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -375,6 +407,10 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
       output_info->height_mm = connector_state->height_mm;
     }
 
+  drm_connector_type = meta_kms_connector_get_connector_type (kms_connector);
+  output_info->connector_type =
+    meta_kms_connector_type_from_drm (drm_connector_type);
+
   if (!init_output_modes (output_info, gpu_kms, kms_connector, error))
     return NULL;
 
@@ -401,10 +437,6 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
     meta_kms_connector_is_underscanning_supported (kms_connector);
 
   meta_output_info_parse_edid (output_info, connector_state->edid_data);
-
-  drm_connector_type = meta_kms_connector_get_connector_type (kms_connector);
-  output_info->connector_type =
-    meta_kms_connector_type_from_drm (drm_connector_type);
 
   output_info->tile_info = connector_state->tile_info;
 
