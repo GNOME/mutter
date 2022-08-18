@@ -810,16 +810,18 @@ meta_backend_constructed (GObject *object)
     }
 #endif
 
-  if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
-    return;
+  if (backend_class->is_lid_closed == meta_backend_real_is_lid_closed)
+    {
+      priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
+                                                "org.freedesktop.UPower",
+                                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                                upower_appeared,
+                                                upower_vanished,
+                                                backend,
+                                                NULL);
+    }
 
-  priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
-                                            "org.freedesktop.UPower",
-                                            G_BUS_NAME_WATCHER_FLAGS_NONE,
-                                            upower_appeared,
-                                            upower_vanished,
-                                            backend,
-                                            NULL);
+  G_OBJECT_CLASS (meta_backend_parent_class)->constructed (object);
 }
 
 static void
