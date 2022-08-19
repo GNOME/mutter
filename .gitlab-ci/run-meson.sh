@@ -5,4 +5,4 @@ set -e
 wireplumber &
 sleep 1
 
-catchsegv meson "$@"
+meson "$@"

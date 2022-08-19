@@ -18,7 +18,7 @@ variables:
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 36
-    BASE_TAG: '2022-08-18.0'
+    BASE_TAG: '2022-08-18.1'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -68,11 +68,9 @@ variables:
         https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
         1.26 . &&
 
-      git clone https://github.com/zatrazz/glibc-tools.git &&
-      cd glibc-tools &&
-      ./configure && make && make install &&
-      cd .. &&
-      rm -rf glibc-tools &&
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/jadahl/catch.git \
+        main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66 &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
@@ -242,6 +240,7 @@ check-code-style:
     BASE_MESON_OPTIONS:
       -Degl_device=true
       -Dwayland_eglstream=true
+      -Dcatch=true
 
 .build-mutter:
   extends:
@@ -379,6 +378,8 @@ test-mutter@x86_64:
   extends:
     - .test-mutter
     - .mutter.fedora@x86_64
+  tags:
+    - asan
   needs:
     - build-mutter@x86_64
 
@@ -404,6 +405,8 @@ test-mutter@aarch64:
   extends:
     - .test-mutter
     - .mutter.fedora@aarch64
+  tags:
+    - asan-aarch64
   needs:
     - build-mutter@aarch64
 
