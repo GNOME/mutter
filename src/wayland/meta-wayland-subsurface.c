@@ -342,6 +342,7 @@ subsurface_handle_pending_subsurface_destroyed (struct wl_listener *listener,
     wl_container_of (listener, op, subsurface_destroy_listener);
 
   op->surface = NULL;
+  wl_list_remove (&op->subsurface_destroy_listener.link);
 }
 
 static void
@@ -352,6 +353,7 @@ subsurface_handle_pending_sibling_destroyed (struct wl_listener *listener,
     wl_container_of (listener, op, sibling_destroy_listener);
 
   op->sibling = NULL;
+  wl_list_remove (&op->sibling_destroy_listener.link);
 }
 
 void
@@ -487,6 +489,7 @@ surface_handle_parent_surface_destroyed (struct wl_listener *listener,
 
   g_node_unlink (surface->subsurface_branch_node);
   surface->sub.parent = NULL;
+  wl_list_remove (&surface->sub.parent_destroy_listener.link);
 }
 
 static gboolean
