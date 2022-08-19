@@ -83,12 +83,13 @@ G_DEFINE_TYPE (MetaWaylandBuffer, meta_wayland_buffer, G_TYPE_OBJECT);
 
 static void
 meta_wayland_buffer_destroy_handler (struct wl_listener *listener,
-                                     void *data)
+                                     void               *data)
 {
   MetaWaylandBuffer *buffer =
     wl_container_of (listener, buffer, destroy_listener);
 
   buffer->resource = NULL;
+  wl_list_remove (&buffer->destroy_listener.link);
   g_signal_emit (buffer, signals[RESOURCE_DESTROYED], 0);
   g_object_unref (buffer);
 }
