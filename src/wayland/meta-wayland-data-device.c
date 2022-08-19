@@ -173,11 +173,13 @@ unset_selection_source (MetaWaylandDataDevice *data_device,
 }
 
 static void
-destroy_drag_focus (struct wl_listener *listener, void *data)
+destroy_drag_focus (struct wl_listener *listener,
+                    void               *data)
 {
   MetaWaylandDragGrab *grab = wl_container_of (listener, grab, drag_focus_listener);
 
   grab->drag_focus_data_device = NULL;
+  wl_list_remove (&grab->drag_focus_listener.link);
 
   g_clear_signal_handler (&grab->drag_focus_destroy_handler_id,
                           grab->drag_focus);
@@ -560,12 +562,14 @@ drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was)
 }
 
 static void
-destroy_data_device_icon (struct wl_listener *listener, void *data)
+destroy_data_device_icon (struct wl_listener *listener,
+                          void               *data)
 {
   MetaWaylandDragGrab *drag_grab =
     wl_container_of (listener, drag_grab, drag_icon_listener);
 
   drag_grab->drag_surface = NULL;
+  wl_list_remove (&drag_grab->drag_icon_listener.link);
 
   if (drag_grab->feedback_actor)
     clutter_actor_remove_all_children (drag_grab->feedback_actor);
