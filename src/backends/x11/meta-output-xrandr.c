@@ -470,6 +470,8 @@ output_get_max_bpc_range_xrandr (Display      *xdisplay,
   if (max)
     *max = values[1];
 
+  XFree (property_info);
+
   return TRUE;
 }
 
