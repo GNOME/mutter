@@ -4003,30 +4003,56 @@ meta_window_move_frame (MetaWindow *window,
 }
 
 static void
-meta_window_move_between_rects (MetaWindow  *window,
+meta_window_move_between_rects (MetaWindow          *window,
                                 MetaMoveResizeFlags  move_resize_flags,
                                 const MetaRectangle *old_area,
                                 const MetaRectangle *new_area)
 {
-  int rel_x, rel_y;
-  double scale_x, scale_y;
+  double rel_x, rel_y;
+  int new_x, new_y;
 
-  if (old_area)
+  if (!old_area)
     {
-      rel_x = window->unconstrained_rect.x - old_area->x;
-      rel_y = window->unconstrained_rect.y - old_area->y;
-      scale_x = (double)new_area->width / old_area->width;
-      scale_y = (double)new_area->height / old_area->height;
+      new_x = new_area->x;
+      new_y = new_area->y;
+    }
+  else if (meta_rectangle_contains_rect (old_area, &window->unconstrained_rect) &&
+           old_area->width > window->unconstrained_rect.width &&
+           old_area->height > window->unconstrained_rect.height &&
+           new_area->width >= window->unconstrained_rect.width &&
+           new_area->height >= window->unconstrained_rect.height)
+    {
+      rel_x = (double)(window->unconstrained_rect.x - old_area->x) /
+              (old_area->width - window->unconstrained_rect.width);
+      rel_y = (double)(window->unconstrained_rect.y - old_area->y) /
+              (old_area->height - window->unconstrained_rect.height);
+
+      g_warn_if_fail (rel_x >= 0.0 && rel_x <= 1.0 &&
+                      rel_y >= 0.0 && rel_y <= 1.0);
+
+      new_x = new_area->x +
+              rel_x * (new_area->width - window->unconstrained_rect.width);
+      new_y = new_area->y +
+              rel_y * (new_area->height - window->unconstrained_rect.height);
     }
   else
     {
-      rel_x = rel_y = scale_x = scale_y = 0;
+      rel_x = (float)(window->unconstrained_rect.x - old_area->x +
+                      (window->unconstrained_rect.width / 2)) / old_area->width;
+      rel_y = (float)(window->unconstrained_rect.y - old_area->y +
+                      (window->unconstrained_rect.height / 2)) / old_area->height;
+
+      rel_x = CLAMP (rel_x, FLT_EPSILON, 1.0 - FLT_EPSILON);
+      rel_y = CLAMP (rel_y, FLT_EPSILON, 1.0 - FLT_EPSILON);
+
+      new_x = new_area->x - (window->unconstrained_rect.width / 2) +
+              (rel_x * new_area->width);
+      new_y = new_area->y - (window->unconstrained_rect.height / 2) +
+              (rel_y * new_area->height);
     }
 
-  window->unconstrained_rect.x = new_area->x + rel_x * scale_x;
-  window->unconstrained_rect.y = new_area->y + rel_y * scale_y;
-  window->saved_rect.x = window->unconstrained_rect.x;
-  window->saved_rect.y = window->unconstrained_rect.y;
+  window->unconstrained_rect.x = new_x;
+  window->unconstrained_rect.y = new_y;
 
   meta_window_move_resize_internal (window,
                                     (move_resize_flags |

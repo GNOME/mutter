@@ -3268,8 +3268,9 @@ meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
  * @manager: A #MetaMonitorManager object
  * @rect: The rectangle
  *
- * Finds the #MetaLogicalMonitor which has the largest area in common with the
- * given @rect in the total layout.
+ * Finds the #MetaLogicalMonitor which contains the center of the given @rect
+ * or which has the largest area in common with the given @rect in the total
+ * layout if the center is not on a monitor.
  *
  * Returns: (transfer none) (nullable): The #MetaLogicalMonitor which
  *          corresponds the most to the given @rect, or %NULL if none.
@@ -3281,6 +3282,8 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
   MetaLogicalMonitor *best_logical_monitor;
   int best_logical_monitor_area;
   GList *l;
+  int center_x = rect->x + (rect->width / 2);
+  int center_y = rect->y + (rect->height / 2);
 
   best_logical_monitor = NULL;
   best_logical_monitor_area = 0;
@@ -3290,6 +3293,9 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
       MetaLogicalMonitor *logical_monitor = l->data;
       MetaRectangle intersection;
       int intersection_area;
+
+      if (META_POINT_IN_RECT (center_x, center_y, logical_monitor->rect))
+        return logical_monitor;
 
       if (!meta_rectangle_intersect (&logical_monitor->rect,
                                      rect,
@@ -3304,10 +3310,6 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
           best_logical_monitor_area = intersection_area;
         }
     }
-
-  if (!best_logical_monitor && (rect->width == 0 || rect->height == 0))
-    best_logical_monitor =
-      meta_monitor_manager_get_logical_monitor_at (manager, rect->x, rect->y);
 
   if (!best_logical_monitor)
     best_logical_monitor = manager->primary_logical_monitor;
