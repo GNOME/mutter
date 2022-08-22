@@ -633,17 +633,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   COGL_TRACE_BEGIN_SCOPED (MetaStageImplRedrawViewSwapFramebuffer,
                            "Paint (swap framebuffer)");
 
-  if (clutter_stage_view_get_onscreen (stage_view) !=
-      clutter_stage_view_get_framebuffer (stage_view))
-    {
-      cairo_region_t *transformed_swap_region;
-
-      transformed_swap_region =
-        transform_swap_region_to_onscreen (stage_view, swap_region);
-      cairo_region_destroy (swap_region);
-      swap_region = transformed_swap_region;
-    }
-
   if (queued_redraw_clip)
     {
       cairo_region_t *swap_region_in_stage_space;
@@ -661,6 +650,17 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
       cairo_region_destroy (queued_redraw_clip);
       cairo_region_destroy (swap_region_in_stage_space);
+    }
+
+  if (clutter_stage_view_get_onscreen (stage_view) !=
+      clutter_stage_view_get_framebuffer (stage_view))
+    {
+      cairo_region_t *transformed_swap_region;
+
+      transformed_swap_region =
+        transform_swap_region_to_onscreen (stage_view, swap_region);
+      cairo_region_destroy (swap_region);
+      swap_region = transformed_swap_region;
     }
 
   swap_framebuffer (stage_window,
