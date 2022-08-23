@@ -47,6 +47,7 @@ struct _MetaXdgActivationToken
   MetaWaylandSeat *seat;
   MetaWaylandActivation *activation;
   MetaStartupSequence *sequence;
+  struct wl_listener surface_listener;
   char *app_id;
   char *token;
   uint32_t serial;
@@ -94,6 +95,8 @@ token_set_surface (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
 
   token->surface = surface;
+  wl_resource_add_destroy_listener (surface_resource,
+                                    &token->surface_listener);
 }
 
 static void
@@ -217,6 +220,17 @@ meta_xdg_activation_token_free (MetaXdgActivationToken *token)
 }
 
 static void
+token_handle_surface_destroy (struct wl_listener *listener,
+                              void               *data)
+{
+  MetaXdgActivationToken *token = wl_container_of (listener, token,
+                                                   surface_listener);
+
+  token->surface = NULL;
+  wl_list_remove (&token->surface_listener.link);
+}
+
+static void
 meta_wayland_activation_token_create_new_resource (MetaWaylandActivation *activation,
                                                    struct wl_client      *client,
                                                    struct wl_resource    *activation_resource,
@@ -237,6 +251,7 @@ meta_wayland_activation_token_create_new_resource (MetaWaylandActivation *activa
   wl_resource_set_user_data (token_resource, token);
   wl_list_insert (&activation->token_list,
                   wl_resource_get_link (token_resource));
+  token->surface_listener.notify = token_handle_surface_destroy;
 }
 
 static void
