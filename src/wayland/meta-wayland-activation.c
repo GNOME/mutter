@@ -214,6 +214,9 @@ meta_xdg_activation_token_free (MetaXdgActivationToken *token)
       g_clear_object (&token->sequence);
     }
 
+  if (token->surface)
+    wl_list_remove (&token->surface_listener.link);
+
   g_free (token->app_id);
   g_free (token->token);
   g_free (token);
