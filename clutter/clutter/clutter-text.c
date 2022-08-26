@@ -186,8 +186,6 @@ struct _ClutterTextPrivate
   ClutterInputContentHintFlags input_hints;
   ClutterInputContentPurpose input_purpose;
 
-  ClutterGrab *grab;
-
   float last_click_x;
   float last_click_y;
   uint32_t last_click_time_ms;
@@ -2191,7 +2189,6 @@ clutter_text_press (ClutterActor *actor,
   ClutterText *self = CLUTTER_TEXT (actor);
   ClutterTextPrivate *priv = self->priv;
   ClutterEventType type = clutter_event_type (event);
-  ClutterActor *stage;
   gboolean res = FALSE;
   gfloat x, y;
   gint index_;
@@ -2273,9 +2270,6 @@ clutter_text_press (ClutterActor *actor,
   /* grab the pointer */
   priv->in_select_drag = TRUE;
 
-  stage = clutter_actor_get_stage (actor);
-  priv->grab = clutter_stage_grab (CLUTTER_STAGE (stage), actor);
-
   if (type != CLUTTER_BUTTON_PRESS)
     priv->in_select_touch = TRUE;
 
@@ -2324,12 +2318,6 @@ clutter_text_release (ClutterActor *actor,
 
   if (priv->in_select_drag)
     {
-      if (priv->grab)
-        {
-          clutter_grab_dismiss (priv->grab);
-          g_clear_pointer (&priv->grab, clutter_grab_unref);
-        }
-
       if (type == CLUTTER_BUTTON_RELEASE)
         {
           if (!priv->in_select_touch)
