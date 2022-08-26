@@ -80,42 +80,8 @@ meta_renderer_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
   MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
 
   graphene_matrix_init_identity (matrix);
-
-  switch (renderer_view->transform)
-    {
-    case META_MONITOR_TRANSFORM_NORMAL:
-      break;
-    case META_MONITOR_TRANSFORM_90:
-      graphene_matrix_translate (matrix, &GRAPHENE_POINT3D_INIT (0, -1, 0));
-      graphene_matrix_rotate (matrix, 90, graphene_vec3_z_axis ());
-      break;
-    case META_MONITOR_TRANSFORM_180:
-      graphene_matrix_translate (matrix, &GRAPHENE_POINT3D_INIT (-1, -1, 0));
-      graphene_matrix_rotate (matrix, 180, graphene_vec3_z_axis ());
-      break;
-    case META_MONITOR_TRANSFORM_270:
-      graphene_matrix_translate (matrix, &GRAPHENE_POINT3D_INIT (-1, 0, 0));
-      graphene_matrix_rotate (matrix, 270, graphene_vec3_z_axis ());
-      break;
-    case META_MONITOR_TRANSFORM_FLIPPED:
-      graphene_matrix_translate (matrix, &GRAPHENE_POINT3D_INIT (-1, 0, 0));
-      graphene_matrix_scale (matrix, -1, 1, 1);
-      break;
-    case META_MONITOR_TRANSFORM_FLIPPED_90:
-      graphene_matrix_rotate (matrix, 90, graphene_vec3_z_axis ());
-      graphene_matrix_scale (matrix, -1, 1, 1);
-      break;
-    case META_MONITOR_TRANSFORM_FLIPPED_180:
-      graphene_matrix_translate (matrix, &GRAPHENE_POINT3D_INIT (0, -1, 0));
-      graphene_matrix_rotate (matrix, 180, graphene_vec3_z_axis ());
-      graphene_matrix_scale (matrix, -1, 1, 1);
-      break;
-    case META_MONITOR_TRANSFORM_FLIPPED_270:
-      graphene_matrix_translate (matrix, &GRAPHENE_POINT3D_INIT (-1, -1, 0));
-      graphene_matrix_rotate (matrix, 270, graphene_vec3_z_axis ());
-      graphene_matrix_scale (matrix, -1, 1, 1);
-      break;
-    }
+  meta_monitor_transform_transform_matrix (
+    meta_monitor_transform_invert (renderer_view->transform), matrix);
 }
 
 static void
