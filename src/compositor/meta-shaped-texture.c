@@ -635,9 +635,6 @@ do_paint_content (MetaShapedTexture   *stex,
     {
       min_filter = COGL_PIPELINE_FILTER_NEAREST;
       mag_filter = COGL_PIPELINE_FILTER_NEAREST;
-
-      /* Back to normal desktop viewing. Save some memory */
-      meta_texture_mipmap_clear (stex->texture_mipmap);
     }
   else
     {
