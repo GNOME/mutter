@@ -612,6 +612,8 @@ typedef struct
   char *file_path;
   GBytes *bytes;
   CdIcc *cd_icc;
+
+  MetaColorCalibration *color_calibration;
 } GenerateProfileData;
 
 static void
@@ -620,6 +622,7 @@ generate_profile_data_free (GenerateProfileData *data)
   g_free (data->file_path);
   g_clear_object (&data->cd_icc);
   g_clear_pointer (&data->bytes, g_bytes_unref);
+  g_clear_pointer (&data->color_calibration, meta_color_calibration_free);
   g_free (data);
 }
 
@@ -655,7 +658,8 @@ on_profile_written (GObject      *source_object,
   color_profile =
     meta_color_profile_new_from_icc (color_manager,
                                      g_steal_pointer (&data->cd_icc),
-                                     g_steal_pointer (&data->bytes));
+                                     g_steal_pointer (&data->bytes),
+                                     g_steal_pointer (&data->color_calibration));
   g_task_return_pointer (task, color_profile, g_object_unref);
 }
 
@@ -939,6 +943,8 @@ create_device_profile_from_edid (MetaColorDevice *color_device,
       cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
                            file_md5_checksum);
 
+      data->color_calibration =
+        meta_color_calibration_new (cd_icc, NULL);
       data->cd_icc = g_steal_pointer (&cd_icc);
       data->bytes = bytes;
       save_icc_profile (file_path, task);
@@ -949,6 +955,16 @@ create_device_profile_from_edid (MetaColorDevice *color_device,
                                "No EDID available");
       g_object_unref (task);
     }
+}
+
+static void
+set_icc_checksum (CdIcc  *cd_icc,
+                  GBytes *bytes)
+{
+  g_autofree char *md5_checksum = NULL;
+
+  md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
+  cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM, md5_checksum);
 }
 
 static void
@@ -970,37 +986,75 @@ on_efi_panel_color_info_loaded (GObject      *source_object,
                                    NULL,
                                    &error))
     {
-      g_autoptr (CdIcc) cd_icc = NULL;
+      g_autoptr (CdIcc) calibration_cd_icc = NULL;
+      g_autoptr (CdIcc) srgb_cd_icc = NULL;
 
       meta_topic (META_DEBUG_COLOR,
                   "Generating ICC profile for '%s' from EFI variable",
                   meta_color_device_get_id (color_device));
 
-      cd_icc = cd_icc_new ();
-      if (cd_icc_load_data (cd_icc,
+      srgb_cd_icc = cd_icc_new ();
+      if (!cd_icc_create_default_full (srgb_cd_icc,
+                                       CD_ICC_LOAD_FLAGS_PRIMARIES,
+                                       &error))
+        {
+          g_warning ("Failed to generate sRGB profile: %s",
+                     error->message);
+          goto out;
+        }
+
+      calibration_cd_icc = cd_icc_new ();
+      if (cd_icc_load_data (calibration_cd_icc,
                             (uint8_t *) contents,
                             length,
-                            CD_ICC_LOAD_FLAGS_METADATA,
+                            (CD_ICC_LOAD_FLAGS_METADATA |
+                             CD_ICC_LOAD_FLAGS_PRIMARIES),
                             &error))
         {
           GenerateProfileData *data = g_task_get_task_data (task);
           const char *file_path = data->file_path;
-          g_autofree char *file_md5_checksum = NULL;
-          GBytes *bytes;
+          g_autoptr (GBytes) calibration_bytes = NULL;
+          g_autoptr (GBytes) srgb_bytes = NULL;
+          CdMat3x3 csc;
 
-          bytes = g_bytes_new_take (g_steal_pointer (&contents), length);
+          srgb_bytes = cd_icc_save_data (srgb_cd_icc,
+                                         CD_ICC_SAVE_FLAGS_NONE,
+                                         &error);
+          if (!srgb_bytes)
+            {
+              g_warning ("Failed to save sRGB profile: %s",
+                         error->message);
+              goto out;
+            }
+
+          calibration_bytes = g_bytes_new_take (g_steal_pointer (&contents), length);
 
           /* Set metadata needed by colord */
-          cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME,
+
+          cd_icc_add_metadata (calibration_cd_icc, CD_PROFILE_PROPERTY_FILENAME,
+                               "/dev/null");
+          set_icc_checksum (calibration_cd_icc, calibration_bytes);
+
+          cd_icc_add_metadata (srgb_cd_icc, CD_PROFILE_PROPERTY_FILENAME,
                                file_path);
+          cd_icc_add_metadata (srgb_cd_icc, CD_PROFILE_PROPERTY_TITLE,
+                               "Factory calibrated (sRGB)");
+          set_icc_checksum (srgb_cd_icc, srgb_bytes);
 
-          file_md5_checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5,
-                                                            bytes);
-          cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
-                               file_md5_checksum);
+          if (!cd_icc_utils_get_adaptation_matrix (calibration_cd_icc,
+                                                   srgb_cd_icc,
+                                                   &csc,
+                                                   &error))
+            {
+              g_warning ("Failed to calculate adaption matrix: %s",
+                         error->message);
+              goto out;
+            }
 
-          data->cd_icc = g_steal_pointer (&cd_icc);
-          data->bytes = bytes;
+          data->color_calibration =
+            meta_color_calibration_new (calibration_cd_icc, &csc);
+          data->cd_icc = g_steal_pointer (&srgb_cd_icc);
+          data->bytes = g_steal_pointer (&srgb_bytes);
           save_icc_profile (file_path, g_steal_pointer (&task));
           return;
         }
@@ -1022,6 +1076,7 @@ on_efi_panel_color_info_loaded (GObject      *source_object,
         g_warning ("Failed to read EFI panel color info: %s", error->message);
     }
 
+out:
   create_device_profile_from_edid (color_device, g_steal_pointer (&task));
 }
 

@@ -24,7 +24,6 @@
 
 #include <colord.h>
 #include <gio/gio.h>
-#include <lcms2.h>
 
 #include "backends/meta-color-manager-private.h"
 
@@ -45,6 +44,7 @@ struct _MetaColorProfile
 
   CdIcc *cd_icc;
   GBytes *bytes;
+  MetaColorCalibration *calibration;
 
   char *cd_profile_id;
   gboolean is_owner;
@@ -146,6 +146,7 @@ meta_color_profile_finalize (GObject *object)
   g_clear_object (&color_profile->cd_icc);
   g_clear_pointer (&color_profile->bytes, g_bytes_unref);
   g_clear_object (&color_profile->cd_profile);
+  g_clear_pointer (&color_profile->calibration, meta_color_calibration_free);
 
   G_OBJECT_CLASS (meta_color_profile_parent_class)->finalize (object);
 }
@@ -263,9 +264,10 @@ create_cd_profile (MetaColorProfile *color_profile,
 }
 
 MetaColorProfile *
-meta_color_profile_new_from_icc (MetaColorManager *color_manager,
-                                 CdIcc            *cd_icc,
-                                 GBytes           *raw_bytes)
+meta_color_profile_new_from_icc (MetaColorManager     *color_manager,
+                                 CdIcc                *cd_icc,
+                                 GBytes               *raw_bytes,
+                                 MetaColorCalibration *color_calibration)
 {
   MetaColorProfile *color_profile;
   const char *checksum;
@@ -277,6 +279,7 @@ meta_color_profile_new_from_icc (MetaColorManager *color_manager,
   color_profile->color_manager = color_manager;
   color_profile->cd_icc = cd_icc;
   color_profile->bytes = raw_bytes;
+  color_profile->calibration = color_calibration;
   color_profile->cancellable = g_cancellable_new ();
   color_profile->is_owner = TRUE;
 
@@ -300,10 +303,11 @@ notify_ready_idle (gpointer user_data)
 }
 
 MetaColorProfile *
-meta_color_profile_new_from_cd_profile (MetaColorManager *color_manager,
-                                        CdProfile        *cd_profile,
-                                        CdIcc            *cd_icc,
-                                        GBytes           *raw_bytes)
+meta_color_profile_new_from_cd_profile (MetaColorManager     *color_manager,
+                                        CdProfile            *cd_profile,
+                                        CdIcc                *cd_icc,
+                                        GBytes               *raw_bytes,
+                                        MetaColorCalibration *color_calibration)
 {
   MetaColorProfile *color_profile;
   const char *checksum;
@@ -312,6 +316,7 @@ meta_color_profile_new_from_cd_profile (MetaColorManager *color_manager,
   color_profile->color_manager = color_manager;
   color_profile->cd_icc = cd_icc;
   color_profile->bytes = raw_bytes;
+  color_profile->calibration = color_calibration;
   color_profile->cancellable = g_cancellable_new ();
   color_profile->is_owner = FALSE;
 
@@ -378,8 +383,7 @@ meta_color_profile_get_file_path (MetaColorProfile *color_profile)
 const char *
 meta_color_profile_get_brightness_profile (MetaColorProfile *color_profile)
 {
-  return cd_profile_get_metadata_item (color_profile->cd_profile,
-                                       CD_PROFILE_METADATA_SCREEN_BRIGHTNESS);
+  return color_profile->calibration->brightness_profile;
 }
 
 static void
@@ -405,10 +409,10 @@ set_blackbody_color_for_temperature (CdColorRGB   *blackbody_color,
 }
 
 static MetaGammaLut *
-generate_gamma_lut_from_vcgt (MetaColorProfile    *color_profile,
-                              const cmsToneCurve **vcgt,
-                              unsigned int         temperature,
-                              size_t               lut_size)
+generate_gamma_lut_from_vcgt (MetaColorProfile  *color_profile,
+                              cmsToneCurve     **vcgt,
+                              unsigned int       temperature,
+                              size_t             lut_size)
 {
   CdColorRGB blackbody_color;
   MetaGammaLut *lut;
@@ -484,21 +488,65 @@ meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
                                        unsigned int      temperature,
                                        size_t            lut_size)
 {
-  cmsHPROFILE lcms_profile;
-  const cmsToneCurve **vcgt;
-
   g_return_val_if_fail (lut_size > 0, NULL);
 
-  lcms_profile = cd_icc_get_handle (color_profile->cd_icc);
-  vcgt = cmsReadTag (lcms_profile, cmsSigVcgtTag);
-
-  if (vcgt && *vcgt)
+  if (color_profile->calibration->has_vcgt)
     {
-      return generate_gamma_lut_from_vcgt (color_profile, vcgt,
+      return generate_gamma_lut_from_vcgt (color_profile,
+                                           color_profile->calibration->vcgt,
                                            temperature, lut_size);
     }
   else
     {
       return generate_gamma_lut (color_profile, temperature, lut_size);
     }
+}
+
+const MetaColorCalibration *
+meta_color_profile_get_calibration (MetaColorProfile *color_profile)
+{
+  return color_profile->calibration;
+}
+
+MetaColorCalibration *
+meta_color_calibration_new (CdIcc          *cd_icc,
+                            const CdMat3x3 *adaptation_matrix)
+{
+  MetaColorCalibration *color_calibration;
+  cmsHPROFILE lcms_profile;
+  const cmsToneCurve **vcgt;
+  const char *brightness_profile;
+
+  color_calibration = g_new0 (MetaColorCalibration, 1);
+
+  lcms_profile = cd_icc_get_handle (cd_icc);
+  vcgt = cmsReadTag (lcms_profile, cmsSigVcgtTag);
+  if (vcgt && vcgt[0])
+    {
+      color_calibration->has_vcgt = TRUE;
+      color_calibration->vcgt[0] = cmsDupToneCurve (vcgt[0]);
+      color_calibration->vcgt[1] = cmsDupToneCurve (vcgt[1]);
+      color_calibration->vcgt[2] = cmsDupToneCurve (vcgt[2]);
+    }
+
+  brightness_profile =
+    cd_icc_get_metadata_item (cd_icc, CD_PROFILE_METADATA_SCREEN_BRIGHTNESS);
+  if (brightness_profile)
+    color_calibration->brightness_profile = g_strdup (brightness_profile);
+
+  if (adaptation_matrix)
+    {
+      color_calibration->has_adaptation_matrix = TRUE;
+      color_calibration->adaptation_matrix = *adaptation_matrix;
+    }
+
+  return color_calibration;
+}
+
+void
+meta_color_calibration_free (MetaColorCalibration *color_calibration)
+{
+  cmsFreeToneCurveTriple (color_calibration->vcgt);
+  g_free (color_calibration->brightness_profile);
+  g_free (color_calibration);
 }

@@ -20,24 +20,38 @@
 
 #include <colord.h>
 #include <glib-object.h>
+#include <lcms2.h>
 #include <stdint.h>
 
 #include "backends/meta-backend-types.h"
 #include "core/util-private.h"
+
+typedef struct _MetaColorCalibration
+{
+  gboolean has_vcgt;
+  cmsToneCurve *vcgt[3];
+
+  gboolean has_adaptation_matrix;
+  CdMat3x3 adaptation_matrix;
+
+  char *brightness_profile;
+} MetaColorCalibration;
 
 #define META_TYPE_COLOR_PROFILE (meta_color_profile_get_type ())
 G_DECLARE_FINAL_TYPE (MetaColorProfile, meta_color_profile,
                       META, COLOR_PROFILE,
                       GObject)
 
-MetaColorProfile * meta_color_profile_new_from_icc (MetaColorManager *color_manager,
-                                                    CdIcc            *icc,
-                                                    GBytes           *raw_bytes);
+MetaColorProfile * meta_color_profile_new_from_icc (MetaColorManager     *color_manager,
+                                                    CdIcc                *cd_icc,
+                                                    GBytes               *raw_bytes,
+                                                    MetaColorCalibration *color_calibration);
 
-MetaColorProfile * meta_color_profile_new_from_cd_profile (MetaColorManager *color_manager,
-                                                           CdProfile        *cd_profile,
-                                                           CdIcc            *cd_icc,
-                                                           GBytes           *raw_bytes);
+MetaColorProfile * meta_color_profile_new_from_cd_profile (MetaColorManager     *color_manager,
+                                                           CdProfile            *cd_profile,
+                                                           CdIcc                *cd_icc,
+                                                           GBytes               *raw_bytes,
+                                                           MetaColorCalibration *color_calibration);
 
 gboolean meta_color_profile_equals_bytes (MetaColorProfile *color_profile,
                                           GBytes           *bytes);
@@ -63,5 +77,13 @@ const char * meta_color_profile_get_brightness_profile (MetaColorProfile *color_
 MetaGammaLut * meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
                                                       unsigned int      temperature,
                                                       size_t            lut_size);
+
+META_EXPORT_TEST
+const MetaColorCalibration * meta_color_profile_get_calibration (MetaColorProfile *color_profile);
+
+MetaColorCalibration * meta_color_calibration_new (CdIcc          *cd_icc,
+                                                   const CdMat3x3 *adaptation_matrix);
+
+void meta_color_calibration_free (MetaColorCalibration *color_calibration);
 
 #endif /* META_COLOR_PROFILE_H */

@@ -116,6 +116,7 @@ create_profile_from_contents (MetaColorStore *color_store,
   g_autoptr (GError) error = NULL;
   g_autoptr (GBytes) bytes = NULL;
   g_autofree char *file_md5_checksum = NULL;
+  MetaColorCalibration *color_calibration;
   MetaColorProfile *color_profile;
 
   cd_icc = cd_icc_new ();
@@ -139,10 +140,12 @@ create_profile_from_contents (MetaColorStore *color_store,
                                                     bytes);
   cd_icc_add_metadata (cd_icc, CD_PROFILE_METADATA_FILE_CHECKSUM,
                        file_md5_checksum);
+  color_calibration = meta_color_calibration_new (cd_icc, NULL);
   color_profile =
     meta_color_profile_new_from_icc (color_store->color_manager,
                                      g_steal_pointer (&cd_icc),
-                                     g_steal_pointer (&bytes));
+                                     g_steal_pointer (&bytes),
+                                     color_calibration);
 
   g_signal_connect (color_profile, "ready",
                     G_CALLBACK (on_directory_profile_ready),
@@ -598,6 +601,7 @@ on_cd_profile_contents_loaded (GObject      *source_object,
   g_autoptr (CdIcc) cd_icc = NULL;
   g_autofree char *file_md5_checksum = NULL;
   GBytes *bytes;
+  MetaColorCalibration *color_calibration;
   MetaColorProfile *color_profile;
 
   if (!g_file_load_contents_finish (file, res,
@@ -631,11 +635,13 @@ on_cd_profile_contents_loaded (GObject      *source_object,
                        file_md5_checksum);
 
   bytes = g_bytes_new_take (g_steal_pointer (&contents), length);
+  color_calibration = meta_color_calibration_new (cd_icc, NULL);
   color_profile =
     meta_color_profile_new_from_cd_profile (color_manager,
                                             cd_profile,
                                             g_steal_pointer (&cd_icc),
-                                            bytes);
+                                            bytes,
+                                            color_calibration);
 
   g_hash_table_insert (color_store->profiles,
                        g_strdup (meta_color_profile_get_id (color_profile)),
