@@ -1441,6 +1441,12 @@ meta_seat_x11_constructed (GObject *object)
   XISetMask (mask, XI_RawButtonPress);
   XISetMask (mask, XI_RawButtonRelease);
 
+  if (meta_backend_x11_get_barriers (META_BACKEND_X11 (seat_x11->backend)))
+    {
+      XISetMask (mask, XI_BarrierHit);
+      XISetMask (mask, XI_BarrierLeave);
+    }
+
   event_mask.deviceid = XIAllMasterDevices;
   event_mask.mask_len = sizeof (mask);
   event_mask.mask = mask;

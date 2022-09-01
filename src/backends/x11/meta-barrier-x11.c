@@ -212,19 +212,11 @@ meta_barrier_impl_x11_init (MetaBarrierImplX11 *self)
 MetaX11Barriers *
 meta_x11_barriers_new (MetaBackendX11 *backend_x11)
 {
-  Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
-  Window root = meta_backend_x11_get_root_xwindow (backend_x11);
   MetaX11Barriers *x11_barriers;
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = {};
-  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
 
   x11_barriers = g_new0 (MetaX11Barriers, 1);
   x11_barriers->barriers = g_hash_table_new (meta_unsigned_long_hash,
                                              meta_unsigned_long_equal);
-
-  XISetMask (mask.mask, XI_BarrierHit);
-  XISetMask (mask.mask, XI_BarrierLeave);
-  XISelectEvents (xdisplay, root, &mask, 1);
 
   return x11_barriers;
 }
