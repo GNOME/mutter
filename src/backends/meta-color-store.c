@@ -376,7 +376,7 @@ init_profile_directory (MetaColorStore  *color_store,
 
   while (TRUE)
     {
-      GFileInfo *file_info;
+      g_autoptr (GFileInfo) file_info = NULL;
 
       file_info = g_file_enumerator_next_file (enumerator, NULL, error);
       if (!file_info)
@@ -406,7 +406,7 @@ init_profile_directory (MetaColorStore  *color_store,
        case G_FILE_TYPE_SYMBOLIC_LINK:
          {
            const char *target_path;
-           GFile *target;
+           g_autoptr (GFile) target = NULL;
 
            target_path = g_file_info_get_symlink_target (file_info);
            target = g_file_new_for_path (target_path);
