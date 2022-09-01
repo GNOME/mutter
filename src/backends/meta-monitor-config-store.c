@@ -1508,6 +1508,10 @@ append_monitors (GString *buffer,
   for (l = monitor_configs; l; l = l->next)
     {
       MetaMonitorConfig *monitor_config = l->data;
+      char rate_str[G_ASCII_DTOSTR_BUF_SIZE];
+
+      g_ascii_formatd (rate_str, sizeof (rate_str),
+                       "%.3f", monitor_config->mode_spec->refresh_rate);
 
       g_string_append (buffer, "      <monitor>\n");
       append_monitor_spec (buffer, monitor_config->monitor_spec, "        ");
@@ -1516,8 +1520,8 @@ append_monitors (GString *buffer,
                               monitor_config->mode_spec->width);
       g_string_append_printf (buffer, "          <height>%d</height>\n",
                               monitor_config->mode_spec->height);
-      g_string_append_printf (buffer, "          <rate>%.3f</rate>\n",
-                              monitor_config->mode_spec->refresh_rate);
+      g_string_append_printf (buffer, "          <rate>%s</rate>\n",
+                              rate_str);
       if (monitor_config->mode_spec->flags & META_CRTC_MODE_FLAG_INTERLACE)
         g_string_append_printf (buffer, "          <flag>interlace</flag>\n");
       g_string_append (buffer, "        </mode>\n");
