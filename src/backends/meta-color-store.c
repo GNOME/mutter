@@ -494,7 +494,7 @@ meta_color_store_ensure_device_profile (MetaColorStore      *color_store,
   const char *edid_checksum_md5;
   g_autoptr (GTask) task = NULL;
   g_autofree char *file_name = NULL;
-  char *file_path;
+  g_autofree char *file_path = NULL;
   EnsureDeviceProfileData *data;
   MetaColorProfile *color_profile;
 
