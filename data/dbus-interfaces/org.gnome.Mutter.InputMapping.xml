@@ -1,0 +1,19 @@
+<!DOCTYPE node PUBLIC
+'-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
+'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+<node>
+  <!--
+      org.gnome.Mutter.InputMapper:
+      @short_description: input mapper interface
+
+      This interface is used by gnome-control-center to implement
+      tablet calibration.
+  -->
+
+  <interface name="org.gnome.Mutter.InputMapping">
+    <method name="GetDeviceMapping">
+      <arg name="device_node" direction="in" type="o" />
+      <arg name="rect" direction="out" type="(iiii)" />
+    </method>
+  </interface>
+</node>

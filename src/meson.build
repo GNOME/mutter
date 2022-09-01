@@ -868,6 +868,13 @@ dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
   )
 mutter_built_sources += dbus_idle_monitor_built_sources
 
+dbus_input_mapping_built_sources = gnome.gdbus_codegen('meta-dbus-input-mapping',
+    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.InputMapping.xml'),
+    interface_prefix: 'org.gnome.Mutter.',
+    namespace: 'MetaDBus',
+  )
+mutter_built_sources += dbus_input_mapping_built_sources
+
 if have_profiler
   mutter_sources += [
     'backends/meta-profiler.c',

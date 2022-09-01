@@ -26,10 +26,13 @@
 
 #include "backends/meta-backend-types.h"
 
+#include "meta-dbus-input-mapping.h"
+
 #define META_TYPE_INPUT_MAPPER (meta_input_mapper_get_type ())
 
 G_DECLARE_FINAL_TYPE (MetaInputMapper, meta_input_mapper,
-		      META, INPUT_MAPPER, GObject)
+                      META, INPUT_MAPPER,
+                      MetaDBusInputMappingSkeleton)
 
 MetaInputMapper * meta_input_mapper_new      (void);
 
