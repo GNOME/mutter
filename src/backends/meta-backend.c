@@ -1589,14 +1589,6 @@ meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
   g_set_object (&priv->client_pointer_constraint, constraint);
 }
 
-MetaBarrierImpl *
-meta_backend_create_barrier_impl (MetaBackend *backend,
-                                  MetaBarrier *barrier)
-{
-  return META_BACKEND_GET_CLASS (backend)->create_barrier_impl (backend,
-                                                                barrier);
-}
-
 ClutterBackend *
 meta_backend_get_clutter_backend (MetaBackend *backend)
 {
