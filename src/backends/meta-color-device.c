@@ -877,10 +877,13 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
   cd_icc_set_description (cd_icc, NULL,
                           meta_monitor_get_display_name (monitor));
 
-  if (!vendor_name && vendor)
-    vendor_name = g_strdup (vendor);
-  else
-    vendor_name = g_strdup ("Unknown vendor");
+  if (!vendor_name)
+    {
+      if (vendor)
+        vendor_name = g_strdup (vendor);
+      else
+        vendor_name = g_strdup ("Unknown vendor");
+    }
   cd_icc_set_manufacturer (cd_icc, NULL, vendor_name);
 
   /* Set the framework creator metadata */
