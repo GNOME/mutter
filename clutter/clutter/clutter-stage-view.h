@@ -82,4 +82,7 @@ CoglScanout * clutter_stage_view_peek_scanout (ClutterStageView *view);
 CLUTTER_EXPORT
 float clutter_stage_view_get_refresh_rate (ClutterStageView *view);
 
+CLUTTER_EXPORT
+gboolean clutter_stage_view_has_shadowfb (ClutterStageView *view);
+
 #endif /* __CLUTTER_STAGE_VIEW_H__ */

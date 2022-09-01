@@ -1120,6 +1120,15 @@ clutter_stage_view_get_frame_clock (ClutterStageView *view)
   return priv->frame_clock;
 }
 
+gboolean
+clutter_stage_view_has_shadowfb (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->use_shadowfb;
+}
+
 static void
 handle_frame_clock_before_frame (ClutterFrameClock *frame_clock,
                                  int64_t            frame_count,
