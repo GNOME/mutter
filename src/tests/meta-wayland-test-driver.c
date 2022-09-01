@@ -102,7 +102,11 @@ static const struct test_driver_interface meta_test_driver_interface = {
 static void
 test_driver_destructor (struct wl_resource *resource)
 {
-  MetaWaylandTestDriver *test_driver = wl_resource_get_user_data (resource);
+  MetaWaylandTestDriver *test_driver;
+
+  test_driver = wl_resource_get_user_data (resource);
+  if (!test_driver)
+    return;
 
   test_driver->resources = g_list_remove (test_driver->resources, resource);
 }
@@ -128,6 +132,15 @@ static void
 meta_wayland_test_driver_finalize (GObject *object)
 {
   MetaWaylandTestDriver *test_driver = META_WAYLAND_TEST_DRIVER (object);
+  GList *l;
+
+  for (l = test_driver->resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      wl_resource_set_user_data (resource, NULL);
+    }
+  g_clear_list (&test_driver->resources, NULL);
 
   g_clear_pointer (&test_driver->test_driver, wl_global_destroy);
 
