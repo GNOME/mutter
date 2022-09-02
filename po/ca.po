@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 2.24\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-07 19:47+0000\n"
-"PO-Revision-Date: 2022-02-12 12:23+0100\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-09-02 12:23+0100\n"
 "Last-Translator: maite guix <maite.guix@me.com>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -579,8 +579,8 @@ msgid ""
 "shortcuts”."
 msgstr ""
 "Llista els noms o classes dels recursos de les finestres X11 que estiguin "
-"permesos o denegades per a emetre captures de teclat X11 sota Xwayland. El nom "
-"o la classe dels recursos d'una finestra X11 donada es pot obtenir amb "
+"permesos o denegades per a emetre captures de teclat X11 sota Xwayland. El "
+"nom o la classe dels recursos d'una finestra X11 donada es pot obtenir amb "
 "l'ordre «xprop WM_CLASS». Es poden utilitzar comodins «*» o «?» als valors. "
 "Els valors que comencin amb «!» es deneguen i tenen precedència per sobre de "
 "la llista dels valors permesos, així es permet la denegació d'aplicacions "
@@ -607,26 +607,26 @@ msgstr ""
 "extensions seleccionades. S'ha de reiniciar Xwayland perquè es tingui en "
 "compte aquesta llista."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Pantalla integrada"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Desconeguda"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Pantalla desconeguda"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -641,7 +641,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -653,65 +653,39 @@ msgstr ""
 msgid "Bell event"
 msgstr "Esdeveniment de campana"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "S'ha habilitat la pantalla de privadesa"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "S'ha inhabilitat la pantalla de privadesa"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "«%s» no està responent."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "L'aplicació no està responent."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Podeu esperar un moment perquè continuï o podeu forçar-ne la sortida "
-"completa."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Força'n la sortida"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Espera"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "Reemplaça el gestor de finestres en execució"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "Visualització X per a usar"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "Inhabilita la connexió al gestor de sessions"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "Especifica l'ID de gestió de sessió"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "Inicialitza la sessió des del fitxer desat"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "Fes que les crides a X siguin síncrones"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "Funciona com a compositor de Wayland"
 
@@ -720,38 +694,38 @@ msgstr "Funciona com a compositor de Wayland"
 #
 # Camins:
 # ../src/core/main.c:223
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "Funciona com a compositor imbricat"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executa el compositor wayland sense iniciar Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "Especifica el nom de pantalla de Wayland a utilitzar"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "Funciona com a servidor de pantalla completa, en comptes d'imbricat"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "Executa com a servidor de visualització sense cap capçalera"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Afegeix un monitor virtual persistent (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "Executa amb un rerefons X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Mode de commutació (grup %d)"
@@ -759,11 +733,11 @@ msgstr "Mode de commutació (grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Commuta el monitor"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Mostra l'ajuda en pantalla"
 
@@ -780,16 +754,20 @@ msgstr "Connector del Mutter a utilitzar"
 msgid "Workspace %d"
 msgstr "Espai de treball %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "El Mutter s'ha compilat sense compatibilitat amb el mode detallat"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+msgid "Workspace switched"
+msgstr "S'ha commutat d'espai de treball"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Mode de commutació: mode %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -798,43 +776,27 @@ msgstr ""
 "La pantalla «%s» ja té un gestor de finestres; proveu l'opció --replace per "
 "a reemplaçar el gestor de finestres actual."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "No s'ha pogut inicialitzar GDK"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "No s'ha pogut obrir la pantalla del sistema de finestres X «%s»"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "El monitor %d de la pantalla «%s» no és vàlid"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "El format %s no és compatible"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Aquestes finestres no implementen «desa la configuració actual» i s'hauran "
-"de reiniciar manualment la pròxima vegada que entreu."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (a %s)"
 
-#~ msgid "X display to use"
-#~ msgstr "Visualització X per a usar"
-
-#~ msgid "X screen to use"
-#~ msgstr "Visualització X per a usar"
-
-#~ msgid "Disable XInput support"
-#~ msgstr "Inhabilita la compatibilitat amb XInput"
