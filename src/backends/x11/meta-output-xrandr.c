@@ -461,8 +461,14 @@ output_get_max_bpc_range_xrandr (Display      *xdisplay,
                                           atom);
   meta_clutter_x11_untrap_x_errors ();
 
-  if (!property_info || property_info->num_values != 2)
+  if (!property_info)
     return FALSE;
+
+  if (property_info->num_values != 2)
+    {
+      XFree (property_info);
+      return FALSE;
+    }
 
   values = (long *) property_info->values;
   if (min)
