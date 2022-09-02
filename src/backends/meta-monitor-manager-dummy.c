@@ -806,6 +806,25 @@ meta_output_dummy_class_init (MetaOutputDummyClass *klass)
 {
 }
 
+static size_t
+meta_crtc_dummy_get_gamma_lut_size (MetaCrtc *crtc)
+{
+  return 0;
+}
+
+static MetaGammaLut *
+meta_crtc_dummy_get_gamma_lut (MetaCrtc *crtc)
+{
+  return NULL;
+}
+
+static void
+meta_crtc_dummy_set_gamma_lut (MetaCrtc           *crtc,
+                               const MetaGammaLut *lut)
+{
+  g_warn_if_reached ();
+}
+
 static void
 meta_crtc_dummy_init (MetaCrtcDummy *crtc_dummy)
 {
@@ -814,4 +833,9 @@ meta_crtc_dummy_init (MetaCrtcDummy *crtc_dummy)
 static void
 meta_crtc_dummy_class_init (MetaCrtcDummyClass *klass)
 {
+  MetaCrtcClass *crtc_class = META_CRTC_CLASS (klass);
+
+  crtc_class->get_gamma_lut_size = meta_crtc_dummy_get_gamma_lut_size;
+  crtc_class->get_gamma_lut = meta_crtc_dummy_get_gamma_lut;
+  crtc_class->set_gamma_lut = meta_crtc_dummy_set_gamma_lut;
 }
