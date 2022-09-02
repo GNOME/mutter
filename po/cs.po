@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-07 19:47+0000\n"
-"PO-Revision-Date: 2022-02-09 22:12+0100\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-02-09 22:21+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -428,8 +428,8 @@ msgstr ""
 "výstupních vyrovnávacích pamětí s výslovně určenými modifikátory, pokud to "
 "podporuje ovladač. Vyžaduje restart. • „rt-scheduler“ – zajistí, aby měly "
 "požadavky mutter nízkou prioritu v plánování reálného času. Vyžaduje "
-"restart. • „autoclose-xwayland“ – automaticky ukončí Xwayland, když se ukončí "
-"všichny související klienti X11. Vyžaduje restart."
+"restart. • „autoclose-xwayland“ – automaticky ukončí Xwayland, když se "
+"ukončí všichny související klienti X11. Vyžaduje restart."
 
 #: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
@@ -591,26 +591,26 @@ msgstr ""
 "Xwayland sestaven bez podpory pro vybraná rozšíření. Aby se nastavení "
 "projevilo, je zapotřebí Xwayland restartovat."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Vestavěný displej"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Neznámý"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Neznámý displej"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -625,7 +625,7 @@ msgstr "Kompozitor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -635,100 +635,74 @@ msgstr "Jiný kompozitní správce již běží na obrazovce %i displeje „%s�
 msgid "Bell event"
 msgstr "Událost zvonku"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "Soukromí obrazovky zapnuto"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "Soukromí obrazovky vypnuto"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "„%s“ nereaguje."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "Aplikace nereaguje."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Je možné chvíli počkat, aby aplikace mohla pokračovat, nebo si vynutit úplné "
-"ukončení aplikace."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Vynutit ukončení"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Počkat"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "Nahradí běžícího správce oken"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "Displej X, který se má použít"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "Zakázat připojení ke správci sezení"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "Určit ID správy sezení"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "Spustit sezení z uloženého souboru"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "Provádět volání X synchronně"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "Spustit jako kompozitor protokolu Wayland"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "Určit název displeje Wayland, který se má používat"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "Spustit jako server displeje bez monitoru"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Přidat trvalý virtuální monitor (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Přepínač režimu (skupina %d)"
@@ -736,11 +710,11 @@ msgstr "Přepínač režimu (skupina %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Přepnout monitor"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Zobrazit nápovědu na obrazovce"
 
@@ -757,16 +731,20 @@ msgstr "Zásuvný modul Mutter, který se má použít"
 msgid "Workspace %d"
 msgstr "Plocha %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter byl přeloženo bez podpory podrobného režimu"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+msgid "Workspace switched"
+msgstr "Přepnuta plocha"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Přepínač režimu: režim %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -775,32 +753,24 @@ msgstr ""
 "Displej „%s“ již správce oken má; zkuste prosím nahradit aktuálního správce "
 "oken pomocí přepínače --replace."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "Selhala inicializace GDK"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka %d na displeji „%s“ je neplatná"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formát %s není podporován"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Tato okna nepodporují „uložení aktuálního nastavení“ a po svém příštím "
-"přihlášení je budete muset spustit ručně."
 
 #: src/x11/window-props.c:548
 #, c-format
