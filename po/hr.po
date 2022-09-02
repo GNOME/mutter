@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 0\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-19 13:57+0000\n"
-"PO-Revision-Date: 2022-03-02 12:49+0100\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-09-02 12:50+0200\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
 "Language: hr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Launchpad-Export-Date: 2008-05-28 13:28+0000\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -585,26 +585,26 @@ msgstr ""
 "izgrađen bez podrške za odabrano proširenje. Xwayland se mora ponovno "
 "pokrenuti kako bi se ta postavka primijenila."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Ugrađeni zaslon"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Nepoznat"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Nepoznat zaslon"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -619,7 +619,7 @@ msgstr "Kompozitor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -630,100 +630,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Događaj zvona"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "Zaslon privatnosti omogućen"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "Zaslon privatnosti onemogućen"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "“%s” ne odgovara."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "Aplikacija ne odgovara."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Možete pričekati neko vrijeme da aplikacija nastavi s radom ili možete "
-"prisiliti prekid rada aplikacije."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Prisili izlaženje"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Čekaj"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "Zamijeni pokrenutoga upravitelja porozora"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "X Prikaz za korištenje"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "Onemogući povezivanje sa upraviteljem sesija"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "Odredite ID upravljanja sesijama"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "Pokreni sesiju iz spremljene datoteke"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "Napravi X pozive usklađenim"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "Pokreni wayland kompozitor"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "Pokreni kao ugrađeni kompozitor"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Pokreni wayland kompozitor bez pokretanja Xwaylanda"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "Navedi naziv Wayland zaslona za korištenje"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "Pokreni kao potpuni poslužitelj zaslona, radije nego ugrađeni"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "Pokreni kao poslužitelj bez zaslona"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Dodaj trajni virtualni zaslon (ŠxV ili ŠxV@F)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "Pokreni s X11 pozadinskim programom"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:840
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Način prebacivanja (Grupa %d)"
@@ -731,11 +705,11 @@ msgstr "Način prebacivanja (Grupa %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:863
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Prebaci zaslon"
 
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Prikaži zaslonsku pomoć"
 
@@ -752,16 +726,20 @@ msgstr "Mutter priključak koji se koristi"
 msgid "Workspace %d"
 msgstr "Radni prostor %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter je kompiliran bez podrške za opširan način rada"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+msgid "Workspace switched"
+msgstr "Radni prostor je prebačen"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Način prebacivanja: Način %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -770,37 +748,56 @@ msgstr ""
 "Prikaz \"%s\" već ima upravitelja prozora; pokušajte koristiti --replace "
 "mogućnost za zamjenu trenutnog upravitelja prozora."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "Neuspjelo GDK pokretanje"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Neuspjelo otvaranje sustava prikaza X prozora \"%s\""
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Zaslon %d na prikazu '%s' je neispravan"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s nije podržan"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Ovi prozori ne podržavaju mogućnost \"spremi trenutne postavke\" i moraju se "
-"ručno ponovno pokrenuti sljedeći puta kada se prijavite."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "“%s” ne odgovara."
+
+#~ msgid "Application is not responding."
+#~ msgstr "Aplikacija ne odgovara."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Možete pričekati neko vrijeme da aplikacija nastavi s radom ili možete "
+#~ "prisiliti prekid rada aplikacije."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Prisili izlaženje"
+
+#~ msgid "_Wait"
+#~ msgstr "_Čekaj"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Ovi prozori ne podržavaju mogućnost \"spremi trenutne postavke\" i moraju "
+#~ "se ručno ponovno pokrenuti sljedeći puta kada se prijavite."
 
 #~ msgid "X display to use"
 #~ msgstr "X Prikaz za korištenje"
