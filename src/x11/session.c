@@ -173,7 +173,7 @@ ice_io_error_handler (IceConn connection)
 }
 
 static void
-ice_init (void)
+ice_init (MetaContext *context)
 {
   static gboolean ice_initted = FALSE;
 
@@ -187,7 +187,7 @@ ice_init (void)
       if (ice_installed_handler == default_handler)
 	ice_installed_handler = NULL;
 
-      IceAddConnectionWatch (new_ice_connection, NULL);
+      IceAddConnectionWatch (new_ice_connection, context);
 
       ice_initted = TRUE;
     }
@@ -270,7 +270,7 @@ meta_session_init (MetaContext *context,
       saved_client_id = NULL;
     }
 
-  ice_init ();
+  ice_init (context);
 
   mask = SmcSaveYourselfProcMask | SmcDieProcMask |
     SmcSaveCompleteProcMask | SmcShutdownCancelledProcMask;
