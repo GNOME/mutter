@@ -10,15 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-16 19:25+0000\n"
-"PO-Revision-Date: 2022-02-21 16:17+0330\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-09-03 16:12+0430\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
 "Language-Team: Persian\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.1.1\n"
 "X-DamnedLies-Scope: partial\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
@@ -351,26 +351,26 @@ msgstr "تعویض به VT ‏۱۱"
 msgid "Switch to VT 12"
 msgstr "تعویض به VT ‏۱۲"
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "نمایشگر توکار"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "ناشناس"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "نمایشگر ناشناس"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in inches "
@@ -385,7 +385,7 @@ msgstr "ترکیب‌بند"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
@@ -395,98 +395,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "رویداد زنگ"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "صفحهٔ محرمانگی به کار افتاده"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "صفحهٔ محرمانگی از کار افتاده"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "«%s» پاسخگو نیست."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "برنامه پاسخی نمی‌دهد."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the application "
-"to quit entirely."
-msgstr "ممکن است بخواهید کمی صبر کنید تا ادامه بدهد یا برنامه را با اجبار ببندید."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "ترک _اجباری"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_صبرکردن"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "جای‌گزینی مدیر پنجرهٔ در حال اجرا"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "نمایشگر X جهت استفاده"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "غیرفعال کردن اتّصال به مدیر نشست"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "مشخص کردن شناسهٔ مدیریت نشست"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "مقداردهی اولیهٔ نشست از پرونده ذخیره"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "همگام کردن فراخوانی‌های X"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "اجرا به عنوان یک ترکیب‌بند ویلند"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "اجرا به عنوان یک ترکیب‌بند تو در تو"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "اجرای ترکیب‌بند ویلند بدون شروع‌کردن ایکس‌ویلند"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "مشخص کردن نام نمایشگر ویلند جهت استفاده"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "اجرا به عنوان یک کارساز نمایش کامل، به جای تودرتو"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "اجرا به عنوان یک کارساز نمایش بی‌سر"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "افزودن نمایشگر مجازی ثابت (WxHیا WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "اجرا به همراه پسانهٔ X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:840
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "تعویض حالت (گروه %Id)"
@@ -494,11 +470,11 @@ msgstr "تعویض حالت (گروه %Id)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:863
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "تعویض نمایشگر"
 
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "نمایش راهنمای در صفحه"
 
@@ -515,16 +491,20 @@ msgstr "افزایهٔ ماتر جهت استفاده"
 msgid "Workspace %d"
 msgstr "فضای‌کاری %Id"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "ماتر بدون پشتیبانی حالت مفصل کامپایل شده است"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+msgid "Workspace switched"
+msgstr "فضای کاری تعویض شد"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "تعویض حالت: حالت %Id"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -533,37 +513,55 @@ msgstr ""
 "نمایشگر «%s» هم‌اکنون یک مدیر پنجره دارد؛ برای جایگزینی مدیر پنجرهٔ فعلی از گزینهٔ ‎--"
 "replace استفاده کنید."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "مقداردهی اولیهٔ GDK شکست خورد"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "شکست در گشودن نمایشگر «%s» سامانهٔ پنجرهٔ X"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "صفحهٔ %Id روی نمایشگر «%s» نامعتبر است"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "قالب %s پشتیبانی نمی‌شود"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be restarted "
-"manually next time you log in."
-msgstr ""
-"این پنجره‌ها «ذخیرهٔ برپاسازی فعلی» را پشتیبانی نمی‌کنند و باید در ورود بعدی به "
-"سیستم به صورت دستی راه‌اندازی مجدد شوند."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (بر روی %s)"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "«%s» پاسخگو نیست."
+
+#~ msgid "Application is not responding."
+#~ msgstr "برنامه پاسخی نمی‌دهد."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "ممکن است بخواهید کمی صبر کنید تا ادامه بدهد یا برنامه را با اجبار ببندید."
+
+#~ msgid "_Force Quit"
+#~ msgstr "ترک _اجباری"
+
+#~ msgid "_Wait"
+#~ msgstr "_صبرکردن"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "این پنجره‌ها «ذخیرهٔ برپاسازی فعلی» را پشتیبانی نمی‌کنند و باید در ورود بعدی به "
+#~ "سیستم به صورت دستی راه‌اندازی مجدد شوند."
 
 #~ msgid "X display to use"
 #~ msgstr "نمایشگر X جهت استفاده"
@@ -791,9 +789,6 @@ msgstr "%s (بر روی %s)"
 
 #~ msgid "Workspace 1_0"
 #~ msgstr "فضای کاری ۱_۰"
-
-#~ msgid "Workspace %s%d"
-#~ msgstr "فضای کاری %s%Id"
 
 #~ msgid "Move to Another _Workspace"
 #~ msgstr "نقل‌مکان به فضای کاری دیگر"
