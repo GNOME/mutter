@@ -488,7 +488,7 @@ meta_color_profile_generate_gamma_lut (MetaColorProfile *color_profile,
                                        unsigned int      temperature,
                                        size_t            lut_size)
 {
-  g_return_val_if_fail (lut_size > 0, NULL);
+  g_assert (lut_size > 0);
 
   if (color_profile->calibration->has_vcgt)
     {

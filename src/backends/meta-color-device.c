@@ -1171,7 +1171,6 @@ meta_color_device_update (MetaColorDevice *color_device,
   MetaColorProfile *color_profile;
   MetaMonitor *monitor;
   size_t lut_size;
-  g_autoptr (MetaGammaLut) lut = NULL;
 
   color_profile = meta_color_device_get_assigned_profile (color_device);
   if (!color_profile)
@@ -1206,11 +1205,16 @@ meta_color_device_update (MetaColorDevice *color_device,
     }
 
   lut_size = meta_monitor_get_gamma_lut_size (monitor);
-  lut = meta_color_profile_generate_gamma_lut (color_profile,
-                                               temperature,
-                                               lut_size);
+  if (lut_size > 0)
+    {
+      g_autoptr (MetaGammaLut) lut = NULL;
 
-  meta_monitor_set_gamma_lut (monitor, lut);
+      lut = meta_color_profile_generate_gamma_lut (color_profile,
+                                                   temperature,
+                                                   lut_size);
+
+      meta_monitor_set_gamma_lut (monitor, lut);
+    }
 
   g_signal_emit (color_device, signals[UPDATED], 0);
 }
