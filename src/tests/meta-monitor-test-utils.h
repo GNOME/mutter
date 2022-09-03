@@ -119,6 +119,7 @@ typedef struct _MonitorTestCaseOutput
 typedef struct _MonitorTestCaseCrtc
 {
   int current_mode;
+  gboolean disable_gamma_lut;
 } MonitorTestCaseCrtc;
 
 typedef struct _MonitorTestCaseSetup

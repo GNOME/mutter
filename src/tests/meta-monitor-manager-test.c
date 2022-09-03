@@ -488,7 +488,9 @@ meta_output_test_class_init (MetaOutputTestClass *klass)
 static size_t
 meta_crtc_test_get_gamma_lut_size (MetaCrtc *crtc)
 {
-  return GAMMA_SIZE;
+  MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
+
+  return crtc_test->gamma.size;
 }
 
 static MetaGammaLut *
@@ -496,6 +498,8 @@ meta_crtc_test_get_gamma_lut (MetaCrtc *crtc)
 {
   MetaCrtcTest *crtc_test = META_CRTC_TEST (crtc);
   MetaGammaLut *lut;
+
+  g_assert_cmpint (crtc_test->gamma.size, >, 0);
 
   lut = g_new0 (MetaGammaLut, 1);
   lut->size = crtc_test->gamma.size;
@@ -572,4 +576,13 @@ meta_crtc_test_init (MetaCrtcTest *crtc_test)
       crtc_test->gamma.green[i] = gamma;
       crtc_test->gamma.blue[i] = gamma;
     }
+}
+
+void
+meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test)
+{
+  crtc_test->gamma.size = 0;
+  g_clear_pointer (&crtc_test->gamma.red, g_free);
+  g_clear_pointer (&crtc_test->gamma.green, g_free);
+  g_clear_pointer (&crtc_test->gamma.blue, g_free);
 }

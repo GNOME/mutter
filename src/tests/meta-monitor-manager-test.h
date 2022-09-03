@@ -87,4 +87,7 @@ void meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *m
 META_EXPORT
 int meta_monitor_manager_test_get_tiled_monitor_count (MetaMonitorManagerTest *manager_test);
 
+META_EXPORT
+void meta_crtc_test_disable_gamma_lut (MetaCrtcTest *crtc_test);
+
 #endif /* META_MONITOR_MANAGER_TEST_H */
