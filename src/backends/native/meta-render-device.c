@@ -114,9 +114,14 @@ detect_hardware_rendering (MetaRenderDevice *render_device)
   if (g_str_has_prefix (renderer_str, "llvmpipe") ||
       g_str_has_prefix (renderer_str, "softpipe") ||
       g_str_has_prefix (renderer_str, "swrast"))
-    goto out_has_context;
+    goto out_current_context;
 
   priv->is_hardware_rendering = TRUE;
+
+out_current_context:
+  meta_egl_make_current (egl, priv->egl_display,
+                         EGL_NO_SURFACE, EGL_NO_SURFACE,
+                         EGL_NO_CONTEXT, NULL);
 
 out_has_context:
   meta_egl_destroy_context (egl, priv->egl_display, egl_context, NULL);
