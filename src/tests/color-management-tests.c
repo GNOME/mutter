@@ -149,6 +149,63 @@ get_colord_mock_proxy (void)
 }
 
 static void
+wait_for_profile_assigned (MetaColorDevice *color_device,
+                           const char      *profile_id)
+{
+  while (TRUE)
+    {
+      MetaColorProfile *color_profile;
+
+      color_profile = meta_color_device_get_assigned_profile (color_device);
+      if (color_profile &&
+          g_strcmp0 (meta_color_profile_get_id (color_profile),
+                     profile_id) == 0)
+        break;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+}
+
+static void
+on_device_updated (MetaColorDevice *color_device,
+                   gboolean        *run)
+{
+  *run = FALSE;
+}
+
+static void
+wait_for_device_updated (MetaColorDevice *color_device)
+{
+  gulong handler_id;
+  gboolean run = TRUE;
+
+  handler_id = g_signal_connect (color_device, "updated",
+                                 G_CALLBACK (on_device_updated),
+                                 &run);
+  while (run)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (color_device, handler_id);
+}
+
+static void
+assert_gamma_array (uint16_t *expected,
+                    uint16_t *values,
+                    size_t    size)
+{
+  size_t i;
+
+  for (i = 0; i < size; i++)
+    {
+      if (expected[i] != values[i])
+        {
+          g_error ("Expected %hu at but got %hu at index %zu",
+                   expected[i], values[i], i);
+        }
+    }
+}
+
+static void
 set_colord_device_profiles (const char  *cd_device_id,
                             const char **cd_profile_ids,
                             int          n_cd_profile_ids)
@@ -680,63 +737,6 @@ meta_test_color_management_profile_efivar (void)
 
   meta_set_color_efivar_test_path (NULL);
   unlink (efivar_path);
-}
-
-static void
-wait_for_profile_assigned (MetaColorDevice *color_device,
-                           const char      *profile_id)
-{
-  while (TRUE)
-    {
-      MetaColorProfile *color_profile;
-
-      color_profile = meta_color_device_get_assigned_profile (color_device);
-      if (color_profile &&
-          g_strcmp0 (meta_color_profile_get_id (color_profile),
-                     profile_id) == 0)
-        break;
-
-      g_main_context_iteration (NULL, TRUE);
-    }
-}
-
-static void
-on_device_updated (MetaColorDevice *color_device,
-                   gboolean        *run)
-{
-  *run = FALSE;
-}
-
-static void
-wait_for_device_updated (MetaColorDevice *color_device)
-{
-  gulong handler_id;
-  gboolean run = TRUE;
-
-  handler_id = g_signal_connect (color_device, "updated",
-                                 G_CALLBACK (on_device_updated),
-                                 &run);
-  while (run)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_signal_handler_disconnect (color_device, handler_id);
-}
-
-static void
-assert_gamma_array (uint16_t *expected,
-                    uint16_t *values,
-                    size_t    size)
-{
-  size_t i;
-
-  for (i = 0; i < size; i++)
-    {
-      if (expected[i] != values[i])
-        {
-          g_error ("Expected %hu at but got %hu at index %zu",
-                   expected[i], values[i], i);
-        }
-    }
 }
 
 static void
