@@ -473,6 +473,62 @@ meta_test_color_management_device_basic (void)
 }
 
 static void
+meta_test_color_management_device_no_gamma (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (backend);
+  MonitorTestCaseSetup test_case_setup = base_monitor_setup;
+  MetaMonitorTestSetup *test_setup;
+  GList *monitors;
+  MetaMonitor *monitor;
+  MetaColorDevice *color_device;
+  MetaColorProfile *color_profile;
+  const char *profile_id;
+  const char *color_profiles[1];
+
+  test_case_setup.outputs[0].edid_info = CALTECH_MONITOR_EDID;
+  test_case_setup.outputs[0].has_edid_info = TRUE;
+  test_case_setup.crtcs[0].disable_gamma_lut = TRUE;
+
+  test_case_setup.n_outputs = 1;
+  test_case_setup.n_crtcs = 1;
+  test_setup = meta_create_monitor_test_setup (backend, &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (monitors), ==, 1);
+  g_assert_cmpuint (g_list_length (monitors),
+                    ==,
+                    meta_color_manager_get_num_color_devices (color_manager));
+
+  monitor = META_MONITOR (monitors->data);
+  g_assert_cmpint (meta_monitor_get_gamma_lut_size (monitor), ==, 0);
+
+  color_device = meta_color_manager_get_color_device (color_manager, monitor);
+  g_assert_nonnull (color_device);
+  g_assert (meta_color_device_get_monitor (color_device) == monitor);
+
+  while (!meta_color_device_is_ready (color_device))
+    g_main_context_iteration (NULL, TRUE);
+
+  color_profile = meta_color_device_get_device_profile (color_device);
+  g_assert_nonnull (color_profile);
+
+  profile_id = meta_color_profile_get_id (color_profile);
+  color_profiles[0] = profile_id;
+  set_colord_device_profiles (meta_color_device_get_id (color_device),
+                              color_profiles, G_N_ELEMENTS (color_profiles));
+
+  wait_for_profile_assigned (color_device, profile_id);
+}
+
+static void
 meta_test_color_management_profile_device (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -1287,6 +1343,8 @@ init_tests (void)
 
   add_color_test ("/color-management/device/basic",
                   meta_test_color_management_device_basic);
+  add_color_test ("/color-management/device/no-gamma",
+                  meta_test_color_management_device_no_gamma);
   add_color_test ("/color-management/profile/device",
                   meta_test_color_management_profile_device);
   add_color_test ("/color-management/profile/system",

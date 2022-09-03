@@ -303,6 +303,7 @@ gboolean meta_monitor_set_privacy_screen_enabled (MetaMonitor  *monitor,
                                                   gboolean      enabled,
                                                   GError      **error);
 
+META_EXPORT_TEST
 size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
 
 void meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
