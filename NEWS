@@ -1,3 +1,43 @@
+43.rc
+=====
+* Remember monitor scale when switching configurations [Jonas Å.; !2479]
+* Embed wayland output name into screencast streams [Salman; !2540]
+* Limit precision of stored refresh rates [Daniel; !2465, !2602]
+* Add support for the "max bpc" connector property [Daniel; !2412]
+* Fix focus-tracking corner case [Jonas D.; !2329]
+* Add detail to ::event signal [Jonas D.; !2431]
+* Improve heuristics for adding fallback monitor modes [Mario; !2586]
+* Take over color management from gnome-settings-daemon
+  [Jonas Å.; !2141, !2164, !2165, !2166, !2568]
+* Allow scanout for offscreen rotated views [Robert; !2468]
+* Fix hot corner regression on X11 [Jonas Å.; !2604]
+* Fix losing IM focus in some circumstances [Carlos; !2585]
+* Avoid swapping redundant portions of buffers onscreen [Erico; !2241]
+* Animate windows moving between monitors [Alessandro; !2558]
+* Make NVIDIA + gbm use atomic mode setting [Jonas Å.; !2578]
+* Fixed crashes [Jonas Å., Steev, Carlos, Simon; !2554, !2577, !2592, !2182,
+  !2609, !2612]
+* Plugged memory leak [Alessandro; !2608]
+* Misc. bug fixes and cleanups [Florian, Carlos, Jordan, Simon, Jonas Å.,
+  Jonas D., Daniel, Sebastian K., Alberts, Bilal, Dor, Sebastian W.; !2566,
+  !2573, !2576, !2534, !2581, !2430, !2561, !2584, !2588, !2551, !2552, !2594,
+  !2596, !2598, !2601, !2603, !2589, !2587, !2375, !2486, !2606, !1354, !2605,
+  !2611]
+
+Contributors:
+  Dor Askayo, Alessandro Bono, Jonas Dreßler, Bilal Elmoussaoui,
+  Carlos Garnacho, Sebastian Keller, Steev Klimaszewski, Mario Limonciello,
+  Robert Mader, Salman Malik, Simon McVittie, Alberts Muktupāvels,
+  Florian Müllner, Erico Nunes, Jordan Petridis, Daniel van Vugt,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Nart Tlisha [ab], Jiri Grönroos [fi], Goran Vidović [hr],
+  Yuri Chornoivan [uk], Jordi Mas [ca], Marek Černocký [cs], Balázs Úr [hu],
+  Emin Tufan Çetin [tr], Danial Behzadi [fa], Piotr Drąg [pl],
+  Rūdolfs Mazurs [lv], Hugo Carvalho [pt], Anders Jonsson [sv],
+  Boyuan Yang [zh_CN], Asier Sarasua Garmendia [eu]
+
 43.beta
 =======
 * Fix glitches in apps using subsurfaces [Robert; !2501, !2530]
