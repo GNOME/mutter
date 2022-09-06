@@ -11,16 +11,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-07 19:47+0000\n"
-"PO-Revision-Date: 2022-02-09 10:07+0700\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-09-06 10:33+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -592,26 +592,26 @@ msgstr ""
 "berpengaruh jika Xwayland dibangun tanpa dukungan untuk ekstensi yang "
 "dipilih. Xwayland perlu dimulai ulang untuk pengaturan ini berlaku."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Tampilan bawaan"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Tak Dikenal"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Tampilan Tak Dikenal"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -626,7 +626,7 @@ msgstr "Kompositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -637,99 +637,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Bel peristiwa"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "Layar Privasi Diaktifkan"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "Layar Privasi Dinonaktifkan"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "\"%s\" tak merespon."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "Aplikasi tak merespon."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Anda bisa memilih untuk menunggu sebentar atau memaksa aplikasi keluar."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Matikan Paksa"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Tunggu"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "Mengganti manajer jendela yang tengah berjalan"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "Tampilan X yang digunakna"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "Menonaktifkan koneksi ke manajer sesi"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "Tentukan kode pengaturan sesi"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "Aktifkan sesi dari berkas simpanan"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "Buat panggilan X selaras"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "Jalankan sebagai kompositor wayland"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "Jalankan sebagai kompositor bersarang"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Jalankan kompositor wayland tanpa memmulai Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "Tentukan nama tampilan Wayland yang akan digunakan"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "Jalankan sebagai server tampilan penuh, ketimbang tampilan bersarang"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "Jalankan sebagai peladen tampilan tanpa kepala (headless)"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tambah monitor virtual persisten (WxH atau WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "Jalankan dengan backend X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tukar Mode: (Grup %d)"
@@ -737,11 +712,11 @@ msgstr "Tukar Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
 
@@ -758,16 +733,20 @@ msgstr "Pengaya Mutter yang dipakai"
 msgid "Workspace %d"
 msgstr "Area kerja %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Muter dikompilasi tanpa dukungan mode riuh"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+msgid "Workspace switched"
+msgstr "Area kerja dialihkan"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -776,37 +755,54 @@ msgstr ""
 "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
 "replace untuk mengganti manajer jendela saat ini."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "Gagal menginisialisasi GDK"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gagal membuka tampilan X Window System \"%s\""
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s tidak didukung"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Jendela ini tidak mendukung \"menyimpan setelan aktif saat ini\" dan mesti "
-"dijalankan ulang secara manual kala berikut Anda log masuk."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pada %s)"
+
+#~ msgid "“%s” is not responding."
+#~ msgstr "\"%s\" tak merespon."
+
+#~ msgid "Application is not responding."
+#~ msgstr "Aplikasi tak merespon."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Anda bisa memilih untuk menunggu sebentar atau memaksa aplikasi keluar."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Matikan Paksa"
+
+#~ msgid "_Wait"
+#~ msgstr "_Tunggu"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Jendela ini tidak mendukung \"menyimpan setelan aktif saat ini\" dan "
+#~ "mesti dijalankan ulang secara manual kala berikut Anda log masuk."
 
 #~ msgid "Show the activities overview"
 #~ msgstr "Tampilkan ringkasan aktivitas"
