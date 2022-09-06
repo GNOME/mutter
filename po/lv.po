@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lv\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-08-19 16:05+0000\n"
-"PO-Revision-Date: 2022-09-03 16:13+0300\n"
+"POT-Creation-Date: 2022-09-06 11:35+0000\n"
+"PO-Revision-Date: 2022-09-06 22:01+0300\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
@@ -400,22 +400,6 @@ msgid "Enable experimental features"
 msgstr "Ieslēgt eksperimentālās iespējas"
 
 #: data/org.gnome.mutter.gschema.xml.in:117
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
-#| "restart. • “dma-buf-screen-sharing\" — enables DMA buffered screen "
-#| "sharing. This is already enabled by default when using the i915 driver, "
-#| "but disabled for everything else. Requires a restart. • “autoclose-"
-#| "xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-#| "are gone. Does not require a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -442,9 +426,9 @@ msgstr ""
 "• “kms-modifiers” — liek mutter vienmēr piešķirt scanout buferi ar "
 "eksplicītiem modifikatoriem, ja to atbalsta draiveris. Nepieciešama "
 "pārstartēšana. • “rt-scheduler” — liek mutter pieprasīt mazāku prioritāti "
-"reālā laika procesu plānošanā. Nepieciešama pārstartēšana. "
-"• “autoclose-xwayland” — automātiski aptur Xwayland, ja visi būtiskie X11 "
-"klienti ir pazuduši. Nepieciešama pārstartēšana."
+"reālā laika procesu plānošanā. Nepieciešama pārstartēšana. • “autoclose-"
+"xwayland” — automātiski aptur Xwayland, ja visi būtiskie X11 klienti ir "
+"pazuduši. Nepieciešama pārstartēšana."
 
 #: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
@@ -605,26 +589,26 @@ msgstr ""
 "ja Xwayland tika uzbūvēts bez atbalstra izvēlētajiem paplašinājumiem. Lai "
 "šie iestatījumi stātos spēkā, Xwayland ir jāpārstartē."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Iebūvēts displejs"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Nezināms"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Nezināms displejs"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -716,7 +700,7 @@ msgstr "Palaist ar X11 aizmuguri"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:842
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Režīma slēdzis (grupa %d)"
@@ -724,11 +708,11 @@ msgstr "Režīma slēdzis (grupa %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Pārslēgt monitoru"
 
-#: src/core/meta-pad-action-mapper.c:867
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Rādīt palīdzību uz ekrāna"
 
@@ -745,9 +729,14 @@ msgstr "Izmantojamais mutter spraudnis"
 msgid "Workspace %d"
 msgstr "Darbvieta %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter tika kompilēts bez detalizētas izvades režīma atbalsta"
+
+#: src/core/workspace.c:533
+#| msgid "Workspace %d"
+msgid "Workspace switched"
+msgstr "Darbvieta pārslēgta"
 
 #: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
