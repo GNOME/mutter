@@ -403,6 +403,10 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
        */
       _cogl_texture_flush_journal_rendering (tex);
 
+      if (_cogl_has_private_feature (ctx, COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
+          _cogl_texture_get_associated_framebuffers (tex))
+        ctx->glFlush ();
+
       ctx->driver_vtable->texture_2d_generate_mipmap (tex_2d);
 
       tex_2d->mipmaps_dirty = FALSE;
