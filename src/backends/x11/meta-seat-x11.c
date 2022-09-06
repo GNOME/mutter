@@ -22,6 +22,10 @@
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XKB.h>
 
+#ifdef HAVE_LIBGUDEV
+#include <gudev/gudev.h>
+#endif
+
 #include "backends/meta-input-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
@@ -71,6 +75,10 @@ struct _MetaSeatX11
   GHashTable *tools_by_serial;
   GHashTable *touch_coords;
   MetaKeymapX11 *keymap;
+
+#ifdef HAVE_LIBGUDEV
+  GUdevClient *udev_client;
+#endif
 
   int pointer_id;
   int keyboard_id;
@@ -234,10 +242,11 @@ translate_device_classes (Display             *xdisplay,
 }
 
 static gboolean
-is_touch_device (XIAnyClassInfo         **classes,
-                 int                      n_classes,
-                 ClutterInputDeviceType  *device_type,
-                 uint32_t                *n_touch_points)
+is_touch_device (XIAnyClassInfo           **classes,
+                 int                        n_classes,
+                 ClutterInputDeviceType    *device_type,
+                 ClutterInputCapabilities  *capabilities,
+                 uint32_t                  *n_touch_points)
 {
   int i;
 
@@ -251,11 +260,21 @@ is_touch_device (XIAnyClassInfo         **classes,
       if (class->num_touches > 0)
         {
           if (class->mode == XIDirectTouch)
-            *device_type = CLUTTER_TOUCHSCREEN_DEVICE;
+            {
+              *device_type = CLUTTER_TOUCHSCREEN_DEVICE;
+              *capabilities = CLUTTER_INPUT_CAPABILITY_TOUCH;
+            }
           else if (class->mode == XIDependentTouch)
-            *device_type = CLUTTER_TOUCHPAD_DEVICE;
+            {
+              *device_type = CLUTTER_TOUCHPAD_DEVICE;
+              *capabilities =
+                CLUTTER_INPUT_CAPABILITY_POINTER |
+                CLUTTER_INPUT_CAPABILITY_TOUCHPAD;
+            }
           else
-            continue;
+            {
+              continue;
+            }
 
           *n_touch_points = class->num_touches;
 
@@ -405,9 +424,10 @@ get_pad_features (XIDeviceInfo *info,
 /* The Wacom driver exports the tool type as property. Use that over
    guessing based on the device name */
 static gboolean
-guess_source_from_wacom_type (MetaSeatX11             *seat_x11,
-                              XIDeviceInfo            *info,
-                              ClutterInputDeviceType  *source_out)
+guess_source_from_wacom_type (MetaSeatX11              *seat_x11,
+                              XIDeviceInfo             *info,
+                              ClutterInputDeviceType   *source_out,
+                              ClutterInputCapabilities *capabilities_out)
 {
   Display *xdisplay = xdisplay_from_seat (seat_x11);
   gulong nitems, bytes_after;
@@ -453,26 +473,33 @@ guess_source_from_wacom_type (MetaSeatX11             *seat_x11,
   if (device_type == types[WACOM_TYPE_STYLUS])
     {
       *source_out = CLUTTER_PEN_DEVICE;
+      *capabilities_out = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
     }
   else if (device_type == types[WACOM_TYPE_CURSOR])
     {
       *source_out = CLUTTER_CURSOR_DEVICE;
+      *capabilities_out = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
     }
   else if (device_type == types[WACOM_TYPE_ERASER])
     {
       *source_out = CLUTTER_ERASER_DEVICE;
+      *capabilities_out = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
     }
   else if (device_type == types[WACOM_TYPE_PAD])
     {
       *source_out = CLUTTER_PAD_DEVICE;
+      *capabilities_out = CLUTTER_INPUT_CAPABILITY_TABLET_PAD;
     }
   else if (device_type == types[WACOM_TYPE_TOUCH])
     {
         uint32_t num_touches = 0;
 
         if (!is_touch_device (info->classes, info->num_classes,
-                              source_out, &num_touches))
+                              source_out, capabilities_out, &num_touches))
+          {
             *source_out = CLUTTER_TOUCHSCREEN_DEVICE;
+            *capabilities_out = CLUTTER_INPUT_CAPABILITY_TOUCH;
+          }
     }
   else
     {
@@ -482,6 +509,25 @@ guess_source_from_wacom_type (MetaSeatX11             *seat_x11,
   return TRUE;
 }
 
+#ifdef HAVE_LIBGUDEV
+static gboolean
+has_udev_property (GUdevDevice *udev_device,
+                   const char  *property_name)
+{
+  g_autoptr (GUdevDevice) parent_udev_device = NULL;
+
+  if (NULL != g_udev_device_get_property (udev_device, property_name))
+    return TRUE;
+
+  parent_udev_device = g_udev_device_get_parent (udev_device);
+
+  if (!parent_udev_device)
+    return FALSE;
+
+  return g_udev_device_get_property (parent_udev_device, property_name) != NULL;
+}
+#endif
+
 static ClutterInputDevice *
 create_device (MetaSeatX11    *seat_x11,
                ClutterBackend *clutter_backend,
@@ -489,6 +535,7 @@ create_device (MetaSeatX11    *seat_x11,
 {
   Display *xdisplay = xdisplay_from_seat (seat_x11);
   ClutterInputDeviceType source, touch_source;
+  ClutterInputCapabilities capabilities = 0;
   ClutterInputDevice *retval;
   ClutterInputMode mode;
   uint32_t num_touches = 0, num_rings = 0, num_strips = 0;
@@ -497,6 +544,7 @@ create_device (MetaSeatX11    *seat_x11,
   if (info->use == XIMasterKeyboard || info->use == XISlaveKeyboard)
     {
       source = CLUTTER_KEYBOARD_DEVICE;
+      capabilities = CLUTTER_INPUT_CAPABILITY_KEYBOARD;
     }
   else if (is_touchpad_device (seat_x11, info))
     {
@@ -504,29 +552,49 @@ create_device (MetaSeatX11    *seat_x11,
     }
   else if (info->use == XISlavePointer &&
            is_touch_device (info->classes, info->num_classes,
-                            &touch_source,
+                            &touch_source, &capabilities,
                             &num_touches))
     {
       source = touch_source;
     }
-  else if (!guess_source_from_wacom_type (seat_x11, info, &source))
+  else if (!guess_source_from_wacom_type (seat_x11, info, &source, &capabilities))
     {
       char *name;
 
       name = g_ascii_strdown (info->name, -1);
 
       if (strstr (name, "eraser") != NULL)
-        source = CLUTTER_ERASER_DEVICE;
+        {
+          source = CLUTTER_ERASER_DEVICE;
+          capabilities = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
+        }
       else if (strstr (name, "cursor") != NULL)
-        source = CLUTTER_CURSOR_DEVICE;
+        {
+          source = CLUTTER_CURSOR_DEVICE;
+          capabilities = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
+        }
       else if (strstr (name, " pad") != NULL)
-        source = CLUTTER_PAD_DEVICE;
+        {
+          source = CLUTTER_PAD_DEVICE;
+          capabilities = CLUTTER_INPUT_CAPABILITY_TABLET_PAD;
+        }
       else if (strstr (name, "wacom") != NULL || strstr (name, "pen") != NULL)
-        source = CLUTTER_PEN_DEVICE;
+        {
+          source = CLUTTER_PEN_DEVICE;
+          capabilities = CLUTTER_INPUT_CAPABILITY_TABLET_TOOL;
+        }
       else if (strstr (name, "touchpad") != NULL)
-        source = CLUTTER_TOUCHPAD_DEVICE;
+        {
+          source = CLUTTER_TOUCHPAD_DEVICE;
+          capabilities =
+            CLUTTER_INPUT_CAPABILITY_POINTER |
+            CLUTTER_INPUT_CAPABILITY_TOUCHPAD;
+        }
       else
-        source = CLUTTER_POINTER_DEVICE;
+        {
+          source = CLUTTER_POINTER_DEVICE;
+          capabilities = CLUTTER_INPUT_CAPABILITY_POINTER;
+        }
 
       g_free (name);
     }
@@ -556,6 +624,23 @@ create_device (MetaSeatX11    *seat_x11,
       node_path = get_device_node_path (seat_x11, info);
     }
 
+#ifdef HAVE_LIBGUDEV
+  if (node_path)
+    {
+      g_autoptr (GUdevDevice) udev_device = NULL;
+
+      udev_device = g_udev_client_query_by_device_file (seat_x11->udev_client,
+                                                        node_path);
+      if (udev_device)
+        {
+          if (has_udev_property (udev_device, "ID_INPUT_TRACKBALL"))
+            capabilities |= CLUTTER_INPUT_CAPABILITY_TRACKBALL;
+          if (has_udev_property (udev_device, "ID_INPUT_POINTINGSTICK"))
+            capabilities |= CLUTTER_INPUT_CAPABILITY_TRACKPOINT;
+        }
+    }
+#endif
+
   if (source == CLUTTER_PAD_DEVICE)
     get_pad_features (info, &num_rings, &num_strips);
 
@@ -564,6 +649,7 @@ create_device (MetaSeatX11    *seat_x11,
                          "id", info->deviceid,
                          "has-cursor", (info->use == XIMasterPointer),
                          "device-type", source,
+                         "capabilities", capabilities,
                          "device-mode", mode,
                          "backend", clutter_backend,
                          "vendor-id", vendor_id,
@@ -1410,6 +1496,11 @@ meta_seat_x11_constructed (GObject *object)
   XIEventMask event_mask;
   unsigned char mask[XIMaskLen(XI_LASTEVENT)] = { 0, };
   int n_devices, i;
+#ifdef HAVE_LIBGUDEV
+  const char *udev_subsystems[] = { "input", NULL };
+
+  seat_x11->udev_client = g_udev_client_new (udev_subsystems);
+#endif
 
   info = XIQueryDevice (xdisplay, XIAllDevices, &n_devices);
 
@@ -1474,6 +1565,10 @@ static void
 meta_seat_x11_finalize (GObject *object)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
+
+#ifdef HAVE_LIBGUDEV
+  g_clear_object (&seat_x11->udev_client);
+#endif
 
   g_hash_table_unref (seat_x11->devices_by_id);
   g_hash_table_unref (seat_x11->tools_by_serial);
