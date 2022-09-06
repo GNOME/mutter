@@ -1350,10 +1350,28 @@ determine_device_type (struct libinput_device *ldev)
     return CLUTTER_EXTENSION_DEVICE;
 }
 
+static gboolean
+has_udev_property (struct udev_device *udev_device,
+                   const char         *property)
+{
+  struct udev_device *parent_udev_device;
+
+  if (NULL != udev_device_get_property_value (udev_device, property))
+    return TRUE;
+
+  parent_udev_device = udev_device_get_parent (udev_device);
+
+  if (!parent_udev_device)
+    return FALSE;
+
+  return udev_device_get_property_value (parent_udev_device, property) != NULL;
+}
+
 static ClutterInputCapabilities
 translate_device_capabilities (struct libinput_device *ldev)
 {
   ClutterInputCapabilities caps = 0;
+  struct udev_device *udev_device;
 
   /* This setting is specific to touchpads and alike, only in these
    * devices there is this additional layer of touch event interpretation.
@@ -1370,6 +1388,18 @@ translate_device_capabilities (struct libinput_device *ldev)
     caps |= CLUTTER_INPUT_CAPABILITY_TOUCH;
   if (libinput_device_has_capability (ldev, LIBINPUT_DEVICE_CAP_KEYBOARD))
     caps |= CLUTTER_INPUT_CAPABILITY_KEYBOARD;
+
+  udev_device = libinput_device_get_udev_device (ldev);
+
+  if (udev_device)
+    {
+      if (has_udev_property (udev_device, "ID_INPUT_TRACKBALL"))
+        caps |= CLUTTER_INPUT_CAPABILITY_TRACKBALL;
+      if (has_udev_property (udev_device, "ID_INPUT_POINTINGSTICK"))
+        caps |= CLUTTER_INPUT_CAPABILITY_TRACKPOINT;
+
+      udev_device_unref (udev_device);
+    }
 
   return caps;
 }
