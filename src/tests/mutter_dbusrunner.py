@@ -12,7 +12,16 @@ from collections import OrderedDict
 from dbusmock import DBusTestCase
 from dbus.mainloop.glib import DBusGMainLoop
 from pathlib import Path
+from gi.repository import Gio
 
+
+def escape_object_path(path):
+    b = bytearray()
+    b.extend(path.encode())
+    path = Gio.dbus_escape_object_path_bytestring(b)
+    if path[0].isdigit():
+        path = "_{0:02x}{1}".format(ord(path[0]), path[1:])
+    return os.path.basename(path)
 
 def get_subprocess_stdout():
     if os.getenv('META_DBUS_RUNNER_VERBOSE') == '1':
@@ -31,6 +40,16 @@ class MutterDBusRunner(DBusTestCase):
         klass.templates_dirs = [klass.__get_templates_dir()]
 
         klass.mocks = OrderedDict()
+
+        klass.host_system_bus_address = os.getenv('DBUS_SYSTEM_BUS_ADDRESS')
+        if klass.host_system_bus_address is None:
+            klass.host_system_bus_address = 'unix:path=/run/dbus/system_bus_socket'
+
+        try:
+            dbus.bus.BusConnection(klass.host_system_bus_address)
+            klass.has_host_system_bus = True
+        except:
+            klass.has_host_system_bus = False
 
         print('Starting D-Bus daemons (session & system)...', file=sys.stderr)
         DBusTestCase.setUpClass()
@@ -116,12 +135,8 @@ class MutterDBusRunner(DBusTestCase):
         mocks = (mock_server, mock_obj)
         return mocks
 
-    @classmethod
-    def init_logind_kvm(klass, session_path):
-        session_obj = klass.system_bus_con.get_object('org.freedesktop.login1', session_path)
-        session_obj.AddMethod('org.freedesktop.login1.Session',
-                              'TakeDevice',
-                              'uu', 'hb',
+    def wrap_logind_call(call):
+        code = \
 f'''
 import os
 import sys
@@ -129,15 +144,83 @@ import sys
 sys.path.insert(0, '{os.path.dirname(__file__)}')
 import logind_helpers
 
+{call}
+'''
+        return code
+
+    @classmethod
+    def forward_to_host(klass, object_path, interface, method, in_type, out_type):
+        proxy = klass.system_bus_con.get_object('org.freedesktop.login1',
+                                                object_path)
+        proxy.AddMethod(interface, method, in_type, out_type,
+f'''
+import os
+import sys
+
+sys.path.insert(0, '{os.path.dirname(__file__)}')
+import logind_helpers
+
+ret = logind_helpers.call_host('{klass.host_system_bus_address}',
+                               '{object_path}',
+                               '{interface}',
+                               '{method}',
+                               '{in_type}',
+                               args)
+''')
+
+    @classmethod
+    def init_logind_forward(klass, session_path, seat_path):
+        klass.forward_to_host(session_path, 'org.freedesktop.login1.Session',
+                              'TakeDevice',
+                              'uu', 'hb')
+        klass.forward_to_host(session_path, 'org.freedesktop.login1.Session',
+                              'ReleaseDevice',
+                              'uu', '')
+        klass.forward_to_host(session_path, 'org.freedesktop.login1.Session',
+                              'TakeDevice',
+                              'uu', 'hb')
+        klass.forward_to_host(session_path, 'org.freedesktop.login1.Session',
+                              'TakeControl',
+                              'b', '')
+        klass.forward_to_host(seat_path, 'org.freedesktop.login1.Seat',
+                              'SwitchTo',
+                              'u', '')
+
+    @classmethod
+    def init_logind_kvm(klass, session_path):
+        session_obj = klass.system_bus_con.get_object('org.freedesktop.login1', session_path)
+        session_obj.AddMethod('org.freedesktop.login1.Session',
+                              'TakeDevice',
+                              'uu', 'hb',
+                              klass.wrap_logind_call(
+f'''
 major = args[0]
 minor = args[1]
-
 ret = logind_helpers.open_file_direct(major, minor)
-''')
+'''))
         session_obj.AddMethods('org.freedesktop.login1.Session', [
             ('ReleaseDevice', 'uu', '', ''),
             ('TakeControl', 'b', '', ''),
         ])
+
+
+    @classmethod
+    def find_host_session_name(klass):
+        if 'XDG_SESSION_ID' in os.environ:
+            return escape_object_path(os.environ['XDG_SESSION_ID'])
+
+        bus = dbus.bus.BusConnection(klass.host_system_bus_address)
+        session_auto_proxy = bus.get_object('org.freedesktop.login1',
+                                            '/org/freedesktop/login1/session/auto')
+        props = dbus.Interface(session_auto_proxy,
+                               dbus_interface='org.freedesktop.DBus.Properties')
+        session_id = props.Get('org.freedesktop.login1.Session', 'Id')
+        manager_proxy = bus.get_object('org.freedesktop.login1',
+                                       '/org/freedesktop/login1')
+        manager = dbus.Interface(manager_proxy,
+                                 dbus_interface='org.freedesktop.login1.Manager')
+        session_path = manager.GetSession(session_id)
+        return os.path.basename(session_path)
 
     @classmethod
     def init_logind(klass, enable_kvm):
@@ -146,8 +229,12 @@ ret = logind_helpers.open_file_direct(major, minor)
         [p_mock, obj] = logind
 
         mock_iface = 'org.freedesktop.DBus.Mock'
-        obj.AddSeat('seat0', dbus_interface=mock_iface)
-        session_path = obj.AddSession('dummy', 'seat0',
+        seat_path = obj.AddSeat('seat0', dbus_interface=mock_iface)
+        session_name = 'dummy'
+        if klass.has_host_system_bus:
+            session_name = klass.find_host_session_name()
+
+        session_path = obj.AddSession(session_name, 'seat0',
                                       dbus.types.UInt32(os.getuid()),
                                       getpass.getuser(),
                                       True,
@@ -155,6 +242,8 @@ ret = logind_helpers.open_file_direct(major, minor)
 
         if enable_kvm:
             klass.init_logind_kvm(session_path)
+        elif klass.has_host_system_bus:
+            klass.init_logind_forward(session_path, seat_path)
 
     @classmethod
     def add_template_dir(klass, templates_dir):
