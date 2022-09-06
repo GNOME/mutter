@@ -197,12 +197,16 @@ cogl_texture_is_get_data_supported (CoglTexture *texture)
 unsigned int
 cogl_texture_get_width (CoglTexture *texture)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), 0);
+
   return texture->width;
 }
 
 unsigned int
 cogl_texture_get_height (CoglTexture *texture)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), 0);
+
   return texture->height;
 }
 
@@ -217,6 +221,8 @@ _cogl_texture_get_format (CoglTexture *texture)
 int
 cogl_texture_get_max_waste (CoglTexture *texture)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), 0);
+
   return texture->vtable->get_max_waste (texture);
 }
 
@@ -272,6 +278,8 @@ _cogl_texture_get_level_size (CoglTexture *texture,
 gboolean
 cogl_texture_is_sliced (CoglTexture *texture)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
+
   if (!texture->allocated)
     cogl_texture_allocate (texture, NULL);
   return texture->vtable->is_sliced (texture);
@@ -312,6 +320,8 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
 			     GLuint *out_gl_handle,
 			     GLenum *out_gl_target)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
+
   if (!texture->allocated)
     cogl_texture_allocate (texture, NULL);
 
@@ -393,14 +403,17 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                      CoglBitmap *bitmap)
 {
   GError *ignore_error = NULL;
-  gboolean status =
-    _cogl_texture_set_region_from_bitmap (texture,
-                                          src_x, src_y,
-                                          dst_width, dst_height,
-                                          bitmap,
-                                          dst_x, dst_y,
-                                          0, /* level */
-                                          &ignore_error);
+  gboolean status;
+
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
+
+  status = _cogl_texture_set_region_from_bitmap (texture,
+                                                 src_x, src_y,
+                                                 dst_width, dst_height,
+                                                 bitmap,
+                                                 dst_x, dst_y,
+                                                 0, /* level */
+                                                 &ignore_error);
 
   g_clear_error (&ignore_error);
   return status;
@@ -468,6 +481,7 @@ cogl_texture_set_region (CoglTexture *texture,
   int bytes_per_pixel;
   gboolean status;
 
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
   g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, FALSE);
   g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
 
@@ -502,6 +516,8 @@ cogl_texture_set_data (CoglTexture *texture,
 {
   int level_width;
   int level_height;
+
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
 
   _cogl_texture_get_level_size (texture,
                                 level,
@@ -723,7 +739,7 @@ cogl_texture_get_data (CoglTexture *texture,
 		       unsigned int rowstride,
 		       uint8_t *data)
 {
-  CoglContext *ctx = texture->context;
+  CoglContext *ctx;
   int bpp;
   int byte_size;
   CoglPixelFormat closest_format;
@@ -734,8 +750,9 @@ cogl_texture_get_data (CoglTexture *texture,
   int tex_height;
   CoglPixelFormat texture_format;
   GError *ignore_error = NULL;
-
   CoglTextureGetData tg_data;
+
+  g_return_val_if_fail (cogl_is_texture (texture), 0);
 
   texture_format = _cogl_texture_get_format (texture);
 
@@ -759,6 +776,7 @@ cogl_texture_get_data (CoglTexture *texture,
   if (data == NULL)
     return byte_size;
 
+  ctx = texture->context;
   closest_format =
     ctx->texture_driver->find_best_gl_get_data_format (ctx,
                                                        format,
@@ -1063,6 +1081,8 @@ gboolean
 cogl_texture_allocate (CoglTexture *texture,
                        GError **error)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
+
   if (texture->allocated)
     return TRUE;
 
@@ -1176,6 +1196,7 @@ void
 cogl_texture_set_components (CoglTexture *texture,
                              CoglTextureComponents components)
 {
+  g_return_if_fail (cogl_is_texture (texture));
   g_return_if_fail (!texture->allocated);
 
   if (texture->components == components)
@@ -1187,6 +1208,8 @@ cogl_texture_set_components (CoglTexture *texture,
 CoglTextureComponents
 cogl_texture_get_components (CoglTexture *texture)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), 0);
+
   return texture->components;
 }
 
@@ -1194,6 +1217,7 @@ void
 cogl_texture_set_premultiplied (CoglTexture *texture,
                                 gboolean premultiplied)
 {
+  g_return_if_fail (cogl_is_texture (texture));
   g_return_if_fail (!texture->allocated);
 
   premultiplied = !!premultiplied;
@@ -1207,6 +1231,8 @@ cogl_texture_set_premultiplied (CoglTexture *texture,
 gboolean
 cogl_texture_get_premultiplied (CoglTexture *texture)
 {
+  g_return_val_if_fail (cogl_is_texture (texture), FALSE);
+
   return texture->premultiplied;
 }
 
