@@ -188,7 +188,11 @@ meta_dbus_runner = find_program('meta-dbus-runner.py')
 
 tests_datadir = pkgdatadir / 'tests'
 
-install_data('mutter_dbusrunner.py',
+install_data(
+  [
+    'mutter_dbusrunner.py',
+    'logind_helpers.py',
+  ],
   install_dir: tests_datadir,
 )
 install_subdir('dbusmock-templates',

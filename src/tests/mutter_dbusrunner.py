@@ -7,6 +7,7 @@ import fcntl
 import subprocess
 import getpass
 import argparse
+import logind_helpers
 from collections import OrderedDict
 from dbusmock import DBusTestCase
 from dbus.mainloop.glib import DBusGMainLoop
@@ -121,28 +122,17 @@ class MutterDBusRunner(DBusTestCase):
         session_obj.AddMethod('org.freedesktop.login1.Session',
                               'TakeDevice',
                               'uu', 'hb',
-'''
-import re
+f'''
+import os
+import sys
+
+sys.path.insert(0, '{os.path.dirname(__file__)}')
+import logind_helpers
 
 major = args[0]
 minor = args[1]
 
-sysfs_uevent_path = '/sys/dev/char/{}:{}/uevent'.format(major, minor)
-sysfs_uevent = open(sysfs_uevent_path, 'r')
-devname = None
-for line in sysfs_uevent.readlines():
-    match = re.match('DEVNAME=(.*)', line)
-    if match:
-        devname = match[1]
-        break
-sysfs_uevent.close()
-if not devname:
-    raise dbus.exceptions.DBusException(f'Device file {major}:{minor} doesn\\\'t exist',
-                                        major=major, minor=minor)
-fd = os.open('/dev/' + devname, os.O_RDWR | os.O_CLOEXEC)
-unix_fd = dbus.types.UnixFd(fd)
-os.close(fd)
-ret = (unix_fd, False)
+ret = logind_helpers.open_file_direct(major, minor)
 ''')
         session_obj.AddMethods('org.freedesktop.login1.Session', [
             ('ReleaseDevice', 'uu', '', ''),
