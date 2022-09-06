@@ -2,21 +2,21 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # FIRST AUTHOR  Samúel Jón Gunnarsson <sammi@techattack.nu>, 2003.
-# Sveinn í Felli <sv1@fellsnet.is>, 2017, 2021.
+# Sveinn í Felli <sv1@fellsnet.is>, 2017, 2021, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-10-26 16:56+0000\n"
-"PO-Revision-Date: 2021-12-16 17:39+0000\n"
+"POT-Creation-Date: 2022-09-02 07:19+0000\n"
+"PO-Revision-Date: 2022-09-06 11:33+0000\n"
 "Last-Translator: Sveinn í Felli <sv1@fellsnet.is>\n"
-"Language-Team: Icelandic <translation-team-is@lists.sourceforge.org>\n"
+"Language-Team: Icelandic\n"
 "Language: is\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 19.12.3\n"
+"X-Generator: Lokalize 21.12.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -100,11 +100,11 @@ msgstr "Skipta í fyrri glugga forrits"
 
 #: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
-msgstr ""
+msgstr "Skipta um kerfisstýringar"
 
 #: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
-msgstr ""
+msgstr "Skipta á fyrri kerfisstýringu"
 
 #: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
@@ -116,19 +116,19 @@ msgstr "Skipta beint yfir í fyrri glugga"
 
 #: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr ""
+msgstr "Skipta beint á milli glugga forrits"
 
 #: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr ""
+msgstr "Skipta beint yfir í fyrri glugga forrits"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
-msgstr ""
+msgstr "Skipta beint um kerfisstýringar"
 
 #: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
-msgstr ""
+msgstr "Skipta beint á fyrri kerfisstýringu"
 
 #: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
@@ -155,12 +155,10 @@ msgid "Switch to last workspace"
 msgstr "Skipta yfir á síðasta vinnusvæði"
 
 #: data/50-mutter-navigation.xml:131
-#| msgid "Move to workspace left"
 msgid "Move to workspace on the left"
 msgstr "Flytja á vinnusvæðið til vinstri"
 
 #: data/50-mutter-navigation.xml:134
-#| msgid "Move to workspace right"
 msgid "Move to workspace on the right"
 msgstr "Flytja á vinnusvæðið til hægri"
 
@@ -182,7 +180,7 @@ msgstr "Birta skipanalínuna"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr ""
+msgstr "Endurheimta flýtilykla á lyklaborði"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -249,11 +247,11 @@ msgstr "Hámarka glugga lóðrétt"
 msgid "Maximize window horizontally"
 msgstr "Hámarka glugga lárétt"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
 msgstr "Kljúfa sýn til vinstri"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:184
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
 msgstr "Kljúfa sýn til hægri"
 
@@ -261,11 +259,11 @@ msgstr "Kljúfa sýn til hægri"
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -273,105 +271,105 @@ msgid ""
 "set to the empty string."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Tengja kvaðningarglugga"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Virkja flísalögn við jaðra þegar gluggum er sleppt á skjájaðra"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Vinnusvæðum er stýrt eftir þörfum"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Vinnusvæði einungis á aðalskjá"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "No tab popup"
-msgstr ""
+msgstr "Engir sprettflipar"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:77
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
-msgstr ""
+msgstr "Draganleg breidd jaðars"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
 msgstr "Setja nýja glugga á miðjuna"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
-msgstr ""
+msgstr "Virkja eiginleika á tilraunastigi"
 
-#: data/org.gnome.mutter.gschema.xml.in:118
+#: data/org.gnome.mutter.gschema.xml.in:117
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -381,48 +379,44 @@ msgid ""
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always advertise valid buffer modifiers on Wayland. This is currently "
-"not the case when using the i915 driver. Does not require a restart. • “rt-"
-"scheduler” — makes mutter request a low priority real-time scheduling. "
-"Requires a restart. • “dma-buf-screen-sharing” — enables DMA buffered screen "
-"sharing. This is already enabled by default when using the i915 driver, but "
-"disabled for everything else. Requires a restart. • “autoclose-xwayland” — "
-"automatically terminates Xwayland if all relevant X11 clients are gone. Does "
-"not require a restart."
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
-msgstr ""
+msgstr "Breytilykill til að finna bendilinn"
 
-#: data/org.gnome.mutter.gschema.xml.in:157
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "This key will initiate the “locate pointer” action."
-msgstr ""
+msgstr "Þessi lykill mun ræsa \"Finna bendil\" aðgerðina."
 
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Timeout for check-alive ping"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:183
 msgid "Select window from tab popup"
-msgstr ""
+msgstr "Velja glugga úr sprettflipa"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:188
 msgid "Cancel tab popup"
-msgstr ""
+msgstr "Hætta við sprettflipa"
 
-#: data/org.gnome.mutter.gschema.xml.in:199
-#| msgid "Switch monitor"
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
 msgstr "Skipta um skjáuppsetningu"
 
-#: data/org.gnome.mutter.gschema.xml.in:204
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
 msgstr ""
 
@@ -476,7 +470,7 @@ msgstr "Skipta yfir á vinnusvæði 12"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr ""
+msgstr "Endurvirkja flýtilykla"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
@@ -539,7 +533,6 @@ msgstr "Óþekktur skjár"
 
 #: src/backends/meta-monitor.c:285
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
@@ -547,7 +540,6 @@ msgstr "%s %s"
 
 #: src/backends/meta-monitor.c:293
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
@@ -561,20 +553,25 @@ msgstr "Skjásamsetning"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:504
+#: src/compositor/compositor.c:393
 #, c-format
-#| msgid ""
-#| "Another compositing manager is already running on screen %i on display "
-#| "\"%s\"."
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
-"Annar skjásamsetningarstjóri er þegar í keyrslu í sýndarskjá %i á skjánum \""
-"%s\"."
+"Annar skjásamsetningarstjóri er þegar í keyrslu í sýndarskjá %i á skjánum "
+"\"%s\"."
 
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Hljóðatburður"
+
+#: src/core/display.c:693
+msgid "Privacy Screen Enabled"
+msgstr ""
+
+#: src/core/display.c:694
+msgid "Privacy Screen Disabled"
+msgstr ""
 
 #. Translators: %s is a window title
 #: src/core/meta-close-dialog-default.c:151
@@ -594,11 +591,11 @@ msgstr ""
 "Þú getur annað hvort hinkrað augnablik og leyft forritinu að halda áfram eða "
 "þú getur þvingað forritið til að slökkva algjörlega á sér."
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Þvinga til að hætta"
 
-#: src/core/meta-close-dialog-default.c:165
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Bíða"
 
@@ -640,7 +637,7 @@ msgstr "Keyra wayland-skjásamsetningu án þess að ræsa Xwayland"
 
 #: src/core/meta-context-main.c:610
 msgid "Specify Wayland display name to use"
-msgstr ""
+msgstr "Teilgreindu hvaða nafn Wayland-skjás eigi að nota"
 
 #: src/core/meta-context-main.c:618
 msgid "Run as a full display server, rather than nested"
@@ -648,11 +645,11 @@ msgstr ""
 
 #: src/core/meta-context-main.c:623
 msgid "Run as a headless display server"
-msgstr ""
+msgstr "Keyra sem viðmótslausan skjáþjón (headless)"
 
 #: src/core/meta-context-main.c:628
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
-msgstr ""
+msgstr "Bæta við varanlegum sýndarskjá (BxH eða BxH@R)"
 
 #: src/core/meta-context-main.c:639
 msgid "Run with X11 backend"
@@ -661,75 +658,68 @@ msgstr "Keyra með X11-bakenda"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:842
 #, c-format
-#| msgid "Mode Switch: Mode %d"
 msgid "Mode Switch (Group %d)"
 msgstr "Hamskipti (hópur %d)"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Switch monitor"
 msgstr "Skipta um skjá"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:867
 msgid "Show on-screen help"
 msgstr "Birta upplýsingar á skjá"
 
-#: src/core/mutter.c:48
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Prenta útgáfunúmer"
 
-#: src/core/mutter.c:54
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
-msgstr ""
+msgstr "Mutter-forritsviðbót sem á að nota"
 
 #: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "Vinnusvæði %d"
 
-#: src/core/util.c:149
-#| msgid "Mutter was compiled without support for verbose mode\n"
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter var vistþýtt án stuðnings við aukinn villuleitarham (verbose)"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Hamskipti:  %d hamur"
 
 #: src/x11/meta-x11-display.c:673
 #, c-format
-#| msgid ""
-#| "Display \"%s\" already has a window manager; try using the --replace "
-#| "option to replace the current window manager."
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"Skjárinn \"%s\" er þegar með gluggastjóra; reyndu að nota --replace rofann"
-" til að skipta út núverandi gluggastjóra."
+"Skjárinn \"%s\" er þegar með gluggastjóra; reyndu að nota --replace rofann "
+"til að skipta út núverandi gluggastjóra."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1072
 msgid "Failed to initialize GDK"
 msgstr "Mistókst að frumstilla GDK"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1099
 #, c-format
-#| msgid "Failed to open X Window System display '%s'\n"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Mistókst að opna X-gluggakerfis-skjá \"%s\""
 
-#: src/x11/meta-x11-display.c:1181
+#: src/x11/meta-x11-display.c:1208
 #, c-format
-#| msgid "Screen %d on display '%s' is invalid\n"
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Sýndarskjár %d á skjánum '%s‛ er ógildur"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "Sniðið %s er ekki stutt"
