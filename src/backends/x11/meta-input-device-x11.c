@@ -273,6 +273,81 @@ meta_input_device_x11_is_mode_switch_button (ClutterInputDevice *device,
   return button_group == (int) group;
 }
 
+static gboolean
+meta_input_device_x11_get_dimensions (ClutterInputDevice *device,
+                                      unsigned int       *width,
+                                      unsigned int       *height)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  MetaBackendX11 *backend_x11 =
+    META_BACKEND_X11 (meta_seat_x11_get_backend (seat_x11));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (backend_x11);
+  XIDeviceInfo *info;
+  uint *value, w, h;
+  int i, n_info;
+  static gboolean atoms_initialized = FALSE;
+  static Atom abs_axis_atoms[4] = { 0, };
+
+  meta_clutter_x11_trap_x_errors ();
+
+  info = XIQueryDevice (xdisplay, device_x11->device_id, &n_info);
+  *width = *height = w = h = 0;
+
+  if (meta_clutter_x11_untrap_x_errors ())
+    return FALSE;
+
+  if (!info)
+    return FALSE;
+
+  if (G_UNLIKELY (!atoms_initialized))
+    {
+      const char *abs_axis_atom_names[4] = {
+        "Abs X",
+        "Abs MT Position X",
+        "Abs Y",
+        "Abs MT Position Y",
+      };
+
+      XInternAtoms (xdisplay,
+                    (char **) abs_axis_atom_names,
+                    G_N_ELEMENTS (abs_axis_atom_names),
+                    False,
+                    abs_axis_atoms);
+      atoms_initialized = TRUE;
+    }
+
+  for (i = 0; i < info->num_classes; i++)
+    {
+      XIValuatorClassInfo *valuator_info;
+
+      if (info->classes[i]->type != XIValuatorClass)
+        continue;
+
+      valuator_info = (XIValuatorClassInfo *) info->classes[i];
+
+      if (valuator_info->label == abs_axis_atoms[0] || /* Abs X */
+          valuator_info->label == abs_axis_atoms[1]) /* Abs MT X */
+        value = &w;
+      else if (valuator_info->label == abs_axis_atoms[2] || /* Abs Y */
+               valuator_info->label == abs_axis_atoms[3]) /* Abs MT Y */
+        value = &h;
+      else
+        continue;
+
+      *value = (valuator_info->max - valuator_info->min) * 1000 / valuator_info->resolution;
+    }
+
+  *width = w;
+  *height = h;
+
+  XIFreeDeviceInfo (info);
+
+  return (w != 0 && h != 0);
+}
+
 static void
 meta_input_device_x11_class_init (MetaInputDeviceX11Class *klass)
 {
@@ -287,6 +362,7 @@ meta_input_device_x11_class_init (MetaInputDeviceX11Class *klass)
   device_class->is_grouped = meta_input_device_x11_is_grouped;
   device_class->get_group_n_modes = meta_input_device_x11_get_group_n_modes;
   device_class->is_mode_switch_button = meta_input_device_x11_is_mode_switch_button;
+  device_class->get_dimensions = meta_input_device_x11_get_dimensions;
 
   props[PROP_ID] =
     g_param_spec_int ("id",
