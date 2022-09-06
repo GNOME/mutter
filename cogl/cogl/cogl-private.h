@@ -67,6 +67,9 @@ typedef enum
    */
   COGL_PRIVATE_FEATURE_ANY_GL,
 
+  /* This is a Mali bug/quirk: */
+  COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
+
   COGL_N_PRIVATE_FEATURES
 } CoglPrivateFeature;
 

@@ -440,6 +440,13 @@ _cogl_driver_update_features (CoglContext *context,
   if (context->glGenQueries && context->glQueryCounter && context->glGetInteger64v)
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
 
+  if (!g_strcmp0 ((char *) context->glGetString (GL_RENDERER), "Mali-400 MP"))
+    {
+      COGL_FLAGS_SET (private_features,
+                      COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
+                      TRUE);
+    }
+
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     context->private_features[i] |= private_features[i];
