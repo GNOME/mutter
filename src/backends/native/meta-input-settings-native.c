@@ -543,68 +543,18 @@ set_device_accel_profile (ClutterInputDevice         *device,
                                             libinput_profile);
 }
 
-static gboolean
-has_udev_property (ClutterInputDevice *device,
-                   const char         *property)
-{
-  struct libinput_device *libinput_device;
-  struct udev_device *udev_device;
-  struct udev_device *parent_udev_device;
-
-  libinput_device = meta_input_device_native_get_libinput_device (device);
-  if (!libinput_device)
-    return FALSE;
-
-  udev_device = libinput_device_get_udev_device (libinput_device);
-
-  if (!udev_device)
-    return FALSE;
-
-  if (NULL != udev_device_get_property_value (udev_device, property))
-    {
-      udev_device_unref (udev_device);
-      return TRUE;
-    }
-
-  parent_udev_device = udev_device_get_parent (udev_device);
-  udev_device_unref (udev_device);
-
-  if (!parent_udev_device)
-    return FALSE;
-
-  if (NULL != udev_device_get_property_value (parent_udev_device, property))
-    return TRUE;
-
-  return FALSE;
-}
-
-static gboolean
-is_mouse_device (ClutterInputDevice *device)
-{
-  return (has_udev_property (device, "ID_INPUT_MOUSE") &&
-          !has_udev_property (device, "ID_INPUT_POINTINGSTICK"));
-}
-
-static gboolean
-meta_input_settings_native_is_touchpad_device (MetaInputSettings  *settings,
-                                               ClutterInputDevice *device)
-{
-  return has_udev_property (device, "ID_INPUT_TOUCHPAD");
-}
-
-static gboolean
-meta_input_settings_native_is_trackball_device (MetaInputSettings  *settings,
-                                                ClutterInputDevice *device)
-{
-  return has_udev_property (device, "ID_INPUT_TRACKBALL");
-}
-
 static void
 meta_input_settings_native_set_mouse_accel_profile (MetaInputSettings          *settings,
                                                     ClutterInputDevice         *device,
                                                     GDesktopPointerAccelProfile profile)
 {
-  if (!is_mouse_device (device))
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
+
+  if ((caps & CLUTTER_INPUT_CAPABILITY_POINTER) == 0)
+    return;
+  if ((caps &
+       (CLUTTER_INPUT_CAPABILITY_TRACKBALL |
+        CLUTTER_INPUT_CAPABILITY_TRACKPOINT)) != 0)
     return;
 
   set_device_accel_profile (device, profile);
@@ -615,7 +565,9 @@ meta_input_settings_native_set_trackball_accel_profile (MetaInputSettings       
                                                         ClutterInputDevice         *device,
                                                         GDesktopPointerAccelProfile profile)
 {
-  if (!meta_input_settings_native_is_trackball_device (settings, device))
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
+
+  if ((caps & CLUTTER_INPUT_CAPABILITY_TRACKBALL) == 0)
     return;
 
   set_device_accel_profile (device, profile);
@@ -761,8 +713,14 @@ meta_input_settings_native_set_mouse_middle_click_emulation (MetaInputSettings  
                                                              gboolean            enabled)
 {
   struct libinput_device *libinput_device;
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
 
-  if (!is_mouse_device (device))
+  if ((caps & CLUTTER_INPUT_CAPABILITY_POINTER) == 0)
+    return;
+  if ((caps &
+       (CLUTTER_INPUT_CAPABILITY_TRACKBALL |
+        CLUTTER_INPUT_CAPABILITY_TOUCHPAD |
+        CLUTTER_INPUT_CAPABILITY_TRACKPOINT)) != 0)
     return;
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
@@ -779,8 +737,9 @@ meta_input_settings_native_set_touchpad_middle_click_emulation (MetaInputSetting
                                                                 gboolean            enabled)
 {
   struct libinput_device *libinput_device;
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
 
-  if (!meta_input_settings_native_is_touchpad_device (settings, device))
+  if ((caps & CLUTTER_INPUT_CAPABILITY_TOUCHPAD) == 0)
     return;
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
@@ -797,8 +756,9 @@ meta_input_settings_native_set_trackball_middle_click_emulation (MetaInputSettin
                                                                  gboolean            enabled)
 {
   struct libinput_device *libinput_device;
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
 
-  if (!meta_input_settings_native_is_trackball_device (settings, device))
+  if ((caps & CLUTTER_INPUT_CAPABILITY_TRACKBALL) == 0)
     return;
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
@@ -850,7 +810,6 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   input_settings_class->set_trackball_middle_click_emulation = meta_input_settings_native_set_trackball_middle_click_emulation;
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_native_has_two_finger_scroll;
-  input_settings_class->is_trackball_device = meta_input_settings_native_is_trackball_device;
 
   props[PROP_SEAT_IMPL] =
     g_param_spec_object ("seat-impl",
