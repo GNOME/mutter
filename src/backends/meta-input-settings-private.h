@@ -152,8 +152,6 @@ struct _MetaInputSettingsClass
 
   gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
                                       ClutterInputDevice *device);
-  gboolean (* is_trackball_device) (MetaInputSettings  *settings,
-                                    ClutterInputDevice *device);
 };
 
 void meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings,
