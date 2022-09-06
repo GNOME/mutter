@@ -526,7 +526,7 @@ cogl_gl_create_timestamp_query (CoglContext *context)
    * the timestamp query being placed at the point of glGetQueryObject much
    * later, resulting in a GPU timestamp much later on in time.
    */
-  GE (context, glFlush ());
+  context->glFlush ();
 
   return query;
 }

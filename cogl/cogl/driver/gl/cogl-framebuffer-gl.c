@@ -305,7 +305,7 @@ cogl_gl_framebuffer_finish (CoglFramebufferDriver *driver)
 {
   CoglContext *ctx = context_from_driver (driver);
 
-  GE (ctx, glFinish ());
+  ctx->glFinish ();
 }
 
 static void
@@ -313,7 +313,7 @@ cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
 {
   CoglContext *ctx = context_from_driver (driver);
 
-  GE (ctx, glFlush ());
+  ctx->glFlush ();
 }
 
 static void
