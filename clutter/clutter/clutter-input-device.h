@@ -50,6 +50,9 @@ struct _ClutterInputDeviceClass
   int (* get_pad_feature_group) (ClutterInputDevice           *device,
                                  ClutterInputDevicePadFeature  feature,
                                  int                           n_feature);
+  gboolean (* get_dimensions) (ClutterInputDevice *device,
+                               unsigned int       *width,
+                               unsigned int       *height);
 };
 
 #define CLUTTER_TYPE_INPUT_DEVICE               (clutter_input_device_get_type ())
@@ -117,6 +120,11 @@ int clutter_input_device_get_pad_feature_group (ClutterInputDevice           *de
 
 CLUTTER_EXPORT
 ClutterInputCapabilities clutter_input_device_get_capabilities (ClutterInputDevice *device);
+
+CLUTTER_EXPORT
+gboolean clutter_input_device_get_dimensions (ClutterInputDevice *device,
+                                              unsigned int       *width,
+                                              unsigned int       *height);
 
 G_END_DECLS
 
