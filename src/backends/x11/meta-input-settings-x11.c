@@ -569,7 +569,21 @@ meta_input_settings_x11_set_mouse_accel_profile (MetaInputSettings          *set
     return;
   if ((caps &
        (CLUTTER_INPUT_CAPABILITY_TRACKBALL |
+        CLUTTER_INPUT_CAPABILITY_TOUCHPAD |
         CLUTTER_INPUT_CAPABILITY_TRACKPOINT)) != 0)
+    return;
+
+  set_device_accel_profile (settings, device, profile);
+}
+
+static void
+meta_input_settings_x11_set_touchpad_accel_profile (MetaInputSettings          *settings,
+                                                    ClutterInputDevice         *device,
+                                                    GDesktopPointerAccelProfile profile)
+{
+  ClutterInputCapabilities caps = clutter_input_device_get_capabilities (device);
+
+  if ((caps & CLUTTER_INPUT_CAPABILITY_TOUCHPAD) == 0)
     return;
 
   set_device_accel_profile (settings, device, profile);
@@ -873,6 +887,7 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
   input_settings_class->set_tablet_area = meta_input_settings_x11_set_tablet_area;
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
+  input_settings_class->set_touchpad_accel_profile = meta_input_settings_x11_set_touchpad_accel_profile;
   input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
 
   input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;

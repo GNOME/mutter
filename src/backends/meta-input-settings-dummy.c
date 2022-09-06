@@ -168,6 +168,13 @@ meta_input_settings_dummy_set_mouse_accel_profile (MetaInputSettings           *
 }
 
 static void
+meta_input_settings_dummy_set_touchpad_accel_profile (MetaInputSettings           *settings,
+                                                      ClutterInputDevice          *device,
+                                                      GDesktopPointerAccelProfile  profile)
+{
+}
+
+static void
 meta_input_settings_dummy_set_trackball_accel_profile (MetaInputSettings           *settings,
                                                        ClutterInputDevice          *device,
                                                        GDesktopPointerAccelProfile  profile)
@@ -270,6 +277,8 @@ meta_input_settings_dummy_class_init (MetaInputSettingsDummyClass *klass)
     meta_input_settings_dummy_set_tablet_area;
   input_settings_class->set_mouse_accel_profile =
     meta_input_settings_dummy_set_mouse_accel_profile;
+  input_settings_class->set_touchpad_accel_profile =
+    meta_input_settings_dummy_set_touchpad_accel_profile;
   input_settings_class->set_trackball_accel_profile =
     meta_input_settings_dummy_set_trackball_accel_profile;
   input_settings_class->set_stylus_pressure =

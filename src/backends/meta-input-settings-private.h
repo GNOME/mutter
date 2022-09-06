@@ -124,6 +124,9 @@ struct _MetaInputSettingsClass
   void (* set_mouse_accel_profile) (MetaInputSettings          *settings,
                                     ClutterInputDevice         *device,
                                     GDesktopPointerAccelProfile profile);
+  void (* set_touchpad_accel_profile) (MetaInputSettings           *settings,
+                                       ClutterInputDevice          *device,
+                                       GDesktopPointerAccelProfile  profile);
   void (* set_trackball_accel_profile) (MetaInputSettings          *settings,
                                         ClutterInputDevice         *device,
                                         GDesktopPointerAccelProfile profile);

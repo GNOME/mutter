@@ -388,6 +388,10 @@ do_update_pointer_accel_profile (MetaInputSettings          *input_settings,
     input_settings_class->set_mouse_accel_profile (input_settings,
                                                    device,
                                                    profile);
+  else if (settings == priv->touchpad_settings)
+    input_settings_class->set_touchpad_accel_profile (input_settings,
+                                                      device,
+                                                      profile);
   else if (settings == priv->trackball_settings)
     input_settings_class->set_trackball_accel_profile (input_settings,
                                                        device,
@@ -1184,6 +1188,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_device_speed (input_settings, NULL);
       else if (strcmp (key, "natural-scroll") == 0)
         update_device_natural_scroll (input_settings, NULL);
+      else if (strcmp (key, "accel-profile") == 0)
+        update_pointer_accel_profile (input_settings, settings, NULL);
       else if (strcmp (key, "tap-to-click") == 0)
         update_touchpad_tap_enabled (input_settings, NULL);
       else if (strcmp (key, "tap-button-map") == 0)
