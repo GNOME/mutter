@@ -80,6 +80,8 @@ struct _MetaInputDeviceNative
   intptr_t group;
 
   cairo_matrix_t device_matrix;
+  int width;
+  int height;
   double device_aspect_ratio; /* w:h */
   double output_ratio;        /* w:h */
   MetaInputDeviceMapping mapping_mode;
