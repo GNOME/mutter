@@ -17,14 +17,16 @@
 # Enrico Nicoletto <liverig@gmail.com>, 2012-2016, 2021.
 # Rafael Fontenelle <rafaelff@gnome.org>, 2013-2021.
 # Matheus Barbosa <mdpb.matheus@gmail.com>, 2022.
+# 
+# Leônidas Araújo <leorusvellt@hotmail.com>, 2022.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-07 19:47+0000\n"
-"PO-Revision-Date: 2022-02-08 \n"
-"Last-Translator: Matheus Barbosa <mdpb.matheus@gmail.com>\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-09-02 12:32-0300\n"
+"Last-Translator: Leônidas Araújo <leorusvellt@hotmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
@@ -33,6 +35,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "X-Generator: Gtranslator 40.0\n"
 "X-Project-Style: gnome\n"
+"X-DL-Team: pt_BR\n"
+"X-DL-Module: mutter\n"
+"X-DL-Branch: main\n"
+"X-DL-Domain: po\n"
+"X-DL-State: Translating\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -419,23 +426,6 @@ msgid "Enable experimental features"
 msgstr "Habilitar recursos experimentais"
 
 #: data/org.gnome.mutter.gschema.xml.in:117
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. Requires a restart. • “dma-buf-screen-sharing” — enables DMA "
-#| "buffered screen sharing. This is already enabled by default when using "
-#| "the i915 driver, but disabled for everything else. Requires a restart. • "
-#| "“autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-#| "X11 clients are gone. Requires a restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -627,26 +617,26 @@ msgstr ""
 "se o Xwayland foi compilado sem suporte para as extensões selecionadas. O "
 "Xwayland precisa ser reiniciado para que essa configuração tenha efeito."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Tela embutida"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Monitor desconhecido"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -661,7 +651,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -673,100 +663,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de som"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "Tela de privacidade habilitada"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "Tela de privacidade desabilitada"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "“%s” não está respondendo."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "O aplicativo não está respondendo."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Você pode escolher aguardar um pouco e continuar ou forçar o aplicativo a "
-"sair completamente."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Forçar sair"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Esperar"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "Substitui o gerenciador de janelas em execução"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "Tela X para usar"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "Desabilita a conexão com o gerenciador de sessões"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "Especifica o ID do gerenciador de sessões"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "Inicializa a sessão a partir do arquivo salvo"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "Faz X chamadas síncronas"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "Executa como um compositor wayland"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "Executa como um compositor aninhado"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executa o compositor wayland sem iniciar o Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "Especifica o nome da tela Wayland para usar"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "Executa como um servidor de tela cheia, ao invés de aninhado"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "Executa como um servidor de tela sem periféricos"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "Executa com backend X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:782
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alternador de modo (Grupo %d)"
@@ -774,11 +738,11 @@ msgstr "Alternador de modo (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Trocar monitor"
 
-#: src/core/meta-pad-action-mapper.c:807
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda na tela"
 
@@ -795,16 +759,21 @@ msgstr "Plug-in do Mutter para usar"
 msgid "Workspace %d"
 msgstr "Espaço de trabalho %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "O Mutter foi compilado sem suporte para modo detalhado"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+#| msgid "Workspace %s%d"
+msgid "Workspace switched"
+msgstr "Espaço de trabalho alterado"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Alternador de modo: Modo %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -813,37 +782,57 @@ msgstr ""
 "A exibição “%s” já possui um gerenciador de janelas; tente usar a opção --"
 "replace para substituir o gerenciador de janelas atual."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "Falha ao inicializar GDK"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falha ao abrir a exibição “%s” do sistema de janelas X"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A tela %d na exibição “%s” é inválida"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "Sem suporte ao formato %s"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Estas janelas não oferecem suporte para a opção “salvar configuração atual” "
-"e precisarão ser reiniciadas manualmente quando você reiniciar a sessão."
 
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (em %s)"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "“%s” não está respondendo."
+
+#~ msgid "Application is not responding."
+#~ msgstr "O aplicativo não está respondendo."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Você pode escolher aguardar um pouco e continuar ou forçar o aplicativo a "
+#~ "sair completamente."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Forçar sair"
+
+#~ msgid "_Wait"
+#~ msgstr "_Esperar"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Estas janelas não oferecem suporte para a opção “salvar configuração "
+#~ "atual” e precisarão ser reiniciadas manualmente quando você reiniciar a "
+#~ "sessão."
 
 #~ msgid "Show the activities overview"
 #~ msgstr "Mostrar o panorama de atividades"
@@ -945,8 +934,8 @@ msgstr "%s (em %s)"
 #~ "adequado ao formato"
 
 #~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:fg"
-#~ "[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ "GTK color specification must have the state in brackets, e.g. gtk:"
+#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 #~ msgstr ""
 #~ "O estado da especificação de cor GTK deve estar entre colchetes, por "
 #~ "exemplo, gtk:fg[NORMAL], onde NORMAL é o estado; não foi possível "
@@ -1102,8 +1091,8 @@ msgstr "%s (em %s)"
 #~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
 #~ "type=\"%s\" style_set=\"whatever\"/> element"
 #~ msgstr ""
-#~ "Nenhum estilo de quadro definido para o tipo de janela \"%s\" no tema \"%s"
-#~ "\", adicione um elemento <window type=\"%s\" style_set=\"whatever\"/>"
+#~ "Nenhum estilo de quadro definido para o tipo de janela \"%s\" no tema "
+#~ "\"%s\", adicione um elemento <window type=\"%s\" style_set=\"whatever\"/>"
 
 #~ msgid ""
 #~ "User-defined constants must begin with a capital letter; \"%s\" does not"
@@ -1191,8 +1180,8 @@ msgstr "%s (em %s)"
 #~ msgstr "O elemento <%s> não é permitido abaixo de <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "Não foi possível especificar \"button_width\"/\"button_height\" e "
 #~ "\"aspect_ratio\" para os botões"
@@ -1416,8 +1405,8 @@ msgstr "%s (em %s)"
 #~ msgid ""
 #~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
 #~ msgstr ""
-#~ "Não foi possível obter a seleção do gerenciador de janelas na exibição \"%"
-#~ "2$s\" da tela %1$d\n"
+#~ "Não foi possível obter a seleção do gerenciador de janelas na exibição "
+#~ "\"%2$s\" da tela %1$d\n"
 
 #~ msgid "Could not release screen %d on display \"%s\"\n"
 #~ msgstr "Não foi possível liberar a tela %d na exibição \"%s\"\n"
@@ -1574,9 +1563,6 @@ msgstr "%s (em %s)"
 #~ msgid "Workspace 1_0"
 #~ msgstr "Espaço de trabalho 1_0"
 
-#~ msgid "Workspace %s%d"
-#~ msgstr "Espaço de trabalho %s%d"
-
 #~ msgid "Move to Another _Workspace"
 #~ msgstr "Mover para _outro espaço de trabalho"
 
@@ -1722,13 +1708,13 @@ msgstr "%s (em %s)"
 #~ msgstr "O título da janela vem aqui"
 
 #~ msgid ""
-#~ "Drew %d frames in %g client-side seconds (%g milliseconds per frame) and %"
-#~ "g seconds wall clock time including X server resources (%g milliseconds "
+#~ "Drew %d frames in %g client-side seconds (%g milliseconds per frame) and "
+#~ "%g seconds wall clock time including X server resources (%g milliseconds "
 #~ "per frame)\n"
 #~ msgstr ""
 #~ "%d quadros desenhados em %g segundos do lado cliente (%g milissegundos "
-#~ "por quadro) e %g segundos no relógio, incluindo recursos do servidor X (%"
-#~ "g milissegundos por quadro)\n"
+#~ "por quadro) e %g segundos no relógio, incluindo recursos do servidor X "
+#~ "(%g milissegundos por quadro)\n"
 
 #~ msgid "position expression test returned TRUE but set error"
 #~ msgstr "teste de expressão de posição retornou VERDADEIRO mas definiu erro"
@@ -1935,8 +1921,8 @@ msgstr "%s (em %s)"
 
 #~ msgid "GConf key %s is already in use and can't be used to override %s\n"
 #~ msgstr ""
-#~ "Chave %s do GConf já está em uso e não pode ser usada para sobrescrever %"
-#~ "s\n"
+#~ "Chave %s do GConf já está em uso e não pode ser usada para sobrescrever "
+#~ "%s\n"
 
 #~ msgid "Can't override GConf key, %s not found\n"
 #~ msgstr "Não é possível sobrescrever a chave do GConf, %s não encontrada\n"
@@ -2206,9 +2192,9 @@ msgstr "%s (em %s)"
 #~ "'beeps'; may be used in conjunction with 'visual bell' to allow silent "
 #~ "'beeps'."
 #~ msgstr ""
-#~ "Determina se aplicativos ou o sistema podem gerar alarmes sonoros (\"beeps"
-#~ "\") audíveis; pode ser usado em conjunto com campainha visual (\"visual "
-#~ "bell\") para permitir alarmes sonoros (\"beeps\") silenciosos."
+#~ "Determina se aplicativos ou o sistema podem gerar alarmes sonoros "
+#~ "(\"beeps\") audíveis; pode ser usado em conjunto com campainha visual "
+#~ "(\"visual bell\") para permitir alarmes sonoros (\"beeps\") silenciosos."
 
 #~ msgid "Disable misfeatures that are required by old or broken applications"
 #~ msgstr ""
@@ -2280,8 +2266,9 @@ msgstr "%s (em %s)"
 
 #~ msgid ""
 #~ "Set this to true to resize with the right button and show a menu with the "
-#~ "middle button while holding down the key given in \"mouse_button_modifier"
-#~ "\"; set it to false to make it work the opposite way around."
+#~ "middle button while holding down the key given in "
+#~ "\"mouse_button_modifier\"; set it to false to make it work the opposite "
+#~ "way around."
 #~ msgstr ""
 #~ "Definir isto como verdadeiro para redimensionar com o botão direito e "
 #~ "mostrar um menu com o botão do meio enquanto a tecla dada em "
@@ -2476,10 +2463,10 @@ msgstr "%s (em %s)"
 #~ "sombrear ou não a janela, \"toggle_maximize\", que irá maximizar/"
 #~ "desmaximizar a janela, \"toggle_maximize_horizontally\" e "
 #~ "\"toggle_maximize_vertically\" que irá maximizar/desmaximizar a janela "
-#~ "somente naquela direção, \"minimize\", que irá minimizar a janela, \"shade"
-#~ "\" que irá enrolar a janela, \"menu\" que irá exibir a janela de menu, "
-#~ "\"lower\" que irá colocar a janela atrás de todas as outras e \"none\", "
-#~ "que não faz nada."
+#~ "somente naquela direção, \"minimize\", que irá minimizar a janela, "
+#~ "\"shade\" que irá enrolar a janela, \"menu\" que irá exibir a janela de "
+#~ "menu, \"lower\" que irá colocar a janela atrás de todas as outras e "
+#~ "\"none\", que não faz nada."
 
 #~ msgid ""
 #~ "This option determines the effects of right-clicking on the title bar. "
@@ -2494,10 +2481,10 @@ msgstr "%s (em %s)"
 #~ "Essa opção determina o efeito de clicar com o botão direito do mouse na "
 #~ "barra de título. As opções atualmente válidas são \"toggle_shade\", que "
 #~ "irá sombrear ou não a janela, \"toggle_maximize\", que irá maximizar/"
-#~ "desmaximizar a janela, \"minimize\", que irá minimizar a janela, \"shade"
-#~ "\" que irá enrolar a janela, \"menu\" que irá exibir a janela de menu, "
-#~ "\"lower\" que irá colocar a janela atrás de todas as outras e \"none\", "
-#~ "que não faz nada."
+#~ "desmaximizar a janela, \"minimize\", que irá minimizar a janela, "
+#~ "\"shade\" que irá enrolar a janela, \"menu\" que irá exibir a janela de "
+#~ "menu, \"lower\" que irá colocar a janela atrás de todas as outras e "
+#~ "\"none\", que não faz nada."
 
 #~ msgid ""
 #~ "This option provides additional control over how newly created windows "
@@ -2628,8 +2615,8 @@ msgstr "%s (em %s)"
 #~ "atual. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding that switches to the workspace on the right of the current "
@@ -2643,8 +2630,8 @@ msgstr "%s (em %s)"
 #~ "O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding that switches to workspace 1. The format looks like \"&lt;"
@@ -2931,8 +2918,8 @@ msgstr "%s (em %s)"
 #~ "abaixo. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window one workspace to the left. The "
@@ -2946,8 +2933,8 @@ msgstr "%s (em %s)"
 #~ "esquerda. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window one workspace to the right. The "
@@ -2961,8 +2948,8 @@ msgstr "%s (em %s)"
 #~ "direita. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window one workspace up. The format looks "
@@ -2976,8 +2963,8 @@ msgstr "%s (em %s)"
 #~ "acima. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 1. The format looks "
@@ -2991,8 +2978,8 @@ msgstr "%s (em %s)"
 #~ "1. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 10. The format looks "
@@ -3006,8 +2993,8 @@ msgstr "%s (em %s)"
 #~ "10. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 11. The format looks "
@@ -3021,8 +3008,8 @@ msgstr "%s (em %s)"
 #~ "11. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 12. The format looks "
@@ -3036,8 +3023,8 @@ msgstr "%s (em %s)"
 #~ "12. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 2. The format looks "
@@ -3051,8 +3038,8 @@ msgstr "%s (em %s)"
 #~ "2. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 3. The format looks "
@@ -3066,8 +3053,8 @@ msgstr "%s (em %s)"
 #~ "3. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 4. The format looks "
@@ -3081,8 +3068,8 @@ msgstr "%s (em %s)"
 #~ "4. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 5. The format looks "
@@ -3096,8 +3083,8 @@ msgstr "%s (em %s)"
 #~ "5. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 6. The format looks "
@@ -3111,8 +3098,8 @@ msgstr "%s (em %s)"
 #~ "6. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 7. The format looks "
@@ -3126,8 +3113,8 @@ msgstr "%s (em %s)"
 #~ "7. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 8. The format looks "
@@ -3141,8 +3128,8 @@ msgstr "%s (em %s)"
 #~ "8. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move a window to workspace 9. The format looks "
@@ -3156,8 +3143,8 @@ msgstr "%s (em %s)"
 #~ "9. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
@@ -3177,8 +3164,8 @@ msgstr "%s (em %s)"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -3221,10 +3208,10 @@ msgstr "%s (em %s)"
 #~ "action."
 #~ msgstr ""
 #~ "A tecla de atalho usada para mover o foco na direção contrária entre "
-#~ "janelas de um aplicativo, usando uma janela instantânea. Segurar o \"shift"
-#~ "\" junto com este atalho deixa o sentido para frente novamente. O formato "
-#~ "é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;F1\". O "
-#~ "analisador é bastante flexível, permitindo letras minúsculas ou "
+#~ "janelas de um aplicativo, usando uma janela instantânea. Segurar o "
+#~ "\"shift\" junto com este atalho deixa o sentido para frente novamente. O "
+#~ "formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
+#~ "F1\". O analisador é bastante flexível, permitindo letras minúsculas ou "
 #~ "maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;Ctrl&gt;\". Se "
 #~ "você definir a opção como o valor especial \"disabled\" (desabilitada), "
 #~ "não haverá tecla de atalho para essa ação."
@@ -3235,8 +3222,8 @@ msgstr "%s (em %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "A tecla de atalho usada para mover o foco na direção contrária entre "
 #~ "janelas sem uma janela instantânea. O formato é semelhante a \"&lt;"
@@ -3252,8 +3239,8 @@ msgstr "%s (em %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "A tecla de atalho usada para mover o foco na direção contrária entre "
 #~ "janelas usando uma janela instantânea. O formato é semelhante a \"&lt;"
@@ -3330,8 +3317,8 @@ msgstr "%s (em %s)"
 #~ "movimento. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;"
 #~ "Shift&gt;&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo "
 #~ "letras minúsculas ou maiúsculas e abreviações como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to move focus between windows without a popup window. "
@@ -3344,10 +3331,10 @@ msgstr "%s (em %s)"
 #~ "this action."
 #~ msgstr ""
 #~ "A tecla de atalho usada para mover o foco entre janelas sem uma janela "
-#~ "instantânea. (Tradicionalmente &lt;Alt&gt;Escape.) Segurar a tecla \"shift"
-#~ "\" ao usar essa tecla de atalho inverte a direção do movimento. O formato "
-#~ "é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;F1\". O "
-#~ "analisador é bastante flexível, permitindo letras minúsculas ou "
+#~ "instantânea. (Tradicionalmente &lt;Alt&gt;Escape.) Segurar a tecla "
+#~ "\"shift\" ao usar essa tecla de atalho inverte a direção do movimento. O "
+#~ "formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
+#~ "F1\". O analisador é bastante flexível, permitindo letras minúsculas ou "
 #~ "maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;Ctrl&gt;\". Se "
 #~ "você definir a opção como o valor especial \"disabled\" (desabilitada), "
 #~ "não haverá tecla de atalho para essa ação."
@@ -3385,8 +3372,8 @@ msgstr "%s (em %s)"
 #~ "O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to toggle fullscreen mode. The format looks like "
@@ -3430,8 +3417,8 @@ msgstr "%s (em %s)"
 #~ "sombreado. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;"
 #~ "Shift&gt;&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo "
 #~ "letras minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding used to toggle whether the window is on all workspaces or "
@@ -3476,8 +3463,8 @@ msgstr "%s (em %s)"
 #~ "painel. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "The keybinding which invokes a terminal. The format looks like \"&lt;"
@@ -3499,8 +3486,8 @@ msgstr "%s (em %s)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "A tecla de atalho usada para abrir o programa de captura de tela do "
 #~ "painel para capturar a imagem de uma janela. O formato é semelhante a "
@@ -3556,8 +3543,8 @@ msgstr "%s (em %s)"
 #~ "janelas. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
 #~ "&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "This keybinding lowers a window below other windows. The format looks "
@@ -3591,10 +3578,10 @@ msgstr "%s (em %s)"
 
 #~ msgid ""
 #~ "This keybinding moves a window into the east (right) side of the screen. "
-#~ "The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1"
-#~ "\". The parser is fairly liberal and allows lower or upper case, and also "
-#~ "abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set "
-#~ "the option to the special string \"disabled\", then there will be no "
+#~ "The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;"
+#~ "F1\". The parser is fairly liberal and allows lower or upper case, and "
+#~ "also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you "
+#~ "set the option to the special string \"disabled\", then there will be no "
 #~ "keybinding for this action."
 #~ msgstr ""
 #~ "Esta tecla de atalho move uma janela para o lado direito da tela. O "
@@ -3616,8 +3603,8 @@ msgstr "%s (em %s)"
 #~ "tela. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "This keybinding moves a window into the north-west (top left) corner of "
@@ -3631,8 +3618,8 @@ msgstr "%s (em %s)"
 #~ "tala. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "This keybinding moves a window into the south (bottom) side of the "
@@ -3661,8 +3648,8 @@ msgstr "%s (em %s)"
 #~ "tela. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "This keybinding moves a window into the south-west (bottom left) corner "
@@ -3676,15 +3663,15 @@ msgstr "%s (em %s)"
 #~ "tela. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;"
 #~ "Alt&gt;F1\". O analisador é bastante flexível, permitindo letras "
 #~ "minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e \"&lt;"
-#~ "Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "This keybinding moves a window into the west (left) side of the screen. "
-#~ "The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1"
-#~ "\". The parser is fairly liberal and allows lower or upper case, and also "
-#~ "abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set "
-#~ "the option to the special string \"disabled\", then there will be no "
+#~ "The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;"
+#~ "F1\". The parser is fairly liberal and allows lower or upper case, and "
+#~ "also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you "
+#~ "set the option to the special string \"disabled\", then there will be no "
 #~ "keybinding for this action."
 #~ msgstr ""
 #~ "Esta tecla de atalho move uma janela para o lado superior da janela. O "
@@ -3721,8 +3708,8 @@ msgstr "%s (em %s)"
 #~ "horizontalmente. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;"
 #~ "Shift&gt;&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo "
 #~ "letras minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid ""
 #~ "This keybinding resizes a window to fill available vertical space. The "
@@ -3736,8 +3723,8 @@ msgstr "%s (em %s)"
 #~ "verticalmente. O formato é semelhante a \"&lt;Control&gt;a\" ou \"&lt;"
 #~ "Shift&gt;&lt;Alt&gt;F1\". O analisador é bastante flexível, permitindo "
 #~ "letras minúsculas ou maiúsculas e abreviações, como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial \"disabled"
-#~ "\" (desabilitada), não haverá tecla de atalho para essa ação."
+#~ "\"&lt;Ctrl&gt;\". Se você definir a opção como o valor especial "
+#~ "\"disabled\" (desabilitada), não haverá tecla de atalho para essa ação."
 
 #~ msgid "Toggle always on top state"
 #~ msgstr "Alternar estado sempre no topo"
