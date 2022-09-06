@@ -204,6 +204,23 @@ meta_input_device_native_get_pad_feature_group (ClutterInputDevice           *de
   return -1;
 }
 
+static gboolean
+meta_input_device_native_get_dimensions (ClutterInputDevice *device,
+                                         unsigned int       *width,
+                                         unsigned int       *height)
+{
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+
+  if (device_native->width > 0 && device_native->height > 0)
+    {
+      *width = device_native->width;
+      *height = device_native->height;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 meta_input_device_native_bell_notify (MetaInputDeviceNative *device)
 {
@@ -1250,6 +1267,7 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
   device_class->get_group_n_modes = meta_input_device_native_get_group_n_modes;
   device_class->is_grouped = meta_input_device_native_is_grouped;
   device_class->get_pad_feature_group = meta_input_device_native_get_pad_feature_group;
+  device_class->get_dimensions = meta_input_device_native_get_dimensions;
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix",
@@ -1273,6 +1291,8 @@ meta_input_device_native_init (MetaInputDeviceNative *self)
   cairo_matrix_init_identity (&self->device_matrix);
   self->device_aspect_ratio = 0;
   self->output_ratio = 0;
+  self->width = -1;
+  self->height = -1;
 }
 
 static void
@@ -1469,7 +1489,11 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
     update_pad_features (device);
 
   if (libinput_device_get_size (libinput_device, &width, &height) == 0)
-    device->device_aspect_ratio = width / height;
+    {
+      device->device_aspect_ratio = width / height;
+      device->width = width;
+      device->height = height;
+    }
 
   device->group = (intptr_t) libinput_device_get_device_group (libinput_device);
 
