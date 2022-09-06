@@ -789,3 +789,25 @@ clutter_input_device_get_seat (ClutterInputDevice *device)
 
   return priv->seat;
 }
+
+/**
+ * clutter_input_device_get_dimensions:
+ * @device: a #ClutterInputDevice
+ * @width: (out): Return location for device width (in millimeters)
+ * @height: (out): Return location for device height (in millimeters)
+ *
+ * Returns: %TRUE if the device reports the physical size of its input area.
+ **/
+gboolean
+clutter_input_device_get_dimensions (ClutterInputDevice *device,
+                                     unsigned int       *width,
+                                     unsigned int       *height)
+{
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
+  g_return_val_if_fail (width != NULL && height != NULL, FALSE);
+
+  if (!CLUTTER_INPUT_DEVICE_GET_CLASS (device)->get_dimensions)
+    return FALSE;
+
+  return CLUTTER_INPUT_DEVICE_GET_CLASS (device)->get_dimensions (device, width, height);
+}
