@@ -1934,18 +1934,6 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
   input_event = get_input_event (x11_display, event);
 
-  if (event->type == UnmapNotify)
-    {
-      if (meta_ui_window_should_not_cause_focus (x11_display->xdisplay,
-                                                 modified))
-        {
-          meta_display_add_ignored_crossing_serial (display, event->xany.serial);
-          meta_topic (META_DEBUG_FOCUS,
-                      "Adding EnterNotify serial %lu to ignored focus serials",
-                      event->xany.serial);
-        }
-    }
-
   if (handle_input_xevent (x11_display, input_event, event->xany.serial))
     {
       bypass_gtk = bypass_compositor = TRUE;
