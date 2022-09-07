@@ -188,14 +188,6 @@ static guint display_signals [LAST_SIGNAL] = { 0 };
 
 #define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
 
-/*
- * The display we're managing.  This is a singleton object.  (Historically,
- * this was a list of displays, but there was never any way to add more
- * than one element to it.)  The goofy name is because we don't want it
- * to shadow the parameter in its object methods.
- */
-static MetaDisplay *the_display = NULL;
-
 static void on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
                                           MetaDisplay        *display);
 
@@ -864,8 +856,7 @@ meta_display_new (MetaContext  *context,
   MetaMonitorManager *monitor_manager;
   MetaSettings *settings;
 
-  g_assert (the_display == NULL);
-  display = the_display = g_object_new (META_TYPE_DISPLAY, NULL);
+  display = g_object_new (META_TYPE_DISPLAY, NULL);
 
   priv = meta_display_get_instance_private (display);
   priv->context = context;
@@ -1152,8 +1143,6 @@ meta_display_close (MetaDisplay *display,
       return;
     }
 
-  g_assert (display == the_display);
-
   display->closing += 1;
 
   g_signal_emit (display, display_signals[CLOSING], 0);
@@ -1204,22 +1193,6 @@ meta_display_close (MetaDisplay *display,
   meta_clipboard_manager_shutdown (display);
   g_clear_object (&display->selection);
   g_clear_object (&display->pad_action_mapper);
-
-  the_display = NULL;
-}
-
-/**
- * meta_get_display:
- *
- * Accessor for the singleton MetaDisplay.
- *
- * Returns: The only #MetaDisplay there is.  This can be %NULL, but only
- *          during startup.
- */
-MetaDisplay*
-meta_get_display (void)
-{
-  return the_display;
 }
 
 static inline gboolean

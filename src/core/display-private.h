@@ -298,9 +298,6 @@ META_EXPORT_TEST
 GSList*     meta_display_list_windows        (MetaDisplay          *display,
                                               MetaListWindowsFlags  flags);
 
-META_EXPORT_TEST
-MetaDisplay* meta_get_display            (void);
-
 void meta_display_reload_cursor (MetaDisplay *display);
 void meta_display_update_cursor (MetaDisplay *display);
 
