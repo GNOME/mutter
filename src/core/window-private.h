@@ -257,14 +257,6 @@ struct _MetaWindow
   /* Note: can be NULL */
   GSList *struts;
 
-  /* XSync update counter */
-  XSyncCounter sync_request_counter;
-  gint64 sync_request_serial;
-  gint64 sync_request_wait_serial;
-  guint sync_request_timeout_id;
-  /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
-  XSyncAlarm sync_request_alarm;
-
   /* Number of UnmapNotify that are caused by us, if
    * we get UnmapNotify with none pending then the client
    * is withdrawing the window.
@@ -545,9 +537,6 @@ struct _MetaWindow
   /* if TRUE we have a grab on the focus click buttons */
   guint have_focus_click_grab : 1;
 
-  /* if TRUE, application is buggy and SYNC resizing is turned off */
-  guint disable_sync : 1;
-
   /* if TRUE, window is attached to its parent */
   guint attached : 1;
 
@@ -559,10 +548,6 @@ struct _MetaWindow
 
   /* Whether the window is alive */
   guint is_alive : 1;
-
-  /* if TRUE, the we have the new form of sync request counter which
-   * also handles application frames */
-  guint extended_sync_request_counter : 1;
 
   guint in_workspace_change : 1;
 };

@@ -501,6 +501,8 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
   MetaWindow *window =
     meta_window_actor_get_meta_window (actor);
+  MetaSyncCounter *sync_counter =
+    meta_window_x11_get_sync_counter (window);
   FrameData *frame;
 
   if (meta_window_actor_is_destroyed (actor))
@@ -508,7 +510,7 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
 
   frame = g_new0 (FrameData, 1);
   frame->frame_counter = -1;
-  frame->sync_request_serial = window->sync_request_serial;
+  frame->sync_request_serial = sync_counter->sync_request_serial;
 
   actor_x11->frames = g_list_prepend (actor_x11->frames, frame);
 
@@ -1614,6 +1616,7 @@ meta_window_actor_x11_constructed (GObject *object)
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
   MetaWindowActor *actor = META_WINDOW_ACTOR (actor_x11);
   MetaWindow *window = meta_window_actor_get_meta_window (actor);
+  MetaSyncCounter *sync_counter = meta_window_x11_get_sync_counter (window);
 
   /*
    * Start off with an empty shape region to maintain the invariant that it's
@@ -1626,7 +1629,7 @@ meta_window_actor_x11_constructed (GObject *object)
   /* If a window doesn't start off with updates frozen, we should
    * we should send a _NET_WM_FRAME_DRAWN immediately after the first drawn.
    */
-  if (window->extended_sync_request_counter &&
+  if (sync_counter->extended_sync_request_counter &&
       !meta_window_updates_are_frozen (window))
     meta_window_actor_queue_frame_drawn (actor, FALSE);
 }

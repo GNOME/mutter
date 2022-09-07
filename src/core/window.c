@@ -1020,11 +1020,6 @@ meta_window_constructed (GObject *object)
 
   window->workspace = NULL;
 
-  window->sync_request_counter = None;
-  window->sync_request_serial = 0;
-  window->sync_request_timeout_id = 0;
-  window->sync_request_alarm = None;
-
   meta_window_update_sandboxed_app_id (window);
   meta_window_update_desc (window);
 
@@ -1085,7 +1080,6 @@ meta_window_constructed (GObject *object)
   window->calc_placement = FALSE;
   window->shaken_loose = FALSE;
   window->have_focus_click_grab = FALSE;
-  window->disable_sync = FALSE;
 
   window->unmaps_pending = 0;
   window->reparents_pending = 0;
@@ -1520,8 +1514,6 @@ meta_window_unmanage (MetaWindow  *window,
                   window->desc);
       invalidate_work_areas (window);
     }
-
-  g_clear_handle_id (&window->sync_request_timeout_id, g_source_remove);
 
   if (window->display->grab_window == window)
     meta_display_end_grab_op (window->display, timestamp);
@@ -6129,7 +6121,8 @@ update_resize (MetaWindow              *window,
    * resize the window when the window responds, or when we time
    * the response out.
    */
-  if (window->sync_request_timeout_id != 0)
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_is_awaiting_sync_response (window))
     return;
 
   meta_window_get_frame_rect (window, &old_rect);

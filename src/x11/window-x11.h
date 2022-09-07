@@ -28,6 +28,7 @@
 #include "core/window-private.h"
 #include "meta/compositor.h"
 #include "meta/window.h"
+#include "x11/meta-sync-counter.h"
 
 G_BEGIN_DECLS
 
@@ -99,5 +100,11 @@ void meta_window_x11_surface_rect_to_client_rect (MetaWindow    *window,
 MetaRectangle meta_window_x11_get_client_rect    (MetaWindowX11 *window_x11);
 
 gboolean meta_window_x11_can_unredirect          (MetaWindowX11 *window_x11);
+
+MetaSyncCounter * meta_window_x11_get_sync_counter (MetaWindow *window);
+
+gboolean meta_window_x11_has_active_sync_alarms (MetaWindow *window);
+
+gboolean meta_window_x11_is_awaiting_sync_response (MetaWindow *window);
 
 #endif

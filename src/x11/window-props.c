@@ -1052,31 +1052,29 @@ reload_update_counter (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      meta_window_x11_destroy_sync_request_alarm (window);
-      window->sync_request_counter = None;
+      MetaSyncCounter *sync_counter;
+
+      sync_counter = meta_window_x11_get_sync_counter (window);
 
       if (value->v.xcounter_list.n_counters == 0)
         {
           meta_warning ("_NET_WM_SYNC_REQUEST_COUNTER is empty");
+          meta_sync_counter_set_counter (sync_counter, None, FALSE);
           return;
         }
 
       if (value->v.xcounter_list.n_counters == 1)
         {
-          window->sync_request_counter = value->v.xcounter_list.counters[0];
-          window->extended_sync_request_counter = FALSE;
+          meta_sync_counter_set_counter (sync_counter,
+                                         value->v.xcounter_list.counters[0],
+                                         FALSE);
         }
       else
         {
-          window->sync_request_counter = value->v.xcounter_list.counters[1];
-          window->extended_sync_request_counter = TRUE;
+          meta_sync_counter_set_counter (sync_counter,
+                                         value->v.xcounter_list.counters[1],
+                                         TRUE);
         }
-      meta_verbose ("Window has _NET_WM_SYNC_REQUEST_COUNTER 0x%lx (extended=%s)",
-                    window->sync_request_counter,
-                    window->extended_sync_request_counter ? "true" : "false");
-
-      if (window->extended_sync_request_counter)
-        meta_window_x11_create_sync_request_alarm (window);
     }
 }
 

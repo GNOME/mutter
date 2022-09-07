@@ -25,6 +25,7 @@
 
 #include "core/window-private.h"
 #include "x11/iconcache.h"
+#include "x11/meta-sync-counter.h"
 #include "x11/window-x11.h"
 
 G_BEGIN_DECLS
@@ -83,6 +84,8 @@ struct _MetaWindowX11Private
 
   /* Bypass compositor hints */
   MetaBypassCompositorHint bypass_compositor;
+
+  MetaSyncCounter sync_counter;
 };
 
 MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
