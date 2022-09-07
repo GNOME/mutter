@@ -68,6 +68,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "cogl/cogl.h"
+#include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/constraints.h"
 #include "core/edge-resistance.h"

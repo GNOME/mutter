@@ -32,6 +32,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "compositor/compositor-private.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/boxes-private.h"

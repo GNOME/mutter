@@ -38,9 +38,9 @@
 
 #include <string.h>
 
+#include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "core/frame.h"
-#include "meta/compositor.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/util.h"
 #include "x11/meta-x11-display-private.h"

@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "compositor/compositor-private.h"
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"

@@ -35,6 +35,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/boxes-private.h"
 #include "core/frame.h"
@@ -42,7 +43,6 @@
 #include "core/window-private.h"
 #include "core/workspace-private.h"
 #include "meta/common.h"
-#include "meta/compositor.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-later.h"
 #include "meta/meta-x11-errors.h"

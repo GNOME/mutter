@@ -81,7 +81,83 @@ ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
 void meta_compositor_grab_begin (MetaCompositor *compositor);
+
 void meta_compositor_grab_end (MetaCompositor *compositor);
+
+void meta_compositor_destroy (MetaCompositor *compositor);
+
+void meta_compositor_manage   (MetaCompositor *compositor);
+
+void meta_compositor_unmanage (MetaCompositor *compositor);
+
+void meta_compositor_window_shape_changed (MetaCompositor *compositor,
+                                           MetaWindow     *window);
+
+void meta_compositor_window_opacity_changed (MetaCompositor *compositor,
+                                             MetaWindow     *window);
+
+gboolean meta_compositor_filter_keybinding (MetaCompositor *compositor,
+                                            MetaKeyBinding *binding);
+
+void meta_compositor_add_window (MetaCompositor      *compositor,
+                                 MetaWindow          *window);
+
+void meta_compositor_remove_window (MetaCompositor      *compositor,
+                                    MetaWindow          *window);
+
+void meta_compositor_show_window (MetaCompositor      *compositor,
+                                  MetaWindow          *window,
+                                  MetaCompEffect       effect);
+
+void meta_compositor_hide_window (MetaCompositor      *compositor,
+                                  MetaWindow          *window,
+                                  MetaCompEffect       effect);
+
+void meta_compositor_switch_workspace (MetaCompositor      *compositor,
+                                       MetaWorkspace       *from,
+                                       MetaWorkspace       *to,
+                                       MetaMotionDirection  direction);
+
+void meta_compositor_size_change_window (MetaCompositor      *compositor,
+                                         MetaWindow          *window,
+                                         MetaSizeChange       which_change,
+                                         MetaRectangle       *old_frame_rect,
+                                         MetaRectangle       *old_buffer_rect);
+
+void meta_compositor_sync_window_geometry (MetaCompositor *compositor,
+                                           MetaWindow     *window,
+                                           gboolean        did_placement);
+
+void meta_compositor_sync_updates_frozen (MetaCompositor *compositor,
+                                          MetaWindow     *window);
+
+void meta_compositor_queue_frame_drawn (MetaCompositor *compositor,
+                                        MetaWindow     *window,
+                                        gboolean        no_delay_frame);
+
+void meta_compositor_sync_stack (MetaCompositor *compositor,
+                                 GList          *stack);
+
+void meta_compositor_flash_display (MetaCompositor *compositor,
+                                    MetaDisplay    *display);
+
+void meta_compositor_show_tile_preview (MetaCompositor *compositor,
+                                        MetaWindow     *window,
+                                        MetaRectangle  *tile_rect,
+                                        int             tile_monitor_number);
+
+void meta_compositor_hide_tile_preview (MetaCompositor *compositor);
+
+void meta_compositor_show_window_menu (MetaCompositor     *compositor,
+                                       MetaWindow         *window,
+				       MetaWindowMenuType  menu,
+                                       int                 x,
+                                       int                 y);
+
+void meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
+                                                MetaWindow         *window,
+				                MetaWindowMenuType  menu,
+                                                MetaRectangle      *rect);
 
 /*
  * This function takes a 64 bit time stamp from the monotonic clock, and clamps
