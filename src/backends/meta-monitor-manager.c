@@ -1861,8 +1861,8 @@ restore_previous_config (MetaMonitorManager *manager)
   meta_monitor_manager_ensure_configured (manager);
 }
 
-gint
-meta_monitor_manager_get_display_configuration_timeout (void)
+int
+meta_monitor_manager_get_display_configuration_timeout (MetaMonitorManager *manager)
 {
   return DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT;
 }
@@ -1887,7 +1887,10 @@ cancel_persistent_confirmation (MetaMonitorManager *manager)
 static void
 request_persistent_confirmation (MetaMonitorManager *manager)
 {
-  manager->persistent_timeout_id = g_timeout_add_seconds (meta_monitor_manager_get_display_configuration_timeout (),
+  int timeout_s;
+
+  timeout_s = meta_monitor_manager_get_display_configuration_timeout (manager);
+  manager->persistent_timeout_id = g_timeout_add_seconds (timeout_s,
                                                           save_config_timeout,
                                                           manager);
   g_source_set_name_by_id (manager->persistent_timeout_id,

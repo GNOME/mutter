@@ -60,7 +60,7 @@ META_EXPORT
 MetaMonitorSwitchConfigType meta_monitor_manager_get_switch_config (MetaMonitorManager *manager);
 
 META_EXPORT
-gint meta_monitor_manager_get_display_configuration_timeout (void);
+int meta_monitor_manager_get_display_configuration_timeout (MetaMonitorManager *manager);
 
 META_EXPORT
 gboolean meta_monitor_manager_get_panel_orientation_managed (MetaMonitorManager *manager);
