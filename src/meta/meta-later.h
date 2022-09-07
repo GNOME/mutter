@@ -43,6 +43,10 @@ typedef enum
   META_LATER_IDLE
 } MetaLaterType;
 
+#define META_TYPE_LATERS (meta_laters_get_type ())
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaLaters, meta_laters, META, LATERS, GObject)
+
 META_EXPORT
 guint meta_later_add    (MetaLaterType  when,
                          GSourceFunc    func,

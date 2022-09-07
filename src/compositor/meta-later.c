@@ -46,6 +46,8 @@ typedef struct _MetaLater
 
 struct _MetaLaters
 {
+  GObject parent;
+
   MetaCompositor *compositor;
 
   unsigned int last_later_id;
@@ -54,6 +56,8 @@ struct _MetaLaters
 
   gulong before_update_handler_id;
 };
+
+G_DEFINE_TYPE (MetaLaters, meta_laters, G_TYPE_OBJECT)
 
 static MetaLater *
 meta_later_ref (MetaLater *later)
@@ -210,6 +214,35 @@ invoke_later_idle (gpointer data)
     }
 }
 
+static void
+meta_laters_finalize (GObject *object)
+{
+  MetaLaters *laters = META_LATERS (object);
+
+  ClutterStage *stage = meta_compositor_get_stage (laters->compositor);
+  unsigned int i;
+
+  for (i = 0; i < G_N_ELEMENTS (laters->laters); i++)
+    g_slist_free_full (laters->laters[i], (GDestroyNotify) meta_later_unref);
+
+  g_clear_signal_handler (&laters->before_update_handler_id, stage);
+
+  G_OBJECT_CLASS (meta_laters_parent_class)->finalize (object);
+}
+
+static void
+meta_laters_class_init (MetaLatersClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_laters_finalize;
+}
+
+static void
+meta_laters_init (MetaLaters *laters)
+{
+}
+
 /**
  * meta_laters_add:
  * @laters: a #MetaLaters
@@ -355,7 +388,7 @@ meta_laters_new (MetaCompositor *compositor)
   ClutterStage *stage = meta_compositor_get_stage (compositor);
   MetaLaters *laters;
 
-  laters = g_new0 (MetaLaters, 1);
+  laters = g_object_new (META_TYPE_LATERS, NULL);
   laters->compositor = compositor;
 
   laters->before_update_handler_id =
@@ -364,17 +397,4 @@ meta_laters_new (MetaCompositor *compositor)
                       laters);
 
   return laters;
-}
-
-void
-meta_laters_free (MetaLaters *laters)
-{
-  ClutterStage *stage = meta_compositor_get_stage (laters->compositor);
-  unsigned int i;
-
-  for (i = 0; i < G_N_ELEMENTS (laters->laters); i++)
-    g_slist_free_full (laters->laters[i], (GDestroyNotify) meta_later_unref);
-
-  g_clear_signal_handler (&laters->before_update_handler_id, stage);
-  g_free (laters);
 }

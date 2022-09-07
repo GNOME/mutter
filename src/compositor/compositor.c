@@ -1308,7 +1308,7 @@ meta_compositor_dispose (GObject *object)
     meta_compositor_get_instance_private (compositor);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
 
-  g_clear_pointer (&priv->laters, meta_laters_free);
+  g_clear_object (&priv->laters);
 
   g_clear_signal_handler (&priv->stage_presented_id, stage);
   g_clear_signal_handler (&priv->before_paint_handler_id, stage);
