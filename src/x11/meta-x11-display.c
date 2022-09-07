@@ -1098,12 +1098,6 @@ open_gdk_display (MetaDisplay  *display,
   return gdk_display;
 }
 
-gboolean
-meta_x11_init_gdk_display (GError **error)
-{
-  return !!open_gdk_display (meta_get_display (), error);
-}
-
 static void
 on_window_visibility_updated (MetaDisplay    *display,
                               GList          *placed_windows,
