@@ -1655,11 +1655,19 @@ meta_compositor_is_switching_workspace (MetaCompositor *compositor)
   return priv->switch_workspace_in_progress > 0;
 }
 
+/**
+ * meta_compositor_get_laters:
+ * @compositor: a #MetaCompositor
+ *
+ * Returns: (transfer none): a #MetaLaters
+ */
 MetaLaters *
 meta_compositor_get_laters (MetaCompositor *compositor)
 {
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositorPrivate *priv;
 
+  g_return_val_if_fail (META_IS_COMPOSITOR (compositor), NULL);
+
+  priv = meta_compositor_get_instance_private (compositor);
   return priv->laters;
 }

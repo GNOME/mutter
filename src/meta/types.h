@@ -20,10 +20,6 @@
 #ifndef META_TYPES_H
 #define META_TYPES_H
 
-/**
- * MetaCompositor: (skip)
- *
- */
 typedef struct _MetaBackend     MetaBackend;
 typedef struct _MetaContext     MetaContext;
 typedef struct _MetaCompositor  MetaCompositor;

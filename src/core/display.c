@@ -2859,9 +2859,10 @@ meta_display_get_context (MetaDisplay *display)
 }
 
 /**
- * meta_display_get_compositor: (skip)
+ * meta_display_get_compositor:
  * @display: a #MetaDisplay
  *
+ * Returns: (transfer none): the #MetaCompositor
  */
 MetaCompositor *
 meta_display_get_compositor (MetaDisplay *display)
