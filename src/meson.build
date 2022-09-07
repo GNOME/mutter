@@ -466,6 +466,8 @@ if have_x11_client
     'x11/meta-selection-source-x11-private.h',
     'x11/meta-startup-notification-x11.c',
     'x11/meta-startup-notification-x11.h',
+    'x11/meta-sync-counter.c',
+    'x11/meta-sync-counter.h',
     'x11/meta-x11-display.c',
     'x11/meta-x11-display-private.h',
     'x11/meta-x11-errors.c',
