@@ -48,15 +48,6 @@ META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaLaters, meta_laters, META, LATERS, GObject)
 
 META_EXPORT
-guint meta_later_add    (MetaLaterType  when,
-                         GSourceFunc    func,
-                         gpointer       data,
-                         GDestroyNotify notify);
-
-META_EXPORT
-void  meta_later_remove (guint          later_id);
-
-META_EXPORT
 unsigned int meta_laters_add (MetaLaters     *laters,
                               MetaLaterType   when,
                               GSourceFunc     func,

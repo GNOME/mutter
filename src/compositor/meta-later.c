@@ -308,40 +308,6 @@ meta_laters_add (MetaLaters     *laters,
 }
 
 /**
- * meta_later_add:
- * @when: enumeration value determining the phase at which to run the callback
- * @func: callback to run later
- * @data: data to pass to the callback
- * @notify: function to call to destroy @data when it is no longer in use, or %NULL
- *
- * Sets up a callback  to be called at some later time. @when determines the
- * particular later occasion at which it is called. This is much like g_idle_add(),
- * except that the functions interact properly with clutter event handling.
- * If a "later" function is added from a clutter event handler, and is supposed
- * to be run before the stage is redrawn, it will be run before that redraw
- * of the stage, not the next one.
- *
- * Return value: an integer ID (guaranteed to be non-zero) that can be used
- *  to cancel the callback and prevent it from being run.
- */
-unsigned int
-meta_later_add (MetaLaterType  when,
-                GSourceFunc    func,
-                gpointer       data,
-                GDestroyNotify notify)
-{
-  MetaDisplay *display = meta_get_display ();
-  MetaCompositor *compositor;
-
-  g_return_val_if_fail (display, 0);
-  g_return_val_if_fail (display->compositor, 0);
-
-  compositor = display->compositor;
-  return meta_laters_add (meta_compositor_get_laters (compositor),
-                          when, func, data, notify);
-}
-
-/**
  * meta_laters_remove:
  * @laters: a #MetaLaters
  * @later_id: the integer ID returned from meta_later_add()
@@ -359,27 +325,6 @@ meta_laters_remove (MetaLaters   *laters,
       if (remove_later_from_list (later_id, &laters->laters[i]))
         return;
     }
-}
-
-/**
- * meta_later_remove:
- * @later_id: the integer ID returned from meta_later_add()
- *
- * Removes a callback added with meta_later_add()
- */
-void
-meta_later_remove (unsigned int later_id)
-{
-  MetaDisplay *display = meta_get_display ();
-  MetaCompositor *compositor;
-
-  g_return_if_fail (display);
-
-  compositor = display->compositor;
-  if (!compositor)
-    return;
-
-  meta_laters_remove (meta_compositor_get_laters (compositor), later_id);
 }
 
 MetaLaters *
