@@ -95,6 +95,15 @@ static void prefs_changed_callback (MetaPreference pref,
 
 static void meta_x11_display_init_frames_client (MetaX11Display *x11_display);
 
+static MetaBackend *
+backend_from_x11_display (MetaX11Display *x11_display)
+{
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
+  MetaContext *context = meta_display_get_context (display);
+
+  return meta_context_get_backend (context);
+}
+
 static void
 meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 {
@@ -919,7 +928,8 @@ set_workspace_work_area_hint (MetaWorkspace  *workspace,
   g_autofree char *workarea_name = NULL;
   Atom workarea_atom;
 
-  monitor_manager = meta_backend_get_monitor_manager (meta_get_backend ());
+  monitor_manager =
+    meta_backend_get_monitor_manager (backend_from_x11_display (x11_display));
   logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
   num_monitors = meta_monitor_manager_get_num_logical_monitors (monitor_manager);
 
@@ -1178,6 +1188,9 @@ meta_x11_display_new (MetaDisplay  *display,
                       GError      **error)
 {
   MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   g_autoptr (MetaX11Display) x11_display = NULL;
   Display *xdisplay;
   Screen *xscreen;
@@ -1192,9 +1205,6 @@ meta_x11_display_new (MetaDisplay  *display,
   Window restart_helper_window = None;
   gboolean is_restart = FALSE;
   GdkDisplay *gdk_display;
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
 
   /* A list of all atom names, so that we can intern them in one go. */
   const char *atom_names[] = {
@@ -1643,23 +1653,24 @@ meta_x11_display_reload_cursor (MetaX11Display *x11_display)
 }
 
 static void
-set_cursor_theme (Display *xdisplay)
+set_cursor_theme (Display     *xdisplay,
+                  MetaBackend *backend)
 {
-  MetaBackend *backend = meta_get_backend ();
   MetaSettings *settings = meta_backend_get_settings (backend);
   int scale;
 
   scale = meta_settings_get_ui_scaling_factor (settings);
   XcursorSetTheme (xdisplay, meta_prefs_get_cursor_theme ());
-  XcursorSetDefaultSize (xdisplay, meta_prefs_get_cursor_size () * scale);
+  XcursorSetDefaultSize (xdisplay,
+                         meta_prefs_get_cursor_size () * scale);
 }
 
 static void
 update_cursor_theme (MetaX11Display *x11_display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_x11_display (x11_display);
 
-  set_cursor_theme (x11_display->xdisplay);
+  set_cursor_theme (x11_display->xdisplay, backend);
   meta_x11_display_reload_cursor (x11_display);
 
   if (META_IS_BACKEND_X11 (backend))
@@ -1667,7 +1678,7 @@ update_cursor_theme (MetaX11Display *x11_display)
       MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
       Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
-      set_cursor_theme (xdisplay);
+      set_cursor_theme (xdisplay, backend);
       meta_backend_x11_reload_cursor (backend_x11);
     }
 }
@@ -1794,7 +1805,8 @@ create_guard_window (MetaX11Display *x11_display)
   {
     if (!meta_is_wayland_compositor ())
       {
-        MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
+        MetaBackendX11 *backend =
+          META_BACKEND_X11 (backend_from_x11_display (x11_display));
         Display *backend_xdisplay = meta_backend_x11_get_xdisplay (backend);
         unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
         XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
@@ -2081,7 +2093,7 @@ ensure_x11_display_logical_monitor_data (MetaLogicalMonitor *logical_monitor)
 static void
 meta_x11_display_ensure_xinerama_indices (MetaX11Display *x11_display)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_x11_display (x11_display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
@@ -2149,7 +2161,7 @@ MetaLogicalMonitor *
 meta_x11_display_xinerama_index_to_logical_monitor (MetaX11Display *x11_display,
                                                     int             xinerama_index)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_x11_display (x11_display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
@@ -2363,7 +2375,7 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
                                          XserverRegion   region)
 {
   Display *xdisplay = x11_display->xdisplay;
-  MetaBackend *backend = meta_get_backend ();
+  MetaBackend *backend = backend_from_x11_display (x11_display);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   Window stage_xwindow;
 

@@ -221,6 +221,7 @@ static gboolean
 meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
                                              XEvent         *xevent)
 {
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
   XSelectionRequestEvent *event = (XSelectionRequestEvent *) xevent;
   MetaSelectionType selection_type;
   MetaSelection *selection;
@@ -232,7 +233,7 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
   if (x11_display->selection.xwindow != event->owner)
     return FALSE;
 
-  selection = meta_display_get_selection (meta_get_display ());
+  selection = meta_display_get_selection (display);
 
   if (event->target == gdk_x11_get_xatom_by_name ("TARGETS"))
     {
@@ -343,11 +344,11 @@ source_new_cb (GObject      *object,
 }
 
 static gboolean
-unset_clipboard_owner (gpointer data)
+unset_clipboard_owner (gpointer user_data)
 {
-  MetaDisplay *display = meta_get_display ();
+  MetaX11Display *x11_display = user_data;
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
   MetaSelection *selection = meta_display_get_selection (display);
-  MetaX11Display *x11_display = meta_display_get_x11_display (display);
 
   meta_selection_unset_owner (selection, META_SELECTION_CLIPBOARD,
                               x11_display->selection.owners[META_SELECTION_CLIPBOARD]);
@@ -362,6 +363,7 @@ static gboolean
 meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
                                                    XEvent         *xevent)
 {
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
   XFixesSelectionNotifyEvent *event = (XFixesSelectionNotifyEvent *) xevent;
   Display *xdisplay = x11_display->xdisplay;
   MetaSelectionType selection_type;
@@ -370,7 +372,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
   if (!atom_to_selection_type (xdisplay, event->selection, &selection_type))
     return FALSE;
 
-  selection = meta_display_get_selection (meta_get_display ());
+  selection = meta_display_get_selection (display);
 
   if (selection_type == META_SELECTION_CLIPBOARD)
     g_clear_handle_id (&x11_display->selection.timeout_id, g_source_remove);
@@ -406,7 +408,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
            * arrives. */
           x11_display->selection.timeout_id = g_timeout_add (10,
                                                              unset_clipboard_owner,
-                                                             NULL);
+                                                             x11_display);
         }
       else
         {
@@ -477,8 +479,8 @@ notify_selection_owner (MetaX11Display      *x11_display,
 void
 meta_x11_selection_init (MetaX11Display *x11_display)
 {
+  MetaDisplay *display = meta_x11_display_get_display (x11_display);
   XSetWindowAttributes attributes = { 0 };
-  MetaDisplay *display = meta_get_display ();
   MetaSelection *selection;
   guint mask, i;
 
