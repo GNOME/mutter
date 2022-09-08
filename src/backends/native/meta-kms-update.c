@@ -316,6 +316,8 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
 
+  drop_plane_assignment (update, plane, NULL);
+
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {
     .update = update,
