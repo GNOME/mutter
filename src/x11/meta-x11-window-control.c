@@ -211,7 +211,4 @@ meta_x11_wm_set_screen_cursor (MetaX11Display *x11_display,
                                Window          frame_on_screen,
                                MetaCursor      cursor)
 {
-  MetaWindow *window = window_from_frame (x11_display, frame_on_screen);
-
-  meta_frame_set_screen_cursor (window->frame, cursor);
 }

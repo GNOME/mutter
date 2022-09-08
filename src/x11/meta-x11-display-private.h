@@ -130,6 +130,9 @@ struct _MetaX11Display
 
   MetaUI *ui;
 
+  GSubprocess *frames_client;
+  GCancellable *frames_client_cancellable;
+
   struct {
     Window xwindow;
     guint timeout_id;

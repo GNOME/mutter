@@ -560,6 +560,15 @@ meta_window_x11_manage (MetaWindow *window)
 
   if (window->decorated)
     meta_window_ensure_frame (window);
+  else
+    meta_window_x11_initialize_state (window);
+}
+
+void
+meta_window_x11_initialize_state (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
   /* Now try applying saved stuff from the session */
   {
@@ -1223,7 +1232,7 @@ update_gtk_edge_constraints (MetaWindow *window)
 
   meta_x11_error_trap_push (x11_display);
   XChangeProperty (x11_display->xdisplay,
-                   window->xwindow,
+                   window->frame ? window->frame->xwindow : window->xwindow,
                    x11_display->atom__GTK_EDGE_CONSTRAINTS,
                    XA_CARDINAL, 32, PropModeReplace,
                    (guchar*) data, 1);
@@ -1737,9 +1746,6 @@ meta_window_x11_update_icon (MetaWindowX11 *window_x11,
       g_object_notify (G_OBJECT (window), "icon");
       g_object_notify (G_OBJECT (window), "mini-icon");
       g_object_thaw_notify (G_OBJECT (window));
-
-      if (window->frame)
-        meta_frame_queue_draw (window->frame);
     }
 }
 
@@ -2303,6 +2309,16 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
                    x11_display->atom__NET_WM_STATE,
                    XA_ATOM,
                    32, PropModeReplace, (guchar*) data, i);
+
+  if (window->frame)
+    {
+      XChangeProperty (x11_display->xdisplay,
+                       window->frame->xwindow,
+                       x11_display->atom__NET_WM_STATE,
+                       XA_ATOM,
+                       32, PropModeReplace, (guchar*) data, i);
+    }
+
   meta_x11_error_trap_pop (x11_display);
 
   if (window->fullscreen)
@@ -4070,10 +4086,21 @@ meta_window_x11_set_allowed_actions_hint (MetaWindow *window)
   meta_verbose ("Setting _NET_WM_ALLOWED_ACTIONS with %d atoms", i);
 
   meta_x11_error_trap_push (x11_display);
-  XChangeProperty (x11_display->xdisplay, window->xwindow,
+  XChangeProperty (x11_display->xdisplay,
+                   window->xwindow,
                    x11_display->atom__NET_WM_ALLOWED_ACTIONS,
                    XA_ATOM,
                    32, PropModeReplace, (guchar*) data, i);
+
+  if (window->frame)
+    {
+      XChangeProperty (x11_display->xdisplay,
+                       window->frame->xwindow,
+                       x11_display->atom__NET_WM_ALLOWED_ACTIONS,
+                       XA_ATOM,
+                       32, PropModeReplace, (guchar*) data, i);
+    }
+
   meta_x11_error_trap_pop (x11_display);
 #undef MAX_N_ACTIONS
 }

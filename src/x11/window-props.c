@@ -1815,9 +1815,6 @@ reload_gtk_theme_variant (MetaWindow    *window,
       g_free (current_variant);
 
       window->gtk_theme_variant = g_strdup (requested_variant);
-
-      if (window->frame)
-        meta_frame_update_style (window->frame);
     }
 }
 

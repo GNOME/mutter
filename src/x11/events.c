@@ -48,6 +48,7 @@
 #include "x11/meta-x11-selection-input-stream-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 #include "x11/xprops.h"
 
 #ifdef HAVE_WAYLAND
@@ -965,10 +966,6 @@ handle_input_xevent (MetaX11Display *x11_display,
            meta_x11_display_lookup_x_window (x11_display, modified) :
            NULL;
 
-  /* If this is an event for a GTK+ widget, let GTK+ handle it. */
-  if (meta_ui_window_is_widget (x11_display->ui, modified))
-    return FALSE;
-
   switch (input_event->evtype)
     {
     case XI_Enter:
@@ -1038,10 +1035,6 @@ handle_input_xevent (MetaX11Display *x11_display,
         }
       break;
     }
-
-  /* Don't eat events for GTK frames (we need to update the :hover state on buttons) */
-  if (window && window->frame && modified == window->frame->xwindow)
-    return FALSE;
 
   /* Don't pass these events through to Clutter / GTK+ */
   return TRUE;
@@ -1359,7 +1352,7 @@ handle_other_xevent (MetaX11Display *x11_display,
     {
       bypass_gtk = TRUE; /* GTK doesn't want to see this really */
 
-      if (window && !frame_was_receiver)
+      if (window)
         {
           XShapeEvent *sev = (XShapeEvent*) event;
 
@@ -1371,9 +1364,8 @@ handle_other_xevent (MetaX11Display *x11_display,
       else
         {
           meta_topic (META_DEBUG_SHAPES,
-                      "ShapeNotify not on a client window (window %s frame_was_receiver = %d)",
-                      window ? window->desc : "(none)",
-                      frame_was_receiver);
+                      "ShapeNotify not on a client window (window 0x%lx)",
+                      modified);
         }
 
       goto out;
@@ -1420,8 +1412,6 @@ handle_other_xevent (MetaX11Display *x11_display,
 
           if (frame_was_receiver)
             {
-              meta_warning ("Unexpected destruction of frame 0x%lx, not sure if this should silently fail or be considered a bug",
-                            window->frame->xwindow);
               meta_x11_error_trap_push (x11_display);
               meta_window_destroy_frame (window->frame->window);
               meta_x11_error_trap_pop (x11_display);
@@ -1492,6 +1482,38 @@ handle_other_xevent (MetaX11Display *x11_display,
     case MapRequest:
       if (window == NULL)
         {
+          Atom type;
+          int format;
+          unsigned long nitems, bytes_after, *data;
+
+          /* Check whether the new window is a frame for another window */
+          if (XGetWindowProperty (x11_display->xdisplay,
+                                  event->xmaprequest.window,
+                                  x11_display->atom__MUTTER_FRAME_FOR,
+                                  0, 32, False, XA_WINDOW,
+                                  &type, &format, &nitems, &bytes_after,
+                                  (guchar **) &data) == Success &&
+              nitems == 1)
+            {
+              Window client_window;
+
+              client_window = data[0];
+              XFree (data);
+
+              window = meta_x11_display_lookup_x_window (x11_display,
+                                                         client_window);
+
+              if (window != NULL && window->decorated && !window->frame)
+                {
+                  meta_window_set_frame_xwindow (window,
+                                                 event->xmaprequest.window);
+                  meta_window_x11_initialize_state (window);
+                  meta_window_update_visibility (window);
+                }
+
+              break;
+            }
+
           window = meta_window_x11_new (display, event->xmaprequest.window,
                                         FALSE, META_COMP_EFFECT_CREATE);
           /* The window might have initial iconic state, but this is a
@@ -1501,7 +1523,6 @@ handle_other_xevent (MetaX11Display *x11_display,
         }
       else if (frame_was_receiver)
         {
-          meta_warning ("Map requests on the frame window are unexpected");
           break;
         }
 
@@ -1575,10 +1596,9 @@ handle_other_xevent (MetaX11Display *x11_display,
                             xwcm, &xwc);
           meta_x11_error_trap_pop (x11_display);
         }
-      else
+      else if (!frame_was_receiver)
         {
-          if (!frame_was_receiver)
-            meta_window_x11_configure_request (window, event);
+          meta_window_x11_configure_request (window, event);
         }
       break;
     case GravityNotify:
@@ -1597,6 +1617,8 @@ handle_other_xevent (MetaX11Display *x11_display,
           meta_window_x11_property_notify (window, event);
         else if (property_for_window && !frame_was_receiver)
           meta_window_x11_property_notify (property_for_window, event);
+        else if (frame_was_receiver)
+          meta_frame_handle_xevent (window->frame, event);
 
         group = meta_x11_display_lookup_group (x11_display,
                                                event->xproperty.window);
@@ -1650,7 +1672,6 @@ handle_other_xevent (MetaX11Display *x11_display,
             }
           else
 #endif
-          if (!frame_was_receiver)
             meta_window_x11_client_message (window, event);
         }
       else

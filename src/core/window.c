@@ -840,6 +840,10 @@ client_window_should_be_mapped (MetaWindow *window)
     }
 #endif
 
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      window->decorated && !window->frame)
+    return FALSE;
+
   return !window->shaded;
 }
 
@@ -1700,6 +1704,10 @@ meta_window_should_be_showing (MetaWindow  *window)
         return FALSE;
     }
 #endif
+
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      window->decorated && !window->frame)
+    return FALSE;
 
   /* Windows should be showing if they're located on the
    * active workspace and they're showing on their own workspace. */
@@ -2948,9 +2956,6 @@ meta_window_tile (MetaWindow   *window,
                                      META_MOVE_RESIZE_CONSTRAIN),
                                     META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
-
-  if (window->frame)
-    meta_frame_queue_draw (window->frame);
 }
 
 MetaTileMode
@@ -5098,9 +5103,6 @@ meta_window_update_appears_focused (MetaWindow *window)
   meta_window_frame_size_changed (window);
 
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_APPEARS_FOCUSED]);
-
-  if (window->frame)
-    meta_frame_queue_draw (window->frame);
 }
 
 static gboolean
@@ -5190,9 +5192,6 @@ meta_window_set_focused_internal (MetaWindow *window,
       window->has_focus = TRUE;
       if (window->override_redirect)
         return;
-
-      if (window->frame)
-        meta_frame_queue_draw (window->frame);
 
       /* Ungrab click to focus button since the sync grab can interfere
        * with some things you might do inside the focused window, by
@@ -7871,9 +7870,6 @@ meta_window_set_title (MetaWindow *window,
   g_free (window->title);
   window->title = g_strdup (title);
 
-  if (window->frame)
-    meta_frame_update_title (window->frame);
-
   meta_window_update_desc (window);
 
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TITLE]);
@@ -8252,16 +8248,6 @@ meta_window_handle_leave (MetaWindow *window)
 {
   if (window->type == META_WINDOW_DOCK && !window->has_focus)
     meta_window_lower (window);
-}
-
-gboolean
-meta_window_handle_ui_frame_event (MetaWindow         *window,
-                                   const ClutterEvent *event)
-{
-  if (!window->frame)
-    return FALSE;
-
-  return meta_ui_frame_handle_event (window->frame->ui_frame, event);
 }
 
 void

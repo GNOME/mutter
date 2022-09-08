@@ -34,6 +34,7 @@
 #include "x11/meta-x11-display-private.h"
 
 #include <gdk/gdk.h>
+#include <gdk/gdkx.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -92,6 +93,8 @@ static void unset_wm_check_hint (MetaX11Display *x11_display);
 static void prefs_changed_callback (MetaPreference pref,
                                     void          *data);
 
+static void meta_x11_display_init_frames_client (MetaX11Display *x11_display);
+
 static void
 meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 {
@@ -122,6 +125,18 @@ meta_x11_display_dispose (GObject *object)
 
   g_clear_pointer (&x11_display->alarm_filters, g_ptr_array_unref);
 
+  if (x11_display->frames_client_cancellable)
+    {
+      g_cancellable_cancel (x11_display->frames_client_cancellable);
+      g_clear_object (&x11_display->frames_client_cancellable);
+    }
+
+  if (x11_display->frames_client)
+    {
+      g_subprocess_send_signal (x11_display->frames_client, SIGTERM);
+      g_clear_object (&x11_display->frames_client);
+    }
+
   if (x11_display->empty_region != None)
     {
       XFixesDestroyRegion (x11_display->xdisplay,
@@ -139,12 +154,6 @@ meta_x11_display_dispose (GObject *object)
 
   meta_x11_selection_shutdown (x11_display);
   meta_x11_display_unmanage_windows (x11_display);
-
-  if (x11_display->ui)
-    {
-      meta_ui_free (x11_display->ui);
-      x11_display->ui = NULL;
-    }
 
   if (x11_display->no_focus_window != None)
     {
@@ -1112,6 +1121,52 @@ on_window_visibility_updated (MetaDisplay    *display,
     meta_x11_display_increment_focus_sentinel (x11_display);
 }
 
+static void
+on_frames_client_died (GObject      *source,
+                       GAsyncResult *result,
+                       gpointer      user_data)
+{
+  MetaX11Display *x11_display = user_data;
+  GSubprocess *proc = G_SUBPROCESS (source);
+  g_autoptr (GError) error = NULL;
+
+  if (!g_subprocess_wait_finish (proc, result, &error))
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Error obtaining frames client exit status: %s\n", error->message);
+    }
+
+  g_clear_object (&x11_display->frames_client_cancellable);
+  g_clear_object (&x11_display->frames_client);
+
+  if (g_subprocess_get_if_signaled (proc))
+    {
+      int signum;
+
+      signum = g_subprocess_get_term_sig (proc);
+
+      /* Bring it up again, unless it was forcibly closed */
+      if (signum != SIGTERM && signum != SIGKILL)
+        meta_x11_display_init_frames_client (x11_display);
+    }
+}
+
+static void
+meta_x11_display_init_frames_client (MetaX11Display *x11_display)
+{
+  const char *display_name;
+
+  display_name = get_display_name (x11_display->display);
+  x11_display->frames_client_cancellable = g_cancellable_new ();
+  x11_display->frames_client = meta_frame_launch_client (x11_display,
+                                                         display_name);
+  g_subprocess_wait_async (x11_display->frames_client,
+                           x11_display->frames_client_cancellable,
+                           on_frames_client_died, x11_display);
+}
+
 /**
  * meta_x11_display_new:
  *
@@ -1258,7 +1313,6 @@ meta_x11_display_new (MetaDisplay  *display,
                                         meta_unsigned_long_equal);
 
   x11_display->groups_by_leader = NULL;
-  x11_display->ui = NULL;
   x11_display->composite_overlay_window = None;
   x11_display->guard_window = None;
   x11_display->leader_window = None;
@@ -1324,7 +1378,6 @@ meta_x11_display_new (MetaDisplay  *display,
   set_desktop_viewport_hint (x11_display);
   set_desktop_geometry_hint (x11_display);
 
-  x11_display->ui = meta_ui_new (x11_display);
   x11_display->x11_stack = meta_x11_stack_new (x11_display);
 
   x11_display->keys_grabbed = FALSE;
@@ -1407,6 +1460,8 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->wm_sn_timestamp = timestamp;
 
   init_event_masks (x11_display);
+
+  meta_x11_display_init_frames_client (x11_display);
 
   return g_steal_pointer (&x11_display);
 }

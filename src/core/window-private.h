@@ -821,9 +821,6 @@ void meta_window_handle_enter (MetaWindow  *window,
                                guint        root_y);
 void meta_window_handle_leave (MetaWindow  *window);
 
-gboolean meta_window_handle_ui_frame_event (MetaWindow         *window,
-                                            const ClutterEvent *event);
-
 void meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                          const ClutterEvent *event);
 
@@ -906,5 +903,8 @@ void meta_window_update_layout (MetaWindow *window);
 gboolean meta_window_calculate_bounds (MetaWindow *window,
                                        int        *bounds_width,
                                        int        *bounds_height);
+
+void meta_window_set_frame_xwindow (MetaWindow *window,
+                                    Window      xframe);
 
 #endif
