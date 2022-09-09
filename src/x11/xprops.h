@@ -132,6 +132,7 @@ typedef struct
   MetaPropValueType type;
   Atom atom;
   Atom required_type; /* autofilled if None */
+  Window source_xwindow;
 
   union
   {

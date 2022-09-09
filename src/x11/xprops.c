@@ -958,6 +958,8 @@ meta_prop_get_values (MetaX11Display *x11_display,
           goto next;
         }
 
+      values[i].source_xwindow = xwindow;
+
       switch (values[i].type)
         {
         case META_PROP_VALUE_INVALID:
