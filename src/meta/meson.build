@@ -40,7 +40,6 @@ mutter_public_headers = [
   'meta-window-shape.h',
   'meta-workspace-manager.h',
   'prefs.h',
-  'theme.h',
   'types.h',
   'util.h',
   'window.h',

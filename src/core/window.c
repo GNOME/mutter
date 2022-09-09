@@ -84,7 +84,6 @@
 #include "meta/meta-enum-types.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
-#include "ui/ui.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11.h"

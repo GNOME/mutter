@@ -31,7 +31,6 @@
 #include "meta/window.h"
 #include "core/meta-workspace-manager-private.h"
 #include "tests/meta-test-utils.h"
-#include "ui/ui.h"
 #include "wayland/meta-wayland.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -241,13 +240,6 @@ test_case_assert_stacking (TestCase       *test,
 
       if (window != NULL && window->title)
         {
-          /* See comment in meta_ui_new() about why the dummy window for GTK+ theming
-           * is managed as a MetaWindow.
-           */
-          if (META_STACK_ID_IS_X11 (windows[i]) &&
-              meta_ui_window_is_dummy (display->x11_display->ui, windows[i]))
-            continue;
-
           if (stack_string->len > 0)
             g_string_append_c (stack_string, ' ');
 

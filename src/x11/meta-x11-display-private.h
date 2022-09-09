@@ -36,7 +36,6 @@
 #include "meta/meta-x11-display.h"
 #include "meta-startup-notification-x11.h"
 #include "meta-x11-stack-private.h"
-#include "ui/ui.h"
 #include "x11/meta-sync-counter.h"
 
 typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
@@ -129,8 +128,6 @@ struct _MetaX11Display
   guint32 last_bell_time;
 
   GPtrArray *alarm_filters;
-
-  MetaUI *ui;
 
   GSubprocess *frames_client;
   GCancellable *frames_client_cancellable;
