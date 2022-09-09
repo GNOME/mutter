@@ -217,6 +217,8 @@ meta_x11_display_dispose (GObject *object)
       x11_display->xids = NULL;
     }
 
+  g_clear_pointer (&x11_display->alarms, g_hash_table_unref);
+
   if (x11_display->xroot != None)
     {
       unset_wm_check_hint (x11_display);
@@ -1311,6 +1313,8 @@ meta_x11_display_new (MetaDisplay  *display,
 
   x11_display->xids = g_hash_table_new (meta_unsigned_long_hash,
                                         meta_unsigned_long_equal);
+  x11_display->alarms = g_hash_table_new (meta_unsigned_long_hash,
+                                          meta_unsigned_long_equal);
 
   x11_display->groups_by_leader = NULL;
   x11_display->composite_overlay_window = None;
@@ -1700,36 +1704,30 @@ meta_x11_display_unregister_x_window (MetaX11Display *x11_display,
   g_hash_table_remove (x11_display->xids, &xwindow);
 }
 
-
-/* We store sync alarms in the window ID hash table, because they are
- * just more types of XIDs in the same global space, but we have
- * typesafe functions to register/unregister for readability.
- */
-
-MetaWindow *
+MetaSyncCounter *
 meta_x11_display_lookup_sync_alarm (MetaX11Display *x11_display,
                                     XSyncAlarm      alarm)
 {
-  return g_hash_table_lookup (x11_display->xids, &alarm);
+  return g_hash_table_lookup (x11_display->alarms, &alarm);
 }
 
 void
-meta_x11_display_register_sync_alarm (MetaX11Display *x11_display,
-                                      XSyncAlarm     *alarmp,
-                                      MetaWindow     *window)
+meta_x11_display_register_sync_alarm (MetaX11Display  *x11_display,
+                                      XSyncAlarm      *alarmp,
+                                      MetaSyncCounter *sync_counter)
 {
-  g_return_if_fail (g_hash_table_lookup (x11_display->xids, alarmp) == NULL);
+  g_return_if_fail (g_hash_table_lookup (x11_display->alarms, alarmp) == NULL);
 
-  g_hash_table_insert (x11_display->xids, alarmp, window);
+  g_hash_table_insert (x11_display->alarms, alarmp, sync_counter);
 }
 
 void
 meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
                                         XSyncAlarm      alarm)
 {
-  g_return_if_fail (g_hash_table_lookup (x11_display->xids, &alarm) != NULL);
+  g_return_if_fail (g_hash_table_lookup (x11_display->alarms, &alarm) != NULL);
 
-  g_hash_table_remove (x11_display->xids, &alarm);
+  g_hash_table_remove (x11_display->alarms, &alarm);
 }
 
 MetaX11AlarmFilter *

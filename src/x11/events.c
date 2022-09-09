@@ -1314,15 +1314,17 @@ handle_other_xevent (MetaX11Display *x11_display,
   if (META_X11_DISPLAY_HAS_XSYNC (x11_display) &&
       event->type == (x11_display->xsync_event_base + XSyncAlarmNotify))
     {
-      MetaWindow *alarm_window = meta_x11_display_lookup_sync_alarm (x11_display,
-                                                                     ((XSyncAlarmNotifyEvent*)event)->alarm);
+      MetaSyncCounter *sync_counter;
 
-      if (alarm_window != NULL)
+      sync_counter = meta_x11_display_lookup_sync_alarm (x11_display,
+                                                         ((XSyncAlarmNotifyEvent*)event)->alarm);
+
+      if (sync_counter != NULL)
         {
           XSyncValue value = ((XSyncAlarmNotifyEvent*)event)->counter_value;
           gint64 new_counter_value;
           new_counter_value = XSyncValueLow32 (value) + ((gint64)XSyncValueHigh32 (value) << 32);
-          meta_window_x11_update_sync_request_counter (alarm_window, new_counter_value);
+          meta_sync_counter_update (sync_counter, new_counter_value);
           bypass_gtk = TRUE; /* GTK doesn't want to see this really */
         }
       else if (x11_display->alarm_filters)

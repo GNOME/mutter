@@ -152,7 +152,7 @@ meta_sync_counter_create_sync_alarm (MetaSyncCounter *sync_counter)
     {
       meta_x11_display_register_sync_alarm (x11_display,
                                             &sync_counter->sync_request_alarm,
-                                            window);
+                                            sync_counter);
     }
   else
     {

@@ -4123,16 +4123,6 @@ meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
   meta_sync_counter_destroy_sync_alarm (&priv->sync_counter);
 }
 
-void
-meta_window_x11_update_sync_request_counter (MetaWindow *window,
-                                             gint64      new_counter_value)
-{
-  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-
-  meta_sync_counter_update (&priv->sync_counter, new_counter_value);
-}
-
 Window
 meta_window_x11_get_toplevel_xwindow (MetaWindow *window)
 {

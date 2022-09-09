@@ -37,6 +37,7 @@
 #include "meta-startup-notification-x11.h"
 #include "meta-x11-stack-private.h"
 #include "ui/ui.h"
+#include "x11/meta-sync-counter.h"
 
 typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
 typedef struct _MetaWindowPropHooks MetaWindowPropHooks;
@@ -109,6 +110,7 @@ struct _MetaX11Display
   Window composite_overlay_window;
 
   GHashTable *xids;
+  GHashTable *alarms;
 
   gboolean has_xinerama_indices;
 
@@ -211,11 +213,13 @@ void        meta_x11_display_register_x_window   (MetaX11Display *x11_display,
 void        meta_x11_display_unregister_x_window (MetaX11Display *x11_display,
                                                   Window          xwindow);
 
-MetaWindow *meta_x11_display_lookup_sync_alarm     (MetaX11Display *x11_display,
-                                                    XSyncAlarm      alarm);
-void        meta_x11_display_register_sync_alarm   (MetaX11Display *x11_display,
-                                                    XSyncAlarm     *alarmp,
-                                                    MetaWindow     *window);
+MetaSyncCounter * meta_x11_display_lookup_sync_alarm (MetaX11Display *x11_display,
+                                                      XSyncAlarm      alarm);
+
+void        meta_x11_display_register_sync_alarm (MetaX11Display  *x11_display,
+                                                  XSyncAlarm      *alarmp,
+                                                  MetaSyncCounter *sync_counter);
+
 void        meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
                                                     XSyncAlarm      alarm);
 

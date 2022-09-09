@@ -62,8 +62,6 @@ void meta_window_x11_set_allowed_actions_hint    (MetaWindow *window);
 
 void meta_window_x11_create_sync_request_alarm   (MetaWindow *window);
 void meta_window_x11_destroy_sync_request_alarm  (MetaWindow *window);
-void meta_window_x11_update_sync_request_counter (MetaWindow *window,
-                                                  gint64      new_counter_value);
 
 void meta_window_x11_update_input_region         (MetaWindow *window);
 void meta_window_x11_update_shape_region         (MetaWindow *window);
