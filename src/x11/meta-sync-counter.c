@@ -25,6 +25,7 @@
 #include "core/window-private.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11-private.h"
 
 /* Each time the application updates the sync request counter to a new even value
  * value, we queue a frame into the windows list of frames. Once we're painting
@@ -206,12 +207,7 @@ sync_request_timeout (gpointer data)
 
   if (window == window->display->grab_window &&
       meta_grab_op_is_resizing (window->display->grab_op))
-    {
-      meta_window_update_resize (window,
-                                 window->display->grab_last_edge_resistance_flags,
-                                 window->display->grab_latest_motion_x,
-                                 window->display->grab_latest_motion_y);
-    }
+    meta_window_x11_check_update_resize (window);
 
   return G_SOURCE_REMOVE;
 }
@@ -316,10 +312,7 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
 
           /* This means we are ready for another configure;
            * no pointer round trip here, to keep in sync */
-          meta_window_update_resize (window,
-                                     window->display->grab_last_edge_resistance_flags,
-                                     window->display->grab_latest_motion_x,
-                                     window->display->grab_latest_motion_y);
+          meta_window_x11_check_update_resize (window);
         }
     }
 

@@ -4287,3 +4287,12 @@ meta_window_x11_is_awaiting_sync_response (MetaWindow *window)
 
   return meta_sync_counter_is_waiting_response (&priv->sync_counter);
 }
+
+void
+meta_window_x11_check_update_resize (MetaWindow *window)
+{
+  meta_window_update_resize (window,
+                             window->display->grab_last_edge_resistance_flags,
+                             window->display->grab_latest_motion_x,
+                             window->display->grab_latest_motion_y);
+}

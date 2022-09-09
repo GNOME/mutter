@@ -97,6 +97,8 @@ void meta_window_x11_queue_update_icon (MetaWindowX11 *window_x11);
 
 void meta_window_x11_initialize_state (MetaWindow *window);
 
+void meta_window_x11_check_update_resize (MetaWindow *window);
+
 G_END_DECLS
 
 #endif
