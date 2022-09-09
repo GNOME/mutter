@@ -30,6 +30,7 @@
 #include "core/keybindings-private.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-props.h"
 
 #include <X11/Xatom.h>
 
@@ -69,7 +70,7 @@ meta_window_set_frame_xwindow (MetaWindow *window,
   frame = g_new0 (MetaFrame, 1);
 
   frame->window = window;
-  frame->xwindow = None;
+  frame->xwindow = xframe;
 
   frame->rect = window->rect;
   frame->child_x = 0;
@@ -78,6 +79,8 @@ meta_window_set_frame_xwindow (MetaWindow *window,
   frame->right_width = 0;
 
   frame->borders_cached = FALSE;
+
+  meta_sync_counter_init (&frame->sync_counter, window, frame->xwindow);
 
   window->frame = frame;
 
@@ -90,8 +93,6 @@ meta_window_set_frame_xwindow (MetaWindow *window,
                 xframe, window->desc,
                 frame->rect.x, frame->rect.y,
                 frame->rect.width, frame->rect.height);
-
-  frame->xwindow = xframe;
 
   meta_stack_tracker_record_add (window->display->stack_tracker,
                                  frame->xwindow,
@@ -135,6 +136,10 @@ meta_window_set_frame_xwindow (MetaWindow *window,
 
   /* stick frame to the window */
   window->frame = frame;
+
+  meta_window_reload_property_from_xwindow (window, frame->xwindow,
+                                            x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER,
+                                            TRUE);
 
   XMapWindow (x11_display->xdisplay, frame->xwindow);
 
@@ -221,6 +226,8 @@ meta_window_destroy_frame (MetaWindow *window)
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
+
+  meta_sync_counter_clear (&frame->sync_counter);
 
   g_free (frame);
 
@@ -496,6 +503,14 @@ meta_frame_handle_xevent (MetaFrame *frame,
       meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
       return TRUE;
     }
+  else if (xevent->xany.type == PropertyNotify &&
+           xevent->xproperty.state == PropertyNewValue &&
+           xevent->xproperty.atom == x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER)
+    {
+      meta_window_reload_property_from_xwindow (window, frame->xwindow,
+                                                xevent->xproperty.atom, FALSE);
+      return TRUE;
+    }
 
   return FALSE;
 }
@@ -571,4 +586,10 @@ meta_frame_type_to_string (MetaFrameType type)
     }
 
   return "<unknown>";
+}
+
+MetaSyncCounter *
+meta_frame_get_sync_counter (MetaFrame *frame)
+{
+  return &frame->sync_counter;
 }

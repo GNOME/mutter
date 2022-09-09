@@ -132,6 +132,13 @@ send_frame_messages_timeout (gpointer data)
 
   sync_counter = meta_window_x11_get_sync_counter (window);
   meta_sync_counter_finish_incomplete (sync_counter);
+
+  if (window->frame)
+    {
+      sync_counter = meta_frame_get_sync_counter (window->frame);
+      meta_sync_counter_finish_incomplete (sync_counter);
+    }
+
   actor_x11->send_frame_messages_timer = 0;
 
   return G_SOURCE_REMOVE;
@@ -208,6 +215,13 @@ assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11)
   sync_counter = meta_window_x11_get_sync_counter (window);
   meta_sync_counter_assign_counter_to_frames (sync_counter,
                                               clutter_stage_get_frame_counter (stage));
+
+  if (window->frame)
+    {
+      sync_counter = meta_frame_get_sync_counter (window->frame);
+      meta_sync_counter_assign_counter_to_frames (sync_counter,
+                                                  clutter_stage_get_frame_counter (stage));
+    }
 }
 
 static void
@@ -225,6 +239,14 @@ meta_window_actor_x11_frame_complete (MetaWindowActor  *actor,
   meta_sync_counter_complete_frame (sync_counter,
                                     frame_info,
                                     presentation_time);
+
+  if (window->frame)
+    {
+      sync_counter = meta_frame_get_sync_counter (window->frame);
+      meta_sync_counter_complete_frame (sync_counter,
+                                        frame_info,
+                                        presentation_time);
+    }
 }
 
 static MetaSurfaceActor *
@@ -1207,6 +1229,12 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
     {
       sync_counter = meta_window_x11_get_sync_counter (window);
       meta_sync_counter_send_frame_drawn (sync_counter);
+
+      if (window->frame)
+        {
+          sync_counter = meta_frame_get_sync_counter (window->frame);
+          meta_sync_counter_send_frame_drawn (sync_counter);
+        }
     }
 
   /* This is for Xwayland, and a no-op on plain Xorg */

@@ -1479,9 +1479,6 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   else
     configure_frame_first = size_dx + size_dy >= 0;
 
-  if (configure_frame_first && window->frame)
-    frame_shape_changed = meta_frame_sync_to_window (window->frame, need_resize_frame);
-
   values.border_width = 0;
   values.x = client_rect.x;
   values.y = client_rect.y;
@@ -1496,24 +1493,32 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   if (need_resize_client)
     mask |= (CWWidth | CWHeight);
 
+  meta_x11_error_trap_push (window->display->x11_display);
+
+  if (mask != 0 &&
+      window == window->display->grab_window &&
+      meta_grab_op_is_resizing (window->display->grab_op))
+    {
+      meta_sync_counter_send_request (&priv->sync_counter);
+      if (window->frame)
+        meta_sync_counter_send_request (meta_frame_get_sync_counter (window->frame));
+    }
+
+  if (configure_frame_first && window->frame)
+    frame_shape_changed = meta_frame_sync_to_window (window->frame, need_resize_frame);
+
   if (mask != 0)
     {
-      meta_x11_error_trap_push (window->display->x11_display);
-
-      if (window == window->display->grab_window &&
-          meta_grab_op_is_resizing (window->display->grab_op))
-        meta_sync_counter_send_request (&priv->sync_counter);
-
       XConfigureWindow (window->display->x11_display->xdisplay,
                         window->xwindow,
                         mask,
                         &values);
-
-      meta_x11_error_trap_pop (window->display->x11_display);
     }
 
   if (!configure_frame_first && window->frame)
     frame_shape_changed = meta_frame_sync_to_window (window->frame, need_resize_frame);
+
+  meta_x11_error_trap_pop (window->display->x11_display);
 
   if (window->frame)
     window->buffer_rect = window->frame->rect;
@@ -1899,6 +1904,10 @@ meta_window_x11_are_updates_frozen (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  if (window->frame &&
+      meta_sync_counter_is_waiting (meta_frame_get_sync_counter (window->frame)))
+    return TRUE;
 
   return meta_sync_counter_is_waiting (&priv->sync_counter);
 }
@@ -4111,6 +4120,9 @@ meta_window_x11_create_sync_request_alarm (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
+  if (window->frame)
+    meta_sync_counter_create_sync_alarm (meta_frame_get_sync_counter (window->frame));
+
   meta_sync_counter_create_sync_alarm (&priv->sync_counter);
 }
 
@@ -4119,6 +4131,9 @@ meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  if (window->frame)
+    meta_sync_counter_destroy_sync_alarm (meta_frame_get_sync_counter (window->frame));
 
   meta_sync_counter_destroy_sync_alarm (&priv->sync_counter);
 }
@@ -4276,6 +4291,10 @@ meta_window_x11_has_active_sync_alarms (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
+  if (window->frame &&
+      meta_sync_counter_has_sync_alarm (meta_frame_get_sync_counter (window->frame)))
+    return TRUE;
+
   return meta_sync_counter_has_sync_alarm (&priv->sync_counter);
 }
 
@@ -4285,12 +4304,26 @@ meta_window_x11_is_awaiting_sync_response (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
+  if (window->frame &&
+      meta_sync_counter_is_waiting_response (meta_frame_get_sync_counter (window->frame)))
+    return TRUE;
+
   return meta_sync_counter_is_waiting_response (&priv->sync_counter);
 }
 
 void
 meta_window_x11_check_update_resize (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  if (window->frame &&
+      meta_sync_counter_is_waiting (meta_frame_get_sync_counter (window->frame)))
+    return;
+
+  if (meta_sync_counter_is_waiting (&priv->sync_counter))
+    return;
+
   meta_window_update_resize (window,
                              window->display->grab_last_edge_resistance_flags,
                              window->display->grab_latest_motion_x,

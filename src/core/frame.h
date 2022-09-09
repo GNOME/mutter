@@ -24,6 +24,8 @@
 
 #include "core/window-private.h"
 
+#include "x11/meta-sync-counter.h"
+
 struct _MetaFrame
 {
   /* window we frame */
@@ -38,6 +40,8 @@ struct _MetaFrame
   MetaRectangle rect;
 
   MetaFrameBorders cached_borders; /* valid if borders_cached is set */
+
+  MetaSyncCounter sync_counter;
 
   /* position of client, size of frame */
   int child_x;
@@ -74,5 +78,7 @@ gboolean meta_frame_handle_xevent (MetaFrame *frame,
 
 GSubprocess * meta_frame_launch_client (MetaX11Display *x11_display,
                                         const char     *display_name);
+
+MetaSyncCounter * meta_frame_get_sync_counter (MetaFrame *frame);
 
 #endif

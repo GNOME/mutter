@@ -250,7 +250,7 @@ meta_frame_new (Window window)
 
   gtk_widget_realize (GTK_WIDGET (frame));
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
-  gdk_x11_surface_set_frame_sync_enabled (surface, FALSE);
+  gdk_x11_surface_set_frame_sync_enabled (surface, TRUE);
 
   gtk_widget_measure (header,
                       GTK_ORIENTATION_VERTICAL, 1,

@@ -1054,7 +1054,12 @@ reload_update_counter (MetaWindow    *window,
     {
       MetaSyncCounter *sync_counter;
 
-      sync_counter = meta_window_x11_get_sync_counter (window);
+      if (value->source_xwindow == window->xwindow)
+        sync_counter = meta_window_x11_get_sync_counter (window);
+      else if (window->frame && value->source_xwindow == window->frame->xwindow)
+        sync_counter = meta_frame_get_sync_counter (window->frame);
+      else
+        g_assert_not_reached ();
 
       if (value->v.xcounter_list.n_counters == 0)
         {
