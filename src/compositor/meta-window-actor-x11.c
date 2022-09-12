@@ -397,11 +397,11 @@ has_shadow (MetaWindowActorX11 *actor_x11)
     return FALSE;
 
   /*
-   * Always put a shadow around windows with a frame - This should override
+   * Let the frames client put a shadow around frames - This should override
    * the restriction about not putting a shadow around ARGB windows.
    */
   if (meta_window_get_frame (window))
-    return TRUE;
+    return FALSE;
 
   /*
    * Do not add shadows to non-opaque (ARGB32) windows, as we can't easily

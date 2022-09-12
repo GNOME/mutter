@@ -473,10 +473,9 @@ meta_frame_get_mask (MetaFrame             *frame,
   meta_frame_calc_borders (frame, &borders);
 
   cairo_rectangle (cr,
-                   borders.invisible.left,
-                   borders.invisible.top,
-                   frame_rect->width,
-                   frame_rect->height);
+                   0, 0,
+                   frame->rect.width,
+                   frame->rect.height);
   cairo_set_source_rgb (cr, 0, 0, 0);
   cairo_fill (cr);
 }
