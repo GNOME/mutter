@@ -57,6 +57,9 @@ def profile_id_from_path(mock, path):
 class ColordAlreadyExistsException(dbus.DBusException):
     _dbus_error_name = 'org.freedesktop.ColorManager.AlreadyExists'
 
+class ColordNotFoundException(dbus.DBusException):
+    _dbus_error_name = 'org.freedesktop.ColorManager.NotFound'
+
 
 @dbus.service.method(MAIN_IFACE, in_signature='ssa{sv}', out_signature='o')
 def CreateDevice(self, device_id, scope, props):
@@ -120,6 +123,14 @@ def DeleteProfile(self, profile_path):
     profile_id = profile_id_from_path(self, profile_path)
     del self.profiles[profile_id]
     self.EmitSignal(MAIN_IFACE, 'ProfileRemoved', 'o', [profile_path])
+
+
+@dbus.service.method(MAIN_IFACE, in_signature='s', out_signature='o')
+def FindProfileById(self, profile_id):
+    if profile_id in self.devices:
+        return self.devices[profile_id]
+    else:
+        raise ColordNotFoundException()
 
 
 @dbus.service.method(MOCK_IFACE)
