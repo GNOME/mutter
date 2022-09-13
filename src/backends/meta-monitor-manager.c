@@ -1184,6 +1184,8 @@ update_night_light_supported (MetaMonitorManager *manager)
   priv->night_light_supported = night_light_supported;
   g_object_notify_by_pspec (G_OBJECT (manager),
                             obj_props[PROP_NIGHT_LIGHT_SUPPORTED]);
+  meta_dbus_display_config_set_night_light_supported (manager->display_config,
+                                                      night_light_supported);
 }
 
 void
