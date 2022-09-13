@@ -132,7 +132,6 @@ create_profile_from_contents (MetaColorStore *color_store,
 
   bytes = g_bytes_new (contents, size);
 
-  /* Set metadata needed by colord */
   cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME,
                        file_path);
 
