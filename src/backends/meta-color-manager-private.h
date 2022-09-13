@@ -31,6 +31,7 @@ struct _MetaColorManagerClass
 
 CdClient * meta_color_manager_get_cd_client (MetaColorManager *color_manager);
 
+META_EXPORT_TEST
 MetaColorStore * meta_color_manager_get_color_store (MetaColorManager *color_manager);
 
 META_EXPORT_TEST

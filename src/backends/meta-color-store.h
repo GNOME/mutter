@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "core/util-private.h"
 
 #define META_TYPE_COLOR_STORE (meta_color_store_get_type ())
 G_DECLARE_FINAL_TYPE (MetaColorStore, meta_color_store,
@@ -50,5 +51,12 @@ void meta_color_store_ensure_colord_profile (MetaColorStore      *color_store,
 MetaColorProfile * meta_color_store_ensure_colord_profile_finish (MetaColorStore  *color_store,
                                                                   GAsyncResult    *res,
                                                                   GError         **error);
+
+META_EXPORT_TEST
+MetaColorProfile * meta_color_store_get_profile (MetaColorStore *color_store,
+                                                 const char     *profile_id);
+
+META_EXPORT_TEST
+gboolean meta_color_store_has_pending_profiles (MetaColorStore *color_store);
 
 #endif /* META_COLOR_STORE_H */
