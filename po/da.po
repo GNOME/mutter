@@ -20,15 +20,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-02-16 19:25+0000\n"
-"PO-Revision-Date: 2022-02-27 16:14+0100\n"
+"POT-Creation-Date: 2022-09-02 08:42+0000\n"
+"PO-Revision-Date: 2022-09-12 19:51+0200\n"
 "Last-Translator: Alan Mortensen <alanmortensen.am@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -427,10 +427,10 @@ msgstr ""
 "funktionsnøgleordet til listen. Om funktionen kræver genstart af "
 "kompositoren afhænger af den givne funktion. Der er ingen garanti for, at "
 "eksperimentelle funktioner forbliver tilgængelige eller mulige at "
-"konfigurere. Forvent ikke, at noget i denne indstilling nødvendigvis fungerer "
-"i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — "
-"får mutter til som standard at arrangere logiske skærme i et logisk "
-"pixelkoordinatrum, mens skærmes framebuffere skaleres frem for "
+"konfigurere. Forvent ikke, at noget i denne indstilling nødvendigvis "
+"fungerer i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-"
+"framebuffer” — får mutter til som standard at arrangere logiske skærme i et "
+"logisk pixelkoordinatrum, mens skærmes framebuffere skaleres frem for "
 "vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart. • “kms-"
 "modifiers” — gør, at mutter altid allokerer scanoutbuffere med eksplicitte "
 "modifikatorer, hvis det understøttes af driveren. Kræver genstart. • “rt-"
@@ -601,26 +601,26 @@ msgstr ""
 "understøttelse for disse udvidelser. Xwayland skal genstartes, for at denne "
 "indstilling træder i kraft."
 
-#: src/backends/meta-monitor.c:246
+#: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Indbygget skærm"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:280
 msgid "Unknown"
 msgstr "Ukendt"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:282
 msgid "Unknown Display"
 msgstr "Ukendt skærm"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:290
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:298
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -635,7 +635,7 @@ msgstr "Kompositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:392
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -645,100 +645,74 @@ msgstr "Der kører allerede en anden kompositor på skærm %i på terminal “%s
 msgid "Bell event"
 msgstr "Bip-hændelse"
 
-#: src/core/display.c:687
+#: src/core/display.c:693
 msgid "Privacy Screen Enabled"
 msgstr "Privatlivsskærm aktiveret"
 
-#: src/core/display.c:688
+#: src/core/display.c:694
 msgid "Privacy Screen Disabled"
 msgstr "Privatlivsskærm deaktiveret"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "“%s” svarer ikke."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "Program svarer ikke."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr ""
-"Du kan vælge at vente et lille stykke tid på at programmet fortsætter, eller "
-"du kan tvinge programmet til at afslutte fuldstændigt."
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Force Quit"
-msgstr "_Tving til at afslutte"
-
-#: src/core/meta-close-dialog-default.c:164
-msgid "_Wait"
-msgstr "_Vent"
-
-#: src/core/meta-context-main.c:555
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/meta-context-main.c:561
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "X-terminal som bruges"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:579
 msgid "Disable connection to session manager"
 msgstr "Deaktivér forbindelse til sessionshåndtering"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:585
 msgid "Specify session management ID"
 msgstr "Angiv sessionhåndterings-id"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:591
 msgid "Initialize session from savefile"
 msgstr "Initialisér session fra gemt fil"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "Gør kald til X synkrone"
 
-#: src/core/meta-context-main.c:592
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
 msgstr "Kør som en wayland-kompositor"
 
-#: src/core/meta-context-main.c:598
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
 msgstr "Kør som en indlejret kompositor"
 
-#: src/core/meta-context-main.c:604
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kør wayland-kompositoren uden at starte Xwayland"
 
-#: src/core/meta-context-main.c:610
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "Angiv Wayland-visningsnavnet, der skal bruges"
 
-#: src/core/meta-context-main.c:618
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
 msgstr "Kør som fuld terminalserver, frem for indlejret"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "Kør som headless terminalserver"
 
-#: src/core/meta-context-main.c:628
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tilføj persistent virtuel skærm (WxH eller WxH@R)"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "Kør med X11-motor"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:840
+#: src/core/meta-pad-action-mapper.c:848
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tilstandsskift (Gruppe %d)"
@@ -746,11 +720,11 @@ msgstr "Tilstandsskift (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:863
+#: src/core/meta-pad-action-mapper.c:871
 msgid "Switch monitor"
 msgstr "Skift skærm"
 
-#: src/core/meta-pad-action-mapper.c:865
+#: src/core/meta-pad-action-mapper.c:873
 msgid "Show on-screen help"
 msgstr "Vis integreret hjælp"
 
@@ -767,16 +741,20 @@ msgstr "Mutter-udvidelsesmodul der skal bruges"
 msgid "Workspace %d"
 msgstr "Arbejdsområde %d"
 
-#: src/core/util.c:142
+#: src/core/util.c:143
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/core/workspace.c:533
+msgid "Workspace switched"
+msgstr "Skiftede arbejdsområde"
+
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tilstandsskift: Tilstand %d"
 
-#: src/x11/meta-x11-display.c:673
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -785,38 +763,57 @@ msgstr ""
 "Terminalen “%s” har allerede en vindueshåndtering; prøv tilvalget --replace "
 "for at erstatte den aktuelle vindueshåndtering."
 
-#: src/x11/meta-x11-display.c:1067
+#: src/x11/meta-x11-display.c:1053
 msgid "Failed to initialize GDK"
 msgstr "Kunne ikke klargøre GDK"
 
-#: src/x11/meta-x11-display.c:1091
+#: src/x11/meta-x11-display.c:1080
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Kunne ikke åbne X Window System-terminalen “%s”"
 
-#: src/x11/meta-x11-display.c:1200
+#: src/x11/meta-x11-display.c:1188
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Skærm %d på terminal “%s” er ugyldig"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "Formatet %s understøttes ikke"
-
-#: src/x11/session.c:1823
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Disse vinduer understøtter ikke at gemme deres opsætning og skal genstartes "
-"manuelt næste gang, du logger på."
 
 # Lad os håbe dette er rigtigt
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "“%s” svarer ikke."
+
+#~ msgid "Application is not responding."
+#~ msgstr "Program svarer ikke."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Du kan vælge at vente et lille stykke tid på at programmet fortsætter, "
+#~ "eller du kan tvinge programmet til at afslutte fuldstændigt."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Tving til at afslutte"
+
+#~ msgid "_Wait"
+#~ msgstr "_Vent"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Disse vinduer understøtter ikke at gemme deres opsætning og skal "
+#~ "genstartes manuelt næste gang, du logger på."
 
 #~ msgid "X display to use"
 #~ msgstr "X-terminal som bruges"
@@ -1132,8 +1129,8 @@ msgstr "%s (på %s)"
 #~ msgstr "Elementet <%s> er ikke tilladt under <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "Kan ikke angive både “button_width”/“button_height” og “aspect_ratio” for "
 #~ "knapper"
@@ -1501,9 +1498,6 @@ msgstr "%s (på %s)"
 
 #~ msgid "Workspace 1_0"
 #~ msgstr "Arbejdsområde 1_0"
-
-#~ msgid "Workspace %s%d"
-#~ msgstr "Arbejdsområde %s%d"
 
 #~ msgid "Move to Another _Workspace"
 #~ msgstr "Flyt til andet _arbejdsområde"
