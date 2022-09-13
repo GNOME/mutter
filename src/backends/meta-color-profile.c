@@ -122,7 +122,7 @@ meta_color_profile_finalize (GObject *object)
       CdProfile *cd_profile;
 
       cd_profile = color_profile->cd_profile;
-      if (!cd_profile)
+      if (!cd_profile && !color_profile->is_ready)
         {
           g_autoptr (GError) error = NULL;
 
