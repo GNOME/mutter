@@ -130,7 +130,9 @@ meta_color_profile_finalize (GObject *object)
                                           color_profile->cd_profile_id,
                                           &error);
           if (!cd_profile &&
-              !g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
+              !g_error_matches (error,
+                                CD_CLIENT_ERROR,
+                                CD_CLIENT_ERROR_NOT_FOUND))
             {
               g_warning ("Failed to find colord profile %s: %s",
                          color_profile->cd_profile_id,
