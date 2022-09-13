@@ -53,6 +53,11 @@ def profile_id_from_path(mock, path):
          return profile_id
   return None
 
+
+class ColordAlreadyExistsException(dbus.DBusException):
+    _dbus_error_name = 'org.freedesktop.ColorManager.AlreadyExists'
+
+
 @dbus.service.method(MAIN_IFACE, in_signature='ssa{sv}', out_signature='o')
 def CreateDevice(self, device_id, scope, props):
     uid = os.getuid()
@@ -93,6 +98,10 @@ def CreateProfileWithFd(self, profile_id, scope, handle, props):
     profile_path = PATH_PREFIX + '/profiles/' + \
         escape_unit_name(profile_id) + \
         '_' + username + '_' + str(uid)
+
+    if profile_id in self.profiles:
+        raise ColordAlreadyExistsException()
+
     self.profiles[profile_id] = profile_path
     self.AddObject(profile_path,
                    PROFILE_IFACE,
