@@ -165,7 +165,8 @@ meta_color_profile_class_init (MetaColorProfileClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST, 0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  G_TYPE_BOOLEAN);
 }
 
 static void
@@ -190,18 +191,20 @@ on_cd_profile_connected (GObject      *source_object,
       g_warning ("Failed to connect to colord profile %s: %s",
                  color_profile->cd_profile_id,
                  error->message);
-    }
-  else
-    {
-      g_warn_if_fail (g_strcmp0 (cd_profile_get_id (cd_profile),
-                                 color_profile->cd_profile_id) == 0);
 
-      meta_topic (META_DEBUG_COLOR, "Color profile '%s' connected",
-                  color_profile->cd_profile_id);
+      color_profile->is_ready = TRUE;
+      g_signal_emit (color_profile, signals[READY], 0, FALSE);
+      return;
     }
+
+  g_warn_if_fail (g_strcmp0 (cd_profile_get_id (cd_profile),
+                             color_profile->cd_profile_id) == 0);
+
+  meta_topic (META_DEBUG_COLOR, "Color profile '%s' connected",
+              color_profile->cd_profile_id);
 
   color_profile->is_ready = TRUE;
-  g_signal_emit (color_profile, signals[READY], 0);
+  g_signal_emit (color_profile, signals[READY], 0, TRUE);
 }
 
 static void
@@ -220,10 +223,21 @@ on_cd_profile_created (GObject      *source_object,
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         return;
 
-      g_warning ("Failed to create colord color profile: %s", error->message);
+      if (g_error_matches (error,
+                           CD_CLIENT_ERROR, CD_CLIENT_ERROR_ALREADY_EXISTS))
+        {
+          meta_topic (META_DEBUG_COLOR, "Tried to create duplicate profile %s",
+                      color_profile->cd_profile_id);
+        }
+      else
+        {
+          g_warning ("Failed to create colord color profile %s: %s",
+                     color_profile->cd_profile_id,
+                     error->message);
+        }
 
       color_profile->is_ready = TRUE;
-      g_signal_emit (color_profile, signals[READY], 0);
+      g_signal_emit (color_profile, signals[READY], 0, FALSE);
       return;
     }
 
@@ -299,7 +313,7 @@ notify_ready_idle (gpointer user_data)
 
   color_profile->notify_ready_id = 0;
   color_profile->is_ready = TRUE;
-  g_signal_emit (color_profile, signals[READY], 0);
+  g_signal_emit (color_profile, signals[READY], 0, TRUE);
 
   return G_SOURCE_REMOVE;
 }

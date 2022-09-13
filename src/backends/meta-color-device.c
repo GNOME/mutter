@@ -396,8 +396,17 @@ on_cd_device_connected (GObject      *source_object,
 
 static void
 on_profile_ready (MetaColorProfile *color_profile,
+                  gboolean          success,
                   MetaColorDevice  *color_device)
 {
+  if (!success)
+    {
+      g_clear_object (&color_device->device_profile);
+      g_cancellable_cancel (color_device->cancellable);
+      meta_color_device_notify_ready (color_device, FALSE);
+      return;
+    }
+
   color_device->pending_state &= ~PENDING_PROFILE_READY;
   maybe_finish_setup (color_device);
 }

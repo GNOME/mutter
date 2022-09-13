@@ -87,8 +87,16 @@ meta_color_store_init (MetaColorStore *color_store)
 
 static void
 on_directory_profile_ready (MetaColorProfile *color_profile,
+                            gboolean          success,
                             MetaColorStore   *color_store)
 {
+  if (!success)
+    {
+      g_hash_table_remove (color_store->pending_local_profiles,
+                           meta_color_profile_get_file_path (color_profile));
+      return;
+    }
+
   g_object_ref (color_profile);
 
   if (!g_hash_table_steal (color_store->pending_local_profiles,
