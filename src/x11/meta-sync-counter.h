@@ -36,10 +36,17 @@ typedef struct
   guint sync_request_timeout_id;
   /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
   XSyncAlarm sync_request_alarm;
+
+  int64_t frame_drawn_time;
+  GList *frames;
+
   /* if TRUE, the we have the new form of sync request counter which
    * also handles application frames */
   guint extended_sync_request_counter : 1;
   guint disabled : 1;
+  /* If set, the client needs to be sent a _NET_WM_FRAME_DRAWN
+   * client message for one or more messages in ->frames */
+  guint needs_frame_drawn : 1;
 } MetaSyncCounter;
 
 void meta_sync_counter_init (MetaSyncCounter *sync_counter,
@@ -66,5 +73,18 @@ void meta_sync_counter_update (MetaSyncCounter *sync_counter,
 gboolean meta_sync_counter_is_waiting (MetaSyncCounter *sync_counter);
 
 gboolean meta_sync_counter_is_waiting_response (MetaSyncCounter *sync_counter);
+
+void meta_sync_counter_queue_frame_drawn (MetaSyncCounter *sync_counter);
+
+void meta_sync_counter_assign_counter_to_frames (MetaSyncCounter *sync_counter,
+                                                 int64_t          counter);
+
+void meta_sync_counter_complete_frame (MetaSyncCounter  *sync_counter,
+                                       ClutterFrameInfo *frame_info,
+                                       int64_t           presentation_time);
+
+void meta_sync_counter_finish_incomplete (MetaSyncCounter *sync_counter);
+
+void meta_sync_counter_send_frame_drawn (MetaSyncCounter *sync_counter);
 
 #endif /* META_SYNC_COUNTER_H */
