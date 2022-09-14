@@ -386,27 +386,9 @@ toplevel_activation (void)
 }
 
 static void
-on_sync_point (MetaWaylandTestDriver *test_driver,
-               unsigned int           sequence,
-               struct wl_resource    *surface_resource,
-               struct wl_client      *wl_client,
-               unsigned int          *latest_sequence)
-{
-  *latest_sequence = sequence;
-}
-
-static void
 wait_for_sync_point (unsigned int sync_point)
 {
-  gulong handler_id;
-  unsigned int latest_sequence = 0;
-
-  handler_id = g_signal_connect (test_driver, "sync-point",
-                                 G_CALLBACK (on_sync_point),
-                                 &latest_sequence);
-  while (latest_sequence != sync_point)
-    g_main_context_iteration (NULL, TRUE);
-  g_signal_handler_disconnect (test_driver, handler_id);
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
 }
 
 static gboolean
