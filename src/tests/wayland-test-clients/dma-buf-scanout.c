@@ -53,6 +53,12 @@
 
 #include "linux-dmabuf-unstable-v1-client-protocol.h"
 
+typedef enum
+{
+  WINDOW_STATE_NONE,
+  WINDOW_STATE_FULLSCREEN,
+} WindowState;
+
 typedef struct _Buffer
 {
   struct wl_buffer *buffer;
@@ -77,6 +83,10 @@ static struct xdg_toplevel *xdg_toplevel;
 struct gbm_device *gbm_device;
 
 static GList *active_buffers;
+
+static int prev_width;
+static int prev_height;
+static WindowState window_state;
 
 static struct
 {
@@ -214,15 +224,44 @@ draw_main (int width,
   wl_surface_attach (surface, buffer->buffer, 0, 0);
 }
 
+static WindowState
+parse_xdg_toplevel_state (struct wl_array *states)
+{
+  uint32_t *state_ptr;
+
+  wl_array_for_each (state_ptr, states)
+    {
+      uint32_t state = *state_ptr;
+
+      if (state == XDG_TOPLEVEL_STATE_FULLSCREEN)
+        return WINDOW_STATE_FULLSCREEN;
+    }
+
+  return WINDOW_STATE_NONE;
+}
+
 static void
 handle_xdg_toplevel_configure (void                *user_data,
                                struct xdg_toplevel *xdg_toplevel,
                                int32_t              width,
                                int32_t              height,
-                               struct wl_array     *state)
+                               struct wl_array     *states)
 {
-  g_assert_cmpint (width, >, 0);
-  g_assert_cmpint (height, >, 0);
+  g_assert (width > 0 || prev_width > 0);
+  g_assert (height > 0 || prev_width > 0);
+
+  if (width > 0 && height > 0)
+    {
+      prev_width = width;
+      prev_height = height;
+    }
+  else
+    {
+      width = prev_width;
+      height = prev_height;
+    }
+
+  window_state = parse_xdg_toplevel_state (states);
 
   draw_main (width, height);
 }
@@ -270,6 +309,7 @@ handle_xdg_surface_configure (void               *user_data,
   frame_callback = wl_surface_frame (surface);
   wl_callback_add_listener (frame_callback, &frame_listener, NULL);
   wl_surface_commit (surface);
+  test_driver_sync_point (display->test_driver, window_state, NULL);
   wl_display_flush (display->display);
 }
 
