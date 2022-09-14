@@ -83,6 +83,8 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   CoglFramebuffer *framebuffer;
   MetaWindowActor *window_actor;
   MetaWindow *window;
+  MetaRectangle view_rect;
+  ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
   MetaWaylandSurface *surface;
@@ -124,6 +126,21 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     return FALSE;
 
   if (meta_surface_actor_is_obscured (surface_actor))
+    return FALSE;
+
+  if (!clutter_actor_get_paint_box (CLUTTER_ACTOR (surface_actor),
+                                    &actor_box))
+    return FALSE;
+
+  clutter_stage_view_get_layout (stage_view, &view_rect);
+  if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
+                       CLUTTER_COORDINATE_EPSILON) ||
+      !G_APPROX_VALUE (actor_box.y1, view_rect.y,
+                       CLUTTER_COORDINATE_EPSILON) ||
+      !G_APPROX_VALUE (actor_box.x2, view_rect.x + view_rect.width,
+                       CLUTTER_COORDINATE_EPSILON) ||
+      !G_APPROX_VALUE (actor_box.y2, view_rect.y + view_rect.height,
+                       CLUTTER_COORDINATE_EPSILON))
     return FALSE;
 
   surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);

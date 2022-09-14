@@ -38,6 +38,11 @@
 #include "clutter-stage-view-private.h"
 #include "clutter.h"
 
+/* An epsilon larger than FLT_EPSILON that is useful when comparing coordinates
+ * while ignoring floating point precision loss that might happen during
+ * various matrix calculations. */
+#define CLUTTER_COORDINATE_EPSILON (1.0 / 256.0)
+
 typedef struct _ClutterMainContext ClutterContext;
 
 typedef ClutterBackend * (* ClutterBackendConstructor) (gpointer user_data);
