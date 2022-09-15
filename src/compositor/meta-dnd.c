@@ -120,12 +120,12 @@ meta_dnd_init_xdnd (MetaX11Display *x11_display)
   xwindow = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
 
   XChangeProperty (xdisplay, xwindow,
-                   XInternAtom (xdisplay, "XdndAware", TRUE), XA_ATOM,
+                   XInternAtom (xdisplay, "XdndAware", False), XA_ATOM,
                    32, PropModeReplace,
                    (const unsigned char *) &xdnd_version, 1);
 
   XChangeProperty (xdisplay, overlay_xwindow,
-                   XInternAtom (xdisplay, "XdndProxy", TRUE), XA_WINDOW,
+                   XInternAtom (xdisplay, "XdndProxy", False), XA_WINDOW,
                    32, PropModeReplace, (const unsigned char *) &xwindow, 1);
 
   /*
@@ -133,7 +133,7 @@ meta_dnd_init_xdnd (MetaX11Display *x11_display)
    * XdndProxy property on the target window isn't a left-over
    */
   XChangeProperty (xdisplay, xwindow,
-                   XInternAtom (xdisplay, "XdndProxy", TRUE), XA_WINDOW,
+                   XInternAtom (xdisplay, "XdndProxy", False), XA_WINDOW,
                    32, PropModeReplace, (const unsigned char *) &xwindow, 1);
 }
 
