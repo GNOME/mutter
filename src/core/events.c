@@ -330,14 +330,20 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (event->type == CLUTTER_MOTION)
     {
-      MetaCursorRenderer *cursor_renderer;
       ClutterInputDevice *device;
 
       device = clutter_event_get_device (event);
-      cursor_renderer = meta_backend_get_cursor_renderer_for_device (backend,
-                                                                     device);
-      if (cursor_renderer)
-        meta_cursor_renderer_update_position (cursor_renderer);
+
+#ifdef HAVE_WAYLAND
+      if (wayland_compositor)
+        {
+          MetaCursorRenderer *cursor_renderer =
+            meta_backend_get_cursor_renderer_for_device (backend, device);
+
+          if (cursor_renderer)
+            meta_cursor_renderer_update_position (cursor_renderer);
+        }
+#endif
 
       if (device == clutter_seat_get_pointer (clutter_input_device_get_seat (device)))
         {
