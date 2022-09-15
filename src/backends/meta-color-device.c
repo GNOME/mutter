@@ -817,6 +817,31 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
   g_autofree char *vendor_name = NULL;
   cmsHPROFILE lcms_profile;
 
+  if (G_APPROX_VALUE (edid_info->red_x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->red_y, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->green_x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->green_y, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->blue_x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->blue_y, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->white_x, 0.0, FLT_EPSILON) ||
+      G_APPROX_VALUE (edid_info->white_y, 0.0, FLT_EPSILON))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "EDID for %s contains bogus Color Characteristics",
+                   meta_color_device_get_id (color_device));
+      return NULL;
+    }
+
+  if (edid_info->gamma + FLT_EPSILON < 1.0 ||
+      edid_info->gamma > 4.0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "EDID for %s contains bogus Display Transfer "
+                   "Characteristics (GAMMA)",
+                   meta_color_device_get_id (color_device));
+      return NULL;
+    }
+
   cd_icc = cd_icc_new ();
 
   chroma.Red.x = edid_info->red_x;
@@ -839,10 +864,19 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
                                          &white_point,
                                          &chroma,
                                          transfer_curve);
-  cmsSetHeaderRenderingIntent (lcms_profile, INTENT_PERCEPTUAL);
-  cmsSetDeviceClass (lcms_profile, cmsSigDisplayClass);
 
   cmsFreeToneCurve (transfer_curve[0]);
+
+  if (!lcms_profile)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "cmsCreateRGBProfileTHR for %s failed",
+                   meta_color_device_get_id (color_device));
+      return NULL;
+    }
+
+  cmsSetHeaderRenderingIntent (lcms_profile, INTENT_PERCEPTUAL);
+  cmsSetDeviceClass (lcms_profile, cmsSigDisplayClass);
 
   if (!cd_icc_load_handle (cd_icc, lcms_profile,
                            CD_ICC_LOAD_FLAGS_PRIMARIES, error))
