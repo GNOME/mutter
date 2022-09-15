@@ -28,8 +28,13 @@ typedef enum
 
 #define META_TYPE_BARRIER (meta_barrier_get_type ())
 META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaBarrier, meta_barrier,
-                      META, BARRIER, GObject)
+G_DECLARE_DERIVABLE_TYPE (MetaBarrier, meta_barrier,
+                          META, BARRIER, GObject)
+
+struct _MetaBarrierClass
+{
+  GObjectClass parent_class;
+};
 
 typedef struct _MetaBarrierEvent MetaBarrierEvent;
 

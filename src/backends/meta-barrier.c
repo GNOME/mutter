@@ -23,11 +23,6 @@
 #include "backends/native/meta-barrier-native.h"
 #endif
 
-struct _MetaBarrier
-{
-  GObject parent;
-};
-
 typedef struct _MetaBarrierPrivate
 {
   MetaBackend *backend;
