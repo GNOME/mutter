@@ -291,29 +291,12 @@ meta_sync_counter_update (MetaSyncCounter *sync_counter,
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 
   if (new_counter_value >= sync_counter->sync_request_wait_serial &&
-      sync_counter->sync_request_timeout_id)
+      sync_counter->sync_request_timeout_id &&
+      (!sync_counter->extended_sync_request_counter ||
+       new_counter_value % 2 == 0))
     {
-      if (!sync_counter->extended_sync_request_counter ||
-          new_counter_value % 2 == 0)
-        {
-          g_clear_handle_id (&sync_counter->sync_request_timeout_id,
-                             g_source_remove);
-        }
-
-      if (window == window->display->grab_window &&
-          meta_grab_op_is_resizing (window->display->grab_op) &&
-          (!sync_counter->extended_sync_request_counter ||
-           new_counter_value % 2 == 0))
-        {
-          meta_topic (META_DEBUG_RESIZING,
-                      "Alarm event received last motion x = %d y = %d",
-                      window->display->grab_latest_motion_x,
-                      window->display->grab_latest_motion_y);
-
-          /* This means we are ready for another configure;
-           * no pointer round trip here, to keep in sync */
-          meta_window_x11_check_update_resize (window);
-        }
+      g_clear_handle_id (&sync_counter->sync_request_timeout_id,
+                         g_source_remove);
     }
 
   /* If sync was previously disabled, turn it back on and hope

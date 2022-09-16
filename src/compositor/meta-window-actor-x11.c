@@ -1243,6 +1243,14 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
       meta_window_x11_thaw_commits (window);
       meta_window_x11_set_thaw_after_paint (window, FALSE);
     }
+
+  if (window == window->display->grab_window &&
+      meta_grab_op_is_resizing (window->display->grab_op))
+    {
+      /* This means we are ready for another configure;
+       * no pointer round trip here, to keep in sync */
+      meta_window_x11_check_update_resize (window);
+    }
 }
 
 static gboolean
