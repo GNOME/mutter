@@ -378,6 +378,7 @@ on_cd_device_connected (GObject      *source_object,
 
       g_cancellable_cancel (color_device->cancellable);
       meta_color_device_notify_ready (color_device, FALSE);
+      return;
     }
   else
     {
@@ -434,6 +435,7 @@ ensure_device_profile_cb (GObject      *source_object,
 
       g_cancellable_cancel (color_device->cancellable);
       meta_color_device_notify_ready (color_device, FALSE);
+      return;
     }
 
   meta_topic (META_DEBUG_COLOR, "Color device '%s' generated",
