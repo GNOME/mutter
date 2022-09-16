@@ -342,7 +342,7 @@ static void
 meta_color_device_notify_ready (MetaColorDevice *color_device,
                                 gboolean         success)
 {
-  color_device->is_ready = success;
+  color_device->is_ready = TRUE;
   g_signal_emit (color_device, signals[READY], 0, success);
 }
 
