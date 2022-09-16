@@ -198,15 +198,29 @@ static void
 add_watch (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaStage *meta_stage = META_STAGE (stage_from_src (src));
 
   g_return_if_fail (!virtual_src->watch);
 
-  virtual_src->watch = meta_stage_watch_view (meta_stage,
-                                              view_from_src (src),
-                                              META_STAGE_WATCH_AFTER_PAINT,
-                                              actors_painted,
-                                              virtual_src);
+  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      virtual_src->watch = meta_stage_watch_view (meta_stage,
+                                                  view_from_src (src),
+                                                  META_STAGE_WATCH_AFTER_ACTOR_PAINT,
+                                                  actors_painted,
+                                                  virtual_src);
+      break;
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      virtual_src->watch = meta_stage_watch_view (meta_stage,
+                                                  view_from_src (src),
+                                                  META_STAGE_WATCH_AFTER_PAINT,
+                                                  actors_painted,
+                                                  virtual_src);
+      break;
+    }
 }
 
 static void
