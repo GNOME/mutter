@@ -1,3 +1,19 @@
+43.0
+====
+* Fix stuttering in Xorg session [Daniel; !2625]
+* Make MetaBarrier type derivable again [Jonas; !2626]
+* Fixes crash [Jonas; !2622]
+
+Contributors:
+  Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Aleksandr Melman [ru], Fran Dieguez [gl], Daniel Mustieles [es],
+  Aurimas Černius [lt], Matej Urbančič [sl], Leônidas Araújo [pt_BR],
+  Kukuh Syafaat [id], Sveinn í Felli [is], Zurab Kargareteli [ka],
+  Rūdolfs Mazurs [lv], Yosef Or Boczko [he], Alexander Shopov [bg],
+  Alan Mortensen [da]
+
 43.rc
 =====
 * Remember monitor scale when switching configurations [Jonas Å.; !2479]
