@@ -1,3 +1,16 @@
+42.5
+====
+* Improve heuristics for adding fallback monitor modes [Mario; !2586]
+* Fixed crash [Steev; !2577]
+* Misc. bug fixes and cleanups [Simon, Jonas; !2580, !2601]
+
+Contributors:
+  Carlos Garnacho, Steev Klimaszewski, Mario Limonciello, Simon McVittie,
+  Jonas Ådahl
+
+Translators:
+  Zurab Kargareteli [ka], Sveinn í Felli [is]
+
 42.4
 ====
 * screencast: Set correct stride when using dmabufs [Pascal; !2514]
