@@ -117,6 +117,14 @@ wait_for_paint (ClutterActor *stage)
 }
 
 static void
+wait_for_window_map (ClutterActor *stage,
+                     ClutterActor *window_actor)
+{
+  while (!clutter_actor_is_mapped (window_actor))
+    wait_for_paint (stage);
+}
+
+static void
 on_stage_views_changed (ClutterActor *actor,
                         gboolean     *stage_views_changed)
 {
@@ -1158,6 +1166,7 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
   if (!test_window)
     g_error ("Failed to find the window: %s", error->message);
   window_actor = CLUTTER_ACTOR (meta_window_actor_from_window (test_window));
+  wait_for_window_map (stage, window_actor);
   g_assert_nonnull (clutter_actor_peek_stage_views (window_actor));
 
   /* Queue an X11 _NET_WM_FRAME_DRAWN event; this will find the frame clock via
