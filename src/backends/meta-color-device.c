@@ -367,6 +367,8 @@ on_cd_device_connected (GObject      *source_object,
   MetaColorDevice *color_device = user_data;
   g_autoptr (GError) error = NULL;
 
+  color_device->pending_state &= ~PENDING_CONNECTED;
+
   if (!cd_device_connect_finish (cd_device, res, &error))
     {
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
@@ -386,8 +388,6 @@ on_cd_device_connected (GObject      *source_object,
                   color_device->cd_device_id);
     }
 
-  color_device->pending_state &= ~PENDING_CONNECTED;
-
   g_signal_connect (cd_device, "changed",
                     G_CALLBACK (on_cd_device_changed), color_device);
   update_assigned_profile (color_device);
@@ -400,6 +400,8 @@ on_profile_ready (MetaColorProfile *color_profile,
                   gboolean          success,
                   MetaColorDevice  *color_device)
 {
+  color_device->pending_state &= ~PENDING_PROFILE_READY;
+
   if (!success)
     {
       g_clear_object (&color_device->device_profile);
@@ -408,7 +410,6 @@ on_profile_ready (MetaColorProfile *color_profile,
       return;
     }
 
-  color_device->pending_state &= ~PENDING_PROFILE_READY;
   maybe_finish_setup (color_device);
 }
 
@@ -421,6 +422,8 @@ ensure_device_profile_cb (GObject      *source_object,
   MetaColorDevice *color_device = META_COLOR_DEVICE (user_data);
   MetaColorProfile *color_profile;
   g_autoptr (GError) error = NULL;
+
+  color_device->pending_state &= ~PENDING_EDID_PROFILE;
 
   color_profile = meta_color_store_ensure_device_profile_finish (color_store,
                                                                  res,
@@ -441,7 +444,6 @@ ensure_device_profile_cb (GObject      *source_object,
   meta_topic (META_DEBUG_COLOR, "Color device '%s' generated",
               color_device->cd_device_id);
 
-  color_device->pending_state &= ~PENDING_EDID_PROFILE;
   g_set_object (&color_device->device_profile, color_profile);
 
   if (!meta_color_profile_is_ready (color_profile))
