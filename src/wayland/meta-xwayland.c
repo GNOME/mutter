@@ -735,23 +735,6 @@ prepare_auth_file (MetaXWaylandManager  *manager,
 }
 
 static void
-add_local_user_to_xhost (Display *xdisplay)
-{
-  XHostAddress host_entry;
-  XServerInterpretedAddress siaddr;
-
-  siaddr.type = (char *) "localuser";
-  siaddr.typelength = strlen (siaddr.type);
-  siaddr.value = (char *) g_get_user_name();
-  siaddr.valuelength = strlen (siaddr.value);
-
-  host_entry.family = FamilyServerInterpreted;
-  host_entry.address = (char *) &siaddr;
-
-  XAddHost (xdisplay, &host_entry);
-}
-
-static void
 on_init_x11_cb (MetaDisplay  *display,
                 GAsyncResult *result,
                 gpointer      user_data)
@@ -1135,8 +1118,6 @@ meta_xwayland_setup_xdisplay (MetaXWaylandManager *manager,
 #endif
 
   XFixesSetClientDisconnectMode (xdisplay, XFixesClientDisconnectFlagTerminate);
-
-  add_local_user_to_xhost (xdisplay);
 }
 
 static void
