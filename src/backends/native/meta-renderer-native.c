@@ -87,6 +87,7 @@ struct _MetaRendererNative
   MetaGles3 *gles3;
 
   gboolean use_modifiers;
+  gboolean send_modifiers;
 
   GHashTable *gpu_datas;
 
@@ -245,6 +246,12 @@ meta_renderer_native_get_egl (MetaRendererNative *renderer_native)
   MetaRenderer *renderer = META_RENDERER (renderer_native);
 
   return meta_backend_get_egl (meta_renderer_get_backend (renderer));
+}
+
+gboolean
+meta_renderer_native_send_modifiers (MetaRendererNative *renderer_native)
+{
+  return renderer_native->send_modifiers;
 }
 
 gboolean
@@ -2101,7 +2108,9 @@ meta_renderer_native_initable_init (GInitable     *initable,
   gpus = meta_backend_get_gpus (backend);
   if (gpus)
     {
-      const char *use_kms_modifiers_debug_env;
+      MetaKmsDevice *kms_device;
+      MetaKmsDeviceFlag flags;
+      const char *kms_modifiers_debug_env;
 
       for (l = gpus; l; l = l->next)
         {
@@ -2117,19 +2126,17 @@ meta_renderer_native_initable_init (GInitable     *initable,
       if (!renderer_native->primary_gpu_kms)
         return FALSE;
 
-      use_kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_USE_KMS_MODIFIERS");
-      if (use_kms_modifiers_debug_env)
+      kms_device = meta_gpu_kms_get_kms_device (renderer_native->primary_gpu_kms);
+      flags = meta_kms_device_get_flags (kms_device);
+
+      kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_USE_KMS_MODIFIERS");
+      if (kms_modifiers_debug_env)
         {
           renderer_native->use_modifiers =
-            g_strcmp0 (use_kms_modifiers_debug_env, "1") == 0;
+            g_strcmp0 (kms_modifiers_debug_env, "1") == 0;
         }
       else
         {
-          MetaKmsDevice *kms_device =
-            meta_gpu_kms_get_kms_device (renderer_native->primary_gpu_kms);
-          MetaKmsDeviceFlag flags;
-
-          flags = meta_kms_device_get_flags (kms_device);
           renderer_native->use_modifiers =
             !(flags & META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS) &&
             flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2;
@@ -2137,6 +2144,22 @@ meta_renderer_native_initable_init (GInitable     *initable,
 
       meta_topic (META_DEBUG_KMS, "Usage of KMS modifiers is %s",
                   renderer_native->use_modifiers ? "enabled" : "disabled");
+
+      kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_SEND_KMS_MODIFIERS");
+      if (kms_modifiers_debug_env)
+        {
+          renderer_native->send_modifiers =
+            g_strcmp0 (kms_modifiers_debug_env, "1") == 0;
+        }
+      else
+        {
+          renderer_native->send_modifiers =
+            !(flags & META_KMS_DEVICE_FLAG_DISABLE_CLIENT_MODIFIERS) &&
+            flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2;
+        }
+
+      meta_topic (META_DEBUG_KMS, "Sending KMS modifiers to clients is %s",
+                  renderer_native->send_modifiers ? "enabled" : "disabled");
     }
   else
     {
