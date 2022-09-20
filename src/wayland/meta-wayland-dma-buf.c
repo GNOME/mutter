@@ -154,8 +154,6 @@ should_send_modifiers (MetaBackend *backend)
 {
   MetaRendererNative *renderer_native;
   MetaGpuKms *gpu_kms;
-  MetaKmsDevice *kms_device;
-  MetaKmsDeviceFlag flags;
 
   if (!META_IS_BACKEND_NATIVE (backend))
     return FALSE;
@@ -165,11 +163,7 @@ should_send_modifiers (MetaBackend *backend)
   if (!gpu_kms)
     return TRUE;
 
-  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
-
-  flags = meta_kms_device_get_flags (kms_device);
-
-  return !!(flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2);
+  return meta_renderer_native_send_modifiers (renderer_native);
 }
 
 static gint
