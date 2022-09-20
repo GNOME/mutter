@@ -1,2 +1,3 @@
+DRIVERS=="amdgpu", SUBSYSTEM=="drm", TAG+="mutter-device-disable-client-modifiers"
 DRIVERS=="i915", SUBSYSTEM=="drm", TAG+="mutter-device-disable-kms-modifiers"
 ENV{ID_PATH}=="platform-vkms", TAG+="mutter-device-ignore"
