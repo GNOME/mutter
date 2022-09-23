@@ -61,6 +61,7 @@ struct _MetaWaylandPointerClient
   struct wl_list pinch_gesture_resources;
   struct wl_list hold_gesture_resources;
   struct wl_list relative_pointer_resources;
+  ClutterEventType active_touchpad_gesture;
 };
 
 struct _MetaWaylandPointer

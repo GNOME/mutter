@@ -43,6 +43,8 @@ handle_hold_begin (MetaWaylandPointer *pointer,
   serial = wl_display_next_serial (seat->wl_display);
   fingers = clutter_event_get_touchpad_gesture_finger_count (event);
 
+  pointer_client->active_touchpad_gesture = event->type;
+
   wl_resource_for_each (resource, &pointer_client->hold_gesture_resources)
     {
       zwp_pointer_gesture_hold_v1_send_begin (resource, serial,
@@ -68,6 +70,8 @@ broadcast_end (MetaWaylandPointer *pointer,
       zwp_pointer_gesture_hold_v1_send_end (resource, serial,
                                             time, cancelled);
     }
+
+  pointer_client->active_touchpad_gesture = CLUTTER_NOTHING;
 }
 
 static void
