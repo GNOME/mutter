@@ -176,6 +176,30 @@ meta_wayland_pointer_client_is_empty (MetaWaylandPointerClient *pointer_client)
           wl_list_empty (&pointer_client->relative_pointer_resources));
 }
 
+static void
+meta_wayland_pointer_client_maybe_cancel_gesture (MetaWaylandPointer       *pointer,
+                                                  MetaWaylandPointerClient *pointer_client,
+                                                  uint32_t                  serial)
+{
+  switch (pointer_client->active_touchpad_gesture)
+    {
+    case CLUTTER_TOUCHPAD_SWIPE:
+      meta_wayland_pointer_gesture_swipe_cancel (pointer, serial);
+      break;
+
+    case CLUTTER_TOUCHPAD_PINCH:
+      meta_wayland_pointer_gesture_pinch_cancel (pointer, serial);
+      break;
+
+    case CLUTTER_TOUCHPAD_HOLD:
+      meta_wayland_pointer_gesture_hold_cancel (pointer, serial);
+      break;
+
+    default:
+      break;
+    }
+}
+
 MetaWaylandPointerClient *
 meta_wayland_pointer_get_pointer_client (MetaWaylandPointer *pointer,
                                          struct wl_client   *client)
@@ -1014,6 +1038,10 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 
       if (pointer->focus_client)
         {
+          meta_wayland_pointer_client_maybe_cancel_gesture (pointer,
+                                                            pointer->focus_client,
+                                                            serial);
+
           meta_wayland_pointer_broadcast_leave (pointer,
                                                 serial,
                                                 pointer->focus_surface);
