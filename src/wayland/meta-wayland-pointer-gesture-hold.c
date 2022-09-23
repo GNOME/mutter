@@ -53,28 +53,40 @@ handle_hold_begin (MetaWaylandPointer *pointer,
 }
 
 static void
+broadcast_end (MetaWaylandPointer *pointer,
+               uint32_t            serial,
+               uint32_t            time,
+               gboolean            cancelled)
+{
+  MetaWaylandPointerClient *pointer_client;
+  struct wl_resource *resource;
+
+  pointer_client = pointer->focus_client;
+
+  wl_resource_for_each (resource, &pointer_client->hold_gesture_resources)
+    {
+      zwp_pointer_gesture_hold_v1_send_end (resource, serial,
+                                            time, cancelled);
+    }
+}
+
+static void
 handle_hold_end (MetaWaylandPointer *pointer,
                  const ClutterEvent *event)
 {
-  MetaWaylandPointerClient *pointer_client;
   MetaWaylandSeat *seat;
-  struct wl_resource *resource;
   gboolean cancelled = FALSE;
   uint32_t serial;
 
-  pointer_client = pointer->focus_client;
   seat = meta_wayland_pointer_get_seat (pointer);
   serial = wl_display_next_serial (seat->wl_display);
 
   if (event->touchpad_hold.phase == CLUTTER_TOUCHPAD_GESTURE_PHASE_CANCEL)
     cancelled = TRUE;
 
-  wl_resource_for_each (resource, &pointer_client->hold_gesture_resources)
-    {
-      zwp_pointer_gesture_hold_v1_send_end (resource, serial,
-                                            clutter_event_get_time (event),
-                                            cancelled);
-    }
+  broadcast_end (pointer, serial,
+                 clutter_event_get_time (event),
+                 cancelled);
 }
 
 gboolean
