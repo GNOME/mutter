@@ -36,4 +36,7 @@ void meta_wayland_pointer_gesture_swipe_create_new_resource (MetaWaylandPointer 
                                                              struct wl_resource *pointer_resource,
                                                              uint32_t            id);
 
+void meta_wayland_pointer_gesture_swipe_cancel (MetaWaylandPointer *pointer,
+                                                uint32_t            serial);
+
 #endif /* META_WAYLAND_POINTER_GESTURE_SWIPE_H */

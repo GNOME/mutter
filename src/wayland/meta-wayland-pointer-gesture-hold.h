@@ -34,4 +34,7 @@ void meta_wayland_pointer_gesture_hold_create_new_resource (MetaWaylandPointer *
                                                             struct wl_resource *gestures_resource,
                                                             uint32_t            id);
 
+void meta_wayland_pointer_gesture_hold_cancel (MetaWaylandPointer *pointer,
+                                               uint32_t            serial);
+
 #endif /* META_WAYLAND_POINTER_GESTURE_HOLD_H */

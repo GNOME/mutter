@@ -149,3 +149,12 @@ meta_wayland_pointer_gesture_hold_create_new_resource (MetaWaylandPointer *point
   wl_list_insert (&pointer_client->hold_gesture_resources,
                   wl_resource_get_link (res));
 }
+
+void
+meta_wayland_pointer_gesture_hold_cancel (MetaWaylandPointer *pointer,
+                                          uint32_t            serial)
+{
+  broadcast_end (pointer, serial,
+                 us2ms (g_get_monotonic_time ()),
+                 TRUE);
+}
