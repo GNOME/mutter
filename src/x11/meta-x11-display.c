@@ -77,6 +77,16 @@ G_DEFINE_TYPE (MetaX11Display, meta_x11_display, G_TYPE_OBJECT)
 
 static GQuark quark_x11_display_logical_monitor_data = 0;
 
+typedef struct _MetaX11EventFilter MetaX11EventFilter;
+
+struct _MetaX11EventFilter
+{
+  unsigned int id;
+  MetaX11DisplayEventFunc func;
+  gpointer user_data;
+  GDestroyNotify destroy_notify;
+};
+
 typedef struct _MetaX11DisplayLogicalMonitorData
 {
   int xinerama_index;
@@ -127,6 +137,14 @@ meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 }
 
 static void
+meta_x11_event_filter_free (MetaX11EventFilter *filter)
+{
+  if (filter->destroy_notify && filter->user_data)
+    filter->destroy_notify (filter->user_data);
+  g_free (filter);
+}
+
+static void
 meta_x11_display_dispose (GObject *object)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (object);
@@ -134,6 +152,9 @@ meta_x11_display_dispose (GObject *object)
   x11_display->closing = TRUE;
 
   g_clear_pointer (&x11_display->alarm_filters, g_ptr_array_unref);
+
+  g_clear_list (&x11_display->event_funcs,
+                (GDestroyNotify) meta_x11_event_filter_free);
 
   if (x11_display->frames_client_cancellable)
     {
@@ -2471,4 +2492,65 @@ meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display)
 
   meta_x11_display_set_stage_input_region (x11_display,
                                            x11_display->empty_region);
+}
+
+/**
+ * meta_x11_display_add_event_func: (skip):
+ **/
+unsigned int
+meta_x11_display_add_event_func (MetaX11Display          *x11_display,
+                                 MetaX11DisplayEventFunc  event_func,
+                                 gpointer                 user_data,
+                                 GDestroyNotify           destroy_notify)
+{
+  MetaX11EventFilter *filter;
+  static unsigned int id = 0;
+
+  filter = g_new0 (MetaX11EventFilter, 1);
+  filter->func = event_func;
+  filter->user_data = user_data;
+  filter->destroy_notify = destroy_notify;
+  filter->id = ++id;
+
+  x11_display->event_funcs = g_list_prepend (x11_display->event_funcs, filter);
+
+  return filter->id;
+}
+
+/**
+ * meta_x11_display_remove_event_func: (skip):
+ **/
+void
+meta_x11_display_remove_event_func (MetaX11Display *x11_display,
+                                    unsigned int    id)
+{
+  MetaX11EventFilter *filter;
+  GList *l;
+
+  for (l = x11_display->event_funcs; l; l = l->next)
+    {
+      filter = l->data;
+
+      if (filter->id != id)
+        continue;
+
+      x11_display->event_funcs =
+        g_list_delete_link (x11_display->event_funcs, l);
+      meta_x11_event_filter_free (filter);
+      break;
+    }
+}
+
+void
+meta_x11_display_run_event_funcs (MetaX11Display *x11_display,
+                                  XEvent         *xevent)
+{
+  MetaX11EventFilter *filter;
+  GList *l;
+
+  for (l = x11_display->event_funcs; l; l = l->next)
+    {
+      filter = l->data;
+      filter->func (x11_display, xevent, filter->user_data);
+    }
 }

@@ -1923,6 +1923,8 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   meta_spew_event_print (x11_display, event);
 #endif
 
+  meta_x11_display_run_event_funcs (x11_display, event);
+
   if (meta_x11_startup_notification_handle_xevent (x11_display, event))
     {
       bypass_gtk = bypass_compositor = TRUE;

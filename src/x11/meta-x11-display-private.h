@@ -121,6 +121,8 @@ struct _MetaX11Display
   GHashTable *xids;
   GHashTable *alarms;
 
+  GList *event_funcs;
+
   gboolean has_xinerama_indices;
 
   /* Managed by group.c */
@@ -281,5 +283,8 @@ void meta_x11_display_set_input_focus (MetaX11Display *x11_display,
 void meta_x11_display_sync_input_focus (MetaX11Display *x11_display);
 
 MetaDisplay * meta_x11_display_get_display (MetaX11Display *x11_display);
+
+void meta_x11_display_run_event_funcs (MetaX11Display *x11_display,
+                                       XEvent         *xevent);
 
 #endif /* META_X11_DISPLAY_PRIVATE_H */
