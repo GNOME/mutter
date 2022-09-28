@@ -2297,9 +2297,6 @@ process_key_event (MetaDisplay     *display,
   keep_grab = TRUE;
   if (all_keys_grabbed)
     {
-      if (display->grab_op == META_GRAB_OP_NONE)
-        return TRUE;
-
       /* If we get here we have a global grab, because
        * we're in some special keyboard mode such as window move
        * mode.
@@ -2321,7 +2318,7 @@ process_key_event (MetaDisplay     *display,
                   keep_grab = process_keyboard_resize_grab (display, window, event);
                 }
             }
-          else
+          else if (display->grab_op & META_GRAB_OP_MOVING)
             {
               meta_topic (META_DEBUG_KEYBINDINGS,
                           "Processing event for mouse-only move/resize");
