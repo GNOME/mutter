@@ -26,6 +26,7 @@
 #include "tests/meta-wayland-test-utils.h"
 #include "backends/native/meta-renderer-native.h"
 #include "tests/meta-ref-test.h"
+#include "wayland/meta-window-wayland.h"
 #include "wayland/meta-wayland-surface.h"
 
 static MetaContext *test_context;
@@ -119,10 +120,48 @@ toplevel_fullscreen (void)
 static void
 toplevel_fullscreen_ref_test (void)
 {
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (test_window);
+  MetaRectangle rect;
+
   wait_for_window_added (test_window);
+  assert_wayland_surface_size (test_window, 10, 10);
+  g_assert_true (meta_window_wayland_is_acked_fullscreen (wl_window));
 
   meta_ref_test_verify_view (get_view (),
                              g_test_get_path (), 1,
+                             meta_ref_test_determine_ref_test_flag ());
+
+  meta_window_unmake_fullscreen (test_window);
+
+  while (meta_window_wayland_is_acked_fullscreen (wl_window))
+    g_main_context_iteration (NULL, FALSE);
+
+  meta_window_move_frame (test_window, FALSE, 12, 13);
+
+  meta_window_get_frame_rect (test_window, &rect);
+  g_assert_cmpint (rect.width, ==, 10);
+  g_assert_cmpint (rect.height, ==, 10);
+  g_assert_cmpint (rect.x, ==, 12);
+  g_assert_cmpint (rect.y, ==, 13);
+  assert_wayland_surface_size (test_window, 10, 10);
+
+  meta_ref_test_verify_view (get_view (),
+                             g_test_get_path (), 2,
+                             meta_ref_test_determine_ref_test_flag ());
+
+  meta_window_make_fullscreen (test_window);
+  while (!meta_window_wayland_is_acked_fullscreen (wl_window))
+    g_main_context_iteration (NULL, FALSE);
+
+  meta_window_get_frame_rect (test_window, &rect);
+  g_assert_cmpint (rect.width, ==, 100);
+  g_assert_cmpint (rect.height, ==, 100);
+  g_assert_cmpint (rect.x, ==, 0);
+  g_assert_cmpint (rect.y, ==, 0);
+  assert_wayland_surface_size (test_window, 10, 10);
+
+  meta_ref_test_verify_view (get_view (),
+                             g_test_get_path (), 3,
                              meta_ref_test_determine_ref_test_flag ());
 }
 

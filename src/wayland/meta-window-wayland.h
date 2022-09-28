@@ -32,6 +32,7 @@
 G_BEGIN_DECLS
 
 #define META_TYPE_WINDOW_WAYLAND (meta_window_wayland_get_type())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaWindowWayland, meta_window_wayland,
                       META, WINDOW_WAYLAND,
                       MetaWindow)
@@ -81,6 +82,7 @@ gboolean meta_window_wayland_is_resize (MetaWindowWayland *wl_window,
                                         int                width,
                                         int                height);
 
+META_EXPORT_TEST
 gboolean meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window);
 
 #endif
