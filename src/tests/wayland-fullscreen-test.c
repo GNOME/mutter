@@ -19,18 +19,30 @@
 
 #include "backends/meta-virtual-monitor.h"
 #include "compositor/meta-window-actor-private.h"
+#include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
 #include "backends/native/meta-renderer-native.h"
 #include "tests/meta-ref-test.h"
+#include "wayland/meta-wayland-surface.h"
 
 static MetaContext *test_context;
 static MetaWaylandTestDriver *test_driver;
 static MetaVirtualMonitor *virtual_monitor;
 static MetaWaylandTestClient *wayland_test_client;
 static MetaWindow *test_window = NULL;
+
+#define assert_wayland_surface_size(window, width, height) \
+{ \
+  g_assert_cmpint (meta_wayland_surface_get_width (window->surface), \
+                   ==, \
+                   width); \
+  g_assert_cmpint (meta_wayland_surface_get_height (window->surface), \
+                   ==, \
+                   height); \
+}
 
 static ClutterStageView *
 get_view (void)
@@ -101,6 +113,7 @@ toplevel_fullscreen (void)
   g_assert_cmpint (rect.height, ==, 100);
   g_assert_cmpint (rect.x, ==, 0);
   g_assert_cmpint (rect.y, ==, 0);
+  assert_wayland_surface_size (test_window, 10, 10);
 }
 
 static void

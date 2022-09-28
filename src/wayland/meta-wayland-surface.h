@@ -357,7 +357,10 @@ void                meta_wayland_surface_notify_subsurface_state_changed (MetaWa
 
 void                meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface);
 
+META_EXPORT_TEST
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
+
+META_EXPORT_TEST
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
 CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
