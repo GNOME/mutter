@@ -125,6 +125,10 @@ struct _MetaWaylandSurfaceState
 
   /* presentation-time */
   struct wl_list presentation_feedback_list;
+
+  struct {
+    gboolean surface_size_changed;
+  } derived;
 };
 
 struct _MetaWaylandDragDestFuncs

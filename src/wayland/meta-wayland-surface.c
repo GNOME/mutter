@@ -716,6 +716,10 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 {
   MetaWaylandSurface *subsurface_surface;
   gboolean had_damage = FALSE;
+  int old_width, old_height;
+
+  old_width = meta_wayland_surface_get_width (surface);
+  old_height = meta_wayland_surface_get_height (surface);
 
   g_signal_emit (surface, surface_signals[SURFACE_PRE_STATE_APPLIED], 0);
 
@@ -822,6 +826,10 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
       surface->viewport.dst_height = state->viewport_dst_height;
       surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
     }
+
+  state->derived.surface_size_changed =
+    meta_wayland_surface_get_width (surface) != old_width ||
+    meta_wayland_surface_get_height (surface) != old_height;
 
   if (!cairo_region_is_empty (state->surface_damage) ||
       !cairo_region_is_empty (state->buffer_damage))

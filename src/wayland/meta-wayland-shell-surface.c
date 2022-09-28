@@ -219,43 +219,6 @@ meta_wayland_shell_surface_surface_pre_apply_state (MetaWaylandSurfaceRole  *sur
     meta_window_queue (priv->window, META_QUEUE_CALC_SHOWING);
 }
 
-static void
-meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
-                                                MetaWaylandSurfaceState *pending)
-{
-  MetaWaylandShellSurface *shell_surface =
-    META_WAYLAND_SHELL_SURFACE (surface_role);
-  MetaWaylandShellSurfacePrivate *priv =
-    meta_wayland_shell_surface_get_instance_private (shell_surface);
-  MetaWaylandActorSurface *actor_surface =
-    META_WAYLAND_ACTOR_SURFACE (surface_role);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandSurfaceRoleClass *surface_role_class;
-  MetaWindow *window;
-  MetaWaylandBuffer *buffer;
-  int geometry_scale;
-
-  surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_shell_surface_parent_class);
-  surface_role_class->apply_state (surface_role, pending);
-
-  buffer = surface->buffer_ref->buffer;
-  if (!buffer)
-    return;
-
-  window = priv->window;
-  if (!window)
-    return;
-
-  geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
-
-  window->buffer_rect.width =
-    meta_wayland_surface_get_width (surface) * geometry_scale;
-  window->buffer_rect.height =
-    meta_wayland_surface_get_height (surface) * geometry_scale;
-}
-
 static MetaWindow *
 meta_wayland_shell_surface_get_window (MetaWaylandSurfaceRole *surface_role)
 {
@@ -367,8 +330,6 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
   surface_role_class->assigned = meta_wayland_shell_surface_assigned;
   surface_role_class->pre_apply_state =
     meta_wayland_shell_surface_surface_pre_apply_state;
-  surface_role_class->apply_state =
-    meta_wayland_shell_surface_surface_apply_state;
   surface_role_class->notify_subsurface_state_changed =
     meta_wayland_shell_surface_notify_subsurface_state_changed;
   surface_role_class->get_window = meta_wayland_shell_surface_get_window;
