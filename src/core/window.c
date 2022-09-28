@@ -8295,9 +8295,6 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   else
     button = clutter_event_get_button (event);
 
-  if (display->grab_op != META_GRAB_OP_NONE)
-    return;
-
   /* Some windows might not ask for input, in which case we might be here
    * because we selected for ButtonPress on the root window. In that case,
    * we have to take special care not to act for an override-redirect window.

@@ -470,7 +470,9 @@ meta_display_handle_event (MetaDisplay        *display,
        */
       bypass_clutter = !IS_GESTURE_EVENT (event);
       bypass_wayland = meta_window_has_modals (window);
-      meta_window_handle_ungrabbed_event (window, event);
+
+      if (display->grab_op == META_GRAB_OP_NONE)
+        meta_window_handle_ungrabbed_event (window, event);
 
       /* This might start a grab op. If it does, then filter out the
        * event, and if it doesn't, replay the event to release our
