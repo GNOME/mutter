@@ -60,6 +60,8 @@ struct _MetaWindowWayland
   int last_sent_geometry_scale;
   MetaGravity last_sent_gravity;
 
+  MetaWaylandWindowConfiguration *last_acked_configuration;
+
   gboolean has_been_shown;
 };
 
@@ -745,6 +747,8 @@ meta_window_wayland_finalize (GObject *object)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (object);
 
+  g_clear_pointer (&wl_window->last_acked_configuration,
+                   meta_wayland_window_configuration_free);
   g_list_free_full (wl_window->pending_configurations,
                     (GDestroyNotify) meta_wayland_window_configuration_free);
 
@@ -1086,13 +1090,15 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
         flags |= META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE;
     }
 
+  g_clear_pointer (&wl_window->last_acked_configuration,
+                   meta_wayland_window_configuration_free);
+  wl_window->last_acked_configuration = g_steal_pointer (&acked_configuration);
+
   if (window->display->grab_window == window)
     gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
   else
     gravity = META_GRAVITY_STATIC;
   meta_window_move_resize_internal (window, flags, gravity, rect);
-
-  g_clear_pointer (&acked_configuration, meta_wayland_window_configuration_free);
 }
 
 void
