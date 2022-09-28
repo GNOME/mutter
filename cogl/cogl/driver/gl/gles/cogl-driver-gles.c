@@ -437,6 +437,12 @@ _cogl_driver_update_features (CoglContext *context,
                     COGL_FEATURE_ID_TEXTURE_RG,
                     TRUE);
 
+  if (_cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
+    {
+      COGL_FLAGS_SET (private_features,
+                      COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
+    }
+
   if (context->glGenQueries && context->glQueryCounter && context->glGetInteger64v)
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
 

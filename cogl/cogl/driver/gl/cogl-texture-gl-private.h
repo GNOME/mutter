@@ -62,4 +62,11 @@ _cogl_texture_gl_generate_mipmaps (CoglTexture *texture);
 GLenum
 _cogl_texture_gl_get_format (CoglTexture *texture);
 
+static inline GLfloat
+_cogl_texture_min_filter_get_lod_bias (GLenum min_filter)
+{
+  return (min_filter == GL_NEAREST_MIPMAP_NEAREST ||
+          min_filter == GL_LINEAR_MIPMAP_NEAREST) ? -0.5f : 0.0f;
+}
+
 #endif /* _COGL_TEXTURE_GL_PRIVATE_H_ */

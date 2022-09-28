@@ -178,6 +178,10 @@ COGL_EXT_FUNCTION (void, glSamplerParameteri,
                    (GLuint sampler,
                     GLenum pname,
                     GLint param))
+COGL_EXT_FUNCTION (void, glSamplerParameterf,
+                   (GLuint sampler,
+                    GLenum pname,
+                    GLfloat param))
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (only_gl3, 3, 0,

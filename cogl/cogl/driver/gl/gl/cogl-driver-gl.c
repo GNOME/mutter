@@ -526,6 +526,13 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL, TRUE);
 
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 1) ||
+      _cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
+    {
+      COGL_FLAGS_SET (private_features,
+                      COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
+    }
+
   if (ctx->glFenceSync)
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_FENCE, TRUE);
 

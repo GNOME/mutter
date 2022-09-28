@@ -174,6 +174,8 @@ COGL_EXT_FUNCTION (void, glTexImage2D,
                     const GLvoid* pixels))
 COGL_EXT_FUNCTION (void, glTexParameteri,
                    (GLenum target, GLenum pname, GLint param))
+COGL_EXT_FUNCTION (void, glTexParameterf,
+                   (GLenum target, GLenum pname, GLfloat param))
 COGL_EXT_FUNCTION (void, glTexParameteriv,
                    (GLenum target, GLenum pname, const GLint* params))
 COGL_EXT_FUNCTION (void, glTexSubImage2D,
