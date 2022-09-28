@@ -1631,6 +1631,46 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
 }
 
 static gboolean
+handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
+                       GDBusMethodInvocation        *invocation,
+                       GUnixFDList                  *fd_list_in,
+                       GVariant                     *arg_options)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  int fd_idx;
+  GVariant *fd_variant;
+  int fd;
+  MetaEis *meis;
+
+  meis = meta_backend_get_eis (backend);
+
+  fd = meta_eis_add_client_get_fd (meis);
+  if (fd < 0)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to create socket: %s",
+                                             g_strerror (-fd));
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  fd_list = g_unix_fd_list_new ();
+  fd_idx = g_unix_fd_list_append (fd_list, fd, NULL);
+  close (fd);
+  fd_variant = g_variant_new_handle (fd_idx);
+
+  meta_dbus_remote_desktop_session_complete_connect_to_eis (skeleton,
+                                                            invocation,
+                                                            fd_list,
+                                                            fd_variant);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
 meta_remote_desktop_session_initable_init (GInitable     *initable,
                                            GCancellable  *cancellable,
                                            GError       **error)
@@ -1691,6 +1731,7 @@ meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface
   iface->handle_selection_write = handle_selection_write;
   iface->handle_selection_write_done = handle_selection_write_done;
   iface->handle_selection_read = handle_selection_read;
+  iface->handle_connect_to_eis = handle_connect_to_eis;
 }
 
 static void
