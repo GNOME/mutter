@@ -89,9 +89,6 @@ typedef enum
   /* A Wayland application has a popup open. All events go to
    * the Wayland application. */
   META_EVENT_ROUTE_WAYLAND_POPUP,
-
-  /* The user is clicking on a window button. */
-  META_EVENT_ROUTE_FRAME_BUTTON,
 } MetaEventRoute;
 
 typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,

@@ -588,7 +588,6 @@ sync_focus_surface (MetaWaylandTabletTool *tool,
   switch (display->event_route)
     {
     case META_EVENT_ROUTE_WINDOW_OP:
-    case META_EVENT_ROUTE_FRAME_BUTTON:
       /* The compositor has a grab, so remove our focus */
       meta_wayland_tablet_tool_set_focus (tool, NULL, event);
       break;

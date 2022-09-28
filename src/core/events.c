@@ -109,7 +109,6 @@ get_window_for_event (MetaDisplay        *display,
       }
     case META_EVENT_ROUTE_WINDOW_OP:
     case META_EVENT_ROUTE_WAYLAND_POPUP:
-    case META_EVENT_ROUTE_FRAME_BUTTON:
       return display->grab_window;
     default:
       g_assert_not_reached ();
@@ -477,8 +476,7 @@ meta_display_handle_event (MetaDisplay        *display,
        * event, and if it doesn't, replay the event to release our
        * own sync grab. */
 
-      if (display->event_route == META_EVENT_ROUTE_WINDOW_OP ||
-          display->event_route == META_EVENT_ROUTE_FRAME_BUTTON)
+      if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
         {
           bypass_clutter = TRUE;
           bypass_wayland = TRUE;
