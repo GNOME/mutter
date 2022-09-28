@@ -250,4 +250,8 @@ cogl_gl_get_gpu_time_ns (CoglContext *context);
 #define GL_QUERY_RESULT 0x8866
 #endif
 
+#ifndef GL_TEXTURE_LOD_BIAS
+#define GL_TEXTURE_LOD_BIAS 0x8501
+#endif
+
 #endif /* _COGL_UTIL_GL_PRIVATE_H_ */

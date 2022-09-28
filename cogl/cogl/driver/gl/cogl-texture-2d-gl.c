@@ -470,6 +470,15 @@ _cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
                                    tex_2d->gl_texture);
   GE( ctx, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter) );
   GE( ctx, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter) );
+
+  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS) &&
+      min_filter != GL_NEAREST &&
+      min_filter != GL_LINEAR)
+    {
+      GLfloat bias = _cogl_texture_min_filter_get_lod_bias (min_filter);
+
+      GE (ctx, glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, bias));
+    }
 }
 
 void

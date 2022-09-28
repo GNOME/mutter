@@ -682,6 +682,22 @@ _cogl_sampler_gl_init (CoglContext *context, CoglSamplerCacheEntry *entry)
       GE (context, glSamplerParameteri (entry->sampler_object,
                                         GL_TEXTURE_WRAP_T,
                                         entry->wrap_mode_t) );
+
+      /* While COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS implies support for
+       * GL_TEXTURE_LOD_BIAS in GL, the same is not true in GLES. So check,
+       * and also only apply GL_TEXTURE_LOD_BIAS in mipmap modes:
+       */
+      if (_cogl_has_private_feature (context,
+                                     COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS) &&
+          entry->min_filter != GL_NEAREST &&
+          entry->min_filter != GL_LINEAR)
+        {
+          GLfloat bias = _cogl_texture_min_filter_get_lod_bias (entry->min_filter);
+
+          GE (context, glSamplerParameterf (entry->sampler_object,
+                                            GL_TEXTURE_LOD_BIAS,
+                                            bias));
+        }
     }
   else
     {
