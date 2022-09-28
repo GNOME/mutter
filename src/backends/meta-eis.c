@@ -239,6 +239,12 @@ eis_logger (struct eis             *eis,
     }
 }
 
+int
+meta_eis_add_client_get_fd (MetaEis *meta_eis)
+{
+  return eis_backend_fd_add_client (meta_eis->eis);
+}
+
 static int
 try_and_find_free_eis_socket (MetaEis *meta_eis)
 {
