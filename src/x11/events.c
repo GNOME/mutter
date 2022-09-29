@@ -970,7 +970,7 @@ handle_input_xevent (MetaX11Display *x11_display,
   switch (input_event->evtype)
     {
     case XI_Enter:
-      if (display->event_route != META_EVENT_ROUTE_NORMAL)
+      if (display->grab_op != META_GRAB_OP_NONE)
         break;
 
       if (clutter_stage_get_grab_actor (stage) != NULL)
@@ -992,7 +992,7 @@ handle_input_xevent (MetaX11Display *x11_display,
         }
       break;
     case XI_Leave:
-      if (display->event_route != META_EVENT_ROUTE_NORMAL)
+      if (display->grab_op != META_GRAB_OP_NONE)
         break;
 
       if (clutter_stage_get_grab_actor (stage) != NULL)
