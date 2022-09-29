@@ -85,10 +85,6 @@ typedef enum
   /* In a window operation like moving or resizing. All events
    * goes to MetaWindow, but not to the actual client window. */
   META_EVENT_ROUTE_WINDOW_OP,
-
-  /* A Wayland application has a popup open. All events go to
-   * the Wayland application. */
-  META_EVENT_ROUTE_WAYLAND_POPUP,
 } MetaEventRoute;
 
 typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,

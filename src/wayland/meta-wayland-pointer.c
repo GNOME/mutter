@@ -335,7 +335,6 @@ sync_focus_surface (MetaWaylandPointer *pointer)
       break;
 
     case META_EVENT_ROUTE_NORMAL:
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
       {
         const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
         interface->focus (pointer->grab, pointer->current);
@@ -512,7 +511,6 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
       break;
 
     case META_EVENT_ROUTE_NORMAL:
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
       break;
     }
 

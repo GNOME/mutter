@@ -108,7 +108,6 @@ get_window_for_event (MetaDisplay        *display,
           return NULL;
       }
     case META_EVENT_ROUTE_WINDOW_OP:
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
       return display->grab_window;
     default:
       g_assert_not_reached ();

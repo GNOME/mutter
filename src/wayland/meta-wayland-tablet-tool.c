@@ -593,7 +593,6 @@ sync_focus_surface (MetaWaylandTabletTool *tool,
       break;
 
     case META_EVENT_ROUTE_NORMAL:
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
       meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
       break;
 
