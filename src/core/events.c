@@ -471,7 +471,12 @@ meta_display_handle_event (MetaDisplay        *display,
       bypass_clutter = !IS_GESTURE_EVENT (event);
       bypass_wayland = meta_window_has_modals (window);
 
-      if (display->grab_op == META_GRAB_OP_NONE)
+      if (
+#ifdef HAVE_WAYLAND
+          (!wayland_compositor ||
+           !meta_wayland_compositor_is_grabbed (wayland_compositor)) &&
+#endif
+          !meta_display_is_grabbed (display))
         meta_window_handle_ungrabbed_event (window, event);
 
       /* This might start a grab op. If it does, then filter out the
