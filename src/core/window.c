@@ -8391,15 +8391,12 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
             op |= META_GRAB_OP_WINDOW_DIR_SOUTH;
 
           if (op != META_GRAB_OP_WINDOW_BASE)
-            meta_display_begin_grab_op (display,
-                                        window,
-                                        op,
-                                        TRUE,
-                                        FALSE,
-                                        button,
-                                        0,
-                                        event->any.time,
-                                        x, y);
+            {
+              meta_window_begin_grab_op (window,
+                                         op,
+                                         FALSE,
+                                         event->any.time);
+            }
         }
     }
   else if (is_window_grab && (int) button == meta_prefs_get_mouse_button_menu ())
@@ -8414,15 +8411,10 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
     {
       if (window->has_move_func)
         {
-          meta_display_begin_grab_op (display,
-                                      window,
-                                      META_GRAB_OP_MOVING,
-                                      TRUE,
-                                      FALSE,
-                                      button,
-                                      0,
-                                      event->any.time,
-                                      x, y);
+          meta_window_begin_grab_op (window,
+                                     META_GRAB_OP_MOVING,
+                                     FALSE,
+                                     event->any.time);
         }
     }
 }
