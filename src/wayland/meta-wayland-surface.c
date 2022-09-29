@@ -1557,15 +1557,10 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
   /* This is an input driven operation so we set frame_action to
      constrain it in the same way as it would be if the window was
      being moved/resized via a SSD event. */
-  return meta_display_begin_grab_op (window->display,
-                                     window,
-                                     grab_op,
-                                     TRUE, /* pointer_already_grabbed */
-                                     TRUE, /* frame_action */
-                                     1, /* button. XXX? */
-                                     0, /* modmask */
-                                     meta_display_get_current_time_roundtrip (window->display),
-                                     x, y);
+  return meta_window_begin_grab_op (window,
+                                    grab_op,
+                                    TRUE, /* frame_action */
+                                    meta_display_get_current_time_roundtrip (window->display));
 }
 
 /**
