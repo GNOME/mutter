@@ -76,17 +76,6 @@ typedef enum
   META_TILE_MAXIMIZED
 } MetaTileMode;
 
-typedef enum
-{
-  /* Normal interaction where you're interacting with windows.
-   * Events go to windows normally. */
-  META_EVENT_ROUTE_NORMAL,
-
-  /* In a window operation like moving or resizing. All events
-   * goes to MetaWindow, but not to the actual client window. */
-  META_EVENT_ROUTE_WINDOW_OP,
-} MetaEventRoute;
-
 typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,
                                         gpointer    user_data);
 
@@ -155,9 +144,6 @@ struct _MetaDisplay
   /* Pending autoraise */
   guint       autoraise_timeout_id;
   MetaWindow* autoraise_window;
-
-  /* Event routing */
-  MetaEventRoute event_route;
 
   /* current window operation */
   MetaGrabOp  grab_op;

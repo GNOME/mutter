@@ -1815,24 +1815,6 @@ get_first_freefloating_window (MetaWindow *window)
   return window;
 }
 
-static MetaEventRoute
-get_event_route_from_grab_op (MetaGrabOp op)
-{
-  switch (META_GRAB_OP_GET_BASE_TYPE (op))
-    {
-    case META_GRAB_OP_NONE:
-      /* begin_grab_op shouldn't be called with META_GRAB_OP_NONE. */
-      g_assert_not_reached ();
-
-    case META_GRAB_OP_WINDOW_BASE:
-      return META_EVENT_ROUTE_WINDOW_OP;
-
-    default:
-      g_assert_not_reached ();
-      return 0;
-    }
-}
-
 void
 meta_display_clear_grab_move_resize_later (MetaDisplay *display)
 {
@@ -1858,7 +1840,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
 {
   MetaBackend *backend = backend_from_display (display);
   MetaWindow *grab_window = NULL;
-  MetaEventRoute event_route;
 
   g_assert (window != NULL);
 
@@ -1874,8 +1855,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
                     display->grab_window ? display->grab_window->desc : "none");
       return FALSE;
     }
-
-  event_route = get_event_route_from_grab_op (op);
 
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
@@ -1932,7 +1911,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
       return FALSE;
     }
 
-  display->event_route = event_route;
   display->grab_op = op;
   display->grab_window = grab_window;
   display->grab_tile_mode = grab_window->tile_mode;
@@ -2017,7 +1995,6 @@ meta_display_end_grab_op (MetaDisplay *display,
       meta_window_ungrab_all_keys (grab_window, timestamp);
     }
 
-  display->event_route = META_EVENT_ROUTE_NORMAL;
   display->grab_window = NULL;
   display->grab_tile_mode = META_TILE_NONE;
   display->grab_tile_monitor_number = -1;
