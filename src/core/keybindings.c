@@ -3378,8 +3378,8 @@ handle_begin_move         (MetaDisplay     *display,
   if (window->has_move_func)
     {
       meta_window_begin_grab_op (window,
-                                 META_GRAB_OP_KEYBOARD_MOVING,
-                                 FALSE,
+                                 META_GRAB_OP_KEYBOARD_MOVING |
+                                 META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                  event->time);
     }
 }
@@ -3394,8 +3394,8 @@ handle_begin_resize       (MetaDisplay     *display,
   if (window->has_resize_func)
     {
       meta_window_begin_grab_op (window,
-                                 META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN,
-                                 FALSE,
+                                 META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN |
+                                 META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                  event->time);
     }
 }

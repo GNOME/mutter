@@ -6733,7 +6733,6 @@ warp_grab_pointer (MetaWindow  *window,
 gboolean
 meta_window_begin_grab_op (MetaWindow *window,
                            MetaGrabOp  op,
-                           gboolean    frame_action,
                            guint32     timestamp)
 {
   int x, y;
@@ -6755,9 +6754,6 @@ meta_window_begin_grab_op (MetaWindow *window,
       x = pos.x;
       y = pos.y;
     }
-
-  if (!frame_action)
-    op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
 
   return meta_display_begin_grab_op (window->display,
                                      window,
@@ -8391,9 +8387,9 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
 
           if (op != META_GRAB_OP_WINDOW_BASE)
             {
+              op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
               meta_window_begin_grab_op (window,
                                          op,
-                                         FALSE,
                                          event->any.time);
             }
         }
@@ -8411,8 +8407,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
       if (window->has_move_func)
         {
           meta_window_begin_grab_op (window,
-                                     META_GRAB_OP_MOVING,
-                                     FALSE,
+                                     META_GRAB_OP_MOVING |
+                                     META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
                                      event->any.time);
         }
     }

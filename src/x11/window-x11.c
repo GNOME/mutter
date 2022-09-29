@@ -3272,13 +3272,6 @@ meta_window_x11_client_message (MetaWindow *window,
       int button;
       guint32 timestamp;
 
-      /* _NET_WM_MOVERESIZE messages are almost certainly going to come from
-       * clients when users click on the fake "frame" that the client has,
-       * thus we should also treat such messages as though it were a
-       * "frame action".
-       */
-      gboolean const frame_action = TRUE;
-
       x_root = event->xclient.data.l[0];
       y_root = event->xclient.data.l[1];
       action = event->xclient.data.l[2];
@@ -3342,7 +3335,7 @@ meta_window_x11_client_message (MetaWindow *window,
           ((window->has_move_func && op == META_GRAB_OP_KEYBOARD_MOVING) ||
            (window->has_resize_func && op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)))
         {
-          meta_window_begin_grab_op (window, op, frame_action, timestamp);
+          meta_window_begin_grab_op (window, op, timestamp);
         }
       else if (op != META_GRAB_OP_NONE &&
                ((window->has_move_func && op == META_GRAB_OP_MOVING) ||
@@ -3356,7 +3349,6 @@ meta_window_x11_client_message (MetaWindow *window,
                       "Beginning move/resize with button = %d", button);
           meta_window_begin_grab_op (window,
                                      op,
-                                     frame_action,
                                      timestamp);
 
           button_mask = query_pressed_buttons (window);

@@ -1559,7 +1559,6 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
      being moved/resized via a SSD event. */
   return meta_window_begin_grab_op (window,
                                     grab_op,
-                                    TRUE, /* frame_action */
                                     meta_display_get_current_time_roundtrip (window->display));
 }
 
