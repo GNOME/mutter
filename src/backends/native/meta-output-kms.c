@@ -303,6 +303,9 @@ maybe_add_fallback_modes (const MetaKmsConnectorState *connector_state,
                           MetaGpuKms                  *gpu_kms,
                           MetaKmsConnector            *kms_connector)
 {
+  if (!connector_state->modes)
+    return;
+
   if (!connector_state->has_scaling)
     return;
 
