@@ -409,10 +409,10 @@ void meta_window_get_work_area_all_monitors    (MetaWindow    *window,
                                                 MetaRectangle *area);
 
 META_EXPORT
-void meta_window_begin_grab_op (MetaWindow *window,
-                                MetaGrabOp  op,
-                                gboolean    frame_action,
-                                guint32     timestamp);
+gboolean meta_window_begin_grab_op (MetaWindow *window,
+                                    MetaGrabOp  op,
+                                    gboolean    frame_action,
+                                    guint32     timestamp);
 
 META_EXPORT
 gboolean meta_window_can_maximize (MetaWindow *window);

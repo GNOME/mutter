@@ -6668,10 +6668,10 @@ meta_window_is_ancestor_of_transient (MetaWindow *window,
  * return root coordinates where pointer ended up.
  */
 static gboolean
-warp_grab_pointer (MetaWindow          *window,
-                   MetaGrabOp           grab_op,
-                   int                 *x,
-                   int                 *y)
+warp_grab_pointer (MetaWindow  *window,
+                   MetaGrabOp   grab_op,
+                   int         *x,
+                   int         *y)
 {
   MetaRectangle rect;
   MetaRectangle display_rect = { 0 };
@@ -6730,7 +6730,7 @@ warp_grab_pointer (MetaWindow          *window,
   return TRUE;
 }
 
-void
+gboolean
 meta_window_begin_grab_op (MetaWindow *window,
                            MetaGrabOp  op,
                            gboolean    frame_action,
@@ -6738,18 +6738,33 @@ meta_window_begin_grab_op (MetaWindow *window,
 {
   int x, y;
 
-  warp_grab_pointer (window,
-                     op, &x, &y);
+  if ((op & META_GRAB_OP_KEYBOARD_MOVING) == META_GRAB_OP_KEYBOARD_MOVING)
+    {
+      warp_grab_pointer (window, op, &x, &y);
+    }
+  else
+    {
+      MetaBackend *backend = backend_from_window (window);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+      ClutterInputDevice *device;
+      graphene_point_t pos;
 
-  meta_display_begin_grab_op (window->display,
-                              window,
-                              op,
-                              FALSE,
-                              frame_action,
-                              0 /* button */,
-                              0,
-                              timestamp,
-                              x, y);
+      device = clutter_seat_get_pointer (seat);
+      clutter_seat_query_state (seat, device, NULL, &pos, NULL);
+      x = pos.x;
+      y = pos.y;
+    }
+
+  return meta_display_begin_grab_op (window->display,
+                                     window,
+                                     op,
+                                     FALSE,
+                                     frame_action,
+                                     0 /* button */,
+                                     0,
+                                     timestamp,
+                                     x, y);
 }
 
 void
