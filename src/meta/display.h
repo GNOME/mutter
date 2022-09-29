@@ -148,7 +148,7 @@ void     meta_display_end_grab_op   (MetaDisplay *display,
                                      guint32      timestamp);
 
 META_EXPORT
-MetaGrabOp meta_display_get_grab_op (MetaDisplay *display);
+gboolean meta_display_is_grabbed (MetaDisplay *display);
 
 META_EXPORT
 guint meta_display_add_keybinding    (MetaDisplay         *display,

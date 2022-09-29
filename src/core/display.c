@@ -2065,18 +2065,17 @@ meta_display_end_grab_op (MetaDisplay *display,
 }
 
 /**
- * meta_display_get_grab_op:
+ * meta_display_is_grabbed:
  * @display: The #MetaDisplay that the window is on
 
- * Gets the current grab operation, if any.
+ * Returns %TRUE if there is an ongoing grab operation.
  *
- * Return value: the current grab operation, or %META_GRAB_OP_NONE if
- * Mutter doesn't currently have a grab.
+ * Return value: Whether there is an active display grab operation.
  */
-MetaGrabOp
-meta_display_get_grab_op (MetaDisplay *display)
+gboolean
+meta_display_is_grabbed (MetaDisplay *display)
 {
-  return display->grab_op;
+  return display->grab_op != META_GRAB_OP_NONE;
 }
 
 void
