@@ -424,4 +424,18 @@ void meta_display_flush_queued_window (MetaDisplay   *display,
                                        MetaWindow    *window,
                                        MetaQueueType  queue_types);
 
+gboolean meta_display_begin_grab_op (MetaDisplay *display,
+                                     MetaWindow  *window,
+                                     MetaGrabOp   op,
+                                     gboolean     pointer_already_grabbed,
+                                     gboolean     frame_action,
+                                     int          button,
+                                     gulong       modmask,
+                                     uint32_t     timestamp,
+                                     int          root_x,
+                                     int          root_y);
+
+void meta_display_end_grab_op (MetaDisplay *display,
+                               uint32_t     timestamp);
+
 #endif

@@ -132,22 +132,6 @@ MetaWindow* meta_display_get_tab_current (MetaDisplay   *display,
                                           MetaWorkspace *workspace);
 
 META_EXPORT
-gboolean meta_display_begin_grab_op (MetaDisplay *display,
-                                     MetaWindow  *window,
-                                     MetaGrabOp   op,
-                                     gboolean     pointer_already_grabbed,
-                                     gboolean     frame_action,
-                                     int          button,
-                                     gulong       modmask,
-                                     guint32      timestamp,
-                                     int          root_x,
-                                     int          root_y);
-
-META_EXPORT
-void     meta_display_end_grab_op   (MetaDisplay *display,
-                                     guint32      timestamp);
-
-META_EXPORT
 gboolean meta_display_is_grabbed (MetaDisplay *display);
 
 META_EXPORT
