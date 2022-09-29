@@ -6756,13 +6756,12 @@ meta_window_begin_grab_op (MetaWindow *window,
       y = pos.y;
     }
 
+  if (!frame_action)
+    op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
+
   return meta_display_begin_grab_op (window->display,
                                      window,
                                      op,
-                                     FALSE,
-                                     frame_action,
-                                     0 /* button */,
-                                     0,
                                      timestamp,
                                      x, y);
 }

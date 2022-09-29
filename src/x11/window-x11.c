@@ -3373,11 +3373,8 @@ meta_window_x11_client_message (MetaWindow *window,
               else if ((button_mask & (1 << 3)) != 0)
                 button = 3;
 
-              if (button != 0)
-                window->display->grab_button = button;
-              else
-                meta_display_end_grab_op (window->display,
-                                          timestamp);
+              if (button == 0)
+                meta_display_end_grab_op (window->display, timestamp);
             }
           else
             {

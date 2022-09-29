@@ -162,7 +162,6 @@ struct _MetaDisplay
   /* current window operation */
   MetaGrabOp  grab_op;
   MetaWindow *grab_window;
-  int         grab_button;
   int         grab_anchor_root_x;
   int         grab_anchor_root_y;
   MetaRectangle grab_anchor_window_pos;
@@ -427,10 +426,6 @@ void meta_display_flush_queued_window (MetaDisplay   *display,
 gboolean meta_display_begin_grab_op (MetaDisplay *display,
                                      MetaWindow  *window,
                                      MetaGrabOp   op,
-                                     gboolean     pointer_already_grabbed,
-                                     gboolean     frame_action,
-                                     int          button,
-                                     gulong       modmask,
                                      uint32_t     timestamp,
                                      int          root_x,
                                      int          root_y);

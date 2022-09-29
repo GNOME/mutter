@@ -1855,10 +1855,6 @@ gboolean
 meta_display_begin_grab_op (MetaDisplay *display,
                             MetaWindow  *window,
                             MetaGrabOp   op,
-                            gboolean     pointer_already_grabbed,
-                            gboolean     frame_action,
-                            int          button,
-                            gulong       modmask, /* XXX - ignored */
                             guint32      timestamp,
                             int          root_x,
                             int          root_y)
@@ -1870,8 +1866,8 @@ meta_display_begin_grab_op (MetaDisplay *display,
   g_assert (window != NULL);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Doing grab op %u on window %s button %d pointer already grabbed: %d pointer pos %d,%d",
-              op, window->desc, button, pointer_already_grabbed,
+              "Doing grab op %u on window %s pointer pos %d,%d",
+              op, window->desc,
               root_x, root_y);
 
   if (display->grab_op != META_GRAB_OP_NONE)
@@ -1881,9 +1877,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
                     display->grab_window ? display->grab_window->desc : "none");
       return FALSE;
     }
-
-  if (!frame_action)
-    op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
 
   event_route = get_event_route_from_grab_op (op);
 
@@ -1911,9 +1904,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
   g_assert (op != META_GRAB_OP_NONE);
 
   display->grab_have_pointer = FALSE;
-
-  if (pointer_already_grabbed)
-    display->grab_have_pointer = TRUE;
 
   if (META_IS_BACKEND_X11 (backend_from_display (display)) &&
       display->x11_display)
@@ -1954,7 +1944,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
   display->event_route = event_route;
   display->grab_op = op;
   display->grab_window = grab_window;
-  display->grab_button = button;
   display->grab_tile_mode = grab_window->tile_mode;
   display->grab_tile_monitor_number = grab_window->tile_monitor_number;
   display->grab_anchor_root_x = root_x;
@@ -2043,7 +2032,6 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   display->event_route = META_EVENT_ROUTE_NORMAL;
   display->grab_window = NULL;
-  display->grab_button = 0;
   display->grab_tile_mode = META_TILE_NONE;
   display->grab_tile_monitor_number = -1;
   display->grab_anchor_root_x = 0;
