@@ -3354,15 +3354,10 @@ meta_window_x11_client_message (MetaWindow *window,
 
           meta_topic (META_DEBUG_WINDOW_OPS,
                       "Beginning move/resize with button = %d", button);
-          meta_display_begin_grab_op (window->display,
-                                      window,
-                                      op,
-                                      FALSE,
-                                      frame_action,
-                                      button, 0,
-                                      timestamp,
-                                      x_root,
-                                      y_root);
+          meta_window_begin_grab_op (window,
+                                     op,
+                                     frame_action,
+                                     timestamp);
 
           button_mask = query_pressed_buttons (window);
 
