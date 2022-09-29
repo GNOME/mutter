@@ -1670,6 +1670,8 @@ meta_display_notify_window_created (MetaDisplay  *display,
 static MetaCursor
 meta_cursor_for_grab_op (MetaGrabOp op)
 {
+  op &= ~(META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED);
+
   switch (op)
     {
     case META_GRAB_OP_RESIZING_SE:
@@ -1880,6 +1882,9 @@ meta_display_begin_grab_op (MetaDisplay *display,
       return FALSE;
     }
 
+  if (!frame_action)
+    op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
+
   event_route = get_event_route_from_grab_op (op);
 
   if (event_route == META_EVENT_ROUTE_WINDOW_OP)
@@ -1957,7 +1962,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
   display->grab_latest_motion_x = root_x;
   display->grab_latest_motion_y = root_y;
   display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
-  display->grab_frame_action = frame_action;
 
   meta_display_update_cursor (display);
 
@@ -2047,7 +2051,6 @@ meta_display_end_grab_op (MetaDisplay *display,
   display->grab_latest_motion_x = 0;
   display->grab_latest_motion_y = 0;
   display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
-  display->grab_frame_action = FALSE;
 
   meta_display_update_cursor (display);
 
@@ -2563,6 +2566,8 @@ MetaGravity
 meta_resize_gravity_from_grab_op (MetaGrabOp op)
 {
   MetaGravity gravity;
+
+  op &= ~(META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED);
 
   gravity = -1;
   switch (op)

@@ -172,7 +172,6 @@ struct _MetaDisplay
   int         grab_latest_motion_y;
   guint       grab_have_pointer : 1;
   guint       grab_have_keyboard : 1;
-  guint       grab_frame_action : 1;
   MetaRectangle grab_initial_window_pos;
   int         grab_initial_x, grab_initial_y;  /* These are only relevant for */
   gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */

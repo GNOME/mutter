@@ -1769,7 +1769,8 @@ constrain_titlebar_visible (MetaWindow         *window,
    * clicking on the frame to start the move.
    */
   unconstrained_user_action =
-    info->is_user_action && !window->display->grab_frame_action;
+    info->is_user_action &&
+    (window->display->grab_op & META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED) != 0;
 
   /* Exit early if we know the constraint won't apply--note that this constraint
    * is only meant for normal windows (e.g. we don't want docks to be shoved
