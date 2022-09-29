@@ -1270,7 +1270,6 @@ meta_display_windows_are_interactable (MetaDisplay *display)
   switch (display->event_route)
     {
     case META_EVENT_ROUTE_NORMAL:
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
       return TRUE;
     default:
       return FALSE;
@@ -1828,9 +1827,6 @@ get_event_route_from_grab_op (MetaGrabOp op)
 
     case META_GRAB_OP_WINDOW_BASE:
       return META_EVENT_ROUTE_WINDOW_OP;
-
-    case META_GRAB_OP_WAYLAND_POPUP:
-      return META_EVENT_ROUTE_WAYLAND_POPUP;
 
     default:
       g_assert_not_reached ();
