@@ -849,3 +849,9 @@ meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor)
 {
   return compositor->context;
 }
+
+gboolean
+meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor)
+{
+  return meta_wayland_seat_is_grabbed (compositor->seat);
+}

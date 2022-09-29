@@ -926,3 +926,9 @@ meta_wayland_keyboard_class_init (MetaWaylandKeyboardClass *klass)
 
   object_class->finalize = meta_wayland_keyboard_finalize;
 }
+
+gboolean
+meta_wayland_keyboard_is_grabbed (MetaWaylandKeyboard *keyboard)
+{
+  return keyboard->grab != &keyboard->default_grab;
+}

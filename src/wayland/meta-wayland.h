@@ -103,4 +103,6 @@ META_EXPORT_TEST
 MetaContext * meta_wayland_compositor_get_context (MetaWaylandCompositor *compositor);
 
 
+gboolean meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor);
+
 #endif

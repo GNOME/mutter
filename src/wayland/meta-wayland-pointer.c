@@ -1571,3 +1571,9 @@ meta_wayland_pointer_class_init (MetaWaylandPointerClass *klass)
                                                  NULL, NULL, NULL,
                                                  G_TYPE_NONE, 0);
 }
+
+gboolean
+meta_wayland_pointer_is_grabbed (MetaWaylandPointer *pointer)
+{
+  return pointer->grab != &pointer->default_grab;
+}

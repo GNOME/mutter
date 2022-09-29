@@ -84,4 +84,6 @@ gboolean meta_wayland_seat_has_touch (MetaWaylandSeat *seat);
 
 MetaWaylandCompositor * meta_wayland_seat_get_compositor (MetaWaylandSeat *seat);
 
+gboolean meta_wayland_seat_is_grabbed (MetaWaylandSeat *seat);
+
 #endif /* META_WAYLAND_SEAT_H */

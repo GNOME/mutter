@@ -534,3 +534,17 @@ meta_wayland_seat_get_compositor (MetaWaylandSeat *seat)
 {
   return seat->compositor;
 }
+
+gboolean
+meta_wayland_seat_is_grabbed (MetaWaylandSeat *seat)
+{
+  if (meta_wayland_seat_has_pointer (seat) &&
+      meta_wayland_pointer_is_grabbed (seat->pointer))
+    return TRUE;
+
+  if (meta_wayland_seat_has_keyboard (seat) &&
+      meta_wayland_keyboard_is_grabbed (seat->keyboard))
+    return TRUE;
+
+  return FALSE;
+}

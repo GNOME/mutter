@@ -142,4 +142,6 @@ void meta_wayland_keyboard_start_grab (MetaWaylandKeyboard     *keyboard,
                                        MetaWaylandKeyboardGrab *grab);
 void meta_wayland_keyboard_end_grab   (MetaWaylandKeyboard     *keyboard);
 
+gboolean meta_wayland_keyboard_is_grabbed (MetaWaylandKeyboard *keyboard);
+
 #endif /* META_WAYLAND_KEYBOARD_H */
