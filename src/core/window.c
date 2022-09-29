@@ -4642,7 +4642,7 @@ meta_window_focus (MetaWindow  *window,
   backend = backend_from_window (window);
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  if (window->display->event_route == META_EVENT_ROUTE_NORMAL &&
+  if (window->display->grab_op == META_GRAB_OP_NONE &&
       clutter_stage_get_grab_actor (stage) == NULL)
     clutter_stage_set_key_focus (stage, NULL);
 

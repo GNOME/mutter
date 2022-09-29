@@ -43,6 +43,8 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
+#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
+
 #define IS_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
                              (e)->type == CLUTTER_TOUCHPAD_PINCH || \
                              (e)->type == CLUTTER_TOUCHPAD_HOLD || \
@@ -85,9 +87,9 @@ get_window_for_event (MetaDisplay        *display,
                       const ClutterEvent *event,
                       ClutterActor       *event_actor)
 {
-  switch (display->event_route)
+  switch (META_GRAB_OP_GET_BASE_TYPE (display->grab_op))
     {
-    case META_EVENT_ROUTE_NORMAL:
+    case META_GRAB_OP_NONE:
       {
         MetaWindowActor *window_actor;
 
@@ -107,7 +109,7 @@ get_window_for_event (MetaDisplay        *display,
         else
           return NULL;
       }
-    case META_EVENT_ROUTE_WINDOW_OP:
+    case META_GRAB_OP_WINDOW_BASE:
       return display->grab_window;
     default:
       g_assert_not_reached ();
@@ -387,7 +389,7 @@ meta_display_handle_event (MetaDisplay        *display,
       goto out;
     }
 
-  if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
+  if (display->grab_op != META_GRAB_OP_NONE)
     {
       if (meta_window_handle_mouse_grab_op_event (window, event))
         {
@@ -413,7 +415,7 @@ meta_display_handle_event (MetaDisplay        *display,
   /* Do not pass keyboard events to Wayland if key focus is not on the
    * stage in normal mode (e.g. during keynav in the panel)
    */
-  if (display->event_route == META_EVENT_ROUTE_NORMAL)
+  if (display->grab_op == META_GRAB_OP_NONE)
     {
       if (IS_KEY_EVENT (event) && !stage_has_key_focus (display))
         {
@@ -482,7 +484,7 @@ meta_display_handle_event (MetaDisplay        *display,
        * event, and if it doesn't, replay the event to release our
        * own sync grab. */
 
-      if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
+      if (display->grab_op != META_GRAB_OP_NONE)
         {
           bypass_clutter = TRUE;
           bypass_wayland = TRUE;

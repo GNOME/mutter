@@ -1267,13 +1267,10 @@ meta_display_windows_are_interactable (MetaDisplay *display)
   if (clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)))
     return FALSE;
 
-  switch (display->event_route)
-    {
-    case META_EVENT_ROUTE_NORMAL:
-      return TRUE;
-    default:
-      return FALSE;
-    }
+  if (display->grab_op == META_GRAB_OP_NONE)
+    return TRUE;
+
+  return FALSE;
 }
 
 /**
@@ -1880,16 +1877,13 @@ meta_display_begin_grab_op (MetaDisplay *display,
 
   event_route = get_event_route_from_grab_op (op);
 
-  if (event_route == META_EVENT_ROUTE_WINDOW_OP)
+  if (meta_prefs_get_raise_on_click ())
+    meta_window_raise (window);
+  else
     {
-      if (meta_prefs_get_raise_on_click ())
-        meta_window_raise (window);
-      else
-        {
-          display->grab_initial_x = root_x;
-          display->grab_initial_y = root_y;
-          display->grab_threshold_movement_reached = FALSE;
-        }
+      display->grab_initial_x = root_x;
+      display->grab_initial_y = root_y;
+      display->grab_threshold_movement_reached = FALSE;
     }
 
   grab_window = window;
@@ -1928,17 +1922,14 @@ meta_display_begin_grab_op (MetaDisplay *display,
     }
 
   /* Grab keys when beginning window ops; see #126497 */
-  if (event_route == META_EVENT_ROUTE_WINDOW_OP)
-    {
-      display->grab_have_keyboard = meta_window_grab_all_keys (grab_window, timestamp);
+  display->grab_have_keyboard = meta_window_grab_all_keys (grab_window, timestamp);
 
-      if (!display->grab_have_keyboard)
-        {
-          meta_topic (META_DEBUG_WINDOW_OPS, "grabbing all keys failed, ungrabbing pointer");
-          meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
-          display->grab_have_pointer = FALSE;
-          return FALSE;
-        }
+  if (!display->grab_have_keyboard)
+    {
+      meta_topic (META_DEBUG_WINDOW_OPS, "grabbing all keys failed, ungrabbing pointer");
+      meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
+      display->grab_have_pointer = FALSE;
+      return FALSE;
     }
 
   display->event_route = event_route;
@@ -1973,8 +1964,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
   g_signal_emit (display, display_signals[GRAB_OP_BEGIN], 0,
                  display->grab_window, display->grab_op);
 
-  if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
-    meta_window_grab_op_began (display->grab_window, display->grab_op);
+  meta_window_grab_op_began (display->grab_window, display->grab_op);
 
   return TRUE;
 }
@@ -1989,7 +1979,7 @@ meta_display_end_grab_op (MetaDisplay *display,
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Ending grab op %u at time %u", grab_op, timestamp);
 
-  if (display->event_route == META_EVENT_ROUTE_NORMAL)
+  if (display->grab_op == META_GRAB_OP_NONE)
     return;
 
   g_assert (grab_window != NULL);
@@ -1999,23 +1989,20 @@ meta_display_end_grab_op (MetaDisplay *display,
    * up to date. */
   display->grab_op = META_GRAB_OP_NONE;
 
-  if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
-    {
-      /* Clear out the edge cache */
-      meta_display_cleanup_edges (display);
+  /* Clear out the edge cache */
+  meta_display_cleanup_edges (display);
 
-      /* Only raise the window in orthogonal raise
-       * ('do-not-raise-on-click') mode if the user didn't try to move
-       * or resize the given window by at least a threshold amount.
-       * For raise on click mode, the window was raised at the
-       * beginning of the grab_op.
-       */
-      if (!meta_prefs_get_raise_on_click () &&
-          !display->grab_threshold_movement_reached)
-        meta_window_raise (display->grab_window);
+  /* Only raise the window in orthogonal raise
+   * ('do-not-raise-on-click') mode if the user didn't try to move
+   * or resize the given window by at least a threshold amount.
+   * For raise on click mode, the window was raised at the
+   * beginning of the grab_op.
+   */
+  if (!meta_prefs_get_raise_on_click () &&
+      !display->grab_threshold_movement_reached)
+    meta_window_raise (display->grab_window);
 
-      meta_window_grab_op_ended (grab_window, grab_op);
-    }
+  meta_window_grab_op_ended (grab_window, grab_op);
 
   if (display->grab_have_pointer)
     {
