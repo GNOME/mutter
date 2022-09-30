@@ -904,8 +904,6 @@ meta_display_new (MetaContext  *context,
 
   display->current_time = META_CURRENT_TIME;
 
-  display->grab_have_keyboard = FALSE;
-
   display->grab_op = META_GRAB_OP_NONE;
   display->grab_window = NULL;
   display->grab_tile_mode = META_TILE_NONE;
@@ -1840,6 +1838,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
 {
   MetaBackend *backend = backend_from_display (display);
   MetaWindow *grab_window = NULL;
+  gboolean grab_have_pointer = FALSE, grab_have_keyboard = FALSE;
 
   g_assert (window != NULL);
 
@@ -1876,25 +1875,23 @@ meta_display_begin_grab_op (MetaDisplay *display,
   g_assert (grab_window != NULL);
   g_assert (op != META_GRAB_OP_NONE);
 
-  display->grab_have_pointer = FALSE;
-
   if (meta_backend_grab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp))
-    display->grab_have_pointer = TRUE;
+    grab_have_pointer = TRUE;
 
-  if (!display->grab_have_pointer && !meta_grab_op_is_keyboard (op))
+  if (!grab_have_pointer && !meta_grab_op_is_keyboard (op))
     {
       meta_topic (META_DEBUG_WINDOW_OPS, "XIGrabDevice() failed");
       return FALSE;
     }
 
   /* Grab keys when beginning window ops; see #126497 */
-  display->grab_have_keyboard = meta_window_grab_all_keys (grab_window, timestamp);
+  grab_have_keyboard = meta_window_grab_all_keys (grab_window, timestamp);
 
-  if (!display->grab_have_keyboard)
+  if (!grab_have_keyboard)
     {
       meta_topic (META_DEBUG_WINDOW_OPS, "grabbing all keys failed, ungrabbing pointer");
       meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
-      display->grab_have_pointer = FALSE;
+      grab_have_pointer = FALSE;
       return FALSE;
     }
 
@@ -1940,6 +1937,7 @@ meta_display_end_grab_op (MetaDisplay *display,
 {
   MetaWindow *grab_window = display->grab_window;
   MetaGrabOp grab_op = display->grab_op;
+  MetaBackend *backend = backend_from_display (display);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Ending grab op %u at time %u", grab_op, timestamp);
@@ -1969,18 +1967,11 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   meta_window_grab_op_ended (grab_window, grab_op);
 
-  if (display->grab_have_pointer)
-    {
-      MetaBackend *backend = backend_from_display (display);
-      meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
-    }
+  meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
 
-  if (display->grab_have_keyboard)
-    {
-      meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Ungrabbing all keys timestamp %u", timestamp);
-      meta_window_ungrab_all_keys (grab_window, timestamp);
-    }
+  meta_topic (META_DEBUG_WINDOW_OPS,
+              "Ungrabbing all keys timestamp %u", timestamp);
+  meta_window_ungrab_all_keys (grab_window, timestamp);
 
   display->grab_window = NULL;
   display->grab_tile_mode = META_TILE_NONE;
