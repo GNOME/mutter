@@ -585,19 +585,14 @@ sync_focus_surface (MetaWaylandTabletTool *tool,
       return;
     }
 
-  switch (display->event_route)
+  if (display->grab_op == META_GRAB_OP_NONE)
     {
-    case META_EVENT_ROUTE_WINDOW_OP:
+      meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
+    }
+  else
+    {
       /* The compositor has a grab, so remove our focus */
       meta_wayland_tablet_tool_set_focus (tool, NULL, event);
-      break;
-
-    case META_EVENT_ROUTE_NORMAL:
-      meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
-      break;
-
-    default:
-      g_assert_not_reached ();
     }
 }
 

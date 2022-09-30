@@ -327,24 +327,16 @@ sync_focus_surface (MetaWaylandPointer *pointer)
       return;
     }
 
-  switch (display->event_route)
+  if (display->grab_op == META_GRAB_OP_NONE)
     {
-    case META_EVENT_ROUTE_WINDOW_OP:
+      const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
+      interface->focus (pointer->grab, pointer->current);
+    }
+  else
+    {
       /* The compositor has a grab, so remove our focus... */
       meta_wayland_pointer_set_focus (pointer, NULL);
-      break;
-
-    case META_EVENT_ROUTE_NORMAL:
-      {
-        const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-        interface->focus (pointer->grab, pointer->current);
-      }
-      break;
-
-    default:
-      g_assert_not_reached ();
     }
-
 }
 
 static void
@@ -504,15 +496,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
   if (pointer->button_count > 0)
     return;
 
-  switch (display->event_route)
-    {
-    case META_EVENT_ROUTE_WINDOW_OP:
-      return;
-      break;
-
-    case META_EVENT_ROUTE_NORMAL:
-      break;
-    }
+  if (display->grab_op != META_GRAB_OP_NONE)
+    return;
 
   if (surface)
     {
