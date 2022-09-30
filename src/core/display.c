@@ -1878,19 +1878,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
 
   display->grab_have_pointer = FALSE;
 
-  if (META_IS_BACKEND_X11 (backend_from_display (display)) &&
-      display->x11_display)
-    {
-      /* Since grab operations often happen as a result of implicit
-       * pointer operations on the display X11 connection, we need
-       * to ungrab here to ensure that the backend's X11 can take
-       * the device grab. */
-      XIUngrabDevice (display->x11_display->xdisplay,
-                      META_VIRTUAL_CORE_POINTER_ID,
-                      timestamp);
-      XSync (display->x11_display->xdisplay, False);
-    }
-
   if (meta_backend_grab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp))
     display->grab_have_pointer = TRUE;
 
