@@ -4280,14 +4280,6 @@ meta_window_x11_get_client_rect (MetaWindowX11 *window_x11)
 }
 
 static gboolean
-has_requested_bypass_compositor (MetaWindowX11 *window_x11)
-{
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-
-  return priv->bypass_compositor == META_BYPASS_COMPOSITOR_HINT_ON;
-}
-
-static gboolean
 has_requested_dont_bypass_compositor (MetaWindowX11 *window_x11)
 {
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
@@ -4316,9 +4308,6 @@ meta_window_x11_can_unredirect (MetaWindowX11 *window_x11)
     return TRUE;
 
   if (meta_window_is_screen_sized (window))
-    return TRUE;
-
-  if (has_requested_bypass_compositor (window_x11))
     return TRUE;
 
   if (window->override_redirect)
