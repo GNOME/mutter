@@ -132,10 +132,6 @@ static void     ensure_mru_position_after (MetaWindow *window,
 static void meta_window_unqueue (MetaWindow    *window,
                                  MetaQueueType  queuebits);
 
-static void     update_move           (MetaWindow              *window,
-                                       MetaEdgeResistanceFlags  flags,
-                                       int                      x,
-                                       int                      y);
 static gboolean should_be_on_all_workspaces (MetaWindow *window);
 
 static void meta_window_flush_calc_showing   (MetaWindow *window);
@@ -5830,6 +5826,8 @@ update_move (MetaWindow              *window,
   display->grab_latest_motion_x = x;
   display->grab_latest_motion_y = y;
 
+  meta_display_clear_grab_move_resize_later (display);
+
   dx = x - display->grab_anchor_root_x;
   dy = y - display->grab_anchor_root_y;
 
@@ -5997,6 +5995,45 @@ update_move (MetaWindow              *window,
                                         flags);
 
   meta_window_move_frame (window, TRUE, new_x, new_y);
+}
+
+static gboolean
+update_move_cb (gpointer user_data)
+{
+  MetaWindow *window = user_data;
+
+  window->display->grab_move_resize_later_id = 0;
+
+  update_move (window,
+               window->display->grab_last_edge_resistance_flags,
+               window->display->grab_latest_motion_x,
+               window->display->grab_latest_motion_y);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+queue_update_move (MetaWindow              *window,
+                   MetaEdgeResistanceFlags  flags,
+                   int                      x,
+                   int                      y)
+{
+  MetaCompositor *compositor;
+  MetaLaters *laters;
+
+  window->display->grab_latest_motion_x = x;
+  window->display->grab_latest_motion_y = y;
+
+  if (window->display->grab_move_resize_later_id)
+    return;
+
+  compositor = meta_display_get_compositor (window->display);
+  laters = meta_compositor_get_laters (compositor);
+  window->display->grab_move_resize_later_id =
+    meta_laters_add (laters,
+                     META_LATER_BEFORE_REDRAW,
+                     update_move_cb,
+                     window, NULL);
 }
 
 static void
@@ -6288,7 +6325,7 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
       meta_display_check_threshold_reached (window->display, x, y);
       if (meta_grab_op_is_moving (window->display->grab_op))
         {
-          update_move (window, flags, x, y);
+          queue_update_move (window, flags, x, y);
         }
       else if (meta_grab_op_is_resizing (window->display->grab_op))
         {
