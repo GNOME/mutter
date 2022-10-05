@@ -1235,8 +1235,7 @@ sync_request_timeout (gpointer data)
       meta_window_update_resize (window,
                                  window->display->grab_last_edge_resistance_flags,
                                  window->display->grab_latest_motion_x,
-                                 window->display->grab_latest_motion_y,
-                                 TRUE);
+                                 window->display->grab_latest_motion_y);
     }
 
   return FALSE;
@@ -4160,8 +4159,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
           meta_window_update_resize (window,
                                      window->display->grab_last_edge_resistance_flags,
                                      window->display->grab_latest_motion_x,
-                                     window->display->grab_latest_motion_y,
-                                     TRUE);
+                                     window->display->grab_latest_motion_y);
         }
     }
 

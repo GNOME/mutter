@@ -878,7 +878,6 @@ meta_display_new (MetaContext  *context,
 
   display->current_time = META_CURRENT_TIME;
 
-  display->grab_resize_timeout_id = 0;
   display->grab_have_keyboard = FALSE;
 
   display->grab_op = META_GRAB_OP_NONE;
@@ -1849,6 +1848,21 @@ get_event_route_from_grab_op (MetaGrabOp op)
     }
 }
 
+void
+meta_display_clear_grab_move_resize_later (MetaDisplay *display)
+{
+  if (display->grab_move_resize_later_id)
+    {
+      MetaCompositor *compositor;
+      MetaLaters *laters;
+
+      compositor = meta_display_get_compositor (display);
+      laters = meta_compositor_get_laters (compositor);
+      meta_laters_remove (laters, display->grab_move_resize_later_id);
+      display->grab_move_resize_later_id = 0;
+    }
+}
+
 gboolean
 meta_display_begin_grab_op (MetaDisplay *display,
                             MetaWindow  *window,
@@ -1955,13 +1969,12 @@ meta_display_begin_grab_op (MetaDisplay *display,
   display->grab_anchor_root_y = root_y;
   display->grab_latest_motion_x = root_x;
   display->grab_latest_motion_y = root_y;
-  display->grab_last_moveresize_time = 0;
   display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
   display->grab_frame_action = frame_action;
 
   meta_display_update_cursor (display);
 
-  g_clear_handle_id (&display->grab_resize_timeout_id, g_source_remove);
+  meta_display_clear_grab_move_resize_later (display);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Grab op %u on window %s successful",
@@ -2046,13 +2059,12 @@ meta_display_end_grab_op (MetaDisplay *display,
   display->grab_anchor_root_y = 0;
   display->grab_latest_motion_x = 0;
   display->grab_latest_motion_y = 0;
-  display->grab_last_moveresize_time = 0;
   display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
   display->grab_frame_action = FALSE;
 
   meta_display_update_cursor (display);
 
-  g_clear_handle_id (&display->grab_resize_timeout_id, g_source_remove);
+  meta_display_clear_grab_move_resize_later (display);
 
   if (meta_is_wayland_compositor ())
     meta_display_sync_wayland_input_focus (display);

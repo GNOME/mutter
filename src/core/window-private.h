@@ -865,10 +865,10 @@ cairo_surface_t * meta_window_get_mini_icon (MetaWindow *window);
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);
 
-void meta_window_update_resize (MetaWindow *window,
-                                MetaEdgeResistanceFlags flags,
-                                int x, int y,
-                                gboolean force);
+void meta_window_update_resize (MetaWindow              *window,
+                                MetaEdgeResistanceFlags  flags,
+                                int                      x,
+                                int                      y);
 
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,

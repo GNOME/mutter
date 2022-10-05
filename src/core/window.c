@@ -136,11 +136,6 @@ static void     update_move           (MetaWindow              *window,
                                        MetaEdgeResistanceFlags  flags,
                                        int                      x,
                                        int                      y);
-static void     update_resize         (MetaWindow              *window,
-                                       MetaEdgeResistanceFlags  flags,
-                                       int                      x,
-                                       int                      y,
-                                       gboolean                 force);
 static gboolean should_be_on_all_workspaces (MetaWindow *window);
 
 static void meta_window_flush_calc_showing   (MetaWindow *window);
@@ -5765,44 +5760,6 @@ meta_window_titlebar_is_onscreen (MetaWindow *window)
   return is_onscreen;
 }
 
-static gboolean
-check_moveresize_frequency (MetaWindow *window,
-			    gdouble    *remaining)
-{
-  int64_t current_time;
-  const double max_resizes_per_second = 25.0;
-  const double ms_between_resizes = 1000.0 / max_resizes_per_second;
-  double elapsed;
-
-  current_time = g_get_real_time ();
-
-  /* If we are throttling via _NET_WM_SYNC_REQUEST, we don't need
-   * an artificial timeout-based throttled */
-  if (!window->disable_sync &&
-      window->sync_request_alarm != None)
-    return TRUE;
-
-  elapsed = (current_time - window->display->grab_last_moveresize_time) / 1000;
-
-  if (elapsed >= 0.0 && elapsed < ms_between_resizes)
-    {
-      meta_topic (META_DEBUG_RESIZING,
-                  "Delaying move/resize as only %g of %g ms elapsed",
-                  elapsed, ms_between_resizes);
-
-      if (remaining)
-        *remaining = (ms_between_resizes - elapsed);
-
-      return FALSE;
-    }
-
-  meta_topic (META_DEBUG_RESIZING,
-              " Checked moveresize freq, allowing move/resize now (%g of %g seconds elapsed)",
-              elapsed / 1000.0, 1.0 / max_resizes_per_second);
-
-  return TRUE;
-}
-
 static void
 update_move_maybe_tile (MetaWindow *window,
                         int         shake_threshold,
@@ -6042,34 +5999,21 @@ update_move (MetaWindow              *window,
   meta_window_move_frame (window, TRUE, new_x, new_y);
 }
 
-static gboolean
-update_resize_timeout (gpointer data)
-{
-  MetaWindow *window = data;
-
-  update_resize (window,
-                 window->display->grab_last_edge_resistance_flags,
-                 window->display->grab_latest_motion_x,
-                 window->display->grab_latest_motion_y,
-                 TRUE);
-  return FALSE;
-}
-
 static void
 update_resize (MetaWindow              *window,
                MetaEdgeResistanceFlags  flags,
                int                      x,
-               int                      y,
-               gboolean                 force)
+               int                      y)
 {
   int dx, dy;
   MetaGravity gravity;
   MetaRectangle new_rect;
   MetaRectangle old_rect;
-  double remaining = 0;
 
   window->display->grab_latest_motion_x = x;
   window->display->grab_latest_motion_y = y;
+
+  meta_display_clear_grab_move_resize_later (window->display);
 
   dx = x - window->display->grab_anchor_root_x;
   dy = y - window->display->grab_anchor_root_y;
@@ -6132,27 +6076,6 @@ update_resize (MetaWindow              *window,
   if (window->sync_request_timeout_id != 0)
     return;
 
-  if (!check_moveresize_frequency (window, &remaining) && !force)
-    {
-      /* we are ignoring an event here, so we schedule a
-       * compensation event when we would otherwise not ignore
-       * an event. Otherwise we can become stuck if the user never
-       * generates another event.
-       */
-      if (!window->display->grab_resize_timeout_id)
-	{
-	  window->display->grab_resize_timeout_id =
-	    g_timeout_add ((int)remaining, update_resize_timeout, window);
-	  g_source_set_name_by_id (window->display->grab_resize_timeout_id,
-                                   "[mutter] update_resize_timeout");
-	}
-
-      return;
-    }
-
-  /* Remove any scheduled compensation events */
-  g_clear_handle_id (&window->display->grab_resize_timeout_id, g_source_remove);
-
   meta_window_get_frame_rect (window, &old_rect);
 
   /* One sided resizing ought to actually be one-sided, despite the fact that
@@ -6180,11 +6103,45 @@ update_resize (MetaWindow              *window,
   meta_window_resize_frame_with_gravity (window, TRUE,
                                          new_rect.width, new_rect.height,
                                          gravity);
+}
 
-  /* Store the latest resize time, if we actually resized. */
-  if (window->rect.width != old_rect.width ||
-      window->rect.height != old_rect.height)
-    window->display->grab_last_moveresize_time = g_get_real_time ();
+static gboolean
+update_resize_cb (gpointer user_data)
+{
+  MetaWindow *window = user_data;
+
+  window->display->grab_move_resize_later_id = 0;
+
+  update_resize (window,
+                 window->display->grab_last_edge_resistance_flags,
+                 window->display->grab_latest_motion_x,
+                 window->display->grab_latest_motion_y);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+queue_update_resize (MetaWindow              *window,
+                     MetaEdgeResistanceFlags  flags,
+                     int                      x,
+                     int                      y)
+{
+  MetaCompositor *compositor;
+  MetaLaters *laters;
+
+  window->display->grab_latest_motion_x = x;
+  window->display->grab_latest_motion_y = y;
+
+  if (window->display->grab_move_resize_later_id)
+    return;
+
+  compositor = meta_display_get_compositor (window->display);
+  laters = meta_compositor_get_laters (compositor);
+  window->display->grab_move_resize_later_id =
+    meta_laters_add (laters,
+                     META_LATER_BEFORE_REDRAW,
+                     update_resize_cb,
+                     window, NULL);
 }
 
 static void
@@ -6208,10 +6165,9 @@ maybe_maximize_tiled_window (MetaWindow *window)
 void
 meta_window_update_resize (MetaWindow *window,
                            MetaEdgeResistanceFlags flags,
-                           int x, int y,
-                           gboolean force)
+                           int x, int y)
 {
-  update_resize (window, flags, x, y, force);
+  update_resize (window, flags, x, y);
 }
 
 static void
@@ -6255,7 +6211,7 @@ end_grab_op (MetaWindow *window,
           if (window->tile_match != NULL)
             flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
-          update_resize (window, flags, x, y, TRUE);
+          update_resize (window, flags, x, y);
           maybe_maximize_tiled_window (window);
         }
     }
@@ -6339,7 +6295,7 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
           if (window->tile_match != NULL)
             flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
-          update_resize (window, flags, x, y, FALSE);
+          queue_update_resize (window, flags, x, y);
         }
       return TRUE;
 
