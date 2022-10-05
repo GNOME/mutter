@@ -259,7 +259,7 @@ meta_surface_actor_x11_should_unredirect (MetaSurfaceActorX11 *self)
   if (!meta_surface_actor_x11_is_opaque (META_SURFACE_ACTOR (self)))
     return FALSE;
 
-  if (!self->does_full_damage &&
+  if (!(meta_window_is_fullscreen (self->window) && self->does_full_damage) &&
       !meta_window_is_override_redirect (self->window))
     return FALSE;
 
