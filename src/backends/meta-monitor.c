@@ -1804,74 +1804,97 @@ meta_monitor_calculate_crtc_pos (MetaMonitor          *monitor,
                                                         out_y);
 }
 
-/* The minimum resolution at which we turn on a window-scale of 2 */
-#define HIDPI_LIMIT 192
+/*
+ * We choose a default scale factor such that the UI is as big
+ * as it would be on a display with this DPI without scaling.
+ *
+ * Through experiementing, a value of 135 has been found to best
+ * line up with the UI size chosen as default by other operating
+ * systems (macOS, Android, iOS, Windows) and the community-decided
+ * "known-good" scale factors for GNOME for various mobile devices
+ * such as phones, tablets, and laptops
+ */
+#define UI_SCALE_MOBILE_TARGET_DPI 135
 
 /*
- * The minimum screen height at which we turn on a window-scale of 2;
- * below this there just isn't enough vertical real estate for GNOME
- * apps to work, and it's better to just be tiny
+ * People tend to sit further away from larger stationary displays
+ * than they do from mobile displays, so a UI of an identical size to
+ * a mobile device has a smaller angular size and thus seems to be too
+ * small.
+ *
+ * The largest mainstream laptops have screens ~17in, and HiDPI external
+ * monitors start at ~23in, so 20in is a good boundary point
  */
-#define HIDPI_MIN_HEIGHT 1200
-
-/* From http://en.wikipedia.org/wiki/4K_resolution#Resolutions_of_common_formats */
-#define SMALLEST_4K_WIDTH 3656
+#define UI_SCALE_LARGE_TARGET_DPI 110
+#define UI_SCALE_LARGE_MIN_SIZE_INCHES 20
 
 static float
 calculate_scale (MetaMonitor                *monitor,
                  MetaMonitorMode            *monitor_mode,
                  MetaMonitorScalesConstraint constraints)
 {
-  int resolution_width, resolution_height;
-  int width_mm, height_mm;
-  int scale;
-
-  scale = 1.0;
-
-  meta_monitor_mode_get_resolution (monitor_mode,
-                                    &resolution_width,
-                                    &resolution_height);
-
-  if (resolution_height < HIDPI_MIN_HEIGHT)
-    return scale;
-
-  /* 4K TV */
-  switch (meta_monitor_get_connector_type (monitor))
-    {
-    case META_CONNECTOR_TYPE_HDMIA:
-    case META_CONNECTOR_TYPE_HDMIB:
-      if (resolution_width < SMALLEST_4K_WIDTH)
-        return scale;
-      break;
-    default:
-      break;
-    }
-
-  meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
+  int width_px, height_px, width_mm, height_mm;
+  float diag_inches;
+  g_autofree float *scales = NULL;
+  int n_scales;
+  float best_scale, best_dpi;
+  int target_dpi;
 
   /*
    * Somebody encoded the aspect ratio (16/9 or 16/10) instead of the physical
-   * size.
+   * size. We'll be unable to select an appropriate scale factor.
    */
   if (meta_monitor_has_aspect_as_size (monitor))
-    return scale;
+    return 1.0;
 
-  if (width_mm > 0 && height_mm > 0)
+  /* Compute display's diagonal size in inches */
+  meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
+  if (width_mm == 0 || height_mm == 0)
+    return 1.0;
+  diag_inches = sqrtf (width_mm * width_mm + height_mm * height_mm) / 25.4;
+
+  /* Pick the appropriate target DPI based on screen size */
+  if (diag_inches < UI_SCALE_LARGE_MIN_SIZE_INCHES)
+    target_dpi = UI_SCALE_MOBILE_TARGET_DPI;
+  else
+    target_dpi = UI_SCALE_LARGE_TARGET_DPI;
+
+  meta_monitor_mode_get_resolution (monitor_mode, &width_px, &height_px);
+
+  /* We'll only be considering the supported scale factors */
+  scales = meta_monitor_calculate_supported_scales (monitor, monitor_mode,
+                                                    constraints, &n_scales);
+  best_scale = scales[0];
+  for (int i = 0; i < n_scales; i++)
     {
-      double dpi_x, dpi_y;
-
-      dpi_x = (double) resolution_width / (width_mm / 25.4);
-      dpi_y = (double) resolution_height / (height_mm / 25.4);
+      float width_scaled, height_scaled, diag_scaled, dpi;
 
       /*
-       * We don't completely trust these values so both must be high, and never
-       * pick higher ratio than 2 automatically.
+       * Compute the logical resolution of the display for this
+       * scale factor
        */
-      if (dpi_x > HIDPI_LIMIT && dpi_y > HIDPI_LIMIT)
-        scale = 2.0;
+      width_scaled = (float) width_px / scales[i];
+      height_scaled = (float) height_px / scales[i];
+
+      /* Compute the number of logical pixels across the display's diagonal */
+      diag_scaled = sqrtf (width_scaled * width_scaled +
+                           height_scaled * height_scaled);
+
+      /*
+       * Computes the display's logical DPI - the number of logical pixels
+       * per inch on the display's diagonal
+       */
+      dpi = diag_scaled / diag_inches;
+
+      /* Pick the scale factor whose logical DPI is closest to the optimal value */
+      if (i == 0 || fabsf (dpi - target_dpi) < fabsf (best_dpi - target_dpi))
+        {
+          best_scale = scales[i];
+          best_dpi = dpi;
+        }
     }
 
-  return scale;
+  return best_scale;
 }
 
 float
