@@ -15,6 +15,7 @@ cogl_tests = [
   [ 'test-sub-texture', [] ],
   [ 'test-custom-attributes', [] ],
   [ 'test-offscreen', [] ],
+  [ 'test-offscreen-texture-formats', [] ],
   [ 'test-journal', [] ],
   [ 'test-primitive', [] ],
   [ 'test-sparse-pipeline', [] ],
