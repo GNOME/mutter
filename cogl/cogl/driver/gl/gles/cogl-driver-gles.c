@@ -143,24 +143,24 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       required_format = COGL_PIXEL_FORMAT_RGB_888;
       break;
 
-    case COGL_PIXEL_FORMAT_RGBA_1010102:
-    case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+    case COGL_PIXEL_FORMAT_ABGR_2101010:
+    case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
       if (_cogl_has_private_feature
           (context,  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
         {
-          glintformat = GL_RGBA;
+          glintformat = GL_RGB10_A2_EXT;
           glformat = GL_RGBA;
           gltype = GL_UNSIGNED_INT_2_10_10_10_REV_EXT;
           break;
         }
       G_GNUC_FALLTHROUGH;
 #endif
+    case COGL_PIXEL_FORMAT_RGBA_1010102:
+    case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
     case COGL_PIXEL_FORMAT_BGRA_1010102:
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
     case COGL_PIXEL_FORMAT_XBGR_2101010:
-    case COGL_PIXEL_FORMAT_ABGR_2101010:
-    case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
     case COGL_PIXEL_FORMAT_XRGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
@@ -168,10 +168,10 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       if (_cogl_has_private_feature
           (context,  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
         {
-          glintformat = GL_RGBA;
+          glintformat = GL_RGB10_A2_EXT;
           glformat = GL_RGBA;
           gltype = GL_UNSIGNED_INT_2_10_10_10_REV_EXT;
-          required_format = COGL_PIXEL_FORMAT_RGBA_1010102;
+          required_format = COGL_PIXEL_FORMAT_ABGR_2101010;
           required_format |= (format & COGL_PREMULT_BIT);
           break;
         }
