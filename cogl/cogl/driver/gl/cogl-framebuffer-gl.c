@@ -429,6 +429,9 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   GLenum gl_format;
   GLenum gl_type;
   GLenum gl_pack_enum = GL_FALSE;
+  int bytes_per_pixel;
+  gboolean is_read_pixels_format_supported;
+  gboolean format_mismatch;
   gboolean pack_invert_set;
   int status = FALSE;
 
@@ -466,21 +469,21 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   else
     pack_invert_set = FALSE;
 
-  /* Under GLES only GL_RGBA with GL_UNSIGNED_BYTE as well as an
-     implementation specific format under
-     GL_IMPLEMENTATION_COLOR_READ_FORMAT_OES and
-     GL_IMPLEMENTATION_COLOR_READ_TYPE_OES is supported. We could try
-     to be more clever and check if the requested type matches that
-     but we would need some reliable functions to convert from GL
-     types to Cogl types. For now, lets just always read in
-     GL_RGBA/GL_UNSIGNED_BYTE and convert if necessary. We also need
-     to use this intermediate buffer if the rowstride has padding
-     because GLES does not support setting GL_ROW_LENGTH */
-  if ((!_cogl_has_private_feature
-       (ctx, COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_FORMAT) &&
-       (gl_format != GL_RGBA || gl_type != GL_UNSIGNED_BYTE ||
-        cogl_bitmap_get_rowstride (bitmap) != 4 * width)) ||
-      (required_format & ~COGL_PREMULT_BIT) != (format & ~COGL_PREMULT_BIT))
+  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (format, 0);
+  is_read_pixels_format_supported =
+    ctx->driver_vtable->read_pixels_format_supported (ctx,
+                                                      gl_intformat,
+                                                      gl_format,
+                                                      gl_type);
+  format_mismatch =
+    (required_format & ~COGL_PREMULT_BIT) !=
+    (format & ~COGL_PREMULT_BIT);
+
+  if (!is_read_pixels_format_supported ||
+      format_mismatch ||
+      (!_cogl_has_private_feature (ctx,
+                                   COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE) &&
+       cogl_bitmap_get_rowstride (bitmap) != bytes_per_pixel * width))
     {
       CoglBitmap *tmp_bmp;
       CoglPixelFormat read_format;
@@ -488,9 +491,10 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       uint8_t *tmp_data;
       gboolean succeeded;
 
-      if (_cogl_has_private_feature
-          (ctx, COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_FORMAT))
-        read_format = required_format;
+      if (is_read_pixels_format_supported)
+        {
+          read_format = required_format;
+        }
       else
         {
           read_format = COGL_PIXEL_FORMAT_RGBA_8888;

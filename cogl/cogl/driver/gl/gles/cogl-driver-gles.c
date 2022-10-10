@@ -272,6 +272,18 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 }
 
 static gboolean
+_cogl_driver_read_pixels_format_supported (CoglContext *context,
+                                           GLenum       glintformat,
+                                           GLenum       glformat,
+                                           GLenum       gltype)
+{
+  if (glformat == GL_RGBA && gltype == GL_UNSIGNED_BYTE)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
 _cogl_get_gl_version (CoglContext *ctx,
                       int *major_out,
                       int *minor_out)
@@ -477,6 +489,7 @@ _cogl_driver_gles =
     _cogl_gl_get_graphics_reset_status,
     _cogl_driver_pixel_format_from_gl_internal,
     _cogl_driver_pixel_format_to_gl,
+    _cogl_driver_read_pixels_format_supported,
     _cogl_driver_update_features,
     _cogl_driver_gl_create_framebuffer_driver,
     _cogl_driver_gl_flush_framebuffer_state,

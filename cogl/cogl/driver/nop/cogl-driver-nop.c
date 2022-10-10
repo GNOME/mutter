@@ -95,6 +95,7 @@ _cogl_driver_nop =
     NULL, /* get_graphics_reset_status */
     NULL, /* pixel_format_from_gl_internal */
     NULL, /* pixel_format_to_gl */
+    NULL, /* read_pixels_format_supported */
     _cogl_driver_update_features,
     _cogl_driver_nop_create_framebuffer_driver,
     _cogl_driver_nop_flush_framebuffer_state,

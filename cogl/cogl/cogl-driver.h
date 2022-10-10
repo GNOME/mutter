@@ -71,6 +71,12 @@ struct _CoglDriverVtable
                           GLenum *out_gltype);
 
   gboolean
+  (* read_pixels_format_supported) (CoglContext *ctx,
+                                    GLenum gl_intformat,
+                                    GLenum gl_format,
+                                    GLenum gl_type);
+
+  gboolean
   (* update_features) (CoglContext *context,
                        GError **error);
 
