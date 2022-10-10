@@ -265,6 +265,8 @@ cogl_sources = [
   'cogl-scanout.c',
   'cogl-snippet-private.h',
   'cogl-snippet.c',
+  'cogl-soft-float.c',
+  'cogl-soft-float.h',
   'cogl-spans.c',
   'cogl-spans.h',
   'cogl-sub-texture-private.h',
