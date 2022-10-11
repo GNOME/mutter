@@ -172,6 +172,8 @@ cogl_sources = [
   'cogl-color.c',
   'cogl-context-private.h',
   'cogl-context.c',
+  'cogl-cpu-caps.c',
+  'cogl-cpu-caps.h',
   'cogl-debug-options.h',
   'cogl-debug.c',
   'cogl-debug.h',
