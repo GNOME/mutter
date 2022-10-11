@@ -37,6 +37,12 @@
 
 #include <string.h>
 
+typedef enum
+{
+  MEDIUM_TYPE_8,
+  MEDIUM_TYPE_16,
+} MediumType;
+
 #define component_type uint8_t
 #define component_size 8
 /* We want to specially optimise the packing when we are converting
@@ -306,7 +312,7 @@ _cogl_bitmap_can_fast_premult (CoglPixelFormat format)
 }
 
 static gboolean
-_cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
+determine_medium_size (CoglPixelFormat format)
 {
   /* If the format is using more than 8 bits per component then we'll
      unpack into a 16-bit per component buffer instead of 8-bit so we
@@ -346,7 +352,7 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
     case COGL_PIXEL_FORMAT_RGBA_4444_PRE:
     case COGL_PIXEL_FORMAT_RGBA_5551_PRE:
-      return FALSE;
+      return MEDIUM_TYPE_8;
 
     case COGL_PIXEL_FORMAT_RGBA_1010102:
     case COGL_PIXEL_FORMAT_BGRA_1010102:
@@ -370,11 +376,25 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
-      return TRUE;
+      return MEDIUM_TYPE_16;
     }
 
   g_assert_not_reached ();
   return FALSE;
+}
+
+static size_t
+calculate_medium_size_pixel_size (MediumType medium_type)
+{
+  switch (medium_type)
+    {
+    case MEDIUM_TYPE_8:
+      return sizeof (uint8_t) * 4;
+    case MEDIUM_TYPE_16:
+      return sizeof (uint16_t) * 4;
+    }
+
+  g_assert_not_reached ();
 }
 
 gboolean
@@ -393,7 +413,7 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
   int width, height;
   CoglPixelFormat src_format;
   CoglPixelFormat dst_format;
-  gboolean use_16;
+  MediumType medium_type;
   gboolean need_premult;
 
   src_format = cogl_bitmap_get_format (src_bmp);
@@ -454,11 +474,10 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
       return FALSE;
     }
 
-  use_16 = _cogl_bitmap_needs_short_temp_buffer (dst_format);
+  medium_type = determine_medium_size (dst_format);
 
   /* Allocate a buffer to hold a temporary RGBA row */
-  tmp_row = g_malloc (width *
-                      (use_16 ? sizeof (uint16_t) : sizeof (uint8_t)) * 4);
+  tmp_row = g_malloc (width * calculate_medium_size_pixel_size (medium_type));
 
   /* FIXME: Optimize */
   for (y = 0; y < height; y++)
@@ -466,34 +485,54 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
       src = src_data + y * src_rowstride;
       dst = dst_data + y * dst_rowstride;
 
-      if (use_16)
-        _cogl_unpack_16 (src_format, src, tmp_row, width);
-      else
-        _cogl_unpack_8 (src_format, src, tmp_row, width);
+      switch (medium_type)
+        {
+        case MEDIUM_TYPE_8:
+          _cogl_unpack_8 (src_format, src, tmp_row, width);
+          break;
+        case MEDIUM_TYPE_16:
+          _cogl_unpack_16 (src_format, src, tmp_row, width);
+          break;
+        }
 
       /* Handle premultiplication */
       if (need_premult)
         {
           if (dst_format & COGL_PREMULT_BIT)
             {
-              if (use_16)
-                _cogl_bitmap_premult_unpacked_span_16 (tmp_row, width);
-              else
-                _cogl_bitmap_premult_unpacked_span_8 (tmp_row, width);
+              switch (medium_type)
+                {
+                case MEDIUM_TYPE_8:
+                  _cogl_bitmap_premult_unpacked_span_8 (tmp_row, width);
+                  break;
+                case MEDIUM_TYPE_16:
+                  _cogl_bitmap_premult_unpacked_span_16 (tmp_row, width);
+                  break;
+                }
             }
           else
             {
-              if (use_16)
-                _cogl_bitmap_unpremult_unpacked_span_16 (tmp_row, width);
-              else
-                _cogl_bitmap_unpremult_unpacked_span_8 (tmp_row, width);
+              switch (medium_type)
+                {
+                case MEDIUM_TYPE_8:
+                  _cogl_bitmap_unpremult_unpacked_span_8 (tmp_row, width);
+                  break;
+                case MEDIUM_TYPE_16:
+                  _cogl_bitmap_unpremult_unpacked_span_16 (tmp_row, width);
+                  break;
+                }
             }
         }
 
-      if (use_16)
-        _cogl_pack_16 (dst_format, tmp_row, dst, width);
-      else
-        _cogl_pack_8 (dst_format, tmp_row, dst, width);
+      switch (medium_type)
+        {
+        case MEDIUM_TYPE_8:
+          _cogl_pack_8 (dst_format, tmp_row, dst, width);
+          break;
+        case MEDIUM_TYPE_16:
+          _cogl_pack_16 (dst_format, tmp_row, dst, width);
+          break;
+        }
     }
 
   _cogl_bitmap_unmap (src_bmp);
