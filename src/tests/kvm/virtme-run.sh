@@ -39,7 +39,7 @@ SCRIPT="\
 
 echo Running tests in virtual machine ...
 virtme-run \
-  --memory=256M \
+  --memory=1024M \
   --rw \
   --pwd \
   --kimg "$IMAGE" \
