@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "src/backends/meta-profiler.h"
+#include "src/core/meta-profiler.h"
 
 #include <glib-unix.h>
 #include <glib/gi18n.h>

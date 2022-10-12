@@ -31,6 +31,10 @@
 #include "core/prefs-private.h"
 #include "core/util-private.h"
 
+#ifdef HAVE_PROFILER
+#include "core/meta-profiler.h"
+#endif
+
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
 #endif
@@ -80,6 +84,10 @@ typedef struct _MetaContextPrivate
   GError *termination_error;
 #ifdef RLIMIT_NOFILE
   struct rlimit saved_rlimit_nofile;
+#endif
+
+#ifdef HAVE_PROFILER
+  MetaProfiler *profiler;
 #endif
 } MetaContextPrivate;
 
@@ -689,6 +697,10 @@ meta_context_finalize (GObject *object)
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
+#ifdef HAVE_PROFILER
+  g_clear_object (&priv->profiler);
+#endif
+
   g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);
@@ -733,6 +745,10 @@ meta_context_init (MetaContext *context)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
   g_autoptr (GError) error = NULL;
+
+#ifdef HAVE_PROFILER
+  priv->profiler = meta_profiler_new ();
+#endif
 
   priv->plugin_gtype = G_TYPE_NONE;
   priv->gnome_wm_keybindings = g_strdup ("Mutter");

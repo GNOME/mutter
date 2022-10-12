@@ -877,8 +877,8 @@ mutter_built_sources += dbus_input_mapping_built_sources
 
 if have_profiler
   mutter_sources += [
-    'backends/meta-profiler.c',
-    'backends/meta-profiler.h',
+    'core/meta-profiler.c',
+    'core/meta-profiler.h',
   ]
 
   if sysprof_dep.type_name() == 'pkgconfig'

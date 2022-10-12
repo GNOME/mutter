@@ -74,10 +74,6 @@
 #include "meta/meta-enum-types.h"
 #include "meta/util.h"
 
-#ifdef HAVE_PROFILER
-#include "backends/meta-profiler.h"
-#endif
-
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
@@ -156,10 +152,6 @@ struct _MetaBackendPrivate
   MetaDbusSessionWatcher *dbus_session_watcher;
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
-#endif
-
-#ifdef HAVE_PROFILER
-  MetaProfiler *profiler;
 #endif
 
 #ifdef HAVE_LIBWACOM
@@ -261,10 +253,6 @@ meta_backend_dispose (GObject *object)
   g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
   g_clear_object (&priv->settings);
-
-#ifdef HAVE_PROFILER
-  g_clear_object (&priv->profiler);
-#endif
 
   g_clear_pointer (&priv->default_seat, clutter_seat_destroy);
   g_clear_pointer (&priv->stage, clutter_actor_destroy);
@@ -1219,10 +1207,6 @@ meta_backend_initable_init (GInitable     *initable,
              priv->cancellable,
              system_bus_gotten_cb,
              backend);
-
-#ifdef HAVE_PROFILER
-  priv->profiler = meta_profiler_new ();
-#endif
 
   if (!init_clutter (backend, error))
     return FALSE;
