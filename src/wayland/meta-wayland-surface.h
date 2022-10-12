@@ -396,7 +396,9 @@ meta_get_first_subsurface_node (MetaWaylandSurface *surface)
   GNode *n;
 
   n = g_node_first_child (surface->subsurface_branch_node);
-  if (!G_NODE_IS_LEAF (n))
+  if (!n)
+    return NULL;
+  else if (!G_NODE_IS_LEAF (n))
     return n;
   else
     return meta_get_next_subsurface_sibling (n);
