@@ -335,6 +335,7 @@ out:
 static void
 on_before_update (ClutterStage     *stage,
                   ClutterStageView *stage_view,
+                  ClutterFrame     *frame,
                   MetaCompositor   *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
@@ -373,6 +374,7 @@ on_before_update (ClutterStage     *stage,
 static void
 on_after_update (ClutterStage     *stage,
                  ClutterStageView *stage_view,
+                 ClutterFrame     *frame,
                  MetaCompositor   *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);

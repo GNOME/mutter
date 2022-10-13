@@ -64,11 +64,11 @@ assert_rectangle_color_and_black_border (int x,
   assert_region_color (x-10, y+height, width+20, 10, 0x00, 0x00, 0x00, 0xff);
 }
 
-
 static void
-on_after_paint (ClutterActor        *actor,
-                ClutterPaintContext *paint_context,
-                void                *state)
+on_after_paint (ClutterActor     *actor,
+                ClutterStageView *view,
+                ClutterFrame     *frame,
+                void             *state)
 {
   float saved_viewport[4];
   graphene_matrix_t saved_projection;

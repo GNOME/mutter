@@ -1230,7 +1230,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
     begin_frame_timing_measurement (view);
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_PRE_PAINT);
-  clutter_stage_emit_before_update (stage, view);
+  clutter_stage_emit_before_update (stage, view, frame);
 
   clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
   clutter_stage_maybe_finish_queue_redraws (stage);
@@ -1241,18 +1241,18 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
     devices = clutter_stage_find_updated_devices (stage, view);
 
   _clutter_stage_window_prepare_frame (stage_window, view, frame);
-  clutter_stage_emit_prepare_frame (stage, view);
+  clutter_stage_emit_prepare_frame (stage, view, frame);
 
   if (clutter_stage_view_has_redraw_clip (view))
     {
-      clutter_stage_emit_before_paint (stage, view);
+      clutter_stage_emit_before_paint (stage, view, frame);
 
       _clutter_stage_window_redraw_view (stage_window, view, frame);
 
       clutter_frame_clock_record_flip_time (frame_clock,
                                             g_get_monotonic_time ());
 
-      clutter_stage_emit_after_paint (stage, view);
+      clutter_stage_emit_after_paint (stage, view, frame);
 
       if (_clutter_context_get_show_fps ())
         end_frame_timing_measurement (view);
@@ -1264,7 +1264,7 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   priv->needs_update_devices = FALSE;
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
-  clutter_stage_emit_after_update (stage, view);
+  clutter_stage_emit_after_update (stage, view, frame);
 
   return clutter_frame_get_result (frame);
 }

@@ -396,12 +396,13 @@ scale_offset_and_clamp_region (const cairo_region_t *region,
 static void
 paint_stage (MetaStageImpl    *stage_impl,
              ClutterStageView *stage_view,
-             cairo_region_t   *redraw_clip)
+             cairo_region_t   *redraw_clip,
+             ClutterFrame     *frame)
 {
   ClutterStage *stage = stage_impl->wrapper;
 
   _clutter_stage_maybe_setup_viewport (stage, stage_view);
-  clutter_stage_paint_view (stage, stage_view, redraw_clip);
+  clutter_stage_paint_view (stage, stage_view, redraw_clip, frame);
 
   clutter_stage_view_after_paint (stage_view, redraw_clip);
 }
@@ -607,7 +608,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       cairo_region_t *debug_redraw_clip;
 
       debug_redraw_clip = cairo_region_create_rectangle (&view_rect);
-      paint_stage (stage_impl, stage_view, debug_redraw_clip);
+      paint_stage (stage_impl, stage_view, debug_redraw_clip, frame);
       cairo_region_destroy (debug_redraw_clip);
     }
   else if (use_clipped_redraw)
@@ -616,7 +617,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
 
       cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
-      paint_stage (stage_impl, stage_view, redraw_clip);
+      paint_stage (stage_impl, stage_view, redraw_clip, frame);
 
       cogl_framebuffer_pop_clip (fb);
     }
@@ -624,7 +625,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
     {
       meta_topic (META_DEBUG_BACKEND, "Unclipped stage paint");
 
-      paint_stage (stage_impl, stage_view, redraw_clip);
+      paint_stage (stage_impl, stage_view, redraw_clip, frame);
     }
 
   g_clear_pointer (&redraw_clip, cairo_region_destroy);

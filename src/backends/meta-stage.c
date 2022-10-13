@@ -209,7 +209,8 @@ notify_watchers_for_mode (MetaStage           *stage,
 
 static void
 meta_stage_before_paint (ClutterStage     *stage,
-                         ClutterStageView *view)
+                         ClutterStageView *view,
+                         ClutterFrame     *frame)
 {
   MetaStage *meta_stage = META_STAGE (stage);
 
@@ -267,12 +268,14 @@ meta_stage_paint (ClutterActor        *actor,
 static void
 meta_stage_paint_view (ClutterStage         *stage,
                        ClutterStageView     *view,
-                       const cairo_region_t *redraw_clip)
+                       const cairo_region_t *redraw_clip,
+                       ClutterFrame         *frame)
 {
   MetaStage *meta_stage = META_STAGE (stage);
 
   CLUTTER_STAGE_CLASS (meta_stage_parent_class)->paint_view (stage, view,
-                                                             redraw_clip);
+                                                             redraw_clip,
+                                                             frame);
 
   notify_watchers_for_mode (meta_stage, view, NULL,
                             META_STAGE_WATCH_AFTER_PAINT);

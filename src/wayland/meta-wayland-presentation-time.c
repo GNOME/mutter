@@ -130,6 +130,7 @@ discard_non_cursor_feedbacks (struct wl_list *feedbacks)
 static void
 on_after_paint (ClutterStage          *stage,
                 ClutterStageView      *stage_view,
+                ClutterFrame          *frame,
                 MetaWaylandCompositor *compositor)
 {
   struct wl_list *feedbacks;

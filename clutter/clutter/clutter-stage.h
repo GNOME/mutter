@@ -72,11 +72,13 @@ struct _ClutterStageClass
   void (* deactivate)   (ClutterStage *stage);
 
   void (* before_paint) (ClutterStage     *stage,
-                         ClutterStageView *view);
+                         ClutterStageView *view,
+                         ClutterFrame     *frame);
 
   void (* paint_view) (ClutterStage         *stage,
                        ClutterStageView     *view,
-                       const cairo_region_t *redraw_clip);
+                       const cairo_region_t *redraw_clip,
+                       ClutterFrame         *frame);
 
   /*< private >*/
   /* padding for future expansion */

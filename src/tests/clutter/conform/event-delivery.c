@@ -5,6 +5,7 @@
 static void
 on_after_update (ClutterStage     *stage,
                  ClutterStageView *view,
+                 ClutterFrame     *frame,
                  gboolean         *was_updated)
 {
   *was_updated = TRUE;

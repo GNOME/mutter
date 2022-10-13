@@ -234,6 +234,7 @@ static void
 view_painted_cb (ClutterStage     *stage,
                  ClutterStageView *view,
                  cairo_region_t   *redraw_clip,
+                 ClutterFrame     *frame,
                  gpointer          data)
 {
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);

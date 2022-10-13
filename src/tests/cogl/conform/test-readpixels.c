@@ -16,7 +16,8 @@ static const ClutterColor stage_color = { 0x0, 0x0, 0x0, 0xff };
 
 static void
 on_after_paint (ClutterActor        *actor,
-                ClutterPaintContext *paint_context,
+                ClutterStageView    *stage_view,
+                ClutterFrame        *frame,
                 void                *state)
 {
   float saved_viewport[4];

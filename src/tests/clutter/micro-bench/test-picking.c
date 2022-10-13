@@ -38,7 +38,8 @@ do_events (ClutterActor *stage)
 
 static void
 on_after_paint (ClutterActor        *stage,
-                ClutterPaintContext *paint_context,
+                ClutterStageView    *view,
+                ClutterFrame        *frame,
                 gconstpointer       *data)
 {
   do_events (stage);

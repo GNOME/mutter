@@ -102,6 +102,7 @@ generate_round_texture (CoglContext *ctx)
 static void
 on_after_paint (ClutterActor        *stage,
                 ClutterPaintContext *paint_context,
+                ClutterFrame        *frame,
                 Data                *data)
 {
   CoglFramebuffer *framebuffer =

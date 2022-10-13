@@ -54,6 +54,7 @@ static MetaContext *test_context;
 static void
 on_after_update (ClutterStage     *stage,
                  ClutterStageView *stage_view,
+                 ClutterFrame     *frame,
                  KmsRenderingTest *test)
 {
   test->number_of_frames_left--;
@@ -90,6 +91,7 @@ meta_test_kms_render_basic (void)
 static void
 on_scanout_before_update (ClutterStage     *stage,
                           ClutterStageView *stage_view,
+                          ClutterFrame     *frame,
                           KmsRenderingTest *test)
 {
   test->scanout.n_paints = 0;
@@ -99,6 +101,7 @@ on_scanout_before_update (ClutterStage     *stage,
 static void
 on_scanout_before_paint (ClutterStage     *stage,
                          ClutterStageView *stage_view,
+                         ClutterFrame     *frame,
                          KmsRenderingTest *test)
 {
   CoglScanout *scanout;
@@ -118,6 +121,7 @@ static void
 on_scanout_paint_view (ClutterStage     *stage,
                        ClutterStageView *stage_view,
                        cairo_region_t   *region,
+                       ClutterFrame     *frame,
                        KmsRenderingTest *test)
 {
   test->scanout.n_paints++;

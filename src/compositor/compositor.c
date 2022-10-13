@@ -1159,6 +1159,7 @@ meta_compositor_after_paint (MetaCompositor     *compositor,
 static void
 on_before_paint (ClutterStage     *stage,
                  ClutterStageView *stage_view,
+                 ClutterFrame     *frame,
                  MetaCompositor   *compositor)
 {
   MetaCompositorView *compositor_view;
@@ -1174,6 +1175,7 @@ on_before_paint (ClutterStage     *stage,
 static void
 on_after_paint (ClutterStage     *stage,
                 ClutterStageView *stage_view,
+                ClutterFrame     *frame,
                 MetaCompositor   *compositor)
 {
   MetaCompositorView *compositor_view;

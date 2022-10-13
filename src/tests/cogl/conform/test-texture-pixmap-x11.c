@@ -140,9 +140,10 @@ check_paint (TestState *state, int x, int y, int scale)
 #define FRAME_COUNT_UPDATED 8
 
 static void
-on_after_paint (ClutterActor        *actor,
-                ClutterPaintContext *paint_context,
-                TestState           *state)
+on_after_paint (ClutterActor     *actor,
+                ClutterStageView *view,
+                ClutterFrame     *frame,
+                TestState        *state)
 {
   CoglPipeline *pipeline;
 

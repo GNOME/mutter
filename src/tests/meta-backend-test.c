@@ -88,6 +88,7 @@ meta_backend_test_create_color_manager (MetaBackend *backend)
 static void
 on_after_update (ClutterStage     *stage,
                  ClutterStageView *view,
+                 ClutterFrame     *frame,
                  gboolean         *was_updated)
 {
   *was_updated = TRUE;

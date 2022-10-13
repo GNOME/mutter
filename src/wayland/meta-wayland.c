@@ -214,6 +214,7 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
 static void
 on_after_update (ClutterStage          *stage,
                  ClutterStageView      *stage_view,
+                 ClutterFrame          *frame,
                  MetaWaylandCompositor *compositor)
 {
   GList *l;

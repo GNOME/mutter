@@ -53,6 +53,7 @@
 #include "clutter-enum-types.h"
 #include "clutter-event-private.h"
 #include "clutter-frame-clock.h"
+#include "clutter-frame.h"
 #include "clutter-grab.h"
 #include "clutter-id-pool.h"
 #include "clutter-input-device-private.h"
@@ -444,7 +445,8 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
 void
 clutter_stage_paint_view (ClutterStage         *stage,
                           ClutterStageView     *view,
-                          const cairo_region_t *redraw_clip)
+                          const cairo_region_t *redraw_clip,
+                          ClutterFrame         *frame)
 {
   ClutterStagePrivate *priv = stage->priv;
 
@@ -455,44 +457,49 @@ clutter_stage_paint_view (ClutterStage         *stage,
 
   if (g_signal_has_handler_pending (stage, stage_signals[PAINT_VIEW],
                                     0, TRUE))
-    g_signal_emit (stage, stage_signals[PAINT_VIEW], 0, view, redraw_clip);
+    g_signal_emit (stage, stage_signals[PAINT_VIEW], 0, view, redraw_clip, frame);
   else
-    CLUTTER_STAGE_GET_CLASS (stage)->paint_view (stage, view, redraw_clip);
+    CLUTTER_STAGE_GET_CLASS (stage)->paint_view (stage, view, redraw_clip, frame);
 }
 
 void
 clutter_stage_emit_before_update (ClutterStage     *stage,
-                                  ClutterStageView *view)
+                                  ClutterStageView *view,
+                                  ClutterFrame     *frame)
 {
-  g_signal_emit (stage, stage_signals[BEFORE_UPDATE], 0, view);
+  g_signal_emit (stage, stage_signals[BEFORE_UPDATE], 0, view, frame);
 }
 
 void
 clutter_stage_emit_prepare_frame (ClutterStage     *stage,
-                                  ClutterStageView *view)
+                                  ClutterStageView *view,
+                                  ClutterFrame     *frame)
 {
-  g_signal_emit (stage, stage_signals[PREPARE_FRAME], 0, view);
+  g_signal_emit (stage, stage_signals[PREPARE_FRAME], 0, view, frame);
 }
 
 void
 clutter_stage_emit_before_paint (ClutterStage     *stage,
-                                 ClutterStageView *view)
+                                 ClutterStageView *view,
+                                 ClutterFrame     *frame)
 {
-  g_signal_emit (stage, stage_signals[BEFORE_PAINT], 0, view);
+  g_signal_emit (stage, stage_signals[BEFORE_PAINT], 0, view, frame);
 }
 
 void
 clutter_stage_emit_after_paint (ClutterStage     *stage,
-                                ClutterStageView *view)
+                                ClutterStageView *view,
+                                ClutterFrame     *frame)
 {
-  g_signal_emit (stage, stage_signals[AFTER_PAINT], 0, view);
+  g_signal_emit (stage, stage_signals[AFTER_PAINT], 0, view, frame);
 }
 
 void
 clutter_stage_emit_after_update (ClutterStage     *stage,
-                                 ClutterStageView *view)
+                                 ClutterStageView *view,
+                                 ClutterFrame     *frame)
 {
-  g_signal_emit (stage, stage_signals[AFTER_UPDATE], 0, view);
+  g_signal_emit (stage, stage_signals[AFTER_UPDATE], 0, view, frame);
 }
 
 static gboolean
@@ -1228,7 +1235,8 @@ clutter_stage_finalize (GObject *object)
 static void
 clutter_stage_real_paint_view (ClutterStage         *stage,
                                ClutterStageView     *view,
-                               const cairo_region_t *redraw_clip)
+                               const cairo_region_t *redraw_clip,
+                               ClutterFrame         *frame)
 {
   clutter_stage_do_paint_view (stage, view, redraw_clip);
 }
@@ -1383,6 +1391,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * ClutterStage::before-update:
    * @stage: the #ClutterStage
    * @view: a #ClutterStageView
+   * @frame: a #ClutterFrame
    */
   stage_signals[BEFORE_UPDATE] =
     g_signal_new (I_("before-update"),
@@ -1390,12 +1399,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE_VIEW);
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  CLUTTER_TYPE_FRAME);
   /**
    * ClutterStage::prepare-frame:
    * @stage: the stage that received the event
    * @view: a #ClutterStageView
+   * @frame: a #ClutterFrame
    *
    * The signal is emitted after the stage is updated,
    * before the stage is painted, even if it will not be painted.
@@ -1406,13 +1417,15 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE_VIEW);
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  CLUTTER_TYPE_FRAME);
 
   /**
    * ClutterStage::before-paint:
    * @stage: the stage that received the event
    * @view: a #ClutterStageView
+   * @frame: a #ClutterFrame
    *
    * The signal is emitted before the stage is painted.
    */
@@ -1422,12 +1435,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterStageClass, before_paint),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE_VIEW);
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  CLUTTER_TYPE_FRAME);
   /**
    * ClutterStage::after-paint:
    * @stage: the stage that received the event
    * @view: a #ClutterStageView
+   * @frame: a #ClutterFrame
    *
    * The signal is emitted after the stage is painted,
    * but before the results are displayed on the screen.0
@@ -1438,13 +1453,15 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, /* no corresponding vfunc */
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE_VIEW);
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  CLUTTER_TYPE_FRAME);
 
   /**
    * ClutterStage::after-update:
    * @stage: the #ClutterStage
    * @view: a #ClutterStageView
+   * @frame: a #ClutterFrame
    */
   stage_signals[AFTER_UPDATE] =
     g_signal_new (I_("after-update"),
@@ -1452,14 +1469,16 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE_VIEW);
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  CLUTTER_TYPE_FRAME);
 
   /**
    * ClutterStage::paint-view:
    * @stage: the stage that received the event
    * @view: a #ClutterStageView
    * @redraw_clip: a #cairo_region_t with the redraw clip
+   * @frame: a #ClutterFrame
    *
    * The signal is emitted before a [class@Clutter.StageView] is being
    * painted.
@@ -1474,9 +1493,10 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterStageClass, paint_view),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 2,
+                  G_TYPE_NONE, 3,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  CAIRO_GOBJECT_TYPE_REGION);
+                  CAIRO_GOBJECT_TYPE_REGION,
+                  CLUTTER_TYPE_FRAME);
 
   /**
    * ClutterStage::presented: (skip)

@@ -105,6 +105,7 @@ on_effects_completed (ClutterActor       *actor,
 static void
 check_for_pending_effects (ClutterStage       *stage,
                            ClutterStageView   *view,
+                           ClutterFrame       *frame,
                            PendingEffectsData *data)
 {
   MetaWindow *window;
@@ -178,6 +179,7 @@ sync_point (struct wl_client   *client,
 static void
 on_after_paint (ClutterStage       *stage,
                 ClutterStageView   *view,
+                ClutterFrame       *frame,
                 struct wl_resource *callback)
 {
   g_signal_handlers_disconnect_by_data (stage, callback);

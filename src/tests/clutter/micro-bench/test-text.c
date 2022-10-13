@@ -13,7 +13,8 @@
 
 static void
 on_after_paint (ClutterActor        *actor,
-                ClutterPaintContext *paint_context,
+                ClutterStageView    *view,
+                ClutterFrame        *frame,
                 gconstpointer       *data)
 {
   static GTimer *timer = NULL;

@@ -165,6 +165,7 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
 static void
 meta_cursor_renderer_after_paint (ClutterStage       *stage,
                                   ClutterStageView   *stage_view,
+                                  ClutterFrame       *frame,
                                   MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv =

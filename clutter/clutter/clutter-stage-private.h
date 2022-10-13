@@ -45,18 +45,24 @@ ClutterStageWindow *_clutter_stage_get_default_window    (void);
 CLUTTER_EXPORT
 void                clutter_stage_paint_view             (ClutterStage          *stage,
                                                           ClutterStageView      *view,
-                                                          const cairo_region_t  *redraw_clip);
+                                                          const cairo_region_t  *redraw_clip,
+                                                          ClutterFrame          *frame);
 
 void                clutter_stage_emit_before_update     (ClutterStage          *stage,
-                                                          ClutterStageView      *view);
+                                                          ClutterStageView      *view,
+                                                          ClutterFrame          *frame);
 void                clutter_stage_emit_prepare_frame     (ClutterStage          *stage,
-                                                          ClutterStageView      *view);
+                                                          ClutterStageView      *view,
+                                                          ClutterFrame          *frame);
 void                clutter_stage_emit_before_paint      (ClutterStage          *stage,
-                                                          ClutterStageView      *view);
+                                                          ClutterStageView      *view,
+                                                          ClutterFrame          *frame);
 void                clutter_stage_emit_after_paint       (ClutterStage          *stage,
-                                                          ClutterStageView      *view);
+                                                          ClutterStageView      *view,
+                                                          ClutterFrame          *frame);
 void                clutter_stage_emit_after_update      (ClutterStage          *stage,
-                                                          ClutterStageView      *view);
+                                                          ClutterStageView      *view,
+                                                          ClutterFrame          *frame);
 
 CLUTTER_EXPORT
 void                _clutter_stage_set_window            (ClutterStage          *stage,

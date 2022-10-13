@@ -126,6 +126,7 @@ subsurface_invalid_xdg_shell_actions (void)
 static void
 on_after_paint (ClutterStage     *stage,
                 ClutterStageView *view,
+                ClutterFrame     *frame,
                 gboolean         *was_painted)
 {
   *was_painted = TRUE;

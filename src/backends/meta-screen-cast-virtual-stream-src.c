@@ -146,6 +146,7 @@ cursor_changed (MetaCursorTracker              *cursor_tracker,
 static void
 on_prepare_frame (ClutterStage                   *stage,
                   ClutterStageView               *stage_view,
+                  ClutterFrame                   *frame,
                   MetaScreenCastVirtualStreamSrc *virtual_src)
 {
   sync_cursor_state (virtual_src);
