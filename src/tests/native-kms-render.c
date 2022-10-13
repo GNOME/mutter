@@ -117,6 +117,7 @@ on_scanout_before_paint (ClutterStage     *stage,
 static void
 on_scanout_paint_view (ClutterStage     *stage,
                        ClutterStageView *stage_view,
+                       cairo_region_t   *region,
                        KmsRenderingTest *test)
 {
   test->scanout.n_paints++;
@@ -139,7 +140,7 @@ on_scanout_presented (ClutterStage     *stage,
   GError *error = NULL;
   drmModeCrtc *drm_crtc;
 
-  if (test->scanout.n_paints > 0)
+  if (test->wait_for_scanout && test->scanout.n_paints > 0)
     return;
 
   if (test->wait_for_scanout && test->scanout.fb_id == 0)
