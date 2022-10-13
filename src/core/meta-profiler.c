@@ -36,6 +36,7 @@ struct _MetaProfiler
   GDBusConnection *connection;
   GCancellable *cancellable;
 
+  gboolean persistent;
   gboolean running;
 };
 
@@ -104,6 +105,15 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
              GDBusMethodInvocation    *invocation)
 {
   MetaProfiler *profiler = META_PROFILER (dbus_profiler);
+
+  if (profiler->persistent)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Can't stop persistent profiling");
+      return TRUE;
+    }
 
   if (!profiler->running)
     {
@@ -188,12 +198,28 @@ meta_profiler_class_init (MetaProfilerClass *klass)
 static void
 meta_profiler_init (MetaProfiler *self)
 {
+  const char *env_trace_file;
+
   self->cancellable = g_cancellable_new ();
 
   g_bus_get (G_BUS_TYPE_SESSION,
              self->cancellable,
              on_bus_acquired_cb,
              self);
+
+  env_trace_file = g_getenv ("MUTTER_DEBUG_TRACE_FILE");
+  if (env_trace_file && env_trace_file[0])
+    {
+      GMainContext *main_context = g_main_context_default ();
+      const char *group_name;
+
+      /* Translators: this string will appear in Sysprof */
+      group_name = _("Compositor");
+
+      cogl_set_tracing_enabled_on_thread (main_context,
+                                          group_name,
+                                          env_trace_file);
+    }
 }
 
 MetaProfiler *
