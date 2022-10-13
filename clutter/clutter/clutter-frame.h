@@ -26,6 +26,17 @@
 
 typedef struct _ClutterFrame ClutterFrame;
 
+#define CLUTTER_TYPE_FRAME (clutter_frame_get_type ())
+
+CLUTTER_EXPORT
+GType clutter_frame_get_type (void);
+
+CLUTTER_EXPORT
+ClutterFrame * clutter_frame_ref (ClutterFrame *frame);
+
+CLUTTER_EXPORT
+void clutter_frame_unref (ClutterFrame *frame);
+
 CLUTTER_EXPORT
 int64_t clutter_frame_get_count (ClutterFrame *frame);
 
@@ -40,6 +51,6 @@ void clutter_frame_set_result (ClutterFrame       *frame,
 CLUTTER_EXPORT
 gboolean clutter_frame_has_result (ClutterFrame *frame);
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterFrame, g_free)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterFrame, clutter_frame_unref)
 
 #endif /* CLUTTER_FRAME_H */

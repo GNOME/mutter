@@ -22,6 +22,8 @@
 
 struct _ClutterFrame
 {
+  grefcount ref_count;
+
   int64_t frame_count;
 
   gboolean has_target_presentation_time;
@@ -30,6 +32,9 @@ struct _ClutterFrame
   gboolean has_result;
   ClutterFrameResult result;
 };
+
+CLUTTER_EXPORT
+ClutterFrame * clutter_frame_new (void);
 
 ClutterFrameResult clutter_frame_get_result (ClutterFrame *frame);
 

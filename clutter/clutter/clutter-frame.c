@@ -17,6 +17,35 @@
 
 #include "clutter/clutter-frame-private.h"
 
+G_DEFINE_BOXED_TYPE (ClutterFrame, clutter_frame,
+                     clutter_frame_ref,
+                     clutter_frame_unref)
+
+ClutterFrame *
+clutter_frame_ref (ClutterFrame *frame)
+{
+  g_ref_count_inc (&frame->ref_count);
+  return frame;
+}
+
+void
+clutter_frame_unref (ClutterFrame *frame)
+{
+  if (g_ref_count_dec (&frame->ref_count))
+    g_free (frame);
+}
+
+ClutterFrame *
+clutter_frame_new (void)
+{
+  ClutterFrame *frame;
+
+  frame = g_new0 (ClutterFrame, 1);
+  g_ref_count_init (&frame->ref_count);
+
+  return frame;
+}
+
 int64_t
 clutter_frame_get_count (ClutterFrame *frame)
 {
