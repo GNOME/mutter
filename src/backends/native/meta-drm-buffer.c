@@ -127,10 +127,12 @@ meta_drm_buffer_do_ensure_fb_id (MetaDrmBuffer        *buffer,
         {
           g_set_error (error,
                        G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "drmModeAddFB does not support format '%s' (0x%x)",
-                       meta_drm_format_to_string (&tmp, fb_args->format),
-                       fb_args->format);
+                       g_io_error_from_errno (errno),
+                       "drmModeAddFB2 failed (%s) and drmModeAddFB cannot be "
+                       "used as a fallback because format=0x%x (%s).",
+                       g_strerror (errno),
+                       fb_args->format,
+                       meta_drm_format_to_string (&tmp, fb_args->format));
           return FALSE;
         }
 
