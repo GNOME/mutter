@@ -15,6 +15,13 @@ typedef struct
   MetaContext *context;
 } ClutterTestEnvironment;
 
+struct _ClutterTestActor
+{
+  ClutterActor parent;
+};
+
+G_DEFINE_TYPE (ClutterTestActor, clutter_test_actor, CLUTTER_TYPE_ACTOR)
+
 static ClutterTestEnvironment *test_environ = NULL;
 
 static GMainLoop *clutter_test_main_loop = NULL;
@@ -484,4 +491,32 @@ clutter_test_check_color_at_point (ClutterActor           *stage,
   g_free (data);
 
   return retval;
+}
+
+static void
+test_actor_paint (ClutterActor        *actor,
+                  ClutterPaintContext *paint_context)
+{
+  g_signal_emit_by_name (actor, "paint", paint_context);
+}
+
+static void
+clutter_test_actor_class_init (ClutterTestActorClass *klass)
+{
+  ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
+
+  actor_class->paint = test_actor_paint;
+
+  g_signal_new ("paint",
+                G_TYPE_FROM_CLASS (klass),
+                G_SIGNAL_RUN_LAST,
+                0,
+                NULL, NULL, NULL,
+                G_TYPE_NONE, 1,
+                CLUTTER_TYPE_PAINT_CONTEXT);
+}
+
+static void
+clutter_test_actor_init (ClutterTestActor *test_actor)
+{
 }

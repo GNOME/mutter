@@ -166,8 +166,8 @@ static unsigned int timeout_id = 0;
 static int shader_no = 0;
 
 static void
-on_after_paint (ClutterActor        *actor,
-                ClutterPaintContext *paint_context)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context)
 {
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
@@ -307,6 +307,7 @@ G_MODULE_EXPORT int
 test_cogl_shader_glsl_main (int argc, char *argv[])
 {
   ClutterActor *stage;
+  ClutterActor *actor;
   char *file;
   GError *error;
   ClutterColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
@@ -317,6 +318,8 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
+  actor = g_object_new (CLUTTER_TYPE_TEST_ACTOR, NULL);
+  clutter_actor_add_child (stage, actor);
 
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Assembly Shader Test");
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
@@ -331,7 +334,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   cogl_pipeline_set_layer_texture (pipeline, 0, redhand);
 
   set_shader_num (0);
-  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
+  g_signal_connect (actor, "paint", G_CALLBACK (on_paint), NULL);
 
   clutter_actor_set_reactive (stage, TRUE);
   g_signal_connect (stage, "button-release-event",

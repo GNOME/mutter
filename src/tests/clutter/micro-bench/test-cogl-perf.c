@@ -3,6 +3,7 @@
 #include <gmodule.h>
 #include <stdlib.h>
 #include <clutter/clutter.h>
+#include <clutter/clutter-mutter.h>
 #include <cogl/cogl.h>
 #include <math.h>
 
@@ -100,9 +101,9 @@ TestCallback tests[] =
 };
 
 static void
-on_after_paint (ClutterActor        *actor,
-                ClutterPaintContext *paint_context,
-                TestState           *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          TestState           *state)
 {
   tests[state->current_test] (state, paint_context);
 }
@@ -120,6 +121,7 @@ main (int argc, char *argv[])
 {
   TestState state;
   ClutterActor *stage;
+  ClutterActor *actor;
 
   g_setenv ("CLUTTER_VBLANK", "none", FALSE);
   g_setenv ("CLUTTER_SHOW_FPS", "1", FALSE);
@@ -129,6 +131,8 @@ main (int argc, char *argv[])
   state.current_test = 0;
 
   state.stage = stage = clutter_test_get_stage ();
+  actor = g_object_new (CLUTTER_TYPE_TEST_ACTOR, NULL);
+  clutter_actor_add_child (stage, actor);
 
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_White);
@@ -137,7 +141,7 @@ main (int argc, char *argv[])
   /* We want continuous redrawing of the stage... */
   clutter_threads_add_idle (queue_redraw, stage);
 
-  g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), &state);
+  g_signal_connect (actor, "paint", G_CALLBACK (on_paint), &state);
 
   clutter_actor_show (stage);
 

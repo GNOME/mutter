@@ -87,6 +87,11 @@ main (int argc, char *argv[]) \
   return clutter_test_run (); \
 }
 
+#define CLUTTER_TYPE_TEST_ACTOR (clutter_test_actor_get_type ())
+CLUTTER_EXPORT
+G_DECLARE_FINAL_TYPE (ClutterTestActor, clutter_test_actor,
+                      CLUTTER, TEST_ACTOR, ClutterActor)
+
 CLUTTER_EXPORT
 void            clutter_test_init               (int            *argc,
                                                  char         ***argv);
