@@ -1484,22 +1484,6 @@ clutter_actor_update_map_state (ClutterActor  *self,
 #endif
 }
 
-static void
-queue_update_stage_views (ClutterActor *actor)
-{
-  while (actor && !actor->priv->needs_update_stage_views)
-    {
-      actor->priv->needs_update_stage_views = TRUE;
-
-      /* We don't really need to update the stage-views of the actors up the
-       * hierarchy, we set the flag anyway though so we can avoid traversing
-       * the whole scenegraph when looking for actors which need an update
-       * in clutter_actor_finish_layout().
-       */
-      actor = actor->priv->parent;
-    }
-}
-
 static void queue_update_paint_volume (ClutterActor *actor);
 
 static void
@@ -1544,18 +1528,6 @@ clutter_actor_real_map (ClutterActor *self)
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
-      /* We skip unmapped actors when updating the stage-views list, so if
-       * an actors list got invalidated while it was unmapped make sure to
-       * set priv->needs_update_stage_views to TRUE for all actors up the
-       * hierarchy now.
-       */
-      if (priv->needs_update_stage_views)
-        {
-          /* Avoid the early return in queue_update_stage_views() */
-          priv->needs_update_stage_views = FALSE;
-          queue_update_stage_views (self);
-        }
-
       /* Avoid the early return in clutter_actor_queue_relayout() */
       priv->needs_width_request = FALSE;
       priv->needs_height_request = FALSE;
@@ -2507,7 +2479,7 @@ clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
 static void
 absolute_geometry_changed (ClutterActor *actor)
 {
-  queue_update_stage_views (actor);
+  actor->priv->needs_update_stage_views = TRUE;
 }
 
 static ClutterActorTraverseVisitFlags
