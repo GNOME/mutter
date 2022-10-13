@@ -514,6 +514,9 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
 
   keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
+
+  wl_array_init (&keyboard->pressed_keys);
+
   g_signal_connect (keyboard->settings, "changed",
                     G_CALLBACK (settings_changed), keyboard);
 
@@ -553,7 +556,47 @@ meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
   wl_list_remove (&keyboard->focus_resource_list);
   wl_list_init (&keyboard->focus_resource_list);
 
+  wl_array_release (&keyboard->pressed_keys);
+
   g_clear_object (&keyboard->settings);
+}
+
+static void
+update_pressed_keys (struct wl_array *keys,
+                     uint32_t         evdev_code,
+                     gboolean         is_press)
+{
+  uint32_t *end = (void *) ((char *) keys->data + keys->size);
+  uint32_t *k;
+
+  if (is_press)
+    {
+      /* Make sure we don't already have this key. */
+      for (k = keys->data; k < end; k++)
+        {
+          if (*k == evdev_code)
+            return;
+        }
+
+      /* Otherwise add the key to the list of pressed keys */
+      k = wl_array_add (keys, sizeof (*k));
+      *k = evdev_code;
+    }
+  else
+    {
+      /* Remove the key from the array */
+      for (k = keys->data; k < end; k++)
+        {
+          if (*k == evdev_code)
+            {
+              *k = *(end - 1);
+              keys->size -= sizeof (*k);
+              return;
+            }
+        }
+
+      g_warning ("unexpected key release event for key 0x%x", evdev_code);
+    }
 }
 
 void
@@ -569,6 +612,8 @@ meta_wayland_keyboard_update (MetaWaylandKeyboard *keyboard,
   if ((event->flags &
        (CLUTTER_EVENT_FLAG_SYNTHETIC | CLUTTER_EVENT_FLAG_INPUT_METHOD)) != 0)
     return;
+
+  update_pressed_keys (&keyboard->pressed_keys, event->evdev_code, is_press);
 
   /* If we get a key event but still have pending modifier state
    * changes from a previous event that didn't get cleared, we need to
@@ -674,30 +719,10 @@ static void
 broadcast_focus (MetaWaylandKeyboard *keyboard,
                  struct wl_resource  *resource)
 {
-  struct wl_array fake_keys;
-
-  /* We never want to send pressed keys to wayland clients on
-   * enter. The protocol says that we should send them, presumably so
-   * that clients can trigger their own key repeat routine in case
-   * they are given focus and a key is physically pressed.
-   *
-   * Unfortunately this causes some clients, in particular Xwayland,
-   * to register key events that they really shouldn't handle,
-   * e.g. on an Alt+Tab keybinding, where Alt is released before Tab,
-   * clients would see Tab being pressed on enter followed by a key
-   * release event for Tab, meaning that Tab would be processed by
-   * the client when it really shouldn't.
-   *
-   * Since the use case for the pressed keys array on enter seems weak
-   * to us, we'll just fake that there are no pressed keys instead
-   * which should be spec compliant even if it might not be true.
-   */
-  wl_array_init (&fake_keys);
-
   keyboard_send_modifiers (keyboard, resource, keyboard->focus_serial);
   wl_keyboard_send_enter (resource, keyboard->focus_serial,
                           keyboard->focus_surface->resource,
-                          &fake_keys);
+                          &keyboard->pressed_keys);
 }
 
 void
