@@ -1636,6 +1636,14 @@ clutter_text_set_property (GObject      *gobject,
       clutter_text_set_selected_text_color (self, clutter_value_get_color (value));
       break;
 
+    case PROP_INPUT_PURPOSE:
+      clutter_text_set_input_purpose (self, g_value_get_enum (value));
+      break;
+
+    case PROP_INPUT_HINTS:
+      clutter_text_set_input_hints (self, g_value_get_enum (value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
     }
@@ -1763,6 +1771,14 @@ clutter_text_get_property (GObject    *gobject,
 
     case PROP_SELECTED_TEXT_COLOR_SET:
       g_value_set_boolean (value, priv->selected_text_color_set);
+      break;
+
+    case PROP_INPUT_PURPOSE:
+      g_value_set_enum (value, priv->input_purpose);
+      break;
+
+    case PROP_INPUT_HINTS:
+      g_value_set_enum (value, priv->input_hints);
       break;
 
     default:
