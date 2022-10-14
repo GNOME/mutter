@@ -20,9 +20,12 @@
 
 #include "clutter/clutter-frame.h"
 
+typedef void (* ClutterFrameRelease) (ClutterFrame *frame);
+
 struct _ClutterFrame
 {
   grefcount ref_count;
+  ClutterFrameRelease release;
 
   int64_t frame_count;
 
@@ -34,10 +37,11 @@ struct _ClutterFrame
 };
 
 CLUTTER_EXPORT
-gpointer clutter_frame_new (size_t size);
+gpointer clutter_frame_new (size_t              size,
+                            ClutterFrameRelease release);
 
-#define clutter_frame_new(FrameType) \
-  ((FrameType *) (clutter_frame_new (sizeof (FrameType))))
+#define clutter_frame_new(FrameType, release) \
+  ((FrameType *) (clutter_frame_new (sizeof (FrameType), release)))
 
 ClutterFrameResult clutter_frame_get_result (ClutterFrame *frame);
 

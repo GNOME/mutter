@@ -32,11 +32,16 @@ void
 clutter_frame_unref (ClutterFrame *frame)
 {
   if (g_ref_count_dec (&frame->ref_count))
-    g_free (frame);
+    {
+      if (frame->release)
+        frame->release (frame);
+      g_free (frame);
+    }
 }
 
 gpointer
-(clutter_frame_new) (size_t size)
+(clutter_frame_new) (size_t              size,
+                     ClutterFrameRelease release)
 {
   ClutterFrame *frame;
 
@@ -44,6 +49,7 @@ gpointer
 
   frame = g_malloc0 (size);
   g_ref_count_init (&frame->ref_count);
+  frame->release = release;
 
   return frame;
 }

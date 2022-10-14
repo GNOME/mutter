@@ -28,8 +28,13 @@ struct _MetaFrameNative
   ClutterFrame base;
 };
 
+static void
+meta_frame_native_release (ClutterFrame *frame)
+{
+}
+
 MetaFrameNative *
 meta_frame_native_new (void)
 {
-  return clutter_frame_new (MetaFrameNative);
+  return clutter_frame_new (MetaFrameNative, meta_frame_native_release);
 }
