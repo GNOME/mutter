@@ -2463,6 +2463,7 @@ queue_calc_showing_func (MetaWindow *window,
 void
 meta_window_minimize (MetaWindow  *window)
 {
+  g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
   if (!window->has_minimize_func)
@@ -2623,6 +2624,7 @@ meta_window_maximize (MetaWindow        *window,
   MetaRectangle *saved_rect = NULL;
   gboolean maximize_horizontally, maximize_vertically;
 
+  g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
   /* At least one of the two directions ought to be set */
@@ -2897,6 +2899,8 @@ update_edge_constraints (MetaWindow *window)
 void
 meta_window_untile (MetaWindow *window)
 {
+  g_return_if_fail (META_IS_WINDOW (window));
+
   window->tile_monitor_number =
     window->saved_maximize ? window->monitor->number
                            : -1;
@@ -2916,6 +2920,8 @@ meta_window_tile (MetaWindow   *window,
 {
   MetaMaximizeFlags directions;
   MetaRectangle old_frame_rect, old_buffer_rect;
+
+  g_return_if_fail (META_IS_WINDOW (window));
 
   meta_window_get_tile_fraction (window, tile_mode, &window->tile_hfraction);
   window->tile_mode = tile_mode;
@@ -3057,6 +3063,7 @@ meta_window_unmaximize (MetaWindow        *window,
 {
   gboolean unmaximize_horizontally, unmaximize_vertically;
 
+  g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
   /* At least one of the two directions ought to be set */
@@ -3262,6 +3269,7 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
 void
 meta_window_make_fullscreen (MetaWindow  *window)
 {
+  g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
   if (!window->fullscreen)
@@ -3289,6 +3297,7 @@ meta_window_make_fullscreen (MetaWindow  *window)
 void
 meta_window_unmake_fullscreen (MetaWindow  *window)
 {
+  g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
   if (window->fullscreen)
