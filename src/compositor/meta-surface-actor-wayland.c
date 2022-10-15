@@ -99,7 +99,9 @@ meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
             }
           else
             {
-              if (meta_surface_actor_is_obscured (actor))
+              if (meta_surface_actor_is_obscured (actor) ||
+                  !clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
+                                                               stage_view))
                 continue;
             }
         }
