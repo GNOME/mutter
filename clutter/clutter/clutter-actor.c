@@ -16129,6 +16129,10 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
+  if (!CLUTTER_ACTOR_IS_MAPPED (self) &&
+      !clutter_actor_has_mapped_clones (self))
+    return FALSE;
+
   if (g_list_find (self->priv->stage_views, view))
     return TRUE;
 
