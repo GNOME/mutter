@@ -743,12 +743,25 @@ notify_scroll_continuous_in_impl (GTask *task)
   if (event->time_us == CLUTTER_CURRENT_TIME)
     event->time_us = g_get_monotonic_time ();
 
-  meta_seat_impl_notify_scroll_continuous_in_impl (seat,
-                                                   virtual_evdev->impl_state->device,
-                                                   event->time_us,
-                                                   event->dx, event->dy,
-                                                   event->scroll_source,
-                                                   CLUTTER_SCROLL_FINISHED_NONE);
+  if (event->scroll_source == CLUTTER_SCROLL_SOURCE_WHEEL)
+    {
+      meta_seat_impl_notify_discrete_scroll_in_impl (seat,
+                                                     virtual_evdev->impl_state->device,
+                                                     event->time_us,
+                                                     event->dx * (120.0 / 10.0),
+                                                     event->dy * (120.0 / 10.0),
+                                                     event->scroll_source);
+    }
+  else
+    {
+      meta_seat_impl_notify_scroll_continuous_in_impl (seat,
+                                                       virtual_evdev->impl_state->device,
+                                                       event->time_us,
+                                                       event->dx, event->dy,
+                                                       event->scroll_source,
+                                                       CLUTTER_SCROLL_FINISHED_NONE);
+    }
+
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }
