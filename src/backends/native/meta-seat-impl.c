@@ -916,7 +916,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
 {
   MetaInputDeviceNative *evdev_device;
   double dx = 0, dy = 0;
-  int discrete_dx = 0, discrete_dy = 0;
+  int low_res_value = 0;
 
   /* Convert into DISCRETE_SCROLL_STEP range. 120/DISCRETE_SCROLL_STEP = 12.0 */
   dx = dx_value120 / 12.0;
@@ -949,23 +949,29 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
 
   evdev_device->value120.acc_dx += dx_value120;
   evdev_device->value120.acc_dy += dy_value120;
-  discrete_dx = (evdev_device->value120.acc_dx / 120);
-  discrete_dy = (evdev_device->value120.acc_dy / 120);
 
-  if (discrete_dx != 0)
+  if (abs (evdev_device->value120.acc_dx) >= 60)
     {
-      evdev_device->value120.acc_dx -= (discrete_dx * 120);
+      low_res_value = (evdev_device->value120.acc_dx / 120);
+      if (low_res_value == 0)
+        low_res_value = (dx_value120 > 0) ? 1 : -1;
+
       notify_discrete_scroll (input_device, time_us,
-                              discrete_to_direction (discrete_dx, 0),
+                              discrete_to_direction (low_res_value, 0),
                               scroll_source, FALSE);
+      evdev_device->value120.acc_dx -= (low_res_value * 120);
     }
 
-  if (discrete_dy != 0)
+  if (abs (evdev_device->value120.acc_dy) >= 60)
     {
-      evdev_device->value120.acc_dy -= (discrete_dy * 120);
+      low_res_value = (evdev_device->value120.acc_dy / 120);
+      if (low_res_value == 0)
+        low_res_value = (dy_value120 > 0) ? 1 : -1;
+
       notify_discrete_scroll (input_device, time_us,
-                              discrete_to_direction (0, discrete_dy),
+                              discrete_to_direction (0, low_res_value),
                               scroll_source, FALSE);
+      evdev_device->value120.acc_dy -= (low_res_value * 120);
     }
 }
 
