@@ -843,6 +843,7 @@ struct _ClutterActorPrivate
   guint needs_x_expand              : 1;
   guint needs_y_expand              : 1;
   guint needs_paint_volume_update   : 1;
+  guint needs_visible_paint_volume_update : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_update_stage_views    : 1;
   guint clear_stage_views_needs_stage_views_changed : 1;
@@ -1506,6 +1507,7 @@ queue_update_paint_volume (ClutterActor *actor)
   while (actor)
     {
       actor->priv->needs_paint_volume_update = TRUE;
+      actor->priv->needs_visible_paint_volume_update = TRUE;
       actor = actor->priv->parent;
     }
 }
@@ -1653,12 +1655,6 @@ clutter_actor_real_unmap (ClutterActor *self)
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
-      /* clear the contents of the visible paint volume, so that hiding + moving +
-       * showing will not result in the wrong area being repainted
-       */
-      _clutter_paint_volume_init_static (&priv->visible_paint_volume, NULL);
-      priv->visible_paint_volume_valid = TRUE;
-
       if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent))
         {
           if (G_UNLIKELY (priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT))
@@ -2482,6 +2478,7 @@ static void
 absolute_geometry_changed (ClutterActor *actor)
 {
   actor->priv->needs_update_stage_views = TRUE;
+  actor->priv->needs_visible_paint_volume_update = TRUE;
 }
 
 static ClutterActorTraverseVisitFlags
@@ -7566,6 +7563,7 @@ clutter_actor_init (ClutterActor *self)
   priv->needs_height_request = TRUE;
   priv->needs_allocation = TRUE;
   priv->needs_paint_volume_update = TRUE;
+  priv->needs_visible_paint_volume_update = TRUE;
   priv->needs_update_stage_views = TRUE;
 
   priv->cached_width_age = 1;
@@ -7573,10 +7571,6 @@ clutter_actor_init (ClutterActor *self)
 
   priv->opacity_override = -1;
   priv->enable_model_view_transform = TRUE;
-
-  /* We're not visible yet,  so the visible_paint_volume is empty */
-  _clutter_paint_volume_init_static (&priv->visible_paint_volume, NULL);
-  priv->visible_paint_volume_valid = TRUE;
 
   priv->transform_valid = FALSE;
 
@@ -15474,17 +15468,21 @@ clutter_actor_finish_layout (ClutterActor *self,
       CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
 
-  ensure_paint_volume (self);
-
-  if (priv->has_paint_volume)
+  if (priv->needs_visible_paint_volume_update)
     {
-      _clutter_paint_volume_copy_static (&priv->paint_volume,
-                                         &priv->visible_paint_volume);
-      _clutter_paint_volume_transform_relative (&priv->visible_paint_volume,
-                                                NULL); /* eye coordinates */
-    }
+      ensure_paint_volume (self);
 
-  priv->visible_paint_volume_valid = priv->has_paint_volume;
+      if (priv->has_paint_volume)
+        {
+          _clutter_paint_volume_copy_static (&priv->paint_volume,
+                                             &priv->visible_paint_volume);
+          _clutter_paint_volume_transform_relative (&priv->visible_paint_volume,
+                                                    NULL); /* eye coordinates */
+        }
+
+      priv->visible_paint_volume_valid = priv->has_paint_volume;
+      priv->needs_visible_paint_volume_update = FALSE;
+    }
 
   if (priv->needs_update_stage_views)
     {
