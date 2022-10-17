@@ -770,10 +770,10 @@ struct _ClutterActorPrivate
 
   ClutterPaintVolume paint_volume;
 
-  /* NB: This volume isn't relative to this actor, it is in eye
-   * coordinates so that it can remain valid after the actor changes.
+  /* The paint volume of the actor when it was last drawn to the screen,
+   * stored in absolute coordinates.
    */
-  ClutterPaintVolume last_paint_volume;
+  ClutterPaintVolume visible_paint_volume;
 
   ClutterColor bg_color;
 
@@ -826,7 +826,7 @@ struct _ClutterActorPrivate
   guint has_key_focus               : 1;
   guint propagated_one_redraw       : 1;
   guint has_paint_volume            : 1;
-  guint last_paint_volume_valid     : 1;
+  guint visible_paint_volume_valid  : 1;
   guint in_clone_paint              : 1;
   guint transform_valid             : 1;
   /* This is TRUE if anything has queued a redraw since we were last
@@ -1651,11 +1651,11 @@ clutter_actor_real_unmap (ClutterActor *self)
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
-      /* clear the contents of the last paint volume, so that hiding + moving +
+      /* clear the contents of the visible paint volume, so that hiding + moving +
        * showing will not result in the wrong area being repainted
        */
-     _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
-      priv->last_paint_volume_valid = TRUE;
+      _clutter_paint_volume_init_static (&priv->visible_paint_volume, NULL);
+      priv->visible_paint_volume_valid = TRUE;
 
       if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent))
         {
@@ -3333,10 +3333,10 @@ cull_actor (ClutterActor        *self,
   ClutterCullResult result = CLUTTER_CULL_RESULT_IN;
   int i;
 
-  if (!priv->last_paint_volume_valid)
+  if (!priv->visible_paint_volume_valid)
     {
       CLUTTER_NOTE (CLIPPING, "Bail from cull_actor without culling (%s): "
-                    "->last_paint_volume_valid == FALSE",
+                    "->visible_paint_volume_valid == FALSE",
                     _clutter_actor_get_debug_name (self));
       return FALSE;
     }
@@ -3364,7 +3364,7 @@ cull_actor (ClutterActor        *self,
       const graphene_frustum_t *clip_frustum =
         &g_array_index (clip_frusta, graphene_frustum_t, i);
 
-      result = _clutter_paint_volume_cull (&priv->last_paint_volume,
+      result = _clutter_paint_volume_cull (&priv->visible_paint_volume,
                                            clip_frustum);
 
       if (result != CLUTTER_CULL_RESULT_OUT)
@@ -3374,35 +3374,6 @@ cull_actor (ClutterActor        *self,
   *result_out = result;
 
   return TRUE;
-}
-
-static void
-_clutter_actor_update_last_paint_volume (ClutterActor *self)
-{
-  ClutterActorPrivate *priv = self->priv;
-  const ClutterPaintVolume *pv;
-
-  if (priv->last_paint_volume_valid)
-    {
-      clutter_paint_volume_free (&priv->last_paint_volume);
-      priv->last_paint_volume_valid = FALSE;
-    }
-
-  pv = clutter_actor_get_paint_volume (self);
-  if (!pv)
-    {
-      CLUTTER_NOTE (CLIPPING, "Bail from update_last_paint_volume (%s): "
-                    "Actor failed to report a paint volume",
-                    _clutter_actor_get_debug_name (self));
-      return;
-    }
-
-  _clutter_paint_volume_copy_static (pv, &priv->last_paint_volume);
-
-  _clutter_paint_volume_transform_relative (&priv->last_paint_volume,
-                                            NULL); /* eye coordinates */
-
-  priv->last_paint_volume_valid = TRUE;
 }
 
 /* This is the same as clutter_actor_add_effect except that it doesn't
@@ -3965,11 +3936,11 @@ clutter_actor_pick (ClutterActor       *actor,
   /* mark that we are in the paint process */
   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
 
-  if (should_cull && priv->has_paint_volume && priv->last_paint_volume_valid)
+  if (should_cull && priv->has_paint_volume && priv->visible_paint_volume_valid)
     {
       graphene_box_t box;
 
-      clutter_paint_volume_to_box (&priv->last_paint_volume, &box);
+      clutter_paint_volume_to_box (&priv->visible_paint_volume, &box);
       if (!clutter_pick_context_intersects_box (pick_context, &box))
         {
           clutter_pick_context_log_overlap (pick_context, actor);
@@ -7651,9 +7622,9 @@ clutter_actor_init (ClutterActor *self)
   priv->opacity_override = -1;
   priv->enable_model_view_transform = TRUE;
 
-  /* Initialize an empty paint volume to start with */
-  _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
-  priv->last_paint_volume_valid = TRUE;
+  /* We're not visible yet,  so the visible_paint_volume is empty */
+  _clutter_paint_volume_init_static (&priv->visible_paint_volume, NULL);
+  priv->visible_paint_volume_valid = TRUE;
 
   priv->transform_valid = FALSE;
 
@@ -15588,7 +15559,17 @@ clutter_actor_finish_layout (ClutterActor *self,
       CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
 
-  _clutter_actor_update_last_paint_volume (self);
+  ensure_paint_volume (self);
+
+  if (priv->has_paint_volume)
+    {
+      _clutter_paint_volume_copy_static (&priv->paint_volume,
+                                         &priv->visible_paint_volume);
+      _clutter_paint_volume_transform_relative (&priv->visible_paint_volume,
+                                                NULL); /* eye coordinates */
+    }
+
+  priv->visible_paint_volume_valid = priv->has_paint_volume;
 
   if (priv->needs_update_stage_views)
     {
@@ -19220,14 +19201,17 @@ clutter_actor_get_redraw_clip (ClutterActor       *self,
                                ClutterPaintVolume *dst_new_pv)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterPaintVolume *paint_volume;
 
-  paint_volume = _clutter_actor_get_paint_volume_mutable (self);
-  if (!paint_volume || !priv->last_paint_volume_valid)
+  ensure_paint_volume (self);
+
+  /* For a clipped redraw to work we need both the old paint volume and the new
+   * one, if any is missing we'll need to do an unclipped redraw.
+   */
+  if (!priv->visible_paint_volume_valid || !priv->has_paint_volume)
     return FALSE;
 
-  _clutter_paint_volume_set_from_volume (dst_old_pv, &priv->last_paint_volume);
-  _clutter_paint_volume_set_from_volume (dst_new_pv, paint_volume);
+  _clutter_paint_volume_set_from_volume (dst_old_pv, &priv->visible_paint_volume);
+  _clutter_paint_volume_set_from_volume (dst_new_pv, &priv->paint_volume);
 
   return TRUE;
 }
