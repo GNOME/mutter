@@ -82,7 +82,6 @@ CLUTTER_EXPORT
 void                _clutter_stage_maybe_setup_viewport  (ClutterStage          *stage,
                                                           ClutterStageView      *view);
 void                clutter_stage_maybe_relayout         (ClutterActor          *stage);
-void                clutter_stage_maybe_finish_queue_redraws (ClutterStage      *stage);
 GSList *            clutter_stage_find_updated_devices   (ClutterStage          *stage,
                                                           ClutterStageView      *view);
 void                clutter_stage_update_devices         (ClutterStage          *stage,
@@ -100,13 +99,6 @@ gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
 void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);
-
-void clutter_stage_queue_actor_redraw (ClutterStage             *stage,
-                                       ClutterActor             *actor,
-                                       const ClutterPaintVolume *clip);
-
-void clutter_stage_dequeue_actor_redraw (ClutterStage *stage,
-                                         ClutterActor *actor);
 
 void            _clutter_stage_add_pointer_drag_actor    (ClutterStage       *stage,
                                                           ClutterInputDevice *device,
@@ -183,6 +175,9 @@ CLUTTER_EXPORT_TEST
 void clutter_stage_notify_action_implicit_grab (ClutterStage         *self,
                                                 ClutterInputDevice   *device,
                                                 ClutterEventSequence *sequence);
+
+void clutter_stage_add_to_redraw_clip (ClutterStage       *self,
+                                       ClutterPaintVolume *clip);
 
 G_END_DECLS
 

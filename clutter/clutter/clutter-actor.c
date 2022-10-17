@@ -805,6 +805,8 @@ struct _ClutterActorPrivate
   unsigned int n_pointers;
   unsigned int implicitly_grabbed_count;
 
+  GSList *next_redraw_clips;
+
   /* bitfields: KEEP AT THE END */
 
   /* fixed position and sizes */
@@ -847,6 +849,7 @@ struct _ClutterActorPrivate
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_update_stage_views    : 1;
   guint clear_stage_views_needs_stage_views_changed : 1;
+  guint needs_redraw : 1;
 };
 
 enum
@@ -2145,9 +2148,6 @@ unrealize_actor_after_children_cb (ClutterActor *self,
       priv->parent != NULL &&
       priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
     clutter_stage_dequeue_actor_relayout (CLUTTER_STAGE (stage), self);
-
-  if (stage != NULL)
-    clutter_stage_dequeue_actor_redraw (CLUTTER_STAGE (stage), self);
 
   if (priv->unmapped_paint_branch_counter == 0)
     priv->allocation = (ClutterActorBox) CLUTTER_ACTOR_BOX_UNINITIALIZED;
@@ -5505,6 +5505,7 @@ clutter_actor_dispose (GObject *object)
     }
 
   g_clear_pointer (&priv->stage_views, g_list_free);
+  g_clear_slist (&priv->next_redraw_clips, (GDestroyNotify) clutter_paint_volume_free);
 
   G_OBJECT_CLASS (clutter_actor_parent_class)->dispose (object);
 }
@@ -7652,29 +7653,6 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *stage;
 
-  /* Here's an outline of the actor queue redraw mechanism:
-   *
-   * The process starts in clutter_actor_queue_redraw() which is a
-   * wrapper for this function. Additionally, an effect can queue a
-   * redraw by wrapping this function in clutter_effect_queue_repaint().
-   *
-   * This functions queues an entry in a list associated with the
-   * stage which is a list of actors that queued a redraw while
-   * updating the timelines, performing layouting and processing other
-   * mainloop sources before the next paint starts.
-   *
-   * When all updates are complete and we come to paint the stage then
-   * we iterate this list and build the redraw clip of the stage by
-   * either using the clip that was supplied to
-   * _clutter_actor_queue_redraw_full() or by asking the actor for its
-   * redraw clip using clutter_actor_get_redraw_clip().
-   *
-   * Doing this later during the stage update instead of now is an
-   * important optimization, because later it's more likely we will be
-   * able to determine the paint volume of an actor (its allocation
-   * should be up to date).
-   */
-
   /* ignore queueing a redraw for actors being destroyed */
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
@@ -7709,9 +7687,33 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
 
-  clutter_stage_queue_actor_redraw (CLUTTER_STAGE (stage),
-                                    self,
-                                    volume);
+  if (priv->needs_redraw && !priv->next_redraw_clips)
+    {
+      /* priv->needs_redraw is TRUE while priv->next_redraw_clips is NULL, this
+       * means an unclipped redraw is already queued, no need to do anything.
+       */
+    }
+  else
+    {
+      if (!priv->needs_redraw)
+        {
+          priv->needs_redraw = TRUE;
+
+          clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+        }
+
+      if (volume)
+        {
+          ClutterPaintVolume *clip_pv = _clutter_paint_volume_new (self);
+
+          _clutter_paint_volume_set_from_volume (clip_pv, volume);
+          priv->next_redraw_clips = g_slist_prepend (priv->next_redraw_clips, clip_pv);
+        }
+      else
+        {
+          g_clear_slist (&priv->next_redraw_clips, (GDestroyNotify) clutter_paint_volume_free);
+        }
+    }
 
   /* If this is the first redraw queued then we can directly use the
      effect parameter */
@@ -15367,6 +15369,48 @@ clutter_actor_get_resource_scale (ClutterActor *self)
   return ceilf (clutter_actor_get_real_resource_scale (self));
 }
 
+static void
+add_actor_to_redraw_clip (ClutterActor       *self,
+                          gboolean            actor_moved,
+                          ClutterPaintVolume *old_visible_paint_volume)
+{
+  ClutterActorPrivate *priv = self->priv;
+  ClutterStage *stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+
+  if (priv->next_redraw_clips)
+    {
+      GSList *l;
+
+      for (l = priv->next_redraw_clips; l; l = l->next)
+        clutter_stage_add_to_redraw_clip (stage, l->data);
+
+      g_clear_slist (&priv->next_redraw_clips, (GDestroyNotify) clutter_paint_volume_free);
+    }
+  else if (actor_moved)
+    {
+      /* For a clipped redraw to work we need both the old paint volume and the new
+       * one, if any is missing we'll need to do an unclipped redraw.
+       */
+      if (old_visible_paint_volume == NULL || !priv->visible_paint_volume_valid)
+        goto full_stage_redraw;
+
+      clutter_stage_add_to_redraw_clip (stage, old_visible_paint_volume);
+      clutter_stage_add_to_redraw_clip (stage, &priv->visible_paint_volume);
+    }
+  else
+    {
+      if (!priv->visible_paint_volume_valid)
+        goto full_stage_redraw;
+
+      clutter_stage_add_to_redraw_clip (stage, &priv->visible_paint_volume);
+    }
+
+  return;
+
+full_stage_redraw:
+  clutter_stage_add_to_redraw_clip (stage, NULL);
+}
+
 static gboolean
 sorted_lists_equal (GList *list_a,
                     GList *list_b)
@@ -15462,6 +15506,9 @@ clutter_actor_finish_layout (ClutterActor *self,
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *child;
+  gboolean actor_moved = FALSE;
+  gboolean old_visible_paint_volume_valid = FALSE;
+  ClutterPaintVolume old_visible_paint_volume;
 
   if ((!CLUTTER_ACTOR_IS_MAPPED (self) &&
        !clutter_actor_has_mapped_clones (self)) ||
@@ -15471,6 +15518,10 @@ clutter_actor_finish_layout (ClutterActor *self,
   if (priv->needs_visible_paint_volume_update)
     {
       ensure_paint_volume (self);
+
+      actor_moved = TRUE;
+      old_visible_paint_volume = priv->visible_paint_volume;
+      old_visible_paint_volume_valid = priv->visible_paint_volume_valid;
 
       if (priv->has_paint_volume)
         {
@@ -15490,6 +15541,14 @@ clutter_actor_finish_layout (ClutterActor *self,
       update_resource_scale (self, use_max_scale);
 
       priv->needs_update_stage_views = FALSE;
+    }
+
+  if (priv->needs_redraw)
+    {
+      add_actor_to_redraw_clip (self,
+                                actor_moved,
+                                old_visible_paint_volume_valid ? &old_visible_paint_volume : NULL);
+      priv->needs_redraw = FALSE;
     }
 
   for (child = priv->first_child; child; child = child->priv->next_sibling)
@@ -19052,27 +19111,6 @@ clutter_actor_invalidate_paint_volume (ClutterActor *self)
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   queue_update_paint_volume (self);
-}
-
-gboolean
-clutter_actor_get_redraw_clip (ClutterActor       *self,
-                               ClutterPaintVolume *dst_old_pv,
-                               ClutterPaintVolume *dst_new_pv)
-{
-  ClutterActorPrivate *priv = self->priv;
-
-  ensure_paint_volume (self);
-
-  /* For a clipped redraw to work we need both the old paint volume and the new
-   * one, if any is missing we'll need to do an unclipped redraw.
-   */
-  if (!priv->visible_paint_volume_valid || !priv->has_paint_volume)
-    return FALSE;
-
-  _clutter_paint_volume_set_from_volume (dst_old_pv, &priv->visible_paint_volume);
-  _clutter_paint_volume_set_from_volume (dst_new_pv, &priv->paint_volume);
-
-  return TRUE;
 }
 
 void

@@ -1250,7 +1250,6 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   clutter_stage_emit_before_update (stage, view, frame);
 
   clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
-  clutter_stage_maybe_finish_queue_redraws (stage);
 
   clutter_stage_finish_layout (stage);
 
