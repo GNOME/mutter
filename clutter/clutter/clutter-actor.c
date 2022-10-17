@@ -850,6 +850,7 @@ struct _ClutterActorPrivate
   guint needs_update_stage_views    : 1;
   guint clear_stage_views_needs_stage_views_changed : 1;
   guint needs_redraw : 1;
+  guint needs_finish_layout : 1;
 };
 
 enum
@@ -1511,6 +1512,7 @@ queue_update_paint_volume (ClutterActor *actor)
     {
       actor->priv->needs_paint_volume_update = TRUE;
       actor->priv->needs_visible_paint_volume_update = TRUE;
+      actor->priv->needs_finish_layout = TRUE;
       actor = actor->priv->parent;
     }
 }
@@ -1530,6 +1532,19 @@ clutter_actor_real_map (ClutterActor *self)
 
   if (priv->unmapped_paint_branch_counter == 0)
     {
+      /* Invariant that needs_finish_layout is set all the way up to the stage
+       * needs to be met.
+       */
+      if (priv->needs_finish_layout)
+        {
+          iter = priv->parent;
+          while (iter && !iter->priv->needs_finish_layout)
+            {
+              iter->priv->needs_finish_layout = TRUE;
+              iter = iter->priv->parent;
+            }
+        }
+
       /* Avoid the early return in clutter_actor_queue_relayout() */
       priv->needs_width_request = FALSE;
       priv->needs_height_request = FALSE;
@@ -2479,6 +2494,11 @@ absolute_geometry_changed (ClutterActor *actor)
 {
   actor->priv->needs_update_stage_views = TRUE;
   actor->priv->needs_visible_paint_volume_update = TRUE;
+
+  actor->priv->needs_finish_layout = TRUE;
+  /* needs_finish_layout is already TRUE on the whole parent tree thanks
+   * to queue_update_paint_volume() that was called by transform_changed().
+   */
 }
 
 static ClutterActorTraverseVisitFlags
@@ -7566,6 +7586,7 @@ clutter_actor_init (ClutterActor *self)
   priv->needs_paint_volume_update = TRUE;
   priv->needs_visible_paint_volume_update = TRUE;
   priv->needs_update_stage_views = TRUE;
+  priv->needs_finish_layout = TRUE;
 
   priv->cached_width_age = 1;
   priv->cached_height_age = 1;
@@ -7700,9 +7721,17 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
     {
       if (!priv->needs_redraw)
         {
+          ClutterActor *iter = self;
+
           priv->needs_redraw = TRUE;
 
           clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+
+          while (iter && !iter->priv->needs_finish_layout)
+            {
+              iter->priv->needs_finish_layout = TRUE;
+              iter = iter->priv->parent;
+            }
         }
 
       if (volume)
@@ -15230,6 +15259,7 @@ clear_stage_views_cb (ClutterActor *actor,
     _clutter_actor_stop_transitions (actor);
 
   actor->priv->needs_update_stage_views = TRUE;
+  actor->priv->needs_finish_layout = TRUE;
 
   old_stage_views = g_steal_pointer (&actor->priv->stage_views);
 
@@ -15506,6 +15536,9 @@ clutter_actor_finish_layout (ClutterActor *self,
   gboolean old_visible_paint_volume_valid = FALSE;
   ClutterPaintVolume old_visible_paint_volume;
 
+  if (!priv->needs_finish_layout)
+    return;
+
   if ((!CLUTTER_ACTOR_IS_MAPPED (self) &&
        !clutter_actor_has_mapped_clones (self)) ||
       CLUTTER_ACTOR_IN_DESTRUCTION (self))
@@ -15546,6 +15579,8 @@ clutter_actor_finish_layout (ClutterActor *self,
                                 old_visible_paint_volume_valid ? &old_visible_paint_volume : NULL);
       priv->needs_redraw = FALSE;
     }
+
+  priv->needs_finish_layout = FALSE;
 
   for (child = priv->first_child; child; child = child->priv->next_sibling)
     clutter_actor_finish_layout (child, use_max_scale);
