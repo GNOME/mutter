@@ -2141,10 +2141,16 @@ unrealize_actor_before_children_cb (ClutterActor *self,
                                     int depth,
                                     void *user_data)
 {
+  ClutterActor *stage;
+
   /* If an actor is already unrealized we know its children have also
    * already been unrealized... */
   if (!CLUTTER_ACTOR_IS_REALIZED (self))
     return CLUTTER_ACTOR_TRAVERSE_VISIT_SKIP_CHILDREN;
+
+  stage = _clutter_actor_get_stage_internal (self);
+  if (stage != NULL)
+    clutter_actor_clear_grabs (self);
 
   g_signal_emit (self, actor_signals[UNREALIZE], 0);
 
@@ -5620,7 +5626,7 @@ clutter_actor_finalize (GObject *object)
                 _clutter_actor_get_debug_name ((ClutterActor *) object),
                 g_type_name (G_OBJECT_TYPE (object)));
 
-  /* No new grabs should have happened after unmapping */
+  /* No new grabs should have happened after unrealizing */
   g_assert (priv->grabs == NULL);
   g_free (priv->name);
 
