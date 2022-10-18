@@ -6,85 +6,86 @@
 # Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>, 2010.
 # Wei-Lun Chao <chaoweilun@gmail.com>, 2010.
 # pan93412 <pan93412@gmail.com>, 2019.
+# Freddy Cheng <freddy4212@gmail.com>, 2022.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity 3.3.4\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2021-04-15 15:51+0000\n"
-"PO-Revision-Date: 2021-07-10 06:51+0000\n"
-"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
-"Language-Team: Chinese (Traditional) <http://darkbear.ddns.net/projects/"
-"gnome-40/mutter-master-zh_tw/zh_Hant/>\n"
+"POT-Creation-Date: 2022-08-08 22:13+0000\n"
+"PO-Revision-Date: 2022-08-12 00:18+0800\n"
+"Last-Translator: Freddy Cheng <freddy4212@gmail.com>\n"
+"Language-Team: Chinese - Taiwan <chinese-l10n@googlegroups.com>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.6\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Gtranslator 41.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
-msgstr "導航"
+msgstr "導覽"
 
 #: data/50-mutter-navigation.xml:9
 msgid "Move window to workspace 1"
-msgstr "將視窗移至第 1 個工作區"
+msgstr "將視窗移至工作區 1"
 
 #: data/50-mutter-navigation.xml:12
 msgid "Move window to workspace 2"
-msgstr "將視窗移至第 2 個工作區"
+msgstr "將視窗移至工作區 2"
 
 #: data/50-mutter-navigation.xml:15
 msgid "Move window to workspace 3"
-msgstr "將視窗移至第 3 個工作區"
+msgstr "將視窗移至工作區 3"
 
 #: data/50-mutter-navigation.xml:18
 msgid "Move window to workspace 4"
-msgstr "將視窗移至第 4 個工作區"
+msgstr "將視窗移至工作區 4"
 
 #: data/50-mutter-navigation.xml:21
 msgid "Move window to last workspace"
-msgstr "將視窗移至上一個工作區"
+msgstr "將視窗移至最後的工作區"
 
 #: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace to the left"
-msgstr "將視窗移至左方的工作區"
+msgstr "將視窗移至左方工作區"
 
 #: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace to the right"
-msgstr "將視窗移至右方的工作區"
+msgstr "將視窗移至右方工作區"
 
 #: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
-msgstr "將視窗移至上方的工作區"
+msgstr "將視窗移至上方工作區"
 
 #: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
-msgstr "將視窗移至下方的工作區"
+msgstr "將視窗移至下方工作區"
 
 #: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
-msgstr "將視窗移至左方的螢幕"
+msgstr "將視窗移至左方螢幕"
 
 #: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
-msgstr "將視窗移至右方的螢幕"
+msgstr "將視窗移至右方螢幕"
 
 #: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
-msgstr "將視窗移至上方的螢幕"
+msgstr "將視窗移至上方螢幕"
 
 #: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
-msgstr "將視窗移至下方的螢幕"
+msgstr "將視窗移至下方螢幕"
 
 #: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
-msgstr "切換程式"
+msgstr "切換應用程式"
 
 #: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
-msgstr "切換至上一個應用程式"
+msgstr "切換至上個應用程式"
 
 #: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
@@ -92,47 +93,47 @@ msgstr "切換視窗"
 
 #: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
-msgstr "切換至上一個視窗"
+msgstr "切換至上個視窗"
 
 #: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
-msgstr "切換程式的視窗"
+msgstr "切換單一應用程式的多個視窗"
 
 #: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
-msgstr "切換至上一個應用程式的視窗"
+msgstr "切換至單一應用程式的上個視窗"
 
 #: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
-msgstr "切換系統控制"
+msgstr "切換系統的控制項"
 
 #: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
-msgstr "切換至上一個系統控制"
+msgstr "切換至上個系統的控制項"
 
 #: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
-msgstr "直接切換視窗"
+msgstr "直接切換目前工作區中的視窗"
 
 #: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
-msgstr "直接切換至上一個視窗"
+msgstr "直接切換至上個視窗"
 
 #: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr "直接切換程式的視窗"
+msgstr "直接切換單一應用程式的多個視窗"
 
 #: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr "直接切換至上一個程式視窗"
+msgstr "直接切換至單一應用程式的上個視窗"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
-msgstr "直接切換系統控制"
+msgstr "直接切換系統的控制項"
 
 #: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
-msgstr "直接切換至上一個系統控制"
+msgstr "直接切換至上個系統的控制項"
 
 #: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
@@ -140,39 +141,39 @@ msgstr "隱藏所有一般視窗"
 
 #: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
-msgstr "切換至第 1 個工作區"
+msgstr "前往工作區 1"
 
 #: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
-msgstr "切換至第 2 個工作區"
+msgstr "前往工作區 2"
 
 #: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
-msgstr "切換至第 3 個工作區"
+msgstr "前往工作區 3"
 
 #: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
-msgstr "切換至第 4 個工作區"
+msgstr "前往工作區 4"
 
 #: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
-msgstr "切換至上一個工作區"
+msgstr "前往最後的工作區"
 
 #: data/50-mutter-navigation.xml:131
 msgid "Move to workspace on the left"
-msgstr "將工作區左移"
+msgstr "前往左方工作區"
 
 #: data/50-mutter-navigation.xml:134
 msgid "Move to workspace on the right"
-msgstr "將工作區右移"
+msgstr "前往右方工作區"
 
 #: data/50-mutter-navigation.xml:138
 msgid "Move to workspace above"
-msgstr "移至上方的工作區"
+msgstr "前往上方工作區"
 
 #: data/50-mutter-navigation.xml:142
 msgid "Move to workspace below"
-msgstr "移至下方的工作區"
+msgstr "前往下方工作區"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -180,15 +181,11 @@ msgstr "系統"
 
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
-msgstr "顯示執行指令提示"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "顯示活動概覽"
+msgstr "顯示執行命令畫面"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr "重設鍵盤快捷鍵"
+msgstr "重設鍵盤捷徑鍵"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -196,23 +193,23 @@ msgstr "視窗"
 
 #: data/50-mutter-windows.xml:8
 msgid "Activate the window menu"
-msgstr "使用視窗選單"
+msgstr "顯示視窗選單"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
-msgstr "切換全螢幕模式"
+msgstr "將視窗全螢幕顯示/取消全螢幕"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr "切換最大化狀態"
+msgstr "將視窗最大化/取消最大化"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
-msgstr "視窗最大化"
+msgstr "將視窗最大化"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr "還原視窗"
+msgstr "還原最大化的視窗"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
@@ -232,163 +229,168 @@ msgstr "調整視窗大小"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr "切換視窗顯示在所有工作區或是只顯示於其中之一"
+msgstr "於所有工作區/單一工作區顯示視窗"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
-msgstr "若被其他視窗遮蔽就抬升它，否則將它降下"
+msgstr "將視窗抬升或降低顯示覆蓋的視窗"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
-msgstr "令某個視窗覆蓋其它視窗"
+msgstr "將視窗移至最上層"
 
 #: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
-msgstr "遮蔽某個視窗"
+msgstr "將視窗移至最下層"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
-msgstr "將視窗縱向最大化"
+msgstr "將視窗直向最大化"
 
 #: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
 msgstr "將視窗橫向最大化"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
 msgid "View split on left"
-msgstr "檢視分割於左側"
+msgstr "將視窗分割至螢幕左側"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
 msgid "View split on right"
-msgstr "檢視分割於右側"
+msgstr "將視窗分割至螢幕右側"
 
 #: data/mutter.desktop.in:4
 msgid "Mutter"
 msgstr "Mutter"
 
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
-msgstr "用於延伸視窗管理操作程序的特殊按鍵"
+msgstr "用於延伸視窗管理操作的特殊按鍵"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
 msgstr ""
-"這個設定鍵會初始化「overlay」，這是一個複合視窗概覽與應用程式執行系統。預設是"
-"要成為 PC 硬體上的「Windows key」。預期這個按鍵組含不是預設值就是設定為空字"
-"串。"
+"這個按鍵會呼叫「概覽」畫面（結合視窗全覽與應用程式啟動器的功能），預設值為 "
+"PC 硬體上的「Windows 按鍵」。預期這個按鍵組合不是預設值就是設為空字串。"
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
-msgstr "附加模態對話盒"
+msgstr "附加模態對話框"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
-"當設為「true」，將不會有獨立的標題列，模態對話盒會附加在上層視窗的標題列並與"
-"上層視窗一起移動。"
+"當設為「True」，模態對話框會附加在上層視窗的標題列並與上層視窗一起移動，而不"
+"會有獨立的標題列。"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "在螢幕邊緣放下視窗時啟用邊緣拼貼"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
-"如果啟用，將視窗拖放到螢幕垂直邊緣時會讓它們垂直最大化並調整水平方向大小覆蓋"
-"可用區域的一半。拖放視窗到螢幕頂端邊緣則會讓它們完全最大化。"
+"若啟用，將視窗拖放到螢幕垂直邊緣時，會讓它垂直最大化並調整其水平寬度為螢幕可"
+"用空間的一半；拖放到螢幕頂端邊緣則會讓它完全最大化。"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "工作區以動態方式管理"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
-"決定工作區以動態方式管理或是有固定數量的工作區 (以 org.gnome.desktop.wm."
-"preferences 中的 num-workspaces 鍵值來決定)。"
+"決定工作區以動態方式管理或為有固定數量的工作區（以 org.gnome.desktop.wm."
+"preferences 中的 num-workspaces 鍵值來決定）。"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
-msgstr "只有主要螢幕的工作區"
+msgstr "只在主要螢幕使用工作區"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
-msgstr "決定工作區切換是否使用於所有螢幕的視窗或只用於主要螢幕的視窗。"
+msgstr "決定工作區切換是否用於所有螢幕的視窗，或只用於主要螢幕的視窗。"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:67
+#, fuzzy
 msgid "No tab popup"
 msgstr "沒有分頁彈出項"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:68
+#, fuzzy
 msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
 msgstr "決定當視窗輪換時是否使用彈出式和強調框架。"
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:76
+#, fuzzy
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "延遲焦點的改變直到指標停止移動"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:77
+#, fuzzy
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
-"如果設為 true，焦點模式為「sloppy」或「mouse」，則焦點不會在進入視窗時立即改"
-"變，而是在指標停止移動之後才改變。"
+"若設為「true」，焦點模式為「sloppy」或「mouse」，則焦點不會在進入視窗時立即改"
+"變，而是在滑鼠指標停止移動之後才改變。"
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:87
 msgid "Draggable border width"
-msgstr "可拖曳邊框寬度"
+msgstr "可拖曳的邊框寬度"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
-"所有可拖曳邊框的總數。如果布景的可視邊框不夠，會加入隱形邊框來符合這個數值。"
+"所有可拖曳邊框的寬度數值。如果布景的可視邊框寬度不夠，會加入隱形邊框來符合這"
+"個數值。"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Auto maximize nearly monitor sized windows"
-msgstr "自動最大化接近螢幕大小的視窗"
+msgstr "自動最大化與螢幕大小相近的視窗"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
-msgstr "如果啟用，初始大小為螢幕大小的新視窗會自動最大化。"
+msgstr "若啟用，初始大小為螢幕大小相近的新視窗會自動最大化。"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:106
 msgid "Place new windows in the center"
-msgstr "將新視窗放置於中央"
+msgstr "將新視窗置於中央"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
-msgstr "當設定為「true」時，新視窗會永遠置於使用中螢幕畫面的正中央。"
+msgstr "設定為「true」時，新視窗會永遠置於使用中的螢幕畫面正中央。"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:116
 msgid "Enable experimental features"
-msgstr "啟用試驗性功能"
+msgstr "啟用實驗性功能"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:117
+#, fuzzy
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -397,112 +399,121 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
-"mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “dma-buf-screen-sharing\" — "
-"enables DMA buffered screen sharing. This is already enabled by default when "
-"using the i915 driver, but disabled for everything else. Requires a restart. "
-"• “autoclose-xwayland” — automatically terminates Xwayland if all relevant "
-"X11 clients are gone. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
+"low priority real-time scheduling. Requires a restart. • “autoclose-"
+"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
+"are gone. Requires a restart."
 msgstr ""
-"若要啟用實驗性功能，請將功能關鍵字加入列表中。置於該功能是否須要重新啟動混成器則視給予的功能而定。任何實驗性功能不一定能用、或是可以調整設定。請不要預期在"
-"此設定中加入的任何東西未來都能存在。目前可用的關鍵字有：• 「scale-monitor-framebuffer」— 讓 mutter "
-"預設採用邏輯像素座標空間的配置邏輯螢幕，而縮放螢幕 framebuffer 則取代視窗內容以管理 HiDPI 螢幕。不需要重新啟動。• “rt-"
-"scheduler”— 讓 mutter 請求低優先級的即時排程。可執行檔或使用者必須要有CAP_SYS_NICE。需要重新啟動。• “dma-buf-"
-"screen-sharing”—啟用 DMA 緩衝的螢幕分享。在使用 i915 驅動程式時已經預設啟用，但使用其他驅動程式則否。需要重新啟動。• "
-"“autoclose-xwayland”—如果所有相關 X11 客戶端都結束則自動中止 Xwayland。不需要重新啟動。"
+"若要啟用實驗性功能，請將功能關鍵字加入列表中。置於該功能是否須要重新啟動混成"
+"器則視給予的功能而定。任何實驗性功能不一定能用、或是可以調整設定。請不要預期"
+"在此設定中加入的任何東西未來都能存在。目前可用的關鍵字有：• 「scale-monitor-"
+"framebuffer」— 讓 mutter 預設採用邏輯像素座標空間的配置邏輯螢幕，而縮放螢幕 "
+"framebuffer 則取代視窗內容以管理 HiDPI 螢幕。不需要重新啟動。• “rt-"
+"scheduler”— 讓 mutter 請求低優先級的即時排程。可執行檔或使用者必須要有"
+"CAP_SYS_NICE。需要重新啟動。• “dma-buf-screen-sharing”—啟用 DMA 緩衝的螢幕分"
+"享。在使用 i915 驅動程式時已經預設啟用，但使用其他驅動程式則否。需要重新啟"
+"動。• “autoclose-xwayland”—如果所有相關 X11 客戶端都結束則自動中止 Xwayland。"
+"不需要重新啟動。"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Modifier to use to locate the pointer"
-msgstr "要用來定位指標的輔助鍵"
-
-#: data/org.gnome.mutter.gschema.xml.in:144
-msgid "This key will initiate the “locate pointer” action."
-msgstr "這個按鍵將會「定位指標」。"
+msgstr "要用來定位滑鼠指標的輔助鍵"
 
 #: data/org.gnome.mutter.gschema.xml.in:151
-msgid "Timeout for check-alive ping"
-msgstr "檢測 ping 逾時時間"
+msgid "This key will initiate the “locate pointer” action."
+msgstr "按下這個按鍵將會「定位滑鼠指標」。"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:158
+msgid "Timeout for check-alive ping"
+msgstr "檢查 Ping 的逾時時間"
+
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
-msgstr "客戶端必須回應 ping 請求的毫秒數，用於檢測其是否已凍結︰使用 0 會完全停用這個檢測。"
+msgstr ""
+"客戶端必須回應 Ping 請求的毫秒數，用於檢測其是否已凍結；使用 0 會完全停用這個"
+"檢測。"
 
-#: data/org.gnome.mutter.gschema.xml.in:176
+#: data/org.gnome.mutter.gschema.xml.in:183
+#, fuzzy
 msgid "Select window from tab popup"
 msgstr "從分頁彈出項選擇視窗"
 
-#: data/org.gnome.mutter.gschema.xml.in:181
+#: data/org.gnome.mutter.gschema.xml.in:188
+#, fuzzy
 msgid "Cancel tab popup"
 msgstr "取消分頁彈出項"
 
-#: data/org.gnome.mutter.gschema.xml.in:186
+#: data/org.gnome.mutter.gschema.xml.in:193
 msgid "Switch monitor configurations"
-msgstr "切換螢幕組態"
+msgstr "切換螢幕的組態"
 
-#: data/org.gnome.mutter.gschema.xml.in:191
+#: data/org.gnome.mutter.gschema.xml.in:198
 msgid "Rotates the built-in monitor configuration"
-msgstr "旋轉切換內建螢幕組態"
+msgstr "旋轉內建螢幕的組態"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
-msgstr "切換至 VT 1"
+msgstr "切換至虛擬終端 1"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
-msgstr "切換至 VT 2"
+msgstr "切換至虛擬終端 2"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
-msgstr "切換至 VT 3"
+msgstr "切換至虛擬終端 3"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
-msgstr "切換至 VT 4"
+msgstr "切換至虛擬終端 4"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
-msgstr "切換至 VT 5"
+msgstr "切換至虛擬終端 5"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
-msgstr "切換至 VT 6"
+msgstr "切換至虛擬終端 6"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
-msgstr "切換至 VT 7"
+msgstr "切換至虛擬終端 7"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
-msgstr "切換至 VT 8"
+msgstr "切換至虛擬終端 8"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
-msgstr "切換至 VT 9"
+msgstr "切換至虛擬終端 9"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
-msgstr "切換至 VT 10"
+msgstr "切換至虛擬終端 10"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
-msgstr "切換至 VT 11"
+msgstr "切換至虛擬終端 11"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
-msgstr "切換至 VT 12"
+msgstr "切換至虛擬終端 12"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr "重新啟用快捷鍵"
+msgstr "重新啟用捷徑鍵"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
+#, fuzzy
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "允許 X11 抓取以使用 Xwayland 鎖定鍵盤焦點"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
+#, fuzzy
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -514,16 +525,20 @@ msgid ""
 "specific X11 ClientMessage to the root window or be among the applications "
 "allowed in key “xwayland-grab-access-rules”."
 msgstr ""
-"在 Xwayland 中執行時，允許所有鍵盤事件通過路由到 X11“覆蓋重定向”視窗抓取。這個選項是用來支援可對應“覆蓋重定向”視窗 (無法接收鍵盤焦點)"
-" 的 X11 客戶端，並發出鍵盤抓取以強制所有鍵盤事件導向該視窗。這個選項鮮少使用，並且對於在一般條件下可以接收鍵盤焦點的正規 X11 視窗沒有影響。"
-"對於在 Wayland 下考慮的 X11 抓取，客戶端也必須送出一個特定的 X11 ClientMessage 到 root 視窗或者在"
-"“xwayland-grab-access-rules”設定鍵白名單中的應用程式。"
+"在 Xwayland 中執行時，允許所有鍵盤事件通過路由到 X11「覆蓋重定向」視窗抓取。"
+"這個選項是用來支援可對應「覆蓋重定向」視窗（無法接收鍵盤焦點）的 X11 客戶端，"
+"並發出鍵盤抓取以強制所有鍵盤事件導向該視窗。這個選項鮮少使用，並且對於在一般"
+"條件下可以接收鍵盤焦點的正規 X11 視窗沒有影響。對於在 Wayland 下考慮的 X11 抓"
+"取，客戶端也必須送出一個特定的 X11 ClientMessage 到 root 視窗或者在"
+"「xwayland-grab-access-rules」設定鍵白名單中的應用程式。"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
+#, fuzzy
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland 應用程式允許發出鍵盤抓取"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:91
+#, fuzzy
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -536,46 +551,50 @@ msgid ""
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
-"列出在 X11 視窗中的這些資源名稱或資源 class 允許或不允許在 Xwayland 底下發出 X11 鍵盤抓取。在已提供的 X11 "
-"視窗中的資源名稱或資源 class 可以獲得，只要使用這個指令 xprop WM_CLASS。在數值內的 Wildcard \"*\" 或 joker "
-"\"?\" 是受支援的。開始於 \"!\" 的數值會被加拒絕，優先於允許數值列表，去取消授權來自預設系統清單的應用程式。這個預設的系統清單包含了以下的應用"
-"程序：“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”，用戶可以取消一個存在的抓取，"
-"透過使用一個具體的鍵盤快捷鍵定義透過這個綁定鍵 restore-shortcuts。"
+"列出在 X11 視窗中的這些資源名稱或資源 class 允許或不允許在 Xwayland 底下發出 "
+"X11 鍵盤抓取。在已提供的 X11 視窗中的資源名稱或資源 class 可以獲得，只要使用"
+"這個指令 xprop WM_CLASS。在數值內的 Wildcard \"*\" 或 joker \"?\" 是受支援"
+"的。開始於 \"!\" 的數值會被加拒絕，優先於允許數值列表，去取消授權來自預設系統"
+"清單的應用程式。這個預設的系統清單包含了以下的應用程"
+"序：“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”，用戶可以取消一個存在的抓取，透過"
+"使用一個具體的鍵盤快捷鍵定義透過這個綁定鍵 restore-shortcuts。"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
-msgstr "停用 Xwayland 中選取的 X 擴充功能"
+msgstr "停用在 Xwayland 中所選的 X 擴充套件"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:117
+#, fuzzy
 msgid ""
 "This option disables the selected X extensions in Xwayland if Xwayland was "
 "built with support for those X extensions. This option has no effect if "
 "Xwayland was built without support for the selected extensions. Xwayland "
 "needs to be restarted for this setting to take effect."
 msgstr ""
-"如果 Xwayland 組建時開啟支援這些 X 擴充功能，此選項將停用 Xwayland 中選取的 X 擴充功能。這個選項在 Xwayland "
-"組建時沒有開啟支援選取的擴充功能時沒有效果。Xwayland 需要重新啟動才能讓設定值生效。"
+"如果 Xwayland 組建時開啟支援這些 X 擴充套件，此選項將停用 Xwayland 中所選擇"
+"的 X 擴充功能。這個選項在 Xwayland 組建時沒有開啟支援選取的擴充功能時沒有效"
+"果。Xwayland 需要重新啟動才能讓設定值生效。"
 
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:246
 msgid "Built-in display"
-msgstr "內建顯示"
+msgstr "內建顯示器"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:275
 msgid "Unknown"
 msgstr "不明"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:277
 msgid "Unknown Display"
-msgstr "不明的顯示器"
+msgstr "不明顯示器"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:293
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -591,100 +610,84 @@ msgstr "合成器"
 # FIXME: I'm still unclear about the meaning of XGetSelectionOwner -- Abel
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:400
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
-msgstr "在畫面「%2$s」中的第 %1$i 個螢幕中已啟動另一個組合視窗管理員。"
+msgstr "在「%2$s」顯示器的第 %1$i 個螢幕已啟動另一個合成式視窗管理器。"
 
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "響鈴事件"
 
-#: src/core/main.c:233
-msgid "Disable connection to session manager"
-msgstr "停用到作業階段管理員的連線"
+#: src/core/display.c:693
+msgid "Privacy Screen Enabled"
+msgstr "啟用螢幕防窺"
 
-#: src/core/main.c:239
+#: src/core/display.c:694
+msgid "Privacy Screen Disabled"
+msgstr "停用螢幕防窺"
+
+#: src/core/meta-context-main.c:567
 msgid "Replace the running window manager"
 msgstr "取代執行中的視窗管理員"
 
-#: src/core/main.c:245
-msgid "Specify session management ID"
-msgstr "指定作業階段管理 ID"
-
-#: src/core/main.c:250
+#: src/core/meta-context-main.c:573
 msgid "X Display to use"
 msgstr "使用的 X 畫面"
 
-#: src/core/main.c:256
-msgid "Initialize session from savefile"
-msgstr "以 savefile 初始化作業階段"
+#: src/core/meta-context-main.c:579
+msgid "Disable connection to session manager"
+msgstr "停用到作業階段管理員的連線"
 
-#: src/core/main.c:262
+#: src/core/meta-context-main.c:585
+msgid "Specify session management ID"
+msgstr "指定作業階段管理 ID"
+
+#: src/core/meta-context-main.c:591
+msgid "Initialize session from savefile"
+msgstr "以 SaveFile 初始化作業階段"
+
+#: src/core/meta-context-main.c:597
 msgid "Make X calls synchronous"
 msgstr "使用同步方式調用 X 函式"
 
-#: src/core/main.c:269
+#: src/core/meta-context-main.c:605
 msgid "Run as a wayland compositor"
-msgstr "以 wayland 組合器執行"
+msgstr "以 Wayland 合成器執行"
 
-#: src/core/main.c:275
+#: src/core/meta-context-main.c:611
 msgid "Run as a nested compositor"
-msgstr "以巢狀組合器執行"
+msgstr "以巢狀合成器執行"
 
-#: src/core/main.c:281
+#: src/core/meta-context-main.c:617
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "在不啟動 Xwayland 的情況下開啟 Wayland 合成器"
 
-#: src/core/main.c:287
+#: src/core/meta-context-main.c:623
 msgid "Specify Wayland display name to use"
 msgstr "選擇要使用的 Wayland 顯示名稱"
 
-#: src/core/main.c:295
+#: src/core/meta-context-main.c:631
 msgid "Run as a full display server, rather than nested"
-msgstr "以完全顯示伺服器執行，而非巢狀"
+msgstr "以完整的顯示伺服器執行而非巢狀顯示伺服器"
 
-#: src/core/main.c:300
+#: src/core/meta-context-main.c:636
 msgid "Run as a headless display server"
 msgstr "以無顯示伺服器執行"
 
-#: src/core/main.c:305
+#: src/core/meta-context-main.c:641
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "加入固定的虛擬顯示器 (WxH 或 WxH@R)"
 
-#: src/core/main.c:311
+#: src/core/meta-context-main.c:653
 msgid "Run with X11 backend"
 msgstr "透過 X11 後端執行"
-
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "「%s」沒有回應。"
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "應用程式沒有回應。"
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr "您可以選擇稍等一下讓它繼續，或者強制完全退出程式。"
-
-#: src/core/meta-close-dialog-default.c:165
-msgid "_Force Quit"
-msgstr "強制退出(_F)"
-
-#: src/core/meta-close-dialog-default.c:165
-msgid "_Wait"
-msgstr "等待(_W)"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:780
+#: src/core/meta-pad-action-mapper.c:842
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切換( 群組 %d)"
@@ -692,75 +695,94 @@ msgstr "模式切換( 群組 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:803
+#: src/core/meta-pad-action-mapper.c:865
 msgid "Switch monitor"
 msgstr "切換螢幕"
 
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:867
 msgid "Show on-screen help"
 msgstr "顯示螢幕求助"
 
-#: src/core/mutter.c:46
+#: src/core/mutter.c:74
 msgid "Print version"
-msgstr "顯示版本"
+msgstr "輸出版本"
 
-#: src/core/mutter.c:52
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
-msgstr "要使用的 Mutter 外掛程式"
+msgstr "要使用的 Mutter 擴充套件"
 
 # (Abel) take care of the same string in libwnck
-#: src/core/prefs.c:1912
+#: src/core/prefs.c:1913
 #, c-format
 msgid "Workspace %d"
 msgstr "工作區 %d"
 
-#: src/core/util.c:117
+#: src/core/util.c:142
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "編譯 Mutter 時並沒有加入詳細偵錯模式的支援"
 
-#: src/wayland/meta-wayland-tablet-pad.c:519
+#: src/wayland/meta-wayland-tablet-pad.c:520
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "模式切換：模式 %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:659
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"畫面「%s」已經有了視窗管理員；請嘗試使用 --replace 選項來替換目前的視窗管理"
-"員。"
+"「%s」螢幕已有視窗管理器；請嘗試使用 --replace 選項來替換目前的視窗管理器。"
 
-#: src/x11/meta-x11-display.c:1097
+#: src/x11/meta-x11-display.c:1048
 msgid "Failed to initialize GDK"
 msgstr "無法初始化 GDK"
 
-#: src/x11/meta-x11-display.c:1121
+#: src/x11/meta-x11-display.c:1072
 #, c-format
 msgid "Failed to open X Window System display “%s”"
-msgstr "無法開啟 X Window 系統畫面“%s”"
+msgstr "無法開啟 X Window 系統畫面「%s」"
 
-#: src/x11/meta-x11-display.c:1204
+#: src/x11/meta-x11-display.c:1180
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
-msgstr "螢幕 %d 於顯示“%s”是無效的"
+msgstr "「%2$s」顯示器的 %1$d 螢幕是無效的"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#: src/x11/meta-x11-selection-input-stream.c:474
 #, c-format
 msgid "Format %s not supported"
 msgstr "不支援 %s 格式"
 
-#: src/x11/session.c:1822
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr "這些視窗不支援「儲存目前的設定」，必須在下次登入後自行啟動。"
-
 #: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
-msgstr "%s（在 %s）"
+msgstr "%s（位於 %s）"
+
+#~ msgid "Show the activities overview"
+#~ msgstr "顯示活動概覽"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "「%s」沒有回應。"
+
+#~ msgid "Application is not responding."
+#~ msgstr "應用程式沒有回應。"
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr "您可以選擇稍等一下讓它繼續，或者強制完全退出程式。"
+
+#~ msgid "_Force Quit"
+#~ msgstr "強制退出(_F)"
+
+#~ msgid "_Wait"
+#~ msgstr "等待(_W)"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr "這些視窗不支援「儲存目前的設定」，必須在下次登入後自行啟動。"
 
 #~ msgid ""
 #~ "mutter %s\n"
@@ -951,8 +973,8 @@ msgstr "%s（在 %s）"
 #~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
 #~ "specified for this frame style"
 #~ msgstr ""
-#~ "此邊框款式必須指定 <button function=\"%s\" state=\"%s\" draw_ops="
-#~ "\"whatever\"/>"
+#~ "此邊框款式必須指定 <button function=\"%s\" state=\"%s\" "
+#~ "draw_ops=\"whatever\"/>"
 
 #~ msgid ""
 #~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
@@ -1053,8 +1075,8 @@ msgstr "%s（在 %s）"
 #~ msgstr "元素 <%s> 不允許在 <%s> 之下"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "不可能同時指定按鈕的寬度/長度 (button_width/button_height) 及長寬比"
 #~ "(aspect_ratio)"
