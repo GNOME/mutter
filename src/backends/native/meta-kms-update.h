@@ -81,6 +81,7 @@ typedef struct _MetaKmsPlaneFeedback
 typedef void (* MetaKmsResultListenerFunc) (const MetaKmsFeedback *feedback,
                                             gpointer               user_data);
 
+META_EXPORT_TEST
 void meta_kms_feedback_free (MetaKmsFeedback *feedback);
 
 MetaKmsFeedbackResult meta_kms_feedback_get_result (const MetaKmsFeedback *feedback);
