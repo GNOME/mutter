@@ -356,7 +356,7 @@ update_base_winsys_features (CoglRenderer *renderer)
                              "GLX", winsys_feature_data + i,
                              glx_renderer->glx_major,
                              glx_renderer->glx_minor,
-                             COGL_DRIVER_GL, /* the driver isn't used */
+                             COGL_DRIVER_GL3, /* the driver isn't used */
                              split_extensions,
                              glx_renderer))
       {
@@ -402,8 +402,7 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   if (!_cogl_xlib_renderer_connect (renderer, error))
     goto error;
 
-  if (renderer->driver != COGL_DRIVER_GL &&
-      renderer->driver != COGL_DRIVER_GL3)
+  if (renderer->driver != COGL_DRIVER_GL3)
     {
       g_set_error_literal (error, COGL_WINSYS_ERROR,
                            COGL_WINSYS_ERROR_INIT,

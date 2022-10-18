@@ -137,8 +137,7 @@ _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
 static void
 _cogl_winsys_renderer_bind_api (CoglRenderer *renderer)
 {
-  if (renderer->driver == COGL_DRIVER_GL ||
-      renderer->driver == COGL_DRIVER_GL3)
+  if (renderer->driver == COGL_DRIVER_GL3)
     eglBindAPI (EGL_OPENGL_API);
   else if (renderer->driver == COGL_DRIVER_GLES2)
     eglBindAPI (EGL_OPENGL_ES_API);
@@ -162,7 +161,7 @@ check_egl_extensions (CoglRenderer *renderer)
   for (i = 0; i < G_N_ELEMENTS (winsys_feature_data); i++)
     if (_cogl_feature_check (renderer,
                              "EGL", winsys_feature_data + i, 0, 0,
-                             COGL_DRIVER_GL, /* the driver isn't used */
+                             COGL_DRIVER_GL3, /* the driver isn't used */
                              split_extensions,
                              egl_renderer))
       {
@@ -241,8 +240,7 @@ cogl_display_egl_determine_attributes (CoglDisplay                 *display,
   attributes[i++] = EGL_DONT_CARE;
 
   attributes[i++] = EGL_RENDERABLE_TYPE;
-  attributes[i++] = ((renderer->driver == COGL_DRIVER_GL ||
-                      renderer->driver == COGL_DRIVER_GL3) ?
+  attributes[i++] = (renderer->driver == COGL_DRIVER_GL3 ?
                      EGL_OPENGL_BIT :
                      EGL_OPENGL_ES2_BIT);
 

@@ -1,4 +1,4 @@
-all_variants = ['gl', 'gl3', 'gles2']
+all_variants = ['gl3', 'gles2']
 any_variant = ['any']
 
 cogl_unit_tests = [

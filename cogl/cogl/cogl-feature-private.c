@@ -65,15 +65,13 @@ _cogl_feature_check (CoglRenderer *renderer,
     case COGL_DRIVER_ANY:
       g_assert_not_reached ();
     case COGL_DRIVER_NOP:
-    case COGL_DRIVER_GL:
     case COGL_DRIVER_GL3:
       break;
     }
 
   /* First check whether the functions should be directly provided by
      GL */
-  if (((driver == COGL_DRIVER_GL ||
-        driver == COGL_DRIVER_GL3) &&
+  if ((driver == COGL_DRIVER_GL3 &&
        COGL_CHECK_GL_VERSION (gl_major, gl_minor,
                               data->min_gl_major, data->min_gl_minor)) ||
       (data->gles_availability & gles_availability))

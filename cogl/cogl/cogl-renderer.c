@@ -89,15 +89,6 @@ static CoglDriverDescription _cogl_drivers[] =
 {
 #ifdef HAVE_COGL_GL
   {
-    COGL_DRIVER_GL,
-    "gl",
-    { COGL_PRIVATE_FEATURE_ANY_GL,
-      -1 },
-    &_cogl_driver_gl,
-    &_cogl_texture_driver_gl,
-    COGL_GL_LIBNAME,
-  },
-  {
     COGL_DRIVER_GL3,
     "gl3",
     { COGL_PRIVATE_FEATURE_ANY_GL,
@@ -344,8 +335,6 @@ driver_id_to_name (CoglDriver id)
 {
   switch (id)
     {
-      case COGL_DRIVER_GL:
-        return "gl";
       case COGL_DRIVER_GL3:
         return "gl3";
       case COGL_DRIVER_GLES2:

@@ -292,7 +292,6 @@ cogl_renderer_remove_constraint (CoglRenderer *renderer,
  * CoglDriver:
  * @COGL_DRIVER_ANY: Implies no preference for which driver is used
  * @COGL_DRIVER_NOP: A No-Op driver.
- * @COGL_DRIVER_GL: An OpenGL driver.
  * @COGL_DRIVER_GL3: An OpenGL driver using the core GL 3.1 profile
  * @COGL_DRIVER_GLES2: An OpenGL ES 2.0 driver.
  *
@@ -303,7 +302,6 @@ typedef enum
 {
   COGL_DRIVER_ANY,
   COGL_DRIVER_NOP,
-  COGL_DRIVER_GL,
   COGL_DRIVER_GL3,
   COGL_DRIVER_GLES2,
 } CoglDriver;

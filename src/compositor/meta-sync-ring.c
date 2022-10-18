@@ -179,13 +179,6 @@ check_gl_extensions (void)
 
         return arb_sync && x11_sync_object;
       }
-    case COGL_DRIVER_GL:
-      {
-        const char *extensions = meta_gl_get_string (GL_EXTENSIONS);
-        return (extensions != NULL &&
-                strstr (extensions, "GL_ARB_sync") != NULL &&
-                strstr (extensions, "GL_EXT_x11_sync_object") != NULL);
-      }
     default:
       break;
     }

@@ -456,20 +456,6 @@ get_max_activateable_texture_units (void)
         }
 #endif
 
-#ifdef HAVE_COGL_GL
-      if (ctx->driver == COGL_DRIVER_GL)
-        {
-          /* GL_MAX_TEXTURE_UNITS defines the number of units that are
-             usable from the fixed function pipeline, therefore it isn't
-             available in GLES2. These are also tied to the number of
-             texture coordinates that can be uploaded so it should be less
-             than that available from the shader extensions */
-          GE (ctx, glGetIntegerv (GL_MAX_TEXTURE_UNITS,
-                                  values + n_values++));
-
-        }
-#endif
-
       g_assert (n_values <= G_N_ELEMENTS (values) &&
                 n_values > 0);
 
