@@ -224,7 +224,6 @@ on_after_update (ClutterStage          *stage,
       MetaWaylandSurface *surface = l->data;
       MetaSurfaceActor *actor;
       MetaWaylandActorSurface *actor_surface;
-      ClutterStageView *surface_primary_view;
 
       l = l->next;
 
@@ -232,9 +231,8 @@ on_after_update (ClutterStage          *stage,
       if (!actor)
         continue;
 
-      surface_primary_view =
-        meta_surface_actor_wayland_get_current_primary_view (actor, stage);
-      if (stage_view != surface_primary_view)
+      if (!meta_surface_actor_wayland_is_view_primary (actor,
+                                                       stage_view))
         continue;
 
       actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
