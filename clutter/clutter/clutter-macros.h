@@ -26,52 +26,6 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-/**
- * CLUTTER_FLAVOUR:
- *
- * GL Windowing system used
- *
- * Deprecated: 1.10: The macro evaluates to "deprecated" as Clutter can be
- *   compiled with multiple windowing system backends. Use the various
- *   CLUTTER_WINDOWING_* macros to detect the windowing system that Clutter
- *   is being compiled against, and the type check macros for the
- *   #ClutterBackend for a run-time check.
- */
-#define CLUTTER_FLAVOUR         "deprecated"
-
-/**
- * CLUTTER_COGL:
- *
- * Cogl (internal GL abstraction utility library) backend. Can be "gl" or
- * "gles" currently
- *
- * Deprecated: 1.10: The macro evaluates to "deprecated" as Cogl can be
- *   compiled against multiple GL implementations.
- */
-#define CLUTTER_COGL            "deprecated"
-
-/**
- * CLUTTER_STAGE_TYPE:
- *
- * The default GObject type for the Clutter stage.
- *
- * Deprecated: 1.10: The macro evaluates to "deprecated" as Clutter can
- *   be compiled against multiple windowing systems. You can use the
- *   CLUTTER_WINDOWING_* macros for compile-time checks, and the type
- *   check macros for run-time checks.
- */
-#define CLUTTER_STAGE_TYPE      "deprecated"
-
-/**
- * CLUTTER_NO_FPU:
- *
- * Set to 1 if Clutter was built without FPU (i.e fixed math), 0 otherwise
- *
- * Deprecated: 0.6: This macro is no longer defined (identical code is used
- *  regardless the presence of FPU).
- */
-#define CLUTTER_NO_FPU          (0)
-
 /* some structures are meant to be opaque and still be allocated on the stack;
  * in order to avoid people poking at their internals, we use this macro to
  * ensure that users don't accidentally access a struct private members.
