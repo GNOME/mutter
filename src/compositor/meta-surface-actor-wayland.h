@@ -44,8 +44,8 @@ MetaSurfaceActor * meta_surface_actor_wayland_new (MetaWaylandSurface *surface);
 MetaWaylandSurface * meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self);
 void meta_surface_actor_wayland_surface_destroyed (MetaSurfaceActorWayland *self);
 
-ClutterStageView * meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
-                                                                        ClutterStage     *stage);
+gboolean meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
+                                                     ClutterStageView *stage_view);
 
 G_END_DECLS
 
