@@ -1395,8 +1395,16 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
   MetaOutputKms *output_kms = META_OUTPUT_KMS (onscreen_native->output);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
 
-  meta_crtc_kms_maybe_set_gamma (crtc_kms, kms_device);
+  if (meta_crtc_kms_is_gamma_invalid (crtc_kms))
+    {
+      MetaKmsUpdate *kms_update;
+
+      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+      meta_crtc_kms_set_gamma (crtc_kms, kms_update);
+    }
+
   meta_output_kms_maybe_set_privacy_screen (output_kms, kms_device);
 }
 

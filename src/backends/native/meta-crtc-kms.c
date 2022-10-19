@@ -368,9 +368,15 @@ generate_crtc_connector_list (MetaGpu  *gpu,
   return connectors;
 }
 
+gboolean
+meta_crtc_kms_is_gamma_invalid (MetaCrtcKms *crtc_kms)
+{
+  return !crtc_kms->is_gamma_valid;
+}
+
 void
-meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
-                               MetaKmsDevice *kms_device)
+meta_crtc_kms_set_gamma (MetaCrtcKms   *crtc_kms,
+                         MetaKmsUpdate *kms_update)
 {
   MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   MetaBackend *backend = meta_gpu_get_backend (gpu);
@@ -378,23 +384,16 @@ meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerNative *monitor_manager_native =
     META_MONITOR_MANAGER_NATIVE (monitor_manager);
-  MetaKms *kms = meta_kms_device_get_kms (kms_device);
-  MetaKmsUpdate *kms_update;
   MetaKmsCrtcGamma *gamma;
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
 
-  if (crtc_kms->is_gamma_valid)
-    return;
-
-  if (!meta_kms_crtc_has_gamma (kms_crtc))
-    return;
+  g_return_if_fail (!crtc_kms->is_gamma_valid);
+  g_return_if_fail (meta_kms_crtc_has_gamma (kms_crtc));
 
   gamma = meta_monitor_manager_native_get_cached_crtc_gamma (monitor_manager_native,
                                                              crtc_kms);
-  if (!gamma)
-    return;
+  g_return_if_fail (gamma);
 
-  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
   meta_kms_update_set_crtc_gamma (kms_update,
                                   kms_crtc,
                                   gamma->size,
@@ -531,6 +530,7 @@ meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
 
   crtc_kms->kms_crtc = kms_crtc;
   crtc_kms->primary_plane = primary_plane;
+  crtc_kms->is_gamma_valid = TRUE;
 
   if (!kms_crtc_crtc_kms_quark)
     {

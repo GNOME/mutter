@@ -74,8 +74,10 @@ meta_crtc_kms_supports_format (MetaCrtcKms *crtc_kms,
 
 void meta_crtc_kms_invalidate_gamma (MetaCrtcKms *crtc_kms);
 
-void meta_crtc_kms_maybe_set_gamma (MetaCrtcKms   *crtc_kms,
-                                    MetaKmsDevice *kms_device);
+gboolean meta_crtc_kms_is_gamma_invalid (MetaCrtcKms *crtc_kms);
+
+void meta_crtc_kms_set_gamma (MetaCrtcKms   *crtc_kms,
+                              MetaKmsUpdate *kms_update);
 
 MetaCrtcKms * meta_crtc_kms_from_kms_crtc (MetaKmsCrtc *kms_crtc);
 
