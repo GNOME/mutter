@@ -1405,7 +1405,13 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
       meta_crtc_kms_set_gamma (crtc_kms, kms_update);
     }
 
-  meta_output_kms_maybe_set_privacy_screen (output_kms, kms_device);
+  if (meta_output_kms_is_privacy_screen_invalid (output_kms))
+    {
+      MetaKmsUpdate *kms_update;
+
+      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+      meta_output_kms_set_privacy_screen (output_kms, kms_update);
+    }
 }
 
 void

@@ -176,23 +176,25 @@ meta_output_kms_set_privacy_screen_enabled (MetaOutput  *output,
   return TRUE;
 }
 
-void
-meta_output_kms_maybe_set_privacy_screen (MetaOutputKms *output_kms,
-                                          MetaKmsDevice *kms_device)
+gboolean
+meta_output_kms_is_privacy_screen_invalid (MetaOutputKms *output_kms)
 {
-  MetaKms *kms = meta_kms_device_get_kms (kms_device);
-  MetaKmsConnector *connector = meta_output_kms_get_kms_connector (output_kms);
-  MetaKmsUpdate *kms_update;
+  return !output_kms->is_privacy_screen_valid;
+}
 
-  if (output_kms->is_privacy_screen_valid)
-    return;
+void
+meta_output_kms_set_privacy_screen (MetaOutputKms *output_kms,
+                                    MetaKmsUpdate *kms_update)
+{
+  MetaKmsConnector *connector = meta_output_kms_get_kms_connector (output_kms);
+
+  g_return_if_fail (!output_kms->is_privacy_screen_valid);
 
   output_kms->is_privacy_screen_valid = TRUE;
 
   if (!meta_kms_connector_is_privacy_screen_supported (connector))
     return;
 
-  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
   meta_kms_update_set_privacy_screen (kms_update, connector,
                                       output_kms->is_privacy_screen_enabled);
 }
