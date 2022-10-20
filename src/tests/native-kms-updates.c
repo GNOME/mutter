@@ -408,6 +408,8 @@ meta_test_kms_update_merge (void)
   MetaKmsUpdate *update2;
   g_autoptr (MetaGammaLut) lut = NULL;
   g_autoptr (MetaDrmBuffer) cursor_buffer2 = NULL;
+  GList *mode_sets;
+  MetaKmsModeSet *mode_set;
   GList *plane_assignments;
   MetaKmsPlaneAssignment *plane_assignment;
   GList *crtc_color_updates;
@@ -456,11 +458,16 @@ meta_test_kms_update_merge (void)
                                                 10, 11);
 
   /*
-   * Create an update2 with with cursor buffer 2
+   * Create an update2 with a mode set and a cursor buffer 2
    * on the cursor plane at at (32, 56), and a new CRTC gamma.
    */
 
   update2 = meta_kms_update_new (device);
+
+  meta_kms_update_mode_set (update2,
+                            crtc,
+                            g_list_append (NULL, connector),
+                            mode);
 
   lut = meta_gamma_lut_new (3,
                             (uint16_t[]) { 1, 2, 3 },
@@ -487,6 +494,14 @@ meta_test_kms_update_merge (void)
 
   meta_kms_update_merge_from (update1, update2);
   meta_kms_update_free (update2);
+
+  mode_sets = meta_kms_update_get_mode_sets (update1);
+  g_assert_cmpuint (g_list_length (mode_sets), ==, 1);
+  mode_set = mode_sets->data;
+  g_assert (mode_set->crtc == crtc);
+  g_assert (mode_set->mode == mode);
+  g_assert_cmpuint (g_list_length (mode_set->connectors), ==, 1);
+  g_assert (mode_set->connectors->data == connector);
 
   plane_assignments = meta_kms_update_get_plane_assignments (update1);
   g_assert_cmpuint (g_list_length (plane_assignments), ==, 2);

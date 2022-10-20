@@ -672,6 +672,56 @@ meta_kms_custom_page_flip_free (MetaKmsCustomPageFlip *custom_page_flip)
 }
 
 static GList *
+find_mode_set_link_for (MetaKmsUpdate *update,
+                        MetaKmsCrtc   *crtc)
+{
+  GList *l;
+
+  for (l = update->mode_sets; l; l = l->next)
+    {
+      MetaKmsModeSet *mode_set = l->data;
+
+      if (mode_set->crtc == crtc)
+        return l;
+    }
+
+  return NULL;
+}
+
+static void
+merge_mode_sets (MetaKmsUpdate *update,
+                 MetaKmsUpdate *other_update)
+{
+  while (other_update->mode_sets)
+    {
+      GList *l = other_update->mode_sets;
+      MetaKmsModeSet *other_mode_set = l->data;
+      MetaKmsCrtc *crtc = other_mode_set->crtc;
+      GList *el;
+
+      other_update->mode_sets =
+        g_list_remove_link (other_update->mode_sets, l);
+
+      el = find_mode_set_link_for (update, crtc);
+      if (el)
+        {
+          meta_kms_mode_set_free (el->data);
+          update->mode_sets =
+            g_list_insert_before_link (update->mode_sets, el, l);
+          update->mode_sets =
+            g_list_delete_link (update->mode_sets, el);
+        }
+      else
+        {
+          update->mode_sets =
+            g_list_insert_before_link (update->mode_sets,
+                                       update->mode_sets,
+                                       l);
+        }
+    }
+}
+
+static GList *
 find_plane_assignment_link_for (MetaKmsUpdate *update,
                                 MetaKmsPlane  *plane)
 {
@@ -808,10 +858,10 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
                             MetaKmsUpdate *other_update)
 {
   g_return_if_fail (update->device == other_update->device);
-  g_return_if_fail (!update->mode_sets && !other_update->mode_sets);
   g_return_if_fail (!update->connector_updates &&
                     !other_update->connector_updates);
 
+  merge_mode_sets (update, other_update);
   merge_plane_assignments_from (update, other_update);
   merge_crtc_color_updates_from (update, other_update);
   merge_custom_page_flip_from (update, other_update);
