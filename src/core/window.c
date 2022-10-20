@@ -3052,7 +3052,7 @@ unmaximize_window_before_freeing (MetaWindow        *window)
 #endif
 }
 
-static void
+void
 meta_window_maybe_apply_size_hints (MetaWindow    *window,
                                     MetaRectangle *target_rect)
 {
