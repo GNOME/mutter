@@ -1000,6 +1000,28 @@ emit_resources_changed_callback (MetaKms  *kms,
   meta_kms_emit_resources_changed (kms, changes);
 }
 
+static void
+queue_result_feedback (MetaKmsImplDevice *impl_device,
+                       MetaKmsUpdate     *update,
+                       MetaKmsFeedback   *feedback)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (priv->device);
+  GList *result_listeners;
+  GList *l;
+
+  result_listeners = meta_kms_update_take_result_listeners (update);
+  for (l = result_listeners; l; l = l->next)
+    {
+      MetaKmsResultListener *listener = l->data;
+
+      meta_kms_result_listener_set_feedback (listener, feedback);
+      meta_kms_queue_result_callback (kms, listener);
+    }
+}
+
+
 MetaKmsFeedback *
 meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                      MetaKmsUpdate     *update,
@@ -1023,6 +1045,8 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
   feedback = klass->process_update (impl_device, update, flags);
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
     changes = meta_kms_impl_device_predict_states (impl_device, update);
+
+  queue_result_feedback (impl_device, update, feedback);
 
   meta_kms_update_free (update);
 
