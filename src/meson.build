@@ -313,6 +313,8 @@ mutter_sources = [
   'compositor/meta-texture-mipmap.h',
   'compositor/meta-window-actor.c',
   'compositor/meta-window-actor-private.h',
+  'compositor/meta-window-drag.c',
+  'compositor/meta-window-drag.h',
   'compositor/meta-window-group.c',
   'compositor/meta-window-group-private.h',
   'compositor/meta-window-shape.c',

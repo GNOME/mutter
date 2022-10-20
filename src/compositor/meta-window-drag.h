@@ -1,0 +1,40 @@
+/*
+ * Copyright (C) 2022 Red Hat Inc.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * Author: Carlos Garnacho <carlosg@gnome.org>
+ */
+
+#ifndef META_WINDOW_DRAG_H
+#define META_WINDOW_DRAG_H
+
+#include "meta/common.h"
+#include "meta/window.h"
+
+#define META_TYPE_WINDOW_DRAG (meta_window_drag_get_type ())
+G_DECLARE_FINAL_TYPE (MetaWindowDrag, meta_window_drag,
+                      META, WINDOW_DRAG, GObject)
+
+MetaWindowDrag * meta_window_drag_new (MetaWindow *window,
+                                       MetaGrabOp  grab_op);
+
+gboolean meta_window_drag_begin (MetaWindowDrag *drag,
+                                 uint32_t        timestamp);
+
+void meta_window_drag_end (MetaWindowDrag *drag);
+
+#endif /* META_WINDOW_DRAG_H */
