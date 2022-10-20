@@ -20,8 +20,27 @@
 #ifndef META_FRAME_NATIVE_H
 #define META_FRAME_NATIVE_H
 
+#include "backends/native/meta-kms-types.h"
+#include "clutter/clutter.h"
+#include "core/util-private.h"
+
 typedef struct _MetaFrameNative MetaFrameNative;
 
 MetaFrameNative * meta_frame_native_new (void);
+
+META_EXPORT_TEST
+MetaFrameNative * meta_frame_native_from_frame (ClutterFrame *frame);
+
+void meta_frame_native_set_kms_update (MetaFrameNative *frame_native,
+                                       MetaKmsUpdate   *kms_update);
+
+META_EXPORT_TEST
+MetaKmsUpdate * meta_frame_native_ensure_kms_update (MetaFrameNative *frame_native,
+                                                     MetaKmsDevice   *kms_device);
+
+MetaKmsUpdate * meta_frame_native_steal_kms_update (MetaFrameNative *frame_native);
+
+META_EXPORT_TEST
+gboolean meta_frame_native_has_kms_update (MetaFrameNative *frame_native);
 
 #endif /* META_FRAME_NATIVE_H */

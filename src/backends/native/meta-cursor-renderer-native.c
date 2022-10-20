@@ -43,6 +43,7 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-update.h"
@@ -282,6 +283,7 @@ ensure_crtc_cursor_data (MetaCrtcKms *crtc_kms)
 
 static void
 assign_cursor_plane (MetaCursorRendererNative *native,
+                     ClutterFrame             *frame,
                      MetaCrtcKms              *crtc_kms,
                      int                       x,
                      int                       y,
@@ -294,6 +296,7 @@ assign_cursor_plane (MetaCursorRendererNative *native,
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
   MetaCursorNativeGpuState *cursor_gpu_state =
     get_cursor_gpu_state (cursor_priv, gpu_kms);
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsPlane *cursor_plane;
@@ -340,9 +343,8 @@ assign_cursor_plane (MetaCursorRendererNative *native,
   if (!crtc_cursor_data->hw_state_invalidated && buffer == crtc_buffer)
     flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
 
-  kms_update =
-    meta_kms_ensure_pending_update (meta_kms_device_get_kms (kms_device),
-                                    meta_kms_crtc_get_device (kms_crtc));
+  kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                    kms_device);
   plane_assignment = meta_kms_update_assign_plane (kms_update,
                                                    kms_crtc,
                                                    cursor_plane,
@@ -390,6 +392,7 @@ calculate_cursor_crtc_sprite_scale (MetaBackend        *backend,
 
 static void
 set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
+                 ClutterFrame             *frame,
                  MetaRendererView         *view,
                  MetaCrtc                 *crtc,
                  MetaCursorSprite         *cursor_sprite)
@@ -467,6 +470,7 @@ set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
                             &cursor_rect);
 
   assign_cursor_plane (cursor_renderer_native,
+                       frame,
                        META_CRTC_KMS (crtc),
                        cursor_rect.x,
                        cursor_rect.y,
@@ -475,9 +479,11 @@ set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
 
 static void
 unset_crtc_cursor (MetaCursorRendererNative *native,
+                   ClutterFrame             *frame,
                    MetaCrtc                 *crtc)
 {
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   CrtcCursorData *crtc_cursor_data;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
@@ -495,10 +501,10 @@ unset_crtc_cursor (MetaCursorRendererNative *native,
 
   if (cursor_plane)
     {
-      MetaKms *kms = meta_kms_device_get_kms (kms_device);
       MetaKmsUpdate *kms_update;
 
-      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+      kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                        kms_device);
       meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
     }
 
@@ -531,7 +537,8 @@ disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
 
 void
 meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_renderer_native,
-                                           MetaRendererView         *view)
+                                           MetaRendererView         *view,
+                                           ClutterFrame             *frame)
 {
   MetaCursorRenderer *cursor_renderer =
     META_CURSOR_RENDERER (cursor_renderer_native);
@@ -574,7 +581,7 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
   if (!graphene_rect_intersection (&cursor_rect, &view_rect, NULL))
     goto unset_cursor;
 
-  set_crtc_cursor (cursor_renderer_native, view, crtc, cursor_sprite);
+  set_crtc_cursor (cursor_renderer_native, frame, view, crtc, cursor_sprite);
 
   meta_cursor_renderer_emit_painted (cursor_renderer,
                                      cursor_sprite,
@@ -585,7 +592,7 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
   return;
 
 unset_cursor:
-  unset_crtc_cursor (cursor_renderer_native, crtc);
+  unset_crtc_cursor (cursor_renderer_native, frame, crtc);
 
   crtc_cursor_data = ensure_crtc_cursor_data (META_CRTC_KMS (crtc));
   crtc_cursor_data->hw_state_invalidated = FALSE;

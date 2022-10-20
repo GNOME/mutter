@@ -26,7 +26,9 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-onscreen-native.h"
+#include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-device-private.h"
@@ -77,6 +79,14 @@ on_after_update (ClutterStage     *stage,
                  ClutterFrame     *frame,
                  KmsRenderingTest *test)
 {
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+
+  g_assert (meta_renderer_native_has_pending_mode_sets (renderer_native) ||
+            !meta_frame_native_has_kms_update (frame_native));
+
   test->number_of_frames_left--;
   if (test->number_of_frames_left == 0)
     g_main_loop_quit (test->loop);
@@ -342,7 +352,7 @@ on_scanout_fallback_before_paint (ClutterStage     *stage,
   MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
-  MetaKms *kms = meta_kms_device_get_kms (kms_device);
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   CoglScanout *scanout;
   MetaKmsUpdate *kms_update;
 
@@ -364,7 +374,7 @@ on_scanout_fallback_before_paint (ClutterStage     *stage,
 
   test->scanout_fallback.scanout_sabotaged = TRUE;
 
-  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+  kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
   meta_kms_update_add_result_listener (kms_update,
                                        on_scanout_fallback_result, test);
 

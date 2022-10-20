@@ -130,7 +130,8 @@ meta_stage_native_prepare_frame (ClutterStageWindow *stage_window,
                                       META_RENDERER_VIEW (stage_view),
                                       frame);
   meta_cursor_renderer_native_prepare_frame (cursor_renderer_native,
-                                             META_RENDERER_VIEW (stage_view));
+                                             META_RENDERER_VIEW (stage_view),
+                                             frame);
 }
 
 static void

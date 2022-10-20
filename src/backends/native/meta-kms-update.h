@@ -101,6 +101,9 @@ MetaKmsUpdate * meta_kms_update_new (MetaKmsDevice *device);
 META_EXPORT_TEST
 void meta_kms_update_free (MetaKmsUpdate *update);
 
+META_EXPORT_TEST
+MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
+
 void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
                                         MetaKmsConnector *connector,
                                         uint64_t          hborder,
@@ -169,6 +172,10 @@ META_EXPORT_TEST
 void meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
                                           MetaKmsResultListenerFunc  func,
                                           gpointer                   user_data);
+
+META_EXPORT_TEST
+void meta_kms_update_merge_from (MetaKmsUpdate *update,
+                                 MetaKmsUpdate *other_update);
 
 static inline MetaFixed16
 meta_fixed_16_from_int (int16_t d)

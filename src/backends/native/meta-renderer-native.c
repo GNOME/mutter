@@ -101,6 +101,8 @@ struct _MetaRendererNative
 
   GList *power_save_page_flip_onscreens;
   guint power_save_page_flip_source_id;
+
+  GHashTable *mode_set_updates;
 };
 
 static void
@@ -296,6 +298,22 @@ meta_renderer_native_disconnect (CoglRenderer *cogl_renderer)
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
 
   g_free (cogl_renderer_egl);
+}
+
+static MetaKmsUpdate *
+ensure_mode_set_update (MetaRendererNative *renderer_native,
+                        MetaKmsDevice      *kms_device)
+{
+  MetaKmsUpdate *kms_update;
+
+  kms_update = g_hash_table_lookup (renderer_native->mode_set_updates,
+                                    kms_device);
+  if (kms_update)
+    return kms_update;
+
+  kms_update = meta_kms_update_new (kms_device);
+
+  return kms_update;
 }
 
 static gboolean
@@ -664,9 +682,9 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
 }
 
 static void
-configure_disabled_crtcs (MetaKmsDevice *kms_device)
+configure_disabled_crtcs (MetaKmsDevice      *kms_device,
+                          MetaRendererNative *renderer_native)
 {
-  MetaKms *kms = meta_kms_device_get_kms (kms_device);
   GList *l;
 
   for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
@@ -681,7 +699,7 @@ configure_disabled_crtcs (MetaKmsDevice *kms_device)
       if (!meta_kms_crtc_is_active (kms_crtc))
         continue;
 
-      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+      kms_update = ensure_mode_set_update (renderer_native, kms_device);
       meta_kms_update_mode_set (kms_update, kms_crtc, NULL, NULL);
     }
 }
@@ -831,32 +849,44 @@ on_mode_sets_update_result (const MetaKmsFeedback *kms_feedback,
     g_warning ("Failed to post KMS update: %s", feedback_error->message);
 }
 
+static void
+post_mode_set_updates (MetaRendererNative *renderer_native)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_hash_table_iter_init (&iter, renderer_native->mode_set_updates);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      MetaKmsDevice *kms_device = META_KMS_DEVICE (key);
+      MetaKmsUpdate *kms_update = value;
+      g_autoptr (MetaKmsFeedback) feedback = NULL;
+
+      g_hash_table_iter_steal (&iter);
+
+      meta_kms_update_add_result_listener (kms_update,
+                                           on_mode_sets_update_result,
+                                           NULL);
+
+      feedback = meta_kms_device_process_update_sync (kms_device, kms_update,
+                                                      META_KMS_UPDATE_FLAG_NONE);
+    }
+}
+
 void
 meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
-  GList *l;
 
-  for (l = meta_kms_get_devices (kms); l; l = l->next)
-    {
-      MetaKmsDevice *kms_device = l->data;
-      MetaKmsUpdate *kms_update;
+  renderer_native->pending_mode_set = FALSE;
 
-      configure_disabled_crtcs (kms_device);
+  g_list_foreach (meta_kms_get_devices (kms),
+                  (GFunc) configure_disabled_crtcs,
+                  renderer_native);
 
-      kms_update = meta_kms_get_pending_update (kms, kms_device);
-      if (!kms_update)
-        continue;
-
-      meta_kms_update_add_result_listener (kms_update,
-                                           on_mode_sets_update_result,
-                                           NULL);
-
-      meta_kms_post_pending_update_sync (kms, kms_device,
-                                         META_KMS_UPDATE_FLAG_NONE);
-    }
+  post_mode_set_updates (renderer_native);
 
   clear_detached_onscreens (renderer_native);
 
@@ -865,10 +895,31 @@ meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native)
   free_unused_gpu_datas (renderer_native);
 }
 
-static void
-unset_disabled_crtcs (MetaBackend *backend,
-                      MetaKms     *kms)
+void
+meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
+                                            MetaKmsUpdate      *new_kms_update)
 {
+  MetaKmsDevice *kms_device = meta_kms_update_get_device (new_kms_update);
+  MetaKmsUpdate *kms_update;
+
+  kms_update = g_hash_table_lookup (renderer_native->mode_set_updates,
+                                    kms_device);
+  if (!kms_update)
+    {
+      g_hash_table_insert (renderer_native->mode_set_updates,
+                           kms_device, new_kms_update);
+      return;
+    }
+
+  meta_kms_update_merge_from (kms_update, new_kms_update);
+  meta_kms_update_free (new_kms_update);
+}
+
+static void
+unset_disabled_crtcs (MetaRendererNative *renderer_native)
+{
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   GList *l;
 
   meta_topic (META_DEBUG_KMS, "Disabling all disabled CRTCs");
@@ -889,19 +940,12 @@ unset_disabled_crtcs (MetaBackend *backend,
           if (meta_crtc_get_config (crtc))
             continue;
 
-          kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+          kms_update = ensure_mode_set_update (renderer_native, kms_device);
           meta_crtc_kms_set_mode (META_CRTC_KMS (crtc), kms_update);
         }
-
-      if (!kms_update)
-        continue;
-
-      meta_kms_update_add_result_listener (kms_update,
-                                           on_mode_sets_update_result,
-                                           NULL);
-      meta_kms_post_pending_update_sync (kms, kms_device,
-                                         META_KMS_UPDATE_FLAG_NONE);
     }
+
+  post_mode_set_updates (renderer_native);
 }
 
 static CoglDmaBufHandle *
@@ -1432,6 +1476,7 @@ detach_onscreens (MetaRenderer *renderer)
 static void
 meta_renderer_native_rebuild_views (MetaRenderer *renderer)
 {
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
@@ -1439,7 +1484,7 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
     META_RENDERER_CLASS (meta_renderer_native_parent_class);
 
   meta_kms_discard_pending_page_flips (kms);
-  meta_kms_discard_pending_updates (kms);
+  g_hash_table_remove_all (renderer_native->mode_set_updates);
 
   detach_onscreens (renderer);
 
@@ -1930,12 +1975,7 @@ on_power_save_mode_changed (MetaMonitorManager *monitor_manager,
 void
 meta_renderer_native_reset_modes (MetaRendererNative *renderer_native)
 {
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaKms *kms = meta_backend_native_get_kms (backend_native);
-
-  unset_disabled_crtcs (backend, kms);
+  unset_disabled_crtcs (renderer_native);
 }
 
 static MetaGpuKms *
@@ -2133,6 +2173,7 @@ meta_renderer_native_finalize (GObject *object)
                      g_source_remove);
 
   g_list_free (renderer_native->pending_mode_set_views);
+  g_hash_table_unref (renderer_native->mode_set_updates);
 
   g_clear_handle_id (&renderer_native->release_unused_gpus_idle_id,
                      g_source_remove);
@@ -2173,6 +2214,10 @@ meta_renderer_native_init (MetaRendererNative *renderer_native)
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_renderer_native_gpu_data_free);
+  renderer_native->mode_set_updates =
+    g_hash_table_new_full (NULL, NULL,
+                           NULL,
+                           (GDestroyNotify) meta_kms_update_free);
 }
 
 static void

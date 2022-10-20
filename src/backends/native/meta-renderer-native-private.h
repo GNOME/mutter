@@ -75,6 +75,7 @@ MetaGles3 * meta_renderer_native_get_gles3 (MetaRendererNative *renderer_native)
 MetaRendererNativeGpuData * meta_renderer_native_get_gpu_data (MetaRendererNative *renderer_native,
                                                                MetaGpuKms         *gpu_kms);
 
+META_EXPORT_TEST
 gboolean meta_renderer_native_has_pending_mode_sets (MetaRendererNative *renderer_native);
 
 gboolean meta_renderer_native_has_pending_mode_set (MetaRendererNative *renderer_native);
@@ -82,6 +83,9 @@ gboolean meta_renderer_native_has_pending_mode_set (MetaRendererNative *renderer
 void meta_renderer_native_notify_mode_sets_reset (MetaRendererNative *renderer_native);
 
 void meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native);
+
+void meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
+                                                 MetaKmsUpdate      *new_kms_update);
 
 void meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_native,
                                                       CoglOnscreen       *onscreen);

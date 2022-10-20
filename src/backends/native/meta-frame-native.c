@@ -21,20 +21,69 @@
 
 #include "backends/native/meta-frame-native.h"
 
+#include "backends/native/meta-kms-update.h"
 #include "clutter/clutter-mutter.h"
+#include "core/util-private.h"
 
 struct _MetaFrameNative
 {
   ClutterFrame base;
+
+  MetaKmsUpdate *kms_update;
 };
 
 static void
 meta_frame_native_release (ClutterFrame *frame)
 {
+  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+
+  g_return_if_fail (!frame_native->kms_update);
 }
 
 MetaFrameNative *
 meta_frame_native_new (void)
 {
   return clutter_frame_new (MetaFrameNative, meta_frame_native_release);
+}
+
+MetaFrameNative *
+meta_frame_native_from_frame (ClutterFrame *frame)
+{
+  return META_CONTAINER_OF (frame, MetaFrameNative, base);
+}
+
+void
+meta_frame_native_set_kms_update (MetaFrameNative *frame_native,
+                                  MetaKmsUpdate   *kms_update)
+{
+  g_return_if_fail (!frame_native->kms_update);
+
+  frame_native->kms_update = kms_update;
+}
+
+MetaKmsUpdate *
+meta_frame_native_ensure_kms_update (MetaFrameNative *frame_native,
+                                     MetaKmsDevice   *kms_device)
+{
+  if (frame_native->kms_update)
+    {
+      g_warn_if_fail (meta_kms_update_get_device (frame_native->kms_update) ==
+                      kms_device);
+      return frame_native->kms_update;
+    }
+
+  frame_native->kms_update = meta_kms_update_new (kms_device);
+  return frame_native->kms_update;
+}
+
+MetaKmsUpdate *
+meta_frame_native_steal_kms_update (MetaFrameNative *frame_native)
+{
+  return g_steal_pointer (&frame_native->kms_update);
+}
+
+gboolean
+meta_frame_native_has_kms_update (MetaFrameNative *frame_native)
+{
+  return !!frame_native->kms_update;
 }

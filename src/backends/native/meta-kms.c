@@ -181,72 +181,6 @@ struct _MetaKms
 
 G_DEFINE_TYPE (MetaKms, meta_kms, G_TYPE_OBJECT)
 
-void
-meta_kms_discard_pending_updates (MetaKms *kms)
-{
-  g_clear_list (&kms->pending_updates, (GDestroyNotify) meta_kms_update_free);
-}
-
-static void
-meta_kms_add_pending_update (MetaKms       *kms,
-                             MetaKmsUpdate *update)
-{
-  kms->pending_updates = g_list_prepend (kms->pending_updates, update);
-}
-
-MetaKmsUpdate *
-meta_kms_ensure_pending_update (MetaKms       *kms,
-                                MetaKmsDevice *device)
-{
-  MetaKmsUpdate *update;
-
-  update = meta_kms_get_pending_update (kms, device);
-  if (update)
-    return update;
-
-  update = meta_kms_update_new (device);
-  meta_kms_add_pending_update (kms, update);
-
-  return update;
-}
-
-MetaKmsUpdate *
-meta_kms_get_pending_update (MetaKms       *kms,
-                             MetaKmsDevice *device)
-{
-  GList *l;
-
-  for (l = kms->pending_updates; l; l = l->next)
-    {
-      MetaKmsUpdate *update = l->data;
-
-      if (meta_kms_update_get_device (update) == device)
-        return update;
-    }
-
-  return NULL;
-}
-
-static MetaKmsUpdate *
-meta_kms_take_pending_update (MetaKms       *kms,
-                              MetaKmsDevice *device)
-{
-  GList *l;
-
-  for (l = kms->pending_updates; l; l = l->next)
-    {
-      MetaKmsUpdate *update = l->data;
-
-      if (meta_kms_update_get_device (update) == device)
-        {
-          kms->pending_updates = g_list_delete_link (kms->pending_updates, l);
-          return update;
-        }
-    }
-
-  return NULL;
-}
-
 static void
 invoke_result_listener (MetaKms  *kms,
                         gpointer  user_data)
@@ -264,27 +198,6 @@ meta_kms_queue_result_callback (MetaKms               *kms,
                             invoke_result_listener,
                             listener,
                             (GDestroyNotify) meta_kms_result_listener_free);
-}
-
-void
-meta_kms_post_pending_update_sync (MetaKms           *kms,
-                                   MetaKmsDevice     *device,
-                                   MetaKmsUpdateFlag  flags)
-{
-  MetaKmsUpdate *update;
-  g_autoptr (MetaKmsFeedback) feedback = NULL;
-  GList *result_listeners;
-
-  COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
-                           "KMS (post update)");
-
-  update = meta_kms_take_pending_update (kms, device);
-  if (!update)
-    return;
-
-  result_listeners = meta_kms_update_take_result_listeners (update);
-  feedback = meta_kms_device_process_update_sync (device, update, flags);
-  meta_kms_feedback_dispatch_result (feedback, kms, result_listeners);
 }
 
 static gpointer

@@ -148,9 +148,6 @@ void meta_kms_update_seal (MetaKmsUpdate *update);
 META_EXPORT_TEST
 gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
 
-META_EXPORT_TEST
-MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
-
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                              MetaKmsPlaneRotation    rotation);
 
@@ -183,10 +180,6 @@ void meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
                                             MetaKmsPlane  *plane);
 
 GList * meta_kms_update_take_result_listeners (MetaKmsUpdate *update);
-
-META_EXPORT_TEST
-void meta_kms_update_merge_from (MetaKmsUpdate *update,
-                                 MetaKmsUpdate *other_update);
 
 void meta_kms_result_listener_set_feedback (MetaKmsResultListener *listener,
                                             MetaKmsFeedback       *feedback);

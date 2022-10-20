@@ -34,6 +34,7 @@
 #include "backends/native/meta-monitor-manager-native.h"
 
 #define META_TYPE_RENDERER_NATIVE (meta_renderer_native_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaRendererNative, meta_renderer_native,
                       META, RENDERER_NATIVE,
                       MetaRenderer)

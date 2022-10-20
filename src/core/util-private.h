@@ -50,4 +50,7 @@ void meta_init_debug_utils (void);
    (ycoord) >= (rect).y &&                   \
    (ycoord) <  ((rect).y + (rect).height))
 
+#define META_CONTAINER_OF(ptr, type, member) \
+  (type *) ((uint8_t *) (ptr) - G_STRUCT_OFFSET (type, member))
+
 #endif
