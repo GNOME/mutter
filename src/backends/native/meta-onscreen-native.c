@@ -1241,7 +1241,6 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
   MetaGpuKms *gpu_kms;
   MetaKmsDevice *kms_device;
   MetaKmsCrtc *kms_crtc;
-  MetaKms *kms;
   MetaKmsUpdate *test_update;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
   MetaKmsFeedbackResult result;
@@ -1249,7 +1248,6 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  kms = meta_kms_device_get_kms (kms_device);
 
   test_update = meta_kms_update_new (kms_device);
   meta_crtc_kms_assign_primary_plane (crtc_kms, fb, test_update);
@@ -1259,7 +1257,9 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
-  kms_feedback = meta_kms_post_test_update_sync (kms, test_update);
+  kms_feedback =
+    meta_kms_device_process_update_sync (kms_device, test_update,
+                                         META_KMS_UPDATE_FLAG_TEST_ONLY);
   meta_kms_update_free (test_update);
 
   result = meta_kms_feedback_get_result (kms_feedback);

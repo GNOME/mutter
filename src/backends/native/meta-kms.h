@@ -46,9 +46,6 @@ MetaKmsFeedback * meta_kms_post_pending_update_sync (MetaKms           *kms,
                                                      MetaKmsDevice     *device,
                                                      MetaKmsUpdateFlag  flags);
 
-MetaKmsFeedback * meta_kms_post_test_update_sync (MetaKms       *kms,
-                                                  MetaKmsUpdate *update);
-
 void meta_kms_discard_pending_page_flips (MetaKms *kms);
 
 void meta_kms_notify_modes_set (MetaKms *kms);

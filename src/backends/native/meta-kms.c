@@ -282,21 +282,6 @@ meta_kms_post_pending_update_sync (MetaKms           *kms,
   return feedback;
 }
 
-MetaKmsFeedback *
-meta_kms_post_test_update_sync (MetaKms       *kms,
-                                MetaKmsUpdate *update)
-{
-  MetaKmsDevice *device = meta_kms_update_get_device (update);
-  MetaKmsUpdateFlag flags;
-
-  g_assert (!meta_kms_update_get_page_flip_listeners (update));
-  g_assert (!meta_kms_update_get_mode_sets (update));
-  g_assert (!meta_kms_update_get_connector_updates (update));
-
-  flags = META_KMS_UPDATE_FLAG_TEST_ONLY;
-  return meta_kms_device_process_update_sync (device, update, flags);
-}
-
 static gpointer
 meta_kms_discard_pending_page_flips_in_impl (MetaKmsImpl  *impl,
                                              gpointer      user_data,
