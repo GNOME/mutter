@@ -6084,13 +6084,24 @@ meta_window_is_ancestor_of_transient (MetaWindow *window,
   return d.found;
 }
 
+/**
+ * meta_window_begin_grab_op:
+ * @window:
+ * @op:
+ * @device: (nullable):
+ * @sequence: (nullable):
+ * @timestamp:
+ **/
 gboolean
-meta_window_begin_grab_op (MetaWindow *window,
-                           MetaGrabOp  op,
-                           guint32     timestamp)
+meta_window_begin_grab_op (MetaWindow           *window,
+                           MetaGrabOp            op,
+                           ClutterInputDevice   *device,
+                           ClutterEventSequence *sequence,
+                           guint32               timestamp)
 {
   return meta_compositor_drag_window (window->display->compositor,
                                       window, op,
+                                      device, sequence,
                                       timestamp);
 }
 
@@ -7703,6 +7714,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
               op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
               meta_window_begin_grab_op (window,
                                          op,
+                                         clutter_event_get_device (event),
+                                         clutter_event_get_event_sequence (event),
                                          event->any.time);
             }
         }
@@ -7722,6 +7735,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
           meta_window_begin_grab_op (window,
                                      META_GRAB_OP_MOVING |
                                      META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
+                                     clutter_event_get_device (event),
+                                     clutter_event_get_event_sequence (event),
                                      event->any.time);
         }
     }

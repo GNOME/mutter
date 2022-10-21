@@ -1543,11 +1543,13 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
 }
 
 gboolean
-meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
-                                    MetaWaylandSeat    *seat,
-                                    MetaGrabOp          grab_op,
-                                    gfloat              x,
-                                    gfloat              y)
+meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
+                                    MetaWaylandSeat      *seat,
+                                    MetaGrabOp            grab_op,
+                                    ClutterInputDevice   *device,
+                                    ClutterEventSequence *sequence,
+                                    gfloat                x,
+                                    gfloat                y)
 {
   MetaWindow *window = meta_wayland_surface_get_window (surface);
 
@@ -1559,6 +1561,7 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
      being moved/resized via a SSD event. */
   return meta_window_begin_grab_op (window,
                                     grab_op,
+                                    device, sequence,
                                     meta_display_get_current_time_roundtrip (window->display));
 }
 

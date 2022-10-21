@@ -3349,7 +3349,15 @@ meta_window_x11_client_message (MetaWindow *window,
           ((window->has_move_func && op == META_GRAB_OP_KEYBOARD_MOVING) ||
            (window->has_resize_func && op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)))
         {
-          meta_window_begin_grab_op (window, op, timestamp);
+          MetaContext *context = meta_display_get_context (display);
+          MetaBackend *backend = meta_context_get_backend (context);
+          ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+          ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+          meta_window_begin_grab_op (window, op,
+                                     clutter_seat_get_pointer (seat),
+                                     NULL,
+                                     timestamp);
         }
       else if (op != META_GRAB_OP_NONE &&
                ((window->has_move_func && op == META_GRAB_OP_MOVING) ||
@@ -3357,12 +3365,17 @@ meta_window_x11_client_message (MetaWindow *window,
                 (op != META_GRAB_OP_MOVING &&
                  op != META_GRAB_OP_KEYBOARD_MOVING))))
         {
+          MetaContext *context = meta_display_get_context (display);
+          MetaBackend *backend = meta_context_get_backend (context);
+          ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+          ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
           int button_mask;
 
           meta_topic (META_DEBUG_WINDOW_OPS,
                       "Beginning move/resize with button = %d", button);
-          meta_window_begin_grab_op (window,
-                                     op,
+          meta_window_begin_grab_op (window, op,
+                                     clutter_seat_get_pointer (seat),
+                                     NULL,
                                      timestamp);
 
           button_mask = query_pressed_buttons (window);

@@ -2705,9 +2705,17 @@ handle_begin_move         (MetaDisplay     *display,
 {
   if (window->has_move_func)
     {
+      MetaContext *context = meta_display_get_context (display);
+      MetaBackend *backend = meta_context_get_backend (context);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+      ClutterInputDevice *device;
+
+      device = clutter_seat_get_pointer (seat);
       meta_window_begin_grab_op (window,
                                  META_GRAB_OP_KEYBOARD_MOVING |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
+                                 device, NULL,
                                  event->time);
     }
 }
@@ -2721,9 +2729,17 @@ handle_begin_resize       (MetaDisplay     *display,
 {
   if (window->has_resize_func)
     {
+      MetaContext *context = meta_display_get_context (display);
+      MetaBackend *backend = meta_context_get_backend (context);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+      ClutterInputDevice *device;
+
+      device = clutter_seat_get_pointer (seat);
       meta_window_begin_grab_op (window,
                                  META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
+                                 device, NULL,
                                  event->time);
     }
 }

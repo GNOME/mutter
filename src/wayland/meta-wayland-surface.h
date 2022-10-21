@@ -341,11 +341,13 @@ MetaWaylandSurface * meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRo
 cairo_region_t *    meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
 
 
-gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
-                                                        MetaWaylandSeat    *seat,
-                                                        MetaGrabOp          grab_op,
-                                                        gfloat              x,
-                                                        gfloat              y);
+gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
+                                                        MetaWaylandSeat      *seat,
+                                                        MetaGrabOp            grab_op,
+                                                        ClutterInputDevice   *device,
+                                                        ClutterEventSequence *sequence,
+                                                        gfloat                x,
+                                                        gfloat                y);
 
 void                meta_wayland_surface_window_managed (MetaWaylandSurface *surface,
                                                          MetaWindow         *window);

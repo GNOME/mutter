@@ -1688,10 +1688,12 @@ on_window_drag_ended (MetaWindowDrag *window_drag,
 }
 
 gboolean
-meta_compositor_drag_window (MetaCompositor *compositor,
-                             MetaWindow     *window,
-                             MetaGrabOp      grab_op,
-                             uint32_t        timestamp)
+meta_compositor_drag_window (MetaCompositor       *compositor,
+                             MetaWindow           *window,
+                             MetaGrabOp            grab_op,
+                             ClutterInputDevice   *device,
+                             ClutterEventSequence *sequence,
+                             uint32_t              timestamp)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -1702,7 +1704,7 @@ meta_compositor_drag_window (MetaCompositor *compositor,
 
   window_drag = meta_window_drag_new (window, grab_op);
 
-  if (!meta_window_drag_begin (window_drag, timestamp))
+  if (!meta_window_drag_begin (window_drag, device, sequence, timestamp))
     return FALSE;
 
   g_signal_connect (window_drag, "ended",

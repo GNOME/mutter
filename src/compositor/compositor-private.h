@@ -81,10 +81,12 @@ ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
-gboolean meta_compositor_drag_window (MetaCompositor *compositor,
-                                      MetaWindow     *window,
-                                      MetaGrabOp      grab_op,
-                                      uint32_t        timestamp);
+gboolean meta_compositor_drag_window (MetaCompositor       *compositor,
+                                      MetaWindow           *window,
+                                      MetaGrabOp            grab_op,
+                                      ClutterInputDevice   *device,
+                                      ClutterEventSequence *sequence,
+                                      uint32_t              timestamp);
 
 MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);
 

@@ -55,6 +55,8 @@ struct _MetaWindowDrag {
   MetaGrabOp grab_op;
   ClutterGrab *grab;
 
+  ClutterInputDevice *leading_device;
+  ClutterEventSequence *leading_touch_sequence;
   int anchor_root_x;
   int anchor_root_y;
   MetaRectangle anchor_window_pos;
@@ -1572,6 +1574,7 @@ process_pointer_event (MetaWindowDrag     *window_drag,
                        const ClutterEvent *event)
 {
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterModifierType modifier_state;
   MetaEdgeResistanceFlags flags;
   MetaWindow *window;
@@ -1579,6 +1582,10 @@ process_pointer_event (MetaWindowDrag     *window_drag,
 
   window = window_drag->effective_grab_window;
   if (!window)
+    return;
+  if (window_drag->leading_device != device)
+    return;
+  if (window_drag->leading_touch_sequence != sequence)
     return;
 
   switch (event->type)
@@ -1592,21 +1599,18 @@ process_pointer_event (MetaWindowDrag     *window_drag,
       end_grab_op (window_drag, event);
       break;
     case CLUTTER_TOUCH_END:
-      if (!meta_display_is_pointer_emulating_sequence (window->display, sequence))
-        return;
-
       end_grab_op (window_drag, event);
       break;
     case CLUTTER_BUTTON_RELEASE:
+      if (window_drag->leading_touch_sequence)
+        return;
+
       if (event->button.button == 1 ||
           event->button.button == (unsigned int) meta_prefs_get_mouse_button_resize ())
         end_grab_op (window_drag, event);
 
       break;
     case CLUTTER_TOUCH_UPDATE:
-      if (!meta_display_is_pointer_emulating_sequence (window->display, sequence))
-        return;
-
       G_GNUC_FALLTHROUGH;
     case CLUTTER_MOTION:
       modifier_state = clutter_event_get_state (event);
@@ -1659,8 +1663,10 @@ on_window_drag_event (MetaWindowDrag *window_drag,
 }
 
 gboolean
-meta_window_drag_begin (MetaWindowDrag *window_drag,
-                        uint32_t        timestamp)
+meta_window_drag_begin (MetaWindowDrag       *window_drag,
+                        ClutterInputDevice   *device,
+                        ClutterEventSequence *sequence,
+                        uint32_t              timestamp)
 {
   MetaWindow *window = window_drag->window, *grab_window = NULL;
   MetaDisplay *display = meta_window_get_display (window);
@@ -1678,11 +1684,9 @@ meta_window_drag_begin (MetaWindowDrag *window_drag,
     {
       ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
       ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-      ClutterInputDevice *device;
       graphene_point_t pos;
 
-      device = clutter_seat_get_pointer (seat);
-      clutter_seat_query_state (seat, device, NULL, &pos, NULL);
+      clutter_seat_query_state (seat, device, sequence, &pos, NULL);
       root_x = pos.x;
       root_y = pos.y;
     }
@@ -1756,6 +1760,8 @@ meta_window_drag_begin (MetaWindowDrag *window_drag,
                           G_CALLBACK (on_grab_window_size_changed), window_drag);
     }
 
+  window_drag->leading_device = device;
+  window_drag->leading_touch_sequence = sequence;
   window_drag->tile_mode = grab_window->tile_mode;
   window_drag->tile_monitor_number = grab_window->tile_monitor_number;
   window_drag->anchor_root_x = root_x;
