@@ -39,4 +39,8 @@ void meta_window_drag_end (MetaWindowDrag *drag);
 
 void meta_window_drag_update_resize (MetaWindowDrag *drag);
 
+MetaWindow * meta_window_drag_get_window (MetaWindowDrag *window_drag);
+
+MetaGrabOp meta_window_drag_get_grab_op (MetaWindowDrag *window_drag);
+
 #endif /* META_WINDOW_DRAG_H */

@@ -1783,3 +1783,15 @@ meta_window_drag_update_resize (MetaWindowDrag *window_drag)
                  window_drag->latest_motion_x,
                  window_drag->latest_motion_y);
 }
+
+MetaWindow *
+meta_window_drag_get_window (MetaWindowDrag *window_drag)
+{
+  return window_drag->effective_grab_window;
+}
+
+MetaGrabOp
+meta_window_drag_get_grab_op (MetaWindowDrag *window_drag)
+{
+  return window_drag->grab_op;
+}
