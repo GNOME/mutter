@@ -34,7 +34,6 @@
 #include "core/boxes-private.h"
 
 #include <math.h>
-#include <X11/Xutil.h>
 
 #include "meta/util.h"
 

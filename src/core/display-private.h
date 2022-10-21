@@ -28,8 +28,6 @@
 #include "meta/display.h"
 
 #include <glib.h>
-#include <X11/extensions/sync.h>
-#include <X11/Xlib.h>
 
 #include "clutter/clutter.h"
 #include "core/keybindings-private.h"

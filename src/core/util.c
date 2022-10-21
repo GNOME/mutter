@@ -34,8 +34,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <X11/Xlib.h>   /* must explicitly be included for Solaris; #326746 */
-#include <X11/Xutil.h>  /* Just for the definition of the various gravities */
 
 #ifdef HAVE_SYS_PRCTL
 #include <sys/prctl.h>

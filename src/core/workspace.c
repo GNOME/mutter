@@ -35,7 +35,6 @@
 
 #include "meta/workspace.h"
 
-#include <X11/Xatom.h>
 #include <string.h>
 
 #include "backends/meta-backend-private.h"
