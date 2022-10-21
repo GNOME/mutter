@@ -299,7 +299,8 @@ xdg_toplevel_show_window_menu (struct wl_client   *client,
   if (!window)
     return;
 
-  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
+  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE,
+                                        NULL, NULL, NULL, NULL))
     return;
 
   monitor_scale = meta_window_wayland_get_geometry_scale (window);
@@ -323,7 +324,8 @@ xdg_toplevel_move (struct wl_client   *client,
   if (!window)
     return;
 
-  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE, &x, &y))
+  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE,
+                                        NULL, NULL, &x, &y))
     return;
 
   meta_wayland_surface_begin_grab_op (surface, seat, META_GRAB_OP_MOVING, x, y);
@@ -372,7 +374,8 @@ xdg_toplevel_resize (struct wl_client   *client,
   if (!window->has_resize_func)
     return;
 
-  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE, &x, &y))
+  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE,
+                                        NULL, NULL, &x, &y))
     return;
 
   grab_op = grab_op_for_xdg_toplevel_resize_edge (edges);

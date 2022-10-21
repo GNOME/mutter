@@ -308,7 +308,8 @@ token_can_activate (MetaXdgActivationToken *token)
   return meta_wayland_seat_get_grab_info (seat,
                                           token->surface,
                                           token->serial,
-                                          FALSE, NULL, NULL);
+                                          FALSE,
+                                          NULL, NULL, NULL, NULL);
 }
 
 static gboolean

@@ -433,12 +433,14 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
 }
 
 gboolean
-meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
-                                 MetaWaylandSurface *surface,
-                                 uint32_t            serial,
-                                 gboolean            require_pressed,
-                                 gfloat             *x,
-                                 gfloat             *y)
+meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
+                                 MetaWaylandSurface    *surface,
+                                 uint32_t               serial,
+                                 gboolean               require_pressed,
+                                 ClutterInputDevice   **device_out,
+                                 ClutterEventSequence **sequence_out,
+                                 float                 *x,
+                                 float                 *y)
 {
   MetaWaylandCompositor *compositor;
   MetaWaylandTabletSeat *tablet_seat;
@@ -456,6 +458,11 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
                                                         serial);
       if (sequence)
         {
+          if (device_out)
+            *device_out = seat->pointer->device;
+          if (sequence_out)
+            *sequence_out = sequence;
+
           meta_wayland_touch_get_press_coords (seat->touch, sequence, x, y);
           return TRUE;
         }
@@ -466,6 +473,11 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
       if ((!require_pressed || seat->pointer->button_count > 0) &&
           meta_wayland_pointer_can_grab_surface (seat->pointer, surface, serial))
         {
+          if (device_out)
+            *device_out = seat->pointer->device;
+          if (sequence_out)
+            *sequence_out = NULL;
+
           if (x)
             *x = seat->pointer->grab_x;
           if (y)
@@ -482,6 +494,11 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
       if ((!require_pressed || tool->button_count > 0) &&
           meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
         {
+          if (device_out)
+            *device_out = tool->device;
+          if (sequence_out)
+            *sequence_out = NULL;
+
           if (x)
             *x = tool->grab_x;
           if (y)
