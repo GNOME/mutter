@@ -231,15 +231,9 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (display->grabbed_in_clutter != has_grab)
     {
-#ifdef HAVE_WAYLAND
-      if (wayland_compositor)
-        meta_display_sync_wayland_input_focus (display);
-#endif
-
       if (!display->grabbed_in_clutter && has_grab)
         {
           display->grabbed_in_clutter = TRUE;
-          meta_display_cancel_touch (display);
           meta_compositor_grab_begin (compositor);
         }
       else if (display->grabbed_in_clutter && !has_grab)
