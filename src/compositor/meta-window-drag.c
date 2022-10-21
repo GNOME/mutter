@@ -608,6 +608,9 @@ process_keyboard_move_grab (MetaWindowDrag  *window_drag,
                   "Computed new window location %d,%d due to keypress",
                   x, y);
 
+      window_drag->last_edge_resistance_flags =
+        flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
+
       meta_window_edge_resistance_for_move (window,
                                             &x,
                                             &y,
@@ -959,6 +962,9 @@ process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
                   "%dx%d, gravity %s",
                   width, height, meta_gravity_to_string (gravity));
 
+      window_drag->last_edge_resistance_flags =
+        flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
+
       /* Do any edge resistance/snapping */
       meta_window_edge_resistance_for_resize (window,
                                               &width,
@@ -1257,6 +1263,9 @@ update_move (MetaWindowDrag          *window_drag,
   if (window->maximized_vertically)
     new_y = old.y;
 
+  window_drag->last_edge_resistance_flags =
+    flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
+
   /* Do any edge resistance/snapping */
   meta_window_edge_resistance_for_move (window,
                                         &new_x,
@@ -1409,6 +1418,9 @@ update_resize (MetaWindowDrag          *window_drag,
   /* compute gravity of client during operation */
   gravity = meta_resize_gravity_from_grab_op (window_drag->grab_op);
   g_assert (gravity >= 0);
+
+  window_drag->last_edge_resistance_flags =
+    flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
   /* Do any edge resistance/snapping */
   meta_window_edge_resistance_for_resize (window,

@@ -576,6 +576,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   MetaWorkspaceLayout layout1, layout2;
   gint num_workspaces, current_space, new_space;
   MetaMotionDirection direction;
+  MetaWindowDrag *window_drag;
 
   g_return_if_fail (META_IS_WORKSPACE (workspace));
   g_return_if_fail (meta_workspace_index (workspace) != -1);
@@ -619,8 +620,11 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
     g_signal_emit_by_name (workspace->manager, "showing-desktop-changed");
 
   move_window = NULL;
-  if (meta_grab_op_is_moving (workspace->display->grab_op))
-    move_window = workspace->display->grab_window;
+  window_drag =
+    meta_compositor_get_current_window_drag (workspace->display->compositor);
+  if (window_drag &&
+      meta_grab_op_is_moving (meta_window_drag_get_grab_op (window_drag)))
+    move_window = meta_window_drag_get_window (window_drag);
 
   if (move_window != NULL)
     {

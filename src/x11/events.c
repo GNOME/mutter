@@ -970,9 +970,6 @@ handle_input_xevent (MetaX11Display *x11_display,
   switch (input_event->evtype)
     {
     case XI_Enter:
-      if (display->grab_op != META_GRAB_OP_NONE)
-        break;
-
       if (clutter_stage_get_grab_actor (stage) != NULL)
         break;
 
@@ -992,9 +989,6 @@ handle_input_xevent (MetaX11Display *x11_display,
         }
       break;
     case XI_Leave:
-      if (display->grab_op != META_GRAB_OP_NONE)
-        break;
-
       if (clutter_stage_get_grab_actor (stage) != NULL)
         break;
 
@@ -1412,10 +1406,6 @@ handle_other_xevent (MetaX11Display *x11_display,
           guint32 timestamp;
           timestamp = meta_display_get_current_time_roundtrip (display);
 
-          if (display->grab_op != META_GRAB_OP_NONE &&
-              display->grab_window == window)
-            meta_display_end_grab_op (display, timestamp);
-
           if (frame_was_receiver)
             {
               meta_x11_error_trap_push (x11_display);
@@ -1439,11 +1429,6 @@ handle_other_xevent (MetaX11Display *x11_display,
            */
           guint32 timestamp;
           timestamp = meta_display_get_current_time_roundtrip (display);
-
-          if (display->grab_op != META_GRAB_OP_NONE &&
-              display->grab_window == window &&
-              window->frame == NULL)
-            meta_display_end_grab_op (display, timestamp);
 
           if (!frame_was_receiver)
             {

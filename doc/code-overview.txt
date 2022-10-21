@@ -132,6 +132,7 @@ Getting started -- where to look
       constraints.c
       update_move
       update_resize
+      meta-window-drag.c
       meta_window_handle_mouse_grab_op_event
       _NET_MOVERESIZE_WINDOW
       _NET_WM_STRUT

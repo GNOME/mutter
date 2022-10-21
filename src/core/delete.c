@@ -69,7 +69,7 @@ meta_window_show_close_dialog (MetaWindow *window)
   meta_close_dialog_show (window->close_dialog);
 
   if (window->display &&
-      window->display->grab_op == META_GRAB_OP_NONE &&
+      !meta_compositor_get_current_window_drag (window->display->compositor) &&
       window == window->display->focus_window)
     meta_close_dialog_focus (window->close_dialog);
 }

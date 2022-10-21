@@ -191,6 +191,7 @@ sync_request_timeout (gpointer data)
 {
   MetaSyncCounter *sync_counter = data;
   MetaWindow *window = sync_counter->window;
+  MetaWindowDrag *window_drag;
 
   sync_counter->sync_request_timeout_id = 0;
 
@@ -205,8 +206,12 @@ sync_request_timeout (gpointer data)
   sync_counter->sync_request_wait_serial = 0;
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 
-  if (window == window->display->grab_window &&
-      meta_grab_op_is_resizing (window->display->grab_op))
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+
+  if (window_drag &&
+      window == meta_window_drag_get_window (window_drag) &&
+      meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
     meta_window_x11_check_update_resize (window);
 
   return G_SOURCE_REMOVE;

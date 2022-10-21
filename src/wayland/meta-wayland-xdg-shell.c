@@ -26,6 +26,7 @@
 #include "wayland/meta-wayland-xdg-shell.h"
 
 #include "backends/meta-logical-monitor.h"
+#include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -685,12 +686,17 @@ fill_states (MetaWaylandXdgToplevel *xdg_toplevel,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *window = meta_wayland_surface_get_window (surface);
+  MetaWindowDrag *window_drag;
+
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
 
   if (META_WINDOW_MAXIMIZED (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_MAXIMIZED);
   if (meta_window_is_fullscreen (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_FULLSCREEN);
-  if (meta_grab_op_is_resizing (window->display->grab_op))
+  if (window_drag &&
+      meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
     add_state_value (states, XDG_TOPLEVEL_STATE_RESIZING);
   if (meta_window_appears_focused (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_ACTIVATED);

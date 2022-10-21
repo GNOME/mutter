@@ -1531,11 +1531,6 @@ meta_window_unmanage (MetaWindow  *window,
       invalidate_work_areas (window);
     }
 
-  if (window->display->grab_window == window)
-    meta_display_end_grab_op (window->display, timestamp);
-
-  g_assert (window->display->grab_window != window);
-
   if (window->maximized_horizontally || window->maximized_vertically)
     unmaximize_window_before_freeing (window);
 
@@ -2832,6 +2827,7 @@ meta_window_update_tile_fraction (MetaWindow *window,
 {
   MetaWindow *tile_match = window->tile_match;
   MetaRectangle work_area;
+  MetaWindowDrag *window_drag;
 
   if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
     return;
@@ -2841,7 +2837,12 @@ meta_window_update_tile_fraction (MetaWindow *window,
                                          &work_area);
   window->tile_hfraction = (double)new_w / work_area.width;
 
-  if (tile_match && window->display->grab_window == window)
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+
+  if (tile_match &&
+      window_drag &&
+      meta_window_drag_get_window (window_drag) == window)
     meta_window_tile (tile_match, tile_match->tile_mode);
 }
 
@@ -2925,6 +2926,7 @@ meta_window_tile (MetaWindow   *window,
                   MetaTileMode  tile_mode)
 {
   MetaMaximizeFlags directions;
+  MetaWindowDrag *window_drag;
 
   g_return_if_fail (META_IS_WINDOW (window));
 
@@ -2950,7 +2952,12 @@ meta_window_tile (MetaWindow   *window,
   meta_window_maximize_internal (window, directions, NULL);
   meta_display_update_tile_preview (window->display, FALSE);
 
-  if (!window->tile_match || window->tile_match != window->display->grab_window)
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+
+  if (!window->tile_match ||
+      !window_drag ||
+      window->tile_match != meta_window_drag_get_window (window_drag))
     {
       MetaRectangle old_frame_rect, old_buffer_rect;
 
@@ -4175,10 +4182,16 @@ meta_window_resize_frame_with_gravity (MetaWindow *window,
 
   if (user_op)
     {
+      MetaWindowDrag *window_drag;
+
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+
       /* When resizing in-tandem with a tile match, we need to respect
        * its minimum width
        */
-      if (window->display->grab_window == window)
+      if (window_drag &&
+          meta_window_drag_get_window (window_drag) == window)
         adjust_size_for_tile_match (window, &w, &h);
       meta_window_update_tile_fraction (window, w, h);
     }
@@ -4557,6 +4570,8 @@ meta_window_focus (MetaWindow  *window,
   MetaWindow *modal_transient;
   MetaBackend *backend;
   ClutterStage *stage;
+  MetaWindowDrag *window_drag;
+  MetaWindow *grab_window = NULL;
 
   g_return_if_fail (!window->override_redirect);
 
@@ -4575,14 +4590,18 @@ meta_window_focus (MetaWindow  *window,
       return;
     }
 
-  if (window->display->grab_window &&
-      window->display->grab_window != window &&
-      window->display->grab_window->all_keys_grabbed &&
-      !window->display->grab_window->unmanaging)
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+  if (window_drag)
+    grab_window = meta_window_drag_get_window (window_drag);
+
+  if (grab_window &&
+      grab_window != window &&
+      !grab_window->unmanaging)
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Current focus window %s has global keygrab, not focusing window %s after all",
-                  window->display->grab_window->desc, window->desc);
+                  grab_window->desc, window->desc);
       return;
     }
 
@@ -6735,31 +6754,9 @@ meta_window_begin_grab_op (MetaWindow *window,
                            MetaGrabOp  op,
                            guint32     timestamp)
 {
-  int x, y;
-
-  if ((op & META_GRAB_OP_KEYBOARD_MOVING) == META_GRAB_OP_KEYBOARD_MOVING)
-    {
-      warp_grab_pointer (window, op, &x, &y);
-    }
-  else
-    {
-      MetaBackend *backend = backend_from_window (window);
-      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-      ClutterInputDevice *device;
-      graphene_point_t pos;
-
-      device = clutter_seat_get_pointer (seat);
-      clutter_seat_query_state (seat, device, NULL, &pos, NULL);
-      x = pos.x;
-      y = pos.y;
-    }
-
-  return meta_display_begin_grab_op (window->display,
-                                     window,
-                                     op,
-                                     timestamp,
-                                     x, y);
+  return meta_compositor_drag_window (window->display->compositor,
+                                      window, op,
+                                      timestamp);
 }
 
 void
@@ -7823,6 +7820,7 @@ meta_window_find_tile_match (MetaWindow   *window,
     {
       MetaWindow *above, *bottommost, *topmost;
       MetaRectangle above_rect, bottommost_rect, topmost_rect;
+      MetaWindowDrag *window_drag;
 
       if (meta_stack_windows_cmp (window->display->stack, match, window) > 0)
         {
@@ -7838,14 +7836,18 @@ meta_window_find_tile_match (MetaWindow   *window,
       meta_window_get_frame_rect (bottommost, &bottommost_rect);
       meta_window_get_frame_rect (topmost, &topmost_rect);
 
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+
       /*
        * If we are looking for a tile match while actually being tiled,
        * rather than a match for a potential tile mode, then discard
        * windows with too much gap or overlap
        */
       if (window->tile_mode == current_mode &&
-          !(meta_grab_op_is_resizing (window->display->grab_op) &&
-            window->display->grab_window == window &&
+          !(window_drag &&
+            meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
+            meta_window_drag_get_window (window_drag) == window &&
             window->tile_match != NULL))
         {
           int threshold = meta_prefs_get_drag_threshold ();

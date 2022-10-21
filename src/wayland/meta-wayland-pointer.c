@@ -108,17 +108,6 @@ backend_from_pointer (MetaWaylandPointer *pointer)
   return meta_context_get_backend (context);
 }
 
-static MetaDisplay *
-display_from_pointer (MetaWaylandPointer *pointer)
-{
-  MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
-  MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
-  MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
-  MetaContext *context = meta_wayland_compositor_get_context (compositor);
-
-  return meta_context_get_display (context);
-}
-
 static MetaWaylandPointerClient *
 meta_wayland_pointer_client_new (void)
 {
@@ -312,7 +301,6 @@ surface_get_effective_window (MetaWaylandSurface *surface)
 static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
-  MetaDisplay *display = display_from_pointer (pointer);
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
@@ -327,16 +315,8 @@ sync_focus_surface (MetaWaylandPointer *pointer)
       return;
     }
 
-  if (display->grab_op == META_GRAB_OP_NONE)
-    {
-      const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-      interface->focus (pointer->grab, pointer->current);
-    }
-  else
-    {
-      /* The compositor has a grab, so remove our focus... */
-      meta_wayland_pointer_set_focus (pointer, NULL);
-    }
+  const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
+  interface->focus (pointer->grab, pointer->current);
 }
 
 static void
@@ -476,7 +456,6 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
 {
   MetaWaylandPointer *pointer = grab->pointer;
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
-  MetaDisplay *display = display_from_pointer (pointer);
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
@@ -494,9 +473,6 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
     return;
 
   if (pointer->button_count > 0)
-    return;
-
-  if (display->grab_op != META_GRAB_OP_NONE)
     return;
 
   if (surface)

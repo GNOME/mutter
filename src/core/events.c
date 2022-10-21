@@ -43,8 +43,6 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
-#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
-
 #define IS_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
                              (e)->type == CLUTTER_TOUCHPAD_PINCH || \
                              (e)->type == CLUTTER_TOUCHPAD_HOLD || \
@@ -87,34 +85,23 @@ get_window_for_event (MetaDisplay        *display,
                       const ClutterEvent *event,
                       ClutterActor       *event_actor)
 {
-  switch (META_GRAB_OP_GET_BASE_TYPE (display->grab_op))
+  MetaWindowActor *window_actor;
+
+  if (stage_has_grab (display))
+    return NULL;
+
+  /* Always use the key focused window for key events. */
+  if (IS_KEY_EVENT (event))
     {
-    case META_GRAB_OP_NONE:
-      {
-        MetaWindowActor *window_actor;
-
-        if (stage_has_grab (display))
-          return NULL;
-
-        /* Always use the key focused window for key events. */
-        if (IS_KEY_EVENT (event))
-          {
-            return stage_has_key_focus (display) ? display->focus_window
-                                                 : NULL;
-          }
-
-        window_actor = meta_window_actor_from_actor (event_actor);
-        if (window_actor)
-          return meta_window_actor_get_meta_window (window_actor);
-        else
-          return NULL;
-      }
-    case META_GRAB_OP_WINDOW_BASE:
-      return display->grab_window;
-    default:
-      g_assert_not_reached ();
-      return NULL;
+      return stage_has_key_focus (display) ? display->focus_window
+        : NULL;
     }
+
+  window_actor = meta_window_actor_from_actor (event_actor);
+  if (window_actor)
+    return meta_window_actor_get_meta_window (window_actor);
+  else
+    return NULL;
 }
 
 static void
@@ -224,6 +211,7 @@ meta_display_handle_event (MetaDisplay        *display,
 {
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
   ClutterInputDevice *device;
   MetaWindow *window = NULL;
   gboolean bypass_clutter = FALSE;
@@ -243,8 +231,6 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (display->grabbed_in_clutter != has_grab)
     {
-      MetaCompositor *compositor = meta_display_get_compositor (display);
-
 #ifdef HAVE_WAYLAND
       if (wayland_compositor)
         meta_display_sync_wayland_input_focus (display);
@@ -389,23 +375,14 @@ meta_display_handle_event (MetaDisplay        *display,
       goto out;
     }
 
-  if (display->grab_op != META_GRAB_OP_NONE)
-    {
-      if (meta_window_handle_mouse_grab_op_event (window, event))
-        {
-          bypass_clutter = TRUE;
-          bypass_wayland = TRUE;
-          goto out;
-        }
-    }
-
   /* For key events, it's important to enforce single-handling, or
    * we can get into a confused state. So if a keybinding is
    * handled (because it's one of our hot-keys, or because we are
    * in a keyboard-grabbed mode like moving a window, we don't
    * want to pass the key event to the compositor or Wayland at all.
    */
-  if (meta_keybindings_process_event (display, window, event))
+  if (!meta_compositor_get_current_window_drag (compositor) &&
+      meta_keybindings_process_event (display, window, event))
     {
       bypass_clutter = TRUE;
       bypass_wayland = TRUE;
@@ -415,7 +392,7 @@ meta_display_handle_event (MetaDisplay        *display,
   /* Do not pass keyboard events to Wayland if key focus is not on the
    * stage in normal mode (e.g. during keynav in the panel)
    */
-  if (display->grab_op == META_GRAB_OP_NONE)
+  if (!has_grab)
     {
       if (IS_KEY_EVENT (event) && !stage_has_key_focus (display))
         {
@@ -484,7 +461,7 @@ meta_display_handle_event (MetaDisplay        *display,
        * event, and if it doesn't, replay the event to release our
        * own sync grab. */
 
-      if (display->grab_op != META_GRAB_OP_NONE)
+      if (meta_compositor_get_current_window_drag (compositor))
         {
           bypass_clutter = TRUE;
           bypass_wayland = TRUE;

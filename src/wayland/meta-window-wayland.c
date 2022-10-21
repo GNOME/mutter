@@ -1125,6 +1125,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   MetaWaylandWindowConfiguration *acked_configuration;
   gboolean is_window_being_resized;
   gboolean is_client_resize;
+  MetaWindowDrag *window_drag;
 
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
@@ -1168,9 +1169,13 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
 
+  window_drag = meta_compositor_get_current_window_drag (display->compositor);
+
   /* x/y are ignored when we're doing interactive resizing */
-  is_window_being_resized = (meta_grab_op_is_resizing (display->grab_op) &&
-                             display->grab_window == window);
+  is_window_being_resized =
+    (window_drag &&
+     meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
+     meta_window_drag_get_window (window_drag) == window);
 
   rect = (MetaRectangle) {
     .x = window->rect.x,
@@ -1229,8 +1234,9 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
                    meta_wayland_window_configuration_free);
   wl_window->last_acked_configuration = g_steal_pointer (&acked_configuration);
 
-  if (window->display->grab_window == window)
-    gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
+  if (window_drag &&
+      meta_window_drag_get_window (window_drag) == window)
+    gravity = meta_resize_gravity_from_grab_op (meta_window_drag_get_grab_op (window_drag));
   else
     gravity = META_GRAVITY_STATIC;
   meta_window_move_resize_internal (window, flags, gravity, rect);

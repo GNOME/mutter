@@ -31,6 +31,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
@@ -1761,16 +1762,21 @@ constrain_titlebar_visible (MetaWindow         *window,
   int bottom_amount;
   int horiz_amount_offscreen, vert_amount_offscreen;
   int horiz_amount_onscreen,  vert_amount_onscreen;
+  MetaWindowDrag *window_drag;
 
   if (priority > PRIORITY_TITLEBAR_VISIBLE)
     return TRUE;
+
+  window_drag = meta_compositor_get_current_window_drag (window->display->compositor);
 
   /* Allow the titlebar beyond the top of the screen only if the user wasn't
    * clicking on the frame to start the move.
    */
   unconstrained_user_action =
     info->is_user_action &&
-    (window->display->grab_op & META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED) != 0;
+    window_drag &&
+    (meta_window_drag_get_grab_op (window_drag) &
+     META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED) != 0;
 
   /* Exit early if we know the constraint won't apply--note that this constraint
    * is only meant for normal windows (e.g. we don't want docks to be shoved

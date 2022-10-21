@@ -23,6 +23,7 @@
 
 #include "core/edge-resistance.h"
 
+#include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
 #include "core/meta-workspace-manager-private.h"
@@ -33,7 +34,8 @@
  */
 #define WINDOW_EDGES_RELEVANT(window, display) \
   meta_window_should_be_showing (window) &&    \
-  window         != display->grab_window &&    \
+  (!meta_compositor_get_current_window_drag (display->compositor) || \
+   window != meta_window_drag_get_window (meta_compositor_get_current_window_drag (display->compositor))) && \
   window->type   != META_WINDOW_DESKTOP &&     \
   window->type   != META_WINDOW_MENU    &&     \
   window->type   != META_WINDOW_SPLASHSCREEN
@@ -887,11 +889,14 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
    */
   GSList *rem_windows, *rem_win_stacking;
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
+  MetaWindowDrag *window_drag;
 
-  g_assert (display->grab_window != NULL);
+  window_drag = meta_compositor_get_current_window_drag (display->compositor);
+
+  g_assert (window_drag != NULL);
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Computing edges to resist-movement or snap-to for %s.",
-              display->grab_window->desc);
+              meta_window_drag_get_window (window_drag)->desc);
 
   /*
    * 1st: Get the list of relevant windows, from bottom to top

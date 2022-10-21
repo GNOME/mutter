@@ -1310,8 +1310,8 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
   gboolean need_resize_frame = FALSE;
   gboolean frame_shape_changed = FALSE;
   gboolean configure_frame_first;
-
   gboolean is_configure_request;
+  MetaWindowDrag *window_drag;
 
   is_configure_request = (flags & META_MOVE_RESIZE_CONFIGURE_REQUEST) != 0;
 
@@ -1495,9 +1495,13 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 
   meta_x11_error_trap_push (window->display->x11_display);
 
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+
   if (mask != 0 &&
-      window == window->display->grab_window &&
-      meta_grab_op_is_resizing (window->display->grab_op))
+      window_drag &&
+      window == meta_window_drag_get_window (window_drag) &&
+      meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
     {
       meta_sync_counter_send_request (&priv->sync_counter);
       if (window->frame)
@@ -2642,6 +2646,7 @@ meta_window_move_resize_request (MetaWindow  *window,
   gboolean in_grab_op;
   MetaMoveResizeFlags flags;
   MetaRectangle buffer_rect;
+  MetaWindowDrag *window_drag;
 
   /* We ignore configure requests while the user is moving/resizing
    * the window, since these represent the app sucking and fighting
@@ -2651,8 +2656,11 @@ meta_window_move_resize_request (MetaWindow  *window,
    * Still have to do the ConfigureNotify and all, but pretend the
    * app asked for the current size/position instead of the new one.
    */
-  in_grab_op = (window->display->grab_window == window &&
-                meta_grab_op_is_mouse (window->display->grab_op));
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+  in_grab_op = (window_drag &&
+                meta_window_drag_get_window (window_drag) == window &&
+                meta_grab_op_is_mouse (meta_window_drag_get_grab_op (window_drag)));
 
   /* it's essential to use only the explicitly-set fields,
    * and otherwise use our current up-to-date position.
@@ -2716,7 +2724,8 @@ meta_window_move_resize_request (MetaWindow  *window,
   meta_window_get_buffer_rect (window, &buffer_rect);
   width = buffer_rect.width;
   height = buffer_rect.height;
-  if (!in_grab_op || !meta_grab_op_is_resizing (window->display->grab_op))
+  if (!in_grab_op || !window_drag ||
+      !meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
     {
       if (value_mask & CWWidth)
         width = new_width;
@@ -3271,6 +3280,7 @@ meta_window_x11_client_message (MetaWindow *window,
       MetaGrabOp op;
       int button;
       guint32 timestamp;
+      MetaWindowDrag *window_drag;
 
       x_root = event->xclient.data.l[0];
       y_root = event->xclient.data.l[1];
@@ -3327,9 +3337,13 @@ meta_window_x11_client_message (MetaWindow *window,
           break;
         }
 
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+
       if (action == _NET_WM_MOVERESIZE_CANCEL)
         {
-          meta_display_end_grab_op (window->display, timestamp);
+          if (window_drag)
+            meta_window_drag_end (window_drag);
         }
       else if (op != META_GRAB_OP_NONE &&
           ((window->has_move_func && op == META_GRAB_OP_KEYBOARD_MOVING) ||
@@ -3365,8 +3379,8 @@ meta_window_x11_client_message (MetaWindow *window,
               else if ((button_mask & (1 << 3)) != 0)
                 button = 3;
 
-              if (button == 0)
-                meta_display_end_grab_op (window->display, timestamp);
+              if (button == 0 && window_drag)
+                meta_window_drag_end (window_drag);
             }
           else
             {
@@ -3383,8 +3397,8 @@ meta_window_x11_client_message (MetaWindow *window,
                * drag immediately.
                */
 
-              if ((button_mask & (1 << button)) == 0)
-                meta_display_end_grab_op (window->display, timestamp);
+              if (window_drag && (button_mask & (1 << button)) == 0)
+                meta_window_drag_end (window_drag);
             }
         }
 
@@ -4302,6 +4316,7 @@ meta_window_x11_check_update_resize (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+  MetaWindowDrag *window_drag;
 
   if (window->frame &&
       meta_sync_counter_is_waiting (meta_frame_get_sync_counter (window->frame)))
@@ -4310,10 +4325,9 @@ meta_window_x11_check_update_resize (MetaWindow *window)
   if (meta_sync_counter_is_waiting (&priv->sync_counter))
     return;
 
-  meta_window_update_resize (window,
-                             window->display->grab_last_edge_resistance_flags,
-                             window->display->grab_latest_motion_x,
-                             window->display->grab_latest_motion_y);
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+  meta_window_drag_update_resize (window_drag);
 }
 
 gboolean

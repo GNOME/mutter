@@ -50,16 +50,6 @@ backend_from_tool (MetaWaylandTabletTool *tool)
   return meta_context_get_backend (context);
 }
 
-static MetaDisplay *
-display_from_tool (MetaWaylandTabletTool *tool)
-{
-  MetaWaylandCompositor *compositor =
-    meta_wayland_seat_get_compositor (tool->seat->seat);
-  MetaContext *context = meta_wayland_compositor_get_context (compositor);
-
-  return meta_context_get_display (context);
-}
-
 static void
 unbind_resource (struct wl_resource *resource)
 {
@@ -575,7 +565,6 @@ static void
 sync_focus_surface (MetaWaylandTabletTool *tool,
                     const ClutterEvent    *event)
 {
-  MetaDisplay *display = display_from_tool (tool);
   MetaBackend *backend = backend_from_tool (tool);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
@@ -585,15 +574,7 @@ sync_focus_surface (MetaWaylandTabletTool *tool,
       return;
     }
 
-  if (display->grab_op == META_GRAB_OP_NONE)
-    {
-      meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
-    }
-  else
-    {
-      /* The compositor has a grab, so remove our focus */
-      meta_wayland_tablet_tool_set_focus (tool, NULL, event);
-    }
+  meta_wayland_tablet_tool_set_focus (tool, tool->current, event);
 }
 
 static void

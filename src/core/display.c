@@ -1259,10 +1259,7 @@ meta_display_windows_are_interactable (MetaDisplay *display)
   if (clutter_stage_get_grab_actor (CLUTTER_STAGE (stage)))
     return FALSE;
 
-  if (display->grab_op == META_GRAB_OP_NONE)
-    return TRUE;
-
-  return FALSE;
+  return TRUE;
 }
 
 /**
@@ -1998,7 +1995,7 @@ meta_display_end_grab_op (MetaDisplay *display,
 gboolean
 meta_display_is_grabbed (MetaDisplay *display)
 {
-  return display->grab_op != META_GRAB_OP_NONE;
+  return meta_compositor_get_current_window_drag (display->compositor) != NULL;
 }
 
 void
@@ -3151,10 +3148,15 @@ static gboolean
 meta_display_update_tile_preview_timeout (gpointer data)
 {
   MetaDisplay *display = data;
-  MetaWindow *window = display->grab_window;
+  MetaWindowDrag *window_drag;
+  MetaWindow *window = NULL;
   gboolean needs_preview = FALSE;
 
   display->tile_preview_timeout_id = 0;
+
+  window_drag = meta_compositor_get_current_window_drag (display->compositor);
+  if (window_drag)
+    window = meta_window_drag_get_window (window_drag);
 
   if (window)
     {
