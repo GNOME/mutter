@@ -10,6 +10,7 @@
 #include "compositor/meta-compositor-view.h"
 #include "compositor/meta-plugin-manager.h"
 #include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-drag.h"
 #include "meta/compositor.h"
 #include "meta/display.h"
 
@@ -79,6 +80,13 @@ MetaWindowActor * meta_compositor_get_top_window_actor (MetaCompositor *composit
 ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
+
+gboolean meta_compositor_drag_window (MetaCompositor *compositor,
+                                      MetaWindow     *window,
+                                      MetaGrabOp      grab_op,
+                                      uint32_t        timestamp);
+
+MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);
 
 void meta_compositor_grab_begin (MetaCompositor *compositor);
 

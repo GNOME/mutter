@@ -136,6 +136,8 @@ typedef struct _MetaCompositorPrivate
 
   MetaPluginManager *plugin_mgr;
 
+  MetaWindowDrag *current_drag;
+
   MetaLaters *laters;
 } MetaCompositorPrivate;
 
@@ -1672,4 +1674,48 @@ meta_compositor_get_laters (MetaCompositor *compositor)
 
   priv = meta_compositor_get_instance_private (compositor);
   return priv->laters;
+}
+
+static void
+on_window_drag_ended (MetaWindowDrag *window_drag,
+                      MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  g_assert (priv->current_drag == window_drag);
+  g_clear_object (&priv->current_drag);
+}
+
+gboolean
+meta_compositor_drag_window (MetaCompositor *compositor,
+                             MetaWindow     *window,
+                             MetaGrabOp      grab_op,
+                             uint32_t        timestamp)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+  g_autoptr (MetaWindowDrag) window_drag = NULL;
+
+  if (priv->current_drag)
+    return FALSE;
+
+  window_drag = meta_window_drag_new (window, grab_op);
+
+  if (!meta_window_drag_begin (window_drag, timestamp))
+    return FALSE;
+
+  g_signal_connect (window_drag, "ended",
+                    G_CALLBACK (on_window_drag_ended), compositor);
+  priv->current_drag = g_steal_pointer (&window_drag);
+  return TRUE;
+}
+
+MetaWindowDrag *
+meta_compositor_get_current_window_drag (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  return priv->current_drag;
 }
