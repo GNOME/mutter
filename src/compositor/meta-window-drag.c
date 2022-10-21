@@ -1774,3 +1774,12 @@ meta_window_drag_begin (MetaWindowDrag *window_drag,
 
   return TRUE;
 }
+
+void
+meta_window_drag_update_resize (MetaWindowDrag *window_drag)
+{
+  update_resize (window_drag,
+                 window_drag->last_edge_resistance_flags,
+                 window_drag->latest_motion_x,
+                 window_drag->latest_motion_y);
+}

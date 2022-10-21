@@ -37,4 +37,6 @@ gboolean meta_window_drag_begin (MetaWindowDrag *drag,
 
 void meta_window_drag_end (MetaWindowDrag *drag);
 
+void meta_window_drag_update_resize (MetaWindowDrag *drag);
+
 #endif /* META_WINDOW_DRAG_H */
