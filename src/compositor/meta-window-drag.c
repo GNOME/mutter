@@ -67,6 +67,8 @@ struct _MetaWindowDrag {
   gboolean threshold_movement_reached; /* raise_on_click == FALSE.    */
   unsigned int last_edge_resistance_flags;
   unsigned int move_resize_later_id;
+  /* if TRUE, window was maximized at start of current grab op */
+  gboolean shaken_loose;
 
   gulong unmanaging_id;
   gulong size_changed_id;
@@ -481,7 +483,7 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
        * need to remaximize it.  In normal cases, we need to do a
        * moveresize now to get the position back to the original.
        */
-      if (window->shaken_loose || tile_mode == META_TILE_MAXIMIZED)
+      if (window_drag->shaken_loose || tile_mode == META_TILE_MAXIMIZED)
         meta_window_maximize (window, META_MAXIMIZE_BOTH);
       else if (tile_mode != META_TILE_NONE)
         meta_window_restore_tile (window,
@@ -550,7 +552,7 @@ process_keyboard_move_grab (MetaWindowDrag  *window_drag,
        * remaximize it.  In normal cases, we need to do a moveresize
        * now to get the position back to the original.
        */
-      if (window->shaken_loose)
+      if (window_drag->shaken_loose)
         meta_window_maximize (window, META_MAXIMIZE_BOTH);
       else
         meta_window_move_resize_frame (window_drag->effective_grab_window,
@@ -1158,7 +1160,7 @@ update_move (MetaWindowDrag          *window_drag,
        * when dragged near the top; do not snap back if tiling
        * is enabled, as top edge tiling can be used in that case
        */
-      window->shaken_loose = !meta_prefs_get_edge_tiling ();
+      window_drag->shaken_loose = !meta_prefs_get_edge_tiling ();
       window->tile_mode = META_TILE_NONE;
 
       /* move the unmaximized window to the cursor */
@@ -1188,7 +1190,7 @@ update_move (MetaWindowDrag          *window_drag,
   /* remaximize window on another monitor if window has been shaken
    * loose or it is still maximized (then move straight)
    */
-  else if ((window->shaken_loose || META_WINDOW_MAXIMIZED (window)) &&
+  else if ((window_drag->shaken_loose || META_WINDOW_MAXIMIZED (window)) &&
            window->tile_mode != META_TILE_LEFT && window->tile_mode != META_TILE_RIGHT)
     {
       MetaDisplay *display = meta_window_get_display (window);
@@ -1238,7 +1240,7 @@ update_move (MetaWindowDrag          *window_drag,
                   window_drag->initial_window_pos = work_area;
                   window_drag->anchor_root_x = x;
                   window_drag->anchor_root_y = y;
-                  window->shaken_loose = FALSE;
+                  window_drag->shaken_loose = FALSE;
 
                   meta_window_maximize (window, META_MAXIMIZE_BOTH);
                 }

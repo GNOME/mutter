@@ -270,7 +270,6 @@ static void
 meta_window_real_grab_op_ended (MetaWindow *window,
                                 MetaGrabOp  op)
 {
-  window->shaken_loose = FALSE;
 }
 
 static void
@@ -1093,7 +1092,6 @@ meta_window_constructed (GObject *object)
   window->user_time_window = None;
   window->input = TRUE;
   window->calc_placement = FALSE;
-  window->shaken_loose = FALSE;
   window->have_focus_click_grab = FALSE;
 
   window->unmaps_pending = 0;

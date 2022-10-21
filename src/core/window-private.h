@@ -530,9 +530,6 @@ struct _MetaWindow
    */
   guint calc_placement : 1;
 
-  /* if TRUE, window was maximized at start of current grab op */
-  guint shaken_loose : 1;
-
   /* if TRUE we have a grab on the focus click buttons */
   guint have_focus_click_grab : 1;
 
