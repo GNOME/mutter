@@ -1071,7 +1071,6 @@ meta_window_edge_resistance_for_move (MetaWindow              *window,
                                       MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, proposed_outer, new_outer;
-  MetaEdgeResistanceFlags saved_flags;
   gboolean is_resize, is_keyboard_op, snap;
 
   meta_window_get_frame_rect (window, &old_outer);
@@ -1083,9 +1082,7 @@ meta_window_edge_resistance_for_move (MetaWindow              *window,
 
   snap = flags & META_EDGE_RESISTANCE_SNAP;
   is_keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
-  saved_flags = flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
-  window->display->grab_last_edge_resistance_flags = saved_flags;
   is_resize = FALSE;
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,
@@ -1151,7 +1148,6 @@ meta_window_edge_resistance_for_resize (MetaWindow              *window,
                                         MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, new_outer;
-  MetaEdgeResistanceFlags saved_flags;
   int proposed_outer_width, proposed_outer_height;
 
   meta_window_get_frame_rect (window, &old_outer);
@@ -1162,9 +1158,6 @@ meta_window_edge_resistance_for_resize (MetaWindow              *window,
                                       gravity,
                                       proposed_outer_width,
                                       proposed_outer_height);
-
-  saved_flags = flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
-  window->display->grab_last_edge_resistance_flags = saved_flags;
 
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,

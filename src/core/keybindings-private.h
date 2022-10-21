@@ -134,10 +134,6 @@ void     meta_display_init_keys             (MetaDisplay *display);
 void     meta_display_shutdown_keys         (MetaDisplay *display);
 void     meta_window_grab_keys              (MetaWindow  *window);
 void     meta_window_ungrab_keys            (MetaWindow  *window);
-gboolean meta_window_grab_all_keys          (MetaWindow  *window,
-                                             guint32      timestamp);
-void     meta_window_ungrab_all_keys        (MetaWindow  *window,
-                                             guint32      timestamp);
 gboolean meta_keybindings_process_event     (MetaDisplay        *display,
                                              MetaWindow         *window,
                                              const ClutterEvent *event);

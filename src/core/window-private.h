@@ -519,7 +519,6 @@ struct _MetaWindow
   /* Used by keybindings.c */
   guint keys_grabbed : 1;     /* normal keybindings grabbed */
   guint grab_on_frame : 1;    /* grabs are on the frame */
-  guint all_keys_grabbed : 1; /* AnyKey grabbed */
 
   /* Set if the reason for unmanaging the window is that
    * it was withdrawn
@@ -729,9 +728,6 @@ void meta_window_show_menu_for_rect (MetaWindow         *window,
                                      MetaWindowMenuType  menu,
                                      MetaRectangle      *rect);
 
-gboolean meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
-                                                  const ClutterEvent *event);
-
 GList* meta_window_get_workspaces (MetaWindow *window);
 
 void meta_window_get_work_area_for_logical_monitor (MetaWindow         *window,
@@ -757,10 +753,6 @@ gboolean meta_window_same_application (MetaWindow *window,
   (meta_window_is_focusable (w) && (!g || meta_window_get_group(w)==g))
 
 void meta_window_free_delete_dialog (MetaWindow *window);
-
-void meta_window_update_keyboard_resize (MetaWindow *window,
-                                         gboolean    update_cursor);
-void meta_window_update_keyboard_move   (MetaWindow *window);
 
 MetaStackLayer meta_window_get_default_layer (MetaWindow *window);
 void meta_window_update_layer (MetaWindow *window);
@@ -849,11 +841,6 @@ cairo_surface_t * meta_window_get_mini_icon (MetaWindow *window);
 
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);
-
-void meta_window_update_resize (MetaWindow              *window,
-                                MetaEdgeResistanceFlags  flags,
-                                int                      x,
-                                int                      y);
 
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,

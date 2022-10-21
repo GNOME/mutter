@@ -145,24 +145,7 @@ struct _MetaDisplay
   guint       autoraise_timeout_id;
   MetaWindow* autoraise_window;
 
-  /* current window operation */
-  MetaGrabOp  grab_op;
-  MetaWindow *grab_window;
-  int         grab_anchor_root_x;
-  int         grab_anchor_root_y;
-  MetaRectangle grab_anchor_window_pos;
-  MetaTileMode  grab_tile_mode;
-  int           grab_tile_monitor_number;
-  int         grab_latest_motion_x;
-  int         grab_latest_motion_y;
-  guint       grab_have_pointer : 1;
-  guint       grab_have_keyboard : 1;
-  MetaRectangle grab_initial_window_pos;
-  int         grab_initial_x, grab_initial_y;  /* These are only relevant for */
-  gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */
   MetaEdgeResistanceData *grab_edge_resistance_data;
-  unsigned int grab_last_edge_resistance_flags;
-  unsigned int grab_move_resize_later_id;
 
   MetaKeyBindingManager key_binding_manager;
 
@@ -276,11 +259,7 @@ GSList*     meta_display_list_windows        (MetaDisplay          *display,
                                               MetaListWindowsFlags  flags);
 
 void meta_display_reload_cursor (MetaDisplay *display);
-void meta_display_update_cursor (MetaDisplay *display);
 
-void    meta_display_check_threshold_reached (MetaDisplay *display,
-                                              int          x,
-                                              int          y);
 void     meta_display_grab_window_buttons    (MetaDisplay *display,
                                               Window       xwindow);
 void     meta_display_ungrab_window_buttons  (MetaDisplay *display,
@@ -311,8 +290,6 @@ gboolean meta_grab_op_is_moving   (MetaGrabOp op);
 gboolean meta_grab_op_is_resizing (MetaGrabOp op);
 gboolean meta_grab_op_is_mouse    (MetaGrabOp op);
 gboolean meta_grab_op_is_keyboard (MetaGrabOp op);
-
-void meta_display_clear_grab_move_resize_later (MetaDisplay *display);
 
 void meta_display_queue_autoraise_callback  (MetaDisplay *display,
                                              MetaWindow  *window);
@@ -408,15 +385,5 @@ void meta_display_unqueue_window (MetaDisplay   *display,
 void meta_display_flush_queued_window (MetaDisplay   *display,
                                        MetaWindow    *window,
                                        MetaQueueType  queue_types);
-
-gboolean meta_display_begin_grab_op (MetaDisplay *display,
-                                     MetaWindow  *window,
-                                     MetaGrabOp   op,
-                                     uint32_t     timestamp,
-                                     int          root_x,
-                                     int          root_y);
-
-void meta_display_end_grab_op (MetaDisplay *display,
-                               uint32_t     timestamp);
 
 #endif
