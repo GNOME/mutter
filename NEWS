@@ -1,3 +1,39 @@
+43.1
+====
+* Add quirk to work around issue with Mali GPUs [Daniel; !2614]
+* Notify changes to night-light support over D-Bus [Sebastian W.; !2623]
+* Fix always-on-top windows unexpectedly taking focus [Sebastian W.; !2489]
+* Fix accidental direct scanout [Jonas Å.; !2624]
+* Disable client modifiers with amdgpu driver [Michel; !2637]
+* Cancel pointer gesture on wl_pointer.leave [Carlos; !2640]
+* Add black padding to fixed-size wayland fullscreen windows
+  [Jonas Å., Sebastian W.; !2338]
+* Stop sending frame callbacks to minimized clients [Robert; !2662]
+* Fix scrolling in clients with no hi-res scroll support in RDP [José; !2664]
+* Fix skipped low-res scroll events with some high-res mice [José; !2668]
+* Throttle interactive move and resize updates [Jonas Å.; !2652]
+* wayland-keyboard: Send pressed keys on enter [Jonas Å.; !2657]
+* Fix some X11 windows getting unredirected erroneously [Sebastian K.; !2651]
+* Fix Flatpak applications bypassing X11 permission [msizanoen1; !2633]
+* Fix always visible cursor in virtual streams [Salman; !2629]
+* Fixed crashes [Jonas Å., Sebastian W., Max, Carlos, Łukasz; !2616, !2627,
+  !2646, !2661, !2655, !2669, !2676]
+* Misc. bug fixes and cleanups [Daniel, Jonas Å., Sebastian W., Ivan, Marco,
+  Florian, Carlos, Jonas D.; !2615, !2619, !2590, !2630, !2515, !2656,
+  !2659, !2670, !2667, !2678]
+
+Contributors:
+  Marco Trevisan (Treviño), Jonas Dreßler, Michel Dänzer, José Expósito,
+  Carlos Garnacho, Sebastian Keller, Robert Mader, Salman Malik,
+  Ivan Molodetskikh, Florian Müllner, Łukasz Spintzyk, Daniel van Vugt,
+  Sebastian Wick, Max Zhao, msizanoen1, Jonas Ådahl
+
+Translators:
+  Baurzhan Muftakhidinov [kk], Sabri Ünal [tr], Pawan Chitrakar [ne],
+  Jürgen Benvenuti [de], Nart Tlisha [ab], Fabio Tomat [fur],
+  Quentin PAGÈS [oc], Freddy Cheng [zh_TW], Мирослав Николић [sr],
+  Nathan Follens [nl]
+
 43.0
 ====
 * Fix stuttering in Xorg session [Daniel; !2625]
