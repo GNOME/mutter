@@ -1119,6 +1119,124 @@ meta_test_thread_change_thread_type (void)
   g_assert_null (test_thread);
 }
 
+static GVariant *
+call_rtkit_mock_method (const char *method,
+                        GVariant   *argument)
+{
+  g_autoptr (GDBusConnection) connection = NULL;
+  GError *local_error = NULL;
+  GVariant *ret;
+
+  connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM,
+                               NULL, NULL);
+
+  ret = g_dbus_connection_call_sync (connection,
+                                     "org.freedesktop.RealtimeKit1",
+                                     "/org/freedesktop/RealtimeKit1",
+                                     "org.freedesktop.DBus.Mock",
+                                     method, argument,
+                                     NULL, G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
+                                     NULL, &local_error);
+  if (!ret)
+    g_error ("Failed to get tread priority: %s", local_error->message);
+
+  return ret;
+}
+
+static gpointer
+assert_realtime (MetaThreadImpl  *thread_impl,
+                 gpointer         user_data,
+                 GError         **error)
+{
+  g_autoptr (GVariant) ret = NULL;
+  g_autoptr (GVariant) priority_variant = NULL;
+  uint32_t priority = 0;
+
+  ret = call_rtkit_mock_method ("GetThreadPriority",
+                                g_variant_new ("(t)", gettid ()));
+
+  g_variant_get (ret, "(u)", &priority);
+  g_assert_cmpint (priority, ==, 20);
+
+  return NULL;
+}
+
+static void
+meta_test_thread_realtime (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaThread *thread;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) ret = NULL;
+
+  ret = call_rtkit_mock_method ("Reset", NULL);
+
+  thread = g_initable_new (META_TYPE_THREAD_TEST,
+                           NULL, &error,
+                           "backend", backend,
+                           "name", "test realtime",
+                           "thread-type", META_THREAD_TYPE_KERNEL,
+                           "wants-realtime", TRUE,
+                           NULL);
+  g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
+  g_assert_nonnull (thread);
+  g_assert_null (error);
+
+  meta_thread_post_impl_task (thread, assert_realtime, NULL, NULL,
+                              NULL, NULL);
+
+  g_object_unref (thread);
+  g_assert_null (thread);
+  g_assert_null (test_thread);
+}
+
+static gpointer
+assert_no_realtime (MetaThreadImpl  *thread_impl,
+                    gpointer         user_data,
+                    GError         **error)
+{
+  g_autoptr (GVariant) ret = NULL;
+  g_autoptr (GVariant) priority_variant = NULL;
+  uint32_t priority = UINT32_MAX;
+
+  ret = call_rtkit_mock_method ("GetThreadPriority",
+                                g_variant_new ("(t)", gettid ()));
+
+  g_variant_get (ret, "(u)", &priority);
+  g_assert_cmpint (priority, ==, 0);
+
+  return NULL;
+}
+
+static void
+meta_test_thread_no_realtime (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaThread *thread;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) ret = NULL;
+
+  ret = call_rtkit_mock_method ("Reset", NULL);
+
+  thread = g_initable_new (META_TYPE_THREAD_TEST,
+                           NULL, &error,
+                           "backend", backend,
+                           "name", "test realtime",
+                           "thread-type", META_THREAD_TYPE_USER,
+                           "wants-realtime", TRUE,
+                           NULL);
+  g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
+  g_assert_nonnull (thread);
+  g_assert_null (error);
+
+  meta_thread_post_impl_task (thread, assert_no_realtime, NULL, NULL,
+                              NULL, NULL);
+
+  g_object_unref (thread);
+  g_assert_null (thread);
+  g_assert_null (test_thread);
+}
+
 static void
 init_tests (void)
 {
@@ -1136,6 +1254,10 @@ init_tests (void)
                    meta_test_thread_kernel_run_task_off_thread);
   g_test_add_func ("/backends/native/thread/change-thread-type",
                    meta_test_thread_change_thread_type);
+  g_test_add_func ("/backends/native/thread/realtime",
+                   meta_test_thread_realtime);
+  g_test_add_func ("/backends/native/thread/no-realtime",
+                   meta_test_thread_no_realtime);
 }
 
 int

@@ -22,11 +22,13 @@
 #include "backends/native/meta-thread-private.h"
 
 #include <glib.h>
+#include <sys/resource.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-backend-types.h"
 #include "backends/native/meta-thread-impl.h"
 
+#include "meta-dbus-rtkit1.h"
 #include "meta-private-enum-types.h"
 
 enum
@@ -36,6 +38,7 @@ enum
   PROP_BACKEND,
   PROP_NAME,
   PROP_THREAD_TYPE,
+  PROP_WANTS_REALTIME,
 
   N_PROPS
 };
@@ -70,6 +73,7 @@ typedef struct _MetaThreadPrivate
   GMainContext *main_context;
 
   MetaThreadImpl *impl;
+  gboolean wants_realtime;
   gboolean waiting_for_impl_task;
   GSource *wrapper_source;
 
@@ -128,6 +132,9 @@ meta_thread_get_property (GObject    *object,
     case PROP_THREAD_TYPE:
       g_value_set_enum (value, priv->thread_type);
       break;
+    case PROP_WANTS_REALTIME:
+      g_value_set_boolean (value, priv->wants_realtime);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -154,10 +161,132 @@ meta_thread_set_property (GObject      *object,
     case PROP_THREAD_TYPE:
       priv->thread_type = g_value_get_enum (value);
       break;
+    case PROP_WANTS_REALTIME:
+      priv->wants_realtime = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
+}
+
+static GVariant *
+get_rtkit_property (MetaDBusRealtimeKit1  *rtkit_proxy,
+                    const char            *property_name,
+                    GError               **error)
+{
+  GDBusConnection *connection;
+  g_autoptr (GVariant) prop_value = NULL;
+  g_autoptr (GVariant) property_variant = NULL;
+
+  /* The following is a fall back path for a RTKit daemon that doesn't support
+   * org.freedesktop.DBus.Properties.GetAll. See
+   * <https://github.com/heftig/rtkit/pull/30>.
+   */
+  connection = g_dbus_proxy_get_connection (G_DBUS_PROXY (rtkit_proxy));
+  prop_value =
+    g_dbus_connection_call_sync (connection,
+                                 "org.freedesktop.RealtimeKit1",
+                                 "/org/freedesktop/RealtimeKit1",
+                                 "org.freedesktop.DBus.Properties",
+                                 "Get",
+                                 g_variant_new ("(ss)",
+                                                "org.freedesktop.RealtimeKit1",
+                                                property_name),
+                                 G_VARIANT_TYPE ("(v)"),
+                                 G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                 -1, NULL, error);
+  if (!prop_value)
+    return NULL;
+
+  g_variant_get (prop_value, "(v)", &property_variant);
+  return g_steal_pointer (&property_variant);
+}
+
+static gboolean
+request_real_time_scheduling (MetaThread  *thread,
+                              GError     **error)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (MetaDBusRealtimeKit1) rtkit_proxy = NULL;
+  g_autoptr (GError) local_error = NULL;
+  int64_t rttime;
+  struct rlimit rl;
+  uint32_t priority;
+
+  rtkit_proxy =
+    meta_dbus_realtime_kit1_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                    G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS |
+                                                    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                    "org.freedesktop.RealtimeKit1",
+                                                    "/org/freedesktop/RealtimeKit1",
+                                                    NULL,
+                                                    &local_error);
+  if (!rtkit_proxy)
+    {
+      g_dbus_error_strip_remote_error (local_error);
+      g_propagate_prefixed_error (error, g_steal_pointer (&local_error),
+                                  "Failed to acquire RTKit D-Bus proxy: ");
+      return FALSE;
+    }
+
+  priority = meta_dbus_realtime_kit1_get_max_realtime_priority (rtkit_proxy);
+  if (priority == 0)
+    {
+      g_autoptr (GVariant) priority_variant = NULL;
+
+      priority_variant = get_rtkit_property (rtkit_proxy,
+                                             "MaxRealtimePriority",
+                                             error);
+      if (!priority_variant)
+        return FALSE;
+
+      priority = g_variant_get_int32 (priority_variant);
+    }
+
+  if (priority == 0)
+    g_warning ("Maximum real time scheduling priority is 0");
+
+  rttime = meta_dbus_realtime_kit1_get_rttime_usec_max (rtkit_proxy);
+  if (rttime == 0)
+    {
+      g_autoptr (GVariant) rttime_variant = NULL;
+
+      rttime_variant = get_rtkit_property (rtkit_proxy,
+                                           "RTTimeUSecMax",
+                                           error);
+      if (!rttime_variant)
+        return FALSE;
+
+      rttime = g_variant_get_int64 (rttime_variant);
+    }
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Setting soft and hard RLIMIT_RTTIME limit to %lu", rttime);
+  rl.rlim_cur = rttime;
+  rl.rlim_max = rttime;
+
+  if (setrlimit (RLIMIT_RTTIME, &rl) != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to set RLIMIT_RTTIME: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  meta_topic (META_DEBUG_BACKEND, "Setting '%s' thread real time priority to %d",
+              priv->name, priority);
+  if (!meta_dbus_realtime_kit1_call_make_thread_realtime_sync (rtkit_proxy,
+                                                               gettid (),
+                                                               priority,
+                                                               NULL,
+                                                               &local_error))
+    {
+      g_dbus_error_strip_remote_error (local_error);
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return FALSE;
+    }
+
+  return TRUE;
 }
 
 static gpointer
@@ -168,6 +297,21 @@ thread_impl_func (gpointer user_data)
 
   g_mutex_lock (&priv->kernel.init_mutex);
   g_mutex_unlock (&priv->kernel.init_mutex);
+
+  if (priv->wants_realtime)
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (!request_real_time_scheduling (thread, &error))
+        {
+          g_warning ("Failed to make thread '%s' realtime scheduled: %s",
+                     priv->name, error->message);
+        }
+      else
+        {
+          g_message ("Made thread '%s' realtime scheduled", priv->name);
+        }
+    }
 
   meta_thread_impl_run (priv->impl);
 
@@ -462,6 +606,15 @@ meta_thread_class_init (MetaThreadClass *klass)
                        G_PARAM_READWRITE |
                        G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_WANTS_REALTIME] =
+    g_param_spec_boolean ("wants-realtime",
+                          "wants-realtime",
+                          "Wants real-time thread scheduling",
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

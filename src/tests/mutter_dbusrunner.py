@@ -48,6 +48,7 @@ class MutterDBusRunner(DBusTestCase):
         klass.start_from_local_template('localed')
         klass.start_from_local_template('colord')
         klass.start_from_local_template('gsd-color')
+        klass.start_from_local_template('rtkit')
 
         klass.system_bus_con = klass.get_dbus(system_bus=True)
         klass.session_bus_con = klass.get_dbus(system_bus=False)
