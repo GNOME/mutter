@@ -59,6 +59,15 @@ meta_feedback_actor_constructed (GObject *object)
   display = meta_get_display ();
   feedback_group = meta_get_feedback_group_for_display (display);
   clutter_actor_add_child (feedback_group, CLUTTER_ACTOR (object));
+  meta_disable_unredirect_for_display (display);
+}
+
+static void
+meta_feedback_actor_finalize (GObject *object)
+{
+  meta_enable_unredirect_for_display (meta_get_display ());
+
+  G_OBJECT_CLASS (meta_feedback_actor_parent_class)->finalize (object);
 }
 
 static void
@@ -128,6 +137,7 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
   GParamSpec *pspec;
 
   object_class->constructed = meta_feedback_actor_constructed;
+  object_class->finalize = meta_feedback_actor_finalize;
   object_class->set_property = meta_feedback_actor_set_property;
   object_class->get_property = meta_feedback_actor_get_property;
 
