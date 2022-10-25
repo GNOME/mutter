@@ -1,3 +1,13 @@
+42.6
+====
+* Add quirk to work around issue with Mali GPUs [Daniel; #2354]
+* Stop sending frame callbacks to minimized clients [Robert; !2662]
+* Fixed crashes [Jonas, Carlos, Max; !2646, !2592, !2661, !2655]
+* Misc. bug fixes and cleanups [Carlos; !2594]
+
+Contributors:
+  Carlos Garnacho, Robert Mader, Daniel van Vugt, Max Zhao, Jonas Ådahl
+
 42.5
 ====
 * Improve heuristics for adding fallback monitor modes [Mario; !2586]
