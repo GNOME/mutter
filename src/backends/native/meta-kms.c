@@ -461,6 +461,7 @@ meta_kms_new (MetaBackend   *backend,
                         "backend", backend,
                         "name", "KMS thread",
                         "thread-type", thread_type,
+                        "wants-realtime", TRUE,
                         NULL);
   kms->flags = flags;
 
