@@ -296,6 +296,7 @@ thread_impl_func (gpointer user_data)
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
   MetaContext *context = meta_backend_get_context (priv->backend);
   MetaThreadImpl *impl = priv->impl;
+  MetaThreadImplRunFlags run_flags = META_THREAD_IMPL_RUN_FLAG_NONE;
 #ifdef HAVE_PROFILER
   GMainContext *thread_context = meta_thread_impl_get_main_context (impl);
   MetaProfiler *profiler = meta_context_get_profiler (context);
@@ -320,10 +321,11 @@ thread_impl_func (gpointer user_data)
       else
         {
           g_message ("Made thread '%s' realtime scheduled", priv->name);
+          run_flags |= META_THREAD_IMPL_RUN_FLAG_REALTIME;
         }
     }
 
-  meta_thread_impl_run (impl);
+  meta_thread_impl_run (impl, run_flags);
 
 #ifdef HAVE_PROFILER
   meta_profiler_unregister_thread (profiler, thread_context);

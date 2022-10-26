@@ -27,6 +27,12 @@
 
 typedef struct _MetaThread MetaThread;
 
+typedef enum _MetaThreadImplRunFlags
+{
+  META_THREAD_IMPL_RUN_FLAG_NONE = 0,
+  META_THREAD_IMPL_RUN_FLAG_REALTIME = 1 << 0,
+} MetaThreadImplRunFlags;
+
 #define META_TYPE_THREAD_IMPL (meta_thread_impl_get_type ())
 META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaThreadImpl, meta_thread_impl,
@@ -67,11 +73,15 @@ void meta_thread_impl_queue_task (MetaThreadImpl *thread_impl,
 
 void meta_thread_impl_terminate (MetaThreadImpl *thread_impl);
 
-void meta_thread_impl_run (MetaThreadImpl *thread_impl);
+void meta_thread_impl_run (MetaThreadImpl         *thread_impl,
+                           MetaThreadImplRunFlags  flags);
 
 int meta_thread_impl_dispatch (MetaThreadImpl *thread_impl);
 
 gboolean meta_thread_impl_is_in_impl (MetaThreadImpl *thread_impl);
+
+META_EXPORT_TEST
+gboolean meta_thread_impl_is_realtime (MetaThreadImpl *thread_impl);
 
 MetaThreadTask * meta_thread_task_new (MetaThreadTaskFunc          func,
                                        gpointer                    user_data,
