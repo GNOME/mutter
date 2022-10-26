@@ -139,7 +139,13 @@ meta_stage_native_redraw_view (ClutterStageWindow *stage_window,
                                ClutterStageView   *view,
                                ClutterFrame       *frame)
 {
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaCrtc *crtc;
+
+  meta_renderer_native_before_redraw (META_RENDERER_NATIVE (renderer),
+                                      META_RENDERER_VIEW (view), frame);
 
   clutter_stage_window_parent_iface->redraw_view (stage_window, view, frame);
 

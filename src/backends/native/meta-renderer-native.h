@@ -61,6 +61,10 @@ void meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
                                          MetaRendererView   *view,
                                          ClutterFrame       *frame);
 
+void meta_renderer_native_before_redraw (MetaRendererNative *renderer_native,
+                                         MetaRendererView   *view,
+                                         ClutterFrame       *frame);
+
 void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
                                         MetaRendererView   *view,
                                         ClutterFrame       *frame);

@@ -177,6 +177,16 @@ MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_d
                                                        MetaKmsUpdateFlag  flags)
   G_GNUC_WARN_UNUSED_RESULT;
 
+void meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
+                                         MetaKmsUpdate     *update,
+                                         MetaKmsUpdateFlag  flags);
+
+void meta_kms_impl_device_await_flush (MetaKmsImplDevice *impl_device,
+                                       MetaKmsCrtc       *crtc);
+
+void meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
+                                            MetaKmsCrtc       *crtc);
+
 void meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
                                                      MetaKmsPageFlipData *page_flip_data);
 

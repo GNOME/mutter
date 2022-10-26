@@ -1429,6 +1429,18 @@ add_onscreen_frame_info (MetaCrtc *crtc)
 }
 
 void
+meta_onscreen_native_before_redraw (CoglOnscreen *onscreen,
+                                    ClutterFrame *frame)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+
+  meta_kms_device_await_flush (meta_kms_crtc_get_device (kms_crtc),
+                               kms_crtc);
+}
+
+void
 meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
                                     ClutterFrame *frame)
 {
@@ -1513,7 +1525,10 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
 
   if (!g_error_matches (error,
                         G_IO_ERROR,
-                        G_IO_ERROR_PERMISSION_DENIED))
+                        G_IO_ERROR_PERMISSION_DENIED) &&
+      !g_error_matches (error,
+                        META_KMS_ERROR,
+                        META_KMS_ERROR_EMPTY_UPDATE))
     g_warning ("Cursor update failed: %s", error->message);
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
@@ -1540,8 +1555,16 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
   kms_update = meta_frame_native_steal_kms_update (frame_native);
   if (!kms_update)
     {
-      clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
-      return;
+      if (meta_kms_device_handle_flush (kms_device, kms_crtc))
+        {
+          kms_update = meta_kms_update_new (kms_device);
+          meta_kms_update_set_flushing (kms_update, kms_crtc);
+        }
+      else
+        {
+          clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
+          return;
+        }
     }
 
   meta_kms_update_add_result_listener (kms_update,
@@ -1563,6 +1586,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
+  meta_kms_update_set_flushing (kms_update, kms_crtc);
   meta_kms_device_post_update (kms_device, kms_update,
                                META_KMS_UPDATE_FLAG_NONE);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);

@@ -29,12 +29,20 @@
 struct _MetaKmsImpl
 {
   GObject parent;
+
+  GPtrArray *update_filters;
 };
 
 typedef struct _MetaKmsImplPrivate
 {
   GList *impl_devices;
 } MetaKmsImplPrivate;
+
+struct _MetaKmsUpdateFilter
+{
+  MetaKmsUpdateFilterFunc func;
+  gpointer user_data;
+};
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaKmsImpl, meta_kms_impl, META_TYPE_THREAD_IMPL)
 
@@ -103,6 +111,30 @@ meta_kms_impl_notify_modes_set (MetaKmsImpl *impl)
                   NULL);
 }
 
+static void
+meta_kms_update_filter_free (MetaKmsUpdateFilter *filter)
+{
+  g_free (filter);
+}
+
+MetaKmsUpdate *
+meta_kms_impl_filter_update (MetaKmsImpl       *impl,
+                             MetaKmsCrtc       *crtc,
+                             MetaKmsUpdate     *update,
+                             MetaKmsUpdateFlag  flags)
+{
+  int i;
+
+  for (i = 0; i < impl->update_filters->len; i++)
+    {
+      MetaKmsUpdateFilter *filter = g_ptr_array_index (impl->update_filters, i);
+
+      update = filter->func (impl, crtc, update, flags, filter->user_data);
+    }
+
+  return update;
+}
+
 MetaKmsImpl *
 meta_kms_impl_new (MetaKms *kms)
 {
@@ -112,11 +144,49 @@ meta_kms_impl_new (MetaKms *kms)
 }
 
 static void
-meta_kms_impl_init (MetaKmsImpl *kms_impl)
+meta_kms_impl_init (MetaKmsImpl *impl)
 {
+  impl->update_filters =
+    g_ptr_array_new_with_free_func ((GDestroyNotify) meta_kms_update_filter_free);
+}
+
+static void
+meta_kms_impl_finalize (GObject *object)
+{
+  MetaKmsImpl *impl = META_KMS_IMPL (object);
+
+  g_clear_pointer (&impl->update_filters, g_ptr_array_unref);
+
+  G_OBJECT_CLASS (meta_kms_impl_parent_class)->finalize (object);
 }
 
 static void
 meta_kms_impl_class_init (MetaKmsImplClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_kms_impl_finalize;
+}
+
+MetaKmsUpdateFilter *
+meta_kms_impl_add_update_filter (MetaKmsImpl             *impl,
+                                 MetaKmsUpdateFilterFunc  func,
+                                 gpointer                 user_data)
+{
+  MetaKmsUpdateFilter *filter;
+
+  filter = g_new0 (MetaKmsUpdateFilter, 1);
+  filter->func = func;
+  filter->user_data = user_data;
+
+  g_ptr_array_add (impl->update_filters, filter);
+
+  return filter;
+}
+
+void
+meta_kms_impl_remove_update_filter (MetaKmsImpl         *impl,
+                                    MetaKmsUpdateFilter *filter)
+{
+  g_ptr_array_remove (impl->update_filters, filter);
 }

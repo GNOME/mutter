@@ -66,6 +66,8 @@ typedef struct _MetaRendererNativeGpuData
     EGLContext egl_context;
     EGLConfig egl_config;
   } secondary;
+
+  gulong crtc_needs_flush_handler_id;
 } MetaRendererNativeGpuData;
 
 MetaEgl * meta_renderer_native_get_egl (MetaRendererNative *renderer_native);

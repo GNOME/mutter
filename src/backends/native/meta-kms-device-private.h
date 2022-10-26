@@ -40,4 +40,7 @@ MetaKmsCrtc * meta_kms_device_find_crtc_in_impl (MetaKmsDevice *device,
 MetaKmsConnector * meta_kms_device_find_connector_in_impl (MetaKmsDevice *device,
                                                            uint32_t       connector_id);
 
+void meta_kms_device_set_needs_flush (MetaKmsDevice *device,
+                                      MetaKmsCrtc   *crtc);
+
 #endif /* META_KMS_DEVICE_PRIVATE_H */

@@ -28,6 +28,10 @@
 #include "backends/native/meta-kms-impl-device-simple.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update-private.h"
+#include "backends/native/meta-kms-utils.h"
+
+#define DEADLINE_EVASION_US 500
+#define DEADLINE_EVASION_WITH_KMS_TOPIC_US 1000
 
 typedef struct _MetaKmsCrtcPropTable
 {
@@ -486,4 +490,93 @@ meta_kms_crtc_class_init (MetaKmsCrtcClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_kms_crtc_finalize;
+}
+
+static drmVBlankSeqType
+get_crtc_type_bitmask (MetaKmsCrtc *crtc)
+{
+  if (crtc->idx > 1)
+    {
+      return ((crtc->idx << DRM_VBLANK_HIGH_CRTC_SHIFT) &
+              DRM_VBLANK_HIGH_CRTC_MASK);
+    }
+  else if (crtc->idx > 0)
+    {
+      return DRM_VBLANK_SECONDARY;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+gboolean
+meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
+                                  int64_t      *out_next_deadline_us,
+                                  int64_t      *out_next_presentation_us,
+                                  GError      **error)
+{
+  MetaKmsImplDevice *impl_device;
+  int fd;
+  drmVBlank vblank;
+  int ret;
+  int64_t next_presentation_us;
+  int64_t next_deadline_us;
+  drmModeModeInfo *drm_mode;
+  int64_t vblank_duration_us;
+  int64_t deadline_evasion_us;
+
+  if (!crtc->current_state.is_drm_mode_valid)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Mode invalid");
+      return FALSE;
+    }
+
+  impl_device = meta_kms_device_get_impl_device (crtc->device);
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  vblank = (drmVBlank) {
+    .request.type = DRM_VBLANK_RELATIVE | get_crtc_type_bitmask (crtc),
+    .request.sequence = 0,
+    .request.signal = 0,
+  };
+
+  ret = drmWaitVBlank (fd, &vblank);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "drmWaitVBlank failed: %s", g_strerror (-ret));
+      return FALSE;
+    }
+
+  drm_mode = &crtc->current_state.drm_mode;
+  next_presentation_us =
+    s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec + 0.5 +
+    G_USEC_PER_SEC / meta_calculate_drm_mode_refresh_rate (drm_mode);
+
+  /*
+   *                         1
+   * time per pixel = -----------------
+   *                   Pixel clock (Hz)
+   *
+   * number of pixels = vdisplay * htotal
+   *
+   * time spent scanning out = time per pixel * number of pixels
+   *
+   */
+
+  if (meta_is_topic_enabled (META_DEBUG_KMS))
+    deadline_evasion_us = DEADLINE_EVASION_WITH_KMS_TOPIC_US;
+  else
+    deadline_evasion_us = DEADLINE_EVASION_US;
+
+  vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
+  next_deadline_us = next_presentation_us - (vblank_duration_us +
+                                             deadline_evasion_us);
+
+  *out_next_presentation_us = next_presentation_us;
+  *out_next_deadline_us = next_deadline_us;
+
+  return TRUE;
 }

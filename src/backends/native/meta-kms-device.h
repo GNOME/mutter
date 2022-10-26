@@ -83,6 +83,12 @@ void meta_kms_device_post_update (MetaKmsDevice     *device,
                                   MetaKmsUpdate     *update,
                                   MetaKmsUpdateFlag  flags);
 
+void meta_kms_device_await_flush (MetaKmsDevice *device,
+                                  MetaKmsCrtc   *crtc);
+
+gboolean meta_kms_device_handle_flush (MetaKmsDevice *device,
+                                       MetaKmsCrtc   *crtc);
+
 META_EXPORT_TEST
 void meta_kms_device_disable (MetaKmsDevice *device);
 

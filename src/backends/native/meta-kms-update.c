@@ -36,6 +36,9 @@ struct _MetaKmsUpdate
 
   gboolean is_sealed;
 
+  gboolean is_latchable;
+  MetaKmsCrtc *latch_crtc;
+
   GList *mode_sets;
   GList *plane_assignments;
   GList *connector_updates;
@@ -199,7 +202,7 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
-static void
+void
 meta_kms_page_flip_listener_unref (MetaKmsPageFlipListener *listener)
 {
   MetaKmsDevice *device;
@@ -248,6 +251,27 @@ meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
   drop_plane_assignment (update, plane, NULL);
 }
 
+static void
+update_latch_crtc (MetaKmsUpdate *update,
+                   MetaKmsCrtc   *crtc)
+{
+  if (update->is_latchable)
+    {
+      if (update->latch_crtc)
+        {
+          if (update->latch_crtc != crtc)
+            {
+              update->is_latchable = FALSE;
+              update->latch_crtc = NULL;
+            }
+        }
+      else
+        {
+          update->latch_crtc = crtc;
+        }
+    }
+}
+
 MetaKmsPlaneAssignment *
 meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                               MetaKmsCrtc            *crtc,
@@ -286,6 +310,8 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   update->plane_assignments = g_list_prepend (update->plane_assignments,
                                               plane_assignment);
 
+  update_latch_crtc (update, crtc);
+
   return plane_assignment;
 }
 
@@ -309,6 +335,8 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
 
   update->plane_assignments = g_list_prepend (update->plane_assignments,
                                               plane_assignment);
+
+  update_latch_crtc (update, crtc);
 
   return plane_assignment;
 }
@@ -490,6 +518,8 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
   color_update = ensure_color_update (update, crtc);
   color_update->gamma.state = gamma_update;
   color_update->gamma.has_update = TRUE;
+
+  update_latch_crtc (update, crtc);
 }
 
 static void
@@ -1016,6 +1046,7 @@ meta_kms_update_new (MetaKmsDevice *device)
 
   update = g_new0 (MetaKmsUpdate, 1);
   update->device = device;
+  update->is_latchable = TRUE;
 
   return update;
 }
@@ -1048,4 +1079,33 @@ meta_kms_update_realize (MetaKmsUpdate     *update,
 {
   update->impl_device = impl_device;
   meta_kms_impl_device_hold_fd (impl_device);
+}
+
+void
+meta_kms_update_set_flushing (MetaKmsUpdate *update,
+                              MetaKmsCrtc   *crtc)
+{
+  update_latch_crtc (update, crtc);
+}
+
+gboolean
+meta_kms_update_is_flushing (MetaKmsUpdate *update,
+                             MetaKmsCrtc   *crtc)
+{
+  return update->latch_crtc == crtc;
+}
+
+MetaKmsCrtc *
+meta_kms_update_get_latch_crtc (MetaKmsUpdate *update)
+{
+  return update->latch_crtc;
+}
+
+gboolean
+meta_kms_update_is_empty (MetaKmsUpdate *update)
+{
+  return (!update->mode_sets &&
+          !update->plane_assignments &&
+          !update->connector_updates &&
+          !update->crtc_color_updates);
 }
