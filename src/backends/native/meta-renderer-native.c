@@ -1781,11 +1781,10 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 
   device_path = meta_gpu_kms_get_file_path (gpu_kms);
   render_device = meta_backend_native_take_render_device (backend_native,
-                                                          device_path);
+                                                          device_path,
+                                                          error);
   if (!render_device)
     {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                   "No render device found for %s", device_path);
       return NULL;
     }
 
