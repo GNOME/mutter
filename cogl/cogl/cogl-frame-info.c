@@ -142,3 +142,11 @@ cogl_frame_info_get_time_before_buffer_swap_us (CoglFrameInfo *info)
 {
   return info->cpu_time_before_buffer_swap_us;
 }
+
+void
+cogl_frame_info_set_target_presentation_time (CoglFrameInfo *info,
+                                              int64_t        presentation_time_us)
+{
+  info->has_target_presentation_time = TRUE;
+  info->target_presentation_time_us = presentation_time_us;
+}

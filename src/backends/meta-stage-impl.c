@@ -265,6 +265,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
   if (COGL_IS_ONSCREEN (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+      int64_t target_presentation_time_us;
       int *damage, n_rects, i;
       CoglFrameInfo *frame_info;
 
@@ -284,6 +285,13 @@ swap_framebuffer (ClutterStageWindow *stage_window,
       frame_info =
         cogl_frame_info_new (cogl_context, priv->global_frame_counter);
       priv->global_frame_counter++;
+
+      if (clutter_frame_get_target_presentation_time (frame,
+                                                      &target_presentation_time_us))
+        {
+          cogl_frame_info_set_target_presentation_time (frame_info,
+                                                        target_presentation_time_us);
+        }
 
       /* push on the screen */
       if (n_rects > 0 && !swap_with_damage)
