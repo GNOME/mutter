@@ -294,9 +294,19 @@ thread_impl_func (gpointer user_data)
 {
   MetaThread *thread = META_THREAD (user_data);
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  MetaContext *context = meta_backend_get_context (priv->backend);
+  MetaThreadImpl *impl = priv->impl;
+#ifdef HAVE_PROFILER
+  GMainContext *thread_context = meta_thread_impl_get_main_context (impl);
+  MetaProfiler *profiler = meta_context_get_profiler (context);
+#endif
 
   g_mutex_lock (&priv->kernel.init_mutex);
   g_mutex_unlock (&priv->kernel.init_mutex);
+
+#ifdef HAVE_PROFILER
+  meta_profiler_register_thread (profiler, thread_context, priv->name);
+#endif
 
   if (priv->wants_realtime)
     {
@@ -313,7 +323,11 @@ thread_impl_func (gpointer user_data)
         }
     }
 
-  meta_thread_impl_run (priv->impl);
+  meta_thread_impl_run (impl);
+
+#ifdef HAVE_PROFILER
+  meta_profiler_unregister_thread (profiler, thread_context);
+#endif
 
   return GINT_TO_POINTER (TRUE);
 }
