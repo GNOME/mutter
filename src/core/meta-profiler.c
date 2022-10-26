@@ -29,6 +29,12 @@
 
 #define META_SYSPROF_PROFILER_DBUS_PATH "/org/gnome/Sysprof3/Profiler"
 
+typedef struct
+{
+  GMainContext *main_context;
+  char *name;
+} ThreadInfo;
+
 struct _MetaProfiler
 {
   MetaDBusSysprof3ProfilerSkeleton parent_instance;
@@ -38,6 +44,9 @@ struct _MetaProfiler
 
   gboolean persistent;
   gboolean running;
+
+  GMutex mutex;
+  GList *threads;
 };
 
 static void
@@ -48,6 +57,26 @@ G_DEFINE_TYPE_WITH_CODE (MetaProfiler,
                          META_DBUS_TYPE_SYSPROF3_PROFILER_SKELETON,
                          G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SYSPROF3_PROFILER,
                                                 meta_sysprof_capturer_init_iface))
+
+static void
+thread_info_free (ThreadInfo *thread_info)
+{
+  g_free (thread_info->name);
+  g_free (thread_info);
+}
+
+static ThreadInfo *
+thread_info_new (GMainContext *main_context,
+                 const char   *name)
+{
+  ThreadInfo *thread_info;
+
+  thread_info = g_new0 (ThreadInfo, 1);
+  thread_info->main_context = main_context;
+  thread_info->name = g_strdup (name);
+
+  return thread_info;
+}
 
 static gboolean
 handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
@@ -61,6 +90,7 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
   const char *group_name;
   int position;
   int fd = -1;
+  GList *l;
 
   if (profiler->running)
     {
@@ -92,6 +122,30 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
                                           "mutter-profile.syscap");
     }
 
+  g_mutex_lock (&profiler->mutex);
+  for (l = profiler->threads; l; l = l->next)
+    {
+      ThreadInfo *thread_info = l->data;
+      g_autofree char *thread_group_name = NULL;
+
+      thread_group_name = g_strdup_printf ("%s (%s)",
+                                           group_name,
+                                           thread_info->name);
+      if (fd != -1)
+        {
+          cogl_set_tracing_enabled_on_thread_with_fd (thread_info->main_context,
+                                                      thread_group_name,
+                                                      fd);
+        }
+      else
+        {
+          cogl_set_tracing_enabled_on_thread (thread_info->main_context,
+                                              thread_group_name,
+                                              NULL);
+        }
+    }
+  g_mutex_unlock (&profiler->mutex);
+
   profiler->running = TRUE;
 
   g_debug ("Profiler running");
@@ -105,6 +159,7 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
              GDBusMethodInvocation    *invocation)
 {
   MetaProfiler *profiler = META_PROFILER (dbus_profiler);
+  GList *l;
 
   if (profiler->persistent)
     {
@@ -125,6 +180,17 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
     }
 
   cogl_set_tracing_disabled_on_thread (g_main_context_default ());
+
+  g_mutex_lock (&profiler->mutex);
+  for (l = profiler->threads; l; l = l->next)
+    {
+      ThreadInfo *thread_info = l->data;
+
+      cogl_set_tracing_disabled_on_thread (thread_info->main_context);
+    }
+  g_list_free_full (profiler->threads, (GDestroyNotify) thread_info_free);
+  g_mutex_unlock (&profiler->mutex);
+
   profiler->running = FALSE;
 
   g_debug ("Stopping profiler");
@@ -183,6 +249,7 @@ meta_profiler_finalize (GObject *object)
 
   g_clear_object (&self->cancellable);
   g_clear_object (&self->connection);
+  g_mutex_clear (&self->mutex);
 
   G_OBJECT_CLASS (meta_profiler_parent_class)->finalize (object);
 }
@@ -200,6 +267,7 @@ meta_profiler_init (MetaProfiler *self)
 {
   const char *env_trace_file;
 
+  g_mutex_init (&self->mutex);
   self->cancellable = g_cancellable_new ();
 
   g_bus_get (G_BUS_TYPE_SESSION,
@@ -227,4 +295,36 @@ MetaProfiler *
 meta_profiler_new (void)
 {
   return g_object_new (META_TYPE_PROFILER, NULL);
+}
+
+void
+meta_profiler_register_thread (MetaProfiler *profiler,
+                               GMainContext *main_context,
+                               const char   *name)
+{
+  g_mutex_lock (&profiler->mutex);
+  g_warn_if_fail (!g_list_find (profiler->threads, main_context));
+  profiler->threads = g_list_prepend (profiler->threads,
+                                      thread_info_new (main_context, name));
+  g_mutex_unlock (&profiler->mutex);
+}
+
+void
+meta_profiler_unregister_thread (MetaProfiler *profiler,
+                                 GMainContext *main_context)
+{
+  GList *l;
+
+  g_mutex_lock (&profiler->mutex);
+  for (l = profiler->threads; l; l = l->next)
+    {
+      ThreadInfo *thread_info = l->data;
+
+      if (thread_info->main_context == main_context)
+        {
+          profiler->threads = g_list_remove_link (profiler->threads, l);
+          break;
+        }
+    }
+  g_mutex_unlock (&profiler->mutex);
 }

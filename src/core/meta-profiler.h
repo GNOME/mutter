@@ -36,6 +36,13 @@ G_DECLARE_FINAL_TYPE (MetaProfiler,
 
 MetaProfiler * meta_profiler_new (void);
 
+void meta_profiler_register_thread (MetaProfiler *profiler,
+                                    GMainContext *main_context,
+                                    const char   *name);
+
+void meta_profiler_unregister_thread (MetaProfiler *profiler,
+                                      GMainContext *main_context);
+
 G_END_DECLS
 
 #endif /* META_PROFILER_H */

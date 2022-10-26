@@ -28,6 +28,10 @@
 #include "meta/meta-context.h"
 #include "wayland/meta-wayland-types.h"
 
+#ifdef HAVE_PROFILER
+#include "core/meta-profiler.h"
+#endif
+
 struct _MetaContextClass
 {
   GObjectClass parent_class;
@@ -77,6 +81,11 @@ MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
 #ifdef HAVE_X11
 META_EXPORT_TEST
 gboolean meta_context_is_x11_sync (MetaContext *context);
+#endif
+
+#ifdef HAVE_PROFILER
+MetaProfiler *
+meta_context_get_profiler (MetaContext *context);
 #endif
 
 #endif /* META_CONTEXT_PRIVATE_H */

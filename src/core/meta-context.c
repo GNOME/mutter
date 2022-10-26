@@ -284,6 +284,16 @@ meta_context_is_x11_sync (MetaContext *context)
 }
 #endif
 
+#ifdef HAVE_PROFILER
+MetaProfiler *
+meta_context_get_profiler (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->profiler;
+}
+#endif
+
 static gboolean
 meta_context_real_configure (MetaContext   *context,
                              int           *argc,
