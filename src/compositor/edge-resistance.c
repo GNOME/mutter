@@ -631,8 +631,10 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
 }
 
 void
-meta_display_cleanup_edges (MetaDisplay *display)
+meta_window_drag_edge_resistance_cleanup (MetaWindowDrag *window_drag)
 {
+  MetaWindow *window = meta_window_drag_get_window (window_drag);
+  MetaDisplay *display = window->display;
   guint i,j;
   MetaEdgeResistanceData *edge_data = display->grab_edge_resistance_data;
   GHashTable *edges_to_be_freed;

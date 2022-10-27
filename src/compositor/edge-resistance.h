@@ -26,6 +26,8 @@
 
 #include "compositor/meta-window-drag.h"
 
+void meta_window_drag_edge_resistance_cleanup    (MetaWindowDrag          *window_drag);
+
 void meta_window_drag_edge_resistance_for_move   (MetaWindowDrag          *window_drag,
                                                   int                     *new_x,
                                                   int                     *new_y,

@@ -277,7 +277,7 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
   g_assert (grab_window != NULL);
 
   /* Clear out the edge cache */
-  meta_display_cleanup_edges (display);
+  meta_window_drag_update_edges (window_drag);
 
   /* Only raise the window in orthogonal raise
    * ('do-not-raise-on-click') mode if the user didn't try to move
@@ -1814,4 +1814,10 @@ MetaGrabOp
 meta_window_drag_get_grab_op (MetaWindowDrag *window_drag)
 {
   return window_drag->grab_op;
+}
+
+void
+meta_window_drag_update_edges (MetaWindowDrag *window_drag)
+{
+  meta_window_drag_edge_resistance_cleanup (window_drag);
 }

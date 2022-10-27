@@ -45,4 +45,6 @@ MetaWindow * meta_window_drag_get_window (MetaWindowDrag *window_drag);
 
 MetaGrabOp meta_window_drag_get_grab_op (MetaWindowDrag *window_drag);
 
+void meta_window_drag_update_edges (MetaWindowDrag *window_drag);
+
 #endif /* META_WINDOW_DRAG_H */

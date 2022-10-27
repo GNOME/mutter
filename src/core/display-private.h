@@ -268,9 +268,6 @@ void meta_display_grab_focus_window_button   (MetaDisplay *display,
 void meta_display_ungrab_focus_window_button (MetaDisplay *display,
                                               MetaWindow  *window);
 
-/* Next function is defined in edge-resistance.c */
-void meta_display_cleanup_edges              (MetaDisplay *display);
-
 /* utility goo */
 const char* meta_event_mode_to_string   (int m);
 const char* meta_event_detail_to_string (int d);

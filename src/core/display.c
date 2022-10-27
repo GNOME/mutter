@@ -898,8 +898,6 @@ meta_display_new (MetaContext  *context,
 
   display->current_time = META_CURRENT_TIME;
 
-  meta_display_cleanup_edges (display);
-
   meta_display_init_keys (display);
 
   meta_prefs_add_listener (prefs_changed_callback, display);

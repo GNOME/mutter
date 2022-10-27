@@ -590,9 +590,13 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
       return;
     }
 
+  window_drag =
+    meta_compositor_get_current_window_drag (workspace->display->compositor);
+
   /* Free any cached pointers to the workspaces's edges from
    * a current resize or move operation */
-  meta_display_cleanup_edges (workspace->display);
+  if (window_drag)
+    meta_window_drag_update_edges (window_drag);
 
   if (workspace->manager->active_workspace)
     workspace_switch_sound (workspace->manager->active_workspace, workspace);
@@ -619,8 +623,6 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
     g_signal_emit_by_name (workspace->manager, "showing-desktop-changed");
 
   move_window = NULL;
-  window_drag =
-    meta_compositor_get_current_window_drag (workspace->display->compositor);
   if (window_drag &&
       meta_grab_op_is_moving (meta_window_drag_get_grab_op (window_drag)))
     move_window = meta_window_drag_get_window (window_drag);
@@ -787,6 +789,7 @@ meta_workspace_list_windows (MetaWorkspace *workspace)
 void
 meta_workspace_invalidate_work_area (MetaWorkspace *workspace)
 {
+  MetaWindowDrag *window_drag;
   GList *windows, *l;
 
   if (workspace->work_areas_invalid)
@@ -801,10 +804,14 @@ meta_workspace_invalidate_work_area (MetaWorkspace *workspace)
               "Invalidating work area for workspace %d",
               meta_workspace_index (workspace));
 
+  window_drag =
+    meta_compositor_get_current_window_drag (workspace->display->compositor);
+
   /* If we are in the middle of a resize or move operation, we
    * might have cached pointers to the workspace's edges */
-  if (workspace == workspace->manager->active_workspace)
-    meta_display_cleanup_edges (workspace->display);
+  if (window_drag &&
+      workspace == workspace->manager->active_workspace)
+    meta_window_drag_update_edges (window_drag);
 
   meta_workspace_clear_logical_monitor_data (workspace);
 
