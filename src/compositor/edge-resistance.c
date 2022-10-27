@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "core/edge-resistance.h"
+#include "compositor/edge-resistance.h"
 
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"

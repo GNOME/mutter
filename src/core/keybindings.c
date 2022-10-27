@@ -36,7 +36,6 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
 #include "compositor/compositor-private.h"
-#include "core/edge-resistance.h"
 #include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/meta-accel-parse.h"

@@ -24,7 +24,7 @@
 #include "meta-window-drag.h"
 
 #include "compositor/compositor-private.h"
-#include "core/edge-resistance.h"
+#include "compositor/edge-resistance.h"
 #include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/meta-enum-types.h"
