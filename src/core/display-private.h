@@ -44,8 +44,6 @@
 typedef struct _MetaBell       MetaBell;
 typedef struct _MetaStack      MetaStack;
 
-typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
-
 typedef enum
 {
   META_LIST_DEFAULT                   = 0,      /* normal windows */
@@ -142,8 +140,6 @@ struct _MetaDisplay
   /* Pending autoraise */
   guint       autoraise_timeout_id;
   MetaWindow* autoraise_window;
-
-  MetaEdgeResistanceData *grab_edge_resistance_data;
 
   MetaKeyBindingManager key_binding_manager;
 

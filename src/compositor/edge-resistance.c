@@ -40,7 +40,9 @@
   window->type   != META_WINDOW_MENU    &&     \
   window->type   != META_WINDOW_SPLASHSCREEN
 
-struct MetaEdgeResistanceData
+typedef struct _MetaEdgeResistanceData MetaEdgeResistanceData;
+
+struct _MetaEdgeResistanceData
 {
   GArray *left_edges;
   GArray *right_edges;
@@ -48,7 +50,7 @@ struct MetaEdgeResistanceData
   GArray *bottom_edges;
 };
 
-static void compute_resistance_and_snapping_edges (MetaDisplay *display);
+static GQuark edge_resistance_data_quark = 0;
 
 /* !WARNING!: this function can return invalid indices (namely, either -1 or
  * edges->len); this is by design, but you need to remember this.
@@ -456,14 +458,13 @@ apply_edge_snapping (int                  old_pos,
  * function will cause a crash.
  */
 static gboolean
-apply_edge_resistance_to_each_side (MetaDisplay             *display,
+apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
                                     MetaWindow              *window,
                                     const MetaRectangle     *old_outer,
                                     MetaRectangle           *new_outer,
                                     MetaEdgeResistanceFlags  flags,
                                     gboolean                 is_resize)
 {
-  MetaEdgeResistanceData *edge_data;
   MetaRectangle           modified_rect;
   gboolean                modified;
   int new_left, new_right, new_top, new_bottom;
@@ -471,11 +472,6 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
 
   auto_snap = flags & META_EDGE_RESISTANCE_SNAP;
   keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
-
-  if (display->grab_edge_resistance_data == NULL)
-    compute_resistance_and_snapping_edges (display);
-
-  edge_data = display->grab_edge_resistance_data;
 
   if (auto_snap && !META_WINDOW_TILED_SIDE_BY_SIDE (window))
     {
@@ -630,17 +626,11 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
   return modified;
 }
 
-void
-meta_window_drag_edge_resistance_cleanup (MetaWindowDrag *window_drag)
+static void
+meta_edge_resistance_data_free (MetaEdgeResistanceData *edge_data)
 {
-  MetaWindow *window = meta_window_drag_get_window (window_drag);
-  MetaDisplay *display = window->display;
   guint i,j;
-  MetaEdgeResistanceData *edge_data = display->grab_edge_resistance_data;
   GHashTable *edges_to_be_freed;
-
-  if (edge_data == NULL) /* Not currently cached */
-    return;
 
   /* We first need to clean out any window edges */
   edges_to_be_freed = g_hash_table_new_full (g_direct_hash, g_direct_equal,
@@ -700,8 +690,16 @@ meta_window_drag_edge_resistance_cleanup (MetaWindowDrag *window_drag)
   edge_data->top_edges = NULL;
   edge_data->bottom_edges = NULL;
 
-  g_free (display->grab_edge_resistance_data);
-  display->grab_edge_resistance_data = NULL;
+  g_free (edge_data);
+}
+
+void
+meta_window_drag_edge_resistance_cleanup (MetaWindowDrag *window_drag)
+{
+  if (edge_resistance_data_quark == 0)
+    return;
+
+  g_object_set_qdata (G_OBJECT (window_drag), edge_resistance_data_quark, NULL);
 }
 
 static int
@@ -713,7 +711,7 @@ stupid_sort_requiring_extra_pointer_dereference (gconstpointer a,
   return meta_rectangle_edge_cmp_ignore_type (*a_edge, *b_edge);
 }
 
-static void
+static MetaEdgeResistanceData *
 cache_edges (MetaDisplay *display,
              GList *window_edges,
              GList *monitor_edges,
@@ -798,9 +796,7 @@ cache_edges (MetaDisplay *display,
   /*
    * 2nd: Allocate the edges
    */
-  g_assert (display->grab_edge_resistance_data == NULL);
-  display->grab_edge_resistance_data = g_new0 (MetaEdgeResistanceData, 1);
-  edge_data = display->grab_edge_resistance_data;
+  edge_data = g_new0 (MetaEdgeResistanceData, 1);
   edge_data->left_edges   = g_array_sized_new (FALSE,
                                                FALSE,
                                                sizeof(MetaEdge*),
@@ -867,19 +863,22 @@ cache_edges (MetaDisplay *display,
    * avoided this sort by sticking them into the array with some simple
    * merging of the lists).
    */
-  g_array_sort (display->grab_edge_resistance_data->left_edges,
+  g_array_sort (edge_data->left_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-  g_array_sort (display->grab_edge_resistance_data->right_edges,
+  g_array_sort (edge_data->right_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-  g_array_sort (display->grab_edge_resistance_data->top_edges,
+  g_array_sort (edge_data->top_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-  g_array_sort (display->grab_edge_resistance_data->bottom_edges,
+  g_array_sort (edge_data->bottom_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
+
+  return edge_data;
 }
 
-static void
-compute_resistance_and_snapping_edges (MetaDisplay *display)
+static MetaEdgeResistanceData *
+compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
 {
+  MetaEdgeResistanceData *edge_data;
   GList *stacked_windows;
   GList *cur_window_iter;
   GList *edges;
@@ -890,12 +889,10 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
    * in the layer that we are working on
    */
   GSList *rem_windows, *rem_win_stacking;
+  MetaWindow *window = meta_window_drag_get_window (window_drag);
+  MetaDisplay *display = window->display;
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
-  MetaWindowDrag *window_drag;
 
-  window_drag = meta_compositor_get_current_window_drag (display->compositor);
-
-  g_assert (window_drag != NULL);
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Computing edges to resist-movement or snap-to for %s.",
               meta_window_drag_get_window (window_drag)->desc);
@@ -1059,11 +1056,39 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
    * monitor edges in an array for quick access.  Free the edges since
    * they've been cached elsewhere.
    */
-  cache_edges (display,
-               edges,
-               workspace_manager->active_workspace->monitor_edges,
-               workspace_manager->active_workspace->screen_edges);
+  edge_data = cache_edges (display,
+                           edges,
+                           workspace_manager->active_workspace->monitor_edges,
+                           workspace_manager->active_workspace->screen_edges);
   g_list_free (edges);
+
+  return edge_data;
+}
+
+static MetaEdgeResistanceData *
+meta_window_drag_ensure_edge_resistance_data (MetaWindowDrag *window_drag)
+{
+  MetaEdgeResistanceData *edge_data;
+
+  if (G_UNLIKELY (edge_resistance_data_quark == 0))
+    {
+      edge_resistance_data_quark =
+        g_quark_from_static_string ("meta-window-drag-edge-data");
+    }
+
+  edge_data = g_object_get_qdata (G_OBJECT (window_drag),
+                                  edge_resistance_data_quark);
+
+  if (!edge_data)
+    {
+      edge_data = compute_resistance_and_snapping_edges (window_drag);
+      g_object_set_qdata_full (G_OBJECT (window_drag),
+                               edge_resistance_data_quark,
+                               edge_data,
+                               (GDestroyNotify) meta_edge_resistance_data_free);
+    }
+
+  return edge_data;
 }
 
 void
@@ -1072,6 +1097,7 @@ meta_window_drag_edge_resistance_for_move (MetaWindowDrag          *window_drag,
                                            int                     *new_y,
                                            MetaEdgeResistanceFlags  flags)
 {
+  MetaEdgeResistanceData *edge_data;
   MetaRectangle old_outer, proposed_outer, new_outer;
   gboolean is_resize, is_keyboard_op, snap;
   MetaWindow *window;
@@ -1088,8 +1114,10 @@ meta_window_drag_edge_resistance_for_move (MetaWindowDrag          *window_drag,
   snap = flags & META_EDGE_RESISTANCE_SNAP;
   is_keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
 
+  edge_data = meta_window_drag_ensure_edge_resistance_data (window_drag);
+
   is_resize = FALSE;
-  if (apply_edge_resistance_to_each_side (window->display,
+  if (apply_edge_resistance_to_each_side (edge_data,
                                           window,
                                           &old_outer,
                                           &new_outer,
@@ -1152,6 +1180,7 @@ meta_window_drag_edge_resistance_for_resize (MetaWindowDrag          *window_dra
                                              MetaGravity              gravity,
                                              MetaEdgeResistanceFlags  flags)
 {
+  MetaEdgeResistanceData *edge_data;
   MetaRectangle old_outer, new_outer;
   int proposed_outer_width, proposed_outer_height;
   MetaWindow *window;
@@ -1167,7 +1196,9 @@ meta_window_drag_edge_resistance_for_resize (MetaWindowDrag          *window_dra
                                       proposed_outer_width,
                                       proposed_outer_height);
 
-  if (apply_edge_resistance_to_each_side (window->display,
+  edge_data = meta_window_drag_ensure_edge_resistance_data (window_drag);
+
+  if (apply_edge_resistance_to_each_side (edge_data,
                                           window,
                                           &old_outer,
                                           &new_outer,
