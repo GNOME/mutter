@@ -24,15 +24,18 @@
 
 #include "core/window-private.h"
 
-void meta_window_edge_resistance_for_move   (MetaWindow              *window,
-                                             int                     *new_x,
-                                             int                     *new_y,
-                                             MetaEdgeResistanceFlags  flags);
-void meta_window_edge_resistance_for_resize (MetaWindow              *window,
-                                             int                     *new_width,
-                                             int                     *new_height,
-                                             MetaGravity              gravity,
-                                             MetaEdgeResistanceFlags  flags);
+#include "compositor/meta-window-drag.h"
+
+void meta_window_drag_edge_resistance_for_move   (MetaWindowDrag          *window_drag,
+                                                  int                     *new_x,
+                                                  int                     *new_y,
+                                                  MetaEdgeResistanceFlags  flags);
+
+void meta_window_drag_edge_resistance_for_resize (MetaWindowDrag          *window_drag,
+                                                  int                     *new_width,
+                                                  int                     *new_height,
+                                                  MetaGravity              gravity,
+                                                  MetaEdgeResistanceFlags  flags);
 
 #endif /* META_EDGE_RESISTANCE_H */
 

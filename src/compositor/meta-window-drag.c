@@ -615,10 +615,10 @@ process_keyboard_move_grab (MetaWindowDrag  *window_drag,
       window_drag->last_edge_resistance_flags =
         flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
-      meta_window_edge_resistance_for_move (window,
-                                            &x,
-                                            &y,
-                                            flags);
+      meta_window_drag_edge_resistance_for_move (window_drag,
+                                                 &x,
+                                                 &y,
+                                                 flags);
 
       meta_window_move_frame (window, TRUE, x, y);
       update_keyboard_move (window_drag);
@@ -970,11 +970,11 @@ process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
         flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
       /* Do any edge resistance/snapping */
-      meta_window_edge_resistance_for_resize (window,
-                                              &width,
-                                              &height,
-                                              gravity,
-                                              flags);
+      meta_window_drag_edge_resistance_for_resize (window_drag,
+                                                   &width,
+                                                   &height,
+                                                   gravity,
+                                                   flags);
 
       meta_window_resize_frame_with_gravity (window,
                                              TRUE,
@@ -1271,10 +1271,10 @@ update_move (MetaWindowDrag          *window_drag,
     flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
   /* Do any edge resistance/snapping */
-  meta_window_edge_resistance_for_move (window,
-                                        &new_x,
-                                        &new_y,
-                                        flags);
+  meta_window_drag_edge_resistance_for_move (window_drag,
+                                             &new_x,
+                                             &new_y,
+                                             flags);
 
   meta_window_move_frame (window, TRUE, new_x, new_y);
 }
@@ -1427,11 +1427,11 @@ update_resize (MetaWindowDrag          *window_drag,
     flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
   /* Do any edge resistance/snapping */
-  meta_window_edge_resistance_for_resize (window,
-                                          &new_rect.width,
-                                          &new_rect.height,
-                                          gravity,
-                                          flags);
+  meta_window_drag_edge_resistance_for_resize (window_drag,
+                                               &new_rect.width,
+                                               &new_rect.height,
+                                               gravity,
+                                               flags);
 
   meta_window_resize_frame_with_gravity (window, TRUE,
                                          new_rect.width, new_rect.height,

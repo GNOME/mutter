@@ -1065,13 +1065,16 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
 }
 
 void
-meta_window_edge_resistance_for_move (MetaWindow              *window,
-                                      int                     *new_x,
-                                      int                     *new_y,
-                                      MetaEdgeResistanceFlags  flags)
+meta_window_drag_edge_resistance_for_move (MetaWindowDrag          *window_drag,
+                                           int                     *new_x,
+                                           int                     *new_y,
+                                           MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, proposed_outer, new_outer;
   gboolean is_resize, is_keyboard_op, snap;
+  MetaWindow *window;
+
+  window = meta_window_drag_get_window (window_drag);
 
   meta_window_get_frame_rect (window, &old_outer);
 
@@ -1141,14 +1144,17 @@ meta_window_edge_resistance_for_move (MetaWindow              *window,
 }
 
 void
-meta_window_edge_resistance_for_resize (MetaWindow              *window,
-                                        int                     *new_width,
-                                        int                     *new_height,
-                                        MetaGravity              gravity,
-                                        MetaEdgeResistanceFlags  flags)
+meta_window_drag_edge_resistance_for_resize (MetaWindowDrag          *window_drag,
+                                             int                     *new_width,
+                                             int                     *new_height,
+                                             MetaGravity              gravity,
+                                             MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, new_outer;
   int proposed_outer_width, proposed_outer_height;
+  MetaWindow *window;
+
+  window = meta_window_drag_get_window (window_drag);
 
   meta_window_get_frame_rect (window, &old_outer);
   proposed_outer_width  = *new_width;
