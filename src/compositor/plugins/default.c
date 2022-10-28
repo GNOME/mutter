@@ -424,7 +424,9 @@ init_keymap (MetaDefaultPlugin *self)
   g_autofree char *x11_variant = NULL;
 
   proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                         G_DBUS_PROXY_FLAGS_NONE,
+                                         (G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES |
+                                          G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS |
+                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START),
                                          NULL,
                                          "org.freedesktop.locale1",
                                          "/org/freedesktop/locale1",
