@@ -91,46 +91,90 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   int geometry_scale;
 
   if (meta_compositor_is_unredirect_inhibited (compositor))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: unredirect inhibited");
+      return FALSE;
+    }
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
   renderer_view = META_RENDERER_VIEW (stage_view);
 
   crtc = meta_renderer_view_get_crtc (renderer_view);
   if (!META_IS_CRTC_KMS (crtc))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: no KMS CRTC");
+      return FALSE;
+    }
 
   framebuffer = clutter_stage_view_get_onscreen (stage_view);
   if (!COGL_IS_ONSCREEN (framebuffer))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: no onscreen framebuffer");
+      return FALSE;
+    }
 
   if (clutter_stage_view_has_shadowfb (stage_view))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: stage-view has shadowfb");
+      return FALSE;
+    }
 
   window_actor = meta_compositor_view_get_top_window_actor (compositor_view);
   if (!window_actor)
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: no top window actor");
+      return FALSE;
+    }
 
   if (meta_window_actor_effect_in_progress (window_actor))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: window-actor effects in progress");
+      return FALSE;
+    }
 
   if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: window-actor has transition");
+      return FALSE;
+    }
 
   window = meta_window_actor_get_meta_window (window_actor);
   if (!window)
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: no meta-window");
+      return FALSE;
+    }
 
   surface_actor = meta_window_actor_get_scanout_candidate (window_actor);
   if (!surface_actor)
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: window-actor has no scanout candidate");
+      return FALSE;
+    }
 
   if (meta_surface_actor_is_obscured (surface_actor))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: surface-actor is obscured");
+      return FALSE;
+    }
 
   if (!clutter_actor_get_paint_box (CLUTTER_ACTOR (surface_actor),
                                     &actor_box))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: no actor paint-box");
+      return FALSE;
+    }
 
   clutter_stage_view_get_layout (stage_view, &view_rect);
   if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
@@ -141,19 +185,36 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
                        CLUTTER_COORDINATE_EPSILON) ||
       !G_APPROX_VALUE (actor_box.y2, view_rect.y + view_rect.height,
                        CLUTTER_COORDINATE_EPSILON))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: paint-box (%f,%f,%f,%f) does "
+                  "not match stage-view layout (%d,%d,%d,%d)",
+                  actor_box.x1, actor_box.y1,
+                  actor_box.x2 - actor_box.x1, actor_box.y2 - actor_box.y1,
+                  view_rect.x, view_rect.y, view_rect.width, view_rect.height);
+      return FALSE;
+    }
 
   surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);
   surface = meta_surface_actor_wayland_get_surface (surface_actor_wayland);
   if (!surface)
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: no surface");
+      return FALSE;
+    }
 
   geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
 
   if (!meta_wayland_surface_can_scanout_untransformed (surface,
                                                        renderer_view,
                                                        geometry_scale))
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: surface can not be scanned out "
+                  "untransformed");
+      return FALSE;
+    }
 
   *crtc_out = crtc;
   *onscreen_out = COGL_ONSCREEN (framebuffer);
@@ -173,7 +234,11 @@ try_assign_next_scanout (MetaCompositorView *compositor_view,
   scanout = meta_wayland_surface_try_acquire_scanout (surface,
                                                       onscreen);
   if (!scanout)
-    return;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "Could not acquire scanout");
+      return;
+    }
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
