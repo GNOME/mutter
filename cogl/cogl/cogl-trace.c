@@ -204,22 +204,30 @@ set_tracing_enabled_on_thread (GMainContext *main_context,
                                const char   *filename)
 {
   TraceData *data;
-  GSource *source;
 
   data = g_new0 (TraceData, 1);
   data->fd = fd;
   data->group = group ? strdup (group) : NULL;
   data->filename = filename ? strdup (filename) : NULL;
 
-  source = g_idle_source_new ();
+  if (main_context == g_main_context_get_thread_default ())
+    {
+      enable_tracing_idle_callback (data);
+      trace_data_free (data);
+    }
+  else
+    {
+      GSource *source;
+      source = g_idle_source_new ();
 
-  g_source_set_callback (source,
-                         enable_tracing_idle_callback,
-                         data,
-                         trace_data_free);
+      g_source_set_callback (source,
+                             enable_tracing_idle_callback,
+                             data,
+                             trace_data_free);
 
-  g_source_attach (source, main_context);
-  g_source_unref (source);
+      g_source_attach (source, main_context);
+      g_source_unref (source);
+    }
 }
 
 void
@@ -241,14 +249,21 @@ cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
 void
 cogl_set_tracing_disabled_on_thread (GMainContext *main_context)
 {
-  GSource *source;
+  if (g_main_context_get_thread_default () == main_context)
+    {
+      disable_tracing_idle_callback (NULL);
+    }
+  else
+    {
+      GSource *source;
 
-  source = g_idle_source_new ();
+      source = g_idle_source_new ();
 
-  g_source_set_callback (source, disable_tracing_idle_callback, NULL, NULL);
+      g_source_set_callback (source, disable_tracing_idle_callback, NULL, NULL);
 
-  g_source_attach (source, main_context);
-  g_source_unref (source);
+      g_source_attach (source, main_context);
+      g_source_unref (source);
+    }
 }
 
 static void
