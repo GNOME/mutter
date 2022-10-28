@@ -26,7 +26,7 @@ class MutterDBusRunner(DBusTestCase):
             return os.path.join(os.path.dirname(__file__), 'dbusmock-templates')
 
     @classmethod
-    def setUpClass(klass, enable_kvm):
+    def setUpClass(klass, enable_kvm, launch):
         klass.templates_dirs = [klass.__get_templates_dir()]
 
         klass.mocks = OrderedDict()
@@ -35,6 +35,11 @@ class MutterDBusRunner(DBusTestCase):
         DBusTestCase.setUpClass()
         klass.start_session_bus()
         klass.start_system_bus()
+
+        print('Launching required services...', file=sys.stderr)
+        klass.service_processes = []
+        for service in launch:
+            klass.service_processes += [subprocess.Popen(service)]
 
         print('Starting mocked services...', file=sys.stderr)
         (klass.mocks_manager, klass.mock_obj) = klass.start_from_local_template(
@@ -60,6 +65,10 @@ class MutterDBusRunner(DBusTestCase):
         for (mock_server, mock_obj) in reversed(klass.mocks.values()):
             mock_server.terminate()
             mock_server.wait()
+
+        for process in klass.service_processes:
+            process.terminate()
+            process.wait()
 
         DBusTestCase.tearDownClass()
 
@@ -189,13 +198,14 @@ def meta_run(klass):
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--kvm', action='store_true', default=False)
+    parser.add_argument('--launch', action='append', default=[])
     (args, rest) = parser.parse_known_args(sys.argv)
 
     rest.pop(0)
     if rest[0] == '--':
       rest.pop(0)
 
-    klass.setUpClass(args.kvm)
+    klass.setUpClass(args.kvm, args.launch)
     runner = klass()
     runner.assertGreater(len(rest), 0)
     result = 1
