@@ -302,11 +302,19 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
   MetaWindow *window;
 
   if (clutter_actor_get_last_child (CLUTTER_ACTOR (self)) != surface_container)
-    return NULL;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "Top child of window-actor not a surface");
+      return FALSE;
+    }
 
   child_actor = clutter_actor_get_last_child (surface_container);
   if (!child_actor)
-    return NULL;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No surface-actor for window-actor");
+      return FALSE;
+    }
 
   topmost_surface_actor = META_SURFACE_ACTOR (child_actor);
 
@@ -314,7 +322,11 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
   if (!meta_surface_actor_is_opaque (topmost_surface_actor) &&
       !(meta_window_is_fullscreen (window) &&
         clutter_actor_get_n_children (surface_container) == 1))
-    return NULL;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "Window-actor is not opaque");
+      return FALSE;
+    }
 
   return topmost_surface_actor;
 }
