@@ -74,15 +74,106 @@ struct _MetaWindowDrag {
 
   gulong unmanaging_id;
   gulong size_changed_id;
+
+  guint tile_preview_timeout_id;
+  guint preview_tile_mode : 2;
 };
 
 G_DEFINE_FINAL_TYPE (MetaWindowDrag, meta_window_drag, G_TYPE_OBJECT)
+
+static gboolean
+update_tile_preview_timeout (MetaWindowDrag *window_drag)
+{
+  MetaWindow *window = meta_window_drag_get_window (window_drag);
+  MetaDisplay *display = window->display;
+  gboolean needs_preview = FALSE;
+
+  window_drag->tile_preview_timeout_id = 0;
+
+  if (window)
+    {
+      switch (window_drag->preview_tile_mode)
+        {
+        case META_TILE_LEFT:
+        case META_TILE_RIGHT:
+          if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
+            needs_preview = TRUE;
+          break;
+
+        case META_TILE_MAXIMIZED:
+          if (!META_WINDOW_MAXIMIZED (window))
+            needs_preview = TRUE;
+          break;
+
+        default:
+          needs_preview = FALSE;
+          break;
+        }
+    }
+
+  if (needs_preview)
+    {
+      MetaRectangle tile_rect;
+      int monitor;
+
+      monitor = meta_window_get_current_tile_monitor_number (window);
+      meta_window_get_tile_area (window, window_drag->preview_tile_mode,
+                                 &tile_rect);
+      meta_compositor_show_tile_preview (display->compositor,
+                                         window, &tile_rect, monitor);
+    }
+  else
+    {
+      meta_compositor_hide_tile_preview (display->compositor);
+    }
+
+  return FALSE;
+}
+
+#define TILE_PREVIEW_TIMEOUT_MS 200
+
+static void
+update_tile_preview (MetaWindowDrag *window_drag,
+                     gboolean        delay)
+{
+  if (delay)
+    {
+      if (window_drag->tile_preview_timeout_id > 0)
+        return;
+
+      window_drag->tile_preview_timeout_id =
+        g_timeout_add (TILE_PREVIEW_TIMEOUT_MS,
+                       (GSourceFunc) update_tile_preview_timeout,
+                       window_drag);
+      g_source_set_name_by_id (window_drag->tile_preview_timeout_id,
+                               "[mutter] meta_display_update_tile_preview_timeout");
+    }
+  else
+    {
+      g_clear_handle_id (&window_drag->tile_preview_timeout_id, g_source_remove);
+
+      update_tile_preview_timeout ((gpointer) window_drag);
+    }
+}
+
+static void
+hide_tile_preview (MetaWindowDrag *window_drag)
+{
+  MetaWindow *window;
+
+  g_clear_handle_id (&window_drag->tile_preview_timeout_id, g_source_remove);
+
+  window_drag->preview_tile_mode = META_TILE_NONE;
+  window = meta_window_drag_get_window (window_drag);
+  meta_compositor_hide_tile_preview (window->display->compositor);
+}
 
 static void
 meta_window_drag_finalize (GObject *object)
 {
   MetaWindowDrag *window_drag = META_WINDOW_DRAG (object);
 
+  hide_tile_preview (window_drag);
   g_clear_pointer (&window_drag->handler, clutter_actor_destroy);
   g_clear_pointer (&window_drag->grab, clutter_grab_unref);
   g_clear_object (&window_drag->effective_grab_window);
@@ -462,8 +553,6 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
                                 MetaWindow      *window,
                                 ClutterKeyEvent *event)
 {
-  MetaDisplay *display = meta_window_get_display (window);
-
   /* don't care about releases, but eat them, don't end grab */
   if (event->type == CLUTTER_KEY_RELEASE)
     return TRUE;
@@ -473,8 +562,8 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
       MetaTileMode tile_mode;
 
       /* Hide the tiling preview if necessary */
-      if (display->preview_tile_mode != META_TILE_NONE)
-        meta_display_hide_tile_preview (display);
+      if (window_drag->preview_tile_mode != META_TILE_NONE)
+        hide_tile_preview (window_drag);
 
       /* Restore the original tile mode */
       tile_mode = window_drag->tile_mode;
@@ -1026,10 +1115,10 @@ process_key_event (MetaWindowDrag  *window_drag,
 }
 
 static void
-update_move_maybe_tile (MetaWindow *window,
-                        int         shake_threshold,
-                        int         x,
-                        int         y)
+update_move_maybe_tile (MetaWindowDrag *window_drag,
+                        int             shake_threshold,
+                        int             x,
+                        int             y)
 {
   MetaWindow *window = meta_window_drag_get_window (window_drag);
   MetaDisplay *display = meta_window_get_display (window);
@@ -1067,18 +1156,18 @@ update_move_maybe_tile (MetaWindow *window,
    */
   if (meta_window_can_tile_side_by_side (window) &&
       x >= logical_monitor->rect.x && x < (work_area.x + shake_threshold))
-    display->preview_tile_mode = META_TILE_LEFT;
+    window_drag->preview_tile_mode = META_TILE_LEFT;
   else if (meta_window_can_tile_side_by_side (window) &&
            x >= work_area.x + work_area.width - shake_threshold &&
            x < (logical_monitor->rect.x + logical_monitor->rect.width))
-    display->preview_tile_mode = META_TILE_RIGHT;
+    window_drag->preview_tile_mode = META_TILE_RIGHT;
   else if (meta_window_can_maximize (window) &&
            y >= logical_monitor->rect.y && y <= work_area.y)
-    display->preview_tile_mode = META_TILE_MAXIMIZED;
+    window_drag->preview_tile_mode = META_TILE_MAXIMIZED;
   else
-    display->preview_tile_mode = META_TILE_NONE;
+    window_drag->preview_tile_mode = META_TILE_NONE;
 
-  if (display->preview_tile_mode != META_TILE_NONE)
+  if (window_drag->preview_tile_mode != META_TILE_NONE)
     window->tile_monitor_number = logical_monitor->number;
 }
 
@@ -1093,13 +1182,11 @@ update_move (MetaWindowDrag          *window_drag,
   int new_x, new_y;
   MetaRectangle old;
   int shake_threshold;
-  MetaDisplay *display;
 
   window = window_drag->effective_grab_window;
   if (!window)
     return;
 
-  display = window->display;
   window_drag->latest_motion_x = x;
   window_drag->latest_motion_y = y;
 
@@ -1138,14 +1225,14 @@ update_move (MetaWindowDrag          *window_drag,
     {
       /* We don't want to tile while snapping. Also, clear any previous tile
          request. */
-      display->preview_tile_mode = META_TILE_NONE;
+      window_drag->preview_tile_mode = META_TILE_NONE;
       window->tile_monitor_number = -1;
     }
   else if (meta_prefs_get_edge_tiling () &&
            !META_WINDOW_MAXIMIZED (window) &&
            !META_WINDOW_TILED_SIDE_BY_SIDE (window))
     {
-      update_move_maybe_tile (window, shake_threshold, x, y);
+      update_move_maybe_tile (window_drag, shake_threshold, x, y);
     }
 
   /* shake loose (unmaximize) maximized or tiled window if dragged beyond
@@ -1256,8 +1343,7 @@ update_move (MetaWindowDrag          *window_drag,
    * trigger it unwittingly, e.g. when shaking loose the window or moving
    * it to another monitor.
    */
-  meta_display_update_tile_preview (display,
-                                    window->tile_mode != META_TILE_NONE);
+  update_tile_preview (window_drag, window->tile_mode != META_TILE_NONE);
 
   meta_window_get_frame_rect (window, &old);
 
@@ -1551,8 +1637,8 @@ end_grab_op (MetaWindowDrag     *window_drag,
 
       if (meta_grab_op_is_moving (window_drag->grab_op))
         {
-          if (window->display->preview_tile_mode != META_TILE_NONE)
-            meta_window_tile (window, window->display->preview_tile_mode);
+          if (window_drag->preview_tile_mode != META_TILE_NONE)
+            meta_window_tile (window, window_drag->preview_tile_mode);
           else
             update_move (window_drag, flags, x, y);
         }
@@ -1565,7 +1651,7 @@ end_grab_op (MetaWindowDrag     *window_drag,
           maybe_maximize_tiled_window (window);
         }
     }
-  window->display->preview_tile_mode = META_TILE_NONE;
+  window_drag->preview_tile_mode = META_TILE_NONE;
   meta_window_drag_end (window_drag);
 }
 

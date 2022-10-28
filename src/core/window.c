@@ -2946,7 +2946,6 @@ meta_window_tile (MetaWindow   *window,
     directions = META_MAXIMIZE_VERTICAL;
 
   meta_window_maximize_internal (window, directions, NULL);
-  meta_display_update_tile_preview (window->display, FALSE);
 
   window_drag =
     meta_compositor_get_current_window_drag (window->display->compositor);

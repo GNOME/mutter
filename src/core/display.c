@@ -881,7 +881,6 @@ meta_display_new (MetaContext  *context,
   display->x11_display = NULL;
 
   display->current_cursor = -1; /* invalid/unset */
-  display->tile_preview_timeout_id = 0;
   display->check_fullscreen_later = 0;
   display->work_area_later = 0;
 
@@ -1157,7 +1156,6 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->gesture_tracker);
 
   g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
-  g_clear_handle_id (&display->tile_preview_timeout_id, g_source_remove);
 
   compositor = meta_display_get_compositor (display);
   laters = meta_compositor_get_laters (compositor);
@@ -2871,93 +2869,6 @@ void
 meta_display_restacked (MetaDisplay *display)
 {
   g_signal_emit (display, display_signals[RESTACKED], 0);
-}
-
-static gboolean
-meta_display_update_tile_preview_timeout (gpointer data)
-{
-  MetaDisplay *display = data;
-  MetaWindowDrag *window_drag;
-  MetaWindow *window = NULL;
-  gboolean needs_preview = FALSE;
-
-  display->tile_preview_timeout_id = 0;
-
-  window_drag = meta_compositor_get_current_window_drag (display->compositor);
-  if (window_drag)
-    window = meta_window_drag_get_window (window_drag);
-
-  if (window)
-    {
-      switch (display->preview_tile_mode)
-        {
-        case META_TILE_LEFT:
-        case META_TILE_RIGHT:
-          if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
-            needs_preview = TRUE;
-          break;
-
-        case META_TILE_MAXIMIZED:
-          if (!META_WINDOW_MAXIMIZED (window))
-            needs_preview = TRUE;
-          break;
-
-        default:
-          needs_preview = FALSE;
-          break;
-        }
-    }
-
-  if (needs_preview)
-    {
-      MetaRectangle tile_rect;
-      int monitor;
-
-      monitor = meta_window_get_current_tile_monitor_number (window);
-      meta_window_get_tile_area (window, display->preview_tile_mode,
-                                 &tile_rect);
-      meta_compositor_show_tile_preview (display->compositor,
-                                         window, &tile_rect, monitor);
-    }
-  else
-    meta_compositor_hide_tile_preview (display->compositor);
-
-  return FALSE;
-}
-
-#define TILE_PREVIEW_TIMEOUT_MS 200
-
-void
-meta_display_update_tile_preview (MetaDisplay *display,
-                                  gboolean     delay)
-{
-  if (delay)
-    {
-      if (display->tile_preview_timeout_id > 0)
-        return;
-
-      display->tile_preview_timeout_id =
-        g_timeout_add (TILE_PREVIEW_TIMEOUT_MS,
-                       meta_display_update_tile_preview_timeout,
-                       display);
-      g_source_set_name_by_id (display->tile_preview_timeout_id,
-                               "[mutter] meta_display_update_tile_preview_timeout");
-    }
-  else
-    {
-      g_clear_handle_id (&display->tile_preview_timeout_id, g_source_remove);
-
-      meta_display_update_tile_preview_timeout ((gpointer)display);
-    }
-}
-
-void
-meta_display_hide_tile_preview (MetaDisplay *display)
-{
-  g_clear_handle_id (&display->tile_preview_timeout_id, g_source_remove);
-
-  display->preview_tile_mode = META_TILE_NONE;
-  meta_compositor_hide_tile_preview (display->compositor);
 }
 
 static MetaStartupSequence *

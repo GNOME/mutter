@@ -166,9 +166,6 @@ struct _MetaDisplay
   MetaStack *stack;
   MetaStackTracker *stack_tracker;
 
-  guint tile_preview_timeout_id;
-  guint preview_tile_mode : 2;
-
   GSList *startup_sequences;
 
   guint work_area_later;
@@ -339,11 +336,6 @@ void meta_display_foreach_window (MetaDisplay           *display,
                                   gpointer               data);
 
 void meta_display_restacked (MetaDisplay *display);
-
-
-void meta_display_update_tile_preview (MetaDisplay *display,
-                                       gboolean     delay);
-void meta_display_hide_tile_preview   (MetaDisplay *display);
 
 gboolean meta_display_apply_startup_properties (MetaDisplay *display,
                                                 MetaWindow  *window);
