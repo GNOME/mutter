@@ -2213,7 +2213,12 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                                                 int                 geometry_scale)
 {
   if (meta_renderer_view_get_transform (view) != surface->buffer_transform)
-    return FALSE;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "Surface can not be scanned out untransformed: buffer "
+                  "transform does not match renderer-view transform");
+      return FALSE;
+    }
 
   if (surface->viewport.has_dst_size)
     {
@@ -2233,7 +2238,12 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
           !G_APPROX_VALUE (view_layout.height * view_scale,
                            get_buffer_height (surface),
                            FLT_EPSILON))
-        return FALSE;
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "Surface can not be scanned out untransformed: viewport "
+                      "destination size does not match stage-view layout");
+          return FALSE;
+        }
     }
   else
     {
@@ -2243,12 +2253,22 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
 
           view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
           if (!G_APPROX_VALUE (view_scale, surface->scale, FLT_EPSILON))
-            return FALSE;
+            {
+              meta_topic (META_DEBUG_RENDER,
+                          "Surface can not be scanned out untransformed: "
+                          "buffer scale does not match stage-view scale");
+              return FALSE;
+            }
         }
       else
         {
           if (geometry_scale != surface->scale)
-            return FALSE;
+            {
+              meta_topic (META_DEBUG_RENDER,
+                          "Surface can not be scanned out untransformed: "
+                          "buffer scale does not match actor geometry scale");
+              return FALSE;
+            }
         }
     }
 
@@ -2266,7 +2286,12 @@ meta_wayland_surface_can_scanout_untransformed (MetaWaylandSurface *surface,
                            surface->scale,
                            get_buffer_height (surface),
                            FLT_EPSILON))
-        return FALSE;
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "Surface can not be scanned out untransformed: viewport "
+                      "source rect does not cover the whole buffer");
+          return FALSE;
+        }
     }
 
   return TRUE;
