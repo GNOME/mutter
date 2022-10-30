@@ -3738,33 +3738,6 @@ clutter_actor_paint (ClutterActor        *self,
    */
   add_or_remove_flatten_effect (self);
 
-  /* We save the current paint volume so that the next time the
-   * actor queues a redraw we can constrain the redraw to just
-   * cover the union of the new bounding box and the old.
-   *
-   * We also fetch the current paint volume to perform culling so
-   * we can avoid painting actors outside the current clip region.
-   *
-   * If we are painting inside a clone, we should neither update
-   * the paint volume or use it to cull painting, since the paint
-   * box represents the location of the source actor on the
-   * screen.
-   *
-   * XXX: We are starting to do a lot of vertex transforms on
-   * the CPU in a typical paint, so at some point we should
-   * audit these and consider caching some things.
-   *
-   * NB: We don't perform culling while picking at this point because
-   * clutter-stage.c doesn't setup the clipping planes appropriately.
-   *
-   * NB: We don't want to update the last-paint-volume during picking
-   * because the last-paint-volume is used to determine the old screen
-   * space location of an actor that has moved so we can know the
-   * minimal region to redraw to clear an old view of the actor. If we
-   * update this during picking then by the time we come around to
-   * paint then the last-paint-volume would likely represent the new
-   * actor position not the old.
-   */
   culling_inhibited = priv->inhibit_culling_counter > 0;
   if (!culling_inhibited && !in_clone_paint ())
     {
