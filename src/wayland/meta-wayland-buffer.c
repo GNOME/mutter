@@ -792,11 +792,15 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer *buffer,
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
     case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
+      meta_topic (META_DEBUG_RENDER,
+                  "Buffer type not scanout compatible");
       return NULL;
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
       return try_acquire_egl_image_scanout (buffer, onscreen);
 #ifdef HAVE_WAYLAND_EGLSTREAM
     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
+      meta_topic (META_DEBUG_RENDER,
+                  "Buffer type not scanout compatible");
       return NULL;
 #endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
