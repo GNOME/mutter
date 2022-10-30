@@ -571,7 +571,7 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
                                   &error);
   if (!gbm_bo)
     {
-      meta_topic (META_DEBUG_WAYLAND,
+      meta_topic (META_DEBUG_RENDER,
                   "Failed to import scanout gbm_bo: %s", error->message);
       return NULL;
     }
@@ -583,7 +583,7 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
   fb = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, &error);
   if (!fb)
     {
-      meta_topic (META_DEBUG_WAYLAND,
+      meta_topic (META_DEBUG_RENDER,
                   "Failed to create scanout buffer: %s", error->message);
       gbm_bo_destroy (gbm_bo);
       return NULL;
@@ -591,7 +591,11 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandDmaBufBuffer *dma_buf,
 
   if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen,
                                                           META_DRM_BUFFER (fb)))
-    return NULL;
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "Buffer not scanout compatible (see also KMS debug topic)");
+      return NULL;
+    }
 
   return COGL_SCANOUT (g_steal_pointer (&fb));
 #else
