@@ -54,6 +54,9 @@ struct _MetaWaylandSurfaceRoleClass
   GObjectClass parent_class;
 
   void (*assigned) (MetaWaylandSurfaceRole *surface_role);
+  void (*commit_state) (MetaWaylandSurfaceRole  *surface_role,
+                        MetaWaylandTransaction  *transaction,
+                        MetaWaylandSurfaceState *pending);
   void (*pre_apply_state) (MetaWaylandSurfaceRole  *surface_role,
                            MetaWaylandSurfaceState *pending);
   void (*apply_state) (MetaWaylandSurfaceRole  *surface_role,

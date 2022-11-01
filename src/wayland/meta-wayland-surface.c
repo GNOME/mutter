@@ -115,6 +115,11 @@ static void
 meta_wayland_surface_role_assigned (MetaWaylandSurfaceRole *surface_role);
 
 static void
+meta_wayland_surface_role_commit_state (MetaWaylandSurfaceRole  *surface_role,
+                                        MetaWaylandTransaction  *transaction,
+                                        MetaWaylandSurfaceState *pending);
+
+static void
 meta_wayland_surface_role_pre_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                            MetaWaylandSurfaceState *pending);
 
@@ -1022,6 +1027,9 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
     transaction = meta_wayland_surface_ensure_transaction (surface);
   else
     transaction = meta_wayland_transaction_new (surface->compositor);
+
+  if (surface->role)
+    meta_wayland_surface_role_commit_state (surface->role, transaction, pending);
 
   meta_wayland_transaction_merge_pending_state (transaction, surface);
 
@@ -1950,6 +1958,18 @@ static void
 meta_wayland_surface_role_assigned (MetaWaylandSurfaceRole *surface_role)
 {
   META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role)->assigned (surface_role);
+}
+
+static void
+meta_wayland_surface_role_commit_state (MetaWaylandSurfaceRole  *surface_role,
+                                        MetaWaylandTransaction  *transaction,
+                                        MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandSurfaceRoleClass *klass;
+
+  klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
+  if (klass->commit_state)
+    klass->commit_state (surface_role, transaction, pending);
 }
 
 static void
