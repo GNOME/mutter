@@ -41,7 +41,7 @@ struct _MetaWaylandTransaction
   GHashTable *entries;
 };
 
-typedef struct _MetaWaylandTransactionEntry
+struct _MetaWaylandTransactionEntry
 {
   /* Next committed transaction with entry for the same surface */
   MetaWaylandTransaction *next_transaction;
@@ -52,7 +52,7 @@ typedef struct _MetaWaylandTransactionEntry
   gboolean has_sub_pos;
   int x;
   int y;
-} MetaWaylandTransactionEntry;
+};
 
 static MetaWaylandTransactionEntry *
 meta_wayland_transaction_get_entry (MetaWaylandTransaction *transaction,
@@ -301,7 +301,7 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
     meta_wayland_transaction_maybe_apply (transaction);
 }
 
-static MetaWaylandTransactionEntry *
+MetaWaylandTransactionEntry *
 meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,
                                        MetaWaylandSurface     *surface)
 {

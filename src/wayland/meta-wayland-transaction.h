@@ -25,6 +25,9 @@
 
 void meta_wayland_transaction_commit (MetaWaylandTransaction *transaction);
 
+MetaWaylandTransactionEntry *meta_wayland_transaction_ensure_entry (MetaWaylandTransaction *transaction,
+                                                                    MetaWaylandSurface     *surface);
+
 void meta_wayland_transaction_add_placement_op (MetaWaylandTransaction           *transaction,
                                                 MetaWaylandSurface               *surface,
                                                 MetaWaylandSubsurfacePlacementOp *op);
