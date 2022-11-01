@@ -37,6 +37,11 @@ void meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *t
                                                        int                     x,
                                                        int                     y);
 
+void meta_wayland_transaction_add_xdg_popup_reposition (MetaWaylandTransaction *transaction,
+                                                        MetaWaylandSurface     *surface,
+                                                        void                   *xdg_positioner,
+                                                        uint32_t               token);
+
 void meta_wayland_transaction_merge_into (MetaWaylandTransaction *from,
                                           MetaWaylandTransaction *to);
 

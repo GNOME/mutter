@@ -67,6 +67,8 @@ typedef struct _MetaWaylandActivation MetaWaylandActivation;
 
 typedef struct _MetaWaylandDmaBufManager MetaWaylandDmaBufManager;
 
+typedef struct _MetaWaylandXdgPositioner MetaWaylandXdgPositioner;
+
 typedef struct _MetaXWaylandManager MetaXWaylandManager;
 
 #endif

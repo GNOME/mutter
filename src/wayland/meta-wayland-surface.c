@@ -502,6 +502,8 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
   state->subsurface_placement_ops = NULL;
 
   wl_list_init (&state->presentation_feedback_list);
+
+  state->xdg_popup_reposition_token = 0;
 }
 
 static void
@@ -527,6 +529,7 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
   g_clear_pointer (&state->buffer_damage, cairo_region_destroy);
   g_clear_pointer (&state->input_region, cairo_region_destroy);
   g_clear_pointer (&state->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&state->xdg_positioner, g_free);
 
   if (state->buffer)
     g_clear_signal_handler (&state->buffer_destroy_handler_id, state->buffer);
@@ -675,6 +678,13 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
   wl_list_insert_list (&to->presentation_feedback_list,
                        &from->presentation_feedback_list);
   wl_list_init (&from->presentation_feedback_list);
+
+  if (from->xdg_positioner)
+    {
+      g_clear_pointer (&to->xdg_positioner, g_free);
+      to->xdg_positioner = g_steal_pointer (&from->xdg_positioner);
+      to->xdg_popup_reposition_token = from->xdg_popup_reposition_token;
+    }
 }
 
 static void

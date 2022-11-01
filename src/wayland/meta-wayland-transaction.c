@@ -386,6 +386,27 @@ meta_wayland_transaction_add_subsurface_position (MetaWaylandTransaction *transa
   entry->has_sub_pos = TRUE;
 }
 
+void
+meta_wayland_transaction_add_xdg_popup_reposition (MetaWaylandTransaction *transaction,
+                                                   MetaWaylandSurface     *surface,
+                                                   void                   *xdg_positioner,
+                                                   uint32_t               token)
+{
+  MetaWaylandTransactionEntry *entry;
+  MetaWaylandSurfaceState *state;
+
+  entry = meta_wayland_transaction_ensure_entry (transaction, surface);
+
+  if (entry->state)
+    g_clear_pointer (&entry->state->xdg_positioner, g_free);
+  else
+    entry->state = meta_wayland_surface_state_new ();
+
+  state = entry->state;
+  state->xdg_positioner = xdg_positioner;
+  state->xdg_popup_reposition_token = token;
+}
+
 static void
 meta_wayland_transaction_entry_merge_into (MetaWaylandTransactionEntry *from,
                                            MetaWaylandTransactionEntry *to)

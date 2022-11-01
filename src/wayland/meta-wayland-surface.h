@@ -133,6 +133,10 @@ struct _MetaWaylandSurfaceState
   struct {
     gboolean surface_size_changed;
   } derived;
+
+  /* xdg_popup */
+  MetaWaylandXdgPositioner *xdg_positioner;
+  uint32_t xdg_popup_reposition_token;
 };
 
 struct _MetaWaylandDragDestFuncs
