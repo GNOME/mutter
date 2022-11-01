@@ -34,6 +34,7 @@
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-transaction.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-window-configuration.h"
 #include "wayland/meta-wayland.h"
@@ -1188,6 +1189,20 @@ dismiss_invalid_popup (MetaWaylandXdgPopup *xdg_popup)
 }
 
 static void
+meta_wayland_xdg_popup_commit_state (MetaWaylandSurfaceRole  *surface_role,
+                                     MetaWaylandTransaction  *transaction,
+                                     MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandXdgPopup *xdg_popup = META_WAYLAND_XDG_POPUP (surface_role);
+
+  if (xdg_popup->setup.parent_surface)
+    {
+      meta_wayland_transaction_ensure_entry (transaction,
+                                             xdg_popup->setup.parent_surface);
+    }
+}
+
+static void
 meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                     MetaWaylandSurfaceState *pending)
 {
@@ -1447,6 +1462,7 @@ meta_wayland_xdg_popup_class_init (MetaWaylandXdgPopupClass *klass)
   object_class->finalize = meta_wayland_xdg_popup_finalize;
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
+  surface_role_class->commit_state = meta_wayland_xdg_popup_commit_state;
   surface_role_class->apply_state = meta_wayland_xdg_popup_apply_state;
   surface_role_class->post_apply_state = meta_wayland_xdg_popup_post_apply_state;
   surface_role_class->get_toplevel = meta_wayland_xdg_popup_get_toplevel;
