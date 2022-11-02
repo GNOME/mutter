@@ -39,6 +39,7 @@
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-region.h"
 #include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-subsurface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-xwayland.h"
 
@@ -193,8 +194,6 @@ surface_constraint_data_new (MetaWaylandSurface *surface)
     }
   else
     {
-      /* TODO: Support constraints on non-toplevel windows, such as subsurfaces.
-       */
       g_warn_if_reached ();
     }
 
@@ -463,8 +462,10 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
       /*
        * Locks from Xwayland may come before we have had the opportunity to
        * associate the X11 Window with the wl_surface.
+       * For subsurfaces the window of the ancestor might be gone already.
        */
-      g_warn_if_fail (meta_xwayland_is_xwayland_surface (constraint->surface));
+      g_warn_if_fail (meta_xwayland_is_xwayland_surface (constraint->surface) ||
+                      META_IS_WAYLAND_SUBSURFACE (constraint->surface->role));
       return FALSE;
     }
 
