@@ -168,6 +168,20 @@ meta_wayland_subsurface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
     return NULL;
 }
 
+static MetaWindow *
+meta_wayland_subsurface_get_window (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurface *parent;
+
+  parent = surface->protocol_state.parent;
+  if (parent)
+    return meta_wayland_surface_get_window (parent);
+  else
+    return NULL;
+}
+
 static gboolean
 meta_wayland_subsurface_is_synchronized (MetaWaylandSurfaceRole *surface_role)
 {
@@ -252,6 +266,7 @@ meta_wayland_subsurface_class_init (MetaWaylandSubsurfaceClass *klass)
 
   surface_role_class->assigned = meta_wayland_subsurface_assigned;
   surface_role_class->get_toplevel = meta_wayland_subsurface_get_toplevel;
+  surface_role_class->get_window = meta_wayland_subsurface_get_window;
   surface_role_class->is_synchronized = meta_wayland_subsurface_is_synchronized;
   surface_role_class->notify_subsurface_state_changed =
     meta_wayland_subsurface_notify_subsurface_state_changed;
