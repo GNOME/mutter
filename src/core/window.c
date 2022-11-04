@@ -6021,6 +6021,7 @@ queue_update_move (MetaWindow              *window,
   MetaCompositor *compositor;
   MetaLaters *laters;
 
+  window->display->grab_last_edge_resistance_flags = flags;
   window->display->grab_latest_motion_x = x;
   window->display->grab_latest_motion_y = y;
 
@@ -6166,6 +6167,7 @@ queue_update_resize (MetaWindow              *window,
   MetaCompositor *compositor;
   MetaLaters *laters;
 
+  window->display->grab_last_edge_resistance_flags = flags;
   window->display->grab_latest_motion_x = x;
   window->display->grab_latest_motion_y = y;
 
