@@ -615,6 +615,7 @@ set_cogl_texture (MetaShapedTexture *stex,
     {
       stex->tex_width = width;
       stex->tex_height = height;
+      meta_shaped_texture_reset_pipelines (stex);
       update_size (stex);
     }
 
