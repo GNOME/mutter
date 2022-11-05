@@ -823,6 +823,11 @@ clutter_do_event (ClutterEvent *event)
    * will occur before drawing the frame.
    */
   _clutter_stage_queue_event (event->any.stage, event, TRUE);
+
+  if (event->type == CLUTTER_TOUCH_END ||
+      event->type == CLUTTER_TOUCH_CANCEL ||
+      event->type == CLUTTER_DEVICE_REMOVED)
+    _clutter_stage_process_queued_events (event->any.stage);
 }
 
 static void
