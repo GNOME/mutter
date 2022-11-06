@@ -212,24 +212,9 @@ struct _MetaWindow
   /* Initial timestamp property */
   guint32 initial_timestamp;
 
-  /* Whether this is an override redirect window or not */
-  guint override_redirect : 1;
-
-  /* Whether we're maximized */
-  guint maximized_horizontally : 1;
-  guint maximized_vertically : 1;
-
-  /* Whether we have to maximize/minimize after placement */
-  guint maximize_horizontally_after_placement : 1;
-  guint maximize_vertically_after_placement : 1;
-  guint minimize_after_placement : 1;
-
   /* The current tile mode */
   MetaTileMode tile_mode;
 
-  /* The last "full" maximized/unmaximized state. We need to keep track of
-   * that to toggle between normal/tiled or maximized/tiled states. */
-  guint saved_maximize : 1;
   int tile_monitor_number;
 
   struct {
@@ -243,15 +228,6 @@ struct _MetaWindow
 
   uint64_t preferred_output_winsys_id;
 
-  /* Whether we're shaded */
-  guint shaded : 1;
-
-  /* Whether we're fullscreen */
-  guint fullscreen : 1;
-
-  /* Whether the window is marked as urgent */
-  guint urgent : 1;
-
   /* Area to cover when in fullscreen mode.  If _NET_WM_FULLSCREEN_MONITORS has
    * been overridden (via a client message), the window will cover the union of
    * these monitors.  If not, this is the single monitor which the window's
@@ -262,6 +238,163 @@ struct _MetaWindow
     MetaLogicalMonitor *left;
     MetaLogicalMonitor *right;
   } fullscreen_monitors;
+
+  /* if non-NULL, the bounds of the window frame */
+  cairo_region_t *frame_bounds;
+
+  /* if non-NULL, the bounding shape region of the window. Relative to
+   * the server-side client window. */
+  cairo_region_t *shape_region;
+
+  /* if non-NULL, the opaque region _NET_WM_OPAQUE_REGION */
+  cairo_region_t *opaque_region;
+
+  /* the input shape region for picking */
+  cairo_region_t *input_region;
+
+  /* _NET_WM_WINDOW_OPACITY rescaled to 0xFF */
+  guint8 opacity;
+
+  /* Note: can be NULL */
+  GSList *struts;
+
+  /* XSync update counter */
+  XSyncCounter sync_request_counter;
+  gint64 sync_request_serial;
+  gint64 sync_request_wait_serial;
+  guint sync_request_timeout_id;
+  /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
+  XSyncAlarm sync_request_alarm;
+
+  /* Number of UnmapNotify that are caused by us, if
+   * we get UnmapNotify with none pending then the client
+   * is withdrawing the window.
+   */
+  int unmaps_pending;
+
+  /* Number of XReparentWindow requests that we have queued.
+   */
+  int reparents_pending;
+
+  /* See docs for meta_window_get_stable_sequence() */
+  guint32 stable_sequence;
+
+  /* set to the most recent user-interaction event timestamp that we
+     know about for this window */
+  guint32 net_wm_user_time;
+
+  /* window that gets updated net_wm_user_time values */
+  Window user_time_window;
+
+  gboolean has_custom_frame_extents;
+  GtkBorder custom_frame_extents;
+
+  /* The rectangles here are in "frame rect" coordinates. See the
+   * comment at the top of meta_window_move_resize_internal() for more
+   * information. */
+
+  /* The current window geometry of the window. */
+  MetaRectangle rect;
+
+  /* The geometry to restore when we unmaximize. */
+  MetaRectangle saved_rect;
+
+  /* The geometry to restore when we unfullscreen. */
+  MetaRectangle saved_rect_fullscreen;
+
+  /* This is the geometry the window will have if no constraints have
+   * applied. We use this whenever we are moving implicitly (for example,
+   * if we move to avoid a panel, we can snap back to this position if
+   * the panel moves again).
+   */
+  MetaRectangle unconstrained_rect;
+
+  /* The rectangle of the "server-side" geometry of the buffer,
+   * in root coordinates.
+   *
+   * For X11 windows, this matches XGetGeometry of the toplevel.
+   *
+   * For Wayland windows, the position matches the position of the
+   * surface associated with shell surface (xdg_surface, etc.)
+   * The size matches the size surface size as displayed in the stage.
+   */
+  MetaRectangle buffer_rect;
+
+  /* Cached net_wm_icon_geometry */
+  MetaRectangle icon_geometry;
+
+  /* x/y/w/h here get filled with ConfigureRequest values */
+  XSizeHints size_hints;
+
+  /* Managed by stack.c */
+  MetaStackLayer layer;
+  int stack_position; /* see comment in stack.h */
+
+  /* Managed by delete.c */
+  MetaCloseDialog *close_dialog;
+
+  /* maintained by group.c */
+  MetaGroup *group;
+
+  GObject *compositor_private;
+
+  /* Focused window that is (directly or indirectly) attached to this one */
+  MetaWindow *attached_focus_window;
+
+  /* The currently complementary tiled window, if any */
+  MetaWindow *tile_match;
+
+  struct {
+    MetaPlacementRule *rule;
+    MetaPlacementState state;
+
+    struct {
+      int x;
+      int y;
+      int rel_x;
+      int rel_y;
+    } pending;
+
+    struct {
+      int rel_x;
+      int rel_y;
+    } current;
+  } placement;
+
+  guint unmanage_idle_id;
+  guint close_dialog_timeout_id;
+
+  pid_t client_pid;
+
+  gboolean has_valid_cgroup;
+  GFile *cgroup_path;
+
+  unsigned int events_during_ping;
+
+  /* Whether this is an override redirect window or not */
+  guint override_redirect : 1;
+
+  /* Whether we're maximized */
+  guint maximized_horizontally : 1;
+  guint maximized_vertically : 1;
+
+  /* Whether we have to maximize/minimize after placement */
+  guint maximize_horizontally_after_placement : 1;
+  guint maximize_vertically_after_placement : 1;
+  guint minimize_after_placement : 1;
+
+  /* The last "full" maximized/unmaximized state. We need to keep track of
+   * that to toggle between normal/tiled or maximized/tiled states. */
+  guint saved_maximize : 1;
+
+  /* Whether we're shaded */
+  guint shaded : 1;
+
+  /* Whether we're fullscreen */
+  guint fullscreen : 1;
+
+  /* Whether the window is marked as urgent */
+  guint urgent : 1;
 
   /* Whether we're trying to constrain the window to be fully onscreen */
   guint require_fully_onscreen : 1;
@@ -428,141 +561,9 @@ struct _MetaWindow
   /* Whether the window is alive */
   guint is_alive : 1;
 
-  /* if non-NULL, the bounds of the window frame */
-  cairo_region_t *frame_bounds;
-
-  /* if non-NULL, the bounding shape region of the window. Relative to
-   * the server-side client window. */
-  cairo_region_t *shape_region;
-
-  /* if non-NULL, the opaque region _NET_WM_OPAQUE_REGION */
-  cairo_region_t *opaque_region;
-
-  /* the input shape region for picking */
-  cairo_region_t *input_region;
-
-  /* _NET_WM_WINDOW_OPACITY rescaled to 0xFF */
-  guint8 opacity;
-
   /* if TRUE, the we have the new form of sync request counter which
    * also handles application frames */
   guint extended_sync_request_counter : 1;
-
-  /* Note: can be NULL */
-  GSList *struts;
-
-  /* XSync update counter */
-  XSyncCounter sync_request_counter;
-  gint64 sync_request_serial;
-  gint64 sync_request_wait_serial;
-  guint sync_request_timeout_id;
-  /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
-  XSyncAlarm sync_request_alarm;
-
-  /* Number of UnmapNotify that are caused by us, if
-   * we get UnmapNotify with none pending then the client
-   * is withdrawing the window.
-   */
-  int unmaps_pending;
-
-  /* Number of XReparentWindow requests that we have queued.
-   */
-  int reparents_pending;
-
-  /* See docs for meta_window_get_stable_sequence() */
-  guint32 stable_sequence;
-
-  /* set to the most recent user-interaction event timestamp that we
-     know about for this window */
-  guint32 net_wm_user_time;
-
-  /* window that gets updated net_wm_user_time values */
-  Window user_time_window;
-
-  gboolean has_custom_frame_extents;
-  GtkBorder custom_frame_extents;
-
-  /* The rectangles here are in "frame rect" coordinates. See the
-   * comment at the top of meta_window_move_resize_internal() for more
-   * information. */
-
-  /* The current window geometry of the window. */
-  MetaRectangle rect;
-
-  /* The geometry to restore when we unmaximize. */
-  MetaRectangle saved_rect;
-
-  /* The geometry to restore when we unfullscreen. */
-  MetaRectangle saved_rect_fullscreen;
-
-  /* This is the geometry the window will have if no constraints have
-   * applied. We use this whenever we are moving implicitly (for example,
-   * if we move to avoid a panel, we can snap back to this position if
-   * the panel moves again).
-   */
-  MetaRectangle unconstrained_rect;
-
-  /* The rectangle of the "server-side" geometry of the buffer,
-   * in root coordinates.
-   *
-   * For X11 windows, this matches XGetGeometry of the toplevel.
-   *
-   * For Wayland windows, the position matches the position of the
-   * surface associated with shell surface (xdg_surface, etc.)
-   * The size matches the size surface size as displayed in the stage.
-   */
-  MetaRectangle buffer_rect;
-
-  /* Cached net_wm_icon_geometry */
-  MetaRectangle icon_geometry;
-
-  /* x/y/w/h here get filled with ConfigureRequest values */
-  XSizeHints size_hints;
-
-  /* Managed by stack.c */
-  MetaStackLayer layer;
-  int stack_position; /* see comment in stack.h */
-
-  /* Managed by delete.c */
-  MetaCloseDialog *close_dialog;
-
-  /* maintained by group.c */
-  MetaGroup *group;
-
-  GObject *compositor_private;
-
-  /* Focused window that is (directly or indirectly) attached to this one */
-  MetaWindow *attached_focus_window;
-
-  /* The currently complementary tiled window, if any */
-  MetaWindow *tile_match;
-
-  struct {
-    MetaPlacementRule *rule;
-    MetaPlacementState state;
-
-    struct {
-      int x;
-      int y;
-      int rel_x;
-      int rel_y;
-    } pending;
-
-    struct {
-      int rel_x;
-      int rel_y;
-    } current;
-  } placement;
-
-  guint unmanage_idle_id;
-  guint close_dialog_timeout_id;
-
-  pid_t client_pid;
-
-  gboolean has_valid_cgroup;
-  GFile *cgroup_path;
-
-  unsigned int events_during_ping;
 };
 
 struct _MetaWindowClass
