@@ -563,6 +563,8 @@ struct _MetaWindow
   /* if TRUE, the we have the new form of sync request counter which
    * also handles application frames */
   guint extended_sync_request_counter : 1;
+
+  guint in_workspace_change : 1;
 };
 
 struct _MetaWindowClass
