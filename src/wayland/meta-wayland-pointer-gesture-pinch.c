@@ -154,13 +154,17 @@ meta_wayland_pointer_gesture_pinch_create_new_resource (MetaWaylandPointer *poin
   MetaWaylandPointerClient *pointer_client;
   struct wl_resource *res;
 
-  pointer_client = meta_wayland_pointer_get_pointer_client (pointer, client);
-  g_return_if_fail (pointer_client != NULL);
-
   res = wl_resource_create (client, &zwp_pointer_gesture_pinch_v1_interface,
                             wl_resource_get_version (gestures_resource), id);
   wl_resource_set_implementation (res, &pointer_gesture_pinch_interface, pointer,
                                   meta_wayland_pointer_unbind_pointer_client_resource);
-  wl_list_insert (&pointer_client->pinch_gesture_resources,
-                  wl_resource_get_link (res));
+
+  if (pointer)
+    {
+      pointer_client = meta_wayland_pointer_get_pointer_client (pointer, client);
+      g_return_if_fail (pointer_client != NULL);
+
+      wl_list_insert (&pointer_client->pinch_gesture_resources,
+                      wl_resource_get_link (res));
+    }
 }
