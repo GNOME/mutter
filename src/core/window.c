@@ -2935,9 +2935,6 @@ meta_window_tile (MetaWindow   *window,
   meta_window_maximize_internal (window, directions, NULL);
   meta_display_update_tile_preview (window->display, FALSE);
 
-  /* Setup the edge constraints */
-  update_edge_constraints (window);
-
   if (!window->tile_match || window->tile_match != window->display->grab_window)
     {
       MetaRectangle old_frame_rect, old_buffer_rect;
