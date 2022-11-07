@@ -980,47 +980,6 @@ meta_window_actor_size_change (MetaWindowActor    *self,
     priv->size_change_in_progress--;
 }
 
-#if 0
-/* Print out a region; useful for debugging */
-static void
-print_region (cairo_region_t *region)
-{
-  int n_rects;
-  int i;
-
-  n_rects = cairo_region_num_rectangles (region);
-  g_print ("[");
-  for (i = 0; i < n_rects; i++)
-    {
-      cairo_rectangle_int_t rect;
-      cairo_region_get_rectangle (region, i, &rect);
-      g_print ("+%d+%dx%dx%d ",
-               rect.x, rect.y, rect.width, rect.height);
-    }
-  g_print ("]\n");
-}
-#endif
-
-#if 0
-/* Dump a region to a PNG file; useful for debugging */
-static void
-see_region (cairo_region_t *region,
-            int             width,
-            int             height,
-            char           *filename)
-{
-  cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_A8, width, height);
-  cairo_t *cr = cairo_create (surface);
-
-  gdk_cairo_region (cr, region);
-  cairo_fill (cr);
-
-  cairo_surface_write_to_png (surface, filename);
-  cairo_destroy (cr);
-  cairo_surface_destroy (surface);
-}
-#endif
-
 void
 meta_window_actor_sync_visibility (MetaWindowActor *self)
 {
