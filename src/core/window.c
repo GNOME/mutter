@@ -2910,7 +2910,6 @@ meta_window_tile (MetaWindow   *window,
                   MetaTileMode  tile_mode)
 {
   MetaMaximizeFlags directions;
-  MetaRectangle old_frame_rect, old_buffer_rect;
 
   g_return_if_fail (META_IS_WINDOW (window));
 
@@ -2939,12 +2938,17 @@ meta_window_tile (MetaWindow   *window,
   /* Setup the edge constraints */
   update_edge_constraints (window);
 
-  meta_window_get_frame_rect (window, &old_frame_rect);
-  meta_window_get_buffer_rect (window, &old_buffer_rect);
+  if (!window->tile_match || window->tile_match != window->display->grab_window)
+    {
+      MetaRectangle old_frame_rect, old_buffer_rect;
 
-  meta_compositor_size_change_window (window->display->compositor, window,
-                                      META_SIZE_CHANGE_MAXIMIZE,
-                                      &old_frame_rect, &old_buffer_rect);
+      meta_window_get_frame_rect (window, &old_frame_rect);
+      meta_window_get_buffer_rect (window, &old_buffer_rect);
+
+      meta_compositor_size_change_window (window->display->compositor, window,
+                                          META_SIZE_CHANGE_MAXIMIZE,
+                                          &old_frame_rect, &old_buffer_rect);
+    }
 
   meta_window_move_resize_internal (window,
                                     (META_MOVE_RESIZE_MOVE_ACTION |
