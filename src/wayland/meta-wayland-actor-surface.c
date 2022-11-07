@@ -304,10 +304,15 @@ meta_wayland_actor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
       priv->actor &&
       !meta_surface_actor_is_obscured (priv->actor))
     {
-      MetaBackend *backend = meta_get_backend ();
-      ClutterActor *stage = meta_backend_get_stage (backend);
+      GList *l;
 
-      clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+      for (l = clutter_actor_peek_stage_views (CLUTTER_ACTOR (priv->actor)); l;
+           l = l->next)
+        {
+          ClutterStageView *view = l->data;
+
+          clutter_stage_view_schedule_update (view);
+        }
     }
 
   meta_wayland_actor_surface_queue_frame_callbacks (actor_surface, pending);
