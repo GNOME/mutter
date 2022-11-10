@@ -98,6 +98,17 @@ output_resource_destroy (struct wl_resource *res)
   wayland_output->resources = g_list_remove (wayland_output->resources, res);
 }
 
+static void
+meta_wl_output_release (struct wl_client   *client,
+                        struct wl_resource *resource)
+{
+  wl_resource_destroy (resource);
+}
+
+static const struct wl_output_interface meta_wl_output_interface = {
+  meta_wl_output_release,
+};
+
 static enum wl_output_subpixel
 cogl_subpixel_order_to_wl_output_subpixel (CoglSubpixelOrder subpixel_order)
 {
@@ -319,8 +330,10 @@ bind_output (struct wl_client *client,
 
   wayland_output->resources = g_list_prepend (wayland_output->resources,
                                               resource);
-  wl_resource_set_user_data (resource, wayland_output);
-  wl_resource_set_destructor (resource, output_resource_destroy);
+  wl_resource_set_implementation (resource,
+                                  &meta_wl_output_interface,
+                                  wayland_output,
+                                  output_resource_destroy);
 
 #ifdef WITH_VERBOSE_MODE
   logical_monitor = meta_monitor_get_logical_monitor (monitor);

@@ -40,7 +40,7 @@
 #define META_XDG_WM_BASE_VERSION            4
 #define META_ZXDG_SHELL_V6_VERSION          1
 #define META_WL_SEAT_VERSION                5
-#define META_WL_OUTPUT_VERSION              2
+#define META_WL_OUTPUT_VERSION              3
 #define META_XSERVER_VERSION                1
 #define META_GTK_SHELL1_VERSION             5
 #define META_WL_SUBCOMPOSITOR_VERSION       1
