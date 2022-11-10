@@ -290,6 +290,24 @@ send_output_events (struct wl_resource *resource,
         }
     }
 
+  if (need_all_events && version >= WL_OUTPUT_NAME_SINCE_VERSION)
+    {
+      const char *name;
+
+      name = meta_monitor_get_connector (monitor);
+      wl_output_send_name (resource, name);
+      need_done = TRUE;
+    }
+
+  if (need_all_events && version >= WL_OUTPUT_DESCRIPTION_SINCE_VERSION)
+    {
+      const char *description;
+
+      description = meta_monitor_get_display_name (monitor);
+      wl_output_send_description (resource, description);
+      need_done = TRUE;
+    }
+
   if (need_all_events && version >= WL_OUTPUT_DONE_SINCE_VERSION)
     {
       wl_output_send_done (resource);
