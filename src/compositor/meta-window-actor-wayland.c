@@ -415,11 +415,14 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
   float max_height = 0;
 
   if (!meta_window_wayland_is_acked_fullscreen (META_WINDOW_WAYLAND (window)))
-      return FALSE;
+    return FALSE;
 
   geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
 
   logical_monitor = meta_window_get_main_logical_monitor (window);
+  if (!logical_monitor)
+    return FALSE;
+
   fullscreen_layout = meta_logical_monitor_get_layout (logical_monitor);
 
   clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self->surface_container));
