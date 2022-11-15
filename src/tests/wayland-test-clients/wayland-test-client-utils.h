@@ -66,4 +66,7 @@ void wait_for_effects_completed (WaylandDisplay    *display,
 void wait_for_view_verified (WaylandDisplay *display,
                              int             sequence);
 
+void wait_for_sync_event (WaylandDisplay *display,
+                          uint32_t        serial);
+
 #endif /* WAYLAND_TEST_CLIENT_UTILS_H */

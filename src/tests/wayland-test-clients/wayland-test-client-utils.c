@@ -446,3 +446,27 @@ wait_for_view_verified (WaylandDisplay *display,
         g_error ("%s: Failed to dispatch Wayland display", __func__);
     }
 }
+
+static void
+on_sync_event (WaylandDisplay *display,
+               uint32_t        serial,
+               uint32_t       *expected_serial)
+{
+  g_assert_cmpuint (serial, ==, *expected_serial);
+  *expected_serial = serial + 1;
+}
+
+void
+wait_for_sync_event (WaylandDisplay *display,
+                     uint32_t        serial)
+{
+  uint32_t expected_serial = serial;
+
+  g_signal_connect (display, "sync-event", G_CALLBACK (on_sync_event),
+                    &expected_serial);
+  while (expected_serial != serial + 1)
+    {
+      if (wl_display_dispatch (display->display) == -1)
+        g_error ("%s: Failed to dispatch Wayland display", __func__);
+    }
+}
