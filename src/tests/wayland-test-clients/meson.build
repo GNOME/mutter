@@ -74,6 +74,9 @@ wayland_test_clients = [
     'name': 'xdg-activation',
   },
   {
+    'name': 'xdg-foreign',
+  },
+  {
     'name': 'xdg-toplevel-bounds',
   },
   {

@@ -644,6 +644,39 @@ toplevel_bounds_monitors (void)
 }
 
 static void
+xdg_foreign_set_parent_of (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window1;
+  MetaWindow *window2;
+  MetaWindow *window3;
+  MetaWindow *window4;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-foreign");
+
+  wait_for_sync_point (0);
+  wait_until_after_paint ();
+
+  window1 = find_client_window ("xdg-foreign-window1");
+  window2 = find_client_window ("xdg-foreign-window2");
+  window3 = find_client_window ("xdg-foreign-window3");
+  window4 = find_client_window ("xdg-foreign-window4");
+
+  g_assert_true (meta_window_get_transient_for (window4) ==
+                 window3);
+  g_assert_true (meta_window_get_transient_for (window3) ==
+                 window2);
+  g_assert_true (meta_window_get_transient_for (window2) ==
+                 window1);
+  g_assert_null (meta_window_get_transient_for (window1));
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -686,6 +719,8 @@ init_tests (void)
                    toplevel_bounds_struts);
   g_test_add_func ("/wayland/toplevel/bounds/monitors",
                    toplevel_bounds_monitors);
+  g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
+                   xdg_foreign_set_parent_of);
 }
 
 int
