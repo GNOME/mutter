@@ -762,6 +762,7 @@ clutter_do_event (ClutterEvent *event)
 {
   ClutterContext *context = _clutter_context_get_default();
   ClutterActor *event_actor = NULL;
+  gboolean filtered;
 
   /* we need the stage for the event */
   if (event->any.stage == NULL)
@@ -797,37 +798,21 @@ clutter_do_event (ClutterEvent *event)
 
   context->current_event = g_slist_prepend (context->current_event, event);
 
-  if (_clutter_event_process_filters (event, event_actor))
-    {
-      context->current_event =
-        g_slist_delete_link (context->current_event, context->current_event);
+  filtered = _clutter_event_process_filters (event, event_actor);
 
-      if (event->type == CLUTTER_TOUCH_END ||
-          event->type == CLUTTER_TOUCH_CANCEL ||
-          event->type == CLUTTER_DEVICE_REMOVED)
-        {
-          _clutter_stage_process_queued_events (event->any.stage);
-          maybe_remove_device_for_event (event->any.stage, event, TRUE);
-        }
+  context->current_event =
+    g_slist_delete_link (context->current_event, context->current_event);
 
-      return;
-    }
-
-  context->current_event = g_slist_delete_link (context->current_event, context->current_event);
-
-  /* Instead of processing events when received, we queue them up to
-   * handle per-frame before animations, layout, and drawing.
-   *
-   * This gives us the chance to reliably compress motion events
-   * because we've "looked ahead" and know all motion events that
-   * will occur before drawing the frame.
-   */
-  _clutter_stage_queue_event (event->any.stage, event, TRUE);
+  if (!filtered)
+    _clutter_stage_queue_event (event->any.stage, event, TRUE);
 
   if (event->type == CLUTTER_TOUCH_END ||
       event->type == CLUTTER_TOUCH_CANCEL ||
       event->type == CLUTTER_DEVICE_REMOVED)
-    _clutter_stage_process_queued_events (event->any.stage);
+    {
+      _clutter_stage_process_queued_events (event->any.stage);
+      maybe_remove_device_for_event (event->any.stage, event, TRUE);
+    }
 }
 
 static void
@@ -917,11 +902,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                         x, y, target);
 
           emit_event (target, event);
-
-          if (event->type == CLUTTER_TOUCH_END ||
-              event->type == CLUTTER_TOUCH_CANCEL)
-            maybe_remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
-
           break;
         }
 
@@ -936,9 +916,6 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_DEVICE_REMOVED:
-        maybe_remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
-        break;
-
       case CLUTTER_DEVICE_ADDED:
       case CLUTTER_EVENT_LAST:
         break;
