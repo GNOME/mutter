@@ -803,7 +803,8 @@ clutter_do_event (ClutterEvent *event)
         g_slist_delete_link (context->current_event, context->current_event);
 
       if (event->type == CLUTTER_TOUCH_END ||
-          event->type == CLUTTER_TOUCH_CANCEL)
+          event->type == CLUTTER_TOUCH_CANCEL ||
+          event->type == CLUTTER_DEVICE_REMOVED)
         {
           _clutter_stage_process_queued_events (event->any.stage);
           maybe_remove_device_for_event (event->any.stage, event, TRUE);
