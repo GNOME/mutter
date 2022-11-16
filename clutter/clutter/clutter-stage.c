@@ -611,23 +611,8 @@ _clutter_stage_queue_event (ClutterStage *stage,
 
   first_event = priv->event_queue->length == 0;
 
-  if (copy_event)
-    event = clutter_event_copy (event);
-
-  if (first_event)
-    {
-      gboolean compressible = event->type == CLUTTER_MOTION ||
-                              event->type == CLUTTER_TOUCH_UPDATE;
-
-      if (!compressible)
-        {
-          _clutter_process_event (event);
-          clutter_event_free (event);
-          return;
-        }
-    }
-
-  g_queue_push_tail (priv->event_queue, event);
+  g_queue_push_tail (priv->event_queue,
+                     copy_event ? clutter_event_copy (event) : event);
 
   if (first_event)
     clutter_stage_schedule_update (stage);
