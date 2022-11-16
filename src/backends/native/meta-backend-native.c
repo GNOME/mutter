@@ -699,12 +699,16 @@ init_gpus (MetaBackendNative  *native,
 {
   MetaBackend *backend = META_BACKEND (native);
   MetaUdev *udev = meta_backend_native_get_udev (native);
+  g_autoptr (GError) local_error = NULL;
   GList *devices;
   GList *l;
 
-  devices = meta_udev_list_drm_devices (udev, error);
-  if (*error)
-    return FALSE;
+  devices = meta_udev_list_drm_devices (udev, &local_error);
+  if (local_error)
+    {
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return FALSE;
+    }
 
   for (l = devices; l; l = l->next)
     {
