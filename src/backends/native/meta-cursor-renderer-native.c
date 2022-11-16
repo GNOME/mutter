@@ -1464,6 +1464,7 @@ is_cursor_scale_and_transform_valid (MetaCursorRenderer *renderer,
 
 static cairo_surface_t *
 scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
+                                       cairo_format_t        pixel_format,
                                        int                   width,
                                        int                   height,
                                        int                   rowstride,
@@ -1521,7 +1522,7 @@ scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
   cairo_scale (cr, scale, scale);
 
   source_surface = cairo_image_surface_create_for_data (pixels,
-                                                        CAIRO_FORMAT_ARGB32,
+                                                        pixel_format,
                                                         width,
                                                         height,
                                                         rowstride);
@@ -1532,6 +1533,21 @@ scale_and_transform_cursor_sprite_cpu (uint8_t              *pixels,
   cairo_surface_destroy (source_surface);
 
   return target_surface;
+}
+
+static cairo_format_t
+gbm_format_to_cairo_format (uint32_t gbm_format)
+{
+  switch (gbm_format)
+    {
+    case GBM_FORMAT_XRGB8888:
+      return CAIRO_FORMAT_RGB24;
+    default:
+      g_warn_if_reached ();
+      G_GNUC_FALLTHROUGH;
+    case GBM_FORMAT_ARGB8888:
+      return CAIRO_FORMAT_ARGB32;
+    }
 }
 
 static void
@@ -1547,11 +1563,15 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                            uint32_t                  gbm_format)
 {
   if (!G_APPROX_VALUE (relative_scale, 1.f, FLT_EPSILON) ||
-      relative_transform != META_MONITOR_TRANSFORM_NORMAL)
+      relative_transform != META_MONITOR_TRANSFORM_NORMAL ||
+      gbm_format != GBM_FORMAT_ARGB8888)
     {
       cairo_surface_t *surface;
+      cairo_format_t cairo_format;
 
+      cairo_format = gbm_format_to_cairo_format (gbm_format),
       surface = scale_and_transform_cursor_sprite_cpu (data,
+                                                       cairo_format,
                                                        width,
                                                        height,
                                                        rowstride,
@@ -1565,7 +1585,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                              cairo_image_surface_get_width (surface),
                                              cairo_image_surface_get_width (surface),
                                              cairo_image_surface_get_stride (surface),
-                                             gbm_format);
+                                             GBM_FORMAT_ARGB8888);
 
       cairo_surface_destroy (surface);
     }
