@@ -709,14 +709,27 @@ update_device_for_event (ClutterStage *stage,
 }
 
 static void
-remove_device_for_event (ClutterStage *stage,
-                         ClutterEvent *event,
-                         gboolean      emit_crossing)
+maybe_remove_device_for_event (ClutterStage *stage,
+                               ClutterEvent *event,
+                               gboolean      emit_crossing)
 {
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   graphene_point_t point;
   uint32_t time;
+
+  if (event->type == CLUTTER_DEVICE_REMOVED)
+    {
+      ClutterInputDeviceType device_type =
+        clutter_input_device_get_device_type (device);
+
+      if (device_type != CLUTTER_POINTER_DEVICE &&
+          device_type != CLUTTER_TABLET_DEVICE &&
+          device_type != CLUTTER_PEN_DEVICE &&
+          device_type != CLUTTER_ERASER_DEVICE &&
+          device_type != CLUTTER_CURSOR_DEVICE)
+        return;
+    }
 
   clutter_event_get_coords (event, &point.x, &point.y);
   time = clutter_event_get_time (event);
@@ -793,7 +806,7 @@ clutter_do_event (ClutterEvent *event)
           event->type == CLUTTER_TOUCH_CANCEL)
         {
           _clutter_stage_process_queued_events (event->any.stage);
-          remove_device_for_event (event->any.stage, event, TRUE);
+          maybe_remove_device_for_event (event->any.stage, event, TRUE);
         }
 
       return;
@@ -901,7 +914,7 @@ _clutter_process_event_details (ClutterActor        *stage,
 
           if (event->type == CLUTTER_TOUCH_END ||
               event->type == CLUTTER_TOUCH_CANCEL)
-            remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+            maybe_remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
 
           break;
         }
@@ -917,19 +930,8 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_DEVICE_REMOVED:
-        {
-          ClutterInputDeviceType device_type;
-
-          device_type = clutter_input_device_get_device_type (device);
-          if (device_type == CLUTTER_POINTER_DEVICE ||
-              device_type == CLUTTER_TABLET_DEVICE ||
-              device_type == CLUTTER_PEN_DEVICE ||
-              device_type == CLUTTER_ERASER_DEVICE ||
-              device_type == CLUTTER_CURSOR_DEVICE)
-            remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
-
-          break;
-        }
+        maybe_remove_device_for_event (CLUTTER_STAGE (stage), event, TRUE);
+        break;
 
       case CLUTTER_DEVICE_ADDED:
       case CLUTTER_EVENT_LAST:
