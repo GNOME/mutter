@@ -66,6 +66,8 @@ actor_event_hold (void)
   ClutterActor *stage;
   ClutterBackend *backend;
   ClutterSeat *seat;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
   ClutterInputDevice *device;
   ClutterEvent *event;
   ClutterEvent *captured_event;
@@ -81,8 +83,15 @@ actor_event_hold (void)
   /* Get the input device*/
   backend = clutter_get_default_backend ();
   seat = clutter_backend_get_default_seat (backend);
-  device = clutter_seat_get_pointer (seat);
 
+  virtual_pointer =
+    clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       now_us,
+                                                       1.0, 1.0);
+
+  device = clutter_seat_get_pointer (seat);
   while (clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL) == NULL)
     g_main_context_iteration (NULL, FALSE);
 

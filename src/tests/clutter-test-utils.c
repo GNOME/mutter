@@ -4,11 +4,14 @@
 #include <glib-object.h>
 #include <clutter/clutter.h>
 
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-virtual-monitor.h"
 #include "compositor/meta-plugin-manager.h"
 #include "core/meta-context-private.h"
 
-typedef struct {
-  gpointer dummy_field;
+typedef struct
+{
+  MetaContext *context;
 } ClutterTestEnvironment;
 
 static ClutterTestEnvironment *test_environ = NULL;
@@ -46,12 +49,13 @@ clutter_test_init (int    *argc,
 {
   MetaContext *context;
 
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_NESTED,
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert (meta_context_configure (context, argc, argv, NULL));
   g_assert (meta_context_setup (context, NULL));
 
   test_environ = g_new0 (ClutterTestEnvironment, 1);
+  test_environ->context = context;
 
   g_assert (meta_context_start (context, NULL));
 
@@ -251,12 +255,30 @@ clutter_test_add_data_full (const char     *test_path,
 int
 clutter_test_run (void)
 {
+  MetaBackend *backend = meta_context_get_backend (test_environ->context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  MetaVirtualMonitor *virtual_monitor;
+  g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
+  g_autoptr (GError) error = NULL;
   int res;
 
-  g_assert (test_environ != NULL);
-  
+  monitor_info = meta_virtual_monitor_info_new (1024, 768, 60.0,
+                                                "MetaTestVendor",
+                                                "ClutterTestMonitor",
+                                                "0x123");
+  virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                                 monitor_info,
+                                                                 &error);
+  if (!virtual_monitor)
+    g_error ("Failed to create virtual monitor: %s", error->message);
+
+  meta_monitor_manager_reload (monitor_manager);
+
   res = g_test_run ();
 
+  g_object_unref (virtual_monitor);
+
+  g_clear_object (&test_environ->context);
   g_free (test_environ);
 
   return res;
