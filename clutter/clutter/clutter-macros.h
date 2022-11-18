@@ -119,4 +119,9 @@
 
 #define CLUTTER_EXPORT _CLUTTER_EXTERN
 
+/* CLUTTER_EXPORT_TEST should be used to export symbols that are exported only
+ * for testability purposes
+ */
+#define CLUTTER_EXPORT_TEST CLUTTER_EXPORT
+
 #endif /* __CLUTTER_MACROS_H__ */
