@@ -262,7 +262,7 @@ clutter_test_run (void)
   g_autoptr (GError) error = NULL;
   int res;
 
-  monitor_info = meta_virtual_monitor_info_new (1024, 768, 60.0,
+  monitor_info = meta_virtual_monitor_info_new (800, 600, 10.0,
                                                 "MetaTestVendor",
                                                 "ClutterTestMonitor",
                                                 "0x123");
