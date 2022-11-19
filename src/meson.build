@@ -882,7 +882,7 @@ if have_profiler
   ]
 
   if sysprof_dep.type_name() == 'pkgconfig'
-    sysprof_dbus_interfaces_dir = join_paths(sysprof_dep.get_pkgconfig_variable('datadir'), 'dbus-1', 'interfaces')
+    sysprof_dbus_interfaces_dir = join_paths(sysprof_dep.get_variable('datadir'), 'dbus-1', 'interfaces')
   else
     sysprof_dbus_interfaces_dir = join_paths(mutter_srcdir, 'subprojects', 'sysprof', 'src')
   endif
@@ -980,14 +980,14 @@ if have_wayland
     ['xwayland-keyboard-grab', 'unstable', 'v1', ],
   ]
   if have_wayland_eglstream
-    wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_pkgconfig_variable('pkgdatadir')
+    wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
     wayland_protocols += [
       ['wayland-eglstream-controller', 'third-party', wayland_eglstream_protocols_dir],
     ]
   endif
 
   wayland_scanner = find_program('wayland-scanner')
-  protocols_dir = wayland_protocols_dep.get_pkgconfig_variable('pkgdatadir')
+  protocols_dir = wayland_protocols_dep.get_variable('pkgdatadir')
   assert(protocols_dir != '', 'Could not get pkgdatadir from wayland-protocols.pc')
 
   foreach p: wayland_protocols

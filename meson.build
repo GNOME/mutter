@@ -224,7 +224,7 @@ if have_libgudev
 
   udev_dir = get_option('udev_dir')
   if udev_dir == ''
-    udev_dir = udev_dep.get_pkgconfig_variable('udevdir')
+    udev_dir = udev_dep.get_variable('udevdir')
   endif
 endif
 
@@ -515,7 +515,7 @@ cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
 
 if have_x11_client
-  xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
+  xkb_base = xkeyboard_config_dep.get_variable('xkb_base')
   cdata.set_quoted('XKB_BASE', xkb_base)
 endif
 
@@ -532,7 +532,7 @@ if have_xwayland
   xwayland_path = get_option('xwayland_path')
   if xwayland_path == ''
     if xwayland_dep.found()
-      xwayland_path = xwayland_dep.get_pkgconfig_variable('xwayland')
+      xwayland_path = xwayland_dep.get_variable('xwayland')
     else
       xwayland_path = find_program('Xwayland').path()
     endif
@@ -551,7 +551,7 @@ if have_xwayland
   # For Xwayland -initfd usage
   use_initfd = get_option('xwayland_initfd')
   if xwayland_dep.found()
-    xwayland_supports_initfd = xwayland_dep.get_pkgconfig_variable('have_initfd') == 'true'
+    xwayland_supports_initfd = xwayland_dep.get_variable('have_initfd') == 'true'
   else
     xwayland_options = run_command(xwayland_path, '-help')
     xwayland_supports_initfd = xwayland_options.stderr().contains('-initfd')
@@ -572,7 +572,7 @@ if have_xwayland
 
   # For Xwayland -listenfd usage
   if xwayland_dep.found()
-    have_xwayland_listenfd = xwayland_dep.get_pkgconfig_variable('have_listenfd') == 'true'
+    have_xwayland_listenfd = xwayland_dep.get_variable('have_listenfd') == 'true'
   endif
 
   if (have_xwayland_listenfd)
@@ -581,7 +581,7 @@ if have_xwayland
 
   # For Xwayland -listenfd usage
   if xwayland_dep.found()
-    have_xwayland_terminate_delay = xwayland_dep.get_pkgconfig_variable('have_terminate_delay') == 'true'
+    have_xwayland_terminate_delay = xwayland_dep.get_variable('have_terminate_delay') == 'true'
   endif
 
   if (have_xwayland_terminate_delay)
