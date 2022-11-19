@@ -1,6 +1,6 @@
 project('mutter', 'c',
   version: '43.1',
-  meson_version: '>= 0.55.0',
+  meson_version: '>= 0.58.0',
   license: 'GPLv2+'
 )
 
@@ -640,7 +640,10 @@ if have_documentation
   subdir('doc/reference')
 endif
 
-meson.add_install_script('meson/meson-postinstall.sh')
+gnome.post_install(
+  glib_compile_schemas: true,
+)
+
 meson.add_dist_script('meson/check-version.py', meson.project_version(), 'NEWS')
 
 summary('prefix', prefix, section: 'Directories')
