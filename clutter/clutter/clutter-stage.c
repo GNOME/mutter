@@ -4263,6 +4263,21 @@ free_event_receiver (EventReceiver *receiver)
   g_clear_object (&receiver->action);
 }
 
+static void
+remove_all_actions_from_chain (PointerDeviceEntry *entry)
+{
+  unsigned int i;
+
+  for (i = 0; i < entry->event_emission_chain->len; i++)
+    {
+      EventReceiver *receiver =
+        &g_array_index (entry->event_emission_chain, EventReceiver, i);
+
+      if (receiver->action)
+        g_clear_object (&receiver->action);
+    }
+}
+
 static gboolean
 setup_implicit_grab (PointerDeviceEntry *entry)
 {
@@ -4424,7 +4439,12 @@ clutter_stage_emit_event (ClutterStage       *self,
 
   if (entry && entry->press_count)
     {
-      emit_event (event, entry->event_emission_chain);
+      EventHandledState state;
+
+      state = emit_event (event, entry->event_emission_chain);
+
+      if (state == EVENT_HANDLED_BY_ACTOR)
+        remove_all_actions_from_chain (entry);
     }
   else
     {
