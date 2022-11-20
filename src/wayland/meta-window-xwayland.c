@@ -325,7 +325,9 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
                          "Surface",
                          "The corresponding Wayland surface",
                          META_TYPE_WAYLAND_SURFACE,
-                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+                         G_PARAM_CONSTRUCT |
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 }
