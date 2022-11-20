@@ -66,11 +66,6 @@ META_EXPORT
 char * meta_test_client_get_id (MetaTestClient *client);
 
 META_EXPORT
-gboolean meta_test_client_process_x11_event (MetaTestClient        *client,
-                                             MetaX11Display        *x11_display,
-                                             XSyncAlarmNotifyEvent *event);
-
-META_EXPORT
 gboolean meta_test_client_wait (MetaTestClient  *client,
                                 GError         **error);
 

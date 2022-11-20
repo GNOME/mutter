@@ -1360,13 +1360,23 @@ handle_other_xevent (MetaX11Display *x11_display,
           meta_window_x11_update_sync_request_counter (alarm_window, new_counter_value);
           bypass_gtk = TRUE; /* GTK doesn't want to see this really */
         }
-      else
+      else if (x11_display->alarm_filters)
         {
-          if (x11_display->alarm_filter &&
-              x11_display->alarm_filter (x11_display,
-                                         (XSyncAlarmNotifyEvent*)event,
-                                         x11_display->alarm_filter_data))
-            bypass_gtk = TRUE;
+          int i;
+
+          for (i = 0; i < x11_display->alarm_filters->len; i++)
+            {
+              MetaX11AlarmFilter *alarm_filter =
+                x11_display->alarm_filters->pdata[i];
+
+              if (alarm_filter->filter (x11_display,
+                                        (XSyncAlarmNotifyEvent *) event,
+                                        alarm_filter->user_data))
+                {
+                  bypass_gtk = TRUE;
+                  break;
+                }
+            }
         }
 
       goto out;

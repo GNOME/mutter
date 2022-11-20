@@ -120,6 +120,8 @@ meta_x11_display_dispose (GObject *object)
 
   x11_display->closing = TRUE;
 
+  g_clear_pointer (&x11_display->alarm_filters, g_ptr_array_unref);
+
   if (x11_display->empty_region != None)
     {
       XFixesDestroyRegion (x11_display->xdisplay,
@@ -1677,15 +1679,29 @@ meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
   g_hash_table_remove (x11_display->xids, &alarm);
 }
 
-void
-meta_x11_display_set_alarm_filter (MetaX11Display *x11_display,
-                                   MetaAlarmFilter filter,
-                                   gpointer        data)
+MetaX11AlarmFilter *
+meta_x11_display_add_alarm_filter (MetaX11Display  *x11_display,
+                                   MetaAlarmFilter  filter,
+                                   gpointer         user_data)
 {
-  g_return_if_fail (filter == NULL || x11_display->alarm_filter == NULL);
+  MetaX11AlarmFilter *alarm_filter;
 
-  x11_display->alarm_filter = filter;
-  x11_display->alarm_filter_data = data;
+  if (!x11_display->alarm_filters)
+    x11_display->alarm_filters = g_ptr_array_new_with_free_func (g_free);
+
+  alarm_filter = g_new0 (MetaX11AlarmFilter, 1);
+  alarm_filter->filter = filter;
+  alarm_filter->user_data = user_data;
+  g_ptr_array_add (x11_display->alarm_filters, alarm_filter);
+
+  return alarm_filter;
+}
+
+void
+meta_x11_display_remove_alarm_filter (MetaX11Display     *x11_display,
+                                      MetaX11AlarmFilter *alarm_filter)
+{
+  g_ptr_array_remove (x11_display->alarm_filters, alarm_filter);
 }
 
 /* The guard window allows us to leave minimized windows mapped so

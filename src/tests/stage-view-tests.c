@@ -1094,16 +1094,6 @@ ensure_view_count (int n_views)
   g_assert_cmpuint (g_list_length (stage_views), ==, n_views);
 }
 
-static gboolean
-tests_alarm_filter (MetaX11Display        *x11_display,
-                    XSyncAlarmNotifyEvent *event,
-                    gpointer               user_data)
-{
-  MetaTestClient *test_client = user_data;
-  return meta_test_client_process_x11_event (test_client,
-                                             x11_display, event);
-}
-
 static void
 check_test_client_state (MetaTestClient *test_client)
 {
@@ -1124,8 +1114,6 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
     META_MONITOR_MANAGER_TEST (monitor_manager);
-  MetaDisplay *display;
-  MetaX11Display *x11_display;
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaTestClient *x11_test_client;
   MonitorTestCaseSetup hotplug_test_case_setup = initial_test_case_setup;
@@ -1140,11 +1128,6 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
                                           &error);
   if (!x11_test_client)
     g_error ("Failed to launch X11 test client: %s", error->message);
-  display = meta_context_get_display (test_context);
-  x11_display = meta_display_get_x11_display (display);
-  meta_x11_display_set_alarm_filter (x11_display,
-                                     tests_alarm_filter,
-                                     x11_test_client);
 
   if (!meta_test_client_do (x11_test_client, &error,
                             "create", X11_TEST_CLIENT_WINDOW,
@@ -1210,7 +1193,6 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
   if (!meta_test_client_quit (x11_test_client, &error))
     g_error ("Failed to quit X11 test client: %s", error->message);
   meta_test_client_destroy (x11_test_client);
-  meta_x11_display_set_alarm_filter (x11_display, NULL, NULL);
 }
 
 static void

@@ -48,6 +48,7 @@ struct _MetaTestClient
   GError **error;
 
   MetaAsyncWaiter *waiter;
+  MetaX11AlarmFilter *alarm_filter;
 };
 
 struct _MetaAsyncWaiter
@@ -454,7 +455,7 @@ meta_test_client_wait_for_window_shown (MetaTestClient *client,
   g_main_loop_unref (data.loop);
 }
 
-gboolean
+static gboolean
 meta_test_client_process_x11_event (MetaTestClient        *client,
                                     MetaX11Display        *x11_display,
                                     XSyncAlarmNotifyEvent *event)
@@ -543,6 +544,16 @@ ensure_process_handler (MetaContext *context)
   return process_handler;
 }
 
+static gboolean
+alarm_filter (MetaX11Display        *x11_display,
+              XSyncAlarmNotifyEvent *event,
+              gpointer               user_data)
+{
+  MetaTestClient *client = user_data;
+
+  return meta_test_client_process_x11_event (client, x11_display, event);
+}
+
 MetaTestClient *
 meta_test_client_new (MetaContext           *context,
                       const char            *id,
@@ -629,6 +640,10 @@ meta_test_client_new (MetaContext           *context,
       x11_display = meta_display_get_x11_display (display);
       g_assert_nonnull (x11_display);
 
+      client->alarm_filter = meta_x11_display_add_alarm_filter (x11_display,
+                                                                alarm_filter,
+                                                                client);
+
       client->waiter = meta_async_waiter_new (x11_display);
     }
 
@@ -651,7 +666,16 @@ meta_test_client_quit (MetaTestClient  *client,
 void
 meta_test_client_destroy (MetaTestClient *client)
 {
+  MetaDisplay *display = meta_get_display ();
+  MetaX11Display *x11_display;
   GError *error = NULL;
+
+  x11_display = meta_display_get_x11_display (display);
+  if (client->alarm_filter && x11_display)
+    {
+      meta_x11_display_remove_alarm_filter (x11_display,
+                                            client->alarm_filter);
+    }
 
   if (client->waiter)
     meta_async_waiter_destroy (client->waiter);
