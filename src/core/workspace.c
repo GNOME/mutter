@@ -504,7 +504,7 @@ workspace_switch_sound(MetaWorkspace *from,
 
   if (i >= nw)
     {
-      meta_bug("Failed to find destination workspace in layout");
+      g_warning ("Failed to find destination workspace in layout");
       goto finish;
     }
 
@@ -528,7 +528,7 @@ workspace_switch_sound(MetaWorkspace *from,
     e = "desktop-switch-down";
   else
     {
-      meta_bug("Uh, origin and destination workspace at same logic position!");
+      g_warn_if_reached ();
       goto finish;
     }
 
