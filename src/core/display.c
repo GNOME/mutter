@@ -826,9 +826,11 @@ meta_display_shutdown_x11 (MetaDisplay *display)
   if (!display->x11_display)
     return;
 
+  meta_stack_freeze (display->stack);
   g_signal_emit (display, display_signals[X11_DISPLAY_CLOSING], 0);
   g_object_run_dispose (G_OBJECT (display->x11_display));
   g_clear_object (&display->x11_display);
+  meta_stack_thaw (display->stack);
 }
 
 MetaDisplay *
