@@ -157,10 +157,70 @@ meta_test_xwayland_restart_selection (void)
 }
 
 static void
+meta_test_xwayland_crash_only_x11 (void)
+{
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (test_context);
+  MetaXWaylandManager *xwayland_manager =
+    meta_wayland_compositor_get_xwayland_manager (wayland_compositor);
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaTestClient *test_client1;
+  MetaTestClient *test_client2;
+  g_autoptr (GError) error = NULL;
+
+  g_assert_null (meta_display_list_all_windows (display));
+
+  test_client1 = meta_test_client_new (test_context,
+                                       "client1", META_WINDOW_CLIENT_TYPE_X11,
+                                       &error);
+  if (!test_client1)
+    g_error ("Failed to launch test client: %s", error->message);
+
+  test_client2 = meta_test_client_new (test_context,
+                                       "client1", META_WINDOW_CLIENT_TYPE_X11,
+                                       &error);
+  if (!test_client2)
+    g_error ("Failed to launch test client: %s", error->message);
+
+  ensure_xwayland (test_context);
+
+  test_client_do_check (test_client2, "create", "test-window", NULL);
+  test_client_do_check (test_client1, "create", "test-window", NULL);
+  test_client_do_check (test_client2, "show", "test-window", NULL);
+  test_client_do_check (test_client1, "show", "test-window", NULL);
+  test_client_wait_check (test_client2);
+  test_client_wait_check (test_client1);
+
+  while (!meta_find_window_from_title (test_context, "test/client1/test-window") ||
+         !meta_find_window_from_title (test_context, "test/client1/test-window"))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "*Connection to xwayland lost*");
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "X Wayland crashed*; attempting to recover");
+
+  if (!meta_xwayland_signal (xwayland_manager, SIGKILL, &error))
+    g_error ("Failed to signal SIGSEGV to Xwayland");
+
+  while (meta_display_get_x11_display (display))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_test_assert_expected_messages ();
+
+  g_assert_null (meta_display_list_all_windows (display));
+
+  meta_test_client_destroy (test_client1);
+  meta_test_client_destroy (test_client2);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/xwayland/restart/selection",
                    meta_test_xwayland_restart_selection);
+  g_test_add_func ("/backends/xwayland/crash/only-x11",
+                   meta_test_xwayland_crash_only_x11);
 }
 
 int
