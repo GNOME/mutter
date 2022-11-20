@@ -754,6 +754,7 @@ do_paint_content (MetaShapedTexture   *stex,
   if (!blended_tex_region || !cairo_region_is_empty (blended_tex_region))
     {
       CoglPipeline *blended_pipeline;
+      CoglColor color;
 
       if (stex->mask_texture == NULL)
         {
@@ -769,7 +770,6 @@ do_paint_content (MetaShapedTexture   *stex,
       cogl_pipeline_set_layer_texture (blended_pipeline, 0, paint_tex);
       cogl_pipeline_set_layer_filters (blended_pipeline, 0, min_filter, mag_filter);
 
-      CoglColor color;
       cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
       cogl_pipeline_set_color (blended_pipeline, &color);
 
