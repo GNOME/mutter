@@ -45,6 +45,12 @@ typedef gboolean (*MetaAlarmFilter) (MetaX11Display        *x11_display,
                                      XSyncAlarmNotifyEvent *event,
                                      gpointer               data);
 
+typedef struct _MetaX11AlarmFilter
+{
+  MetaAlarmFilter filter;
+  gpointer user_data;
+} MetaX11AlarmFilter;
+
 struct _MetaX11Display
 {
   GObject parent;
@@ -120,8 +126,7 @@ struct _MetaX11Display
   int xkb_base_event_type;
   guint32 last_bell_time;
 
-  MetaAlarmFilter alarm_filter;
-  gpointer alarm_filter_data;
+  GPtrArray *alarm_filters;
 
   MetaUI *ui;
 
@@ -212,9 +217,13 @@ void        meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
                                                     XSyncAlarm      alarm);
 
 META_EXPORT
-void meta_x11_display_set_alarm_filter (MetaX11Display *x11_display,
-                                        MetaAlarmFilter filter,
-                                        gpointer        data);
+MetaX11AlarmFilter * meta_x11_display_add_alarm_filter (MetaX11Display  *x11_display,
+                                                        MetaAlarmFilter  filter,
+                                                        gpointer         user_data);
+
+META_EXPORT
+void meta_x11_display_remove_alarm_filter (MetaX11Display     *x11_display,
+                                           MetaX11AlarmFilter *alarm_filter);
 
 void meta_x11_display_create_guard_window (MetaX11Display *x11_display);
 

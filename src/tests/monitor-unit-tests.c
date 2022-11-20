@@ -169,15 +169,6 @@ static MetaTestClient *x11_monitor_test_client = NULL;
 #define X11_TEST_CLIENT_NAME "x11_monitor_test_client"
 #define X11_TEST_CLIENT_WINDOW "window1"
 
-static gboolean
-monitor_tests_alarm_filter (MetaX11Display        *x11_display,
-                            XSyncAlarmNotifyEvent *event,
-                            gpointer               data)
-{
-  return meta_test_client_process_x11_event (x11_monitor_test_client,
-                                             x11_display, event);
-}
-
 static void
 on_monitors_changed (gboolean *monitors_changed)
 {
@@ -202,9 +193,6 @@ create_monitor_test_clients (MetaContext *context)
                                                   &error);
   if (!x11_monitor_test_client)
     g_error ("Failed to launch X11 test client: %s", error->message);
-
-  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
-                                     monitor_tests_alarm_filter, NULL);
 
   if (!meta_test_client_do (wayland_monitor_test_client, &error,
                             "create", WAYLAND_TEST_CLIENT_WINDOW,
@@ -259,9 +247,6 @@ destroy_monitor_test_clients (void)
 
   meta_test_client_destroy (wayland_monitor_test_client);
   meta_test_client_destroy (x11_monitor_test_client);
-
-  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
-                                     NULL, NULL);
 }
 
 static void

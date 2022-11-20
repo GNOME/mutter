@@ -38,6 +38,7 @@
 typedef struct {
   MetaContext *context;
   GHashTable *clients;
+  MetaX11AlarmFilter *alarm_filter;
   MetaAsyncWaiter *waiter;
   GString *warning_messages;
   GMainLoop *loop;
@@ -51,20 +52,9 @@ test_case_alarm_filter (MetaX11Display        *x11_display,
                         gpointer               data)
 {
   TestCase *test = data;
-  GHashTableIter iter;
-  gpointer key, value;
 
   if (meta_async_waiter_process_x11_event (test->waiter, x11_display, event))
     return TRUE;
-
-  g_hash_table_iter_init (&iter, test->clients);
-  while (g_hash_table_iter_next (&iter, &key, &value))
-    {
-      MetaTestClient *client = value;
-
-      if (meta_test_client_process_x11_event (client, x11_display, event))
-        return TRUE;
-    }
 
   return FALSE;
 }
@@ -73,8 +63,12 @@ static void
 on_x11_display_opened (MetaDisplay *display,
                        TestCase    *test)
 {
-  meta_x11_display_set_alarm_filter (display->x11_display,
-                                     test_case_alarm_filter, test);
+  MetaX11Display *x11_display = meta_display_get_x11_display (display);
+
+  test->alarm_filter =
+    meta_x11_display_add_alarm_filter (x11_display,
+                                       test_case_alarm_filter,
+                                       test);
   test->waiter = meta_async_waiter_new (display->x11_display);
 }
 
@@ -1223,8 +1217,11 @@ test_case_destroy (TestCase *test,
 
   display = meta_get_display ();
   g_clear_signal_handler (&test->x11_display_opened_handler_id, display);
-  if (display->x11_display)
-    meta_x11_display_set_alarm_filter (display->x11_display, NULL, NULL);
+  if (display->x11_display && test->alarm_filter)
+    {
+      meta_x11_display_remove_alarm_filter (display->x11_display,
+                                            test->alarm_filter);
+    }
 
   g_hash_table_destroy (test->clients);
   g_object_unref (test->virtual_monitor);

@@ -69,16 +69,6 @@ transfer_ready_cb (GObject      *source_object,
   g_main_loop_quit (loop);
 }
 
-static gboolean
-tests_alarm_filter (MetaX11Display        *x11_display,
-                    XSyncAlarmNotifyEvent *event,
-                    gpointer               user_data)
-{
-  MetaTestClient *test_client = user_data;
-  return meta_test_client_process_x11_event (test_client,
-                                             x11_display, event);
-}
-
 static void
 ensure_xwayland (MetaContext *context)
 {
@@ -118,9 +108,6 @@ meta_test_xwayland_restart_selection (void)
 
   ensure_xwayland (test_context);
   x11_display = meta_display_get_x11_display (display);
-  meta_x11_display_set_alarm_filter (x11_display,
-                                     tests_alarm_filter,
-                                     test_client);
 
   g_assert_null (x11_display->selection.owners[META_SELECTION_CLIPBOARD]);
 
