@@ -1741,12 +1741,17 @@ implement_showing (MetaWindow *window,
         meta_window_force_placement (window, FALSE);
 
       meta_window_hide (window);
+
+      if (!window->override_redirect)
+        sync_client_window_mapped (window);
     }
   else
-    meta_window_show (window);
+    {
+      if (!window->override_redirect)
+        sync_client_window_mapped (window);
 
-  if (!window->override_redirect)
-    sync_client_window_mapped (window);
+      meta_window_show (window);
+    }
 }
 
 void
