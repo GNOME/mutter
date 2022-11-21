@@ -903,6 +903,8 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
 
       state = emit_event (event, priv->event_emission_chain);
 
+      g_assert (state != EVENT_HANDLED_BY_ACTION);
+
       if (state == EVENT_HANDLED_BY_ACTOR)
         clutter_sprite_remove_all_actions_from_chain (sprite);
     }
