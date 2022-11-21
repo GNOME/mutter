@@ -194,9 +194,12 @@ meta_window_destroy_frame (MetaWindow *window)
 
   if (!x11_display->closing)
     {
-      meta_stack_tracker_record_add (window->display->stack_tracker,
-                                     window->xwindow,
-                                     XNextRequest (x11_display->xdisplay));
+      if (!window->unmanaging)
+        {
+          meta_stack_tracker_record_add (window->display->stack_tracker,
+                                         window->xwindow,
+                                         XNextRequest (x11_display->xdisplay));
+        }
 
       XReparentWindow (x11_display->xdisplay,
                        window->xwindow,
