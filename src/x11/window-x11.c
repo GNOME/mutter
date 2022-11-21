@@ -3890,22 +3890,24 @@ meta_window_x11_new (MetaDisplay       *display,
 #ifdef HAVE_XWAYLAND
   if (meta_is_wayland_compositor ())
     {
-      window = g_object_new (META_TYPE_WINDOW_XWAYLAND,
-                             "display", display,
-                             "effect", effect,
-                             "attributes", &attrs,
-                             "xwindow", xwindow,
-                             NULL);    
+      window = g_initable_new (META_TYPE_WINDOW_XWAYLAND,
+                               NULL, NULL,
+                               "display", display,
+                               "effect", effect,
+                               "attributes", &attrs,
+                               "xwindow", xwindow,
+                               NULL);    
     }
   else
 #endif
     {
-      window = g_object_new (META_TYPE_WINDOW_X11,
-                             "display", display,
-                             "effect", effect,
-                             "attributes", &attrs,
-                             "xwindow", xwindow,
-                             NULL);
+      window = g_initable_new (META_TYPE_WINDOW_X11,
+                               NULL, NULL,
+                               "display", display,
+                               "effect", effect,
+                               "attributes", &attrs,
+                               "xwindow", xwindow,
+                               NULL);
     }
   if (existing_wm_state == IconicState)
     {

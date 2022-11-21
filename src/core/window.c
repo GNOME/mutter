@@ -158,12 +158,17 @@ static MetaWindow * meta_window_find_tile_match (MetaWindow   *window,
                                                  MetaTileMode  mode);
 static void update_edge_constraints (MetaWindow *window);
 
+static void initable_iface_init (GInitableIface *initable_iface);
+
 typedef struct _MetaWindowPrivate
 {
   MetaQueueType queued_types;
 } MetaWindowPrivate;
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWindow, meta_window, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT, 
+                                  G_ADD_PRIVATE (MetaWindow)
+                                  G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                         initable_iface_init))
 
 enum
 {
@@ -1366,11 +1371,28 @@ meta_window_constructed (GObject *object)
     unminimize_window_and_all_transient_parents (window);
 
   window->constructing = FALSE;
+}
+
+static gboolean
+meta_window_initable_init (GInitable     *initable,
+                           GCancellable  *cancellable,
+                           GError       **error)
+{
+  MetaWindow *window = META_WINDOW (initable);
+  MetaDisplay *display = window->display;
 
   meta_display_notify_window_created (display, window);
 
   if (window->wm_state_demands_attention)
     g_signal_emit_by_name (display, "window-demands-attention", window);
+
+  return TRUE;
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_iface->init = meta_window_initable_init;
 }
 
 static gboolean
