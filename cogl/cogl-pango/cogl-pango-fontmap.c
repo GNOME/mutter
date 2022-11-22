@@ -26,14 +26,6 @@
  * SOFTWARE.
  */
 
-/**
- * SECTION:cogl-pango
- * @short_description: COGL-based text rendering using Pango
- *
- * FIXME
- *
- */
-
 #include "cogl-config.h"
 
 /* This is needed to get the Pango headers to export stuff needed to
