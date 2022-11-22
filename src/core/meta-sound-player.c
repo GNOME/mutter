@@ -34,12 +34,12 @@
 struct _MetaSoundPlayer
 {
   GObject parent;
+#ifdef HAVE_SOUND_PLAYER
   GThreadPool *queue;
   GSettings *settings;
-#ifdef HAVE_SOUND_PLAYER
   ca_context *context;
-#endif
   uint32_t id_pool;
+#endif
 };
 
 #ifdef HAVE_SOUND_PLAYER
@@ -71,13 +71,12 @@ G_DEFINE_TYPE (MetaSoundPlayer, meta_sound_player, G_TYPE_OBJECT)
 static void
 meta_sound_player_finalize (GObject *object)
 {
+#ifdef HAVE_SOUND_PLAYER
   MetaSoundPlayer *player = META_SOUND_PLAYER (object);
 
-  g_object_unref (player->settings);
+  g_clear_object (&player->settings);
   g_thread_pool_free (player->queue, FALSE, TRUE);
-
-#ifdef HAVE_SOUND_PLAYER
-  ca_context_destroy (player->context);
+  g_clear_pointer (&player->context, ca_context_destroy);
 #endif
 
   G_OBJECT_CLASS (meta_sound_player_parent_class)->finalize (object);
