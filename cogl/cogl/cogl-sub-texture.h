@@ -86,9 +86,6 @@ GType cogl_sub_texture_get_gtype (void);
  *
  * Return value: (transfer full): A newly allocated #CoglSubTexture
  *          representing a sub-region of @parent_texture.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglSubTexture *
 cogl_sub_texture_new (CoglContext *ctx,
@@ -108,8 +105,6 @@ cogl_sub_texture_new (CoglContext *ctx,
  *
  * Return value: (transfer none): The parent texture that @sub_texture
  *               derives its content from.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglTexture *
 cogl_sub_texture_get_parent (CoglSubTexture *sub_texture);
@@ -122,9 +117,6 @@ cogl_sub_texture_get_parent (CoglSubTexture *sub_texture);
  *
  * Return value: %TRUE if the passed @object represents a
  *               #CoglSubTexture and %FALSE otherwise.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_sub_texture (void *object);

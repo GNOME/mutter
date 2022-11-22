@@ -78,8 +78,6 @@ GType cogl_bitmap_get_gtype (void);
  *
  * Return value: (transfer full): a #CoglBitmap to the new loaded
  *               image data, or %NULL if loading the image failed.
- *
- * Since: 1.0
  */
 COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_from_file (const char *filename,
@@ -100,9 +98,6 @@ cogl_bitmap_new_from_file (const char *filename,
  * a #CoglBitmap. The data is not copied in this process.
  *
  * Return value: (transfer full): a #CoglBitmap encapsulating the given @buffer.
- *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
@@ -137,9 +132,6 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
  *
  * Return value: (transfer full): a #CoglPixelBuffer representing the
  *               newly created array or %NULL on failure
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_with_size (CoglContext *context,
@@ -164,8 +156,6 @@ cogl_bitmap_new_with_size (CoglContext *context,
  * into an application buffer with the specified rowstride.
  *
  * Return value: (transfer full): A new #CoglBitmap.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_for_data (CoglContext *context,
@@ -180,8 +170,6 @@ cogl_bitmap_new_for_data (CoglContext *context,
  * @bitmap: A #CoglBitmap
  *
  * Return value: the #CoglPixelFormat that the data for the bitmap is in.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglPixelFormat
 cogl_bitmap_get_format (CoglBitmap *bitmap);
@@ -191,8 +179,6 @@ cogl_bitmap_get_format (CoglBitmap *bitmap);
  * @bitmap: A #CoglBitmap
  *
  * Return value: the width of the bitmap
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_bitmap_get_width (CoglBitmap *bitmap);
@@ -202,8 +188,6 @@ cogl_bitmap_get_width (CoglBitmap *bitmap);
  * @bitmap: A #CoglBitmap
  *
  * Return value: the height of the bitmap
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_bitmap_get_height (CoglBitmap *bitmap);
@@ -215,8 +199,6 @@ cogl_bitmap_get_height (CoglBitmap *bitmap);
  * Return value: the rowstride of the bitmap. This is the number of
  *   bytes between the address of start of one row to the address of the
  *   next row in the image.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
@@ -229,8 +211,6 @@ cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
  *   buffer uses for storage. Note that if the bitmap was created with
  *   cogl_bitmap_new_from_file() then it will not actually be using a
  *   pixel buffer and this function will return %NULL.
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT CoglPixelBuffer *
 cogl_bitmap_get_buffer (CoglBitmap *bitmap);
@@ -245,8 +225,6 @@ cogl_bitmap_get_buffer (CoglBitmap *bitmap);
  * of the bitmap.
  *
  * Return value: %TRUE if the image was successfully parsed
- *
- * Since: 1.0
  */
 COGL_EXPORT gboolean
 cogl_bitmap_get_size_from_file (const char *filename,
@@ -261,8 +239,6 @@ cogl_bitmap_get_size_from_file (const char *filename,
  *
  * Return value: %TRUE if the passed @object represents a bitmap,
  *   and %FALSE otherwise
- *
- * Since: 1.0
  */
 COGL_EXPORT gboolean
 cogl_is_bitmap (void *object);
@@ -271,8 +247,6 @@ cogl_is_bitmap (void *object);
  * COGL_BITMAP_ERROR:
  *
  * #GError domain for bitmap errors.
- *
- * Since: 1.4
  */
 #define COGL_BITMAP_ERROR (cogl_bitmap_error_quark ())
 
@@ -288,8 +262,6 @@ cogl_is_bitmap (void *object);
  * errors directly from the underlying image loading library. For
  * example, if GdkPixbuf is used then errors #GdkPixbufError<!-- -->s
  * will be used directly.
- *
- * Since: 1.4
  */
 typedef enum
 {

@@ -73,8 +73,6 @@ G_BEGIN_DECLS
  * cogl_renderer_get_winsys_id().
  *
  * Return value: The internally setup EGLDisplay handle.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT EGLDisplay
 cogl_egl_context_get_egl_display (CoglContext *context);

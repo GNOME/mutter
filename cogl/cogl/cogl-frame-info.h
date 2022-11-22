@@ -69,8 +69,6 @@ GType cogl_frame_info_get_gtype (void);
  *
  * Return value: %TRUE if the object references a #CoglFrameInfo
  *   and %FALSE otherwise.
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_frame_info (void *object);
@@ -83,8 +81,6 @@ cogl_is_frame_info (void *object);
  * to this frame.
  *
  * Return value: The frame counter value
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT
 int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
@@ -103,8 +99,6 @@ int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
  * incorrectly report non-monotonic timestamps.</note>
  *
  * Return value: the presentation time for the frame
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT
 int64_t cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info);
@@ -123,8 +117,6 @@ int64_t cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info);
  * cogl_output_get_refresh_rate().</note>
  *
  * Return value: the refresh rate in Hertz
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT
 float cogl_frame_info_get_refresh_rate (CoglFrameInfo *info);

@@ -93,8 +93,6 @@ typedef struct _CoglFramebuffer CoglFramebuffer;
  *
  * Integer representation of an angle such that 1024 corresponds to
  * full circle (i.e., 2 * pi).
- *
- * Since: 1.0
  */
 typedef int32_t CoglAngle;
 
@@ -124,8 +122,6 @@ typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
  * @COGL_OFFSCREEN_BUFFER: FIXME
  *
  * Target flags for FBOs.
- *
- * Since: 0.8
  */
 typedef enum
 {
@@ -143,8 +139,6 @@ typedef enum
  * A structure for holding a color definition. The contents of
  * the CoglColor structure are private and should never by accessed
  * directly.
- *
- * Since: 1.0
  */
 struct _CoglColor
 {
@@ -188,8 +182,6 @@ COGL_STRUCT_SIZE_ASSERT (CoglTextureVertex, 36);
  * COGL_BLEND_STRING_ERROR:
  *
  * #GError domain for blend string parser errors
- *
- * Since: 1.0
  */
 #define COGL_BLEND_STRING_ERROR (cogl_blend_string_error_quark ())
 
@@ -202,8 +194,6 @@ COGL_STRUCT_SIZE_ASSERT (CoglTextureVertex, 36);
  *   supported by the GPU
  *
  * Error enumeration for the blend strings parser
- *
- * Since: 1.0
  */
 typedef enum /*< prefix=COGL_BLEND_STRING_ERROR >*/
 {
@@ -242,9 +232,6 @@ cogl_blend_string_error_quark (void);
  *
  * Currently this is only used by Cogl API marked as experimental so
  * this enum should also be considered experimental.
- *
- * Since: 1.4
- * Stability: unstable
  */
 typedef enum /*< prefix=COGL_ERROR >*/
 {
@@ -266,8 +253,6 @@ _cogl_system_error_quark (void);
  * @COGL_ATTRIBUTE_TYPE_FLOAT: Data is the same size of a float
  *
  * Data types for the components of a vertex attribute.
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -317,8 +302,6 @@ typedef enum
  * @COGL_VERTICES_MODE_TRIANGLE_FAN: FIXME, equivalent to <constant>GL_TRIANGLE_FAN</constant>
  *
  * Different ways of interpreting vertices when drawing.
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -389,8 +372,6 @@ typedef enum /*< prefix=COGL_RENDERER_ERROR >*/
  * @COGL_FILTER_REMOVE: Remove the event, stops the processing
  *
  * Return values for the #CoglXlibFilterFunc and #CoglWin32FilterFunc functions.
- *
- * Stability: Unstable
  */
 typedef enum _CoglFilterReturn { /*< prefix=COGL_FILTER >*/
   COGL_FILTER_CONTINUE,
@@ -458,8 +439,6 @@ typedef enum
  * @COGL_BUFFER_BIT_STENCIL: Selects the stencil buffer
  *
  * Types of auxiliary buffers
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -473,8 +452,6 @@ typedef enum
  * @COGL_READ_PIXELS_COLOR_BUFFER: Read from the color buffer
  *
  * Flags for cogl_framebuffer_read_pixels_into_bitmap()
- *
- * Since: 1.0
  */
 typedef enum /*< prefix=COGL_READ_PIXELS >*/
 {

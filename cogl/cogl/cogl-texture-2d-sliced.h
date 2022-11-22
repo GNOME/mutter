@@ -115,9 +115,6 @@ GType cogl_texture_2d_sliced_get_gtype (void);
  *
  * Returns: (transfer full): A new #CoglTexture2DSliced object with no storage
  *          allocated yet.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
@@ -164,8 +161,6 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  *
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.
- *
- * Since: 1.16
  */
 COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
@@ -225,8 +220,6 @@ cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
  *
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.
- *
- * Since: 1.16
  */
 COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
@@ -276,8 +269,6 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
  *
  * Return value: (transfer full): A newly created #CoglTexture2DSliced
  *               or %NULL on failure and @error will be updated.
- *
- * Since: 1.16
  */
 COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
@@ -291,8 +282,6 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
  *
  * Return value: %TRUE if the object references a #CoglTexture2DSliced
  *   and %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_texture_2d_sliced (void *object);

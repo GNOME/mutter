@@ -79,9 +79,6 @@ GType cogl_pixel_buffer_get_gtype (void);
  * immediately copied into the new buffer.
  *
  * Return value: (transfer full): a newly allocated #CoglPixelBuffer
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglPixelBuffer *
 cogl_pixel_buffer_new (CoglContext *context,
@@ -96,9 +93,6 @@ cogl_pixel_buffer_new (CoglContext *context,
  *
  * Return value: %TRUE if the @object is a pixel buffer, and %FALSE
  *   otherwise
- *
- * Since: 1.2
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_pixel_buffer (void *object);

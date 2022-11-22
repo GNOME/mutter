@@ -113,8 +113,6 @@ GType cogl_context_get_gtype (void);
  * for any state objects that are allocated.
  *
  * Return value: (transfer full): A newly allocated #CoglContext
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT CoglContext *
 cogl_context_new (CoglDisplay *display,
@@ -132,8 +130,6 @@ cogl_context_new (CoglDisplay *display,
  *
  * Return value: (transfer none): The #CoglDisplay associated with the
  *               given @context.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT CoglDisplay *
 cogl_context_get_display (CoglContext *context);
@@ -151,8 +147,6 @@ cogl_context_get_display (CoglContext *context);
  *
  * Return value: (transfer none): The #CoglRenderer associated with the
  *               given @context.
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT CoglRenderer *
 cogl_context_get_renderer (CoglContext *context);
@@ -165,9 +159,6 @@ cogl_context_get_renderer (CoglContext *context);
  *
  * Return value: %TRUE if the @object references a #CoglContext,
  *   %FALSE otherwise
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_context (void *object);
@@ -196,8 +187,6 @@ cogl_is_context (void *object);
  * All the capabilities that can vary between different GPUs supported
  * by Cogl. Applications that depend on any of these features should explicitly
  * check for them using cogl_has_feature() or cogl_has_features().
- *
- * Since: 1.10
  */
 typedef enum _CoglFeatureID
 {
@@ -230,9 +219,6 @@ typedef enum _CoglFeatureID
  *
  * Returns: %TRUE if the @feature is currently supported or %FALSE if
  * not.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_has_feature (CoglContext *context, CoglFeatureID feature);
@@ -250,9 +236,6 @@ cogl_has_feature (CoglContext *context, CoglFeatureID feature);
  *
  * Return value: %TRUE if all the features are available, %FALSE
  * otherwise.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_has_features (CoglContext *context, ...);
@@ -264,9 +247,6 @@ cogl_has_features (CoglContext *context, ...);
  *
  * A callback used with cogl_foreach_feature() for enumerating all
  * context level features supported by Cogl.
- *
- * Since: 0.10
- * Stability: unstable
  */
 typedef void (*CoglFeatureCallback) (CoglFeatureID feature, void *user_data);
 
@@ -279,9 +259,6 @@ typedef void (*CoglFeatureCallback) (CoglFeatureID feature, void *user_data);
  *
  * Iterates through all the context level features currently supported
  * for a given @context and for each feature @callback is called.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_foreach_feature (CoglContext *context,

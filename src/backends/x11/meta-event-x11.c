@@ -46,8 +46,6 @@
  *  or has used the event to update internal state without taking
  *  any exclusive action. %META_X11_FILTER_TRANSLATE will not
  *  occur.
- *
- * Since: 0.8
  */
 MetaX11FilterReturn
 meta_x11_handle_event (MetaBackend *backend,

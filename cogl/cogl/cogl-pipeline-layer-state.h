@@ -104,8 +104,6 @@ typedef enum
  * if you are trying to render the full texture then you may get
  * artifacts around the edges when the pixels from the other side are
  * merged in if the wrap mode is set to repeat.
- *
- * Since: 2.0
  */
 /* GL_ALWAYS is just used here as a value that is known not to clash
  * with any valid GL wrap modes
@@ -145,9 +143,6 @@ typedef enum
  *
  * <note>In the future, we may define other types of pipeline layers, such
  * as purely GLSL based layers.</note>
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
@@ -167,9 +162,6 @@ cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
  * cogl_pipeline_copy(). In that case this function can be used to
  * specify the texture type so that any pipeline copies can share the
  * internal texture type state for efficiency.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_null_texture (CoglPipeline *pipeline,
@@ -182,8 +174,6 @@ cogl_pipeline_set_layer_null_texture (CoglPipeline *pipeline,
  *
  * Return value: (transfer none): the texture that was set for the
  *   given layer of the pipeline or %NULL if no texture was set.
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT CoglTexture *
 cogl_pipeline_get_layer_texture (CoglPipeline *pipeline,
@@ -195,8 +185,6 @@ cogl_pipeline_get_layer_texture (CoglPipeline *pipeline,
  * @layer_index: Specifies the layer you want to remove
  *
  * This function removes a layer from your pipeline
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_remove_layer (CoglPipeline *pipeline,
@@ -292,9 +280,6 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline,
  * Return value: %TRUE if the blend string was successfully parsed, and the
  *   described texture combining is supported by the underlying driver and
  *   or hardware. On failure, %FALSE is returned and @error is set
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
@@ -311,9 +296,6 @@ cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
  *
  * When you are using the 'CONSTANT' color source in a layer combine
  * description then you can use this function to define its value.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_combine_constant (CoglPipeline    *pipeline,
@@ -328,9 +310,6 @@ cogl_pipeline_set_layer_combine_constant (CoglPipeline    *pipeline,
  *
  * This function lets you set a matrix that can be used to e.g. translate
  * and rotate a single layer of a pipeline used to fill your geometry.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_matrix (CoglPipeline     *pipeline,
@@ -344,9 +323,6 @@ cogl_pipeline_set_layer_matrix (CoglPipeline     *pipeline,
  * Retrieves the number of layers defined for the given @pipeline
  *
  * Return value: the number of layers
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_pipeline_get_n_layers (CoglPipeline *pipeline);
@@ -365,9 +341,6 @@ cogl_pipeline_get_n_layers (CoglPipeline *pipeline);
  * %COGL_PIPELINE_FILTER_NEAREST or %COGL_PIPELINE_FILTER_LINEAR as
  * magnification filters since magnification doesn't ever need to
  * reference values stored in the mipmap chain.</note>
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
@@ -389,8 +362,6 @@ cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
  *
  * Return value: The minification #CoglPipelineFilter for the
  *               specified layer.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglPipelineFilter
 cogl_pipeline_get_layer_min_filter (CoglPipeline *pipeline,
@@ -410,8 +381,6 @@ cogl_pipeline_get_layer_min_filter (CoglPipeline *pipeline,
  *
  * Return value: The magnification #CoglPipelineFilter for the
  *               specified layer.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglPipelineFilter
 cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
@@ -432,8 +401,6 @@ cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
  * fixed for the entire point.
  *
  * Return value: %TRUE if the function succeeds, %FALSE otherwise.
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
@@ -451,9 +418,6 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
  *
  * Return value: whether the texture coordinates will be replaced with
  * point sprite coordinates.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_pipeline_get_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
@@ -469,9 +433,6 @@ cogl_pipeline_get_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
  *
  * Return value: the wrap mode for the 's' coordinate of texture lookups on
  * this layer.
- *
- * Since: 1.6
- * Stability: unstable
  */
 COGL_EXPORT CoglPipelineWrapMode
 cogl_pipeline_get_layer_wrap_mode_s (CoglPipeline *pipeline,
@@ -484,9 +445,6 @@ cogl_pipeline_get_layer_wrap_mode_s (CoglPipeline *pipeline,
  * @mode: the new wrap mode
  *
  * Sets the wrap mode for the 's' coordinate of texture lookups on this layer.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline        *pipeline,
@@ -503,9 +461,6 @@ cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline        *pipeline,
  *
  * Return value: the wrap mode for the 't' coordinate of texture lookups on
  * this layer.
- *
- * Since: 1.6
- * Stability: unstable
  */
 COGL_EXPORT CoglPipelineWrapMode
 cogl_pipeline_get_layer_wrap_mode_t (CoglPipeline *pipeline,
@@ -519,9 +474,6 @@ cogl_pipeline_get_layer_wrap_mode_t (CoglPipeline *pipeline,
  * @mode: the new wrap mode
  *
  * Sets the wrap mode for the 't' coordinate of texture lookups on this layer.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline        *pipeline,
@@ -538,9 +490,6 @@ cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline        *pipeline,
  * this layer. This is equivalent to calling
  * cogl_pipeline_set_layer_wrap_mode_s() and
  * cogl_pipeline_set_layer_wrap_mode_t() separately.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_layer_wrap_mode (CoglPipeline        *pipeline,
@@ -558,9 +507,6 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline        *pipeline,
  * around depends on the hook that is given to
  * cogl_snippet_new(). Note that some hooks can't be used with a layer
  * and need to be added with cogl_pipeline_add_snippet() instead.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,

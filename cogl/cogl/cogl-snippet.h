@@ -651,9 +651,6 @@ GType cogl_snippet_get_gtype (void);
  *   </glossdef>
  *  </glossentry>
  * </glosslist>
- *
- * Since: 1.10
- * Stability: Unstable
  */
 typedef enum
 {
@@ -687,9 +684,6 @@ typedef enum
  * Allocates and initializes a new snippet with the given source strings.
  *
  * Returns: (transfer full): a pointer to a new #CoglSnippet
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT CoglSnippet *
 cogl_snippet_new (CoglSnippetHook hook,
@@ -702,8 +696,6 @@ cogl_snippet_new (CoglSnippetHook hook,
  *
  * Returns: (transfer none): the hook that was set when cogl_snippet_new()
  *   was called.
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT CoglSnippetHook
 cogl_snippet_get_hook (CoglSnippet *snippet);
@@ -716,9 +708,6 @@ cogl_snippet_get_hook (CoglSnippet *snippet);
  *
  * Returns: %TRUE if the @object references a #CoglSnippet,
  *   %FALSE otherwise
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_snippet (void *object);
@@ -737,9 +726,6 @@ cogl_is_snippet (void *object);
  * This function should only be called before the snippet is attached
  * to its first pipeline. After that the snippet should be considered
  * immutable.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_snippet_set_declarations (CoglSnippet *snippet,
@@ -751,9 +737,6 @@ cogl_snippet_set_declarations (CoglSnippet *snippet,
  *
  * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_declarations() or %NULL if none was set.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT const char *
 cogl_snippet_get_declarations (CoglSnippet *snippet);
@@ -771,9 +754,6 @@ cogl_snippet_get_declarations (CoglSnippet *snippet);
  * This function should only be called before the snippet is attached
  * to its first pipeline. After that the snippet should be considered
  * immutable.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_snippet_set_pre (CoglSnippet *snippet,
@@ -785,9 +765,6 @@ cogl_snippet_set_pre (CoglSnippet *snippet,
  *
  * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_pre() or %NULL if none was set.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT const char *
 cogl_snippet_get_pre (CoglSnippet *snippet);
@@ -805,9 +782,6 @@ cogl_snippet_get_pre (CoglSnippet *snippet);
  * This function should only be called before the snippet is attached
  * to its first pipeline. After that the snippet should be considered
  * immutable.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_snippet_set_replace (CoglSnippet *snippet,
@@ -819,9 +793,6 @@ cogl_snippet_set_replace (CoglSnippet *snippet,
  *
  * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_replace() or %NULL if none was set.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT const char *
 cogl_snippet_get_replace (CoglSnippet *snippet);
@@ -839,9 +810,6 @@ cogl_snippet_get_replace (CoglSnippet *snippet);
  * This function should only be called before the snippet is attached
  * to its first pipeline. After that the snippet should be considered
  * immutable.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_snippet_set_post (CoglSnippet *snippet,
@@ -853,9 +821,6 @@ cogl_snippet_set_post (CoglSnippet *snippet,
  *
  * Returns: (transfer none): the source string that was set with
  *   cogl_snippet_set_post() or %NULL if none was set.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT const char *
 cogl_snippet_get_post (CoglSnippet *snippet);

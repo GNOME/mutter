@@ -150,9 +150,6 @@ GType cogl_attribute_get_gtype (void);
  * Return value: (transfer full): A newly allocated #CoglAttribute
  *          describing the layout for a list of attribute values
  *          stored in @array.
- *
- * Since: 1.4
- * Stability: Unstable
  */
 /* XXX: look for a precedent to see if the stride/offset args should
  * have a different order. */
@@ -489,9 +486,6 @@ cogl_attribute_new_const_4x4fv (CoglContext *context,
  * attribute. For the builtin properties cogl_color_in and
  * cogl_normal_in it will default to TRUE and for all other names it
  * will default to FALSE.
- *
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT void
 cogl_attribute_set_normalized (CoglAttribute *attribute,
@@ -503,9 +497,6 @@ cogl_attribute_set_normalized (CoglAttribute *attribute,
  *
  * Return value: the value of the normalized property set with
  * cogl_attribute_set_normalized().
- *
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT gboolean
 cogl_attribute_get_normalized (CoglAttribute *attribute);
@@ -516,9 +507,6 @@ cogl_attribute_get_normalized (CoglAttribute *attribute);
  *
  * Return value: (transfer none): the #CoglAttributeBuffer that was
  *        set with cogl_attribute_set_buffer() or cogl_attribute_new().
- *
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_get_buffer (CoglAttribute *attribute);
@@ -529,9 +517,6 @@ cogl_attribute_get_buffer (CoglAttribute *attribute);
  * @attribute_buffer: A #CoglAttributeBuffer
  *
  * Sets a new #CoglAttributeBuffer for the attribute.
- *
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT void
 cogl_attribute_set_buffer (CoglAttribute *attribute,

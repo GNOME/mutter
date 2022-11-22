@@ -150,8 +150,6 @@ cogl_get_rectangle_indices (CoglContext *context, int n_rectangles);
  *
  * Return value: %TRUE if the object references a #CoglIndices
  *   and %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_indices (void *object);

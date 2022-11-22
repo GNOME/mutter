@@ -87,8 +87,6 @@ GType cogl_attribute_buffer_get_gtype (void);
  * %NULL
  *
  * Return value: (transfer full): A newly allocated #CoglAttributeBuffer. Never %NULL.
- *
- * Stability: Unstable
  */
 COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_buffer_new_with_size (CoglContext *context,
@@ -119,9 +117,6 @@ cogl_attribute_buffer_new_with_size (CoglContext *context,
  * cogl_buffer_map().</note>
  *
  * Return value: (transfer full): A newly allocated #CoglAttributeBuffer (never %NULL)
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_buffer_new (CoglContext *context,
@@ -136,9 +131,6 @@ cogl_attribute_buffer_new (CoglContext *context,
  *
  * Returns: %TRUE if @object references a #CoglAttributeBuffer,
  *   %FALSE otherwise
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_attribute_buffer (void *object);

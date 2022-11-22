@@ -106,8 +106,6 @@ GType cogl_atlas_texture_get_gtype (void);
  * for more details.</note>
  *
  * Returns: (transfer full): A new #CoglAtlasTexture object.
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_with_size (CoglContext *ctx,
@@ -144,8 +142,6 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
  *
  * Return value: (transfer full): A new #CoglAtlasTexture object or
  *          %NULL on failure and @error will be updated.
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_from_file (CoglContext *ctx,
@@ -189,8 +185,6 @@ cogl_atlas_texture_new_from_file (CoglContext *ctx,
  *
  * Return value: (transfer full): A new #CoglAtlasTexture object or
  *          %NULL on failure and @error will be updated.
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_from_data (CoglContext *ctx,
@@ -229,8 +223,6 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
  * for more details.</note>
  *
  * Returns: (transfer full): A new #CoglAtlasTexture object.
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
@@ -243,9 +235,6 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
  *
  * Return value: %TRUE if the passed object represents an atlas
  *   texture and %FALSE otherwise
- *
- * Since: 1.16
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_atlas_texture (void *object);

@@ -86,8 +86,6 @@ cogl_get_proc_address (const char *name);
  * conflicting with Cogl internals. For example clutter-gst which currently
  * uses direct GL calls to bind ARBfp programs will very likely break when Cogl
  * starts to use ARBfb programs itself for the material API.
- *
- * Since: 1.0
  */
 COGL_EXPORT void
 cogl_flush (void);

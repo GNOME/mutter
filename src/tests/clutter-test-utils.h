@@ -41,8 +41,6 @@ G_BEGIN_DECLS
  * @func: the GTestFunc function
  *
  * Adds @func at the given @path in the test suite.
- *
- * Since: 1.18
  */
 #define CLUTTER_TEST_UNIT(path,func) \
   clutter_test_add (path, func);
@@ -75,8 +73,6 @@ G_BEGIN_DECLS
  *   return clutter_test_run ();
  * }
  * ]|
- *
- * Since: 1.18
  */
 #define CLUTTER_TEST_SUITE(units) \
 int \

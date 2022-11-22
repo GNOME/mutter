@@ -226,8 +226,6 @@ G_BEGIN_DECLS
  * @COGL_SHADER_TYPE_FRAGMENT: A program for processing fragments
  *
  * Types of shaders
- *
- * Since: 1.0
  */
 typedef enum
 {
@@ -380,8 +378,6 @@ cogl_program_get_uniform_location (CoglHandle  handle,
  *
  * Changes the value of a floating point uniform for the given linked
  * @program.
- *
- * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
@@ -399,8 +395,6 @@ cogl_program_set_uniform_1f (CoglHandle program,
  *
  * Changes the value of an integer uniform for the given linked
  * @program.
- *
- * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
@@ -422,8 +416,6 @@ cogl_program_set_uniform_1i (CoglHandle program,
  *
  * Changes the value of a float vector uniform, or uniform array for
  * the given linked @program.
- *
- * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
@@ -447,8 +439,6 @@ cogl_program_set_uniform_float (CoglHandle program,
  *
  * Changes the value of a int vector uniform, or uniform array for
  * the given linked @program.
- *
- * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
@@ -473,8 +463,6 @@ cogl_program_set_uniform_int (CoglHandle program,
  *
  * Changes the value of a matrix uniform, or uniform array in the
  * given linked @program.
- *
- * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)

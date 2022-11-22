@@ -1566,9 +1566,6 @@ meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative *device,
  * Retrieves the libinput_device struct held in @device.
  *
  * Returns: The libinput_device struct
- *
- * Since: 1.20
- * Stability: unstable
  **/
 struct libinput_device *
 meta_input_device_native_get_libinput_device (ClutterInputDevice *device)

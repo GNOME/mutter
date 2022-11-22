@@ -120,9 +120,6 @@ typedef enum _CoglScanoutError
  * requests e.g. to show an already visible window. This also means
  * that it's acceptable to alternatively use native APIs to show and
  * hide windows without confusing Cogl.</note>
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_onscreen_show (CoglOnscreen *onscreen);
@@ -145,9 +142,6 @@ cogl_onscreen_show (CoglOnscreen *onscreen);
  * requests e.g. to show an already visible window. This also means
  * that it's acceptable to alternatively use native APIs to show and
  * hide windows without confusing Cogl.</note>
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_onscreen_hide (CoglOnscreen *onscreen);
@@ -169,9 +163,6 @@ cogl_onscreen_hide (CoglOnscreen *onscreen);
  * and also use the cogl_onscreen_get_buffer_age() api so they can
  * perform incremental updates to older buffers instead of having to
  * render a full buffer for every frame.</note>
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
@@ -224,9 +215,6 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
  *
  * Return value: The age of the buffer contents or 0 when the buffer
  *               contents are undefined.
- *
- * Since: 1.14
- * Stability: stable
  */
 COGL_EXPORT int
 cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
@@ -292,9 +280,6 @@ cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
  * <note>It is highly recommended to use this API in conjunction with
  * the cogl_onscreen_get_buffer_age() api so that your application can
  * perform incremental rendering based on old back buffers.</note>
- *
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
@@ -336,9 +321,6 @@ cogl_onscreen_add_frame_info (CoglOnscreen  *onscreen,
  * significance of the discard is that you should not expect to be able to
  * start a new frame that incrementally builds on the contents of the previous
  * frame.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_swap_region (CoglOnscreen *onscreen,
@@ -374,9 +356,6 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
  * <note>A frame may not be completed before the next frame can start
  * so applications should avoid needing to collect all statistics for
  * a particular frame before they can start a new frame.</note>
- *
- * Since: 1.14
- * Stability: unstable
  */
 typedef enum _CoglFrameEvent
 {
@@ -400,9 +379,6 @@ typedef enum _CoglFrameEvent
  * Please see the documentation for #CoglFrameEvent and
  * cogl_onscreen_add_frame_callback() for more details about what
  * events can be notified.
- *
- * Since: 1.14
- * Stability: unstable
  */
 typedef void (*CoglFrameCallback) (CoglOnscreen *onscreen,
                                    CoglFrameEvent event,
@@ -416,9 +392,6 @@ typedef void (*CoglFrameCallback) (CoglOnscreen *onscreen,
  * data. A #CoglFrameClosure pointer will be returned from
  * cogl_onscreen_add_frame_callback() and it allows you to remove a
  * callback later using cogl_onscreen_remove_frame_callback().
- *
- * Since: 1.14
- * Stability: unstable
  */
 typedef struct _CoglClosure CoglFrameClosure;
 
@@ -464,8 +437,6 @@ GType cogl_frame_closure_get_gtype (void);
  *
  * Return value: a #CoglFrameClosure pointer that can be used to
  *               remove the callback and associated @user_data later.
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
@@ -485,9 +456,6 @@ cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
  * If a destroy callback was passed to
  * cogl_onscreen_add_frame_callback() to destroy the user data then
  * this will get called.
- *
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
@@ -503,9 +471,6 @@ cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
  * A structure passed to callbacks registered using
  * cogl_onscreen_add_dirty_callback(). The members describe a
  * rectangle within the onscreen buffer that should be redrawn.
- *
- * Since: 1.16
- * Stability: unstable
  */
 typedef struct _CoglOnscreenDirtyInfo CoglOnscreenDirtyInfo;
 
@@ -527,9 +492,6 @@ struct _CoglOnscreenDirtyInfo
  * cogl_onscreen_add_dirty_callback() to be called when the windowing
  * system determines that a region of the onscreen window has been
  * lost and the application should redraw it.
- *
- * Since: 1.16
- * Stability: unstable
  */
 typedef void (*CoglOnscreenDirtyCallback) (CoglOnscreen *onscreen,
                                            const CoglOnscreenDirtyInfo *info,
@@ -542,9 +504,6 @@ typedef void (*CoglOnscreenDirtyCallback) (CoglOnscreen *onscreen,
  * user data. A #CoglOnscreenDirtyClosure pointer will be returned from
  * cogl_onscreen_add_dirty_callback() and it allows you to remove a
  * callback later using cogl_onscreen_remove_dirty_callback().
- *
- * Since: 1.16
- * Stability: unstable
  */
 typedef struct _CoglClosure CoglOnscreenDirtyClosure;
 
@@ -583,8 +542,6 @@ GType cogl_onscreen_dirty_closure_get_gtype (void);
  *
  * Return value: a #CoglOnscreenDirtyClosure pointer that can be used to
  *               remove the callback and associated @user_data later.
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT CoglOnscreenDirtyClosure *
 cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
@@ -604,9 +561,6 @@ cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
  * If a destroy callback was passed to
  * cogl_onscreen_add_dirty_callback() to destroy the user data then
  * this will also get called.
- *
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
@@ -621,8 +575,6 @@ cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
  * is called.
  *
  * Return value: the current frame counter value
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);

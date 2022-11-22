@@ -80,9 +80,6 @@ GType cogl_pipeline_get_gtype (void);
  * a primitive white.
  *
  * Return value: (transfer full): a pointer to a new #CoglPipeline
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT CoglPipeline *
 cogl_pipeline_new (CoglContext *context);
@@ -101,9 +98,6 @@ cogl_pipeline_new (CoglContext *context);
  * state changes.
  *
  * Return value: (transfer full): a pointer to the newly allocated #CoglPipeline
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT CoglPipeline *
 cogl_pipeline_copy (CoglPipeline *source);
@@ -116,9 +110,6 @@ cogl_pipeline_copy (CoglPipeline *source);
  *
  * Return value: %TRUE if the @object references a #CoglPipeline,
  *   %FALSE otherwise
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_pipeline (void *object);
@@ -131,9 +122,6 @@ cogl_is_pipeline (void *object);
  *
  * The callback prototype used with cogl_pipeline_foreach_layer() for
  * iterating all the layers of a @pipeline.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 typedef gboolean (*CoglPipelineLayerCallback) (CoglPipeline *pipeline,
                                                int layer_index,
@@ -148,9 +136,6 @@ typedef gboolean (*CoglPipelineLayerCallback) (CoglPipeline *pipeline,
  *             callback
  *
  * Iterates all the layer indices of the given @pipeline.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_foreach_layer (CoglPipeline *pipeline,
@@ -173,9 +158,6 @@ cogl_pipeline_foreach_layer (CoglPipeline *pipeline,
  * before calling this function.
  *
  * Return value: A integer representing the location of the given uniform.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT int
 cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,

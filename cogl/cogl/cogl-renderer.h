@@ -100,8 +100,6 @@ GType cogl_renderer_get_gtype (void);
  * Determines if the given @object is a #CoglRenderer
  *
  * Return value: %TRUE if @object is a #CoglRenderer, else %FALSE.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_renderer (void *object);
@@ -142,9 +140,6 @@ cogl_is_renderer (void *object);
  * display.</note>
  *
  * Return value: (transfer full): A newly created #CoglRenderer.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglRenderer *
 cogl_renderer_new (void);
@@ -214,8 +209,6 @@ cogl_renderer_get_winsys_id (CoglRenderer *renderer);
  *
  * Return value: %TRUE if the @onscreen_template can be supported,
  *               else %FALSE.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
@@ -236,8 +229,6 @@ cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
  *
  * Return value: %TRUE if there was no error while connecting the
  *               given @renderer. %FALSE if there was an error.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error);
@@ -260,9 +251,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error);
  *
  * Applications should ideally minimize how many of these constraints
  * they depend on to ensure maximum portability.
- *
- * Since: 1.10
- * Stability: unstable
  */
 typedef enum
 {
@@ -281,9 +269,6 @@ typedef enum
  *
  * Applications should ideally minimize how many of these constraints they
  * depend on to ensure maximum portability.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_renderer_add_constraint (CoglRenderer *renderer,
@@ -298,9 +283,6 @@ cogl_renderer_add_constraint (CoglRenderer *renderer,
  *
  * Applications should ideally minimize how many of these constraints they
  * depend on to ensure maximum portability.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_renderer_remove_constraint (CoglRenderer *renderer,
@@ -316,9 +298,6 @@ cogl_renderer_remove_constraint (CoglRenderer *renderer,
  *
  * Identifiers for underlying hardware drivers that may be used by
  * Cogl for rendering.
- *
- * Since: 1.10
- * Stability: unstable
  */
 typedef enum
 {
@@ -342,9 +321,6 @@ typedef enum
  * choosing the driver.
  *
  * This may only be called on an un-connected #CoglRenderer.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_renderer_set_driver (CoglRenderer *renderer,
@@ -357,9 +333,6 @@ cogl_renderer_set_driver (CoglRenderer *renderer,
  * Queries what underlying driver is being used by Cogl.
  *
  * This may only be called on a connected #CoglRenderer.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglDriver
 cogl_renderer_get_driver (CoglRenderer *renderer);
@@ -373,9 +346,6 @@ cogl_renderer_get_driver (CoglRenderer *renderer);
  * A callback type that can be passed to
  * cogl_renderer_foreach_output() for iterating display outputs for a
  * given renderer.
- *
- * Since: 1.14
- * Stability: Unstable
  */
 typedef void (*CoglOutputCallback) (CoglOutput *output, void *user_data);
 
@@ -389,9 +359,6 @@ typedef void (*CoglOutputCallback) (CoglOutput *output, void *user_data);
  * Iterates all known display outputs for the given @renderer and
  * passes a corresponding #CoglOutput pointer to the given @callback
  * for each one, along with the given @user_data.
- *
- * Since: 1.14
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_renderer_foreach_output (CoglRenderer *renderer,

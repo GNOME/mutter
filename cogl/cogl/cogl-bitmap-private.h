@@ -78,9 +78,6 @@ struct _CoglBitmap
  * the bitmap is freed.
  *
  * Return value: a #CoglPixelBuffer representing the newly created array
- *
- * Since: 1.10
- * Stability: Unstable
  */
 CoglBitmap *
 _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,

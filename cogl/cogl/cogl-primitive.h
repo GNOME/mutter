@@ -80,9 +80,6 @@ GType cogl_primitive_get_gtype (void);
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p2().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y;
@@ -96,9 +93,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p3().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y, z;
@@ -115,9 +109,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p2c4().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y;
@@ -136,9 +127,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p3c4().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y, z;
@@ -154,9 +142,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p2t2().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y;
@@ -173,9 +158,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p3t2().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y, z;
@@ -196,9 +178,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p3t2c4().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y;
@@ -220,9 +199,6 @@ typedef struct {
  *
  * A convenience vertex definition that can be used with
  * cogl_primitive_new_p3t2c4().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 typedef struct {
    float x, y, z;
@@ -246,9 +222,6 @@ typedef struct {
  * the number of vertices to read when drawing.
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive object
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new (CoglVerticesMode mode,
@@ -272,9 +245,6 @@ cogl_primitive_new (CoglVerticesMode mode,
  * the number of vertices to read when drawing.
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive object
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_with_attributes (CoglVerticesMode mode,
@@ -325,9 +295,6 @@ cogl_primitive_new_with_attributes (CoglVerticesMode mode,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2 (CoglContext *context,
@@ -378,9 +345,6 @@ cogl_primitive_new_p2 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3 (CoglContext *context,
@@ -433,9 +397,6 @@ cogl_primitive_new_p3 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2c4 (CoglContext *context,
@@ -488,9 +449,6 @@ cogl_primitive_new_p2c4 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3c4 (CoglContext *context,
@@ -543,9 +501,6 @@ cogl_primitive_new_p3c4 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2t2 (CoglContext *context,
@@ -598,9 +553,6 @@ cogl_primitive_new_p2t2 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3t2 (CoglContext *context,
@@ -653,9 +605,6 @@ cogl_primitive_new_p3t2 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p2t2c4 (CoglContext *context,
@@ -708,9 +657,6 @@ cogl_primitive_new_p2t2c4 (CoglContext *context,
  *
  * Return value: (transfer full): A newly allocated #CoglPrimitive
  * with a reference of 1. This can be freed using cogl_object_unref().
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_new_p3t2c4 (CoglContext *context,
@@ -742,9 +688,6 @@ cogl_primitive_set_first_vertex (CoglPrimitive *primitive,
  * of vertices to read and draw.</note>
  *
  * Returns: The number of vertices to read when drawing.
- *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_primitive_get_n_vertices (CoglPrimitive *primitive);
@@ -763,9 +706,6 @@ cogl_primitive_get_n_vertices (CoglPrimitive *primitive);
  * <note>To be clear; it doesn't refer to the number of vertices - in
  * terms of data - associated with the primitive it's just the number
  * of vertices to read and draw.</note>
- *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_primitive_set_n_vertices (CoglPrimitive *primitive,
@@ -785,9 +725,6 @@ cogl_primitive_set_mode (CoglPrimitive *primitive,
  * @n_attributes: the number of elements in @attributes
  *
  * Replaces all the attributes of the given #CoglPrimitive object.
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_primitive_set_attributes (CoglPrimitive *primitive,
@@ -818,9 +755,6 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
  * <note>The #CoglPrimitive <structfield>first_vertex</structfield> property
  * also affects drawing with indices by defining the first entry of the
  * indices to start drawing from.</note>
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_primitive_set_indices (CoglPrimitive *primitive,
@@ -833,9 +767,6 @@ cogl_primitive_set_indices (CoglPrimitive *primitive,
  *
  * Return value: (transfer none): the indices that were set with
  * cogl_primitive_set_indices() or %NULL if no indices were set.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglIndices *
 cogl_primitive_get_indices (CoglPrimitive *primitive);
@@ -849,8 +780,6 @@ cogl_primitive_get_indices (CoglPrimitive *primitive);
  * attribute buffers as the original primitive.
  *
  * Return value: (transfer full): the new primitive
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglPrimitive *
 cogl_primitive_copy (CoglPrimitive *primitive);
@@ -863,9 +792,6 @@ cogl_primitive_copy (CoglPrimitive *primitive);
  *
  * Returns: %TRUE if the @object references a #CoglPrimitive,
  *   %FALSE otherwise
- *
- * Since: 1.6
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_primitive (void *object);
@@ -881,9 +807,6 @@ cogl_is_primitive (void *object);
  *
  * The function should return TRUE to continue iteration or FALSE to
  * stop.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 typedef gboolean (* CoglPrimitiveAttributeCallback) (CoglPrimitive *primitive,
                                                      CoglAttribute *attribute,
@@ -898,9 +821,6 @@ typedef gboolean (* CoglPrimitiveAttributeCallback) (CoglPrimitive *primitive,
  *             callback
  *
  * Iterates all the attributes of the given #CoglPrimitive.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_primitive_foreach_attribute (CoglPrimitive *primitive,
@@ -921,9 +841,6 @@ cogl_primitive_foreach_attribute (CoglPrimitive *primitive,
  * ensure that only low-level textures that can be directly sampled by
  * a GPU such as #CoglTexture2D are associated with layers of the given
  * @pipeline.
- *
- * Stability: unstable
- * Since: 1.16
  */
 COGL_EXPORT void
 cogl_primitive_draw (CoglPrimitive *primitive,

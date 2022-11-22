@@ -420,7 +420,6 @@ clutter_image_set_area (ClutterImage                 *image,
  * in order to update the actors using @image as their content.
  *
  * Return value: (transfer none): a pointer to the Cogl texture, or %NULL
- * Stability: unstable
  */
 CoglTexture *
 clutter_image_get_texture (ClutterImage *image)

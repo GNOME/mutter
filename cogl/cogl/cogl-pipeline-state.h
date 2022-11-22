@@ -54,9 +54,6 @@ G_BEGIN_DECLS
  * semi-transparent red. See cogl_color_premultiply().
  *
  * The default value is (1.0, 1.0, 1.0, 1.0)
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_color (CoglPipeline    *pipeline,
@@ -73,9 +70,6 @@ cogl_pipeline_set_color (CoglPipeline    *pipeline,
  * Sets the basic color of the pipeline, used when no lighting is enabled.
  *
  * The default value is (0xff, 0xff, 0xff, 0xff)
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_color4ub (CoglPipeline *pipeline,
@@ -95,9 +89,6 @@ cogl_pipeline_set_color4ub (CoglPipeline *pipeline,
  * Sets the basic color of the pipeline, used when no lighting is enabled.
  *
  * The default value is (1.0, 1.0, 1.0, 1.0)
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_color4f (CoglPipeline *pipeline,
@@ -112,9 +103,6 @@ cogl_pipeline_set_color4f (CoglPipeline *pipeline,
  * @color: (out): The location to store the color
  *
  * Retrieves the current pipeline color.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_get_color (CoglPipeline *pipeline,
@@ -169,9 +157,6 @@ typedef enum
  * and which continue on to the blending stage.
  *
  * The default is %COGL_PIPELINE_ALPHA_FUNC_ALWAYS
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_alpha_test_function (CoglPipeline         *pipeline,
@@ -183,9 +168,6 @@ cogl_pipeline_set_alpha_test_function (CoglPipeline         *pipeline,
  * @pipeline: A #CoglPipeline object
  *
  * Return value: The alpha test function of @pipeline.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT CoglPipelineAlphaFunc
 cogl_pipeline_get_alpha_test_function (CoglPipeline *pipeline);
@@ -195,9 +177,6 @@ cogl_pipeline_get_alpha_test_function (CoglPipeline *pipeline);
  * @pipeline: A #CoglPipeline object
  *
  * Return value: The alpha test reference value of @pipeline.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT float
 cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
@@ -280,9 +259,6 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
  *   described blending is supported by the underlying driver/hardware. If
  *   there was an error, %FALSE is returned and @error is set accordingly (if
  *   present).
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_pipeline_set_blend (CoglPipeline *pipeline,
@@ -296,9 +272,6 @@ cogl_pipeline_set_blend (CoglPipeline *pipeline,
  *
  * When blending is setup to reference a CONSTANT blend factor then
  * blending will depend on the constant set with this function.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
@@ -321,9 +294,6 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
  * pipeline will have undefined results. This is the default value so
  * if an application wants to draw points it must make sure to use a
  * pipeline that has an explicit point size set on it.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_point_size (CoglPipeline *pipeline,
@@ -337,9 +307,6 @@ cogl_pipeline_set_point_size (CoglPipeline *pipeline,
  * used with the vertex buffer API.
  *
  * Return value: the point size of the @pipeline.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT float
 cogl_pipeline_get_point_size (CoglPipeline *pipeline);
@@ -360,9 +327,6 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
  * If per-vertex point size is enabled and this attribute is not used
  * and cogl_point_size_out is not written to then the results are
  * undefined.
- *
- * Since: 2.0
- * Stability: Unstable
  * Return value: %TRUE if the change succeeded or %FALSE otherwise
  */
 COGL_EXPORT gboolean
@@ -373,9 +337,6 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
 /**
  * cogl_pipeline_get_per_vertex_point_size:
  * @pipeline: a #CoglPipeline pointer
- *
- * Since: 2.0
- * Stability: Unstable
  * Return value: %TRUE if the pipeline has per-vertex point size
  *   enabled or %FALSE otherwise. The per-vertex point size can be
  *   enabled with cogl_pipeline_set_per_vertex_point_size().
@@ -391,9 +352,6 @@ cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
  * @pipeline using cogl_pipeline_set_user_program().
  *
  * Return value: (transfer none): The current user program or %NULL.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT CoglHandle
 cogl_pipeline_get_user_program (CoglPipeline *pipeline);
@@ -436,9 +394,6 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  * cogl_shader APIs in favour of a "snippet" framework) but in the
  * meantime we hope this will handle most practical GLSL and ARBfp
  * requirements.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_user_program (CoglPipeline *pipeline,
@@ -460,9 +415,6 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
  *
  * Returns: TRUE if the GPU supports all the given @state else %FALSE
  *          and returns an @error.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
@@ -476,9 +428,6 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
  *
  * Retrieves the current depth state configuration for the given
  * @pipeline as previously set using cogl_pipeline_set_depth_state().
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_get_depth_state (CoglPipeline *pipeline,
@@ -520,9 +469,6 @@ typedef enum
  * order to represent which faces are facing inside and outside the
  * model. This order can be specified by calling
  * cogl_pipeline_set_front_face_winding().
- *
- * Status: Unstable
- * Since: 2.0
  */
 COGL_EXPORT void
 cogl_pipeline_set_cull_face_mode (CoglPipeline *pipeline,
@@ -533,9 +479,6 @@ cogl_pipeline_set_cull_face_mode (CoglPipeline *pipeline,
  *
  * Return value: the cull face mode that was previously set with
  * cogl_pipeline_set_cull_face_mode().
- *
- * Status: Unstable
- * Since: 2.0
  */
 COGL_EXPORT CoglPipelineCullFaceMode
 cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline);
@@ -552,9 +495,6 @@ cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline);
  * primitives with vertices in a counter-clockwise order and
  * %COGL_WINDING_CLOCKWISE sets them to be clockwise. The default is
  * %COGL_WINDING_COUNTER_CLOCKWISE.
- *
- * Status: Unstable
- * Since: 2.0
  */
 COGL_EXPORT void
 cogl_pipeline_set_front_face_winding (CoglPipeline *pipeline,
@@ -573,9 +513,6 @@ cogl_pipeline_set_front_face_winding (CoglPipeline *pipeline,
  * %COGL_WINDING_COUNTER_CLOCKWISE.
  *
  * Returns: The @pipeline front face winding
- *
- * Status: Unstable
- * Since: 2.0
  */
 COGL_EXPORT CoglWinding
 cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline);
@@ -596,9 +533,6 @@ cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline);
  * This function should be used to set uniforms that are of type
  * float. It can also be used to set a single member of a float array
  * uniform.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_uniform_1f (CoglPipeline *pipeline,
@@ -621,9 +555,6 @@ cogl_pipeline_set_uniform_1f (CoglPipeline *pipeline,
  * This function should be used to set uniforms that are of type
  * int. It can also be used to set a single member of a int array
  * uniform or a sampler uniform.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_uniform_1i (CoglPipeline *pipeline,
@@ -650,9 +581,6 @@ cogl_pipeline_set_uniform_1i (CoglPipeline *pipeline,
  * single vec4 uniform you would use 4 for @n_components and 1 for
  * @count. To set an array of 8 float values, you could use 1 for
  * @n_components and 8 for @count.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_uniform_float (CoglPipeline *pipeline,
@@ -681,9 +609,6 @@ cogl_pipeline_set_uniform_float (CoglPipeline *pipeline,
  * ivec4 uniform you would use 4 for @n_components and 1 for
  * @count. To set an array of 8 int values, you could use 1 for
  * @n_components and 8 for @count.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_uniform_int (CoglPipeline *pipeline,
@@ -718,9 +643,6 @@ cogl_pipeline_set_uniform_int (CoglPipeline *pipeline,
  * row-major order. You can pass a #graphene_matrix_t by calling by passing
  * the result of graphene_matrix_to_float() in @value and setting
  * @transpose to %FALSE.
- *
- * Since: 2.0
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
@@ -739,9 +661,6 @@ cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
  * replace some part of the pipeline as defined by the hook point in
  * @snippet. Note that some hook points are specific to a layer and
  * must be added with cogl_pipeline_add_layer_snippet() instead.
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_pipeline_add_snippet (CoglPipeline *pipeline,

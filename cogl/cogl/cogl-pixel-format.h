@@ -195,8 +195,6 @@ G_BEGIN_DECLS
  * When uploading a texture %COGL_PIXEL_FORMAT_ANY can be used as the
  * internal format. Cogl will try to pick the best format to use
  * internally and convert the texture data if necessary.
- *
- * Since: 0.8
  */
 typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 {

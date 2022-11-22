@@ -103,9 +103,6 @@ GType cogl_output_get_gtype (void);
  * of the layout of this subpixel components, it is possible
  * to create image content with higher resolution than the
  * pixel grid.
- *
- * Since: 1.14
- * Stability: unstable
  */
 typedef enum
 {
@@ -125,8 +122,6 @@ typedef enum
  *
  * Return value: %TRUE if the object references a #CoglOutput
  *   and %FALSE otherwise.
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_output (void *object);
@@ -140,8 +135,6 @@ cogl_is_output (void *object);
  *
  * Return value: the X position of the output as a pixel offset
  *  from the left side of the screen coordinate space
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_output_get_x (CoglOutput *output);
@@ -155,8 +148,6 @@ cogl_output_get_x (CoglOutput *output);
  *
  * Return value: the Y position of the output as a pixel offset
  *  from the top side of the screen coordinate space
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_output_get_y (CoglOutput *output);
@@ -168,8 +159,6 @@ cogl_output_get_y (CoglOutput *output);
  * Gets the width of the output in pixels.
  *
  * Return value: the width of the output in pixels
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_output_get_width (CoglOutput *output);
@@ -181,8 +170,6 @@ cogl_output_get_width (CoglOutput *output);
  * Gets the height of the output in pixels.
  *
  * Return value: the height of the output in pixels
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_output_get_height (CoglOutput *output);
@@ -198,8 +185,6 @@ cogl_output_get_height (CoglOutput *output);
  *
  * Return value: the height of the output in millimeters. A value
  *  of 0 indicates the width is unknown
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_output_get_mm_width (CoglOutput *output);
@@ -215,8 +200,6 @@ cogl_output_get_mm_width (CoglOutput *output);
  *
  * Return value: the height of the output in millimeters. A value
  *  of 0 indicates that the height is unknown
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_output_get_mm_height (CoglOutput *output);
@@ -230,8 +213,6 @@ cogl_output_get_mm_height (CoglOutput *output);
  * components.
  *
  * Return value: the order of subpixel components for the output device
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT CoglSubpixelOrder
 cogl_output_get_subpixel_order (CoglOutput *output);
@@ -245,8 +226,6 @@ cogl_output_get_subpixel_order (CoglOutput *output);
  *
  * Return value: the refresh rate of the output device. A value of zero
  *  indicates that the refresh rate is unknown.
- * Since: 1.14
- * Stability: unstable
  */
 COGL_EXPORT float
 cogl_output_get_refresh_rate (CoglOutput *output);

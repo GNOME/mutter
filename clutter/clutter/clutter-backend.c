@@ -653,7 +653,6 @@ _clutter_backend_translate_event (ClutterBackend *backend,
  * explicitly create a CoglContext.
  *
  * Return value: (transfer none): The #CoglContext associated with @backend.
- * Stability: unstable
  */
 CoglContext *
 clutter_backend_get_cogl_context (ClutterBackend *backend)

@@ -70,9 +70,6 @@ G_BEGIN_DECLS
  * descriptor. Note that these all have the same values as the
  * corresponding defines for the poll function call on Unix so they
  * may be directly passed to poll.
- *
- * Since: 1.10
- * Stability: unstable
  */
 typedef enum
 {
@@ -99,9 +96,6 @@ typedef enum
  *
  * Note that CoglPollFD is deliberately exactly the same as struct
  * pollfd on Unix so that it can simply be cast when calling poll.
- *
- * Since: 1.10
- * Stability: unstable
  */
 typedef struct {
   int fd;
@@ -153,9 +147,6 @@ typedef struct {
  *               really changed can help avoid redundant work
  *               depending the api. The age isn't guaranteed to change
  *               when the timeout changes.
- *
- * Stability: unstable
- * Since: 1.16
  */
 COGL_EXPORT int
 cogl_poll_renderer_get_info (CoglRenderer *renderer,
@@ -181,9 +172,6 @@ cogl_poll_renderer_get_info (CoglRenderer *renderer,
  * <note>If your application didn't originally create a #CoglRenderer
  * manually then you can easily get a #CoglRenderer pointer by calling
  * cogl_get_renderer().</note>
- *
- * Stability: unstable
- * Since: 1.16
  */
 COGL_EXPORT void
 cogl_poll_renderer_dispatch (CoglRenderer *renderer,

@@ -72,8 +72,6 @@ typedef PangoCairoFontMap CoglPangoFontMap;
  * Creates a new font map.
  *
  * Return value: (transfer full): the newly created #PangoFontMap
- *
- * Since: 1.14
  */
 COGL_EXPORT PangoFontMap *
 cogl_pango_font_map_new (void);
@@ -101,8 +99,6 @@ cogl_pango_font_map_create_context (CoglPangoFontMap *font_map);
  * [struct@Pango.FontDescription] and Cogl units.
  * The default value is %96, meaning that a 10 point font will be 13
  * units high. (10 * 96. / 72. = 13.3).
- *
- * Since: 1.14
  */
 COGL_EXPORT void
 cogl_pango_font_map_set_resolution (CoglPangoFontMap *font_map,
@@ -113,8 +109,6 @@ cogl_pango_font_map_set_resolution (CoglPangoFontMap *font_map,
  * @font_map: a #CoglPangoFontMap
  *
  * Clears the glyph cache for @font_map.
- *
- * Since: 1.0
  */
 COGL_EXPORT void
 cogl_pango_font_map_clear_glyph_cache (CoglPangoFontMap *font_map);
@@ -128,8 +122,6 @@ cogl_pango_font_map_clear_glyph_cache (CoglPangoFontMap *font_map);
  *
  * This api should be used to avoid mid-scene modifications of
  * glyph-cache textures which can lead to undefined rendering results.
- *
- * Since: 1.0
  */
 COGL_EXPORT void
 cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout);
@@ -141,8 +133,6 @@ cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout);
  *
  * Sets whether the renderer for the passed font map should use
  * mipmapping when rendering a [class@Pango.Layout].
- *
- * Since: 1.0
  */
 COGL_EXPORT void
 cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *font_map,
@@ -156,8 +146,6 @@ cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *font_map,
  * mipmapping when rendering the glyphs.
  *
  * Return value: %TRUE if mipmapping is used, %FALSE otherwise.
- *
- * Since: 1.0
  */
 COGL_EXPORT gboolean
 cogl_pango_font_map_get_use_mipmapping (CoglPangoFontMap *font_map);
@@ -169,8 +157,6 @@ cogl_pango_font_map_get_use_mipmapping (CoglPangoFontMap *font_map);
  * Retrieves the [class@CoglPango.Renderer] for the passed @font_map.
  *
  * Return value: (transfer none): a #PangoRenderer
- *
- * Since: 1.0
  */
 COGL_EXPORT PangoRenderer *
 cogl_pango_font_map_get_renderer (CoglPangoFontMap *font_map);
@@ -185,8 +171,6 @@ cogl_pango_font_map_get_renderer (CoglPangoFontMap *font_map);
  *
  * Draws a solidly coloured @layout on the given @framebuffer at (@x,
  * @y) within the `framebuffer`'s current model-view coordinate space.
- *
- * Since: 1.14
  */
 COGL_EXPORT void
 cogl_pango_show_layout (CoglFramebuffer *framebuffer,
@@ -205,8 +189,6 @@ cogl_pango_show_layout (CoglFramebuffer *framebuffer,
  *
  * Draws a solidly coloured @line on the given @framebuffer at (@x,
  * @y) within the `framebuffer`'s current model-view coordinate space.
- *
- * Since: 1.14
  */
 COGL_EXPORT void
 cogl_pango_show_layout_line (CoglFramebuffer *framebuffer,

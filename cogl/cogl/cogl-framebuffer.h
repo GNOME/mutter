@@ -119,8 +119,6 @@ struct _CoglFramebufferClass
  * automatic allocation.</note>
  *
  * Return value: %TRUE if there were no error allocating the framebuffer, else %FALSE.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
@@ -133,8 +131,6 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
  * Queries the current width of the given @framebuffer.
  *
  * Return value: The width of @framebuffer.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_width (CoglFramebuffer *framebuffer);
@@ -146,8 +142,6 @@ cogl_framebuffer_get_width (CoglFramebuffer *framebuffer);
  * Queries the current height of the given @framebuffer.
  *
  * Return value: The height of @framebuffer.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_height (CoglFramebuffer *framebuffer);
@@ -178,8 +172,6 @@ cogl_framebuffer_get_height (CoglFramebuffer *framebuffer);
  * drivers only allow the use of integer values. In the future floating
  * point values will be exposed via a checkable feature.</note>
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
@@ -196,8 +188,6 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
  * or the default value which is 0.
  *
  * Return value: The x coordinate of the viewport origin.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT float
 cogl_framebuffer_get_viewport_x (CoglFramebuffer *framebuffer);
@@ -210,8 +200,6 @@ cogl_framebuffer_get_viewport_x (CoglFramebuffer *framebuffer);
  * or the default value which is 0.
  *
  * Return value: The y coordinate of the viewport origin.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT float
 cogl_framebuffer_get_viewport_y (CoglFramebuffer *framebuffer);
@@ -224,8 +212,6 @@ cogl_framebuffer_get_viewport_y (CoglFramebuffer *framebuffer);
  * or the default value which is the width of the framebuffer.
  *
  * Return value: The width of the viewport.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT float
 cogl_framebuffer_get_viewport_width (CoglFramebuffer *framebuffer);
@@ -238,8 +224,6 @@ cogl_framebuffer_get_viewport_width (CoglFramebuffer *framebuffer);
  * or the default value which is the height of the framebuffer.
  *
  * Return value: The height of the viewport.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT float
 cogl_framebuffer_get_viewport_height (CoglFramebuffer *framebuffer);
@@ -256,8 +240,6 @@ cogl_framebuffer_get_viewport_height (CoglFramebuffer *framebuffer);
  * framebuffer_width and framebuffer_height.  The values are written into the
  * given @viewport array.
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_get_viewport4fv (CoglFramebuffer *framebuffer,
@@ -269,8 +251,6 @@ cogl_framebuffer_get_viewport4fv (CoglFramebuffer *framebuffer,
  *
  * Copies the current model-view matrix onto the matrix stack. The matrix
  * can later be restored with cogl_framebuffer_pop_matrix().
- *
- * Since: 1.10
  */
 COGL_EXPORT void
 cogl_framebuffer_push_matrix (CoglFramebuffer *framebuffer);
@@ -280,8 +260,6 @@ cogl_framebuffer_push_matrix (CoglFramebuffer *framebuffer);
  * @framebuffer: A #CoglFramebuffer pointer
  *
  * Restores the model-view matrix on the top of the matrix stack.
- *
- * Since: 1.10
  */
 COGL_EXPORT void
 cogl_framebuffer_pop_matrix (CoglFramebuffer *framebuffer);
@@ -291,9 +269,6 @@ cogl_framebuffer_pop_matrix (CoglFramebuffer *framebuffer);
  * @framebuffer: A #CoglFramebuffer pointer
  *
  * Resets the current model-view matrix to the identity matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_identity_matrix (CoglFramebuffer *framebuffer);
@@ -307,9 +282,6 @@ cogl_framebuffer_identity_matrix (CoglFramebuffer *framebuffer);
  *
  * Multiplies the current model-view matrix by one that scales the x,
  * y and z axes by the given values.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_scale (CoglFramebuffer *framebuffer,
@@ -326,9 +298,6 @@ cogl_framebuffer_scale (CoglFramebuffer *framebuffer,
  *
  * Multiplies the current model-view matrix by one that translates the
  * model along all three axes according to the given values.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_translate (CoglFramebuffer *framebuffer,
@@ -349,9 +318,6 @@ cogl_framebuffer_translate (CoglFramebuffer *framebuffer,
  * rotation follows the right-hand thumb rule so for example rotating
  * by 10 degrees about the axis-vector (0, 0, 1) causes a small
  * counter-clockwise rotation.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
@@ -367,9 +333,6 @@ cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
  *
  * Multiplies the current model-view matrix by one that rotates
  * according to the rotation described by @euler.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_rotate_euler (CoglFramebuffer *framebuffer,
@@ -381,9 +344,6 @@ cogl_framebuffer_rotate_euler (CoglFramebuffer *framebuffer,
  * @matrix: the matrix to multiply with the current model-view
  *
  * Multiplies the current model-view matrix by the given matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_transform (CoglFramebuffer         *framebuffer,
@@ -395,9 +355,6 @@ cogl_framebuffer_transform (CoglFramebuffer         *framebuffer,
  * @matrix: (out): return location for the model-view matrix
  *
  * Stores the current model-view matrix in @matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_get_modelview_matrix (CoglFramebuffer   *framebuffer,
@@ -409,9 +366,6 @@ cogl_framebuffer_get_modelview_matrix (CoglFramebuffer   *framebuffer,
  * @matrix: the new model-view matrix
  *
  * Sets @matrix as the new model-view matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
@@ -433,9 +387,6 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
  * ratio since that will reduce the effectiveness of depth testing
  * since there won't be enough precision to identify the depth of
  * objects near to each other.</note>
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
@@ -461,9 +412,6 @@ cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
  * Replaces the current projection matrix with a perspective matrix
  * for a given viewing frustum defined by 4 side clip planes that
  * all cross through the origin and 2 near and far clip planes.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_frustum (CoglFramebuffer *framebuffer,
@@ -490,9 +438,6 @@ cogl_framebuffer_frustum (CoglFramebuffer *framebuffer,
  *
  * Replaces the current projection matrix with an orthographic projection
  * matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
@@ -509,9 +454,6 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
  * @matrix: (out): return location for the projection matrix
  *
  * Stores the current projection matrix in @matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_get_projection_matrix (CoglFramebuffer   *framebuffer,
@@ -523,9 +465,6 @@ cogl_framebuffer_get_projection_matrix (CoglFramebuffer   *framebuffer,
  * @matrix: the new projection matrix
  *
  * Sets @matrix as the new projection matrix.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
@@ -547,9 +486,6 @@ cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
  *
  * The rectangle is intersected with the current clip region. To undo
  * the effect of this function, call cogl_framebuffer_pop_clip().
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_push_scissor_clip (CoglFramebuffer *framebuffer,
@@ -574,9 +510,6 @@ cogl_framebuffer_push_scissor_clip (CoglFramebuffer *framebuffer,
  *
  * The rectangle is intersected with the current clip region. To undo
  * the effect of this function, call cogl_framebuffer_pop_clip().
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
@@ -610,9 +543,6 @@ cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
  * the silhouette is intersected with the previous clipping area.  To
  * restore the previous clipping area, call
  * cogl_framebuffer_pop_clip().
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
@@ -633,9 +563,6 @@ cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
  * Reverts the clipping region to the state before the last call to
  * cogl_framebuffer_push_scissor_clip(), cogl_framebuffer_push_rectangle_clip()
  * cogl_framebuffer_push_path_clip(), or cogl_framebuffer_push_primitive_clip().
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer);
@@ -648,8 +575,6 @@ cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer);
  *
  * Return value: the number of bits
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer);
@@ -662,8 +587,6 @@ cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer);
  *
  * Return value: the number of bits
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_green_bits (CoglFramebuffer *framebuffer);
@@ -676,8 +599,6 @@ cogl_framebuffer_get_green_bits (CoglFramebuffer *framebuffer);
  *
  * Return value: the number of bits
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_blue_bits (CoglFramebuffer *framebuffer);
@@ -690,8 +611,6 @@ cogl_framebuffer_get_blue_bits (CoglFramebuffer *framebuffer);
  *
  * Return value: the number of bits
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer);
@@ -703,9 +622,6 @@ cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer);
  * Retrieves the number of depth bits of @framebuffer
  *
  * Return value: the number of bits
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer);
@@ -720,9 +636,6 @@ cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer);
  *
  * Return value: %TRUE if @framebuffer has separate left and
  * right buffers.
- *
- * Since: 1.20
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer);
@@ -739,8 +652,6 @@ cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer);
  * the user's request for dithering.</note>
  *
  * Return value: %TRUE if dithering has been requested or %FALSE if not.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_framebuffer_get_dither_enabled (CoglFramebuffer *framebuffer);
@@ -764,8 +675,6 @@ cogl_framebuffer_get_dither_enabled (CoglFramebuffer *framebuffer);
  *
  * Dithering is enabled by default.
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
@@ -779,8 +688,6 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
  * can be controlled via cogl_framebuffer_set_depth_write_enabled().
  *
  * Return value: %TRUE if depth writing is enabled or %FALSE if not.
- * Since: 1.18
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_framebuffer_get_depth_write_enabled (CoglFramebuffer *framebuffer);
@@ -796,9 +703,6 @@ cogl_framebuffer_get_depth_write_enabled (CoglFramebuffer *framebuffer);
  * information will be written to this buffer during rendering.
  *
  * Depth buffer writing is enabled by default.
- *
- * Since: 1.18
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
@@ -812,8 +716,6 @@ cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
  * should be drawn to. See cogl_framebuffer_set_stereo_mode().
  *
  * Returns: A #CoglStereoMode
- * Since: 1.20
- * Stability: unstable
  */
 COGL_EXPORT CoglStereoMode
 cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer);
@@ -831,9 +733,6 @@ cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer);
  * and the framebuffer must have been created with stereo
  * enabled. (See cogl_onscreen_template_set_stereo_enabled(),
  * cogl_framebuffer_get_is_stereo().)
- *
- * Since: 1.20
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
@@ -877,8 +776,6 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
  * framebuffer has changed this can lead to redundant work being
  * done.</note>
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_set_samples_per_pixel (CoglFramebuffer *framebuffer,
@@ -904,9 +801,6 @@ cogl_framebuffer_set_samples_per_pixel (CoglFramebuffer *framebuffer,
  * Returns: The number of point samples made per pixel when
  *          rasterizing geometry or 0 if single-sample rendering
  *          has been chosen.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT int
 cogl_framebuffer_get_samples_per_pixel (CoglFramebuffer *framebuffer);
@@ -937,8 +831,6 @@ cogl_framebuffer_get_samples_per_pixel (CoglFramebuffer *framebuffer);
  * should consider using cogl_framebuffer_resolve_samples_region()
  * instead to avoid resolving redundant pixels.
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_resolve_samples (CoglFramebuffer *framebuffer);
@@ -973,8 +865,6 @@ cogl_framebuffer_resolve_samples (CoglFramebuffer *framebuffer);
  * and if you have rendered to a larger region then it's possible that
  * other samples may be implicitly resolved.
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
@@ -993,8 +883,6 @@ cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
  *
  * Return value: (transfer none): The #CoglContext that the given
  *               @framebuffer was instantiated within.
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT CoglContext *
 cogl_framebuffer_get_context (CoglFramebuffer *framebuffer);
@@ -1010,8 +898,6 @@ cogl_framebuffer_get_context (CoglFramebuffer *framebuffer);
  * Clears all the auxiliary buffers identified in the @buffers mask, and if
  * that includes the color buffer then the specified @color is used.
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_clear (CoglFramebuffer *framebuffer,
@@ -1035,8 +921,6 @@ cogl_framebuffer_clear (CoglFramebuffer *framebuffer,
  * Clears all the auxiliary buffers identified in the @buffers mask, and if
  * that includes the color buffer then the specified @color is used.
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
@@ -1066,9 +950,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  * <note>If you want to describe a rectangle with a texture mapped on
  * it then you can use
  * cogl_framebuffer_draw_textured_rectangle().</note>
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
@@ -1117,9 +998,6 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * (0, 0) corresponds to the top left and (1, 1) corresponds to the
  * bottom right. To map an entire texture across the rectangle pass
  * in @s_1=0, @t_1=0, @s_2=1, @t_2=1.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
@@ -1188,9 +1066,6 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * smallest layer index) and if you supply less texture coordinates
  * than there are layers in the current source material then default
  * texture coordinates (0.0, 0.0, 1.0, 1.0) are generated.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_draw_multitextured_rectangle (CoglFramebuffer *framebuffer,
@@ -1232,9 +1107,6 @@ cogl_framebuffer_draw_multitextured_rectangle (CoglFramebuffer *framebuffer,
  * cogl_framebuffer_draw_textured_rectangle() separately for multiple
  * rectangles if all of the rectangles will be drawn together with the
  * same @pipeline state.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
@@ -1286,9 +1158,6 @@ cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
  * bottom right. To map an entire texture across the rectangle pass
  * in tex_coords[0]=0, tex_coords[1]=0, tex_coords[2]=1,
  * tex_coords[3]=1.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
@@ -1322,8 +1191,6 @@ cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
  * a #CoglOffscreen framebuffer since they are single-buffered.
  *
  *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
@@ -1342,9 +1209,6 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
  * One example might be for benchmarking purposes to be sure timing
  * measurements reflect the time that the GPU is busy for not just the time it
  * takes to queue rendering commands.
- *
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT void
 cogl_framebuffer_finish (CoglFramebuffer *framebuffer);
@@ -1372,8 +1236,6 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer);
  * Return value: %TRUE if the read succeeded or %FALSE otherwise. The
  *  function is only likely to fail if the bitmap points to a pixel
  *  buffer and it could not be mapped.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
@@ -1418,8 +1280,6 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  * ]|
  *
  * Return value: %TRUE if the read succeeded or %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
@@ -1453,8 +1313,6 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
  *
  * Return value: %TRUE if the object references a #CoglFramebuffer
  *   and %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_framebuffer (void *object);

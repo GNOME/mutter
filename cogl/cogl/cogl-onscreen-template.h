@@ -77,9 +77,6 @@ cogl_onscreen_template_new (CoglSwapChain *swap_chain);
  * being redundant to use the cogl_framebuffer_resolve_samples() and
  * cogl_framebuffer_resolve_samples_region() apis with single-sample
  * rendering.</note>
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_template_set_samples_per_pixel (
@@ -96,9 +93,6 @@ cogl_onscreen_template_set_samples_per_pixel (
  * buffers, for use with stereo display. If the display system
  * does not support stereo, then creation of the framebuffer will
  * fail.
- *
- * Since: 1.20
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_onscreen_template_set_stereo_enabled (
@@ -112,8 +106,6 @@ cogl_onscreen_template_set_stereo_enabled (
  *
  * Return value: %TRUE if the object references a #CoglOnscreenTemplate
  *   and %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_onscreen_template (void *object);

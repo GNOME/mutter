@@ -13742,8 +13742,6 @@ clutter_actor_create_pango_layout (ClutterActor *self,
  * actors that need to mimic those.
  *
  * In almost all cases this should not used by applications.
- *
- * Stability: unstable
  */
 void
 clutter_actor_set_opacity_override (ClutterActor *self,
@@ -13768,8 +13766,6 @@ clutter_actor_set_opacity_override (ClutterActor *self,
  *
  * Returns: the override value for the actor's opacity, or -1 if no override
  *   is set.2
- *
- * Stability: unstable
  */
 gint
 clutter_actor_get_opacity_override (ClutterActor *self)

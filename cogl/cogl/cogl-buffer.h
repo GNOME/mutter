@@ -46,7 +46,6 @@ G_BEGIN_DECLS
 /**
  * SECTION:cogl-buffer
  * @short_description: Common buffer functions, including data upload APIs
- * @stability: unstable
  *
  * The CoglBuffer API provides a common interface to manipulate
  * buffers that have been allocated either via cogl_pixel_buffer_new()
@@ -85,8 +84,6 @@ typedef struct _CoglBuffer CoglBuffer;
  *    limitation was hit.
  *
  * Error enumeration for #CoglBuffer
- *
- * Stability: unstable
  */
 typedef enum /*< prefix=COGL_BUFFER_ERROR >*/
 {
@@ -103,9 +100,6 @@ _cogl_buffer_error_domain (void);
  * Checks whether @buffer is a buffer object.
  *
  * Return value: %TRUE if the handle is a CoglBuffer, and %FALSE otherwise
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_buffer (void *object);
@@ -117,9 +111,6 @@ cogl_is_buffer (void *object);
  * Retrieves the size of buffer
  *
  * Return value: the size of the buffer in bytes
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT unsigned int
 cogl_buffer_get_size (CoglBuffer *buffer);
@@ -133,9 +124,6 @@ cogl_buffer_get_size (CoglBuffer *buffer);
  *
  * The update hint on a buffer allows the user to give some detail on how often
  * the buffer data is going to be updated.
- *
- * Since: 1.2
- * Stability: unstable
  */
 typedef enum /*< prefix=COGL_BUFFER_UPDATE_HINT >*/
 {
@@ -151,9 +139,6 @@ typedef enum /*< prefix=COGL_BUFFER_UPDATE_HINT >*/
  *
  * Sets the update hint on a buffer. See #CoglBufferUpdateHint for a description
  * of the available hints.
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_buffer_set_update_hint (CoglBuffer          *buffer,
@@ -166,9 +151,6 @@ cogl_buffer_set_update_hint (CoglBuffer          *buffer,
  * Retrieves the update hints set using cogl_buffer_set_update_hint()
  *
  * Return value: the #CoglBufferUpdateHint currently used by the buffer
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT CoglBufferUpdateHint
 cogl_buffer_get_update_hint (CoglBuffer *buffer);
@@ -181,9 +163,6 @@ cogl_buffer_get_update_hint (CoglBuffer *buffer);
  *   writing
  *
  * The access hints for cogl_buffer_set_update_hint()
- *
- * Since: 1.2
- * Stability: unstable
  */
 typedef enum /*< prefix=COGL_BUFFER_ACCESS >*/
 {
@@ -206,9 +185,6 @@ typedef enum /*< prefix=COGL_BUFFER_ACCESS >*/
  *
  * Hints to Cogl about how you are planning to modify the data once it
  * is mapped.
- *
- * Since: 1.4
- * Stability: unstable
  */
 typedef enum /*< prefix=COGL_BUFFER_MAP_HINT >*/
 {
@@ -240,9 +216,6 @@ typedef enum /*< prefix=COGL_BUFFER_MAP_HINT >*/
  *
  * Return value: (transfer none): A pointer to the mapped memory or
  *        %NULL is the call fails
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT void *
 cogl_buffer_map (CoglBuffer *buffer,
@@ -277,9 +250,6 @@ cogl_buffer_map (CoglBuffer *buffer,
  *
  * Return value: (transfer none): A pointer to the mapped memory or
  *        %NULL is the call fails
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void *
 cogl_buffer_map_range (CoglBuffer *buffer,
@@ -294,9 +264,6 @@ cogl_buffer_map_range (CoglBuffer *buffer,
  * @buffer: a buffer object
  *
  * Unmaps a buffer previously mapped by cogl_buffer_map().
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_buffer_unmap (CoglBuffer *buffer);
@@ -313,9 +280,6 @@ cogl_buffer_unmap (CoglBuffer *buffer);
  * buffer size.
  *
  * Return value: %TRUE is the operation succeeded, %FALSE otherwise
- *
- * Since: 1.2
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_buffer_set_data (CoglBuffer *buffer,

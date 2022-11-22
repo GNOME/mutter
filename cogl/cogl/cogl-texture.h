@@ -83,9 +83,6 @@ GType cogl_texture_get_gtype (void);
  * COGL_TEXTURE_ERROR:
  *
  * #GError domain for texture errors.
- *
- * Since: 1.8
- * Stability: Unstable
  */
 #define COGL_TEXTURE_ERROR (cogl_texture_error_quark ())
 
@@ -97,9 +94,6 @@ GType cogl_texture_get_gtype (void);
  *   unsupported by the driver was used
  *
  * Error codes that can be thrown when allocating textures.
- *
- * Since: 1.8
- * Stability: Unstable
  */
 typedef enum
 {
@@ -135,8 +129,6 @@ cogl_is_texture (void *object);
  * @COGL_TEXTURE_COMPONENTS_DEPTH: Only a depth component
  *
  * See cogl_texture_set_components().
- *
- * Since: 1.18
  */
 typedef enum _CoglTextureComponents
 {
@@ -170,8 +162,6 @@ typedef enum _CoglTextureComponents
  * is not available then %COGL_PIXEL_FORMAT_RG_88 can still be used as
  * an image format as long as %COGL_TEXTURE_COMPONENTS_RG isn't used
  * as the texture's components.
- *
- * Since: 1.18
  */
 COGL_EXPORT void
 cogl_texture_set_components (CoglTexture *texture,
@@ -188,8 +178,6 @@ cogl_texture_set_components (CoglTexture *texture,
  * is %COGL_TEXTURE_COMPONENTS_RGBA. The other constructors which take
  * a %CoglBitmap or a data pointer default to the same components as
  * the pixel format of the data.
- *
- * Since: 1.18
  */
 COGL_EXPORT CoglTextureComponents
 cogl_texture_get_components (CoglTexture *texture);
@@ -222,8 +210,6 @@ cogl_texture_get_components (CoglTexture *texture);
  * converted.
  *
  * By default the @premultipled state is @TRUE.
- *
- * Since: 1.18
  */
 COGL_EXPORT void
 cogl_texture_set_premultiplied (CoglTexture *texture,
@@ -242,7 +228,6 @@ cogl_texture_set_premultiplied (CoglTexture *texture,
  * Return value: %TRUE if red, green and blue components are
  *               internally stored pre-multiplied by the alpha
  *               value or %FALSE if not.
- * Since: 1.18
  */
 COGL_EXPORT gboolean
 cogl_texture_get_premultiplied (CoglTexture *texture);
@@ -461,9 +446,6 @@ cogl_texture_set_data (CoglTexture *texture,
  *
  * Return value: %TRUE if the subregion upload was successful, and
  *   %FALSE otherwise
- *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_texture_set_region_from_bitmap (CoglTexture *texture,

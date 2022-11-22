@@ -115,8 +115,6 @@ GType cogl_display_get_gtype (void);
  *
  * Return value: (transfer full): A newly allocated #CoglDisplay
  *               object in a mutable configuration mode.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglDisplay *
 cogl_display_new (CoglRenderer *renderer,
@@ -130,8 +128,6 @@ cogl_display_new (CoglRenderer *renderer,
  *
  * Return value: (transfer none): The associated #CoglRenderer
  *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT CoglRenderer *
 cogl_display_get_renderer (CoglDisplay *display);
@@ -148,9 +144,6 @@ cogl_display_get_renderer (CoglDisplay *display);
  * final setup of the display may constrain how onscreen framebuffers may be
  * allocated. If Cogl knows how an application wants to allocate onscreen
  * framebuffers then it can try to make sure to setup the display accordingly.
- *
- * Since: 1.16
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_display_set_onscreen_template (CoglDisplay *display,
@@ -184,8 +177,6 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
  *
  * Return value: Returns %TRUE if there was no error, else it returns
  *               %FALSE and returns an exception via @error.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_display_setup (CoglDisplay *display,
@@ -199,8 +190,6 @@ cogl_display_setup (CoglDisplay *display,
  *
  * Return value: %TRUE if the object references a #CoglDisplay
  *   and %FALSE otherwise.
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT gboolean
 cogl_is_display (void *object);

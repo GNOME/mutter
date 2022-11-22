@@ -124,9 +124,6 @@ typedef struct _CoglMetaTexture CoglMetaTexture;
  * A callback used with cogl_meta_texture_foreach_in_region() to
  * retrieve details of all the low-level #CoglTexture<!-- -->s that
  * make up a given #CoglMetaTexture.
- *
- * Since: 1.10
- * Stability: unstable
  */
 typedef void (*CoglMetaTextureCallback) (CoglTexture *sub_texture,
                                          const float *sub_texture_coords,
@@ -173,9 +170,6 @@ typedef void (*CoglMetaTextureCallback) (CoglTexture *sub_texture,
  * For each low-level texture that makes up part of the given region
  * of the @meta_texture, @callback is called specifying how the
  * low-level texture maps to the original region.
- *
- * Since: 1.10
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_meta_texture_foreach_in_region (CoglMetaTexture *meta_texture,

@@ -108,8 +108,6 @@ cogl_is_texture_2d (void *object);
  * cogl_texture_set_premultiplied().
  *
  * Returns: (transfer full): A new #CoglTexture2D object with no storage yet allocated.
- *
- * Since: 2.0
  */
 COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_with_size (CoglContext *ctx,
@@ -137,8 +135,6 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  *
  * Return value: (transfer full): A newly created #CoglTexture2D or %NULL on failure
  *               and @error will be updated.
- *
- * Since: 1.16
  */
 COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_file (CoglContext *ctx,
@@ -175,8 +171,6 @@ cogl_texture_2d_new_from_file (CoglContext *ctx,
  *          the size is not supported (because it is too large or a
  *          non-power-of-two size that the hardware doesn't support)
  *          it will return %NULL and set @error.
- *
- * Since: 2.0
  */
 COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_data (CoglContext *ctx,
@@ -206,9 +200,6 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
  * cogl_texture_set_premultiplied().
  *
  * Returns: (transfer full): A newly allocated #CoglTexture2D
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_bitmap (CoglBitmap *bitmap);

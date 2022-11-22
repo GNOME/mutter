@@ -88,8 +88,6 @@ typedef enum
  * COGL_TEXTURE_PIXMAP_X11_ERROR:
  *
  * #GError domain for texture-pixmap-x11 errors.
- *
- * Since: 1.10
  */
 #define COGL_TEXTURE_PIXMAP_X11_ERROR (cogl_texture_pixmap_x11_error_quark ())
 
@@ -99,8 +97,6 @@ typedef enum
  *
  * Error codes that can be thrown when performing texture-pixmap-x11
  * operations.
- *
- * Since: 1.10
  */
 typedef enum
 {
@@ -124,9 +120,6 @@ uint32_t cogl_texture_pixmap_x11_error_quark (void);
  * when it changes.
  *
  * Return value: a new #CoglTexturePixmapX11 instance
- *
- * Since: 1.10
- * Stability: Unstable
  */
 COGL_EXPORT CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new (CoglContext *context,
@@ -163,9 +156,6 @@ cogl_texture_pixmap_x11_new (CoglContext *context,
  * pixmap is not necessary, but may save resources.)
  *
  * Return value: a new #CoglTexturePixmapX11 instance
- *
- * Since: 1.20
- * Stability: Unstable
  */
 COGL_EXPORT CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new_left (CoglContext *context,
@@ -183,9 +173,6 @@ cogl_texture_pixmap_x11_new_left (CoglContext *context,
  * created using cogl_texture_pixmap_x11_new_left().
  *
  * Return value: a new #CoglTexturePixmapX11 instance
- *
- * Since: 1.20
- * Stability: Unstable
  */
 COGL_EXPORT CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *left_texture);
@@ -201,9 +188,6 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *left_texture);
  * Forces an update of the given @texture so that it is refreshed with
  * the contents of the pixmap that was given to
  * cogl_texture_pixmap_x11_new().
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT void
 cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *texture,
@@ -224,9 +208,6 @@ cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *texture,
  *
  * Return value: %TRUE if the texture is using an efficient extension
  *   and %FALSE otherwise
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_texture_pixmap_x11_is_using_tfp_extension (CoglTexturePixmapX11 *texture);
@@ -239,9 +220,6 @@ cogl_texture_pixmap_x11_is_using_tfp_extension (CoglTexturePixmapX11 *texture);
  *
  * Return value: %TRUE if the object is a #CoglTexturePixmapX11, and
  *   %FALSE otherwise
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_texture_pixmap_x11 (void *object);

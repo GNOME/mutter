@@ -40,8 +40,6 @@ log_func (const gchar    *log_domain,
  * @argv: (inout) (array length=argc) (nullable): array of arguments
  *
  * Initializes the Clutter test environment.
- *
- * Since: 1.18
  */
 void
 clutter_test_init (int    *argc,
@@ -68,8 +66,6 @@ clutter_test_init (int    *argc,
  * Retrieves the #ClutterStage used for testing.
  *
  * Return value: (transfer none): the stage used for testing
- *
- * Since: 1.18
  */
 ClutterActor *
 clutter_test_get_stage (void)
@@ -153,8 +149,6 @@ clutter_test_func_wrapper (gconstpointer data_)
  * Adds a test unit to the Clutter test environment.
  *
  * See also: g_test_add()
- *
- * Since: 1.18
  */
 void
 clutter_test_add (const char *test_path,
@@ -172,8 +166,6 @@ clutter_test_add (const char *test_path,
  * Adds a test unit to the Clutter test environment.
  *
  * See also: g_test_add_data_func()
- *
- * Since: 1.18
  */
 void
 clutter_test_add_data (const char    *test_path,
@@ -193,8 +185,6 @@ clutter_test_add_data (const char    *test_path,
  * Adds a test unit to the Clutter test environment.
  *
  * See also: g_test_add_data_func_full()
- *
- * Since: 1.18
  */
 void
 clutter_test_add_data_full (const char     *test_path,
@@ -249,8 +239,6 @@ clutter_test_add_data_full (const char     *test_path,
  * ]|
  *
  * Return value: the exit code for the test suite
- *
- * Since: 1.18
  */
 int
 clutter_test_run (void)
@@ -374,8 +362,6 @@ on_key_press_event (ClutterActor *stage,
  * actor found there with the given @actor.
  *
  * Returns: %TRUE if the actor at the given coordinates matches
- *
- * Since: 1.18
  */
 gboolean
 clutter_test_check_actor_at_point (ClutterActor            *stage,
@@ -435,8 +421,6 @@ clutter_test_check_actor_at_point (ClutterActor            *stage,
  * component of @color and @result is ignored.
  *
  * Returns: %TRUE if the colors match
- *
- * Since: 1.18
  */
 gboolean
 clutter_test_check_color_at_point (ClutterActor           *stage,

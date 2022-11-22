@@ -74,9 +74,6 @@ COGL_EXPORT GType cogl_index_buffer_get_gtype (void);
  * address space using cogl_buffer_map().
  *
  * Return value: (transfer full): A newly allocated #CoglIndexBuffer
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT CoglIndexBuffer *
 cogl_index_buffer_new (CoglContext *context,
@@ -90,9 +87,6 @@ cogl_index_buffer_new (CoglContext *context,
  *
  * Returns: %TRUE if the @object references a #CoglIndexBuffer,
  *   %FALSE otherwise
- *
- * Since: 1.4
- * Stability: Unstable
  */
 COGL_EXPORT gboolean
 cogl_is_index_buffer (void *object);

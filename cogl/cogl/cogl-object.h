@@ -120,8 +120,6 @@ cogl_object_unref (void *object);
  *                              destroy_pipeline_private_cb);
  * }
  * ]|
- *
- * Since: 1.4
  */
 typedef struct {
   int unused;
@@ -136,8 +134,6 @@ typedef struct {
  * given which will be called either if the object is destroyed or if
  * cogl_object_set_user_data() is called with NULL user_data for the
  * same key.
- *
- * Since: 1.4
  */
 typedef GDestroyNotify CoglUserDataDestroyCallback;
 
@@ -149,9 +145,6 @@ typedef GDestroyNotify CoglUserDataDestroyCallback;
  *
  * This struct is used to pass information to the callback when
  * cogl_debug_object_foreach_type() is called.
- *
- * Since: 1.8
- * Stability: unstable
  */
 typedef struct {
   const char *name;
@@ -163,9 +156,6 @@ typedef struct {
  * @info: A pointer to a struct containing information about the type.
  *
  * A callback function to use for cogl_debug_object_foreach_type().
- *
- * Since: 1.8
- * Stability: unstable
  */
 typedef void
 (* CoglDebugObjectForeachTypeCallback) (const CoglDebugObjectTypeInfo *info,
@@ -185,8 +175,6 @@ typedef void
  * Associates some private @user_data with a given #CoglObject. To
  * later remove the association call cogl_object_set_user_data() with
  * the same @key but NULL for the @user_data.
- *
- * Since: 1.4
  */
 COGL_EXPORT void
 cogl_object_set_user_data (CoglObject *object,
@@ -207,8 +195,6 @@ cogl_object_set_user_data (CoglObject *object,
  * Returns: (transfer none): The user data previously associated
  *   with @object using the given @key; or %NULL if no associated
  *   data is found.
- *
- * Since: 1.4
  */
 COGL_EXPORT void *
 cogl_object_get_user_data (CoglObject *object,
@@ -223,9 +209,6 @@ cogl_object_get_user_data (CoglObject *object,
  * passes a count of the number of objects for that type. This is
  * intended to be used solely for debugging purposes to track down
  * issues with objects leaking.
- *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_debug_object_foreach_type (CoglDebugObjectForeachTypeCallback func,
@@ -238,9 +221,6 @@ cogl_debug_object_foreach_type (CoglDebugObjectForeachTypeCallback func,
  * number of objects of that type that are currently in use. This is
  * intended to be used solely for debugging purposes to track down
  * issues with objects leaking.
- *
- * Since: 1.8
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_debug_object_print_instances (void);

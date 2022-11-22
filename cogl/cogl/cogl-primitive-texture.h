@@ -81,8 +81,6 @@ typedef struct _CoglPrimitiveTexture CoglPrimitiveTexture;
  *
  * Return value: %TRUE if the pointer references a primitive texture, and
  *   %FALSE otherwise
- * Since: 2.0
- * Stability: unstable
  */
 gboolean
 cogl_is_primitive_texture (void *object);
@@ -98,9 +96,6 @@ cogl_is_primitive_texture (void *object);
  * filter that requires the lower mipmap levels. An application should
  * disable this if it wants to upload its own data for the other
  * levels. By default auto mipmapping is enabled.
- *
- * Since: 2.0
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_primitive_texture_set_auto_mipmap (CoglPrimitiveTexture *primitive_texture,

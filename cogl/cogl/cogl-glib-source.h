@@ -63,9 +63,6 @@ G_BEGIN_DECLS
  * cogl_glib_renderer_source_new()</note>
  *
  * Return value: a new #GSource
- *
- * Stability: unstable
- * Since: 1.10
  */
 COGL_EXPORT GSource *
 cogl_glib_source_new (CoglContext *context,
@@ -84,9 +81,6 @@ cogl_glib_source_new (CoglContext *context,
  * g_source_attach().
  *
  * Return value: a new #GSource
- *
- * Stability: unstable
- * Since: 1.16
  */
 COGL_EXPORT GSource *
 cogl_glib_renderer_source_new (CoglRenderer *renderer,

@@ -104,8 +104,6 @@ cogl_graphene_matrix_project_point (const graphene_matrix_t *matrix,
  *                               &results[0].x,
  *                               N_VERTICES);
  * ]|
- *
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_graphene_matrix_transform_points (const graphene_matrix_t *matrix,
@@ -159,8 +157,6 @@ cogl_graphene_matrix_transform_points (const graphene_matrix_t *matrix,
  *                             &results[0].x,
  *                             N_VERTICES);
  * ]|
- *
- * Stability: unstable
  */
 COGL_EXPORT void
 cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
