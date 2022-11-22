@@ -85,6 +85,14 @@ meta_backend_test_create_color_manager (MetaBackend *backend)
                        NULL);
 }
 
+static void
+on_after_update (ClutterStage     *stage,
+                 ClutterStageView *view,
+                 gboolean         *was_updated)
+{
+  *was_updated = TRUE;
+}
+
 ClutterInputDevice *
 meta_backend_test_add_test_device (MetaBackendTest        *backend_test,
                                    const char             *name,
@@ -100,6 +108,10 @@ meta_backend_test_add_test_device (MetaBackendTest        *backend_test,
   ClutterEvent *event;
   const char *product_id;
   bool has_cursor = TRUE;
+  gboolean was_updated = FALSE;
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
 
   switch (device_type)
     {
@@ -161,6 +173,11 @@ meta_backend_test_add_test_device (MetaBackendTest        *backend_test,
   clutter_event_put (event);
   clutter_event_free (event);
 
+  while (!was_updated)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+
   return device;
 }
 
@@ -171,12 +188,21 @@ meta_backend_test_remove_device (MetaBackendTest    *backend_test,
   MetaBackend *backend = META_BACKEND (backend_test);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterEvent *event;
+  gboolean was_updated = FALSE;
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
 
   event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
   clutter_event_set_device (event, device);
   clutter_event_set_stage (event, stage);
   clutter_event_put (event);
   clutter_event_free (event);
+
+  while (!was_updated)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
 }
 
 static void
