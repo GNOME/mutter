@@ -397,12 +397,14 @@ find_existing_connector (MetaKmsImplDevice *impl_device,
 
 static MetaKmsResourceChanges
 update_connectors (MetaKmsImplDevice *impl_device,
-                   drmModeRes        *drm_resources)
+                   drmModeRes        *drm_resources,
+                   uint32_t           updated_connector_id)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   g_autolist (MetaKmsConnector) connectors = NULL;
   gboolean added_connector = FALSE;
+  MetaKmsResourceChanges changes = META_KMS_RESOURCE_CHANGE_NONE;
   unsigned int i;
   int fd;
 
@@ -421,6 +423,13 @@ update_connectors (MetaKmsImplDevice *impl_device,
       if (connector)
         {
           connector = g_object_ref (connector);
+          if (updated_connector_id == 0 ||
+              meta_kms_connector_get_id (connector) == updated_connector_id)
+            {
+              changes |= meta_kms_connector_update_state (connector,
+                                                          drm_resources,
+                                                          drm_connector);
+            }
         }
       else
         {
@@ -436,7 +445,7 @@ update_connectors (MetaKmsImplDevice *impl_device,
 
   if (!added_connector &&
       g_list_length (connectors) == g_list_length (priv->connectors))
-    return META_KMS_RESOURCE_CHANGE_NONE;
+    return changes;
 
   g_list_free_full (priv->connectors, g_object_unref);
   priv->connectors = g_list_reverse (g_steal_pointer (&connectors));
@@ -892,7 +901,7 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
       goto err;
     }
 
-  changes = update_connectors (impl_device, drm_resources);
+  changes = update_connectors (impl_device, drm_resources, connector_id);
 
   for (l = priv->crtcs; l; l = l->next)
     {
@@ -903,17 +912,6 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
         continue;
 
       changes |= meta_kms_crtc_update_state (crtc);
-    }
-
-  for (l = priv->connectors; l; l = l->next)
-    {
-      MetaKmsConnector *connector = META_KMS_CONNECTOR (l->data);
-
-      if (connector_id > 0 &&
-          meta_kms_connector_get_id (connector) != connector_id)
-        continue;
-
-      changes |= meta_kms_connector_update_state (connector, drm_resources);
     }
 
   drmModeFreeResources (drm_resources);
@@ -1196,7 +1194,7 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
 
   init_fallback_modes (impl_device);
 
-  update_connectors (impl_device, drm_resources);
+  update_connectors (impl_device, drm_resources, 0);
 
   drmModeFreeResources (drm_resources);
 

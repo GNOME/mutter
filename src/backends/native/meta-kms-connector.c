@@ -754,20 +754,16 @@ out:
 
 MetaKmsResourceChanges
 meta_kms_connector_update_state (MetaKmsConnector *connector,
-                                 drmModeRes       *drm_resources)
+                                 drmModeRes       *drm_resources,
+                                 drmModeConnector *drm_connector)
 {
   MetaKmsImplDevice *impl_device;
-  drmModeConnector *drm_connector;
   MetaKmsResourceChanges changes;
 
   impl_device = meta_kms_device_get_impl_device (connector->device);
-  drm_connector = drmModeGetConnector (meta_kms_impl_device_get_fd (impl_device),
-                                       connector->id);
-
   changes = meta_kms_connector_read_state (connector, impl_device,
                                            drm_connector,
                                            drm_resources);
-  g_clear_pointer (&drm_connector, drmModeFreeConnector);
 
   return changes;
 }
