@@ -4256,7 +4256,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
    * cleared as the child and its children leave the actor tree.
    */
   if (clear_stage_views && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
-    clutter_actor_clear_stage_views_recursive (child);
+    clutter_actor_clear_stage_views_recursive (child, stop_transitions);
 
   if (emit_parent_set && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
     g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
@@ -15402,7 +15402,11 @@ clear_stage_views_cb (ClutterActor *actor,
                       int           depth,
                       gpointer      user_data)
 {
+  gboolean stop_transitions = GPOINTER_TO_INT (user_data);
   g_autoptr (GList) old_stage_views = NULL;
+
+  if (stop_transitions)
+    _clutter_actor_stop_transitions (actor);
 
   actor->priv->needs_update_stage_views = TRUE;
 
@@ -15429,13 +15433,14 @@ maybe_emit_stage_views_changed_cb (ClutterActor *actor,
 }
 
 void
-clutter_actor_clear_stage_views_recursive (ClutterActor *self)
+clutter_actor_clear_stage_views_recursive (ClutterActor *self,
+                                           gboolean      stop_transitions)
 {
   _clutter_actor_traverse (self,
                            CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
                            clear_stage_views_cb,
                            NULL,
-                           NULL);
+                           GINT_TO_POINTER (stop_transitions));
   _clutter_actor_traverse (self,
                            CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
                            maybe_emit_stage_views_changed_cb,
