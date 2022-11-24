@@ -37,10 +37,18 @@
 
 static GType plugin_type = G_TYPE_NONE;
 
+typedef enum _PluginManagerState
+{
+  PLUGIN_MANAGER_STATE_STARTING,
+  PLUGIN_MANAGER_STATE_RUNNING,
+  PLUGIN_MANAGER_STATE_STOPPING,
+} PluginManagerState;
+
 struct MetaPluginManager
 {
   MetaCompositor *compositor;
   MetaPlugin *plugin;
+  PluginManagerState state;
 };
 
 void
@@ -92,14 +100,31 @@ on_confirm_display_change (MetaMonitorManager *monitors,
   meta_plugin_manager_confirm_display_change (plugin_mgr);
 }
 
+static void
+on_started (MetaContext       *context,
+            MetaPluginManager *plugin_mgr)
+{
+  plugin_mgr->state = PLUGIN_MANAGER_STATE_RUNNING;
+}
+
+static void
+on_prepare_shutdown (MetaContext       *context,
+                     MetaPluginManager *plugin_mgr)
+{
+  plugin_mgr->state = PLUGIN_MANAGER_STATE_STOPPING;
+}
+
 MetaPluginManager *
 meta_plugin_manager_new (MetaCompositor *compositor)
 {
   MetaPluginManager *plugin_mgr;
   MetaPlugin *plugin;
   MetaMonitorManager *monitors;
+  MetaDisplay *display;
+  MetaContext *context;
 
   plugin_mgr = g_new0 (MetaPluginManager, 1);
+  plugin_mgr->state = PLUGIN_MANAGER_STATE_STARTING;
   plugin_mgr->compositor = compositor;
   plugin_mgr->plugin = plugin = g_object_new (plugin_type, NULL);
 
@@ -108,6 +133,13 @@ meta_plugin_manager_new (MetaCompositor *compositor)
   monitors = meta_monitor_manager_get ();
   g_signal_connect (monitors, "confirm-display-change",
                     G_CALLBACK (on_confirm_display_change), plugin_mgr);
+
+  display = meta_compositor_get_display (compositor);
+  context = meta_display_get_context (display);
+  g_signal_connect (context, "started",
+                    G_CALLBACK (on_started), plugin_mgr);
+  g_signal_connect (context, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown), plugin_mgr);
 
   return plugin_mgr;
 }
@@ -143,6 +175,21 @@ meta_plugin_manager_kill_switch_workspace (MetaPluginManager *plugin_mgr)
     klass->kill_switch_workspace (plugin);
 }
 
+static gboolean
+should_start_effect (MetaPluginManager *plugin_mgr)
+{
+  switch (plugin_mgr->state)
+    {
+    case PLUGIN_MANAGER_STATE_STARTING:
+    case PLUGIN_MANAGER_STATE_STOPPING:
+      return FALSE;
+    case PLUGIN_MANAGER_STATE_RUNNING:
+      return TRUE;
+    }
+
+  g_assert_not_reached ();
+}
+
 /*
  * Public method that the compositor hooks into for events that require
  * no additional parameters.
@@ -159,10 +206,9 @@ meta_plugin_manager_event_simple (MetaPluginManager *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
   gboolean retval = FALSE;
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return FALSE;
 
   switch (event)
@@ -230,9 +276,8 @@ meta_plugin_manager_event_size_change (MetaPluginManager *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return FALSE;
 
   if (!klass->size_change)
@@ -259,10 +304,9 @@ meta_plugin_manager_switch_workspace (MetaPluginManager   *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
   gboolean retval = FALSE;
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return FALSE;
 
   if (klass->switch_workspace)
@@ -317,9 +361,8 @@ meta_plugin_manager_show_tile_preview (MetaPluginManager *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return FALSE;
 
   if (klass->show_tile_preview)
@@ -336,9 +379,8 @@ meta_plugin_manager_hide_tile_preview (MetaPluginManager *plugin_mgr)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return FALSE;
 
   if (klass->hide_tile_preview)
@@ -359,9 +401,8 @@ meta_plugin_manager_show_window_menu (MetaPluginManager  *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return;
 
   if (klass->show_window_menu)
@@ -376,9 +417,8 @@ meta_plugin_manager_show_window_menu_for_rect (MetaPluginManager  *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
-  if (display->display_opening)
+  if (!should_start_effect (plugin_mgr))
     return;
 
   if (klass->show_window_menu_for_rect)
