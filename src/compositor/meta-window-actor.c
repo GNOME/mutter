@@ -512,7 +512,7 @@ meta_window_actor_get_property (GObject      *object,
  *
  * Gets the #MetaWindow object that the the #MetaWindowActor is displaying
  *
- * Return value: (transfer none): the displayed #MetaWindow
+ * Return value: (transfer none) (nullable): the displayed #MetaWindow
  */
 MetaWindow *
 meta_window_actor_get_meta_window (MetaWindowActor *self)
@@ -530,7 +530,7 @@ meta_window_actor_get_meta_window (MetaWindowActor *self)
  * Gets the ClutterActor that is used to display the contents of the window,
  * or NULL if no texture is shown yet, because the window is not mapped.
  *
- * Return value: (transfer none): the #ClutterActor for the contents
+ * Return value: (transfer none) (nullable): the #ClutterActor for the contents
  */
 MetaShapedTexture *
 meta_window_actor_get_texture (MetaWindowActor *self)
@@ -551,7 +551,8 @@ meta_window_actor_get_texture (MetaWindowActor *self)
  * Gets the MetaSurfaceActor that draws the content of this window,
  * or NULL if there is no surface yet associated with this window.
  *
- * Return value: (transfer none): the #MetaSurfaceActor for the contents
+ * Return value: (transfer none) (nullable): the #MetaSurfaceActor for the
+ * contents
  */
 MetaSurfaceActor *
 meta_window_actor_get_surface (MetaWindowActor *self)
