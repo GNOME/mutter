@@ -526,6 +526,13 @@ on_stage_shown_cb (MetaBackend *backend)
 }
 
 static void
+on_prepare_shutdown (MetaContext *context,
+                     MetaBackend *backend)
+{
+  g_signal_emit (backend, signals[PREPARE_SHUTDOWN], 0);
+}
+
+static void
 meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -585,6 +592,9 @@ meta_backend_real_post_init (MetaBackend *backend)
     }
 
   meta_monitor_manager_post_init (priv->monitor_manager);
+
+  g_signal_connect (priv->context, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown), backend);
 }
 
 static gboolean
@@ -1579,12 +1589,6 @@ meta_backend_get_clutter_backend (MetaBackend *backend)
     return NULL;
 
   return clutter_context_get_backend (clutter_context);
-}
-
-void
-meta_backend_prepare_shutdown (MetaBackend *backend)
-{
-  g_signal_emit (backend, signals[PREPARE_SHUTDOWN], 0);
 }
 
 MetaBackendCapabilities

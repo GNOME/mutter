@@ -115,8 +115,6 @@ struct _MetaBackendClass
 
 void meta_backend_destroy (MetaBackend *backend);
 
-void meta_backend_prepare_shutdown (MetaBackend *backend);
-
 META_EXPORT_TEST
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 

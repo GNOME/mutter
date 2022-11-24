@@ -51,6 +51,16 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
+enum
+{
+  STARTED,
+  PREPARE_SHUTDOWN,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 typedef enum _MetaContextState
 {
   META_CONTEXT_STATE_INIT,
@@ -431,6 +441,8 @@ meta_context_start (MetaContext  *context,
 
   priv->state = META_CONTEXT_STATE_STARTED;
 
+  g_signal_emit (context, signals[STARTED], 0);
+
   return TRUE;
 }
 
@@ -667,8 +679,7 @@ meta_context_dispose (GObject *object)
   MetaContext *context = META_CONTEXT (object);
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
-  if (priv->backend)
-    meta_backend_prepare_shutdown (priv->backend);
+  g_signal_emit (context, signals[PREPARE_SHUTDOWN], 0);
 
 #ifdef HAVE_WAYLAND
   if (priv->wayland_compositor)
@@ -738,6 +749,21 @@ meta_context_class_init (MetaContextClass *klass)
                           G_PARAM_EXPLICIT_NOTIFY |
                           G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[STARTED] =
+    g_signal_new ("started",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[PREPARE_SHUTDOWN] =
+    g_signal_new ("prepare-shutdown",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
