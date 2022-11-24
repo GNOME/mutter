@@ -3139,7 +3139,7 @@ clutter_stage_peek_stage_views (ClutterStage *stage)
 void
 clutter_stage_clear_stage_views (ClutterStage *stage)
 {
-  clutter_actor_clear_stage_views_recursive (CLUTTER_ACTOR (stage));
+  clutter_actor_clear_stage_views_recursive (CLUTTER_ACTOR (stage), FALSE);
 }
 
 GList *
