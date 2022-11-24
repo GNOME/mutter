@@ -3623,16 +3623,30 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
                                   coords.x, coords.y, NULL);
 }
 
+typedef struct
+{
+  MetaViewportInfo *viewports;
+  GMutex mutex;
+  GCond cond;
+  gboolean constrained;
+} SetViewportsData;
+
 static gboolean
 set_viewports (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
-  MetaViewportInfo *viewports = g_task_get_task_data (task);
+  SetViewportsData *data = g_task_get_task_data (task);
+  MetaViewportInfo *viewports = data->viewports;
 
   g_set_object (&seat_impl->viewports, viewports);
   g_task_return_boolean (task, TRUE);
 
   ensure_pointer_onscreen (seat_impl);
+
+  g_mutex_lock (&data->mutex);
+  data->constrained = TRUE;
+  g_cond_signal (&data->cond);
+  g_mutex_unlock (&data->mutex);
 
   return G_SOURCE_REMOVE;
 }
@@ -3641,15 +3655,28 @@ void
 meta_seat_impl_set_viewports (MetaSeatImpl     *seat_impl,
                               MetaViewportInfo *viewports)
 {
+  SetViewportsData data = {};
   GTask *task;
 
   g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
 
+  data.viewports = viewports;
+  g_mutex_init (&data.mutex);
+  g_cond_init (&data.cond);
+
   task = g_task_new (seat_impl, NULL, NULL, NULL);
-  g_task_set_task_data (task, g_object_ref (viewports), g_object_unref);
+  g_task_set_task_data (task, &data, NULL);
   meta_seat_impl_run_input_task (seat_impl, task,
                                  (GSourceFunc) set_viewports);
   g_object_unref (task);
+
+  g_mutex_lock (&data.mutex);
+  while (!data.constrained)
+    g_cond_wait (&data.cond, &data.mutex);
+  g_mutex_unlock (&data.mutex);
+
+  g_mutex_clear (&data.mutex);
+  g_cond_clear (&data.cond);
 }
 
 MetaSeatImpl *
