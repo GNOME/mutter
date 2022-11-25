@@ -58,6 +58,20 @@ struct _MetaWaylandTextInput
 
   GHashTable *resource_serials;
 
+  /* This saves the uncommitted middle state of surrounding text from client
+   * between `set_surrounding_text` and `commit`, will be cleared after
+   * committed.
+   */
+  struct
+  {
+    char *text;
+    uint32_t cursor;
+    uint32_t anchor;
+  } pending_surrounding;
+
+  /* This is the actual committed surrounding text after `commit`, we need this
+   * to convert between char based offset and byte based offset.
+   */
   struct
   {
     char *text;
@@ -216,14 +230,32 @@ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
                                                   guint              len)
 {
   MetaWaylandTextInput *text_input;
+  const char *start, *end;
+  const char *before, *after;
+  const char *cursor;
   uint32_t before_length;
   uint32_t after_length;
   struct wl_resource *resource;
 
+  /* offset and len are counted by UTF-8 chars, but text_input_v3's lengths are
+   * counted by bytes, so we convert UTF-8 char offsets to pointers here, this
+   * needs the surrounding text
+   */
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
-  before_length = ABS (MIN (offset, 0));
-  after_length = MAX (0, offset + len);
-  g_warn_if_fail (ABS (offset) <= len);
+  offset = MIN (offset, 0);
+
+  start = text_input->surrounding.text;
+  end = start + strlen (text_input->surrounding.text);
+  cursor = start + text_input->surrounding.cursor;
+
+  before = g_utf8_offset_to_pointer (cursor, offset);
+  g_assert (before >= start);
+
+  after = g_utf8_offset_to_pointer (cursor, offset + len);
+  g_assert (after <= end);
+
+  before_length = cursor - before;
+  after_length = after - cursor;
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
@@ -468,10 +500,10 @@ text_input_set_surrounding_text (struct wl_client   *client,
   if (!client_matches_focus (text_input, client))
     return;
 
-  g_free (text_input->surrounding.text);
-  text_input->surrounding.text = g_strdup (text);
-  text_input->surrounding.cursor = cursor;
-  text_input->surrounding.anchor = anchor;
+  g_free (text_input->pending_surrounding.text);
+  text_input->pending_surrounding.text = g_strdup (text);
+  text_input->pending_surrounding.cursor = cursor;
+  text_input->pending_surrounding.anchor = anchor;
   text_input->pending_state |= META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT;
 }
 
@@ -591,7 +623,7 @@ text_input_set_cursor_rectangle (struct wl_client   *client,
 static void
 meta_wayland_text_input_reset (MetaWaylandTextInput *text_input)
 {
-  g_clear_pointer (&text_input->surrounding.text, g_free);
+  g_clear_pointer (&text_input->pending_surrounding.text, g_free);
   text_input->content_type_hint = ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE;
   text_input->content_type_purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL;
   text_input->text_change_cause = ZWP_TEXT_INPUT_V3_CHANGE_CAUSE_INPUT_METHOD;
@@ -651,6 +683,12 @@ text_input_commit_state (struct wl_client   *client,
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT)
     {
+      /* Save the surrounding text for `delete_surrounding_text`. */
+      g_free (text_input->surrounding.text);
+      text_input->surrounding.text = g_steal_pointer (&text_input->pending_surrounding.text);
+      text_input->surrounding.cursor = text_input->pending_surrounding.cursor;
+      text_input->surrounding.anchor = text_input->pending_surrounding.anchor;
+      /* Pass the surrounding text to Clutter to handle it with input method. */
       clutter_input_focus_set_surrounding (text_input->input_focus,
                                            text_input->surrounding.text,
                                            text_input->surrounding.cursor,
@@ -720,6 +758,7 @@ meta_wayland_text_input_destroy (MetaWaylandTextInput *text_input)
   g_object_unref (text_input->input_focus);
   g_hash_table_destroy (text_input->resource_serials);
   g_clear_pointer (&text_input->preedit.string, g_free);
+  g_clear_pointer (&text_input->pending_surrounding.text, g_free);
   g_clear_pointer (&text_input->surrounding.text, g_free);
   g_free (text_input);
 }
