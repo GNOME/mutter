@@ -18,7 +18,7 @@ variables:
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 36
-    BASE_TAG: '2022-09-01.0'
+    BASE_TAG: '2022-11-25.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -26,7 +26,6 @@ variables:
       gdm
       gnome-shell
       mozjs91-devel
-      python3-dbusmock
       sassc
       uncrustify
       xorg-x11-server-Xvfb
@@ -35,6 +34,7 @@ variables:
       qemu-system-x86-core
       busybox
       gi-docgen
+      python3-pip
       pkgconfig(libgcrypt)
       pkgconfig(colord)
       pkgconfig(lcms2)
@@ -73,6 +73,8 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
         main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66 &&
+
+      pip install git+https://github.com/martinpitt/python-dbusmock.git@743da675c37bfc469ec385b88c3b4ad4838cfa48 &&
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
