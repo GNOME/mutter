@@ -414,6 +414,8 @@ struct wl_resource * meta_wayland_surface_get_resource (MetaWaylandSurface *surf
 
 MetaWaylandCompositor * meta_wayland_surface_get_compositor (MetaWaylandSurface *surface);
 
+void meta_wayland_surface_notify_highest_scale_monitor (MetaWaylandSurface *surface);
+
 static inline MetaWaylandSurfaceState *
 meta_wayland_surface_state_new (void)
 {

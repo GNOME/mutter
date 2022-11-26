@@ -90,6 +90,8 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
     clutter_actor_show (actor);
   else
     clutter_actor_hide (actor);
+
+  clutter_actor_notify_transform_invalid (actor);
 }
 
 static gboolean
@@ -554,6 +556,8 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
 
   surface->sub.synchronous = TRUE;
   surface->protocol_state.parent = parent;
+
+  meta_wayland_surface_notify_highest_scale_monitor (surface);
 
   reference =
     g_node_last_child (parent->protocol_state.subsurface_branch_node)->data;

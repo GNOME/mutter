@@ -37,6 +37,7 @@ typedef struct _MetaWaylandShellSurfacePrivate
   MetaWindow *window;
 
   gulong unmanaging_handler_id;
+  gulong highest_scale_monitor_handler_id;
 } MetaWaylandShellSurfacePrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandShellSurface,
@@ -106,6 +107,8 @@ clear_window (MetaWaylandShellSurface *shell_surface)
 
   g_clear_signal_handler (&priv->unmanaging_handler_id,
                           priv->window);
+  g_clear_signal_handler (&priv->highest_scale_monitor_handler_id,
+                          priv->window);
   priv->window = NULL;
 
   surface_actor = meta_wayland_surface_get_actor (surface);
@@ -137,6 +140,12 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
   g_assert (!priv->window);
 
   priv->window = window;
+
+  priv->highest_scale_monitor_handler_id =
+    g_signal_connect_swapped (window, "highest-scale-monitor-changed",
+                              G_CALLBACK (meta_wayland_surface_notify_highest_scale_monitor),
+                              surface);
+  meta_wayland_surface_notify_highest_scale_monitor (surface);
 
   surface_actor = meta_wayland_surface_get_actor (surface);
   if (surface_actor)

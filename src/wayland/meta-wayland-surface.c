@@ -2410,3 +2410,23 @@ meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface)
   return FALSE;
 #endif
 }
+
+static void
+output_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
+{
+  MetaWaylandSurface *subsurface_surface;
+  MetaSurfaceActor *actor = meta_wayland_surface_get_actor (surface);
+
+  if (actor)
+    clutter_actor_notify_transform_invalid (CLUTTER_ACTOR (actor));
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->output_state,
+                                           subsurface_surface)
+    output_state_handle_highest_scale_monitor (subsurface_surface);
+}
+
+void
+meta_wayland_surface_notify_highest_scale_monitor (MetaWaylandSurface *surface)
+{
+  output_state_handle_highest_scale_monitor (surface);
+}
