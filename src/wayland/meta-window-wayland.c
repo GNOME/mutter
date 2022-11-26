@@ -590,6 +590,10 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
     (int)(scale_factor * window->custom_frame_extents.left);
   window->custom_frame_extents.top =
     (int)(scale_factor * window->custom_frame_extents.top);
+  window->custom_frame_extents.right =
+    (int)(scale_factor * window->custom_frame_extents.right);
+  window->custom_frame_extents.bottom =
+    (int)(scale_factor * window->custom_frame_extents.bottom);
 
   /* Buffer rect. */
   scale_rect_size (&window->buffer_rect, scale_factor);
@@ -982,6 +986,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   MetaDisplay *display = window->display;
+  MetaWaylandSurface *surface = window->surface;
   int dx, dy;
   int geometry_scale;
   MetaGravity gravity;
@@ -1008,8 +1013,21 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   dy = pending->dy * geometry_scale;
 
   /* XXX: Find a better place to store the window geometry offsets. */
-  window->custom_frame_extents.left = new_geom.x;
-  window->custom_frame_extents.top = new_geom.y;
+  if (meta_wayland_surface_get_buffer (surface))
+    {
+      window->custom_frame_extents.left = new_geom.x;
+      window->custom_frame_extents.top = new_geom.y;
+      window->custom_frame_extents.right =
+        meta_wayland_surface_get_width (surface) * geometry_scale -
+        new_geom.x - new_geom.width;
+      window->custom_frame_extents.bottom =
+        meta_wayland_surface_get_height (surface) * geometry_scale -
+        new_geom.y - new_geom.height;
+    }
+  else
+    {
+      window->custom_frame_extents = (GtkBorder) { 0 };
+    }
 
   flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
 
