@@ -51,6 +51,7 @@ struct _MetaWindowActorWayland
   MetaWindowActor parent;
   ClutterActor *background;
   MetaSurfaceContainerActorWayland *surface_container;
+  gulong highest_scale_monitor_handler_id;
 };
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -124,6 +125,58 @@ surface_container_cullable_iface_init (MetaCullableInterface *iface)
 }
 
 static void
+surface_container_apply_transform (ClutterActor      *actor,
+                                   graphene_matrix_t *matrix)
+{
+  ClutterActor *parent = clutter_actor_get_parent (actor);
+  ClutterActorClass *parent_class =
+    CLUTTER_ACTOR_CLASS (meta_surface_container_actor_wayland_parent_class);
+  MetaWindow *window;
+  MetaLogicalMonitor *logical_monitor;
+  MetaRectangle monitor_rect;
+  float scale;
+  float rel_x, rel_y;
+  float abs_x, abs_y;
+  float adj_rel_x, adj_rel_y;
+  float x_off, y_off;
+
+  parent_class->apply_transform (actor, matrix);
+
+  if (!parent)
+    return;
+
+  window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (parent));
+  if (!window)
+    return;
+
+  logical_monitor = meta_window_get_highest_scale_monitor (window);
+  if (!logical_monitor)
+    return;
+
+  scale = meta_logical_monitor_get_scale (logical_monitor);
+  monitor_rect = meta_logical_monitor_get_layout (logical_monitor);
+
+  abs_x = clutter_actor_get_x (parent) + clutter_actor_get_x (actor);
+  abs_y = clutter_actor_get_y (parent) + clutter_actor_get_y (actor);
+
+  rel_x = abs_x - monitor_rect.x;
+  rel_y = abs_y - monitor_rect.y;
+
+  adj_rel_x = roundf (rel_x * scale) / scale;
+  adj_rel_y = roundf (rel_y * scale) / scale;
+
+  x_off = adj_rel_x - rel_x;
+  y_off = adj_rel_y - rel_y;
+
+  if (!G_APPROX_VALUE (x_off, 0.0, FLT_EPSILON) ||
+      !G_APPROX_VALUE (y_off, 0.0, FLT_EPSILON))
+    {
+      graphene_matrix_translate (matrix,
+                                 &GRAPHENE_POINT3D_INIT (x_off, y_off, 0));
+    }
+}
+
+static void
 surface_container_dispose (GObject *object)
 {
   MetaSurfaceContainerActorWayland *self = META_SURFACE_CONTAINER_ACTOR_WAYLAND (object);
@@ -136,7 +189,10 @@ surface_container_dispose (GObject *object)
 static void
 meta_surface_container_actor_wayland_class_init (MetaSurfaceContainerActorWaylandClass *klass)
 {
+  ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  actor_class->apply_transform = surface_container_apply_transform;
 
   object_class->dispose = surface_container_dispose;
 }
@@ -526,9 +582,38 @@ meta_window_actor_wayland_sync_geometry (MetaWindowActor     *actor,
 }
 
 static void
+meta_window_actor_wayland_dispose (GObject *object)
+{
+  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (object);
+  MetaWindow *window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (self));
+  GObjectClass *parent_class =
+    G_OBJECT_CLASS (meta_window_actor_wayland_parent_class);
+
+  g_clear_signal_handler (&self->highest_scale_monitor_handler_id,
+                          window);
+
+  parent_class->dispose (object);
+}
+
+static void
+meta_window_actor_wayland_constructed (GObject *object)
+{
+  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (object);
+  MetaWindow *window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (self));
+
+  G_OBJECT_CLASS (meta_window_actor_wayland_parent_class)->constructed (object);
+
+  self->highest_scale_monitor_handler_id =
+    g_signal_connect_swapped (window, "highest-scale-monitor-changed",
+                              G_CALLBACK (clutter_actor_notify_transform_invalid),
+                              self->surface_container);
+}
+
+static void
 meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
 {
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   window_actor_class->get_scanout_candidate = meta_window_actor_wayland_get_scanout_candidate;
   window_actor_class->assign_surface_actor = meta_window_actor_wayland_assign_surface_actor;
@@ -542,6 +627,9 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   window_actor_class->can_freeze_commits = meta_window_actor_wayland_can_freeze_commits;
   window_actor_class->sync_geometry = meta_window_actor_wayland_sync_geometry;
   window_actor_class->is_single_surface_actor = meta_window_actor_wayland_is_single_surface_actor;
+
+  object_class->constructed = meta_window_actor_wayland_constructed;
+  object_class->dispose = meta_window_actor_wayland_dispose;
 }
 
 static void
@@ -551,4 +639,8 @@ meta_window_actor_wayland_init (MetaWindowActorWayland *self)
 
   clutter_actor_add_child (CLUTTER_ACTOR (self),
                            CLUTTER_ACTOR (self->surface_container));
+
+  g_signal_connect_swapped (self, "notify::allocation",
+                            G_CALLBACK (clutter_actor_notify_transform_invalid),
+                            self->surface_container);
 }
