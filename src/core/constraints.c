@@ -467,6 +467,11 @@ setup_constraint_info (MetaBackend         *backend,
       meta_rectangle_union (&info->entire_monitor,
                             &window->fullscreen_monitors.right->rect,
                             &info->entire_monitor);
+      if (window->fullscreen_monitors.top == logical_monitor &&
+          window->fullscreen_monitors.bottom == logical_monitor &&
+          window->fullscreen_monitors.left == logical_monitor &&
+          window->fullscreen_monitors.right == logical_monitor)
+        meta_window_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
     }
   else
     {
