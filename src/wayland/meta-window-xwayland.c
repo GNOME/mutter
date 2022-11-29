@@ -301,6 +301,20 @@ meta_window_xwayland_set_property (GObject      *object,
 }
 
 static void
+meta_window_xwayland_process_property_notify (MetaWindow     *window,
+                                              XPropertyEvent *event)
+{
+  MetaWindowX11Class *parent_class =
+    META_WINDOW_X11_CLASS (meta_window_xwayland_parent_class);
+
+  parent_class->process_property_notify (window, event);
+
+  if (event->atom == window->display->x11_display->atom__XWAYLAND_RANDR_EMU_MONITOR_RECTS &&
+      meta_window_is_fullscreen (window))
+    meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+}
+
+static void
 meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -315,6 +329,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   window_x11_class->freeze_commits = meta_window_xwayland_freeze_commits;
   window_x11_class->thaw_commits = meta_window_xwayland_thaw_commits;
   window_x11_class->always_update_shape = meta_window_xwayland_always_update_shape;
+  window_x11_class->process_property_notify = meta_window_xwayland_process_property_notify;
 
   gobject_class->get_property = meta_window_xwayland_get_property;
   gobject_class->set_property = meta_window_xwayland_set_property;
