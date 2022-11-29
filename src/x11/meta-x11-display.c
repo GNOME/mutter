@@ -688,7 +688,7 @@ take_manager_selection (MetaX11Display *x11_display,
 
   {
     /* Send client message indicating that we are now the selection owner */
-    XClientMessageEvent ev;
+    XClientMessageEvent ev = { 0, };
 
     ev.type = ClientMessage;
     ev.window = xroot;
