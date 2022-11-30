@@ -127,7 +127,7 @@ meta_gles3_has_extensions (MetaGles3    *gles3,
   if (!extensions_str)
     {
       g_warning ("Failed to get string: %s", get_gl_error_str (glGetError ()));
-      return FALSE;
+      extensions_str = "";
     }
 
   va_start (var_args, first_extension);
