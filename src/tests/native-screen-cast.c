@@ -50,8 +50,7 @@ meta_test_screen_cast_record_virtual (void)
   GSubprocess *subprocess;
   GMainLoop *loop;
 
-  launcher =  g_subprocess_launcher_new ((G_SUBPROCESS_FLAGS_STDIN_PIPE |
-                                          G_SUBPROCESS_FLAGS_STDOUT_PIPE));
+  launcher =  g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
 
   test_client_path = g_test_build_filename (G_TEST_BUILT,
                                             "src",
@@ -60,6 +59,9 @@ meta_test_screen_cast_record_virtual (void)
                                             NULL);
   g_subprocess_launcher_setenv (launcher,
                                 "XDG_RUNTIME_DIR", getenv ("XDG_RUNTIME_DIR"),
+                                TRUE);
+  g_subprocess_launcher_setenv (launcher,
+                                "G_MESSAGES_DEBUG", "all",
                                 TRUE);
   subprocess = g_subprocess_launcher_spawn (launcher,
                                             &error,
