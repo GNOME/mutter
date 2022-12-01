@@ -634,12 +634,18 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 
           timeout_us = min_interval_us - time_since_last_frame_us;
           maybe_schedule_follow_up_frame (src, timeout_us);
+          meta_topic (META_DEBUG_SCREEN_CAST,
+                      "Skipped recording frame on stream %u, too early",
+                      priv->node_id);
           return;
         }
     }
 
   if (!priv->pipewire_stream)
     return;
+
+  meta_topic (META_DEBUG_SCREEN_CAST, "Recording frame on stream %u",
+              priv->node_id);
 
   buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
   if (!buffer)
@@ -784,6 +790,11 @@ on_stream_state_changed (void                 *data,
   MetaScreenCastStreamSrc *src = data;
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+
+  meta_topic (META_DEBUG_SCREEN_CAST,
+              "New PipeWire stream (%u) state '%s'",
+              priv->node_id,
+              pw_stream_state_as_string (state));
 
   switch (state)
     {
