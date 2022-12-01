@@ -55,10 +55,12 @@ event_delivery_consecutive_touch_begin_end (void)
   clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
   clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 5, 5);
   g_assert_true (!was_updated);
+  clutter_test_flush_input ();
   wait_stage_updated (CLUTTER_STAGE (stage), &was_updated);
   g_assert_cmpint (n_captured_touch_events, ==, 3);
 
   clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
+  clutter_test_flush_input ();
   wait_stage_updated (CLUTTER_STAGE (stage), &was_updated);
   g_assert_cmpint (n_captured_touch_events, ==, 4);
 
