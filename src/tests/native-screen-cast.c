@@ -26,6 +26,8 @@
 #include <gio/gio.h>
 #include <unistd.h>
 
+#include "meta/util.h"
+
 static void
 test_client_exited (GObject      *source_object,
                     GAsyncResult *result,
@@ -51,6 +53,8 @@ meta_test_screen_cast_record_virtual (void)
   GMainLoop *loop;
 
   launcher =  g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+
+  meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
 
   test_client_path = g_test_build_filename (G_TEST_BUILT,
                                             "src",
@@ -78,6 +82,8 @@ meta_test_screen_cast_record_virtual (void)
   g_main_loop_run (loop);
   g_assert_true (g_subprocess_get_successful (subprocess));
   g_object_unref (subprocess);
+
+  meta_remove_verbose_topic (META_DEBUG_SCREEN_CAST);
 }
 
 void
