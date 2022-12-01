@@ -114,6 +114,9 @@ void            clutter_test_add_data_full      (const char     *test_path,
                                                  GDestroyNotify  test_notify);
 
 CLUTTER_EXPORT
+void            clutter_test_flush_input        (void);
+
+CLUTTER_EXPORT
 ClutterActor *  clutter_test_get_stage          (void);
 
 #define clutter_test_assert_actor_at_point(stage,point,actor) \

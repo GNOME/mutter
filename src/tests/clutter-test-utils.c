@@ -8,6 +8,7 @@
 #include "backends/meta-virtual-monitor.h"
 #include "compositor/meta-plugin-manager.h"
 #include "core/meta-context-private.h"
+#include "tests/meta-test-utils.h"
 
 typedef struct
 {
@@ -73,6 +74,12 @@ clutter_test_get_stage (void)
   MetaBackend *backend = meta_get_backend ();
 
   return meta_backend_get_stage (backend);
+}
+
+void
+clutter_test_flush_input (void)
+{
+  meta_flush_input (test_environ->context);
 }
 
 typedef struct {
