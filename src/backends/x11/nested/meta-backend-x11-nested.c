@@ -174,7 +174,8 @@ static void
 meta_backend_x11_nested_set_keymap (MetaBackend *backend,
                                     const char  *layouts,
                                     const char  *variants,
-                                    const char  *options)
+                                    const char  *options,
+                                    const char  *model)
 {
 }
 

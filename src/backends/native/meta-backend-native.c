@@ -317,14 +317,15 @@ static void
 meta_backend_native_set_keymap (MetaBackend *backend,
                                 const char  *layouts,
                                 const char  *variants,
-                                const char  *options)
+                                const char  *options,
+                                const char  *model)
 {
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_map (META_SEAT_NATIVE (seat),
-                                     layouts, variants, options);
+                                     layouts, variants, options, model);
 
   meta_backend_notify_keymap_changed (backend);
 }

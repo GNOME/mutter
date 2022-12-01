@@ -1546,9 +1546,10 @@ void
 meta_backend_set_keymap (MetaBackend *backend,
                          const char  *layouts,
                          const char  *variants,
-                         const char  *options)
+                         const char  *options,
+                         const char  *model)
 {
-  META_BACKEND_GET_CLASS (backend)->set_keymap (backend, layouts, variants, options);
+  META_BACKEND_GET_CLASS (backend)->set_keymap (backend, layouts, variants, options, model);
 }
 
 /**

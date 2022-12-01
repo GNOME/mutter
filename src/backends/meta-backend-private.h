@@ -89,7 +89,8 @@ struct _MetaBackendClass
   void (* set_keymap) (MetaBackend *backend,
                        const char  *layouts,
                        const char  *variants,
-                       const char  *options);
+                       const char  *options,
+                       const char  *model);
 
   gboolean (* is_lid_closed) (MetaBackend *backend);
 

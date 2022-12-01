@@ -103,7 +103,8 @@ void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
 void meta_seat_native_set_keyboard_map (MetaSeatNative *seat,
                                         const char     *layouts,
                                         const char     *variants,
-                                        const char     *options);
+                                        const char     *options,
+                                        const char     *model);
 
 struct xkb_keymap * meta_seat_native_get_keyboard_map (MetaSeatNative *seat);
 

@@ -374,6 +374,7 @@ init_keymap (MetaDefaultPlugin *self,
   g_autofree char *x11_layout = NULL;
   g_autofree char *x11_options = NULL;
   g_autofree char *x11_variant = NULL;
+  g_autofree char *x11_model = NULL;
 
   proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                          (G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES |
@@ -421,7 +422,14 @@ init_keymap (MetaDefaultPlugin *self,
   if (!g_variant_lookup (props, "X11Variant", "s", &x11_variant))
     x11_variant = g_strdup ("");
 
-  meta_backend_set_keymap (backend, x11_layout, x11_variant, x11_options);
+  if (!g_variant_lookup (props, "X11Model", "s", &x11_model))
+    x11_model = g_strdup ("");
+
+  meta_backend_set_keymap (backend,
+                           x11_layout,
+                           x11_variant,
+                           x11_options,
+                           x11_model);
 }
 
 static void

@@ -157,7 +157,7 @@ meta_seat_native_constructed (GObject *object)
   seat->core_pointer = meta_seat_impl_get_pointer (seat->impl);
   seat->core_keyboard = meta_seat_impl_get_keyboard (seat->impl);
 
-  meta_seat_native_set_keyboard_map (seat, "us", "", "");
+  meta_seat_native_set_keyboard_map (seat, "us", "", "", DEFAULT_XKB_MODEL);
 
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
@@ -480,14 +480,15 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
 static struct xkb_keymap *
 create_keymap (const char *layouts,
                const char *variants,
-               const char *options)
+               const char *options,
+               const char *model)
 {
   struct xkb_rule_names names;
   struct xkb_keymap *keymap;
   struct xkb_context *context;
 
   names.rules = DEFAULT_XKB_RULES_FILE;
-  names.model = DEFAULT_XKB_MODEL;
+  names.model = model;
   names.layout = layouts;
   names.variant = variants;
   names.options = options;
@@ -513,17 +514,18 @@ void
 meta_seat_native_set_keyboard_map (MetaSeatNative *seat,
                                    const char     *layouts,
                                    const char     *variants,
-                                   const char     *options)
+                                   const char     *options,
+                                   const char     *model)
 {
   struct xkb_keymap *keymap, *impl_keymap;
 
-  keymap = create_keymap (layouts, variants, options);
-  impl_keymap = create_keymap (layouts, variants, options);
+  keymap = create_keymap (layouts, variants, options, model);
+  impl_keymap = create_keymap (layouts, variants, options, model);
 
   if (keymap == NULL)
     {
       g_warning ("Unable to load configured keymap: rules=%s, model=%s, layout=%s, variant=%s, options=%s",
-                 DEFAULT_XKB_RULES_FILE, DEFAULT_XKB_MODEL, layouts,
+                 DEFAULT_XKB_RULES_FILE, model, layouts,
                  variants, options);
       return;
     }

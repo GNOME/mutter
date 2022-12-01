@@ -44,7 +44,8 @@ META_EXPORT
 void meta_backend_set_keymap (MetaBackend *backend,
                               const char  *layouts,
                               const char  *variants,
-                              const char  *options);
+                              const char  *options,
+                              const char  *model);
 
 META_EXPORT
 void meta_backend_lock_layout_group (MetaBackend *backend,
