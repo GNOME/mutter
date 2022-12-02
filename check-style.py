@@ -43,13 +43,13 @@ def reformat_chunks(chunks, rewrite):
         with open(file) as f:
             tmp = tempfile.NamedTemporaryFile()
             tmp.write(b'/** *INDENT-OFF* **/\n')
-            for i, line in enumerate(f):
-                if i == start - 2:
+            for i, line in enumerate(f, start=1):
+                if i == start - 1:
                     tmp.write(b'/** *INDENT-ON* **/\n')
 
                 tmp.write(bytes(line, 'utf-8'))
 
-                if i == end - 2:
+                if i == end - 1:
                     tmp.write(b'/** *INDENT-OFF* **/\n')
 
             tmp.seek(0)
