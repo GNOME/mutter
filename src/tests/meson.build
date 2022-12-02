@@ -383,13 +383,6 @@ if have_native_tests
       ],
     },
     {
-      'name': 'xwayland',
-      'suite': 'wayland',
-      'sources': [
-        'xwayland-tests.c',
-      ],
-    },
-    {
       'name': 'wayland-fullscreen',
       'suite': 'wayland',
       'sources': [
@@ -398,6 +391,17 @@ if have_native_tests
       ],
     },
   ]
+  if have_xwayland
+    test_cases += [
+      {
+        'name': 'xwayland',
+        'suite': 'wayland',
+        'sources': [
+          'xwayland-tests.c',
+        ],
+      },
+    ]
+  endif
 
   foreach test_case: test_cases
     test_executable = executable('mutter-' + test_case['name'],

@@ -83,7 +83,9 @@ meta_context_test_configure (MetaContext   *context,
     meta_ensure_test_client_path (*argc, *argv);
 
   meta_wayland_override_display_name ("mutter-test-display");
+#ifdef HAVE_XWAYLAND
   meta_xwayland_override_display_number (512);
+#endif
 
   plugin_name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
   if (!plugin_name)
