@@ -214,9 +214,13 @@ on_xevent (GdkDisplay *display,
            xevent->xproperty.atom ==
            gdk_x11_get_xatom_by_name_for_display (display, "_MUTTER_NEEDS_FRAME"))
     {
-      if (xevent->xproperty.state == PropertyNewValue)
+      if (xevent->xproperty.state == PropertyNewValue &&
+          !g_hash_table_contains (window_tracker->client_windows,
+                                  GUINT_TO_POINTER (xwindow)))
         set_up_frame (window_tracker, xwindow);
-      else if (xevent->xproperty.state == PropertyDelete)
+      else if (xevent->xproperty.state == PropertyDelete &&
+               g_hash_table_contains (window_tracker->client_windows,
+                                      GUINT_TO_POINTER (xwindow)))
         remove_frame (window_tracker, xwindow);
     }
   else if (xevent->type == PropertyNotify)
