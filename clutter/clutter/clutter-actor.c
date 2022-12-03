@@ -1038,10 +1038,6 @@ static void clutter_actor_update_map_state       (ClutterActor  *self,
                                                   MapStateChange change);
 static void clutter_actor_unrealize_not_hiding   (ClutterActor *self);
 
-static void _clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
-                                                               ClutterActor      *ancestor,
-                                                               graphene_matrix_t *matrix);
-
 static ClutterPaintVolume *_clutter_actor_get_paint_volume_mutable (ClutterActor *self);
 
 static guint8   clutter_actor_get_paint_opacity_internal        (ClutterActor *self);
@@ -2767,7 +2763,7 @@ clutter_actor_apply_relative_transform_to_point (ClutterActor             *self,
       return;
     }
 
-  _clutter_actor_get_relative_transformation_matrix (self, ancestor, &matrix);
+  clutter_actor_get_relative_transformation_matrix (self, ancestor, &matrix);
   cogl_graphene_matrix_project_point (&matrix,
                                       &vertex->x,
                                       &vertex->y,
@@ -2798,7 +2794,7 @@ _clutter_actor_fully_transform_vertices (ClutterActor             *self,
   /* Note: we pass NULL as the ancestor because we don't just want the modelview
    * that gets us to stage coordinates, we want to go all the way to eye
    * coordinates */
-  _clutter_actor_get_relative_transformation_matrix (self, NULL, &modelview);
+  clutter_actor_get_relative_transformation_matrix (self, NULL, &modelview);
 
   /* Fetch the projection and viewport */
   _clutter_stage_get_projection_matrix (CLUTTER_STAGE (stage), &projection);
@@ -2838,12 +2834,12 @@ clutter_actor_apply_transform_to_point (ClutterActor             *self,
   _clutter_actor_fully_transform_vertices (self, point, vertex, 1);
 }
 
-/*
- * _clutter_actor_get_relative_transformation_matrix:
+/**
+ * clutter_actor_get_relative_transformation_matrix:
  * @self: The actor whose coordinate space you want to transform from.
- * @ancestor: The ancestor actor whose coordinate space you want to transform too
+ * @ancestor: (nullable): The ancestor actor whose coordinate space you want to transform to
  *            or %NULL if you want to transform all the way to eye coordinates.
- * @matrix: A #graphene_matrix_t to store the transformation
+ * @matrix: (out caller-allocates): A #graphene_matrix_t to store the transformation
  *
  * This gets a transformation @matrix that will transform coordinates from the
  * coordinate space of @self into the coordinate space of @ancestor.
@@ -2867,10 +2863,10 @@ clutter_actor_apply_transform_to_point (ClutterActor             *self,
  */
 /* XXX: We should consider caching the stage relative modelview along with
  * the actor itself */
-static void
-_clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
-                                                   ClutterActor      *ancestor,
-                                                   graphene_matrix_t *matrix)
+void
+clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
+                                                  ClutterActor      *ancestor,
+                                                  graphene_matrix_t *matrix)
 {
   graphene_matrix_init_identity (matrix);
 
@@ -3705,8 +3701,8 @@ clutter_actor_paint (ClutterActor        *self,
         {
           graphene_matrix_t expected_matrix;
 
-          _clutter_actor_get_relative_transformation_matrix (self, NULL,
-                                                             &expected_matrix);
+          clutter_actor_get_relative_transformation_matrix (self, NULL,
+                                                            &expected_matrix);
 
           if (!graphene_matrix_equal_fast (&transform, &expected_matrix))
             {

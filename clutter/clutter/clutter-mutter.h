@@ -135,6 +135,11 @@ void clutter_get_debug_flags (ClutterDebugFlag     *debug_flags,
 CLUTTER_EXPORT
 void clutter_actor_notify_transform_invalid (ClutterActor *self);
 
+CLUTTER_EXPORT
+void clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
+                                                       ClutterActor      *ancestor,
+                                                       graphene_matrix_t *matrix);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */
