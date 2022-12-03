@@ -433,8 +433,8 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
 
   texture_width = cogl_texture_get_width (cursor_texture);
   texture_height = cogl_texture_get_height (cursor_texture);
-  bitmap_width = texture_width * scale;
-  bitmap_height = texture_height * scale;
+  bitmap_width = ceilf (texture_width * scale);
+  bitmap_height = ceilf (texture_height * scale);
 
   spa_meta_bitmap->size.width = bitmap_width;
   spa_meta_bitmap->size.height = bitmap_height;
