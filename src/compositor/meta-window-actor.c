@@ -1239,11 +1239,18 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
 
   if (out_relative_cursor_position)
     {
+      float resource_scale;
+
       clutter_actor_transform_stage_point (CLUTTER_ACTOR (priv->surface),
                                            cursor_position->x,
                                            cursor_position->y,
                                            &out_relative_cursor_position->x,
                                            &out_relative_cursor_position->y);
+
+      resource_scale =
+        clutter_actor_get_resource_scale (CLUTTER_ACTOR (window_actor));
+      out_relative_cursor_position->x *= resource_scale;
+      out_relative_cursor_position->y *= resource_scale;
     }
 
   return TRUE;
