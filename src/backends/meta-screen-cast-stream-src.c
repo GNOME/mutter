@@ -516,6 +516,9 @@ do_record_frame (MetaScreenCastStreamSrc  *src,
   gboolean dmabuf_only;
 
   dmabuf_only = flags & META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
+  if (dmabuf_only && spa_buffer->datas[0].type != SPA_DATA_DmaBuf)
+    return FALSE;
+
   if (!dmabuf_only &&
       (spa_buffer->datas[0].data ||
        spa_buffer->datas[0].type == SPA_DATA_MemFd))
@@ -818,7 +821,8 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
         }
       else
         {
-          g_warning ("Failed to record screen cast frame: %s", error->message);
+          if (error)
+            g_warning ("Failed to record screen cast frame: %s", error->message);
           spa_buffer->datas[0].chunk->size = 0;
           spa_buffer->datas[0].chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
         }
