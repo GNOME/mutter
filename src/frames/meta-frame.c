@@ -42,6 +42,8 @@ typedef struct
   unsigned long status;
 } MotifWmHints;
 
+#define MWM_HINTS_FUNCTIONS (1L << 0)
+
 #define MWM_FUNC_ALL (1L << 0)
 #define MWM_FUNC_RESIZE (1L << 1)
 #define MWM_FUNC_MINIMIZE (1L << 3)
@@ -188,17 +190,17 @@ frame_sync_motif_wm_hints (GtkWindow *frame,
                       &nitems, &bytes_after,
                       (unsigned char **) &mwm_hints);
 
-  if (mwm_hints)
+  if (mwm_hints &&
+      (mwm_hints->flags & MWM_HINTS_FUNCTIONS) != 0)
     {
       if ((mwm_hints->functions & MWM_FUNC_ALL) == 0)
         deletable = (mwm_hints->functions & MWM_FUNC_CLOSE) != 0;
       else
         deletable = (mwm_hints->functions & MWM_FUNC_CLOSE) == 0;
-
-      g_free (mwm_hints);
     }
 
   gtk_window_set_deletable (frame, deletable);
+  g_free (mwm_hints);
 }
 
 static void
