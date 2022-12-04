@@ -19184,3 +19184,36 @@ void clutter_actor_set_implicitly_grabbed (ClutterActor *self,
 
   g_assert (priv->implicitly_grabbed_count >= 0);
 }
+
+/**
+ * clutter_actor_notify_transform_invalid:
+ * @self: A #ClutterActor
+ *
+ * Invalidate the cached transformation matrix of @self and queue a redraw
+ * if the transformation matrix has changed.
+ * This is needed for implementations overriding the apply_transform()
+ * vfunc and has to be called if the matrix returned by apply_transform()
+ * would change due to state outside of the object itself.
+ */
+void
+clutter_actor_notify_transform_invalid (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  graphene_matrix_t old_transform;
+
+  if (!priv->transform_valid)
+    {
+      clutter_actor_queue_redraw (self);
+      return;
+    }
+
+  graphene_matrix_init_from_matrix (&old_transform, &priv->transform);
+
+  transform_changed (self);
+  ensure_valid_actor_transform (self);
+
+  g_assert (priv->transform_valid);
+
+  if (!graphene_matrix_equal (&old_transform, &priv->transform))
+    clutter_actor_queue_redraw (self);
+}

@@ -132,6 +132,9 @@ void clutter_get_debug_flags (ClutterDebugFlag     *debug_flags,
                               ClutterDrawDebugFlag *draw_flags,
                               ClutterPickDebugFlag *pick_flags);
 
+CLUTTER_EXPORT
+void clutter_actor_notify_transform_invalid (ClutterActor *self);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */
