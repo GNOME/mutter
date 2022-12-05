@@ -1,3 +1,24 @@
+43.2
+====
+* Fix edge resistance and window snapping regression [John; !2687]
+* Handle stage view updates without allocation more gracefully [Jonas D.; !2694]
+* Fix window screenshots being cut off at the bottom right [Sebastian K.; !2720]
+* Implement wl_output v3 and v4 [Robert; !2692]
+* Fix recalculating viewport after window resize [Sebastian Kr.; !2689]
+* Set LOD bias for sharper mipmaps [Daniel; !2644]
+* Don't disable KMS modifiers on newer i915 systems [Sameer; !2641]
+* Fixed crashes [Jonas Å., Sebastian, msizanoen1, Jonas D., Bilal; !2704, !2695,
+  !2711, !2690, !2691, !2709, !2706]
+* Misc. bug fixes and cleanups [Jonas Å., Bram; !2716, !2724, !2645, !2710]
+
+Contributors:
+  Jonas Dreßler, Bilal Elmoussaoui, Sebastian Keller, Sebastian Krzyszkowiak,
+  Sameer Lattannavar, Robert Mader, Bram Stolk, Daniel van Vugt, Sebastian Wick,
+  John Wudrick, msizanoen1, Jonas Ådahl
+
+Translators:
+  Dušan Kazik [sk], Nart Tlisha [ab]
+
 43.1
 ====
 * Add quirk to work around issue with Mali GPUs [Daniel; !2614]
