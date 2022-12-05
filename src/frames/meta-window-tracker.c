@@ -89,9 +89,7 @@ meta_window_tracker_get_property (GObject    *object,
 }
 
 static void
-on_color_scheme_changed_cb (GSettings         *interface_settings,
-                            GParamSpec        *pspec,
-                            MetaWindowTracker *window_tracker)
+update_color_scheme (MetaWindowTracker *window_tracker)
 {
   GDesktopColorScheme color_scheme;
   gboolean is_dark;
@@ -103,6 +101,14 @@ on_color_scheme_changed_cb (GSettings         *interface_settings,
   g_object_set (gtk_settings_get_default (),
                 "gtk-application-prefer-dark-theme", is_dark,
                 NULL);
+}
+
+static void
+on_color_scheme_changed_cb (GSettings         *interface_settings,
+                            GParamSpec        *pspec,
+                            MetaWindowTracker *window_tracker)
+{
+  update_color_scheme (window_tracker);
 }
 
 static void
@@ -409,6 +415,7 @@ meta_window_tracker_init (MetaWindowTracker *window_tracker)
                     "changed::color-scheme",
                     G_CALLBACK (on_color_scheme_changed_cb),
                     window_tracker);
+  update_color_scheme (window_tracker);
 
   window_tracker->frames =
     g_hash_table_new_full (NULL, NULL, NULL,
