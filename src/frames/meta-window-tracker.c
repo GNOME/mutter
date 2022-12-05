@@ -95,7 +95,7 @@ update_color_scheme (MetaWindowTracker *window_tracker)
   gboolean is_dark;
 
   color_scheme = g_settings_get_enum (window_tracker->interface_settings,
-                                     "color-scheme");
+                                      "color-scheme");
   is_dark = color_scheme == G_DESKTOP_COLOR_SCHEME_PREFER_DARK;
 
   g_object_set (gtk_settings_get_default (),
