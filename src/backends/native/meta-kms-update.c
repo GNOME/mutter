@@ -546,28 +546,6 @@ meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
                                             listener);
 }
 
-void
-meta_kms_update_remove_result_listeners (MetaKmsUpdate             *update,
-                                         MetaKmsResultListenerFunc  func,
-                                         gpointer                   user_data)
-{
-  GList *l;
-
-  for (l = update->result_listeners; l;)
-    {
-      MetaKmsResultListener *listener = l->data;
-      GList *next = l->next;
-
-      if (listener->user_data == func && listener->user_data == user_data)
-        {
-          update->result_listeners =
-            g_list_delete_link (update->result_listeners, l);
-        }
-
-      l = next;
-    }
-}
-
 GList *
 meta_kms_update_take_result_listeners (MetaKmsUpdate *update)
 {
