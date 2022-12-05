@@ -1647,7 +1647,8 @@ focus_ancestor_or_mru_window (MetaWorkspace *workspace,
           if (try_to_set_focus_and_check (ancestor, not_this_one, timestamp))
             {
               /* Also raise the window if in click-to-focus */
-              if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+              if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK &&
+                  meta_prefs_get_raise_on_click ())
                 meta_window_raise (ancestor);
 
               return;
@@ -1664,7 +1665,8 @@ focus_ancestor_or_mru_window (MetaWorkspace *workspace,
       if (try_to_set_focus_and_check (window, not_this_one, timestamp))
         {
           /* Also raise the window if in click-to-focus */
-          if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+          if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK &&
+              meta_prefs_get_raise_on_click ())
             meta_window_raise (window);
 
           return;
