@@ -9,6 +9,7 @@ x11_frames_sources = [
 x11_frames = executable('mutter-x11-frames',
   sources: x11_frames_sources,
   dependencies: [
+    gsettings_desktop_schemas_dep,
     gtk4_dep,
     x11_dep,
     xext_dep,

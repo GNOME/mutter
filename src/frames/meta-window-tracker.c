@@ -23,6 +23,7 @@
 
 #include "meta-frame.h"
 
+#include <gdesktop-enums.h>
 #include <gdk/x11/gdkx.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput2.h>
@@ -30,6 +31,9 @@
 struct _MetaWindowTracker
 {
   GObject parent_instance;
+
+  GSettings *interface_settings;
+
   GdkDisplay *display;
   GHashTable *frames;
   GHashTable *client_windows;
@@ -82,6 +86,23 @@ meta_window_tracker_get_property (GObject    *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
+}
+
+static void
+on_color_scheme_changed_cb (GSettings         *interface_settings,
+                            GParamSpec        *pspec,
+                            MetaWindowTracker *window_tracker)
+{
+  GDesktopColorScheme color_scheme;
+  gboolean is_dark;
+
+  color_scheme = g_settings_get_enum (window_tracker->interface_settings,
+                                     "color-scheme");
+  is_dark = color_scheme == G_DESKTOP_COLOR_SCHEME_PREFER_DARK;
+
+  g_object_set (gtk_settings_get_default (),
+                "gtk-application-prefer-dark-theme", is_dark,
+                NULL);
 }
 
 static void
@@ -346,6 +367,7 @@ meta_window_tracker_finalize (GObject *object)
 {
   MetaWindowTracker *window_tracker = META_WINDOW_TRACKER (object);
 
+  g_clear_object (&window_tracker->interface_settings);
   g_clear_pointer (&window_tracker->frames,
                    g_hash_table_unref);
   g_clear_pointer (&window_tracker->client_windows,
@@ -382,6 +404,12 @@ meta_window_tracker_class_init (MetaWindowTrackerClass *klass)
 static void
 meta_window_tracker_init (MetaWindowTracker *window_tracker)
 {
+  window_tracker->interface_settings = g_settings_new ("org.gnome.desktop.interface");
+  g_signal_connect (window_tracker->interface_settings,
+                    "changed::color-scheme",
+                    G_CALLBACK (on_color_scheme_changed_cb),
+                    window_tracker);
+
   window_tracker->frames =
     g_hash_table_new_full (NULL, NULL, NULL,
                            (GDestroyNotify) gtk_window_destroy);
