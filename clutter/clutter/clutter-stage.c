@@ -4077,6 +4077,8 @@ clutter_stage_emit_event (ClutterStage       *self,
       case CLUTTER_TOUCH_BEGIN:
       case CLUTTER_TOUCH_CANCEL:
       case CLUTTER_TOUCH_END:
+      case CLUTTER_PROXIMITY_IN:
+      case CLUTTER_PROXIMITY_OUT:
         {
           float x, y;
 
@@ -4087,13 +4089,6 @@ clutter_stage_emit_event (ClutterStage       *self,
                         x, y, entry->current_actor);
 
           target_actor = entry->current_actor;
-          break;
-        }
-
-      case CLUTTER_PROXIMITY_IN:
-      case CLUTTER_PROXIMITY_OUT:
-        {
-          target_actor = CLUTTER_ACTOR (self);
           break;
         }
     }
