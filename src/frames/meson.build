@@ -19,7 +19,7 @@ x11_frames = executable('mutter-x11-frames',
   c_args: [
     '-DG_LOG_DOMAIN="mutter-x11-frames"',
   ],
-  include_directories: mutter_includes,
+  include_directories: top_includepath,
   install: true,
   install_dir: get_option('libexecdir'),
 )

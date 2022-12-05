@@ -27,13 +27,28 @@
 #include <gdk/x11/gdkx.h>
 #include <X11/Xatom.h>
 
-#include "x11/motif-wm-hints.h"
-
 struct _MetaFrame
 {
   GtkWindow parent_instance;
   GtkWidget *content;
 };
+
+typedef struct
+{
+  unsigned long flags;
+  unsigned long functions;
+  unsigned long decorations;
+  long input_mode;
+  unsigned long status;
+} MotifWmHints;
+
+#define MWM_HINTS_FUNCTIONS (1L << 0)
+
+#define MWM_FUNC_ALL (1L << 0)
+#define MWM_FUNC_RESIZE (1L << 1)
+#define MWM_FUNC_MINIMIZE (1L << 3)
+#define MWM_FUNC_MAXIMIZE (1L << 4)
+#define MWM_FUNC_CLOSE (1L << 5)
 
 G_DEFINE_TYPE (MetaFrame, meta_frame, GTK_TYPE_WINDOW)
 
