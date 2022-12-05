@@ -318,23 +318,6 @@ motif_hints_from_results (GetPropertyResults *results,
   return TRUE;
 }
 
-gboolean
-meta_prop_get_motif_hints (MetaX11Display *x11_display,
-                           Window          xwindow,
-                           Atom            xatom,
-                           MotifWmHints  **hints_p)
-{
-  GetPropertyResults results;
-
-  *hints_p = NULL;
-
-  if (!get_property (x11_display, xwindow, xatom, AnyPropertyType,
-                     &results))
-    return FALSE;
-
-  return motif_hints_from_results (&results, hints_p);
-}
-
 static gboolean
 latin1_string_from_results (GetPropertyResults *results,
                             char              **str_p)

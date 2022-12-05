@@ -69,10 +69,6 @@ typedef struct {
 /* These all return the memory from Xlib, so require an XFree()
  * when they return TRUE. They return TRUE on success.
  */
-gboolean meta_prop_get_motif_hints   (MetaX11Display *x11_display,
-                                      Window          xwindow,
-                                      Atom            xatom,
-                                      MotifWmHints  **hints_p);
 gboolean meta_prop_get_cardinal_list (MetaX11Display *x11_display,
                                       Window          xwindow,
                                       Atom            xatom,
