@@ -115,6 +115,8 @@ meta_frame_header_init (MetaFrameHeader *content)
   GtkWidget *header_bar;
 
   header_bar = gtk_header_bar_new ();
+  gtk_widget_add_css_class (header_bar, "titlebar");
+  gtk_widget_add_css_class (header_bar, "default-decoration");
   gtk_widget_insert_before (header_bar, GTK_WIDGET (content), NULL);
 }
 
