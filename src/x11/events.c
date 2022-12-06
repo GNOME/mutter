@@ -1489,13 +1489,18 @@ handle_other_xevent (MetaX11Display *x11_display,
           unsigned long nitems, bytes_after, *data;
 
           /* Check whether the new window is a frame for another window */
-          if (XGetWindowProperty (x11_display->xdisplay,
-                                  event->xmaprequest.window,
-                                  x11_display->atom__MUTTER_FRAME_FOR,
-                                  0, 32, False, XA_WINDOW,
-                                  &type, &format, &nitems, &bytes_after,
-                                  (guchar **) &data) == Success &&
-              nitems == 1)
+          meta_x11_error_trap_push (x11_display);
+
+          XGetWindowProperty (x11_display->xdisplay,
+                              event->xmaprequest.window,
+                              x11_display->atom__MUTTER_FRAME_FOR,
+                              0, 32, False, XA_WINDOW,
+                              &type, &format, &nitems, &bytes_after,
+                              (guchar **) &data);
+
+          meta_x11_error_trap_pop (x11_display);
+
+          if (nitems == 1)
             {
               Window client_window;
 
