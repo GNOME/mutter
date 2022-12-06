@@ -697,7 +697,9 @@ meta_xwayland_data_source_fetch_mimetype_list (MetaWaylandDataSource *source,
 {
   MetaWaylandDataSourceXWayland *source_xwayland =
     META_WAYLAND_DATA_SOURCE_XWAYLAND (source);
-  Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+  MetaXWaylandDnd *dnd = source_xwayland->dnd;
+  MetaX11Display *x11_display = x11_display_from_dnd (dnd);
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   gulong nitems_ret, bytes_after_ret, i;
   Atom *atoms, type_ret, utf8_string;
   int format_ret;
@@ -707,17 +709,26 @@ meta_xwayland_data_source_fetch_mimetype_list (MetaWaylandDataSource *source,
   if (source_mime_types->size != 0)
     return TRUE;
 
+  meta_x11_error_trap_push (x11_display);
+
   utf8_string = gdk_x11_get_xatom_by_name ("UTF8_STRING");
-  XGetWindowProperty (xdisplay, window, prop,
-                      0, /* offset */
-                      0x1fffffff, /* length */
-                      False, /* delete */
-                      AnyPropertyType,
-                      &type_ret,
-                      &format_ret,
-                      &nitems_ret,
-                      &bytes_after_ret,
-                      (guchar **) &atoms);
+  if (XGetWindowProperty (xdisplay, window, prop,
+                          0, /* offset */
+                          0x1fffffff, /* length */
+                          False, /* delete */
+                          AnyPropertyType,
+                          &type_ret,
+                          &format_ret,
+                          &nitems_ret,
+                          &bytes_after_ret,
+                          (guchar **) &atoms) != Success)
+    {
+      meta_x11_error_trap_pop (x11_display);
+      return FALSE;
+    }
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+    return FALSE;
 
   if (nitems_ret == 0 || type_ret != XA_ATOM)
     {
