@@ -132,6 +132,8 @@ set_up_frame (MetaWindowTracker *window_tracker,
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   xframe = gdk_x11_surface_get_xid (surface);
 
+  gdk_x11_display_error_trap_push (display);
+
   XAddToSaveSet (xdisplay, xwindow);
 
   data[0] = xwindow;
@@ -142,6 +144,12 @@ set_up_frame (MetaWindowTracker *window_tracker,
                    32,
                    PropModeReplace,
                    (guchar *) data, 1);
+
+  if (gdk_x11_display_error_trap_pop (display))
+    {
+      gtk_window_destroy (GTK_WINDOW (frame));
+      return;
+    }
 
   g_hash_table_insert (window_tracker->frames,
                        GUINT_TO_POINTER (xframe), frame);
@@ -285,7 +293,11 @@ on_xevent (GdkDisplay *display,
            * its default.
            */
           if (frame && crossing->detail == XINotifyInferior)
-            XIUndefineCursor (xdisplay, crossing->deviceid, xwindow);
+            {
+              gdk_x11_display_error_trap_push (display);
+              XIUndefineCursor (xdisplay, crossing->deviceid, xwindow);
+              gdk_x11_display_error_trap_pop_ignored (display);
+            }
         }
     }
 

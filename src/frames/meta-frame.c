@@ -179,6 +179,9 @@ meta_frame_update_extents (MetaFrame *frame,
   data[3] = border.bottom;
 
   xframe = gdk_x11_surface_get_xid (surface);
+
+  gdk_x11_display_error_trap_push (display);
+
   XChangeProperty (gdk_x11_display_get_xdisplay (display),
                    xframe,
                    gdk_x11_get_xatom_by_name_for_display (display, "_MUTTER_FRAME_EXTENTS"),
@@ -186,6 +189,8 @@ meta_frame_update_extents (MetaFrame *frame,
                    32,
                    PropModeReplace,
                    (guchar *) &data, 4);
+
+  gdk_x11_display_error_trap_pop_ignored (display);
 }
 
 static void
@@ -214,16 +219,25 @@ frame_sync_title (GtkWindow *frame,
 
   display = gtk_widget_get_display (GTK_WIDGET (frame));
 
-  XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
-                      client_window,
-                      gdk_x11_get_xatom_by_name_for_display (display,
-                                                             "_NET_WM_NAME"),
-                      0, G_MAXLONG, False,
-                      gdk_x11_get_xatom_by_name_for_display (display,
-                                                             "UTF8_STRING"),
-                      &type, &format,
-                      &nitems, &bytes_after,
-                      (unsigned char **) &title);
+  gdk_x11_display_error_trap_push (display);
+
+  if (XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
+                          client_window,
+                          gdk_x11_get_xatom_by_name_for_display (display,
+                                                                 "_NET_WM_NAME"),
+                          0, G_MAXLONG, False,
+                          gdk_x11_get_xatom_by_name_for_display (display,
+                                                                 "UTF8_STRING"),
+                          &type, &format,
+                          &nitems, &bytes_after,
+                          (unsigned char **) &title) != Success)
+    {
+      gdk_x11_display_error_trap_pop_ignored (display);
+      return;
+    }
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
 
   gtk_window_set_title (frame, title);
   g_free (title);
@@ -242,15 +256,24 @@ frame_sync_motif_wm_hints (GtkWindow *frame,
 
   display = gtk_widget_get_display (GTK_WIDGET (frame));
 
-  XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
-                      client_window,
-                      gdk_x11_get_xatom_by_name_for_display (display,
-                                                             "_MOTIF_WM_HINTS"),
-                      0, sizeof (MotifWmHints) / sizeof (long),
-                      False, AnyPropertyType,
-                      &type, &format,
-                      &nitems, &bytes_after,
-                      (unsigned char **) &mwm_hints);
+  gdk_x11_display_error_trap_push (display);
+
+  if (XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
+                          client_window,
+                          gdk_x11_get_xatom_by_name_for_display (display,
+                                                                 "_MOTIF_WM_HINTS"),
+                          0, sizeof (MotifWmHints) / sizeof (long),
+                          False, AnyPropertyType,
+                          &type, &format,
+                          &nitems, &bytes_after,
+                          (unsigned char **) &mwm_hints) != Success)
+    {
+      gdk_x11_display_error_trap_pop_ignored (display);
+      return;
+    }
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
 
   if (mwm_hints &&
       (mwm_hints->flags & MWM_HINTS_FUNCTIONS) != 0)
@@ -276,10 +299,19 @@ frame_sync_wm_normal_hints (GtkWindow *frame,
 
   display = gtk_widget_get_display (GTK_WIDGET (frame));
 
-  XGetWMNormalHints (gdk_x11_display_get_xdisplay (display),
-                     client_window,
-                     &size_hints,
-                     &nitems);
+  gdk_x11_display_error_trap_push (display);
+
+  if (XGetWMNormalHints (gdk_x11_display_get_xdisplay (display),
+                         client_window,
+                         &size_hints,
+                         &nitems) != Success)
+    {
+      gdk_x11_display_error_trap_pop_ignored (display);
+      return;
+    }
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
 
   if (nitems > 0)
     {
