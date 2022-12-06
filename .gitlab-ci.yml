@@ -380,7 +380,7 @@ build-without-native-backend-and-wayland@x86_64:
             --timeout-multiplier 10
   artifacts:
     reports:
-      junit: "build/meson-logs/testlog.junit.xml"
+      junit: "build/meson-logs/testlog-plain.junit.xml"
 
 test-mutter@x86_64:
   extends:
