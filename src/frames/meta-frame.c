@@ -102,6 +102,9 @@ meta_frame_update_extents (MetaFrame *frame,
   data[3] = border.bottom;
 
   xframe = gdk_x11_surface_get_xid (surface);
+
+  gdk_x11_display_error_trap_push (display);
+
   XChangeProperty (gdk_x11_display_get_xdisplay (display),
                    xframe,
                    gdk_x11_get_xatom_by_name_for_display (display, "_MUTTER_FRAME_EXTENTS"),
@@ -109,6 +112,8 @@ meta_frame_update_extents (MetaFrame *frame,
                    32,
                    PropModeReplace,
                    (guchar *) &data, 4);
+
+  gdk_x11_display_error_trap_pop_ignored (display);
 }
 
 static void
@@ -137,6 +142,8 @@ frame_sync_title (GtkWindow *frame,
 
   display = gtk_widget_get_display (GTK_WIDGET (frame));
 
+  gdk_x11_display_error_trap_push (display);
+
   XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
                       client_window,
                       gdk_x11_get_xatom_by_name_for_display (display,
@@ -147,6 +154,9 @@ frame_sync_title (GtkWindow *frame,
                       &type, &format,
                       &nitems, &bytes_after,
                       (unsigned char **) &title);
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
 
   gtk_window_set_title (frame, title);
   g_free (title);
@@ -165,6 +175,8 @@ frame_sync_motif_wm_hints (GtkWindow *frame,
 
   display = gtk_widget_get_display (GTK_WIDGET (frame));
 
+  gdk_x11_display_error_trap_push (display);
+
   XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
                       client_window,
                       gdk_x11_get_xatom_by_name_for_display (display,
@@ -174,6 +186,9 @@ frame_sync_motif_wm_hints (GtkWindow *frame,
                       &type, &format,
                       &nitems, &bytes_after,
                       (unsigned char **) &mwm_hints);
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
 
   if (mwm_hints &&
       (mwm_hints->flags & MWM_HINTS_FUNCTIONS) != 0)
@@ -199,10 +214,19 @@ frame_sync_wm_normal_hints (GtkWindow *frame,
 
   display = gtk_widget_get_display (GTK_WIDGET (frame));
 
-  XGetWMNormalHints (gdk_x11_display_get_xdisplay (display),
-                     client_window,
-                     &size_hints,
-                     &nitems);
+  gdk_x11_display_error_trap_push (display);
+
+  if (XGetWMNormalHints (gdk_x11_display_get_xdisplay (display),
+                         client_window,
+                         &size_hints,
+                         &nitems) != Success)
+    {
+      gdk_x11_display_error_trap_pop_ignored (display);
+      return;
+    }
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return;
 
   if (nitems > 0)
     {
