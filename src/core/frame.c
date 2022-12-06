@@ -99,13 +99,15 @@ meta_window_set_frame_xwindow (MetaWindow *window,
                                  create_serial);
 
   meta_verbose ("Frame for %s is 0x%lx", frame->window->desc, frame->xwindow);
+
+  meta_x11_error_trap_push (x11_display);
+
   attrs.event_mask = EVENT_MASK;
   XChangeWindowAttributes (x11_display->xdisplay,
 			   frame->xwindow, CWEventMask, &attrs);
 
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
-  meta_x11_error_trap_push (x11_display);
   if (window->mapped)
     {
       window->mapped = FALSE; /* the reparent will unmap the window,
