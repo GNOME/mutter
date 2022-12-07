@@ -143,13 +143,21 @@ chunks = find_chunks(diff)
 changed = reformat_chunks(chunks, rewrite)
 
 if dry_run is not True and rewrite is True:
-    subprocess.run(["git", "commit", "--all", "--amend", "-C", "HEAD"], stdout=subprocess.DEVNULL)
+    proc = subprocess.run(["git", "add", "-p"])
+    if proc.returncode == 0:
+        # Commit the added changes as a squash commit
+        subprocess.run(
+            ["git", "commit", "--squash", "HEAD", "-C", "HEAD"],
+            stdout=subprocess.DEVNULL)
+        # Delete the unapplied changes
+        subprocess.run(["git", "reset", "--hard"], stdout=subprocess.DEVNULL)
     os._exit(0)
 elif dry_run is True and changed is True:
     print(f"""
-Issue the following command in your local tree to apply the suggested changes:
+Issue the following commands in your local tree to apply the suggested changes:
 
     $ git rebase {sha} --exec "./check-style.py -r"
+    $ git rebase --autosquash {sha}
 """)
     os._exit(-1)
 
