@@ -24,6 +24,8 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#define G_SETTINGS_ENABLE_BACKEND
+#include <gio/gsettingsbackend.h>
 
 #include "core/meta-context-private.h"
 #include "tests/meta-backend-test.h"
@@ -59,6 +61,18 @@ struct _MetaContextTestClass
 G_DEFINE_TYPE_WITH_PRIVATE (MetaContextTest, meta_context_test,
                             META_TYPE_CONTEXT)
 
+static void
+ensure_gsettings_memory_backend (void)
+{
+  g_autoptr (GSettingsBackend) memory_backend = NULL;
+  GSettingsBackend *default_backend;
+
+  memory_backend = g_memory_settings_backend_new ();
+  default_backend = g_settings_backend_get_default ();
+  g_assert_true (G_TYPE_FROM_INSTANCE (memory_backend) ==
+                 G_TYPE_FROM_INSTANCE (default_backend));
+}
+
 static gboolean
 meta_context_test_configure (MetaContext   *context,
                              int           *argc,
@@ -91,6 +105,8 @@ meta_context_test_configure (MetaContext   *context,
   if (!plugin_name)
     plugin_name = "libdefault";
   meta_context_set_plugin_name (context, plugin_name);
+
+  ensure_gsettings_memory_backend ();
 
   return TRUE;
 }

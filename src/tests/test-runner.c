@@ -1203,6 +1203,32 @@ test_case_do (TestCase *test,
                                                   CLUTTER_BUTTON_STATE_RELEASED);
       meta_flush_input (test->context);
     }
+  else if (strcmp (argv[0], "set_pref") == 0)
+    {
+      GSettings *settings;
+
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <KEY> <VALUE>", argv[0]);
+
+      settings = g_settings_new ("org.gnome.desktop.wm.preferences");
+      g_assert_nonnull (settings);
+
+      if (strcmp (argv[1], "raise-on-click") == 0)
+        {
+          gboolean value;
+          if (g_ascii_strcasecmp (argv[2], "true") == 0)
+            value = TRUE;
+          else if (g_ascii_strcasecmp (argv[2], "false") == 0)
+            value = FALSE;
+          else
+            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+
+          g_assert_true (g_settings_set_boolean (settings, "raise-on-click", value));
+        }
+      else {
+        BAD_COMMAND("Unknown preference %s", argv[1]);
+      }
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);

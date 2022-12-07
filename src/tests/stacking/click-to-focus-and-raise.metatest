@@ -1,5 +1,7 @@
 resize_monitor primary 800 600
 
+num_workspaces 2
+
 new_client w wayland
 
 create w/1 csd
@@ -25,9 +27,38 @@ assert_size w/1 100 100
 assert_position w/2 100 0
 assert_size w/2 100 100
 
+# click on window w/1 and check that it gets focused and raised
 move_cursor_to 50 50
 click
 wait
 
 assert_stacking w/2 w/1
 assert_focused w/1
+
+# click on window w/2 and check that it gets focused but not raised
+# when raise-on-click false is false
+set_pref raise-on-click false
+
+move_cursor_to 150 50
+click
+wait
+
+assert_stacking w/2 w/1
+assert_focused w/2
+
+# Change to another workspace, create a window with focus, change back to the
+# original workspace and make sure the focus for that workspace didn't change
+activate_workspace 1
+wait
+
+create w/3 csd
+resize w/3 100 100
+show w/3
+
+wait_reconfigure
+
+activate_workspace 0
+wait
+
+assert_stacking_workspace 0 w/2 w/1
+assert_focused w/2
