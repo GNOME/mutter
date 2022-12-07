@@ -43,6 +43,7 @@ typedef struct {
   GMainLoop *loop;
   gulong x11_display_opened_handler_id;
   MetaVirtualMonitor *virtual_monitor;
+  ClutterVirtualInputDevice *pointer;
 } TestCase;
 
 static gboolean
@@ -76,6 +77,8 @@ test_case_new (MetaContext *context)
 {
   TestCase *test = g_new0 (TestCase, 1);
   MetaDisplay *display = meta_context_get_display (context);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
 
   if (display->x11_display)
     {
@@ -93,6 +96,8 @@ test_case_new (MetaContext *context)
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
   test->loop = g_main_loop_new (NULL, FALSE);
   test->virtual_monitor = meta_create_test_monitor (context, 800, 600, 60.0);
+  test->pointer = clutter_seat_create_virtual_device (seat,
+                                                      CLUTTER_POINTER_DEVICE);
 
   return test;
 }
@@ -1170,6 +1175,34 @@ test_case_do (TestCase *test,
 
       meta_display_focus_default_window (display, timestamp);
     }
+  else if (strcmp (argv[0], "move_cursor_to") == 0)
+    {
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <x> <y>", argv[0]);
+
+      float x = atof (argv[1]);
+      float y = atof (argv[2]);
+
+      clutter_virtual_input_device_notify_absolute_motion (test->pointer,
+                                                           CLUTTER_CURRENT_TIME,
+                                                           x, y);
+      meta_flush_input (test->context);
+    }
+  else if (strcmp (argv[0], "click") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      clutter_virtual_input_device_notify_button (test->pointer,
+                                                  CLUTTER_CURRENT_TIME,
+                                                  CLUTTER_BUTTON_PRIMARY,
+                                                  CLUTTER_BUTTON_STATE_PRESSED);
+      clutter_virtual_input_device_notify_button (test->pointer,
+                                                  CLUTTER_CURRENT_TIME,
+                                                  CLUTTER_BUTTON_PRIMARY,
+                                                  CLUTTER_BUTTON_STATE_RELEASED);
+      meta_flush_input (test->context);
+    }
   else
     {
       BAD_COMMAND("Unknown command %s", argv[0]);
@@ -1220,6 +1253,7 @@ test_case_destroy (TestCase *test,
 
   g_hash_table_destroy (test->clients);
   g_object_unref (test->virtual_monitor);
+  g_object_unref (test->pointer);
   g_free (test);
 
   return TRUE;
