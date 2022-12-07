@@ -489,6 +489,7 @@ stacking_tests = [
   'focus-default-window-globally-active-input',
   'workspace-unmanaging-window',
   'click-to-focus-and-raise',
+  'workspace-only-on-primary-focus',
 ]
 
 foreach stacking_test: stacking_tests

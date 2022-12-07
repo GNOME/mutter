@@ -1,0 +1,49 @@
+resize_monitor primary 800 600
+add_monitor secondary 800 600
+
+num_workspaces 2
+
+set_pref raise-on-click false
+set_pref workspaces-only-on-primary true
+
+new_client w wayland
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+
+wait_reconfigure
+
+# make sure the windows are on the secondary monitor
+move w/1 800 0
+move w/2 900 0
+
+wait_reconfigure
+
+assert_stacking w/1 w/2
+assert_focused w/2
+
+assert_position w/1 800 0
+assert_size w/1 100 100
+assert_position w/2 900 0
+assert_size w/2 100 100
+
+# click on window w/1 and check that it gets focused but not raised
+move_cursor_to 850 50
+click
+wait
+
+assert_stacking w/1 w/2
+assert_focused w/1
+
+# Change to another workspace, create a window with focus, change back to the
+# original workspace and make sure the focus for that workspace didn't change
+activate_workspace 1
+wait
+
+assert_stacking w/1 w/2
+assert_focused w/1

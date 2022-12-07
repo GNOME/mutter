@@ -42,7 +42,7 @@ typedef struct {
   GString *warning_messages;
   GMainLoop *loop;
   gulong x11_display_opened_handler_id;
-  MetaVirtualMonitor *virtual_monitor;
+  GHashTable *virtual_monitors;
   ClutterVirtualInputDevice *pointer;
 } TestCase;
 
@@ -79,6 +79,7 @@ test_case_new (MetaContext *context)
   MetaDisplay *display = meta_context_get_display (context);
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  MetaVirtualMonitor *monitor;
 
   if (display->x11_display)
     {
@@ -95,9 +96,15 @@ test_case_new (MetaContext *context)
   test->context = context;
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
   test->loop = g_main_loop_new (NULL, FALSE);
-  test->virtual_monitor = meta_create_test_monitor (context, 800, 600, 60.0);
   test->pointer = clutter_seat_create_virtual_device (seat,
                                                       CLUTTER_POINTER_DEVICE);
+
+  test->virtual_monitors = g_hash_table_new_full (g_str_hash,
+                                                  g_str_equal,
+                                                  g_free,
+                                                  g_object_unref);
+  monitor = meta_create_test_monitor (context, 800, 600, 60.0);
+  g_hash_table_insert (test->virtual_monitors, g_strdup ("primary"), monitor);
 
   return test;
 }
@@ -1013,21 +1020,41 @@ test_case_do (TestCase *test,
         meta_backend_get_monitor_manager (backend);
       MetaCrtcMode *crtc_mode;
       const MetaCrtcModeInfo *crtc_mode_info;
+      MetaVirtualMonitor *monitor;
 
       if (argc != 4)
         BAD_COMMAND ("usage: %s <monitor-id> <width> <height>", argv[0]);
 
-      if (strcmp (argv[1], "0") != 0 &&
-          strcmp (argv[1], "primary") != 0)
+      monitor = g_hash_table_lookup (test->virtual_monitors, argv[1]);
+      if (!monitor)
         BAD_COMMAND ("Unknown monitor %s", argv[1]);
 
-      crtc_mode = meta_virtual_monitor_get_crtc_mode (test->virtual_monitor);
+      crtc_mode = meta_virtual_monitor_get_crtc_mode (monitor);
       crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
-      meta_virtual_monitor_set_mode (test->virtual_monitor,
+      meta_virtual_monitor_set_mode (monitor,
                                      atoi (argv[2]),
                                      atoi (argv[3]),
                                      crtc_mode_info->refresh_rate);
       meta_monitor_manager_reload (monitor_manager);
+    }
+  else if (strcmp (argv[0], "add_monitor") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaVirtualMonitor *monitor;
+      int width, height;
+
+      if (argc != 4)
+        BAD_COMMAND ("usage: %s <monitor-id> <width> <height>", argv[0]);
+
+      width = atoi (argv[2]);
+      height = atoi (argv[3]);
+
+      monitor = meta_create_test_monitor (test->context, width, height, 60.0);
+      meta_monitor_manager_reload (monitor_manager);
+
+      g_hash_table_insert (test->virtual_monitors, g_strdup (argv[1]), monitor);
     }
   else if (strcmp (argv[0], "num_workspaces") == 0)
     {
@@ -1205,13 +1232,16 @@ test_case_do (TestCase *test,
     }
   else if (strcmp (argv[0], "set_pref") == 0)
     {
-      GSettings *settings;
+      GSettings *wm;
+      GSettings *mutter;
 
       if (argc != 3)
         BAD_COMMAND("usage: %s <KEY> <VALUE>", argv[0]);
 
-      settings = g_settings_new ("org.gnome.desktop.wm.preferences");
-      g_assert_nonnull (settings);
+      wm = g_settings_new ("org.gnome.desktop.wm.preferences");
+      g_assert_nonnull (wm);
+      mutter = g_settings_new ("org.gnome.mutter");
+      g_assert_nonnull (mutter);
 
       if (strcmp (argv[1], "raise-on-click") == 0)
         {
@@ -1223,7 +1253,19 @@ test_case_do (TestCase *test,
           else
             BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
 
-          g_assert_true (g_settings_set_boolean (settings, "raise-on-click", value));
+          g_assert_true (g_settings_set_boolean (wm, "raise-on-click", value));
+        }
+      else if (strcmp (argv[1], "workspaces-only-on-primary") == 0)
+        {
+          gboolean value;
+          if (g_ascii_strcasecmp (argv[2], "true") == 0)
+            value = TRUE;
+          else if (g_ascii_strcasecmp (argv[2], "false") == 0)
+            value = FALSE;
+          else
+            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+
+          g_assert_true (g_settings_set_boolean (mutter, "workspaces-only-on-primary", value));
         }
       else {
         BAD_COMMAND("Unknown preference %s", argv[1]);
@@ -1278,7 +1320,7 @@ test_case_destroy (TestCase *test,
     }
 
   g_hash_table_destroy (test->clients);
-  g_object_unref (test->virtual_monitor);
+  g_hash_table_unref (test->virtual_monitors);
   g_object_unref (test->pointer);
   g_free (test);
 
