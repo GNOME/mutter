@@ -4596,9 +4596,9 @@ meta_window_focus (MetaWindow  *window,
 
   META_WINDOW_GET_CLASS (window)->focus (window, timestamp);
 
-  /* Move to the front of the focusing workspace's MRU list.
-   * We should only be "removing" it from the MRU list if it's
-   * not already there.  Note that it's possible that we might
+  /* Move to the front of all workspaces' MRU lists the window
+   * is on. We should only be "removing" it from the MRU list if
+   * it's already there.  Note that it's possible that we might
    * be processing this FocusIn after we've changed to a
    * different workspace; we should therefore update the MRU
    * list only if the window is actually on the active
@@ -4608,20 +4608,20 @@ meta_window_focus (MetaWindow  *window,
       meta_window_located_on_workspace (window,
                                         workspace_manager->active_workspace))
     {
-      GList *link;
+      GList *l;
 
-      link = g_list_find (workspace_manager->active_workspace->mru_list,
-                          window);
-      g_assert (link);
+      for (l = workspace_manager->workspaces; l != NULL; l = l->next)
+        {
+          MetaWorkspace *workspace = l->data;
+          GList *link;
 
-      workspace_manager->active_workspace->mru_list =
-        g_list_remove_link (workspace_manager->active_workspace->mru_list,
-                            link);
-      g_list_free (link);
+          link = g_list_find (workspace->mru_list, window);
+          if (!link)
+            continue;
 
-      workspace_manager->active_workspace->mru_list =
-        g_list_prepend (workspace_manager->active_workspace->mru_list,
-                        window);
+          workspace->mru_list = g_list_delete_link (workspace->mru_list, link);
+          workspace->mru_list = g_list_prepend (workspace->mru_list, window);
+        }
     }
 
   backend = meta_get_backend ();
