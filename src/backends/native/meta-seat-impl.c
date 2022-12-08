@@ -2818,6 +2818,8 @@ input_thread (MetaSeatImpl *seat_impl)
 {
   MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   struct xkb_keymap *xkb_keymap;
+  MetaKbdA11ySettings kbd_a11y_settings;
+  MetaInputDeviceNative *keyboard_native;
 
   g_main_context_push_thread_default (seat_impl->input_context);
 
@@ -2864,6 +2866,12 @@ input_thread (MetaSeatImpl *seat_impl)
   seat_impl->has_touchscreen = has_touchscreen (seat_impl);
   seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
   update_touch_mode (seat_impl);
+
+  keyboard_native = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
+  meta_input_settings_get_kbd_a11y_settings (seat_impl->input_settings,
+                                             &kbd_a11y_settings);
+  meta_input_device_native_apply_kbd_a11y_settings_in_impl (keyboard_native,
+                                                            &kbd_a11y_settings);
 
   g_mutex_lock (&seat_impl->init_mutex);
   seat_impl->input_thread_initialized = TRUE;
