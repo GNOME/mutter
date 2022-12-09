@@ -298,8 +298,10 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
   MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
   ClutterActor *surface_container = CLUTTER_ACTOR (self->surface_container);
   ClutterActor *child_actor;
-  MetaSurfaceActor *topmost_surface_actor;
+  ClutterActorIter iter;
+  MetaSurfaceActor *topmost_surface_actor = NULL;
   MetaWindow *window;
+  int n_mapped_surfaces = 0;
 
   if (clutter_actor_get_last_child (CLUTTER_ACTOR (self)) != surface_container)
     {
@@ -308,20 +310,26 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
       return FALSE;
     }
 
-  child_actor = clutter_actor_get_last_child (surface_container);
-  if (!child_actor)
+  clutter_actor_iter_init (&iter, surface_container);
+  while (clutter_actor_iter_next (&iter, &child_actor))
+    {
+      if (!clutter_actor_is_mapped (child_actor))
+        continue;
+
+      topmost_surface_actor = META_SURFACE_ACTOR (child_actor);
+      n_mapped_surfaces++;
+    }
+
+  if (!topmost_surface_actor)
     {
       meta_topic (META_DEBUG_RENDER,
                   "No surface-actor for window-actor");
       return FALSE;
     }
 
-  topmost_surface_actor = META_SURFACE_ACTOR (child_actor);
-
   window = meta_window_actor_get_meta_window (actor);
   if (!meta_surface_actor_is_opaque (topmost_surface_actor) &&
-      !(meta_window_is_fullscreen (window) &&
-        clutter_actor_get_n_children (surface_container) == 1))
+      !(meta_window_is_fullscreen (window) && n_mapped_surfaces == 1))
     {
       meta_topic (META_DEBUG_RENDER,
                   "Window-actor is not opaque");
