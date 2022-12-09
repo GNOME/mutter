@@ -16155,11 +16155,21 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
               ClutterActor *clone = key;
               GList *clone_views;
 
+              if (!CLUTTER_ACTOR_IS_MAPPED (clone))
+                continue;
+
               clone_views = clutter_actor_peek_stage_views (clone);
               if (g_list_find (clone_views, view))
                 return TRUE;
             }
         }
+
+      /* Clones will force-show their own source actor but not children of
+       * it, so if we're hidden and an actor up the hierarchy has a clone,
+       * we won't be visible.
+       */
+      if (!CLUTTER_ACTOR_IS_VISIBLE (actor))
+        return FALSE;
     }
 
   return FALSE;
