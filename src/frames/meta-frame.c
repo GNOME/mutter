@@ -228,7 +228,6 @@ meta_frame_new (Window window)
   header = meta_frame_header_new ();
 
   gtk_window_set_titlebar (GTK_WINDOW (frame), header);
-  gtk_widget_add_css_class (frame, "default-decoration");
 
   content = meta_frame_content_new (window);
   gtk_window_set_child (GTK_WINDOW (frame), content);
