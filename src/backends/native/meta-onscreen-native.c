@@ -78,7 +78,7 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
 
   struct {
     MetaDrmBufferDumb *current_dumb_fb;
-    MetaDrmBufferDumb *dumb_fbs[2];
+    MetaDrmBufferDumb *dumb_fbs[3];
   } cpu;
 
   gboolean noted_primary_gpu_copy_ok;
@@ -1054,12 +1054,17 @@ static MetaDrmBufferDumb *
 secondary_gpu_get_next_dumb_buffer (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
   MetaDrmBufferDumb *current_dumb_fb;
+  const int n_dumb_fbs = G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs);
+  int i;
 
   current_dumb_fb = secondary_gpu_state->cpu.current_dumb_fb;
-  if (current_dumb_fb == secondary_gpu_state->cpu.dumb_fbs[0])
-    return secondary_gpu_state->cpu.dumb_fbs[1];
-  else
-    return secondary_gpu_state->cpu.dumb_fbs[0];
+  for (i = 0; i < n_dumb_fbs; i++)
+    {
+      if (current_dumb_fb == secondary_gpu_state->cpu.dumb_fbs[i])
+        return secondary_gpu_state->cpu.dumb_fbs[(i + 1) % n_dumb_fbs];
+    }
+
+  return secondary_gpu_state->cpu.dumb_fbs[0];
 }
 
 static MetaDrmBuffer *
