@@ -58,6 +58,53 @@ meta_frame_class_init (MetaFrameClass *klass)
 }
 
 static gboolean
+client_window_has_wm_protocol (MetaFrame *frame,
+                               Window     client_window,
+                               Atom       protocol)
+{
+  GdkDisplay *display = gtk_widget_get_display (GTK_WIDGET (frame));
+  Atom *wm_protocols, wm_protocols_atom;
+  int format;
+  Atom type;
+  unsigned long i, nitems, bytes_after;
+  gboolean found = FALSE;
+
+  gdk_x11_display_error_trap_push (display);
+
+  wm_protocols_atom =
+    gdk_x11_get_xatom_by_name_for_display (display, "WM_PROTOCOLS");
+
+  if (XGetWindowProperty (gdk_x11_display_get_xdisplay (display),
+                          client_window,
+                          wm_protocols_atom,
+                          0, G_MAXLONG, False,
+                          XA_ATOM,
+                          &type, &format,
+                          &nitems, &bytes_after,
+                          (unsigned char **) &wm_protocols) != Success)
+    {
+      gdk_x11_display_error_trap_pop_ignored (display);
+      return FALSE;
+    }
+
+  if (gdk_x11_display_error_trap_pop (display))
+    return FALSE;
+
+  for (i = 0; i < nitems; i++)
+    {
+      if (wm_protocols[i] == protocol)
+        {
+          found = TRUE;
+          break;
+        }
+    }
+
+  XFree (wm_protocols);
+
+  return found;
+}
+
+static gboolean
 on_frame_close_request (GtkWindow *window,
                         gpointer   user_data)
 {
@@ -65,6 +112,7 @@ on_frame_close_request (GtkWindow *window,
   GtkWidget *content;
   XClientMessageEvent ev;
   Window client_xwindow;
+  Atom delete_window_atom;
 
   content = gtk_window_get_child (window);
   if (!content)
@@ -73,18 +121,32 @@ on_frame_close_request (GtkWindow *window,
   client_xwindow =
     meta_frame_content_get_window (META_FRAME_CONTENT (content));
 
-  ev.type = ClientMessage;
-  ev.window = client_xwindow;
-  ev.message_type =
-    gdk_x11_get_xatom_by_name_for_display (display, "WM_PROTOCOLS");
-  ev.format = 32;
-  ev.data.l[0] =
+  delete_window_atom =
     gdk_x11_get_xatom_by_name_for_display (display, "WM_DELETE_WINDOW");
-  ev.data.l[1] = 0; /* FIXME: missing timestamp */
 
   gdk_x11_display_error_trap_push (display);
-  XSendEvent (gdk_x11_display_get_xdisplay (display),
-              client_xwindow, False, 0, (XEvent*) &ev);
+
+  if (client_window_has_wm_protocol (META_FRAME (window),
+                                     client_xwindow,
+                                     delete_window_atom))
+    {
+      ev.type = ClientMessage;
+      ev.window = client_xwindow;
+      ev.message_type =
+        gdk_x11_get_xatom_by_name_for_display (display, "WM_PROTOCOLS");
+      ev.format = 32;
+      ev.data.l[0] = delete_window_atom;
+      ev.data.l[1] = 0; /* FIXME: missing timestamp */
+
+      XSendEvent (gdk_x11_display_get_xdisplay (display),
+                  client_xwindow, False, 0, (XEvent*) &ev);
+    }
+  else
+    {
+      XKillClient (gdk_x11_display_get_xdisplay (display),
+                   client_xwindow);
+    }
+
   gdk_x11_display_error_trap_pop_ignored (display);
 
   return TRUE;
