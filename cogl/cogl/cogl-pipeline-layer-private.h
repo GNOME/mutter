@@ -317,12 +317,6 @@ _cogl_pipeline_layer_get_filters (CoglPipelineLayer *layer,
 const CoglSamplerCacheEntry *
 _cogl_pipeline_layer_get_sampler_state (CoglPipelineLayer *layer);
 
-void
-_cogl_pipeline_get_layer_filters (CoglPipeline *pipeline,
-                                  int layer_index,
-                                  CoglPipelineFilter *min_filter,
-                                  CoglPipelineFilter *mag_filter);
-
 typedef enum
 {
   COGL_PIPELINE_LAYER_TYPE_TEXTURE

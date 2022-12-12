@@ -1247,10 +1247,10 @@ _cogl_pipeline_layer_get_filters (CoglPipelineLayer *layer,
 }
 
 void
-_cogl_pipeline_get_layer_filters (CoglPipeline *pipeline,
-                                  int layer_index,
-                                  CoglPipelineFilter *min_filter,
-                                  CoglPipelineFilter *mag_filter)
+cogl_pipeline_get_layer_filters (CoglPipeline       *pipeline,
+                                 int                 layer_index,
+                                 CoglPipelineFilter *min_filter,
+                                 CoglPipelineFilter *mag_filter)
 {
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
