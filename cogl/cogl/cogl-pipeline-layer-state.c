@@ -1253,18 +1253,11 @@ cogl_pipeline_get_layer_filters (CoglPipeline       *pipeline,
                                  CoglPipelineFilter *mag_filter)
 {
   CoglPipelineLayer *layer;
-  CoglPipelineLayer *authority;
 
   g_return_if_fail (cogl_is_pipeline (pipeline));
 
   layer = _cogl_pipeline_get_layer (pipeline, layer_index);
-
-  authority =
-    _cogl_pipeline_layer_get_authority (layer,
-                                        COGL_PIPELINE_LAYER_STATE_SAMPLER);
-
-  *min_filter = authority->sampler_cache_entry->min_filter;
-  *mag_filter = authority->sampler_cache_entry->mag_filter;
+  return _cogl_pipeline_layer_get_filters (layer, min_filter, mag_filter);
 }
 
 CoglPipelineFilter
