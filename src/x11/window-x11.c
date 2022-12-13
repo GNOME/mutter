@@ -4329,3 +4329,31 @@ meta_window_x11_check_update_resize (MetaWindow *window)
                              window->display->grab_latest_motion_x,
                              window->display->grab_latest_motion_y);
 }
+
+gboolean
+meta_window_x11_has_alpha_channel (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+  int n_xvisuals;
+  gboolean has_alpha;
+  XVisualInfo *xvisual_info;
+  XVisualInfo template = {
+    .visualid = XVisualIDFromVisual (window->xvisual),
+  };
+
+  xvisual_info = XGetVisualInfo (meta_x11_display_get_xdisplay (x11_display),
+                                 VisualIDMask,
+                                 &template,
+                                 &n_xvisuals);
+  if (!xvisual_info)
+    return FALSE;
+
+  has_alpha = (xvisual_info->depth == 32 &&
+               xvisual_info->depth >
+               __builtin_popcount (xvisual_info->red_mask |
+                                   xvisual_info->green_mask |
+                                   xvisual_info->blue_mask));
+  XFree (xvisual_info);
+
+  return has_alpha;
+}
