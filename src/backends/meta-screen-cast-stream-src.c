@@ -610,8 +610,8 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
       int64_t time_since_last_frame_us;
 
       min_interval_us =
-        ((G_USEC_PER_SEC * priv->video_format.max_framerate.denom) /
-         priv->video_format.max_framerate.num);
+        ((G_USEC_PER_SEC * ((int64_t) priv->video_format.max_framerate.denom)) /
+         ((int64_t) priv->video_format.max_framerate.num));
 
       time_since_last_frame_us = now_us - priv->last_frame_timestamp_us;
       if (time_since_last_frame_us < min_interval_us)
