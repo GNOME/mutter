@@ -111,6 +111,9 @@ struct _ClutterFrameClock
   int inhibit_count;
 
   GList *timelines;
+
+  int n_missed_frames;
+  int64_t missed_frame_report_time_us;
 };
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
@@ -239,6 +242,38 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
                            "Frame Clock (presented)");
+
+  if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
+    {
+      int64_t now_us;
+
+      if (frame_clock->is_next_presentation_time_valid &&
+          frame_info->presentation_time != 0)
+        {
+          int64_t diff_us;
+          int n_missed_frames;
+
+          diff_us = llabs (frame_info->presentation_time -
+                           frame_clock->next_presentation_time_us);
+          n_missed_frames =
+            (int) roundf ((float) diff_us /
+                          (float) frame_clock->refresh_interval_us);
+
+          frame_clock->n_missed_frames = n_missed_frames;
+        }
+
+      now_us = g_get_monotonic_time ();
+      if ((now_us - frame_clock->missed_frame_report_time_us) > G_USEC_PER_SEC)
+        {
+          if (frame_clock->n_missed_frames > 0)
+            {
+              CLUTTER_NOTE (FRAME_CLOCK, "Missed %d frames the last second",
+                            frame_clock->n_missed_frames);
+            }
+          frame_clock->n_missed_frames = 0;
+          frame_clock->missed_frame_report_time_us = now_us;
+        }
+    }
 
 #ifdef COGL_HAS_TRACING
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))

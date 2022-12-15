@@ -117,6 +117,7 @@ static const GDebugKey clutter_debug_keys[] = {
   { "frame-timings", CLUTTER_DEBUG_FRAME_TIMINGS },
   { "detailed-trace", CLUTTER_DEBUG_DETAILED_TRACE },
   { "grabs", CLUTTER_DEBUG_GRABS },
+  { "frame-clock", CLUTTER_DEBUG_FRAME_CLOCK },
 };
 #endif /* CLUTTER_ENABLE_DEBUG */
 
