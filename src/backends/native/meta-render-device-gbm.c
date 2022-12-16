@@ -106,6 +106,86 @@ meta_render_device_gbm_import_dma_buf (MetaRenderDevice  *render_device,
   return META_DRM_BUFFER (buffer_import);
 }
 
+static GArray *
+meta_render_device_gbm_query_drm_modifiers (MetaRenderDevice       *render_device,
+                                            uint32_t                drm_format,
+                                            CoglDrmModifierFilter   filter,
+                                            GError                **error)
+{
+  MetaRenderDeviceGbm *render_device_gbm =
+    META_RENDER_DEVICE_GBM (render_device);
+  MetaBackend *backend = meta_render_device_get_backend (render_device);
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  EGLDisplay egl_display;
+  EGLint n_modifiers;
+  g_autoptr (GArray) modifiers = NULL;
+
+  egl_display = meta_render_device_get_egl_display (render_device);
+
+  if (!meta_egl_has_extensions (egl, egl_display, NULL,
+                                "EGL_EXT_image_dma_buf_import_modifiers",
+                                NULL))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Missing EGL extension "
+                   "'EGL_EXT_image_dma_buf_import_modifiers'");
+      return NULL;
+    }
+
+  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display,
+                                         drm_format, 0, NULL, NULL,
+                                         &n_modifiers, error))
+    return NULL;
+
+  if (n_modifiers == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No modifiers supported for given format");
+      return NULL;
+    }
+
+  modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t),
+                                 n_modifiers);
+  if (!meta_egl_query_dma_buf_modifiers (egl, egl_display,
+                                         drm_format, n_modifiers,
+                                         (EGLuint64KHR *) modifiers->data, NULL,
+                                         &n_modifiers, error))
+    return NULL;
+
+  g_array_set_size (modifiers, n_modifiers);
+
+  if (filter & COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE)
+    {
+      g_autoptr (GArray) filtered_modifiers = NULL;
+      struct gbm_device *gbm_device = render_device_gbm->gbm_device;
+      int i;
+
+      filtered_modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+
+      for (i = 0; i < modifiers->len; i++)
+        {
+          uint64_t modifier = g_array_index (modifiers, uint64_t, i);
+
+          if (gbm_device_get_format_modifier_plane_count (gbm_device,
+                                                          drm_format,
+                                                          modifier) == 1)
+            g_array_append_val (filtered_modifiers, modifier);
+        }
+
+      if (filtered_modifiers->len == 0)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                       "No single plane modifiers found");
+          return NULL;
+        }
+
+      g_array_free (modifiers, TRUE);
+      modifiers = g_steal_pointer (&filtered_modifiers);
+    }
+
+  return g_steal_pointer (&modifiers);
+}
+
 static EGLDisplay
 meta_render_device_gbm_create_egl_display (MetaRenderDevice  *render_device,
                                            GError           **error)
@@ -213,6 +293,8 @@ meta_render_device_gbm_class_init (MetaRenderDeviceGbmClass *klass)
     meta_render_device_gbm_allocate_dma_buf;
   render_device_class->import_dma_buf =
     meta_render_device_gbm_import_dma_buf;
+  render_device_class->query_drm_modifiers =
+    meta_render_device_gbm_query_drm_modifiers;
 }
 
 static void

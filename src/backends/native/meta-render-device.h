@@ -38,6 +38,11 @@ gboolean meta_render_device_is_hardware_accelerated (MetaRenderDevice *render_de
 
 MetaDeviceFile * meta_render_device_get_device_file (MetaRenderDevice *render_device);
 
+GArray * meta_render_device_query_drm_modifiers (MetaRenderDevice       *render_device,
+                                                 uint32_t                drm_format,
+                                                 CoglDrmModifierFilter   filter,
+                                                 GError                **error);
+
 MetaDrmBuffer * meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
                                                      int                  width,
                                                      int                  height,

@@ -2083,47 +2083,27 @@ get_supported_egl_modifiers (CoglOnscreen *onscreen,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   MetaGpu *gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
-  EGLDisplay egl_display;
-  EGLint num_modifiers;
-  g_autofree EGLuint64KHR *modifiers = NULL;
+  GArray *modifiers;
   g_autoptr (GError) error = NULL;
-  gboolean ret;
 
   gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          META_GPU_KMS (gpu));
   render_device = renderer_gpu_data->render_device;
-  egl_display = meta_render_device_get_egl_display (render_device);
 
-  if (!meta_egl_has_extensions (egl, egl_display, NULL,
-                                "EGL_EXT_image_dma_buf_import_modifiers",
-                                NULL))
-    return NULL;
-
-  ret = meta_egl_query_dma_buf_modifiers (egl, egl_display,
-                                          format, 0, NULL, NULL,
-                                          &num_modifiers, NULL);
-  if (!ret || num_modifiers == 0)
-    return NULL;
-
-  modifiers = g_new (typeof (*modifiers), num_modifiers);
-  ret = meta_egl_query_dma_buf_modifiers (egl, egl_display,
-                                          format, num_modifiers,
-                                          modifiers, NULL,
-                                          &num_modifiers, &error);
-
-  if (!ret)
+  modifiers = meta_render_device_query_drm_modifiers (render_device, format,
+                                                      COGL_DRM_MODIFIER_FILTER_NONE,
+                                                      &error);
+  if (!modifiers)
     {
       g_warning ("Failed to query DMABUF modifiers: %s", error->message);
       return NULL;
     }
 
-  return g_array_new_take (g_steal_pointer (&modifiers), num_modifiers, FALSE,
-                           sizeof (*modifiers));
+  return modifiers;
 }
 
 static GArray *

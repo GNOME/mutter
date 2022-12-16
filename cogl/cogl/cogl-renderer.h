@@ -39,6 +39,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum _CoglDrmModifierFilter
+{
+  COGL_DRM_MODIFIER_FILTER_NONE = 0,
+  COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE = 1 << 0,
+} CoglDrmModifierFilter;
+
 /**
  * CoglRenderer:
  *

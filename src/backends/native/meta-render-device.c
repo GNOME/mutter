@@ -340,6 +340,28 @@ meta_render_device_get_name (MetaRenderDevice *render_device)
     return "(device-less)";
 }
 
+GArray *
+meta_render_device_query_drm_modifiers (MetaRenderDevice       *render_device,
+                                        uint32_t                drm_format,
+                                        CoglDrmModifierFilter   filter,
+                                        GError                **error)
+{
+  MetaRenderDeviceClass *klass = META_RENDER_DEVICE_GET_CLASS (render_device);
+
+  if (klass->query_drm_modifiers)
+    {
+      return klass->query_drm_modifiers (render_device,
+                                         drm_format, filter,
+                                         error);
+    }
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "Render device '%s' doesn't support allocating DMA buffers",
+               meta_render_device_get_name (render_device));
+
+  return NULL;
+}
+
 MetaDrmBuffer *
 meta_render_device_allocate_dma_buf (MetaRenderDevice    *render_device,
                                      int                  width,
