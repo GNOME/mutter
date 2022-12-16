@@ -255,8 +255,7 @@ void                            _clutter_actor_attach_clone                     
 void                            _clutter_actor_detach_clone                             (ClutterActor *actor,
                                                                                          ClutterActor *clone);
 void                            _clutter_actor_queue_only_relayout                      (ClutterActor *actor);
-void                            clutter_actor_clear_stage_views_recursive               (ClutterActor *actor,
-                                                                                         gboolean      stop_transitions);
+void                            clutter_actor_clear_stage_views_recursive               (ClutterActor *actor);
 
 float                           clutter_actor_get_real_resource_scale                   (ClutterActor *actor);
 
