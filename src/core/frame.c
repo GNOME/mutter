@@ -592,3 +592,20 @@ meta_frame_get_sync_counter (MetaFrame *frame)
 {
   return &frame->sync_counter;
 }
+
+void
+meta_frame_set_opaque_region (MetaFrame      *frame,
+                              cairo_region_t *region)
+{
+  MetaWindow *window = frame->window;
+
+  if (cairo_region_equal (frame->opaque_region, region))
+    return;
+
+  g_clear_pointer (&frame->opaque_region, cairo_region_destroy);
+
+  if (region != NULL)
+    frame->opaque_region = cairo_region_reference (region);
+
+  meta_compositor_window_shape_changed (window->display->compositor, window);
+}

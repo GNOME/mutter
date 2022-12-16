@@ -41,6 +41,8 @@ struct _MetaFrame
 
   MetaFrameBorders cached_borders; /* valid if borders_cached is set */
 
+  cairo_region_t *opaque_region;
+
   MetaSyncCounter sync_counter;
 
   /* position of client, size of frame */
@@ -80,5 +82,8 @@ GSubprocess * meta_frame_launch_client (MetaX11Display *x11_display,
                                         const char     *display_name);
 
 MetaSyncCounter * meta_frame_get_sync_counter (MetaFrame *frame);
+
+void meta_frame_set_opaque_region (MetaFrame      *frame,
+                                   cairo_region_t *region);
 
 #endif

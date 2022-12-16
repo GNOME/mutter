@@ -709,7 +709,13 @@ reload_opaque_region (MetaWindow    *window,
     }
 
  out:
-  meta_window_set_opaque_region (window, opaque_region);
+  if (value->source_xwindow == window->xwindow)
+    meta_window_set_opaque_region (window, opaque_region);
+  else if (window->frame && value->source_xwindow == window->frame->xwindow)
+    meta_frame_set_opaque_region (window->frame, opaque_region);
+  else
+    g_assert_not_reached ();
+
   cairo_region_destroy (opaque_region);
 }
 
