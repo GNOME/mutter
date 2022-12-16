@@ -594,6 +594,28 @@ cogl_renderer_get_driver (CoglRenderer *renderer)
   return renderer->driver;
 }
 
+GArray *
+cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
+                                   CoglPixelFormat         format,
+                                   CoglDrmModifierFilter   filter,
+                                   GError                **error)
+{
+  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+
+  if (winsys->renderer_query_drm_modifiers)
+    {
+      return winsys->renderer_query_drm_modifiers (renderer,
+                                                   format,
+                                                   filter,
+                                                   error);
+    }
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "CoglRenderer doesn't support querying drm modifiers");
+
+  return NULL;
+}
+
 CoglDmaBufHandle *
 cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               CoglPixelFormat   format,

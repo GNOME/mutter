@@ -107,6 +107,12 @@ typedef struct _CoglWinsysVtable
   void
   (*display_destroy) (CoglDisplay *display);
 
+  GArray *
+  (* renderer_query_drm_modifiers) (CoglRenderer           *renderer,
+                                    CoglPixelFormat         format,
+                                    CoglDrmModifierFilter   filter,
+                                    GError                **error);
+
   CoglDmaBufHandle *
   (*renderer_create_dma_buf) (CoglRenderer     *renderer,
                               CoglPixelFormat   format,

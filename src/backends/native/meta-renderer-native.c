@@ -954,6 +954,34 @@ meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,
   meta_kms_update_free (new_kms_update);
 }
 
+static GArray *
+meta_renderer_native_query_drm_modifiers (CoglRenderer           *cogl_renderer,
+                                          CoglPixelFormat         format,
+                                          CoglDrmModifierFilter   filter,
+                                          GError                **error)
+{
+  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+  MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
+  const MetaFormatInfo *format_info;
+  uint32_t drm_format;
+  MetaRenderDevice *render_device;
+
+  format_info = meta_format_info_from_cogl_format (format);
+  if (!format_info)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Format %s not supported",
+                   cogl_pixel_format_to_string (format));
+      return NULL;
+    }
+
+  drm_format = format_info->drm_format;
+
+  render_device = renderer_gpu_data->render_device;
+  return meta_render_device_query_drm_modifiers (render_device, drm_format,
+                                                 filter, error);
+}
+
 static void
 close_fds (int *fds,
            int  n_fds)
@@ -1304,6 +1332,7 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 
       vtable.renderer_connect = meta_renderer_native_connect;
       vtable.renderer_disconnect = meta_renderer_native_disconnect;
+      vtable.renderer_query_drm_modifiers = meta_renderer_native_query_drm_modifiers;
       vtable.renderer_create_dma_buf = meta_renderer_native_create_dma_buf;
       vtable.renderer_is_dma_buf_supported =
         meta_renderer_native_is_dma_buf_supported;

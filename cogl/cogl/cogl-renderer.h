@@ -226,6 +226,18 @@ cogl_renderer_get_driver (CoglRenderer *renderer);
 
 
 /**
+ * cogl_renderer_query_drm_modifiers: (skip)
+ * @renderer: A #CoglRenderer
+ * @format: The #CoglPixelFormat
+ * @error: (nullable): return location for a #GError
+ */
+COGL_EXPORT GArray *
+cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
+                                   CoglPixelFormat         format,
+                                   CoglDrmModifierFilter   filter,
+                                   GError                **error);
+
+/**
  * cogl_renderer_create_dma_buf: (skip)
  * @renderer: A #CoglRenderer
  * @format: A #CoglPixelFormat
