@@ -715,7 +715,7 @@ reload_opaque_region (MetaWindow    *window,
   else if (window->frame && value->source_xwindow == window->frame->xwindow)
     meta_frame_set_opaque_region (window->frame, opaque_region);
 
-  cairo_region_destroy (opaque_region);
+  g_clear_pointer (&opaque_region, cairo_region_destroy);
 }
 
 static void
