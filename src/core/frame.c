@@ -26,6 +26,7 @@
 #include "core/frame.h"
 
 #include "backends/x11/meta-backend-x11.h"
+#include "compositor/compositor-private.h"
 #include "core/bell.h"
 #include "core/keybindings-private.h"
 #include "meta/meta-x11-errors.h"
@@ -231,6 +232,8 @@ meta_window_destroy_frame (MetaWindow *window)
       cairo_region_destroy (window->frame_bounds);
       window->frame_bounds = NULL;
     }
+
+  g_clear_pointer (&window->opaque_region, cairo_region_destroy);
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
@@ -599,4 +602,21 @@ MetaSyncCounter *
 meta_frame_get_sync_counter (MetaFrame *frame)
 {
   return &frame->sync_counter;
+}
+
+void
+meta_frame_set_opaque_region (MetaFrame      *frame,
+                              cairo_region_t *region)
+{
+  MetaWindow *window = frame->window;
+
+  if (cairo_region_equal (frame->opaque_region, region))
+    return;
+
+  g_clear_pointer (&frame->opaque_region, cairo_region_destroy);
+
+  if (region != NULL)
+    frame->opaque_region = cairo_region_reference (region);
+
+  meta_compositor_window_shape_changed (window->display->compositor, window);
 }
