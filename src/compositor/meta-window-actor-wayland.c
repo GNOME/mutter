@@ -307,7 +307,7 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
     {
       meta_topic (META_DEBUG_RENDER,
                   "Top child of window-actor not a surface");
-      return FALSE;
+      return NULL;
     }
 
   clutter_actor_iter_init (&iter, surface_container);
@@ -324,7 +324,7 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
     {
       meta_topic (META_DEBUG_RENDER,
                   "No surface-actor for window-actor");
-      return FALSE;
+      return NULL;
     }
 
   window = meta_window_actor_get_meta_window (actor);
@@ -333,7 +333,7 @@ meta_window_actor_wayland_get_scanout_candidate (MetaWindowActor *actor)
     {
       meta_topic (META_DEBUG_RENDER,
                   "Window-actor is not opaque");
-      return FALSE;
+      return NULL;
     }
 
   return topmost_surface_actor;
