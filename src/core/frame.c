@@ -44,6 +44,9 @@ meta_window_ensure_frame (MetaWindow *window)
   MetaX11Display *x11_display = window->display->x11_display;
   unsigned long data[1] = { 1 };
 
+  if (window->frame)
+    return;
+
   meta_x11_error_trap_push (x11_display);
 
   XChangeProperty (x11_display->xdisplay,
