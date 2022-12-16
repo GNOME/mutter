@@ -442,6 +442,8 @@ guess_candidates (MetaInputMapper     *mapper,
   GList *monitors, *l;
   gboolean builtin = FALSE;
   gboolean integrated = TRUE;
+  gboolean automatic;
+  g_autoptr (GVariant) user_value = NULL;
 
 #ifdef HAVE_LIBWACOM
   if (clutter_input_device_get_device_type (input->device) != CLUTTER_TOUCHSCREEN_DEVICE)
@@ -463,6 +465,9 @@ guess_candidates (MetaInputMapper     *mapper,
     }
 #endif
 
+  user_value = g_settings_get_user_value (input->settings, "output");
+  automatic = user_value == NULL;
+
   monitors = meta_monitor_manager_get_monitors (mapper->monitor_manager);
 
   for (l = monitors; l; l = l->next)
@@ -472,16 +477,16 @@ guess_candidates (MetaInputMapper     *mapper,
 
       g_assert (META_IS_MONITOR (l->data));
 
-      if (integrated && match_edid (input, l->data, &edid_match))
+      if (automatic && integrated && match_edid (input, l->data, &edid_match))
         match.score |= 1 << edid_match;
 
-      if (integrated && match_size (input, l->data))
+      if (automatic && integrated && match_size (input, l->data))
         match.score |= 1 << META_MATCH_SIZE;
 
-      if (builtin && match_builtin (mapper, l->data))
+      if (automatic && builtin && match_builtin (mapper, l->data))
         match.score |= 1 << META_MATCH_IS_BUILTIN;
 
-      if (match_config (input, l->data))
+      if (!automatic && match_config (input, l->data))
         match.score |= 1 << META_MATCH_CONFIG;
 
       if (match.score > 0)
