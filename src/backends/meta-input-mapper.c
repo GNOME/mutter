@@ -472,7 +472,7 @@ guess_candidates (MetaInputMapper     *mapper,
 
       g_assert (META_IS_MONITOR (l->data));
 
-      if (match_edid (input, l->data, &edid_match))
+      if (integrated && match_edid (input, l->data, &edid_match))
         match.score |= 1 << edid_match;
 
       if (integrated && match_size (input, l->data))
