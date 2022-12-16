@@ -199,6 +199,16 @@ meta_drm_buffer_export_fd (MetaDrmBuffer  *buffer,
   return META_DRM_BUFFER_GET_CLASS (buffer)->export_fd (buffer, error);
 }
 
+int
+meta_drm_buffer_export_fd_for_plane (MetaDrmBuffer  *buffer,
+                                     int             plane,
+                                     GError        **error)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->export_fd_for_plane (buffer,
+                                                                  plane,
+                                                                  error);
+}
+
 uint32_t
 meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer)
 {
@@ -228,9 +238,23 @@ meta_drm_buffer_get_height (MetaDrmBuffer *buffer)
 }
 
 int
+meta_drm_buffer_get_n_planes (MetaDrmBuffer *buffer)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->get_n_planes (buffer);
+}
+
+int
 meta_drm_buffer_get_stride (MetaDrmBuffer *buffer)
 {
   return META_DRM_BUFFER_GET_CLASS (buffer)->get_stride (buffer);
+}
+
+int
+meta_drm_buffer_get_stride_for_plane (MetaDrmBuffer *buffer,
+                                      int            plane)
+{
+  return META_DRM_BUFFER_GET_CLASS (buffer)->get_stride_for_plane (buffer,
+                                                                   plane);
 }
 
 int
@@ -246,10 +270,11 @@ meta_drm_buffer_get_format (MetaDrmBuffer *buffer)
 }
 
 int
-meta_drm_buffer_get_offset (MetaDrmBuffer *buffer,
-                            int            plane)
+meta_drm_buffer_get_offset_for_plane (MetaDrmBuffer *buffer,
+                                      int            plane)
 {
-  return META_DRM_BUFFER_GET_CLASS (buffer)->get_offset (buffer, plane);
+  return META_DRM_BUFFER_GET_CLASS (buffer)->get_offset_for_plane (buffer,
+                                                                   plane);
 }
 
 uint64_t

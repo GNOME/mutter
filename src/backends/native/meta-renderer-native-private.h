@@ -93,13 +93,14 @@ void meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *render
                                                       CoglOnscreen       *onscreen);
 
 CoglFramebuffer * meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_native,
-                                                                   int                  dmabuf_fd,
                                                                    uint32_t             width,
                                                                    uint32_t             height,
-                                                                   uint32_t             stride,
-                                                                   uint32_t             offset,
-                                                                   uint64_t            *modifier,
                                                                    uint32_t             drm_format,
+                                                                   int                  n_planes,
+                                                                   int                 *fds,
+                                                                   uint32_t            *strides,
+                                                                   uint32_t            *offsets,
+                                                                   uint64_t            *modifiers,
                                                                    GError             **error);
 
 gboolean meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,

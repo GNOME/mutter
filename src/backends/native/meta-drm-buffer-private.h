@@ -40,16 +40,26 @@ struct _MetaDrmBufferClass
   int (* export_fd) (MetaDrmBuffer  *buffer,
                      GError        **error);
 
+  int (* export_fd_for_plane) (MetaDrmBuffer  *buffer,
+                               int             plane,
+                               GError        **error);
+
   gboolean (* ensure_fb_id) (MetaDrmBuffer  *buffer,
                              GError        **error);
 
   int (* get_width) (MetaDrmBuffer *buffer);
   int (* get_height) (MetaDrmBuffer *buffer);
+
+  int (* get_n_planes) (MetaDrmBuffer *buffer);
+
   int (* get_stride) (MetaDrmBuffer *buffer);
+  int (* get_stride_for_plane) (MetaDrmBuffer *buffer,
+                                int            plane);
+
   int (* get_bpp) (MetaDrmBuffer *buffer);
   uint32_t (* get_format) (MetaDrmBuffer *buffer);
-  int (* get_offset) (MetaDrmBuffer *buffer,
-                      int            plane);
+  int (* get_offset_for_plane) (MetaDrmBuffer *buffer,
+                                int            plane);
   uint64_t (* get_modifier) (MetaDrmBuffer *buffer);
 };
 

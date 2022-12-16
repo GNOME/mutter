@@ -53,6 +53,17 @@ meta_drm_buffer_import_export_fd (MetaDrmBuffer  *buffer,
 }
 
 static int
+meta_drm_buffer_import_export_fd_for_plane (MetaDrmBuffer  *buffer,
+                                            int             plane,
+                                            GError        **error)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+  MetaDrmBuffer *importee = META_DRM_BUFFER (buffer_import->importee);
+
+  return meta_drm_buffer_export_fd_for_plane (importee, plane, error);
+}
+
+static int
 meta_drm_buffer_import_get_width (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
@@ -69,11 +80,30 @@ meta_drm_buffer_import_get_height (MetaDrmBuffer *buffer)
 }
 
 static int
+meta_drm_buffer_import_get_n_planes (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+  MetaDrmBuffer *importee = META_DRM_BUFFER (buffer_import->importee);
+
+  return meta_drm_buffer_get_n_planes (importee);
+}
+
+static int
 meta_drm_buffer_import_get_stride (MetaDrmBuffer *buffer)
 {
   MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
 
   return meta_drm_buffer_get_stride (META_DRM_BUFFER (buffer_import->importee));
+}
+
+static int
+meta_drm_buffer_import_get_stride_for_plane (MetaDrmBuffer *buffer,
+                                             int            plane)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+  MetaDrmBuffer *importee = META_DRM_BUFFER (buffer_import->importee);
+
+  return meta_drm_buffer_get_stride_for_plane (importee, plane);
 }
 
 static int
@@ -93,13 +123,13 @@ meta_drm_buffer_import_get_format (MetaDrmBuffer *buffer)
 }
 
 static int
-meta_drm_buffer_import_get_offset (MetaDrmBuffer *buffer,
-                                   int            offset)
+meta_drm_buffer_import_get_offset_for_plane (MetaDrmBuffer *buffer,
+                                             int            plane)
 {
   MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
   MetaDrmBuffer *importee = META_DRM_BUFFER (buffer_import->importee);
 
-  return meta_drm_buffer_get_offset (importee, offset);
+  return meta_drm_buffer_get_offset_for_plane (importee, plane);
 }
 
 static uint64_t
@@ -239,11 +269,14 @@ meta_drm_buffer_import_class_init (MetaDrmBufferImportClass *klass)
   object_class->finalize = meta_drm_buffer_import_finalize;
 
   buffer_class->export_fd = meta_drm_buffer_import_export_fd;
+  buffer_class->export_fd_for_plane = meta_drm_buffer_import_export_fd_for_plane;
   buffer_class->get_width = meta_drm_buffer_import_get_width;
   buffer_class->get_height = meta_drm_buffer_import_get_height;
+  buffer_class->get_n_planes = meta_drm_buffer_import_get_n_planes;
   buffer_class->get_stride = meta_drm_buffer_import_get_stride;
+  buffer_class->get_stride_for_plane = meta_drm_buffer_import_get_stride_for_plane;
   buffer_class->get_bpp = meta_drm_buffer_import_get_bpp;
   buffer_class->get_format = meta_drm_buffer_import_get_format;
-  buffer_class->get_offset = meta_drm_buffer_import_get_offset;
+  buffer_class->get_offset_for_plane = meta_drm_buffer_import_get_offset_for_plane;
   buffer_class->get_modifier = meta_drm_buffer_import_get_modifier;
 }

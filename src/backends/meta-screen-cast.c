@@ -115,7 +115,7 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
         break;
 
       stride = meta_drm_buffer_get_stride (dmabuf);
-      offset = meta_drm_buffer_get_offset (dmabuf, 0);
+      offset = meta_drm_buffer_get_offset_for_plane (dmabuf, 0);
 
       dmabuf_fd = meta_drm_buffer_export_fd (dmabuf, &error);
       if (dmabuf_fd == -1)
@@ -125,24 +125,26 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
         {
           *preferred_modifier = DRM_FORMAT_MOD_INVALID;
           fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                                dmabuf_fd,
                                                                 width, height,
-                                                                stride,
-                                                                offset,
-                                                                NULL,
                                                                 format_info->drm_format,
+                                                                1,
+                                                                &dmabuf_fd,
+                                                                &stride,
+                                                                &offset,
+                                                                NULL,
                                                                 &error);
         }
       else
         {
           *preferred_modifier = meta_drm_buffer_get_modifier (dmabuf);
           fb = meta_renderer_native_create_dma_buf_framebuffer (renderer_native,
-                                                                dmabuf_fd,
                                                                 width, height,
-                                                                stride,
-                                                                offset,
-                                                                preferred_modifier,
                                                                 format_info->drm_format,
+                                                                1,
+                                                                &dmabuf_fd,
+                                                                &stride,
+                                                                &offset,
+                                                                preferred_modifier,
                                                                 &error);
         }
       close (dmabuf_fd);

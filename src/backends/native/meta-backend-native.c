@@ -36,6 +36,7 @@
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-input-thread.h"
 
+#include <drm_fourcc.h>
 #include <stdlib.h>
 
 #include "backends/meta-color-manager.h"
