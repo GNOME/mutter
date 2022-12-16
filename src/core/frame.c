@@ -143,6 +143,9 @@ meta_window_set_frame_xwindow (MetaWindow *window,
   meta_window_reload_property_from_xwindow (window, frame->xwindow,
                                             x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER,
                                             TRUE);
+  meta_window_reload_property_from_xwindow (window, frame->xwindow,
+                                            x11_display->atom__NET_WM_OPAQUE_REGION,
+                                            TRUE);
 
   meta_x11_error_trap_push (x11_display);
   XMapWindow (x11_display->xdisplay, frame->xwindow);
@@ -515,7 +518,8 @@ meta_frame_handle_xevent (MetaFrame *frame,
     }
   else if (xevent->xany.type == PropertyNotify &&
            xevent->xproperty.state == PropertyNewValue &&
-           xevent->xproperty.atom == x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER)
+           (xevent->xproperty.atom == x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER ||
+            xevent->xproperty.atom == x11_display->atom__NET_WM_OPAQUE_REGION))
     {
       meta_window_reload_property_from_xwindow (window, frame->xwindow,
                                                 xevent->xproperty.atom, FALSE);
