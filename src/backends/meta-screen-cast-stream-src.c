@@ -150,6 +150,15 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   GHashTable *modifiers;
 } MetaScreenCastStreamSrcPrivate;
 
+static void meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStreamSrc,
+                         meta_screen_cast_stream_src,
+                         G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                meta_screen_cast_stream_src_init_initable_iface)
+                         G_ADD_PRIVATE (MetaScreenCastStreamSrc))
+
 static const struct {
   CoglPixelFormat cogl_format;
   enum spa_video_format spa_video_format;
@@ -280,16 +289,6 @@ push_format_object (enum spa_video_format  format,
   va_end (args);
   return spa_pod_builder_pop (&pod_builder.b, &pod_frame);
 }
-
-static void
-meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStreamSrc,
-                         meta_screen_cast_stream_src,
-                         G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                meta_screen_cast_stream_src_init_initable_iface)
-                         G_ADD_PRIVATE (MetaScreenCastStreamSrc))
 
 static gboolean
 meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
