@@ -990,35 +990,53 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   gboolean is_maybe_transparent;
-  cairo_region_t *opaque_region;
+  cairo_region_t *opaque_region = NULL;
   MetaSurfaceActor *surface;
 
   is_maybe_transparent = is_actor_maybe_transparent (actor_x11);
-  if (is_maybe_transparent && window->opaque_region)
+  if (is_maybe_transparent &&
+      (window->opaque_region ||
+       (window->frame && window->frame->opaque_region)))
     {
       cairo_rectangle_int_t client_area;
 
+      if (window->frame && window->frame->opaque_region)
+        opaque_region = cairo_region_copy (window->frame->opaque_region);
+
       get_client_area_rect (actor_x11, &client_area);
 
-      /* The opaque region is defined to be a part of the
-       * window which ARGB32 will always paint with opaque
-       * pixels. For these regions, we want to avoid painting
-       * windows and shadows beneath them.
-       *
-       * If the client gives bad coordinates where it does not
-       * fully paint, the behavior is defined by the specification
-       * to be undefined, and considered a client bug. In mutter's
-       * case, graphical glitches will occur.
-       */
-      opaque_region = cairo_region_copy (window->opaque_region);
-      cairo_region_translate (opaque_region, client_area.x, client_area.y);
+      if (opaque_region && meta_window_x11_has_alpha_channel (window))
+        cairo_region_subtract_rectangle (opaque_region, &client_area);
+
+      if (window->opaque_region)
+        {
+          cairo_region_t *client_opaque_region;
+
+          /* The opaque region is defined to be a part of the
+           * window which ARGB32 will always paint with opaque
+           * pixels. For these regions, we want to avoid painting
+           * windows and shadows beneath them.
+           *
+           * If the client gives bad coordinates where it does not
+           * fully paint, the behavior is defined by the specification
+           * to be undefined, and considered a client bug. In mutter's
+           * case, graphical glitches will occur.
+           */
+          client_opaque_region = cairo_region_copy (window->opaque_region);
+          cairo_region_translate (client_opaque_region,
+                                  client_area.x, client_area.y);
+
+          if (opaque_region)
+            cairo_region_union (opaque_region, client_opaque_region);
+          else
+            opaque_region = cairo_region_reference (client_opaque_region);
+
+          cairo_region_destroy (client_opaque_region);
+        }
+
       cairo_region_intersect (opaque_region, actor_x11->shape_region);
     }
-  else if (is_maybe_transparent)
-    {
-      opaque_region = NULL;
-    }
-  else
+  else if (!is_maybe_transparent)
     {
       opaque_region = cairo_region_reference (actor_x11->shape_region);
     }
