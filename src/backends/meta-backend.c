@@ -1022,9 +1022,6 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
   uint32_t time_ms;
 
   device = clutter_event_get_source_device (event);
-  if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_PHYSICAL)
-    return;
-
   device_type = clutter_input_device_get_device_type (device);
   time_ms = clutter_event_get_time (event);
 
