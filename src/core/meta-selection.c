@@ -98,8 +98,13 @@ meta_selection_init (MetaSelection *selection)
 MetaSelection *
 meta_selection_new (MetaDisplay *display)
 {
-  return g_object_new (META_TYPE_SELECTION,
-                       NULL);
+  MetaSelection *selection;
+
+  selection = g_object_new (META_TYPE_SELECTION,
+                            NULL);
+  selection->display = display;
+
+  return selection;
 }
 
 /**
