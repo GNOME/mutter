@@ -17,15 +17,14 @@ variables:
 
 .mutter.fedora@common:
   variables:
-    FDO_DISTRIBUTION_VERSION: 36
-    BASE_TAG: '2022-11-25.0'
+    FDO_DISTRIBUTION_VERSION: 37
+    BASE_TAG: '2022-12-17.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
       gcovr
       gdm
       gnome-shell
-      mozjs91-devel
       sassc
       uncrustify
       xorg-x11-server-Xvfb
@@ -47,28 +46,6 @@ variables:
       dnf builddep -y wayland --setopt=install_weak_deps=False &&
       dnf builddep -y wayland-protocols --setopt=install_weak_deps=False &&
       dnf builddep -y kernel --setopt=install_weak_deps=False &&
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/gjs.git \
-        1.73.1 . &&
-
-      ./.gitlab-ci/install-meson-project.sh \
-        -Dvapi=false \
-        -Dgtk3=false \
-        -Dgtk4=false \
-        -Dgtk_doc=false \
-        -Dssh_agent=false \
-        -Dsystemd=disabled \
-        https://gitlab.gnome.org/GNOME/gcr.git \
-        3.90.0 . &&
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.freedesktop.org/wayland/wayland.git \
-        1.21.0 . &&
-
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-        1.26 . &&
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
