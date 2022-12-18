@@ -63,6 +63,7 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
   MetaPointerConstraint *constraint;
   graphene_point_t point;
+  cairo_rectangle_int_t rect;
   cairo_region_t *region;
   float sx, sy, x, y;
 
@@ -75,7 +76,8 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
                                                  &sx, &sy);
 
   meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
-  region = cairo_region_create_rectangle (&(cairo_rectangle_int_t) { (int) x, (int) y, 1 , 1 });
+  rect = (cairo_rectangle_int_t) { .x = x, .y = y, .width = 1, .height = 1 };
+  region = cairo_region_create_rectangle (&rect);
 
   constraint = meta_pointer_constraint_new (region, 0.0);
   cairo_region_destroy (region);
