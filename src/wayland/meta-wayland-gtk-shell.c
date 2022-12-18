@@ -172,9 +172,8 @@ gtk_surface_request_focus (struct wl_client   *client,
 {
   MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = gtk_surface->surface;
-  MetaContext *context =
-    meta_wayland_compositor_get_context (surface->compositor);
-  MetaDisplay *display = meta_context_get_display (context);
+  MetaContext *context;
+  MetaDisplay *display;
   MetaStartupSequence *sequence = NULL;
   MetaWindow *window;
 
@@ -184,6 +183,9 @@ gtk_surface_request_focus (struct wl_client   *client,
   window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
+
+  context = meta_wayland_compositor_get_context (surface->compositor);
+  display = meta_context_get_display (context);
 
   if (startup_id)
     sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
