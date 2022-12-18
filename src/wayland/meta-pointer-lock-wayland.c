@@ -43,7 +43,6 @@
 struct _MetaPointerLockWayland
 {
   GObject parent;
-  MetaWaylandPointerConstraint *constraint;
 };
 
 G_DEFINE_TYPE (MetaPointerLockWayland, meta_pointer_lock_wayland,
