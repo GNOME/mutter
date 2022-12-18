@@ -704,7 +704,10 @@ meta_workspace_index (MetaWorkspace *workspace)
 {
   int ret;
 
+  g_return_val_if_fail (META_IS_WORKSPACE (workspace), -1);
+
   ret = g_list_index (workspace->manager->workspaces, workspace);
+
   g_return_val_if_fail (ret >= 0, -1);
 
   return ret;
