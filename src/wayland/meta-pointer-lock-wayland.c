@@ -52,17 +52,17 @@ G_DEFINE_TYPE (MetaPointerLockWayland, meta_pointer_lock_wayland,
 static MetaPointerConstraint *
 meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *confinement)
 {
-  MetaPointerLockWayland *lock_wayland = META_POINTER_LOCK_WAYLAND (confinement);
-  MetaWaylandCompositor *compositor =
-    meta_wayland_pointer_constraint_get_compositor (lock_wayland->constraint);
+  MetaWaylandPointerConstraint *wayland_constraint =
+    meta_pointer_confinement_wayland_get_wayland_pointer_constraint (confinement);
+  MetaWaylandSurface *surface =
+    meta_wayland_pointer_constraint_get_surface (wayland_constraint);
+  MetaWaylandCompositor *compositor = surface->compositor;
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
-  MetaWaylandPointerConstraint *wayland_constraint;
   MetaPointerConstraint *constraint;
-  MetaWaylandSurface *surface;
   graphene_point_t point;
   cairo_region_t *region;
   float sx, sy, x, y;
