@@ -951,18 +951,29 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                  cairo_rectangle_int_t *clip)
 {
   MetaMonitorTransform inverted_transform;
+  cairo_rectangle_int_t buffer_rect;
   int scaled_and_transformed_width;
   int scaled_and_transformed_height;
 
   if (stex->texture == NULL)
     return FALSE;
 
+  /* Pad the actor clip to ensure that pixels affected by linear scaling are accounted for */
   *clip = (cairo_rectangle_int_t) {
-    .x = x,
-    .y = y,
-    .width = width,
-    .height = height
+    .x = x - 1,
+    .y = y - 1,
+    .width = width + 2,
+    .height = height + 2
   };
+
+  buffer_rect = (cairo_rectangle_int_t) {
+    .x = 0,
+    .y = 0,
+    .width = stex->tex_width,
+    .height = stex->tex_height,
+  };
+
+  meta_rectangle_intersect (&buffer_rect, clip, clip);
 
   meta_rectangle_scale_double (clip,
                                1.0 / stex->buffer_scale,
