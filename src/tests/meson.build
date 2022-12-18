@@ -86,19 +86,6 @@ subdir('wayland-test-clients')
 
 if have_installed_tests
   stacking_files_datadir = join_paths(pkgdatadir, 'tests')
-
-  installed_tests_cdata = configuration_data()
-  installed_tests_cdata.set('libexecdir', libexecdir)
-  installed_tests_cdata.set('apiversion', libmutter_api_version)
-
-  configure_file(
-    input: 'mutter-all.test.in',
-    output: 'mutter-all.test',
-    configuration: installed_tests_cdata,
-    install: true,
-    install_dir: mutter_installed_tests_datadir,
-  )
-
   install_subdir('stacking', install_dir: stacking_files_datadir)
 endif
 
@@ -471,6 +458,22 @@ foreach stacking_test: stacking_tests
     is_parallel: false,
     timeout: 60,
   )
+
+  if have_installed_tests
+    installed_tests_cdata = configuration_data()
+    installed_tests_cdata.set('apiversion', libmutter_api_version)
+    installed_tests_cdata.set('libexecdir', libexecdir)
+    installed_tests_cdata.set('tests_datadir', tests_datadir)
+    installed_tests_cdata.set('stacking_test', stacking_test)
+
+    configure_file(
+      input: 'stacking.test.in',
+      output: stacking_test + '.test',
+      configuration: installed_tests_cdata,
+      install: true,
+      install_dir: mutter_installed_tests_datadir,
+    )
+  endif
 endforeach
 
 if have_kvm_tests or have_tty_tests
