@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef META_STAGE_VIEW_H
-#define META_STAGE_VIEW_H
+#ifndef META_STAGE_VIEW_PRIVATE_H
+#define META_STAGE_VIEW_PRIVATE_H
 
 #include <cairo.h>
 
@@ -48,4 +48,4 @@ ClutterDamageHistory * meta_stage_view_get_damage_history (MetaStageView *view);
 void meta_stage_view_perform_fake_swap (MetaStageView *view,
                                         int64_t        counter);
 
-#endif /* META_STAGE_VIEW_H */
+#endif /* META_STAGE_VIEW_PRIVATE_H */
