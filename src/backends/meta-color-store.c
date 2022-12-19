@@ -678,9 +678,6 @@ on_cd_profile_connected (GObject      *source_object,
 
   if (!cd_profile_connect_finish (cd_profile, res, &error))
     {
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        return;
-
       g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
