@@ -219,6 +219,7 @@ meta_profiler_init (MetaProfiler *self)
       cogl_set_tracing_enabled_on_thread (main_context,
                                           group_name,
                                           env_trace_file);
+      self->persistent = TRUE;
     }
 }
 
