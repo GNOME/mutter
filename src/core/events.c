@@ -232,6 +232,9 @@ meta_display_handle_event (MetaDisplay        *display,
   wayland_compositor = meta_context_get_wayland_compositor (context);
 #endif
 
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayHandleEvent,
+                           "MetaDisplay (handle event)");
+
   has_grab = stage_has_grab (display);
 
   if (display->grabbed_in_clutter != has_grab)
