@@ -109,6 +109,7 @@ struct _MetaOnscreenNative
   MetaRendererView *view;
 
   gboolean is_gamma_lut_invalid;
+  gboolean is_privacy_screen_invalid;
 };
 
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
@@ -234,6 +235,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   g_return_if_fail (frame_info != NULL);
 
   onscreen_native->is_gamma_lut_invalid = FALSE;
+  onscreen_native->is_privacy_screen_invalid = FALSE;
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
@@ -1421,12 +1423,17 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
         }
     }
 
-  if (meta_output_kms_is_privacy_screen_invalid (output_kms))
+  if (onscreen_native->is_privacy_screen_invalid)
     {
+      MetaKmsConnector *kms_connector =
+        meta_output_kms_get_kms_connector (output_kms);
       MetaKmsUpdate *kms_update;
+      gboolean enabled;
 
       kms_update = meta_kms_ensure_pending_update (kms, kms_device);
-      meta_output_kms_set_privacy_screen (output_kms, kms_update);
+
+      enabled = meta_output_is_privacy_screen_enabled (onscreen_native->output);
+      meta_kms_update_set_privacy_screen (kms_update, kms_connector, enabled);
     }
 }
 
@@ -2156,6 +2163,8 @@ meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
 {
   if (meta_crtc_get_gamma_lut_size (onscreen_native->crtc) > 0)
     onscreen_native->is_gamma_lut_invalid = TRUE;
+  if (meta_output_is_privacy_screen_supported (onscreen_native->output))
+    onscreen_native->is_privacy_screen_invalid = TRUE;
 }
 
 static void
@@ -2165,6 +2174,17 @@ on_gamma_lut_changed (MetaCrtc           *crtc,
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
 
   onscreen_native->is_gamma_lut_invalid = TRUE;
+  clutter_stage_view_schedule_update (stage_view);
+}
+
+static void
+on_privacy_screen_enabled_changed (MetaOutput         *output,
+                                   GParamSpec         *pspec,
+                                   MetaOnscreenNative *onscreen_native)
+{
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+  onscreen_native->is_privacy_screen_invalid = TRUE;
   clutter_stage_view_schedule_update (stage_view);
 }
 
@@ -2200,6 +2220,14 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
       onscreen_native->is_gamma_lut_invalid = TRUE;
       g_signal_connect_object (crtc, "gamma-lut-changed",
                                G_CALLBACK (on_gamma_lut_changed),
+                               onscreen_native, G_CONNECT_DEFAULT);
+    }
+
+  if (meta_output_is_privacy_screen_supported (output))
+    {
+      onscreen_native->is_privacy_screen_invalid = TRUE;
+      g_signal_connect_object (output, "notify::is-privacy-screen-enabled",
+                               G_CALLBACK (on_privacy_screen_enabled_changed),
                                onscreen_native, G_CONNECT_DEFAULT);
     }
 

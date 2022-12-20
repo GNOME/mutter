@@ -31,6 +31,7 @@ enum
   PROP_ID,
   PROP_GPU,
   PROP_INFO,
+  PROP_IS_PRIVACY_SCREEN_ENABLED,
 
   N_PROPS
 };
@@ -59,6 +60,9 @@ typedef struct _MetaOutputPrivate
   unsigned int max_bpc;
 
   int backlight;
+
+  MetaPrivacyScreenState privacy_screen_state;
+  gboolean is_privacy_screen_enabled;
 } MetaOutputPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
@@ -393,6 +397,9 @@ meta_output_set_property (GObject      *object,
     case PROP_INFO:
       priv->info = meta_output_info_ref (g_value_get_boxed (value));
       break;
+    case PROP_IS_PRIVACY_SCREEN_ENABLED:
+      priv->is_privacy_screen_enabled = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -417,6 +424,9 @@ meta_output_get_property (GObject    *object,
       break;
     case PROP_INFO:
       g_value_set_boxed (value, priv->info);
+      break;
+    case PROP_IS_PRIVACY_SCREEN_ENABLED:
+      g_value_set_boolean (value, priv->is_privacy_screen_enabled);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -457,14 +467,29 @@ meta_output_get_privacy_screen_state (MetaOutput *output)
 }
 
 gboolean
+meta_output_is_privacy_screen_supported (MetaOutput *output)
+{
+  return !(meta_output_get_privacy_screen_state (output) ==
+           META_PRIVACY_SCREEN_UNAVAILABLE);
+}
+
+gboolean
+meta_output_is_privacy_screen_enabled (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->privacy_screen_state;
+}
+
+gboolean
 meta_output_set_privacy_screen_enabled (MetaOutput  *output,
                                         gboolean     enabled,
                                         GError     **error)
 {
-  MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
   MetaPrivacyScreenState state;
 
-  state = meta_output_get_privacy_screen_state (output);
+  state = priv->privacy_screen_state;
 
   if (state == META_PRIVACY_SCREEN_UNAVAILABLE)
     {
@@ -472,8 +497,6 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
                            "The privacy screen is not supported by this output");
       return FALSE;
     }
-
-  g_assert (output_class->set_privacy_screen_enabled != NULL);
 
   if (state & META_PRIVACY_SCREEN_LOCKED)
     {
@@ -483,10 +506,13 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
       return FALSE;
     }
 
-  if (!!(state & META_PRIVACY_SCREEN_ENABLED) == enabled)
+  if (priv->is_privacy_screen_enabled == enabled)
     return TRUE;
 
-  return output_class->set_privacy_screen_enabled (output, enabled, error);
+  priv->is_privacy_screen_enabled = enabled;
+  g_object_notify_by_pspec (G_OBJECT (output),
+                            obj_props[PROP_IS_PRIVACY_SCREEN_ENABLED]);
+  return TRUE;
 }
 
 static void
@@ -531,6 +557,14 @@ meta_output_class_init (MetaOutputClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IS_PRIVACY_SCREEN_ENABLED] =
+    g_param_spec_boolean ("is-privacy-screen-enabled",
+                          "is-privacy-screen-enabled",
+                          "Is privacy screen enabled",
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 

@@ -203,6 +203,10 @@ int meta_output_get_backlight (MetaOutput *output);
 
 MetaPrivacyScreenState meta_output_get_privacy_screen_state (MetaOutput *output);
 
+gboolean meta_output_is_privacy_screen_supported (MetaOutput *output);
+
+gboolean meta_output_is_privacy_screen_enabled (MetaOutput *output);
+
 gboolean meta_output_set_privacy_screen_enabled (MetaOutput  *output,
                                                  gboolean     enabled,
                                                  GError     **error);

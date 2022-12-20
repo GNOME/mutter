@@ -45,9 +45,6 @@ struct _MetaOutputKms
   MetaOutputNative parent;
 
   MetaKmsConnector *kms_connector;
-
-  gboolean is_privacy_screen_valid;
-  gboolean is_privacy_screen_enabled;
 };
 
 G_DEFINE_TYPE (MetaOutputKms, meta_output_kms, META_TYPE_OUTPUT_NATIVE)
@@ -140,63 +137,6 @@ meta_output_kms_get_privacy_screen_state (MetaOutput *output)
     meta_kms_connector_get_current_state (output_kms->kms_connector);
 
   return connector_state->privacy_screen_state;
-}
-
-static gboolean
-meta_output_kms_set_privacy_screen_enabled (MetaOutput  *output,
-                                            gboolean     enabled,
-                                            GError     **error)
-{
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaBackend *backend = meta_gpu_get_backend (gpu);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaOutputKms *output_kms = META_OUTPUT_KMS (output);
-  MetaKmsConnector *connector = meta_output_kms_get_kms_connector (output_kms);
-  MetaCrtc *crtc;
-
-  if (!meta_kms_connector_is_privacy_screen_supported (connector))
-    {
-      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                           "No privacy screen support");
-      return FALSE;
-    }
-
-  output_kms->is_privacy_screen_valid = FALSE;
-  output_kms->is_privacy_screen_enabled = enabled;
-
-  crtc = meta_output_get_assigned_crtc (output);
-  if (crtc)
-    {
-      MetaRendererView *view;
-
-      view = meta_renderer_get_view_for_crtc (renderer, crtc);
-      clutter_stage_view_schedule_update (CLUTTER_STAGE_VIEW (view));
-    }
-
-  return TRUE;
-}
-
-gboolean
-meta_output_kms_is_privacy_screen_invalid (MetaOutputKms *output_kms)
-{
-  return !output_kms->is_privacy_screen_valid;
-}
-
-void
-meta_output_kms_set_privacy_screen (MetaOutputKms *output_kms,
-                                    MetaKmsUpdate *kms_update)
-{
-  MetaKmsConnector *connector = meta_output_kms_get_kms_connector (output_kms);
-
-  g_return_if_fail (!output_kms->is_privacy_screen_valid);
-
-  output_kms->is_privacy_screen_valid = TRUE;
-
-  if (!meta_kms_connector_is_privacy_screen_supported (connector))
-    return;
-
-  meta_kms_update_set_privacy_screen (kms_update, connector,
-                                      output_kms->is_privacy_screen_enabled);
 }
 
 uint32_t
@@ -571,8 +511,6 @@ meta_output_kms_class_init (MetaOutputKmsClass *klass)
 
   output_class->get_privacy_screen_state =
     meta_output_kms_get_privacy_screen_state;
-  output_class->set_privacy_screen_enabled =
-    meta_output_kms_set_privacy_screen_enabled;
 
   output_native_class->read_edid = meta_output_kms_read_edid;
 }
