@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 11:33+0000\n"
-"PO-Revision-Date: 2022-09-02 14:38+0300\n"
+"POT-Creation-Date: 2022-11-16 18:02+0000\n"
+"PO-Revision-Date: 2022-12-09 15:12+0300\n"
 "Last-Translator: Aleksandr Melman <Alexmelman88@gmail.com>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -189,7 +189,7 @@ msgstr "Показать командную строку"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr "Восстановление сочетаний клавиш"
+msgstr "Восстановить комбинации клавиш"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -579,7 +579,7 @@ msgstr ""
 "над списком разрешенных значений, для отзыва приложений из системного списка "
 "по умолчанию. Список системы по умолчанию включает следующие приложения: "
 "\"@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@\" Пользователи могут нарушить "
-"существующий захват, используя конкретное сочетание клавиш, определенное "
+"существующий захват, используя конкретную комбинацию клавиш, определенную "
 "клавишей привязки \"restore-shortcuts\"."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
@@ -624,11 +624,6 @@ msgctxt ""
 "inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
-
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Композитор"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
@@ -725,6 +720,11 @@ msgstr "Переключить монитор"
 msgid "Show on-screen help"
 msgstr "Показать справку на экране"
 
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Композитор"
+
 #: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Вывести версию"
@@ -742,7 +742,7 @@ msgstr "Рабочий стол %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter был скомпилирован без поддержки режима verbose"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:536
 msgid "Workspace switched"
 msgstr "Рабочий стол переключен"
 
@@ -751,7 +751,7 @@ msgstr "Рабочий стол переключен"
 msgid "Mode Switch: Mode %d"
 msgstr "Переключатель режима: режим %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:657
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -760,16 +760,16 @@ msgstr ""
 "Дисплей «%s» уже использует менеджер окон; попробуйте использовать параметр "
 "--replace, чтобы заменить текущий менеджер окон."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1048
 msgid "Failed to initialize GDK"
 msgstr "Не удалось инициализировать GDK"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1074
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не удалось открыть дисплей X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1187
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Экран %d на дисплее «%s» недействителен"
