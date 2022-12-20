@@ -454,6 +454,46 @@ transform_swap_region_to_onscreen (ClutterStageView *stage_view,
   return transformed_region;
 }
 
+static gboolean
+should_use_clipped_redraw (gboolean              is_full_redraw,
+                           gboolean              has_buffer_age,
+                           gboolean              buffer_has_valid_damage_history,
+                           ClutterDrawDebugFlag  paint_debug_flags,
+                           CoglFramebuffer      *framebuffer,
+                           ClutterStageWindow   *stage_window)
+{
+  gboolean can_blit_sub_buffer;
+  gboolean can_use_clipped_redraw;
+  gboolean is_warmed_up;
+
+  if (is_full_redraw)
+    return FALSE;
+
+  if (paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)
+    return FALSE;
+
+  if (COGL_IS_OFFSCREEN (framebuffer))
+    return TRUE;
+
+  if (!buffer_has_valid_damage_history)
+    {
+      meta_topic (META_DEBUG_BACKEND,
+                  "Invalid back buffer age: forcing full redraw");
+      return FALSE;
+    }
+
+  can_blit_sub_buffer =
+    cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION);
+  can_use_clipped_redraw =
+    _clutter_stage_window_can_clip_redraws (stage_window) &&
+    (can_blit_sub_buffer || has_buffer_age);
+  /* Some drivers struggle to get going and produce some junk
+   * frames when starting up... */
+  is_warmed_up =
+    cogl_onscreen_get_frame_counter (COGL_ONSCREEN (framebuffer)) > 3;
+  return is_warmed_up && can_use_clipped_redraw;
+}
+
 static void
 meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
                                      ClutterStageView *stage_view,
@@ -465,8 +505,8 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (stage_view);
   cairo_rectangle_int_t view_rect;
   gboolean is_full_redraw;
-  gboolean use_clipped_redraw = TRUE;
-  gboolean can_blit_sub_buffer;
+  gboolean use_clipped_redraw;
+  gboolean buffer_has_valid_damage_history = FALSE;
   gboolean has_buffer_age;
   gboolean swap_with_damage;
   cairo_region_t *redraw_clip;
@@ -483,10 +523,6 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   fb_scale = clutter_stage_view_get_scale (stage_view);
   fb_width = cogl_framebuffer_get_width (fb);
   fb_height = cogl_framebuffer_get_height (fb);
-
-  can_blit_sub_buffer =
-    COGL_IS_ONSCREEN (onscreen) &&
-    cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION);
 
   has_buffer_age =
     COGL_IS_ONSCREEN (onscreen) &&
@@ -505,26 +541,20 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
   if (has_buffer_age)
     {
       buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (onscreen));
-      if (!clutter_damage_history_is_age_valid (damage_history, buffer_age))
-        {
-          meta_topic (META_DEBUG_BACKEND,
-                      "Invalid back buffer(age=%d): forcing full redraw",
-                      buffer_age);
-          use_clipped_redraw = FALSE;
-        }
+      buffer_has_valid_damage_history =
+        clutter_damage_history_is_age_valid (damage_history,
+                                             buffer_age);
     }
 
   meta_get_clutter_debug_flags (NULL, &paint_debug_flags, NULL);
 
   use_clipped_redraw =
-    use_clipped_redraw &&
-    !(paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
-    _clutter_stage_window_can_clip_redraws (stage_window) &&
-    (can_blit_sub_buffer || has_buffer_age) &&
-    !is_full_redraw &&
-    /* some drivers struggle to get going and produce some junk
-     * frames when starting up... */
-    cogl_onscreen_get_frame_counter (COGL_ONSCREEN (onscreen)) > 3;
+    should_use_clipped_redraw (is_full_redraw,
+                               has_buffer_age,
+                               buffer_has_valid_damage_history,
+                               paint_debug_flags,
+                               onscreen,
+                               stage_window);
 
   if (use_clipped_redraw)
     {
