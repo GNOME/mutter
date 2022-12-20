@@ -46,7 +46,7 @@ close_dialog_response_cb (MetaCloseDialog         *dialog,
 }
 
 static void
-meta_window_ensure_close_dialog (MetaWindow *window)
+meta_window_maybe_ensure_close_dialog (MetaWindow *window)
 {
   MetaDisplay *display;
 
@@ -65,7 +65,11 @@ meta_window_ensure_close_dialog (MetaWindow *window)
 void
 meta_window_show_close_dialog (MetaWindow *window)
 {
-  meta_window_ensure_close_dialog (window);
+  meta_window_maybe_ensure_close_dialog (window);
+
+  if (!window->close_dialog)
+    return;
+
   meta_close_dialog_show (window->close_dialog);
 
   if (window->display &&
