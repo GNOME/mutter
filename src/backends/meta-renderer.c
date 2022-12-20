@@ -298,6 +298,7 @@ void
 meta_renderer_resume (MetaRenderer *renderer)
 {
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  MetaRendererClass *klass = META_RENDERER_GET_CLASS (renderer);
   GList *l;
 
   g_return_if_fail (priv->is_paused);
@@ -311,6 +312,9 @@ meta_renderer_resume (MetaRenderer *renderer)
 
       clutter_frame_clock_uninhibit (frame_clock);
     }
+
+  if (klass->resume)
+    klass->resume (renderer);
 }
 
 gboolean

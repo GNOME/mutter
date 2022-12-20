@@ -158,12 +158,7 @@ meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
         {
         case META_POWER_SAVE_ON:
         case META_POWER_SAVE_UNSUPPORTED:
-          {
-            g_list_foreach (meta_gpu_get_crtcs (META_GPU (gpu_kms)),
-                            (GFunc) meta_crtc_kms_invalidate_gamma,
-                            NULL);
-            break;
-          }
+          break;
         case META_POWER_SAVE_STANDBY:
         case META_POWER_SAVE_SUSPEND:
         case META_POWER_SAVE_OFF:
@@ -452,20 +447,7 @@ meta_monitor_manager_native_pause (MetaMonitorManagerNative *manager_native)
 void
 meta_monitor_manager_native_resume (MetaMonitorManagerNative *manager_native)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_native);
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  GList *l;
-
   meta_monitor_manager_native_connect_hotplug_handler (manager_native);
-
-  for (l = meta_backend_get_gpus (backend); l; l = l->next)
-    {
-      MetaGpu *gpu = l->data;
-
-      g_list_foreach (meta_gpu_get_crtcs (gpu),
-                      (GFunc) meta_crtc_kms_invalidate_gamma,
-                      NULL);
-    }
 }
 
 static gboolean

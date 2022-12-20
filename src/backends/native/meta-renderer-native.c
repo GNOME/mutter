@@ -1452,6 +1452,24 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
   meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
 }
 
+static void
+meta_renderer_native_resume (MetaRenderer *renderer)
+{
+  GList *l;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      CoglFramebuffer *framebuffer;
+
+      framebuffer = clutter_stage_view_get_onscreen (stage_view);
+      if (!META_IS_ONSCREEN_NATIVE (framebuffer))
+        continue;
+
+      meta_onscreen_native_invalidate (META_ONSCREEN_NATIVE (framebuffer));
+    }
+}
+
 void
 meta_renderer_native_prepare_frame (MetaRendererNative *renderer_native,
                                     MetaRendererView   *view,
@@ -2173,6 +2191,7 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
   renderer_class->create_view = meta_renderer_native_create_view;
   renderer_class->rebuild_views = meta_renderer_native_rebuild_views;
+  renderer_class->resume = meta_renderer_native_resume;
 }
 
 MetaRendererNative *

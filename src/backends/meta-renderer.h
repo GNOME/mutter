@@ -46,6 +46,7 @@ struct _MetaRendererClass
                                       MetaOutput         *output,
                                       MetaCrtc           *crtc);
   void (* rebuild_views) (MetaRenderer *renderer);
+  void (* resume) (MetaRenderer *renderer);
   GList * (* get_views_for_monitor) (MetaRenderer *renderer,
                                      MetaMonitor  *monitor);
 };

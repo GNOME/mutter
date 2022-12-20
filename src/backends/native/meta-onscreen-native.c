@@ -107,6 +107,8 @@ struct _MetaOnscreenNative
 #endif
 
   MetaRendererView *view;
+
+  gboolean is_gamma_lut_invalid;
 };
 
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
@@ -223,12 +225,15 @@ notify_view_crtc_presented (MetaRendererView *view,
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
 
   frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   g_return_if_fail (frame_info != NULL);
+
+  onscreen_native->is_gamma_lut_invalid = FALSE;
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
@@ -1397,12 +1402,23 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
   MetaKms *kms = meta_kms_device_get_kms (kms_device);
 
-  if (meta_crtc_kms_is_gamma_invalid (crtc_kms))
+  if (onscreen_native->is_gamma_lut_invalid)
     {
-      MetaKmsUpdate *kms_update;
+      const MetaKmsCrtcGamma *gamma;
 
-      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
-      meta_crtc_kms_set_gamma (crtc_kms, kms_update);
+      gamma = meta_crtc_kms_peek_gamma_lut (crtc_kms);
+      if (gamma)
+        {
+          MetaKmsUpdate *kms_update;
+
+          kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+          meta_kms_update_set_crtc_gamma (kms_update,
+                                          kms_crtc,
+                                          gamma->size,
+                                          gamma->red,
+                                          gamma->green,
+                                          gamma->blue);
+        }
     }
 
   if (meta_output_kms_is_privacy_screen_invalid (output_kms))
@@ -2135,6 +2151,23 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
   return TRUE;
 }
 
+void
+meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native)
+{
+  if (meta_crtc_get_gamma_lut_size (onscreen_native->crtc) > 0)
+    onscreen_native->is_gamma_lut_invalid = TRUE;
+}
+
+static void
+on_gamma_lut_changed (MetaCrtc           *crtc,
+                      MetaOnscreenNative *onscreen_native)
+{
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (onscreen_native->view);
+
+  onscreen_native->is_gamma_lut_invalid = TRUE;
+  clutter_stage_view_schedule_update (stage_view);
+}
+
 MetaOnscreenNative *
 meta_onscreen_native_new (MetaRendererNative *renderer_native,
                           MetaGpuKms         *render_gpu,
@@ -2161,6 +2194,14 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
   onscreen_native->render_gpu = render_gpu;
   onscreen_native->output = output;
   onscreen_native->crtc = crtc;
+
+  if (meta_crtc_get_gamma_lut_size (crtc) > 0)
+    {
+      onscreen_native->is_gamma_lut_invalid = TRUE;
+      g_signal_connect_object (crtc, "gamma-lut-changed",
+                               G_CALLBACK (on_gamma_lut_changed),
+                               onscreen_native, G_CONNECT_DEFAULT);
+    }
 
   return onscreen_native;
 }
