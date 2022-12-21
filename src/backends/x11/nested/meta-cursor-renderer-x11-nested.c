@@ -44,7 +44,7 @@ meta_cursor_renderer_x11_nested_update_cursor (MetaCursorRenderer *renderer,
 {
   if (cursor_sprite)
     meta_cursor_sprite_realize_texture (cursor_sprite);
-  return FALSE;
+  return TRUE;
 }
 
 static Cursor

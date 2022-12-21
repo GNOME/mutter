@@ -1113,9 +1113,9 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
   schedule_sync_position (native);
   clutter_stage_schedule_update (stage);
 
-  return (priv->has_hw_cursor ||
-          !cursor_sprite ||
-          !meta_cursor_sprite_get_cogl_texture (cursor_sprite));
+  return !(priv->has_hw_cursor ||
+           !cursor_sprite ||
+           !meta_cursor_sprite_get_cogl_texture (cursor_sprite));
 }
 
 static void

@@ -65,7 +65,7 @@ struct _MetaCursorRendererPrivate
   MetaCursorSprite *overlay_cursor;
 
   MetaOverlay *stage_overlay;
-  gboolean handled_by_backend;
+  gboolean needs_overlay;
   gulong after_paint_handler_id;
 
   GList *hw_cursor_inhibitors;
@@ -157,7 +157,7 @@ meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
         meta_cursor_sprite_get_texture_transform (cursor_sprite);
     }
 
-  meta_overlay_set_visible (priv->stage_overlay, !priv->handled_by_backend);
+  meta_overlay_set_visible (priv->stage_overlay, priv->needs_overlay);
   meta_stage_update_cursor_overlay (META_STAGE (stage), priv->stage_overlay,
                                     texture, &rect, buffer_transform);
 }
@@ -171,7 +171,7 @@ meta_cursor_renderer_after_paint (ClutterStage       *stage,
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
-  if (priv->displayed_cursor && !priv->handled_by_backend)
+  if (priv->displayed_cursor && priv->needs_overlay)
     {
       graphene_rect_t rect;
       MetaRectangle view_layout;
@@ -411,7 +411,7 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                      (int) priv->current_y);
     }
 
-  priv->handled_by_backend =
+  priv->needs_overlay =
     META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer,
                                                               cursor_sprite);
 

@@ -55,7 +55,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
     {
       if (cursor_sprite)
         meta_cursor_sprite_realize_texture (cursor_sprite);
-      return FALSE;
+      return TRUE;
     }
 
   gboolean has_server_cursor = FALSE;
@@ -93,7 +93,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
   if (cursor_sprite)
     meta_cursor_sprite_realize_texture (cursor_sprite);
 
-  return priv->server_cursor_visible;
+  return !priv->server_cursor_visible;
 }
 
 static void
