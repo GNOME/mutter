@@ -215,6 +215,7 @@ meta_thread_impl_constructed (GObject *object)
 
   priv->impl_source = create_impl_source (thread_impl);
   priv->task_queue = g_async_queue_new ();
+  meta_thread_register_callback_context (priv->thread, priv->thread_context);
 
   G_OBJECT_CLASS (meta_thread_impl_parent_class)->constructed (object);
 }
@@ -229,6 +230,8 @@ meta_thread_impl_finalize (GObject *object)
   g_clear_pointer (&priv->loop, g_main_loop_unref);
   g_clear_pointer (&priv->impl_source, g_source_destroy);
   g_clear_pointer (&priv->task_queue, g_async_queue_unref);
+
+  meta_thread_unregister_callback_context (priv->thread, priv->thread_context);
   g_clear_pointer (&priv->thread_context, g_main_context_unref);
 
   G_OBJECT_CLASS (meta_thread_impl_parent_class)->finalize (object);
