@@ -133,4 +133,9 @@ MetaCursorRenderer * meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNati
 void meta_seat_native_set_viewports (MetaSeatNative   *seat,
                                      MetaViewportInfo *viewports);
 
+void meta_seat_native_run_impl_task (MetaSeatNative *seat,
+                                     GSourceFunc     dispatch_func,
+                                     gpointer        user_data,
+                                     GDestroyNotify  destroy_notify);
+
 #endif /* META_SEAT_NATIVE_H */

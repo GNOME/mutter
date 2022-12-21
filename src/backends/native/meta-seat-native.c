@@ -659,3 +659,17 @@ meta_seat_native_set_viewports (MetaSeatNative   *seat,
 {
   meta_seat_impl_set_viewports (seat->impl, viewports);
 }
+
+void
+meta_seat_native_run_impl_task (MetaSeatNative *seat,
+                                GSourceFunc     dispatch_func,
+                                gpointer        user_data,
+                                GDestroyNotify  destroy_notify)
+{
+  g_autoptr (GTask) task = NULL;
+
+  task = g_task_new (seat->impl, NULL, NULL, NULL);
+  g_task_set_task_data (task, user_data, destroy_notify);
+  meta_seat_impl_run_input_task (seat->impl, task,
+                                 (GSourceFunc) dispatch_func);
+}
