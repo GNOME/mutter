@@ -1932,6 +1932,9 @@ meta_x11_display_update_focus_window (MetaX11Display *x11_display,
   if (x11_display->focus_xwindow == xwindow)
     return;
 
+  meta_topic (META_DEBUG_FOCUS, "Updating X11 focus window from 0x%lx to 0x%lx",
+              x11_display->focus_xwindow, xwindow);
+
   x11_display->focus_xwindow = xwindow;
   meta_x11_display_update_active_window_hint (x11_display);
 }
@@ -1983,6 +1986,9 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
   else
     xwindow = x11_display->no_focus_window;
 
+  meta_topic (META_DEBUG_FOCUS, "Setting X11 input focus for window %s to 0x%lx",
+              window ? window->desc : "none", xwindow);
+
   meta_x11_error_trap_push (x11_display);
   meta_x11_display_set_input_focus_internal (x11_display, xwindow, timestamp);
   serial = XNextRequest (x11_display->xdisplay);
@@ -1999,6 +2005,8 @@ meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
 
   if (meta_display_timestamp_too_old (x11_display->display, &timestamp))
     return;
+
+  meta_topic (META_DEBUG_FOCUS, "Setting X11 input focus to 0x%lx", window);
 
   meta_x11_display_set_input_focus_internal (x11_display, window, timestamp);
   serial = XNextRequest (x11_display->xdisplay);
