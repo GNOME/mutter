@@ -136,8 +136,8 @@ static GQuark quark_cursor_renderer_native_gpu_data = 0;
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRendererNative, meta_cursor_renderer_native, META_TYPE_CURSOR_RENDERER);
 
 static void
-on_kms_update_result (const MetaKmsFeedback *kms_feedback,
-                      gpointer               user_data);
+kms_update_feedback_result (const MetaKmsFeedback *kms_feedback,
+                            gpointer               user_data);
 
 static void
 realize_cursor_sprite (MetaCursorRenderer *renderer,
@@ -281,6 +281,10 @@ ensure_crtc_cursor_data (MetaCrtcKms *crtc_kms)
   return crtc_cursor_data;
 }
 
+static const MetaKmsResultListenerVtable kms_update_listener_vtable = {
+  .feedback = kms_update_feedback_result,
+};
+
 static void
 assign_cursor_plane (MetaCursorRendererNative *native,
                      ClutterFrame             *frame,
@@ -361,8 +365,8 @@ assign_cursor_plane (MetaCursorRendererNative *native,
                                                 cursor_hotspot_y);
 
   meta_kms_update_add_result_listener (kms_update,
+                                       &kms_update_listener_vtable,
                                        NULL,
-                                       on_kms_update_result,
                                        native);
 
   crtc_cursor_data->buffer = buffer;
@@ -1019,8 +1023,8 @@ calculate_cursor_sprite_gpus (MetaCursorRenderer *renderer,
 }
 
 static void
-on_kms_update_result (const MetaKmsFeedback *kms_feedback,
-                      gpointer               user_data)
+kms_update_feedback_result (const MetaKmsFeedback *kms_feedback,
+                            gpointer               user_data)
 {
   MetaCursorRendererNative *cursor_renderer_native = user_data;
   MetaCursorRenderer *cursor_renderer =

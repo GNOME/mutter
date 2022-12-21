@@ -836,8 +836,8 @@ clear_detached_onscreens (MetaRendererNative *renderer_native)
 }
 
 static void
-on_mode_sets_update_result (const MetaKmsFeedback *kms_feedback,
-                            gpointer               user_data)
+mode_sets_update_result_feedback (const MetaKmsFeedback *kms_feedback,
+                                  gpointer               user_data)
 {
   const GError *feedback_error;
 
@@ -848,6 +848,10 @@ on_mode_sets_update_result (const MetaKmsFeedback *kms_feedback,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Failed to post KMS update: %s", feedback_error->message);
 }
+
+static const MetaKmsResultListenerVtable mode_sets_result_listener_vtable = {
+  .feedback = mode_sets_update_result_feedback,
+};
 
 static void
 post_mode_set_updates (MetaRendererNative *renderer_native)
@@ -865,8 +869,8 @@ post_mode_set_updates (MetaRendererNative *renderer_native)
       g_hash_table_iter_steal (&iter);
 
       meta_kms_update_add_result_listener (kms_update,
+                                           &mode_sets_result_listener_vtable,
                                            NULL,
-                                           on_mode_sets_update_result,
                                            NULL);
 
       feedback = meta_kms_device_process_update_sync (kms_device, kms_update,

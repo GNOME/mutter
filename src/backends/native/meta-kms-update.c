@@ -596,17 +596,17 @@ meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assi
 }
 
 void
-meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
-                                     GMainContext              *main_context,
-                                     MetaKmsResultListenerFunc  func,
-                                     gpointer                   user_data)
+meta_kms_update_add_result_listener (MetaKmsUpdate                     *update,
+                                     const MetaKmsResultListenerVtable *vtable,
+                                     GMainContext                      *main_context,
+                                     gpointer                           user_data)
 {
   MetaKmsResultListener *listener;
 
   listener = g_new0 (MetaKmsResultListener, 1);
   *listener = (MetaKmsResultListener) {
     .main_context = main_context,
-    .func = func,
+    .vtable = vtable,
     .user_data = user_data,
   };
 
@@ -640,7 +640,8 @@ meta_kms_result_listener_notify (MetaKmsResultListener *listener)
 {
   g_return_if_fail (listener->feedback);
 
-  listener->func (listener->feedback, listener->user_data);
+  if (listener->vtable->feedback)
+    listener->vtable->feedback (listener->feedback, listener->user_data);
 }
 
 void

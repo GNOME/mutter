@@ -78,8 +78,11 @@ typedef struct _MetaKmsPlaneFeedback
   GError *error;
 } MetaKmsPlaneFeedback;
 
-typedef void (* MetaKmsResultListenerFunc) (const MetaKmsFeedback *feedback,
-                                            gpointer               user_data);
+typedef struct _MetaKmsResultListenerVtable
+{
+  void (* feedback) (const MetaKmsFeedback *feedback,
+                     gpointer               user_data);
+} MetaKmsResultListenerVtable;
 
 MetaKmsFeedback * meta_kms_feedback_ref (MetaKmsFeedback *feedback);
 
@@ -183,10 +186,10 @@ void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane
                                                    int                     y);
 
 META_EXPORT_TEST
-void meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
-                                          GMainContext              *main_context,
-                                          MetaKmsResultListenerFunc  func,
-                                          gpointer                   user_data);
+void meta_kms_update_add_result_listener (MetaKmsUpdate                     *update,
+                                          const MetaKmsResultListenerVtable *vtable,
+                                          GMainContext                      *main_context,
+                                          gpointer                           user_data);
 
 META_EXPORT_TEST
 void meta_kms_update_merge_from (MetaKmsUpdate *update,

@@ -777,22 +777,30 @@ off_thread_callback_thread_func (gpointer user_data)
 }
 
 static void
-on_main_thread_result (const MetaKmsFeedback *feedback,
-                       gpointer               user_data)
+main_thread_result_feedback (const MetaKmsFeedback *feedback,
+                             gpointer               user_data)
 {
   CallbackData *data = user_data;
 
   g_main_loop_quit (data->main_thread_loop);
 }
 
+static const MetaKmsResultListenerVtable main_thread_result_listener_vtable = {
+  .feedback = main_thread_result_feedback,
+};
+
 static void
-on_callback_thread_result (const MetaKmsFeedback *feedback,
-                           gpointer               user_data)
+callback_thread_result_feedback (const MetaKmsFeedback *feedback,
+                                 gpointer               user_data)
 {
   CallbackData *data = user_data;
 
   g_main_loop_quit (data->thread_loop);
 }
+
+static const MetaKmsResultListenerVtable callback_thread_result_listener_vtable = {
+  .feedback = callback_thread_result_feedback,
+};
 
 static void
 meta_test_kms_update_feedback (void)
@@ -819,11 +827,13 @@ meta_test_kms_update_feedback (void)
   update = meta_kms_update_new (device);
   populate_update (update, &buffer, POPULATE_UPDATE_FLAG_MODE);
 
-  meta_kms_update_add_result_listener (update, NULL,
-                                       on_main_thread_result,
+  meta_kms_update_add_result_listener (update,
+                                       &main_thread_result_listener_vtable,
+                                       NULL,
                                        &data);
-  meta_kms_update_add_result_listener (update, data.thread_main_context,
-                                       on_callback_thread_result,
+  meta_kms_update_add_result_listener (update,
+                                       &callback_thread_result_listener_vtable,
+                                       data.thread_main_context,
                                        &data);
 
   meta_kms_device_post_update (device, update,

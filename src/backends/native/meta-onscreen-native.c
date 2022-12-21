@@ -1017,8 +1017,8 @@ ensure_crtc_modes (CoglOnscreen  *onscreen,
 }
 
 static void
-on_swap_buffer_update_result (const MetaKmsFeedback *kms_feedback,
-                              gpointer               user_data)
+swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
+                             gpointer               user_data)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
   const GError *error;
@@ -1044,6 +1044,10 @@ on_swap_buffer_update_result (const MetaKmsFeedback *kms_feedback,
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_clear_next_fb (onscreen);
 }
+
+static const MetaKmsResultListenerVtable swap_buffer_result_listener_vtable = {
+  .feedback = swap_buffer_result_feedback,
+};
 
 static void
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
@@ -1170,8 +1174,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       kms_update = meta_frame_native_ensure_kms_update (frame_native,
                                                         kms_device);
       meta_kms_update_add_result_listener (kms_update,
+                                           &swap_buffer_result_listener_vtable,
                                            NULL,
-                                           on_swap_buffer_update_result,
                                            onscreen_native);
 
       ensure_crtc_modes (onscreen, kms_update);
@@ -1294,8 +1298,8 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen  *onscreen,
 }
 
 static void
-on_scanout_update_result (const MetaKmsFeedback *kms_feedback,
-                          gpointer               user_data)
+scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
+                         gpointer               user_data)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (user_data);
   CoglOnscreen *onscreen = COGL_ONSCREEN (onscreen_native);
@@ -1326,6 +1330,10 @@ on_scanout_update_result (const MetaKmsFeedback *kms_feedback,
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_clear_next_fb (onscreen);
 }
+
+static const MetaKmsResultListenerVtable scanout_result_listener_vtable = {
+  .feedback = scanout_result_feedback,
+};
 
 static gboolean
 meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
@@ -1387,8 +1395,8 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
 
   meta_kms_update_add_result_listener (kms_update,
+                                       &scanout_result_listener_vtable,
                                        NULL,
-                                       on_scanout_update_result,
                                        onscreen_native);
 
   meta_onscreen_native_flip_crtc (onscreen,
@@ -1498,8 +1506,8 @@ meta_onscreen_native_prepare_frame (CoglOnscreen *onscreen,
 }
 
 static void
-on_finish_frame_update_result (const MetaKmsFeedback *kms_feedback,
-                               gpointer               user_data)
+finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
+                              gpointer               user_data)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
   const GError *error;
@@ -1520,6 +1528,10 @@ on_finish_frame_update_result (const MetaKmsFeedback *kms_feedback,
   meta_onscreen_native_notify_frame_complete (onscreen);
 }
 
+static const MetaKmsResultListenerVtable finish_frame_result_listener_vtable = {
+  .feedback = finish_frame_result_feedback,
+};
+
 void
 meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
                                    ClutterFrame *frame)
@@ -1539,8 +1551,8 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
     }
 
   meta_kms_update_add_result_listener (kms_update,
+                                       &finish_frame_result_listener_vtable,
                                        NULL,
-                                       on_finish_frame_update_result,
                                        onscreen_native);
 
   meta_kms_update_add_page_flip_listener (kms_update,

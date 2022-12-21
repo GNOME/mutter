@@ -129,7 +129,7 @@ typedef struct _MetaKmsPageFlipListener
 struct _MetaKmsResultListener
 {
   GMainContext *main_context;
-  MetaKmsResultListenerFunc func;
+  const MetaKmsResultListenerVtable *vtable;
   gpointer user_data;
 
   MetaKmsFeedback *feedback;
