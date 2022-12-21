@@ -26,6 +26,7 @@
 #define META_UTIL_PRIVATE_H
 
 #include <glib/gi18n-lib.h>
+#include <sys/time.h>
 
 #include "meta/util.h"
 #include "meta/common.h"
@@ -43,6 +44,12 @@ char *   meta_generate_random_id (GRand *rand,
                                   int    length);
 
 void meta_init_debug_utils (void);
+
+static inline int64_t
+meta_timeval_to_microseconds (const struct timeval *tv)
+{
+  return ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
+}
 
 #define META_POINT_IN_RECT(xcoord, ycoord, rect) \
   ((xcoord) >= (rect).x &&                   \

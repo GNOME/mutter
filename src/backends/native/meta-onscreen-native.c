@@ -231,12 +231,6 @@ notify_view_crtc_presented (MetaRendererView *view,
   meta_onscreen_native_swap_drm_fb (onscreen);
 }
 
-static int64_t
-timeval_to_microseconds (const struct timeval *tv)
-{
-  return ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
-}
-
 static void
 page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
                             unsigned int  sequence,
@@ -258,7 +252,7 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
   kms_device = meta_kms_crtc_get_device (kms_crtc);
   if (meta_kms_device_uses_monotonic_clock (kms_device))
     {
-      presentation_time_us = timeval_to_microseconds (&page_flip_time);
+      presentation_time_us = meta_timeval_to_microseconds (&page_flip_time);
       flags |= COGL_FRAME_INFO_FLAG_HW_CLOCK;
     }
   else
