@@ -43,6 +43,8 @@ typedef enum _MetaKmsPageFlipListenerFlag MetaKmsPageFlipListenerFlag;
 typedef struct _MetaKmsImpl MetaKmsImpl;
 typedef struct _MetaKmsImplDevice MetaKmsImplDevice;
 
+typedef struct _MetaKmsCursorManager MetaKmsCursorManager;
+
 /* 16:16 fixed point */
 typedef int32_t MetaFixed16;
 

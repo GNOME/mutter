@@ -23,6 +23,7 @@
 #include "backends/native/meta-kms-private.h"
 
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-update-private.h"
@@ -154,6 +155,8 @@ struct _MetaKms
   guint callback_source_id;
 
   int kernel_thread_inhibit_count;
+
+  MetaKmsCursorManager *cursor_manager;
 };
 
 G_DEFINE_TYPE (MetaKms, meta_kms, META_TYPE_THREAD)
@@ -434,6 +437,8 @@ on_prepare_shutdown (MetaBackend *backend,
 {
   meta_kms_run_impl_task_sync (kms, prepare_shutdown_in_impl, NULL, NULL);
   meta_thread_flush_callbacks (META_THREAD (kms));
+
+  g_clear_object (&kms->cursor_manager);
 }
 
 MetaKms *
@@ -508,6 +513,7 @@ meta_kms_constructed (GObject *object)
 static void
 meta_kms_init (MetaKms *kms)
 {
+  kms->cursor_manager = meta_kms_cursor_manager_new (kms);
 }
 
 static void
@@ -556,4 +562,10 @@ meta_kms_uninhibit_kernel_thread (MetaKms *kms)
 
   if (kms->kernel_thread_inhibit_count == 0)
     meta_thread_reset_thread_type (META_THREAD (kms), META_THREAD_TYPE_KERNEL);
+}
+
+MetaKmsCursorManager *
+meta_kms_get_cursor_manager (MetaKms *kms)
+{
+  return kms->cursor_manager;
 }
