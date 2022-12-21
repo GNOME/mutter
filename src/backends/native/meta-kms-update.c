@@ -193,35 +193,21 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
-static gboolean
-noop_callback (gpointer user_data)
-{
-  return G_SOURCE_REMOVE;
-}
-
 static void
 meta_kms_page_flip_listener_unref (MetaKmsPageFlipListener *listener)
 {
+  MetaKmsDevice *device;
+
   if (!g_atomic_ref_count_dec (&listener->ref_count))
     return;
 
-  if (listener->main_context == g_main_context_get_thread_default ())
-    {
-      g_clear_pointer (&listener->user_data, listener->destroy_notify);
-      g_free (listener);
-    }
-  else
-    {
-      GSource *source;
-
-      source = g_idle_source_new ();
-      g_source_set_callback (source, noop_callback,
-                             g_steal_pointer (&listener->user_data),
-                             g_steal_pointer (&listener->destroy_notify));
-      g_source_attach (source, listener->main_context);
-      g_source_unref (source);
-      g_free (listener);
-    }
+  device = meta_kms_crtc_get_device (listener->crtc);
+  meta_kms_queue_callback (meta_kms_device_get_kms (device),
+                           listener->main_context,
+                           NULL,
+                           g_steal_pointer (&listener->user_data),
+                           g_steal_pointer (&listener->destroy_notify));
+  g_free (listener);
 }
 
 static gboolean
