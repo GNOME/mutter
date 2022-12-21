@@ -94,6 +94,7 @@ enum
   TOUCH_MODE,
   BELL,
   MODS_STATE_CHANGED,
+  POINTER_POSITION_CHANGED_IN_IMPL,
   N_SIGNALS
 };
 
@@ -932,6 +933,10 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
   event->motion.dx_constrained = dx_constrained;
   event->motion.dy_constrained = dy_constrained;
 
+  g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
+                 &GRAPHENE_POINT_INIT (seat_impl->pointer_x,
+                                       seat_impl->pointer_y));
+
   queue_event (seat_impl, event);
 }
 
@@ -946,6 +951,10 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
   ClutterEvent *event;
 
   event = new_absolute_motion_event (seat_impl, input_device, time_us, x, y, axes);
+
+  g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
+                 &GRAPHENE_POINT_INIT (seat_impl->pointer_x,
+                                       seat_impl->pointer_y));
 
   queue_event (seat_impl, event);
 }
@@ -1589,6 +1598,10 @@ notify_absolute_motion_in_impl (ClutterInputDevice *input_device,
 
   seat_impl = seat_impl_from_device (input_device);
   event = new_absolute_motion_event (seat_impl, input_device, time_us, x, y, axes);
+
+  g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
+                 &GRAPHENE_POINT_INIT (seat_impl->pointer_x,
+                                       seat_impl->pointer_y));
 
   queue_event (seat_impl, event);
 }
@@ -3637,6 +3650,13 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+  signals[POINTER_POSITION_CHANGED_IN_IMPL] =
+    g_signal_new ("pointer-position-changed-in-impl",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  GRAPHENE_TYPE_POINT);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
