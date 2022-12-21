@@ -55,6 +55,7 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-virtual.h"
 #include "backends/native/meta-device-pool.h"
+#include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-onscreen-native.h"
@@ -134,11 +135,7 @@ meta_get_renderer_native_parent_vtable (void)
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
-  MetaRenderer *renderer = META_RENDERER (renderer_gpu_data->renderer_native);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  MetaCursorRenderer *cursor_renderer;
   MetaGpuKms *gpu_kms = renderer_gpu_data->gpu_kms;
-  GList *l;
 
   if (renderer_gpu_data->secondary.egl_context != EGL_NO_CONTEXT)
     {
@@ -152,26 +149,6 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
                                 egl_display,
                                 renderer_gpu_data->secondary.egl_context,
                                 NULL);
-    }
-
-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
-  if (cursor_renderer && gpu_kms)
-    {
-      MetaCursorRendererNative *cursor_renderer_native =
-        META_CURSOR_RENDERER_NATIVE (cursor_renderer);
-      MetaCursorTracker *cursor_tracker =
-        meta_backend_get_cursor_tracker (backend);
-      GList *cursor_sprites =
-        meta_cursor_tracker_peek_cursor_sprites (cursor_tracker);
-
-      for (l = cursor_sprites; l; l = l->next)
-        {
-          MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (l->data);
-
-          meta_cursor_renderer_native_invalidate_gpu_state (cursor_renderer_native,
-                                                            cursor_sprite,
-                                                            gpu_kms);
-        }
     }
 
   if (renderer_gpu_data->crtc_needs_flush_handler_id)
@@ -1107,7 +1084,13 @@ static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
   GList *l;
+  g_autoptr (GArray) crtc_layouts = NULL;
+
+  crtc_layouts = g_array_new (FALSE, TRUE, sizeof (MetaKmsCrtcLayout));
 
   g_clear_list (&renderer_native->pending_mode_set_views, NULL);
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
@@ -1118,12 +1101,38 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 
       if (COGL_IS_ONSCREEN (framebuffer))
         {
+          MetaOnscreenNative *onscreen_native =
+            META_ONSCREEN_NATIVE (framebuffer);
+          MetaCrtc *crtc;
+          MetaKmsCrtc *kms_crtc;
+          MetaRectangle view_layout;
+          float view_scale;
+          MetaKmsCrtcLayout crtc_layout;
+
           renderer_native->pending_mode_set_views =
             g_list_prepend (renderer_native->pending_mode_set_views,
                             stage_view);
+          meta_onscreen_native_invalidate (onscreen_native);
+          crtc = meta_onscreen_native_get_crtc (onscreen_native);
+          kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+
+          clutter_stage_view_get_layout (stage_view, &view_layout);
+          view_scale = clutter_stage_view_get_scale (stage_view);
+
+          crtc_layout = (MetaKmsCrtcLayout) {
+            .crtc = kms_crtc,
+            .layout = GRAPHENE_RECT_INIT (view_layout.x,
+                                          view_layout.y,
+                                          view_layout.width,
+                                          view_layout.height),
+            .scale = view_scale,
+          };
+          g_array_append_val (crtc_layouts, crtc_layout);
         }
     }
   renderer_native->pending_mode_set = TRUE;
+
+  meta_kms_cursor_manager_update_crtc_layout (kms_cursor_manager, crtc_layouts);
 
   meta_topic (META_DEBUG_KMS, "Queue mode set");
 }

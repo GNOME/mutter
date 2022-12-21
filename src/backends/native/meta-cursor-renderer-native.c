@@ -43,12 +43,15 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-frame-native.h"
+#include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-seat-native.h"
 #include "core/boxes-private.h"
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
@@ -74,12 +77,13 @@
 
 static GQuark quark_cursor_sprite = 0;
 
-typedef struct _CrtcCursorData
+typedef struct _CursorStageView
 {
-  MetaDrmBuffer *buffer;
-  gboolean needs_sync_position;
-  gboolean hw_state_invalidated;
-} CrtcCursorData;
+  gboolean needs_emit_painted;
+  gboolean has_hw_cursor;
+
+  gboolean is_hw_cursor_valid;
+} CursorStageView;
 
 struct _MetaCursorRendererNative
 {
@@ -90,10 +94,15 @@ struct _MetaCursorRendererNativePrivate
 {
   MetaBackend *backend;
 
-  gboolean has_hw_cursor;
+  MetaCursorSprite *current_cursor;
+  gulong texture_changed_handler_id;
 
-  MetaCursorSprite *last_cursor;
   guint animation_timeout_id;
+
+  gulong pointer_position_changed_in_impl_handler_id;
+  gboolean input_disconnected;
+  GMutex input_mutex;
+  GCond input_cond;
 };
 typedef struct _MetaCursorRendererNativePrivate MetaCursorRendererNativePrivate;
 
@@ -104,21 +113,6 @@ typedef struct _MetaCursorRendererNativeGpuData
   uint64_t cursor_width;
   uint64_t cursor_height;
 } MetaCursorRendererNativeGpuData;
-
-typedef enum _MetaCursorBufferState
-{
-  META_CURSOR_BUFFER_STATE_NONE,
-  META_CURSOR_BUFFER_STATE_SET,
-  META_CURSOR_BUFFER_STATE_INVALIDATED,
-} MetaCursorBufferState;
-
-typedef struct _MetaCursorNativeGpuState
-{
-  MetaGpu *gpu;
-  unsigned int active_buffer_idx;
-  MetaCursorBufferState pending_buffer_state;
-  MetaDrmBuffer *buffers[HW_CURSOR_BUFFER_COUNT];
-} MetaCursorNativeGpuState;
 
 typedef struct _MetaCursorNativePrivate
 {
@@ -132,38 +126,44 @@ typedef struct _MetaCursorNativePrivate
 } MetaCursorNativePrivate;
 
 static GQuark quark_cursor_renderer_native_gpu_data = 0;
+static GQuark quark_cursor_stage_view = 0;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRendererNative, meta_cursor_renderer_native, META_TYPE_CURSOR_RENDERER);
 
-static void
-kms_update_feedback_result (const MetaKmsFeedback *kms_feedback,
-                            gpointer               user_data);
-
-static void
-realize_cursor_sprite (MetaCursorRenderer *renderer,
-                       MetaCursorSprite   *cursor_sprite,
-                       GList              *gpus);
-
-static MetaCursorNativeGpuState *
-get_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
-                      MetaGpuKms              *gpu_kms);
-
-static MetaCursorNativeGpuState *
-ensure_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
-                         MetaGpuKms              *gpu_kms);
-
-static void
-invalidate_cursor_gpu_state (MetaCursorSprite *cursor_sprite);
-
-static MetaCursorNativePrivate *
-ensure_cursor_priv (MetaCursorSprite *cursor_sprite);
-
-static MetaCursorNativePrivate *
-get_cursor_priv (MetaCursorSprite *cursor_sprite);
-
 static gboolean
-is_cursor_scale_and_transform_valid (MetaCursorRenderer *renderer,
-                                     MetaCursorSprite   *cursor_sprite);
+realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
+                                MetaCrtcKms        *crtc_kms,
+                                MetaCursorSprite   *cursor_sprite);
+
+static void
+invalidate_cursor_gpu_state (MetaCursorRenderer *cursor_renderer,
+                             MetaCursorSprite   *cursor_sprite);
+
+static CursorStageView *
+get_cursor_stage_view (MetaStageView *view)
+{
+  return g_object_get_qdata (G_OBJECT (view),
+                             quark_cursor_stage_view);
+}
+
+static CursorStageView *
+ensure_cursor_stage_view (MetaStageView *view)
+{
+  CursorStageView *cursor_stage_view;
+
+  cursor_stage_view = get_cursor_stage_view (view);
+  if (!cursor_stage_view)
+    {
+      cursor_stage_view = g_new0 (CursorStageView, 1);
+      cursor_stage_view->is_hw_cursor_valid = FALSE;
+      g_object_set_qdata_full (G_OBJECT (view),
+                               quark_cursor_stage_view,
+                               cursor_stage_view,
+                               g_free);
+    }
+
+  return cursor_stage_view;
+}
 
 static MetaCursorRendererNativeGpuData *
 meta_cursor_renderer_native_gpu_data_from_gpu (MetaGpuKms *gpu_kms)
@@ -193,191 +193,12 @@ meta_cursor_renderer_native_finalize (GObject *object)
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (renderer);
 
+  g_clear_signal_handler (&priv->texture_changed_handler_id,
+                          priv->current_cursor);
+  g_clear_object (&priv->current_cursor);
   g_clear_handle_id (&priv->animation_timeout_id, g_source_remove);
 
   G_OBJECT_CLASS (meta_cursor_renderer_native_parent_class)->finalize (object);
-}
-
-static unsigned int
-get_pending_cursor_sprite_buffer_index (MetaCursorNativeGpuState *cursor_gpu_state)
-{
-  return (cursor_gpu_state->active_buffer_idx + 1) % HW_CURSOR_BUFFER_COUNT;
-}
-
-static MetaDrmBuffer *
-get_pending_cursor_sprite_buffer (MetaCursorNativeGpuState *cursor_gpu_state)
-{
-  unsigned int pending_buffer_idx;
-
-  pending_buffer_idx =
-    get_pending_cursor_sprite_buffer_index (cursor_gpu_state);
-  return cursor_gpu_state->buffers[pending_buffer_idx];
-}
-
-static MetaDrmBuffer *
-get_active_cursor_sprite_buffer (MetaCursorNativeGpuState *cursor_gpu_state)
-{
-  return cursor_gpu_state->buffers[cursor_gpu_state->active_buffer_idx];
-}
-
-static void
-set_pending_cursor_sprite_buffer (MetaCursorSprite *cursor_sprite,
-                                  MetaGpuKms       *gpu_kms,
-                                  MetaDrmBuffer    *buffer)
-{
-  MetaCursorNativePrivate *cursor_priv;
-  MetaCursorNativeGpuState *cursor_gpu_state;
-  unsigned int pending_buffer_idx;
-
-  cursor_priv = ensure_cursor_priv (cursor_sprite);
-  cursor_gpu_state = ensure_cursor_gpu_state (cursor_priv, gpu_kms);
-
-  pending_buffer_idx =
-    get_pending_cursor_sprite_buffer_index (cursor_gpu_state);
-  cursor_gpu_state->buffers[pending_buffer_idx] = buffer;
-  cursor_gpu_state->pending_buffer_state = META_CURSOR_BUFFER_STATE_SET;
-}
-
-static void
-calculate_crtc_cursor_hotspot (MetaCursorSprite *cursor_sprite,
-                               int              *cursor_hotspot_x,
-                               int              *cursor_hotspot_y)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-  int hot_x, hot_y;
-  int width, height;
-  float scale;
-  MetaMonitorTransform transform;
-
-  scale = cursor_priv->preprocess_state.current_relative_scale;
-  transform = cursor_priv->preprocess_state.current_relative_transform;
-
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
-  width = meta_cursor_sprite_get_width (cursor_sprite);
-  height = meta_cursor_sprite_get_height (cursor_sprite);
-  meta_monitor_transform_transform_point (transform,
-                                          width, height,
-                                          hot_x, hot_y,
-                                          &hot_x, &hot_y);
-  *cursor_hotspot_x = (int) roundf (hot_x * scale);
-  *cursor_hotspot_y = (int) roundf (hot_y * scale);
-}
-
-static CrtcCursorData *
-ensure_crtc_cursor_data (MetaCrtcKms *crtc_kms)
-{
-  CrtcCursorData *crtc_cursor_data;
-
-  crtc_cursor_data = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
-  if (!crtc_cursor_data)
-    {
-      crtc_cursor_data = g_new0 (CrtcCursorData, 1);
-      crtc_cursor_data->hw_state_invalidated = TRUE;
-      meta_crtc_kms_set_cursor_renderer_private (crtc_kms,
-                                                 crtc_cursor_data,
-                                                 g_free);
-    }
-
-  return crtc_cursor_data;
-}
-
-static const MetaKmsResultListenerVtable kms_update_listener_vtable = {
-  .feedback = kms_update_feedback_result,
-};
-
-static void
-assign_cursor_plane (MetaCursorRendererNative *native,
-                     ClutterFrame             *frame,
-                     MetaCrtcKms              *crtc_kms,
-                     int                       x,
-                     int                       y,
-                     MetaCursorSprite         *cursor_sprite)
-{
-  MetaCrtc *crtc = META_CRTC (crtc_kms);
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
-    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
-  MetaCursorNativeGpuState *cursor_gpu_state =
-    get_cursor_gpu_state (cursor_priv, gpu_kms);
-  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  MetaKmsCrtc *kms_crtc;
-  MetaKmsDevice *kms_device;
-  MetaKmsPlane *cursor_plane;
-  MetaDrmBuffer *buffer;
-  int cursor_width, cursor_height;
-  MetaFixed16Rectangle src_rect;
-  MetaRectangle dst_rect;
-  MetaDrmBuffer *crtc_buffer;
-  MetaKmsAssignPlaneFlag flags;
-  CrtcCursorData *crtc_cursor_data;
-  int cursor_hotspot_x;
-  int cursor_hotspot_y;
-  MetaKmsUpdate *kms_update;
-  MetaKmsPlaneAssignment *plane_assignment;
-
-  if (cursor_gpu_state->pending_buffer_state == META_CURSOR_BUFFER_STATE_SET)
-    buffer = get_pending_cursor_sprite_buffer (cursor_gpu_state);
-  else
-    buffer = get_active_cursor_sprite_buffer (cursor_gpu_state);
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-  cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
-  g_return_if_fail (cursor_plane);
-
-  cursor_width = cursor_renderer_gpu_data->cursor_width;
-  cursor_height = cursor_renderer_gpu_data->cursor_height;
-  src_rect = (MetaFixed16Rectangle) {
-    .x = meta_fixed_16_from_int (0),
-    .y = meta_fixed_16_from_int (0),
-    .width = meta_fixed_16_from_int (cursor_width),
-    .height = meta_fixed_16_from_int (cursor_height),
-  };
-  dst_rect = (MetaRectangle) {
-    .x = x,
-    .y = y,
-    .width = cursor_width,
-    .height = cursor_height,
-  };
-
-  flags = META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL;
-  crtc_cursor_data = ensure_crtc_cursor_data (crtc_kms);
-  crtc_buffer = crtc_cursor_data->buffer;
-  if (!crtc_cursor_data->hw_state_invalidated && buffer == crtc_buffer)
-    flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
-
-  kms_update = meta_frame_native_ensure_kms_update (frame_native,
-                                                    kms_device);
-  plane_assignment = meta_kms_update_assign_plane (kms_update,
-                                                   kms_crtc,
-                                                   cursor_plane,
-                                                   buffer,
-                                                   src_rect,
-                                                   dst_rect,
-                                                   flags);
-
-  calculate_crtc_cursor_hotspot (cursor_sprite,
-                                 &cursor_hotspot_x,
-                                 &cursor_hotspot_y);
-  meta_kms_plane_assignment_set_cursor_hotspot (plane_assignment,
-                                                cursor_hotspot_x,
-                                                cursor_hotspot_y);
-
-  meta_kms_update_add_result_listener (kms_update,
-                                       &kms_update_listener_vtable,
-                                       NULL,
-                                       native,
-                                       NULL);
-
-  crtc_cursor_data->buffer = buffer;
-
-  if (cursor_gpu_state->pending_buffer_state == META_CURSOR_BUFFER_STATE_SET)
-    {
-      cursor_gpu_state->active_buffer_idx =
-        (cursor_gpu_state->active_buffer_idx + 1) % HW_CURSOR_BUFFER_COUNT;
-      cursor_gpu_state->pending_buffer_state = META_CURSOR_BUFFER_STATE_NONE;
-    }
 }
 
 static float
@@ -397,127 +218,6 @@ calculate_cursor_crtc_sprite_scale (MetaBackend        *backend,
 }
 
 static void
-set_crtc_cursor (MetaCursorRendererNative *cursor_renderer_native,
-                 ClutterFrame             *frame,
-                 MetaRendererView         *view,
-                 MetaCrtc                 *crtc,
-                 MetaCursorSprite         *cursor_sprite)
-{
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaCursorRenderer *cursor_renderer =
-    META_CURSOR_RENDERER (cursor_renderer_native);
-  MetaOutput *output = meta_crtc_get_outputs (crtc)->data;
-  MetaMonitor *monitor = meta_output_get_monitor (output);
-  MetaLogicalMonitor *logical_monitor =
-    meta_monitor_get_logical_monitor (monitor);
-  const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
-  graphene_rect_t rect;
-  graphene_rect_t local_crtc_rect;
-  graphene_rect_t local_cursor_rect;
-  float view_scale;
-  float crtc_cursor_x, crtc_cursor_y;
-  CoglTexture *texture;
-  int tex_width, tex_height;
-  float cursor_crtc_scale;
-  MetaRectangle cursor_rect;
-  MetaMonitorTransform transform;
-  MetaMonitorMode *monitor_mode;
-  MetaMonitorCrtcMode *monitor_crtc_mode;
-  const MetaCrtcModeInfo *crtc_mode_info;
-
-  view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
-
-  rect = meta_cursor_renderer_calculate_rect (cursor_renderer, cursor_sprite);
-  local_cursor_rect =
-    GRAPHENE_RECT_INIT (rect.origin.x - logical_monitor->rect.x,
-                        rect.origin.y - logical_monitor->rect.y,
-                        rect.size.width,
-                        rect.size.height);
-
-  local_crtc_rect = crtc_config->layout;
-  graphene_rect_offset (&local_crtc_rect,
-                        -logical_monitor->rect.x,
-                        -logical_monitor->rect.y);
-
-  crtc_cursor_x = (local_cursor_rect.origin.x -
-                   local_crtc_rect.origin.x) * view_scale;
-  crtc_cursor_y = (local_cursor_rect.origin.y -
-                   local_crtc_rect.origin.y) * view_scale;
-
-  texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
-  tex_width = cogl_texture_get_width (texture);
-  tex_height = cogl_texture_get_height (texture);
-
-  cursor_crtc_scale =
-    calculate_cursor_crtc_sprite_scale (priv->backend,
-                                        cursor_sprite,
-                                        logical_monitor);
-
-  cursor_rect = (MetaRectangle) {
-    .x = floorf (crtc_cursor_x),
-    .y = floorf (crtc_cursor_y),
-    .width = roundf (tex_width * cursor_crtc_scale),
-    .height = roundf (tex_height * cursor_crtc_scale)
-  };
-
-  transform = meta_logical_monitor_get_transform (logical_monitor);
-  transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
-
-  monitor_mode = meta_monitor_get_current_mode (monitor);
-  monitor_crtc_mode = meta_monitor_get_crtc_mode_for_output (monitor,
-                                                             monitor_mode,
-                                                             output);
-  crtc_mode_info = meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
-  meta_rectangle_transform (&cursor_rect,
-                            transform,
-                            crtc_mode_info->width,
-                            crtc_mode_info->height,
-                            &cursor_rect);
-
-  assign_cursor_plane (cursor_renderer_native,
-                       frame,
-                       META_CRTC_KMS (crtc),
-                       cursor_rect.x,
-                       cursor_rect.y,
-                       cursor_sprite);
-}
-
-static void
-unset_crtc_cursor (MetaCursorRendererNative *native,
-                   ClutterFrame             *frame,
-                   MetaCrtc                 *crtc)
-{
-  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
-  MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  CrtcCursorData *crtc_cursor_data;
-  MetaKmsCrtc *kms_crtc;
-  MetaKmsDevice *kms_device;
-  MetaKmsPlane *cursor_plane;
-  MetaDrmBuffer *crtc_buffer;
-
-  crtc_cursor_data = ensure_crtc_cursor_data (crtc_kms);
-  crtc_buffer = crtc_cursor_data->buffer;
-  if (!crtc_cursor_data->hw_state_invalidated && !crtc_buffer)
-    return;
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-  cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
-
-  if (cursor_plane)
-    {
-      MetaKmsUpdate *kms_update;
-
-      kms_update = meta_frame_native_ensure_kms_update (frame_native,
-                                                        kms_device);
-      meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
-    }
-
-  crtc_cursor_data->buffer = NULL;
-}
-
-static void
 disable_hw_cursor_for_gpu (MetaGpuKms   *gpu_kms,
                            const GError *error)
 {
@@ -530,17 +230,6 @@ disable_hw_cursor_for_gpu (MetaGpuKms   *gpu_kms,
   cursor_renderer_gpu_data->hw_cursor_broken = TRUE;
 }
 
-static void
-disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
-                            const GError *error)
-{
-  MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
-  MetaCrtc *crtc = META_CRTC (crtc_kms);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-
-  disable_hw_cursor_for_gpu (gpu_kms, error);
-}
-
 void
 meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_renderer_native,
                                            MetaRendererView         *view,
@@ -548,380 +237,22 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
 {
   MetaCursorRenderer *cursor_renderer =
     META_CURSOR_RENDERER (cursor_renderer_native);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaBackend *backend = priv->backend;
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
+  CursorStageView *cursor_stage_view;
   MetaCursorSprite *cursor_sprite;
-  graphene_rect_t cursor_rect;
-  cairo_rectangle_int_t view_layout;
-  graphene_rect_t view_rect;
-  CrtcCursorData *crtc_cursor_data;
-
-  if (meta_monitor_manager_get_power_save_mode (monitor_manager) !=
-      META_POWER_SAVE_ON)
-    return;
-
-  if (!meta_crtc_get_gpu (crtc))
-    return;
-
-  crtc_cursor_data = ensure_crtc_cursor_data (META_CRTC_KMS (crtc));
-  if (!crtc_cursor_data->hw_state_invalidated &&
-      !crtc_cursor_data->needs_sync_position)
-    return;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (!cursor_sprite)
-    goto unset_cursor;
+    return;
 
-  if (!priv->has_hw_cursor)
-    goto unset_cursor;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
-                                                     cursor_sprite);
-  clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
-  view_rect = GRAPHENE_RECT_INIT (view_layout.x, view_layout.y,
-                                  view_layout.width, view_layout.height);
-  if (!graphene_rect_intersection (&cursor_rect, &view_rect, NULL))
-    goto unset_cursor;
-
-  set_crtc_cursor (cursor_renderer_native, frame, view, crtc, cursor_sprite);
-
-  meta_cursor_renderer_emit_painted (cursor_renderer,
-                                     cursor_sprite,
-                                     CLUTTER_STAGE_VIEW (view));
-
-  crtc_cursor_data->needs_sync_position = FALSE;
-  crtc_cursor_data->hw_state_invalidated = FALSE;
-  return;
-
-unset_cursor:
-  unset_crtc_cursor (cursor_renderer_native, frame, crtc);
-
-  crtc_cursor_data = ensure_crtc_cursor_data (META_CRTC_KMS (crtc));
-  crtc_cursor_data->hw_state_invalidated = FALSE;
-}
-
-static gboolean
-has_valid_cursor_sprite_buffer (MetaCursorSprite *cursor_sprite,
-                                MetaGpuKms       *gpu_kms)
-{
-  MetaCursorNativePrivate *cursor_priv;
-  MetaCursorNativeGpuState *cursor_gpu_state;
-
-  cursor_priv = get_cursor_priv (cursor_sprite);
-  if (!cursor_priv)
-    return FALSE;
-
-  cursor_gpu_state = get_cursor_gpu_state (cursor_priv, gpu_kms);
-  if (!cursor_gpu_state)
-    return FALSE;
-
-  switch (cursor_gpu_state->pending_buffer_state)
+  cursor_stage_view = get_cursor_stage_view (META_STAGE_VIEW (view));
+  if (cursor_stage_view &&
+      cursor_stage_view->needs_emit_painted)
     {
-    case META_CURSOR_BUFFER_STATE_NONE:
-      return get_active_cursor_sprite_buffer (cursor_gpu_state) != NULL;
-    case META_CURSOR_BUFFER_STATE_SET:
-      return TRUE;
-    case META_CURSOR_BUFFER_STATE_INVALIDATED:
-      return FALSE;
+      meta_cursor_renderer_emit_painted (cursor_renderer,
+                                         cursor_sprite,
+                                         CLUTTER_STAGE_VIEW (view));
+      cursor_stage_view->needs_emit_painted = FALSE;
     }
-
-  g_assert_not_reached ();
-
-  return FALSE;
-}
-
-static void
-set_can_preprocess (MetaCursorSprite     *cursor_sprite,
-                    float                 scale,
-                    MetaMonitorTransform  transform)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-
-  cursor_priv->preprocess_state.current_relative_scale = scale;
-  cursor_priv->preprocess_state.current_relative_transform = transform;
-  cursor_priv->preprocess_state.can_preprocess = TRUE;
-
-  invalidate_cursor_gpu_state (cursor_sprite);
-}
-
-static void
-unset_can_preprocess (MetaCursorSprite *cursor_sprite)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-
-  memset (&cursor_priv->preprocess_state,
-          0,
-          sizeof (cursor_priv->preprocess_state));
-  cursor_priv->preprocess_state.can_preprocess = FALSE;
-
-  invalidate_cursor_gpu_state (cursor_sprite);
-}
-
-static gboolean
-get_can_preprocess (MetaCursorSprite *cursor_sprite)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-
-  return cursor_priv->preprocess_state.can_preprocess;
-}
-
-static float
-get_current_relative_scale (MetaCursorSprite *cursor_sprite)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-
-  return cursor_priv->preprocess_state.current_relative_scale;
-}
-
-static MetaMonitorTransform
-get_current_relative_transform (MetaCursorSprite *cursor_sprite)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-
-  return cursor_priv->preprocess_state.current_relative_transform;
-}
-
-static void
-crtc_supports_hw_cursor (MetaLogicalMonitor *logical_monitor,
-                         MetaMonitor        *monitor,
-                         MetaOutput         *output,
-                         MetaCrtc           *crtc,
-                         gpointer            user_data)
-{
-  gboolean *supports_hw_cursor = user_data;
-  MetaCrtcNative *crtc_native = META_CRTC_NATIVE (crtc);
-
-  *supports_hw_cursor &= meta_crtc_native_is_hw_cursor_supported (crtc_native);
-}
-
-static gboolean
-crtcs_supports_hw_cursor (MetaCursorRenderer *renderer,
-                          MetaCursorSprite   *cursor_sprite)
-{
-  MetaCursorRendererNative *cursor_renderer_native =
-    META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaBackend *backend = priv->backend;
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  GList *logical_monitors;
-  GList *l;
-  graphene_rect_t cursor_rect;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle logical_monitor_layout;
-      graphene_rect_t logical_monitor_rect;
-      gboolean supports_hw_cursor;
-
-      logical_monitor_layout =
-        meta_logical_monitor_get_layout (logical_monitor);
-      logical_monitor_rect =
-        meta_rectangle_to_graphene_rect (&logical_monitor_layout);
-
-      if (!graphene_rect_intersection (&cursor_rect, &logical_monitor_rect,
-                                       NULL))
-        continue;
-
-      supports_hw_cursor = TRUE;
-      meta_logical_monitor_foreach_crtc (logical_monitor,
-                                         crtc_supports_hw_cursor,
-                                         &supports_hw_cursor);
-      if (!supports_hw_cursor)
-        return FALSE;
-    }
-
-  return TRUE;
-}
-
-static gboolean
-get_common_crtc_sprite_scale_for_logical_monitors (MetaCursorRenderer *renderer,
-                                                   MetaCursorSprite   *cursor_sprite,
-                                                   float              *out_scale)
-{
-  MetaCursorRendererNative *cursor_renderer_native =
-    META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaBackend *backend = priv->backend;
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  graphene_rect_t cursor_rect;
-  float scale = 1.0;
-  gboolean has_visible_crtc_sprite = FALSE;
-  GList *logical_monitors;
-  GList *l;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      graphene_rect_t logical_monitor_rect =
-        meta_rectangle_to_graphene_rect (&logical_monitor->rect);
-      float tmp_scale;
-
-      if (!graphene_rect_intersection (&cursor_rect,
-                                       &logical_monitor_rect,
-                                       NULL))
-        continue;
-
-      tmp_scale =
-        calculate_cursor_crtc_sprite_scale (backend,
-                                            cursor_sprite,
-                                            logical_monitor);
-
-      if (has_visible_crtc_sprite && scale != tmp_scale)
-        return FALSE;
-
-      has_visible_crtc_sprite = TRUE;
-      scale = tmp_scale;
-    }
-
-  if (!has_visible_crtc_sprite)
-    return FALSE;
-
-  *out_scale = scale;
-  return TRUE;
-}
-
-static gboolean
-get_common_crtc_sprite_transform_for_logical_monitors (MetaCursorRenderer   *renderer,
-                                                       MetaCursorSprite     *cursor_sprite,
-                                                       MetaMonitorTransform *out_transform)
-{
-  MetaCursorRendererNative *cursor_renderer_native =
-    META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaBackend *backend = priv->backend;
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  graphene_rect_t cursor_rect;
-  MetaMonitorTransform transform = META_MONITOR_TRANSFORM_NORMAL;
-  gboolean has_visible_crtc_sprite = FALSE;
-  GList *logical_monitors;
-  GList *l;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      graphene_rect_t logical_monitor_rect =
-        meta_rectangle_to_graphene_rect (&logical_monitor->rect);
-      MetaMonitorTransform logical_transform, tmp_transform;
-      GList *monitors, *l_mon;
-
-      if (!graphene_rect_intersection (&cursor_rect,
-                                       &logical_monitor_rect,
-                                       NULL))
-        continue;
-
-      logical_transform = meta_logical_monitor_get_transform (logical_monitor);
-      monitors = meta_logical_monitor_get_monitors (logical_monitor);
-      for (l_mon = monitors; l_mon; l_mon = l_mon->next)
-        {
-          MetaMonitor *monitor = l_mon->data;
-
-          tmp_transform = meta_monitor_transform_transform (
-            meta_monitor_transform_invert (
-              meta_cursor_sprite_get_texture_transform (cursor_sprite)),
-            meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
-
-          if (has_visible_crtc_sprite && transform != tmp_transform)
-            return FALSE;
-
-          has_visible_crtc_sprite = TRUE;
-          transform = tmp_transform;
-        }
-    }
-
-  if (!has_visible_crtc_sprite)
-    return FALSE;
-
-  *out_transform = transform;
-  return TRUE;
-}
-
-static gboolean
-should_have_hw_cursor (MetaCursorRenderer *renderer,
-                       MetaCursorSprite   *cursor_sprite,
-                       GList              *gpus)
-{
-  MetaCursorRendererNative *cursor_renderer_native =
-    META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  CoglTexture *texture;
-  MetaMonitorTransform transform;
-  float scale;
-  GList *l;
-
-  if (!gpus)
-    return FALSE;
-
-  if (!cursor_sprite)
-    return FALSE;
-
-  if (meta_backend_is_hw_cursors_inhibited (priv->backend))
-    return FALSE;
-
-  for (l = gpus; l; l = l->next)
-    {
-      MetaGpuKms *gpu_kms = l->data;
-      MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-
-      cursor_renderer_gpu_data =
-        meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
-      if (!cursor_renderer_gpu_data)
-        return FALSE;
-
-      if (cursor_renderer_gpu_data->hw_cursor_broken)
-        return FALSE;
-
-      if (!has_valid_cursor_sprite_buffer (cursor_sprite, gpu_kms))
-        return FALSE;
-    }
-
-  if (!crtcs_supports_hw_cursor (renderer, cursor_sprite))
-    return FALSE;
-
-  texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
-  if (!texture)
-    return FALSE;
-
-  if (!get_common_crtc_sprite_scale_for_logical_monitors (renderer,
-                                                          cursor_sprite,
-                                                          &scale))
-    return FALSE;
-
-  if (!get_common_crtc_sprite_transform_for_logical_monitors (renderer,
-                                                              cursor_sprite,
-                                                              &transform))
-    return FALSE;
-
-  if (G_APPROX_VALUE (scale, 1.f, FLT_EPSILON) &&
-      transform == META_MONITOR_TRANSFORM_NORMAL)
-    return TRUE;
-  else
-    return get_can_preprocess (cursor_sprite);
 }
 
 static gboolean
@@ -941,17 +272,14 @@ meta_cursor_renderer_native_update_animation (MetaCursorRendererNative *native)
 
 static void
 maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
-                                              MetaCursorSprite         *cursor_sprite)
+                                              MetaCursorSprite         *cursor_sprite,
+                                              gboolean                  cursor_changed)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
-  gboolean cursor_change;
   guint delay;
 
-  cursor_change = cursor_sprite != priv->last_cursor;
-  priv->last_cursor = cursor_sprite;
-
-  if (!cursor_change && priv->animation_timeout_id)
+  if (!cursor_changed && priv->animation_timeout_id)
     return;
 
   g_clear_handle_id (&priv->animation_timeout_id, g_source_remove);
@@ -972,273 +300,154 @@ maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
     }
 }
 
-static GList *
-calculate_cursor_sprite_gpus (MetaCursorRenderer *renderer,
-                              MetaCursorSprite   *cursor_sprite)
-{
-  MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (native);
-  MetaBackend *backend = priv->backend;
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  GList *gpus = NULL;
-  GList *logical_monitors;
-  GList *l;
-  graphene_rect_t cursor_rect;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle logical_monitor_layout;
-      graphene_rect_t logical_monitor_rect;
-      GList *monitors, *l_mon;
-
-      logical_monitor_layout =
-        meta_logical_monitor_get_layout (logical_monitor);
-      logical_monitor_rect =
-        meta_rectangle_to_graphene_rect (&logical_monitor_layout);
-
-      if (!graphene_rect_intersection (&cursor_rect, &logical_monitor_rect,
-                                       NULL))
-        continue;
-
-      monitors = meta_logical_monitor_get_monitors (logical_monitor);
-      for (l_mon = monitors; l_mon; l_mon = l_mon->next)
-        {
-          MetaMonitor *monitor = l_mon->data;
-          MetaOutput *output = meta_monitor_get_main_output (monitor);
-          MetaGpu *gpu;
-
-          gpu = meta_output_get_gpu (output);
-          if (gpu && !g_list_find (gpus, gpu))
-            gpus = g_list_prepend (gpus, gpu);
-        }
-    }
-
-  return gpus;
-}
-
 static void
-kms_update_feedback_result (const MetaKmsFeedback *kms_feedback,
-                            gpointer               user_data)
+on_cursor_sprite_texture_changed (MetaCursorSprite   *cursor_sprite,
+                                  MetaCursorRenderer *cursor_renderer)
 {
-  MetaCursorRendererNative *cursor_renderer_native = user_data;
-  MetaCursorRenderer *cursor_renderer =
-    META_CURSOR_RENDERER (cursor_renderer_native);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  gboolean has_hw_cursor_failure = FALSE;
-  GList *l;
-
-  for (l = meta_kms_feedback_get_failed_planes (kms_feedback); l; l = l->next)
-    {
-      MetaKmsPlaneFeedback *plane_feedback = l->data;
-
-      switch (meta_kms_plane_get_plane_type (plane_feedback->plane))
-        {
-        case META_KMS_PLANE_TYPE_CURSOR:
-          break;
-        case META_KMS_PLANE_TYPE_PRIMARY:
-        case META_KMS_PLANE_TYPE_OVERLAY:
-          continue;
-        }
-
-      disable_hw_cursor_for_crtc (plane_feedback->crtc,
-                                  plane_feedback->error);
-      has_hw_cursor_failure = TRUE;
-    }
-
-  if (has_hw_cursor_failure)
-    {
-      priv->has_hw_cursor = FALSE;
-      meta_cursor_renderer_force_update (cursor_renderer);
-    }
-}
-
-static void
-schedule_sync_position (MetaCursorRendererNative *cursor_renderer_native)
-{
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  GList *l;
-
-  for (l = meta_backend_get_gpus (priv->backend); l; l = l->next)
-    {
-      MetaGpu *gpu = l->data;
-      GList *l_crtc;
-
-      for (l_crtc = meta_gpu_get_crtcs (gpu); l_crtc; l_crtc = l_crtc->next)
-        {
-          MetaCrtcKms *crtc_kms = META_CRTC_KMS (l_crtc->data);
-          CrtcCursorData *crtc_cursor_data;
-
-          crtc_cursor_data = ensure_crtc_cursor_data (crtc_kms);
-          crtc_cursor_data->needs_sync_position = TRUE;
-        }
-    }
+  invalidate_cursor_gpu_state (cursor_renderer, cursor_sprite);
 }
 
 static gboolean
-meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
+meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
                                            MetaCursorSprite   *cursor_sprite)
 {
-  MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNative *native =
+    META_CURSOR_RENDERER_NATIVE (cursor_renderer);
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
-  g_autoptr (GList) gpus = NULL;
-
-  if (cursor_sprite)
-    {
-      gboolean realized;
-
-      ensure_cursor_priv (cursor_sprite);
-      realized = meta_cursor_sprite_realize_texture (cursor_sprite);
-      gpus = calculate_cursor_sprite_gpus (renderer, cursor_sprite);
-
-      if (realized ||
-          !is_cursor_scale_and_transform_valid (renderer, cursor_sprite))
-        realize_cursor_sprite (renderer, cursor_sprite, gpus);
-    }
-
-  maybe_schedule_cursor_sprite_animation_frame (native, cursor_sprite);
-
-  priv->has_hw_cursor = should_have_hw_cursor (renderer, cursor_sprite, gpus);
-
-  schedule_sync_position (native);
-  clutter_stage_schedule_update (stage);
-
-  return !(priv->has_hw_cursor ||
-           !cursor_sprite ||
-           !meta_cursor_sprite_get_cogl_texture (cursor_sprite));
-}
-
-static void
-unset_crtc_cursor_renderer_privates (MetaGpu       *gpu,
-                                     MetaDrmBuffer *buffer)
-{
+  MetaBackend *backend = priv->backend;
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+  gboolean cursor_changed;
+  GList *views;
   GList *l;
 
-  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+  COGL_TRACE_BEGIN_SCOPED (MetaCursorRendererNative,
+                           "CursorRendererNative (update cursor)");
+
+  cursor_changed = priv->current_cursor != cursor_sprite;
+
+  views = meta_renderer_get_views (renderer);
+  for (l = views; l; l = l->next)
     {
-      MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
-      CrtcCursorData *crtc_cursor_data;
+      MetaStageView *view = l->data;
+      MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
+      MetaCrtc *crtc = meta_renderer_view_get_crtc (renderer_view);
+      MetaCrtcNative *crtc_native = META_CRTC_NATIVE (crtc);
+      CursorStageView *cursor_stage_view = NULL;
+      gboolean has_hw_cursor = FALSE;
 
-      crtc_cursor_data = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
-      if (crtc_cursor_data && buffer == crtc_cursor_data->buffer)
-        crtc_cursor_data->buffer = NULL;
+      cursor_stage_view = ensure_cursor_stage_view (view);
+
+      if (!META_IS_CRTC_KMS (crtc) ||
+          !meta_crtc_native_is_hw_cursor_supported (crtc_native))
+        {
+          if (cursor_stage_view->has_hw_cursor)
+            {
+              meta_stage_view_uninhibit_cursor_overlay (view);
+              cursor_stage_view->has_hw_cursor = FALSE;
+            }
+          continue;
+        }
+
+      if (cursor_sprite)
+        {
+          meta_cursor_sprite_realize_texture (cursor_sprite);
+
+          if (cursor_changed ||
+              !cursor_stage_view->is_hw_cursor_valid)
+            {
+              has_hw_cursor = realize_cursor_sprite_for_crtc (cursor_renderer,
+                                                              META_CRTC_KMS (crtc),
+                                                              cursor_sprite);
+
+              cursor_stage_view->is_hw_cursor_valid = TRUE;
+            }
+          else
+            {
+              has_hw_cursor =
+                cursor_stage_view->is_hw_cursor_valid &&
+                cursor_stage_view->has_hw_cursor;
+            }
+
+          if (has_hw_cursor)
+            cursor_stage_view->needs_emit_painted = TRUE;
+        }
+      else
+        {
+          cursor_stage_view->is_hw_cursor_valid = FALSE;
+          has_hw_cursor = FALSE;
+        }
+
+      if (cursor_stage_view->has_hw_cursor != has_hw_cursor)
+        {
+          if (has_hw_cursor || !cursor_sprite)
+            meta_stage_view_inhibit_cursor_overlay (view);
+          else
+            meta_stage_view_uninhibit_cursor_overlay (view);
+
+          cursor_stage_view->has_hw_cursor = has_hw_cursor;
+
+          if (!has_hw_cursor)
+            {
+              MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+              MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+
+              meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
+                                                     kms_crtc,
+                                                     NULL, NULL);
+            }
+        }
     }
-}
 
-static void
-cursor_gpu_state_free (MetaCursorNativeGpuState *cursor_gpu_state)
-{
-  int i;
-  MetaDrmBuffer *active_buffer;
-
-  active_buffer = get_active_cursor_sprite_buffer (cursor_gpu_state);
-  if (active_buffer)
-    unset_crtc_cursor_renderer_privates (cursor_gpu_state->gpu,
-                                         active_buffer);
-
-  for (i = 0; i < HW_CURSOR_BUFFER_COUNT; i++)
-    g_clear_object (&cursor_gpu_state->buffers[i]);
-  g_free (cursor_gpu_state);
-}
-
-static MetaCursorNativeGpuState *
-get_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
-                      MetaGpuKms              *gpu_kms)
-{
-  return g_hash_table_lookup (cursor_priv->gpu_states, gpu_kms);
-}
-
-static MetaCursorNativeGpuState *
-ensure_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
-                         MetaGpuKms              *gpu_kms)
-{
-  MetaCursorNativeGpuState *cursor_gpu_state;
-
-  cursor_gpu_state = get_cursor_gpu_state (cursor_priv, gpu_kms);
-  if (cursor_gpu_state)
-    return cursor_gpu_state;
-
-  cursor_gpu_state = g_new0 (MetaCursorNativeGpuState, 1);
-  cursor_gpu_state->gpu = META_GPU (gpu_kms);
-  g_hash_table_insert (cursor_priv->gpu_states, gpu_kms, cursor_gpu_state);
-
-  return cursor_gpu_state;
-}
-
-static void
-invalidate_cursor_gpu_state (MetaCursorSprite *cursor_sprite)
-{
-  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
-  GHashTableIter iter;
-  MetaCursorNativeGpuState *cursor_gpu_state;
-
-  g_hash_table_iter_init (&iter, cursor_priv->gpu_states);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cursor_gpu_state))
+  if (cursor_changed)
     {
-      unsigned int pending_buffer_idx;
+      if (priv->current_cursor)
+        {
+          g_clear_signal_handler (&priv->texture_changed_handler_id,
+                                  priv->current_cursor);
+        }
 
-      pending_buffer_idx = get_pending_cursor_sprite_buffer_index (cursor_gpu_state);
-      g_clear_object (&cursor_gpu_state->buffers[pending_buffer_idx]);
-      cursor_gpu_state->pending_buffer_state =
-        META_CURSOR_BUFFER_STATE_INVALIDATED;
+      g_set_object (&priv->current_cursor, cursor_sprite);
+
+      if (priv->current_cursor)
+        {
+          priv->texture_changed_handler_id =
+            g_signal_connect (cursor_sprite, "texture-changed",
+                              G_CALLBACK (on_cursor_sprite_texture_changed),
+                              cursor_renderer);
+        }
     }
+
+  maybe_schedule_cursor_sprite_animation_frame (native, cursor_sprite,
+                                                cursor_changed);
+
+  return cursor_sprite && meta_cursor_sprite_get_cogl_texture (cursor_sprite);
 }
 
 static void
-on_cursor_sprite_texture_changed (MetaCursorSprite *cursor_sprite)
+invalidate_cursor_gpu_state (MetaCursorRenderer *cursor_renderer,
+                             MetaCursorSprite   *cursor_sprite)
 {
-  invalidate_cursor_gpu_state (cursor_sprite);
-}
+  MetaCursorRendererNative *native =
+    META_CURSOR_RENDERER_NATIVE (cursor_renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
+  MetaRenderer *renderer = meta_backend_get_renderer (priv->backend);
+  GList *views;
+  GList *l;
 
-static void
-cursor_priv_free (MetaCursorNativePrivate *cursor_priv)
-{
-  g_hash_table_destroy (cursor_priv->gpu_states);
-  g_free (cursor_priv);
-}
+  views = meta_renderer_get_views (renderer);
+  for (l = views; l; l = l->next)
+    {
+      MetaStageView *view = l->data;
+      CursorStageView *cursor_stage_view;
 
-static MetaCursorNativePrivate *
-get_cursor_priv (MetaCursorSprite *cursor_sprite)
-{
-  return g_object_get_qdata (G_OBJECT (cursor_sprite), quark_cursor_sprite);
-}
-
-static MetaCursorNativePrivate *
-ensure_cursor_priv (MetaCursorSprite *cursor_sprite)
-{
-  MetaCursorNativePrivate *cursor_priv;
-
-  cursor_priv = get_cursor_priv (cursor_sprite);
-  if (cursor_priv)
-    return cursor_priv;
-
-  cursor_priv = g_new0 (MetaCursorNativePrivate, 1);
-  cursor_priv->gpu_states =
-    g_hash_table_new_full (g_direct_hash,
-                           g_direct_equal,
-                           NULL,
-                           (GDestroyNotify) cursor_gpu_state_free);
-  g_object_set_qdata_full (G_OBJECT (cursor_sprite),
-                           quark_cursor_sprite,
-                           cursor_priv,
-                           (GDestroyNotify) cursor_priv_free);
-
-  g_signal_connect (cursor_sprite, "texture-changed",
-                    G_CALLBACK (on_cursor_sprite_texture_changed), NULL);
-
-  unset_can_preprocess (cursor_sprite);
-
-  return cursor_priv;
+      cursor_stage_view = get_cursor_stage_view (view);
+      cursor_stage_view->is_hw_cursor_valid = FALSE;
+    }
 }
 
 static MetaDrmBuffer *
@@ -1366,31 +575,38 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
     }
 }
 
-static void
-load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
-                                       MetaGpuKms               *gpu_kms,
-                                       MetaCursorSprite         *cursor_sprite,
-                                       uint8_t                  *pixels,
-                                       uint                      width,
-                                       uint                      height,
-                                       int                       rowstride,
-                                       uint32_t                  gbm_format)
+static gboolean
+load_cursor_sprite_gbm_buffer_for_crtc (MetaCursorRendererNative *native,
+                                        MetaCrtcKms              *crtc_kms,
+                                        MetaCursorSprite         *cursor_sprite,
+                                        uint8_t                  *pixels,
+                                        uint                      width,
+                                        uint                      height,
+                                        int                       rowstride,
+                                        float                     scale,
+                                        uint32_t                  gbm_format)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
   MetaDevicePool *device_pool =
     meta_backend_native_get_device_pool (backend_native);
+  MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
+  MetaKmsCrtc *kms_crtc;
   uint64_t cursor_width, cursor_height;
-  MetaDrmBuffer *buffer;
+  g_autoptr (MetaDrmBuffer) buffer = NULL;
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   g_autoptr (MetaDeviceFile) device_file = NULL;
   g_autoptr (GError) error = NULL;
+  int hot_x, hot_y;
 
   cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
   if (!cursor_renderer_gpu_data)
-    return;
+    return FALSE;
 
   cursor_width = (uint64_t) cursor_renderer_gpu_data->cursor_width;
   cursor_height = (uint64_t) cursor_renderer_gpu_data->cursor_height;
@@ -1399,7 +615,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
     {
       meta_warning ("Invalid theme cursor size (must be at most %ux%u)",
                     (unsigned int)cursor_width, (unsigned int)cursor_height);
-      return;
+      return FALSE;
     }
 
   device_file = meta_device_pool_open (device_pool,
@@ -1412,7 +628,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
                  meta_gpu_kms_get_file_path (gpu_kms),
                  error->message);
       disable_hw_cursor_for_gpu (gpu_kms, error);
-      return;
+      return FALSE;
     }
 
   buffer = create_cursor_drm_buffer (gpu_kms, device_file,
@@ -1426,59 +642,16 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
     {
       g_warning ("Realizing HW cursor failed: %s", error->message);
       disable_hw_cursor_for_gpu (gpu_kms, error);
-      return;
-    }
-
-  set_pending_cursor_sprite_buffer (cursor_sprite, gpu_kms, buffer);
-}
-
-static gboolean
-is_cursor_hw_state_valid (MetaCursorSprite *cursor_sprite,
-                          MetaGpuKms       *gpu_kms)
-{
-  MetaCursorNativePrivate *cursor_priv;
-  MetaCursorNativeGpuState *cursor_gpu_state;
-
-  cursor_priv = get_cursor_priv (cursor_sprite);
-  if (!cursor_priv)
-    return FALSE;
-
-  cursor_gpu_state = get_cursor_gpu_state (cursor_priv, gpu_kms);
-  if (!cursor_gpu_state)
-    return FALSE;
-
-  switch (cursor_gpu_state->pending_buffer_state)
-    {
-    case META_CURSOR_BUFFER_STATE_SET:
-    case META_CURSOR_BUFFER_STATE_NONE:
-      return TRUE;
-    case META_CURSOR_BUFFER_STATE_INVALIDATED:
       return FALSE;
     }
 
-  g_assert_not_reached ();
-  return FALSE;
-}
-
-static gboolean
-is_cursor_scale_and_transform_valid (MetaCursorRenderer *renderer,
-                                     MetaCursorSprite   *cursor_sprite)
-{
-  MetaMonitorTransform transform;
-  float scale;
-
-  if (!get_common_crtc_sprite_scale_for_logical_monitors (renderer,
-                                                          cursor_sprite,
-                                                          &scale))
-    return FALSE;
-
-  if (!get_common_crtc_sprite_transform_for_logical_monitors (renderer,
-                                                              cursor_sprite,
-                                                              &transform))
-    return FALSE;
-
-  return (scale == get_current_relative_scale (cursor_sprite) &&
-          transform == get_current_relative_transform (cursor_sprite));
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
+                                         kms_crtc,
+                                         buffer,
+                                         &GRAPHENE_POINT_INIT (hot_x, hot_y));
+  return TRUE;
 }
 
 static cairo_surface_t *
@@ -1569,9 +742,9 @@ gbm_format_to_cairo_format (uint32_t gbm_format)
     }
 }
 
-static void
+static gboolean
 load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
-                                           MetaGpuKms               *gpu_kms,
+                                           MetaCrtcKms              *crtc_kms,
                                            MetaCursorSprite         *cursor_sprite,
                                            float                     relative_scale,
                                            MetaMonitorTransform      relative_transform,
@@ -1581,6 +754,8 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                            int                       rowstride,
                                            uint32_t                  gbm_format)
 {
+  gboolean retval = FALSE;
+
   if (!G_APPROX_VALUE (relative_scale, 1.f, FLT_EPSILON) ||
       relative_transform != META_MONITOR_TRANSFORM_NORMAL ||
       gbm_format != GBM_FORMAT_ARGB8888)
@@ -1597,40 +772,47 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        relative_scale,
                                                        relative_transform);
 
-      load_cursor_sprite_gbm_buffer_for_gpu (native,
-                                             gpu_kms,
-                                             cursor_sprite,
-                                             cairo_image_surface_get_data (surface),
-                                             cairo_image_surface_get_width (surface),
-                                             cairo_image_surface_get_width (surface),
-                                             cairo_image_surface_get_stride (surface),
-                                             GBM_FORMAT_ARGB8888);
+      retval =
+        load_cursor_sprite_gbm_buffer_for_crtc (native,
+                                                crtc_kms,
+                                                cursor_sprite,
+                                                cairo_image_surface_get_data (surface),
+                                                cairo_image_surface_get_width (surface),
+                                                cairo_image_surface_get_width (surface),
+                                                cairo_image_surface_get_stride (surface),
+                                                relative_scale,
+                                                GBM_FORMAT_ARGB8888);
 
       cairo_surface_destroy (surface);
     }
   else
     {
-      load_cursor_sprite_gbm_buffer_for_gpu (native,
-                                             gpu_kms,
-                                             cursor_sprite,
-                                             data,
-                                             width,
-                                             height,
-                                             rowstride,
-                                             gbm_format);
+      retval = load_cursor_sprite_gbm_buffer_for_crtc (native,
+                                                       crtc_kms,
+                                                       cursor_sprite,
+                                                       data,
+                                                       width,
+                                                       height,
+                                                       rowstride,
+                                                       relative_scale,
+                                                       gbm_format);
     }
+
+  return retval;
 }
 
 #ifdef HAVE_WAYLAND
-static void
-realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
-                                              MetaGpuKms              *gpu_kms,
-                                              MetaCursorSpriteWayland *sprite_wayland)
+static gboolean
+realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer,
+                                               MetaCrtcKms             *crtc_kms,
+                                               MetaCursorSpriteWayland *sprite_wayland)
 {
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_wayland);
+  MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   uint64_t cursor_width, cursor_height;
   CoglTexture *texture;
@@ -1642,21 +824,15 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
   cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
   if (!cursor_renderer_gpu_data || cursor_renderer_gpu_data->hw_cursor_broken)
-    return;
-
-  if (is_cursor_hw_state_valid (cursor_sprite, gpu_kms) &&
-      is_cursor_scale_and_transform_valid (renderer, cursor_sprite))
-    return;
+    return FALSE;
 
   buffer = meta_cursor_sprite_wayland_get_buffer (sprite_wayland);
   if (!buffer)
-    return;
+    return FALSE;
 
   buffer_resource = meta_wayland_buffer_get_resource (buffer);
   if (!buffer_resource)
-    return;
-
-  ensure_cursor_priv (cursor_sprite);
+    return FALSE;
 
   shm_buffer = wl_shm_buffer_get (buffer_resource);
   if (shm_buffer)
@@ -1667,25 +843,24 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
       MetaMonitorTransform relative_transform;
       uint32_t gbm_format;
 
-      if (!get_common_crtc_sprite_scale_for_logical_monitors (renderer,
-                                                              cursor_sprite,
-                                                              &relative_scale))
-        {
-          unset_can_preprocess (cursor_sprite);
-          return;
-        }
+      MetaCrtc *crtc = META_CRTC (crtc_kms);
+      MetaLogicalMonitor *logical_monitor;
+      MetaMonitor *monitor;
+      MetaMonitorTransform logical_transform;
+      gboolean retval;
 
-      if (!get_common_crtc_sprite_transform_for_logical_monitors (renderer,
-                                                                  cursor_sprite,
-                                                                  &relative_transform))
-        {
-          unset_can_preprocess (cursor_sprite);
-          return;
-        }
+      monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
+      logical_monitor = meta_monitor_get_logical_monitor (monitor);
 
-      set_can_preprocess (cursor_sprite,
-                          relative_scale,
-                          relative_transform);
+      relative_scale = calculate_cursor_crtc_sprite_scale (priv->backend,
+                                                           cursor_sprite,
+                                                           logical_monitor);
+
+      logical_transform = meta_logical_monitor_get_transform (logical_monitor);
+      relative_transform = meta_monitor_transform_transform (
+          meta_monitor_transform_invert (
+            meta_cursor_sprite_get_texture_transform (cursor_sprite)),
+          meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
       wl_shm_buffer_begin_access (shm_buffer);
       buffer_data = wl_shm_buffer_get_data (shm_buffer);
@@ -1706,24 +881,30 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
           gbm_format = GBM_FORMAT_ARGB8888;
         }
 
-      load_scaled_and_transformed_cursor_sprite (native,
-                                                 gpu_kms,
-                                                 cursor_sprite,
-                                                 relative_scale,
-                                                 relative_transform,
-                                                 buffer_data,
-                                                 width,
-                                                 height,
-                                                 rowstride,
-                                                 gbm_format);
+      retval = load_scaled_and_transformed_cursor_sprite (native,
+                                                          crtc_kms,
+                                                          cursor_sprite,
+                                                          relative_scale,
+                                                          relative_transform,
+                                                          buffer_data,
+                                                          width,
+                                                          height,
+                                                          rowstride,
+                                                          gbm_format);
 
       wl_shm_buffer_end_access (shm_buffer);
+
+      return retval;
     }
   else
     {
       MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
       MetaDevicePool *device_pool =
         meta_backend_native_get_device_pool (backend_native);
+      MetaKms *kms = meta_backend_native_get_kms (backend_native);
+      MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+      MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+      int hot_x, hot_y;
       g_autoptr (MetaDeviceFile) device_file = NULL;
       struct gbm_device *gbm_device;
       struct gbm_bo *bo;
@@ -1740,7 +921,7 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
           g_warning ("Failed to open '%s' for updating the cursor: %s",
                      meta_gpu_kms_get_file_path (gpu_kms),
                      error->message);
-          return;
+          return FALSE;
         }
 
       /* HW cursors have a predefined size (at least 64x64), which usually is
@@ -1759,12 +940,12 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
       if (width != cursor_width || height != cursor_height)
         {
           meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors");
-          return;
+          return FALSE;
         }
 
       gbm_device = meta_gbm_device_from_gpu (gpu_kms);
       if (!gbm_device)
-        return;
+        return FALSE;
 
       bo = gbm_bo_import (gbm_device,
                           GBM_BO_IMPORT_WL_BUFFER,
@@ -1773,10 +954,8 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
       if (!bo)
         {
           meta_warning ("Importing HW cursor from wl_buffer failed");
-          return;
+          return FALSE;
         }
-
-      unset_can_preprocess (cursor_sprite);
 
       flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
       buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, bo, flags,
@@ -1786,85 +965,88 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
           meta_warning ("Failed to create DRM buffer wrapper: %s",
                         error->message);
           gbm_bo_destroy (bo);
-          return;
+          return FALSE;
         }
 
-      set_pending_cursor_sprite_buffer (cursor_sprite, gpu_kms,
-                                        META_DRM_BUFFER (buffer_gbm));
+      meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+      kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+      meta_kms_cursor_manager_update_sprite (kms_cursor_manager,
+                                             kms_crtc,
+                                             META_DRM_BUFFER (buffer_gbm),
+                                             &GRAPHENE_POINT_INIT (hot_x, hot_y));
+
+      return TRUE;
     }
 }
-#endif
+#endif /* HAVE_WAYLAND */
 
-static void
-realize_cursor_sprite_from_xcursor_for_gpu (MetaCursorRenderer      *renderer,
-                                            MetaGpuKms              *gpu_kms,
-                                            MetaCursorSpriteXcursor *sprite_xcursor)
+static gboolean
+realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer      *renderer,
+                                             MetaCrtcKms             *crtc_kms,
+                                             MetaCursorSpriteXcursor *sprite_xcursor)
 {
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
+  MetaLogicalMonitor *logical_monitor;
+  MetaMonitor *monitor;
+  MetaMonitorTransform logical_transform;
   XcursorImage *xc_image;
   float relative_scale;
   MetaMonitorTransform relative_transform;
 
-  ensure_cursor_priv (cursor_sprite);
+  monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
 
-  cursor_renderer_gpu_data =
-    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
-  if (!cursor_renderer_gpu_data || cursor_renderer_gpu_data->hw_cursor_broken)
-    return;
+  relative_scale = calculate_cursor_crtc_sprite_scale (priv->backend,
+                                                       cursor_sprite,
+                                                       logical_monitor);
 
-  if (is_cursor_hw_state_valid (cursor_sprite, gpu_kms) &&
-      is_cursor_scale_and_transform_valid (renderer, cursor_sprite))
-    return;
-
-  if (!get_common_crtc_sprite_scale_for_logical_monitors (renderer,
-                                                          cursor_sprite,
-                                                          &relative_scale))
-    {
-      unset_can_preprocess (cursor_sprite);
-      return;
-    }
-
-  if (!get_common_crtc_sprite_transform_for_logical_monitors (renderer,
-                                                              cursor_sprite,
-                                                              &relative_transform))
-    {
-      unset_can_preprocess (cursor_sprite);
-      return;
-    }
-
-  set_can_preprocess (cursor_sprite,
-                      relative_scale,
-                      relative_transform);
+  logical_transform = meta_logical_monitor_get_transform (logical_monitor);
+  relative_transform = meta_monitor_transform_transform (
+      meta_monitor_transform_invert (
+        meta_cursor_sprite_get_texture_transform (cursor_sprite)),
+      meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
   xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
 
-  load_scaled_and_transformed_cursor_sprite (native,
-                                             gpu_kms,
-                                             cursor_sprite,
-                                             relative_scale,
-                                             relative_transform,
-                                             (uint8_t *) xc_image->pixels,
-                                             xc_image->width,
-                                             xc_image->height,
-                                             xc_image->width * 4,
-                                             GBM_FORMAT_ARGB8888);
+  return load_scaled_and_transformed_cursor_sprite (native,
+                                                    crtc_kms,
+                                                    cursor_sprite,
+                                                    relative_scale,
+                                                    relative_transform,
+                                                    (uint8_t *) xc_image->pixels,
+                                                    xc_image->width,
+                                                    xc_image->height,
+                                                    xc_image->width * 4,
+                                                    GBM_FORMAT_ARGB8888);
 }
 
-static void
-realize_cursor_sprite_for_gpu (MetaCursorRenderer *renderer,
-                               MetaGpuKms         *gpu_kms,
-                               MetaCursorSprite   *cursor_sprite)
+static gboolean
+realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
+                                MetaCrtcKms        *crtc_kms,
+                                MetaCursorSprite   *cursor_sprite)
 {
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+  meta_topic (META_DEBUG_KMS,
+              "Realizing HW cursor for cursor sprite for CRTC %u (%s)",
+              meta_kms_crtc_get_id (kms_crtc),
+              meta_kms_device_get_path (kms_device));
+
+  COGL_TRACE_BEGIN_SCOPED (CursorRendererNAtiveRealize,
+                           "Cursor Renderer Native (realize for crtc)");
   if (META_IS_CURSOR_SPRITE_XCURSOR (cursor_sprite))
     {
       MetaCursorSpriteXcursor *sprite_xcursor =
         META_CURSOR_SPRITE_XCURSOR (cursor_sprite);
 
-      realize_cursor_sprite_from_xcursor_for_gpu (renderer,
-                                                  gpu_kms,
-                                                  sprite_xcursor);
+      return realize_cursor_sprite_from_xcursor_for_crtc (renderer,
+                                                          crtc_kms,
+                                                          sprite_xcursor);
     }
 #ifdef HAVE_WAYLAND
   else if (META_IS_CURSOR_SPRITE_WAYLAND (cursor_sprite))
@@ -1872,25 +1054,14 @@ realize_cursor_sprite_for_gpu (MetaCursorRenderer *renderer,
       MetaCursorSpriteWayland *sprite_wayland =
         META_CURSOR_SPRITE_WAYLAND (cursor_sprite);
 
-      realize_cursor_sprite_from_wl_buffer_for_gpu (renderer,
-                                                    gpu_kms,
-                                                    sprite_wayland);
+      return realize_cursor_sprite_from_wl_buffer_for_crtc (renderer,
+                                                            crtc_kms,
+                                                            sprite_wayland);
     }
 #endif
-}
-
-static void
-realize_cursor_sprite (MetaCursorRenderer *renderer,
-                       MetaCursorSprite   *cursor_sprite,
-                       GList              *gpus)
-{
-  GList *l;
-
-  for (l = gpus; l; l = l->next)
+  else
     {
-      MetaGpuKms *gpu_kms = l->data;
-
-      realize_cursor_sprite_for_gpu (renderer, gpu_kms, cursor_sprite);
+      return FALSE;
     }
 }
 
@@ -1906,39 +1077,17 @@ meta_cursor_renderer_native_class_init (MetaCursorRendererNativeClass *klass)
   quark_cursor_sprite = g_quark_from_static_string ("-meta-cursor-native");
   quark_cursor_renderer_native_gpu_data =
     g_quark_from_static_string ("-meta-cursor-renderer-native-gpu-data");
-}
-
-static void
-force_update_hw_cursor (MetaCursorRendererNative *native)
-{
-  MetaCursorRenderer *renderer = META_CURSOR_RENDERER (native);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (native);
-  GList *l;
-
-  for (l = meta_backend_get_gpus (priv->backend); l; l = l->next)
-    {
-      MetaGpu *gpu = l->data;
-      GList *l_crtc;
-
-      for (l_crtc = meta_gpu_get_crtcs (gpu); l_crtc; l_crtc = l_crtc->next)
-        {
-          MetaCrtcKms *crtc_kms = META_CRTC_KMS (l_crtc->data);
-          CrtcCursorData *crtc_cursor_data;
-
-          crtc_cursor_data = ensure_crtc_cursor_data (crtc_kms);
-          crtc_cursor_data->hw_state_invalidated = TRUE;
-        }
-    }
-
-  meta_cursor_renderer_force_update (renderer);
+  quark_cursor_stage_view =
+    g_quark_from_static_string ("-meta-cursor-stage-view-native");
 }
 
 static void
 on_monitors_changed (MetaMonitorManager       *monitors,
                      MetaCursorRendererNative *native)
 {
-  force_update_hw_cursor (native);
+  MetaCursorRenderer *renderer = META_CURSOR_RENDERER (native);
+
+  meta_cursor_renderer_force_update (renderer);
 }
 
 static void
@@ -1968,11 +1117,105 @@ on_gpu_added_for_cursor (MetaBackend *backend,
   init_hw_cursor_support_for_gpu (gpu_kms);
 }
 
+typedef struct _CursorKmsImplState
+{
+  graphene_point_t sprite_hotspot;
+  graphene_rect_t sprite_rect;
+} CursorKmsImplState;
+
+static void
+on_pointer_position_changed_in_input_impl (MetaSeatImpl           *seat_impl,
+                                           const graphene_point_t *position,
+                                           MetaBackend            *backend)
+{
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+
+  meta_kms_cursor_manager_position_changed_in_input_impl (kms_cursor_manager,
+                                                          position);
+}
+
+static gboolean
+connect_seat_signals_in_input_impl (gpointer user_data)
+{
+  GTask *task = G_TASK (user_data);
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (g_task_get_task_data (task));
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaBackend *backend = priv->backend;
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+  ClutterInputDevice *device;
+  graphene_point_t position;
+
+  priv->pointer_position_changed_in_impl_handler_id =
+    g_signal_connect (seat_impl, "pointer-position-changed-in-impl",
+                      G_CALLBACK (on_pointer_position_changed_in_input_impl),
+                      backend);
+
+
+  device = meta_seat_impl_get_pointer (seat_impl);
+  meta_seat_impl_query_state (seat_impl, device, NULL, &position, NULL);
+  meta_kms_cursor_manager_position_changed_in_input_impl (kms_cursor_manager,
+                                                          &position);
+
+  g_task_return_boolean (task, TRUE);
+
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+disconnect_seat_signals_in_input_impl (gpointer user_data)
+{
+  GTask *task = G_TASK (user_data);
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (g_task_get_task_data (task));
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+
+  g_clear_signal_handler (&priv->pointer_position_changed_in_impl_handler_id,
+                          seat_impl);
+  g_task_return_boolean (task, TRUE);
+
+  g_mutex_lock (&priv->input_mutex);
+  priv->input_disconnected = TRUE;
+  g_cond_signal (&priv->input_cond);
+  g_mutex_unlock (&priv->input_mutex);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+query_cursor_position_in_kms_impl (float    *x,
+                                   float    *y,
+                                   gpointer  user_data)
+{
+  ClutterSeat *seat = user_data;
+  ClutterInputDevice *device;
+  graphene_point_t position;
+
+  device = clutter_seat_get_pointer (seat);
+  clutter_seat_query_state (seat, device, NULL, &position, NULL);
+  *x = position.x;
+  *y = position.y;
+}
+
 static void
 init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaBackend *backend = priv->backend;
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+  ClutterSeat *seat;
+  MetaSeatNative *seat_native;
   GList *gpus;
   GList *l;
 
@@ -1983,6 +1226,54 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 
       init_hw_cursor_support_for_gpu (gpu_kms);
     }
+
+  seat = meta_backend_get_default_seat (priv->backend);
+  seat_native = META_SEAT_NATIVE (seat);
+  meta_seat_native_run_impl_task (seat_native,
+                                  connect_seat_signals_in_input_impl,
+                                  cursor_renderer_native, NULL);
+
+  meta_kms_cursor_manager_set_query_func (kms_cursor_manager,
+                                          query_cursor_position_in_kms_impl,
+                                          seat);
+}
+
+static void
+on_started (MetaContext              *context,
+            MetaCursorRendererNative *cursor_renderer_native)
+{
+  if (g_strcmp0 (getenv ("MUTTER_DEBUG_DISABLE_HW_CURSORS"), "1"))
+    init_hw_cursor_support (cursor_renderer_native);
+  else
+    g_message ("Disabling hardware cursors because MUTTER_DEBUG_DISABLE_HW_CURSORS is set");
+}
+
+static void
+on_prepare_shutdown (MetaContext              *context,
+                     MetaCursorRendererNative *cursor_renderer_native)
+{
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  ClutterSeat *seat;
+  MetaSeatNative *seat_native;
+
+  g_mutex_init (&priv->input_mutex);
+  g_cond_init (&priv->input_cond);
+  priv->input_disconnected = FALSE;
+
+  seat = meta_backend_get_default_seat (priv->backend);
+  seat_native = META_SEAT_NATIVE (seat);
+  meta_seat_native_run_impl_task (seat_native,
+                                  disconnect_seat_signals_in_input_impl,
+                                  cursor_renderer_native, NULL);
+
+  g_mutex_lock (&priv->input_mutex);
+  while (!priv->input_disconnected)
+    g_cond_wait (&priv->input_cond, &priv->input_mutex);
+  g_mutex_unlock (&priv->input_mutex);
+
+  g_mutex_clear (&priv->input_mutex);
+  g_cond_clear (&priv->input_cond);
 }
 
 MetaCursorRendererNative *
@@ -1993,6 +1284,10 @@ meta_cursor_renderer_native_new (MetaBackend        *backend,
     meta_backend_get_monitor_manager (backend);
   MetaCursorRendererNative *cursor_renderer_native;
   MetaCursorRendererNativePrivate *priv;
+  MetaSeatNative *seat =
+    META_SEAT_NATIVE (meta_backend_get_default_seat (backend));
+
+  g_assert (seat);
 
   cursor_renderer_native = g_object_new (META_TYPE_CURSOR_RENDERER_NATIVE,
                                          "backend", backend,
@@ -2006,13 +1301,16 @@ meta_cursor_renderer_native_new (MetaBackend        *backend,
                            cursor_renderer_native, 0);
   g_signal_connect (backend, "gpu-added",
                     G_CALLBACK (on_gpu_added_for_cursor), NULL);
+  g_signal_connect (meta_backend_get_context (backend),
+                    "started",
+                    G_CALLBACK (on_started),
+                    cursor_renderer_native);
+  g_signal_connect (meta_backend_get_context (backend),
+                    "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown),
+                    cursor_renderer_native);
 
   priv->backend = backend;
-
-  if (g_strcmp0 (getenv ("MUTTER_DEBUG_DISABLE_HW_CURSORS"), "1"))
-    init_hw_cursor_support (cursor_renderer_native);
-  else
-    g_message ("Disabling hardware cursors because MUTTER_DEBUG_DISABLE_HW_CURSORS is set");
 
   return cursor_renderer_native;
 }
@@ -2020,18 +1318,4 @@ meta_cursor_renderer_native_new (MetaBackend        *backend,
 static void
 meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
 {
-}
-
-void
-meta_cursor_renderer_native_invalidate_gpu_state (MetaCursorRendererNative *native,
-                                                  MetaCursorSprite         *cursor_sprite,
-                                                  MetaGpuKms               *gpu_kms)
-{
-  MetaCursorNativePrivate *cursor_priv;
-
-  cursor_priv = get_cursor_priv (cursor_sprite);
-  if (!cursor_priv)
-    return;
-
-  g_hash_table_remove (cursor_priv->gpu_states, gpu_kms);
 }

@@ -41,8 +41,4 @@ void meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor
 MetaCursorRendererNative * meta_cursor_renderer_native_new (MetaBackend        *backend,
                                                             ClutterInputDevice *device);
 
-void meta_cursor_renderer_native_invalidate_gpu_state (MetaCursorRendererNative *native,
-                                                       MetaCursorSprite         *cursor_sprite,
-                                                       MetaGpuKms               *gpu_kms);
-
 #endif /* META_CURSOR_RENDERER_NATIVE_H */
