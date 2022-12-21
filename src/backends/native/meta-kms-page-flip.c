@@ -80,7 +80,8 @@ static void
 meta_kms_page_flip_closure_free (MetaKmsPageFlipClosure *closure)
 {
   g_clear_pointer (&closure->page_flip_data, meta_kms_page_flip_data_unref);
-  g_clear_pointer (&closure->user_data, closure->destroy_notify);
+  if (closure->destroy_notify)
+    g_clear_pointer (&closure->user_data, closure->destroy_notify);
   g_free (closure);
 }
 
