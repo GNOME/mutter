@@ -534,6 +534,7 @@ finalize_thread_user (MetaThread *thread)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
 
+  meta_thread_impl_terminate (priv->impl);
   while (meta_thread_impl_dispatch (priv->impl) > 0);
   unwrap_main_context (thread, meta_thread_impl_get_main_context (priv->impl));
 }

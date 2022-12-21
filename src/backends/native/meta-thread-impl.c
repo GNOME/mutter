@@ -29,6 +29,15 @@
 
 enum
 {
+  RESET,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
+enum
+{
   PROP_0,
 
   PROP_THREAD,
@@ -252,6 +261,14 @@ meta_thread_impl_class_init (MetaThreadImplClass *klass)
                         G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[RESET] =
+    g_signal_new ("reset",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
@@ -517,6 +534,7 @@ meta_thread_impl_dispatch (MetaThreadImpl *thread_impl)
 
   if (task == META_THREAD_IMPL_TERMINATE)
     {
+      g_signal_emit (thread_impl, signals[RESET], 0);
       if (priv->loop)
         g_main_loop_quit (priv->loop);
       return 0;
