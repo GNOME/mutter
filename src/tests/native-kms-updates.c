@@ -113,7 +113,6 @@ meta_test_kms_update_sanity (void)
 
   update = meta_kms_update_new (device);
   g_assert (meta_kms_update_get_device (update) == device);
-  g_assert_false (meta_kms_update_is_sealed (update));
   g_assert_null (meta_kms_update_get_primary_plane_assignment (update, crtc));
   g_assert_null (meta_kms_update_get_plane_assignments (update));
   g_assert_null (meta_kms_update_get_mode_sets (update));

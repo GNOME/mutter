@@ -268,7 +268,6 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   MetaKmsPlaneAssignment *plane_assignment;
   MetaKmsAssignPlaneFlag old_flags;
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
   g_assert (meta_kms_plane_get_plane_type (plane) !=
@@ -305,7 +304,6 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
 {
   MetaKmsPlaneAssignment *plane_assignment;
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
   g_assert (meta_kms_plane_get_device (plane) == update->device);
 
@@ -331,7 +329,6 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
 {
   MetaKmsModeSet *mode_set;
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   mode_set = g_new0 (MetaKmsModeSet, 1);
@@ -376,7 +373,6 @@ meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -392,7 +388,6 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
 {
   MetaKmsConnectorUpdate *connector_update;
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
@@ -495,7 +490,6 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
   MetaGammaLut *gamma_update = NULL;
   const MetaKmsCrtcState *crtc_state = meta_kms_crtc_get_current_state (crtc);
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   if (gamma)
@@ -524,7 +518,6 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
 {
   MetaKmsPageFlipListener *listener;
 
-  g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   listener = g_new0 (MetaKmsPageFlipListener, 1);
@@ -548,8 +541,6 @@ meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
                                       gpointer                   user_data)
 {
   MetaKmsCustomPageFlip *custom_page_flip;
-
-  g_assert (!meta_kms_update_is_sealed (update));
 
   custom_page_flip = g_new0 (MetaKmsCustomPageFlip, 1);
   custom_page_flip->func = func;
@@ -589,7 +580,6 @@ void
 meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                         MetaKmsPlaneRotation    rotation)
 {
-  g_assert (!meta_kms_update_is_sealed (plane_assignment->update));
   g_warn_if_fail (rotation);
 
   plane_assignment->rotation = rotation;
@@ -726,20 +716,6 @@ GList *
 meta_kms_update_get_crtc_color_updates (MetaKmsUpdate *update)
 {
   return update->crtc_color_updates;
-}
-
-void
-meta_kms_update_seal (MetaKmsUpdate *update)
-{
-  g_warn_if_fail (!update->is_sealed);
-
-  update->is_sealed = TRUE;
-}
-
-gboolean
-meta_kms_update_is_sealed (MetaKmsUpdate *update)
-{
-  return update->is_sealed;
 }
 
 MetaKmsDevice *

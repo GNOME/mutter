@@ -156,11 +156,6 @@ MetaKmsFeedback * meta_kms_feedback_new_passed (GList *failed_planes);
 MetaKmsFeedback * meta_kms_feedback_new_failed (GList  *failed_planes,
                                                 GError *error);
 
-void meta_kms_update_seal (MetaKmsUpdate *update);
-
-META_EXPORT_TEST
-gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
-
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                              MetaKmsPlaneRotation    rotation);
 

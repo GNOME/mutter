@@ -309,8 +309,6 @@ meta_kms_device_process_update_sync (MetaKmsDevice     *device,
   MetaKms *kms = META_KMS (meta_kms_device_get_kms (device));
   PostUpdateData data;
 
-  meta_kms_update_seal (update);
-
   data = (PostUpdateData) {
     .update = update,
     .flags = flags,
@@ -346,8 +344,6 @@ meta_kms_device_post_update (MetaKmsDevice       *device,
   PostUpdateData *data;
 
   g_return_if_fail (meta_kms_update_get_device (update) == device);
-
-  meta_kms_update_seal (update);
 
   data = g_new0 (PostUpdateData, 1);
   *data = (PostUpdateData) {
