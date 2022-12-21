@@ -873,8 +873,9 @@ post_mode_set_updates (MetaRendererNative *renderer_native)
                                            NULL,
                                            NULL);
 
-      feedback = meta_kms_device_process_update_sync (kms_device, kms_update,
-                                                      META_KMS_UPDATE_FLAG_NONE);
+      feedback =
+        meta_kms_device_process_update_sync (kms_device, kms_update,
+                                             META_KMS_UPDATE_FLAG_MODE_SET);
     }
 }
 

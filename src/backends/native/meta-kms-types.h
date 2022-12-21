@@ -80,6 +80,7 @@ typedef enum _MetaKmsUpdateFlag
 {
   META_KMS_UPDATE_FLAG_NONE = 0,
   META_KMS_UPDATE_FLAG_TEST_ONLY = 1 << 0,
+  META_KMS_UPDATE_FLAG_MODE_SET = 1 << 1,
 } MetaKmsUpdateFlag;
 
 typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
