@@ -913,6 +913,12 @@ meta_thread_unregister_callback_context (MetaThread   *thread,
   g_hash_table_remove (priv->callback_sources, main_context);
 }
 
+static void
+no_op_callback (MetaThread *thread,
+                gpointer    user_data)
+{
+}
+
 void
 meta_thread_queue_callback (MetaThread         *thread,
                             GMainContext       *main_context,
@@ -935,7 +941,7 @@ meta_thread_queue_callback (MetaThread         *thread,
 
   callback_data = g_new0 (MetaThreadCallbackData, 1);
   *callback_data = (MetaThreadCallbackData) {
-    .callback = callback,
+    .callback = callback ? callback : no_op_callback,
     .user_data = user_data,
     .user_data_destroy = user_data_destroy,
   };
