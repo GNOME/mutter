@@ -506,6 +506,9 @@ meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *upd
 
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
+  if (!main_context)
+    main_context = g_main_context_default ();
+
   listener = g_new0 (MetaKmsPageFlipListener, 1);
   *listener = (MetaKmsPageFlipListener) {
     .crtc = crtc,
