@@ -412,6 +412,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
   CoglFramebuffer *fb;
   ClutterColor bg_color;
   int n_rectangles;
+  ClutterPaintFlag paint_flags;
 
   n_rectangles = redraw_clip ? cairo_region_num_rectangles (redraw_clip) : 0;
   if (redraw_clip && n_rectangles < MAX_FRUSTA)
@@ -445,10 +446,12 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
 
   _clutter_stage_paint_volume_stack_free_all (stage);
 
+  paint_flags = clutter_stage_view_get_default_paint_flags (view);
+
   paint_context = clutter_paint_context_new_for_view (view,
                                                       redraw_clip,
                                                       clip_frusta,
-                                                      CLUTTER_PAINT_FLAG_NONE);
+                                                      paint_flags);
 
   if (frame)
     clutter_paint_context_assign_frame (paint_context, frame);

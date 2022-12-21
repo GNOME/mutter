@@ -34,6 +34,8 @@ typedef struct _MetaStageViewPrivate
   guint notify_presented_handle_id;
 
   CoglFrameClosure *frame_cb_closure;
+
+  int inhibit_cursor_overlay_count;
 } MetaStageViewPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaStageView, meta_stage_view,
@@ -130,6 +132,19 @@ meta_stage_view_constructed (GObject *object)
   G_OBJECT_CLASS (meta_stage_view_parent_class)->constructed (object);
 }
 
+static ClutterPaintFlag
+meta_stage_view_get_default_paint_flags (ClutterStageView *clutter_view)
+{
+  MetaStageView *view = META_STAGE_VIEW (clutter_view);
+  MetaStageViewPrivate *priv =
+    meta_stage_view_get_instance_private (view);
+
+  if (priv->inhibit_cursor_overlay_count > 0)
+    return CLUTTER_PAINT_FLAG_NO_CURSORS;
+  else
+    return CLUTTER_PAINT_FLAG_NONE;
+}
+
 static void
 meta_stage_view_init (MetaStageView *view)
 {
@@ -143,9 +158,13 @@ static void
 meta_stage_view_class_init (MetaStageViewClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_CLASS (klass);
 
   object_class->constructed = meta_stage_view_constructed;
   object_class->dispose = meta_stage_view_dispose;
+
+  view_class->get_default_paint_flags =
+    meta_stage_view_get_default_paint_flags;
 }
 
 ClutterDamageHistory *
@@ -201,4 +220,24 @@ meta_stage_view_perform_fake_swap (MetaStageView *view,
     g_idle_add_full (G_PRIORITY_DEFAULT,
                      notify_presented_idle,
                      closure, g_free);
+}
+
+void
+meta_stage_view_inhibit_cursor_overlay (MetaStageView *view)
+{
+  MetaStageViewPrivate *priv =
+    meta_stage_view_get_instance_private (view);
+
+  priv->inhibit_cursor_overlay_count++;
+}
+
+void
+meta_stage_view_uninhibit_cursor_overlay (MetaStageView *view)
+{
+  MetaStageViewPrivate *priv =
+    meta_stage_view_get_instance_private (view);
+
+  g_return_if_fail (priv->inhibit_cursor_overlay_count > 0);
+
+  priv->inhibit_cursor_overlay_count--;
 }

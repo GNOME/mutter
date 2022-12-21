@@ -379,13 +379,33 @@ queue_redraw_clutter_rect (MetaStage       *stage,
     .width = ceilf (rect->size.width),
     .height = ceilf (rect->size.height)
   };
+  GList *l;
 
   /* Since we're flooring the coordinates, we need to enlarge the clip by the
    * difference between the actual coordinate and the floored value */
   clip.width += ceilf (rect->origin.x - clip.x) * 2;
   clip.height += ceilf (rect->origin.y - clip.y) * 2;
 
-  clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &clip);
+  for (l = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+       l;
+       l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      cairo_rectangle_int_t view_clip;
+
+      if (clutter_stage_view_get_default_paint_flags (view) &
+          CLUTTER_PAINT_FLAG_NO_CURSORS)
+        continue;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+
+      if (meta_rectangle_intersect (&clip, &view_layout, &view_clip))
+        {
+          clutter_stage_view_add_redraw_clip (view, &view_clip);
+          clutter_stage_view_schedule_update (view);
+        }
+    }
 }
 
 static void

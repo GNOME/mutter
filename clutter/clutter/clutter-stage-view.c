@@ -1634,3 +1634,15 @@ clutter_stage_view_invalidate_input_devices (ClutterStageView *view)
 
   priv->needs_update_devices = TRUE;
 }
+
+ClutterPaintFlag
+clutter_stage_view_get_default_paint_flags (ClutterStageView *view)
+{
+  ClutterStageViewClass *view_class =
+    CLUTTER_STAGE_VIEW_GET_CLASS (view);
+
+  if (view_class->get_default_paint_flags)
+    return view_class->get_default_paint_flags (view);
+  else
+    return CLUTTER_PAINT_FLAG_NONE;
+}

@@ -28,16 +28,10 @@
 
 #include <cairo.h>
 
-#include "clutter/clutter-mutter.h"
+#include "backends/meta-stage-view.h"
 
 G_BEGIN_DECLS
 
-#define META_TYPE_STAGE_VIEW (meta_stage_view_get_type ())
-
-G_DECLARE_DERIVABLE_TYPE (MetaStageView,
-                          meta_stage_view,
-                          META, STAGE_VIEW,
-                          ClutterStageView)
 
 struct _MetaStageViewClass
 {
