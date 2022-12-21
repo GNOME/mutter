@@ -1079,6 +1079,24 @@ meta_thread_run_impl_task_sync (MetaThread          *thread,
   g_assert_not_reached ();
 }
 
+/**
+ * meta_thread_post_impl_task:
+ * @thread: A #MetaThread
+ * @func: The #MetaThreadTaskFunc to invoke in the impl context
+ * @user_data: An opaque pointer passed to func
+ * @user_data_destroy: Function called when user_data is no longer needed
+ * @feedback_func: A #MetaThreadTaskFeedbackFunc to invoke with the result
+ * @feedback_user_data: An opaque pointer passed to feedback_func
+ *
+ * Post tasks to be invoked inside the thread impl context.
+ *
+ * The user_data_notify function may be called in any thread, and must be
+ * thread safe.
+ *
+ * The feedback_func will be called on the thread implied by
+ * feedback_main_contxext. Passing a NULL feedback_main_context implies the
+ * GLib main thread.
+ */
 void
 meta_thread_post_impl_task (MetaThread                 *thread,
                             MetaThreadTaskFunc          func,
