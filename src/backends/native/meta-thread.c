@@ -705,6 +705,28 @@ dispatch_callbacks (MetaThread *thread,
 }
 
 void
+meta_thread_dispatch_callbacks (MetaThread   *thread,
+                                GMainContext *main_context)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  MetaThreadCallbackSource *callback_source;
+  g_autoptr (GList) pending_callbacks = NULL;
+
+  if (!main_context)
+    main_context = g_main_context_default ();
+
+  callback_source = g_hash_table_lookup (priv->callback_sources, main_context);
+
+  g_assert (callback_source->main_context == main_context);
+
+  g_mutex_lock (&priv->callbacks_mutex);
+  pending_callbacks = g_steal_pointer (&callback_source->callbacks);
+  g_mutex_unlock (&priv->callbacks_mutex);
+
+  dispatch_callbacks (thread, pending_callbacks);
+}
+
+void
 meta_thread_flush_callbacks (MetaThread *thread)
 {
   MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
