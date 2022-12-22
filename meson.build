@@ -16,7 +16,7 @@ mutter_builddir = meson.current_build_dir()
 lcms2_req = '>= 2.6'
 colord_req = '>= 1.4.5'
 fribidi_req = '>= 1.0.0'
-glib_req = '>= 2.69.0'
+glib_req = '>= 2.75.1'
 gi_req = '>= 0.9.5'
 graphene_req = '>= 1.10.2'
 gtk3_req = '>= 3.19.8'

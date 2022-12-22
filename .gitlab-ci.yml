@@ -18,7 +18,7 @@ variables:
 .mutter.fedora@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 37
-    BASE_TAG: '2022-12-17.0'
+    BASE_TAG: '2022-12-22.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       clang
@@ -50,6 +50,10 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
         main . 29ad36e2b1d28ac9d8b2bc44af46296cb1db5d66 &&
+
+      ./.gitlab-ci/install-meson-project.sh \
+        https://gitlab.gnome.org/GNOME/glib.git \
+        2.75.1 . &&
 
       pip install git+https://github.com/martinpitt/python-dbusmock.git@743da675c37bfc469ec385b88c3b4ad4838cfa48 &&
 
