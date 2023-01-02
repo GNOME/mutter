@@ -36,6 +36,7 @@ clutter_pkg_deps = [
   gio_dep,
   json_glib_dep,
   pango_dep,
+  harfbuzz_dep,
 ]
 
 clutter_pkg_private_deps = [

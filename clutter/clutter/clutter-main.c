@@ -51,6 +51,7 @@
 
 #include <stdlib.h>
 #include <glib/gi18n-lib.h>
+#include <hb-glib.h>
 
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
@@ -221,20 +222,28 @@ clutter_get_text_direction (void)
     }
   else
     {
-      /*
-       * Translate to default:RTL if you want your widgets
-       * to be RTL, otherwise translate to default:LTR.
-       * Do *not* translate it to "predefinito:LTR", if it
-       * it isn't default:LTR or default:RTL it will not work
-       */
-      const char *e = _("default:LTR");
+      PangoLanguage *language;
+      const PangoScript *scripts;
+      int n_scripts, i;
 
-      if (strcmp (e, "default:RTL") == 0)
-        dir = CLUTTER_TEXT_DIRECTION_RTL;
-      else if (strcmp (e, "default:LTR") == 0)
-        dir = CLUTTER_TEXT_DIRECTION_LTR;
-      else
-        g_warning ("Whoever translated default:LTR did so wrongly.");
+      language = pango_language_get_default ();
+      scripts = pango_language_get_scripts (language, &n_scripts);
+
+      for (i = 0; i < n_scripts; i++)
+        {
+          hb_script_t script;
+          hb_direction_t text_dir;
+
+          script = hb_glib_script_to_script ((GUnicodeScript) scripts[i]);
+          text_dir = hb_script_get_horizontal_direction (script);
+
+          if (text_dir == HB_DIRECTION_LTR)
+            dir = CLUTTER_TEXT_DIRECTION_LTR;
+          else if (text_dir == HB_DIRECTION_RTL)
+            dir = CLUTTER_TEXT_DIRECTION_RTL;
+          else
+            continue;
+        }
     }
 
   CLUTTER_NOTE (MISC, "Text direction: %s",

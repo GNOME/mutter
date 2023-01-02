@@ -38,6 +38,7 @@ libstartup_notification_req = '>= 0.7'
 libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
+harfbuzz_req = '>= 2.6'
 
 # optional version requirements
 udev_req = '>= 228'
@@ -128,6 +129,7 @@ atk_dep = dependency('atk', version: atk_req)
 dbus_dep = dependency('dbus-1')
 colord_dep = dependency('colord', version: colord_req)
 lcms2_dep = dependency('lcms2', version: lcms2_req)
+harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
 
 have_wayland = get_option('wayland')
 # For now always require X11 support
