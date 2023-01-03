@@ -188,8 +188,6 @@ enum
 
 static guint display_signals [LAST_SIGNAL] = { 0 };
 
-#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
-
 static void on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
                                           MetaDisplay        *display);
 
@@ -1193,45 +1191,27 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->pad_action_mapper);
 }
 
-static inline gboolean
-grab_op_is_window (MetaGrabOp op)
-{
-  return META_GRAB_OP_GET_BASE_TYPE (op) == META_GRAB_OP_WINDOW_BASE;
-}
-
 gboolean
 meta_grab_op_is_mouse (MetaGrabOp op)
 {
-  if (!grab_op_is_window (op))
-    return FALSE;
-
   return (op & META_GRAB_OP_WINDOW_FLAG_KEYBOARD) == 0;
 }
 
 gboolean
 meta_grab_op_is_keyboard (MetaGrabOp op)
 {
-  if (!grab_op_is_window (op))
-    return FALSE;
-
   return (op & META_GRAB_OP_WINDOW_FLAG_KEYBOARD) != 0;
 }
 
 gboolean
 meta_grab_op_is_resizing (MetaGrabOp op)
 {
-  if (!grab_op_is_window (op))
-    return FALSE;
-
   return (op & META_GRAB_OP_WINDOW_DIR_MASK) != 0 || op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN;
 }
 
 gboolean
 meta_grab_op_is_moving (MetaGrabOp op)
 {
-  if (!grab_op_is_window (op))
-    return FALSE;
-
   return !meta_grab_op_is_resizing (op);
 }
 
