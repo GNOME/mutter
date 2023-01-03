@@ -289,8 +289,12 @@ endif
 
 have_startup_notification = get_option('startup_notification')
 if have_startup_notification
-  libstartup_notification_dep = dependency('libstartup-notification-1.0',
-                                           version: libstartup_notification_req)
+  if have_x11_client
+    libstartup_notification_dep = dependency('libstartup-notification-1.0',
+                                             version: libstartup_notification_req)
+  else
+    error('startup_notification requires X11 or Xwayland to be enabled')
+  endif
 endif
 
 have_remote_desktop = get_option('remote_desktop')
