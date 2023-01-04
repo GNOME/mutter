@@ -446,6 +446,7 @@ stacking_tests = [
   'workspace-test',
   'always-on-top',
   'focus-default-window-globally-active-input',
+  'workspace-unmanaging-window',
 ]
 
 foreach stacking_test: stacking_tests

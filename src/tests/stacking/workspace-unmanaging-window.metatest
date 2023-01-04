@@ -1,0 +1,11 @@
+num_workspaces 2
+activate_workspace 0
+
+new_client 1 wayland
+create 1/1
+show 1/1
+wait
+
+quit_client 1
+activate_workspace 1
+wait
