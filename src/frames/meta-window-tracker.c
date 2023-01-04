@@ -155,7 +155,7 @@ set_up_frame (MetaWindowTracker *window_tracker,
                        GUINT_TO_POINTER (xframe), frame);
   g_hash_table_insert (window_tracker->client_windows,
                        GUINT_TO_POINTER (xwindow), frame);
-  gtk_widget_show (GTK_WIDGET (frame));
+  gtk_widget_set_visible (frame, TRUE);
 }
 
 static void
