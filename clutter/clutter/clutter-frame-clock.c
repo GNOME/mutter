@@ -704,7 +704,6 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   this_dispatch_time_us = time_us;
 #endif
 
-  
   ideal_dispatch_time_us = frame_clock->next_update_time_us;
 
   if (ideal_dispatch_time_us <= 0)
