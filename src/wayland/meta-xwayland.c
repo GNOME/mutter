@@ -903,6 +903,13 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   args[i++] = "7";
 #endif
 
+#ifdef HAVE_XWAYLAND_BYTE_SWAPPED_CLIENTS
+  if (meta_settings_are_xwayland_byte_swapped_clients_allowed (settings))
+    args[i++] = "+byteswappedclients";
+  else
+    args[i++] = "-byteswappedclients";
+#endif
+
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND))
 #ifdef HAVE_XWAYLAND_TERMINATE_DELAY

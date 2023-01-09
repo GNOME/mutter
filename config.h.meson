@@ -106,3 +106,6 @@
 
 /* Whether the Xwayland -terminate supports a delay */
 #mesondefine HAVE_XWAYLAND_TERMINATE_DELAY
+
+/* Whether the Xwayland supports +/-byteswappedclients */
+#mesondefine HAVE_XWAYLAND_BYTE_SWAPPED_CLIENTS

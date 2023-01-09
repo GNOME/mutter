@@ -536,6 +536,7 @@ endif
 have_xwayland_initfd = false
 have_xwayland_listenfd = false
 have_xwayland_terminate_delay = false
+have_xwayland_byte_swapped_clients = false
 if have_xwayland
   xwayland_dep = dependency('xwayland', required: false)
 
@@ -596,6 +597,16 @@ if have_xwayland
 
   if (have_xwayland_terminate_delay)
     cdata.set('HAVE_XWAYLAND_TERMINATE_DELAY', 1)
+  endif
+
+  # For Xwayland +/-byteswappedclients usage
+  if xwayland_dep.found()
+    have_xwayland_byte_swapped_clients = xwayland_dep.get_variable('have_byteswappedclients',
+                                                                   default_value: 'false') == 'true'
+  endif
+
+  if (have_xwayland_byte_swapped_clients)
+    cdata.set('HAVE_XWAYLAND_BYTE_SWAPPED_CLIENTS', 1)
   endif
 endif
 
@@ -678,6 +689,7 @@ summary('Profiler', have_profiler, section: 'Options')
 summary('Xwayland initfd', have_xwayland_initfd, section: 'Options')
 summary('Xwayland listenfd', have_xwayland_listenfd, section: 'Options')
 summary('Xwayland terminate delay', have_xwayland_terminate_delay, section: 'Options')
+summary('Xwayland byte-swapped clients', have_xwayland_byte_swapped_clients, section: 'Options')
 
 summary('Enabled', have_tests, section: 'Tests')
 summary('Core tests', have_core_tests, section: 'Tests')
