@@ -143,7 +143,9 @@ meta_window_set_frame_xwindow (MetaWindow *window,
                                             x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER,
                                             TRUE);
 
+  meta_x11_error_trap_push (x11_display);
   XMapWindow (x11_display->xdisplay, frame->xwindow);
+  meta_x11_error_trap_pop (x11_display);
 
   /* Move keybindings to frame instead of window */
   meta_window_grab_keys (window);
