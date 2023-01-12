@@ -515,13 +515,11 @@ x_io_error_exit (Display *display,
     }
 }
 
-#ifdef HAVE_XSETIOERROREXITHANDLER
 static void
 x_io_error_exit_noop (Display *display,
                       void    *data)
 {
 }
-#endif
 
 void
 meta_xwayland_override_display_number (int number)
@@ -1013,23 +1011,20 @@ static void
 meta_xwayland_shutdown (MetaWaylandCompositor *compositor)
 {
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
-#ifdef HAVE_XSETIOERROREXITHANDLER
-  MetaDisplay *display = meta_get_display ();
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaDisplay *display = meta_context_get_display (context);
   MetaX11Display *x11_display;
-#endif
   char path[256];
 
   g_cancellable_cancel (manager->xserver_died_cancellable);
 
   XSetIOErrorHandler (x_io_error_noop);
-#ifdef HAVE_XSETIOERROREXITHANDLER
   x11_display = display->x11_display;
   if (x11_display)
     {
       XSetIOErrorExitHandler (meta_x11_display_get_xdisplay (x11_display),
                               x_io_error_exit_noop, NULL);
     }
-#endif
 
   meta_xwayland_terminate (manager);
 
