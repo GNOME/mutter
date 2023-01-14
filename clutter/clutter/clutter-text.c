@@ -1788,7 +1788,6 @@ clutter_text_finalize (GObject *gobject)
   if (priv->preedit_attrs)
     pango_attr_list_unref (priv->preedit_attrs);
 
-  clutter_text_set_buffer (self, NULL);
   g_free (priv->font_name);
 
   g_clear_object (&priv->input_focus);
