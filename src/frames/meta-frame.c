@@ -239,7 +239,7 @@ frame_sync_title (GtkWindow *frame,
   if (gdk_x11_display_error_trap_pop (display))
     return;
 
-  gtk_window_set_title (frame, title);
+  gtk_window_set_title (frame, title ? title : "");
   g_free (title);
 }
 
