@@ -211,6 +211,10 @@ meta_window_destroy_frame (MetaWindow *window)
       window->reparents_pending += 1;
     }
 
+  XDeleteProperty (x11_display->xdisplay,
+                   window->xwindow,
+                   x11_display->atom__MUTTER_NEEDS_FRAME);
+
   meta_x11_error_trap_pop (x11_display);
 
   /* Ensure focus is restored after the unmap/map events triggered
