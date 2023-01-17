@@ -22,7 +22,7 @@ search_index = true
   docs_url = "https://ebassi.github.io/graphene/docs"
 
   [dependencies."cairo-1.0"]
-  name = "Cairo"
+  name = "cairo"
   description = "A 2D graphics library with support for multiple output devices"
   docs_url = "https://www.cairographics.org/manual/"
 
