@@ -7,7 +7,8 @@ docs_url = "https://docs.gtk.org/"
 authors = "Mutter Development Team"
 license = "GPL-2.0-or-later"
 description = "The Mutter display server, window manager and compositor library"
-dependencies = [ "GObject-2.0", "Gdk-3.0", "Gtk-3.0" ]
+dependencies = [ "GObject-2.0" ]
+related = [ "Gdk-3.0", "Gtk-3.0" ]
 devhelp = true
 search_index = true
 
@@ -16,13 +17,13 @@ search_index = true
   description = "The base type system library"
   docs_url = "https://docs.gtk.org/gobject/"
 
-  [dependencies."Gdk-3.0"]
-  name = "GDK"
+  [related."Gdk-3.0"]
+  name = "Gdk"
   description = "The GTK windowing system abstraction"
   docs_url = "https://docs.gtk.org/gdk3/"
 
-  [dependencies."Gtk-3.0"]
-  name = "GTK"
+  [related."Gtk-3.0"]
+  name = "Gtk"
   description = "The GTK toolkit"
   docs_url = "https://docs.gtk.org/gtk3/"
 
