@@ -347,10 +347,13 @@ meta_surface_actor_x11_init (MetaSurfaceActorX11 *self)
 static void
 create_damage (MetaSurfaceActorX11 *self)
 {
-  Display *xdisplay = meta_x11_display_get_xdisplay (self->display->x11_display);
+  MetaX11Display *x11_display = meta_display_get_x11_display (self->display);
+  Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   Window xwindow = meta_window_x11_get_toplevel_xwindow (self->window);
 
+  meta_x11_error_trap_push (x11_display);
   self->damage = XDamageCreate (xdisplay, xwindow, XDamageReportBoundingBox);
+  meta_x11_error_trap_pop (x11_display);
 }
 
 static void
