@@ -311,8 +311,12 @@ meta_surface_actor_x11_is_unredirected (MetaSurfaceActorX11 *self)
 static void
 release_x11_resources (MetaSurfaceActorX11 *self)
 {
+  MetaX11Display *x11_display = meta_display_get_x11_display (self->display);
+
+  meta_x11_error_trap_push (x11_display);
   detach_pixmap (self);
   free_damage (self);
+  meta_x11_error_trap_pop (x11_display);
 }
 
 static void
