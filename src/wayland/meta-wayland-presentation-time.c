@@ -42,6 +42,7 @@ wp_presentation_feedback_destructor (struct wl_resource *resource)
     wl_resource_get_user_data (resource);
 
   wl_list_remove (&feedback->link);
+  g_clear_object (&feedback->surface);
   g_free (feedback);
 }
 
@@ -83,7 +84,7 @@ wp_presentation_feedback (struct wl_client   *client,
   pending = meta_wayland_surface_get_pending_state (surface);
   wl_list_insert (&pending->presentation_feedback_list, &feedback->link);
 
-  feedback->surface = surface;
+  feedback->surface = g_object_ref (surface);
 }
 
 static const struct wp_presentation_interface
