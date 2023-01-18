@@ -21,11 +21,12 @@ on_event_return_stop (ClutterActor *actor,
 }
 
 static void
-wait_stage_updated (ClutterStage *stage,
-                    gboolean     *was_updated)
+wait_stage_updated (gboolean *was_updated)
 {
   *was_updated = FALSE;
-  clutter_stage_schedule_update (stage);
+
+  clutter_test_flush_input ();
+
   while (!*was_updated)
     g_main_context_iteration (NULL, TRUE);
 }
@@ -55,13 +56,11 @@ event_delivery_consecutive_touch_begin_end (void)
   clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
   clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 5, 5);
   g_assert_true (!was_updated);
-  clutter_test_flush_input ();
-  wait_stage_updated (CLUTTER_STAGE (stage), &was_updated);
+  wait_stage_updated (&was_updated);
   g_assert_cmpint (n_captured_touch_events, ==, 3);
 
   clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
-  clutter_test_flush_input ();
-  wait_stage_updated (CLUTTER_STAGE (stage), &was_updated);
+  wait_stage_updated (&was_updated);
   g_assert_cmpint (n_captured_touch_events, ==, 4);
 
   g_signal_handlers_disconnect_by_func (stage, on_event_return_stop, &n_captured_touch_events);
