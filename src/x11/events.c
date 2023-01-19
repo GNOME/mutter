@@ -1400,6 +1400,9 @@ handle_other_xevent (MetaX11Display *x11_display,
           meta_stack_tracker_destroy_event (display->stack_tracker,
                                             &event->xdestroywindow);
       }
+      g_printerr ("Mutter DestroyNotify on window %lx %p %d\n",
+                  event->xdestroywindow.event,
+                  window, frame_was_receiver);
       if (window)
         {
           /* FIXME: It sucks that DestroyNotify events don't come with

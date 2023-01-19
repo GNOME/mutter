@@ -143,6 +143,7 @@ meta_x11_display_dispose (GObject *object)
 
   if (x11_display->frames_client)
     {
+      g_printerr ("terminate frames client\n");
       g_subprocess_send_signal (x11_display->frames_client, SIGTERM);
       g_clear_object (&x11_display->frames_client);
     }

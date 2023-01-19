@@ -30,6 +30,8 @@ on_sigterm (gpointer user_data)
 {
   GMainLoop *main_loop = user_data;
 
+  exit (0);
+
   g_main_loop_quit (main_loop);
 
   return G_SOURCE_REMOVE;
@@ -66,6 +68,7 @@ main (int   argc,
   loop = g_main_loop_new (NULL, FALSE);
   g_unix_signal_add (SIGTERM, on_sigterm, loop);
   g_main_loop_run (loop);
+  g_printerr ("terminating frames client\n");
   g_main_loop_unref (loop);
 
   return 0;

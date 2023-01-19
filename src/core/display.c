@@ -851,6 +851,7 @@ meta_display_shutdown_x11 (MetaDisplay *display)
   if (!display->x11_display)
     return;
 
+  g_printerr ("shutdown x11\n");
   meta_stack_freeze (display->stack);
   g_signal_emit (display, display_signals[X11_DISPLAY_CLOSING], 0);
   g_object_run_dispose (G_OBJECT (display->x11_display));
@@ -1152,6 +1153,8 @@ meta_display_close (MetaDisplay *display,
   MetaCompositor *compositor;
   MetaLaters *laters;
 
+  g_printerr ("display close %d\n", display->closing);
+
   if (display->closing != 0)
     {
       /* The display's already been closed. */
@@ -1160,7 +1163,9 @@ meta_display_close (MetaDisplay *display,
 
   display->closing += 1;
 
+  g_printerr ("display close2\n");
   g_signal_emit (display, display_signals[CLOSING], 0);
+  g_printerr ("display close3 %p \n", display->x11_display);
 
   meta_display_unmanage_windows (display, timestamp);
   meta_compositor_unmanage (display->compositor);

@@ -211,6 +211,10 @@ meta_window_destroy_frame (MetaWindow *window)
       window->reparents_pending += 1;
     }
 
+  g_printerr ("Reparented %lx\n", window->xwindow);
+  XSync (x11_display->xdisplay, False);
+
+  g_printerr ("Deleting frame %lx\n", window->xwindow);
   XDeleteProperty (x11_display->xdisplay,
                    window->xwindow,
                    x11_display->atom__MUTTER_NEEDS_FRAME);

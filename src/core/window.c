@@ -5376,6 +5376,9 @@ meta_window_type_changed (MetaWindow *window)
   if (!window->override_redirect)
     set_net_wm_state (window);
 
+  g_printerr ("window %s type changed %d\n",
+              window->desc, window->decorated);
+
   /* Update frame */
   if (window->decorated)
     meta_window_ensure_frame (window);

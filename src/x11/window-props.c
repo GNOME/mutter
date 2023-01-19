@@ -950,6 +950,7 @@ reload_mwm_hints (MetaWindow    *window,
   /* We do all this anyhow at the end of meta_window_x11_new() */
   if (!window->constructing)
     {
+      g_printerr ("reloading mwm hints for window %s %d\n", window->desc, window->decorated);
       if (window->decorated)
         meta_window_ensure_frame (window);
       else

@@ -127,10 +127,19 @@ set_up_frame (MetaWindowTracker *window_tracker,
                              GUINT_TO_POINTER (xwindow)))
     return;
 
+  /* Double check we did not handle a request for this window already */
+  if (g_hash_table_contains (window_tracker->client_windows,
+                             GUINT_TO_POINTER (xwindow)))
+    return;
+
+  g_printerr ("Create frame for window %lx (pid: %d)\n", xwindow, getpid ());
+
   /* Create a frame window */
   frame = meta_frame_new (xwindow);
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   xframe = gdk_x11_surface_get_xid (surface);
+
+  g_printerr ("Creating frame for window %lx\n", xwindow);
 
   gdk_x11_display_error_trap_push (display);
 
@@ -156,6 +165,7 @@ set_up_frame (MetaWindowTracker *window_tracker,
   g_hash_table_insert (window_tracker->client_windows,
                        GUINT_TO_POINTER (xwindow), frame);
   gtk_widget_show (GTK_WIDGET (frame));
+  g_printerr ("Created frame for window %lx\n", xwindow);
 }
 
 static void
@@ -187,6 +197,7 @@ listen_set_up_frame (MetaWindowTracker *window_tracker,
   if (gdk_x11_display_error_trap_pop (display))
     return;
 
+  g_printerr ("Updating _MUTTER_NEEDS_FRAME, %ld\n", nitems);
   if (nitems > 0 && data[0])
     set_up_frame (window_tracker, xwindow);
 
@@ -208,6 +219,7 @@ remove_frame (MetaWindowTracker *window_tracker,
   if (!frame)
     return;
 
+  g_printerr ("Remove frame for window %lx\n", xwindow);
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   xframe = gdk_x11_surface_get_xid (surface);
 
@@ -242,6 +254,7 @@ on_xevent (GdkDisplay *display,
     }
   else if (xevent->type == DestroyNotify)
     {
+      g_printerr ("window %lx destroyed\n", xwindow);
       xwindow = xevent->xdestroywindow.window;
       remove_frame (window_tracker, xwindow);
     }
@@ -252,11 +265,17 @@ on_xevent (GdkDisplay *display,
       if (xevent->xproperty.state == PropertyNewValue &&
           !g_hash_table_contains (window_tracker->client_windows,
                                   GUINT_TO_POINTER (xwindow)))
-        set_up_frame (window_tracker, xwindow);
+        {
+          g_printerr ("Frame property deleted on window %lx\n", xwindow);
+          set_up_frame (window_tracker, xwindow);
+        }
       else if (xevent->xproperty.state == PropertyDelete &&
                g_hash_table_contains (window_tracker->client_windows,
                                       GUINT_TO_POINTER (xwindow)))
+        {
+          g_printerr ("Frame property deleted from window %lx\n", xwindow);
         remove_frame (window_tracker, xwindow);
+        }
     }
   else if (xevent->type == PropertyNotify)
     {
