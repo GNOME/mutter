@@ -367,12 +367,12 @@ on_cd_device_connected (GObject      *source_object,
   MetaColorDevice *color_device = user_data;
   g_autoptr (GError) error = NULL;
 
-  color_device->pending_state &= ~PENDING_CONNECTED;
-
   if (!cd_device_connect_finish (cd_device, res, &error))
     {
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         return;
+
+      color_device->pending_state &= ~PENDING_CONNECTED;
 
       g_warning ("Failed to connect to colord device %s: %s",
                  color_device->cd_device_id,
@@ -384,6 +384,7 @@ on_cd_device_connected (GObject      *source_object,
     }
   else
     {
+      color_device->pending_state &= ~PENDING_CONNECTED;
       meta_topic (META_DEBUG_COLOR, "Color device '%s' connected",
                   color_device->cd_device_id);
     }
@@ -423,8 +424,6 @@ ensure_device_profile_cb (GObject      *source_object,
   MetaColorProfile *color_profile;
   g_autoptr (GError) error = NULL;
 
-  color_device->pending_state &= ~PENDING_EDID_PROFILE;
-
   color_profile = meta_color_store_ensure_device_profile_finish (color_store,
                                                                  res,
                                                                  &error);
@@ -436,6 +435,7 @@ ensure_device_profile_cb (GObject      *source_object,
 
       g_warning ("Failed to create device color profile: %s", error->message);
 
+      color_device->pending_state &= ~PENDING_EDID_PROFILE;
       g_cancellable_cancel (color_device->cancellable);
       meta_color_device_notify_ready (color_device, FALSE);
       return;
@@ -444,6 +444,7 @@ ensure_device_profile_cb (GObject      *source_object,
   meta_topic (META_DEBUG_COLOR, "Color device '%s' generated",
               color_device->cd_device_id);
 
+  color_device->pending_state &= ~PENDING_EDID_PROFILE;
   g_set_object (&color_device->device_profile, color_profile);
 
   if (!meta_color_profile_is_ready (color_profile))
@@ -647,7 +648,7 @@ on_profile_written (GObject      *source_object,
   GFile *file = G_FILE (source_object);
   g_autoptr (GTask) task = G_TASK (user_data);
   GenerateProfileData *data = g_task_get_task_data (task);
-  MetaColorManager *color_manager = data->color_device->color_manager;
+  MetaColorManager *color_manager;
   g_autoptr (GError) error = NULL;
   MetaColorProfile *color_profile;
 
@@ -668,6 +669,7 @@ on_profile_written (GObject      *source_object,
   meta_topic (META_DEBUG_COLOR, "On-disk device profile '%s' updated",
               g_file_peek_path (file));
 
+  color_manager = data->color_device->color_manager;
   color_profile =
     meta_color_profile_new_from_icc (color_manager,
                                      g_steal_pointer (&data->cd_icc),
