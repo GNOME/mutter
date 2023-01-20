@@ -28,9 +28,7 @@
 static gboolean
 on_sigterm (gpointer user_data)
 {
-  GMainLoop *main_loop = user_data;
-
-  g_main_loop_quit (main_loop);
+  exit (0);
 
   return G_SOURCE_REMOVE;
 }
@@ -64,7 +62,7 @@ main (int   argc,
   window_tracker = meta_window_tracker_new (display);
 
   loop = g_main_loop_new (NULL, FALSE);
-  g_unix_signal_add (SIGTERM, on_sigterm, loop);
+  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
   g_main_loop_run (loop);
   g_main_loop_unref (loop);
 
