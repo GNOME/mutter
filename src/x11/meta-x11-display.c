@@ -144,6 +144,8 @@ meta_x11_display_dispose (GObject *object)
   if (x11_display->frames_client)
     {
       g_subprocess_send_signal (x11_display->frames_client, SIGTERM);
+      if (x11_display->display->closing)
+        g_subprocess_wait (x11_display->frames_client, NULL, NULL);
       g_clear_object (&x11_display->frames_client);
     }
 
