@@ -1476,7 +1476,7 @@ clutter_stage_view_finalize (GObject *object)
 
   g_clear_object (&priv->framebuffer);
 
-  G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
+  G_OBJECT_CLASS (clutter_stage_view_parent_class)->finalize (object);
 }
 
 static void
