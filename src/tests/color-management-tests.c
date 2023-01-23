@@ -628,6 +628,7 @@ meta_test_color_management_profile_device_bogus (void)
   while (!meta_color_device_is_ready (color_device))
     g_main_context_iteration (NULL, TRUE);
 
+  g_test_assert_expected_messages ();
   color_profile = meta_color_device_get_device_profile (color_device);
   g_assert_null (color_profile);
 
@@ -653,6 +654,7 @@ meta_test_color_management_profile_device_bogus (void)
 
   color_profile = meta_color_device_get_device_profile (color_device);
   g_assert_null (color_profile);
+  g_test_assert_expected_messages ();
 }
 
 static void
