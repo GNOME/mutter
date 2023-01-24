@@ -707,7 +707,6 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;
   uint8_t *data = NULL;
-  g_autoptr (GError) error = NULL;
 
   /* Accumulate the damaged region since we might not schedule a frame capture
    * eventually but once we do, we should report all the previous damaged areas.
@@ -781,6 +780,8 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
+      g_autoptr (GError) error = NULL;
+
       g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
       if (do_record_frame (src, flags, spa_buffer, data, &error))
         {
