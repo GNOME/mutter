@@ -160,14 +160,20 @@ stage_painted (MetaStage           *stage,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
   MetaScreenCastRecordResult record_result;
   MetaScreenCastRecordFlag flags;
+  int64_t presentation_time_us;
 
   if (monitor_src->maybe_record_idle_id)
     return;
 
+  if (!clutter_frame_get_target_presentation_time (frame, &presentation_time_us))
+    presentation_time_us = g_get_monotonic_time ();
+
   flags = META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
-  record_result = meta_screen_cast_stream_src_maybe_record_frame (src,
-                                                                  flags,
-                                                                  NULL);
+  record_result =
+    meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
+                                                                   flags,
+                                                                   NULL,
+                                                                   presentation_time_us);
 
   if (!(record_result & META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME))
     {
@@ -189,6 +195,7 @@ before_stage_painted (MetaStage           *stage,
     META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
   MetaScreenCastRecordFlag flags;
+  int64_t presentation_time_us;
 
   if (monitor_src->maybe_record_idle_id)
     return;
@@ -196,8 +203,14 @@ before_stage_painted (MetaStage           *stage,
   if (!clutter_stage_view_peek_scanout (view))
     return;
 
+  if (!clutter_frame_get_target_presentation_time (frame, &presentation_time_us))
+    presentation_time_us = g_get_monotonic_time ();
+
   flags = META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, NULL);
+  meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
+                                                                 flags,
+                                                                 NULL,
+                                                                 presentation_time_us);
 }
 
 static gboolean
