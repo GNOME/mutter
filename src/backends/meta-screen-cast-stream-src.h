@@ -44,6 +44,13 @@ typedef enum _MetaScreenCastRecordFlag
   META_SCREEN_CAST_RECORD_FLAG_DMABUF_ONLY = 1 << 1,
 } MetaScreenCastRecordFlag;
 
+typedef enum _MetaScreenCastRecordResult
+{
+  META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING = 0,
+  META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME = 1 << 0,
+  META_SCREEN_CAST_RECORD_RESULT_RECORDED_CURSOR = 1 << 1,
+} MetaScreenCastRecordResult;
+
 #define META_TYPE_SCREEN_CAST_STREAM_SRC (meta_screen_cast_stream_src_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaScreenCastStreamSrc,
                           meta_screen_cast_stream_src,
@@ -84,9 +91,14 @@ void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
 
 gboolean meta_screen_cast_stream_src_is_enabled (MetaScreenCastStreamSrc *src);
 
-void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
-                                                     MetaScreenCastRecordFlag  flags,
-                                                     const cairo_region_t     *redraw_clip);
+MetaScreenCastRecordResult meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
+                                                                           MetaScreenCastRecordFlag  flags,
+                                                                           const cairo_region_t     *redraw_clip);
+
+MetaScreenCastRecordResult meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
+                                                                                          MetaScreenCastRecordFlag  flags,
+                                                                                          const cairo_region_t     *redraw_clip,
+                                                                                          int64_t                   frame_timestamp_us);
 
 gboolean meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src);
 

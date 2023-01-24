@@ -484,7 +484,7 @@ add_cursor_metadata (MetaScreenCastStreamSrc *src,
     meta_screen_cast_stream_src_set_cursor_metadata (src, spa_meta_cursor);
 }
 
-static void
+static MetaScreenCastRecordResult
 maybe_record_cursor (MetaScreenCastStreamSrc *src,
                      struct spa_buffer       *spa_buffer)
 {
@@ -493,11 +493,12 @@ maybe_record_cursor (MetaScreenCastStreamSrc *src,
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      return;
+      return META_SCREEN_CAST_RECORD_RESULT_RECORDED_CURSOR;
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
       add_cursor_metadata (src, spa_buffer);
-      return;
+      return META_SCREEN_CAST_RECORD_RESULT_RECORDED_CURSOR;
     }
 
   g_assert_not_reached ();
@@ -675,20 +676,34 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
 }
 
-
-void
+MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                 MetaScreenCastRecordFlag  flags,
                                                 const cairo_region_t     *redraw_clip)
 {
+  int64_t now_us = g_get_monotonic_time ();
+
+  return meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
+                                                                        flags,
+                                                                        redraw_clip,
+                                                                        now_us);
+}
+
+MetaScreenCastRecordResult
+meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
+                                                               MetaScreenCastRecordFlag  flags,
+                                                               const cairo_region_t     *redraw_clip,
+                                                               int64_t                   frame_timestamp_us)
+{
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastRecordResult record_result =
+     META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
   MetaRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;
   uint8_t *data = NULL;
-  uint64_t now_us;
   g_autoptr (GError) error = NULL;
 
   /* Accumulate the damaged region since we might not schedule a frame capture
@@ -702,7 +717,6 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
         priv->redraw_clip = cairo_region_copy (redraw_clip);
     }
 
-  now_us = g_get_monotonic_time ();
   if (priv->video_format.max_framerate.num > 0 &&
       priv->last_frame_timestamp_us != 0)
     {
@@ -713,7 +727,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
         ((G_USEC_PER_SEC * ((int64_t) priv->video_format.max_framerate.denom)) /
          ((int64_t) priv->video_format.max_framerate.num));
 
-      time_since_last_frame_us = now_us - priv->last_frame_timestamp_us;
+      time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
       if (time_since_last_frame_us < min_interval_us)
         {
           int64_t timeout_us;
@@ -723,12 +737,12 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
-          return;
+          return record_result;
         }
     }
 
   if (!priv->pipewire_stream)
-    return;
+    return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
 
   meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
               flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY ?
@@ -742,7 +756,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                   "Couldn't dequeue a buffer from pipewire stream (node id %u), "
                   "maybe your encoding is too slow?",
                   pw_stream_get_node_id (priv->pipewire_stream));
-      return;
+      return record_result;
     }
 
   spa_buffer = buffer->buffer;
@@ -759,7 +773,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
         header->flags = SPA_META_HEADER_FLAG_CORRUPTED;
 
       pw_stream_queue_buffer (priv->pipewire_stream, buffer);
-      return;
+      return record_result;
     }
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
@@ -799,6 +813,8 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                     priv->video_format.size.height;
                 }
             }
+
+          record_result |= META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME;
         }
       else
         {
@@ -813,17 +829,19 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
       spa_buffer->datas[0].chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
     }
 
-  maybe_record_cursor (src, spa_buffer);
+  record_result |= maybe_record_cursor (src, spa_buffer);
 
-  priv->last_frame_timestamp_us = now_us;
+  priv->last_frame_timestamp_us = frame_timestamp_us;
 
   if (header)
     {
-      header->pts = now_us * SPA_NSEC_PER_USEC;
+      header->pts = frame_timestamp_us * SPA_NSEC_PER_USEC;
       header->flags = 0;
     }
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+
+  return record_result;
 }
 
 gboolean
