@@ -406,6 +406,7 @@ setup_clip_frustum (ClutterStage                *stage,
 static void
 clutter_stage_do_paint_view (ClutterStage         *stage,
                              ClutterStageView     *view,
+                             ClutterFrame         *frame,
                              const cairo_region_t *redraw_clip)
 {
   ClutterPaintContext *paint_context;
@@ -450,6 +451,9 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
                                                       redraw_clip,
                                                       clip_frusta,
                                                       CLUTTER_PAINT_FLAG_NONE);
+
+  if (frame)
+    clutter_paint_context_assign_frame (paint_context, frame);
 
   clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);
   clutter_paint_context_destroy (paint_context);
@@ -1259,7 +1263,7 @@ clutter_stage_real_paint_view (ClutterStage         *stage,
                                const cairo_region_t *redraw_clip,
                                ClutterFrame         *frame)
 {
-  clutter_stage_do_paint_view (stage, view, redraw_clip);
+  clutter_stage_do_paint_view (stage, view, frame, redraw_clip);
 }
 
 static void
@@ -1918,7 +1922,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
     }
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
-  clutter_stage_do_paint_view (stage, view, clip);
+  clutter_stage_do_paint_view (stage, view, NULL, clip);
 
   cairo_region_destroy (clip);
 
