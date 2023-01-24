@@ -1158,12 +1158,22 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
   float x = cur_x, y = cur_y;
   float target_x = cur_x, target_y = cur_y;
   float dx = *dx_inout, dy = *dy_inout;
-  MetaDisplayDirection direction = -1;
+  MetaDisplayDirection direction_h, direction_v;
+
+#define META_DISPLAY_NONE -1
+  direction_h = dx > 0.0 ? META_DISPLAY_RIGHT :
+    dx < 0.0 ? META_DISPLAY_LEFT :
+    META_DISPLAY_NONE;
+  direction_v = dy > 0.0 ? META_DISPLAY_DOWN :
+    dy < 0.0 ? META_DISPLAY_UP :
+    META_DISPLAY_NONE;
+#undef META_DISPLAY_NONE
 
   while (cur_view >= 0)
     {
       MetaLine2 left, right, top, bottom, motion;
       MetaVector2 intersection;
+      MetaDisplayDirection direction;
       cairo_rectangle_int_t rect;
       float scale;
 
@@ -1193,16 +1203,16 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
         { rect.x + rect.width, rect.y + rect.height }
       };
 
-      if (direction != META_DISPLAY_RIGHT &&
+      if (direction_h == META_DISPLAY_LEFT &&
           meta_line2_intersects_with (&motion, &left, &intersection))
         direction = META_DISPLAY_LEFT;
-      else if (direction != META_DISPLAY_LEFT &&
+      else if (direction_h == META_DISPLAY_RIGHT &&
                meta_line2_intersects_with (&motion, &right, &intersection))
         direction = META_DISPLAY_RIGHT;
-      else if (direction != META_DISPLAY_DOWN &&
+      else if (direction_v == META_DISPLAY_UP &&
                meta_line2_intersects_with (&motion, &top, &intersection))
         direction = META_DISPLAY_UP;
-      else if (direction != META_DISPLAY_UP &&
+      else if (direction_v == META_DISPLAY_DOWN &&
                meta_line2_intersects_with (&motion, &bottom, &intersection))
         direction = META_DISPLAY_DOWN;
       else
