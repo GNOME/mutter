@@ -1169,9 +1169,12 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
 
       meta_viewport_info_get_view_info (viewports, cur_view, &rect, &scale);
 
+      target_x = x + (dx * scale);
+      target_y = y + (dy * scale);
+
       motion = (MetaLine2) {
         .a = { x, y },
-        .b = { x + (dx * scale), y + (dy * scale) }
+        .b = { target_x, target_y }
       };
       left = (MetaLine2) {
         { rect.x, rect.y },
@@ -1190,9 +1193,6 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
         { rect.x + rect.width, rect.y + rect.height }
       };
 
-      target_x = motion.b.x;
-      target_y = motion.b.y;
-
       if (direction != META_DISPLAY_RIGHT &&
           meta_line2_intersects_with (&motion, &left, &intersection))
         direction = META_DISPLAY_LEFT;
@@ -1209,10 +1209,10 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
         /* We reached the dest logical monitor */
         break;
 
+      dx -= intersection.x - x;
+      dy -= intersection.y - y;
       x = intersection.x;
       y = intersection.y;
-      dx -= intersection.x - motion.a.x;
-      dy -= intersection.y - motion.a.y;
 
       cur_view = meta_viewport_info_get_neighbor (viewports, cur_view,
                                                   direction);
