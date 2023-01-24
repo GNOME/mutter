@@ -248,6 +248,7 @@ static void
 before_stage_painted (MetaStage           *stage,
                       ClutterStageView    *view,
                       ClutterPaintContext *paint_context,
+                      ClutterFrame        *frame,
                       gpointer             user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
@@ -267,6 +268,7 @@ static void
 stage_painted (MetaStage           *stage,
                ClutterStageView    *view,
                ClutterPaintContext *paint_context,
+               ClutterFrame        *frame,
                gpointer             user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =

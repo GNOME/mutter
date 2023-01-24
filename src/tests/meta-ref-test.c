@@ -273,6 +273,7 @@ static void
 on_after_paint (MetaStage           *stage,
                 ClutterStageView    *view,
                 ClutterPaintContext *paint_context,
+                ClutterFrame        *frame,
                 gpointer             user_data)
 {
   CaptureViewData *data = user_data;

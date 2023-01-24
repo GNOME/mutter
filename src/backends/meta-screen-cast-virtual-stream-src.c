@@ -186,6 +186,7 @@ static void
 actors_painted (MetaStage           *stage,
                 ClutterStageView    *view,
                 ClutterPaintContext *paint_context,
+                ClutterFrame        *frame,
                 gpointer             user_data)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);

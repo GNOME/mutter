@@ -42,6 +42,7 @@ typedef enum
 typedef void (* MetaStageWatchFunc) (MetaStage           *stage,
                                      ClutterStageView    *view,
                                      ClutterPaintContext *paint_context,
+                                     ClutterFrame        *frame,
                                      gpointer             user_data);
 
 ClutterActor     *meta_stage_new                     (MetaBackend *backend);

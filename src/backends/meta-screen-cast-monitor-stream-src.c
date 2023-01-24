@@ -152,6 +152,7 @@ static void
 stage_painted (MetaStage           *stage,
                ClutterStageView    *view,
                ClutterPaintContext *paint_context,
+               ClutterFrame        *frame,
                gpointer             user_data)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
@@ -171,6 +172,7 @@ static void
 before_stage_painted (MetaStage           *stage,
                       ClutterStageView    *view,
                       ClutterPaintContext *paint_context,
+                      ClutterFrame        *frame,
                       gpointer             user_data)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
