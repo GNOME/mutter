@@ -75,4 +75,7 @@ const cairo_region_t * clutter_paint_context_get_redraw_clip (ClutterPaintContex
 CLUTTER_EXPORT
 ClutterPaintFlag clutter_paint_context_get_paint_flags (ClutterPaintContext *paint_context);
 
+CLUTTER_EXPORT
+ClutterFrame * clutter_paint_context_get_frame (ClutterPaintContext *paint_context);
+
 #endif /* CLUTTER_PAINT_CONTEXT_H */

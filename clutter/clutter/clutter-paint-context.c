@@ -18,6 +18,7 @@
 #include "clutter-build-config.h"
 
 #include "clutter-paint-context-private.h"
+#include "clutter-frame.h"
 
 struct _ClutterPaintContext
 {
@@ -28,6 +29,7 @@ struct _ClutterPaintContext
   GList *framebuffers;
 
   ClutterStageView *view;
+  ClutterFrame *frame;
 
   cairo_region_t *redraw_clip;
   GArray *clip_frusta;
@@ -93,6 +95,7 @@ clutter_paint_context_dispose (ClutterPaintContext *paint_context)
   paint_context->framebuffers = NULL;
   g_clear_pointer (&paint_context->redraw_clip, cairo_region_destroy);
   g_clear_pointer (&paint_context->clip_frusta, g_array_unref);
+  g_clear_pointer (&paint_context->frame, clutter_frame_unref);
 }
 
 void
@@ -195,4 +198,32 @@ ClutterPaintFlag
 clutter_paint_context_get_paint_flags (ClutterPaintContext *paint_context)
 {
   return paint_context->paint_flags;
+}
+
+void
+clutter_paint_context_assign_frame (ClutterPaintContext *paint_context,
+                                    ClutterFrame        *frame)
+{
+  g_assert (paint_context != NULL);
+  g_assert (paint_context->frame == NULL);
+  g_assert (frame != NULL);
+
+  paint_context->frame = clutter_frame_ref (frame);
+}
+
+/**
+ * clutter_paint_context_get_frame: (skip)
+ * @paint_context: The #ClutterPaintContext
+ *
+ * Retrieves the #ClutterFrame assigned to @paint_context, if any. A frame is
+ * only assigned when the paint context is created as part of a frame scheduled
+ * by the frame clock, and won't be assigned e.g. on offscreen paints.
+ *
+ * Returns: (transfer none)(nullable): The #ClutterFrame associated with the
+ *   @paint_context, or %NULL
+ */
+ClutterFrame *
+clutter_paint_context_get_frame (ClutterPaintContext *paint_context)
+{
+  return paint_context->frame;
 }

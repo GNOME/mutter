@@ -33,4 +33,7 @@ CoglFramebuffer * clutter_paint_context_get_base_framebuffer (ClutterPaintContex
 const GArray *
 clutter_paint_context_get_clip_frusta (ClutterPaintContext *paint_context);
 
+void clutter_paint_context_assign_frame (ClutterPaintContext *paint_context,
+                                         ClutterFrame        *frame);
+
 #endif /* CLUTTER_PAINT_CONTEXT_PRIVATE_H */
