@@ -338,6 +338,7 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
   int width, height;
   float texture_scale;
 
+  meta_cursor_sprite_realize_texture (cursor_sprite);
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!texture)
     return (graphene_rect_t) GRAPHENE_RECT_INIT_ZERO;
