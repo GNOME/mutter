@@ -36,6 +36,7 @@
 
 #include <errno.h>
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 #include <linux/dma-buf.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -95,8 +96,7 @@ cogl_dma_buf_handle_free (CoglDmaBufHandle *dmabuf_handle)
   if (dmabuf_handle->destroy_func)
     g_clear_pointer (&dmabuf_handle->user_data, dmabuf_handle->destroy_func);
 
-  if (dmabuf_handle->dmabuf_fd != -1)
-    close (dmabuf_handle->dmabuf_fd);
+  g_clear_fd (&dmabuf_handle->dmabuf_fd, NULL);
 
   g_free (dmabuf_handle);
 }

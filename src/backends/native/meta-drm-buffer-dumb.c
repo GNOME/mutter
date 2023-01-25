@@ -27,6 +27,7 @@
 
 #include <drm_fourcc.h>
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 #include <xf86drm.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -343,8 +344,7 @@ destroy_dumb_buffer (MetaDrmBufferDumb *buffer_dumb)
   };
   drmIoctl (fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy_arg);
 
-  if (buffer_dumb->dmabuf_fd != -1)
-    close (buffer_dumb->dmabuf_fd);
+  g_clear_fd (&buffer_dumb->dmabuf_fd, NULL);
 }
 
 static void
