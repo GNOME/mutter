@@ -593,12 +593,18 @@ void
 meta_wayland_transaction_finalize (MetaWaylandCompositor *compositor)
 {
   GQueue *transactions;
-  MetaWaylandTransaction *transaction;
+  GList *node;
 
   transactions = meta_wayland_compositor_get_committed_transactions (compositor);
 
-  while ((transaction = g_queue_pop_head (transactions)))
-    meta_wayland_transaction_free (transaction);
+  while ((node = g_queue_pop_head_link (transactions)))
+    {
+      MetaWaylandTransaction *transaction = node->data;
+
+      g_assert (node == &transaction->node);
+
+      meta_wayland_transaction_free (transaction);
+    }
 }
 
 void
