@@ -644,7 +644,9 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   if (!priv->pipewire_stream)
     return;
 
-  meta_topic (META_DEBUG_SCREEN_CAST, "Recording frame on stream %u",
+  meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
+              flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY ?
+                "cursor" : "full",
               priv->node_id);
 
   buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
