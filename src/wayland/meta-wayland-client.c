@@ -57,11 +57,15 @@ struct _MetaWaylandClient
   GObject parent_instance;
 
   MetaContext *context;
-  GSubprocessLauncher *launcher;
-  GSubprocess *subprocess;
-  GCancellable *died_cancellable;
-  gboolean process_running;
-  gboolean process_launched;
+
+  struct {
+    GSubprocessLauncher *launcher;
+    GSubprocess *subprocess;
+    GCancellable *died_cancellable;
+    gboolean process_running;
+    gboolean process_launched;
+  } subprocess;
+
   struct wl_client *wayland_client;
   struct wl_listener client_destroy_listener;
 };
@@ -74,10 +78,10 @@ meta_wayland_client_dispose (GObject *object)
   MetaWaylandClient *client = META_WAYLAND_CLIENT (object);
 
   g_clear_pointer (&client->wayland_client, wl_client_destroy);
-  g_cancellable_cancel (client->died_cancellable);
-  g_clear_object (&client->died_cancellable);
-  g_clear_object (&client->launcher);
-  g_clear_object (&client->subprocess);
+  g_cancellable_cancel (client->subprocess.died_cancellable);
+  g_clear_object (&client->subprocess.died_cancellable);
+  g_clear_object (&client->subprocess.launcher);
+  g_clear_object (&client->subprocess.subprocess);
 
   G_OBJECT_CLASS (meta_wayland_client_parent_class)->dispose (object);
 }
@@ -109,7 +113,7 @@ process_died (GObject      *source,
 {
   MetaWaylandClient *client = META_WAYLAND_CLIENT (user_data);
 
-  client->process_running = FALSE;
+  client->subprocess.process_running = FALSE;
 }
 
 static void
@@ -162,7 +166,7 @@ meta_wayland_client_new (MetaContext          *context,
 
   client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
   client->context = context;
-  client->launcher = g_object_ref (launcher);
+  client->subprocess.launcher = g_object_ref (launcher);
   return client;
 }
 
@@ -243,7 +247,7 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
                         argv[0][0] != '\0',
                         NULL);
 
-  if (client->process_launched)
+  if (client->subprocess.process_launched)
     {
       g_set_error (error,
                    G_IO_ERROR,
@@ -252,7 +256,7 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
       return NULL;
     }
 
-  if (client->launcher == NULL)
+  if (!client->subprocess.launcher)
     {
       g_set_error (error,
                    G_IO_ERROR,
@@ -264,28 +268,30 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
   if (!init_wayland_client (client, &wayland_client, &fd, error))
     return NULL;
 
-  g_subprocess_launcher_take_fd (client->launcher, fd, 3);
-  g_subprocess_launcher_setenv (client->launcher, "WAYLAND_SOCKET", "3", TRUE);
-  g_subprocess_launcher_set_child_setup (client->launcher,
+  g_subprocess_launcher_take_fd (client->subprocess.launcher, fd, 3);
+  g_subprocess_launcher_setenv (client->subprocess.launcher,
+                                "WAYLAND_SOCKET", "3", TRUE);
+  g_subprocess_launcher_set_child_setup (client->subprocess.launcher,
                                          child_setup, display, NULL);
-  subprocess = g_subprocess_launcher_spawnv (client->launcher, argv, error);
-  g_clear_object (&client->launcher);
-  client->process_launched = TRUE;
+  subprocess = g_subprocess_launcher_spawnv (client->subprocess.launcher, argv,
+                                             error);
+  g_clear_object (&client->subprocess.launcher);
+  client->subprocess.process_launched = TRUE;
 
   if (subprocess == NULL)
     return NULL;
 
   set_wayland_client (client, wayland_client);
 
-  client->subprocess = subprocess;
-  client->process_running = TRUE;
-  client->died_cancellable = g_cancellable_new ();
-  g_subprocess_wait_async (client->subprocess,
-                           client->died_cancellable,
+  client->subprocess.subprocess = subprocess;
+  client->subprocess.process_running = TRUE;
+  client->subprocess.died_cancellable = g_cancellable_new ();
+  g_subprocess_wait_async (client->subprocess.subprocess,
+                           client->subprocess.died_cancellable,
                            process_died,
                            client);
 
-  return g_object_ref (client->subprocess);
+  return g_object_ref (client->subprocess.subprocess);
 }
 
 /**
@@ -354,8 +360,8 @@ meta_wayland_client_owns_window (MetaWaylandClient *client,
   MetaWaylandSurface *surface;
 
   g_return_val_if_fail (meta_is_wayland_compositor (), FALSE);
-  g_return_val_if_fail (client->subprocess != NULL, FALSE);
-  g_return_val_if_fail (client->process_running, FALSE);
+  g_return_val_if_fail (client->subprocess.subprocess != NULL, FALSE);
+  g_return_val_if_fail (client->subprocess.process_running, FALSE);
 
   surface = meta_window_get_wayland_surface (window);
   if (surface == NULL || surface->resource == NULL)
