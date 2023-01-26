@@ -43,6 +43,15 @@
 #include "wayland/meta-wayland-types.h"
 #include "wayland/meta-window-wayland.h"
 
+enum
+{
+  CLIENT_DESTROYED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 struct _MetaWaylandClient
 {
   GObject parent_instance;
@@ -54,6 +63,7 @@ struct _MetaWaylandClient
   gboolean process_running;
   gboolean process_launched;
   struct wl_client *wayland_client;
+  struct wl_listener client_destroy_listener;
 };
 
 G_DEFINE_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
@@ -63,6 +73,7 @@ meta_wayland_client_dispose (GObject *object)
 {
   MetaWaylandClient *client = META_WAYLAND_CLIENT (object);
 
+  g_clear_pointer (&client->wayland_client, wl_client_destroy);
   g_cancellable_cancel (client->died_cancellable);
   g_clear_object (&client->died_cancellable);
   g_clear_object (&client->launcher);
@@ -77,6 +88,13 @@ meta_wayland_client_class_init (MetaWaylandClientClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_wayland_client_dispose;
+
+  signals[CLIENT_DESTROYED] = g_signal_new ("client-destroyed",
+                                            G_TYPE_FROM_CLASS (klass),
+                                            G_SIGNAL_RUN_LAST,
+                                            0, NULL, NULL,
+                                            NULL,
+                                            G_TYPE_NONE, 0);
 }
 
 static void
@@ -146,6 +164,28 @@ meta_wayland_client_new (MetaContext          *context,
   client->context = context;
   client->launcher = g_object_ref (launcher);
   return client;
+}
+
+static void
+client_destroyed_cb (struct wl_listener *listener,
+                     void               *user_data)
+{
+  MetaWaylandClient *client = wl_container_of (listener, client,
+                                               client_destroy_listener);
+
+  client->wayland_client = NULL;
+  g_signal_emit (client, signals[CLIENT_DESTROYED], 0);
+}
+
+static void
+set_wayland_client (MetaWaylandClient *client,
+                    struct wl_client  *wayland_client)
+{
+  client->wayland_client = wayland_client;
+
+  client->client_destroy_listener.notify = client_destroyed_cb;
+  wl_client_add_destroy_listener (wayland_client,
+                                  &client->client_destroy_listener);
 }
 
 /**
@@ -220,8 +260,9 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
   if (subprocess == NULL)
     return NULL;
 
+  set_wayland_client (client, wayland_client);
+
   client->subprocess = subprocess;
-  client->wayland_client = wayland_client;
   client->process_running = TRUE;
   client->died_cancellable = g_cancellable_new ();
   g_subprocess_wait_async (client->subprocess,
