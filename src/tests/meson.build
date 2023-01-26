@@ -418,6 +418,13 @@ if have_native_tests
         wayland_test_utils,
       ],
     },
+    {
+      'name': 'wayland-client-tests',
+      'suite': 'wayland',
+      'sources': [
+        'wayland-client-tests.c',
+      ],
+    },
   ]
   if have_xwayland
     test_cases += [
