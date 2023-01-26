@@ -166,6 +166,30 @@ meta_wayland_client_new (MetaContext          *context,
   return client;
 }
 
+static gboolean
+init_wayland_client (MetaWaylandClient  *client,
+                     struct wl_client  **wayland_client,
+                     int                *fd,
+                     GError            **error)
+{
+  MetaWaylandCompositor *compositor;
+  int client_fd[2];
+
+  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create a socket pair for the wayland client.");
+      return FALSE;
+    }
+
+  compositor = meta_context_get_wayland_compositor (client->context);
+
+  *wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
+  *fd = client_fd[1];
+
+  return TRUE;
+}
+
 static void
 client_destroyed_cb (struct wl_listener *listener,
                      void               *user_data)
@@ -209,10 +233,9 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
                             const char * const  *argv,
                             GError             **error)
 {
-  int client_fd[2];
   GSubprocess *subprocess;
   struct wl_client *wayland_client;
-  MetaWaylandCompositor *compositor;
+  int fd;
 
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
   g_return_val_if_fail (argv != NULL &&
@@ -238,21 +261,13 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
       return NULL;
     }
 
-  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Failed to create a socket pair for the wayland client.");
-      return NULL;
-    }
+  if (!init_wayland_client (client, &wayland_client, &fd, error))
+    return NULL;
 
-  compositor = meta_context_get_wayland_compositor (client->context);
-  g_subprocess_launcher_take_fd (client->launcher, client_fd[1], 3);
+  g_subprocess_launcher_take_fd (client->launcher, fd, 3);
   g_subprocess_launcher_setenv (client->launcher, "WAYLAND_SOCKET", "3", TRUE);
   g_subprocess_launcher_set_child_setup (client->launcher,
                                          child_setup, display, NULL);
-  wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
   subprocess = g_subprocess_launcher_spawnv (client->launcher, argv, error);
   g_clear_object (&client->launcher);
   client->process_launched = TRUE;
