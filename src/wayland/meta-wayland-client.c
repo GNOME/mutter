@@ -2,6 +2,7 @@
 
 /*
  * Copyright 2019 Sergio Costas (rastersoft@gmail.com)
+ * Copyright 2023 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +30,7 @@
 
 #include "config.h"
 
-#include "meta/meta-wayland-client.h"
+#include "wayland/meta-wayland-client-private.h"
 
 #include <gio/gio.h>
 #include <glib-object.h>
@@ -65,6 +66,10 @@ struct _MetaWaylandClient
     gboolean process_running;
     gboolean process_launched;
   } subprocess;
+
+  struct {
+    int fd;
+  } indirect;
 
   struct wl_client *wayland_client;
   struct wl_listener client_destroy_listener;
@@ -123,6 +128,28 @@ child_setup (gpointer user_data)
   MetaContext *context = meta_display_get_context (display);
 
   meta_context_restore_rlimit_nofile (context, NULL);
+}
+
+/**
+ * meta_wayland_client_new_indirect: (skip)
+ */
+MetaWaylandClient *
+meta_wayland_client_new_indirect (MetaContext  *context,
+                                  GError      **error)
+{
+  MetaWaylandClient *client;
+
+  if (!meta_is_wayland_compositor ())
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "MetaWaylandClient can be used only with Wayland.");
+      return NULL;
+    }
+
+  client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
+  client->context = context;
+
+  return client;
 }
 
 /**
@@ -217,6 +244,34 @@ set_wayland_client (MetaWaylandClient *client,
 }
 
 /**
+ * meta_wayland_client_setup_fd: (skip)
+ * @client: a #MetaWaylandClient
+ *
+ * Initialize a wl_client that can be connected to via the returned file
+ * descriptor. May only be used with a #MetaWaylandClient created with
+ * meta_wayland_client_new_indirect().
+ *
+ * Returns: (transfer full): A new file descriptor
+ */
+int
+meta_wayland_client_setup_fd (MetaWaylandClient  *client,
+                              GError            **error)
+{
+  struct wl_client *wayland_client;
+  int fd;
+
+  g_return_val_if_fail (!client->wayland_client, -1);
+  g_return_val_if_fail (!client->subprocess.launcher, -1);
+
+  if (!init_wayland_client (client, &wayland_client, &fd, error))
+    return -1;
+
+  set_wayland_client (client, wayland_client);
+
+  return fd;
+}
+
+/**
  * meta_wayland_client_spawnv:
  * @client: a #MetaWaylandClient
  * @display: (not nullable): the current MetaDisplay
@@ -246,6 +301,13 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
                         argv[0] != NULL &&
                         argv[0][0] != '\0',
                         NULL);
+
+  if (!client->subprocess.launcher)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "This client can not be launched");
+      return NULL;
+    }
 
   if (client->subprocess.process_launched)
     {
