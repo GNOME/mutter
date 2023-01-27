@@ -219,17 +219,19 @@ static const struct wl_registry_listener registry_listener = {
 };
 
 WaylandDisplay *
-wayland_display_new (WaylandDisplayCapabilities capabilities)
+wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
+                          struct wl_display          *wayland_display)
 {
   WaylandDisplay *display;
+
+  g_assert_nonnull (wayland_display);
 
   display = g_object_new (wayland_display_get_type (), NULL);
 
   display->capabilities = capabilities;
   display->properties = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                g_free, g_free);
-  display->display = wl_display_connect (NULL);
-  g_assert_nonnull (display->display);
+  display->display = wayland_display;
 
   display->registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (display->registry, &registry_listener, display);
@@ -248,6 +250,13 @@ wayland_display_new (WaylandDisplayCapabilities capabilities)
   wl_display_roundtrip (display->display);
 
   return display;
+}
+
+WaylandDisplay *
+wayland_display_new (WaylandDisplayCapabilities capabilities)
+{
+  return wayland_display_new_full (capabilities,
+                                   wl_display_connect (NULL));
 }
 
 static void
