@@ -2834,6 +2834,9 @@ meta_window_x11_configure_request (MetaWindow *window,
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
+  if (window->decorated && !window->frame)
+    return FALSE;
+
   /* Note that x, y is the corner of the window border,
    * and width, height is the size of the window inside
    * its border, but that we always deny border requests
