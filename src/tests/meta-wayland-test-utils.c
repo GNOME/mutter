@@ -135,3 +135,19 @@ meta_find_client_window (MetaContext *context,
 
   return NULL;
 }
+
+MetaWindow *
+meta_wait_for_client_window (MetaContext *context,
+                             const char  *title)
+{
+  while (TRUE)
+    {
+      MetaWindow *window;
+
+      window = meta_find_client_window (context, title);
+      if (window)
+        return window;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+}
