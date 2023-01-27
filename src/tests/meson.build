@@ -408,6 +408,9 @@ if have_native_tests
       'suite': 'wayland',
       'sources': [
         'wayland-unit-tests.c',
+        dummy_client_header,
+        dummy_server_header,
+        dummy_protocol_code,
         wayland_test_utils,
       ],
     },

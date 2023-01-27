@@ -73,11 +73,6 @@ static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
 static void
 meta_xwayland_set_primary_output (MetaX11Display *x11_display);
 
-static bool
-meta_xwayland_global_filter (const struct wl_client *client,
-                             const struct wl_global *global,
-                             void                   *data);
-
 static MetaMonitorManager *
 monitor_manager_from_x11_display (MetaX11Display *x11_display)
 {
@@ -1127,9 +1122,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
 
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   meta_xwayland_grab_keyboard_init (compositor);
-  wl_display_set_global_filter (compositor->wayland_display,
-                                meta_xwayland_global_filter,
-                                compositor);
+
   return TRUE;
 }
 
@@ -1297,23 +1290,6 @@ meta_xwayland_manager_handle_xevent (MetaXWaylandManager *manager,
     }
 
   return FALSE;
-}
-
-static bool
-meta_xwayland_global_filter (const struct wl_client *client,
-                             const struct wl_global *global,
-                             void                   *data)
-{
-  MetaWaylandCompositor *compositor = (MetaWaylandCompositor *) data;
-  MetaXWaylandManager *xwayland_manager = &compositor->xwayland_manager;
-
-  /* Keyboard grabbing protocol is for Xwayland only */
-  if (client != xwayland_manager->client)
-    return (wl_global_get_interface (global) !=
-            &zwp_xwayland_keyboard_grab_manager_v1_interface);
-
-  /* All others are visible to all clients */
-  return true;
 }
 
 gboolean

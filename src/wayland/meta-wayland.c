@@ -38,6 +38,7 @@
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-egl-stream.h"
+#include "wayland/meta-wayland-filter-manager.h"
 #include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
 #include "wayland/meta-wayland-inhibit-shortcuts.h"
 #include "wayland/meta-wayland-legacy-xdg-foreign.h"
@@ -75,6 +76,8 @@ static char *_display_name_override;
 typedef struct _MetaWaylandCompositorPrivate
 {
   gboolean is_wayland_egl_display_bound;
+
+  MetaWaylandFilterManager *filter_manager;
 } MetaWaylandCompositorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandCompositor, meta_wayland_compositor,
@@ -451,6 +454,8 @@ static void
 meta_wayland_compositor_finalize (GObject *object)
 {
   MetaWaylandCompositor *compositor = META_WAYLAND_COMPOSITOR (object);
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
   MetaBackend *backend = meta_context_get_backend (compositor->context);
   ClutterActor *stage = meta_backend_get_stage (backend);
 
@@ -470,6 +475,8 @@ meta_wayland_compositor_finalize (GObject *object)
 
   g_clear_pointer (&compositor->seat, meta_wayland_seat_free);
 
+  g_clear_pointer (&priv->filter_manager, meta_wayland_filter_manager_free);
+
   g_clear_pointer (&compositor->display_name, g_free);
   g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
   g_clear_pointer (&compositor->source, g_source_destroy);
@@ -480,6 +487,9 @@ meta_wayland_compositor_finalize (GObject *object)
 static void
 meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
 {
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
+
   compositor->scheduled_surface_associations = g_hash_table_new (NULL, NULL);
 
   wl_log_set_handler_server (meta_wayland_log_func);
@@ -487,6 +497,8 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
   compositor->wayland_display = wl_display_create ();
   if (compositor->wayland_display == NULL)
     g_error ("Failed to create the global wl_display");
+
+  priv->filter_manager = meta_wayland_filter_manager_new (compositor);
 }
 
 static void
@@ -860,4 +872,13 @@ struct wl_display *
 meta_wayland_compositor_get_wayland_display (MetaWaylandCompositor *compositor)
 {
   return compositor->wayland_display;
+}
+
+MetaWaylandFilterManager *
+meta_wayland_compositor_get_filter_manager (MetaWaylandCompositor *compositor)
+{
+  MetaWaylandCompositorPrivate *priv =
+    meta_wayland_compositor_get_instance_private (compositor);
+
+  return priv->filter_manager;
 }

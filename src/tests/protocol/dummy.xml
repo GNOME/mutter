@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="dummy">
+  <description summary=""/>
+  <interface name="dummy" version="1">
+    <description summary=""/>
+    <request name="destroy" type="destructor"/>
+    <event name="event"/>
+  </interface>
+</protocol>

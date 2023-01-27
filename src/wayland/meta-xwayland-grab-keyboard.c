@@ -26,6 +26,7 @@
 
 #include "meta/meta-backend.h"
 #include "backends/meta-settings-private.h"
+#include "wayland/meta-wayland-filter-manager.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-seat.h"
@@ -339,12 +340,37 @@ bind_keyboard_grab (struct wl_client *client,
                                   NULL, NULL);
 }
 
+static MetaWaylandAccess
+xwayland_grab_keyboard_filter (const struct wl_client *client,
+                               const struct wl_global *global,
+                               gpointer                user_data)
+{
+  MetaWaylandCompositor *compositor = user_data;
+  MetaXWaylandManager *xwayland_manager = &compositor->xwayland_manager;
+
+  if (client == xwayland_manager->client)
+    return META_WAYLAND_ACCESS_ALLOWED;
+  else
+    return META_WAYLAND_ACCESS_DENIED;
+}
+
 gboolean
 meta_xwayland_grab_keyboard_init (MetaWaylandCompositor *compositor)
 {
-  return (wl_global_create (compositor->wayland_display,
-                            &zwp_xwayland_keyboard_grab_manager_v1_interface,
-                            META_ZWP_XWAYLAND_KEYBOARD_GRAB_V1_VERSION,
-                            NULL,
-                            bind_keyboard_grab) != NULL);
+  struct wl_global *global;
+  MetaWaylandFilterManager *filter_manager;
+
+  global = wl_global_create (compositor->wayland_display,
+                             &zwp_xwayland_keyboard_grab_manager_v1_interface,
+                             META_ZWP_XWAYLAND_KEYBOARD_GRAB_V1_VERSION,
+                             NULL,
+                             bind_keyboard_grab);
+
+  filter_manager = meta_wayland_compositor_get_filter_manager (compositor);
+  meta_wayland_filter_manager_add_global (filter_manager,
+                                          global,
+                                          xwayland_grab_keyboard_filter,
+                                          compositor);
+
+  return TRUE;
 }
