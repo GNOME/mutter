@@ -90,8 +90,8 @@ typedef struct _MetaColorManagerPrivate
 
   GHashTable *devices;
 
-  MetaDbusSettingsDaemonColor *gsd_color;
-  MetaDbusSettingsDaemonPowerScreen *gsd_power_screen;
+  MetaDBusSettingsDaemonColor *gsd_color;
+  MetaDBusSettingsDaemonPowerScreen *gsd_power_screen;
 
   gboolean is_ready;
 
@@ -306,7 +306,7 @@ update_all_gamma (MetaColorManager *color_manager)
 }
 
 static void
-on_temperature_changed (MetaDbusSettingsDaemonColor *gsd_color,
+on_temperature_changed (MetaDBusSettingsDaemonColor *gsd_color,
                         GParamSpec                  *pspec,
                         MetaColorManager            *color_manager)
 {
@@ -337,7 +337,7 @@ on_gsd_color_ready (GObject      *source_object,
   MetaColorManager *color_manager = META_COLOR_MANAGER (user_data);
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
-  MetaDbusSettingsDaemonColor *gsd_color;
+  MetaDBusSettingsDaemonColor *gsd_color;
   g_autoptr (GError) error = NULL;
 
   gsd_color =
@@ -370,7 +370,7 @@ on_gsd_power_screen_ready (GObject      *source_object,
   MetaColorManager *color_manager = META_COLOR_MANAGER (user_data);
   MetaColorManagerPrivate *priv =
     meta_color_manager_get_instance_private (color_manager);
-  MetaDbusSettingsDaemonPowerScreen *gsd_power_screen;
+  MetaDBusSettingsDaemonPowerScreen *gsd_power_screen;
   g_autoptr (GError) error = NULL;
 
   gsd_power_screen =

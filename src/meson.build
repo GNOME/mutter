@@ -906,8 +906,8 @@ if have_native_backend
 
   dbus_login1_built_sources = gnome.gdbus_codegen('meta-dbus-login1',
     join_paths(dbus_interfaces_dir, 'org.freedesktop.login1.xml'),
-    interface_prefix: 'org.freedesktop.login1.',
-    namespace: 'MetaDbusLogin1',
+    interface_prefix: 'org.freedesktop.',
+    namespace: 'MetaDBus',
   )
   mutter_built_sources += dbus_login1_built_sources
 endif
@@ -931,21 +931,21 @@ endif
 dbus_rtkit_built_sources = gnome.gdbus_codegen('meta-dbus-rtkit1',
     join_paths(dbus_interfaces_dir, 'org.freedesktop.RealtimeKit1.xml'),
     interface_prefix: 'org.freedesktop.',
-    namespace: 'MetaDbus',
+    namespace: 'MetaDBus',
 )
 mutter_built_sources += dbus_rtkit_built_sources
 
 dbus_gsd_color_built_sources = gnome.gdbus_codegen('meta-dbus-gsd-color',
     join_paths(dbus_interfaces_dir, 'org.gnome.SettingsDaemon.Color.xml'),
     interface_prefix: 'org.gnome.',
-    namespace: 'MetaDbus',
+    namespace: 'MetaDBus',
 )
 mutter_built_sources += dbus_gsd_color_built_sources
 
 dbus_gsd_power_screen_built_sources = gnome.gdbus_codegen('meta-dbus-gsd-power-screen',
     join_paths(dbus_interfaces_dir, 'org.gnome.SettingsDaemon.Power.Screen.xml'),
     interface_prefix: 'org.gnome.',
-    namespace: 'MetaDbus',
+    namespace: 'MetaDBus',
 )
 mutter_built_sources += dbus_gsd_power_screen_built_sources
 

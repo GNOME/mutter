@@ -25,7 +25,7 @@
 #include "backends/meta-backend-types.h"
 
 typedef struct _MetaLauncher MetaLauncher;
-typedef struct _MetaDbusLogin1Session MetaDbusLogin1Session;
+typedef struct _MetaDBusLogin1Session MetaDBusLogin1Session;
 
 MetaLauncher     *meta_launcher_new                     (MetaBackend   *backend,
                                                          const char    *session_id,
@@ -39,7 +39,7 @@ gboolean          meta_launcher_activate_vt             (MetaLauncher  *self,
 
 const char *      meta_launcher_get_seat_id             (MetaLauncher *launcher);
 
-MetaDbusLogin1Session * meta_launcher_get_session_proxy (MetaLauncher *launcher);
+MetaDBusLogin1Session * meta_launcher_get_session_proxy (MetaLauncher *launcher);
 
 MetaBackend * meta_launcher_get_backend (MetaLauncher *launcher);
 

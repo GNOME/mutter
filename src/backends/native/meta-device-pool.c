@@ -54,7 +54,7 @@ struct _MetaDevicePool
 
   MetaBackend *backend;
 
-  MetaDbusLogin1Session *session_proxy;
+  MetaDBusLogin1Session *session_proxy;
 
   GMutex mutex;
 
@@ -178,7 +178,7 @@ find_device_file_from_path (MetaDevicePool *pool,
 }
 
 static gboolean
-take_device (MetaDbusLogin1Session  *session_proxy,
+take_device (MetaDBusLogin1Session  *session_proxy,
              int                     dev_major,
              int                     dev_minor,
              int                    *out_fd,
@@ -324,7 +324,7 @@ release_device_file (MetaDevicePool *pool,
 
   if (file->flags & META_DEVICE_FILE_FLAG_TAKE_CONTROL)
     {
-      MetaDbusLogin1Session *session_proxy;
+      MetaDBusLogin1Session *session_proxy;
 
       meta_topic (META_DEBUG_BACKEND,
                   "Releasing control of and closing device file '%s'",

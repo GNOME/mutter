@@ -222,7 +222,7 @@ meta_backend_native_post_init (MetaBackend *backend)
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
     {
-      g_autoptr (MetaDbusRealtimeKit1) rtkit_proxy = NULL;
+      g_autoptr (MetaDBusRealtimeKit1) rtkit_proxy = NULL;
       g_autoptr (GError) error = NULL;
 
       rtkit_proxy =
