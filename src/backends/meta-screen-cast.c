@@ -280,7 +280,7 @@ on_bus_acquired (GDBusConnection *connection,
                                          connection,
                                          META_SCREEN_CAST_DBUS_PATH,
                                          &error))
-    g_warning ("Failed to export remote desktop object: %s", error->message);
+    g_warning ("Failed to export screen cast object: %s", error->message);
 }
 
 static void
