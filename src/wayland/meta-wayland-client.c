@@ -73,6 +73,7 @@ struct _MetaWaylandClient
 
   struct wl_client *wayland_client;
   struct wl_listener client_destroy_listener;
+  MetaServiceClientType service_client_type;
 };
 
 G_DEFINE_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
@@ -109,6 +110,7 @@ meta_wayland_client_class_init (MetaWaylandClientClass *klass)
 static void
 meta_wayland_client_init (MetaWaylandClient *client)
 {
+  client->service_client_type = META_SERVICE_CLIENT_TYPE_NONE;
 }
 
 static void
@@ -482,4 +484,19 @@ meta_wayland_client_matches (MetaWaylandClient      *client,
   g_return_val_if_fail (client->wayland_client, FALSE);
 
   return client->wayland_client == wayland_client;
+}
+
+void
+meta_wayland_client_assign_service_client_type (MetaWaylandClient     *client,
+                                                MetaServiceClientType  service_client_type)
+{
+  g_return_if_fail (client->service_client_type ==
+                    META_SERVICE_CLIENT_TYPE_NONE);
+  client->service_client_type = service_client_type;
+}
+
+MetaServiceClientType
+meta_wayland_client_get_service_client_type (MetaWaylandClient *client)
+{
+  return client->service_client_type;
 }

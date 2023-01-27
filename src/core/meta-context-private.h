@@ -22,6 +22,7 @@
 #define META_CONTEXT_PRIVATE_H
 
 #include "core/meta-private-enums.h"
+#include "core/meta-service-channel.h"
 #include "core/util-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
@@ -63,8 +64,13 @@ gboolean meta_context_get_unsafe_mode (MetaContext *context);
 void meta_context_set_unsafe_mode (MetaContext *context,
                                    gboolean     enable);
 
+#ifdef HAVE_WAYLAND
 META_EXPORT_TEST
 MetaWaylandCompositor * meta_context_get_wayland_compositor (MetaContext *context);
+
+META_EXPORT_TEST
+MetaServiceChannel * meta_context_get_service_channel (MetaContext *context);
+#endif
 
 MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
 

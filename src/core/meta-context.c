@@ -28,6 +28,7 @@
 #include "backends/meta-backend-private.h"
 #include "compositor/meta-plugin-manager.h"
 #include "core/display-private.h"
+#include "core/meta-service-channel.h"
 #include "core/prefs-private.h"
 #include "core/util-private.h"
 
@@ -98,6 +99,10 @@ typedef struct _MetaContextPrivate
 
 #ifdef HAVE_PROFILER
   MetaProfiler *profiler;
+#endif
+
+#ifdef HAVE_WAYLAND
+  MetaServiceChannel *service_channel;
 #endif
 } MetaContextPrivate;
 
@@ -242,6 +247,14 @@ meta_context_get_wayland_compositor (MetaContext *context)
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
 
   return priv->wayland_compositor;
+}
+
+MetaServiceChannel *
+meta_context_get_service_channel (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->service_channel;
 }
 #endif
 
@@ -436,6 +449,10 @@ meta_context_start (MetaContext  *context,
       priv->state = META_CONTEXT_STATE_TERMINATED;
       return FALSE;
     }
+
+#ifdef HAVE_WAYLAND
+  priv->service_channel = meta_service_channel_new (context);
+#endif
 
   priv->main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -682,6 +699,8 @@ meta_context_dispose (GObject *object)
   g_signal_emit (context, signals[PREPARE_SHUTDOWN], 0);
 
 #ifdef HAVE_WAYLAND
+  g_clear_object (&priv->service_channel);
+
   if (priv->wayland_compositor)
     meta_wayland_compositor_prepare_shutdown (priv->wayland_compositor);
 #endif

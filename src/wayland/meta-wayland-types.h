@@ -75,4 +75,6 @@ typedef struct _MetaWaylandXdgForeign MetaWaylandXdgForeign;
 
 typedef struct _MetaWaylandFilterManager MetaWaylandFilterManager;
 
+typedef struct _MetaWaylandClient MetaWaylandClient;
+
 #endif

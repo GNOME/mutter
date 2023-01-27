@@ -22,6 +22,7 @@
 
 #include <wayland-server-core.h>
 
+#include "core/meta-service-channel.h"
 #include "core/util-private.h"
 #include "meta/meta-wayland-client.h"
 
@@ -36,5 +37,10 @@ int meta_wayland_client_setup_fd (MetaWaylandClient  *client,
 META_EXPORT_TEST
 gboolean meta_wayland_client_matches (MetaWaylandClient      *client,
                                       const struct wl_client *wayland_client);
+
+void meta_wayland_client_assign_service_client_type (MetaWaylandClient     *client,
+                                                     MetaServiceClientType  service_client_type);
+
+MetaServiceClientType  meta_wayland_client_get_service_client_type (MetaWaylandClient *client);
 
 #endif /* META_WAYLAND_CLIENT_PRIVATE_H */

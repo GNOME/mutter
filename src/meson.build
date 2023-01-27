@@ -560,6 +560,8 @@ if have_wayland
     'compositor/meta-surface-actor-wayland.h',
     'compositor/meta-window-actor-wayland.c',
     'compositor/meta-window-actor-wayland.h',
+    'core/meta-service-channel.c',
+    'core/meta-service-channel.h',
     'wayland/meta-cursor-sprite-wayland.c',
     'wayland/meta-cursor-sprite-wayland.h',
     'wayland/meta-pointer-confinement-wayland.c',
@@ -877,6 +879,11 @@ dbus_interfaces = [
   {
     'name': 'meta-dbus-input-mapping',
     'interface': 'org.gnome.Mutter.InputMapping.xml',
+    'prefix': 'org.gnome.Mutter.',
+  },
+  {
+    'name': 'meta-dbus-service-channel',
+    'interface': 'org.gnome.Mutter.ServiceChannel.xml',
     'prefix': 'org.gnome.Mutter.',
   },
 ]
