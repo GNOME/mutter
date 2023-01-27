@@ -274,7 +274,7 @@ on_bus_acquired (GDBusConnection *connection,
   MetaScreenCast *screen_cast = user_data;
   GDBusInterfaceSkeleton *interface_skeleton =
     G_DBUS_INTERFACE_SKELETON (screen_cast);
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (!g_dbus_interface_skeleton_export (interface_skeleton,
                                          connection,
