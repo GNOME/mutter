@@ -429,6 +429,14 @@ if have_native_tests
         'wayland-client-tests.c',
       ],
     },
+    {
+      'name': 'service-channel',
+      'suite': 'wayland',
+      'sources': [
+        'service-channel-tests.c',
+        wayland_test_utils,
+      ],
+    },
   ]
   if have_xwayland
     test_cases += [

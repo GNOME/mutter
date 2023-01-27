@@ -57,6 +57,15 @@ wayland_test_clients = [
       libgbm_dep,
     ],
   },
+  {
+    'name': 'service-client',
+    'extra_sources': [
+      built_dbus_sources['meta-dbus-service-channel'],
+    ],
+    'extra_deps': [
+      gio_unix_dep,
+    ],
+  },
 ]
 
 foreach test : wayland_test_clients
@@ -70,11 +79,16 @@ foreach test : wayland_test_clients
     deps += test['extra_deps']
   endif
 
+  test_client_sources = [
+    '@0@.c'.format(test_name),
+    common_sources,
+  ]
+  if test.has_key('extra_sources')
+    test_client_sources += test['extra_sources']
+  endif
+
   executable(test_name,
-    sources: [
-      '@0@.c'.format(test_name),
-      common_sources,
-    ],
+    sources: test_client_sources,
     include_directories: tests_includes,
     c_args: tests_c_args,
     dependencies: deps,
