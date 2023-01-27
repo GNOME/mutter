@@ -2323,3 +2323,9 @@ meta_wayland_surface_get_geometry_scale (MetaWaylandSurface *surface)
   actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
   return meta_wayland_actor_surface_get_geometry_scale (actor_surface);
 }
+
+struct wl_resource *
+meta_wayland_surface_get_resource (MetaWaylandSurface *surface)
+{
+  return surface->resource;
+}
