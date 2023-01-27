@@ -2721,17 +2721,26 @@ meta_window_move_resize_request (MetaWindow  *window,
 		  window->type);
     }
 
-  meta_window_get_buffer_rect (window, &buffer_rect);
-  width = buffer_rect.width;
-  height = buffer_rect.height;
-  if (!in_grab_op || !window_drag ||
-      !meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
+  if (window->decorated && !window->frame)
     {
-      if (value_mask & CWWidth)
-        width = new_width;
+      width = new_width;
+      height = new_height;
+    }
+  else
+    {
+      meta_window_get_buffer_rect (window, &buffer_rect);
+      width = buffer_rect.width;
+      height = buffer_rect.height;
 
-      if (value_mask & CWHeight)
-        height = new_height;
+      if (!in_grab_op || !window_drag ||
+          !meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)))
+        {
+          if (value_mask & CWWidth)
+            width = new_width;
+
+          if (value_mask & CWHeight)
+            height = new_height;
+        }
     }
 
   /* ICCCM 4.1.5 */
