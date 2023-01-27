@@ -20,6 +20,8 @@
 #ifndef META_WAYLAND_CLIENT_PRIVATE_H
 #define META_WAYLAND_CLIENT_PRIVATE_H
 
+#include <wayland-server-core.h>
+
 #include "core/util-private.h"
 #include "meta/meta-wayland-client.h"
 
@@ -30,5 +32,9 @@ MetaWaylandClient * meta_wayland_client_new_indirect (MetaContext  *context,
 META_EXPORT_TEST
 int meta_wayland_client_setup_fd (MetaWaylandClient  *client,
                                   GError            **error);
+
+META_EXPORT_TEST
+gboolean meta_wayland_client_matches (MetaWaylandClient      *client,
+                                      const struct wl_client *wayland_client);
 
 #endif /* META_WAYLAND_CLIENT_PRIVATE_H */

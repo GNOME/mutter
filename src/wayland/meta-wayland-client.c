@@ -473,3 +473,13 @@ meta_wayland_client_show_in_window_list (MetaWaylandClient *client,
       meta_window_recalc_features (window);
     }
 }
+
+gboolean
+meta_wayland_client_matches (MetaWaylandClient      *client,
+                             const struct wl_client *wayland_client)
+{
+  g_return_val_if_fail (wayland_client, FALSE);
+  g_return_val_if_fail (client->wayland_client, FALSE);
+
+  return client->wayland_client == wayland_client;
+}
