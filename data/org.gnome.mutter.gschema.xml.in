@@ -62,15 +62,6 @@
       </description>
     </key>
 
-    <key name="no-tab-popup" type="b">
-      <default>false</default>
-      <summary>No tab popup</summary>
-      <description>
-        Determines whether the use of popup and highlight frame should
-        be disabled for window cycling.
-      </description>
-    </key>
-
     <key name="focus-change-on-pointer-rest" type="b">
       <default>false</default>
       <summary>Delay focus changes until the pointer stops moving</summary>
@@ -176,16 +167,6 @@
     <key name="toggle-tiled-right" type="as">
       <default><![CDATA[['<Super>Right']]]></default>
       <summary>View split on right</summary>
-    </key>
-
-    <key name="tab-popup-select" type="as">
-      <default>[]</default>
-      <summary>Select window from tab popup</summary>
-    </key>
-
-    <key name="tab-popup-cancel" type="as">
-      <default>[]</default>
-      <summary>Cancel tab popup</summary>
     </key>
 
     <key name="switch-monitor" type="as">
