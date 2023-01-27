@@ -857,27 +857,24 @@ if mutter_private_enum_sources.length() > 0
   mutter_built_sources += mutter_private_enum_types
 endif
 
-dbus_display_config_built_sources = gnome.gdbus_codegen('meta-dbus-display-config',
-    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.DisplayConfig.xml'),
-    interface_prefix: 'org.gnome.Mutter.',
-    namespace: 'MetaDBus',
-  )
-mutter_built_sources += dbus_display_config_built_sources
-
-dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
-    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.IdleMonitor.xml'),
-    interface_prefix: 'org.gnome.Mutter.',
-    namespace: 'MetaDBus',
-    object_manager: true,
-  )
-mutter_built_sources += dbus_idle_monitor_built_sources
-
-dbus_input_mapping_built_sources = gnome.gdbus_codegen('meta-dbus-input-mapping',
-    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.InputMapping.xml'),
-    interface_prefix: 'org.gnome.Mutter.',
-    namespace: 'MetaDBus',
-  )
-mutter_built_sources += dbus_input_mapping_built_sources
+dbus_interfaces = [
+  {
+    'name': 'meta-dbus-display-config',
+    'interface': 'org.gnome.Mutter.DisplayConfig.xml',
+    'prefix': 'org.gnome.Mutter.',
+  },
+  {
+    'name': 'meta-dbus-idle-monitor',
+    'interface': 'org.gnome.Mutter.IdleMonitor.xml',
+    'prefix': 'org.gnome.Mutter.',
+    'object_manager': true,
+  },
+  {
+    'name': 'meta-dbus-input-mapping',
+    'interface': 'org.gnome.Mutter.InputMapping.xml',
+    'prefix': 'org.gnome.Mutter.',
+  },
+]
 
 if have_profiler
   mutter_sources += [
@@ -885,13 +882,14 @@ if have_profiler
     'core/meta-profiler.h',
   ]
 
-  sysprof3_dbus_file = join_paths(sysprof_dbus_interfaces_dir, 'org.gnome.Sysprof3.Profiler.xml')
-  dbus_sysprof3_profiler_built_sources = gnome.gdbus_codegen('meta-dbus-sysprof3-profiler',
-      sysprof3_dbus_file,
-      interface_prefix: 'org.gnome.',
-      namespace: 'MetaDBus',
-    )
-  mutter_built_sources += dbus_sysprof3_profiler_built_sources
+  dbus_interfaces += [
+    {
+      'name': 'meta-dbus-sysprof3-profiler',
+      'interface': 'org.gnome.Sysprof3.Profiler.xml',
+      'prefix': 'org.gnome.',
+      'directory': sysprof_dbus_interfaces_dir,
+    },
+  ]
 endif
 
 if have_native_backend
@@ -904,50 +902,79 @@ if have_native_backend
   )
   mutter_built_sources += default_modes_h
 
-  dbus_login1_built_sources = gnome.gdbus_codegen('meta-dbus-login1',
-    join_paths(dbus_interfaces_dir, 'org.freedesktop.login1.xml'),
-    interface_prefix: 'org.freedesktop.',
-    namespace: 'MetaDBus',
-  )
-  mutter_built_sources += dbus_login1_built_sources
+  dbus_interfaces += [
+    {
+      'name': 'meta-dbus-login1',
+      'interface': 'org.freedesktop.login1.xml',
+      'prefix': 'org.freedesktop.',
+    },
+  ]
 endif
 
 if have_remote_desktop
-  dbus_remote_desktop_built_sources = gnome.gdbus_codegen('meta-dbus-remote-desktop',
-      join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.RemoteDesktop.xml'),
-      interface_prefix: 'org.gnome.Mutter.',
-      namespace: 'MetaDBus',
-    )
-  mutter_built_sources += dbus_remote_desktop_built_sources
-
-  dbus_screen_cast_built_sources = gnome.gdbus_codegen('meta-dbus-screen-cast',
-      join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.ScreenCast.xml'),
-      interface_prefix: 'org.gnome.Mutter.',
-      namespace: 'MetaDBus',
-    )
-  mutter_built_sources += dbus_screen_cast_built_sources
+  dbus_interfaces += [
+    {
+      'name': 'meta-dbus-remote-desktop',
+      'interface': 'org.gnome.Mutter.RemoteDesktop.xml',
+      'prefix': 'org.gnome.Mutter.',
+    },
+    {
+      'name': 'meta-dbus-screen-cast',
+      'interface': 'org.gnome.Mutter.ScreenCast.xml',
+      'prefix': 'org.gnome.Mutter.',
+    },
+  ]
 endif
 
-dbus_rtkit_built_sources = gnome.gdbus_codegen('meta-dbus-rtkit1',
-    join_paths(dbus_interfaces_dir, 'org.freedesktop.RealtimeKit1.xml'),
-    interface_prefix: 'org.freedesktop.',
-    namespace: 'MetaDBus',
-)
-mutter_built_sources += dbus_rtkit_built_sources
+dbus_interfaces += [
+  {
+    'name': 'meta-dbus-rtkit1',
+    'interface': 'org.freedesktop.RealtimeKit1.xml',
+    'prefix': 'org.freedesktop.',
+  },
+  {
+    'name': 'meta-dbus-gsd-color',
+    'interface': 'org.gnome.SettingsDaemon.Color.xml',
+    'prefix': 'org.gnome.',
+  },
+  {
+    'name': 'meta-dbus-gsd-power-screen',
+    'interface': 'org.gnome.SettingsDaemon.Power.Screen.xml',
+    'prefix': 'org.gnome.',
+  },
+]
 
-dbus_gsd_color_built_sources = gnome.gdbus_codegen('meta-dbus-gsd-color',
-    join_paths(dbus_interfaces_dir, 'org.gnome.SettingsDaemon.Color.xml'),
-    interface_prefix: 'org.gnome.',
-    namespace: 'MetaDBus',
-)
-mutter_built_sources += dbus_gsd_color_built_sources
+built_dbus_sources = {}
 
-dbus_gsd_power_screen_built_sources = gnome.gdbus_codegen('meta-dbus-gsd-power-screen',
-    join_paths(dbus_interfaces_dir, 'org.gnome.SettingsDaemon.Power.Screen.xml'),
-    interface_prefix: 'org.gnome.',
+foreach dbus_interface: dbus_interfaces
+  name = dbus_interface['name']
+
+  interface = dbus_interface['interface']
+  if dbus_interface.has_key('directory')
+    directory = dbus_interface['directory']
+  else
+    directory = dbus_interfaces_dir
+  endif
+  interface_file = join_paths(directory, interface)
+
+  prefix = dbus_interface['prefix']
+
+  if dbus_interface.has_key('object_manager')
+    object_manager = dbus_interface['object_manager']
+  else
+    object_manager = false
+  endif
+
+  dbus_sources = gnome.gdbus_codegen(name, interface_file,
+    interface_prefix: prefix,
     namespace: 'MetaDBus',
-)
-mutter_built_sources += dbus_gsd_power_screen_built_sources
+    object_manager: object_manager,
+  )
+  built_dbus_sources += {
+    name: dbus_sources,
+  }
+  mutter_built_sources += dbus_sources
+endforeach
 
 wayland_protocol_server_headers = []
 wayland_protocol_client_headers = []
