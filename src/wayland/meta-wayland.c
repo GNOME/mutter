@@ -855,3 +855,9 @@ meta_wayland_compositor_is_grabbed (MetaWaylandCompositor *compositor)
 {
   return meta_wayland_seat_is_grabbed (compositor->seat);
 }
+
+struct wl_display *
+meta_wayland_compositor_get_wayland_display (MetaWaylandCompositor *compositor)
+{
+  return compositor->wayland_display;
+}
