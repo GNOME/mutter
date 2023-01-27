@@ -21,7 +21,7 @@ test_driver_client_header = custom_target(
 )
 
 test_driver_protocol_code = custom_target(
-  'test-driver source',
+  'test-driver protocol code',
   input: 'test-driver.xml',
   output: 'test-driver-protocol.c',
   command: [
