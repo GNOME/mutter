@@ -123,6 +123,7 @@ if have_clutter_tests
   subdir('clutter')
 endif
 
+subdir('protocol')
 subdir('wayland-test-clients')
 
 if have_installed_tests

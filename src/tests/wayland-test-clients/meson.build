@@ -3,38 +3,6 @@ wayland_test_client_installed_tests_libexecdir = join_paths(
   'wayland-test-clients',
 )
 
-test_driver_server_header = custom_target(
-  'test-driver server header',
-  input: 'test-driver.xml',
-  output: 'test-driver-server-protocol.h',
-  command: [
-    wayland_scanner,
-    'server-header',
-    '@INPUT@', '@OUTPUT@',
-  ]
-)
-
-test_driver_client_header = custom_target(
-  'test-driver client header',
-  input: 'test-driver.xml',
-  output: 'test-driver-client-protocol.h',
-  command: [
-    wayland_scanner,
-    'client-header',
-    '@INPUT@', '@OUTPUT@',
-  ]
-)
-
-test_driver_protocol_code = custom_target(
-  'test-driver source',
-  input: 'test-driver.xml',
-  output: 'test-driver-protocol.c',
-  command: [
-    wayland_scanner,
-    'private-code',
-    '@INPUT@', '@OUTPUT@',
-  ]
-)
 
 common_sources = [
   'wayland-test-client-utils.c',
