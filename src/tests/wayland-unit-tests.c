@@ -44,20 +44,7 @@ static ClutterVirtualInputDevice *virtual_pointer;
 static MetaWindow *
 find_client_window (const char *title)
 {
-  MetaDisplay *display = meta_context_get_display (test_context);
-  g_autoptr (GSList) windows = NULL;
-  GSList *l;
-
-  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
-  for (l = windows; l; l = l->next)
-    {
-      MetaWindow *window = l->data;
-
-      if (g_strcmp0 (meta_window_get_title (window), title) == 0)
-        return window;
-    }
-
-  return NULL;
+  return meta_find_client_window (test_context, title);
 }
 
 static void

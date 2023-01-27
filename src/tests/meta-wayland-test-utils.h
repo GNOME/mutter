@@ -27,4 +27,7 @@ MetaWaylandTestClient * meta_wayland_test_client_new (MetaContext *context,
 
 void meta_wayland_test_client_finish (MetaWaylandTestClient *wayland_test_client);
 
+MetaWindow * meta_find_client_window (MetaContext *context,
+                                      const char  *title);
+
 #endif /* META_WAYLAND_TEST_UTILS_H */

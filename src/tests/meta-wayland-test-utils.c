@@ -21,6 +21,7 @@
 
 #include <gio/gio.h>
 
+#include "core/display-private.h"
 #include "wayland/meta-wayland.h"
 
 struct _MetaWaylandTestClient
@@ -113,4 +114,24 @@ meta_wayland_test_client_finish (MetaWaylandTestClient *wayland_test_client)
   g_free (wayland_test_client->path);
   g_object_unref (wayland_test_client->subprocess);
   g_free (wayland_test_client);
+}
+
+MetaWindow *
+meta_find_client_window (MetaContext *context,
+                         const char  *title)
+{
+  MetaDisplay *display = meta_context_get_display (context);
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      if (g_strcmp0 (meta_window_get_title (window), title) == 0)
+        return window;
+    }
+
+  return NULL;
 }
