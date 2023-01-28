@@ -24,8 +24,6 @@ src/core/prefs.c
 src/core/util.c
 src/core/window.c
 src/core/workspace.c
-src/ui/frames.c
-src/ui/theme.c
 src/wayland/meta-wayland-tablet-pad.c
 src/x11/meta-x11-display.c
 src/x11/meta-x11-errors.c
