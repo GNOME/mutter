@@ -2,14 +2,14 @@
 # Yuriy Syrota <rasta@renome.rovno.ua>, 2001, 2002.
 # Maxim Dziumanenko <dziumanenko@gmail.com>, 2004-2008.
 # Daniel Korostil <ted.korostiled@gmail.com>, 2014, 2015.
-# Yuri Chornoivan <yurchor@ukr.net>, 2020, 2021, 2022.
+# Yuri Chornoivan <yurchor@ukr.net>, 2020, 2021, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 08:42+0000\n"
-"PO-Revision-Date: 2022-09-02 15:05+0300\n"
-"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
+"POT-Creation-Date: 2023-01-29 12:51+0000\n"
+"PO-Revision-Date: 2023-01-29 16:44+0200\n"
+"Last-Translator: Fracture dept <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -249,11 +249,11 @@ msgstr "Розгорнути вікно на весь екран вертика�
 msgid "Maximize window horizontally"
 msgstr "Розгорнути вікно на весь екран горизонтально"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Перегляд розділити ліворуч"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Перегляд розділити праворуч"
 
@@ -332,22 +332,10 @@ msgstr ""
 "на всіх моніторах, чи лише для вікон на первинному моніторі."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Без контекстних вкладок"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Визначає, чи слід вимкнути виринання і підкреслювання рамки для повторюваних "
-"вікон. "
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Затримувати зміни фокусу, поки вказівник не перестане рухатись"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -357,11 +345,11 @@ msgstr ""
 "будуть негайні, коли переходите на вікно, але тільки після того, як "
 "вказівник не рухатиметься."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Перетяжна ширина меж"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -369,11 +357,11 @@ msgstr ""
 "Загальний об'єм перетяжних меж. Якщо видимих меж теми не вистачає, буде "
 "використано це значення з невидимих меж."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Автоматично розгортати вікна з розміром екрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -381,21 +369,21 @@ msgstr ""
 "Якщо вказано, нові вікна, які запущено в розмірі екрана, автоматично "
 "розгортаються на ввесь екран."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Помістити нове вікно в центр"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr "Якщо вказано, нові вікна будуть завжди в центрі чинного екрана."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Увімкнути експериментальні можливості"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -429,19 +417,19 @@ msgstr ""
 "автоматично перериває роботу Xwayland, якщо завершать роботу усі відповідні "
 "клієнти X11. Потребує перезапуску композитора."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Модифікатор для пошуку вказівника"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ця комбінація ініціює дію «встановити розташування вказівника»"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Інтервал між послідовними перевірками працездатності"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -450,19 +438,11 @@ msgstr ""
 "запит, щоб вважатися працездатним. Скористайтеся значенням 0, щоб повністю "
 "вимкнути перевірку працездатності."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Вибрати вікно з контекстних вкладок"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Скасувати контекстні вкладки"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Перемкнути налаштування монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Зміна конфігурації вбудованого монітора"
 
@@ -594,6 +574,35 @@ msgstr ""
 "не впливає, якщо Xwayland було зібрано без підтримки вибраних розширень. Для "
 "набуття змінами у цьому параметрі чинності Xwayland слід перезапустити."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianess to connect to Xwayland"
+msgstr ""
+"Дозволити клієнтам X11 з іншим порядком байтів встановлювати з'єднання з"
+" Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianess different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianess. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Дозволити з'єднання від клієнтів із порядком байтів, який не збігається з"
+" порядком байтів у Xwayland. Код X-сервера, пов'язаний зі зміною порядку"
+" байтів, є ласим об'єктом для атак. Більша частина цього коду у Xwayland є"
+" джерелом проблем із захистом. Ніша використання клієнтів із іншим порядком"
+" байтів є дуже малою, тому можливість типово вимкнено у Xwayland. Увімкніть,"
+" щоб наказати Xwayland приймати з'єднання від клієнтів X11 із іншими"
+" порядком байтів. Значення цього параметра нічого не змінить, якщо у"
+" Xwayland не передбачено підтримка параметра командного рядка"
+" +byteswappedclients/-byteswappedclients для керування відповідною обробкою."
+" Щоб значення цього параметра набуло чинності, Xwayland слід перезапустити."
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Вбудований екран"
@@ -621,14 +630,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Композитор"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:414
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -639,74 +643,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Подія гудка"
 
-#: src/core/display.c:693
+#: src/core/display.c:711
 msgid "Privacy Screen Enabled"
 msgstr "Конфіденційний екран увімкнено"
 
-#: src/core/display.c:694
+#: src/core/display.c:712
 msgid "Privacy Screen Disabled"
 msgstr "Конфіденційний екран вимкнено"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "Замінити запущений віконний менеджер"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "Дисплей X"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "Вимкнути з'єднання з менеджером сеансу"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "Вказати ідентифікатор сеансу"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "Розпочати сеанс зі збереженого файла"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "Зробити виклики X синхронними"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "Запустити як вкладений композитор"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запустити композитор wayland без запуску Xwayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "Вказати назву дисплея Wayland, якою слід скористатися"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
 msgstr "Запустити як повноцінний сервер, а не вкладений"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "Запустити у форматі сервера без дисплея"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Додати сталий віртуальний монітор (ШxВ або ШxВ@Ч)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "Запустити із модулем X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Перемкнути режим (група %d)"
@@ -714,13 +718,18 @@ msgstr "Перемкнути режим (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Перемкнути монітор"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Показати довідку на екрані"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Композитор"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -735,21 +744,20 @@ msgstr "Додатки Clutter для використання"
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:144
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter зібрано без підтримки докладного режиму"
 
-#: src/core/workspace.c:533
-#| msgid "Workspace %d"
+#: src/core/workspace.c:542
 msgid "Workspace switched"
 msgstr "Перемикання робочого простору"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Перемикання режимів: режим %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:682
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -758,29 +766,45 @@ msgstr ""
 "Екран «%s» вже має менеджера вікон; спробуйте вказати параметр --replace, "
 "щоб замінити поточний менеджер вікон."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1074
 msgid "Failed to initialize GDK"
 msgstr "Не вдалося ініціалізувати GDK"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1100
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не вдалося відкрити дисплей віконної системи X «%s»"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1253
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Екран %d на дисплеї «%s» є некоректним"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:483
 #, c-format
 msgid "Format %s not supported"
 msgstr "Підтримки формату %s не передбачено"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "No tab popup"
+#~ msgstr "Без контекстних вкладок"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Визначає, чи слід вимкнути виринання і підкреслювання рамки для "
+#~ "повторюваних вікон. "
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Вибрати вікно з контекстних вкладок"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Скасувати контекстні вкладки"
 
 #, c-format
 #~ msgid "“%s” is not responding."
