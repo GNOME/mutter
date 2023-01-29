@@ -75,7 +75,7 @@ struct _MetaSettings
   /* A bitmask of MetaXwaylandExtension enum */
   int xwayland_disable_extensions;
 
-  /* Whether Xwayland should allow X11 clients from different endianess */
+  /* Whether Xwayland should allow X11 clients from different endianness */
   gboolean xwayland_allow_byte_swapped_clients;
 };
 

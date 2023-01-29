@@ -127,9 +127,9 @@
 
     <key name="xwayland-allow-byte-swapped-clients" type="b">
       <default>false</default>
-      <summary>Allow X11 clients with a different endianess to connect to Xwayland</summary>
+      <summary>Allow X11 clients with a different endianness to connect to Xwayland</summary>
       <description>
-        Allow connections from clients with an endianess different to that
+        Allow connections from clients with an endianness different to that
 	of Xwayland.
 
 	The X server byte-swapping code is a huge attack surface, much of
@@ -139,7 +139,7 @@
 	default in Xwayland.
 
 	Enable this option to instruct Xwayland to accept connections from
-	X11 clients with a different endianess.
+	X11 clients with a different endianness.
 
         This option has no effect if Xwayland does not support the command
 	line option +byteswappedclients/-byteswappedclients to control that
