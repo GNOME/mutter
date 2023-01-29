@@ -5,14 +5,14 @@
 # Pedro Albuquerque <palbuquerque73@openmailbox.com>, 2015.
 # Tiago Santos <tiagofsantos81@sapo.pt>, 2016.
 # Juliano de Souza Camargo <julianosc@protonmail.com>, 2020.
-# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020, 2021, 2022.
+# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020, 2021, 2022, 2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 3.10\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 08:42+0000\n"
-"PO-Revision-Date: 2022-09-03 15:21+0100\n"
+"POT-Creation-Date: 2023-01-29 12:51+0000\n"
+"PO-Revision-Date: 2023-01-29 15:54+0000\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: https://l10n.gnome.org/teams/pt/\n"
 "Language: pt\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-DamnedLies-Scope: partial\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -251,11 +251,11 @@ msgstr "Maximizar janela verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar janela horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Ver a divisão à esquerda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Ver a divisão à direita"
 
@@ -335,22 +335,10 @@ msgstr ""
 "todos os monitores ou apenas para janelas no monitor principal."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Sem popup ao utilizar a tecla tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Determina se deverá ou não ser desativado o popup e o realce na janela ao "
-"circular entre janelas."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Adiar as alterações de foco até que o ponteiro pare de se mover"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -360,11 +348,11 @@ msgstr ""
 "será alterado imediatamente ao entrar numa janela mas apenas quando o "
 "ponteiro parar de se mover."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Largura da margem de arrasto"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -373,11 +361,11 @@ msgstr ""
 "forem suficientes, serão adicionadas margens invisíveis para atingir este "
 "valor."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Maximizar automaticamente janelas de dimensão aproximada à do monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -385,11 +373,11 @@ msgstr ""
 "Se ativo, novas janelas que sejam inicialmente do tamanho do monitor são "
 "maximizadas automaticamente."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Posicionar novas janelas no centro"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -397,11 +385,11 @@ msgstr ""
 "Se ativo, as novas janelas são sempre posicionadas no centro do ecrã do "
 "monitor ativo."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Ativar as funcionalidades experimentais"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -432,19 +420,19 @@ msgstr ""
 "reinício. • “autoclose-xwayland” — Termina automaticamente o Xwayland se "
 "todos os clientes X11 relevantes desapareceram. Requer um reinício."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador para localizar o cursor"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta chave iniciará a ação “localizar cursor”."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Expirou o teste de atividade"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -453,19 +441,11 @@ msgstr ""
 "atividade de maneira que não seja detetado como inativo. Usar 0 desativará o "
 "teste de atividade completamente."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Selecionar a janela no popup de tabulador"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Cancelar a exibição do tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Alternar configurações de ecrã"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Alternar as configurações nativas do ecrã"
 
@@ -523,7 +503,8 @@ msgstr "Reativar os atalhos"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
-msgstr "Permitir que X11 capture para bloquear o foco do teclado com Xwayland"
+msgstr ""
+"Permitir que X11 capture para bloquear o foco do teclado com o Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
@@ -538,7 +519,7 @@ msgid ""
 "allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Permitir que todos os eventos do teclado sejam encaminhados para as janelas "
-"de “substituição de redirecionamento” X11 com uma captura ao correr em "
+"de “substituição de redirecionamento” X11 com uma captura ao executar no "
 "Xwayland. Esta opção é para suportar clientes X11 que mapeiam uma janela de "
 "“redirecionamento de substituição” (que não recebem o foco do teclado) e "
 "emitir uma captura de teclado para forçar todos os eventos do teclado a essa "
@@ -593,6 +574,35 @@ msgstr ""
 "selecionadas. O Xwayland precisa de ser reiniciado para que esta "
 "configuração tenha efeito."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianess to connect to Xwayland"
+msgstr ""
+"Permitir que clientes X11 com um \"endianess\" diferente se liguem ao "
+"Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianess different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianess. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Permitir ligações de clientes com uma \"endianess\" diferente do Xwayland. O "
+"código \"byte-swapping\" do servidor X é uma enorme superfície de ataque, "
+"muito desse código no Xwayland é propenso a problemas de segurança. O caso "
+"de utilização de clientes \"byte-swapped\" é muito específico, e está "
+"desativado por padrão no Xwayland. Ativar esta opção para instruir o "
+"Xwayland a aceitar ligações de clientes X11 com uma \"endianess\" diferente. "
+"Esta opção não tem efeito se o Xwayland não suportar a opção de linha de "
+"comandos +byteswappedclients/byteswappedclients para controlar essa "
+"configuração. O Xwayland precisa de ser reiniciado para que esta "
+"configuração tenha efeito."
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Ecrã embutido"
@@ -620,14 +630,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Compositor"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:414
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -638,74 +643,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campainha"
 
-#: src/core/display.c:693
+#: src/core/display.c:711
 msgid "Privacy Screen Enabled"
 msgstr "Ecrã de privacidade ativado"
 
-#: src/core/display.c:694
+#: src/core/display.c:712
 msgid "Privacy Screen Disabled"
 msgstr "Ecrã de privacidade desativado"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "Substituir o gestor de janelas em execução"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "Ecrã X a utilizar"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "Desativar a ligação ao gestor de sessão"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "Especificar a ID de gestão de sessão"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "Inicializar a sessão a partir de um ficheiro de gravação de sessão"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "Fazer as chamadas X sincronamente"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor wayland"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "Executar como compositor aninhado"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor wayland sem a utilização do Xwayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "Especificar o nome do visor Wayland a utilizar"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como servidor de ecrã inteiro, em vez de aninhado"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "Executar como um servidor sem monitor"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "Executar com a infira-estrutura X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alteração de modo (Grupo %d)"
@@ -713,13 +718,18 @@ msgstr "Alteração de modo (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Alternar monitor"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda no ecrã"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Compositor"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -734,20 +744,20 @@ msgstr "Extensão Mutter a utilizar"
 msgid "Workspace %d"
 msgstr "Área de trabalho %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:144
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "O Mutter foi compilado sem suporte para modo verbose"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:542
 msgid "Workspace switched"
 msgstr "Área de trabalho alterada"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Alteração de Modo: Modo %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:682
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -756,29 +766,45 @@ msgstr ""
 "O ecrã “%s” já tem um gestor de janelas; tente utilizar a opção --replace "
 "para substituir o gestor de janelas atual."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1074
 msgid "Failed to initialize GDK"
 msgstr "Falhou ao iniciar o GDK"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1100
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falha ao abrir ecrã “%s” do sistema Janelas X"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1253
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecrã %d no monitor “%s” é inválido"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:483
 #, c-format
 msgid "Format %s not supported"
 msgstr "O formato “%s” não é suportado"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (em %s)"
+
+#~ msgid "No tab popup"
+#~ msgstr "Sem popup ao utilizar a tecla tab"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Determina se deverá ou não ser desativado o popup e o realce na janela ao "
+#~ "circular entre janelas."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Selecionar a janela no popup de tabulador"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Cancelar a exibição do tab"
 
 #, c-format
 #~ msgid "“%s” is not responding."
@@ -1280,8 +1306,8 @@ msgstr "%s (em %s)"
 #~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
 #~ ">"
 #~ msgstr ""
-#~ "Falta <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"qualquercoisa"
-#~ "\"/>"
+#~ "Falta <frame state=\"%s\" resize=\"%s\" focus=\"%s\" "
+#~ "style=\"qualquercoisa\"/>"
 
 #~ msgid "Failed to load theme \"%s\": %s\n"
 #~ msgstr "Falha ao ler tema \"%s\": %s\n"
@@ -1293,14 +1319,14 @@ msgstr "%s (em %s)"
 #~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
 #~ "type=\"%s\" style_set=\"whatever\"/> element"
 #~ msgstr ""
-#~ "Nenhum estilo de moldura definido para tipo de janela \"%s\" no tema \"%s"
-#~ "\", adicione um elemento <window type=\"%s\" style_set=\"qualquer\"/>"
+#~ "Nenhum estilo de moldura definido para tipo de janela \"%s\" no tema "
+#~ "\"%s\", adicione um elemento <window type=\"%s\" style_set=\"qualquer\"/>"
 
 #~ msgid ""
 #~ "User-defined constants must begin with a capital letter; \"%s\" does not"
 #~ msgstr ""
-#~ "Constante definida pelo utilizador tem de começar com uma maiúscula; \"%s"
-#~ "\" não começa"
+#~ "Constante definida pelo utilizador tem de começar com uma maiúscula; "
+#~ "\"%s\" não começa"
 
 #~ msgid "Constant \"%s\" has already been defined"
 #~ msgstr "Constante \"%s\" já foi definida"
@@ -1381,8 +1407,8 @@ msgstr "%s (em %s)"
 #~ msgstr "Elemento <%s> no é permitido abaixo de <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "Impossível especificar ambos \"button_width\"/\"button_height\" e "
 #~ "\"aspect_ratio\" para botões"
@@ -2208,8 +2234,9 @@ msgstr "%s (em %s)"
 
 #~ msgid ""
 #~ "Set this to true to resize with the right button and show a menu with the "
-#~ "middle button while holding down the key given in \"mouse_button_modifier"
-#~ "\"; set it to false to make it work the opposite way around."
+#~ "middle button while holding down the key given in "
+#~ "\"mouse_button_modifier\"; set it to false to make it work the opposite "
+#~ "way around."
 #~ msgstr ""
 #~ "Definir como verdadeiro para redimensionar com o botão direito e "
 #~ "apresentar o menu com o botão do meio enquanto é premida a tecla indicada "
@@ -2545,8 +2572,8 @@ msgstr "%s (em %s)"
 #~ "formato assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
 #~ "F1\". O processador é razoavelmente liberal e permite capitalização "
 #~ "maiúscula ou minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial \"disabled"
-#~ "\", não existirão quaisquer atalhos de teclado para esta ação."
+#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial "
+#~ "\"disabled\", não existirão quaisquer atalhos de teclado para esta ação."
 
 #~ msgid ""
 #~ "The keybinding that switches to the workspace below the current "
@@ -2815,13 +2842,14 @@ msgstr "%s (em %s)"
 #~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
 #~ "then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "O atalho de teclado utilizado para entrar em \"modo de redimensionamento"
-#~ "\" e começar a redimensionar uma janela utilizando o teclado. O formato "
-#~ "assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;F1\". O "
-#~ "processador é razoavelmente liberal e permite capitalização maiúscula ou "
-#~ "minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e \"&lt;Ctrl&gt;"
-#~ "\". Se definir a opção para a expressão especial \"disabled\", não "
-#~ "existirão quaisquer atalhos de teclado para esta ação."
+#~ "O atalho de teclado utilizado para entrar em \"modo de "
+#~ "redimensionamento\" e começar a redimensionar uma janela utilizando o "
+#~ "teclado. O formato assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;"
+#~ "&lt;Alt&gt;F1\". O processador é razoavelmente liberal e permite "
+#~ "capitalização maiúscula ou minúscula e também abreviaturas tais como "
+#~ "\"&lt;Ctl&gt;\" e \"&lt;Ctrl&gt;\". Se definir a opção para a expressão "
+#~ "especial \"disabled\", não existirão quaisquer atalhos de teclado para "
+#~ "esta ação."
 
 #~ msgid ""
 #~ "The keybinding used to hide all normal windows and set the focus to the "
@@ -3143,8 +3171,8 @@ msgstr "%s (em %s)"
 
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;a"
-#~ "\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
+#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
 #~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
@@ -3201,8 +3229,8 @@ msgstr "%s (em %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "O atalho de teclado utilizado para mover o foco atrás entre janelas sem "
 #~ "utilizar uma janela de popup. Premir \"Shift\" junto com este atalho de "
@@ -3219,8 +3247,8 @@ msgstr "%s (em %s)"
 #~ "direction go forward again. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "O atalho de teclado utilizado para mover o foco atrás entre janelas "
 #~ "utilizando uma janela de popup. Premir \"Shift\" junto com este atalho de "
@@ -3334,13 +3362,13 @@ msgstr "%s (em %s)"
 #~ "action."
 #~ msgstr ""
 #~ "O atalho de teclado utilizado para mover o foco entre janelas, utilizando "
-#~ "uma janela de popup. (Tradicionalmente &lt;Alt&gt;Tab) Premindo o \"Shift"
-#~ "\" ao utilizar este atalho inverte a direção do movimento. O formato "
-#~ "assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;F1\". O "
-#~ "processador é razoavelmente liberal e permite capitalização maiúscula ou "
-#~ "minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e \"&lt;Ctrl&gt;"
-#~ "\". Se definir a opção para a expressão especial \"disabled\", não "
-#~ "existirão quaisquer atalhos de teclado para esta ação."
+#~ "uma janela de popup. (Tradicionalmente &lt;Alt&gt;Tab) Premindo o "
+#~ "\"Shift\" ao utilizar este atalho inverte a direção do movimento. O "
+#~ "formato assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
+#~ "F1\". O processador é razoavelmente liberal e permite capitalização "
+#~ "maiúscula ou minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e "
+#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial "
+#~ "\"disabled\", não existirão quaisquer atalhos de teclado para esta ação."
 
 #~ msgid ""
 #~ "The keybinding used to toggle always on top. A window that is always on "
@@ -3372,8 +3400,8 @@ msgstr "%s (em %s)"
 #~ "formato assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
 #~ "F1\". O processador é razoavelmente liberal e permite capitalização "
 #~ "maiúscula ou minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial \"disabled"
-#~ "\", não existirão quaisquer atalhos de teclado para esta ação."
+#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial "
+#~ "\"disabled\", não existirão quaisquer atalhos de teclado para esta ação."
 
 #~ msgid ""
 #~ "The keybinding used to toggle maximization. The format looks like \"&lt;"
@@ -3473,8 +3501,8 @@ msgstr "%s (em %s)"
 #~ "screenshot of a window. The format looks like \"&lt;Control&gt;a\" or "
 #~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
 #~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
-#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string \"disabled"
-#~ "\", then there will be no keybinding for this action."
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "O atalho de teclado que invoca o utilitário de capturas de ecrã para "
 #~ "obter uma captura de uma janela. O formato assemelha-se a \"&lt;"
@@ -3527,8 +3555,8 @@ msgstr "%s (em %s)"
 #~ "Este atalho de teclado alterna se uma janela está acima ou abaixo de "
 #~ "outras janelas. Se a janela estiver coberta por outra janela, eleva a "
 #~ "janela acima das outras, e a janela já estiver completamente visível, "
-#~ "baixa-a para trás das outras. O formato assemelha-se a \"&lt;Control&gt;a"
-#~ "\" ou \"&lt;Shift&gt;&lt;Alt&gt;F1\". O processador é razoavelmente "
+#~ "baixa-a para trás das outras. O formato assemelha-se a \"&lt;Control&gt;"
+#~ "a\" ou \"&lt;Shift&gt;&lt;Alt&gt;F1\". O processador é razoavelmente "
 #~ "liberal e permite capitalização maiúscula ou minúscula e também "
 #~ "abreviaturas tais como \"&lt;Ctl&gt;\" e \"&lt;Ctrl&gt;\". Se definir a "
 #~ "opção para a expressão especial \"disabled\", não existirão quaisquer "
@@ -3546,8 +3574,8 @@ msgstr "%s (em %s)"
 #~ "formato assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
 #~ "F1\". O processador é razoavelmente liberal e permite capitalização "
 #~ "maiúscula ou minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial \"disabled"
-#~ "\", não existirão quaisquer atalhos de teclado para esta ação."
+#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial "
+#~ "\"disabled\", não existirão quaisquer atalhos de teclado para esta ação."
 
 #~ msgid ""
 #~ "This keybinding moves a window against the north (top) side of the "
@@ -3704,8 +3732,8 @@ msgstr "%s (em %s)"
 #~ "formato assemelha-se a \"&lt;Control&gt;a\" ou \"&lt;Shift&gt;&lt;Alt&gt;"
 #~ "F1\". O processador é razoavelmente liberal e permite capitalização "
 #~ "maiúscula ou minúscula e também abreviaturas tais como \"&lt;Ctl&gt;\" e "
-#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial \"disabled"
-#~ "\", não existirão quaisquer atalhos de teclado para esta ação."
+#~ "\"&lt;Ctrl&gt;\". Se definir a opção para a expressão especial "
+#~ "\"disabled\", não existirão quaisquer atalhos de teclado para esta ação."
 
 #~ msgid ""
 #~ "This keybinding resizes a window to fill available horizontal space. The "
