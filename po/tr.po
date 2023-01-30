@@ -9,14 +9,14 @@
 # Muhammed EKEN <gnome@m-eken.com>, 2011.
 # Furkan Ahmet Kara <furkanahmetkara.fk@gmail.com>, 2017.
 # Muhammet Kara <muhammetk@gmail.com>, 2011, 2012, 2014, 2015, 2016, 2017.
-# Emin Tufan Çetin <etcetin@gmail.com>, 2017-2022.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2017-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-06 11:35+0000\n"
-"PO-Revision-Date: 2022-09-03 09:43+0300\n"
+"POT-Creation-Date: 2023-01-29 17:47+0000\n"
+"PO-Revision-Date: 2023-01-30 16:34+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -257,11 +257,11 @@ msgstr "Pencereyi dikey olarak büyült"
 msgid "Maximize window horizontally"
 msgstr "Pencereyi yatay olarak büyült"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Solda bölünmüş olarak göster"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Sağda bölünmüş olarak göster"
 
@@ -342,22 +342,10 @@ msgstr ""
 "yalnızca birincil monitördekilerde mi gerçekleşeceğini belirler."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Sekme açılır penceresi yok"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Pencere geçişinde çerçeve vurgulanması ve açılır pencere kullanımının "
-"kapatılıp kapatılmayacağını belirler."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Odak değişikliklerini imleç hareketi durana dek ertele"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -366,11 +354,11 @@ msgstr ""
 "Eğer seçiliyse ve odaklama kipi “sloppy” yada “mouse” ise bir pencereye "
 "geçişte odak hemen değil, yanlızca imleç hareket etmeyi bıraktığında değişir."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Sürüklenebilir kenarlık genişliği"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -379,11 +367,11 @@ msgstr ""
 "kenarlıkları yetersiz gelirse, bu değere ulaşmak için görünmez kenarlıklar "
 "eklenir."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Ekran boyutuna yakın pencereleri kendiliğinden ekranı kaplattır"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -391,11 +379,11 @@ msgstr ""
 "Etkinleştirildiğinde ekran boyutunda başlayan yeni pencereler kendiliğinden "
 "ekranı kaplar."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Yeni pencereleri ekranın ortasına yerleştir"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -403,11 +391,11 @@ msgstr ""
 "Etkinleştirildiğinde, yeni pencereler her zaman monitörün etkin ekranında "
 "ortaya yerleştirilir."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Deneysel özellikleri etkinleştir"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -439,19 +427,19 @@ msgstr ""
 "tüm X11 istemcileri artık yoksa XWaylandʼi kendiliğinden sonlandırır. "
 "Yeniden başlatma gerektirir."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "İşaretçiyi konumlamada kullanılacak değiştirici"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Bu anahtar “işaretçiyi konumla” eylemini başlatacak."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Canlılık denetim pingi için zaman aşımı"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -460,19 +448,11 @@ msgstr ""
 "milisaniye sayısı. 0 kullanmak canlılık denetimini tümüyle devre dışı "
 "bırakır."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Pencereyi, sekme açılır penceresinden seç"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Sekmeyi yeni pencerede açmayı iptal et"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Monitör yapılandırmaları arası geçiş yap"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Yerleşik monitör yapılandırmaları arası geçiş yapar"
 
@@ -598,6 +578,32 @@ msgstr ""
 "eklentileri desteklemeksizin inşa edildiyse bu seçenek etkisizdir. Bu ayarın "
 "etkili olması için Xwayland yeniden başlatılmalıdır."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "Başka endian düzeni olan X11 istemcilerin Xwayland’e bağlanmasına izin ver"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Xwayland’inkinden başka endian düzeni olan istemcilerden bağlantılara izin ver."
+"X sunucusunun bayt takası kodu büyük bir saldırı yüzeyidir, Xwayland’deki bu "
+"kodun çoğu güvenlik sorunlarına yatkındır. Bayt takaslı istemcilerin kullanım "
+"alanı dardır ve Xwayland’de öntanımlı olarak devre dışıdır. Xwayland’in başka "
+"endian düzeni olan X11 istemcilerinden bağlantı kabul etmesi için bu seçeneği "
+"etkinleştirin. Eğer Xwayland bu ayarı denetleyen "
+"+byteswappedclients/-byteswappedclients komut satırı seçeneğini desteklemiyorsa "
+"bu seçenek işlevsizdir. Bu ayarın etkinleşmesi için Xwayland yeniden "
+"başlatılmalıdır."
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Yerleşik monitör"
@@ -625,14 +631,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Dizgici"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:414
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -644,74 +645,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Etkinlik zili"
 
-#: src/core/display.c:693
+#: src/core/display.c:711
 msgid "Privacy Screen Enabled"
 msgstr "Gizlilik Ekranı Etkin"
 
-#: src/core/display.c:694
+#: src/core/display.c:712
 msgid "Privacy Screen Disabled"
 msgstr "Gizlilik Ekranı Devre Dışı"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "Çalışan pencere yöneticisinin yerini al"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "Kullanılacak X Ekranı"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "Ortam yöneticisine olan bağlantıyı kapat"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "Ortam yönetim ID’sini belirt"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "Ortamı kayıtlı dosyadan başlat"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "X çağrılarını eşzamanlı yap"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "Wayland dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "Yuvalanmış dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "Kullanılacak Wayland monitör adını belirt"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
 msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "Başsız monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "X11 arkayüzüyle çalıştır"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Kip Anahtarı (Küme %d)"
@@ -719,13 +720,18 @@ msgstr "Kip Anahtarı (Küme %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Monitör değiştir"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Ekranda yardımı göster"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Dizgici"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -740,20 +746,20 @@ msgstr "Kullanılacak Mutter eklentisi"
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:144
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:542
 msgid "Workspace switched"
 msgstr "Çalışma alanı değiştirildi"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Kip Anahtarı: Kip %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:682
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -763,26 +769,42 @@ msgstr ""
 "yöneticisinin yerine başkasını koymak için --replace seçeneğini kullanmayı "
 "deneyin."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1074
 msgid "Failed to initialize GDK"
 msgstr "GDK ilklendirilemedi"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1100
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Pencere Sistemi monitörü “%s” açılamadı"
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1253
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:483
 #, c-format
 msgid "Format %s not supported"
 msgstr "%s biçimi desteklenmiyor"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
+
+#~ msgid "No tab popup"
+#~ msgstr "Sekme açılır penceresi yok"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Pencere geçişinde çerçeve vurgulanması ve açılır pencere kullanımının "
+#~ "kapatılıp kapatılmayacağını belirler."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Pencereyi, sekme açılır penceresinden seç"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Sekmeyi yeni pencerede açmayı iptal et"
