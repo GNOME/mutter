@@ -9203,6 +9203,175 @@ meta_test_monitor_supported_fractional_scales (void)
 }
 
 static void
+meta_test_monitor_calculate_mode_scale (void)
+{
+  static MonitorTestCaseSetup base_test_case_setup = {
+    .modes = {
+      {
+        .refresh_rate = 60.0
+      }
+    },
+    .n_modes = 1,
+    .outputs = {
+      {
+        .crtc = 0,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0 },
+        .n_possible_crtcs = 1,
+        .scale = -1,
+      }
+    },
+    .n_outputs = 1,
+    .crtcs = {
+      {
+        .current_mode = 0
+      }
+    },
+    .n_crtcs = 1
+  };
+
+  static struct {
+    const char *name;
+    int width, height;
+    int width_mm, height_mm;
+    float exp, exp_nofrac;
+  } cases[] = {
+    {
+      .name = "Librem 5",
+      .width = 720,
+      .height = 1440,
+      .width_mm = 65, /* 2:1, 5.7" */
+      .height_mm = 129,
+      /* Librem 5, when scaled, doesn't have enough logical area to
+         fit a full desktop-sized GNOME UI. Thus, Mutter rules out
+         scale factors above 1.75. */
+      .exp = 1.5,
+      .exp_nofrac = 1.0,
+    },
+    {
+       .name = "OnePlus 6",
+       .width = 1080,
+       .height = 2280,
+       .width_mm = 68, /* 19:9, 6.28" */
+       .height_mm = 144,
+       .exp = 3.0,
+       .exp_nofrac = 3.0,
+    },
+    {
+      .name = "Google Pixel 6a",
+      .width = 1080,
+      .height = 2400,
+      .width_mm = 64, /* 20:9, 6.1" */
+      .height_mm = 142,
+      .exp = 2.75,
+      .exp_nofrac = 3.0,
+    },
+    {
+      .name = "13\" MacBook Retina",
+      .width = 2560,
+      .height = 1600,
+      .width_mm = 286, /* 16:10, 13.3" */
+      .height_mm = 179,
+      .exp = 1.75,
+      .exp_nofrac = 2.0,
+    },
+    {
+      .name = "Surface Laptop Studio",
+      .width = 2400,
+      .height = 1600,
+      .width_mm = 303, /* 3:2 @ 14.34" */
+      .height_mm = 202,
+      .exp = 1.5,
+      .exp_nofrac = 2.0,
+    },
+    {
+      .name = "Generic 23\" 1080p",
+      .width = 1920,
+      .height = 1080,
+      .width_mm = 509,
+      .height_mm = 286,
+      .exp = 1.0,
+      .exp_nofrac = 1.0,
+    },
+    {
+      .name = "Generic 23\" 4K",
+      .width = 3840,
+      .height = 2160,
+      .width_mm = 509,
+      .height_mm = 286,
+      .exp = 1.75,
+      .exp_nofrac = 2.0,
+    },
+    {
+      .name = "Generic 27\" 4K",
+      .width = 3840,
+      .height = 2160,
+      .width_mm = 598,
+      .height_mm = 336,
+      .exp = 1.5,
+      .exp_nofrac = 2.0,
+    },
+    {
+      .name = "Generic 32\" 4K",
+      .width = 3840,
+      .height = 2160,
+      .width_mm = 708,
+      .height_mm = 398,
+      .exp = 1.25,
+      .exp_nofrac = 1.0,
+    },
+  };
+  static const int n_cases = 1;
+
+  MetaMonitorManager *manager;
+  MetaMonitorManagerTest *manager_test;
+
+  manager = meta_backend_get_monitor_manager (test_backend);
+  manager_test = META_MONITOR_MANAGER_TEST (manager);
+
+  for (int i = 0; i < n_cases; i++)
+    {
+      MonitorTestCaseSetup test_case_setup = base_test_case_setup;
+      MetaMonitorTestSetup *test_setup;
+      MetaLogicalMonitor *logical_monitor;
+      g_autofree char *serial1 = NULL;
+      g_autofree char *serial2 = NULL;
+
+      serial1 = g_strdup_printf ("0x120001%x", i * 2);
+      test_case_setup.modes[0].width = cases[i].width;
+      test_case_setup.modes[0].height = cases[i].height;
+      test_case_setup.outputs[0].width_mm = cases[i].width_mm;
+      test_case_setup.outputs[0].height_mm = cases[i].height_mm;
+      test_case_setup.outputs[0].serial = serial1;
+      test_setup = meta_create_monitor_test_setup (test_backend, &test_case_setup,
+                                                   MONITOR_TEST_FLAG_NO_STORED);
+
+      g_debug ("Checking default non-fractional scale for %s", cases[i].name);
+      meta_monitor_manager_test_set_layout_mode (manager_test,
+                                                 META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL);
+      emulate_hotplug (test_setup);
+      /* Crashes right here because manager->logical_monitors is NULL */
+      logical_monitor = manager->logical_monitors->data;
+      g_assert_cmpfloat_with_epsilon (logical_monitor->scale, cases[i].exp_nofrac, 0.01);
+
+      g_debug ("Checking default fractional scale for %s", cases[i].name);
+      meta_monitor_manager_test_set_layout_mode (manager_test,
+                                                 META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL);
+
+      serial2 = g_strdup_printf ("0x120001%x", i * 2 + 1);
+      test_case_setup.outputs[0].serial = serial2;
+      test_setup = meta_create_monitor_test_setup (test_backend, &test_case_setup,
+                                                   MONITOR_TEST_FLAG_NO_STORED);
+      emulate_hotplug (test_setup);
+      logical_monitor = manager->logical_monitors->data;
+      g_assert_cmpfloat_with_epsilon (logical_monitor->scale, cases[i].exp,
+                                      FLT_EPSILON);
+    }
+}
+
+static void
 meta_test_monitor_policy_system_only (void)
 {
   MetaMonitorTestSetup *test_setup;
@@ -9507,6 +9676,8 @@ init_monitor_tests (void)
                     meta_test_monitor_supported_integer_scales);
   add_monitor_test ("/backends/monitor/suppported_scales/fractional",
                     meta_test_monitor_supported_fractional_scales);
+  add_monitor_test ("/backends/monitor/default_scale",
+                    meta_test_monitor_calculate_mode_scale);
 
   add_monitor_test ("/backends/monitor/policy/system-only",
                     meta_test_monitor_policy_system_only);

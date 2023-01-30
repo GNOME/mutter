@@ -40,6 +40,8 @@ struct _MetaMonitorManagerTest
 
   int tiled_monitor_count;
 
+  MetaLogicalMonitorLayoutMode layout_mode;
+
   MetaMonitorTestSetup *test_setup;
 };
 
@@ -314,30 +316,8 @@ meta_monitor_manager_test_is_transform_handled (MetaMonitorManager  *manager,
   return manager_test->handles_transforms;
 }
 
-static float
-meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager           *manager,
-                                                        MetaLogicalMonitorLayoutMode  layout_mode,
-                                                        MetaMonitor                  *monitor,
-                                                        MetaMonitorMode              *monitor_mode)
-{
-  MetaOutput *output;
-  MetaOutputTest *output_test;
-
-  output = meta_monitor_get_main_output (monitor);
-  output_test = META_OUTPUT_TEST (output);
-
-  if (output_test)
-    return output_test->scale;
-  else
-    return 1;
-}
-
-static float *
-meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager           *manager,
-                                                      MetaLogicalMonitorLayoutMode  layout_mode,
-                                                      MetaMonitor                  *monitor,
-                                                      MetaMonitorMode              *monitor_mode,
-                                                      int                          *n_supported_scales)
+static MetaMonitorScalesConstraint
+get_monitor_scale_constraints_from_layout_mode (MetaLogicalMonitorLayoutMode layout_mode)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -351,32 +331,52 @@ meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager        
       break;
     }
 
+  return constraints;
+}
+
+
+static float
+meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager           *manager,
+                                                        MetaLogicalMonitorLayoutMode  layout_mode,
+                                                        MetaMonitor                  *monitor,
+                                                        MetaMonitorMode              *monitor_mode)
+{
+  MetaOutput *output;
+  MetaOutputTest *output_test;
+  MetaMonitorScalesConstraint constraints;
+
+  output = meta_monitor_get_main_output (monitor);
+  output_test = META_OUTPUT_TEST (output);
+
+  if (!output_test)
+    return 1;
+
+  if (output_test->scale != -1)
+    return output_test->scale;
+
+  constraints = get_monitor_scale_constraints_from_layout_mode (layout_mode);
+  return meta_monitor_calculate_mode_scale (monitor, monitor_mode, constraints);
+}
+
+static float *
+meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                      MetaLogicalMonitorLayoutMode  layout_mode,
+                                                      MetaMonitor                  *monitor,
+                                                      MetaMonitorMode              *monitor_mode,
+                                                      int                          *n_supported_scales)
+{
+  MetaMonitorScalesConstraint constraints =
+    get_monitor_scale_constraints_from_layout_mode (layout_mode);
+
   return meta_monitor_calculate_supported_scales (monitor, monitor_mode,
                                                   constraints,
                                                   n_supported_scales);
 }
 
-static gboolean
-is_monitor_framebuffer_scaled (MetaMonitorManager *manager)
-{
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaSettings *settings = meta_backend_get_settings (backend);
-
-  return meta_settings_is_experimental_feature_enabled (
-    settings,
-    META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-}
-
 static MetaMonitorManagerCapability
 meta_monitor_manager_test_get_capabilities (MetaMonitorManager *manager)
 {
-  MetaMonitorManagerCapability capabilities =
-    META_MONITOR_MANAGER_CAPABILITY_NONE;
-
-  if (is_monitor_framebuffer_scaled (manager))
-    capabilities |= META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE;
-
-  return capabilities;
+  return META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE;
 }
 
 static gboolean
@@ -387,13 +387,19 @@ meta_monitor_manager_test_get_max_screen_size (MetaMonitorManager *manager,
   return FALSE;
 }
 
+void
+meta_monitor_manager_test_set_layout_mode (MetaMonitorManagerTest       *manager_test,
+                                           MetaLogicalMonitorLayoutMode  layout_mode)
+{
+  manager_test->layout_mode = layout_mode;
+}
+
+
 static MetaLogicalMonitorLayoutMode
 meta_monitor_manager_test_get_default_layout_mode (MetaMonitorManager *manager)
 {
-  if (is_monitor_framebuffer_scaled (manager))
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
-  else
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
+  MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (manager);
+  return manager_test->layout_mode;
 }
 
 static void
@@ -425,6 +431,7 @@ static void
 meta_monitor_manager_test_init (MetaMonitorManagerTest *manager_test)
 {
   manager_test->handles_transforms = TRUE;
+  manager_test->layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
 }
 
 static void
