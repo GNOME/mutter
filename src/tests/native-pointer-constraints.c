@@ -107,7 +107,7 @@ meta_test_warp_on_hotplug (void)
   if (!test_client)
     g_error ("Failed to launch test client: %s", error->message);
 
-  run_test_client_command (test_client, "create", "1", NULL);;
+  run_test_client_command (test_client, "create", "1", NULL);
   run_test_client_command (test_client, "show", "1", NULL);
   run_test_client_command (test_client, "sync", NULL);
 
