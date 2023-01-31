@@ -1704,7 +1704,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       supports_underscanning = output_info->supports_underscanning;
       supports_color_transform = output_info->supports_color_transform;
       vendor = output_info->vendor;
-      product = output_info->product;;
+      product = output_info->product;
       serial = output_info->serial;
 
       g_variant_builder_init (&properties, G_VARIANT_TYPE ("a{sv}"));
