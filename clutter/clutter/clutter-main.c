@@ -614,7 +614,8 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
   _clutter_settings_set_backend (clutter_context->settings,
                                  clutter_context->backend);
 
-  clutter_context->events_queue = g_async_queue_new ();
+  clutter_context->events_queue =
+      g_async_queue_new_full ((GDestroyNotify) clutter_event_free);
   clutter_context->last_repaint_id = 1;
 
   if (!clutter_init_real (clutter_context, error))
