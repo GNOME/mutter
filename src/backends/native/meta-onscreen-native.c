@@ -1444,7 +1444,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaCrtc *crtc = onscreen_native->crtc;
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);;
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
   MetaKms *kms = meta_kms_device_get_kms (kms_device);
   MetaKmsUpdateFlag flags;
   MetaKmsUpdate *kms_update;
