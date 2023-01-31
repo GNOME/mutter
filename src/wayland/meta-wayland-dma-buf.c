@@ -712,13 +712,17 @@ meta_wayland_dma_buf_fds_for_wayland_buffer (MetaWaylandBuffer *buffer)
     meta_wayland_compositor_get_context (buffer->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaRendererNative *renderer_native;
   MetaGpuKms *gpu_kms;
   struct gbm_device *gbm_device;
   struct gbm_bo *gbm_bo;
   MetaWaylandDmaBufBuffer *dma_buf;
   uint32_t i, n_planes;
 
+  if (!META_IS_RENDERER_NATIVE (renderer))
+    return NULL;
+
+  renderer_native = META_RENDERER_NATIVE (renderer);
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
   if (!gpu_kms)
     return NULL;
