@@ -390,10 +390,11 @@ meta_context_test_init (MetaContextTest *context_test)
       return;
     }
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "Reset",
-                               NULL,
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  ret = g_dbus_proxy_call_sync (proxy,
+                                "Reset",
+                                NULL,
+                                G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                &error);
+  if (ret == NULL)
     g_warning ("Failed to clear mocked color devices: %s", error->message);
 }

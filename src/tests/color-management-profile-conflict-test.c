@@ -64,6 +64,7 @@ add_colord_system_profile (const char *cd_profile_id,
   GDBusProxy *proxy;
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
+  g_autoptr (GVariant) ret = NULL;
 
   proxy = get_colord_mock_proxy ();
 
@@ -71,11 +72,12 @@ add_colord_system_profile (const char *cd_profile_id,
   g_variant_builder_add (&params_builder, "s", cd_profile_id);
   g_variant_builder_add (&params_builder, "s", file_path);
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "AddSystemProfile",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  ret = g_dbus_proxy_call_sync (proxy,
+                                "AddSystemProfile",
+                                g_variant_builder_end (&params_builder),
+                                G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                &error);
+  if (ret == NULL)
     g_error ("Failed to add system profile: %s", error->message);
 }
 
