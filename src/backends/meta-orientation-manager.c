@@ -275,6 +275,7 @@ static void
 meta_orientation_manager_init (MetaOrientationManager *self)
 {
   GSettingsSchemaSource *schema_source = g_settings_schema_source_get_default ();
+  g_autoptr (GSettingsSchema) schema = NULL;
 
   self->iio_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
                                          "net.hadess.SensorProxy",
@@ -284,7 +285,8 @@ meta_orientation_manager_init (MetaOrientationManager *self)
                                          self,
                                          NULL);
 
-  if (g_settings_schema_source_lookup (schema_source, CONF_SCHEMA, TRUE))
+  schema = g_settings_schema_source_lookup (schema_source, CONF_SCHEMA, TRUE);
+  if (schema != NULL)
     {
       self->settings = g_settings_new (CONF_SCHEMA);
       g_signal_connect_object (self->settings, "changed::"ORIENTATION_LOCK_KEY,
