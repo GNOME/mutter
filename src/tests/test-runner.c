@@ -1430,7 +1430,7 @@ int
 main (int argc, char **argv)
 {
   g_autoptr (MetaContext) context = NULL;
-  GPtrArray *tests;
+  g_autoptr (GPtrArray) tests = NULL;
   RunTestsInfo info;
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
@@ -1440,7 +1440,7 @@ main (int argc, char **argv)
 
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
 
-  tests = g_ptr_array_new ();
+  tests = g_ptr_array_new_with_free_func (g_free);
   if (all_tests)
     {
       GFile *test_dir = g_file_new_for_path (MUTTER_PKGDATADIR "/tests");
