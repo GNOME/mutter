@@ -110,6 +110,7 @@ CLUTTER_EXPORT
 void clutter_stage_update_device (ClutterStage         *stage,
                                   ClutterInputDevice   *device,
                                   ClutterEventSequence *sequence,
+                                  ClutterInputDevice   *source_device,
                                   graphene_point_t      point,
                                   uint32_t              time,
                                   ClutterActor         *new_actor,

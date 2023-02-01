@@ -946,7 +946,7 @@ clutter_stage_update_devices (ClutterStage *stage,
 
       clutter_stage_pick_and_update_device (stage,
                                             device,
-                                            NULL,
+                                            NULL, NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                             entry->coords,
@@ -3199,7 +3199,7 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
 
       clutter_stage_pick_and_update_device (self,
                                             entry->device,
-                                            NULL,
+                                            NULL, NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                             entry->coords,
@@ -3217,6 +3217,7 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
       clutter_stage_pick_and_update_device (self,
                                             entry->device,
                                             entry->sequence,
+                                            NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                             entry->coords,
@@ -3426,6 +3427,7 @@ static ClutterEvent *
 create_crossing_event (ClutterStage         *stage,
                        ClutterInputDevice   *device,
                        ClutterEventSequence *sequence,
+                       ClutterInputDevice   *source_device,
                        ClutterEventType      event_type,
                        ClutterEventFlags     flags,
                        ClutterActor         *source,
@@ -3445,6 +3447,7 @@ create_crossing_event (ClutterStage         *stage,
   event->crossing.related = related;
   event->crossing.sequence = sequence;
   clutter_event_set_device (event, device);
+  clutter_event_set_source_device (event, source_device);
 
   return event;
 }
@@ -3640,6 +3643,7 @@ sync_crossings_on_implicit_grab_end (ClutterStage       *self,
   crossing = create_crossing_event (self,
                                     entry->device,
                                     entry->sequence,
+                                    NULL,
                                     CLUTTER_ENTER,
                                     CLUTTER_EVENT_FLAG_GRAB_NOTIFY,
                                     entry->current_actor,
@@ -3662,6 +3666,7 @@ void
 clutter_stage_update_device (ClutterStage         *stage,
                              ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
+                             ClutterInputDevice   *source_device,
                              graphene_point_t      point,
                              uint32_t              time_ms,
                              ClutterActor         *new_actor,
@@ -3723,6 +3728,7 @@ clutter_stage_update_device (ClutterStage         *stage,
         {
           event = create_crossing_event (stage,
                                          device, sequence,
+                                         source_device,
                                          CLUTTER_LEAVE,
                                          CLUTTER_EVENT_NONE,
                                          old_actor, new_actor,
@@ -3742,6 +3748,7 @@ clutter_stage_update_device (ClutterStage         *stage,
         {
           event = create_crossing_event (stage,
                                          device, sequence,
+                                         source_device,
                                          CLUTTER_ENTER,
                                          CLUTTER_EVENT_NONE,
                                          new_actor, old_actor,
@@ -3768,7 +3775,7 @@ clutter_stage_repick_device (ClutterStage       *stage,
   clutter_stage_get_device_coords (stage, device, NULL, &point);
   clutter_stage_pick_and_update_device (stage,
                                         device,
-                                        NULL,
+                                        NULL, NULL,
                                         CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                         CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                         point,
@@ -3805,6 +3812,7 @@ ClutterActor *
 clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       ClutterInputDevice       *device,
                                       ClutterEventSequence     *sequence,
+                                      ClutterInputDevice       *source_device,
                                       ClutterDeviceUpdateFlags  flags,
                                       graphene_point_t          point,
                                       uint32_t                  time_ms)
@@ -3834,6 +3842,7 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
 
   clutter_stage_update_device (stage,
                                device, sequence,
+                               source_device,
                                point,
                                time_ms,
                                new_actor,
@@ -4007,6 +4016,7 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
       event = create_crossing_event (stage,
                                      entry->device,
                                      entry->sequence,
+                                     NULL,
                                      event_type,
                                      CLUTTER_EVENT_FLAG_GRAB_NOTIFY,
                                      entry->current_actor,

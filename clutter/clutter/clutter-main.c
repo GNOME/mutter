@@ -696,6 +696,7 @@ update_device_for_event (ClutterStage *stage,
                          gboolean      emit_crossing)
 {
   ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterInputDevice *source_device = clutter_event_get_source_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   ClutterDeviceUpdateFlags flags = CLUTTER_DEVICE_UPDATE_NONE;
   graphene_point_t point;
@@ -710,6 +711,7 @@ update_device_for_event (ClutterStage *stage,
   return clutter_stage_pick_and_update_device (stage,
                                                device,
                                                sequence,
+                                               source_device,
                                                flags,
                                                point,
                                                time_ms);
@@ -743,6 +745,7 @@ maybe_remove_device_for_event (ClutterStage *stage,
 
   clutter_stage_update_device (stage,
                                device, sequence,
+                               NULL,
                                point,
                                time,
                                NULL,
