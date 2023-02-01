@@ -33,6 +33,7 @@
 G_BEGIN_DECLS
 
 #define META_TYPE_WINDOW_X11 (meta_window_x11_get_type())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaWindowX11, meta_window_x11,
                           META, WINDOW_X11, MetaWindow)
 
@@ -78,6 +79,7 @@ gboolean meta_window_x11_client_message          (MetaWindow *window,
 void     meta_window_x11_configure_notify        (MetaWindow      *window,
                                                   XConfigureEvent *event);
 
+META_EXPORT_TEST
 Window   meta_window_x11_get_toplevel_xwindow    (MetaWindow *window);
 
 void     meta_window_x11_freeze_commits          (MetaWindow *window);

@@ -3,10 +3,13 @@ wayland_test_client_installed_tests_libexecdir = join_paths(
   'wayland-test-clients',
 )
 
-
-common_sources = [
+wayland_test_client_sources = files([
   'wayland-test-client-utils.c',
   'wayland-test-client-utils.h',
+])
+
+wayland_test_client_utils = [
+  wayland_test_client_sources,
   wayland_protocol_client_headers,
   wayland_protocol_sources,
   test_driver_client_header,
@@ -81,7 +84,7 @@ foreach test : wayland_test_clients
 
   test_client_sources = [
     '@0@.c'.format(test_name),
-    common_sources,
+    wayland_test_client_utils,
   ]
   if test.has_key('extra_sources')
     test_client_sources += test['extra_sources']

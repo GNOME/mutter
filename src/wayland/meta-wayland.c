@@ -53,6 +53,7 @@
 #include "wayland/meta-wayland-xdg-foreign.h"
 
 #ifdef HAVE_XWAYLAND
+#include "wayland/meta-wayland-x11-interop.h"
 #include "wayland/meta-xwayland-grab-keyboard.h"
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland.h"
@@ -666,6 +667,8 @@ meta_wayland_compositor_new (MetaContext *context)
 #endif /* HAVE_WAYLAND_EGLSTREAM */
 
 #ifdef HAVE_XWAYLAND
+  meta_wayland_x11_interop_init (compositor);
+
   x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
   if (x11_display_policy != META_X11_DISPLAY_POLICY_DISABLED)

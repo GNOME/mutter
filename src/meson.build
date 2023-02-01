@@ -684,6 +684,8 @@ if have_wayland
 
   if have_xwayland
     mutter_sources += [
+      'wayland/meta-wayland-x11-interop.c',
+      'wayland/meta-wayland-x11-interop.h',
       'wayland/meta-window-xwayland.c',
       'wayland/meta-window-xwayland.h',
       'wayland/meta-xwayland.c',
@@ -1023,6 +1025,11 @@ if have_wayland
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
     wayland_protocols += [
       ['wayland-eglstream-controller', 'third-party', wayland_eglstream_protocols_dir],
+    ]
+  endif
+  if have_xwayland
+    wayland_protocols += [
+      ['mutter-x11-interop', 'private', ],
     ]
   endif
 
