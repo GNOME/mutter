@@ -681,7 +681,33 @@ meta_wayland_pointer_update (MetaWaylandPointer *pointer,
        event->type == CLUTTER_ENTER ||
        event->type == CLUTTER_LEAVE) &&
       !clutter_event_get_event_sequence (event))
-    repick_for_event (pointer, event);
+    {
+      repick_for_event (pointer, event);
+
+      if (event->type == CLUTTER_ENTER)
+        {
+          MetaWindow *focus_window = NULL;
+          ClutterInputDevice *device;
+
+          device = clutter_event_get_source_device (event);
+
+          if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL)
+            {
+              if (pointer->focus_surface)
+                focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
+
+              if (focus_window)
+                {
+                  graphene_point_t pos;
+
+                  clutter_event_get_coords (event, &pos.x, &pos.y);
+                  meta_window_handle_enter (focus_window,
+                                            clutter_event_get_time (event),
+                                            pos.x, pos.y);
+                }
+            }
+        }
+    }
 
   if (event->type == CLUTTER_MOTION ||
       event->type == CLUTTER_BUTTON_PRESS ||
@@ -1044,10 +1070,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 
   if (surface != NULL)
     {
-      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
       struct wl_client *client = wl_resource_get_client (surface->resource);
-      graphene_point_t pos;
-      MetaWindow *focus_window;
 
       pointer->focus_surface = surface;
 
@@ -1055,15 +1078,6 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
         g_signal_connect_after (pointer->focus_surface, "destroy",
                                 G_CALLBACK (focus_surface_destroyed),
                                 pointer);
-
-      clutter_stage_get_device_coords (stage, pointer->device, NULL, &pos);
-
-      focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
-      if (focus_window)
-        meta_window_handle_enter (focus_window,
-                                  /* XXX -- can we reliably get a timestamp for setting focus? */
-                                  clutter_get_current_event_time (),
-                                  pos.x, pos.y);
 
       toplevel_window = surface_get_effective_window (pointer->focus_surface);
       if (toplevel_window)
