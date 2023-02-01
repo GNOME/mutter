@@ -6,13 +6,13 @@
 # Ahmad Riza H Nst  <rizahnst@eriagempita.co.id>, 2006.
 # Dirgita <dirgitadevina@yahoo.co.id>, 2011, 2012, 2014.
 # Andika Triwidada <andika@gmail.com>, 2011-2015.
-# Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017-2022.
+# Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017-2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2022-09-02 08:42+0000\n"
-"PO-Revision-Date: 2022-09-06 10:33+0700\n"
+"POT-Creation-Date: 2023-01-29 17:47+0000\n"
+"PO-Revision-Date: 2023-01-31 13:15+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -250,11 +250,11 @@ msgstr "Maksimalkan ukuran jendela secara vertikal"
 msgid "Maximize window horizontally"
 msgstr "Maksimalkan ukuran jendela secara horisontal"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:173
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
 msgid "View split on left"
 msgstr "Tilik belah di kiri"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:178
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
 msgid "View split on right"
 msgstr "Tilik belah di kanan"
 
@@ -333,22 +333,10 @@ msgstr ""
 "di semua monitor atau hanya untuk jendela pada monitor utama."
 
 #: data/org.gnome.mutter.gschema.xml.in:67
-msgid "No tab popup"
-msgstr "Tak ada popup tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:68
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Menentukan apakah penggunaan popup dan rangka penyorot mesti dimatikan bagi "
-"perputaran jendela."
-
-#: data/org.gnome.mutter.gschema.xml.in:76
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Tunda perubahan fokus sampai penunjuk berhenti bergerak"
 
-#: data/org.gnome.mutter.gschema.xml.in:77
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -358,11 +346,11 @@ msgstr ""
 "fokus tak akan berubah seketika saat memasuki suatu jendela, tapi hanya "
 "setelah penunjuk berhenti bergerak."
 
-#: data/org.gnome.mutter.gschema.xml.in:87
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Lebar batas yang dapat diseret"
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -370,11 +358,11 @@ msgstr ""
 "Total banyaknya tepi yang dapat diseret. Bila tepi tema yang nampak tak "
 "cukup, tepi tak nampak akan ditambahkan untuk memenuhi nilai ini."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Memaksimalkan otomatis hampir memantau jendela yang ditata ukurannya"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -382,11 +370,11 @@ msgstr ""
 "Bila difungsikan, jendela baru yang awalnya seukuran monitor secara otomatis "
 "dimaksimalkan."
 
-#: data/org.gnome.mutter.gschema.xml.in:106
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Tempatkan jendela baru di tengah"
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -394,11 +382,11 @@ msgstr ""
 "Ketika berisi true, jendela baru akan selalu diletakkan di tengah dari layar "
 "aktif dari monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:116
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Aktifkan fitur eksperimental"
 
-#: data/org.gnome.mutter.gschema.xml.in:117
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -430,19 +418,19 @@ msgstr ""
 "otomatis menghentikan Xwayland jika semua klien X11 yang relevan hilang. "
 "Tidak memerlukan mulai ulang."
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Modifier to use to locate the pointer"
 msgstr "Pengubah yang digunakan untuk menemukan penunjuk"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:142
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Kunci ini akan memulai aksi \"penunjuk lokasi\"."
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:149
 msgid "Timeout for check-alive ping"
 msgstr "Batas waktu untuk ping pemeriksaan hidup"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -451,19 +439,11 @@ msgstr ""
 "agar tidak terdeteksi sebagai beku. Menggunakan 0 akan menonaktifkan "
 "pemeriksaan hidup sepenuhnya."
 
-#: data/org.gnome.mutter.gschema.xml.in:183
-msgid "Select window from tab popup"
-msgstr "Pilih jendela dari popup tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:188
-msgid "Cancel tab popup"
-msgstr "Batalkan popup tab"
-
-#: data/org.gnome.mutter.gschema.xml.in:193
+#: data/org.gnome.mutter.gschema.xml.in:174
 msgid "Switch monitor configurations"
 msgstr "Tukar konfigurasi monitor bawaan"
 
-#: data/org.gnome.mutter.gschema.xml.in:198
+#: data/org.gnome.mutter.gschema.xml.in:179
 msgid "Rotates the built-in monitor configuration"
 msgstr "Memutar konfigurasi monitor bawaan"
 
@@ -592,6 +572,33 @@ msgstr ""
 "berpengaruh jika Xwayland dibangun tanpa dukungan untuk ekstensi yang "
 "dipilih. Xwayland perlu dimulai ulang untuk pengaturan ini berlaku."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+"Izinkan klien X11 dengan endianness yang berbeda untuk terhubung ke Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Izinkan koneksi dari klien dengan endianness yang berbeda dengan Xwayland. "
+"Kode pertukaran byte pealden X adalah permukaan serangan yang sangat besar, "
+"sebagian besar kode di Xwayland rentan terhadap masalah keamanan. Kasus "
+"penggunaan klien yang bertukar byte sangat khusus, dan dinonaktifkan secara "
+"bawaan di Xwayland. Aktifkan opsi ini untuk menginstruksikan Xwayland untuk "
+"menerima koneksi dari klien X11 dengan endianness yang berbeda. Opsi ini "
+"tidak berpengaruh jika Xwayland tidak mendukung opsi baris perintah "
+"+byteswappedclients/-byteswappedclients untuk mengontrol pengaturan "
+"tersebut. Xwayland perlu dimulai ulang agar pengaturan ini berlaku."
+
 #: src/backends/meta-monitor.c:253
 msgid "Built-in display"
 msgstr "Tampilan bawaan"
@@ -619,14 +626,9 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Kompositor"
-
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:400
+#: src/compositor/compositor.c:414
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -637,74 +639,74 @@ msgstr ""
 msgid "Bell event"
 msgstr "Bel peristiwa"
 
-#: src/core/display.c:693
+#: src/core/display.c:711
 msgid "Privacy Screen Enabled"
 msgstr "Layar Privasi Diaktifkan"
 
-#: src/core/display.c:694
+#: src/core/display.c:712
 msgid "Privacy Screen Disabled"
 msgstr "Layar Privasi Dinonaktifkan"
 
-#: src/core/meta-context-main.c:567
+#: src/core/meta-context-main.c:568
 msgid "Replace the running window manager"
 msgstr "Mengganti manajer jendela yang tengah berjalan"
 
-#: src/core/meta-context-main.c:573
+#: src/core/meta-context-main.c:574
 msgid "X Display to use"
 msgstr "Tampilan X yang digunakna"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:580
 msgid "Disable connection to session manager"
 msgstr "Menonaktifkan koneksi ke manajer sesi"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:586
 msgid "Specify session management ID"
 msgstr "Tentukan kode pengaturan sesi"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:592
 msgid "Initialize session from savefile"
 msgstr "Aktifkan sesi dari berkas simpanan"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:598
 msgid "Make X calls synchronous"
 msgstr "Buat panggilan X selaras"
 
-#: src/core/meta-context-main.c:605
+#: src/core/meta-context-main.c:606
 msgid "Run as a wayland compositor"
 msgstr "Jalankan sebagai kompositor wayland"
 
-#: src/core/meta-context-main.c:611
+#: src/core/meta-context-main.c:612
 msgid "Run as a nested compositor"
 msgstr "Jalankan sebagai kompositor bersarang"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:618
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Jalankan kompositor wayland tanpa memmulai Xwayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:624
 msgid "Specify Wayland display name to use"
 msgstr "Tentukan nama tampilan Wayland yang akan digunakan"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:632
 msgid "Run as a full display server, rather than nested"
-msgstr "Jalankan sebagai server tampilan penuh, ketimbang tampilan bersarang"
+msgstr "Jalankan sebagai peladen tampilan penuh, ketimbang tampilan bersarang"
 
-#: src/core/meta-context-main.c:636
+#: src/core/meta-context-main.c:637
 msgid "Run as a headless display server"
 msgstr "Jalankan sebagai peladen tampilan tanpa kepala (headless)"
 
-#: src/core/meta-context-main.c:641
+#: src/core/meta-context-main.c:642
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tambah monitor virtual persisten (WxH atau WxH@R)"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:654
 msgid "Run with X11 backend"
 msgstr "Jalankan dengan backend X11"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:861
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tukar Mode: (Grup %d)"
@@ -712,13 +714,18 @@ msgstr "Tukar Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:871
+#: src/core/meta-pad-action-mapper.c:884
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/core/meta-pad-action-mapper.c:873
+#: src/core/meta-pad-action-mapper.c:886
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:80 src/core/meta-profiler.c:217
+msgid "Compositor"
+msgstr "Kompositor"
 
 #: src/core/mutter.c:74
 msgid "Print version"
@@ -733,20 +740,20 @@ msgstr "Pengaya Mutter yang dipakai"
 msgid "Workspace %d"
 msgstr "Area kerja %d"
 
-#: src/core/util.c:143
+#: src/core/util.c:144
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Muter dikompilasi tanpa dukungan mode riuh"
 
-#: src/core/workspace.c:533
+#: src/core/workspace.c:542
 msgid "Workspace switched"
 msgstr "Area kerja dialihkan"
 
-#: src/wayland/meta-wayland-tablet-pad.c:520
+#: src/wayland/meta-wayland-tablet-pad.c:530
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:659
+#: src/x11/meta-x11-display.c:682
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -755,29 +762,45 @@ msgstr ""
 "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
 "replace untuk mengganti manajer jendela saat ini."
 
-#: src/x11/meta-x11-display.c:1053
+#: src/x11/meta-x11-display.c:1074
 msgid "Failed to initialize GDK"
 msgstr "Gagal menginisialisasi GDK"
 
-#: src/x11/meta-x11-display.c:1080
+#: src/x11/meta-x11-display.c:1100
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gagal membuka tampilan X Window System \"%s\""
 
-#: src/x11/meta-x11-display.c:1188
+#: src/x11/meta-x11-display.c:1253
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid"
 
-#: src/x11/meta-x11-selection-input-stream.c:474
+#: src/x11/meta-x11-selection-input-stream.c:483
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s tidak didukung"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:549
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pada %s)"
+
+#~ msgid "No tab popup"
+#~ msgstr "Tak ada popup tab"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Menentukan apakah penggunaan popup dan rangka penyorot mesti dimatikan "
+#~ "bagi perputaran jendela."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Pilih jendela dari popup tab"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Batalkan popup tab"
 
 #~ msgid "“%s” is not responding."
 #~ msgstr "\"%s\" tak merespon."
