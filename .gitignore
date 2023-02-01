@@ -100,3 +100,4 @@ doc/reference/meta.types
 **/tags.*
 build/
 subprojects/sysprof/
+__pycache__/
